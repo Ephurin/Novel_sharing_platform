@@ -1,0 +1,366 @@
+import json
+import logging
+import os
+import re
+from typing import Any
+
+
+class LLMServiceError(RuntimeError):
+    """Raised when LLM suggestion generation fails."""
+
+
+logger = logging.getLogger(__name__)
+
+
+class LLMService:
+    def __init__(
+        self,
+        provider: str = "gemini",
+        model: str | None = None,
+        api_key: str | None = None,
+        fallback_provider: str | None = None,
+        fallback_model: str | None = None,
+        fallback_api_key: str | None = None,
+        temperature: float = 0.7,
+        max_tokens: int = 512,
+    ) -> None:
+        self.provider = provider.lower().strip()
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        self.fallback_provider = (fallback_provider or os.getenv("LLM_FALLBACK_PROVIDER") or "").lower().strip()
+        self.fallback_model = ""
+        self.fallback_api_key = ""
+
+        if self.provider == "gemini":
+            self.model = self._normalize_model(model, "models/gemini-2.5-flash-lite", is_gemini=True)
+            self.api_key = self._normalize_api_key(
+                api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or ""
+            )
+            self.fallback_provider = self.fallback_provider or "openai"
+            if self.fallback_provider == "openai":
+                self.fallback_model = self._normalize_model(
+                    fallback_model or os.getenv("OPENAI_MODEL") or os.getenv("LLM_FALLBACK_MODEL") or "gpt-4o-mini",
+                    "gpt-4o-mini",
+                    is_gemini=False,
+                )
+                self.fallback_api_key = self._normalize_api_key(
+                    fallback_api_key or os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY") or ""
+                )
+        elif self.provider == "openai":
+            self.model = self._normalize_model(model, "gpt-4o-mini", is_gemini=False)
+            self.api_key = self._normalize_api_key(
+                api_key or os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY") or ""
+            )
+            self.fallback_provider = ""
+        else:
+            raise LLMServiceError("provider must be either 'gemini' or 'openai'")
+
+    @staticmethod
+    def _normalize_model(model: str | None, default_model: str, is_gemini: bool) -> str:
+        value = (model or "").strip()
+        if not value or value.startswith("<"):
+            value = default_model
+
+        if is_gemini and not value.startswith("models/"):
+            return f"models/{value}"
+        return value
+
+    @staticmethod
+    def _normalize_api_key(api_key: str | None) -> str:
+        value = (api_key or "").strip()
+        if not value or value.startswith("<"):
+            return ""
+        return value
+
+    def generate_suggestion(self, current_text: str, graph_context: Any) -> dict[str, list[str]]:
+        if not current_text or not current_text.strip():
+            raise ValueError("current_text must not be empty")
+
+        context_text = self._normalize_graph_context(graph_context)
+
+        user_prompt = (
+            f"Dua tren boi canh nhan vat: {context_text}, "
+            f"hay goi y 3 huong di tiep theo cho doan van sau: {current_text.strip()}"
+        )
+        # Preserve the exact Vietnamese requirement phrase in the prompt body.
+        user_prompt = (
+            f"Dựa trên bối cảnh nhân vật: {context_text}, "
+            f"hãy gợi ý 3 hướng đi tiếp theo cho đoạn văn sau: {current_text.strip()}"
+        )
+        system_prompt = (
+            "Ban la tro ly sang tao cot truyen. "
+            "Chi tra ve JSON hop le, khong them giai thich. "
+            "Dinh dang bat buoc: {\"suggestions\": [\"...\", \"...\", \"...\"]}."
+        )
+
+        try:
+            raw_output = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+        except LLMServiceError as exc:
+            if (
+                self.provider == "gemini"
+                and self._is_quota_error(exc)
+                and not self._can_fallback_to_openai()
+                and self._local_fallback_enabled()
+            ):
+                logger.warning(
+                    "Gemini quota exceeded and no OpenAI fallback key configured. Using local suggestion fallback."
+                )
+                return {"suggestions": self._generate_local_suggestions(current_text)}
+            raise
+
+        suggestions = self._extract_suggestions(raw_output)
+
+        return {"suggestions": suggestions[:3]}
+
+    def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
+        if not self.api_key:
+            raise LLMServiceError(f"Missing API key for provider '{self.provider}'")
+
+        try:
+            if self.provider == "gemini":
+                return self._call_gemini(system_prompt=system_prompt, user_prompt=user_prompt)
+            return self._call_openai(system_prompt=system_prompt, user_prompt=user_prompt)
+        except LLMServiceError as exc:
+            if self.provider == "gemini" and self._is_quota_error(exc) and self._can_fallback_to_openai():
+                logger.warning(
+                    "Gemini quota/rate-limit detected. Falling back to OpenAI model=%s",
+                    self.fallback_model,
+                )
+                return self._call_openai(
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    model_override=self.fallback_model,
+                    api_key_override=self.fallback_api_key,
+                )
+            raise
+
+    def _call_gemini(self, system_prompt: str, user_prompt: str) -> str:
+        try:
+            from google import genai
+        except Exception as exc:
+            raise LLMServiceError("google-genai is not installed") from exc
+
+        client = genai.Client(api_key=self.api_key)
+        last_error: Exception | None = None
+        merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
+
+        for model_name in self._gemini_model_candidates():
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=merged_prompt,
+                    config={
+                        "temperature": self.temperature,
+                        "max_output_tokens": self.max_tokens,
+                    },
+                )
+                text = self._extract_gemini_text(response)
+                if text:
+                    self.model = model_name
+                    return text
+
+                last_error = RuntimeError("Gemini returned empty response")
+            except Exception as exc:
+                last_error = exc
+                message = str(exc).lower()
+                # Retry other model aliases when configured model is deprecated or unavailable.
+                if "not found" in message or "not supported" in message:
+                    continue
+                raise LLMServiceError(f"Gemini request failed: {exc}") from exc
+
+        raise LLMServiceError(f"Gemini request failed: {last_error}")
+
+    def _gemini_model_candidates(self) -> list[str]:
+        candidates = [
+            self.model,
+            "models/gemini-2.5-flash-lite",
+            "models/gemini-2.5-flash",
+            "models/gemini-flash-latest",
+            "models/gemini-2.0-flash",
+            "models/gemini-pro-latest",
+        ]
+        seen: set[str] = set()
+        result: list[str] = []
+        for item in candidates:
+            value = (item or "").strip()
+            if not value or value in seen:
+                continue
+            seen.add(value)
+            result.append(value)
+        return result
+
+    def _extract_gemini_text(self, response: Any) -> str:
+        text = getattr(response, "text", "")
+        if text:
+            return str(text)
+
+        collected: list[str] = []
+        candidates = getattr(response, "candidates", None) or []
+        for candidate in candidates:
+            content = getattr(candidate, "content", None)
+            parts = getattr(content, "parts", []) if content else []
+            for part in parts:
+                part_text = getattr(part, "text", None)
+                if part_text:
+                    collected.append(str(part_text))
+
+        return "\n".join(collected)
+
+    def _call_openai(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        model_override: str | None = None,
+        api_key_override: str | None = None,
+    ) -> str:
+        try:
+            from openai import OpenAI
+        except Exception as exc:
+            raise LLMServiceError("openai package is not installed") from exc
+
+        key = self._normalize_api_key(api_key_override) if api_key_override is not None else self.api_key
+        model_name = model_override or self.model
+        if not key:
+            raise LLMServiceError("OpenAI fallback is enabled but OPENAI_API_KEY is missing")
+
+        try:
+            client = OpenAI(api_key=key)
+            response = client.chat.completions.create(
+                model=model_name,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                response_format={"type": "json_object"},
+            )
+            return response.choices[0].message.content or ""
+        except Exception as exc:
+            raise LLMServiceError(f"OpenAI request failed: {exc}") from exc
+
+    def _can_fallback_to_openai(self) -> bool:
+        return self.fallback_provider == "openai" and bool(self.fallback_api_key)
+
+    @staticmethod
+    def _local_fallback_enabled() -> bool:
+        value = (os.getenv("LLM_LOCAL_FALLBACK", "true") or "true").strip().lower()
+        return value not in {"0", "false", "no", "off"}
+
+    @staticmethod
+    def _is_quota_error(exc: Exception) -> bool:
+        message = str(exc).lower()
+        return "quota" in message or "rate limit" in message or "429" in message
+
+    @staticmethod
+    def _generate_local_suggestions(current_text: str) -> list[str]:
+        seed = current_text.strip()
+        if len(seed) > 120:
+            seed = seed[:120].rstrip() + "..."
+
+        return [
+            f"Nhan vat phat hien mot manh moi moi tu boi canh hien tai: {seed}",
+            "Xuat hien mot nhan vat phu cung thong tin trai chieu, tao them xung dot de day cot truyen.",
+            "Ket thuc doan bang mot tinh tiet bat ngo de mo ra huong tiep theo nhung van giu tinh nhat quan.",
+        ]
+
+    def _normalize_graph_context(self, graph_context: Any) -> str:
+        if graph_context is None:
+            return "khong co du lieu"
+        if isinstance(graph_context, str):
+            return graph_context.strip() or "khong co du lieu"
+        try:
+            return json.dumps(graph_context, ensure_ascii=False)
+        except Exception:
+            return str(graph_context)
+
+    def _extract_suggestions(self, raw_output: str) -> list[str]:
+        if not raw_output or not raw_output.strip():
+            raise LLMServiceError("LLM returned empty output")
+
+        cleaned = raw_output.strip()
+        if cleaned.startswith("```"):
+            # Normalize fenced JSON blocks like ```json ... ```.
+            cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+            cleaned = re.sub(r"\s*```$", "", cleaned)
+
+        parsed = self._parse_json_like_output(cleaned)
+        if parsed is None:
+            quoted_values = [item.strip() for item in re.findall(r'"([^"]+)"', cleaned)]
+            quoted_values = [item for item in quoted_values if item and item.lower() != "suggestions"]
+            if quoted_values:
+                return self._ensure_three_suggestions(quoted_values)
+
+            # Fallback: parse bullet lines if model does not return valid JSON.
+            lines: list[str] = []
+            for raw_line in cleaned.splitlines():
+                value = raw_line.strip()
+                if not value:
+                    continue
+
+                value = value.strip(",")
+                normalized = value.strip().lower().replace(" ", "")
+                if normalized in {"{", "}", "[", "]", "suggestions:[", '"suggestions":[', "'suggestions':["}:
+                    continue
+
+                value = value.strip("-• \t\"',")
+                if not value:
+                    continue
+                lines.append(value)
+
+            if not lines:
+                raise LLMServiceError("Failed to parse LLM output into suggestions")
+            return self._ensure_three_suggestions(lines)
+
+        data = parsed
+
+        if isinstance(data, dict):
+            raw_suggestions = data.get("suggestions", [])
+        elif isinstance(data, list):
+            raw_suggestions = data
+        else:
+            raise LLMServiceError("LLM JSON output is not in expected format")
+
+        suggestions: list[str] = []
+        for item in raw_suggestions:
+            text = str(item).strip()
+            if text:
+                suggestions.append(text)
+
+        if not suggestions:
+            raise LLMServiceError("No suggestions found in LLM output")
+
+        return self._ensure_three_suggestions(suggestions)
+
+    @staticmethod
+    def _ensure_three_suggestions(values: list[str]) -> list[str]:
+        suggestions = [str(item).strip() for item in values if str(item).strip()]
+        while len(suggestions) < 3:
+            suggestions.append("(goi y bo sung)")
+        return suggestions[:3]
+
+    def _parse_json_like_output(self, text: str) -> Any | None:
+        try:
+            return json.loads(text)
+        except Exception:
+            pass
+
+        first_obj = text.find("{")
+        last_obj = text.rfind("}")
+        if first_obj != -1 and last_obj > first_obj:
+            candidate = text[first_obj : last_obj + 1]
+            try:
+                return json.loads(candidate)
+            except Exception:
+                pass
+
+        first_arr = text.find("[")
+        last_arr = text.rfind("]")
+        if first_arr != -1 and last_arr > first_arr:
+            candidate = text[first_arr : last_arr + 1]
+            try:
+                return json.loads(candidate)
+            except Exception:
+                pass
+
+        return None

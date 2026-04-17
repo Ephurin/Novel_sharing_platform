@@ -1,0 +1,560 @@
+{
+  "info": {
+    "_postman_id": "f3bd9ab4-4cf8-4f80-80e3-1472332d4f3e",
+    "name": "API Functional Test - No Version",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Unauthorized stories list returns 401",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/stories/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "stories",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 401', function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "var data = pm.response.json();",
+              "pm.test('Normalized error payload', function () {",
+              "  pm.expect(data.status).to.eql(401);",
+              "  pm.expect(data).to.have.property('error');",
+              "  pm.expect(data).to.have.property('message');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Get author token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{authorUsername}}\",\n  \"password\": \"{{authorPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/token/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "token",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "var data = pm.response.json();",
+              "pm.expect(data.access).to.be.a('string');",
+              "pm.environment.set('authorAccessToken', data.access);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Get editor token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{editorUsername}}\",\n  \"password\": \"{{editorPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/token/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "token",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "var data = pm.response.json();",
+              "pm.expect(data.access).to.be.a('string');",
+              "pm.environment.set('editorAccessToken', data.access);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Get reader token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{readerUsername}}\",\n  \"password\": \"{{readerPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/token/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "token",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "var data = pm.response.json();",
+              "pm.expect(data.access).to.be.a('string');",
+              "pm.environment.set('readerAccessToken', data.access);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Author creates story (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Functional Story {{$timestamp}}\",\n  \"description\": \"Demo test chức năng thông thường\",\n  \"genre\": \"Demo\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/stories/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "stories",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "var data = pm.response.json();",
+              "pm.expect(data.id).to.be.a('number');",
+              "pm.environment.set('storyId', data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Author updates own story (200)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Updated by author in functional flow\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/stories/{{storyId}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "stories",
+            "{{storyId}}",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "var data = pm.response.json();",
+              "pm.expect(data.description).to.contain('Updated by author');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Author creates chapter (201, default draft)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"story\": {{storyId}},\n  \"title\": \"Chuong 1\",\n  \"content\": \"Noi dung chuong 1\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/chapters/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "chapters",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(201);",
+              "var data = pm.response.json();",
+              "pm.expect(data.status).to.eql('draft');",
+              "pm.environment.set('chapterId', data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Author submit chapter for review (200)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/chapters/{{chapterId}}/submit_for_review/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "chapters",
+            "{{chapterId}}",
+            "submit_for_review",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "var data = pm.response.json();",
+              "pm.expect(data.status).to.eql('pending');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Editor approves chapter (200)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{editorAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"review_note\": \"OK to publish\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/chapters/{{chapterId}}/approve/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "chapters",
+            "{{chapterId}}",
+            "approve",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "var data = pm.response.json();",
+              "pm.expect(data.status).to.eql('approved');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Reader cannot create story (403)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{readerAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Reader forbidden\",\n  \"description\": \"Should fail\",\n  \"genre\": \"Forbidden\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/stories/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "stories",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(403);",
+              "var data = pm.response.json();",
+              "pm.expect(data.status).to.eql(403);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Reader can read approved chapters (200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{readerAccessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/chapters/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "chapters",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "function getResults(data) {",
+              "  if (Array.isArray(data)) return data;",
+              "  if (data && Array.isArray(data.results)) return data.results;",
+              "  return [];",
+              "}",
+              "var data = pm.response.json();",
+              "var items = getResults(data);",
+              "var chapterId = Number(pm.environment.get('chapterId'));",
+              "var target = items.find(function (x) { return Number(x.id) === chapterId; });",
+              "pm.test('Approved chapter visible to reader', function () {",
+              "  pm.expect(target).to.exist;",
+              "  pm.expect(target.status).to.eql('approved');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Author soft deletes story (204)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/stories/{{storyId}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "stories",
+            "{{storyId}}",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(204);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Author restores story (200)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/stories/{{storyId}}/restore/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "stories",
+            "{{storyId}}",
+            "restore",
+            ""
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "var data = pm.response.json();",
+              "pm.expect(data).to.have.property('detail');"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    }
+  ]
+}
