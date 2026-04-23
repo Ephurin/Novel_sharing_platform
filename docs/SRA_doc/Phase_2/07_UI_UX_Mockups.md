@@ -13,7 +13,7 @@ Tài liệu này trình bày phong cách thiết kế và các sơ đồ bố c�
 
 ## 2. Giao diện Trang chủ (Landing Page)
 
-![Ephurin Landing Page Mockup](/C:/Users/Laptop/.gemini/antigravity/brain/65f38d3d-676a-4116-b29d-1c16c285ee6e/ephurin_landing_page_mockup_1776966174327.png)
+![Ephurin Landing Page](../../Assets/Landing_Page.png)
 
 **Mô tả**:
 - Thanh điều hướng (Navbar) cố định trên cùng với các menu: Trang chủ, Khám phá, Sáng tác, Ví tiền.
@@ -27,12 +27,22 @@ Tài liệu này trình bày phong cách thiết kế và các sơ đồ bố c�
     - Chế độ nền: Sáng, Tối, Sepia (giả giấy cũ).
 - **Inline Comment**: Nhấn vào từng đoạn văn để hiển thị các bình luận của độc giả khác tại chính vị trí đó.
 
+![Ephurin Reading View](../../Assets/Reading_View.png)
+
 ## 4. Giao diện Dashboard Tác giả (Author Center)
 - **Sidebar**: Quản lý truyện, Thống kê, Tài chính, Trợ lý AI.
 - **Editor**: Trình soạn thảo tập trung (Distraction-free mode).
 - **Real-time Analytics**: Biểu đồ đường hiển thị tăng trưởng lượt xem và doanh thu theo ngày/tháng.
 
-## 5. Luồng người dùng (User Flow - Sơ đồ di chuyển)
+![Ephurin Author Dashboard](../../Assets/Author_Dashboard.png)
+
+## 5. Giao diện Thanh toán & Ví (Monetization & Wallet)
+- **Hệ thống ví**: Hiển thị số dư Coin và các gói nạp tiền.
+- **Lịch sử giao dịch**: Danh sách các giao dịch nạp tiền và mở khóa chương.
+
+![Ephurin Monetization & Wallet](../../Assets/Monetization_n_Wallet.png)
+
+## 6. Luồng người dùng (User Flow - Sơ đồ di chuyển)
 
 ```mermaid
 graph LR
