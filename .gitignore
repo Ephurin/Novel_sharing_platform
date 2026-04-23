@@ -45,3 +45,11 @@ Thumbs.db
 
 # Celery scheduler state
 celerybeat-schedule
+
+# AI Models and heavy files
+**/phobert_ner_tienhiep/
+*.safetensors
+*.bin
+*.h5
+*.onnx
+**/models/
