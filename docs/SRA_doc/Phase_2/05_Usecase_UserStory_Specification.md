@@ -5,23 +5,23 @@ Tài liệu này chi tiết hóa cách thức người dùng tương tác với 
 ## 1. Sơ đồ Use Case (Use Case Diagram)
 
 ```mermaid
-useCaseDiagram
-    actor "Độc giả" as Reader
-    actor "Tác giả" as Author
-    actor "Quản trị viên" as Admin
-    actor "Hệ thống AI" as AISystem
+graph LR
+    Reader((Độc giả))
+    Author((Tác giả))
+    Admin((Quản trị viên))
+    AISystem((Hệ thống AI))
 
-    package "Hệ thống Ephurin" {
-        usecase "Đăng ký/Đăng nhập" as UC1
-        usecase "Tìm kiếm truyện" as UC2
-        usecase "Đọc truyện & Bookmark" as UC3
-        usecase "Mở khóa chương trả phí" as UC4
-        usecase "Sáng tác & Đăng chương" as UC5
-        usecase "Quản lý doanh thu" as UC6
-        usecase "Kiểm duyệt nội dung" as UC7
-        usecase "Hỗ trợ viết (AI Assistant)" as UC8
-        usecase "Quản lý người dùng" as UC9
-    }
+    subgraph "Hệ thống Ephurin"
+        UC1(Đăng ký/Đăng nhập)
+        UC2(Tìm kiếm truyện)
+        UC3(Đọc truyện & Bookmark)
+        UC4(Mở khóa chương trả phí)
+        UC5(Sáng tác & Đăng chương)
+        UC6(Quản lý doanh thu)
+        UC7(Kiểm duyệt nội dung)
+        UC8(Hỗ trợ viết AI Assistant)
+        UC9(Quản lý người dùng)
+    end
 
     Reader --> UC1
     Reader --> UC2
@@ -36,8 +36,8 @@ useCaseDiagram
     Admin --> UC9
     Admin --> UC7
 
-    AISystem --|> UC7
-    AISystem --|> UC8
+    AISystem --> UC7
+    AISystem --> UC8
 ```
 
 ## 2. Đặc tả Use Case chi tiết (Detailed Use Case)
