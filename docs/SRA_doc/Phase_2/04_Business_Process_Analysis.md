@@ -14,7 +14,7 @@ sequenceDiagram
     
     User->>System: Gửi yêu cầu trở thành Tác giả
     System->>User: Yêu cầu thông tin định danh (KYC)
-    User->>System: Cung cấp thông tin (CCCD/CMND, TK ngân hàng)
+    User->>System: Cung cấp thông tin (CCCD/CMND)
     System->>Admin: Thông báo yêu cầu duyệt KYC
     Admin->>System: Kiểm tra & Phê duyệt
     System-->>User: Gửi thông báo: Đã kích hoạt quyền Tác giả

@@ -60,7 +60,51 @@ graph LR
 - **Ngoại lệ**:
     - Số dư không đủ: Hệ thống thông báo và gợi ý nạp thêm Coin.
 
+
+### Use Case: Sáng tác và Đăng chương mới (UC5)
+- **Actor**: Tác giả.
+- **Mô tả**: Tác giả soạn thảo nội dung, thiết lập các thuộc tính và xuất bản chương truyện mới cho tác phẩm của mình.
+- **Tiền điều kiện**: 
+    - Tác giả đã đăng nhập.
+    - Tác giả đã có ít nhất một truyện đã được tạo trên hệ thống.
+- **Luồng sự kiện chính**:
+    1. Tác giả truy cập vào "Quản lý truyện" và chọn tác phẩm cần thêm chương.
+    2. Hệ thống hiển thị giao diện soạn thảo văn bản.
+    3. Tác giả nhập tiêu đề và nội dung chương truyện.
+    4. Tác giả có thể tùy chọn sử dụng công cụ AI (UC8) để gợi ý nội dung hoặc sửa lỗi chính tả.
+    5. Tác giả thiết lập trạng thái chương (Miễn phí / Trả phí / Lên lịch đăng).
+    6. Tác giả nhấn "Xuất bản".
+    7. Hệ thống tự động kiểm tra nội dung qua bộ lọc (UC7).
+    8. Hệ thống lưu trữ chương truyện và gửi thông báo đến các độc giả đang theo dõi truyện.
+    9. Hệ thống hiển thị thông báo "Đăng chương thành công".
+- **Ngoại lệ**:
+    - Nội dung vi phạm chính sách: Hệ thống từ chối đăng tải và yêu cầu tác giả chỉnh sửa các đoạn vi phạm.
+    - Lỗi định dạng: Hệ thống yêu cầu kiểm tra lại các ký tự đặc biệt không hợp lệ.
+
+
+### Use Case: Kiểm duyệt nội dung (UC7)
+- **Actor**: Quản trị viên (Biên tập viên), Hệ thống AI.
+- **Mô tả**: Đảm bảo các nội dung được đăng tải trên nền tảng (truyện, chương, bình luận) tuân thủ quy tắc cộng đồng và chính sách của hệ thống.
+- **Tiền điều kiện**: 
+    - Quản trị viên đã đăng nhập vào hệ thống quản lý.
+    - Có nội dung mới được xuất bản hoặc có báo cáo (Report) vi phạm từ người dùng.
+- **Luồng sự kiện chính**:
+    1. Hệ thống AI tự động quét nội dung và gắn cờ (Flag) các trường hợp nghi ngờ vi phạm (từ ngữ toxic, nội dung nhạy cảm).
+    2. Quản trị viên truy cập vào Dashboard kiểm duyệt để xem danh sách nội dung bị gắn cờ hoặc bị báo cáo.
+    3. Quản trị viên xem chi tiết nội dung và các bằng chứng vi phạm liên quan.
+    4. Quản trị viên đưa ra quyết định xử lý:
+        - **Chấp nhận**: Nội dung hợp lệ, gỡ trạng thái gắn cờ.
+        - **Yêu cầu chỉnh sửa**: Tạm ẩn và thông báo cho tác giả lý do cần sửa.
+        - **Gỡ bỏ/Khóa**: Xóa bỏ nội dung vi phạm nghiêm trọng và có thể khóa tài khoản vi phạm.
+    5. Hệ thống cập nhật trạng thái nội dung và ghi lại nhật ký kiểm duyệt.
+    6. Hệ thống gửi thông báo kết quả xử lý cho các bên liên quan (Tác giả, người báo cáo).
+- **Ngoại lệ**:
+    - Khiếu nại từ tác giả: Quản trị viên xem xét lại quyết định nếu tác giả cung cấp giải trình hợp lý.
+    - Báo cáo ảo/spam: Quản trị viên bác bỏ báo cáo và giữ nguyên nội dung.
+
 ---
+
+
 
 ## 3. Danh sách User Stories (Product Backlog)
 
