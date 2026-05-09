@@ -1,0 +1,60 @@
+{
+  "story_id": "test_fix",
+  "metadata": {
+    "created_at": "2026-05-02T11:31:41.556421+00:00",
+    "updated_at": "2026-05-02T11:31:41.588211+00:00"
+  },
+  "entities": {
+    "kael": {
+      "name": "Kael",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "elara": {
+      "name": "Elara",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    }
+  },
+  "relations": [
+    {
+      "subject": "Kael",
+      "relation": "MENTIONED_IN",
+      "object": "test_fix",
+      "metadata": {
+        "score": 0.99
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Kael",
+      "relation": "ALLY_OF",
+      "object": "Elara",
+      "metadata": {},
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [],
+  "relation_history": [
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Kael",
+        "relation": "ALLY_OF",
+        "object": "Elara",
+        "metadata": {},
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-05-02T11:31:41.588211+00:00"
+    }
+  ],
+  "entity_states": {}
+}

@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 
 from core.llm_service import LLMServiceError
+from core.candidate_processor import Candidate
 
 
 router = APIRouter(prefix="/v1/ai", tags=["ai"])
@@ -68,6 +69,8 @@ class LLMGenerateResponse(BaseModel):
 class SuggestNextRequest(BaseModel):
     character_name: str = Field(..., min_length=1)
     current_text: str = Field(..., min_length=1)
+    story_id: str = Field(default="default_story", min_length=1)
+    mood: str = Field(default="neutral", description="Writing mood: romantic | tragic | comedic | dark | neutral")
     max_regenerations: int = Field(default=2, ge=0, le=5)
     graph_limit: int = Field(default=50, ge=1, le=200)
 
@@ -132,13 +135,51 @@ class SyncStoryResponse(BaseModel):
     processing_ms: float
 
 
+class AnalyzeChapterRequest(BaseModel):
+    story_id: str = Field(..., min_length=1)
+    text: str = Field(..., min_length=1)
+
+class AnalyzeChapterResponse(BaseModel):
+    story_id: str
+    candidates: list[Candidate]
+    processing_ms: float
+
+class ConfirmKBRequest(BaseModel):
+    story_id: str = Field(..., min_length=1)
+    approved_candidates: list[Candidate]
+
+class ConfirmKBResponse(BaseModel):
+    story_id: str
+    db_updates: list[dict]
+    processing_ms: float
+
+
 @router.post("/extract-entities", response_model=ExtractEntitiesResponse)
 def extract_entities(payload: ExtractEntitiesRequest, request: Request) -> ExtractEntitiesResponse:
     started = time.perf_counter()
     try:
-        entities = request.app.state.ner_engine.extract_entities(payload.text)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        # Run the new hybrid pipeline with LLM labeling
+        llm_service = getattr(request.app.state, "llm_service", None)
+        extracted_results = request.app.state.entity_pipeline.run(payload.text, llm_service=llm_service)
+        
+        # Convert to candidates format
+        entities = []
+        for e in extracted_results:
+            phrase_key = e["phrase"].lower().strip()
+            label = e.get("label", "UNKNOWN")
+            e["label"] = label
+            e["entity"] = label # Add 'entity' field for compatibility with consistency_checker
+            entities.append({
+                "Entity": e["phrase"],
+                "word": e["phrase"],
+                "Label": label,
+                "entity": label,
+                "Score": e["score"] / 10.0,
+                "score": e["score"] / 10.0
+            })
+    except Exception as exc:
+        logger.error(f"Hybrid pipeline failed in extract-entities: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
 
     warnings = request.app.state.consistency_checker.check_entities(payload.text, entities)
     processing_ms = round((time.perf_counter() - started) * 1000.0, 3)
@@ -152,7 +193,7 @@ def extract_entities(payload: ExtractEntitiesRequest, request: Request) -> Extra
 
 @router.post("/graph/related", response_model=GraphLookupResponse)
 def graph_related(payload: GraphLookupRequest, request: Request) -> GraphLookupResponse:
-    related = request.app.state.graph_db.get_related_entities(payload.entity, payload.limit)
+    related = request.app.state.story_kb.adapter_get_related_entities("default_story", payload.entity, limit=payload.limit)
     return GraphLookupResponse(entity=payload.entity, related=related)
 
 
@@ -178,10 +219,11 @@ def suggest_next(payload: SuggestNextRequest, request: Request) -> SuggestNextRe
     if llm_service is None:
         raise HTTPException(status_code=503, detail="LLMService is not initialized")
 
-    graph_context = request.app.state.graph_manager.get_story_context(payload.character_name, limit=payload.graph_limit)
-    graph_data = request.app.state.graph_manager.get_consistency_graph_data(
-        payload.character_name,
-        limit=payload.graph_limit,
+    graph_context = request.app.state.story_kb.adapter_get_story_context(
+        payload.story_id, payload.character_name, limit=payload.graph_limit
+    )
+    graph_data = request.app.state.story_kb.adapter_get_consistency_graph_data(
+        payload.story_id, payload.character_name
     )
 
     attempts = 0
@@ -198,6 +240,7 @@ def suggest_next(payload: SuggestNextRequest, request: Request) -> SuggestNextRe
             generated = llm_service.generate_suggestion(
                 current_text=current_text_for_attempt,
                 graph_context=graph_context,
+                mood=payload.mood,
             )
         except LLMServiceError:
             raise
@@ -280,14 +323,36 @@ def sync_story(payload: SyncStoryRequest, request: Request) -> SyncStoryResponse
     started = time.perf_counter()
 
     try:
-        entities = request.app.state.ner_model.predict(payload.story_content)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        # Use the hybrid pipeline instead of the heavy PhoBERT model
+        llm_service = getattr(request.app.state, "llm_service", None)
+        extracted_results = request.app.state.entity_pipeline.run(payload.story_content, llm_service=llm_service)
+        
+        # Map to expected format
+        entities = []
+        for res in extracted_results:
+            entities.append({
+                "word": res["phrase"],
+                "entity": res.get("entity", "UNKNOWN"),
+                "score": res["score"] / 10.0
+            })
+    except Exception as exc:
+        logger.error(f"Hybrid pipeline failed in sync_story: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
 
     db_updates: list[dict] = []
     for entity in entities:
-        result = request.app.state.graph_db.upsert_entity(entity, payload.story_id)
-        db_updates.append(result)
+        try:
+            result = request.app.state.story_kb.upsert_entity(payload.story_id, entity)
+            db_updates.append(result)
+        except Exception as exc:
+            logger.error(f"StoryKB write failed for {payload.story_id}: {exc}")
+            db_updates.append({
+                "entity": entity.get("word", ""),
+                "label": entity.get("entity", ""),
+                "story_id": payload.story_id,
+                "status": "failed",
+                "reason": str(exc)
+            })
 
     updated_count = sum(1 for item in db_updates if item.get("status") == "updated")
     failed_count = len(db_updates) - updated_count
@@ -321,4 +386,73 @@ def sync_story(payload: SyncStoryRequest, request: Request) -> SyncStoryResponse
         updated_count=updated_count,
         failed_count=failed_count,
         processing_ms=processing_ms,
+    )
+
+@router.post("/analyze/chapter", response_model=AnalyzeChapterResponse)
+def analyze_chapter(payload: AnalyzeChapterRequest, request: Request) -> AnalyzeChapterResponse:
+    started = time.perf_counter()
+    try:
+        # Run the new hybrid pipeline with LLM labeling
+        llm_service = getattr(request.app.state, "llm_service", None)
+        extracted_results = request.app.state.entity_pipeline.run(payload.text, llm_service=llm_service)
+        
+        # Convert to candidates format
+        entities = []
+        for res in extracted_results:
+            entities.append({
+                "Entity": res["phrase"],
+                "word": res["phrase"],
+                "Label": res.get("entity", "UNKNOWN"),
+                "entity": res.get("entity", "UNKNOWN"),
+                "Score": res["score"] / 10.0,
+                "score": res["score"] / 10.0
+            })
+    except Exception as exc:
+        logger.error(f"Hybrid pipeline failed in analyze_chapter: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    known_locations = request.app.state.story_kb.get_known_locations(payload.story_id)
+    # The span expander might still be useful for boundary refinement
+    expanded_entities = request.app.state.span_expander.expand_entities(payload.text, entities, extra_locations=known_locations)
+    candidates = request.app.state.candidate_processor.process_entities(expanded_entities, payload.text)
+    
+    processing_ms = round((time.perf_counter() - started) * 1000.0, 3)
+    
+    return AnalyzeChapterResponse(
+        story_id=payload.story_id,
+        candidates=candidates,
+        processing_ms=processing_ms
+    )
+
+@router.post("/kb/confirm", response_model=ConfirmKBResponse)
+def confirm_kb(payload: ConfirmKBRequest, request: Request) -> ConfirmKBResponse:
+    started = time.perf_counter()
+    
+    db_updates = []
+    for cand in payload.approved_candidates:
+        entity_data = {
+            "word": cand.raw_name,
+            "entity": cand.type,
+            "score": cand.confidence
+        }
+        
+        try:
+            result = request.app.state.story_kb.upsert_entity(payload.story_id, entity_data)
+            db_updates.append(result)
+        except Exception as exc:
+            logger.error(f"StoryKB write failed in /kb/confirm for {payload.story_id}: {exc}")
+            db_updates.append({
+                "entity": cand.raw_name,
+                "label": cand.type,
+                "story_id": payload.story_id,
+                "status": "failed",
+                "reason": str(exc)
+            })
+            
+    processing_ms = round((time.perf_counter() - started) * 1000.0, 3)
+    
+    return ConfirmKBResponse(
+        story_id=payload.story_id,
+        db_updates=db_updates,
+        processing_ms=processing_ms
     )

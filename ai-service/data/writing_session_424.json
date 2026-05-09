@@ -1,0 +1,32 @@
+{
+  "story_id": "writing_session_424",
+  "metadata": {
+    "created_at": "2026-05-03T07:38:30.719288+00:00",
+    "updated_at": "2026-05-03T07:38:30.720296+00:00"
+  },
+  "entities": {
+    "elara": {
+      "name": "Elara",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    }
+  },
+  "relations": [
+    {
+      "subject": "Elara",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_424",
+      "metadata": {
+        "score": 0.720554
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [],
+  "relation_history": [],
+  "entity_states": {}
+}

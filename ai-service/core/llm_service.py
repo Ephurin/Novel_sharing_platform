@@ -21,18 +21,20 @@ class LLMService:
         fallback_provider: str | None = None,
         fallback_model: str | None = None,
         fallback_api_key: str | None = None,
+        base_url: str | None = None,
         temperature: float = 0.7,
         max_tokens: int = 512,
     ) -> None:
         self.provider = provider.lower().strip()
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self.base_url = (base_url or os.getenv("LLM_BASE_URL") or "").strip()
         self.fallback_provider = (fallback_provider or os.getenv("LLM_FALLBACK_PROVIDER") or "").lower().strip()
         self.fallback_model = ""
         self.fallback_api_key = ""
 
         if self.provider == "gemini":
-            self.model = self._normalize_model(model, "models/gemini-2.5-flash-lite", is_gemini=True)
+            self.model = self._normalize_model(model, "models/gemini-1.5-flash", is_gemini=True)
             self.api_key = self._normalize_api_key(
                 api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or ""
             )
@@ -52,8 +54,16 @@ class LLMService:
                 api_key or os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY") or ""
             )
             self.fallback_provider = ""
+        elif self.provider == "groq":
+            self.model = self._normalize_model(model, "llama-3.3-70b-versatile", is_gemini=False)
+            self.api_key = self._normalize_api_key(
+                api_key or os.getenv("GROQ_API_KEY") or ""
+            )
+            if not self.base_url:
+                self.base_url = "https://api.groq.com/openai/v1"
+            self.fallback_provider = "gemini"
         else:
-            raise LLMServiceError("provider must be either 'gemini' or 'openai'")
+            raise LLMServiceError("provider must be one of 'gemini', 'openai', 'groq'")
 
     @staticmethod
     def _normalize_model(model: str | None, default_model: str, is_gemini: bool) -> str:
@@ -72,7 +82,7 @@ class LLMService:
             return ""
         return value
 
-    def generate_suggestion(self, current_text: str, graph_context: Any) -> dict[str, list[str]]:
+    def generate_suggestion(self, current_text: str, graph_context: Any, mood: str = "neutral") -> dict[str, list[str]]:
         if not current_text or not current_text.strip():
             raise ValueError("current_text must not be empty")
 
@@ -87,11 +97,18 @@ class LLMService:
             f"Dựa trên bối cảnh nhân vật: {context_text}, "
             f"hãy gợi ý 3 hướng đi tiếp theo cho đoạn văn sau: {current_text.strip()}"
         )
+
+        # Build mood directive
+        from services.style_service import build_mood_directive
+        mood_directive = build_mood_directive(mood)
+
         system_prompt = (
             "Ban la tro ly sang tao cot truyen. "
             "Chi tra ve JSON hop le, khong them giai thich. "
             "Dinh dang bat buoc: {\"suggestions\": [\"...\", \"...\", \"...\"]}."
         )
+        if mood_directive:
+            system_prompt += f"\n{mood_directive}"
 
         try:
             raw_output = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
@@ -111,6 +128,64 @@ class LLMService:
         suggestions = self._extract_suggestions(raw_output)
 
         return {"suggestions": suggestions[:3]}
+
+    def extract_events_and_relations(self, text: str, entities: list[dict]) -> dict:
+        if not text or not text.strip():
+            return {"events": []}
+
+        # Format entities for prompt
+        entity_names = [e.get("resolved_name", e.get("word", "")) for e in entities if e.get("resolved_name", e.get("word", ""))]
+        entity_names_str = ", ".join(set(entity_names))
+
+        system_prompt = (
+            "You are an expert narrative analyst specializing in character interactions and relationship mapping. "
+            "Your task is to extract events and interactions between entities from the provided text.\n"
+            "Entities can be People (PER), Locations (LOC), or Organizations (ORG).\n"
+            "Return ONLY valid JSON, no explanations. Required format:\n"
+            "{\n"
+            "  \"events\": [\n"
+            "    {\n"
+            "      \"subject\": \"Name of the subject entity\",\n"
+            "      \"subject_type\": \"PER | LOC | ORG\",\n"
+            "      \"action\": \"verb describing the interaction\",\n"
+            "      \"object\": \"Name of the object entity\",\n"
+            "      \"object_type\": \"PER | LOC | ORG\",\n"
+            "      \"suggested_relation\": \"ALLY_OF, ENEMY_OF, KNOWS, LOVES, HAS_ITEM, BELONGS_TO, or empty\",\n"
+            "      \"confidence\": 0.9\n"
+            "    }\n"
+            "  ]\n"
+            "}"
+        )
+
+        user_prompt = (
+            f"Text passage: {text.strip()}\n"
+            f"Known entities (if found, use these exact names): {entity_names_str}\n"
+            "Your tasks:\n"
+            "1. Extract all significant interaction events.\n"
+            "2. Identify any NEW entities (characters, locations, organizations) not in the known list.\n"
+            "3. For each event, suggest a relationship if applicable (ALLY_OF, ENEMY_OF, etc.).\n"
+            "Return ONLY valid JSON."
+        )
+
+        try:
+            raw_output = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+        except LLMServiceError as exc:
+            logger.error("LLM Extraction failed: %s", exc)
+            return {"events": []}
+
+        cleaned = raw_output.strip()
+        if cleaned.startswith("```"):
+            cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+            cleaned = re.sub(r"\s*```$", "", cleaned)
+
+        parsed = self._parse_json_like_output(cleaned)
+        if isinstance(parsed, dict) and "events" in parsed:
+            return parsed
+        elif isinstance(parsed, list):
+            return {"events": parsed}
+            
+        logger.warning("Could not parse LLM extraction output: %s", cleaned)
+        return {"events": []}
 
     def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
         if not self.api_key:
@@ -173,11 +248,10 @@ class LLMService:
     def _gemini_model_candidates(self) -> list[str]:
         candidates = [
             self.model,
-            "models/gemini-2.5-flash-lite",
-            "models/gemini-2.5-flash",
-            "models/gemini-flash-latest",
+            "models/gemini-1.5-flash",
+            "models/gemini-1.5-flash-latest",
+            "models/gemini-1.5-pro",
             "models/gemini-2.0-flash",
-            "models/gemini-pro-latest",
         ]
         seen: set[str] = set()
         result: list[str] = []
@@ -224,7 +298,7 @@ class LLMService:
             raise LLMServiceError("OpenAI fallback is enabled but OPENAI_API_KEY is missing")
 
         try:
-            client = OpenAI(api_key=key)
+            client = OpenAI(api_key=key, base_url=self.base_url or None)
             response = client.chat.completions.create(
                 model=model_name,
                 temperature=self.temperature,

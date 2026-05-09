@@ -53,3 +53,4 @@ celerybeat-schedule
 *.h5
 *.onnx
 **/models/
+**/groq_key.md

@@ -1,0 +1,338 @@
+{
+  "story_id": "writing_session_611",
+  "metadata": {
+    "created_at": "2026-05-07T17:09:26.861268+00:00",
+    "updated_at": "2026-05-07T17:09:27.210438+00:00"
+  },
+  "entities": {
+    "ashen knight": {
+      "name": "Ashen Knight",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "crimson covenant": {
+      "name": "Crimson Covenant",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "lucien blackthorn": {
+      "name": "Lucien Blackthorn",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "shadow rend": {
+      "name": "Shadow Rend",
+      "entity_type": "SKILL",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "knights of silver dawn": {
+      "name": "Knights of Silver Dawn",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "order of the black sun": {
+      "name": "Order of the Black Sun",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "kael draven": {
+      "name": "Kael Draven",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "frostmere valley": {
+      "name": "Frostmere Valley",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "elara windrider": {
+      "name": "Elara Windrider",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "obsidian citadel": {
+      "name": "Obsidian Citadel",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "celestial collapse": {
+      "name": "Celestial Collapse",
+      "entity_type": "SKILL",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "blood oath": {
+      "name": "Blood Oath",
+      "entity_type": "ITEM",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "ashenhold": {
+      "name": "Ashenhold",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "valerius thorne": {
+      "name": "Valerius Thorne",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "seraphina vale": {
+      "name": "Seraphina Vale",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "cinderbound": {
+      "name": "Cinderbound",
+      "entity_type": "ITEM",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "valerius": {
+      "name": "Valerius",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "seraphina": {
+      "name": "Seraphina",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "kael": {
+      "name": "Kael",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    }
+  },
+  "relations": [
+    {
+      "subject": "Ashen Knight",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Crimson Covenant",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lucien Blackthorn",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Shadow Rend",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Knights of Silver Dawn",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Order of the Black Sun",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Kael Draven",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Frostmere Valley",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Elara Windrider",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Obsidian Citadel",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Celestial Collapse",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Blood Oath",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Ashenhold",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.6
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Valerius Thorne",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.55
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Seraphina Vale",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.55
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Cinderbound",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.5
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Valerius",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.5
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Seraphina",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.5
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Kael",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_611",
+      "metadata": {
+        "score": 0.3
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [],
+  "relation_history": [],
+  "entity_states": {}
+}

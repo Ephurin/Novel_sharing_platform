@@ -13,7 +13,7 @@ erDiagram
     
     NOVEL ||--o{ CHAPTER : "bao gồm"
     NOVEL ||--o{ TAG : "có"
-    NOVEL }|--|| CATEGORY : "thuộc"
+    NOVEL }|--|| GENRE : "thuộc"
     
     CHAPTER ||--o{ COMMENT : "có"
     CHAPTER ||--o{ UNLOCK_RECORD : "được mở khóa"
@@ -25,6 +25,7 @@ erDiagram
         string password_hash
         string role "READER/AUTHOR/ADMIN"
         decimal coin_balance
+        date birth_date
         datetime created_at
     }
     
@@ -34,9 +35,16 @@ erDiagram
         string description
         string cover_url
         int author_id FK
-        int category_id FK
+        int genre_id FK
         string status "ONGOING/COMPLETED"
+        string age_rating "ALL/13+/16+/18+"
         int total_views
+    }
+
+    GENRE {
+        int id PK
+        string name
+        string description
     }
     
     CHAPTER {
@@ -68,6 +76,7 @@ erDiagram
 | `username` | String | Unique, Not Null | Tên đăng nhập. |
 | `role` | Enum | Not Null | Phân quyền: Độc giả, Tác giả hoặc Quản trị viên. |
 | `coin_balance` | Decimal | Default 0 | Số dư tài khoản hiện có. |
+| `birth_date` | Date | | Ngày sinh để xác minh độ tuổi. |
 
 ### 2.2 Thực thể: NOVEL (Tác phẩm)
 | Trường dữ liệu | Kiểu dữ liệu | Ràng buộc | Mô tả |
@@ -75,6 +84,7 @@ erDiagram
 | `id` | Integer | PK | Định danh tác phẩm. |
 | `author_id` | Integer | FK (USER.id) | ID của tác giả sáng tác. |
 | `status` | Enum | Default 'ONGOING' | Trạng thái: Đang tiến hành hoặc Hoàn thành. |
+| `age_rating` | Enum | Default 'ALL' | Phân loại độ tuổi (ALL, 13+, 16+, 18+). |
 
 ### 2.3 Thực thể: CHAPTER (Chương truyện)
 | Trường dữ liệu | Kiểu dữ liệu | Ràng buộc | Mô tả |
@@ -82,6 +92,13 @@ erDiagram
 | `is_premium` | Boolean | Default False | Xác định chương có thu phí hay không. |
 | `price` | Decimal | Default 0 | Giá mở khóa chương (nếu là premium). |
 | `order_index` | Integer | Not Null | Thứ tự chương trong tác phẩm. |
+
+### 2.4 Thực thể: GENRE (Thể loại)
+| Trường dữ liệu | Kiểu dữ liệu | Ràng buộc | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `id` | Integer | PK | Định danh thể loại. |
+| `name` | String | Unique, Not Null | Tên thể loại (Ví dụ: Tiên Hiệp, Ngôn Tình). |
+| `description` | String | | Mô tả chi tiết về đặc điểm của thể loại. |
 
 ## 3. Phân tích thực thể phụ trợ
 - **TAG**: Các từ khóa để phân loại truyện chi tiết hơn (ví dụ: #XuyenKhong, #HeThong).

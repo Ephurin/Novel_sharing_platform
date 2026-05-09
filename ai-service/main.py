@@ -5,13 +5,17 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import router
+from api.interactions import router as interaction_router
 from core.consistency import ConsistencyChecker, ConsistencyEngine
-from core.graph_db import GraphDBClient, GraphDBError, GraphManager
 from core.llm_client import LLMClient, LLMClientError
 from core.llm_service import LLMService, LLMServiceError
-from core.ner_engine import InferenceError, ModelLoadError, NEREngine
+from core.candidate_processor import CandidateProcessor
+from core.span_expander import SpanExpander
+from core.story_kb_manager import StoryKBManager
+from services.entity_pipeline.pipeline import EntityPipeline
 
 
 logging.basicConfig(
@@ -32,19 +36,8 @@ try:
 except Exception:
     logger.warning("python-dotenv is unavailable or .env load failed; using existing environment variables")
 
-DEFAULT_MODEL_DIR = BASE_DIR / "models" / "phobert_ner_tienhiep"
-raw_model_dir = os.getenv("PHOBERT_MODEL_DIR", "").strip()
-if not raw_model_dir or raw_model_dir.startswith("<"):
-    MODEL_DIR = DEFAULT_MODEL_DIR.resolve()
-else:
-    MODEL_DIR = Path(raw_model_dir).expanduser().resolve()
+# No longer using local PhoBERT model dir
 
-default_graph_json = BASE_DIR / "models" / "knowledge_graph.json"
-raw_graph_json = os.getenv("GRAPH_JSON_PATH", "").strip()
-if not raw_graph_json or raw_graph_json.startswith("<"):
-    GRAPH_JSON_PATH = default_graph_json.resolve()
-else:
-    GRAPH_JSON_PATH = Path(raw_graph_json).expanduser().resolve()
 
 
 app = FastAPI(
@@ -53,15 +46,21 @@ app = FastAPI(
     description="Microservice for NER, graph context lookup, and LLM orchestration.",
 )
 
-app.state.ner_engine = NEREngine(model_dir=MODEL_DIR)
-app.state.ner_model = app.state.ner_engine
-app.state.graph_db = GraphDBClient(
-    neo4j_uri=os.getenv("NEO4J_URI"),
-    neo4j_user=os.getenv("NEO4J_USER") or os.getenv("NEO4J_USERNAME"),
-    neo4j_password=os.getenv("NEO4J_PASSWORD"),
-    json_graph_path=GRAPH_JSON_PATH,
+# Enable CORS for local development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:4173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-app.state.graph_manager = GraphManager(env_file=BASE_DIR / ".env")
+
+
+# Removed legacy NER engine
 app.state.llm_client = LLMClient(
     provider=os.getenv("LLM_PROVIDER", "none"),
     model=os.getenv("LLM_MODEL", "gemini-2.5-flash-lite"),
@@ -69,6 +68,10 @@ app.state.llm_client = LLMClient(
 )
 app.state.consistency_checker = ConsistencyChecker(low_confidence_threshold=0.60)
 app.state.consistency_engine = ConsistencyEngine()
+app.state.story_kb = StoryKBManager()
+app.state.candidate_processor = CandidateProcessor()
+app.state.span_expander = SpanExpander()
+app.state.entity_pipeline = EntityPipeline(ml_enabled=True)
 
 try:
     app.state.llm_service = LLMService(
@@ -92,32 +95,17 @@ async def request_timing_middleware(request: Request, call_next):
 
 @app.on_event("startup")
 def startup_event() -> None:
-    logger.info("Starting AI service. Loading PhoBERT model from: %s", MODEL_DIR)
-    try:
-        app.state.ner_engine.load()
-    except ModelLoadError:
-        logger.exception("PhoBERT model loading failed. NER endpoint will return 503.")
+    logger.info("Starting AI service with hybrid Entity Pipeline.")
 
 
 @app.on_event("shutdown")
 def shutdown_event() -> None:
-    app.state.graph_db.close()
-    app.state.graph_manager.close()
+    pass
 
 
-@app.exception_handler(ModelLoadError)
-async def model_load_exception_handler(_: Request, exc: ModelLoadError):
-    return JSONResponse(status_code=503, content={"detail": str(exc)})
+# Legacy model exception handlers removed
 
 
-@app.exception_handler(InferenceError)
-async def inference_exception_handler(_: Request, exc: InferenceError):
-    return JSONResponse(status_code=500, content={"detail": str(exc)})
-
-
-@app.exception_handler(GraphDBError)
-async def graph_db_exception_handler(_: Request, exc: GraphDBError):
-    return JSONResponse(status_code=500, content={"detail": str(exc)})
 
 
 @app.exception_handler(LLMClientError)
@@ -136,3 +124,4 @@ def health_check() -> dict[str, str]:
 
 
 app.include_router(router)
+app.include_router(interaction_router)

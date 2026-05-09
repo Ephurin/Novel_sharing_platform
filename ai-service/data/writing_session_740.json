@@ -1,0 +1,639 @@
+{
+  "story_id": "writing_session_740",
+  "metadata": {
+    "created_at": "2026-05-03T07:39:08.183259+00:00",
+    "updated_at": "2026-05-03T09:02:54.849843+00:00"
+  },
+  "entities": {
+    "elara": {
+      "name": "Elara",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 5
+    },
+    "ên ashenhold": {
+      "name": "ên Ashenhold",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "black sun đã đến": {
+      "name": "Black Sun đã đến",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ười đời": {
+      "name": "ười đời",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "à the ashen knight": {
+      "name": "à the Ashen Knight",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ếm cinderbound": {
+      "name": "ếm Cinderbound",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ôi đang": {
+      "name": "ôi đang",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ủa frostmere valley": {
+      "name": "ủa Frostmere Valley",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ực đang": {
+      "name": "ực đang",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ủa elara windrider": {
+      "name": "ủa Elara Windrider",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ủa crimson covenant đang": {
+      "name": "ủa Crimson Covenant đang",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ủa elara": {
+      "name": "ủa Elara",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "kael draven": {
+      "name": "Kael Draven",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ào đó": {
+      "name": "ào đó",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ắc ám": {
+      "name": "ắc ám",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ành đổ": {
+      "name": "ành đổ",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ớp đá": {
+      "name": "ớp đá",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ộm đen": {
+      "name": "ộm đen",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ạc đã": {
+      "name": "ạc đã",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "áy đẩy": {
+      "name": "áy đẩy",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ùn đất": {
+      "name": "ùn đất",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "ờ đây": {
+      "name": "ờ đây",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    }
+  },
+  "relations": [
+    {
+      "subject": "Elara",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.720554
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Elara",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.720554
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Elara",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.720554
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ên Ashenhold",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Black Sun đã đến",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ười đời",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "à the Ashen Knight",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ếm Cinderbound",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ôi đang",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ủa Frostmere Valley",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ực đang",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ủa Elara Windrider",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ủa Crimson Covenant đang",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ủa Elara",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Kael Draven",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.55
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ào đó",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ắc ám",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ành đổ",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ớp đá",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ộm đen",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ạc đã",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "áy đẩy",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ùn đất",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ờ đây",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Elara",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 1.0
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ên Ashenhold",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Black Sun đã đến",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ười đời",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "à the Ashen Knight",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ếm Cinderbound",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ôi đang",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ủa Frostmere Valley",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ực đang",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ủa Elara Windrider",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ủa Crimson Covenant đang",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ủa Elara",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Kael Draven",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.55
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ào đó",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ắc ám",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ành đổ",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ớp đá",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ộm đen",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ạc đã",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "áy đẩy",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ùn đất",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "ờ đây",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 0.35
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Elara",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_740",
+      "metadata": {
+        "score": 1.0
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [],
+  "relation_history": [],
+  "entity_states": {}
+}
