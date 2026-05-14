@@ -115,7 +115,9 @@ graph TD
     -   **Redis**: Bộ nhớ đệm (caching) giúp tăng tốc độ tải các thông tin truy cập thường xuyên như xếp hạng (Ranking) và phiên đăng nhập.
 
 ### 2.2 Sơ đồ phân rã chức năng (Functional Tree)
-*(Sẽ được bổ sung bởi thành viên phụ trách)*
+Below is the functional decomposition for the Novel Management module:
+
+![Functional Tree](./images/memberB/image1.png)
 
 ### 2.3 Biểu đồ Use Case tổng quát
 *(Sẽ được bổ sung bởi thành viên phụ trách)*
@@ -197,8 +199,15 @@ erDiagram
 #### 3.2.1 Quy trình Đăng ký & Xác thực (JWT)
 *(Sẽ được bổ sung bởi thành viên phụ trách Module Tài khoản)*
 
-#### 3.2.2 Quy trình Sáng tác & Xuất bản (Draft -> Pending -> Published)
-*(Sẽ được bổ sung bởi thành viên phụ trách Module Tác giả)*
+#### 3.2.2 Quy trình Sáng tác & Xuất bản (Process of publish new novels)
+
+**a. Publish a new novel**
+![Process of publish a new novel](./images/memberB/image2.png)
+*Figure : Process of author request to publish a new novel*
+
+**b. Publish new chapter**
+![Process of publish new chapter](./images/memberB/image3.png)
+*Figure : Process of author request to publish a new chapter*
 
 #### 3.2.3 Quy trình AI hỗ trợ metadata (Gợi ý Tag/Thể loại)
 Đây là quy trình đặc trưng của Ephurin, giúp chuẩn hóa nội dung ngay từ bước đầu:
@@ -218,7 +227,52 @@ erDiagram
 *(Sẽ được bổ sung bởi thành viên phụ trách Module Tài khoản)*
 
 ### 4.2 Module 2: Quản lý Tác phẩm (Novel Management - Web)
-*(Sẽ được bổ sung bởi thành viên phụ trách Module Tác giả)*
+
+#### 4.2.1. UC: Publish a new novel
+**a. Activity diagram**
+![Activity diagram - Publish new novel](./images/memberB/image4.png)
+
+**b. Use case description**
+| Objective | This function allows authors to publish a new novel on the platform |
+| :--- | :--- |
+| **Actor** | Author, System, AI System, Admin |
+| **Trigger** | Author wants to publish a new novel |
+| **Pre-condition** | Author has an account in the system and logged in successfully |
+| **Post-condition** | - Novel is published on the platform |
+
+| Step | Basic Flow | Exception Flow | Alternative Flow |
+| :--- | :--- | :--- | :--- |
+| 1 | Author clicks "Truyện của tôi" – System displays author's my story interface. Author clicks "Thêm truyện mới" – System displays add story interface |  |  |
+| 2 | Author fills novel's information (title, description, genre, etc.) | 2a. System detects validation errors (Title ≥ 255 characters OR Description < 500 characters) 2a1. System displays message requiring user to fill correctly 2a2. Author re-fills the information |  |
+| 3 | System validates information and passes to AI System to check for content violations | 3a. AI System detects violation of information 3a1. System notifies author of the violation 3a2. Author edits and re-submits the information |  |
+| 4 | Author clicks "Tiếp theo" – System displays add chapter content interface |  |  |
+| 5 | Author fills content for chapters – System implements UC Publish new chapter for each chapter | 5a. Chapter content fails UC Publish new chapter validation 5a1. Author re-edits the chapter content |  |
+| 6 | Author clicks "Lưu tạm" – System checks if number of chapters meets requirement (≥ 5) | 6a. Number of chapters does not exceed 5 6a1. System notifies author to add more chapters 6a2. Author continues filling remaining chapters |  |
+| 7 | Author sends publish request to Admin |  |  |
+| 8 | Admin reviews and approves the novel – System publishes the novel | 8a. Admin does not approve the novel 8a1. System notifies author with the reason for rejection 8a2. Author edits novel and re-submits publish request |  |
+
+#### 4.2.2. UC: Publish new chapter
+**a. Activity diagram**
+![Activity diagram - Publish new chapter](./images/memberB/image5.png)
+
+**b. Use case description**
+| Objective | This function allows authors to publish a new chapter for an existing novel on the platform |
+| :--- | :--- |
+| **Actor** | Author, System, AI System, Admin |
+| **Trigger** | Author wants to add and publish a new chapter to their novel |
+| **Pre-condition** | Author has an account in the system, logged in successfully, and has at least one novel created in the system |
+| **Post-condition** | - The new chapter is published on the platform - System records the successful chapter publication activity to database |
+
+| Step | Basic Flow | Exception Flow | Alternative Flow |
+| :--- | :--- | :--- | :--- |
+| 1 | Author clicks "Truyện của tôi" – System displays author's my story interface |  |  |
+| 2 | Author clicks on one novel – System displays the novel information |  |  |
+| 3 | Author clicks on "Add new chapter" – System displays the interface to write content |  |  |
+| 4 | Author fills chapter's data (title, content) |  |  |
+| 5 | Author clicks "Lưu tạm" – System checks validation of the data (Content > 500 characters AND Title < 100 characters) | 5a. System detects validation errors 5a1. System displays message requiring user to fill correctly 5a2. Author re-fills chapter's data |  |
+| 6 | System passes chapter to AI System to check for content violations | 6a. AI System detects violation of the information 6a1. System displays message requiring user to correct the content 6a2. Author edits and re-submits chapter's data |  |
+| 7 | Author sends publish request to Admin |  |  |
+| 8 | Admin reviews and approves the chapter – System publishes the chapter | 8a. Admin does not approve the chapter 8a1. System notifies author with the reason why the chapter is not approved 8a2. Author edits the chapter and re-sends the publish request |  |
 
 ### 4.3 Module 3: Module AI thông minh (AI Story Assistant)
 Module này là điểm nhấn công nghệ của Ephurin, hỗ trợ tối ưu hóa quy trình sáng tác và kiểm duyệt.
@@ -305,7 +359,16 @@ Phân hệ này xây dựng không gian tương tác giữa độc giả với n
 *(Sẽ được bổ sung bởi thành viên phụ trách Module Quản trị)*
 
 ### 5.2 Mockups giao diện Web (Author & Admin)
-*(Sẽ được bổ sung bởi thành viên phụ trách Module Tác giả)*
+Below are the key interfaces for the Author module on the Web platform:
+
+*   **Author “Truyện của tôi” page:** Displays the list of stories, statistics, and quick actions.
+    <br>![Author My Stories](./images/memberB/image6.png)
+*   **Filling novel information page:** Form to input story metadata.
+    <br>![Fill Novel Info](./images/memberB/image7.png)
+*   **Add new chapter page:** Writing interface for chapter content.
+    <br>![Add New Chapter](./images/memberB/image8.png)
+*   **Check information and send request page:** Final review before submission to Admin.
+    <br>![Check and Send Request](./images/memberB/image9.png)
 
 ### 5.3 Mockups giao diện Mobile (Reader App)
 Giao diện Mobile được thiết kế tối ưu cho trải nghiệm đọc lâu dài với các màn hình chính:
