@@ -200,7 +200,32 @@ erDiagram
 *(To be added by the Account Module owner)*
 
 #### 3.2.2 Quy trình Sáng tác & Xuất bản (Process of publish new novels)
-*(Already merged in English)*
+
+**a. Publish a new novel**
+![Process of publish a new novel](./images/memberB/image2.png)
+*Figure : Process of author request to publish a new novel*
+
+**Detailed Specification:**
+1.  **Initiation**: Author starts by requesting to add a new novel.
+2.  **Information Entry**: Author fills in metadata (title, description, genre).
+3.  **AI Validation**: 
+    *   System checks format: Title must be < 255 chars, description > 500 chars.
+    *   AI checks for content violations (sensitive topics, hate speech).
+4.  **Chapter Creation**: Author must add and save chapters as drafts.
+5.  **Requirement Check**: The AI system ensures the novel has at least 5 chapters before allowing a "Publish Request".
+6.  **Human Review**: Once submitted, an Admin reviews the novel content.
+7.  **Final Action**: If approved, the novel is published; otherwise, it is sent back for edits.
+
+**b. Publish new chapter**
+![Process of publish new chapter](./images/memberB/image3.png)
+*Figure : Process of author request to publish a new chapter*
+
+**Detailed Specification:**
+1.  **Selection**: Author selects an existing novel to add a new chapter.
+2.  **Drafting**: Author enters chapter title and content.
+3.  **AI Guardrails**: AI validates content length (> 500 chars) and scans for policy violations.
+4.  **Submission**: Author saves the draft and sends a publish request.
+5.  **Moderation**: Admin verifies the chapter content. Upon approval, the chapter becomes visible to readers.
 
 #### 3.2.3 AI-assisted Metadata Workflow
 This is a unique feature of Ephurin, helping standardize content from the start:
