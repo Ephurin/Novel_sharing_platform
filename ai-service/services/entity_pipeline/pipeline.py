@@ -13,7 +13,7 @@ class EntityPipeline:
         self.ml_adapter = MLAdapter() if ml_enabled else None
         self.ml_enabled = ml_enabled
 
-    def run(self, text: str, threshold=3.0, llm_service=None):
+    def run(self, text: str, threshold=2.0, llm_service=None):
         # 1. Extraction
         candidates = self.extractor.extract(text)
         
@@ -28,8 +28,13 @@ class EntityPipeline:
                 # Adjust score based on ML
                 if ml_conf > 0.8:
                     c["score"] += 3.0
-                elif ml_conf < 0.2:
-                    c["score"] -= 3.0
+                elif ml_conf > 0.5:
+                    c["score"] += 1.0
+                elif ml_conf < 0.1:
+                    # Penalize if ML is very confident it's NOT an entity
+                    # Single-word names might get this penalty, but they can recover
+                    # if they appear multiple times (frequency bonus).
+                    c["score"] -= 1.0
                     
             # 4. Threshold filtering
             if c["score"] >= threshold:
@@ -104,6 +109,9 @@ class EntityPipeline:
                 
         except Exception as exc:
             logger.error(f"DEBUG: LLM Labeling Error: {exc}")
+            
+        # Fallback to heuristics for any entities that didn't get a label
+        return self._apply_heuristics(entities)
 
     def _apply_heuristics(self, entities):
         """Fallback labeling using simple rules for fantasy/xianxia names."""
@@ -136,3 +144,5 @@ class EntityPipeline:
             else: e["label"] = "UNKNOWN"
             
             e["entity"] = e.get("label", "UNKNOWN")
+            
+        return entities

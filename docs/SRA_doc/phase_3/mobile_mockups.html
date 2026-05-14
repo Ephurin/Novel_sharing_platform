@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Mobile Mockups - Ephurin</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+    
+    :root {
+      --primary: #6366f1;
+      --primary-light: #e0e7ff;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --bg: #ffffff;
+      --bg-gray: #f3f4f6;
+      --border: #e5e7eb;
+    }
+
+    body {
+      background: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      padding: 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(375px, 1fr));
+      gap: 40px;
+      justify-items: center;
+    }
+
+    .screen {
+      width: 375px;
+      height: 812px;
+      background: var(--bg);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Common */
+    .header {
+      padding: 20px 20px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+    }
+    .header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text);
+    }
+    
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 80px; /* space for bottom nav */
+    }
+    .content::-webkit-scrollbar { width: 0; }
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-light);
+      font-size: 0.7rem;
+      gap: 4px;
+    }
+    .nav-item.active { color: var(--primary); }
+    .nav-icon { width: 24px; height: 24px; background: currentColor; mask-size: cover; -webkit-mask-size: cover; }
+
+    /* Screen 1: Home */
+    .banner {
+      height: 200px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      margin: 16px;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .banner-text {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      color: white;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 24px 16px 12px;
+    }
+    .horizontal-scroll {
+      display: flex;
+      overflow-x: auto;
+      padding: 0 16px;
+      gap: 16px;
+    }
+    .horizontal-scroll::-webkit-scrollbar { display: none; }
+    .book-card { width: 120px; flex-shrink: 0; }
+    .book-cover {
+      width: 120px;
+      height: 160px;
+      border-radius: 8px;
+      background: #ddd;
+      margin-bottom: 8px;
+      object-fit: cover;
+    }
+    .book-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .book-author { font-size: 0.8rem; color: var(--text-light); }
+    .continue-reading {
+      display: flex;
+      margin: 16px;
+      padding: 16px;
+      background: var(--bg-gray);
+      border-radius: 12px;
+      gap: 16px;
+    }
+    .continue-cover { width: 60px; height: 80px; border-radius: 6px; background: #ccc; }
+    .progress-bar { height: 4px; background: #ddd; border-radius: 2px; margin-top: 12px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); width: 65%; }
+
+    /* Icons (using generic svgs or pure css shapes) */
+    .icon-home { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>'); }
+    .icon-search { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>'); }
+    .icon-bookmark { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>'); }
+    .icon-user { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>'); }
+    .icon-bell { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>'); }
+    .icon-back { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>'); }
+    .icon-settings { -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>'); }
+
+    /* Screen 2: Explore */
+    .search-box {
+      margin: 16px;
+      padding: 12px 16px;
+      background: var(--bg-gray);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-light);
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 16px;
+      margin-bottom: 24px;
+    }
+    .tag {
+      padding: 6px 12px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .list-view { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
+    .list-item { display: flex; gap: 16px; }
+    .list-item img { width: 80px; height: 110px; border-radius: 6px; object-fit: cover; }
+    .list-item-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+
+    /* Screen 3: Detail */
+    .detail-cover-bg { height: 250px; background: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400') center/cover; position: relative; }
+    .detail-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.2), var(--bg)); }
+    .detail-info { position: relative; padding: 0 20px; margin-top: -80px; display: flex; flex-direction: column; align-items: center; text-align: center;}
+    .detail-info img { width: 120px; height: 160px; border-radius: 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 2px solid white; margin-bottom: 16px; object-fit: cover; }
+    .btn-group { display: flex; gap: 12px; width: 100%; margin: 24px 0; padding: 0 20px; box-sizing: border-box; }
+    .btn { flex: 1; padding: 12px; border-radius: 24px; font-weight: 600; text-align: center; border: none; font-size: 1rem; }
+    .btn-primary { background: var(--primary); color: white; cursor: pointer; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); cursor: pointer; }
+    .detail-tabs { display: flex; border-bottom: 1px solid var(--border); margin: 0 20px; }
+    .detail-tab { flex: 1; text-align: center; padding: 12px 0; font-weight: 500; color: var(--text-light); }
+    .detail-tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+    .summary { padding: 20px; line-height: 1.6; color: var(--text-light); font-size: 0.95rem; }
+
+    /* Screen 4: Reader */
+    .reader-screen { background: #121212; color: #e0e0e0; font-family: 'Playfair Display', serif; }
+    .reader-screen .header { background: #1f1f1f; border-bottom: none; color: #e0e0e0; }
+    .reader-screen .header h1 { color: #e0e0e0; font-family: 'Inter', sans-serif; font-size: 1rem;}
+    .reader-content { padding: 20px; line-height: 1.8; font-size: 1.1rem; }
+    .inline-comment { background: rgba(99, 102, 241, 0.3); border-bottom: 2px solid var(--primary); position: relative; }
+    .comment-badge { position: absolute; right: -20px; top: -10px; background: var(--primary); color: white; font-family: 'Inter', sans-serif; font-size: 0.6rem; padding: 2px 6px; border-radius: 10px; }
+    .reader-bottom { position: absolute; bottom: 0; left: 0; right: 0; background: #1f1f1f; padding: 20px; display: flex; flex-direction: column; gap: 20px; border-top: 1px solid #333; font-family: 'Inter', sans-serif; }
+    .reader-controls { display: flex; justify-content: space-between; align-items: center; }
+    .font-size-ctrl { display: flex; background: #333; border-radius: 20px; overflow: hidden; }
+    .font-size-ctrl button { background: none; border: none; color: white; padding: 8px 16px; font-size: 1.2rem; cursor: pointer; }
+    .theme-circles { display: flex; gap: 12px; }
+    .theme-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+    .theme-circle.active { border-color: var(--primary); }
+
+    /* Screen 5: Library */
+    .lib-tabs { display: flex; padding: 10px 20px; gap: 20px; }
+    .lib-tab { font-size: 1.2rem; font-weight: 700; color: var(--text-light); }
+    .lib-tab.active { color: var(--text); }
+    .lib-list { padding: 0 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .lib-item img { width: 100%; height: 140px; border-radius: 8px; object-fit: cover; }
+    .lib-item-title { font-size: 0.8rem; font-weight: 600; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
+    .badge-new { display: inline-block; background: #ef4444; color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
+
+    /* Screen 6: Author Profile */
+    .author-header { height: 150px; background: #f3f4f6; position: relative; }
+    .author-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; position: absolute; bottom: -50px; left: 20px; object-fit: cover; background: #ddd; }
+    .author-info { margin-top: 60px; padding: 0 20px; }
+    .author-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+    .author-stats { display: flex; gap: 24px; color: var(--text-light); font-size: 0.9rem; margin-bottom: 20px; }
+    .stat-val { font-weight: 700; color: var(--text); font-size: 1.1rem; display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Home -->
+  <div class="screen">
+    <div class="header">
+      <h1>Ephurin</h1>
+      <div style="display: flex; gap: 16px; color: var(--text);">
+        <div class="nav-icon icon-search"></div>
+        <div class="nav-icon icon-bell"></div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="banner">
+        <div class="banner-text">
+          <div style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; width: fit-content; margin-bottom: 8px;">Nổi bật tuần này</div>
+          <h2 style="margin: 0 0 8px; font-size: 1.4rem;">Vạn Cổ Thần Đế</h2>
+          <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Phi Thiên Cá Mực</p>
+        </div>
+      </div>
+      
+      <div class="section-title">Tiếp tục đọc</div>
+      <div class="continue-reading">
+        <img src="https://images.unsplash.com/photo-1614113489855-66422ad300a4?auto=format&fit=crop&w=120" class="continue-cover" alt="cover">
+        <div style="flex: 1;">
+          <div class="book-title">Đại Phụng Đả Canh Nhân</div>
+          <div class="book-author">Chương 142: Lên kinh</div>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+        </div>
+      </div>
+
+      <div class="section-title">Top Thịnh Hành</div>
+      <div class="horizontal-scroll">
+        <div class="book-card">
+          <img src="https://images.unsplash.com/photo-1628469850616-24e031070fc6?auto=format&fit=crop&w=240" class="book-cover">
+          <div class="book-title">Kiếm Lai</div>
+          <div class="book-author">Phong Hỏa</div>
+        </div>
+        <div class="book-card">
+          <img src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=240" class="book-cover">
+          <div class="book-title">Quỷ Bí Chi Chủ</div>
+          <div class="book-author">Mực Thích Lặn</div>
+        </div>
+        <div class="book-card">
+          <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=240" class="book-cover">
+          <div class="book-title">Đấu Phá Thương Khung</div>
+          <div class="book-author">Thiên Tằm Thổ Đậu</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item active"><div class="nav-icon icon-home"></div>Trang chủ</div>
+      <div class="nav-item"><div class="nav-icon icon-search"></div>Khám phá</div>
+      <div class="nav-item"><div class="nav-icon icon-bookmark"></div>Tủ sách</div>
+      <div class="nav-item"><div class="nav-icon icon-user"></div>Cá nhân</div>
+    </div>
+  </div>
+
+  <!-- 2. Explore -->
+  <div class="screen">
+    <div class="header">
+      <h1 style="text-align: center; width: 100%;">Khám phá</h1>
+    </div>
+    <div class="content">
+      <div class="search-box">
+        <div class="nav-icon icon-search"></div>
+        <span>Tìm kiếm tên truyện, tác giả...</span>
+      </div>
+      
+      <div class="section-title" style="margin-top: 8px;">Thể loại phổ biến</div>
+      <div class="tags">
+        <div class="tag" style="background: var(--primary); color: white;">Tất cả</div>
+        <div class="tag">Tiên Hiệp</div>
+        <div class="tag">Huyền Huyễn</div>
+        <div class="tag">Đô Thị</div>
+        <div class="tag">Ngôn Tình</div>
+        <div class="tag">Võng Du</div>
+        <div class="tag">Khoa Huyễn</div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; padding: 0 16px 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px;">
+        <span style="font-weight: 500; font-size: 0.9rem;">Lọc nâng cao ▾</span>
+        <span style="color: var(--text-light); font-size: 0.9rem;">Mới cập nhật ▾</span>
+      </div>
+
+      <div class="list-view">
+        <div class="list-item">
+          <img src="https://images.unsplash.com/photo-1628469850616-24e031070fc6?auto=format&fit=crop&w=240">
+          <div class="list-item-info">
+            <div>
+              <div class="book-title" style="font-size: 1rem;">Kiếm Lai</div>
+              <div class="book-author" style="margin-bottom: 8px;">Phong Hỏa Hí Chư Hầu</div>
+              <div style="font-size: 0.8rem; color: var(--text-light); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Đại thiên thế giới, không thiếu cái lạ. Tôi Trần Bình An, có một kiếm...</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span class="tag" style="padding: 2px 8px; font-size: 0.7rem; background: var(--bg-gray); color: var(--text-light);">Tiên Hiệp</span>
+              <span class="tag" style="padding: 2px 8px; font-size: 0.7rem; background: var(--bg-gray); color: var(--text-light);">1200 Chương</span>
+            </div>
+          </div>
+        </div>
+        <div class="list-item">
+          <img src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=240">
+          <div class="list-item-info">
+            <div>
+              <div class="book-title" style="font-size: 1rem;">Quỷ Bí Chi Chủ</div>
+              <div class="book-author" style="margin-bottom: 8px;">Mực Thích Lặn Nước</div>
+              <div style="font-size: 0.8rem; color: var(--text-light); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Chuyển sinh trong thế giới steampunk, trở thành kẻ ngu dại...</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span class="tag" style="padding: 2px 8px; font-size: 0.7rem; background: var(--bg-gray); color: var(--text-light);">Huyền Huyễn</span>
+              <span class="tag" style="padding: 2px 8px; font-size: 0.7rem; background: #ecfdf5; color: #10b981;">Full</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item"><div class="nav-icon icon-home"></div>Trang chủ</div>
+      <div class="nav-item active"><div class="nav-icon icon-search"></div>Khám phá</div>
+      <div class="nav-item"><div class="nav-icon icon-bookmark"></div>Tủ sách</div>
+      <div class="nav-item"><div class="nav-icon icon-user"></div>Cá nhân</div>
+    </div>
+  </div>
+
+  <!-- 3. Detail -->
+  <div class="screen">
+    <div class="header" style="background: transparent; border: none; position: absolute; width: 100%; box-sizing: border-box; color: white;">
+      <div class="nav-icon icon-back"></div>
+      <div class="nav-icon icon-settings" style="-webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' fill=\'currentColor\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z\'/></svg>');"></div>
+    </div>
+    <div class="content" style="padding-bottom: 0;">
+      <div class="detail-cover-bg">
+        <div class="detail-overlay"></div>
+      </div>
+      <div class="detail-info">
+        <img src="https://images.unsplash.com/photo-1614113489855-66422ad300a4?auto=format&fit=crop&w=240">
+        <h2 style="margin: 0 0 4px; font-size: 1.4rem;">Đại Phụng Đả Canh Nhân</h2>
+        <div style="color: var(--primary); font-weight: 500; margin-bottom: 12px;">Mại Báo Tiểu Lang Quân</div>
+        <div style="display: flex; gap: 16px; color: var(--text-light); font-size: 0.9rem;">
+          <span style="display: flex; align-items: center; gap: 4px;">⭐ 4.9 (2.1k)</span>
+          <span>•</span>
+          <span>1.5K Chương</span>
+          <span>•</span>
+          <span style="color: #10b981;">Đang ra</span>
+        </div>
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn btn-primary">Đọc tiếp (Ch.142)</button>
+        <button class="btn btn-outline" style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+          <div class="nav-icon icon-bookmark" style="width: 20px; height: 20px;"></div> Đã lưu
+        </button>
+      </div>
+
+      <div class="detail-tabs">
+        <div class="detail-tab active">Giới thiệu</div>
+        <div class="detail-tab">Danh sách chương</div>
+        <div class="detail-tab">Đánh giá</div>
+      </div>
+
+      <div class="summary">
+        Hứa Thất An, sinh viên tốt nghiệp trường cảnh sát, sau khi tốt nghiệp thì xui xẻo tèo mạng, xuyên không đến vương triều Đại Phụng.
+        <br><br>
+        Đây là một thế giới có Nho, Đạo, Phật, Yêu, Thuật Sĩ...
+        <br><br>
+        Bắt đầu với một án tử hình gông cùm chờ ra pháp trường, hắn phải tự cứu lấy mình bằng những kiến thức kiếp trước...
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Reader -->
+  <div class="screen reader-screen">
+    <div class="header">
+      <div class="nav-icon icon-back"></div>
+      <h1>Chương 142: Lên kinh</h1>
+      <div class="nav-icon icon-settings"></div>
+    </div>
+    <div class="content">
+      <div class="reader-content">
+        Ánh bình minh mờ ảo chiếu qua khe cửa, Hứa Thất An vươn vai thức dậy. Tiếng chim hót ríu rít ngoài sân báo hiệu một ngày mới bắt đầu.
+        <br><br>
+        Hắn nhìn sang chiếc bàn bên cạnh, thanh đao vẫn nằm im lìm đó. <span class="inline-comment">Cảm giác sát khí nhàn nhạt tỏa ra khiến hắn cau mày.<span class="comment-badge">12</span></span>
+        <br><br>
+        "Hôm nay là ngày phải rời kinh," Hứa Thất An lẩm bẩm. Hắn không có nhiều đồ đạc để mang theo. Một bộ y phục, vài nén bạc vụn, và dĩ nhiên, thanh đao này.
+        <br><br>
+        Trần nhà bằng gỗ lim cũ kỹ, có vài mạng nhện chăng ở góc. Hắn thở dài, nhớ lại những ngày tháng còn là một sinh viên bình thường, không phải lo nghĩ về yêu ma quỷ quái, không phải đối mặt với những âm mưu tranh đoạt quyền lực đẫm máu.
+      </div>
+    </div>
+    <div class="reader-bottom">
+      <div class="reader-controls">
+        <span style="color: var(--text-light); font-size: 0.9rem;">Cỡ chữ</span>
+        <div class="font-size-ctrl">
+          <button>A-</button>
+          <div style="width: 1px; background: #555;"></div>
+          <button>A+</button>
+        </div>
+      </div>
+      <div class="reader-controls">
+        <span style="color: var(--text-light); font-size: 0.9rem;">Màu nền</span>
+        <div class="theme-circles">
+          <div class="theme-circle" style="background: #ffffff;"></div>
+          <div class="theme-circle" style="background: #fdf6e3;"></div>
+          <div class="theme-circle" style="background: #121212;" class="active"></div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px; margin-top: 10px;">
+        <button class="btn btn-outline" style="border-color: #555; color: #e0e0e0; flex: 1;">Chương trước</button>
+        <button class="btn btn-primary" style="flex: 1;">Chương sau</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Library -->
+  <div class="screen">
+    <div class="header">
+      <h1 style="text-align: center; width: 100%;">Tủ sách</h1>
+    </div>
+    <div class="content" style="padding-top: 10px;">
+      <div class="lib-tabs">
+        <div class="lib-tab active">Đã lưu</div>
+        <div class="lib-tab">Lịch sử đọc</div>
+      </div>
+      
+      <div class="lib-list">
+        <div class="lib-item">
+          <img src="https://images.unsplash.com/photo-1614113489855-66422ad300a4?auto=format&fit=crop&w=240">
+          <div class="lib-item-title">Đại Phụng Đả Canh Nhân</div>
+          <div style="font-size: 0.7rem; color: var(--text-light);">Đã đọc: Ch.142</div>
+        </div>
+        <div class="lib-item">
+          <img src="https://images.unsplash.com/photo-1628469850616-24e031070fc6?auto=format&fit=crop&w=240">
+          <div class="lib-item-title">Kiếm Lai</div>
+          <div style="font-size: 0.7rem; color: var(--text-light);">Đã đọc: Ch.850</div>
+          <div class="badge-new">+3 Chương</div>
+        </div>
+        <div class="lib-item">
+          <img src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=240">
+          <div class="lib-item-title">Quỷ Bí Chi Chủ</div>
+          <div style="font-size: 0.7rem; color: var(--text-light);">Đã đọc: Ch.12</div>
+        </div>
+        <div class="lib-item">
+          <div style="width: 100%; height: 140px; border-radius: 8px; background: #e5e7eb; display: flex; align-items: center; justify-content: center; border: 2px dashed #9ca3af; font-size: 2rem; color: #9ca3af;">+</div>
+          <div class="lib-item-title" style="text-align: center; color: var(--primary);">Khám phá thêm</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item"><div class="nav-icon icon-home"></div>Trang chủ</div>
+      <div class="nav-item"><div class="nav-icon icon-search"></div>Khám phá</div>
+      <div class="nav-item active"><div class="nav-icon icon-bookmark"></div>Tủ sách</div>
+      <div class="nav-item"><div class="nav-icon icon-user"></div>Cá nhân</div>
+    </div>
+  </div>
+
+  <!-- 6. Author Profile -->
+  <div class="screen">
+    <div class="header" style="background: transparent; border: none; position: absolute; width: 100%; box-sizing: border-box;">
+      <div class="nav-icon icon-back"></div>
+      <div class="nav-icon icon-settings" style="-webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox=\'0 0 24 24\' fill=\'currentColor\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z\'/></svg>');"></div>
+    </div>
+    <div class="content" style="padding-bottom: 0;">
+      <div class="author-header">
+        <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=200" class="author-avatar">
+      </div>
+      <div class="author-info">
+        <div class="author-name">Mại Báo Tiểu Lang Quân</div>
+        <div style="color: var(--text-light); margin-bottom: 16px; font-size: 0.9rem;">Đại thần tác giả chuyên viết thể loại Tiên Hiệp kết hợp Trinh Thám. Tác giả của Đại Phụng Đả Canh Nhân.</div>
+        
+        <div class="author-stats">
+          <div><span class="stat-val">125K</span>Người theo dõi</div>
+          <div><span class="stat-val">3</span>Tác phẩm</div>
+          <div><span class="stat-val">12M</span>Lượt đọc</div>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; border-radius: 8px;">+ Theo dõi</button>
+      </div>
+      
+      <div class="section-title">Tác phẩm (3)</div>
+      <div class="list-view">
+        <div class="list-item">
+          <img src="https://images.unsplash.com/photo-1614113489855-66422ad300a4?auto=format&fit=crop&w=240">
+          <div class="list-item-info">
+            <div>
+              <div class="book-title" style="font-size: 1rem;">Đại Phụng Đả Canh Nhân</div>
+              <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 4px;">Tiên Hiệp • Hài hước</div>
+            </div>
+            <span style="color: #10b981; font-size: 0.8rem; font-weight: 500;">Đang ra - 1500 Chương</span>
+          </div>
+        </div>
+        <div class="list-item">
+          <img src="https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?auto=format&fit=crop&w=240">
+          <div class="list-item-info">
+            <div>
+              <div class="book-title" style="font-size: 1rem;">Linh Cảnh Hành Giả</div>
+              <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 4px;">Đô Thị • Dị Năng</div>
+            </div>
+            <span style="color: var(--primary); font-size: 0.8rem; font-weight: 500;">Hoàn thành - 800 Chương</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

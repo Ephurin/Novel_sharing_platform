@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { ReactFlowProvider } from 'reactflow';
 import useStore from './store/useStore';
 import Header from './components/Header';
 import Editor from './components/Editor';
 import ChatPanel from './components/ChatPanel';
-import GraphDrawer from './components/GraphDrawer';
+import WikiDrawer from './components/WikiDrawer';
 
 function App() {
   const { focusMode, setFocusMode, drawerOpen } = useStore();
@@ -26,13 +25,11 @@ function App() {
       <Header />
 
       <main className="flex-1 flex flex-row overflow-hidden relative w-full h-full">
-        {/* Left Side: Graph Drawer (Drawer Mechanism) */}
+        {/* Left Side: Wiki Drawer (replaces Graph Drawer) */}
         <div 
-          className={`h-full border-r border-dim bg-panel transition-[width] duration-500 ease-in-out overflow-hidden ${drawerOpen && !focusMode ? 'w-[260px]' : 'w-0 border-none'}`}
+          className={`h-full border-r border-dim bg-panel transition-[width] duration-500 ease-in-out overflow-hidden ${drawerOpen && !focusMode ? 'w-[320px]' : 'w-0 border-none'}`}
         >
-          <ReactFlowProvider>
-            <GraphDrawer />
-          </ReactFlowProvider>
+          <WikiDrawer />
         </div>
 
         {/* Center Side: Editor (Main Focus Area) */}

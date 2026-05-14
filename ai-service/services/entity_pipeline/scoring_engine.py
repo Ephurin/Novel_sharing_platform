@@ -15,7 +15,10 @@ class ScoringEngine:
     }
     
     VN_JUNK = {
-        "Tôi", "Hắn", "Nàng", "Nó", "Họ", "Ta", "Chúng", "Khi", "Nhưng", "Nếu", "Và", "Của", "Với"
+        "Tôi", "Hắn", "Nàng", "Nó", "Họ", "Ta", "Chúng", "Khi", "Nhưng", "Nếu", "Và", "Của", "Với",
+        "Thay", "Tiếng", "Gương", "Nhìn", "Ngươi", "Chạy", "Thành", "Đứng", "Nói", "Hỏi", "Đáp",
+        "Lại", "Vừa", "Đang", "Đã", "Sẽ", "Thế", "Vì", "Nên", "Tuy", "Mặc", "Dù", "Trong", "Ngoài",
+        "Trên", "Dưới", "Trước", "Sau", "Giữa", "Cùng", "Cả", "Cũng", "Để", "Cho", "Từ", "Đến"
     }
 
     def __init__(self):
@@ -39,7 +42,7 @@ class ScoringEngine:
                 if phrase in self.COMMON_JUNK or phrase in self.VN_JUNK:
                     score -= 5.0 # High penalty for sentence-starting junk
                 else:
-                    score -= 1.0 # Slight penalty for other sentence-starters
+                    score -= 1.0 # Standard penalty for sentence-starting words
             
             # 2. Length bonus
             if features["word_count"] > 1:

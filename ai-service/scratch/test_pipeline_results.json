@@ -1,0 +1,354 @@
+[
+  {
+    "phrase": "Ashen Knight",
+    "start": 38,
+    "end": 50,
+    "sentence": "Kael Draven, người đời vẫn gọi là the Ashen Knight, đứng trên tường thành đổ nát, thanh kiếm Cinderbound của hắn cắm sâu vào lớp đá vôi đang nứt vỡ.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 12
+    },
+    "score": 7.5,
+    "label": "ORG",
+    "entity": "ORG"
+  },
+  {
+    "phrase": "Frostmere Valley",
+    "start": 42,
+    "end": 58,
+    "sentence": "Hắn thở dốc, từng luồng hơi lạnh buốt của Frostmere Valley tràn vào lồng ngực đang rát bỏng.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 16
+    },
+    "score": 7.5,
+    "label": "LOC",
+    "entity": "LOC"
+  },
+  {
+    "phrase": "Crimson Covenant",
+    "start": 106,
+    "end": 122,
+    "sentence": "Cô vừa phóng một mũi tên bọc trong ma thuật gió, tạo ra một cơn lốc xoáy đẩy lùi hàng loạt chiến binh của Crimson Covenant đang cố gắng leo lên.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 16
+    },
+    "score": 7.5,
+    "label": "ORG",
+    "entity": "ORG"
+  },
+  {
+    "phrase": "Lucien Blackthorn",
+    "start": 26,
+    "end": 43,
+    "sentence": "\"Ashenhold đã chết từ lúc Lucien Blackthorn mở cánh cổng rồi, the Ashen Knight ạ!\" Elara nắm lấy vai hắn, lay mạnh.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 17
+    },
+    "score": 7.5,
+    "label": "PER",
+    "entity": "PER"
+  },
+  {
+    "phrase": "Shadow Rend",
+    "start": 60,
+    "end": 71,
+    "sentence": "Lucien, người thầy, người mentor đã dạy hắn cách điều khiển Shadow Rend, người đã từng thề dưới ánh sáng của Knights of Silver Dawn rằng sẽ bảo vệ nhân loại cho đến hơi thở cuối cùng.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 11
+    },
+    "score": 7.5,
+    "label": "SKILL",
+    "entity": "SKILL"
+  },
+  {
+    "phrase": "Knights of Silver Dawn",
+    "start": 109,
+    "end": 131,
+    "sentence": "Lucien, người thầy, người mentor đã dạy hắn cách điều khiển Shadow Rend, người đã từng thề dưới ánh sáng của Knights of Silver Dawn rằng sẽ bảo vệ nhân loại cho đến hơi thở cuối cùng.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 4,
+      "has_digit": false,
+      "word_count": 4,
+      "char_count": 22
+    },
+    "score": 7.5,
+    "label": "ORG",
+    "entity": "ORG"
+  },
+  {
+    "phrase": "Tàn Tro Của Ashenhold",
+    "start": 12,
+    "end": 33,
+    "sentence": "# Chương 1: Tàn Tro Của Ashenhold",
+    "features": {
+      "is_sentence_start": false,
+      "length": 4,
+      "has_digit": false,
+      "word_count": 4,
+      "char_count": 21
+    },
+    "score": 6.5,
+    "label": "LOC",
+    "entity": "LOC"
+  },
+  {
+    "phrase": "Order of the Black Sun",
+    "start": 0,
+    "end": 22,
+    "sentence": "Order of the Black Sun đã đến.",
+    "features": {
+      "is_sentence_start": true,
+      "length": 5,
+      "has_digit": false,
+      "word_count": 5,
+      "char_count": 22
+    },
+    "score": 6.5,
+    "label": "ORG",
+    "entity": "ORG"
+  },
+  {
+    "phrase": "Kael Draven",
+    "start": 0,
+    "end": 11,
+    "sentence": "Kael Draven, người đời vẫn gọi là the Ashen Knight, đứng trên tường thành đổ nát, thanh kiếm Cinderbound của hắn cắm sâu vào lớp đá vôi đang nứt vỡ.",
+    "features": {
+      "is_sentence_start": true,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 11
+    },
+    "score": 6.5,
+    "label": "PER",
+    "entity": "PER"
+  },
+  {
+    "phrase": "Elara Windrider",
+    "start": 14,
+    "end": 29,
+    "sentence": "Tiếng hét của Elara Windrider vang lên giữa tiếng gầm rú của những con rồng bóng tối.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 15
+    },
+    "score": 6.5,
+    "label": "PER",
+    "entity": "PER"
+  },
+  {
+    "phrase": "Obsidian Citadel",
+    "start": 19,
+    "end": 35,
+    "sentence": "Nếu nó sụp đổ, The Obsidian Citadel sẽ không còn gì ngăn cản nữa.\"",
+    "features": {
+      "is_sentence_start": false,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 16
+    },
+    "score": 6.5,
+    "label": "LOC",
+    "entity": "LOC"
+  },
+  {
+    "phrase": "Celestial Collapse",
+    "start": 22,
+    "end": 40,
+    "sentence": "Ông ta đang thực hiện Celestial Collapse — một ma thuật cấm kỵ có khả năng xé nát không gian.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 18
+    },
+    "score": 6.5,
+    "label": "SKILL",
+    "entity": "SKILL"
+  },
+  {
+    "phrase": "Blood Oath",
+    "start": 32,
+    "end": 42,
+    "sentence": "Hắn cầm một cây đại đao rực lửa Blood Oath, tàn ác và mạnh mẽ.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 10
+    },
+    "score": 6.5,
+    "label": "ITEM",
+    "entity": "ITEM"
+  },
+  {
+    "phrase": "Ashenhold",
+    "start": 19,
+    "end": 28,
+    "sentence": "Bầu trời phía trên Ashenhold không còn mang sắc xanh của hy vọng.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 1,
+      "has_digit": false,
+      "word_count": 1,
+      "char_count": 9
+    },
+    "score": 6.0,
+    "label": "LOC",
+    "entity": "LOC"
+  },
+  {
+    "phrase": "Valerius Thorne",
+    "start": 0,
+    "end": 15,
+    "sentence": "Valerius Thorne, thủ lĩnh của Crimson Covenant, xuất hiện từ trong bóng tối.",
+    "features": {
+      "is_sentence_start": true,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 15
+    },
+    "score": 5.5,
+    "label": "PER",
+    "entity": "PER"
+  },
+  {
+    "phrase": "Seraphina Vale",
+    "start": 0,
+    "end": 14,
+    "sentence": "Seraphina Vale, vị nữ tư tế của Knights of Silver Dawn, từ đâu lao đến, ánh sáng từ tay cô tỏa ra một luồng khí dịu nhẹ, cố gắng cầm máu cho hắn.",
+    "features": {
+      "is_sentence_start": true,
+      "length": 2,
+      "has_digit": false,
+      "word_count": 2,
+      "char_count": 14
+    },
+    "score": 5.5,
+    "label": "PER",
+    "entity": "PER"
+  },
+  {
+    "phrase": "Cinderbound",
+    "start": 93,
+    "end": 104,
+    "sentence": "Kael Draven, người đời vẫn gọi là the Ashen Knight, đứng trên tường thành đổ nát, thanh kiếm Cinderbound của hắn cắm sâu vào lớp đá vôi đang nứt vỡ.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 1,
+      "has_digit": false,
+      "word_count": 1,
+      "char_count": 11
+    },
+    "score": 5.0,
+    "label": "ITEM",
+    "entity": "ITEM"
+  },
+  {
+    "phrase": "Valerius",
+    "start": 54,
+    "end": 62,
+    "sentence": "\"Ngươi chưa đủ tư cách để chạm vào ông ấy, Knight ạ,\" Valerius cười khẩy, lưỡi đao của hắn chém xuống, tạo ra một làn sóng lửa thiêu rụi mọi thứ xung quanh.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 1,
+      "has_digit": false,
+      "word_count": 1,
+      "char_count": 8
+    },
+    "score": 5.0,
+    "label": "PER",
+    "entity": "PER"
+  },
+  {
+    "phrase": "Seraphina",
+    "start": 24,
+    "end": 33,
+    "sentence": "Chúng tôi sẽ chặn hậu!\" Seraphina thầm thì, đôi mắt cô tràn đầy sự hy sinh.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 1,
+      "has_digit": false,
+      "word_count": 1,
+      "char_count": 9
+    },
+    "score": 5.0,
+    "label": "PER",
+    "entity": "PER"
+  },
+  {
+    "phrase": "Kael",
+    "start": 70,
+    "end": 74,
+    "sentence": "\"Nhìn đi, đồ đệ của ta,\" giọng nói của Lucien vang vọng trong tâm trí Kael, lạnh lẽo và mỉa mai.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 1,
+      "has_digit": false,
+      "word_count": 1,
+      "char_count": 4
+    },
+    "score": 3.0,
+    "label": "PER",
+    "entity": "PER"
+  },
+  {
+    "phrase": "Elara",
+    "start": 14,
+    "end": 19,
+    "sentence": "Gương mặt của Elara lấm lem bùn đất, đôi mắt sắc sảo của một cung thủ vùng biên giới giờ đây chỉ còn sự kinh hoàng.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 1,
+      "has_digit": false,
+      "word_count": 1,
+      "char_count": 5
+    },
+    "score": 2.0,
+    "label": "PER",
+    "entity": "PER"
+  },
+  {
+    "phrase": "Lucien",
+    "start": 39,
+    "end": 45,
+    "sentence": "\"Nhìn đi, đồ đệ của ta,\" giọng nói của Lucien vang vọng trong tâm trí Kael, lạnh lẽo và mỉa mai.",
+    "features": {
+      "is_sentence_start": false,
+      "length": 1,
+      "has_digit": false,
+      "word_count": 1,
+      "char_count": 6
+    },
+    "score": 2.0,
+    "label": "PER",
+    "entity": "PER"
+  }
+]

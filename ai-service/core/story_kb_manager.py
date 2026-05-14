@@ -115,19 +115,28 @@ class StoryKBManager:
         else:
             kb.entities[key] = KBEntity(name=name, entity_type=label)
 
-        # Append relation MENTIONED_IN
+        # Update or append relation MENTIONED_IN
         score_raw = entity_data.get("score", entity_data.get("Score", 0.0))
         try:
             score = float(score_raw)
         except (TypeError, ValueError):
             score = 0.0
 
-        kb.relations.append(KBRelation(
-            subject=name,
-            relation="MENTIONED_IN",
-            object=story_id,
-            metadata={"score": score}
-        ))
+        # Check if relation already exists to avoid bloat
+        existing_rel = next((r for r in kb.relations 
+                            if r.subject == name and r.relation == "MENTIONED_IN" and r.object == story_id), None)
+        
+        if existing_rel:
+            # Update score if higher
+            current_score = existing_rel.metadata.get("score", 0.0)
+            existing_rel.metadata["score"] = max(current_score, score)
+        else:
+            kb.relations.append(KBRelation(
+                subject=name,
+                relation="MENTIONED_IN",
+                object=story_id,
+                metadata={"score": score}
+            ))
 
         self.save_kb(story_id, kb)
         return {

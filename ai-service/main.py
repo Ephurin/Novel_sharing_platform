@@ -12,6 +12,7 @@ from api.interactions import router as interaction_router
 from core.consistency import ConsistencyChecker, ConsistencyEngine
 from core.llm_client import LLMClient, LLMClientError
 from core.llm_service import LLMService, LLMServiceError
+from core.exceptions import AIServiceError, EntityExtractionError, KBWriteError
 from core.candidate_processor import CandidateProcessor
 from core.span_expander import SpanExpander
 from core.story_kb_manager import StoryKBManager
@@ -116,6 +117,21 @@ async def llm_exception_handler(_: Request, exc: LLMClientError):
 @app.exception_handler(LLMServiceError)
 async def llm_service_exception_handler(_: Request, exc: LLMServiceError):
     return JSONResponse(status_code=502, content={"detail": str(exc)})
+
+
+@app.exception_handler(EntityExtractionError)
+async def entity_extraction_handler(_: Request, exc: EntityExtractionError):
+    return JSONResponse(status_code=500, content={"detail": exc.message})
+
+
+@app.exception_handler(KBWriteError)
+async def kb_write_handler(_: Request, exc: KBWriteError):
+    return JSONResponse(status_code=500, content={"detail": exc.message, "story_id": exc.story_id})
+
+
+@app.exception_handler(AIServiceError)
+async def ai_service_handler(_: Request, exc: AIServiceError):
+    return JSONResponse(status_code=500, content={"detail": exc.message})
 
 
 @app.get("/health")

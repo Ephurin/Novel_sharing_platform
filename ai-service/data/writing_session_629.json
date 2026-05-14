@@ -1,0 +1,355 @@
+{
+  "story_id": "writing_session_629",
+  "metadata": {
+    "created_at": "2026-05-11T16:29:35.950119+00:00",
+    "updated_at": "2026-05-11T16:30:50.242475+00:00"
+  },
+  "entities": {
+    "tiêu gia tại thanh châu thành": {
+      "name": "Tiêu Gia tại Thanh Châu Thành",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 9
+    },
+    "thiếu niên vùng biên thùy": {
+      "name": "Thiếu Niên Vùng Biên Thùy",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "thanh liên kiếm phái": {
+      "name": "Thanh Liên Kiếm Phái",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "sơ cấp công pháp": {
+      "name": "Sơ Cấp Công Pháp",
+      "entity_type": "SKILL",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "vạn kiếm quy tông": {
+      "name": "Vạn Kiếm Quy Tông",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "thanh vân môn": {
+      "name": "Thanh Vân Môn",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "lâm nguyệt nhi": {
+      "name": "Lâm Nguyệt Nhi",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 5
+    },
+    "hắc ma hội": {
+      "name": "Hắc Ma Hội",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "thương loan sơn": {
+      "name": "Thương Loan Sơn",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "băng lam kiếm": {
+      "name": "Băng Lam Kiếm",
+      "entity_type": "ITEM",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "tiêu trần": {
+      "name": "Tiêu Trần",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "linh khí": {
+      "name": "Linh Khí",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 3
+    },
+    "khi tiêu trần và lâm nguyệt nhi": {
+      "name": "Khi Tiêu Trần và Lâm Nguyệt Nhi",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "huyết ma trảm của huyết sát": {
+      "name": "Huyết Ma Trảm của Huyết Sát",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 4
+    },
+    "huyết chiến thanh châu": {
+      "name": "Huyết Chiến Thanh Châu",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "hàn băng kiếm pháp": {
+      "name": "Hàn Băng Kiếm Pháp",
+      "entity_type": "SKILL",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "tuyết lạc thiên hoa": {
+      "name": "Tuyết Lạc Thiên Hoa",
+      "entity_type": "UNKNOWN",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "kiếm khí xung thiên": {
+      "name": "Kiếm Khí Xung Thiên",
+      "entity_type": "SKILL",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "cửu thiên kiếm quyết": {
+      "name": "Cửu Thiên Kiếm Quyết",
+      "entity_type": "SKILL",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "nhất thức": {
+      "name": "Nhất Thức",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    }
+  },
+  "relations": [
+    {
+      "subject": "Tiêu Gia tại Thanh Châu Thành",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Thiếu Niên Vùng Biên Thùy",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Thanh Liên Kiếm Phái",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Sơ Cấp Công Pháp",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Vạn Kiếm Quy Tông",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Thanh Vân Môn",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lâm Nguyệt Nhi",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Hắc Ma Hội",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Thương Loan Sơn",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Băng Lam Kiếm",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tiêu Trần",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Linh Khí",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Khi Tiêu Trần và Lâm Nguyệt Nhi",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Huyết Ma Trảm của Huyết Sát",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Huyết Chiến Thanh Châu",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Hàn Băng Kiếm Pháp",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tuyết Lạc Thiên Hoa",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Kiếm Khí Xung Thiên",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Cửu Thiên Kiếm Quyết",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.55
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Nhất Thức",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_629",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [],
+  "relation_history": [],
+  "entity_states": {}
+}

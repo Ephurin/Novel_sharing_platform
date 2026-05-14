@@ -1,6 +1,6 @@
 import React from 'react';
 import useStore from '../store/useStore';
-import { Network, Play, Maximize2, Minimize2, Sparkles } from 'lucide-react';
+import { BookOpen, Play, Maximize2, Minimize2, Sparkles } from 'lucide-react';
 
 const Header = () => {
   const { storyId, runAnalysis, setDrawerOpen, drawerOpen, focusMode, setFocusMode, isAnalyzing } = useStore();
@@ -45,9 +45,9 @@ const Header = () => {
               ? 'bg-surface border-sky/25 text-sky' 
               : 'bg-transparent border-soft text-text-mid hover:bg-surface hover:text-text-bright hover:border-mid'
           }`}
-          title="Toggle Knowledge Graph"
+          title="Toggle Lorebook Wiki"
         >
-          <Network size={12} /> Graph
+          <BookOpen size={12} /> Wiki
         </button>
 
         <button 

@@ -1,27 +1,37 @@
+import os
 import sys
-from pathlib import Path
+import json
 
-# Add the current directory to sys.path to import modules
-sys.path.append(str(Path.cwd() / "ai-service"))
+# Add current directory to path
+sys.path.append(os.getcwd())
 
 from services.entity_pipeline.pipeline import EntityPipeline
 
-text = """
-Kael Draven đứng trên tường thành Ashenhold. Hắn nhìn về phía Crimson Covenant. 
-Trong khi đó, Elara Windrider đang chuẩn bị ma thuật gió.
-The Obsidian Citadel đang rực cháy.
-"""
-
 def test():
-    print("Testing New Entity Pipeline (Rule-based)...")
-    pipeline = EntityPipeline(ml_enabled=False) # Disable ML for now as we don't have the .pkl
+    pipeline = EntityPipeline()
+    chapter_path = "c:/Users/Laptop/Documents/testproject/docs/test_story/chapter_1.md"
+
+    with open(chapter_path, "r", encoding="utf-8") as f:
+        text = f.read()
+
+    print(f"Testing Pipeline on Chapter 1 ({len(text)} chars)...")
     results = pipeline.run(text)
+
+    # Filter out entities that are clearly valid to see if any junk remains
+    print(f"\nFound {len(results)} potential entities (Threshold=2.0):")
     
-    print(f"\nFound {len(results)} potential entities:")
-    for r in results:
-        # Use ascii ignore for console printing safety on Windows
-        safe_phrase = r['phrase'].encode('ascii', 'ignore').decode('ascii')
-        print(f"  [{r['score']}] {safe_phrase} (Start: {r['start']}, Sentence Start: {r['features']['is_sentence_start']})")
+    output_file = "scratch/test_pipeline_results.json"
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+    
+    print(f"Detailed results saved to {output_file}")
+    
+    # Print first 20 for quick check
+    for r in results[:20]:
+        try:
+            print(f"  [{r['score']:.1f}] {r['phrase']} ({r.get('label', 'UNKNOWN')})")
+        except:
+            pass
 
 if __name__ == "__main__":
     test()

@@ -24,8 +24,8 @@ class CandidateExtractor:
         if not text:
             return []
 
-        # Split text into sentences for context
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+        # Split text into sentences for context, including double newlines
+        sentences = re.split(r'(?:(?<=[.!?])\s+|\n\n+)', text)
         candidates = []
 
         for sent in sentences:
@@ -57,12 +57,22 @@ class CandidateExtractor:
                     gap = sent[end_idx:next_match.start()]
                     
                     # Group if gap only contains whitespace and allowed connectors
-                    # We use a set of allowed connectors and split the gap to check each word
                     allowed_connectors = {"of", "the", "de", "and", "của", "và", "những", "các", "tại"}
+                    gap_clean = gap.strip(string.punctuation + " ").lower()
+                    
+                    # If gap contains newline, don't group
+                    if "\n" in gap:
+                        break
+                        
                     gap_words = [w.strip(string.punctuation).lower() for w in gap.split()]
                     
-                    # If all words in the gap are in the allowed list, we group them
-                    if all(w in allowed_connectors for w in gap_words):
+                    # If gap is just space, it's allowed. If it has words, they must be connectors.
+                    if not gap_words:
+                        # Just whitespace/punctuation
+                        phrase_parts.append(gap + next_match.group(0))
+                        end_idx = next_match.end()
+                        j += 1
+                    elif all(w in allowed_connectors for w in gap_words):
                         phrase_parts.append(gap + next_match.group(0))
                         end_idx = next_match.end()
                         j += 1
@@ -77,7 +87,9 @@ class CandidateExtractor:
                     continue
                 
                 # Basic features for scoring/ML
-                is_sentence_start = (start_idx == 0)
+                # Improved: check if preceding text in sentence is only punctuation/quotes
+                preceding = sent[:start_idx].strip()
+                is_sentence_start = (not preceding or all(c in (string.punctuation + '"\'«»') for c in preceding))
                 
                 candidates.append({
                     "phrase": full_phrase,
