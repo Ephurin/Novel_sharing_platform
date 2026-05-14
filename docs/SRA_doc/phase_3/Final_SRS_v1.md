@@ -134,24 +134,24 @@ Hệ thống Ephurin bao gồm các nhóm tác nhân chính sau:
 *(Sẽ được bổ sung bởi thành viên phụ trách)*
 
 
-## CHƯƠNG III: YÊU CẦU DỮ LIỆU & QUY TRÌNH
+## CHƯƠNG III: DATA REQUIREMENTS & WORKFLOWS
 
-### 3.1 Sơ đồ thực thể liên kết (ERD)
-Hệ thống sử dụng cơ sở dữ liệu quan hệ (PostgreSQL) để quản lý thông tin có cấu trúc chặt chẽ và MongoDB cho dữ liệu phi cấu trúc. Dưới đây là mô hình thực thể liên kết cho các thành phần cốt lõi:
+### 3.1 Entity Relationship Diagram (ERD)
+The system utilizes a relational database (PostgreSQL) for structured data and MongoDB for non-structured data. Below is the ERD for the core components:
 
 ```mermaid
 erDiagram
-    USER ||--o{ NOVEL : "sáng tác"
-    USER ||--o{ COMMENT : "viết"
-    USER ||--o{ TRANSACTION : "thực hiện"
-    USER ||--o{ READING_HISTORY : "có"
+    USER ||--o{ NOVEL : "composes"
+    USER ||--o{ COMMENT : "writes"
+    USER ||--o{ TRANSACTION : "performs"
+    USER ||--o{ READING_HISTORY : "has"
     
-    NOVEL ||--o{ CHAPTER : "bao gồm"
-    NOVEL ||--o{ TAG : "có"
-    NOVEL }|--|| GENRE : "thuộc"
+    NOVEL ||--o{ CHAPTER : "includes"
+    NOVEL ||--o{ TAG : "has"
+    NOVEL }|--|| GENRE : "belongs to"
     
-    CHAPTER ||--o{ COMMENT : "có"
-    CHAPTER ||--o{ UNLOCK_RECORD : "được mở khóa"
+    CHAPTER ||--o{ COMMENT : "has"
+    CHAPTER ||--o{ UNLOCK_RECORD : "is unlocked"
     
     USER {
         int id PK
@@ -188,29 +188,64 @@ erDiagram
     }
 ```
 
-#### Từ điển dữ liệu tóm tắt
-- **USER**: Lưu trữ thông tin định danh, vai trò và số dư ví (Coin).
-- **NOVEL**: Thông tin tổng quan về tác phẩm, tác giả và trạng thái kiểm duyệt.
-- **CHAPTER**: Nội dung chi tiết các chương truyện, hỗ trợ thiết lập thu phí (Premium).
-- **TRANSACTION**: Nhật ký giao dịch tài chính (Nạp tiền, Mua chương, Donate).
+#### Data Dictionary Summary
+- **USER**: Stores identification, roles, and wallet balance (Coin).
+- **NOVEL**: Overview of the work, author, and moderation status.
+- **CHAPTER**: Detailed content of chapters, supporting monetization settings (Premium).
+- **TRANSACTION**: Logs of financial transactions (Deposit, Purchase, Donate).
 
-### 3.2 Các luồng quy trình chính (Workflow)
+### 3.2 Business Workflows
 
-#### 3.2.1 Quy trình Đăng ký & Xác thực (JWT)
-*(Sẽ được bổ sung bởi thành viên phụ trách Module Tài khoản)*
+#### 3.2.1 Registration & Authentication (JWT)
+*(To be added by the Account Module owner)*
 
 #### 3.2.2 Quy trình Sáng tác & Xuất bản (Process of publish new novels)
+*(Already merged in English)*
+
+#### 3.2.3 AI-assisted Metadata Workflow
+This is a unique feature of Ephurin, helping standardize content from the start:
+
+![AI Metadata Workflow](./images/memberA/Screenshot%202026-05-14%20144034.png)
+
+1.  **Request Submission**: When the author finishes a chapter or story description, the text is sent to the AI Service.
+2.  **Feature Extraction**: AI uses NLP models (PhoBERT/Transformer) to analyze keywords, context, and writing style.
+3.  **Classification & Suggestion**:
+    *   AI compares content with the existing Taxonomy (genres/tags) to provide the Top 5 most suitable suggestions.
+    *   Detects sensitive topics to warn about mandatory Age Rating tags.
+4.  **Feedback & Selection**: The author reviews the suggestions and selects which ones to apply. This improves search accuracy for readers.
 
 **a. Publish a new novel**
 ![Process of publish a new novel](./images/memberB/image2.png)
 *Figure : Process of author request to publish a new novel*
 
+**Detailed Specification:**
+1.  **Initiation**: Author starts by requesting to add a new novel.
+2.  **Information Entry**: Author fills in metadata (title, description, genre).
+3.  **AI Validation**: 
+    *   System checks format: Title must be < 255 chars, description > 500 chars.
+    *   AI checks for content violations (sensitive topics, hate speech).
+4.  **Chapter Creation**: Author must add and save chapters as drafts.
+5.  **Requirement Check**: The AI system ensures the novel has at least 5 chapters before allowing a "Publish Request".
+6.  **Human Review**: Once submitted, an Admin reviews the novel content.
+7.  **Final Action**: If approved, the novel is published; otherwise, it is sent back for edits.
+
 **b. Publish new chapter**
 ![Process of publish new chapter](./images/memberB/image3.png)
 *Figure : Process of author request to publish a new chapter*
 
+**Detailed Specification:**
+1.  **Selection**: Author selects an existing novel to add a new chapter.
+2.  **Drafting**: Author enters chapter title and content.
+3.  **AI Guardrails**: AI validates content length (> 500 chars) and scans for policy violations.
+4.  **Submission**: Author saves the draft and sends a publish request.
+5.  **Moderation**: Admin verifies the chapter content. Upon approval, the chapter becomes visible to readers.
+
 #### 3.2.3 Quy trình AI hỗ trợ metadata (Gợi ý Tag/Thể loại)
 Đây là quy trình đặc trưng của Ephurin, giúp chuẩn hóa nội dung ngay từ bước đầu:
+
+![AI Metadata Workflow](./images/memberA/Screenshot%202026-05-14%20144034.png)
+
+
 1.  **Gửi yêu cầu**: Khi tác giả soạn thảo xong nội dung chương hoặc mô tả truyện, hệ thống gửi văn bản về AI Service.
 2.  **Trích xuất đặc trưng**: AI sử dụng mô hình NLP (PhoBERT/Transformer) để phân tích từ khóa, ngữ cảnh và văn phong.
 3.  **Phân loại & Gợi ý**:
@@ -274,33 +309,91 @@ erDiagram
 | 7 | Author sends publish request to Admin |  |  |
 | 8 | Admin reviews and approves the chapter – System publishes the chapter | 8a. Admin does not approve the chapter 8a1. System notifies author with the reason why the chapter is not approved 8a2. Author edits the chapter and re-sends the publish request |  |
 
-### 4.3 Module 3: Module AI thông minh (AI Story Assistant)
-Module này là điểm nhấn công nghệ của Ephurin, hỗ trợ tối ưu hóa quy trình sáng tác và kiểm duyệt.
+### 4.3 Module 3: AI Intelligence (AI Story Assistant)
+This module represents the core intelligence of Ephurin, supporting content optimization and automated moderation.
 
-#### UC-AI-01: Tự động phân loại thể loại truyện
--   **Objective**: Sử dụng model PhoBERT để phân loại thể loại dựa trên nội dung tóm tắt.
--   **Actor**: Tác giả, Hệ thống AI.
--   **Trigger**: Tác giả hoàn tất bản tóm tắt (Synopsis) và nhấn "Gợi ý thể loại".
--   **Kịch bản chi tiết**:
-    1.  Tác giả nhập nội dung mô tả tác phẩm.
-    2.  Hệ thống AI xử lý văn bản, trích xuất vector đặc trưng.
-    3.  Model trả về xác suất cho các thể loại (Tiên hiệp, Kiếm hiệp, Ngôn tình...).
-    4.  Hệ thống hiển thị kết quả có độ tin cậy cao nhất cho tác giả.
+#### 4.3.1. UC: Automated Novel Classification
+**a. Activity diagram**
+![Activity diagram - Automated Novel Classification](./images/memberA/4-3-1.png)
 
-#### UC-AI-02: Gợi ý Tag và Tiêu đề
--   **Objective**: Trích xuất các từ khóa (Tags) nổi bật và gợi ý tiêu đề thu hút dựa trên nội dung chương.
--   **Actor**: Tác giả.
--   **Trigger**: Soạn thảo xong chương truyện hoặc cập nhật mô tả.
--   **Hành động**: AI liệt kê danh sách Tags (Ví dụ: #Hệ_thống, #Vô_địch) để tác giả chọn nhanh.
+**b. Use case description**
 
-#### UC-AI-03: Phân tích văn phong và độ dài chương
--   **Objective**: Cảnh báo nếu chương quá ngắn hoặc có sự thay đổi văn phong đột ngột (phát hiện đạo văn hoặc thay đổi tác giả).
--   **Actor**: Tác giả, Quản trị viên.
+| Attribute | Description |
+| :--- | :--- |
+| **Objective** | Use PhoBERT model to classify novel genres based on the synopsis |
+| **Actor** | Author, AI System |
+| **Trigger** | Author completes the synopsis and clicks "Suggest Genre" |
+| **Pre-condition** | Author is in the story creation/editing interface and has entered a synopsis |
+| **Post-condition** | System displays the most relevant genre suggestions |
+
+| Step | Basic Flow | Exception Flow |
+| :--- | :--- | :--- |
+| 1 | Author enters or updates the novel's synopsis. | |
+| 2 | Author requests genre suggestions. | |
+| 3 | AI System processes text and extracts feature vectors. | 3a. Synopsis too short for analysis 3a1. System notifies author to provide more detail. |
+| 4 | AI Model returns probability scores for various genres. | |
+| 5 | System displays the top genre suggestions for the Author to select. | |
+
+#### 4.3.2. UC: Suggest Tags and Title
+**a. Activity diagram**
+![Activity diagram - Suggest Tags and Title](./images/memberA/4-3-2.png)
+
+**b. Use case description**
+
+| Attribute | Description |
+| :--- | :--- |
+| **Objective** | Extract prominent keywords (Tags) and suggest attractive titles based on content |
+| **Actor** | Author, AI System |
+| **Trigger** | Author completes a chapter or updates the story description |
+| **Post-condition** | Author receives a list of suggested tags and titles |
+
+| Step | Basic Flow | Exception Flow |
+| :--- | :--- | :--- |
+| 1 | Author finishes writing a chapter or updating story description. | |
+| 2 | Author requests for Tag or Title suggestions. | |
+| 3 | AI System scans the text for key entities, themes, and emotional tone. | 3a. Content is too short for meaningful analysis <br> 3a1. System notifies author to add more content. |
+| 4 | AI Model compares the analysis with trending metadata in the database. | |
+| 5 | System displays a list of suggested Tags and potential Titles. | |
+| 6 | Author selects desired Tags or adopts a suggested Title. | |
+
+#### 4.3.3. UC: Analyze Writing Style and Length
+**a. Activity diagram**
+![Activity diagram - Analyze Writing Style and Length](./images/memberA/4-3-3.png)
+
+**b. Use case description**
+
+| Attribute | Description |
+| :--- | :--- |
+| **Objective** | Detect sudden changes in writing style or insufficient chapter length |
+| **Actor** | Author, Admin, AI System |
+| **Trigger** | Author submits a new chapter for review |
+
+| Step | Basic Flow | Exception Flow |
+| :--- | :--- | :--- |
+| 1 | Author submits a new chapter for review. | |
+| 2 | AI System scans the chapter content and calculates word count. | 2a. Word count is below minimum requirement <br> 2a1. System notifies author to expand the chapter. |
+| 3 | AI System compares the writing style (vocabulary, sentence structure) with the author's previous baseline. | |
+| 4 | AI System identifies any sudden deviations or potential plagiarism. | 4a. Significant style change detected <br> 4a1. System flags the chapter for Admin manual review. |
+| 5 | System displays a style consistency report and length validation. | |
+| 6 | Author proceeds to publish or returns to edit based on the report. | |
 
 ### 4.4 Module 4: Trải nghiệm Đọc (Reading Features - Mobile)
 Phân hệ này tập trung vào việc tối ưu hóa giao diện và tính năng hỗ trợ độc giả trong quá trình thưởng thức tác phẩm.
 
 #### UC-RD-01: Cá nhân hóa giao diện đọc
+**a. Activity diagram**
+```mermaid
+graph TD
+    Start(( )) --> Open[Open Reader View]
+    Open --> Trigger[Click 'Display Settings' icon]
+    Trigger --> Show[System: Show customization panel]
+    Show --> Change[Reader: Adjust Font/Size/Background]
+    Change --> Preview[System: Real-time UI update]
+    Preview --> Save[System: Save user preferences]
+    Save --> End(( ))
+```
+
+**b. Use case description**
 - **Objective:** Độc giả có thể thay đổi font chữ, kích thước, màu nền (Dark/Light mode) để phù hợp với sở thích và môi trường.
 - **Actor:** Reader
 - **Trigger:** Nhấn vào biểu tượng "Cài đặt hiển thị" trong màn hình đọc.
@@ -315,6 +408,21 @@ Phân hệ này tập trung vào việc tối ưu hóa giao diện và tính nă
   | 4 | Hệ thống lưu thông tin cấu hình. | Lỗi lưu trữ: Hiển thị thông báo không thể đồng bộ cài đặt. |
 
 #### UC-RD-02: Tìm kiếm, Lọc truyện nâng cao
+**a. Activity diagram**
+```mermaid
+graph TD
+    Start(( )) --> Access[Access Search/Category page]
+    Access --> Input[Enter keywords or Select filters]
+    Input --> Submit[System: Send filter request to Backend]
+    Submit --> Fetch[Backend: Query stories matching criteria]
+    Fetch --> Result{Result found?}
+    Result -- Yes --> Display[Display matching stories]
+    Result -- No --> Suggest[Display 'No results' & suggest popular novels]
+    Display --> End(( ))
+    Suggest --> End
+```
+
+**b. Use case description**
 - **Objective:** Cho phép tìm kiếm tác phẩm theo từ khóa, thể loại, tình trạng, và các bộ lọc kết hợp.
 - **Actor:** Reader, Guest
 - **Trigger:** Truy cập thanh tìm kiếm hoặc trang danh mục.
@@ -331,6 +439,20 @@ Phân hệ này tập trung vào việc tối ưu hóa giao diện và tính nă
 Phân hệ này xây dựng không gian tương tác giữa độc giả với nhau và giữa độc giả với tác giả.
 
 #### UC-IN-01: Bình luận (theo chương/đoạn)
+**a. Activity diagram**
+```mermaid
+graph TD
+    Start(( )) --> Select[Reader: Select text or Scroll to bottom]
+    Select --> Click[Click 'Comment' button]
+    Click --> Input[Enter comment content]
+    Input --> Moderate{Automated Moderation?}
+    Moderate -- Flagged --> Alert[System: Notify violation]
+    Moderate -- Clean --> Post[Display comment publicly]
+    Alert --> End(( ))
+    Post --> End
+```
+
+**b. Use case description**
 - **Objective:** Cho phép độc giả để lại bình luận tại một chương hoặc một đoạn văn bản cụ thể (Inline comment).
 - **Actor:** Reader
 - **Trigger:** Bôi đen đoạn văn bản hoặc cuộn xuống cuối chương và chọn "Bình luận".
