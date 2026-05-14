@@ -1,74 +1,40 @@
 # ĐẶC TẢ YÊU CẦU PHẦN MỀM (SRS) - EPHURIN NOVEL PLATFORM
 
-## CHƯƠNG I: GIỚI THIỆU CHUNG
+## CHƯƠNG I: INTRODUCTION
 
-### 1.1 Mục đích tài liệu
-Tài liệu Đặc tả Yêu cầu Phần mềm (SRS) này nhằm mục đích mô tả chi tiết các yêu cầu chức năng, yêu cầu phi chức năng, các ràng buộc kỹ thuật và giao diện người dùng cho dự án "Ephurin Novel Platform". Tài liệu đóng vai trò là:
-- **Căn cứ kỹ thuật**: Hướng dẫn cho đội ngũ phát triển (Frontend, Backend, AI Engineer) trong quá trình triển khai mã nguồn.
-- **Bản cam kết**: Thống nhất phạm vi công việc và các tính năng giữa các bên liên quan (Stakeholders) và nhóm phát triển.
-- **Tài liệu nền tảng**: Cung cấp cơ sở để xây dựng kịch bản kiểm thử (Test Cases) và tài liệu hướng dẫn sử dụng sau này.
+### 1.1. Purpose of the Document
+This Software Requirements Specification (SRS) describes the core requirements, actors, business flows, and operational scope of the **Ephurin Novel Platform**. It serves as a common foundation for analysts, designers, developers, testers, and supervisors to:
+- Define goals, scope, and system boundaries.
+- Describe key functions for Readers, Authors, Admins, and AI services.
+- Clarify business workflows (Registration, Publishing, Moderation).
+- Establish a basis for architectural design, UI design, and acceptance testing.
 
-### 1.2 Phạm vi dự án
-Ephurin Novel Platform được thiết kế như một hệ sinh thái toàn diện hỗ trợ việc sáng tác, chia sẻ và thưởng thức tiểu thuyết trực tuyến. Dự án bao gồm các thành phần cốt lõi:
-- **Hệ thống Web (Author & Admin Portal)**: 
-    - Cung cấp trình soạn thảo chuyên nghiệp (Rich Text/Markdown), công cụ quản lý tác phẩm và dashboard phân tích dữ liệu cho Tác giả.
-    - Cung cấp bảng điều khiển quản trị toàn diện cho Admin/Editor để kiểm duyệt nội dung, quản lý người dùng và giao dịch tài chính.
-- **Hệ thống Mobile (Reader App)**: Tập trung vào trải nghiệm đọc cá nhân hóa (Personalization), hệ thống tương tác cộng đồng (Inline comment, Vote, Bookmark) và thông báo đẩy (Push Notification).
-- **Dịch vụ AI (Intelligent Engine)**: 
-    - Tự động phân loại thể loại và tag nội dung.
-    - Kiểm duyệt tự động các vi phạm về ngôn từ và bản quyền.
-    - Trợ lý sáng tác (Author Assistant) hỗ trợ gợi ý ý tưởng và kiểm tra tính nhất quán của cốt truyện.
-- **Admin Dashboard**: Hỗ trợ quản trị viên kiểm duyệt nội dung, xử lý báo cáo vi phạm, quản lý người dùng và theo dõi các chỉ số vận hành.
-- **Phạm vi loại trừ**: 
-    - Xuất bản sách giấy.
-    - Marketplace mua bán bản quyền phức tạp.
-    - Hệ thống hợp đồng tác giả đầy đủ ở mức pháp lý thực tế.
-    - Quy trình kế toán, quyết toán và thuế chi tiết như một hệ thống thương mại hoàn chỉnh.
-    - Hệ thống không chịu trách nhiệm về nội dung bản quyền do người dùng tự ý đăng tải trái phép, nhưng cung cấp cơ chế báo cáo và xử lý (DMCA).
+### 1.2. Project Scope
+Ephurin is a platform for sharing and composing online novels, integrating Web, Mobile, and AI services.
+- **Web Application:** For Authors (creation, stats) and Admins (management, moderation).
+- **Mobile Application:** For Readers (search, read, interact).
+- **Backend API:** Authentication, data management, and access control.
+- **AI Service:** Metadata suggestion, classification, and automated moderation support.
+- **Admin Dashboard:** Content review, report handling, and operational metrics.
 
-### 1.3 Đối tượng sử dụng tài liệu
-Tài liệu SRS hướng đến các nhóm đối tượng sau:
+### 1.3. Intended Audience
+- **Supervisors:** To evaluate logic and compliance.
+- **Designers/Developers:** To build architecture, database, and UI.
+- **Testers:** To create test cases and acceptance criteria.
+- **Stakeholders:** To understand the platform's value and scope.
 
-| Đối tượng | Mục đích sử dụng |
-| :--- | :--- |
-| **Giảng viên hướng dẫn** | Đánh giá mức độ đầy đủ, logic và tính phù hợp của tài liệu phân tích yêu cầu. |
-| **Nhóm phân tích yêu cầu** | Thống nhất phạm vi, tác nhân, chức năng và luồng nghiệp vụ của hệ thống. |
-| **Nhóm thiết kế hệ thống** | Dựa vào yêu cầu để xây dựng kiến trúc, cơ sở dữ liệu và giao diện. |
-| **Nhóm phát triển** | Hiểu rõ chức năng cần triển khai, điều kiện xử lý và quy tắc nghiệp vụ. |
-| **Nhóm kiểm thử** | Xây dựng test case, acceptance criteria và kịch bản kiểm thử chức năng. |
-| **Chủ dự án/Đơn vị vận hành** | Nắm được mục tiêu, giá trị và phạm vi vận hành của nền tảng. |
+### 1.4. Terminology and Abbreviations
+- **SRS**: Software Requirements Specification.
+- **JWT**: JSON Web Token (Authentication).
+- **RBAC**: Role-Based Access Control.
+- **Moderation**: Content review activity.
+- **Coin**: Internal currency for unlocking chapters or donations.
 
-### 1.4 Thuật ngữ và Từ viết tắt
-| Thuật ngữ/Viết tắt | Ý nghĩa |
-| :--- | :--- |
-| **SRS** | Software Requirements Specification - Đặc tả yêu cầu phần mềm. |
-| **UI/UX** | User Interface / User Experience - Giao diện và Trải nghiệm người dùng. |
-| **AI** | Artificial Intelligence - Trí tuệ nhân tạo. |
-| **Guest** | Người dùng vãng lai, chưa đăng nhập hệ thống. |
-| **Reader** | Độc giả, người dùng chính của Mobile App. |
-| **Author** | Tác giả, người sáng tạo và quản lý truyện. |
-| **Admin** | Quản trị viên, người quản lý hệ thống và kiểm duyệt nội dung. |
-| **KYC** | Know Your Customer - Quy trình xác thực danh tính người dùng. |
-| **SSO / OAuth 2.0** | Cơ chế đăng nhập một lần thông qua bên thứ ba (Google, Facebook). |
-| **RBAC** | Role-Based Access Control - Kiểm soát truy cập dựa trên vai trò. |
-| **JWT** | JSON Web Token - Phương thức xác thực người dùng qua chuỗi mã hóa. |
-| **CDN** | Content Delivery Network - Mạng phân phối nội dung giúp tăng tốc độ tải tài nguyên. |
-| **DMCA** | Digital Millennium Copyright Act - Đạo luật bản quyền kỹ thuật số. |
-| **MVP** | Minimum Viable Product - Sản phẩm khả thi tối thiểu. |
-| **Dashboard** | Bảng điều khiển hiển thị dữ liệu và thao tác quản trị. |
-| **Coin** | Đơn vị tiền tệ nội bộ dùng để mở khóa chương hoặc tặng quà. |
-
-### 1.5 Tài liệu tham khảo
-1. **IEEE Std 830-1998**: Tiêu chuẩn quốc tế về thực hành đặc tả yêu cầu phần mềm.
-
-### 1.6 Tổng quan (Benchmarking)
-Để xây dựng một hệ thống vượt trội, Ephurin đã thực hiện phân tích các nền tảng hàng đầu hiện nay:
-- **Wattpad**: Ưu điểm là tính cộng đồng cực cao và hệ thống Tag linh hoạt. Ephurin kế thừa khả năng tương tác "Inline Comment" (bình luận theo dòng) để tăng sự gắn kết.
-- **Webnovel (Qidian)**: Xuất sắc trong việc thương mại hóa nội dung (Micro-transaction). Ephurin áp dụng mô hình nạp Coin và mở khóa chương nhưng tối ưu hóa quy trình thanh toán minh bạch hơn cho tác giả Việt.
-- **Tapas/Radish**: Tập trung vào mô hình serial/episode ngắn, tối ưu cho thiết bị di động.
-- **Waka/TruyenFull**: Các nền tảng nội địa mạnh về kho nội dung nhưng trải nghiệm công cụ hỗ trợ sáng tác cho tác giả còn hạn chế.
-- **Netflix & Spotify**: Được dùng làm tham chiếu cho mô hình phân phối nội dung, cá nhân hóa trải nghiệm (Recommendation) và quản lý thư viện ở quy mô lớn.
-- **Lợi thế cạnh tranh của Ephurin**: Việc tích hợp **AI như một người cộng sự** (không chỉ là bộ lọc) giúp giảm 70% khối lượng kiểm duyệt thủ công cho Admin và tăng hiệu suất sáng tác cho tác giả thông qua các gợi ý thông minh, điều mà các nền tảng hiện nay chưa thực hiện đồng bộ.
+### 1.5. Benchmarking and Market Analysis
+Ephurin is benchmarked against Webnovel, Wattpad, and Waka for industry standards, and Netflix/Spotify for content distribution and personalization models.
+- **Wattpad/Webnovel**: Reference for publishing flows and community interaction.
+- **Netflix/Spotify**: Reference for large-scale library organization and recommendation systems.
+- **Lợi thế cạnh tranh của Ephurin**: The integration of **AI as a creative partner** (not just a filter) helps reduce manual moderation by 70% and boosts author productivity through intelligent suggestions.
 
 ## CHƯƠNG II: TỔNG QUAN HỆ THỐNG
 
@@ -283,8 +249,69 @@ This is a unique feature of Ephurin, helping standardize content from the start:
 
 ## CHƯƠNG IV: ĐẶC TẢ CHI TIẾT CÁC YÊU CẦU CHỨC NĂNG
 
-### 4.1 Module 1: Quản lý Tài khoản & Hồ sơ (User Management)
-*(Sẽ được bổ sung bởi thành viên phụ trách Module Tài khoản)*
+### 4.1 Module 1: Account & Profile Management
+This module allows users to register, log in, and manage personal information.
+
+#### 4.1.1. UC: User Registration
+**a. Activity diagram**
+```mermaid
+graph TD
+    Start(( )) --> Screen[Display Registration Form]
+    Screen --> Input[User enters Email, Username, Password]
+    Input --> Method{SSO Option?}
+    Method -- Yes --> SSO[Redirect to Google/FB]
+    Method -- No --> Validate[System: Validate uniqueness & strength]
+    SSO --> Success[Create Reader Account]
+    Validate -- Valid --> Hash[Hash Password & Create Account]
+    Validate -- Invalid --> Error[Display Error Message]
+    Hash --> Success
+    Success --> End(( ))
+    Error --> End
+```
+
+**b. Use case description**
+| Attribute | Description |
+| :--- | :--- |
+| **Objective** | Create a new account to access system features |
+| **Actor** | Guest |
+| **Trigger** | Guest clicks "Register" |
+| **Pre-condition** | Guest is not logged in; Email/Username is unique |
+| **Post-condition** | A new account is created with default role "Reader" |
+
+| Step | Basic Flow | Exception Flow |
+| :--- | :--- | :--- |
+| 1 | Guest accesses the registration screen. | |
+| 2 | System displays form (Email, Username, Password). | |
+| 3 | Guest enters information and submits. | 3a. User chooses Google/FB (OAuth 2.0). |
+| 4 | System validates email format and password strength. | 4a. Duplicate Email: System suggests Login. |
+| 5 | System hashes password and creates account. | |
+| 6 | System notifies registration success. | |
+
+#### 4.1.2. UC: User Login
+**a. Activity diagram**
+```mermaid
+graph TD
+    Start(( )) --> Input[Enter Credentials]
+    Input --> Auth[System: Verify Password & Status]
+    Auth -- Locked --> Msg[Notify: Account Locked]
+    Auth -- Success --> Token[Generate JWT & Determine Role]
+    Token --> Route{Role?}
+    Route -- Admin --> AdminDB[Open Admin Dashboard]
+    Route -- Author --> AuthorDB[Open Author Dashboard]
+    Route -- Reader --> Home[Open Home Page]
+    Msg --> End(( ))
+    AdminDB --> End
+    AuthorDB --> End
+    Home --> End
+```
+
+**b. Use case description**
+| Attribute | Description |
+| :--- | :--- |
+| **Objective** | Authenticate user and grant access based on role |
+| **Actor** | Reader, Author, Admin |
+| **Pre-condition** | User has a valid account |
+| **Post-condition** | User receives a valid JWT and is redirected to the appropriate dashboard |
 
 ### 4.2 Module 2: Quản lý Tác phẩm (Novel Management - Web)
 
@@ -497,13 +524,80 @@ graph TD
 - **Trigger:** Nhấn "Theo dõi" tại trang hồ sơ tác giả.
 - **Post-condition:** Hệ thống tự động đẩy thông báo (Push Notification) đến thiết bị khi có update.
 
-### 4.6 Module 6: Quản trị & Thống kê (Admin Dashboard)
-*(Sẽ được bổ sung bởi thành viên phụ trách Module Quản trị)*
+### 4.6 Module 6: Administration & Statistics
+This module provides Admins with tools to manage users, moderate content, handle reports, and monitor system performance.
+
+#### 4.6.1. UC: Content Moderation
+**a. Activity diagram**
+```mermaid
+graph TD
+    Start(( )) --> Queue[Access Review Queue]
+    Queue --> View[View Content & AI Evidence]
+    View --> Decision{Decision?}
+    Decision -- Approve --> Active[Update Status: Published]
+    Decision -- Reject --> Request[Request Edit from Author]
+    Decision -- Violate --> Hidden[Hide/Delete Content]
+    Active --> Log[Record Audit Log]
+    Request --> Log
+    Hidden --> Log
+    Log --> End(( ))
+```
+
+**b. Use case description**
+| Attribute | Description |
+| :--- | :--- |
+| **Objective** | Ensure novels and chapters comply with platform policies |
+| **Actor** | Admin, AI System |
+| **Pre-condition** | Content is pending or flagged by AI/Users |
+| **Post-condition** | Content is approved, hidden, or deleted |
+
+| Step | Basic Flow | Exception Flow |
+| :--- | :--- | :--- |
+| 1 | AI Service flags suspicious content with evidence. | |
+| 2 | Admin accesses the Review Queue. | |
+| 3 | Admin reviews content, metadata, and reports. | |
+| 4 | Admin makes a decision (Approve/Reject/Hide). | |
+| 5 | System updates content status and notifies author. | |
+| 6 | System records the action in Audit Log. | |
+
+#### 4.6.2. UC: Operational Dashboard
+| Attribute | Description |
+| :--- | :--- |
+| **Objective** | Monitor growth, traffic, and content quality metrics |
+| **Actor** | Admin |
+| **Post-condition** | Admin views real-time charts and metrics |
 
 ## CHƯƠNG V: THIẾT KẾ GIAO DIỆN (UI/UX)
 
-### 5.1 Sơ đồ điều hướng (Sitemap & Screen Flow)
-*(Sẽ được bổ sung bởi thành viên phụ trách Module Quản trị)*
+### 5.1 Screen Navigation Flow (Sitemap)
+Below is the general sitemap for Ephurin Novel Platform:
+
+```mermaid
+graph TD
+    Home[Home Page] --> Discover[Discover Stories]
+    Home --> Detail[Story Detail]
+    Home --> Login[Login]
+    Home --> Register[Register]
+
+    Discover --> Search[Search & Filters]
+    Search --> Detail
+    Detail --> ReaderView[Chapter Reader]
+    ReaderView --> Comment[Inline Commenting]
+    ReaderView --> Bookmark[History & Bookmark]
+
+    Login --> ReaderPage[Reader Profile]
+    Login --> AuthorPage[Author Dashboard]
+    Login --> AdminPage[Admin Dashboard]
+
+    AuthorPage --> NovelMgmt[Novel Management]
+    AuthorPage --> Editor[Chapter Editor]
+    AuthorPage --> Stats[Author Stats]
+
+    AdminPage --> UserMgmt[User Management]
+    AdminPage --> ModQueue[Review Queue]
+    AdminPage --> Reports[Report Handling]
+    AdminPage --> Taxonomy[Tag/Genre Management]
+```
 
 ### 5.2 Mockups giao diện Web (Author & Admin)
 Below are the key interfaces for the Author module on the Web platform:
@@ -551,8 +645,18 @@ Giao diện Mobile được thiết kế tối ưu cho trải nghiệm đọc l�
 
 ## PHỤ LỤC
 
-### Phụ lục A: Danh mục mã lỗi hệ thống
-*(Sẽ được bổ sung sau)*
+### Appendix A: System Error Codes
+
+| Code | Message | Cause | Resolution |
+| :--- | :--- | :--- | :--- |
+| **AUTH_001** | Invalid Email format | Email does not match regex | Check and re-enter email |
+| **AUTH_003** | Invalid Credentials | Wrong username/password | Try again or reset password |
+| **AUTH_004** | Account Locked | Banned by Admin | Contact support |
+| **AUTH_008** | Unauthorized Action | Role has insufficient permissions | Use an account with appropriate role |
+| **USER_004** | Username already exists | Duplicate username in DB | Choose another username |
+| **AI_001** | AI Service Unavailable | Timeout or service down | Switch to manual review |
+| **SYS_001** | Internal Server Error | Unhandled exception | Contact system admin |
+| **CONTENT_001** | Content not found | Story/Chapter deleted | Refresh or check ID |
 
 ### Phụ lục B: Dataset & Phương pháp huấn luyện AI
 
