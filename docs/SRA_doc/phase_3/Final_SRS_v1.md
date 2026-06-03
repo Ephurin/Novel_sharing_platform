@@ -1,6 +1,6 @@
-# ĐẶC TẢ YÊU CẦU PHẦN MỀM (SRS) - EPHURIN NOVEL PLATFORM
+# SOFTWARE REQUIREMENTS SPECIFICATION (SRS) - EPHURIN NOVEL PLATFORM
 
-## CHƯƠNG I: INTRODUCTION
+## CHAPTER I: INTRODUCTION
 
 ### 1.1. Purpose of the Document
 This Software Requirements Specification (SRS) describes the core requirements, actors, business flows, and operational scope of the **Ephurin Novel Platform**. It serves as a common foundation for analysts, designers, developers, testers, and supervisors to:
@@ -18,141 +18,120 @@ Ephurin is a platform for sharing and composing online novels, integrating Web, 
 - **Admin Dashboard:** Content review, report handling, and operational metrics.
 
 ### 1.3. Intended Audience
-- **Supervisors:** To evaluate logic and compliance.
-- **Designers/Developers:** To build architecture, database, and UI.
-- **Testers:** To create test cases and acceptance criteria.
-- **Stakeholders:** To understand the platform's value and scope.
+| Audience | Purpose |
+| :--- | :--- |
+| Supervisors | To evaluate the completeness, logic, and suitability of the requirements analysis. |
+| Analysts | To unify scope, actors, functions, and business workflows. |
+| Designers | To build architecture, database, and UI based on requirements. |
+| Developers | To understand features, processing conditions, and business rules. |
+| Testers | To build test cases, acceptance criteria, and functional testing scenarios. |
 
 ### 1.4. Terminology and Abbreviations
-- **SRS**: Software Requirements Specification.
-- **JWT**: JSON Web Token (Authentication).
-- **RBAC**: Role-Based Access Control.
-- **Moderation**: Content review activity.
-- **Coin**: Internal currency for unlocking chapters or donations.
+| Term | Meaning |
+| :--- | :--- |
+| SRS | Software Requirements Specification. |
+| Actor | Entity interacting with the system. |
+| Reader | Main user of the Mobile App (Reading, interacting). |
+| Author | Creator and manager of stories (Web/Mobile). |
+| Admin | System manager and content moderator. |
+| AI Service | Service supporting classification, suggestions, and moderation. |
+| JWT | JSON Web Token, session authentication mechanism. |
+| OAuth 2.0 | Authentication standard for Google/Facebook login. |
+| RBAC | Role-Based Access Control. |
+| KYC | Know Your Customer - Identity verification for authors. |
+| Dashboard | Control panel displaying data and administrative actions. |
+| Coin | Internal currency for unlocking chapters or donations. |
 
 ### 1.5. Benchmarking and Market Analysis
-Ephurin is benchmarked against Webnovel, Wattpad, and Waka for industry standards, and Netflix/Spotify for content distribution and personalization models.
-- **Wattpad/Webnovel**: Reference for publishing flows and community interaction.
-- **Netflix/Spotify**: Reference for large-scale library organization and recommendation systems.
-- **Lợi thế cạnh tranh của Ephurin**: The integration of **AI as a creative partner** (not just a filter) helps reduce manual moderation by 70% and boosts author productivity through intelligent suggestions.
 
-## CHƯƠNG II: TỔNG QUAN HỆ THỐNG
+#### 1.5.1. Online Novel Platform Comparison
+| Criteria | Webnovel | Wattpad | Waka | Ephurin (Target) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Publishing** | Contract model, exclusive content. | Open publishing model. | Conditional publishing (word count). | Authoring tools with AI-assisted metadata and scheduling. |
+| **Reading** | Chapter-based, paid content. | Free/Paid with community focus. | Chapter-based, membership. | Mobile-first, UI customization, and synced history. |
+| **Interaction** | Comments, reviews, gifts. | Inline comments, votes, follow. | Comments, bug reports. | Inline comments, follow, and transparent reporting. |
+| **Moderation** | Keyword scan, manual review. | Community guidelines & reports. | Plagiarism check, manual review. | Hybrid: AI flagging with Admin final decision. |
 
-### 2.1 Kiến trúc hệ thống
-Ephurin Novel Platform được xây dựng dựa trên kiến trúc **Microservices**, cho phép hệ thống hoạt động ổn định, dễ dàng bảo trì và mở rộng độc lập cho từng phân hệ (Web, Mobile, AI).
+#### 1.5.2. Content Distribution Reference (Netflix & Spotify)
+Netflix and Spotify serve as references for:
+- Large-scale library organization by genre and trends.
+- AI-driven personalization and recommendation systems.
+- Access control based on user rights or subscription status.
+- **Competitive Advantage**: The integration of **AI as a creative partner** (not just a filter) helps reduce manual moderation and boosts author productivity through intelligent suggestions.
 
-#### 2.1.1 Sơ đồ kiến trúc tổng quát
-Dưới đây là sơ đồ mô tả luồng dữ liệu và sự tương tác giữa các thành phần chính trong hệ thống:
+## CHAPTER II: SYSTEM OVERVIEW
 
-```mermaid
-graph TD
-    User((Người dùng)) --> Gateway[API Gateway / Nginx]
-    Gateway --> AuthService[Auth Service]
-    Gateway --> NovelService[Novel & Chapter Service]
-    Gateway --> ReaderService[Reading & History Service]
-    Gateway --> InteractionService[Interaction & Social Service]
-    Gateway --> PaymentService[Payment & Wallet Service]
-    Gateway --> AIService[AI Moderation & Assistant]
-    
-    AuthService --> UserDB[(PostgreSQL)]
-    NovelService --> NovelDB[(PostgreSQL)]
-    ReaderService --> RedisCache[(Redis)]
-    PaymentService --> TransactionDB[(PostgreSQL)]
-    AIService --> VectorDB[(Vector DB)]
-    
-    InteractionService --> MongoDB[(MongoDB)]
-```
+### 2.1. System Architecture
+The Ephurin Novel Platform is built on a **Microservices** architecture, ensuring stability, ease of maintenance, and independent scalability for each module (Web, Mobile, AI).
 
-#### 2.1.2 Mô tả các thành phần cốt lõi
-1.  **Frontend Clients (Giao diện người dùng)**:
-    -   **Web Application (Next.js)**: Nền tảng chính cho Tác giả sáng tác và Admin quản trị. Sử dụng Server-Side Rendering (SSR) để tối ưu hóa SEO cho các tác phẩm.
-    -   **Mobile Application (React Native)**: Ứng dụng dành riêng cho Độc giả, tập trung vào trải nghiệm đọc mượt mà và thông báo thời gian thực.
-2.  **API Gateway**: Đóng vai trò là điểm tiếp nhận duy nhất cho mọi yêu cầu từ phía Client, thực hiện điều phối (routing) đến các microservices tương ứng, đồng thời xử lý bảo mật lớp ngoài (Rate limiting, SSL).
+#### 2.1.1. General Architecture Diagram
+![General Architecture Diagram](./images/memberA/So_do_kien_truc.png)
+
+#### 2.1.2. Description of Core Components
+1.  **Frontend Clients**:
+    -   **Web Application (Next.js)**: The primary platform for Authors to write and Admins to manage. Uses Server-Side Rendering (SSR) to optimize SEO for literary works.
+    -   **Mobile Application (React Native)**: A dedicated app for Readers, focusing on a smooth reading experience and real-time notifications.
+2.  **API Gateway**: Acts as the single entry point for all client requests, handling routing to respective microservices and implementing outer security layers (Rate limiting, SSL).
 3.  **Backend Microservices**:
-    -   **Auth Service**: Quản lý xác thực (JWT), phân quyền (RBAC) và thông tin tài khoản người dùng.
-    -   **Novel & Chapter Service**: Xử lý logic nghiệp vụ liên quan đến việc tạo truyện, quản lý chương, phiên bản nháp và lịch đăng.
-    -   **Interaction Service**: Quản lý hệ thống bình luận (inline/chapter), lượt thích, theo dõi và các tương tác xã hội.
-    -   **Reader Service**: Tối ưu hóa việc truy xuất nội dung đọc, quản lý lịch sử đọc và đánh dấu trang (Bookmark).
-    -   **Payment Service**: Xử lý ví tiền ảo (Coin), giao dịch mở khóa chương và quyết toán doanh thu.
-4.  **AI Intelligence Service**: Phân hệ xử lý thông minh tách biệt, sử dụng Vector Database để lưu trữ kiến thức truyện, phục vụ tính năng trợ lý sáng tác và kiểm duyệt nội dung tự động dựa trên học máy.
-5.  **Infrastructure Layers (Hạ tầng dữ liệu)**:
-    -   **PostgreSQL**: Cơ sở dữ liệu quan hệ chính cho các dữ liệu cần tính nhất quán cao.
-    -   **MongoDB**: Lưu trữ các dữ liệu phi cấu trúc như nhật ký hoạt động (logs) và các phiên bản nháp chương truyện.
-    -   **Redis**: Bộ nhớ đệm (caching) giúp tăng tốc độ tải các thông tin truy cập thường xuyên như xếp hạng (Ranking) và phiên đăng nhập.
+    -   **Auth Service**: Manages authentication (JWT), authorization (RBAC), and user account data.
+    -   **Novel & Chapter Service**: Handles business logic for story creation, chapter management, drafts, and publishing schedules.
+    -   **Interaction Service**: Manages commenting systems (inline/chapter), likes, follows, and social interactions.
+    -   **Reader Service**: Optimizes reading content retrieval, history management, and bookmarks.
+    -   **Payment Service**: Processes virtual currency (Coins), chapter unlock transactions, and revenue settlement.
+4.  **AI Intelligence Service**: A separate intelligent processing module using a Vector Database to store story knowledge, supporting author assistance and automated content moderation.
+5.  **Infrastructure Layers**:
+    -   **PostgreSQL**: Primary relational database for data requiring high consistency.
+    -   **MongoDB**: Stores unstructured data such as activity logs and draft chapter versions.
+    -   **Redis**: Caching layer to speed up access to frequently used data like rankings and login sessions.
 
-### 2.2 Sơ đồ phân rã chức năng (Functional Tree)
-Below is the functional decomposition for the Novel Management module:
+### 2.2. Functional Decomposition Diagram (Functional Tree)
+Below is the functional decomposition for the platform's core features:
 
 ![Functional Tree](./images/memberB/image1.png)
 
-### 2.3 Biểu đồ Use Case tổng quát
-*(Sẽ được bổ sung bởi thành viên phụ trách)*
+### 2.3. General Use Case Diagram
+![General Use Case Diagram](./images/memberA/General_usecase.png)
 
-### 2.4 Danh sách các tác nhân (Actors)
-Hệ thống Ephurin bao gồm các nhóm tác nhân chính sau:
-*   **Guest**: Người dùng vãng lai, có quyền xem danh sách truyện và đọc các chương miễn phí.
-*   **Reader**: Độc giả đã đăng ký, tập trung trải nghiệm trên Mobile với các tính năng cá nhân hóa và tương tác.
-*   **Author**: Tác giả, tập trung trên Web để sáng tác và quản lý tác phẩm.
-*   **Admin/Editor**: Quản trị viên và Biên tập viên chịu trách nhiệm vận hành và kiểm duyệt.
-*   **AI Service**: Tác nhân hệ thống hỗ trợ xử lý dữ liệu và trợ lý sáng tác.
+#### Use Case Descriptions Summary
+| Category | Use Case | Description |
+| :--- | :--- | :--- |
+| **Account Management** | Register / Login / Profile | Allows Guests to create accounts and existing users to authenticate and manage personal profiles. |
+| **Novel Management** | Publish / Edit / Manage | Enables Authors to create novels, upload chapters, and manage their portfolio on the Web platform. |
+| **AI Intelligence** | AI Assistant / Auto-tagging | AI Service supports authors with genre suggestions, metadata tagging, and content violation checks. |
+| **Reading Features** | Search / Read / Customize | Readers can discover novels through filters and personalize their reading experience (Font, Background). |
+| **Interaction** | Comment / Like / Follow | Builds community engagement by allowing readers to interact with content and follow favorite authors. |
+| **Administration** | Moderation / Stats / Users | Admins manage user accounts, review flagged content, and monitor system performance via dashboards. |
 
-### 2.5 Ma trận phân quyền (Permission Matrix)
-*(Sẽ được bổ sung bởi thành viên phụ trách)*
+### 2.4. List of Actors
+The Ephurin system involves the following primary actors:
+*   **Guest**: Unauthenticated users who can browse story lists and read free chapters.
+*   **Reader**: Registered users focused on the mobile experience with personalization and social features.
+*   **Author**: Content creators focused on the Web platform for writing and work management.
+*   **Admin/Editor**: Administrators responsible for operations, moderation, and user management.
+*   **AI Service**: A system actor supporting data processing and author assistance.
+
+### 2.5 Permission Matrix
+The following matrix defines the level of access and actions (CRUD) each actor can perform on system resources.
+
+| Resource | Guest | Reader | Author | Admin |
+| :--- | :---: | :---: | :---: | :---: |
+| **User Profile** | Create | R, U | R, U | R, U, D |
+| **Novels (Own)** | - | - | C, R, U, D | R, U, D |
+| **Novels (Others)** | R | R | R | R, U, D |
+| **Chapters** | R (Free) | R | C, R, U, D | R, U, D |
+| **Comments** | R | C, R, U, D | C, R, U, D | R, D |
+| **Moderation** | - | - | - | C, R, U, D |
+| **Statistics** | - | - | R (Own) | R (All) |
+
+*Legend: C = Create, R = Read, U = Update, D = Delete*
 
 
-## CHƯƠNG III: DATA REQUIREMENTS & WORKFLOWS
+## CHAPTER III: DATA REQUIREMENTS & WORKFLOWS
 
 ### 3.1 Entity Relationship Diagram (ERD)
 The system utilizes a relational database (PostgreSQL) for structured data and MongoDB for non-structured data. Below is the ERD for the core components:
 
-```mermaid
-erDiagram
-    USER ||--o{ NOVEL : "composes"
-    USER ||--o{ COMMENT : "writes"
-    USER ||--o{ TRANSACTION : "performs"
-    USER ||--o{ READING_HISTORY : "has"
-    
-    NOVEL ||--o{ CHAPTER : "includes"
-    NOVEL ||--o{ TAG : "has"
-    NOVEL }|--|| GENRE : "belongs to"
-    
-    CHAPTER ||--o{ COMMENT : "has"
-    CHAPTER ||--o{ UNLOCK_RECORD : "is unlocked"
-    
-    USER {
-        int id PK
-        string username
-        string email
-        string password_hash
-        string role "READER/AUTHOR/ADMIN"
-        decimal coin_balance
-        date birth_date
-        datetime created_at
-    }
-    
-    NOVEL {
-        int id PK
-        string title
-        string description
-        string cover_url
-        int author_id FK
-        int genre_id FK
-        string status "ONGOING/COMPLETED"
-        string age_rating "ALL/13+/16+/18+"
-        int total_views
-    }
-    
-    CHAPTER {
-        int id PK
-        int novel_id FK
-        string title
-        text content
-        int order_index
-        boolean is_premium
-        decimal price
-        datetime published_at
-    }
-```
+![Entity Relationship Diagram](./images/memberA/ERD.png)
 
 #### Data Dictionary Summary
 - **USER**: Stores identification, roles, and wallet balance (Coin).
@@ -163,9 +142,21 @@ erDiagram
 ### 3.2 Business Workflows
 
 #### 3.2.1 Registration & Authentication (JWT)
-*(To be added by the Account Module owner)*
+This workflow ensures secure access to the platform using JSON Web Tokens (JWT) for session management.
 
-#### 3.2.2 Quy trình Sáng tác & Xuất bản (Process of publish new novels)
+![Registration & Authentication Workflow](./images/memberA/3.2.1.png)
+
+**Registration & Login Process:**
+1.  **Request**: User submits registration/login credentials (Email, Password).
+2.  **Validation**: The Auth Service verifies the input format and checks against the User Database.
+3.  **Token Generation**: Upon successful authentication, the system generates a pair of tokens:
+    *   **Access Token**: Short-lived (e.g., 1 hour) for authorizing API requests.
+    *   **Refresh Token**: Long-lived (e.g., 7 days) to obtain new access tokens without re-logging.
+4.  **Authorized Access**: The client stores the token and includes it in the `Authorization: Bearer <token>` header for all subsequent requests to microservices.
+
+*(A technical Sequence Diagram will be provided as a supplementary asset)*
+
+#### 3.2.2 Creative & Publishing Workflow
 
 **a. Publish a new novel**
 ![Process of publish a new novel](./images/memberB/image2.png)
@@ -205,69 +196,29 @@ This is a unique feature of Ephurin, helping standardize content from the start:
     *   Detects sensitive topics to warn about mandatory Age Rating tags.
 4.  **Feedback & Selection**: The author reviews the suggestions and selects which ones to apply. This improves search accuracy for readers.
 
-**a. Publish a new novel**
-![Process of publish a new novel](./images/memberB/image2.png)
-*Figure : Process of author request to publish a new novel*
+#### 3.2.4 Admin Moderation Workflow
+This workflow describes how content is reviewed and moderated through a hybrid system involving AI automated scanning and Admin final decision-making.
 
-**Detailed Specification:**
-1.  **Initiation**: Author starts by requesting to add a new novel.
-2.  **Information Entry**: Author fills in metadata (title, description, genre).
-3.  **AI Validation**: 
-    *   System checks format: Title must be < 255 chars, description > 500 chars.
-    *   AI checks for content violations (sensitive topics, hate speech).
-4.  **Chapter Creation**: Author must add and save chapters as drafts.
-5.  **Requirement Check**: The AI system ensures the novel has at least 5 chapters before allowing a "Publish Request".
-6.  **Human Review**: Once submitted, an Admin reviews the novel content.
-7.  **Final Action**: If approved, the novel is published; otherwise, it is sent back for edits.
+![Admin Moderation Workflow](./images/memberA/3.2.4.png)
 
-**b. Publish new chapter**
-![Process of publish new chapter](./images/memberB/image3.png)
-*Figure : Process of author request to publish a new chapter*
-
-**Detailed Specification:**
-1.  **Selection**: Author selects an existing novel to add a new chapter.
-2.  **Drafting**: Author enters chapter title and content.
-3.  **AI Guardrails**: AI validates content length (> 500 chars) and scans for policy violations.
-4.  **Submission**: Author saves the draft and sends a publish request.
-5.  **Moderation**: Admin verifies the chapter content. Upon approval, the chapter becomes visible to readers.
-
-#### 3.2.3 Quy trình AI hỗ trợ metadata (Gợi ý Tag/Thể loại)
-Đây là quy trình đặc trưng của Ephurin, giúp chuẩn hóa nội dung ngay từ bước đầu:
-
-![AI Metadata Workflow](./images/memberA/Screenshot%202026-05-14%20144034.png)
+**Moderation Process:**
+1.  **Trigger**: A moderation request is triggered when an Author publishes new content or when a Reader reports a violation.
+2.  **AI Automated Scan**: The AI Service immediately scans the text for policy violations (hate speech, sensitive topics, spam).
+    *   *If safe*: Content remains visible or is approved for publishing.
+    *   *If suspicious*: AI flags the content and moves it to the "Pending Review" queue.
+3.  **Human Review**: The Admin accesses the Moderation Dashboard to review flagged items and reports.
+4.  **Final Action**: Admin makes a final decision (Approve, Reject/Edit Required, or Delete/Ban).
+5.  **Notification**: The system notifies the relevant User of the final decision and updates the content status.
 
 
-1.  **Gửi yêu cầu**: Khi tác giả soạn thảo xong nội dung chương hoặc mô tả truyện, hệ thống gửi văn bản về AI Service.
-2.  **Trích xuất đặc trưng**: AI sử dụng mô hình NLP (PhoBERT/Transformer) để phân tích từ khóa, ngữ cảnh và văn phong.
-3.  **Phân loại & Gợi ý**:
-    -   AI so sánh với bộ Taxonomy (thể loại/tag) hiện có để đưa ra Top 5 gợi ý phù hợp nhất.
-    -   Phát hiện các chủ đề nhạy cảm để cảnh báo gắn tag độ tuổi (Age Rating).
-4.  **Phản hồi & Lựa chọn**: Tác giả xem danh sách gợi ý và chọn áp dụng vào tác phẩm. Kết quả này giúp tăng độ chính xác khi độc giả tìm kiếm.
-
-#### 3.2.4 Quy trình Kiểm duyệt nội dung (Admin Review)
-*(Sẽ được bổ sung bởi thành viên phụ trách Module Quản trị)*
-
-## CHƯƠNG IV: ĐẶC TẢ CHI TIẾT CÁC YÊU CẦU CHỨC NĂNG
+## CHAPTER IV: DETAILED FUNCTIONAL REQUIREMENTS
 
 ### 4.1 Module 1: Account & Profile Management
 This module allows users to register, log in, and manage personal information.
 
 #### 4.1.1. UC: User Registration
 **a. Activity diagram**
-```mermaid
-graph TD
-    Start(( )) --> Screen[Display Registration Form]
-    Screen --> Input[User enters Email, Username, Password]
-    Input --> Method{SSO Option?}
-    Method -- Yes --> SSO[Redirect to Google/FB]
-    Method -- No --> Validate[System: Validate uniqueness & strength]
-    SSO --> Success[Create Reader Account]
-    Validate -- Valid --> Hash[Hash Password & Create Account]
-    Validate -- Invalid --> Error[Display Error Message]
-    Hash --> Success
-    Success --> End(( ))
-    Error --> End
-```
+![Activity diagram - User Registration](./images/memberA/4.1.1.png)
 
 **b. Use case description**
 | Attribute | Description |
@@ -289,21 +240,7 @@ graph TD
 
 #### 4.1.2. UC: User Login
 **a. Activity diagram**
-```mermaid
-graph TD
-    Start(( )) --> Input[Enter Credentials]
-    Input --> Auth[System: Verify Password & Status]
-    Auth -- Locked --> Msg[Notify: Account Locked]
-    Auth -- Success --> Token[Generate JWT & Determine Role]
-    Token --> Route{Role?}
-    Route -- Admin --> AdminDB[Open Admin Dashboard]
-    Route -- Author --> AuthorDB[Open Author Dashboard]
-    Route -- Reader --> Home[Open Home Page]
-    Msg --> End(( ))
-    AdminDB --> End
-    AuthorDB --> End
-    Home --> End
-```
+![Activity diagram - User Login](./images/memberA/4.1.2.png)
 
 **b. Use case description**
 | Attribute | Description |
@@ -313,7 +250,7 @@ graph TD
 | **Pre-condition** | User has a valid account |
 | **Post-condition** | User receives a valid JWT and is redirected to the appropriate dashboard |
 
-### 4.2 Module 2: Quản lý Tác phẩm (Novel Management - Web)
+### 4.2 Module 2: Novel Management (Web)
 
 #### 4.2.1. UC: Publish a new novel
 **a. Activity diagram**
@@ -429,37 +366,28 @@ This module represents the core intelligence of Ephurin, supporting content opti
 | 5 | System displays a style consistency report and length validation. | |
 | 6 | Author proceeds to publish or returns to edit based on the report. | |
 
-### 4.4 Module 4: Trải nghiệm Đọc (Reading Features - Mobile)
-Phân hệ này tập trung vào việc tối ưu hóa giao diện và tính năng hỗ trợ độc giả trong quá trình thưởng thức tác phẩm.
+### 4.4 Module 4: Reading Experience (Mobile App)
+This module focuses on optimizing the interface and features to support readers during their enjoyment of the works.
 
-#### UC-RD-01: Cá nhân hóa giao diện đọc
+#### 4.4.1. UC: Personalize Reading Interface
 **a. Activity diagram**
-```mermaid
-graph TD
-    Start(( )) --> Open[Open Reader View]
-    Open --> Trigger[Click 'Display Settings' icon]
-    Trigger --> Show[System: Show customization panel]
-    Show --> Change[Reader: Adjust Font/Size/Background]
-    Change --> Preview[System: Real-time UI update]
-    Preview --> Save[System: Save user preferences]
-    Save --> End(( ))
-```
+![Activity diagram - Personalize Reading Interface](./images/uc_reading_customization.png)
 
 **b. Use case description**
-- **Objective:** Độc giả có thể thay đổi font chữ, kích thước, màu nền (Dark/Light mode) để phù hợp với sở thích và môi trường.
+- **Objective:** Readers can change fonts, sizes, and background colors (Dark/Light mode) to suit their preferences and environment.
 - **Actor:** Reader
-- **Trigger:** Nhấn vào biểu tượng "Cài đặt hiển thị" trong màn hình đọc.
-- **Pre-condition:** Đang ở trong màn hình đọc truyện.
-- **Post-condition:** Cài đặt được áp dụng ngay lập tức và lưu lại cho lần đọc sau.
-- **Kịch bản chi tiết:**
-  | Bước | Basic Flow | Exception Flow |
+- **Trigger:** Clicks on the "Display Settings" icon in the reader screen.
+- **Pre-condition:** Currently in the chapter reading screen.
+- **Post-condition:** Settings are applied immediately and saved for future sessions.
+- **Detailed Scenario:**
+  | Step | Basic Flow | Exception Flow |
   | :--- | :--- | :--- |
-  | 1 | Hệ thống hiển thị bảng tùy chỉnh (Font, Size, Background). | |
-  | 2 | Người dùng kéo slider để chỉnh cỡ chữ hoặc chọn màu nền. | |
-  | 3 | Hệ thống cập nhật CSS/Theme trực tiếp trên màn hình đọc. | |
-  | 4 | Hệ thống lưu thông tin cấu hình. | Lỗi lưu trữ: Hiển thị thông báo không thể đồng bộ cài đặt. |
+  | 1 | System displays the customization panel (Font, Size, Background). | |
+  | 2 | User adjusts font size via slider or selects a background color. | |
+  | 3 | System updates CSS/Theme in real-time on the reader screen. | |
+  | 4 | System saves configuration data. | Storage Error: Display a message that settings could not be synced. |
 
-#### UC-RD-02: Tìm kiếm, Lọc truyện nâng cao
+#### 4.4.2. UC: Advanced Search & Filtering
 **a. Activity diagram**
 ```mermaid
 graph TD
@@ -475,54 +403,52 @@ graph TD
 ```
 
 **b. Use case description**
-- **Objective:** Cho phép tìm kiếm tác phẩm theo từ khóa, thể loại, tình trạng, và các bộ lọc kết hợp.
+- **Objective:** Allows searching for works by keyword, genre, status, and combined filters.
 - **Actor:** Reader, Guest
-- **Trigger:** Truy cập thanh tìm kiếm hoặc trang danh mục.
-- **Post-condition:** Hiển thị danh sách truyện phù hợp, sắp xếp theo độ liên quan/lượt xem.
-- **Kịch bản chi tiết:**
-  | Bước | Basic Flow | Alternative Flow |
+- **Trigger:** Accesses the search bar or category page.
+- **Post-condition:** Displays a list of matching novels sorted by relevance/views.
+- **Detailed Scenario:**
+  | Step | Basic Flow | Alternative Flow |
   | :--- | :--- | :--- |
-  | 1 | Người dùng nhập từ khóa và chọn các tiêu chí lọc (Thể loại, Tình trạng). | |
-  | 2 | Hệ thống gửi request lọc đến Backend. | Nếu không có từ khóa, chỉ lọc theo tiêu chí sẵn có. |
-  | 3 | Backend trả về danh sách kết quả. | Nếu không tìm thấy: Báo "Không có kết quả" và gợi ý truyện phổ biến. |
-  | 4 | Hệ thống hiển thị kết quả (dạng List/Grid). | |
+  | 1 | User enters keywords and selects filter criteria (Genre, Status). | |
+  | 2 | System sends filtering request to the Backend. | If no keyword, filter only by existing criteria. |
+  | 3 | Backend returns the result list. | If not found: Show "No results" and suggest popular novels. |
+  | 4 | System displays results (List/Grid format). | |
 
-### 4.5 Module 5: Tương tác & Cộng đồng
-Phân hệ này xây dựng không gian tương tác giữa độc giả với nhau và giữa độc giả với tác giả.
+### 4.5 Module 5: Interaction & Community
+This module builds an interactive space between readers and between readers and authors.
 
-#### UC-IN-01: Bình luận (theo chương/đoạn)
+#### 4.5.1. UC: Commenting (Chapter/Paragraph)
 **a. Activity diagram**
-```mermaid
-graph TD
-    Start(( )) --> Select[Reader: Select text or Scroll to bottom]
-    Select --> Click[Click 'Comment' button]
-    Click --> Input[Enter comment content]
-    Input --> Moderate{Automated Moderation?}
-    Moderate -- Flagged --> Alert[System: Notify violation]
-    Moderate -- Clean --> Post[Display comment publicly]
-    Alert --> End(( ))
-    Post --> End
-```
+![Activity diagram - Commenting](./images/uc_commenting.png)
 
 **b. Use case description**
-- **Objective:** Cho phép độc giả để lại bình luận tại một chương hoặc một đoạn văn bản cụ thể (Inline comment).
+- **Objective:** Allows readers to leave comments on a specific chapter or text segment (Inline comment).
 - **Actor:** Reader
-- **Trigger:** Bôi đen đoạn văn bản hoặc cuộn xuống cuối chương và chọn "Bình luận".
-- **Pre-condition:** Đã đăng nhập.
-- **Post-condition:** Bình luận được hiển thị công khai hoặc đưa vào diện chờ duyệt.
+- **Trigger:** Highlights a text segment or scrolls to the end of the chapter and selects "Comment".
+- **Pre-condition:** Logged in.
+- **Post-condition:** Comment is displayed publicly or sent for review.
 
-#### UC-IN-02: Like và Bookmark
-- **Objective:** Đánh dấu lưu lại truyện (Bookmark) hoặc thích (Like) để tăng độ phổ biến.
-- **Actor:** Reader
-- **Trigger:** Nhấn nút "Thêm vào tủ sách" (Bookmark) hoặc "Thích" (Like).
-- **Pre-condition:** Đã đăng nhập.
-- **Post-condition:** Tác phẩm thêm vào Tủ sách cá nhân; lượt Like tăng.
+#### 4.5.2. UC: Like and Bookmark
+**a. Activity diagram**
+![Activity diagram - Like and Bookmark](./images/uc_like_bookmark.png)
 
-#### UC-IN-03: Theo dõi tác giả & Thông báo đẩy
-- **Objective:** Nhận thông báo khi tác giả yêu thích ra chương mới.
+**b. Use case description**
+- **Objective:** Save stories (Bookmark) or Like to increase popularity.
 - **Actor:** Reader
-- **Trigger:** Nhấn "Theo dõi" tại trang hồ sơ tác giả.
-- **Post-condition:** Hệ thống tự động đẩy thông báo (Push Notification) đến thiết bị khi có update.
+- **Trigger:** Clicks "Add to Library" (Bookmark) or "Like" button.
+- **Pre-condition:** Logged in.
+- **Post-condition:** Work is added to personal Library; Like count increases.
+
+#### 4.5.3. UC: Follow Author & Push Notifications
+**a. Activity diagram**
+![Activity diagram - Follow Author](./images/uc_follow_author.png)
+
+**b. Use case description**
+- **Objective:** Receive notifications when favorite authors release new chapters.
+- **Actor:** Reader
+- **Trigger:** Clicks "Follow" on the author profile page.
+- **Post-condition:** System automatically sends push notifications to the device when updates are available.
 
 ### 4.6 Module 6: Administration & Statistics
 This module provides Admins with tools to manage users, moderate content, handle reports, and monitor system performance.
@@ -567,7 +493,7 @@ graph TD
 | **Actor** | Admin |
 | **Post-condition** | Admin views real-time charts and metrics |
 
-## CHƯƠNG V: THIẾT KẾ GIAO DIỆN (UI/UX)
+## CHAPTER V: USER INTERFACE DESIGN (UI/UX)
 
 ### 5.1 Screen Navigation Flow (Sitemap)
 Below is the general sitemap for Ephurin Novel Platform:
@@ -611,39 +537,39 @@ Below are the key interfaces for the Author module on the Web platform:
 *   **Check information and send request page:** Final review before submission to Admin.
     <br>![Check and Send Request](./images/memberB/image9.png)
 
-### 5.3 Mockups giao diện Mobile (Reader App)
-Giao diện Mobile được thiết kế tối ưu cho trải nghiệm đọc lâu dài với các màn hình chính:
+### 5.3 Mobile Interface Mockups (Reader App)
+The Mobile interface is optimized for long-term reading experiences with key screens:
 
-*   **Màn hình Home:** Hiển thị banner đề cử, các tác phẩm đang thịnh hành (top trending) và danh sách "Tiếp tục đọc" giúp người dùng quay lại nhanh chóng.
-    <br>![Màn hình Home](<./images/Màn hình Home.png>)
-*   **Màn hình Khám phá & Lọc:** Cung cấp thanh tìm kiếm thông minh, danh mục thể loại phong phú và các bộ lọc nâng cao theo trạng thái/độ dài.
-    <br>![Màn hình Khám phá](<./images/Màn hình Khám phá.png>)
-*   **Màn hình Chi tiết truyện:** Chứa thông tin tổng quan, tóm tắt nội dung, danh sách chương và các bài đánh giá từ cộng đồng.
-    <br>![Màn hình Chi tiết truyện](<./images/Màn hình Chi tiết truyện.png>)
-*   **Màn hình Đọc truyện (Reader View):** Nội dung chương truyện với khả năng tùy chỉnh font, nền. Tích hợp tính năng bình luận theo dòng (inline comment).
-    <br>![Màn hình Đọc truyện](<./images/Màn hình Đọc truyện (Reader View).png>)
-*   **Màn hình Tủ sách (Thư viện):** Quản lý các truyện đã Bookmark và lịch sử đọc cá nhân.
-    <br>![Màn hình Tủ sách](<./images/Màn hình Tủ sách.png>)
-*   **Màn hình Hồ sơ Tác giả:** Hiển thị thông tin tác giả, danh sách tác phẩm sáng tác và nút "Theo dõi" để nhận thông báo.
-    <br>![Màn hình Hồ sơ Tác giả](<./images/Màn hình Hồ sơ Tác giả.png>)
+*   **Home Screen:** Displays featured banners, top trending works, and a "Continue Reading" list for quick access.
+    <br>![Home Screen](./images/ui_home.png)
+*   **Discover & Filter Screen:** Provides a smart search bar, diverse genre categories, and advanced filters by status/length.
+    <br>![Discover Screen](./images/ui_discover.png)
+*   **Story Detail Screen:** Contains overview information, summary, chapter list, and community reviews.
+    <br>![Story Detail Screen](./images/ui_story_detail.png)
+*   **Reader View Screen:** Chapter content with customizable fonts and backgrounds. Integrates inline commenting features.
+    <br>![Reader View Screen](./images/ui_reader_view.png)
+*   **Library Screen:** Manages bookmarked stories and personal reading history.
+    <br>![Library Screen](./images/ui_library.png)
+*   **Author Profile Screen:** Displays author info, list of creative works, and a "Follow" button.
+    <br>![Author Profile Screen](./images/ui_author_profile.png)
 
-## CHƯƠNG VI: CÁC YÊU CẦU PHI CHỨC NĂNG
+## CHAPTER VI: NON-FUNCTIONAL REQUIREMENTS
 
-### 6.1 Hiệu năng (Performance)
-- **Thời gian phản hồi**: Các tác vụ đọc truyện và tìm kiếm phải phản hồi dưới 2 giây.
-- **Khả năng chịu tải**: Hệ thống đảm bảo phục vụ 10,000 người dùng đồng thời (Concurrent Users) thông qua cơ chế Auto-scaling.
-- **Tối ưu hóa AI**: Các yêu cầu phân tích AI (NLP) không được treo quá 5 giây/request.
+### 6.1 Performance
+- **Response Time**: Reading and search tasks must respond in under 2 seconds.
+- **Scalability**: The system ensures service for 10,000 concurrent users through Auto-scaling mechanisms.
+- **AI Optimization**: AI analysis requests (NLP) must not hang for more than 5 seconds per request.
 
-### 6.2 Bảo mật (Security)
-- **Xác thực**: Sử dụng cơ chế JWT với thời gian hết hạn ngắn và Refresh Token để đảm bảo an toàn.
-- **Mã hóa**: Toàn bộ mật khẩu người dùng phải được băm bằng thuật toán bcrypt. Dữ liệu giao dịch được mã hóa AES-256.
-- **Phân quyền**: Áp dụng chặt chẽ mô hình RBAC để ngăn chặn truy cập trái phép vào trang quản trị.
+### 6.2 Security
+- **Authentication**: Uses JWT mechanism with short expiration times and Refresh Tokens for security.
+- **Encryption**: All user passwords must be hashed using the bcrypt algorithm. Transaction data is AES-256 encrypted.
+- **Authorization**: Strictly applies the RBAC model to prevent unauthorized access to the administration site.
 
-### 6.3 Độ tin cậy (Reliability)
-- **Sao lưu**: Tự động backup dữ liệu hàng ngày (Daily Backup) và lưu trữ đa vùng.
-- **Uptime**: Cam kết thời gian hoạt động của hệ thống đạt 99.9%.
+### 6.3 Reliability
+- **Backup**: Automated daily data backups stored across multiple regions.
+- **Uptime**: Commitment to a system uptime of 99.9%.
 
-## PHỤ LỤC
+## APPENDICES
 
 ### Appendix A: System Error Codes
 
@@ -658,5 +584,5 @@ Giao diện Mobile được thiết kế tối ưu cho trải nghiệm đọc l�
 | **SYS_001** | Internal Server Error | Unhandled exception | Contact system admin |
 | **CONTENT_001** | Content not found | Story/Chapter deleted | Refresh or check ID |
 
-### Phụ lục B: Dataset & Phương pháp huấn luyện AI
+### Appendix B: AI Dataset & Training Methodology
 

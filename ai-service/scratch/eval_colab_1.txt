@@ -1,0 +1,77 @@
+Final Verification: Testing 5 chapters...
+Processing chapter_1.md...
+Processing chapter_2.md...
+Processing chapters_3_4.md...
+Processing chapters_5_7.md...
+Processing chapters_8_10.md...
+
+# Final API Test Report: Entity Extraction
+
+**Summary Metrics:**
+- Total Chapters: 5
+- Pass Rate: 100.0% (5/5)
+- Fail Rate: 0.0% (0/5)
+- Missing Rate: 60.0% (3/5)
+
+## Detailed Results per Chapter
+
+### chapter_1.md
+- **Status**: ✅ Success
+- **Entities Found**: 13
+| Entity | Label |
+| :--- | :--- |
+| Ashenhold | LOC |
+| Order of the Black Sun | ORG |
+| Frostmere Valley | LOC |
+| Lucien Blackthorn | PER |
+| Crimson Covenant | ORG |
+| Knights of Silver Dawn | ORG |
+| Kael Draven | PER |
+| Celestial Collapse | SKILL |
+| Ashen Knight | PER |
+| Shadow Rend | SKILL |
+| Elara Windrider | PER |
+| Blood Oath | ITEM |
+| Seraphina Vale | PER |
+
+### chapter_2.md
+- **Status**: ✅ Success
+- **Entities Found**: 0
+- *No entities extracted.*
+
+### chapters_3_4.md
+- **Status**: ✅ Success
+- **Entities Found**: 0
+- *No entities extracted.*
+
+### chapters_5_7.md
+- **Status**: ✅ Success
+- **Entities Found**: 0
+- *No entities extracted.*
+
+### chapters_8_10.md
+- **Status**: ✅ Success
+- **Entities Found**: 21
+| Entity | Label |
+| :--- | :--- |
+| Silverkeep | LOC |
+| The Hollow King | PER |
+| Knights of Silver Dawn | ORG |
+| Seraphina Vale | PER |
+| Celestial Pulse | SKILL |
+| Obsidian | ITEM |
+| Lucien | PER |
+| Cedric Valois | PER |
+| Dante Grey | PER |
+| Order of the Black Sun | ORG |
+| Morgana Nightshade | PER |
+| Isabella Draven | PER |
+| Blood Oath | SKILL |
+| The Obsidian Citadel | LOC |
+| Frostmere Valley | LOC |
+| Alaric the Blind | PER |
+| Lyra Stormborn | PER |
+| Crimson Covenant | ORG |
+| Valerius Thorne | PER |
+| The Hollow King | PER |
+| ... | (+1 more) |

@@ -28,19 +28,8 @@ Tài liệu này tổng kết các kỹ thuật phân tích nghiệp vụ đã �
     3. Phê duyệt sơ đồ ERD sơ bộ (6 thực thể chính).
 - **Kết luận**: Hoàn thành phân tích logic nghiệp vụ cho 3 quy trình chính (Sáng tác, Đọc truyện, Thanh toán).
 
-### 2.2 Kết quả khảo sát người dùng (Survey Summary)
-- **Đối tượng**: 50 độc giả và 10 tác giả tiềm năng.
-- **Kết quả chính**:
-    - 85% Độc giả quan tâm đến chế độ Dark Mode và cá nhân hóa đề xuất.
-    - 90% Tác giả mong muốn có hệ thống rút tiền nhanh chóng và minh bạch.
-    - 70% Tác giả hứng thú với công cụ AI hỗ trợ gợi ý nội dung.
-
-### 2.3 Nhật ký cập nhật tài liệu (Change Log)
+### 2.2 Nhật ký cập nhật tài liệu (Change Log)
 - **V1.0 (21/04/2026)**: Hoàn thành Draft Problem Description và SRS.
 - **V1.1 (22/04/2026)**: Cập nhật ERD và Architecture Diagram dựa trên phản hồi của Tech Lead.
 - **V1.2 (23/04/2026)**: Hoàn thiện Mockup và tổng hợp bằng chứng.
 
----
-
-## 3. Kết luận Phase 2
-Quá trình phân tích bài toán đã được thực hiện đầy đủ, tuân thủ các chuẩn mực của một Business Analyst chuyên nghiệp. Các tài liệu đầu ra từ `01` đến `07` là cơ sở vững chắc để chuyển sang giai đoạn Thiết kế chi tiết và Phát triển (Phase 3).

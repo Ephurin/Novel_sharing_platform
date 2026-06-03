@@ -7,25 +7,41 @@ export default {
   theme: {
     extend: {
       colors: {
-        void: "#04050f",
-        deep: "#070a1a",
-        panel: "#0a0d1f",
-        surface: "#0f1225",
-        raised: "#141730",
-        primary: "#38bdf8",
-        sky: "#38bdf8",
-        violet: "#818cf8",
-        rose: "#fb7185",
-        amber: "#fbbf24",
-        "text-bright": "#f1f5f9",
-        "text-mid": "#94a3b8",
-        "text-dim": "#475569",
+        bg0: "#0d0f11",
+        bg1: "#141618",
+        bg2: "#1c1e21",
+        bg3: "#242628",
+        bg4: "#2c2e32",
+        dim: "#2e3035", // Mapping border to dim so we don't conflict with core tailwind border utilities, but I will just name it "border-dim" in classes by using "dim"
+        accent: "#3b82f6",
+        "accent-dim": "#1d3a6e",
+        green: "#22c55e",
+        yellow: "#eab308",
+        red: "#ef4444",
+        purple: "#a855f7",
+        "text-bright": "#e2e4e8",
+        "text-mid": "#9ca3af",
+        "text-dim": "#6b7280",
+        // Fallbacks mapping to old names just in case
+        void: "#0d0f11",
+        panel: "#141618",
+        surface: "#1c1e21",
+        primary: "#3b82f6",
       },
       fontFamily: {
-        sans: ['"DM Sans"', "sans-serif"],
+        sans: ["'Inter'", "system-ui", "sans-serif"],
         serif: ["Lora", "serif"],
         mono: ['"JetBrains Mono"', "monospace"],
       },
+      keyframes: {
+        blink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
+        }
+      },
+      animation: {
+        blink: 'blink 1s step-end infinite',
+      }
     },
   },
   plugins: [],

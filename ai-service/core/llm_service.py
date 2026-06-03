@@ -28,7 +28,7 @@ class LLMService:
         self.provider = provider.lower().strip()
         self.temperature = temperature
         self.max_tokens = max_tokens
-        self.base_url = (base_url or os.getenv("LLM_BASE_URL") or "").strip()
+        self.base_url = (base_url or os.getenv("LLM_BASE_URL") or os.getenv("CUSTOM_LLM_URL") or "").strip()
         self.fallback_provider = (fallback_provider or os.getenv("LLM_FALLBACK_PROVIDER") or "").lower().strip()
         self.fallback_model = ""
         self.fallback_api_key = ""
@@ -150,7 +150,7 @@ class LLMService:
             "      \"action\": \"verb describing the interaction\",\n"
             "      \"object\": \"Name of the object entity\",\n"
             "      \"object_type\": \"PER | LOC | ORG\",\n"
-            "      \"suggested_relation\": \"ALLY_OF, ENEMY_OF, KNOWS, LOVES, HAS_ITEM, BELONGS_TO, or empty\",\n"
+            "      \"suggested_relation\": \"Must be EXACTLY ONE of: ALLY_OF, ENEMY_OF, KNOWS, LOVES, HAS_ITEM, BELONGS_TO. Do not combine them!\",\n"
             "      \"confidence\": 0.9\n"
             "    }\n"
             "  ]\n"
@@ -298,7 +298,11 @@ class LLMService:
             raise LLMServiceError("OpenAI fallback is enabled but OPENAI_API_KEY is missing")
 
         try:
-            client = OpenAI(api_key=key, base_url=self.base_url or None)
+            client = OpenAI(
+                api_key=key, 
+                base_url=self.base_url or None,
+                default_headers={"ngrok-skip-browser-warning": "true"}
+            )
             response = client.chat.completions.create(
                 model=model_name,
                 temperature=self.temperature,

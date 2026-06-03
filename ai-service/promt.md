@@ -1,0 +1,5 @@
+Tôi muốn thử thiết kế 1 giao diện edit văn bản tương tự như chính antigravity IDE với:
+- Bên phải là agent vừa đóng vai trò gợi ý như hiện tại, vừa có thể nhập pront yêu cầu cụ thể như 1 chatbox thông thường
+- Ở giữa là vùng edit văn bản, có thể scroll (hiện tại không scroll được, tham khảo các trình soạn thảo online như google doc) 
+- Bên trái tôi đang phân vân không biết nên để danh sách các entities dạng wiki, tóm tắt truyện theo event/timeline, cấu trúc chương tương tự như cấu trúc file/folder của IDE hay chỗ truy cập các project khác, nếu được hãy thiết kế 1 dạng như activities bar như của antigravity để có thể chuyển đổi giữa các view này một cách dễ dàng   
+- Ngoài ra tôi còn muốn thêm 1 thanh dạng bar ở đầu trang chứa các công cụ edit văn bản như in đậm, in nghiêng, tạo bảng, chèn ảnh, vv(tham khảo word và google docs)

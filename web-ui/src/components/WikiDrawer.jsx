@@ -23,6 +23,7 @@ const WikiDrawer = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedEntity, setExpandedEntity] = useState(null);
   const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'timeline'
+  const [mainTab, setMainTab] = useState('lorebook'); // 'lorebook' | 'pending'
 
   // Parse entities from KB data
   const allEntities = useMemo(() => {
@@ -150,17 +151,50 @@ const WikiDrawer = () => {
     <div className="w-full h-full flex flex-col overflow-hidden wiki-drawer">
       {/* ── Header ─────────────────────────────── */}
       <div className="wiki-header">
-        <div className="flex items-center gap-2">
-          <BookOpen size={12} style={{ color: '#38bdf8' }} />
-          <span className="wiki-header-title">Lorebook</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="wiki-badge">{entityCount} mục</span>
-          <button onClick={() => setDrawerOpen(false)} className="wiki-close-btn">
-            <X size={13} />
+        <div className="flex items-center gap-4 w-full">
+          <button 
+            className={`font-semibold text-sm pb-1 border-b-2 ${mainTab === 'lorebook' ? 'border-primary text-primary' : 'border-transparent text-text-dim hover:text-text-bright'}`}
+            onClick={() => setMainTab('lorebook')}
+          >
+            <BookOpen size={14} className="inline mr-1" /> Lorebook
           </button>
+          <button 
+            className={`font-semibold text-sm pb-1 border-b-2 flex items-center ${mainTab === 'pending' ? 'border-orange-500 text-orange-500' : 'border-transparent text-text-dim hover:text-text-bright'}`}
+            onClick={() => setMainTab('pending')}
+          >
+            <AlertTriangle size={14} className="inline mr-1" /> Chờ duyệt
+            <span className="ml-1 bg-orange-500/20 text-orange-500 text-[10px] px-1.5 py-0.5 rounded-full">3</span>
+          </button>
+          <div className="ml-auto">
+            <button onClick={() => setDrawerOpen(false)} className="wiki-close-btn">
+              <X size={14} />
+            </button>
+          </div>
         </div>
       </div>
+
+      {mainTab === 'pending' && (
+        <div className="p-4 flex flex-col gap-3">
+          <div className="text-xs text-text-dim bg-surface p-2 rounded">
+            Các thực thể AI vừa nhận diện được. Hãy duyệt hàng loạt tại đây thay vì hiển thị popup che mất văn bản.
+          </div>
+          {/* Mock pending entity */}
+          <div className="bg-panel border border-dim rounded p-3 flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-text-bright">Vạn Kiếm Quy Tông</span>
+              <span className="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded">SKILL</span>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <button className="flex-1 bg-primary/20 text-primary text-xs py-1 rounded hover:bg-primary/30">✓ Xác nhận</button>
+              <button className="flex-1 bg-surface text-text-dim text-xs py-1 rounded hover:text-text-bright">Sửa</button>
+              <button className="flex-1 bg-surface text-text-dim text-xs py-1 rounded hover:text-text-bright">Bỏ qua</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {mainTab === 'lorebook' && (
+        <>
 
       {/* ── Search ──────────────────────────────── */}
       <div className="wiki-search-bar">
@@ -300,6 +334,8 @@ const WikiDrawer = () => {
           })
         )}
       </div>
+        </>
+      )}
     </div>
   );
 };

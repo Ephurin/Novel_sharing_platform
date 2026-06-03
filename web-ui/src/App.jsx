@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import useStore from './store/useStore';
-import Header from './components/Header';
-import Editor from './components/Editor';
-import ChatPanel from './components/ChatPanel';
-import WikiDrawer from './components/WikiDrawer';
+import Toolbar from './components/Toolbar';
+import ActivityBar from './components/ActivityBar';
+import Sidebar from './components/Sidebar';
+import MainArea from './components/MainArea';
+import AiPanel from './components/AiPanel';
+import StatusBar from './components/StatusBar';
 
 function App() {
-  const { focusMode, setFocusMode, drawerOpen } = useStore();
+  const { focusMode, setFocusMode } = useStore();
 
   // Focus Mode Hotkey: Ctrl+Shift+F
   useEffect(() => {
@@ -21,29 +23,41 @@ function App() {
   }, [focusMode, setFocusMode]);
 
   return (
-    <div className="flex flex-col h-screen bg-void text-text-bright overflow-hidden font-sans selection:bg-sky/20">
-      <Header />
+    <div className="flex flex-col h-screen w-full bg-bg0 text-text-bright font-sans text-[13px] overflow-hidden selection:bg-accent/20">
+      
+      {/* ── TOOLBAR ── */}
+      <Toolbar />
 
-      <main className="flex-1 flex flex-row overflow-hidden relative w-full h-full">
-        {/* Left Side: Wiki Drawer (replaces Graph Drawer) */}
-        <div 
-          className={`h-full border-r border-dim bg-panel transition-[width] duration-500 ease-in-out overflow-hidden ${drawerOpen && !focusMode ? 'w-[320px]' : 'w-0 border-none'}`}
+      {/* ── MAIN ROW ── */}
+      <div className="flex-1 flex overflow-hidden">
+        
+        {/* ── ACTIVITY BAR ── */}
+        <ActivityBar />
+
+        {/* ── SIDEBAR ── */}
+        <Sidebar />
+
+        {/* ── MAIN EDITOR / CONTENT ── */}
+        <MainArea />
+
+        {/* ── AI PANEL ── */}
+        <AiPanel />
+
+      </div>
+
+      {/* ── STATUS BAR ── */}
+      <StatusBar />
+
+      {/* focus mode exit button */}
+      {focusMode && (
+        <button 
+          onClick={() => setFocusMode(false)}
+          className="fixed top-3 right-3 bg-bg3 border border-dim text-text-dim rounded-md px-2.5 py-1.5 cursor-pointer text-xs z-[999] hover:text-text-bright hover:border-text-dim transition-colors"
         >
-          <WikiDrawer />
-        </div>
+          Exit Focus ⊞
+        </button>
+      )}
 
-        {/* Center Side: Editor (Main Focus Area) */}
-        <div className="flex-1 min-w-0 flex flex-col bg-void relative">
-          <Editor />
-        </div>
-
-        {/* Right Side: Chat Panel (Passive, Fixed Width) */}
-        {!focusMode && (
-          <aside className="w-[280px] shrink-0 border-l border-dim bg-panel flex flex-col h-full z-20">
-            <ChatPanel />
-          </aside>
-        )}
-      </main>
     </div>
   );
 }

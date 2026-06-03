@@ -54,6 +54,16 @@ Tài liệu này liệt kê tất cả các endpoints hiện có của hệ th�
   }
   ```
 
+### `POST /v1/ai/sync-story`
+- **Mô tả:** Đồng bộ hóa nội dung câu chuyện với cơ sở dữ liệu. Cập nhật các entity từ câu chuyện vào Knowledge Base nếu thiếu sót, nhưng đây là API cũ ít dùng trong luồng mới.
+- **Request Body:**
+  ```json
+  {
+    "story_id": "id",
+    "story_content": "Toàn bộ nội dung..." 
+  }
+  ```
+
 ---
 
 ## 3. Tương tác Nâng cao (Enhanced Interactions) — `/v1/enhanced`

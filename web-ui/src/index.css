@@ -1,31 +1,37 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-bg0: #0d0f11;
+  --color-bg1: #141618;
+  --color-bg2: #1c1e21;
+  --color-bg3: #242628;
+  --color-bg4: #2c2e32;
+  --color-dim: #2e3035;
+  --color-accent: #3b82f6;
+  --color-accent-dim: #1d3a6e;
+  --color-green: #22c55e;
+  --color-yellow: #eab308;
+  --color-red: #ef4444;
+  --color-purple: #a855f7;
+  --color-text-bright: #e2e4e8;
+  --color-text-mid: #9ca3af;
+  --color-text-dim: #6b7280;
+
+  --animate-blink: blink 1s step-end infinite;
+  
+  /* Fallbacks mapping to old names just in case */
+  --color-void: #0d0f11;
+  --color-panel: #141618;
+  --color-surface: #1c1e21;
+  --color-primary: #3b82f6;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
 
 :root {
-  /* Backgrounds */
-  --bg-void:    #04050f;   /* body background */
-  --bg-deep:    #070a1a;
-  --bg-panel:   #0a0d1f;   /* sidebar panels */
-  --bg-surface: #0f1225;   /* cards, inputs */
-  --bg-raised:  #141730;   /* hover states, floating panels */
-
-  /* Borders */
-  --border-dim:  rgba(255,255,255,0.04);
-  --border-soft: rgba(255,255,255,0.08);
-  --border-mid:  rgba(255,255,255,0.12);
-
-  /* Accent colors */
-  --accent-sky:    #38bdf8;
-  --accent-violet: #818cf8;
-  --accent-rose:   #fb7185;
-  --accent-amber:  #fbbf24;
-
-  /* Text */
-  --text-bright: #f1f5f9;
-  --text-mid:    #94a3b8;
-  --text-dim:    #475569;
-
   /* Entity highlight */
   --ent-person-bg:     rgba(129,140,248,0.12);
   --ent-person-border: rgba(129,140,248,0.5);
@@ -39,9 +45,10 @@
   body {
     margin: 0;
     padding: 0;
-    background-color: var(--bg-void);
-    color: var(--text-bright);
-    font-family: 'DM Sans', sans-serif;
+    background-color: var(--color-bg0);
+    color: var(--color-text-bright);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 13px;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -58,18 +65,22 @@
 }
 
 /* Custom Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-bg4) transparent;
+}
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-soft);
+  background: var(--color-bg4);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-mid);
+  background: var(--color-dim);
 }
 
 /* Entity highlight spans for Editor */

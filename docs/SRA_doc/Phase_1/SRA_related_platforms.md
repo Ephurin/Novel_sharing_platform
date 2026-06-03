@@ -1,4 +1,4 @@
-# Các nền tảng liên quan (đồng bộ format)
+# Các nền tảng liên quan 
 
 ## Hệ thống Qidian / Webnovel
 

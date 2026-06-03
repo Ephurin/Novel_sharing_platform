@@ -1,0 +1,376 @@
+{
+  "story_id": "writing_session_550",
+  "metadata": {
+    "created_at": "2026-05-27T07:52:17.854718+00:00",
+    "updated_at": "2026-05-27T07:52:49.295115+00:00"
+  },
+  "entities": {
+    "thành chủ thanh châu thành": {
+      "name": "Thành chủ Thanh Châu Thành",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "thanh liên kiếm phái": {
+      "name": "Thanh Liên Kiếm Phái",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "lâm nguyệt nhi": {
+      "name": "Lâm Nguyệt Nhi",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 2
+    },
+    "thương loan sơn": {
+      "name": "Thương Loan Sơn",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "hắc ma hội": {
+      "name": "Hắc Ma Hội",
+      "entity_type": "ORG",
+      "status": "活跃",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "thanh vân môn": {
+      "name": "Thanh Vân Môn",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "băng lam kiếm": {
+      "name": "Băng Lam Kiếm",
+      "entity_type": "ITEM",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "tiêu trần": {
+      "name": "Tiêu Trần",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "đỉnh Thương Loan Sơn",
+      "mentions": 1
+    },
+    "đông hải": {
+      "name": "Đông Hải",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "tiêu gia": {
+      "name": "Tiêu Gia",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    }
+  },
+  "relations": [
+    {
+      "subject": "Thành chủ Thanh Châu Thành",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_550",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Thanh Liên Kiếm Phái",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_550",
+      "metadata": {
+        "score": 0.85
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lâm Nguyệt Nhi",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_550",
+      "metadata": {
+        "score": 0.95
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Thương Loan Sơn",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_550",
+      "metadata": {
+        "score": 0.85
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Hắc Ma Hội",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_550",
+      "metadata": {
+        "score": 0.85
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Thanh Vân Môn",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_550",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Băng Lam Kiếm",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_550",
+      "metadata": {
+        "score": 0.75
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tiêu Trần",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_550",
+      "metadata": {
+        "score": 0.95
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Đông Hải",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_550",
+      "metadata": {
+        "score": 0.65
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tiêu Trần",
+      "relation": "ALLY_OF | KNOWS",
+      "object": "Lâm Nguyệt Nhi",
+      "metadata": {
+        "source_event_id": "dc077172-594e-49d1-b424-a29c5e03395e",
+        "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tiêu Trần",
+      "relation": "ENEMY_OF | KNOWS",
+      "object": "Thanh Liên Kiếm Phái",
+      "metadata": {
+        "source_event_id": "a727f403-f6d3-4a1a-9649-ae60b21577d0",
+        "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lâm Nguyệt Nhi",
+      "relation": "ENEMY_OF | KNOWS",
+      "object": "Tiêu Trần",
+      "metadata": {
+        "source_event_id": "9e64d5d0-c6e4-4830-94fe-ce3befe2b984",
+        "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Hắc Ma Hội",
+      "relation": "ENEMY_OF",
+      "object": "Tiêu Gia",
+      "metadata": {
+        "source_event_id": "7e15b4d0-1f0c-4599-8aad-c93659e8cdd2",
+        "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [
+    {
+      "id": "dc077172-594e-49d1-b424-a29c5e03395e",
+      "subject_id": "Tiêu Trần",
+      "subject_type": "PER",
+      "action": "LOVES",
+      "object_id": "Lâm Nguyệt Nhi",
+      "object_type": "PER",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+    },
+    {
+      "id": "a727f403-f6d3-4a1a-9649-ae60b21577d0",
+      "subject_id": "Tiêu Trần",
+      "subject_type": "PER",
+      "action": "WANTS_TO_JOIN",
+      "object_id": "Thanh Liên Kiếm Phái",
+      "object_type": "ORG",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+    },
+    {
+      "id": "9e64d5d0-c6e4-4830-94fe-ce3befe2b984",
+      "subject_id": "Lâm Nguyệt Nhi",
+      "subject_type": "PER",
+      "action": "WANTS_TO_STOP",
+      "object_id": "Tiêu Trần",
+      "object_type": "PER",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+    },
+    {
+      "id": "7e15b4d0-1f0c-4599-8aad-c93659e8cdd2",
+      "subject_id": "Hắc Ma Hội",
+      "subject_type": "ORG",
+      "action": "WANTS_TO_DESTROY",
+      "object_id": "Tiêu Gia",
+      "object_type": "PER",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+    }
+  ],
+  "relation_history": [
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Tiêu Trần",
+        "relation": "ALLY_OF | KNOWS",
+        "object": "Lâm Nguyệt Nhi",
+        "metadata": {
+          "source_event_id": "dc077172-594e-49d1-b424-a29c5e03395e",
+          "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-05-27T07:52:49.241390+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Tiêu Trần",
+        "relation": "ENEMY_OF | KNOWS",
+        "object": "Thanh Liên Kiếm Phái",
+        "metadata": {
+          "source_event_id": "a727f403-f6d3-4a1a-9649-ae60b21577d0",
+          "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-05-27T07:52:49.256790+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Lâm Nguyệt Nhi",
+        "relation": "ENEMY_OF | KNOWS",
+        "object": "Tiêu Trần",
+        "metadata": {
+          "source_event_id": "9e64d5d0-c6e4-4830-94fe-ce3befe2b984",
+          "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-05-27T07:52:49.271286+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Hắc Ma Hội",
+        "relation": "ENEMY_OF",
+        "object": "Tiêu Gia",
+        "metadata": {
+          "source_event_id": "7e15b4d0-1f0c-4599-8aad-c93659e8cdd2",
+          "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n\n"
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-05-27T07:52:49.287887+00:00"
+    }
+  ],
+  "entity_states": {
+    "tiêu trần": [
+      {
+        "attribute": "location",
+        "value": "đỉnh Thương Loan Sơn",
+        "confidence": 0.9,
+        "source": "AI",
+        "timestamp": "2026-05-27T07:52:49.208131+00:00"
+      },
+      {
+        "attribute": "emotion",
+        "value": "平静",
+        "confidence": 0.8,
+        "source": "AI",
+        "timestamp": "2026-05-27T07:52:49.208131+00:00"
+      }
+    ],
+    "lâm nguyệt nhi": [
+      {
+        "attribute": "emotion",
+        "value": "紧张",
+        "confidence": 0.8,
+        "source": "AI",
+        "timestamp": "2026-05-27T07:52:49.208131+00:00"
+      }
+    ],
+    "hắc ma hội": [
+      {
+        "attribute": "status",
+        "value": "活跃",
+        "confidence": 0.75,
+        "source": "AI",
+        "timestamp": "2026-05-27T07:52:49.208131+00:00"
+      }
+    ]
+  }
+}

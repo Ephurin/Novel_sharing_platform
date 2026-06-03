@@ -79,11 +79,15 @@ class LLMClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
         }
+
+        base_url = os.getenv("CUSTOM_LLM_URL")
+        url = f"{base_url}/chat/completions" if base_url else "https://api.openai.com/v1/chat/completions"
 
         try:
             response = self._post_json(
-                url="https://api.openai.com/v1/chat/completions",
+                url=url,
                 payload=payload,
                 headers=headers,
             )

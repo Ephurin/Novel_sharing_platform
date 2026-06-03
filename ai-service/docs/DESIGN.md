@@ -1,4 +1,9 @@
-# 🧠 Design.md — AI Writing UI & Interaction System
+# 🧠 [LEGACY] Design.md — AI Writing UI & Interaction System
+
+> [!WARNING]
+> **LƯU Ý:** Tài liệu này phản ánh thiết kế cũ (Wireframe 3 cột). Hiện tại, UI đã được đập đi xây lại theo kiến trúc IDE nhiều thành phần. 
+> Vui lòng tham khảo tài liệu mới: `docs/UX_UI_doc/04-screen-specifications-for-figma.md` hoặc `AI-Writing-IDE-Information-Architecture.md` ở thư mục ngoài để biết kiến trúc Frontend mới nhất.
+
 
 ## 🎯 Mục tiêu
 

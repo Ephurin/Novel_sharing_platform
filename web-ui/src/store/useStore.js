@@ -9,8 +9,20 @@ const useStore = create((set, get) => ({
   suggestions: [],
   isAnalyzing: false,
   isGettingSuggestion: false,
-  drawerOpen: false,
+  isGettingSuggestion: false,
+  // UI States (New Architecture)
+  activity: 'story',
+  sidebarOpen: true,
+  aiOpen: true,
+  aiTab: 'chat',
+  selChapter: 'c3',
+  expandedEnts: ['e1'],
   focusMode: false,
+
+  // Legacy (can be cleaned up later)
+  activeLeftView: 'wiki',
+  drawerOpen: true,
+  rightSidebarOpen: true,
   selectedEntity: null,
   mood: 'neutral',
   targetCharacter: '',
@@ -28,7 +40,17 @@ const useStore = create((set, get) => ({
       get().fetchSuggestions();
     }
   },
+  setActivity: (activity) => set({ activity, sidebarOpen: true }),
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  setAiOpen: (open) => set({ aiOpen: open }),
+  setAiTab: (tab) => set({ aiTab: tab }),
+  setSelChapter: (chapter) => set({ selChapter: chapter }),
+  setExpandedEnts: (ents) => set({ expandedEnts: ents }),
+  
+  // Legacy setters
   setDrawerOpen: (open) => set({ drawerOpen: open }),
+  setRightSidebarOpen: (open) => set({ rightSidebarOpen: open }),
+  setActiveLeftView: (view) => set({ activeLeftView: view, drawerOpen: true }),
   setFocusMode: (mode) => set({ focusMode: mode }),
   setSelectedEntity: (entity) => set({ selectedEntity: entity }),
 

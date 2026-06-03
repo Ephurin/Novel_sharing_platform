@@ -175,6 +175,13 @@ def _extract_events_and_relations(llm_service, text: str, final_entities: list[d
         rel_type = raw.get("suggested_relation", "").upper() if raw.get("suggested_relation") else ""
         confidence = float(raw.get("confidence", 0.8))
 
+        # VALIDATION: Fallback to KNOWS if LLM hallucinates strange formats like "ALLY_OF | KNOWS"
+        valid_relations = ["ALLY_OF", "ENEMY_OF", "KNOWS", "LOVES", "HAS_ITEM", "BELONGS_TO"]
+        if rel_type and rel_type not in ["", "NONE", "NULL", "RỖNG", "KHÔNG CÓ"]:
+            if rel_type not in valid_relations:
+                logger.warning(f"LLM hallucinated relation '{rel_type}'. Falling back to 'KNOWS'.")
+                rel_type = "KNOWS"
+
         # Map names back to entity IDs if possible
         subj_id = subject
         obj_id = object_name

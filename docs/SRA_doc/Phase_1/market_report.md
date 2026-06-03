@@ -28,11 +28,6 @@ Thị trường tiểu thuyết trực tuyến đang chuyển dịch mạnh mẽ
 - Chi phí vận hành hệ thống kiểm duyệt nội dung quy mô lớn.
 - Biến động về quy định pháp lý đối với nội dung số.
 
-## 6. Khuyến nghị Chiến lược
-1. **Tối ưu thanh toán:** Xây dựng luồng thanh toán đơn giản (1-click) và hỗ trợ đa dạng phương thức nội địa.
-2. **Phát triển nội dung bản địa:** Đầu tư vào các tác giả Việt Nam thông qua các gói hỗ trợ và chương trình đào tạo.
-3. **Tuân thủ pháp lý:** Thiết lập quy trình kiểm duyệt và lưu trữ dữ liệu đáp ứng các yêu cầu của cơ quan chức năng ngay từ đầu.
-4. **Hệ thống hóa dữ liệu:** Sử dụng dữ liệu hành vi để tối ưu hóa thuật toán tìm kiếm và gợi ý nhằm giải quyết bài toán "cold-start".
 
 
 
