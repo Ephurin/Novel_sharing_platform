@@ -10,6 +10,7 @@ Tập trung toàn bộ request/response models tại đây để:
 from pydantic import BaseModel, Field, field_validator
 
 from core.candidate_processor import Candidate
+from core.story_kb_manager import EventHistoryEntry, CurrentWorldState
 
 
 # ──────────────────────────────────────────────
@@ -181,11 +182,14 @@ class AnalyzeChapterResponse(BaseModel):
 class ConfirmKBRequest(BaseModel):
     story_id: str = Field(..., min_length=1)
     approved_candidates: list[Candidate]
+    text: str | None = None
 
 
 class ConfirmKBResponse(BaseModel):
     story_id: str
     db_updates: list[dict]
+    event_history: list[EventHistoryEntry] = []
+    current_world_state: CurrentWorldState | None = None
     processing_ms: float
 
 

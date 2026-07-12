@@ -7,6 +7,7 @@ import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { Image } from '@tiptap/extension-image';
+import Placeholder from '@tiptap/extension-placeholder';
 import useStore from '../store/useStore';
 
 export default function MainArea() {
@@ -21,14 +22,21 @@ export default function MainArea() {
       TableRow,
       TableHeader,
       TableCell,
+      Placeholder.configure({
+        placeholder: 'Bắt đầu viết bản nháp của bạn tại đây...',
+        emptyEditorClass: 'is-editor-empty',
+      }),
     ],
-    content: text || '<h1>Chapter 3 — Ô Thản Thành</h1><p>The city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.</p><p>"You\'re certain this is the place?" he muttered, tilting his head toward the jade ring on his finger.</p><p>A dry chuckle emanated from the ring — Yao Lao\'s presence, warm and unhurried. "The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing."</p><p>Tiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow.</p>',
+    content: text || '',
+    onCreate: ({ editor }) => {
+      if (!text) setText(editor.getText());
+    },
     onUpdate: ({ editor }) => {
       setText(editor.getText());
     },
     editorProps: {
       attributes: {
-        className: 'prose prose-invert prose-sky max-w-none focus:outline-none min-h-full leading-[1.85] text-[#c9cdd6] text-[14.5px]',
+        className: 'prose prose-invert prose-sky max-w-none focus:outline-none min-h-[calc(100vh-100px)] leading-[1.85] text-[#c9cdd6] text-[15px]',
       },
     },
   });
@@ -51,12 +59,7 @@ export default function MainArea() {
         {activity === "story" && (
           <>
             <div className="px-3 h-full flex items-center gap-1.5 border-b-2 border-accent text-text-bright text-xs cursor-pointer">
-              <span>📄</span> Ch.3 — Ô Thản Thành
-              <span className="text-text-dim text-[10px] ml-1">✕</span>
-            </div>
-            <div className="px-3 h-full flex items-center gap-1.5 text-text-dim text-xs cursor-pointer hover:bg-bg2">
-              <span>📄</span> Ch.2 — The Merchant Road
-              <span className="text-[10px] ml-1">✕</span>
+              <span>📄</span> Bản nháp hiện tại
             </div>
           </>
         )}
@@ -71,14 +74,17 @@ export default function MainArea() {
           </div>
         )}
         <div className="flex-1" />
-        <span className="text-[11px] text-text-dim px-2">4,102 words · auto-saved</span>
+        <span className="text-[11px] text-text-dim px-2">Local draft · auto-saved</span>
       </div>
 
       {/* Editor area */}
-      <div className="flex-1 overflow-y-auto px-[80px] py-[40px] max-w-[860px] mx-auto w-full custom-scrollbar">
+      <div 
+        className="flex-1 overflow-y-auto px-[40px] md:px-[80px] py-[40px] max-w-[900px] w-full custom-scrollbar cursor-text"
+        onClick={() => editor?.commands.focus()}
+      >
         
         {(activity === "story" || activity === "search") && (
-          <div className="relative">
+          <div className="relative min-h-full w-full">
             <EditorContent editor={editor} />
           </div>
         )}

@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import useStore from '../store/useStore';
 
 const AI_CHAT = [
-  { role: "ai", text: "I've analyzed Chapter 3. Strong atmospheric opening — the gate description grounds the reader immediately. One note: Yao Lao's tone shifts between paragraphs 3 and 6. Want me to flag the inconsistency?" },
-  { role: "user", text: "Yes, and suggest a continuation for the scene inside the walls." },
-  { role: "ai", text: "Flagged: Yao Lao uses 'Boy' in p.3 (casual) but the ring is described as 'warm and unhurried' — consider 'Kid' or 'Young one' for tonal consistency.\n\nContinuation suggestion: Tiêu Viêm could encounter a public auction of a mid-grade pill formula — establishing the economic stakes of alchemy in this city before he approaches the Association." },
+  { role: "ai", text: "Xin chào! Mình là trợ lý AI. Mình có thể giúp gì cho tác phẩm của bạn hôm nay?" }
 ];
 
 // Fallback suggestions if none exist
@@ -13,7 +11,11 @@ const FALLBACK_SUGGESTIONS = [
 ];
 
 export default function AiPanel() {
-  const { aiOpen, setAiOpen, aiTab, setAiTab, focusMode, suggestions: realSuggestions, isGettingSuggestion, targetCharacter } = useStore();
+  const { 
+    aiOpen, setAiOpen, aiTab, setAiTab, focusMode, 
+    suggestions: realSuggestions, isGettingSuggestion, targetCharacter,
+    pendingRelations, approveRelation, rejectRelation
+  } = useStore();
   const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState(AI_CHAT);
   
@@ -23,7 +25,7 @@ export default function AiPanel() {
     if (!chatInput.trim()) return;
     setMessages(m => [...m, { role: "user", text: chatInput }]);
     setChatInput("");
-    setTimeout(() => setMessages(m => [...m, { role: "ai", text: "Analyzing your request in context of Chapter 3…" }]), 600);
+    setTimeout(() => setMessages(m => [...m, { role: "ai", text: "Xin lỗi, tính năng chat đang được phát triển..." }]), 600);
   };
 
   if (focusMode && !aiOpen) return null; // In focus mode, AI panel might be closed by default unless opened. Actually the draft says in focus mode it only keeps Editor + AI Panel. 
@@ -131,11 +133,33 @@ export default function AiPanel() {
 
       {/* TASKS */}
       {aiTab === "tasks" && (
-        <div className="flex-1 overflow-y-auto p-2.5 flex flex-col gap-1.5 custom-scrollbar">
-          {["Extract Entities", "Update Timeline", "Check Plot Holes", "Generate Summary", "Detect Inconsistencies"].map(t => (
-            <button key={t} className="bg-bg2 border border-dim text-text-mid rounded-md px-3 py-2.5 cursor-pointer text-xs text-left flex items-center gap-2 hover:bg-bg3 hover:text-text-bright transition-colors">
-              <span className="text-sm">▶</span>{t}
-            </button>
+        <div className="flex-1 overflow-y-auto p-2.5 flex flex-col gap-2 custom-scrollbar">
+          {(!pendingRelations || pendingRelations.length === 0) && (
+            <div className="text-center text-xs text-text-dim py-4">
+              ✅ Không có tương tác mới nào cần duyệt.
+            </div>
+          )}
+          {pendingRelations?.map((r, i) => (
+            <div key={i} className="p-3 bg-bg2 border border-yellow/30 rounded-lg shadow-sm">
+              <div className="text-[10px] font-bold text-yellow uppercase tracking-wider mb-1.5">
+                🤖 Đề xuất Quan hệ
+              </div>
+              <div className="text-xs text-text-bright flex items-center gap-1.5 flex-wrap">
+                <span className="font-semibold text-accent">{r.relation?.subject || r.subject}</span>
+                <span className="bg-bg4 px-1.5 py-0.5 rounded text-[10px] text-text-dim font-mono">{r.relation?.relation || r.relation}</span>
+                <span className="font-semibold text-purple">{r.relation?.object || r.object}</span>
+              </div>
+              {r.reason && <div className="text-[10px] text-text-dim mt-2 bg-bg1 p-1.5 rounded">{r.reason}</div>}
+              
+              <div className="flex gap-2 mt-2.5">
+                <button onClick={() => approveRelation(r)} className="flex-1 bg-green/20 text-green hover:bg-green hover:text-white border-none rounded py-1 cursor-pointer text-[11px] font-semibold transition-colors">
+                  Duyệt
+                </button>
+                <button onClick={() => rejectRelation(r)} className="flex-1 bg-red/20 text-red hover:bg-red hover:text-white border-none rounded py-1 cursor-pointer text-[11px] font-semibold transition-colors">
+                  Bỏ qua
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}

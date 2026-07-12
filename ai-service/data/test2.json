@@ -1,0 +1,153 @@
+{
+  "story_id": "test2",
+  "metadata": {
+    "created_at": "2026-06-03T05:32:23.637408+00:00",
+    "updated_at": "2026-06-03T05:32:48.618420+00:00"
+  },
+  "entities": {
+    "tiêu viêm": {
+      "name": "Tiêu Viêm",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "成岩城",
+      "mentions": 1
+    },
+    "dược lão": {
+      "name": "Dược Lão",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    }
+  },
+  "relations": [
+    {
+      "subject": "Tiêu Viêm",
+      "relation": "KNOWS",
+      "object": "药老",
+      "metadata": {
+        "source_event_id": "a2c8f55d-6ca0-417b-85c5-e25f3e186e1e",
+        "context": "Tiêu Viêm đi về phía thành Ô Thản. Hắn gặp Dược Lão ở đó."
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tiêu Viêm",
+      "relation": "KNOWS",
+      "object": "Dược Lão",
+      "metadata": {
+        "source_event_id": "c8940e18-b65c-43f5-9fb7-8f6211db8e41",
+        "context": "Tiêu Viêm đi về phía thành Ô Thản. Hắn gặp Dược Lão ở đó."
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [
+    {
+      "id": "455d5958-07d2-4021-bd2b-9d0e92eda3a3",
+      "subject_id": "Tiêu Viêm",
+      "subject_type": "PER",
+      "action": "goes to",
+      "object_id": "成 Ô Thản城",
+      "object_type": "LOC",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Tiêu Viêm đi về phía thành Ô Thản. Hắn gặp Dược Lão ở đó."
+    },
+    {
+      "id": "a2c8f55d-6ca0-417b-85c5-e25f3e186e1e",
+      "subject_id": "Tiêu Viêm",
+      "subject_type": "PER",
+      "action": "meets",
+      "object_id": "药老",
+      "object_type": "PER",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Tiêu Viêm đi về phía thành Ô Thản. Hắn gặp Dược Lão ở đó."
+    },
+    {
+      "id": "958ea85f-dc40-4e58-9387-6d8098e9d8ff",
+      "subject_id": "Tiêu Viêm",
+      "subject_type": "PER",
+      "action": "goes towards",
+      "object_id": "thành Ô Thản",
+      "object_type": "LOC",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Tiêu Viêm đi về phía thành Ô Thản. Hắn gặp Dược Lão ở đó."
+    },
+    {
+      "id": "c8940e18-b65c-43f5-9fb7-8f6211db8e41",
+      "subject_id": "Tiêu Viêm",
+      "subject_type": "PER",
+      "action": "meets",
+      "object_id": "Dược Lão",
+      "object_type": "PER",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Tiêu Viêm đi về phía thành Ô Thản. Hắn gặp Dược Lão ở đó."
+    }
+  ],
+  "relation_history": [
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Tiêu Viêm",
+        "relation": "KNOWS",
+        "object": "药老",
+        "metadata": {
+          "source_event_id": "a2c8f55d-6ca0-417b-85c5-e25f3e186e1e",
+          "context": "Tiêu Viêm đi về phía thành Ô Thản. Hắn gặp Dược Lão ở đó."
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:32:23.673355+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Tiêu Viêm",
+        "relation": "KNOWS",
+        "object": "Dược Lão",
+        "metadata": {
+          "source_event_id": "c8940e18-b65c-43f5-9fb7-8f6211db8e41",
+          "context": "Tiêu Viêm đi về phía thành Ô Thản. Hắn gặp Dược Lão ở đó."
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:32:48.600000+00:00"
+    }
+  ],
+  "entity_states": {
+    "tiêu viêm": [
+      {
+        "attribute": "location",
+        "value": "成岩城",
+        "confidence": 0.9,
+        "source": "AI",
+        "timestamp": "2026-06-03T05:32:48.555735+00:00"
+      }
+    ]
+  }
+}

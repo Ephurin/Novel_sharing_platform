@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import { analyzeText, getSuggestions, getKB } from '../services/api';
+import { analyzeText, getSuggestions, getKB, overrideRelation, confirmKB } from '../services/api';
 
 const useStore = create((set, get) => ({
   text: '',
   storyId: 'writing_session_' + Math.floor(Math.random() * 1000),
   entities: [],
   relations: [],
+  pendingRelations: [],
   suggestions: [],
   isAnalyzing: false,
   isGettingSuggestion: false,
@@ -66,6 +67,7 @@ const useStore = create((set, get) => ({
       set({ 
         entities: newEntities,
         relations: data.applied_relations || [],
+        pendingRelations: data.suggested_relations || [],
         isAnalyzing: false,
         lastAnalyzedAt: new Date()
       });
@@ -114,6 +116,52 @@ const useStore = create((set, get) => ({
     } catch (error) {
       console.error("KB Fetch failed", error);
     }
+  },
+
+  // HITL Actions
+  approveRelation: async (relationObj) => {
+    const { storyId } = get();
+    try {
+      // relationObj.relation has { subject, relation, object }
+      await overrideRelation(
+        storyId, 
+        relationObj.relation.subject, 
+        relationObj.relation.relation, 
+        relationObj.relation.object
+      );
+      set((state) => ({
+        pendingRelations: state.pendingRelations.filter(r => r !== relationObj),
+      }));
+      get().fetchKB();
+    } catch (error) {
+      console.error("Failed to approve relation", error);
+    }
+  },
+
+  rejectRelation: (relationObj) => {
+    set((state) => ({
+      pendingRelations: state.pendingRelations.filter(r => r !== relationObj),
+    }));
+  },
+
+  approveEntity: async (entity) => {
+    const { storyId } = get();
+    try {
+      // confirmKB takes array of candidates
+      await confirmKB(storyId, [entity]);
+      set((state) => ({
+        entities: state.entities.map(e => (e === entity ? { ...e, status: 'APPROVED' } : e))
+      }));
+      get().fetchKB();
+    } catch (error) {
+      console.error("Failed to approve entity", error);
+    }
+  },
+
+  rejectEntity: (entity) => {
+    set((state) => ({
+      entities: state.entities.filter(e => e !== entity)
+    }));
   }
 }));
 

@@ -46,25 +46,59 @@ class EntityPipeline:
                 clean_json = re.sub(r"^```(?:json)?\s*", "", clean_json, flags=re.IGNORECASE)
                 clean_json = re.sub(r"\s*```$", "", clean_json)
             
-            # Find the JSON array
-            json_match = re.search(r'\[.*\]', clean_json, re.DOTALL)
-            if json_match:
-                entities = json.loads(json_match.group(0))
-                
+            # Robust parsing using the LLM Service parser or fallback search
+            parsed = None
+            if hasattr(llm_service, "_parse_json_like_output"):
+                parsed = llm_service._parse_json_like_output(clean_json)
+            
+            if parsed is None:
+                json_match = re.search(r'\[.*\]', clean_json, re.DOTALL)
+                if json_match:
+                    try:
+                        parsed = json.loads(json_match.group(0))
+                    except Exception:
+                        pass
+            
+            if parsed is None:
+                json_match = re.search(r'\{.*\}', clean_json, re.DOTALL)
+                if json_match:
+                    try:
+                        parsed = json.loads(json_match.group(0))
+                    except Exception:
+                        pass
+
+            entities_list = []
+            if isinstance(parsed, list):
+                entities_list = parsed
+            elif isinstance(parsed, dict):
+                # Search for lists inside the object (e.g. {"entities": [...]})
+                for key in ["entities", "phrases", "data", "results"]:
+                    if isinstance(parsed.get(key), list):
+                        entities_list = parsed[key]
+                        break
+                if not entities_list:
+                    for val in parsed.values():
+                        if isinstance(val, list):
+                            entities_list = val
+                            break
+
+            if entities_list:
                 valid_entities = []
                 # Normalization
-                for e in entities:
-                    phrase = e.get("phrase", "").strip()
-                    entity = str(e.get("entity", "UNKNOWN")).upper().strip()
+                for e in entities_list:
+                    if not isinstance(e, dict):
+                        continue
+                    phrase = str(e.get("phrase") or e.get("word") or e.get("name") or e.get("entity_name") or "").strip()
+                    entity = str(e.get("entity") or e.get("type") or e.get("label") or "UNKNOWN").upper().strip()
                     
                     if not phrase:
                         continue
                         
                     # Standardize score logic (default 9.5 if LLM forgets)
-                    raw_score = e.get("score", 9.5)
+                    raw_score = e.get("score") or e.get("confidence") or e.get("Score") or 9.5
                     try:
                         score = float(raw_score)
-                    except:
+                    except Exception:
                         score = 9.5
                         
                     valid_entities.append({
@@ -78,7 +112,7 @@ class EntityPipeline:
                 valid_entities.sort(key=lambda x: x["score"], reverse=True)
                 return valid_entities
             else:
-                logger.warning("DEBUG: No JSON array found in LLM response.")
+                logger.warning("DEBUG: No valid JSON array or object structure found in LLM response.")
                 return []
                 
         except Exception as exc:

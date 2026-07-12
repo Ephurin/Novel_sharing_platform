@@ -52,6 +52,8 @@ from services.entity_helpers import (
     pipeline_to_sync_format,
     normalize_db_updates,
 )
+from services.event_summarizer import extract_narrative_events
+from services.world_state_updater import update_world_state
 
 
 router = APIRouter(prefix="/v1/ai", tags=["ai"])
@@ -336,16 +338,23 @@ def analyze_chapter(
 def confirm_kb(
     payload: ConfirmKBRequest,
     kb: StoryKBManager = Depends(get_story_kb),
+    llm_service=Depends(get_llm_service),
 ) -> ConfirmKBResponse:
     started = time.perf_counter()
 
     db_updates = []
+    approved_entities_list = []
     for cand in payload.approved_candidates:
         entity_data = {
             "word": cand.raw_name,
             "entity": cand.type,
             "score": cand.confidence,
         }
+        approved_entities_list.append({
+            "normalized_name": cand.normalized_name,
+            "raw_name": cand.raw_name,
+            "type": cand.type,
+        })
 
         try:
             result = kb.upsert_entity(payload.story_id, entity_data)
@@ -360,10 +369,36 @@ def confirm_kb(
                 "reason": str(exc),
             })
 
+    # Load StoryKB object to process new events and states
+    kb_obj = kb.load_kb(payload.story_id)
+
+    # If text is provided, perform event extraction & world state update
+    if payload.text and payload.text.strip():
+        try:
+            new_events = extract_narrative_events(
+                text=payload.text,
+                approved_entities=approved_entities_list,
+                llm_service=llm_service
+            )
+            for event in new_events:
+                kb_obj.event_history.append(event)
+                kb_obj.current_world_state = update_world_state(
+                    current_state=kb_obj.current_world_state,
+                    event=event,
+                    llm_service=llm_service
+                )
+            
+            # Save the updated KB back to storage
+            kb.save_kb(payload.story_id, kb_obj)
+        except Exception as exc:
+            logger.error("Event/State processing failed in /kb/confirm: %s", exc)
+
     processing_ms = round((time.perf_counter() - started) * 1000.0, 3)
 
     return ConfirmKBResponse(
         story_id=payload.story_id,
         db_updates=db_updates,
+        event_history=kb_obj.event_history,
+        current_world_state=kb_obj.current_world_state,
         processing_ms=processing_ms,
     )

@@ -27,3 +27,15 @@ Cánh tay của Tiêu Trần tự động di chuyển, hắn nhặt lấy một 
 "Cửu Thiên Kiếm Quyết - Đệ Nhất Thức: Kiếm Khí Xung Thiên!"
 
 Một đạo kiếm quang khổng lồ bốc cao lên tận trời xanh, trực diện nghênh chiến với Huyết Ma Trảm của Huyết Sát. Tiếng nổ kinh thiên động địa rung chuyển cả Thanh Châu Thành.
+
+
+
+
+
+
+
+
+
+
+
+

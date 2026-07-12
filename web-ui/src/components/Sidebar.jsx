@@ -13,13 +13,7 @@ const ACTIVITIES = [
 ];
 
 const STORY_TREE = [
-  { id:"a1", type:"arc",     label:"Arc I — The Ember Plains",  depth:0 },
-  { id:"c1", type:"chapter", label:"Ch.1 — Awakening",          depth:1, words:3241 },
-  { id:"c2", type:"chapter", label:"Ch.2 — The Merchant Road",  depth:1, words:2887 },
-  { id:"c3", type:"chapter", label:"Ch.3 — Ô Thản Thành",       depth:1, words:4102 },
-  { id:"a2", type:"arc",     label:"Arc II — The Sealed Tower",  depth:0 },
-  { id:"c4", type:"chapter", label:"Ch.4 — Huân Nhi",           depth:1, words:1956 },
-  { id:"c5", type:"chapter", label:"Ch.5 — The First Trial",    depth:1, words:0, draft:true },
+  { id:"draft-1", type:"chapter", label:"Bản nháp", depth:0, words:0 },
 ];
 
 // We will compute ENTITIES dynamically from store.
@@ -32,11 +26,19 @@ const TASKS_LIST = [
 ];
 
 export default function Sidebar() {
-  const { activity, sidebarOpen, setSidebarOpen, selChapter, setSelChapter, expandedEnts, setExpandedEnts, focusMode, entities } = useStore();
+  const { 
+    activity, sidebarOpen, setSidebarOpen, selChapter, setSelChapter, 
+    expandedEnts, setExpandedEnts, focusMode, entities,
+    approveEntity, rejectEntity
+  } = useStore();
+
+  const pendingEntities = React.useMemo(() => {
+    return (entities || []).filter(e => e.status !== 'APPROVED');
+  }, [entities]);
 
   const groupedEntities = React.useMemo(() => {
     const groups = { "Characters": [], "Locations": [], "Organizations": [], "Items": [], "Others": [] };
-    (entities || []).forEach(ent => {
+    (entities || []).filter(e => e.status === 'APPROVED').forEach(ent => {
       const type = (ent.entity_type || ent.type || "").toUpperCase();
       const name = ent.name || ent.resolved_name || ent.word;
       if (["PERSON", "PER"].includes(type)) groups["Characters"].push(name);
@@ -108,26 +110,59 @@ export default function Sidebar() {
         ))}
 
         {/* ENTITIES sidebar */}
-        {activity === "entities" && groupedEntities.map(e => (
-          <div key={e.id}>
-            <div 
-              onClick={() => setExpandedEnts(expandedEnts.includes(e.id) ? expandedEnts.filter(i => i !== e.id) : [...expandedEnts, e.id])}
-              className="px-2.5 py-1.5 flex items-center gap-1.5 cursor-pointer text-text-dim text-[11px] font-bold uppercase tracking-wider hover:text-text-mid"
-            >
-              <span className="text-[10px] w-3 text-center">{expandedEnts.includes(e.id) ? "▾" : "▸"}</span>{e.cat}
-              <span className="ml-auto bg-bg4 rounded-lg px-1.5 text-[10px] text-text-dim">{e.items.length}</span>
+        {activity === "entities" && (
+          <div className="flex flex-col gap-1">
+            {pendingEntities.length > 0 && (
+              <div className="mb-2">
+                <div 
+                  onClick={() => setExpandedEnts(expandedEnts.includes("pending") ? expandedEnts.filter(i => i !== "pending") : [...expandedEnts, "pending"])}
+                  className="px-2.5 py-1.5 flex items-center gap-1.5 cursor-pointer text-yellow text-[11px] font-bold uppercase tracking-wider hover:text-yellow/80"
+                >
+                  <span className="text-[10px] w-3 text-center">{expandedEnts.includes("pending") ? "▾" : "▸"}</span>
+                  ⏳ Pending Review
+                  <span className="ml-auto bg-yellow/20 text-yellow rounded-lg px-1.5 text-[10px]">{pendingEntities.length}</span>
+                </div>
+                {expandedEnts.includes("pending") && pendingEntities.map((ent, idx) => (
+                  <div key={idx} className="py-1.5 pr-2 pl-[26px] color-text-mid text-xs flex items-center justify-between group hover:bg-bg2">
+                    <div className="flex items-center gap-1.5 overflow-hidden">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-yellow" />
+                      <span className="truncate text-text-bright">{ent.resolved_name || ent.word}</span>
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => approveEntity(ent)} className="bg-green/20 text-green hover:bg-green hover:text-white border-none rounded px-1.5 cursor-pointer text-[10px]" title="Approve">✓</button>
+                      <button onClick={() => rejectEntity(ent)} className="bg-red/20 text-red hover:bg-red hover:text-white border-none rounded px-1.5 cursor-pointer text-[10px]" title="Reject">✕</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-text-dim mt-2">
+              📚 Knowledge Base
             </div>
-            {expandedEnts.includes(e.id) && e.items.map((it, idx) => (
-              <div key={idx} className="py-1.5 pr-2.5 pl-[26px] color-text-mid cursor-pointer text-xs flex items-center gap-1.5 hover:bg-bg2 hover:text-text-bright">
-                <span 
-                  className="w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{ backgroundColor: e.cat === "Characters" ? "#3b82f6" : e.cat === "Locations" ? "#22c55e" : e.cat === "Organizations" ? "#eab308" : "#a855f7" }}
-                />
-                {it}
+            
+            {groupedEntities.map(e => (
+              <div key={e.id}>
+                <div 
+                  onClick={() => setExpandedEnts(expandedEnts.includes(e.id) ? expandedEnts.filter(i => i !== e.id) : [...expandedEnts, e.id])}
+                  className="px-2.5 py-1.5 flex items-center gap-1.5 cursor-pointer text-text-dim text-[11px] font-bold uppercase tracking-wider hover:text-text-mid"
+                >
+                  <span className="text-[10px] w-3 text-center">{expandedEnts.includes(e.id) ? "▾" : "▸"}</span>{e.cat}
+                  <span className="ml-auto bg-bg4 rounded-lg px-1.5 text-[10px] text-text-dim">{e.items.length}</span>
+                </div>
+                {expandedEnts.includes(e.id) && e.items.map((it, idx) => (
+                  <div key={idx} className="py-1.5 pr-2.5 pl-[26px] color-text-mid cursor-pointer text-xs flex items-center gap-1.5 hover:bg-bg2 hover:text-text-bright">
+                    <span 
+                      className="w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ backgroundColor: e.cat === "Characters" ? "#3b82f6" : e.cat === "Locations" ? "#22c55e" : e.cat === "Organizations" ? "#eab308" : "#a855f7" }}
+                    />
+                    {it}
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-        ))}
+        )}
 
         {/* TIMELINE sidebar */}
         {activity === "timeline" && (

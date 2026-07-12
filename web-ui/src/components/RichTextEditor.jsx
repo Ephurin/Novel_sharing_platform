@@ -117,7 +117,10 @@ export default function RichTextEditor() {
       TableHeader,
       TableCell,
     ],
-    content: text || '<h2>Chương 1: Phế vật vùng biên thùy</h2><p>Bắt đầu viết tại đây...</p>',
+    content: text || '',
+    onCreate: ({ editor }) => {
+      if (!text) setText(editor.getText());
+    },
     onUpdate: ({ editor }) => {
       // Sync Tiptap content to Zustand
       const html = editor.getHTML();

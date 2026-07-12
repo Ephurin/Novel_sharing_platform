@@ -1,0 +1,670 @@
+{
+  "story_id": "writing_session_492",
+  "metadata": {
+    "created_at": "2026-06-03T05:35:06.444161+00:00",
+    "updated_at": "2026-06-03T05:36:30.215232+00:00"
+  },
+  "entities": {
+    "tiêu viêm": {
+      "name": "Tiêu Viêm",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "near city gates",
+      "mentions": 1
+    },
+    "ember plains": {
+      "name": "Ember Plains",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "source of wind",
+      "mentions": 1
+    },
+    "yao lao": {
+      "name": "Yao Lao",
+      "entity_type": "PER",
+      "status": "alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "city gates": {
+      "name": "city gates",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "ahead in the city",
+      "mentions": 2
+    },
+    "alchemist association": {
+      "name": "Alchemist Association",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "jade ring": {
+      "name": "jade ring",
+      "entity_type": "ITEM",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "youth himself": {
+      "name": "youth himself",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "tiêu trần": {
+      "name": "Tiêu Trần",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "lâm nguyệt nhi": {
+      "name": "Lâm Nguyệt Nhi",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "tiêu gia": {
+      "name": "Tiêu Gia",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "thanh châu thành": {
+      "name": "Thanh Châu Thành",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "hắc ma hội": {
+      "name": "Hắc Ma Hội",
+      "entity_type": "ORG",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "luồng hắc khí cuồn cuộn từ phương bắc kéo đến": {
+      "name": "luồng hắc khí cuồn cuộn từ phương Bắc kéo đến",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "tiếng hét thảm thiết vang lên từ phía dưới thung lũng": {
+      "name": "tiếng hét thảm thiết vang lên từ phía dưới thung lũng",
+      "entity_type": "LOC",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1
+    }
+  },
+  "relations": [
+    {
+      "subject": "Tiêu Viêm",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_492",
+      "metadata": {
+        "score": 0.95
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Ember Plains",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_492",
+      "metadata": {
+        "score": 0.9
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Yao Lao",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_492",
+      "metadata": {
+        "score": 0.9
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "city gates",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_492",
+      "metadata": {
+        "score": 0.85
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Alchemist Association",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_492",
+      "metadata": {
+        "score": 0.85
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "jade ring",
+      "relation": "MENTIONED_IN",
+      "object": "writing_session_492",
+      "metadata": {
+        "score": 0.8
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tiêu Viêm",
+      "relation": "KNOWS",
+      "object": "youth himself",
+      "metadata": {
+        "source_event_id": "b4f38672-67ec-40b7-9ef5-5dbebd7f30c4",
+        "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tiêu Viêm",
+      "relation": "BELONGS_TO",
+      "object": "jade ring",
+      "metadata": {
+        "source_event_id": "1f785150-857d-4df7-b95a-f6ac8711e424",
+        "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "youth himself",
+      "relation": "KNOWS",
+      "object": "city gates",
+      "metadata": {
+        "source_event_id": "9684e5b1-23e8-4e5b-a468-561ee9b8d824",
+        "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Yao Lao",
+      "relation": "KNOWS",
+      "object": "Tiêu Viêm",
+      "metadata": {
+        "source_event_id": "90738552-d0c4-475c-ba6b-936a885aed5f",
+        "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Yao Lao",
+      "relation": "ALLY_OF",
+      "object": "Alchemist Association",
+      "metadata": {
+        "source_event_id": "9fb786db-5fd7-40cd-93c0-a56b05775599",
+        "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Yao Lao",
+      "relation": "KNOWS",
+      "object": "city gates",
+      "metadata": {
+        "source_event_id": "7f8fc106-afa4-4fb2-8a8a-11dc09530153",
+        "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tiêu Trần",
+      "relation": "LOVES",
+      "object": "Lâm Nguyệt Nhi",
+      "metadata": {
+        "source_event_id": "6766ee30-988e-4352-bdef-becd7225cf42",
+        "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Tiêu Trần",
+      "relation": "ENEMY_OF",
+      "object": "Tiêu Gia",
+      "metadata": {
+        "source_event_id": "da46a11b-ab95-4725-9ec2-8c4ef83da754",
+        "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lâm Nguyệt Nhi",
+      "relation": "ENEMY_OF",
+      "object": "Thanh Châu Thành",
+      "metadata": {
+        "source_event_id": "1397a2ff-cec2-4ffe-bb0c-bdd19d50feea",
+        "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Hắc Ma Hội",
+      "relation": "ENEMY_OF",
+      "object": "luồng hắc khí cuồn cuộn từ phương Bắc kéo đến",
+      "metadata": {
+        "source_event_id": "c0b0d199-1d7c-4ab8-bdc4-d56bfe8d08fb",
+        "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Hắc Ma Hội",
+      "relation": "ENEMY_OF",
+      "object": "tiếng hét thảm thiết vang lên từ phía dưới thung lũng",
+      "metadata": {
+        "source_event_id": "14fc55d0-922d-4247-bfac-bdac86490f80",
+        "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [
+    {
+      "id": "b4f38672-67ec-40b7-9ef5-5dbebd7f30c4",
+      "subject_id": "Tiêu Viêm",
+      "subject_type": "PER",
+      "action": "speak",
+      "object_id": "youth himself",
+      "object_type": "PER",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+    },
+    {
+      "id": "1f785150-857d-4df7-b95a-f6ac8711e424",
+      "subject_id": "Tiêu Viêm",
+      "subject_type": "PER",
+      "action": "wear",
+      "object_id": "jade ring",
+      "object_type": "ORG",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+    },
+    {
+      "id": "9684e5b1-23e8-4e5b-a468-561ee9b8d824",
+      "subject_id": "youth himself",
+      "subject_type": "PER",
+      "action": "ask",
+      "object_id": "city gates",
+      "object_type": "LOC",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+    },
+    {
+      "id": "90738552-d0c4-475c-ba6b-936a885aed5f",
+      "subject_id": "Yao Lao",
+      "subject_type": "PER",
+      "action": "reply",
+      "object_id": "Tiêu Viêm",
+      "object_type": "PER",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+    },
+    {
+      "id": "9fb786db-5fd7-40cd-93c0-a56b05775599",
+      "subject_id": "Yao Lao",
+      "subject_type": "PER",
+      "action": "mention",
+      "object_id": "Alchemist Association",
+      "object_type": "ORG",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+    },
+    {
+      "id": "7f8fc106-afa4-4fb2-8a8a-11dc09530153",
+      "subject_id": "Yao Lao",
+      "subject_type": "PER",
+      "action": "mention",
+      "object_id": "city gates",
+      "object_type": "LOC",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+    },
+    {
+      "id": "6766ee30-988e-4352-bdef-becd7225cf42",
+      "subject_id": "Tiêu Trần",
+      "subject_type": "PER",
+      "action": "KNOWS",
+      "object_id": "Lâm Nguyệt Nhi",
+      "object_type": "PER",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+    },
+    {
+      "id": "da46a11b-ab95-4725-9ec2-8c4ef83da754",
+      "subject_id": "Tiêu Trần",
+      "subject_type": "PER",
+      "action": "BELONGS_TO",
+      "object_id": "Tiêu Gia",
+      "object_type": "ORG",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+    },
+    {
+      "id": "1397a2ff-cec2-4ffe-bb0c-bdd19d50feea",
+      "subject_id": "Lâm Nguyệt Nhi",
+      "subject_type": "PER",
+      "action": "BELONGS_TO",
+      "object_id": "Thanh Châu Thành",
+      "object_type": "LOC",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+    },
+    {
+      "id": "c0b0d199-1d7c-4ab8-bdc4-d56bfe8d08fb",
+      "subject_id": "Hắc Ma Hội",
+      "subject_type": "ORG",
+      "action": "HAS_ITEM",
+      "object_id": "luồng hắc khí cuồn cuộn từ phương Bắc kéo đến",
+      "object_type": "LOC",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+    },
+    {
+      "id": "14fc55d0-922d-4247-bfac-bdac86490f80",
+      "subject_id": "Hắc Ma Hội",
+      "subject_type": "ORG",
+      "action": "HAS_ITEM",
+      "object_id": "tiếng hét thảm thiết vang lên từ phía dưới thung lũng",
+      "object_type": "LOC",
+      "intent": null,
+      "emotion": null,
+      "polarity": null,
+      "intensity": null,
+      "confidence": 0.9,
+      "source": "LLM",
+      "raw_text": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+    }
+  ],
+  "relation_history": [
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Tiêu Viêm",
+        "relation": "KNOWS",
+        "object": "youth himself",
+        "metadata": {
+          "source_event_id": "b4f38672-67ec-40b7-9ef5-5dbebd7f30c4",
+          "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:35:28.987637+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Tiêu Viêm",
+        "relation": "BELONGS_TO",
+        "object": "jade ring",
+        "metadata": {
+          "source_event_id": "1f785150-857d-4df7-b95a-f6ac8711e424",
+          "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:35:29.027481+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "youth himself",
+        "relation": "KNOWS",
+        "object": "city gates",
+        "metadata": {
+          "source_event_id": "9684e5b1-23e8-4e5b-a468-561ee9b8d824",
+          "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:35:29.058520+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Yao Lao",
+        "relation": "KNOWS",
+        "object": "Tiêu Viêm",
+        "metadata": {
+          "source_event_id": "90738552-d0c4-475c-ba6b-936a885aed5f",
+          "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:35:29.096303+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Yao Lao",
+        "relation": "ALLY_OF",
+        "object": "Alchemist Association",
+        "metadata": {
+          "source_event_id": "9fb786db-5fd7-40cd-93c0-a56b05775599",
+          "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:35:29.142178+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Yao Lao",
+        "relation": "KNOWS",
+        "object": "city gates",
+        "metadata": {
+          "source_event_id": "7f8fc106-afa4-4fb2-8a8a-11dc09530153",
+          "context": "Chapter 3 — Ô Thản Thành\n\nThe city gates loomed ahead, iron-wrought and ancient, their surface etched with formations that hummed faintly in the morning air. Tiêu Viêm pulled his robe tighter against the wind sweeping down from the Ember Plains.\n\n\"You're certain this is the place?\" he muttered, tilting his head toward the jade ring on his finger.\n\nA dry chuckle emanated from the ring — Yao Lao's presence, warm and unhurried. \"The Alchemist Association has operated from this city for three hundred years. Certain? Boy, I helped build the east wing.\"\n\nTiêu Viêm exhaled slowly. The crowd around him thickened as merchants, cultivators, and wandering fighters funneled through the checkpoint. Guards in bronze armor scanned faces with practiced boredom. He lowered his gaze and fell into the flow."
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:35:29.196453+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Tiêu Trần",
+        "relation": "LOVES",
+        "object": "Lâm Nguyệt Nhi",
+        "metadata": {
+          "source_event_id": "6766ee30-988e-4352-bdef-becd7225cf42",
+          "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:36:30.008720+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Tiêu Trần",
+        "relation": "ENEMY_OF",
+        "object": "Tiêu Gia",
+        "metadata": {
+          "source_event_id": "da46a11b-ab95-4725-9ec2-8c4ef83da754",
+          "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:36:30.059713+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Lâm Nguyệt Nhi",
+        "relation": "ENEMY_OF",
+        "object": "Thanh Châu Thành",
+        "metadata": {
+          "source_event_id": "1397a2ff-cec2-4ffe-bb0c-bdd19d50feea",
+          "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:36:30.102702+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Hắc Ma Hội",
+        "relation": "ENEMY_OF",
+        "object": "luồng hắc khí cuồn cuộn từ phương Bắc kéo đến",
+        "metadata": {
+          "source_event_id": "c0b0d199-1d7c-4ab8-bdc4-d56bfe8d08fb",
+          "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:36:30.147623+00:00"
+    },
+    {
+      "action": "append",
+      "relation": {
+        "subject": "Hắc Ma Hội",
+        "relation": "ENEMY_OF",
+        "object": "tiếng hét thảm thiết vang lên từ phía dưới thung lũng",
+        "metadata": {
+          "source_event_id": "14fc55d0-922d-4247-bfac-bdac86490f80",
+          "context": "# Chương 1: Thiếu Niên Vùng Biên Thùy\n\nTiêu Trần đứng trên đỉnh Thương Loan Sơn, phóng tầm mắt nhìn về phía xa xăm, nơi mây mù bao phủ lấy Thanh Vân Môn — tông môn lớn nhất vùng Đông Hải. Gió thổi lồng lộng làm mái tóc đen của hắn bay loạn, nhưng đôi mắt hắn lại bình thản đến lạ kỳ.\n\n\"Tiêu Trần, ngươi lại lười biếng rồi!\" Một giọng nói trong trẻo vang lên.\n\nTiêu Trần mỉm cười, không cần quay đầu lại cũng biết đó là Lâm Nguyệt Nhi, thanh mai trúc mã của hắn. Cô là con gái của thành chủ Thanh Châu Thành, sở hữu thiên phú tu luyện khiến nhiều người ghen tị.\n\n\"Nguyệt Nhi, tỷ xem, Thanh Vân Môn trông thật hùng vĩ. Một ngày nào đó, đệ nhất định sẽ gia nhập Thanh Liên Kiếm Phái, trở thành một kiếm tu chân chính.\" Tiêu Trần hào hứng nói.\n\nLâm Nguyệt Nhi bĩu môi: \"Thanh Liên Kiếm Phái chỉ tuyển những thiên tài thực thụ. Ngươi ngay cả Linh Khí cũng chưa cảm ứng được, làm sao gia nhập? Thôi, đừng mơ mộng nữa, mau quay về tu luyện Sơ Cấp Công Pháp đi.\"\n\nTiêu Trần im lặng. Hắn biết mình vốn là phế vật trong mắt mọi người ở Tiêu Gia. Nhưng không ai biết rằng, trong tay hắn đang nắm giữ một bí mật lớn: một mảnh ngọc bội cổ xưa có khắc bốn chữ 'Vạn Kiếm Quy Tông'.\n\nBất thình lình, bầu trời Thanh Châu Thành tối sầm lại. Một luồng hắc khí cuồn cuộn từ phương Bắc kéo đến. Những tiếng hét thảm thiết vang lên từ phía dưới thung lũng.\n\n\"Không ổn! Là người của Hắc Ma Hội!\" Lâm Nguyệt Nhi biến sắc, thanh kiếm Băng Lam Kiếm trong tay cô run rẩy.\n\nHắc Ma Hội là một tổ chức tà ác chuyên đi cướp bóc và tàn sát các gia tộc nhỏ. Lần này, mục tiêu của chúng dường như chính là Tiêu Gia tại Thanh Châu Thành.\n\n\"Mau đi!\" Tiêu Trần nắm lấy tay Lâm Nguyệt Nhi, cả hai lao nhanh xuống núi. Hắn biết, một trận cuồng phong bão táp sắp ập đến.\n\n"
+        },
+        "source": "system",
+        "locked": false
+      },
+      "timestamp": "2026-06-03T05:36:30.194175+00:00"
+    }
+  ],
+  "entity_states": {
+    "tiêu viêm": [
+      {
+        "attribute": "location",
+        "value": "near city gates",
+        "confidence": 0.9,
+        "source": "AI",
+        "timestamp": "2026-06-03T05:35:28.899544+00:00"
+      },
+      {
+        "attribute": "emotion",
+        "value": "uncertain",
+        "confidence": 0.8,
+        "source": "AI",
+        "timestamp": "2026-06-03T05:35:28.899544+00:00"
+      }
+    ],
+    "yao lao": [
+      {
+        "attribute": "status",
+        "value": "alive",
+        "confidence": 0.9,
+        "source": "AI",
+        "timestamp": "2026-06-03T05:35:28.899544+00:00"
+      }
+    ],
+    "city gates": [
+      {
+        "attribute": "location",
+        "value": "ahead in the city",
+        "confidence": 0.9,
+        "source": "AI",
+        "timestamp": "2026-06-03T05:35:28.899544+00:00"
+      }
+    ],
+    "ember plains": [
+      {
+        "attribute": "location",
+        "value": "source of wind",
+        "confidence": 0.8,
+        "source": "AI",
+        "timestamp": "2026-06-03T05:35:28.899544+00:00"
+      }
+    ]
+  }
+}

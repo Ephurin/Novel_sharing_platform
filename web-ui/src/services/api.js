@@ -32,4 +32,22 @@ export const getKB = async (storyId) => {
   return response.data;
 };
 
+export const overrideRelation = async (storyId, subject, relation, object) => {
+  const response = await api.post('/v1/enhanced/relation/override', {
+    story_id: storyId,
+    subject: subject,
+    relation: relation,
+    object: object,
+  });
+  return response.data;
+};
+
+export const confirmKB = async (storyId, approvedCandidates) => {
+  const response = await api.post('/v1/ai/kb/confirm', {
+    story_id: storyId,
+    approved_candidates: approvedCandidates,
+  });
+  return response.data;
+};
+
 export default api;

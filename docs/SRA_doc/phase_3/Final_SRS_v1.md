@@ -301,29 +301,7 @@ This module allows users to register, log in, and manage personal information.
 ### 4.3 Module 3: AI Intelligence (AI Story Assistant)
 This module represents the core intelligence of Ephurin, supporting content optimization and automated moderation.
 
-#### 4.3.1. UC: Automated Novel Classification
-**a. Activity diagram**
-![Activity diagram - Automated Novel Classification](./images/memberA/4-3-1.png)
-
-**b. Use case description**
-
-| Attribute | Description |
-| :--- | :--- |
-| **Objective** | Use PhoBERT model to classify novel genres based on the synopsis |
-| **Actor** | Author, AI System |
-| **Trigger** | Author completes the synopsis and clicks "Suggest Genre" |
-| **Pre-condition** | Author is in the story creation/editing interface and has entered a synopsis |
-| **Post-condition** | System displays the most relevant genre suggestions |
-
-| Step | Basic Flow | Exception Flow |
-| :--- | :--- | :--- |
-| 1 | Author enters or updates the novel's synopsis. | |
-| 2 | Author requests genre suggestions. | |
-| 3 | AI System processes text and extracts feature vectors. | 3a. Synopsis too short for analysis 3a1. System notifies author to provide more detail. |
-| 4 | AI Model returns probability scores for various genres. | |
-| 5 | System displays the top genre suggestions for the Author to select. | |
-
-#### 4.3.2. UC: Suggest Tags and Title
+#### 4.3.1. UC: Suggest Tags and Title
 **a. Activity diagram**
 ![Activity diagram - Suggest Tags and Title](./images/memberA/4-3-2.png)
 
@@ -344,6 +322,28 @@ This module represents the core intelligence of Ephurin, supporting content opti
 | 4 | AI Model compares the analysis with trending metadata in the database. | |
 | 5 | System displays a list of suggested Tags and potential Titles. | |
 | 6 | Author selects desired Tags or adopts a suggested Title. | |
+
+#### 4.3.2. UC: Automated Novel Classification
+**a. Activity diagram**
+![Activity diagram - Automated Novel Classification](./images/memberA/4-3-1.png)
+
+**b. Use case description**
+
+| Attribute | Description |
+| :--- | :--- |
+| **Objective** | Use PhoBERT model to classify novel genres based on the synopsis |
+| **Actor** | Author, AI System |
+| **Trigger** | Author completes the synopsis and clicks "Suggest Genre" |
+| **Pre-condition** | Author is in the story creation/editing interface and has entered a synopsis |
+| **Post-condition** | System displays the most relevant genre suggestions |
+
+| Step | Basic Flow | Exception Flow |
+| :--- | :--- | :--- |
+| 1 | Author enters or updates the novel's synopsis. | |
+| 2 | Author requests genre suggestions. | |
+| 3 | AI System processes text and extracts feature vectors. | 3a. Synopsis too short for analysis 3a1. System notifies author to provide more detail. |
+| 4 | AI Model returns probability scores for various genres. | |
+| 5 | System displays the top genre suggestions for the Author to select. | |
 
 #### 4.3.3. UC: Analyze Writing Style and Length
 **a. Activity diagram**

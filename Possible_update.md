@@ -32,5 +32,15 @@ Phân tích sự thay đổi trạng thái (Entity State) để đưa ra gợi �
 - **Growth Tracking**: Theo dõi sự thay đổi về sức mạnh, tâm trạng của nhân vật.
 - **Plot Hole Detection**: Cảnh báo nếu nhân vật có hành động trái ngược hoàn toàn với thiết lập tính cách hoặc sức mạnh đã có trước đó.
 
+## 5. 📊 Bảng điều khiển Phân tích Sáng tạo (Creative Analytics Dashboard)
+Thay thế khái niệm "Đánh giá mức độ phụ thuộc AI" bằng hệ thống đo lường trung tính, tập trung vào vai trò làm chủ của tác giả (Creative Ownership). Tránh việc phán xét và khuyến khích sự sáng tạo độc lập.
+
+- **Đo lường đa chiều (Creative Independence Metrics):** Thay vì một điểm số duy nhất, hệ thống theo dõi nhiều chỉ số:
+  - *Human Contribution Ratio:* Tỷ lệ nội dung do người trực tiếp viết.
+  - *AI Acceptance/Override Ratio:* Tỷ lệ chấp nhận/bác bỏ gợi ý từ AI.
+  - *Manual Worldbuilding/Planning Ratio:* Tỷ lệ tự xây dựng thiết lập thế giới và dàn ý.
+- **Kiến trúc hướng Sự kiện (Event-driven Tracking):** Lưu trữ hành động của tác giả dưới dạng event logs với trọng số (Ví dụ: tự tạo nhân vật `+`, chấp nhận AI sinh nguyên bản `-`, tranh luận/viết lại văn bản AI `+`) thay vì tính điểm cộng/trừ trực tiếp. Các event này sẽ được Analytics Engine xử lý thành dữ liệu cho Dashboard.
+- **Phân loại Hồ sơ Tác giả (Author Archetypes):** Dựa trên dữ liệu để xếp loại phong cách sáng tác (Ví dụ: *Traditional Writer, AI-Assisted Writer, AI Collaborator, AI Director, AI-First Creator*). Thông tin này mang tính trực quan và giúp cá nhân hóa công cụ hỗ trợ cho từng loại tác giả.
+
 ---
 *Tài liệu này sẽ được cập nhật liên tục trong quá trình phát triển dự án.*

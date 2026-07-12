@@ -30,6 +30,30 @@ class KBEvent(BaseModel):
     chapter: str
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
+class EventHistoryEntry(BaseModel):
+    event_id: str
+    chapter: int = 1
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    participants: List[str] = Field(default_factory=list)
+    locations: List[str] = Field(default_factory=list)
+    summary: str
+    event_type: str = "general"
+    emotion_tags: List[str] = Field(default_factory=list)
+    importance_score: float = 0.5
+    consequences: List[str] = Field(default_factory=list)
+    source: str = "AI"
+
+class CharacterStateSnapshot(BaseModel):
+    location: str = "Unknown"
+    realm: str = "Unknown"
+    health: int = 100
+    status: str = "Alive"
+    inventory: List[str] = Field(default_factory=list)
+    active_relationships: Dict[str, str] = Field(default_factory=dict)
+
+class CurrentWorldState(BaseModel):
+    characters: Dict[str, CharacterStateSnapshot] = Field(default_factory=dict)
+
 class StoryKB(BaseModel):
     story_id: str
     metadata: Dict[str, str] = Field(default_factory=lambda: {
@@ -42,6 +66,8 @@ class StoryKB(BaseModel):
     enhanced_events: List[Dict[str, Any]] = Field(default_factory=list)
     relation_history: List[Dict[str, Any]] = Field(default_factory=list)
     entity_states: Dict[str, List[Dict[str, Any]]] = Field(default_factory=dict)
+    event_history: List[EventHistoryEntry] = Field(default_factory=list)
+    current_world_state: CurrentWorldState = Field(default_factory=CurrentWorldState)
 
 class StoryKBManager:
     """Manages file-based JSON Knowledge Base for a given story."""
