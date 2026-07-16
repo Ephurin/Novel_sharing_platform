@@ -1,0 +1,83 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #0f1117;
+}
+
+.ide-shell {
+  display: grid;
+  grid-template-rows: 44px 1fr 26px;
+  height: 100vh;
+  color: #d7dce8;
+  background: #0f1117;
+}
+
+.top-toolbar {
+  padding: 0 12px;
+  border-bottom: 1px solid #252a36;
+  background: #141824;
+}
+
+.ide-body {
+  display: grid;
+  grid-template-columns: 52px 300px minmax(420px, 1fr) 340px;
+  min-height: 0;
+}
+
+.activity-bar {
+  padding: 10px 0;
+  border-right: 1px solid #252a36;
+  background: #111520;
+}
+
+.dynamic-sidebar {
+  min-height: 0;
+  padding: 12px;
+  border-right: 1px solid #252a36;
+  background: #151a27;
+}
+
+.sidebar-scroll {
+  height: calc(100vh - 96px);
+}
+
+.editor-workspace {
+  min-width: 0;
+  padding: 22px 28px;
+  background: #0f1117;
+}
+
+.editor-surface {
+  min-height: calc(100vh - 190px);
+  padding: 40px 54px;
+  border-color: #252a36;
+  background: #121620;
+}
+
+.chapter-prose {
+  max-width: 760px;
+  white-space: pre-line;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 19px;
+  line-height: 1.9;
+  color: #edf0f7;
+}
+
+.assistant-panel {
+  min-height: 0;
+  padding: 14px;
+  border-left: 1px solid #252a36;
+  background: #151a27;
+}
+
+.status-bar {
+  padding: 0 10px;
+  border-top: 1px solid #252a36;
+  background: #111520;
+  color: #9aa4b8;
+}

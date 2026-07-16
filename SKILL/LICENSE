@@ -1,0 +1,78 @@
+PROPRIETARY AND CONFIDENTIAL LICENSE
+
+Copyright (c) 2026 uLearnBox. All rights reserved.
+
+This repository and all files, source code, documentation, course content,
+media assets, schemas, configuration, and related materials contained in it
+(the "Materials") are proprietary and confidential property of uLearnBox.
+
+No license, permission, or right is granted to any person or entity except as
+expressly authorized in writing by uLearnBox.
+
+1. Restrictions
+
+You may not, without prior written permission from uLearnBox:
+
+- copy, reproduce, publish, distribute, sublicense, sell, lease, or transfer
+  the Materials;
+- modify, adapt, translate, reverse engineer, decompile, or create derivative
+  works from the Materials;
+- use the Materials for any commercial, educational, research, competitive, or
+  production purpose outside an authorized uLearnBox project;
+- disclose the Materials to any third party;
+- upload, submit, transmit, or otherwise provide the Materials to any external
+  service, software-as-a-service platform, AI system, machine learning system,
+  code assistant, search index, dataset, crawler, scraper, or automated analysis
+  service unless expressly approved in writing by uLearnBox.
+
+2. AI, Machine Learning, and Data Mining Prohibition
+
+The Materials may not be used, directly or indirectly, for:
+
+- training, fine-tuning, evaluating, benchmarking, or improving any artificial
+  intelligence model, machine learning model, large language model, foundation
+  model, embedding model, recommendation system, or similar technology;
+- generating datasets, embeddings, vector indexes, model weights, synthetic
+  training data, or derived training corpora;
+- automated code generation, course generation, content generation, or model
+  output evaluation;
+- text and data mining, scraping, crawling, indexing, semantic search, or
+  automated extraction, except for internal repository operations expressly
+  authorized by uLearnBox.
+
+This prohibition applies to source code, course content, documentation,
+metadata, media assets, prompts, comments, commit history, issues, pull
+requests, file names, folder structure, and any other repository content.
+
+3. GitHub Hosting
+
+Hosting this repository on GitHub does not grant GitHub users, GitHub
+Marketplace applications, GitHub Apps, third-party integrations, AI agents, or
+automated tools any rights to use the Materials beyond access expressly
+authorized by uLearnBox.
+
+Any rights required by GitHub solely to host, store, secure, display, maintain,
+and operate this private repository are governed by the applicable GitHub terms
+between uLearnBox and GitHub. No additional voluntary license is granted by this
+document for AI training, model development, or dataset creation.
+
+4. Confidentiality
+
+Anyone with access to this repository must protect the Materials as
+confidential information and must not disclose, export, or share them except as
+authorized by uLearnBox.
+
+5. Termination
+
+Any unauthorized use immediately terminates all access rights and may result in
+legal action. Upon termination or request by uLearnBox, you must delete all
+copies of the Materials in your possession or control.
+
+6. No Warranty
+
+The Materials are provided "as is" without warranty of any kind, express or
+implied.
+
+7. Reservation of Rights
+
+All rights not expressly granted are reserved by uLearnBox.
