@@ -1,0 +1,63 @@
+import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
+import type { Chapter, Novel } from './novel-types';
+
+export async function getNovel(novelId: string) {
+  const response = await apiClient.get<ApiEnvelope<Novel>>(`/novels/${novelId}`);
+  return response.data.data;
+}
+
+export async function createNovel(input: {
+  title: string;
+  synopsis: string;
+  genre?: string;
+  tags?: string[];
+  coverImageUrl?: string | null;
+}) {
+  const response = await apiClient.post<ApiEnvelope<Novel>>('/novels', input);
+  return response.data.data;
+}
+
+export async function submitNovelPublish(novelId: string) {
+  const response = await apiClient.post<ApiEnvelope<{ novelId: string; status: Novel['status']; moderationRequired: boolean }>>(
+    `/novels/${novelId}/submit-publish`
+  );
+  return response.data.data;
+}
+
+export async function listChapters(novelId: string) {
+  const response = await apiClient.get<ApiEnvelope<Chapter[]>>(`/novels/${novelId}/chapters`);
+  return response.data.data;
+}
+
+export async function getChapter(chapterId: string) {
+  const response = await apiClient.get<ApiEnvelope<Chapter>>(`/chapters/${chapterId}`);
+  return response.data.data;
+}
+
+export async function createChapter(novelId: string, input: {
+  title: string;
+  content: string;
+  isVip?: boolean;
+  priceCoins?: number;
+}) {
+  const response = await apiClient.post<ApiEnvelope<Chapter>>(`/novels/${novelId}/chapters`, input);
+  return response.data.data;
+}
+
+export async function updateChapter(chapterId: string, input: {
+  title?: string;
+  content?: string;
+  isVip?: boolean;
+  priceCoins?: number;
+  autosave?: boolean;
+}) {
+  const response = await apiClient.patch<ApiEnvelope<Chapter>>(`/chapters/${chapterId}`, input);
+  return response.data.data;
+}
+
+export async function submitChapterPublish(chapterId: string) {
+  const response = await apiClient.post<ApiEnvelope<{ chapterId: string; status: Chapter['status']; moderationRequired: boolean }>>(
+    `/chapters/${chapterId}/submit-publish`
+  );
+  return response.data.data;
+}

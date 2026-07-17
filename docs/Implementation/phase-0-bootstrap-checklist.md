@@ -46,8 +46,8 @@ backend/
 
 Minimum backend tasks:
 
-- [ ] Install runtime dependencies.
-- [ ] Install dev dependencies.
+- [x] Install runtime dependencies.
+- [x] Install dev dependencies.
 - [x] Configure TypeScript.
 - [x] Add `GET /api/v1/health`.
 - [x] Add global error handler.
@@ -91,11 +91,11 @@ web/
 
 Minimum web tasks:
 
-- [ ] Install React + Vite + TypeScript.
-- [ ] Install Mantine.
-- [ ] Install React Router.
-- [ ] Install TanStack Query.
-- [ ] Install Zustand.
+- [x] Install React + Vite + TypeScript.
+- [x] Install Mantine.
+- [x] Install React Router.
+- [x] Install TanStack Query.
+- [x] Install Zustand.
 - [x] Add app providers.
 - [x] Add empty routes.
 - [x] Add Author IDE shell placeholder.
@@ -131,13 +131,13 @@ mobile/
 Backend:
 
 ```txt
-npm --prefix backend run dev
+npm.cmd --prefix backend run dev
 ```
 
 Web:
 
 ```txt
-npm --prefix web run dev
+npm.cmd --prefix web run dev
 ```
 
 Expected:
@@ -147,11 +147,52 @@ Expected:
 - web app opens with placeholder shell;
 - no business logic implemented yet.
 
-## 6. Phase 0 Done Criteria
+## 6. Phase 0 Review Guide
 
-- [ ] `backend/` can run locally.
-- [ ] `web/` can run locally.
-- [ ] folder structure matches `docs/Backend/module-structure.md` and `SKILL/FRONTEND_DESIGN.md`.
+Review after Phase 0 is required before starting Phase 1.
+
+### 6.1 Backend Review
+
+- [x] Confirm `npm.cmd --prefix backend run dev` starts without crashing.
+- [x] Open `GET http://localhost:4000/api/v1/health`.
+- [x] Confirm health response uses the shared success envelope.
+- [x] Confirm global error and not-found middleware are registered.
+- [x] Confirm backend modules match planned boundaries: `auth`, `users`, `novels`, `reading`, `interactions`, `wallet`, `ai`, `content-control`, `admin`.
+- [x] Confirm no real business logic or database tables are implemented yet.
+
+### 6.2 Frontend Review
+
+- [x] Confirm `npm.cmd --prefix web run dev` starts without crashing.
+- [x] Open the Vite local URL, usually `http://localhost:5173`.
+- [x] Confirm the Author IDE shell is visible.
+- [x] Confirm the left activity bar includes Story, Entities, Timeline, Knowledge Graph, Search, Tasks, Projects, Settings.
+- [x] Confirm the layout has sidebar, editor area, AI assistant panel, and status bar.
+- [x] Confirm no feature-specific API integration is implemented yet.
+
+### 6.3 Project Structure Review
+
+- [x] Confirm `backend/node_modules/` and `web/node_modules/` are not committed.
+- [x] Confirm `.env.example` exists for both backend and web.
+- [x] Confirm `.gitignore` excludes `.env`, `node_modules/`, `dist/`, and build outputs.
+- [x] Confirm documentation still matches the scaffolded folders.
+
+### 6.4 Review Decision
+
+Approve Phase 0 if:
+
+- backend and web both run locally;
+- folder structure matches architecture docs;
+- no unexpected business logic appears in scaffold;
+- no secret files are committed;
+- Phase 1 Auth can start without restructuring.
+
+If approved, continue to Phase 1: Auth foundation.
+
+## 7. Phase 0 Done Criteria
+
+- [x] `backend/` can run locally.
+- [x] `web/` can run locally.
+- [x] folder structure matches `docs/Backend/module-structure.md` and `SKILL/FRONTEND_DESIGN.md`.
 - [x] `.env.example` files exist.
 - [x] README/run instructions exist in each scaffolded project.
-- [ ] Team can start Phase 1 auth implementation without restructuring.
+- [x] Team can start Phase 1 auth implementation without restructuring.

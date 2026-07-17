@@ -9,6 +9,20 @@ body {
   background: #0f1117;
 }
 
+.auth-shell {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at top left, rgba(124, 58, 237, 0.25), transparent 32rem),
+    #0f1117;
+}
+
+.auth-card {
+  width: min(420px, calc(100vw - 32px));
+  background: #171923;
+}
+
 .ide-shell {
   display: grid;
   grid-template-rows: 44px 1fr 26px;
@@ -57,6 +71,17 @@ body {
   padding: 40px 54px;
   border-color: #252a36;
   background: #121620;
+}
+
+.editor-textarea textarea {
+  min-height: calc(100vh - 190px);
+  padding: 40px 54px;
+  border-color: #252a36;
+  background: #121620;
+  color: #edf0f7;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 19px;
+  line-height: 1.9;
 }
 
 .chapter-prose {

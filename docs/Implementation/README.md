@@ -10,6 +10,9 @@ Use it as the working checklist before creating `backend/`, `web/`, and later `m
 | :--- | :--- |
 | `roadmap.md` | End-to-end implementation phases across backend, frontend, database, and AI/Copilot. |
 | `phase-0-bootstrap-checklist.md` | First coding checklist for repository scaffolding. |
+| `phase-1-backend-foundation-checklist.md` | Backend foundation checklist for auth middleware and database clients. |
+| `phase-2-auth-user-core-content-checklist.md` | Auth, user, novel, chapter, draft, and publish-state implementation checklist. |
+| `phase-3-web-author-ide-checklist.md` | Web Author IDE checklist for auth, project loading, chapter editing, and publish actions. |
 
 ## Source Documents
 
