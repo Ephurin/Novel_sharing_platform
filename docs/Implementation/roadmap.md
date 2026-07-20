@@ -13,7 +13,7 @@ The MVP should demonstrate:
 - Content Control moderation flow;
 - Reader browsing/reading basics;
 - mock wallet/unlock flow;
-- AI/Copilot contract stubs or lightweight integration.
+- AI/Copilot is deferred until the non-AI backend and frontend are stable.
 
 ## 2. Work Order Summary
 
@@ -24,11 +24,12 @@ The MVP should demonstrate:
 | 2 | Core content | Users, novels, chapters, drafts, publish state |
 | 3 | Web Author IDE shell | Activity bar, story tree, editor layout, API client |
 | 4 | Content Control + Interaction | Rule check, reports, comments, moderation queue |
-| 5 | Reader experience | Public browse, novel detail, reader screen |
-| 6 | Mock wallet | Coin balance, deposit mock, unlock, transactions |
-| 7 | AI/Copilot | Metadata, suggestions, consistency check, context proposals |
-| 8 | Admin dashboard | Users, taxonomy, moderation review, withdraw review, stats |
-| 9 | Mobile app | Reader mobile app after APIs stabilize |
+| 5 | Reader backend APIs | Public browse, novel detail, reading state, library, reactions |
+| 6 | Mock wallet backend APIs | Coin balance, deposit mock, unlock, transactions |
+| 7 | Profile, notification, and admin backend APIs | Author profile, notifications, users, taxonomy, withdraw review, stats |
+| 8 | Web frontend completion | Author IDE, reader web, wallet mock UI, notifications, admin UI |
+| 9 | Mobile reader app | Reader mobile app after APIs stabilize |
+| 10 | AI/Copilot | Metadata, suggestions, consistency check, context proposals |
 
 ## 3. Phase Details
 
@@ -105,7 +106,7 @@ Important constraints:
 - editable draft/autosave content lives in MongoDB;
 - do not implement full draft version history in MVP.
 
-### Phase 3: Web Author AI Writing IDE Shell
+### Phase 3: Web Author IDE Shell
 
 References:
 
@@ -113,7 +114,6 @@ References:
 - `docs/Frontend/screen-specs.md`
 - `docs/Frontend/user-flows.md`
 - `docs/API/novel-chapter-api.md`
-- `docs/API/ai-copilot-api.md`
 
 Deliverables:
 
@@ -124,7 +124,7 @@ Deliverables:
   - left activity bar;
   - dynamic sidebar;
   - rich text editor area;
-  - right AI assistant panel;
+  - right assistant/context panel placeholder;
   - bottom status bar.
 - API client wrapper.
 - TanStack Query provider.
@@ -132,7 +132,7 @@ Deliverables:
 
 Implementation note:
 
-- AI/Copilot actions can be stubbed until Phase 7.
+- AI/Copilot actions are deferred until Phase 10.
 - The layout should support Story, Entities, Timeline, Knowledge Graph, Search, Tasks, Projects, Settings.
 
 ### Phase 4: Content Control + Interaction
@@ -159,29 +159,30 @@ Boundary:
 - Content Control uses keyword/rule filtering and user reports.
 - AI/LLM is not used for content judgement.
 
-### Phase 5: Reader Experience
+### Phase 5: Reader Backend APIs
 
 References:
 
 - `docs/API/reading-api.md`
 - `docs/API/novel-chapter-api.md`
-- `docs/Frontend/wireframes.md`
+- `docs/API/interaction-social-api.md`
 
 Deliverables:
 
-- public novel list/search;
-- novel detail;
-- chapter reader;
-- reading history sync;
-- library/bookmark;
-- likes/follows.
+- public novel list/search API;
+- novel detail API;
+- chapter reading API;
+- reading history sync API;
+- library/bookmark API;
+- likes/follows API.
 
-Frontend:
+Boundary:
 
-- Web responsive fallback can be basic.
-- Mobile app can wait until Phase 9.
+- implement backend endpoints and persistence first;
+- web/mobile UI waits until Phase 8/9;
+- no AI personalization in this phase.
 
-### Phase 6: Mock Wallet
+### Phase 6: Mock Wallet Backend APIs
 
 References:
 
@@ -191,13 +192,13 @@ References:
 
 Deliverables:
 
-- wallet balance;
-- mock deposit session;
+- wallet balance API;
+- mock deposit session API;
 - mock deposit webhook/success action;
-- VIP chapter unlock;
-- donate Coins;
-- author withdraw request;
-- transaction history.
+- VIP chapter unlock API;
+- donate Coins API;
+- author withdraw request API;
+- transaction history API.
 
 Rules:
 
@@ -206,51 +207,65 @@ Rules:
 - all wallet mutations create transaction rows;
 - wallet decrement must be transaction-safe.
 
-### Phase 7: AI + Writing Copilot
+### Phase 7: Profile, Notification, and Admin Backend APIs
 
 References:
 
-- `docs/SRS/ai-intelligence-service.md`
-- `docs/API/ai-copilot-api.md`
+- `docs/API/user-profile-api.md`
+- `docs/API/interaction-social-api.md`
+- `docs/API/admin-api.md`
+- `docs/API/content-control-api.md`
+- `docs/API/payment-wallet-api.md`
+- `docs/Database/postgresql-schema.md`
 - `docs/Database/mongodb-collections.md`
 
 Deliverables:
 
-- metadata suggestion endpoint;
-- classification endpoint;
-- style analysis endpoint;
-- `POST /ai/copilot/suggestions`;
-- `POST /ai/copilot/consistency-check`;
-- context proposal generation;
-- context proposal approve/reject flow.
+- public author profile API with follower count and published novel summary;
+- notification list API;
+- notification mark-read API;
+- device-token registration API;
+- admin dashboard stats API;
+- moderation review management API hardening;
+- user lock/unlock API;
+- taxonomy management API;
+- mock withdraw review API.
 
-MVP option:
+Boundary:
 
-- Use deterministic/mock provider first.
-- Keep `ai-provider.client` interface ready for real LLM integration.
+- backend APIs only;
+- author/reader/admin UI waits until Phase 8/9;
+- notifications can be persisted without real push delivery in MVP;
+- reuse Phase 4 moderation data instead of duplicating moderation logic.
 
-Rules:
-
-- AI suggestions do not auto-save into drafts.
-- context updates require Author approval.
-- consistency warnings are non-blocking.
-- do not use AI for Content Control.
-
-### Phase 8: Admin Dashboard
+### Phase 8: Web Frontend Completion
 
 References:
 
+- `docs/Frontend/wireframes.md`
+- `docs/Frontend/screen-specs.md`
+- `docs/Frontend/user-flows.md`
+- `docs/API/reading-api.md`
+- `docs/API/payment-wallet-api.md`
 - `docs/API/admin-api.md`
 - `docs/API/content-control-api.md`
-- `docs/Frontend/screen-specs.md`
 
 Deliverables:
 
-- admin dashboard stats;
-- moderation review queue UI;
-- user lock/unlock;
-- taxonomy management;
-- mock withdraw review.
+- finish Author IDE non-AI flows;
+- reader web browse/detail/reader screens;
+- library/bookmark/history screens;
+- public author profile screens;
+- notification list/read state UI;
+- mock wallet/deposit/unlock screens;
+- admin dashboard, moderation queue, user/taxonomy/withdraw screens;
+- shared frontend auth/session guards.
+
+Boundary:
+
+- consume stable backend APIs from Phases 2, 4, 5, 6, and 7;
+- keep AI UI as disabled/placeholder entry points;
+- do not implement AI calls yet.
 
 ### Phase 9: Mobile Reader App
 
@@ -274,6 +289,44 @@ Deliverables:
 
 Start this only after reader APIs and wallet APIs are stable.
 
+### Phase 10: AI + Writing Copilot
+
+References:
+
+- `docs/SRS/ai-intelligence-service.md`
+- `docs/API/ai-copilot-api.md`
+- `docs/Database/mongodb-collections.md`
+- `docs/Backend/overview.md`
+- `docs/Backend/module-structure.md`
+
+Deliverables:
+
+- separate FastAPI/Python `ai-service`;
+- Node.js `ai-gateway` client/routes that proxy authorized AI requests;
+- metadata suggestion endpoint;
+- classification endpoint;
+- style analysis endpoint;
+- `POST /ai/copilot/suggestions`;
+- `POST /ai/copilot/consistency-check`;
+- context proposal generation;
+- context proposal approve/reject flow.
+
+MVP option:
+
+- Use deterministic/mock provider first.
+- Keep FastAPI provider interfaces ready for real LLM integration.
+
+Rules:
+
+- frontend calls Node.js `/api/v1/ai/*`, not FastAPI directly;
+- Node.js backend owns auth, ownership checks, rate limits, and persistence decisions;
+- FastAPI owns model calls, prompt/context assembly helpers, embeddings, and consistency execution;
+- update detailed AI SRS/API/DB/deployment docs after Phase 9 and before Phase 10 coding;
+- AI suggestions do not auto-save into drafts.
+- context updates require Author approval.
+- consistency warnings are non-blocking.
+- do not use AI for Content Control.
+
 ## 4. Cross-Phase Rules
 
 - API response format must follow `docs/API/conventions.md`.
@@ -282,8 +335,20 @@ Start this only after reader APIs and wallet APIs are stable.
 - Backend module boundaries must follow `docs/Backend/module-structure.md`.
 - Frontend Author IDE must follow `docs/Frontend/wireframes.md`.
 - Do not implement features that contradict SRS/API docs; update docs first if requirements change.
+- From Phase 5 onward, finish non-AI backend APIs first, then frontend integration, then AI/Copilot last.
 
-## 5. Suggested First Coding Sprint
+## 5. Current Priority After Phase 4
+
+Use this order after Phase 4 is approved:
+
+1. Phase 5: Reader backend APIs.
+2. Phase 6: Mock wallet backend APIs.
+3. Phase 7: Profile, notification, and admin backend APIs.
+4. Phase 8: Web frontend completion.
+5. Phase 9: Mobile reader app.
+6. Phase 10: AI/Copilot.
+
+## 6. Suggested First Coding Sprint
 
 Sprint 1 should include:
 

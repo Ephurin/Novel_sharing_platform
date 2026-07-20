@@ -1,0 +1,419 @@
+{
+  "info": {
+    "name": "Ephurin Phase 6 - Mock Wallet Backend APIs",
+    "_postman_id": "f18358c0-666d-4a1d-91ac-phase6wallet",
+    "description": "Postman collection for Phase 6 mock wallet review. Requires one published VIP chapter and its authorId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" },
+    { "key": "readerIdentifier", "value": "reader04" },
+    { "key": "authorIdentifier", "value": "reader03" },
+    { "key": "password", "value": "StrongPassword123!" },
+    { "key": "vipChapterId", "value": "PASTE_PUBLISHED_VIP_CHAPTER_UUID_HERE" },
+    { "key": "authorId", "value": "PASTE_AUTHOR_USER_UUID_HERE" },
+    { "key": "readerToken", "value": "" },
+    { "key": "authorToken", "value": "" },
+    { "key": "readerWalletId", "value": "" },
+    { "key": "authorWalletId", "value": "" },
+    { "key": "readerBalanceBeforeDeposit", "value": "" },
+    { "key": "readerBalanceAfterDeposit", "value": "" },
+    { "key": "readerBalanceAfterUnlock", "value": "" },
+    { "key": "readerBalanceAfterDonation", "value": "" },
+    { "key": "authorBalanceBeforeWithdraw", "value": "" },
+    { "key": "authorLockedBeforeWithdraw", "value": "" },
+    { "key": "depositSessionId", "value": "" },
+    { "key": "depositTransactionId", "value": "" },
+    { "key": "unlockTransactionId", "value": "" },
+    { "key": "donationTransactionId", "value": "" },
+    { "key": "withdrawRequestId", "value": "" },
+    { "key": "withdrawTransactionId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "00 Auth - Login READER reader04",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{readerIdentifier}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('READER login returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('reader04 role is READER', () => pm.expect(json.data.user.role).to.eql('READER'));",
+            "pm.collectionVariables.set('readerToken', json.data.accessToken);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "01 Auth - Login AUTHOR reader03",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{authorIdentifier}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('AUTHOR login returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('reader03 role is AUTHOR', () => pm.expect(json.data.user.role).to.eql('AUTHOR'));",
+            "pm.collectionVariables.set('authorToken', json.data.accessToken);",
+            "pm.collectionVariables.set('authorId', json.data.user.userId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "02 Reader Wallet - Get Initial Balance",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/wallet/me", "host": ["{{baseUrl}}"], "path": ["wallet", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('reader wallet returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('reader wallet has balances', () => { pm.expect(json.data).to.have.property('coinsBalance'); pm.expect(json.data).to.have.property('lockedCoins'); });",
+            "pm.collectionVariables.set('readerWalletId', json.data.walletId);",
+            "pm.collectionVariables.set('readerBalanceBeforeDeposit', String(json.data.coinsBalance));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "03 Deposit - Create Mock Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"packageCode\": \"COIN_5000\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/wallet/deposit-sessions", "host": ["{{baseUrl}}"], "path": ["wallet", "deposit-sessions"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('deposit session returns 201', () => pm.response.to.have.status(201));",
+            "pm.test('deposit session is PENDING', () => pm.expect(json.data.status).to.eql('PENDING'));",
+            "pm.test('deposit amount is 5000', () => pm.expect(json.data.amountCoins).to.eql(5000));",
+            "pm.test('mock payment URL exists', () => pm.expect(json.data.mockPaymentUrl).to.be.a('string').and.not.empty);",
+            "pm.collectionVariables.set('depositSessionId', json.data.depositSessionId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "04 Deposit - Complete Mock Success",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"depositSessionId\": \"{{depositSessionId}}\",\n  \"mockResult\": \"SUCCESS\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/wallet/mock-webhook/deposit-success", "host": ["{{baseUrl}}"], "path": ["wallet", "mock-webhook", "deposit-success"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('mock deposit success returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('deposit session becomes SUCCESS', () => pm.expect(json.data.status).to.eql('SUCCESS'));",
+            "pm.test('deposit transaction exists', () => pm.expect(json.data.transactionId).to.be.a('string').and.not.empty);",
+            "pm.collectionVariables.set('depositTransactionId', json.data.transactionId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "05 Reader Wallet - Balance After Deposit",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/wallet/me", "host": ["{{baseUrl}}"], "path": ["wallet", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const before = Number(pm.collectionVariables.get('readerBalanceBeforeDeposit') || 0);",
+            "pm.test('reader wallet after deposit returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('deposit credits 5000 Coins', () => pm.expect(json.data.coinsBalance).to.eql(before + 5000));",
+            "pm.collectionVariables.set('readerBalanceAfterDeposit', String(json.data.coinsBalance));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "06 VIP Read - Blocked Before Unlock",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/reading/chapters/{{vipChapterId}}", "host": ["{{baseUrl}}"], "path": ["reading", "chapters", "{{vipChapterId}}"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('VIP chapter is blocked before unlock', () => pm.response.to.have.status(402));",
+            "pm.test('blocked VIP read uses PAYMENT_002', () => pm.expect(json.error.code).to.eql('PAYMENT_002'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "07 Unlock - Unlock VIP Chapter",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/chapters/{{vipChapterId}}/unlock", "host": ["{{baseUrl}}"], "path": ["chapters", "{{vipChapterId}}", "unlock"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('unlock returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('unlock response says unlocked true', () => pm.expect(json.data.unlocked).to.eql(true));",
+            "pm.test('unlock transaction exists unless already unlocked', () => { if (!json.data.alreadyUnlocked) pm.expect(json.data.transactionId).to.be.a('string').and.not.empty; });",
+            "pm.collectionVariables.set('unlockTransactionId', json.data.transactionId || '');"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "08 Reader Wallet - Balance After Unlock",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/wallet/me", "host": ["{{baseUrl}}"], "path": ["wallet", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const afterDeposit = Number(pm.collectionVariables.get('readerBalanceAfterDeposit') || 0);",
+            "pm.test('reader wallet after unlock returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('unlock does not increase reader balance', () => pm.expect(json.data.coinsBalance).to.be.at.most(afterDeposit));",
+            "pm.collectionVariables.set('readerBalanceAfterUnlock', String(json.data.coinsBalance));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "09 VIP Read - Allowed After Unlock",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/reading/chapters/{{vipChapterId}}", "host": ["{{baseUrl}}"], "path": ["reading", "chapters", "{{vipChapterId}}"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('unlocked VIP read returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('unlocked VIP content is visible', () => pm.expect(json.data.content).to.be.a('string').and.not.empty);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "10 Donate - Donate Coins To Author",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amountCoins\": 100,\n  \"message\": \"Thanks for the chapter!\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/authors/{{authorId}}/donations", "host": ["{{baseUrl}}"], "path": ["authors", "{{authorId}}", "donations"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('donation returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('donation response says donated true', () => pm.expect(json.data.donated).to.eql(true));",
+            "pm.test('donation amount is 100', () => pm.expect(json.data.amountCoins).to.eql(100));",
+            "pm.collectionVariables.set('donationTransactionId', json.data.transactionId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "11 Reader Wallet - Balance After Donation",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/wallet/me", "host": ["{{baseUrl}}"], "path": ["wallet", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const afterUnlock = Number(pm.collectionVariables.get('readerBalanceAfterUnlock') || 0);",
+            "pm.test('reader wallet after donation returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('donation deducts 100 Coins', () => pm.expect(json.data.coinsBalance).to.eql(afterUnlock - 100));",
+            "pm.collectionVariables.set('readerBalanceAfterDonation', String(json.data.coinsBalance));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "12 Author Wallet - Balance Before Withdraw",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": { "raw": "{{baseUrl}}/wallet/me", "host": ["{{baseUrl}}"], "path": ["wallet", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('author wallet returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('author has enough Coins for withdraw after unlock/donation', () => pm.expect(json.data.coinsBalance).to.be.at.least(100));",
+            "pm.collectionVariables.set('authorWalletId', json.data.walletId);",
+            "pm.collectionVariables.set('authorBalanceBeforeWithdraw', String(json.data.coinsBalance));",
+            "pm.collectionVariables.set('authorLockedBeforeWithdraw', String(json.data.lockedCoins));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "13 Withdraw - Author Creates Request",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amountCoins\": 100,\n  \"bankAccountLabel\": \"Demo Bank Account\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/wallet/withdraw-requests", "host": ["{{baseUrl}}"], "path": ["wallet", "withdraw-requests"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('withdraw request returns 201', () => pm.response.to.have.status(201));",
+            "pm.test('withdraw request is PENDING', () => pm.expect(json.data.status).to.eql('PENDING'));",
+            "pm.collectionVariables.set('withdrawRequestId', json.data.withdrawRequestId);",
+            "pm.collectionVariables.set('withdrawTransactionId', json.data.transactionId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "14 Author Wallet - Balance After Withdraw Request",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": { "raw": "{{baseUrl}}/wallet/me", "host": ["{{baseUrl}}"], "path": ["wallet", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const beforeBalance = Number(pm.collectionVariables.get('authorBalanceBeforeWithdraw') || 0);",
+            "const beforeLocked = Number(pm.collectionVariables.get('authorLockedBeforeWithdraw') || 0);",
+            "pm.test('author wallet after withdraw returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('withdraw locks 100 Coins', () => pm.expect(json.data.lockedCoins).to.eql(beforeLocked + 100));",
+            "pm.test('withdraw deducts available balance by 100', () => pm.expect(json.data.coinsBalance).to.eql(beforeBalance - 100));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "15 Reader Transactions - All Wallet Mutations Logged",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/wallet/transactions?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["wallet", "transactions"],
+          "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const types = (json.data || []).map(tx => tx.type);",
+            "pm.test('reader transactions return 200', () => pm.response.to.have.status(200));",
+            "pm.test('reader has DEPOSIT transaction', () => pm.expect(types).to.include('DEPOSIT'));",
+            "pm.test('reader has UNLOCK transaction', () => pm.expect(types).to.include('UNLOCK'));",
+            "pm.test('reader has DONATE transaction', () => pm.expect(types).to.include('DONATE'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "16 Author Transactions - Withdraw Logged",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/wallet/transactions?type=WITHDRAW&status=PENDING&page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["wallet", "transactions"],
+          "query": [
+            { "key": "type", "value": "WITHDRAW" },
+            { "key": "status", "value": "PENDING" },
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "20" }
+          ]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const withdrawTransactionId = pm.collectionVariables.get('withdrawTransactionId');",
+            "pm.test('author withdraw transactions return 200', () => pm.response.to.have.status(200));",
+            "pm.test('withdraw pending transaction is listed', () => pm.expect((json.data || []).some(tx => tx.transactionId === withdrawTransactionId)).to.eql(true));"
+          ]
+        }
+      }]
+    }
+  ]
+}

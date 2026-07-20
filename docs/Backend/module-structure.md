@@ -82,15 +82,13 @@ backend/
         wallet.schemas.ts
         wallet.types.ts
 
-      ai/
-        ai.controller.ts
-        ai.service.ts
-        copilot.service.ts
-        ai-provider.client.ts
-        copilot-log.repository.ts
-        ai.routes.ts
-        ai.schemas.ts
-        ai.types.ts
+      ai-gateway/              # Phase 10 placeholder; do not implement before Phase 10
+        ai-gateway.controller.ts
+        ai-gateway.service.ts
+        ai-service.client.ts
+        ai-gateway.routes.ts
+        ai-gateway.schemas.ts
+        ai-gateway.types.ts
 
       content-control/
         content-control.controller.ts
@@ -123,6 +121,18 @@ backend/
       constants/
       events/
       utils/
+
+ai-service/                    # Phase 10 FastAPI service; created after Phase 9
+  app/
+    main.py
+    api/
+    core/
+    providers/
+    copilot/
+    embeddings/
+    consistency/
+    schemas/
+  tests/
 ```
 
 ## Layer Responsibilities
@@ -184,7 +194,8 @@ Repositories should not:
 | `reading` | `reading_preferences`, `reading_histories`, `bookmarks`, reading cache. |
 | `interactions` | `comments`, `likes`, `follows`, `notifications`, `device_tokens`. |
 | `wallet` | `wallets`, `transactions`, `chapter_unlocks`, `deposit_sessions`, `withdraw_requests`. |
-| `ai` | AI provider calls, Copilot suggestions, consistency checks, Copilot generation logs. |
+| `ai-gateway` | Node.js auth/ownership/rate-limit boundary and internal client for future AI service calls. |
+| `ai-service` | Future FastAPI service for AI provider calls, Copilot suggestions, consistency checks, embeddings, and generation logs. |
 | `content-control` | `content_filter_rules`, `moderation_reviews`, `reports`, `moderation_evidence`. |
 | `admin` | user management, dashboard aggregation, taxonomy management, mock withdraw review. |
 
@@ -214,6 +225,8 @@ The app should register route groups by module:
 /api/v1/content-control
 /api/v1/admin
 ```
+
+`/api/v1/ai` should be exposed by the Node.js `ai-gateway` in Phase 10. The public API must not expose the FastAPI service directly.
 
 Some resource routes are mounted across modules but should still call the owner module:
 
@@ -245,3 +258,16 @@ Alternatives considered:
 | NestJS | Strong module structure, DI, guards, decorators. | More framework concepts to learn. |
 
 Fastify or NestJS can be reconsidered after MVP, but API/DB docs should proceed with Express conventions now.
+
+## AI Service Decision
+
+Approved future direction for Phase 10: **FastAPI + Python** for AI/Copilot execution.
+
+Rationale:
+
+- Python has stronger LLM, embedding, and vector retrieval ecosystem support.
+- AI dependencies remain isolated from the core Node.js backend.
+- The core backend can stay stable while AI provider/model choices evolve.
+- AI failures or latency can be contained behind a gateway/client boundary.
+
+Until Phase 10, keep AI routes and UI entry points as placeholders only.

@@ -3,6 +3,7 @@ import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
 import {
   getMySettings,
+  getAuthorProfile,
   getPrivateProfile,
   getPublicProfile,
   updateMyProfile,
@@ -20,6 +21,15 @@ function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
 export const getPublicProfileController: RequestHandler = async (request, response, next) => {
   try {
     const result = await getPublicProfile(String(request.params.userId));
+    response.json(successResponse(result));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAuthorProfileController: RequestHandler = async (request, response, next) => {
+  try {
+    const result = await getAuthorProfile(String(request.params.authorId));
     response.json(successResponse(result));
   } catch (error) {
     next(error);

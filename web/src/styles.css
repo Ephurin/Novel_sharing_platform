@@ -106,3 +106,55 @@ body {
   background: #111520;
   color: #9aa4b8;
 }
+
+.web-shell {
+  display: grid;
+  grid-template-rows: 44px 1fr;
+  min-height: 100vh;
+  color: #d7dce8;
+  background: #0f1117;
+}
+
+.web-topbar {
+  padding: 0 14px;
+  border-bottom: 1px solid #252a36;
+  background: #141824;
+}
+
+.web-body {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  min-height: 0;
+}
+
+.web-nav {
+  min-height: 0;
+  padding: 12px;
+  border-right: 1px solid #252a36;
+  background: #151a27;
+}
+
+.web-nav-link {
+  border-radius: 8px;
+}
+
+.web-content {
+  min-width: 0;
+  min-height: 0;
+  padding: 22px;
+  overflow: auto;
+}
+
+.phase-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.reader-panel {
+  grid-column: span 2;
+}
+
+.grow {
+  flex: 1;
+}

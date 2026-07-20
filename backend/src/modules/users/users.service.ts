@@ -3,6 +3,7 @@ import type { AuthContext } from '../../core/security/auth-context.js';
 import type { UpdateProfileInput, UpdateSettingsInput } from './users.schemas.js';
 import {
   findProfileByUserId,
+  findAuthorProfileById,
   updateProfile as updateProfileRow,
   updateSettings as updateSettingsRow
 } from './users.repository.js';
@@ -51,4 +52,14 @@ export async function getMySettings(auth: AuthContext) {
 export async function updateMySettings(auth: AuthContext, input: UpdateSettingsInput) {
   await updateSettingsRow(auth.userId, input);
   return getMySettings(auth);
+}
+
+export async function getAuthorProfile(authorId: string) {
+  const profile = await findAuthorProfileById(authorId);
+
+  if (!profile) {
+    throw new AppError(404, 'NOT_FOUND_001', 'Resource not found');
+  }
+
+  return profile;
 }

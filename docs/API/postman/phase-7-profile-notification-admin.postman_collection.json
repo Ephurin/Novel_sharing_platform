@@ -1,0 +1,389 @@
+{
+  "info": {
+    "name": "Ephurin Phase 7 - Profile, Notification, Admin Backend APIs",
+    "_postman_id": "6c5a7b81-5d25-4fe7-a7e7-phase7admin",
+    "description": "Postman collection for Phase 7 review. Uses reader02 as ADMIN, reader03 as AUTHOR, reader04 as READER. Withdraw review tests create mock wallet data first.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" },
+    { "key": "adminIdentifier", "value": "reader02" },
+    { "key": "authorIdentifier", "value": "reader03" },
+    { "key": "readerIdentifier", "value": "reader04" },
+    { "key": "password", "value": "StrongPassword123!" },
+    { "key": "notificationId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "adminToken", "value": "" },
+    { "key": "authorToken", "value": "" },
+    { "key": "readerToken", "value": "" },
+    { "key": "adminUserId", "value": "" },
+    { "key": "authorId", "value": "" },
+    { "key": "readerUserId", "value": "" },
+    { "key": "depositSessionId", "value": "" },
+    { "key": "donationTransactionId", "value": "" },
+    { "key": "approveWithdrawRequestId", "value": "" },
+    { "key": "rejectWithdrawRequestId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "00 Auth - Login ADMIN reader02",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"{{adminIdentifier}}\",\n  \"password\": \"{{password}}\"\n}" },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('ADMIN login returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('reader02 role is ADMIN', () => pm.expect(json.data.user.role).to.eql('ADMIN'));",
+        "pm.collectionVariables.set('adminToken', json.data.accessToken);",
+        "pm.collectionVariables.set('adminUserId', json.data.user.userId);"
+      ] } }]
+    },
+    {
+      "name": "01 Auth - Login AUTHOR reader03",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"{{authorIdentifier}}\",\n  \"password\": \"{{password}}\"\n}" },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('AUTHOR login returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('reader03 role is AUTHOR', () => pm.expect(json.data.user.role).to.eql('AUTHOR'));",
+        "pm.collectionVariables.set('authorToken', json.data.accessToken);",
+        "pm.collectionVariables.set('authorId', json.data.user.userId);"
+      ] } }]
+    },
+    {
+      "name": "02 Auth - Login READER reader04",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"{{readerIdentifier}}\",\n  \"password\": \"{{password}}\"\n}" },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('READER login returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('reader04 role is READER', () => pm.expect(json.data.user.role).to.eql('READER'));",
+        "pm.collectionVariables.set('readerToken', json.data.accessToken);",
+        "pm.collectionVariables.set('readerUserId', json.data.user.userId);"
+      ] } }]
+    },
+    {
+      "name": "03 Profile - Get Author Profile",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/authors/{{authorId}}/profile", "host": ["{{baseUrl}}"], "path": ["authors", "{{authorId}}", "profile"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('author profile returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('author profile matches authorId', () => pm.expect(json.data.authorId).to.eql(pm.collectionVariables.get('authorId')));",
+        "pm.test('author profile has novels array', () => pm.expect(json.data.novels).to.be.an('array'));",
+        "pm.test('followersCount is numeric', () => pm.expect(json.data.followersCount).to.be.a('number'));"
+      ] } }]
+    },
+    {
+      "name": "04 Notifications - List Mine",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/notifications?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["notifications"],
+          "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }]
+        }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('notifications list returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('notifications data is array', () => pm.expect(json.data).to.be.an('array'));",
+        "pm.test('notifications response has pagination meta', () => pm.expect(json.meta).to.have.property('totalItems'));",
+        "if (json.data.length > 0) pm.collectionVariables.set('notificationId', json.data[0].notificationId);"
+      ] } }]
+    },
+    {
+      "name": "05 Notifications - Register Device Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"provider\": \"WEB_PUSH\",\n  \"platform\": \"WEB\",\n  \"deviceToken\": \"phase-7-postman-device-token-{{$timestamp}}\"\n}" },
+        "url": { "raw": "{{baseUrl}}/notifications/device-token", "host": ["{{baseUrl}}"], "path": ["notifications", "device-token"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('device token returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('device token registered', () => pm.expect(json.data.registered).to.eql(true));",
+        "pm.test('provider is WEB_PUSH', () => pm.expect(json.data.provider).to.eql('WEB_PUSH'));"
+      ] } }]
+    },
+    {
+      "name": "06 Notifications - Mark Read Optional",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/notifications/{{notificationId}}/read", "host": ["{{baseUrl}}"], "path": ["notifications", "{{notificationId}}", "read"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('mark read returns 200 if seeded, otherwise 404', () => pm.expect([200, 404]).to.include(pm.response.code));",
+        "if (pm.response.code === 200) pm.test('notification status is READ', () => pm.expect(json.data.status).to.eql('READ'));",
+        "if (pm.response.code === 404) pm.test('no notification seed is acceptable', () => pm.expect(json.error.code).to.eql('NOT_FOUND_001'));"
+      ] } }]
+    },
+    {
+      "name": "07 Admin - List Users",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/admin/users?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "users"],
+          "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }]
+        }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('admin list users returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('users data is array', () => pm.expect(json.data).to.be.an('array'));",
+        "pm.test('users response has pagination meta', () => pm.expect(json.meta).to.have.property('totalItems'));"
+      ] } }]
+    },
+    {
+      "name": "08 Admin - Lock Reader",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Phase 7 Postman lock/unlock smoke test\"\n}" },
+        "url": { "raw": "{{baseUrl}}/admin/users/{{readerUserId}}/lock", "host": ["{{baseUrl}}"], "path": ["admin", "users", "{{readerUserId}}", "lock"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('lock reader returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('reader status is LOCKED', () => pm.expect(json.data.status).to.eql('LOCKED'));"
+      ] } }]
+    },
+    {
+      "name": "09 Admin - Unlock Reader",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": { "raw": "{{baseUrl}}/admin/users/{{readerUserId}}/unlock", "host": ["{{baseUrl}}"], "path": ["admin", "users", "{{readerUserId}}", "unlock"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('unlock reader returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('reader status is ACTIVE', () => pm.expect(json.data.status).to.eql('ACTIVE'));"
+      ] } }]
+    },
+    {
+      "name": "10 Admin - Get Taxonomy",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": { "raw": "{{baseUrl}}/admin/taxonomy", "host": ["{{baseUrl}}"], "path": ["admin", "taxonomy"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('taxonomy returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('genres is array', () => pm.expect(json.data.genres).to.be.an('array'));",
+        "pm.test('tags is array', () => pm.expect(json.data.tags).to.be.an('array'));"
+      ] } }]
+    },
+    {
+      "name": "11 Admin - Create Genre",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Phase 7 Genre {{$timestamp}}\",\n  \"description\": \"Created by Phase 7 Postman collection\"\n}" },
+        "url": { "raw": "{{baseUrl}}/admin/taxonomy/genres", "host": ["{{baseUrl}}"], "path": ["admin", "taxonomy", "genres"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('create genre returns 201', () => pm.response.to.have.status(201));",
+        "pm.test('genreId exists', () => pm.expect(json.data.genreId).to.be.a('string'));",
+        "pm.test('genre slug exists', () => pm.expect(json.data.slug).to.be.a('string'));"
+      ] } }]
+    },
+    {
+      "name": "12 Admin - Create Tag",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Phase 7 Tag {{$timestamp}}\"\n}" },
+        "url": { "raw": "{{baseUrl}}/admin/taxonomy/tags", "host": ["{{baseUrl}}"], "path": ["admin", "taxonomy", "tags"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('create tag returns 201', () => pm.response.to.have.status(201));",
+        "pm.test('tagId exists', () => pm.expect(json.data.tagId).to.be.a('string'));",
+        "pm.test('tag slug exists', () => pm.expect(json.data.slug).to.be.a('string'));"
+      ] } }]
+    },
+    {
+      "name": "13 Wallet Setup - Reader Deposit Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"packageCode\": \"COIN_500\"\n}" },
+        "url": { "raw": "{{baseUrl}}/wallet/deposit-sessions", "host": ["{{baseUrl}}"], "path": ["wallet", "deposit-sessions"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('deposit session returns 201', () => pm.response.to.have.status(201));",
+        "pm.collectionVariables.set('depositSessionId', json.data.depositSessionId);"
+      ] } }]
+    },
+    {
+      "name": "14 Wallet Setup - Complete Deposit",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"depositSessionId\": \"{{depositSessionId}}\",\n  \"mockResult\": \"SUCCESS\"\n}" },
+        "url": { "raw": "{{baseUrl}}/wallet/mock-webhook/deposit-success", "host": ["{{baseUrl}}"], "path": ["wallet", "mock-webhook", "deposit-success"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('complete deposit returns 200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "15 Wallet Setup - Donate To Author",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"amountCoins\": 250,\n  \"message\": \"Phase 7 withdraw setup\"\n}" },
+        "url": { "raw": "{{baseUrl}}/authors/{{authorId}}/donations", "host": ["{{baseUrl}}"], "path": ["authors", "{{authorId}}", "donations"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('donation returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('donation transaction exists', () => pm.expect(json.data.transactionId).to.be.a('string'));",
+        "pm.collectionVariables.set('donationTransactionId', json.data.transactionId);"
+      ] } }]
+    },
+    {
+      "name": "16 Author - Create Withdraw For Approval",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"amountCoins\": 100,\n  \"bankAccountLabel\": \"Mock Bank Account Phase 7 Approve\"\n}" },
+        "url": { "raw": "{{baseUrl}}/wallet/withdraw-requests", "host": ["{{baseUrl}}"], "path": ["wallet", "withdraw-requests"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('withdraw request returns 201', () => pm.response.to.have.status(201));",
+        "pm.test('withdraw status is PENDING', () => pm.expect(json.data.status).to.eql('PENDING'));",
+        "pm.collectionVariables.set('approveWithdrawRequestId', json.data.withdrawRequestId);"
+      ] } }]
+    },
+    {
+      "name": "17 Admin - List Pending Withdraw Requests",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/admin/withdraw-requests?status=PENDING&page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "withdraw-requests"],
+          "query": [{ "key": "status", "value": "PENDING" }, { "key": "page", "value": "1" }, { "key": "limit", "value": "20" }]
+        }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "const targetId = pm.collectionVariables.get('approveWithdrawRequestId');",
+        "pm.test('pending withdraw list returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('pending withdraw list has target request', () => pm.expect(json.data.some(w => w.withdrawRequestId === targetId)).to.eql(true));"
+      ] } }]
+    },
+    {
+      "name": "18 Admin - Approve Withdraw",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": { "raw": "{{baseUrl}}/admin/withdraw-requests/{{approveWithdrawRequestId}}/approve", "host": ["{{baseUrl}}"], "path": ["admin", "withdraw-requests", "{{approveWithdrawRequestId}}", "approve"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('approve withdraw returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('approved withdraw status is SUCCESS', () => pm.expect(json.data.status).to.eql('SUCCESS'));"
+      ] } }]
+    },
+    {
+      "name": "19 Author - Create Withdraw For Rejection",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"amountCoins\": 100,\n  \"bankAccountLabel\": \"Mock Bank Account Phase 7 Reject\"\n}" },
+        "url": { "raw": "{{baseUrl}}/wallet/withdraw-requests", "host": ["{{baseUrl}}"], "path": ["wallet", "withdraw-requests"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('second withdraw request returns 201', () => pm.response.to.have.status(201));",
+        "pm.test('second withdraw status is PENDING', () => pm.expect(json.data.status).to.eql('PENDING'));",
+        "pm.collectionVariables.set('rejectWithdrawRequestId', json.data.withdrawRequestId);"
+      ] } }]
+    },
+    {
+      "name": "20 Admin - Reject Withdraw",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Phase 7 Postman rejection smoke test\"\n}" },
+        "url": { "raw": "{{baseUrl}}/admin/withdraw-requests/{{rejectWithdrawRequestId}}/reject", "host": ["{{baseUrl}}"], "path": ["admin", "withdraw-requests", "{{rejectWithdrawRequestId}}", "reject"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('reject withdraw returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('rejected withdraw status is FAILED', () => pm.expect(json.data.status).to.eql('FAILED'));"
+      ] } }]
+    },
+    {
+      "name": "21 Admin - Dashboard Stats",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": { "raw": "{{baseUrl}}/admin/dashboard/stats", "host": ["{{baseUrl}}"], "path": ["admin", "dashboard", "stats"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('dashboard stats returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('totalUsers is numeric', () => pm.expect(json.data.totalUsers).to.be.a('number'));",
+        "pm.test('totalNovels is numeric', () => pm.expect(json.data.totalNovels).to.be.a('number'));",
+        "pm.test('pendingModerationItems is numeric', () => pm.expect(json.data.pendingModerationItems).to.be.a('number'));",
+        "pm.test('mockRevenueCoins is numeric', () => pm.expect(json.data.mockRevenueCoins).to.be.a('number'));"
+      ] } }]
+    }
+  ]
+}

@@ -23,7 +23,7 @@ flowchart TD
     API --> Reading[Reading Module]
     API --> Interaction[Interaction Module]
     API --> Wallet[Payment & Wallet Module]
-    API --> AI[AI & Copilot Module]
+    API -. Phase 10 internal HTTP .-> AI[FastAPI AI/Copilot Service]
     API --> Control[Content Control Module]
     API --> Admin[Admin Module]
 
@@ -56,7 +56,8 @@ flowchart TD
 | `reading` | Preferences, reading history, search, bookmarks/library. |
 | `interactions` | Comments, likes, follows, notifications, device tokens. |
 | `wallet` | Mock Coins, deposits, unlocks, donations, withdraw requests, transaction ledger. |
-| `ai` | Metadata suggestions, classification, style scan, consistency checking, Copilot generation, proposal creation. |
+| `ai-gateway` | Node.js backend gateway/client for AI requests after Phase 9. Does not own AI execution logic. |
+| `ai-service` | Future FastAPI service for LLM calls, embeddings, consistency checking, Copilot generation, and proposal creation. |
 | `content-control` | Keyword/rule filtering, user reports, moderation queue, moderation evidence, Admin decisions. |
 | `admin` | User lock/unlock, taxonomy, dashboard, withdraw review. |
 
@@ -85,6 +86,29 @@ Rules:
 | Redis | Cache/session/rate-limit only; never source of truth. |
 | Vector DB | Future optional AI retrieval layer. |
 
+## AI Service Boundary
+
+AI/Copilot is intentionally deferred until after Phase 9.
+
+When Phase 10 starts, AI should be implemented as a separate **FastAPI/Python service** instead of being embedded directly in the Node.js backend.
+
+Recommended runtime boundary:
+
+```txt
+Web / Mobile
+  -> Node.js Backend API
+  -> internal HTTP ai-gateway client
+  -> FastAPI AI/Copilot Service
+  -> LLM Provider / Embeddings / Vector Retrieval
+```
+
+Rules:
+
+- frontend clients must call the Node.js backend, not the FastAPI AI service directly;
+- the Node.js backend remains responsible for auth, ownership checks, rate limits, and persistence decisions;
+- the FastAPI service is responsible for prompt/context assembly helpers, model calls, embeddings, consistency checks, and generation logs;
+- detailed AI API, database, and deployment docs should be updated after Phase 9 and before Phase 10 implementation.
+
 ## Transaction Strategy
 
 Use ORM transactions for business operations that update multiple PostgreSQL tables.
@@ -110,6 +134,7 @@ The following choices are approved for MVP implementation:
 - MongoDB comments include UUID `commentId`; API/moderation use `commentId`.
 - Moderation evidence and Copilot generation logs are retained for 90 days.
 - Rejected context proposals are retained for 180 days, then archived/deleted.
+- AI/Copilot implementation is deferred until Phase 10 and should be isolated in a FastAPI service.
 
 Backend code should still isolate storage details behind repositories:
 

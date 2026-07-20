@@ -1,20 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  ActionIcon,
-  Alert,
-  Badge,
-  Box,
-  Button,
-  Group,
-  Paper,
-  PasswordInput,
-  ScrollArea,
-  Stack,
-  Text,
-  Textarea,
-  TextInput,
-  Title
-} from '@mantine/core';
+import { ActionIcon, Badge, Box, Button, Group, Paper, ScrollArea, Stack, Text, Textarea, TextInput, Title } from '@mantine/core';
 import {
   IconAdjustments,
   IconBook2,
@@ -28,7 +13,6 @@ import {
   IconUsers
 } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
-import { login, register } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import {
   createChapter,
@@ -41,13 +25,10 @@ import {
   updateChapter
 } from '../../features/novels/novel-api';
 import type { Chapter, Novel } from '../../features/novels/novel-types';
+import { AuthLanding } from '../../shared/components/AuthLanding';
 import { useUiStore, type AuthorActivity } from '../../shared/stores/useUiStore';
 
-const activities: Array<{
-  value: AuthorActivity;
-  label: string;
-  icon: typeof IconBook2;
-}> = [
+const activities: Array<{ value: AuthorActivity; label: string; icon: typeof IconBook2 }> = [
   { value: 'story', label: 'Story', icon: IconBook2 },
   { value: 'entities', label: 'Entities', icon: IconUsers },
   { value: 'timeline', label: 'Timeline', icon: IconTimeline },
@@ -57,6 +38,8 @@ const activities: Array<{
   { value: 'projects', label: 'Projects', icon: IconGitBranch },
   { value: 'settings', label: 'Settings', icon: IconSettings }
 ];
+
+const starterContent = 'Start writing your chapter draft here.';
 
 export function AuthorIdeShell() {
   const queryClient = useQueryClient();
@@ -89,22 +72,17 @@ export function AuthorIdeShell() {
   });
 
   useEffect(() => {
-    if (novelId) {
-      localStorage.setItem('ephurin_author_novel_id', novelId);
-    }
+    if (novelId) localStorage.setItem('ephurin_author_novel_id', novelId);
   }, [novelId]);
 
   useEffect(() => {
-    if (chapterId) {
-      localStorage.setItem('ephurin_author_chapter_id', chapterId);
-    }
+    if (chapterId) localStorage.setItem('ephurin_author_chapter_id', chapterId);
   }, [chapterId]);
 
   useEffect(() => {
-    if (chapterQuery.data?.draft?.content) {
-      setEditorContent(chapterQuery.data.draft.content);
-    }
-  }, [chapterQuery.data?.draft?.content]);
+    if (chapterQuery.data?.draft?.content) setEditorContent(chapterQuery.data.draft.content);
+    else if (chapterQuery.data?.content) setEditorContent(chapterQuery.data.content);
+  }, [chapterQuery.data]);
 
   const saveDraftMutation = useMutation({
     mutationFn: () =>
@@ -113,73 +91,90 @@ export function AuthorIdeShell() {
         content: editorContent,
         autosave: false
       }),
+    onMutate: () => setStatusMessage('Saving draft...'),
     onSuccess: async (chapter) => {
-      setStatusMessage(`Draft saved · version ${chapter.draftVersion ?? 'latest'}`);
+      setStatusMessage(`Draft saved · version ${chapter.draftVersion ?? chapter.draft?.version ?? 'latest'}`);
       await queryClient.invalidateQueries({ queryKey: ['chapter', chapterId] });
       await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
-    }
+    },
+    onError: (error) => setStatusMessage(`Save failed: ${getErrorMessage(error)}`)
   });
 
   const createNovelMutation = useMutation({
-    mutationFn: () =>
-      createNovel({
+    mutationFn: async () => {
+      const novel = await createNovel({
         title: 'Untitled Novel',
         synopsis: 'A starter synopsis for a new author project.',
         genre: 'Fantasy',
         tags: []
-      }),
-    onSuccess: async (novel) => {
+      });
+      const chapter = await createChapter(novel.novelId, {
+        title: 'Chapter 1',
+        content: starterContent,
+        isVip: false,
+        priceCoins: 0
+      });
+      return { novel, chapter };
+    },
+    onMutate: () => setStatusMessage('Creating novel and first chapter...'),
+    onSuccess: async ({ novel, chapter }) => {
       setNovelId(novel.novelId);
-      setStatusMessage(`Created novel ${novel.title}`);
+      setChapterId(chapter.chapterId);
+      setEditorContent(chapter.draft?.content ?? starterContent);
+      setStatusMessage(`Created ${novel.title} · chapter ${chapter.chapterNumber}`);
       await queryClient.invalidateQueries({ queryKey: ['novel', novel.novelId] });
-    }
+      await queryClient.invalidateQueries({ queryKey: ['chapters', novel.novelId] });
+      await queryClient.invalidateQueries({ queryKey: ['chapter', chapter.chapterId] });
+    },
+    onError: (error) => setStatusMessage(`Create novel failed: ${getErrorMessage(error)}`)
   });
 
   const createChapterMutation = useMutation({
     mutationFn: () =>
       createChapter(novelId, {
         title: 'Untitled Chapter',
-        content: 'Start writing your chapter draft here.',
+        content: starterContent,
         isVip: false,
         priceCoins: 0
       }),
+    onMutate: () => setStatusMessage('Creating chapter...'),
     onSuccess: async (chapter) => {
       setChapterId(chapter.chapterId);
-      setEditorContent('Start writing your chapter draft here.');
+      setEditorContent(chapter.draft?.content ?? starterContent);
       setStatusMessage(`Created chapter ${chapter.chapterNumber}`);
       await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
-    }
+      await queryClient.invalidateQueries({ queryKey: ['chapter', chapter.chapterId] });
+    },
+    onError: (error) => setStatusMessage(`Create chapter failed: ${getErrorMessage(error)}`)
   });
 
   const submitChapterMutation = useMutation({
     mutationFn: () => submitChapterPublish(chapterId),
+    onMutate: () => setStatusMessage('Submitting chapter...'),
     onSuccess: async (result) => {
       setStatusMessage(`Chapter status: ${result.status}`);
       await queryClient.invalidateQueries({ queryKey: ['chapter', chapterId] });
       await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
-    }
+    },
+    onError: (error) => setStatusMessage(`Submit chapter failed: ${getErrorMessage(error)}`)
   });
 
   const submitNovelMutation = useMutation({
     mutationFn: () => submitNovelPublish(novelId),
+    onMutate: () => setStatusMessage('Submitting novel...'),
     onSuccess: async (result) => {
       setStatusMessage(`Novel status: ${result.status}`);
       await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
-    }
+    },
+    onError: (error) => setStatusMessage(`Submit novel failed: ${getErrorMessage(error)}`)
   });
 
   const currentNovel = novelQuery.data ?? null;
   const currentChapter = chapterQuery.data ?? null;
   const chapters = chaptersQuery.data ?? [];
+  const wordCount = useMemo(() => editorContent.trim().split(/\s+/).filter(Boolean).length, [editorContent]);
 
-  const wordCount = useMemo(
-    () => editorContent.trim().split(/\s+/).filter(Boolean).length,
-    [editorContent]
-  );
-
-  if (!accessToken) {
-    return <AuthLanding />;
-  }
+  if (!accessToken) return <AuthLanding />;
 
   return (
     <Box className="ide-shell">
@@ -197,6 +192,9 @@ export function AuthorIdeShell() {
         canSave={Boolean(chapterId && editorContent)}
         canSubmitChapter={Boolean(chapterId)}
         canSubmitNovel={Boolean(novelId)}
+        saving={saveDraftMutation.isPending}
+        submittingChapter={submitChapterMutation.isPending}
+        submittingNovel={submitNovelMutation.isPending}
       />
 
       <Box className="ide-body">
@@ -228,7 +226,10 @@ export function AuthorIdeShell() {
           onCreateNovel={() => createNovelMutation.mutate()}
           onCreateChapter={() => createChapterMutation.mutate()}
           canCreateChapter={Boolean(novelId)}
+          creatingNovel={createNovelMutation.isPending}
+          creatingChapter={createChapterMutation.isPending}
         />
+
         <EditorWorkspace
           chapter={currentChapter}
           content={editorContent}
@@ -248,70 +249,6 @@ export function AuthorIdeShell() {
   );
 }
 
-function AuthLanding() {
-  const setSession = useAuthStore((state) => state.setSession);
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('StrongPassword123!');
-  const [error, setError] = useState<string | null>(null);
-
-  const authMutation = useMutation({
-    mutationFn: () =>
-      mode === 'login'
-        ? login({ identifier: email, password })
-        : register({ email, username, password }),
-    onSuccess: (session) => {
-      setError(null);
-      setSession(session);
-    },
-    onError: (caughtError) => {
-      setError(caughtError instanceof Error ? caughtError.message : 'Authentication failed');
-    }
-  });
-
-  return (
-    <Box className="auth-shell">
-      <Paper p="xl" withBorder className="auth-card">
-        <Group gap="sm" mb="lg">
-          <IconBrain size={22} />
-          <Title order={3}>Ephurin Author IDE</Title>
-        </Group>
-
-        <Stack>
-          <TextInput
-            label={mode === 'login' ? 'Email or username' : 'Email'}
-            value={email}
-            onChange={(event) => setEmail(event.currentTarget.value)}
-          />
-          {mode === 'register' ? (
-            <TextInput
-              label="Username"
-              value={username}
-              onChange={(event) => setUsername(event.currentTarget.value)}
-            />
-          ) : null}
-          <PasswordInput
-            label="Password"
-            value={password}
-            onChange={(event) => setPassword(event.currentTarget.value)}
-          />
-          {error ? <Alert color="red">{error}</Alert> : null}
-          <Button loading={authMutation.isPending} onClick={() => authMutation.mutate()}>
-            {mode === 'login' ? 'Login' : 'Register'}
-          </Button>
-          <Button
-            variant="subtle"
-            onClick={() => setMode((currentMode) => (currentMode === 'login' ? 'register' : 'login'))}
-          >
-            Switch to {mode === 'login' ? 'register' : 'login'}
-          </Button>
-        </Stack>
-      </Paper>
-    </Box>
-  );
-}
-
 function TopToolbar({
   novel,
   chapter,
@@ -322,7 +259,10 @@ function TopToolbar({
   onSubmitNovel,
   canSave,
   canSubmitChapter,
-  canSubmitNovel
+  canSubmitNovel,
+  saving,
+  submittingChapter,
+  submittingNovel
 }: {
   novel: Novel | null;
   chapter: Chapter | null;
@@ -334,6 +274,9 @@ function TopToolbar({
   canSave: boolean;
   canSubmitChapter: boolean;
   canSubmitNovel: boolean;
+  saving: boolean;
+  submittingChapter: boolean;
+  submittingNovel: boolean;
 }) {
   return (
     <Group className="top-toolbar" justify="space-between">
@@ -341,16 +284,24 @@ function TopToolbar({
         <IconBrain size={18} />
         <Text fw={700}>Ephurin IDE</Text>
         <Badge variant="light">{novel?.title ?? 'No project selected'}</Badge>
-        <Badge color="gray" variant="outline">{chapter?.status ?? novel?.status ?? 'Idle'}</Badge>
+        <Badge color="gray" variant="outline">
+          {chapter?.status ?? novel?.status ?? 'Idle'}
+        </Badge>
       </Group>
 
       <Group gap="xs">
-        <Button variant="subtle" size="xs" disabled={!canSave} onClick={onSave}>Save</Button>
-        <Button variant="subtle" size="xs" disabled={!canSubmitNovel} onClick={onSubmitNovel}>
+        <Button variant="subtle" size="xs" loading={saving} disabled={!canSave} onClick={onSave}>
+          Save
+        </Button>
+        <Button variant="subtle" size="xs" loading={submittingNovel} disabled={!canSubmitNovel} onClick={onSubmitNovel}>
           Submit Novel
         </Button>
-        <Button size="xs" disabled={!canSubmitChapter} onClick={onSubmitChapter}>Submit Chapter</Button>
-        <Button variant="subtle" size="xs" onClick={onLogout}>{userLabel}</Button>
+        <Button size="xs" loading={submittingChapter} disabled={!canSubmitChapter} onClick={onSubmitChapter}>
+          Submit Chapter
+        </Button>
+        <Button variant="subtle" size="xs" onClick={onLogout}>
+          {userLabel}
+        </Button>
       </Group>
     </Group>
   );
@@ -366,7 +317,9 @@ function DynamicSidebar({
   onChapterIdChange,
   onCreateNovel,
   onCreateChapter,
-  canCreateChapter
+  canCreateChapter,
+  creatingNovel,
+  creatingChapter
 }: {
   activeActivity: AuthorActivity;
   novel: Novel | null;
@@ -378,6 +331,8 @@ function DynamicSidebar({
   onCreateNovel: () => void;
   onCreateChapter: () => void;
   canCreateChapter: boolean;
+  creatingNovel: boolean;
+  creatingChapter: boolean;
 }) {
   return (
     <Paper className="dynamic-sidebar" radius={0}>
@@ -397,6 +352,8 @@ function DynamicSidebar({
             onCreateNovel={onCreateNovel}
             onCreateChapter={onCreateChapter}
             canCreateChapter={canCreateChapter}
+            creatingNovel={creatingNovel}
+            creatingChapter={creatingChapter}
           />
         ) : (
           <PlaceholderActivity activity={activeActivity} />
@@ -415,7 +372,9 @@ function StoryTree({
   onChapterIdChange,
   onCreateNovel,
   onCreateChapter,
-  canCreateChapter
+  canCreateChapter,
+  creatingNovel,
+  creatingChapter
 }: {
   novel: Novel | null;
   chapters: Chapter[];
@@ -426,39 +385,37 @@ function StoryTree({
   onCreateNovel: () => void;
   onCreateChapter: () => void;
   canCreateChapter: boolean;
+  creatingNovel: boolean;
+  creatingChapter: boolean;
 }) {
   return (
     <Stack gap="sm" mt="md">
-      <TextInput
-        label="Novel ID"
-        size="xs"
-        value={novelId}
-        onChange={(event) => onNovelIdChange(event.currentTarget.value)}
-        placeholder="Paste novel UUID"
-      />
-      <TextInput
-        label="Chapter ID"
-        size="xs"
-        value={chapterId}
-        onChange={(event) => onChapterIdChange(event.currentTarget.value)}
-        placeholder="Paste chapter UUID"
-      />
+      <TextInput label="Novel ID" size="xs" value={novelId} onChange={(event) => onNovelIdChange(event.currentTarget.value)} />
+      <TextInput label="Chapter ID" size="xs" value={chapterId} onChange={(event) => onChapterIdChange(event.currentTarget.value)} />
 
       <Group grow>
-        <Button size="compact-xs" variant="light" onClick={onCreateNovel}>New Novel</Button>
-        <Button size="compact-xs" variant="light" disabled={!canCreateChapter} onClick={onCreateChapter}>
+        <Button size="compact-xs" variant="light" loading={creatingNovel} onClick={onCreateNovel}>
+          New Novel + Ch.1
+        </Button>
+        <Button size="compact-xs" variant="light" loading={creatingChapter} disabled={!canCreateChapter} onClick={onCreateChapter}>
           New Chapter
         </Button>
       </Group>
 
       <Paper p="sm" withBorder>
-        <Text size="xs" c="dimmed" tt="uppercase">Project</Text>
+        <Text size="xs" c="dimmed" tt="uppercase">
+          Project
+        </Text>
         <Text fw={700}>{novel?.title ?? 'No novel loaded'}</Text>
-        <Text size="sm" c="dimmed">{novel?.status ?? 'Paste a novel ID or create one'}</Text>
+        <Text size="sm" c="dimmed">
+          {novel?.status ?? 'Paste a novel ID or create one'}
+        </Text>
       </Paper>
 
       <Stack gap={4}>
-        <Text size="sm" fw={600}>Chapters</Text>
+        <Text size="sm" fw={600}>
+          Chapters
+        </Text>
         {chapters.length ? (
           chapters.map((chapter) => (
             <Button
@@ -472,13 +429,17 @@ function StoryTree({
             </Button>
           ))
         ) : (
-          <Text size="sm" c="dimmed">No chapters loaded.</Text>
+          <Text size="sm" c="dimmed">
+            No chapters loaded.
+          </Text>
         )}
       </Stack>
 
       <Paper p="sm" withBorder>
-        <Text size="xs" c="dimmed" tt="uppercase">Scene Context</Text>
-        <Text size="sm">Characters, timeline, and summaries stay mocked until Phase 7.</Text>
+        <Text size="xs" c="dimmed" tt="uppercase">
+          Scene Context
+        </Text>
+        <Text size="sm">Characters, timeline, and summaries stay placeholders until AI/Copilot phase.</Text>
       </Paper>
     </Stack>
   );
@@ -510,9 +471,7 @@ function EditorWorkspace({
     <Box className="editor-workspace">
       <Group justify="space-between" mb="md">
         <Box>
-          <Title order={3}>
-            {chapter ? `Ch. ${chapter.chapterNumber} — ${chapter.title}` : 'No chapter selected'}
-          </Title>
+          <Title order={3}>{chapter ? `Ch. ${chapter.chapterNumber} — ${chapter.title}` : 'No chapter selected'}</Title>
           <Text size="sm" c="dimmed">
             {loading ? 'Loading chapter...' : chapter?.draft ? `Draft v${chapter.draft.version}` : 'Select or create a chapter'}
           </Text>
@@ -539,7 +498,7 @@ function AssistantPanel() {
     <Paper className="assistant-panel" radius={0}>
       <Group justify="space-between">
         <Text fw={700}>Writing Copilot</Text>
-        <Badge variant="light">Phase 7</Badge>
+        <Badge variant="light">Phase 10</Badge>
       </Group>
 
       <Stack gap="sm" mt="md">
@@ -549,25 +508,23 @@ function AssistantPanel() {
           <Badge size="sm">Plot Summary</Badge>
         </Group>
 
-        <Textarea
-          label="Instruction"
-          placeholder="Continue with quiet tension..."
-          autosize
-          minRows={3}
-          disabled
-        />
+        <Textarea label="Instruction" placeholder="Continue with quiet tension..." autosize minRows={3} disabled />
 
         <Group grow>
-          <Button variant="light" disabled>Generate</Button>
+          <Button variant="light" disabled>
+            Generate
+          </Button>
           <Button variant="light" disabled leftSection={<IconAdjustments size={14} />}>
             Analyze
           </Button>
         </Group>
 
         <Paper p="sm" withBorder>
-          <Text size="xs" c="dimmed" tt="uppercase">Design Note</Text>
+          <Text size="xs" c="dimmed" tt="uppercase">
+            Design Note
+          </Text>
           <Text size="sm" mt={4}>
-            AI Copilot remains an architectural placeholder until the Phase 7 architecture freeze.
+            AI Copilot remains disabled until Phase 10.
           </Text>
         </Paper>
       </Stack>
@@ -588,8 +545,17 @@ function BottomStatusBar({
 }) {
   return (
     <Group className="status-bar" justify="space-between">
-      <Text size="xs">Words {wordCount} · Chapter {chapter?.chapterNumber ?? '-'}</Text>
-      <Text size="xs">{statusMessage} · API {apiConnected ? 'connected' : 'error'}</Text>
+      <Text size="xs">
+        Words {wordCount} · Chapter {chapter?.chapterNumber ?? '-'}
+      </Text>
+      <Text size="xs">
+        {statusMessage} · API {apiConnected ? 'connected' : 'error'}
+      </Text>
     </Group>
   );
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  return 'Unknown error';
 }

@@ -6,6 +6,12 @@ export const userIdParamSchema = z.object({
   })
 });
 
+export const authorIdParamSchema = z.object({
+  params: z.object({
+    authorId: z.string().uuid()
+  })
+});
+
 export const updateProfileSchema = z.object({
   body: z.object({
     displayName: z.string().min(1).max(100).optional(),
