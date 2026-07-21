@@ -1,6 +1,18 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import type { Chapter, Novel } from './novel-types';
 
+export async function listMyNovels(input: { searchQuery?: string; status?: Novel['status'] | 'ALL' } = {}) {
+  const response = await apiClient.get<ApiEnvelope<Novel[]>>('/novels/me', {
+    params: {
+      q: input.searchQuery || undefined,
+      status: input.status && input.status !== 'ALL' ? input.status : undefined,
+      page: 1,
+      limit: 50
+    }
+  });
+  return response.data.data;
+}
+
 export async function getNovel(novelId: string) {
   const response = await apiClient.get<ApiEnvelope<Novel>>(`/novels/${novelId}`);
   return response.data.data;
@@ -14,6 +26,15 @@ export async function createNovel(input: {
   coverImageUrl?: string | null;
 }) {
   const response = await apiClient.post<ApiEnvelope<Novel>>('/novels', input);
+  return response.data.data;
+}
+
+export async function updateNovel(novelId: string, input: {
+  title?: string;
+  synopsis?: string;
+  coverImageUrl?: string | null;
+}) {
+  const response = await apiClient.patch<ApiEnvelope<Novel>>(`/novels/${novelId}`, input);
   return response.data.data;
 }
 

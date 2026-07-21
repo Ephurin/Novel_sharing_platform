@@ -15,8 +15,23 @@ export type ModerationReview = {
   targetId: string;
   status: string;
   source: string;
+  evidenceId?: string | null;
   reason?: string;
   createdAt: string;
+};
+
+export type ModerationReviewFilters = {
+  targetType?: 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER' | '';
+  status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED' | '';
+  source?: 'KEYWORD_FILTER' | 'USER_REPORT' | '';
+};
+
+export type ModerationReviewDetail = ModerationReview & {
+  evidenceSummary: {
+    matchedRules: string[];
+    reportCount: number;
+    summary: string | null;
+  };
 };
 
 export type WithdrawRequest = {
@@ -74,10 +89,21 @@ export async function createTag(name: string) {
   return response.data.data;
 }
 
-export async function listModerationReviews() {
+export async function listModerationReviews(filters: ModerationReviewFilters = {}) {
   const response = await apiClient.get<ApiEnvelope<ModerationReview[]>>('/admin/moderation/reviews', {
-    params: { page: 1, limit: 20 }
+    params: {
+      targetType: filters.targetType || undefined,
+      status: filters.status || undefined,
+      source: filters.source || undefined,
+      page: 1,
+      limit: 20
+    }
   });
+  return response.data.data;
+}
+
+export async function getModerationReview(reviewId: string) {
+  const response = await apiClient.get<ApiEnvelope<ModerationReviewDetail>>(`/admin/moderation/reviews/${reviewId}`);
   return response.data.data;
 }
 

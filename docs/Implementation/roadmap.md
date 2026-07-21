@@ -28,7 +28,16 @@ The MVP should demonstrate:
 | 6 | Mock wallet backend APIs | Coin balance, deposit mock, unlock, transactions |
 | 7 | Profile, notification, and admin backend APIs | Author profile, notifications, users, taxonomy, withdraw review, stats |
 | 8 | Web frontend completion | Author IDE, reader web, wallet mock UI, notifications, admin UI |
-| 9 | Mobile reader app | Reader mobile app after APIs stabilize |
+| 8.1 | Frontend foundation hardening | Route guards, session restore, shared loading/error/empty states, reusable UI patterns |
+| 8.2 | Author Project Manager and Official Author IDE UI | Demo-ready project-style author hub and desktop writing workspace |
+| 8.3 | Reader web completion | Browse/detail/reader/comments/library/history/VIP web fallback |
+| 8.4 | Wallet, notification, profile, admin UI | Demo-ready utility and operational web screens |
+| 8.5 | Author workspace deepening | Metadata editor, author deep links, project health, non-AI context placeholders |
+| 8.6 | Reader experience deepening | Reading preferences, auto-history, filters, comment edit, social UX |
+| 8.7 | Admin and moderation deepening | Reports, moderation detail, evidence visibility |
+| 8.8 | Public and guest web surface | Public landing/browse/detail and guest action gates |
+| 8.9 | Final web QA and polish | Official web UI approval before mobile |
+| 9 | Mobile reader app | Reader mobile app after web frontend and APIs stabilize |
 | 10 | AI/Copilot | Metadata, suggestions, consistency check, context proposals |
 
 ## 3. Phase Details
@@ -245,6 +254,7 @@ References:
 - `docs/Frontend/wireframes.md`
 - `docs/Frontend/screen-specs.md`
 - `docs/Frontend/user-flows.md`
+- `docs/Implementation/phase-8x-web-frontend-completion-plan.md`
 - `docs/API/reading-api.md`
 - `docs/API/payment-wallet-api.md`
 - `docs/API/admin-api.md`
@@ -266,6 +276,20 @@ Boundary:
 - consume stable backend APIs from Phases 2, 4, 5, 6, and 7;
 - keep AI UI as disabled/placeholder entry points;
 - do not implement AI calls yet.
+
+Phase 8 is intentionally split into reviewable sub-phases before Phase 9:
+
+- Phase 8.1: Frontend foundation hardening.
+- Phase 8.2: Author Project Manager and Official Author IDE UI.
+- Phase 8.3: Reader web completion.
+- Phase 8.4: Wallet, notification, profile, and admin UI.
+- Phase 8.5: Author workspace deepening.
+- Phase 8.6: Reader experience deepening.
+- Phase 8.7: Admin and moderation deepening.
+- Phase 8.8: Public and guest web surface.
+- Phase 8.9: Final web QA and polish.
+
+Do not start Phase 9 until Phase 8.9 is accepted.
 
 ### Phase 9: Mobile Reader App
 
@@ -344,9 +368,17 @@ Use this order after Phase 4 is approved:
 1. Phase 5: Reader backend APIs.
 2. Phase 6: Mock wallet backend APIs.
 3. Phase 7: Profile, notification, and admin backend APIs.
-4. Phase 8: Web frontend completion.
-5. Phase 9: Mobile reader app.
-6. Phase 10: AI/Copilot.
+4. Phase 8.1: Frontend foundation hardening.
+5. Phase 8.2: Author Project Manager and Official Author IDE UI.
+6. Phase 8.3: Reader web completion.
+7. Phase 8.4: Wallet, notification, profile, and admin UI.
+8. Phase 8.5: Author workspace deepening.
+9. Phase 8.6: Reader experience deepening.
+10. Phase 8.7: Admin and moderation deepening.
+11. Phase 8.8: Public and guest web surface.
+12. Phase 8.9: Final web QA and polish.
+13. Phase 9: Mobile reader app.
+14. Phase 10: AI/Copilot.
 
 ## 6. Suggested First Coding Sprint
 

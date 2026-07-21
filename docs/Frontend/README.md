@@ -12,6 +12,12 @@ The goal is not to finalize visual design. The goal is to make screen structure,
 | `user-flows.md` | Main user journeys for Reader, Author, Admin, Wallet, and Copilot. |
 | `wireframes.md` | Low-fidelity ASCII wireframes for key screens. |
 | `screen-specs.md` | Screen purpose, primary data, and related APIs. |
+| `routes-and-guards.md` | Web/mobile route map and role-based access rules. |
+| `design-system.md` | MVP visual tokens, layout rules, components, and interaction standards. |
+| `screen-details-web.md` | Implementation-ready web screen details for Author, Reader, Wallet, Notifications, Profile, and Admin. |
+| `screen-details-mobile.md` | Implementation-ready mobile reader screen details for Phase 9. |
+| `frontend-state-model.md` | Frontend session, server state, UI state, and query key conventions. |
+| `api-screen-matrix.md` | Screen-to-API mapping and API alignment notes. |
 | `review-guide.md` | Checklist for reviewing mockups before UI implementation. |
 
 ## Design Boundary
@@ -33,3 +39,5 @@ The goal is not to finalize visual design. The goal is to make screen structure,
 - Use `docs/Implementation/roadmap.md` for implementation order.
 - Use `docs/Implementation/phase-0-bootstrap-checklist.md` before scaffolding `web/`.
 - Author IDE implementation should start from `wireframes.md` and `screen-specs.md`.
+- Phase 8.x implementation should use `routes-and-guards.md`, `design-system.md`, `screen-details-web.md`, `frontend-state-model.md`, and `api-screen-matrix.md`.
+- Phase 9 mobile implementation should use `screen-details-mobile.md`.

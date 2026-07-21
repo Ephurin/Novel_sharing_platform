@@ -107,6 +107,42 @@ export async function listNovels(input: ListNovelsInput) {
   };
 }
 
+export async function listNovelsByAuthor(authorId: string, input: ListNovelsInput) {
+  const offset = (input.page - 1) * input.limit;
+  const search = input.q ? `%${input.q}%` : null;
+
+  const dataResult = await getPostgresPool().query(
+    `
+      select *
+      from novels
+      where deleted_at is null
+        and author_id = $1
+        and ($2::novel_status is null or status = $2)
+        and ($3::text is null or title ilike $3 or synopsis ilike $3)
+      order by updated_at desc
+      limit $4 offset $5
+    `,
+    [authorId, input.status ?? null, search, input.limit, offset]
+  );
+
+  const countResult = await getPostgresPool().query(
+    `
+      select count(*)::int as total
+      from novels
+      where deleted_at is null
+        and author_id = $1
+        and ($2::novel_status is null or status = $2)
+        and ($3::text is null or title ilike $3 or synopsis ilike $3)
+    `,
+    [authorId, input.status ?? null, search]
+  );
+
+  return {
+    items: dataResult.rows.map(mapNovel),
+    totalItems: countResult.rows[0]?.total ?? 0
+  };
+}
+
 export async function updateNovel(novelId: string, input: UpdateNovelInput) {
   const result = await getPostgresPool().query(
     `

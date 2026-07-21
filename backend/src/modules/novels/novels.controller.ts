@@ -5,6 +5,7 @@ import {
   createNovel,
   deleteNovel,
   getNovel,
+  listMyNovels,
   listNovels,
   submitPublish,
   updateNovel
@@ -30,6 +31,15 @@ export const createNovelController: RequestHandler = async (request, response, n
 export const listNovelsController: RequestHandler = async (request, response, next) => {
   try {
     const result = await listNovels(request.query as never);
+    response.json(successResponse(result.data, result.meta));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listMyNovelsController: RequestHandler = async (request, response, next) => {
+  try {
+    const result = await listMyNovels(requireRequestAuth(request), request.query as never);
     response.json(successResponse(result.data, result.meta));
   } catch (error) {
     next(error);

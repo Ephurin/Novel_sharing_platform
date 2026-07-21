@@ -10,6 +10,8 @@ Related SRS: `docs/SRS/reading-experience-service.md`
 | `ReadingHistory` | Last read chapter/paragraph position. |
 | `Bookmark` | Reader's personal library item. |
 | `SearchResult` | Public novel discovery/search result. |
+| `ReaderNovelDetail` | Published novel metadata and published chapter list. |
+| `ReaderChapter` | Published chapter reading content. |
 
 ## Endpoints
 
@@ -99,6 +101,81 @@ Search and filter public novels.
   }
 }
 ```
+
+### GET /reading/novels/{novelId}
+
+Get a published novel detail with its published chapter list.
+
+**Auth:** Optional  
+**Roles:** Guest, Reader, Author, Admin
+
+**Response**
+
+```json
+{
+  "success": true,
+  "data": {
+    "novelId": "novel_123",
+    "title": "The Moonlit Archive",
+    "authorId": "user_123",
+    "authorName": "Author One",
+    "synopsis": "A public synopsis...",
+    "coverImageUrl": null,
+    "genre": "Fantasy",
+    "tags": ["magic", "academy"],
+    "status": "ONGOING",
+    "likesCount": 120,
+    "viewsCount": 3000,
+    "chaptersCount": 12,
+    "chapters": [
+      {
+        "chapterId": "chapter_123",
+        "novelId": "novel_123",
+        "title": "The Door",
+        "chapterNumber": 1,
+        "wordCount": 1800,
+        "isVip": false,
+        "priceCoins": 0,
+        "publishedAt": "2026-07-20T00:00:00.000Z"
+      }
+    ]
+  },
+  "error": null,
+  "meta": {}
+}
+```
+
+**Errors:** `CONTENT_001`
+
+### GET /reading/chapters/{chapterId}
+
+Get published chapter reading content.
+
+**Auth:** Optional for free chapters; required if the chapter is VIP and already unlocked by the current user.  
+**Roles:** Guest, Reader, Author, Admin
+
+**Response**
+
+```json
+{
+  "success": true,
+  "data": {
+    "chapterId": "chapter_123",
+    "novelId": "novel_123",
+    "title": "The Door",
+    "chapterNumber": 1,
+    "wordCount": 1800,
+    "isVip": false,
+    "priceCoins": 0,
+    "publishedAt": "2026-07-20T00:00:00.000Z",
+    "content": "Published chapter content..."
+  },
+  "error": null,
+  "meta": {}
+}
+```
+
+**Errors:** `CONTENT_001`, `PAYMENT_002`
 
 ### PUT /reading/history/me
 

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Box, Button, Group, Paper, SegmentedControl, Stack, Text, TextInput, Title } from '@mantine/core';
 import { useState } from 'react';
 import { listNotifications, markNotificationRead, registerWebPushToken, type AppNotification } from './notification-api';
+import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 
 export function NotificationsPage() {
   const queryClient = useQueryClient();
@@ -56,7 +57,12 @@ export function NotificationsPage() {
       </Paper>
 
       <Stack>
-        {(notificationsQuery.data ?? []).map((notification) => (
+        {notificationsQuery.isLoading ? <LoadingState label="Loading notifications..." /> : null}
+        {notificationsQuery.isError ? <ErrorState error={notificationsQuery.error} onRetry={() => void notificationsQuery.refetch()} /> : null}
+        {!notificationsQuery.isLoading && !notificationsQuery.isError && !notificationsQuery.data?.length ? (
+          <EmptyState description="No notifications yet. Backend storage is ready; domain event creation can be wired later." />
+        ) : null}
+        {!notificationsQuery.isLoading && !notificationsQuery.isError ? (notificationsQuery.data ?? []).map((notification) => (
           <Paper key={notification.notificationId} p="md" withBorder>
             <Group justify="space-between">
               <Box>
@@ -83,12 +89,7 @@ export function NotificationsPage() {
               </Button>
             </Group>
           </Paper>
-        ))}
-        {!notificationsQuery.data?.length ? (
-          <Paper p="md" withBorder>
-            <Text c="dimmed">No notifications yet. Backend storage is ready; domain event creation can be wired later.</Text>
-          </Paper>
-        ) : null}
+        )) : null}
       </Stack>
     </Box>
   );

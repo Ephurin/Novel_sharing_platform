@@ -158,3 +158,43 @@ body {
 .grow {
   flex: 1;
 }
+
+@media (max-width: 1180px) {
+  .ide-body {
+    grid-template-columns: 52px 260px minmax(360px, 1fr);
+  }
+
+  .assistant-panel {
+    display: none;
+  }
+
+  .editor-workspace {
+    padding: 16px;
+  }
+
+  .editor-textarea textarea {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 900px) {
+  .web-body {
+    grid-template-columns: 1fr;
+  }
+
+  .web-nav {
+    min-height: auto;
+    border-right: 0;
+    border-bottom: 1px solid #252a36;
+  }
+
+  .web-content {
+    padding: 14px;
+  }
+
+  .phase-grid,
+  .reader-panel {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+}

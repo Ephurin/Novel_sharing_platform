@@ -13,6 +13,7 @@ import {
   IconUsers
 } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import {
   createChapter,
@@ -42,16 +43,45 @@ const activities: Array<{ value: AuthorActivity; label: string; icon: typeof Ico
 const starterContent = 'Start writing your chapter draft here.';
 
 export function AuthorIdeShell() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const activeActivity = useUiStore((state) => state.activeAuthorActivity);
   const setActiveActivity = useUiStore((state) => state.setActiveAuthorActivity);
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
   const clearSession = useAuthStore((state) => state.clearSession);
-  const [novelId, setNovelId] = useState(localStorage.getItem('ephurin_author_novel_id') ?? '');
-  const [chapterId, setChapterId] = useState(localStorage.getItem('ephurin_author_chapter_id') ?? '');
+  const fallbackNovelId = localStorage.getItem('ephurin_author_novel_id') ?? '';
+  const fallbackChapterId = localStorage.getItem('ephurin_author_chapter_id') ?? '';
+  const novelId = searchParams.get('novelId') ?? fallbackNovelId;
+  const chapterId = searchParams.get('chapterId') ?? fallbackChapterId;
+  const [chapterTitle, setChapterTitle] = useState('');
   const [editorContent, setEditorContent] = useState('');
   const [statusMessage, setStatusMessage] = useState('API ready');
+
+  const updateIdeContext = (nextContext: { novelId?: string; chapterId?: string | null }) => {
+    const nextNovelId = nextContext.novelId ?? novelId;
+    const nextChapterId = nextContext.chapterId === undefined ? chapterId : nextContext.chapterId;
+    const nextParams = new URLSearchParams(searchParams);
+
+    if (nextNovelId) {
+      nextParams.set('novelId', nextNovelId);
+      localStorage.setItem('ephurin_author_novel_id', nextNovelId);
+    } else {
+      nextParams.delete('novelId');
+      localStorage.removeItem('ephurin_author_novel_id');
+    }
+
+    if (nextChapterId) {
+      nextParams.set('chapterId', nextChapterId);
+      localStorage.setItem('ephurin_author_chapter_id', nextChapterId);
+    } else {
+      nextParams.delete('chapterId');
+      localStorage.removeItem('ephurin_author_chapter_id');
+    }
+
+    setSearchParams(nextParams, { replace: true });
+  };
 
   const novelQuery = useQuery({
     queryKey: ['novel', novelId],
@@ -72,22 +102,16 @@ export function AuthorIdeShell() {
   });
 
   useEffect(() => {
-    if (novelId) localStorage.setItem('ephurin_author_novel_id', novelId);
-  }, [novelId]);
-
-  useEffect(() => {
-    if (chapterId) localStorage.setItem('ephurin_author_chapter_id', chapterId);
-  }, [chapterId]);
-
-  useEffect(() => {
-    if (chapterQuery.data?.draft?.content) setEditorContent(chapterQuery.data.draft.content);
-    else if (chapterQuery.data?.content) setEditorContent(chapterQuery.data.content);
+    if (chapterQuery.data) {
+      setChapterTitle(chapterQuery.data.draft?.title ?? chapterQuery.data.title);
+      setEditorContent(chapterQuery.data.draft?.content ?? chapterQuery.data.content ?? '');
+    }
   }, [chapterQuery.data]);
 
   const saveDraftMutation = useMutation({
     mutationFn: () =>
       updateChapter(chapterId, {
-        title: chapterQuery.data?.title,
+        title: chapterTitle,
         content: editorContent,
         autosave: false
       }),
@@ -118,8 +142,7 @@ export function AuthorIdeShell() {
     },
     onMutate: () => setStatusMessage('Creating novel and first chapter...'),
     onSuccess: async ({ novel, chapter }) => {
-      setNovelId(novel.novelId);
-      setChapterId(chapter.chapterId);
+      updateIdeContext({ novelId: novel.novelId, chapterId: chapter.chapterId });
       setEditorContent(chapter.draft?.content ?? starterContent);
       setStatusMessage(`Created ${novel.title} · chapter ${chapter.chapterNumber}`);
       await queryClient.invalidateQueries({ queryKey: ['novel', novel.novelId] });
@@ -139,7 +162,7 @@ export function AuthorIdeShell() {
       }),
     onMutate: () => setStatusMessage('Creating chapter...'),
     onSuccess: async (chapter) => {
-      setChapterId(chapter.chapterId);
+      updateIdeContext({ chapterId: chapter.chapterId });
       setEditorContent(chapter.draft?.content ?? starterContent);
       setStatusMessage(`Created chapter ${chapter.chapterNumber}`);
       await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
@@ -189,6 +212,7 @@ export function AuthorIdeShell() {
         onSave={() => saveDraftMutation.mutate()}
         onSubmitChapter={() => submitChapterMutation.mutate()}
         onSubmitNovel={() => submitNovelMutation.mutate()}
+        onBackToProjects={() => navigate('/author')}
         canSave={Boolean(chapterId && editorContent)}
         canSubmitChapter={Boolean(chapterId)}
         canSubmitNovel={Boolean(novelId)}
@@ -221,8 +245,8 @@ export function AuthorIdeShell() {
           chapters={chapters}
           novelId={novelId}
           chapterId={chapterId}
-          onNovelIdChange={setNovelId}
-          onChapterIdChange={setChapterId}
+          onNovelIdChange={(nextNovelId) => updateIdeContext({ novelId: nextNovelId, chapterId: null })}
+          onChapterIdChange={(nextChapterId) => updateIdeContext({ chapterId: nextChapterId })}
           onCreateNovel={() => createNovelMutation.mutate()}
           onCreateChapter={() => createChapterMutation.mutate()}
           canCreateChapter={Boolean(novelId)}
@@ -232,7 +256,9 @@ export function AuthorIdeShell() {
 
         <EditorWorkspace
           chapter={currentChapter}
+          chapterTitle={chapterTitle}
           content={editorContent}
+          onChapterTitleChange={setChapterTitle}
           onContentChange={setEditorContent}
           loading={chapterQuery.isFetching}
         />
@@ -257,6 +283,7 @@ function TopToolbar({
   onSave,
   onSubmitChapter,
   onSubmitNovel,
+  onBackToProjects,
   canSave,
   canSubmitChapter,
   canSubmitNovel,
@@ -271,6 +298,7 @@ function TopToolbar({
   onSave: () => void;
   onSubmitChapter: () => void;
   onSubmitNovel: () => void;
+  onBackToProjects: () => void;
   canSave: boolean;
   canSubmitChapter: boolean;
   canSubmitNovel: boolean;
@@ -290,6 +318,9 @@ function TopToolbar({
       </Group>
 
       <Group gap="xs">
+        <Button variant="light" size="xs" onClick={onBackToProjects}>
+          Projects
+        </Button>
         <Button variant="subtle" size="xs" loading={saving} disabled={!canSave} onClick={onSave}>
           Save
         </Button>
@@ -446,24 +477,80 @@ function StoryTree({
 }
 
 function PlaceholderActivity({ activity }: { activity: AuthorActivity }) {
+  const placeholderMap: Record<AuthorActivity, { title: string; description: string; tables: string[] }> = {
+    story: {
+      title: 'Story',
+      description: 'Story activity is implemented through the chapter tree.',
+      tables: ['novels', 'chapters', 'draft_chapters']
+    },
+    entities: {
+      title: 'Entities',
+      description: 'Future workspace for official character profiles and relationships. Persistence is deferred until context APIs are implemented.',
+      tables: ['character_profiles', 'character_relationships']
+    },
+    timeline: {
+      title: 'Timeline',
+      description: 'Future ordered plot event view for the current novel. Useful later as Copilot context.',
+      tables: ['story_timeline_events']
+    },
+    graph: {
+      title: 'Knowledge Graph',
+      description: 'Future visual graph combining characters, relationships, timeline events, and plot summaries.',
+      tables: ['character_profiles', 'character_relationships', 'story_timeline_events', 'plot_summaries']
+    },
+    search: {
+      title: 'Search',
+      description: 'Future project-local search across chapters and authoring context.',
+      tables: ['chapters', 'draft_chapters', 'plot_summaries']
+    },
+    tasks: {
+      title: 'Tasks',
+      description: 'Future writing task/checklist panel. No persistence table is finalized for this in MVP.',
+      tables: ['MVP placeholder']
+    },
+    projects: {
+      title: 'Projects',
+      description: 'Use the Project Manager for full project switching and metadata editing.',
+      tables: ['novels', 'chapters']
+    },
+    settings: {
+      title: 'Settings',
+      description: 'Future author workspace settings. AI settings remain deferred until Phase 10.',
+      tables: ['user_profiles', 'reading_preferences']
+    }
+  };
+  const placeholder = placeholderMap[activity];
+
   return (
     <Stack mt="md">
+      <Text fw={700}>{placeholder.title}</Text>
       <Text size="sm" c="dimmed">
-        {activity} panel placeholder.
+        {placeholder.description}
       </Text>
-      <TextInput placeholder="Search or filter..." size="xs" />
+      <Group gap="xs">
+        {placeholder.tables.map((tableName) => (
+          <Badge key={tableName} size="sm" variant="outline">
+            {tableName}
+          </Badge>
+        ))}
+      </Group>
+      <TextInput placeholder="Search/filter placeholder..." size="xs" disabled />
     </Stack>
   );
 }
 
 function EditorWorkspace({
   chapter,
+  chapterTitle,
   content,
+  onChapterTitleChange,
   onContentChange,
   loading
 }: {
   chapter: Chapter | null;
+  chapterTitle: string;
   content: string;
+  onChapterTitleChange: (value: string) => void;
   onContentChange: (value: string) => void;
   loading: boolean;
 }) {
@@ -480,6 +567,14 @@ function EditorWorkspace({
           {chapter?.status ?? 'Idle'}
         </Badge>
       </Group>
+
+      <TextInput
+        label="Chapter title"
+        value={chapterTitle}
+        onChange={(event) => onChapterTitleChange(event.currentTarget.value)}
+        disabled={!chapter}
+        mb="md"
+      />
 
       <Textarea
         className="editor-textarea"

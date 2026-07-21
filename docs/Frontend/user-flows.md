@@ -9,13 +9,13 @@ sequenceDiagram
     participant API
 
     Reader->>Mobile: Open Home/Search
-    Mobile->>API: GET /reading/novels
+    Mobile->>API: GET /reading/search
     API-->>Mobile: public novels
     Reader->>Mobile: Select novel
-    Mobile->>API: GET /novels/{novelId}
+    Mobile->>API: GET /reading/novels/{novelId}
     API-->>Mobile: novel detail + chapters
     Reader->>Mobile: Open chapter
-    Mobile->>API: GET /chapters/{chapterId}
+    Mobile->>API: GET /reading/chapters/{chapterId}
     API-->>Mobile: chapter content
     Reader->>Mobile: Add comment
     Mobile->>API: POST /chapters/{chapterId}/comments
@@ -44,7 +44,9 @@ sequenceDiagram
     API-->>Web: PUBLISHED or PENDING_MODERATION
 ```
 
-## 3. Writing Copilot Suggestion
+## 3. Writing Copilot Suggestion (Phase 10)
+
+This flow is deferred until Phase 10. Phase 8.x should show disabled AI entry points and must not call these APIs.
 
 ```mermaid
 sequenceDiagram
@@ -63,7 +65,9 @@ sequenceDiagram
     API-->>Web: official context updated
 ```
 
-## 4. Author Checks Plot Consistency
+## 4. Author Checks Plot Consistency (Phase 10)
+
+This flow is deferred until Phase 10. Phase 8.x should show consistency as a disabled/non-blocking placeholder only.
 
 ```mermaid
 sequenceDiagram
@@ -94,7 +98,7 @@ sequenceDiagram
     participant API
 
     Reader->>Mobile: Open VIP chapter
-    Mobile->>API: GET /chapters/{chapterId}
+    Mobile->>API: GET /reading/chapters/{chapterId}
     API-->>Mobile: PAYMENT_002 or unlock required
     Reader->>Mobile: Tap Unlock
     Mobile->>API: POST /chapters/{chapterId}/unlock

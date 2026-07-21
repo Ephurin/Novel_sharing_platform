@@ -18,7 +18,19 @@ Use it as the working checklist before creating `backend/`, `web/`, and later `m
 | `phase-6-mock-wallet-backend-checklist.md` | Mock wallet backend APIs: balance, deposit mock, unlock, donate, withdraw, transactions. |
 | `phase-7-profile-notification-admin-checklist.md` | Profile, notification, and admin backend APIs: author profile, notifications, stats, users, taxonomy, withdraw review. |
 | `phase-8-web-frontend-completion-checklist.md` | Web frontend completion for Author, Reader, Wallet, Notification, and Admin flows. |
-| Phase 9 planned | Mobile reader app after reader/wallet APIs stabilize. |
+| `phase-8x-web-frontend-completion-plan.md` | Intermediate web frontend phases before mobile: foundation hardening, official Author IDE, Reader web, utility/admin UI, final polish. |
+| `phase-8-1-frontend-foundation-hardening-checklist.md` | Frontend foundation hardening: session restore, role guards, shared UI states, API errors, admin confirmations. |
+| `phase-8-2-author-project-manager-checklist.md` | Author project manager UI, author-reader switching, and current-author novel endpoint. |
+| `phase-8-3-reader-web-checklist.md` | Reader web UI for search, novel detail, chapter reading, comments, library, history, and VIP unlock. |
+| `phase-8-4-utility-admin-profile-checklist.md` | Wallet, notifications, profile/settings, public author profile, and admin utility UI review. |
+| `phase-8-ui-coverage-audit.md` | Gap audit across sitemap, API usage, and database/Mongo visibility before final web QA. |
+| `phase-8-5-author-workspace-deepening-checklist.md` | Author metadata editor, deep links, project health, and non-AI context placeholders. |
+| `phase-8-6-reader-experience-deepening-checklist.md` | Reading preferences, auto-history, reader filters, comment edit, and social UX. |
+| `phase-8-7-admin-moderation-deepening-checklist.md` | Admin reports, moderation detail, and moderation evidence visibility. |
+| `phase-8-8-public-guest-web-checklist.md` | Public landing/browse/detail and guest action gates. |
+| `phase-8-9-final-web-qa-checklist.md` | Final web UI QA before Phase 9 mobile. |
+| `../SystemTest/README.md` | System test handoff guide for another tester/agent after Phase 8 Web MVP. |
+| `phase-9-mobile-reader-app-checklist.md` | Mobile Reader App implementation and Android Expo Go review checklist. |
 | Phase 10 planned | AI/Copilot as a separate FastAPI service after non-AI backend and frontend are stable. |
 
 ## Source Documents

@@ -10,6 +10,7 @@ import {
   listTransactions,
   unlockChapter
 } from './wallet-api';
+import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 
 export function WalletPage() {
   const queryClient = useQueryClient();
@@ -131,6 +132,11 @@ export function WalletPage() {
 
       <Paper p="md" withBorder mt="md">
         <Title order={4} mb="sm">Transactions</Title>
+        {transactionsQuery.isLoading ? <LoadingState label="Loading transactions..." /> : null}
+        {transactionsQuery.isError ? <ErrorState error={transactionsQuery.error} onRetry={() => void transactionsQuery.refetch()} /> : null}
+        {!transactionsQuery.isLoading && !transactionsQuery.isError && !transactionsQuery.data?.length ? (
+          <EmptyState description="No wallet transactions yet." />
+        ) : null}
         <Table>
           <Table.Thead>
             <Table.Tr>
@@ -141,14 +147,14 @@ export function WalletPage() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {(transactionsQuery.data ?? []).map((transaction) => (
+            {!transactionsQuery.isLoading && !transactionsQuery.isError ? (transactionsQuery.data ?? []).map((transaction) => (
               <Table.Tr key={transaction.transactionId}>
                 <Table.Td>{transaction.type}</Table.Td>
                 <Table.Td>{transaction.status}</Table.Td>
                 <Table.Td>{transaction.amountCoins}</Table.Td>
                 <Table.Td>{new Date(transaction.createdAt).toLocaleString()}</Table.Td>
               </Table.Tr>
-            ))}
+            )) : null}
           </Table.Tbody>
         </Table>
       </Paper>

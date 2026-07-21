@@ -21,8 +21,8 @@ Use this checklist before turning mockups into React/React Native screens.
 
 - [ ] Every screen has at least one primary API or documented static/demo source.
 - [ ] Content Control screens use `content-control-api.md`.
-- [ ] AI/Copilot screens use `ai-copilot-api.md`.
-- [ ] Consistency checking uses `POST /ai/copilot/consistency-check` and remains non-blocking.
+- [ ] AI/Copilot screens are disabled/placeheld until Phase 10 and do not call AI APIs during Phase 8.x.
+- [ ] Consistency checking is documented as Phase 10 work using `POST /ai/copilot/consistency-check`.
 - [ ] Wallet screens clearly use mock payment APIs only.
 - [ ] No frontend screen expects hidden/internal fields.
 
@@ -39,12 +39,17 @@ Use this checklist before turning mockups into React/React Native screens.
 Recommended implementation order:
 
 1. Auth shell and navigation.
-2. Mobile Home, Novel Detail, Reader.
-3. Author My Novels, Novel Editor, Chapter Editor.
-4. Content Control moderation queue.
-5. Wallet mock.
-6. Writing Copilot panel.
-7. Dashboard/stats polish.
+2. Phase 8.1 web foundation: session restore, guards, shared loading/error/empty states.
+3. Phase 8.2 Author IDE official UI.
+4. Phase 8.3 Reader web completion.
+5. Phase 8.4 Wallet, notifications, profile, admin UI.
+6. Phase 8.5 Author workspace deepening.
+7. Phase 8.6 Reader experience deepening.
+8. Phase 8.7 Admin/moderation deepening.
+9. Phase 8.8 Public/guest web surface.
+10. Phase 8.9 final web QA/polish.
+11. Phase 9 Mobile Reader App.
+12. Phase 10 Writing Copilot panel and consistency checking.
 
 ## Suggested Comment Format
 

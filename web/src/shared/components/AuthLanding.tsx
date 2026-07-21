@@ -1,11 +1,16 @@
-import { Alert, Box, Button, Group, Paper, PasswordInput, Stack, TextInput, Title } from '@mantine/core';
+import { Alert, Box, Button, Group, Paper, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { IconBrain } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { login, register } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
+import { getApiErrorMessage } from '../api/api-client';
 
 export function AuthLanding() {
+  const navigate = useNavigate();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const user = useAuthStore((state) => state.user);
   const setSession = useAuthStore((state) => state.setSession);
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -18,11 +23,16 @@ export function AuthLanding() {
     onSuccess: (session) => {
       setError(null);
       setSession(session);
+      navigate(getRoleHome(session.user.role), { replace: true });
     },
     onError: (caughtError) => {
-      setError(caughtError instanceof Error ? caughtError.message : 'Authentication failed');
+      setError(getApiErrorMessage(caughtError));
     }
   });
+
+  if (accessToken && user) {
+    return <Navigate to={getRoleHome(user.role)} replace />;
+  }
 
   return (
     <Box className="auth-shell">
@@ -49,8 +59,20 @@ export function AuthLanding() {
           <Button variant="subtle" onClick={() => setMode((currentMode) => (currentMode === 'login' ? 'register' : 'login'))}>
             Switch to {mode === 'login' ? 'register' : 'login'}
           </Button>
+          <Button variant="light" onClick={() => navigate('/public')}>
+            Browse public library as guest
+          </Button>
+          <Text size="xs" c="dimmed" ta="center">
+            OAuth callback is intentionally not wired in this MVP phase.
+          </Text>
         </Stack>
       </Paper>
     </Box>
   );
+}
+
+function getRoleHome(role: 'READER' | 'AUTHOR' | 'ADMIN') {
+  if (role === 'ADMIN') return '/admin';
+  if (role === 'AUTHOR') return '/author';
+  return '/reader';
 }

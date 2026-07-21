@@ -8,6 +8,7 @@ import {
   createNovel as createNovelRow,
   findNovelById,
   listNovels as listNovelRows,
+  listNovelsByAuthor,
   softDeleteNovel,
   submitNovelForPublish,
   updateNovel as updateNovelRow,
@@ -44,6 +45,21 @@ export async function createNovel(auth: AuthContext, input: CreateNovelInput) {
 
 export async function listNovels(input: ListNovelsInput) {
   const result = await listNovelRows(input);
+  const totalPages = Math.ceil(result.totalItems / input.limit);
+
+  return {
+    data: result.items,
+    meta: {
+      page: input.page,
+      limit: input.limit,
+      totalItems: result.totalItems,
+      totalPages
+    }
+  };
+}
+
+export async function listMyNovels(auth: AuthContext, input: ListNovelsInput) {
+  const result = await listNovelsByAuthor(auth.userId, input);
   const totalPages = Math.ceil(result.totalItems / input.limit);
 
   return {

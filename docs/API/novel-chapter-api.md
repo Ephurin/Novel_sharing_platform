@@ -95,6 +95,50 @@ Search/browse public novels.
 }
 ```
 
+### GET /novels/me
+
+List novels owned by the current author for the Author Project Manager.
+
+**Auth:** Required  
+**Roles:** Author, Admin
+
+**Query**
+
+| Query | Description |
+| :--- | :--- |
+| `q` | Search in own novel title/synopsis. |
+| `status` | `DRAFT`, `PENDING_MODERATION`, `PUBLISHED`, or `REJECTED`. |
+| `page`, `limit` | Pagination conventions. |
+
+**Response**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "novelId": "novel_123",
+      "title": "The Moonlit Archive",
+      "authorId": "user_author_1",
+      "status": "DRAFT",
+      "chaptersCount": 3
+    }
+  ],
+  "error": null,
+  "meta": {
+    "page": 1,
+    "limit": 50,
+    "totalItems": 1,
+    "totalPages": 1
+  }
+}
+```
+
+**Notes**
+
+- This endpoint is author-facing and returns only the authenticated author's non-deleted novels.
+- It is separate from public reading/search APIs so Author Project Manager never depends on global browse data.
+
 ### GET /novels/{novelId}
 
 Get novel details.

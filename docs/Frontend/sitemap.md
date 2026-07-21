@@ -6,6 +6,7 @@
 flowchart TD
     Web[Web App] --> Public[Public Landing]
     Web --> Auth[Auth]
+    Web --> ReaderWeb[Reader Web]
     Web --> Author[Author Workspace]
     Web --> Admin[Admin Dashboard]
 
@@ -16,17 +17,27 @@ flowchart TD
     Auth --> Login
     Auth --> OAuth[OAuth Callback]
 
-    Author --> AuthorHome[Author Dashboard]
-    Author --> MyNovels[My Novels]
+    ReaderWeb --> ReaderHome[Reader Home / Search]
+    ReaderWeb --> ReaderNovel[Reader Novel Detail]
+    ReaderWeb --> ReaderChapter[Reader Chapter Screen]
+    ReaderWeb --> ReaderLibrary[Library / History]
+
+    Author --> AuthorHome[Author Project Manager]
+    Author --> MyNovels[My Writing Projects]
     Author --> NovelEditor[Novel Editor]
     Author --> ChapterEditor[Chapter Editor]
+    Author --> AuthorIde[Author IDE]
     Author --> Context[Character / Timeline / Plot Summary]
     Author --> Copilot[Writing Copilot Panel]
     Author --> AuthorStats[Author Stats]
     Author --> WalletAuthor[Author Wallet / Withdraw Mock]
 
+    AuthorHome --> MyNovels
+    AuthorHome --> AuthorIde
+    AuthorHome --> ReaderHome
     MyNovels --> NovelEditor
     NovelEditor --> ChapterEditor
+    ChapterEditor --> AuthorIde
     NovelEditor --> Context
     ChapterEditor --> Copilot
 
@@ -68,7 +79,8 @@ flowchart TD
 
 | Client | Navigation |
 | :--- | :--- |
-| Web Author | Dashboard, My Novels, Editor, Context, Wallet, Stats |
+| Web Authenticated | Reader, Writing Projects, Wallet, Notifications, Profile |
+| Web Author | Project Manager, My Writing Projects, Author IDE, Context, Wallet, Stats |
 | Web Admin | Overview, Moderation, Reports, Users, Taxonomy, Withdraws |
 | Mobile Reader | Home, Search, Library, Notifications, Profile |
 
@@ -76,6 +88,6 @@ flowchart TD
 
 | Priority | Screens |
 | :--- | :--- |
-| P0 | Login/Register, Home, Novel Detail, Reader, My Novels, Chapter Editor |
+| P0 | Login/Register, Reader Home, Novel Detail, Reader, Author Project Manager, My Writing Projects, Chapter Editor |
 | P1 | Comments, Library, Wallet Mock, Writing Copilot, Moderation Queue |
 | P2 | Author Stats, Taxonomy, Withdraw Review, Notifications |
