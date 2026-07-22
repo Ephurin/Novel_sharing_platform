@@ -35,9 +35,9 @@ Use it to detect missing endpoints, outdated endpoint names, or screens that sti
 
 | Screen | API | Required | Notes |
 | :--- | :--- | :--- | :--- |
-| Entities | Context endpoints in `novel-chapter-api.md` | Later | May remain placeholder until context backend is implemented. |
-| Timeline | Context endpoints in `novel-chapter-api.md` | Later | Important for Phase 10. |
-| Plot Summary | Context endpoints in `novel-chapter-api.md` | Later | Important for Phase 10. |
+| Entities | Context endpoints in `novel-chapter-api.md` | Phase 9.5 | Core Author story-management data, not only AI context. |
+| Timeline | Context endpoints in `novel-chapter-api.md` | Phase 9.5 | Core Author story-management data; AI can read it later. |
+| Plot Summary | Context endpoints in `novel-chapter-api.md` | Phase 9.5 | Core Author story-management data; AI can read/propose updates later. |
 | Copilot Suggestion | `POST /ai/copilot/suggestions` | Phase 10 | Disabled in Phase 8.x. |
 | Consistency Check | `POST /ai/copilot/consistency-check` | Phase 10 | Disabled in Phase 8.x. |
 | Context Proposal Approval | AI/context proposal endpoint | Phase 10 | Disabled in Phase 8.x. |
@@ -133,7 +133,8 @@ The frontend plan is aligned with the API collections that were reviewed and rep
 Notes:
 
 - Phase 8.x should prioritize APIs that are already covered by these passing collections.
-- Author context and AI/Copilot endpoints are documented but not part of the passing non-AI API baseline yet.
+- Author context endpoints are planned for Phase 9.5 and are not part of the passing non-AI API baseline yet.
+- AI/Copilot endpoints are documented but remain deferred until Phase 10.
 - If a frontend screen needs behavior outside these collections, add or update API tests before treating the screen as final.
 
 ## 11. Review Checklist

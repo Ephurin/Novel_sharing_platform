@@ -11,7 +11,8 @@ Goal: close Author-side sitemap gaps before final web QA.
 - [x] Support chapter title editing in IDE.
 - [x] Remove normal-flow dependency on manual Novel ID/Chapter ID inputs.
 - [x] Add visible context placeholders for characters, relationships, timeline, and summaries.
-- [x] Mark AI/context persistence as deferred where backend is not ready.
+- [x] Mark Author context persistence as deferred to Phase 9.5 where backend is not ready.
+- [x] Mark AI/Copilot actions as deferred to Phase 10.
 - [x] Run `npm.cmd --prefix web run typecheck`.
 - [x] Run `npm.cmd --prefix web run build`.
 
@@ -25,4 +26,4 @@ Note: manual Novel ID/Chapter ID inputs remain in the IDE as an advanced/debug f
 4. Edit metadata and confirm project card updates.
 5. Open a chapter deep link and refresh the IDE tab.
 6. Confirm chapter context remains stable through URL params.
-7. Inspect context placeholder panels and confirm they do not fake AI persistence.
+7. Inspect context placeholder panels and confirm they do not fake Phase 9.5 persistence.

@@ -38,7 +38,8 @@ The MVP should demonstrate:
 | 8.8 | Public and guest web surface | Public landing/browse/detail and guest action gates |
 | 8.9 | Final web QA and polish | Official web UI approval before mobile |
 | 9 | Mobile reader app | Reader mobile app after web frontend and APIs stabilize |
-| 10 | AI/Copilot | Metadata, suggestions, consistency check, context proposals |
+| 9.5 | Authoring context core | Character profiles, relationships, timeline events, and plot summaries for Author story management |
+| 10 | AI/Copilot | Metadata, suggestions, consistency check, context proposals using official authoring context |
 
 ## 3. Phase Details
 
@@ -119,7 +120,7 @@ Important constraints:
 
 References:
 
-- `docs/Frontend/wireframes.md`
+- `docs/Frontend/wireframes-web.md`
 - `docs/Frontend/screen-specs.md`
 - `docs/Frontend/user-flows.md`
 - `docs/API/novel-chapter-api.md`
@@ -251,7 +252,7 @@ Boundary:
 
 References:
 
-- `docs/Frontend/wireframes.md`
+- `docs/Frontend/wireframes-web.md`
 - `docs/Frontend/screen-specs.md`
 - `docs/Frontend/user-flows.md`
 - `docs/Implementation/phase-8x-web-frontend-completion-plan.md`
@@ -296,7 +297,7 @@ Do not start Phase 9 until Phase 8.9 is accepted.
 References:
 
 - `docs/Frontend/sitemap.md`
-- `docs/Frontend/wireframes.md`
+- `docs/Frontend/wireframes-mobile.md`
 - `docs/API/reading-api.md`
 - `docs/API/interaction-social-api.md`
 - `docs/API/payment-wallet-api.md`
@@ -313,15 +314,48 @@ Deliverables:
 
 Start this only after reader APIs and wallet APIs are stable.
 
+### Phase 9.5: Authoring Context Core
+
+References:
+
+- `docs/Implementation/phase-9-5-authoring-context-core-checklist.md`
+- `docs/SRS/novel-chapter-service.md`
+- `docs/Database/postgresql-schema.md`
+- `docs/Database/enums-and-indexes.md`
+- `docs/API/novel-chapter-api.md`
+- `docs/Frontend/wireframes-web.md`
+- `docs/Frontend/screen-specs.md`
+
+Deliverables:
+
+- PostgreSQL migrations for official authoring context tables;
+- backend CRUD APIs for character profiles;
+- backend CRUD APIs for character relationships;
+- backend CRUD APIs for story timeline events;
+- backend CRUD APIs for plot summaries;
+- Postman collection for context API review;
+- API-backed Author Context Manager UI;
+- Author IDE Entities/Timeline activities reading real context data.
+
+Rules:
+
+- this phase is non-AI;
+- these features are core Author story-management tools, not just LLM context;
+- AI/Copilot can later read this data and propose changes;
+- AI-generated changes must remain out of scope until Phase 10;
+- frontend must not fake persistence after this phase.
+
 ### Phase 10: AI + Writing Copilot
 
 References:
 
 - `docs/SRS/ai-intelligence-service.md`
 - `docs/API/ai-copilot-api.md`
+- `docs/API/novel-chapter-api.md`
 - `docs/Database/mongodb-collections.md`
 - `docs/Backend/overview.md`
 - `docs/Backend/module-structure.md`
+- `docs/Implementation/phase-9-5-authoring-context-core-checklist.md`
 
 Deliverables:
 
@@ -345,7 +379,7 @@ Rules:
 - frontend calls Node.js `/api/v1/ai/*`, not FastAPI directly;
 - Node.js backend owns auth, ownership checks, rate limits, and persistence decisions;
 - FastAPI owns model calls, prompt/context assembly helpers, embeddings, and consistency execution;
-- update detailed AI SRS/API/DB/deployment docs after Phase 9 and before Phase 10 coding;
+- update detailed AI SRS/API/DB/deployment docs after Phase 9.5 and before Phase 10 coding;
 - AI suggestions do not auto-save into drafts.
 - context updates require Author approval.
 - consistency warnings are non-blocking.
@@ -357,7 +391,7 @@ Rules:
 - Error codes must follow `docs/API/error-codes.md`.
 - Database ownership must follow `docs/Database/overview.md`.
 - Backend module boundaries must follow `docs/Backend/module-structure.md`.
-- Frontend Author IDE must follow `docs/Frontend/wireframes.md`.
+- Frontend Author IDE must follow `docs/Frontend/wireframes-web.md`.
 - Do not implement features that contradict SRS/API docs; update docs first if requirements change.
 - From Phase 5 onward, finish non-AI backend APIs first, then frontend integration, then AI/Copilot last.
 
@@ -378,7 +412,8 @@ Use this order after Phase 4 is approved:
 11. Phase 8.8: Public and guest web surface.
 12. Phase 8.9: Final web QA and polish.
 13. Phase 9: Mobile reader app.
-14. Phase 10: AI/Copilot.
+14. Phase 9.5: Authoring context core.
+15. Phase 10: AI/Copilot.
 
 ## 6. Suggested First Coding Sprint
 

@@ -3,12 +3,14 @@ import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { slugify } from '../../core/utils/slug.js';
+import { checkContent } from '../content-control/content-control.service.js';
 import type { CreateNovelInput, ListNovelsInput, UpdateNovelInput } from './novels.schemas.js';
 import {
   createNovel as createNovelRow,
   findNovelById,
   listNovels as listNovelRows,
   listNovelsByAuthor,
+  publishNovel,
   softDeleteNovel,
   submitNovelForPublish,
   updateNovel as updateNovelRow,
@@ -105,7 +107,32 @@ export async function submitPublish(auth: AuthContext, novelId: string) {
   const novel = await getNovel(novelId);
   assertNovelOwner(novel, auth);
 
-  const updatedNovel = await submitNovelForPublish(novelId);
+  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION'].includes(novel.status)) {
+    throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+  }
+
+  const moderation = await checkContent({
+    targetType: 'NOVEL',
+    targetId: novel.novelId,
+    content: `${novel.title}\n\n${novel.synopsis}`,
+    submittedBy: auth.userId
+  });
+
+  if (!moderation.moderationRequired) {
+    const publishedNovel = await publishNovel(novelId);
+    if (!publishedNovel) {
+      throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+    }
+
+    return {
+      novelId: publishedNovel.novelId,
+      status: publishedNovel.status,
+      moderationRequired: false,
+      moderationReviewId: null
+    };
+  }
+
+  const updatedNovel = novel.status === 'PENDING_MODERATION' ? novel : await submitNovelForPublish(novelId);
   if (!updatedNovel) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
@@ -113,6 +140,7 @@ export async function submitPublish(auth: AuthContext, novelId: string) {
   return {
     novelId: updatedNovel.novelId,
     status: updatedNovel.status,
-    moderationRequired: true
+    moderationRequired: true,
+    moderationReviewId: moderation.moderationReviewId
   };
 }

@@ -126,3 +126,44 @@ export async function submitChapterForPublish(chapterId: string) {
 
   return result.rows[0] ? mapChapter(result.rows[0]) : null;
 }
+
+export async function publishChapter(
+  chapterId: string,
+  input: {
+    title: string;
+    content: string;
+    wordCount: number;
+  }
+) {
+  const result = await getPostgresPool().query(
+    `
+      update chapters
+      set
+        title = $2,
+        content = $3,
+        word_count = $4,
+        status = 'PUBLISHED',
+        published_at = coalesce(published_at, now()),
+        updated_at = now()
+      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION')
+      returning *
+    `,
+    [chapterId, input.title, input.content, input.wordCount]
+  );
+
+  return result.rows[0] ? mapChapter(result.rows[0]) : null;
+}
+
+export async function rejectChapterPublication(chapterId: string) {
+  const result = await getPostgresPool().query(
+    `
+      update chapters
+      set status = 'REJECTED', updated_at = now()
+      where chapter_id = $1 and deleted_at is null and status = 'PENDING_MODERATION'
+      returning *
+    `,
+    [chapterId]
+  );
+
+  return result.rows[0] ? mapChapter(result.rows[0]) : null;
+}

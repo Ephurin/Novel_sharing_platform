@@ -1,6 +1,6 @@
 # Ephurin Mobile Reader
 
-Phase 9 mobile Reader app built with Expo + React Native.
+Phase 9 mobile Reader app built with Expo SDK 54 + React Native.
 
 ## Run on Android
 
@@ -43,5 +43,6 @@ npx expo start
 ## Notes
 
 - Do not use `localhost` from a real Android phone; use your PC LAN IP.
+- This project targets Expo SDK 54 for current Expo Go compatibility.
 - Wallet remains mock/demo only.
 - AI/Copilot is out of scope for Phase 9.

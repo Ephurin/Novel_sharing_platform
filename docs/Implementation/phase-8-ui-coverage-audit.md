@@ -42,7 +42,7 @@ This audit compares current web UI coverage against `docs/Frontend/sitemap.md`, 
 | `GET /authors/{authorId}/followers/count` | Indirect via author profile | Standalone count not needed unless UI requires live count | Optional |
 | `GET /admin/moderation/reviews/{reviewId}` | Not used | No moderation detail page | 8.7 |
 | `POST /content-control/check` | Not used by normal UI | Could be admin/dev tool only; publish/comment workflows already invoke moderation | 8.7 optional |
-| Context endpoints | Not implemented/used | Author context UI cannot persist data yet | Backend/Phase 10 boundary |
+| Context endpoints | Not implemented/used | Author context UI cannot persist data yet | 9.5 |
 | AI endpoints | Disabled | Correctly deferred | 10 |
 
 ## 4. Database Visibility Gaps
@@ -64,7 +64,8 @@ This audit compares current web UI coverage against `docs/Frontend/sitemap.md`, 
 | Mongo `draft_chapters` | Visible indirectly via IDE draft version/content | Good enough for MVP |
 | Mongo `comments` | Approved comments visible | Pending/rejected evidence not visible | 8.7 |
 | Mongo `moderation_evidence` | Not visible | Admin evidence detail missing | 8.7 |
-| AI/context collections | Not visible | Correctly deferred | 10 |
+| Authoring context tables | Placeholder only | Character/timeline/summary CRUD is not implemented yet | 9.5 |
+| AI/context proposal collections | Not visible | Correctly deferred | 10 |
 
 ## 5. Recommended Remaining Phase Order
 

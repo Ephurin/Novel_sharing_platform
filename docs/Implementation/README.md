@@ -31,7 +31,8 @@ Use it as the working checklist before creating `backend/`, `web/`, and later `m
 | `phase-8-9-final-web-qa-checklist.md` | Final web UI QA before Phase 9 mobile. |
 | `../SystemTest/README.md` | System test handoff guide for another tester/agent after Phase 8 Web MVP. |
 | `phase-9-mobile-reader-app-checklist.md` | Mobile Reader App implementation and Android Expo Go review checklist. |
-| Phase 10 planned | AI/Copilot as a separate FastAPI service after non-AI backend and frontend are stable. |
+| `phase-9-5-authoring-context-core-checklist.md` | Non-AI Authoring Context Core: character profiles, relationships, timeline events, and plot summaries. |
+| Phase 10 planned | AI/Copilot as a separate FastAPI service after Authoring Context Core is stable. |
 
 ## Source Documents
 
@@ -51,7 +52,8 @@ Read these before coding:
 - Start with `backend/` and `web/`.
 - Delay `mobile/` until core Reader APIs are stable.
 - Keep payment as mock/demo only.
-- Defer AI/Copilot until the non-AI backend and frontend are stable.
+- Implement Authoring Context Core before AI/Copilot because characters, timeline, and summaries are core Author story-management data.
+- Defer AI/Copilot until the non-AI backend, frontend, and Authoring Context Core are stable.
 - Implement AI/Copilot as a separate FastAPI service when Phase 10 starts.
 - Keep Node.js as the public API gateway for AI routes.
 - Keep Content Control separate from AI/LLM.

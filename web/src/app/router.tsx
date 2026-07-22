@@ -4,6 +4,7 @@ import { WebAppShell } from './layout/WebAppShell';
 import { AdminModerationDetailPage, AdminModerationPage, AdminPage } from '../features/admin/AdminPage';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';
 import { AuthorProjectsPage } from '../features/author-projects/AuthorProjectsPage';
+import { AuthorStoryContextPage } from '../features/story-context/AuthorStoryContextPage';
 import { AuthGate, RoleGuard, RoleHomeRedirect } from '../features/auth/AuthGate';
 import { NotificationsPage } from '../features/notifications/NotificationsPage';
 import { AuthorProfilePage, MyProfilePage } from '../features/profile/ProfilePage';
@@ -43,6 +44,16 @@ export const router = createBrowserRouter([
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
           <AuthorIdeShell />
+        </RoleGuard>
+      </AuthGate>
+    )
+  },
+  {
+    path: '/author/context/:novelId',
+    element: (
+      <AuthGate>
+        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+          <AuthorStoryContextPage />
         </RoleGuard>
       </AuthGate>
     )

@@ -1,12 +1,14 @@
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { checkContent } from '../content-control/content-control.service.js';
 import type { CreateChapterInput, UpdateChapterInput } from './chapters.schemas.js';
 import {
   createChapter as createChapterRow,
   findChapterById,
   getNextChapterNumber,
   listChaptersByNovelId,
+  publishChapter,
   submitChapterForPublish,
   updateChapterMetadata
 } from './chapters.repository.js';
@@ -100,7 +102,7 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
 
-  if (!['DRAFT', 'REJECTED'].includes(chapter.status)) {
+  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION'].includes(chapter.status)) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
 
@@ -149,7 +151,46 @@ export async function submitChapterPublish(auth: AuthContext, chapterId: string)
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
 
-  const updatedChapter = await submitChapterForPublish(chapterId);
+  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION'].includes(chapter.status)) {
+    throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+  }
+
+  const draft = await findDraftChapterByChapterId(chapterId);
+  const publishTitle = draft?.title ?? chapter.title;
+  const publishContent = draft?.content ?? chapter.content;
+  const publishWordCount = draft?.wordCount ?? chapter.wordCount;
+
+  if (!publishContent) {
+    throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+  }
+
+  const moderation = await checkContent({
+    targetType: 'CHAPTER',
+    targetId: chapter.chapterId,
+    content: `${publishTitle}\n\n${publishContent}`,
+    submittedBy: auth.userId
+  });
+
+  if (!moderation.moderationRequired) {
+    const publishedChapter = await publishChapter(chapterId, {
+      title: publishTitle,
+      content: publishContent,
+      wordCount: publishWordCount
+    });
+
+    if (!publishedChapter) {
+      throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+    }
+
+    return {
+      chapterId: publishedChapter.chapterId,
+      status: publishedChapter.status,
+      moderationRequired: false,
+      moderationReviewId: null
+    };
+  }
+
+  const updatedChapter = chapter.status === 'PENDING_MODERATION' ? chapter : await submitChapterForPublish(chapterId);
   if (!updatedChapter) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
@@ -157,6 +198,7 @@ export async function submitChapterPublish(auth: AuthContext, chapterId: string)
   return {
     chapterId: updatedChapter.chapterId,
     status: updatedChapter.status,
-    moderationRequired: true
+    moderationRequired: true,
+    moderationReviewId: moderation.moderationReviewId
   };
 }

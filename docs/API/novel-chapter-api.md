@@ -185,6 +185,9 @@ Delete own draft novel or request deletion of published novel.
 
 Submit novel for Content Control check and publication/moderation.
 
+- If keyword filtering passes, the novel is published immediately.
+- If keyword filtering matches a rule, the novel moves to Admin moderation.
+
 **Auth:** Required  
 **Roles:** Author
 
@@ -196,7 +199,8 @@ Submit novel for Content Control check and publication/moderation.
   "data": {
     "novelId": "novel_123",
     "status": "PENDING_MODERATION",
-    "moderationRequired": true
+    "moderationRequired": true,
+    "moderationReviewId": "review_123"
   },
   "error": null,
   "meta": {}
@@ -277,6 +281,9 @@ Update own draft or rejected chapter.
 
 Submit chapter for Content Control check and publication/moderation.
 
+- If keyword filtering passes, the latest draft is copied into the published chapter content and the chapter is published immediately.
+- If keyword filtering matches a rule, the chapter moves to Admin moderation.
+
 **Auth:** Required  
 **Roles:** Author
 
@@ -288,7 +295,8 @@ Submit chapter for Content Control check and publication/moderation.
   "data": {
     "chapterId": "chapter_123",
     "status": "PENDING_MODERATION",
-    "moderationRequired": true
+    "moderationRequired": true,
+    "moderationReviewId": "review_123"
   },
   "error": null,
   "meta": {}
@@ -296,6 +304,8 @@ Submit chapter for Content Control check and publication/moderation.
 ```
 
 ## Context Endpoints
+
+These endpoints are part of non-AI Authoring Context Core. They let Authors manage story data directly. AI/Copilot may read this data later, but AI-generated context proposals are separate Phase 10 endpoints.
 
 ### GET /novels/{novelId}/characters
 
@@ -317,16 +327,14 @@ Create a character profile.
 {
   "name": "Liora",
   "role": "PROTAGONIST",
+  "description": "Archive-born protagonist with a hidden memory.",
   "personality": "Curious, stubborn, loyal",
-  "relationships": [
-    {
-      "targetCharacterId": "character_456",
-      "type": "MENTOR"
-    }
-  ],
-  "notes": "Has a hidden memory of the archive."
+  "notes": "Has a hidden memory of the archive.",
+  "source": "AUTHOR_MANUAL"
 }
 ```
+
+Relationships are managed through the dedicated character relationship endpoints.
 
 ### PATCH /characters/{characterId}
 
@@ -338,6 +346,47 @@ Update a character profile.
 ### DELETE /characters/{characterId}
 
 Delete a character profile.
+
+**Auth:** Required  
+**Roles:** Author
+
+### GET /novels/{novelId}/character-relationships
+
+List character relationships for a novel.
+
+**Auth:** Required  
+**Roles:** Author
+
+### POST /novels/{novelId}/character-relationships
+
+Create a relationship between two characters in the same novel.
+
+**Auth:** Required  
+**Roles:** Author
+
+**Request**
+
+```json
+{
+  "sourceCharacterId": "character_123",
+  "targetCharacterId": "character_456",
+  "relationshipType": "MENTOR",
+  "description": "Cael teaches Liora how to read archive glyphs."
+}
+```
+
+MVP note: `character_relationships` currently stores `relationshipType` and `description`; relationship `status` and `source` are deferred until the database schema is expanded.
+
+### PATCH /character-relationships/{relationshipId}
+
+Update a character relationship.
+
+**Auth:** Required  
+**Roles:** Author
+
+### DELETE /character-relationships/{relationshipId}
+
+Delete a character relationship.
 
 **Auth:** Required  
 **Roles:** Author
@@ -364,9 +413,25 @@ Create a story timeline event.
   "eventOrder": 1,
   "chapterId": "chapter_123",
   "summary": "Liora discovers the sealed archive door.",
-  "characters": ["character_123"]
+  "source": "AUTHOR_MANUAL"
 }
 ```
+
+MVP note: timeline-character linking is deferred until a timeline-character join table is added.
+
+### PATCH /timeline-events/{eventId}
+
+Update a story timeline event.
+
+**Auth:** Required  
+**Roles:** Author
+
+### DELETE /timeline-events/{eventId}
+
+Delete a story timeline event.
+
+**Auth:** Required  
+**Roles:** Author
 
 ### GET /novels/{novelId}/plot-summaries
 
@@ -404,7 +469,23 @@ Create or update a plot summary.
 }
 ```
 
+### PATCH /plot-summaries/{summaryId}
+
+Update a plot summary.
+
+**Auth:** Required  
+**Roles:** Author
+
+### DELETE /plot-summaries/{summaryId}
+
+Delete a plot summary.
+
+**Auth:** Required  
+**Roles:** Author
+
 ## Context Proposal Endpoints
+
+Context proposal endpoints are deferred until the AI/Copilot phase. They are not required for Phase 9.5 Authoring Context Core.
 
 ### GET /novels/{novelId}/context-proposals
 

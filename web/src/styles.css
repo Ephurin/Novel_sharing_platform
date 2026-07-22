@@ -43,6 +43,12 @@ body {
   min-height: 0;
 }
 
+.context-ide-body {
+  display: grid;
+  grid-template-columns: 52px 300px minmax(520px, 1fr);
+  min-height: 0;
+}
+
 .activity-bar {
   padding: 10px 0;
   border-right: 1px solid #252a36;
@@ -63,6 +69,13 @@ body {
 .editor-workspace {
   min-width: 0;
   padding: 22px 28px;
+  background: #0f1117;
+}
+
+.context-workspace {
+  min-width: 0;
+  padding: 22px 28px;
+  overflow: auto;
   background: #0f1117;
 }
 
@@ -161,6 +174,10 @@ body {
 
 @media (max-width: 1180px) {
   .ide-body {
+    grid-template-columns: 52px 260px minmax(360px, 1fr);
+  }
+
+  .context-ide-body {
     grid-template-columns: 52px 260px minmax(360px, 1fr);
   }
 

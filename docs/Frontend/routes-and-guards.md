@@ -21,7 +21,7 @@ This document defines planned frontend routes and access rules for the Ephurin w
 | `/author/novels` | My Writing Projects | `AUTHOR`, `ADMIN` | 8.2 | List/create/manage author novels as writing projects. |
 | `/author/novels/:novelId` | Novel Metadata Editor | `AUTHOR`, `ADMIN` | 8.2 | Edit title, synopsis, cover, genre, tags, status. |
 | `/author/novels/:novelId/chapters/:chapterId` | Chapter Editor Deep Link | `AUTHOR`, `ADMIN` | 8.2 | Opens Author IDE with selected chapter. |
-| `/author/context/:novelId` | Story Context Placeholder | `AUTHOR`, `ADMIN` | 8.2/10 | Entities/timeline/summaries UI; persistence depends on backend readiness. |
+| `/author/context/:novelId` | Story Context Manager | `AUTHOR`, `ADMIN` | 9.5 | Entities/timeline/summaries UI; Phase 8.x may show placeholder, Phase 9.5 adds persistence. |
 | `/reader` | Reader Home/Search | `READER`, `AUTHOR`, `ADMIN` | 8.3 | Web fallback for reader browse. |
 | `/reader/novels/:novelId` | Reader Novel Detail | `READER`, `AUTHOR`, `ADMIN`, Guest optional | 8.3 | Public data; actions require auth. |
 | `/reader/chapters/:chapterId` | Reader Chapter Screen | `READER`, `AUTHOR`, `ADMIN`, Guest optional | 8.3 | VIP content may require unlock/auth. |

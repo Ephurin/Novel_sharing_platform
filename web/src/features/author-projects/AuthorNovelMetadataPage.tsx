@@ -73,6 +73,9 @@ export function AuthorNovelMetadataPage() {
           <Button component={Link} to="/author" variant="light">
             Projects
           </Button>
+          <Button component={Link} to={`/author/context/${novelId}`} variant="light">
+            Manage Context
+          </Button>
           <Button onClick={() => openIde()}>Open IDE</Button>
         </Group>
       </Group>

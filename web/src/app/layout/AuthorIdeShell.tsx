@@ -13,19 +13,33 @@ import {
   IconUsers
 } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import {
   createChapter,
   createNovel,
   getChapter,
   getNovel,
+  listMyNovels,
   listChapters,
   submitChapterPublish,
   submitNovelPublish,
-  updateChapter
+  updateChapter,
+  updateNovel
 } from '../../features/novels/novel-api';
 import type { Chapter, Novel } from '../../features/novels/novel-types';
+import {
+  listCharacterRelationships,
+  listCharacters,
+  listPlotSummaries,
+  listTimelineEvents
+} from '../../features/story-context/story-context-api';
+import type {
+  CharacterProfile,
+  CharacterRelationship,
+  PlotSummary,
+  StoryTimelineEvent
+} from '../../features/story-context/story-context-types';
 import { AuthLanding } from '../../shared/components/AuthLanding';
 import { useUiStore, type AuthorActivity } from '../../shared/stores/useUiStore';
 
@@ -42,6 +56,15 @@ const activities: Array<{ value: AuthorActivity; label: string; icon: typeof Ico
 
 const starterContent = 'Start writing your chapter draft here.';
 
+type AuthorContextOverview = {
+  characters: CharacterProfile[];
+  relationships: CharacterRelationship[];
+  timelineEvents: StoryTimelineEvent[];
+  plotSummaries: PlotSummary[];
+  loading: boolean;
+  error: boolean;
+};
+
 export function AuthorIdeShell() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,6 +78,7 @@ export function AuthorIdeShell() {
   const fallbackChapterId = localStorage.getItem('ephurin_author_chapter_id') ?? '';
   const novelId = searchParams.get('novelId') ?? fallbackNovelId;
   const chapterId = searchParams.get('chapterId') ?? fallbackChapterId;
+  const [novelTitle, setNovelTitle] = useState('');
   const [chapterTitle, setChapterTitle] = useState('');
   const [editorContent, setEditorContent] = useState('');
   const [statusMessage, setStatusMessage] = useState('API ready');
@@ -83,6 +107,12 @@ export function AuthorIdeShell() {
     setSearchParams(nextParams, { replace: true });
   };
 
+  const novelsQuery = useQuery({
+    queryKey: ['author-projects'],
+    queryFn: () => listMyNovels(),
+    enabled: Boolean(accessToken)
+  });
+
   const novelQuery = useQuery({
     queryKey: ['novel', novelId],
     queryFn: () => getNovel(novelId),
@@ -101,12 +131,54 @@ export function AuthorIdeShell() {
     enabled: Boolean(chapterId)
   });
 
+  const charactersQuery = useQuery({
+    queryKey: ['story-context', novelId, 'characters'],
+    queryFn: () => listCharacters(novelId),
+    enabled: Boolean(novelId && accessToken)
+  });
+
+  const relationshipsQuery = useQuery({
+    queryKey: ['story-context', novelId, 'relationships'],
+    queryFn: () => listCharacterRelationships(novelId),
+    enabled: Boolean(novelId && accessToken)
+  });
+
+  const timelineQuery = useQuery({
+    queryKey: ['story-context', novelId, 'timeline-events'],
+    queryFn: () => listTimelineEvents(novelId),
+    enabled: Boolean(novelId && accessToken)
+  });
+
+  const summariesQuery = useQuery({
+    queryKey: ['story-context', novelId, 'plot-summaries'],
+    queryFn: () => listPlotSummaries(novelId),
+    enabled: Boolean(novelId && accessToken)
+  });
+
+  useEffect(() => {
+    if (novelQuery.data) {
+      setNovelTitle(novelQuery.data.title);
+    }
+  }, [novelQuery.data]);
+
   useEffect(() => {
     if (chapterQuery.data) {
       setChapterTitle(chapterQuery.data.draft?.title ?? chapterQuery.data.title);
       setEditorContent(chapterQuery.data.draft?.content ?? chapterQuery.data.content ?? '');
     }
   }, [chapterQuery.data]);
+
+  const saveNovelTitleMutation = useMutation({
+    mutationFn: () => updateNovel(novelId, { title: novelTitle.trim() }),
+    onMutate: () => setStatusMessage('Saving novel title...'),
+    onSuccess: async (novel) => {
+      setNovelTitle(novel.title);
+      setStatusMessage(`Novel renamed to ${novel.title}`);
+      await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
+      await queryClient.invalidateQueries({ queryKey: ['author-projects'] });
+    },
+    onError: (error) => setStatusMessage(`Rename novel failed: ${getErrorMessage(error)}`)
+  });
 
   const saveDraftMutation = useMutation({
     mutationFn: () =>
@@ -148,6 +220,7 @@ export function AuthorIdeShell() {
       await queryClient.invalidateQueries({ queryKey: ['novel', novel.novelId] });
       await queryClient.invalidateQueries({ queryKey: ['chapters', novel.novelId] });
       await queryClient.invalidateQueries({ queryKey: ['chapter', chapter.chapterId] });
+      await queryClient.invalidateQueries({ queryKey: ['author-projects'] });
     },
     onError: (error) => setStatusMessage(`Create novel failed: ${getErrorMessage(error)}`)
   });
@@ -165,8 +238,10 @@ export function AuthorIdeShell() {
       updateIdeContext({ chapterId: chapter.chapterId });
       setEditorContent(chapter.draft?.content ?? starterContent);
       setStatusMessage(`Created chapter ${chapter.chapterNumber}`);
+      await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
       await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
       await queryClient.invalidateQueries({ queryKey: ['chapter', chapter.chapterId] });
+      await queryClient.invalidateQueries({ queryKey: ['author-projects'] });
     },
     onError: (error) => setStatusMessage(`Create chapter failed: ${getErrorMessage(error)}`)
   });
@@ -195,6 +270,14 @@ export function AuthorIdeShell() {
   const currentNovel = novelQuery.data ?? null;
   const currentChapter = chapterQuery.data ?? null;
   const chapters = chaptersQuery.data ?? [];
+  const contextOverview: AuthorContextOverview = {
+    characters: charactersQuery.data ?? [],
+    relationships: relationshipsQuery.data ?? [],
+    timelineEvents: timelineQuery.data ?? [],
+    plotSummaries: summariesQuery.data ?? [],
+    loading: charactersQuery.isFetching || relationshipsQuery.isFetching || timelineQuery.isFetching || summariesQuery.isFetching,
+    error: charactersQuery.isError || relationshipsQuery.isError || timelineQuery.isError || summariesQuery.isError
+  };
   const wordCount = useMemo(() => editorContent.trim().split(/\s+/).filter(Boolean).length, [editorContent]);
 
   if (!accessToken) return <AuthLanding />;
@@ -242,16 +325,22 @@ export function AuthorIdeShell() {
         <DynamicSidebar
           activeActivity={activeActivity}
           novel={currentNovel}
+          novels={novelsQuery.data ?? []}
           chapters={chapters}
           novelId={novelId}
           chapterId={chapterId}
-          onNovelIdChange={(nextNovelId) => updateIdeContext({ novelId: nextNovelId, chapterId: null })}
-          onChapterIdChange={(nextChapterId) => updateIdeContext({ chapterId: nextChapterId })}
+          novelTitle={novelTitle}
+          contextOverview={contextOverview}
+          onNovelTitleChange={setNovelTitle}
+          onSaveNovelTitle={() => saveNovelTitleMutation.mutate()}
+          onNovelSelect={(nextNovelId) => updateIdeContext({ novelId: nextNovelId, chapterId: null })}
+          onChapterSelect={(nextChapterId) => updateIdeContext({ chapterId: nextChapterId })}
           onCreateNovel={() => createNovelMutation.mutate()}
           onCreateChapter={() => createChapterMutation.mutate()}
           canCreateChapter={Boolean(novelId)}
           creatingNovel={createNovelMutation.isPending}
           creatingChapter={createChapterMutation.isPending}
+          savingNovelTitle={saveNovelTitleMutation.isPending}
         />
 
         <EditorWorkspace
@@ -262,7 +351,7 @@ export function AuthorIdeShell() {
           onContentChange={setEditorContent}
           loading={chapterQuery.isFetching}
         />
-        <AssistantPanel />
+        <AssistantPanel contextOverview={contextOverview} />
       </Box>
 
       <BottomStatusBar
@@ -341,29 +430,41 @@ function TopToolbar({
 function DynamicSidebar({
   activeActivity,
   novel,
+  novels,
   chapters,
   novelId,
   chapterId,
-  onNovelIdChange,
-  onChapterIdChange,
+  novelTitle,
+  contextOverview,
+  onNovelTitleChange,
+  onSaveNovelTitle,
+  onNovelSelect,
+  onChapterSelect,
   onCreateNovel,
   onCreateChapter,
   canCreateChapter,
   creatingNovel,
-  creatingChapter
+  creatingChapter,
+  savingNovelTitle
 }: {
   activeActivity: AuthorActivity;
   novel: Novel | null;
+  novels: Novel[];
   chapters: Chapter[];
   novelId: string;
   chapterId: string;
-  onNovelIdChange: (value: string) => void;
-  onChapterIdChange: (value: string) => void;
+  novelTitle: string;
+  contextOverview: AuthorContextOverview;
+  onNovelTitleChange: (value: string) => void;
+  onSaveNovelTitle: () => void;
+  onNovelSelect: (value: string) => void;
+  onChapterSelect: (value: string) => void;
   onCreateNovel: () => void;
   onCreateChapter: () => void;
   canCreateChapter: boolean;
   creatingNovel: boolean;
   creatingChapter: boolean;
+  savingNovelTitle: boolean;
 }) {
   return (
     <Paper className="dynamic-sidebar" radius={0}>
@@ -375,19 +476,25 @@ function DynamicSidebar({
         {activeActivity === 'story' ? (
           <StoryTree
             novel={novel}
+            novels={novels}
             chapters={chapters}
             novelId={novelId}
             chapterId={chapterId}
-            onNovelIdChange={onNovelIdChange}
-            onChapterIdChange={onChapterIdChange}
+            novelTitle={novelTitle}
+            contextOverview={contextOverview}
+            onNovelTitleChange={onNovelTitleChange}
+            onSaveNovelTitle={onSaveNovelTitle}
+            onNovelSelect={onNovelSelect}
+            onChapterSelect={onChapterSelect}
             onCreateNovel={onCreateNovel}
             onCreateChapter={onCreateChapter}
             canCreateChapter={canCreateChapter}
             creatingNovel={creatingNovel}
             creatingChapter={creatingChapter}
+            savingNovelTitle={savingNovelTitle}
           />
         ) : (
-          <PlaceholderActivity activity={activeActivity} />
+          <PlaceholderActivity activity={activeActivity} novelId={novelId} contextOverview={contextOverview} />
         )}
       </ScrollArea>
     </Paper>
@@ -396,34 +503,43 @@ function DynamicSidebar({
 
 function StoryTree({
   novel,
+  novels,
   chapters,
   novelId,
   chapterId,
-  onNovelIdChange,
-  onChapterIdChange,
+  novelTitle,
+  contextOverview,
+  onNovelTitleChange,
+  onSaveNovelTitle,
+  onNovelSelect,
+  onChapterSelect,
   onCreateNovel,
   onCreateChapter,
   canCreateChapter,
   creatingNovel,
-  creatingChapter
+  creatingChapter,
+  savingNovelTitle
 }: {
   novel: Novel | null;
+  novels: Novel[];
   chapters: Chapter[];
   novelId: string;
   chapterId: string;
-  onNovelIdChange: (value: string) => void;
-  onChapterIdChange: (value: string) => void;
+  novelTitle: string;
+  contextOverview: AuthorContextOverview;
+  onNovelTitleChange: (value: string) => void;
+  onSaveNovelTitle: () => void;
+  onNovelSelect: (value: string) => void;
+  onChapterSelect: (value: string) => void;
   onCreateNovel: () => void;
   onCreateChapter: () => void;
   canCreateChapter: boolean;
   creatingNovel: boolean;
   creatingChapter: boolean;
+  savingNovelTitle: boolean;
 }) {
   return (
     <Stack gap="sm" mt="md">
-      <TextInput label="Novel ID" size="xs" value={novelId} onChange={(event) => onNovelIdChange(event.currentTarget.value)} />
-      <TextInput label="Chapter ID" size="xs" value={chapterId} onChange={(event) => onChapterIdChange(event.currentTarget.value)} />
-
       <Group grow>
         <Button size="compact-xs" variant="light" loading={creatingNovel} onClick={onCreateNovel}>
           New Novel + Ch.1
@@ -435,13 +551,61 @@ function StoryTree({
 
       <Paper p="sm" withBorder>
         <Text size="xs" c="dimmed" tt="uppercase">
-          Project
+          Current Project
         </Text>
-        <Text fw={700}>{novel?.title ?? 'No novel loaded'}</Text>
-        <Text size="sm" c="dimmed">
-          {novel?.status ?? 'Paste a novel ID or create one'}
-        </Text>
+        <TextInput
+          label="Novel title"
+          size="xs"
+          value={novelTitle}
+          onChange={(event) => onNovelTitleChange(event.currentTarget.value)}
+          disabled={!novel}
+          mt="xs"
+        />
+        <Button
+          size="compact-xs"
+          variant="light"
+          fullWidth
+          mt="xs"
+          loading={savingNovelTitle}
+          disabled={!novel || !novelTitle.trim() || novelTitle.trim() === novel.title}
+          onClick={onSaveNovelTitle}
+        >
+          Save Novel Title
+        </Button>
+        <Group gap={6} mt="xs">
+          <Badge size="xs" variant="light">
+            {novel?.status ?? 'No project selected'}
+          </Badge>
+          {novel ? (
+            <Badge size="xs" variant="outline">
+              {novel.chaptersCount} chapters
+            </Badge>
+          ) : null}
+        </Group>
       </Paper>
+
+      <Stack gap={4}>
+        <Text size="sm" fw={600}>
+          Projects
+        </Text>
+        {novels.length ? (
+          novels.map((project) => (
+            <Button
+              key={project.novelId}
+              size="compact-xs"
+              variant={novelId === project.novelId ? 'light' : 'subtle'}
+              justify="space-between"
+              onClick={() => onNovelSelect(project.novelId)}
+            >
+              {project.title} · {project.status}
+            </Button>
+          ))
+        ) : (
+          <Text size="sm" c="dimmed">
+            Create a project to start writing.
+          </Text>
+        )}
+      </Stack>
 
       <Stack gap={4}>
         <Text size="sm" fw={600}>
@@ -454,9 +618,9 @@ function StoryTree({
               size="compact-xs"
               variant={chapterId === chapter.chapterId ? 'light' : 'subtle'}
               justify="space-between"
-              onClick={() => onChapterIdChange(chapter.chapterId)}
+              onClick={() => onChapterSelect(chapter.chapterId)}
             >
-              Ch.{chapter.chapterNumber} {chapter.title} · {chapter.status}
+              Ch.{chapter.chapterNumber} {chapter.draft?.title ?? chapter.title} · {chapter.status}
             </Button>
           ))
         ) : (
@@ -470,13 +634,50 @@ function StoryTree({
         <Text size="xs" c="dimmed" tt="uppercase">
           Scene Context
         </Text>
-        <Text size="sm">Characters, timeline, and summaries stay placeholders until AI/Copilot phase.</Text>
+        <Group gap={6} mt={6}>
+          <Badge size="xs" variant="light">
+            {contextOverview.characters.length} characters
+          </Badge>
+          <Badge size="xs" variant="light">
+            {contextOverview.timelineEvents.length} events
+          </Badge>
+          <Badge size="xs" variant="light">
+            {contextOverview.plotSummaries.length} summaries
+          </Badge>
+        </Group>
+        {contextOverview.error ? (
+          <Text size="xs" c="red" mt={6}>
+            Context API failed. Restart backend if routes were just added.
+          </Text>
+        ) : (
+          <Text size="sm" mt={6} c="dimmed">
+            {contextOverview.loading
+              ? 'Loading authoring context...'
+              : contextOverview.characters
+                  .slice(0, 3)
+                  .map((character) => character.name)
+                  .join(', ') || 'No context data for this project yet.'}
+          </Text>
+        )}
+        {novelId ? (
+          <Button component={Link} to={`/author/context/${novelId}`} size="compact-xs" variant="light" fullWidth mt="xs">
+            Manage Context
+          </Button>
+        ) : null}
       </Paper>
     </Stack>
   );
 }
 
-function PlaceholderActivity({ activity }: { activity: AuthorActivity }) {
+function PlaceholderActivity({
+  activity,
+  novelId,
+  contextOverview
+}: {
+  activity: AuthorActivity;
+  novelId: string;
+  contextOverview: AuthorContextOverview;
+}) {
   const placeholderMap: Record<AuthorActivity, { title: string; description: string; tables: string[] }> = {
     story: {
       title: 'Story',
@@ -520,6 +721,111 @@ function PlaceholderActivity({ activity }: { activity: AuthorActivity }) {
     }
   };
   const placeholder = placeholderMap[activity];
+
+  if (activity === 'entities') {
+    return (
+      <Stack mt="md" gap="sm">
+        <Group justify="space-between">
+          <Text fw={700}>Entities</Text>
+          <Badge variant="light">{contextOverview.characters.length} characters</Badge>
+        </Group>
+        <Text size="sm" c="dimmed">
+          Read-only character profiles from PostgreSQL. Create/update/delete comes next.
+        </Text>
+        {contextOverview.characters.length ? (
+          contextOverview.characters.slice(0, 8).map((character) => (
+            <Paper key={character.characterId} p="xs" withBorder>
+              <Group justify="space-between">
+                <Text size="sm" fw={600}>
+                  {character.name}
+                </Text>
+                <Badge size="xs" variant="outline">
+                  {character.role}
+                </Badge>
+              </Group>
+              <Text size="xs" c="dimmed" lineClamp={2}>
+                {character.description ?? character.personality ?? 'No description yet.'}
+              </Text>
+            </Paper>
+          ))
+        ) : (
+          <Text size="sm" c="dimmed">
+            {novelId ? 'No character data found.' : 'Select a project first.'}
+          </Text>
+        )}
+        <Badge size="sm" variant="outline">
+          {contextOverview.relationships.length} relationships
+        </Badge>
+      </Stack>
+    );
+  }
+
+  if (activity === 'timeline') {
+    return (
+      <Stack mt="md" gap="sm">
+        <Group justify="space-between">
+          <Text fw={700}>Timeline</Text>
+          <Badge variant="light">{contextOverview.timelineEvents.length} events</Badge>
+        </Group>
+        <Text size="sm" c="dimmed">
+          Ordered story events linked to chapters when available.
+        </Text>
+        {contextOverview.timelineEvents.length ? (
+          contextOverview.timelineEvents.slice(0, 10).map((event) => (
+            <Paper key={event.eventId} p="xs" withBorder>
+              <Group gap={6}>
+                <Badge size="xs">#{event.eventOrder}</Badge>
+                {event.chapterNumber ? (
+                  <Badge size="xs" variant="outline">
+                    Ch.{event.chapterNumber}
+                  </Badge>
+                ) : null}
+              </Group>
+              <Text size="sm" fw={600} mt={4}>
+                {event.title}
+              </Text>
+              <Text size="xs" c="dimmed" lineClamp={2}>
+                {event.summary}
+              </Text>
+            </Paper>
+          ))
+        ) : (
+          <Text size="sm" c="dimmed">
+            {novelId ? 'No timeline events found.' : 'Select a project first.'}
+          </Text>
+        )}
+      </Stack>
+    );
+  }
+
+  if (activity === 'graph') {
+    return (
+      <Stack mt="md" gap="sm">
+        <Text fw={700}>Knowledge Graph</Text>
+        <Text size="sm" c="dimmed">
+          Graph rendering is not implemented yet, but the data source is now connected.
+        </Text>
+        <Group gap="xs">
+          <Badge>{contextOverview.characters.length} nodes</Badge>
+          <Badge>{contextOverview.relationships.length} edges</Badge>
+          <Badge>{contextOverview.timelineEvents.length} events</Badge>
+          <Badge>{contextOverview.plotSummaries.length} summaries</Badge>
+        </Group>
+      </Stack>
+    );
+  }
+
+  if (activity === 'search') {
+    return (
+      <Stack mt="md" gap="sm">
+        <Text fw={700}>Search</Text>
+        <Text size="sm" c="dimmed">
+          Project search UI is pending. Current context data is already available for filtering in the next frontend phase.
+        </Text>
+        <TextInput placeholder="Search characters, timeline, summaries..." size="xs" disabled />
+      </Stack>
+    );
+  }
 
   return (
     <Stack mt="md">
@@ -588,7 +894,7 @@ function EditorWorkspace({
   );
 }
 
-function AssistantPanel() {
+function AssistantPanel({ contextOverview }: { contextOverview: AuthorContextOverview }) {
   return (
     <Paper className="assistant-panel" radius={0}>
       <Group justify="space-between">
@@ -598,9 +904,9 @@ function AssistantPanel() {
 
       <Stack gap="sm" mt="md">
         <Group gap={6}>
-          <Badge size="sm">Characters</Badge>
-          <Badge size="sm">Timeline</Badge>
-          <Badge size="sm">Plot Summary</Badge>
+          <Badge size="sm">{contextOverview.characters.length} Characters</Badge>
+          <Badge size="sm">{contextOverview.timelineEvents.length} Timeline</Badge>
+          <Badge size="sm">{contextOverview.plotSummaries.length} Plot Summary</Badge>
         </Group>
 
         <Textarea label="Instruction" placeholder="Continue with quiet tension..." autosize minRows={3} disabled />
@@ -619,7 +925,7 @@ function AssistantPanel() {
             Design Note
           </Text>
           <Text size="sm" mt={4}>
-            AI Copilot remains disabled until Phase 10.
+            AI Copilot remains disabled until Phase 10. Context data is read from the backend and ready for later prompts.
           </Text>
         </Paper>
       </Stack>

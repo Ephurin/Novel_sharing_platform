@@ -50,13 +50,14 @@ Visible through UI:
 
 Deferred with documented reason:
 
-- `character_profiles`, `character_relationships`, `story_timeline_events`, `plot_summaries`, and context proposal data are visible as Author IDE placeholders but persistence is deferred until backend context/AI phases.
+- `character_profiles`, `character_relationships`, `story_timeline_events`, and `plot_summaries` are visible as Author IDE placeholders but persistence is deferred until Phase 9.5 Authoring Context Core.
+- Context proposal data is deferred until Phase 10 AI/Copilot.
 - embeddings/vector retrieval collections are deferred until Phase 10 AI/Copilot architecture.
 
 ## Known Limitations
 
 - OAuth callback is not implemented.
-- Author context management is placeholder-only; no CRUD for characters, timeline, summaries, or context proposals yet.
+- Author context management is placeholder-only; no CRUD for characters, timeline, summaries, or context proposals yet. Character/timeline/summary CRUD is planned for Phase 9.5, while context proposals remain Phase 10.
 - AI suggestion and consistency checking buttons are disabled and must remain non-calling until Phase 10.
 - Web Reader is acceptable as MVP fallback; Phase 9 still builds the primary Mobile Reader App.
 - Build emits existing Vite warnings for third-party `"use client"` directives and bundle size; there is no blocking compile/build error.

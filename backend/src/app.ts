@@ -19,6 +19,7 @@ import { authRoutes } from './modules/auth/auth.routes.js';
 import { chaptersRoutes } from './modules/novels/chapters.routes.js';
 import { novelsRoutes } from './modules/novels/novels.routes.js';
 import { readingRoutes } from './modules/reading/reading.routes.js';
+import { storyContextRoutes } from './modules/story-context/story-context.routes.js';
 import { authorsRoutes, usersRoutes } from './modules/users/users.routes.js';
 import { walletResourceRoutes, walletRoutes } from './modules/wallet/wallet.routes.js';
 
@@ -46,6 +47,7 @@ export function createApp() {
 
   app.use(`${env.API_PREFIX}/auth`, authRoutes);
   app.use(`${env.API_PREFIX}/users`, usersRoutes);
+  app.use(`${env.API_PREFIX}`, storyContextRoutes);
   app.use(`${env.API_PREFIX}/novels`, novelsRoutes);
   app.use(`${env.API_PREFIX}/chapters`, chaptersRoutes);
   app.use(`${env.API_PREFIX}/reading`, readingRoutes);

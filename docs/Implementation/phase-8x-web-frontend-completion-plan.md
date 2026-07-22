@@ -64,7 +64,7 @@ Definition of Done:
 
 References:
 
-- `docs/Frontend/wireframes.md`
+- `docs/Frontend/wireframes-web.md`
 - `docs/Frontend/screen-specs.md`
 - `docs/Frontend/Specific_promt_for_Author_UI.md`
 
@@ -76,21 +76,23 @@ Scope:
 - make Author IDE the primary desktop experience;
 - keep VSCode/Cursor-like layout;
 - improve Story activity, chapter tree, save draft, submit chapter/novel, and status feedback;
-- add disabled AI/context entry points until Phase 10.
+- add visible Author context entry points as placeholders until Phase 9.5;
+- add disabled AI/Copilot entry points until Phase 10.
 
 Definition of Done:
 
 - author lands on Project Manager, not directly inside Author IDE;
 - author can switch between Reader web and Author workspace with the same account;
 - author can create/select/edit/save/submit novel and chapter without manually pasting IDs in the happy path;
-- all disabled AI/context actions are visibly marked as future Phase 10 work.
+- context persistence is visibly marked as future Phase 9.5 work;
+- AI/Copilot actions are visibly marked as future Phase 10 work.
 
 ## 5. Phase 8.3 Reader Web Completion
 
 References:
 
 - `docs/Frontend/sitemap.md`
-- `docs/Frontend/wireframes.md`
+- `docs/Frontend/wireframes-web.md`
 - `docs/Frontend/user-flows.md`
 - `docs/API/reading-api.md`
 - `docs/API/interaction-social-api.md`
@@ -167,7 +169,7 @@ Scope:
   - `story_timeline_events`;
   - `plot_summaries`;
   - `context_change_proposals`;
-- keep context persistence disabled or explicitly marked pending until backend context APIs are implemented.
+- keep context persistence disabled or explicitly marked pending until Phase 9.5 Authoring Context Core is implemented.
 
 Definition of Done:
 
@@ -281,7 +283,7 @@ Definition of Done:
 References:
 
 - `docs/Frontend/review-guide.md`
-- `docs/Frontend/wireframes.md`
+- `docs/Frontend/wireframes-web.md`
 - `docs/Implementation/phase-8-ui-coverage-audit.md`
 
 Scope:

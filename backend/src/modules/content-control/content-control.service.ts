@@ -19,6 +19,9 @@ import {
 import { createModerationEvidence, findModerationEvidence } from './moderation-evidence.repository.js';
 import type { MatchedRule, ModerationStatus, ModerationTargetType } from './content-control.types.js';
 import { updateCommentModerationStatus, type CommentStatus } from '../interactions/comments.repository.js';
+import { publishNovel, rejectNovelPublication } from '../novels/novels.repository.js';
+import { findChapterById, publishChapter, rejectChapterPublication } from '../novels/chapters.repository.js';
+import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
 
 function scanContent(content: string, rules: MatchedRule[]) {
   const normalizedContent = content.toLowerCase();
@@ -46,6 +49,15 @@ export async function checkContent(input: ContentControlCheckInput) {
       result: 'PASS',
       moderationRequired: false,
       moderationReviewId: null
+    } as const;
+  }
+
+  const existingReview = await findOpenReview(input.targetType, input.targetId);
+  if (existingReview) {
+    return {
+      result: 'NEED_ADMIN_REVIEW',
+      moderationRequired: true,
+      moderationReviewId: existingReview.review_id as string
     } as const;
   }
 
@@ -176,6 +188,38 @@ export async function resolveModerationReview(
   if (resolved.target_type === 'COMMENT') {
     const commentStatus: CommentStatus = resolved.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
     await updateCommentModerationStatus(resolved.target_id, commentStatus, resolved.review_id);
+  }
+
+  if (resolved.target_type === 'NOVEL') {
+    if (resolved.status === 'APPROVED') {
+      await publishNovel(resolved.target_id);
+    } else {
+      await rejectNovelPublication(resolved.target_id);
+    }
+  }
+
+  if (resolved.target_type === 'CHAPTER') {
+    if (resolved.status === 'APPROVED') {
+      const chapter = await findChapterById(resolved.target_id);
+      if (!chapter) {
+        throw new AppError(404, 'CONTENT_001', 'Content not found');
+      }
+
+      const draft = await findDraftChapterByChapterId(resolved.target_id);
+      const content = draft?.content ?? chapter.content;
+
+      if (!content) {
+        throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+      }
+
+      await publishChapter(resolved.target_id, {
+        title: draft?.title ?? chapter.title,
+        content,
+        wordCount: draft?.wordCount ?? chapter.wordCount
+      });
+    } else {
+      await rejectChapterPublication(resolved.target_id);
+    }
   }
 
   return {

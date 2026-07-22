@@ -186,6 +186,37 @@ export async function submitNovelForPublish(novelId: string) {
   return result.rows[0] ? mapNovel(result.rows[0]) : null;
 }
 
+export async function publishNovel(novelId: string) {
+  const result = await getPostgresPool().query(
+    `
+      update novels
+      set
+        status = 'PUBLISHED',
+        published_at = coalesce(published_at, now()),
+        updated_at = now()
+      where novel_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION')
+      returning *
+    `,
+    [novelId]
+  );
+
+  return result.rows[0] ? mapNovel(result.rows[0]) : null;
+}
+
+export async function rejectNovelPublication(novelId: string) {
+  const result = await getPostgresPool().query(
+    `
+      update novels
+      set status = 'REJECTED', updated_at = now()
+      where novel_id = $1 and deleted_at is null and status = 'PENDING_MODERATION'
+      returning *
+    `,
+    [novelId]
+  );
+
+  return result.rows[0] ? mapNovel(result.rows[0]) : null;
+}
+
 export async function upsertGenre(client: DbClient, genreName: string | undefined) {
   if (!genreName) {
     return null;

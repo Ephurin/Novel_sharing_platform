@@ -4,7 +4,7 @@ Goal: build a demo-ready Android-tested Reader mobile app using React Native + E
 
 ## Checklist
 
-- [x] Scaffold `mobile/` with Expo + React Native + TypeScript.
+- [x] Scaffold `mobile/` with Expo SDK 54 + React Native + TypeScript.
 - [x] Add Android-oriented setup docs and `.env.example`.
 - [x] Add mobile API client using existing `/api/v1` backend contracts.
 - [x] Add auth/session restore with local token storage.
@@ -20,7 +20,7 @@ Goal: build a demo-ready Android-tested Reader mobile app using React Native + E
 - [x] Add Profile screen with logout.
 - [x] Install mobile dependencies.
 - [x] Run `npm.cmd --prefix mobile run typecheck`.
-- [ ] Run `npx expo start` and test on Android Expo Go.
+- [x] Run `npx expo start` and test on Android Expo Go.
 
 ## Review
 
@@ -45,5 +45,6 @@ Goal: build a demo-ready Android-tested Reader mobile app using React Native + E
 
 - `npm.cmd install` was executed inside `mobile/`.
 - `npm.cmd run typecheck` passed inside `mobile/`.
+- `npx.cmd expo install --check` passed for SDK 54 dependencies.
 - `npx.cmd expo config --type public` passed when `EXPO_NO_TELEMETRY=1` was set.
 - Android Expo Go smoke test must be run manually on the user's device.
