@@ -6,18 +6,26 @@ import {
   createGenreController,
   createTagController,
   dashboardStatsController,
+  getAdminNovelController,
+  listAdminNovelsController,
   listAdminUsersController,
   listWithdrawRequestsController,
   lockUserController,
   rejectWithdrawController,
+  removeAdminNovelController,
+  restoreAdminNovelController,
   taxonomyController,
   unlockUserController
 } from './admin.controller.js';
 import {
+  listAdminNovelsSchema,
   listAdminUsersSchema,
   listWithdrawRequestsSchema,
   lockUserSchema,
+  novelIdParamSchema,
   rejectWithdrawRequestSchema,
+  removeNovelSchema,
+  restoreNovelSchema,
   taxonomyNameSchema,
   userIdParamSchema,
   withdrawRequestIdParamSchema
@@ -29,6 +37,10 @@ adminRoutes.use(requireAuth, requireRoles(['ADMIN']));
 adminRoutes.get('/users', validateRequest(listAdminUsersSchema), listAdminUsersController);
 adminRoutes.patch('/users/:userId/lock', validateRequest(lockUserSchema), lockUserController);
 adminRoutes.patch('/users/:userId/unlock', validateRequest(userIdParamSchema), unlockUserController);
+adminRoutes.get('/novels', validateRequest(listAdminNovelsSchema), listAdminNovelsController);
+adminRoutes.get('/novels/:novelId', validateRequest(novelIdParamSchema), getAdminNovelController);
+adminRoutes.delete('/novels/:novelId', validateRequest(removeNovelSchema), removeAdminNovelController);
+adminRoutes.post('/novels/:novelId/restore', validateRequest(restoreNovelSchema), restoreAdminNovelController);
 adminRoutes.get('/taxonomy', taxonomyController);
 adminRoutes.post('/taxonomy/genres', validateRequest(taxonomyNameSchema), createGenreController);
 adminRoutes.post('/taxonomy/tags', validateRequest(taxonomyNameSchema), createTagController);

@@ -37,8 +37,10 @@ The MVP should demonstrate:
 | 8.7 | Admin and moderation deepening | Reports, moderation detail, evidence visibility |
 | 8.8 | Public and guest web surface | Public landing/browse/detail and guest action gates |
 | 8.9 | Final web QA and polish | Official web UI approval before mobile |
+| 8.10 | Author premium chapter controls | Author IDE VIP pricing before publication |
 | 9 | Mobile reader app | Reader mobile app after web frontend and APIs stabilize |
 | 9.5 | Authoring context core | Character profiles, relationships, timeline events, and plot summaries for Author story management |
+| 9.6 | Admin novel management | Admin novel catalog, reversible soft removal, draft hiding, and Author notification |
 | 10 | AI/Copilot | Metadata, suggestions, consistency check, context proposals using official authoring context |
 
 ## 3. Phase Details

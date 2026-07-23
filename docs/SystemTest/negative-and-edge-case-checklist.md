@@ -35,6 +35,8 @@ Goal: prove the MVP fails safely when users, data, roles, or payment state are w
 | NEG-VAL-004 | Submit empty comment. | Disabled UI action or validation error. |
 | NEG-VAL-005 | Save reading preference with invalid font size below/above allowed range. | `400`, validation error. |
 | NEG-VAL-006 | Create wallet deposit with invalid amount. | `400`, validation error. |
+| NEG-VAL-007 | Force `isVip=true`, `priceCoins=0` via API. | `400`, `VALIDATION_001`; UI should prevent/clamp this. |
+| NEG-VAL-008 | Force `isVip=false`, `priceCoins>0` via API. | `400`, `VALIDATION_001`; no stale price remains. |
 
 ## 4. Reader Interaction Edge Cases
 
@@ -57,6 +59,7 @@ Goal: prove the MVP fails safely when users, data, roles, or payment state are w
 | NEG-WALLET-004 | VIP chapter has `is_vip=true` and `price_coins=0`. | Treat as invalid test data; fix data before official wallet test. |
 | NEG-WALLET-005 | Donate more coins than balance. | Payment/balance error; no negative wallet balance. |
 | NEG-WALLET-006 | Withdraw more coins than balance. | Payment/balance error; no pending withdraw created. |
+| NEG-WALLET-007 | Existing unlocked VIP chapter becomes free, then premium again. | Existing unlock remains valid; no re-charge for same reader. |
 
 ## 6. Moderation Edge Cases
 
@@ -76,6 +79,7 @@ Goal: prove the MVP fails safely when users, data, roles, or payment state are w
 | NEG-NET-002 | Stop backend while saving author draft. | Error shown; draft UI remains editable. |
 | NEG-NET-003 | Restart backend and click Retry if available. | Data reloads. |
 | NEG-NET-004 | Use wrong `VITE_API_BASE_URL`. | Network error is visible and diagnosable. |
+| NEG-NET-005 | Ngrok LLM provider goes offline. | `GET /ai/health` returns `503`; Copilot UI shows error and app remains usable. |
 
 ## 8. Recording Rule
 

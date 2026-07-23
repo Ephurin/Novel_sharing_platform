@@ -90,9 +90,11 @@ Login:
 | WEB-AUTHOR-007 | Create a chapter in IDE. | Chapter appears in story tree. |
 | WEB-AUTHOR-008 | Edit chapter title/content and save draft. | Save succeeds and content persists after refresh. |
 | WEB-AUTHOR-009 | Use chapter deep link `/author/novels/:novelId/chapters/:chapterId`. | Redirects to IDE with stable URL params. |
-| WEB-AUTHOR-010 | Submit chapter/novel for publish. | Status feedback updates; moderation/publish state is visible. |
-| WEB-AUTHOR-011 | Click Entities/Timeline/Graph/Tasks/Settings activities. | Context placeholders explain deferred backend/AI persistence. |
-| WEB-AUTHOR-012 | Click AI suggestion/consistency buttons. | Buttons are disabled; no AI backend call happens. |
+| WEB-AUTHOR-010 | Toggle `Premium chapter`, enter positive price, click `Confirm premium settings`. | Pricing API succeeds; chapter shows VIP/free state correctly. |
+| WEB-AUTHOR-011 | Submit chapter/novel for publish. | Status feedback updates; moderation/publish state is visible. |
+| WEB-AUTHOR-012 | Open Manage Context. | Character, relationship, timeline, and plot-summary CRUD screens load. |
+| WEB-AUTHOR-013 | Click Copilot Generate. | If `/ai/health` is ready, suggestion appears; if ngrok offline, friendly error appears without app crash. |
+| WEB-AUTHOR-014 | Select published chapter and change Free/Premium settings. | Pricing updates; published content/title remain unchanged. |
 
 ## 6. Profile and Notification Flow
 
@@ -121,9 +123,10 @@ Login:
 | WEB-ADMIN-004 | Open `/admin/moderation`. | Moderation queue loads with filters. |
 | WEB-ADMIN-005 | Open moderation detail. | Target metadata, target ID, source/status, evidence summary/report count render. |
 | WEB-ADMIN-006 | Resolve pending moderation review. | Confirmation appears; status updates after action. |
-| WEB-ADMIN-007 | Open `/admin/reports`. | Shows moderation reviews filtered by `USER_REPORT`. |
-| WEB-ADMIN-008 | Open `/admin/withdraws`. | Pending withdraw requests load; approve/reject requires confirmation. |
-| WEB-ADMIN-009 | Open `/admin` dashboard. | Stats cards load and do not crash when counts are zero. |
+| WEB-ADMIN-007 | Open moderation queue with report/source filters. | User reports are visible through moderation queue; no separate Reports page is required. |
+| WEB-ADMIN-008 | Open `/admin/novels`, view a novel detail, soft-remove, then restore. | Removal/restoration requires confirmation and notifies the author. |
+| WEB-ADMIN-009 | Open `/admin/withdraws`. | Pending withdraw requests load; approve/reject requires confirmation. |
+| WEB-ADMIN-010 | Open `/admin` dashboard. | Stats cards load and do not crash when counts are zero. |
 
 ## 8. Role and Permission Flow
 

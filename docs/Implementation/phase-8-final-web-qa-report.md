@@ -24,7 +24,7 @@ Covered web surfaces:
 | Reader | `/reader`, `/reader/novels/:novelId`, `/reader/chapters/:chapterId`, `/reader/library`, `/reader/history` | Ready |
 | Author | `/author`, `/author/novels/:novelId`, `/author/novels/:novelId/chapters/:chapterId`, `/author/ide` | Ready for non-AI work |
 | User Utility | `/wallet`, `/notifications`, `/profile/me`, `/authors/:authorId` | Ready |
-| Admin | `/admin`, `/admin/users`, `/admin/taxonomy`, `/admin/moderation`, `/admin/moderation/:reviewId`, `/admin/reports`, `/admin/withdraws` | Ready |
+| Admin | `/admin`, `/admin/users`, `/admin/taxonomy`, `/admin/moderation`, `/admin/moderation/:reviewId`, `/admin/withdraws` | Ready |
 
 ## API QA Summary
 
@@ -74,4 +74,4 @@ Deferred with documented reason:
 2. Search sample novels, open a public novel, then open a free chapter.
 3. Login as Reader and review `/reader`, `/reader/library`, `/reader/history`, `/wallet`, `/notifications`, `/profile/me`.
 4. Login as Author and review `/author`, metadata editor, chapter deep link, and `/author/ide`.
-5. Login as Admin and review `/admin`, `/admin/users`, `/admin/taxonomy`, `/admin/moderation`, `/admin/reports`, and `/admin/withdraws`.
+5. Login as Admin and review `/admin`, `/admin/users`, `/admin/taxonomy`, `/admin/moderation`, and `/admin/withdraws`; user reports are reviewed from the Moderation source filter.

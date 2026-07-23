@@ -10,6 +10,38 @@ export const listAdminUsersSchema = z.object({
   })
 });
 
+export const listAdminNovelsSchema = z.object({
+  query: z.object({
+    q: z.string().optional(),
+    authorId: z.string().uuid().optional(),
+    status: z.enum(['DRAFT', 'PENDING_MODERATION', 'PUBLISHED', 'REJECTED']).optional(),
+    includeDeleted: z.coerce.boolean().default(false),
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20)
+  })
+});
+
+export const novelIdParamSchema = z.object({
+  params: z.object({
+    novelId: z.string().uuid()
+  })
+});
+
+export const removeNovelSchema = z.object({
+  params: novelIdParamSchema.shape.params,
+  body: z.object({
+    confirm: z.literal(true),
+    reason: z.string().max(1000).optional()
+  })
+});
+
+export const restoreNovelSchema = z.object({
+  params: novelIdParamSchema.shape.params,
+  body: z.object({
+    reason: z.string().max(1000).optional()
+  })
+});
+
 export const userIdParamSchema = z.object({
   params: z.object({
     userId: z.string().uuid()
@@ -52,5 +84,8 @@ export const rejectWithdrawRequestSchema = z.object({
 });
 
 export type ListAdminUsersInput = z.infer<typeof listAdminUsersSchema>['query'];
+export type ListAdminNovelsInput = z.infer<typeof listAdminNovelsSchema>['query'];
 export type TaxonomyNameInput = z.infer<typeof taxonomyNameSchema>['body'];
 export type ListWithdrawRequestsInput = z.infer<typeof listWithdrawRequestsSchema>['query'];
+export type RemoveNovelInput = z.infer<typeof removeNovelSchema>['body'];
+export type RestoreNovelInput = z.infer<typeof restoreNovelSchema>['body'];

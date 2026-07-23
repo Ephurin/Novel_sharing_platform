@@ -1,4 +1,4 @@
-import { Alert, Badge, Box, Button, Group, Modal, Paper, Select, SimpleGrid, Stack, Table, Tabs, Text, TextInput, Title } from '@mantine/core';
+import { Alert, Badge, Box, Button, Group, Modal, Paper, Select, SimpleGrid, Stack, Table, Text, TextInput, Title } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -6,15 +6,19 @@ import {
   approveWithdrawRequest,
   createGenre,
   createTag,
+  getAdminNovel,
   getDashboardStats,
   getModerationReview,
   getTaxonomy,
+  listAdminNovels,
   listAdminUsers,
   listModerationReviews,
   listWithdrawRequests,
   lockUser,
   rejectWithdrawRequest,
+  removeAdminNovel,
   resolveModerationReview,
+  restoreAdminNovel,
   unlockUser,
   type ModerationReview,
   type ModerationReviewFilters
@@ -30,7 +34,7 @@ type PendingAdminAction = {
   run: () => void;
 };
 
-export function AdminPage({ initialTab = 'users' }: { initialTab?: 'users' | 'taxonomy' | 'moderation' | 'withdraw' }) {
+export function AdminPage({ initialTab = 'overview' }: { initialTab?: 'overview' | 'users' | 'taxonomy' | 'withdraw' }) {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === 'ADMIN';
@@ -102,9 +106,6 @@ export function AdminPage({ initialTab = 'users' }: { initialTab?: 'users' | 'ta
         <Button component={Link} to="/admin/moderation" variant="light">
           Open moderation queue
         </Button>
-        <Button component={Link} to="/admin/reports" variant="light">
-          Open user reports
-        </Button>
       </Group>
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} mb="md">
@@ -114,15 +115,16 @@ export function AdminPage({ initialTab = 'users' }: { initialTab?: 'users' | 'ta
         <StatCard label="Mock revenue" value={statsQuery.data?.mockRevenueCoins ?? 0} />
       </SimpleGrid>
 
-      <Tabs defaultValue={initialTab}>
-        <Tabs.List>
-          <Tabs.Tab value="users">Users</Tabs.Tab>
-          <Tabs.Tab value="taxonomy">Taxonomy</Tabs.Tab>
-          <Tabs.Tab value="moderation">Moderation</Tabs.Tab>
-          <Tabs.Tab value="withdraw">Withdraw</Tabs.Tab>
-        </Tabs.List>
+      {initialTab === 'overview' ? (
+        <Paper p="md" withBorder>
+          <Title order={3}>Admin Overview</Title>
+          <Text c="dimmed" mt={4}>
+            Use the left sidebar to open Users, Taxonomy, Moderation, and Withdraws. User reports are handled inside Moderation Queue with the source filter.
+          </Text>
+        </Paper>
+      ) : null}
 
-        <Tabs.Panel value="users" pt="md">
+      {initialTab === 'users' ? (
           <Paper p="md" withBorder>
             <TextInput label="Search users" value={userSearch} onChange={(event) => setUserSearch(event.currentTarget.value)} mb="md" />
             {usersQuery.isLoading ? <LoadingState label="Loading users..." /> : null}
@@ -184,9 +186,9 @@ export function AdminPage({ initialTab = 'users' }: { initialTab?: 'users' | 'ta
               </Table>
             ) : null}
           </Paper>
-        </Tabs.Panel>
+      ) : null}
 
-        <Tabs.Panel value="taxonomy" pt="md">
+      {initialTab === 'taxonomy' ? (
           <Paper p="md" withBorder>
             <Group align="end" mb="md">
               <TextInput label="New genre/tag name" value={taxonomyName} onChange={(event) => setTaxonomyName(event.currentTarget.value)} />
@@ -216,69 +218,9 @@ export function AdminPage({ initialTab = 'users' }: { initialTab?: 'users' | 'ta
               </Stack>
             </Group>
           </Paper>
-        </Tabs.Panel>
+      ) : null}
 
-        <Tabs.Panel value="moderation" pt="md">
-          <Stack>
-            {moderationQuery.isLoading ? <LoadingState label="Loading moderation queue..." /> : null}
-            {moderationQuery.isError ? <ErrorState error={moderationQuery.error} onRetry={() => void moderationQuery.refetch()} /> : null}
-            {!moderationQuery.isLoading && !moderationQuery.isError && !moderationQuery.data?.length ? (
-              <EmptyState description="No moderation reviews are waiting right now." />
-            ) : null}
-            {(moderationQuery.data ?? []).map((review) => (
-              <Paper key={review.reviewId} p="md" withBorder>
-                <Group justify="space-between">
-                  <Box>
-                    <Group gap="xs">
-                      <Badge>{review.targetType}</Badge>
-                      <Badge color="yellow">{review.status}</Badge>
-                      <Badge variant="outline">{review.source}</Badge>
-                    </Group>
-                    <Text size="sm" c="dimmed" mt={6}>
-                      {review.targetId}
-                    </Text>
-                  </Box>
-                  <Group gap="xs">
-                    <Button component={Link} to={`/admin/moderation/${review.reviewId}`} size="xs" variant="light">
-                      Detail
-                    </Button>
-                    <Button
-                      size="xs"
-                      onClick={() =>
-                        confirmAction({
-                          title: 'Approve moderation review?',
-                          description: `Approve review ${review.reviewId}.`,
-                          confirmLabel: 'Approve',
-                          run: () => resolveMutation.mutate({ reviewId: review.reviewId, decision: 'APPROVED' })
-                        })
-                      }
-                    >
-                      Approve
-                    </Button>
-                    <Button
-                      size="xs"
-                      color="red"
-                      variant="light"
-                      onClick={() =>
-                        confirmAction({
-                          title: 'Reject moderation review?',
-                          description: `Reject review ${review.reviewId}.`,
-                          confirmLabel: 'Reject',
-                          color: 'red',
-                          run: () => resolveMutation.mutate({ reviewId: review.reviewId, decision: 'REJECTED' })
-                        })
-                      }
-                    >
-                      Reject
-                    </Button>
-                  </Group>
-                </Group>
-              </Paper>
-            ))}
-          </Stack>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="withdraw" pt="md">
+      {initialTab === 'withdraw' ? (
           <Stack>
             {withdrawQuery.isLoading ? <LoadingState label="Loading withdraw requests..." /> : null}
             {withdrawQuery.isError ? <ErrorState error={withdrawQuery.error} onRetry={() => void withdrawQuery.refetch()} /> : null}
@@ -329,8 +271,274 @@ export function AdminPage({ initialTab = 'users' }: { initialTab?: 'users' | 'ta
               </Paper>
             ))}
           </Stack>
-        </Tabs.Panel>
-      </Tabs>
+      ) : null}
+    </Box>
+  );
+}
+
+export function AdminNovelsPage() {
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === 'ADMIN';
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [includeDeleted, setIncludeDeleted] = useState(false);
+  const novelsQuery = useQuery({
+    queryKey: ['admin-novels', searchQuery, statusFilter, includeDeleted],
+    queryFn: () => listAdminNovels({ q: searchQuery, status: statusFilter, includeDeleted }),
+    enabled: isAdmin
+  });
+
+  if (!isAdmin) {
+    return <PermissionState requiredRole="ADMIN" />;
+  }
+
+  return (
+    <Box>
+      <Group justify="space-between" mb="lg">
+        <Box>
+          <Title order={2}>Admin Novel Management</Title>
+          <Text c="dimmed">Inspect platform novels and soft-remove records when needed.</Text>
+        </Box>
+        <Badge variant="light">Soft remove + restore</Badge>
+      </Group>
+
+      <Paper p="md" withBorder mb="md">
+        <SimpleGrid cols={{ base: 1, md: 3 }}>
+          <TextInput label="Search" placeholder="Title, synopsis, author..." value={searchQuery} onChange={(event) => setSearchQuery(event.currentTarget.value)} />
+          <Select
+            label="Status"
+            data={[
+              { value: '', label: 'Any' },
+              { value: 'DRAFT', label: 'Draft' },
+              { value: 'PENDING_MODERATION', label: 'Pending moderation' },
+              { value: 'PUBLISHED', label: 'Published' },
+              { value: 'REJECTED', label: 'Rejected' }
+            ]}
+            value={statusFilter}
+            onChange={(value) => setStatusFilter(value ?? '')}
+          />
+          <Select
+            label="Removed records"
+            data={[
+              { value: 'false', label: 'Hide removed' },
+              { value: 'true', label: 'Include removed' }
+            ]}
+            value={String(includeDeleted)}
+            onChange={(value) => setIncludeDeleted(value === 'true')}
+          />
+        </SimpleGrid>
+      </Paper>
+
+      {novelsQuery.isLoading ? <LoadingState label="Loading novels..." /> : null}
+      {novelsQuery.isError ? <ErrorState error={novelsQuery.error} onRetry={() => void novelsQuery.refetch()} /> : null}
+      {!novelsQuery.isLoading && !novelsQuery.isError && !novelsQuery.data?.length ? (
+        <EmptyState description="No novels match the current filters." />
+      ) : null}
+
+      {!novelsQuery.isLoading && !novelsQuery.isError ? (
+        <Paper p="md" withBorder>
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Novel</Table.Th>
+                <Table.Th>Author</Table.Th>
+                <Table.Th>Status</Table.Th>
+                <Table.Th>Chapters</Table.Th>
+                <Table.Th>Removed</Table.Th>
+                <Table.Th>Action</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {(novelsQuery.data ?? []).map((novel) => (
+                <Table.Tr key={novel.novelId}>
+                  <Table.Td>
+                    <Text fw={700}>{novel.title}</Text>
+                    <Text size="xs" c="dimmed" lineClamp={1}>{novel.synopsis}</Text>
+                  </Table.Td>
+                  <Table.Td>{novel.authorUsername}</Table.Td>
+                  <Table.Td>
+                    <Badge variant="light">{novel.status}</Badge>
+                  </Table.Td>
+                  <Table.Td>{novel.chaptersCount}</Table.Td>
+                  <Table.Td>{novel.deletedAt ? 'Yes' : 'No'}</Table.Td>
+                  <Table.Td>
+                    <Button component={Link} to={`/admin/novels/${novel.novelId}`} size="xs" variant="light">
+                      Detail
+                    </Button>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </Paper>
+      ) : null}
+    </Box>
+  );
+}
+
+export function AdminNovelDetailPage() {
+  const { novelId = '' } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === 'ADMIN';
+  const [pendingAction, setPendingAction] = useState<PendingAdminAction | null>(null);
+  const [reason, setReason] = useState('');
+  const novelQuery = useQuery({
+    queryKey: ['admin-novel-detail', novelId],
+    queryFn: () => getAdminNovel(novelId),
+    enabled: isAdmin && Boolean(novelId)
+  });
+  const removeMutation = useMutation({
+    mutationFn: () => removeAdminNovel(novelId, { reason }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-novels'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-novel-detail', novelId] });
+      navigate('/admin/novels');
+    }
+  });
+  const restoreMutation = useMutation({
+    mutationFn: () => restoreAdminNovel(novelId, { reason }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-novels'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-novel-detail', novelId] });
+      setReason('');
+      setPendingAction(null);
+    }
+  });
+
+  const runPendingAction = () => {
+    pendingAction?.run();
+  };
+
+  if (!isAdmin) {
+    return <PermissionState requiredRole="ADMIN" />;
+  }
+
+  if (novelQuery.isLoading) {
+    return <LoadingState label="Loading admin novel detail..." />;
+  }
+
+  if (novelQuery.isError) {
+    return <ErrorState error={novelQuery.error} onRetry={() => void novelQuery.refetch()} />;
+  }
+
+  const novel = novelQuery.data;
+  if (!novel) return <EmptyState description="Novel not found." />;
+
+  return (
+    <Box>
+      <Modal opened={Boolean(pendingAction)} onClose={() => setPendingAction(null)} title={pendingAction?.title}>
+        <Stack>
+          <Text size="sm" c="dimmed">
+            {pendingAction?.description}
+          </Text>
+          <TextInput
+            label="Reason"
+            placeholder="Optional reason shown in Author notification"
+            value={reason}
+            onChange={(event) => setReason(event.currentTarget.value)}
+          />
+          <Group justify="flex-end">
+            <Button variant="subtle" onClick={() => setPendingAction(null)}>
+              Cancel
+            </Button>
+            <Button color={pendingAction?.color} loading={removeMutation.isPending || restoreMutation.isPending} onClick={runPendingAction}>
+              {pendingAction?.confirmLabel ?? 'Confirm'}
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      <Group justify="space-between" mb="lg">
+        <Box>
+          <Title order={2}>{novel.title}</Title>
+          <Text c="dimmed">
+            Owned by {novel.authorUsername} · {novel.authorEmail}
+          </Text>
+        </Box>
+        <Group gap="xs">
+          <Button component={Link} to="/admin/novels" variant="light">
+            Back to Novels
+          </Button>
+          {novel.deletedAt ? (
+            <Button
+              onClick={() =>
+                setPendingAction({
+                  title: 'Restore novel?',
+                  description: 'This will make the novel and its chapters available to normal queries again.',
+                  confirmLabel: 'Restore Novel',
+                  run: () => restoreMutation.mutate()
+                })
+              }
+            >
+              Restore Novel
+            </Button>
+          ) : (
+            <Button
+              color="red"
+              variant="light"
+              onClick={() =>
+                setPendingAction({
+                  title: 'Remove novel?',
+                  description:
+                    'This soft-removes the novel, chapters, and drafts from normal Reader/Author screens but preserves data for future restore.',
+                  confirmLabel: 'Remove Novel',
+                  color: 'red',
+                  run: () => removeMutation.mutate()
+                })
+              }
+            >
+              Remove Novel
+            </Button>
+          )}
+        </Group>
+      </Group>
+
+      <SimpleGrid cols={{ base: 1, md: 4 }} mb="md">
+        <StatCard label="Status" value={novel.status} />
+        <StatCard label="Chapters" value={novel.chapters.length} />
+        <StatCard label="Views" value={novel.viewsCount} />
+        <StatCard label="Removed" value={novel.deletedAt ? 'Yes' : 'No'} />
+      </SimpleGrid>
+
+      <Paper p="md" withBorder mb="md">
+        <Title order={4}>Synopsis</Title>
+        <Text mt="xs">{novel.synopsis}</Text>
+      </Paper>
+
+      <Paper p="md" withBorder>
+        <Group justify="space-between" mb="sm">
+          <Title order={4}>Chapters</Title>
+          <Badge variant="light">{novel.chapters.length}</Badge>
+        </Group>
+        {!novel.chapters.length ? (
+          <EmptyState description="No chapters exist for this novel." />
+        ) : (
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Chapter</Table.Th>
+                <Table.Th>Status</Table.Th>
+                <Table.Th>VIP</Table.Th>
+                <Table.Th>Removed</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {novel.chapters.map((chapter) => (
+                <Table.Tr key={chapter.chapterId}>
+                  <Table.Td>
+                    Ch.{chapter.chapterNumber} · {chapter.title}
+                  </Table.Td>
+                  <Table.Td>{chapter.status}</Table.Td>
+                  <Table.Td>{chapter.isVip ? `${chapter.priceCoins} coins` : 'Free'}</Table.Td>
+                  <Table.Td>{chapter.deletedAt ? 'Yes' : 'No'}</Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        )}
+      </Paper>
     </Box>
   );
 }
@@ -650,7 +858,7 @@ function TargetNavigation({ review, compact = false }: { review?: Pick<Moderatio
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, value }: { label: string; value: number | string }) {
   return (
     <Paper p="md" withBorder>
       <Text size="sm" c="dimmed">

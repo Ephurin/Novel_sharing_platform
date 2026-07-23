@@ -155,6 +155,14 @@ List current user's notifications.
 | `status` | `READ` or `UNREAD`. |
 | `type` | Notification type. |
 
+**Notification Types**
+
+| Type | Description |
+| :--- | :--- |
+| `NEW_CHAPTER` | Followed/subscribed novel has a new chapter. |
+| `NOVEL_REMOVED_BY_ADMIN` | Author-owned novel was removed by Admin. |
+| `NOVEL_RESTORED_BY_ADMIN` | Author-owned novel was restored by Admin after a previous removal. |
+
 ### PATCH /notifications/{notificationId}/read
 
 Mark notification as read.

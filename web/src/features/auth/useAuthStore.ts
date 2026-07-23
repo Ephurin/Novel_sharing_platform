@@ -24,7 +24,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ accessToken, user, sessionStatus: 'authenticated' });
   },
   clearSession: () => {
-    localStorage.removeItem('ephurin_access_token');
+    localStorage.clear();
+    sessionStorage.clear();
     set({ accessToken: null, user: null, sessionStatus: 'guest' });
   }
 }));

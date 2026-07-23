@@ -10,7 +10,8 @@ import {
   listChaptersByNovelId,
   publishChapter,
   submitChapterForPublish,
-  updateChapterMetadata
+  updateChapterMetadata,
+  updateChapterPricing
 } from './chapters.repository.js';
 import { findDraftChapterByChapterId, upsertDraftChapter } from './draft-chapters.repository.js';
 import { getNovel } from './novels.service.js';
@@ -29,9 +30,20 @@ function assertOwner(resource: { authorId: string }, auth: AuthContext) {
   }
 }
 
+function assertPremiumPricing(input: { isVip: boolean; priceCoins: number }) {
+  if (input.isVip && input.priceCoins <= 0) {
+    throw new AppError(400, 'VALIDATION_001', 'Premium chapter requires priceCoins greater than 0');
+  }
+
+  if (!input.isVip && input.priceCoins !== 0) {
+    throw new AppError(400, 'VALIDATION_001', 'Free chapter requires priceCoins to be 0');
+  }
+}
+
 export async function createChapter(auth: AuthContext, novelId: string, input: CreateChapterInput) {
   const novel = await getNovel(novelId);
   assertOwner(novel, auth);
+  assertPremiumPricing({ isVip: input.isVip, priceCoins: input.priceCoins });
 
   const wordCount = countWords(input.content);
   const chapter = await withPostgresTransaction(async (client) => {
@@ -102,20 +114,34 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
 
-  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION'].includes(chapter.status)) {
+  const isPublishedPricingOnlyUpdate =
+    chapter.status === 'PUBLISHED' &&
+    (input.isVip !== undefined || input.priceCoins !== undefined) &&
+    input.title === undefined &&
+    input.content === undefined;
+
+  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION'].includes(chapter.status) && !isPublishedPricingOnlyUpdate) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
 
   const nextTitle = input.title ?? chapter.title;
   const nextContent = input.content;
   const wordCount = nextContent ? countWords(nextContent) : chapter.wordCount;
+  const nextIsVip = input.isVip ?? chapter.isVip;
+  const nextPriceCoins = input.priceCoins ?? (nextIsVip ? chapter.priceCoins : 0);
+  assertPremiumPricing({ isVip: nextIsVip, priceCoins: nextPriceCoins });
 
-  const updatedChapter = await updateChapterMetadata(chapterId, {
-    title: input.title,
-    wordCount,
-    isVip: input.isVip,
-    priceCoins: input.priceCoins
-  });
+  const updatedChapter = isPublishedPricingOnlyUpdate
+    ? await updateChapterPricing(chapterId, {
+        isVip: nextIsVip,
+        priceCoins: nextPriceCoins
+      })
+    : await updateChapterMetadata(chapterId, {
+        title: input.title,
+        wordCount,
+        isVip: nextIsVip,
+        priceCoins: nextPriceCoins
+      });
 
   if (!updatedChapter) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');

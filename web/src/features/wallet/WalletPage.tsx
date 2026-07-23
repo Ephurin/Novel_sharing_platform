@@ -11,9 +11,12 @@ import {
   unlockChapter
 } from './wallet-api';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { getApiErrorMessage } from '../../shared/api/api-client';
+import { useAuthStore } from '../auth/useAuthStore';
 
 export function WalletPage() {
   const queryClient = useQueryClient();
+  const user = useAuthStore((state) => state.user);
   const [packageCode, setPackageCode] = useState<'COIN_100' | 'COIN_500' | 'COIN_1000' | 'COIN_5000'>('COIN_500');
   const [chapterId, setChapterId] = useState(localStorage.getItem('ephurin_wallet_chapter_id') ?? '');
   const [authorId, setAuthorId] = useState(localStorage.getItem('ephurin_wallet_author_id') ?? '');
@@ -24,6 +27,12 @@ export function WalletPage() {
 
   const walletQuery = useQuery({ queryKey: ['wallet'], queryFn: getWallet });
   const transactionsQuery = useQuery({ queryKey: ['wallet-transactions'], queryFn: listTransactions });
+  const canRequestWithdraw = Boolean(
+    (user?.role === 'AUTHOR' || user?.role === 'ADMIN') &&
+      bankLabel.trim().length >= 3 &&
+      withdrawAmount >= 100 &&
+      (walletQuery.data?.coinsBalance ?? 0) >= withdrawAmount
+  );
 
   const refreshWallet = async () => {
     await queryClient.invalidateQueries({ queryKey: ['wallet'] });
@@ -60,10 +69,15 @@ export function WalletPage() {
   });
 
   const withdrawMutation = useMutation({
-    mutationFn: () => createWithdrawRequest(withdrawAmount, bankLabel),
+    mutationFn: () => createWithdrawRequest(withdrawAmount, bankLabel.trim()),
+    onMutate: () => setStatus('Creating withdraw request...'),
     onSuccess: async () => {
       setStatus('Withdraw request created');
       await refreshWallet();
+      await queryClient.invalidateQueries({ queryKey: ['admin-withdraw'] });
+    },
+    onError: (error) => {
+      setStatus(`Withdraw failed: ${getApiErrorMessage(error)}`);
     }
   });
 
@@ -121,9 +135,22 @@ export function WalletPage() {
         <Paper p="md" withBorder>
           <Stack>
             <Title order={4}>Withdraw</Title>
+            <Text size="sm" c="dimmed">
+              Author/Admin only. Minimum 100 coins; requested coins are locked until Admin review.
+            </Text>
             <NumberInput label="Coins" value={withdrawAmount} min={100} onChange={(value) => setWithdrawAmount(Number(value) || 100)} />
             <TextInput label="Bank label" value={bankLabel} onChange={(event) => setBankLabel(event.currentTarget.value)} />
-            <Button loading={withdrawMutation.isPending} onClick={() => withdrawMutation.mutate()}>
+            {user?.role !== 'AUTHOR' && user?.role !== 'ADMIN' ? (
+              <Text size="xs" c="red">
+                Reader accounts cannot request withdraws.
+              </Text>
+            ) : null}
+            {(walletQuery.data?.coinsBalance ?? 0) < withdrawAmount ? (
+              <Text size="xs" c="red">
+                Available balance is not enough for this withdraw amount.
+              </Text>
+            ) : null}
+            <Button disabled={!canRequestWithdraw} loading={withdrawMutation.isPending} onClick={() => withdrawMutation.mutate()}>
               Request withdraw
             </Button>
           </Stack>

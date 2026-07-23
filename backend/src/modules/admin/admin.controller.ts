@@ -6,11 +6,15 @@ import {
   addTag,
   approveWithdraw,
   dashboardStats,
+  getNovel,
   getTaxonomy,
+  listNovels,
   listUsers,
   listWithdrawRequests,
   lockUser,
   rejectWithdraw,
+  removeNovel,
+  restoreNovel,
   unlockUser
 } from './admin.service.js';
 
@@ -23,6 +27,41 @@ export const listAdminUsersController: RequestHandler = async (request, response
   try {
     const result = await listUsers(request.query as never);
     response.json(successResponse(result.data, result.meta));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listAdminNovelsController: RequestHandler = async (request, response, next) => {
+  try {
+    const result = await listNovels(request.query as never);
+    response.json(successResponse(result.data, result.meta));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminNovelController: RequestHandler = async (request, response, next) => {
+  try {
+    response.json(successResponse(await getNovel(String(request.params.novelId))));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const removeAdminNovelController: RequestHandler = async (request, response, next) => {
+  try {
+    await removeNovel(requireRequestAuth(request), String(request.params.novelId), request.body);
+    response.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const restoreAdminNovelController: RequestHandler = async (request, response, next) => {
+  try {
+    await restoreNovel(requireRequestAuth(request), String(request.params.novelId), request.body);
+    response.status(204).send();
   } catch (error) {
     next(error);
   }

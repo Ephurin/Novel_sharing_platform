@@ -1,7 +1,9 @@
-import type { QueryResultRow } from 'pg';
+import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { slugify } from '../../core/utils/slug.js';
-import type { ListAdminUsersInput, TaxonomyNameInput } from './admin.schemas.js';
+import type { ListAdminNovelsInput, ListAdminUsersInput, TaxonomyNameInput } from './admin.schemas.js';
+
+type DbClient = Pick<PoolClient, 'query'>;
 
 function mapAdminUser(row: QueryResultRow) {
   return {
@@ -13,6 +15,43 @@ function mapAdminUser(row: QueryResultRow) {
     displayName: row.display_name,
     createdAt: row.created_at,
     updatedAt: row.updated_at
+  };
+}
+
+function mapAdminNovel(row: QueryResultRow) {
+  return {
+    novelId: row.novel_id,
+    authorId: row.author_id,
+    authorUsername: row.author_username,
+    authorEmail: row.author_email,
+    title: row.title,
+    slug: row.slug,
+    synopsis: row.synopsis,
+    status: row.status,
+    serialStatus: row.serial_status,
+    ageRating: row.age_rating,
+    likesCount: row.likes_count,
+    viewsCount: row.views_count,
+    chaptersCount: row.chapters_count,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
+  };
+}
+
+function mapAdminChapter(row: QueryResultRow) {
+  return {
+    chapterId: row.chapter_id,
+    novelId: row.novel_id,
+    title: row.title,
+    chapterNumber: row.chapter_number,
+    status: row.status,
+    isVip: row.is_vip,
+    priceCoins: row.price_coins,
+    wordCount: row.word_count,
+    publishedAt: row.published_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
   };
 }
 
@@ -50,6 +89,141 @@ export async function listAdminUsers(input: ListAdminUsersInput) {
     items: dataResult.rows.map(mapAdminUser),
     totalItems: countResult.rows[0]?.total ?? 0
   };
+}
+
+export async function listAdminNovels(input: ListAdminNovelsInput) {
+  const offset = (input.page - 1) * input.limit;
+  const search = input.q ? `%${input.q}%` : null;
+  const dataResult = await getPostgresPool().query(
+    `
+      select
+        n.*,
+        u.username as author_username,
+        u.email as author_email
+      from novels n
+      join users u on u.user_id = n.author_id
+      where ($1::boolean = true or n.deleted_at is null)
+        and ($2::uuid is null or n.author_id = $2)
+        and ($3::novel_status is null or n.status = $3)
+        and (
+          $4::text is null
+          or n.title ilike $4
+          or n.synopsis ilike $4
+          or u.username ilike $4
+          or u.email ilike $4
+        )
+      order by n.updated_at desc
+      limit $5 offset $6
+    `,
+    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search, input.limit, offset]
+  );
+  const countResult = await getPostgresPool().query(
+    `
+      select count(*)::int as total
+      from novels n
+      join users u on u.user_id = n.author_id
+      where ($1::boolean = true or n.deleted_at is null)
+        and ($2::uuid is null or n.author_id = $2)
+        and ($3::novel_status is null or n.status = $3)
+        and (
+          $4::text is null
+          or n.title ilike $4
+          or n.synopsis ilike $4
+          or u.username ilike $4
+          or u.email ilike $4
+        )
+    `,
+    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search]
+  );
+
+  return {
+    items: dataResult.rows.map(mapAdminNovel),
+    totalItems: countResult.rows[0]?.total ?? 0
+  };
+}
+
+export async function findAdminNovelById(novelId: string, includeDeleted = false) {
+  const novelResult = await getPostgresPool().query(
+    `
+      select
+        n.*,
+        u.username as author_username,
+        u.email as author_email
+      from novels n
+      join users u on u.user_id = n.author_id
+      where n.novel_id = $1
+        and ($2::boolean = true or n.deleted_at is null)
+      limit 1
+    `,
+    [novelId, includeDeleted]
+  );
+
+  if (!novelResult.rows[0]) return null;
+
+  const chaptersResult = await getPostgresPool().query(
+    `
+      select *
+      from chapters
+      where novel_id = $1
+      order by chapter_number asc
+    `,
+    [novelId]
+  );
+
+  return {
+    ...mapAdminNovel(novelResult.rows[0]),
+    chapters: chaptersResult.rows.map(mapAdminChapter)
+  };
+}
+
+export async function softRemoveNovelAggregate(client: DbClient, novelId: string) {
+  const novelResult = await client.query(
+    `
+      update novels
+      set deleted_at = coalesce(deleted_at, now()), updated_at = now()
+      where novel_id = $1
+      returning *
+    `,
+    [novelId]
+  );
+
+  if (!novelResult.rows[0]) return null;
+
+  await client.query(
+    `
+      update chapters
+      set deleted_at = coalesce(deleted_at, now()), updated_at = now()
+      where novel_id = $1
+    `,
+    [novelId]
+  );
+
+  return mapAdminNovel(novelResult.rows[0]);
+}
+
+export async function restoreNovelAggregate(client: DbClient, novelId: string) {
+  const novelResult = await client.query(
+    `
+      update novels
+      set deleted_at = null, updated_at = now()
+      where novel_id = $1
+      returning *
+    `,
+    [novelId]
+  );
+
+  if (!novelResult.rows[0]) return null;
+
+  await client.query(
+    `
+      update chapters
+      set deleted_at = null, updated_at = now()
+      where novel_id = $1
+    `,
+    [novelId]
+  );
+
+  return mapAdminNovel(novelResult.rows[0]);
 }
 
 export async function updateUserStatus(userId: string, status: 'ACTIVE' | 'LOCKED') {

@@ -63,6 +63,8 @@ order by username;
 | DB-AUTHOR-003 | Create chapter. | PostgreSQL `chapters` | Row exists with correct `novel_id`, `chapter_number`. |
 | DB-AUTHOR-004 | Save draft. | MongoDB draft storage and/or PostgreSQL chapter metadata | Draft content/title visible in author reload. |
 | DB-AUTHOR-005 | Submit chapter publish. | PostgreSQL `chapters` | Status changes according to moderation/publish workflow. |
+| DB-AUTHOR-006 | Confirm premium settings. | PostgreSQL `chapters` | `is_vip` and `price_coins` match Author IDE. |
+| DB-AUTHOR-007 | Change published chapter premium/free setting. | PostgreSQL `chapters` | Pricing changes; `title` and `content` remain unchanged. |
 
 Example:
 
@@ -78,6 +80,15 @@ select chapter_id, novel_id, chapter_number, title, status, is_vip, price_coins,
 from chapters
 where novel_id = 'PASTE_NOVEL_UUID'
 order by chapter_number asc;
+```
+
+Check existing unlocks are preserved after published price changes:
+
+```sql
+select user_id, chapter_id, transaction_id, created_at
+from chapter_unlocks
+where chapter_id = 'PASTE_CHAPTER_UUID'
+order by created_at desc;
 ```
 
 ## 5. Reader Side Effects

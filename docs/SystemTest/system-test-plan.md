@@ -2,24 +2,24 @@
 
 ## 1. Objective
 
-Validate that the completed non-AI MVP works end-to-end across backend APIs and the web frontend.
+Validate that the MVP works end-to-end across backend APIs, the web frontend, database side effects, role boundaries, mock wallet, authoring context, and basic AI Copilot integration.
 
 The tester should verify:
 
 - backend service starts and connects to PostgreSQL/MongoDB;
 - web app starts and can call backend APIs;
-- Public/Guest, Reader, Author, Wallet, Admin, Profile, and Notification flows work;
+- Public/Guest, Reader, Author, Wallet, Admin, Profile, Notification, Authoring Context, and AI Copilot flows work;
 - role guards prevent unauthorized access;
 - mock wallet behavior is clearly demo-only;
-- AI/Copilot actions remain disabled and do not call AI endpoints.
+- AI/Copilot health and suggestion endpoints behave correctly when the ngrok LLM provider is online or offline.
 
 ## 2. Out of Scope
 
 - Real payment gateway integration.
 - Real email/OAuth/social login.
 - Mobile app before Phase 9 is implemented.
-- FastAPI AI service and real LLM calls.
-- Character/timeline/plot-summary CRUD persistence before the backend context phase.
+- Production-grade AI service architecture, streaming, vector search, and FastAPI deployment.
+- Real payment settlement or external wallet integration.
 - Load/performance/security penetration testing.
 
 ## 3. Source References
@@ -28,6 +28,7 @@ The tester should verify:
 | :--- | :--- |
 | API contracts | `docs/API/README.md` |
 | API-screen mapping | `docs/Frontend/api-screen-matrix.md` |
+| Business flows | `docs/SystemTest/business-flow-scenarios.md` |
 | Web final QA | `docs/Implementation/phase-8-final-web-qa-report.md` |
 | Implementation roadmap | `docs/Implementation/roadmap.md` |
 | Database design | `docs/Database/README.md` |
@@ -97,6 +98,7 @@ Expected sample data:
   - `content is not null`;
   - parent novel status `PUBLISHED`;
 - optional sample stories from `docs/Assets/teststory` and `docs/Assets/teststory2`.
+- at least one author-owned story with character profiles and timeline events for Authoring Context/Copilot tests.
 
 Known seeded sample titles may include:
 
@@ -110,6 +112,7 @@ Known seeded sample titles may include:
 | Smoke | Browser + health endpoint | Confirm services are running. |
 | API Regression | Postman | Confirm backend endpoints still match collections. |
 | Web E2E | Browser | Confirm UI can complete flows without Postman. |
+| Business Flow | Browser + API + DB | Confirm common journeys across roles and services. |
 | Role/Permission | Browser + Postman | Confirm protected resources reject wrong roles. |
 | Data Verification | pgAdmin/Mongo Compass/SQL terminal | Confirm key side effects are persisted. |
 
@@ -129,7 +132,7 @@ System test can be accepted when:
 - all current Postman collections pass or failures are explained as data/setup issues;
 - all P0 web E2E flows pass;
 - no role can access unauthorized Admin/Author protected data;
-- no AI endpoint is called from Phase 8 UI;
+- AI health/generate tests either pass or are clearly marked blocked by external ngrok/provider availability;
 - known limitations are recorded in the final report.
 
 ## 10. Severity Definitions

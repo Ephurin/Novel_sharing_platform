@@ -42,8 +42,8 @@ flowchart TD
     ChapterEditor --> Copilot
 
     Admin --> AdminHome[Dashboard Overview]
+    Admin --> AdminNovels[Novel Management]
     Admin --> Moderation[Moderation Queue]
-    Admin --> Reports[User Reports]
     Admin --> Users[User Management]
     Admin --> Taxonomy[Genres / Tags]
     Admin --> Withdraws[Withdraw Review]
@@ -81,7 +81,7 @@ flowchart TD
 | :--- | :--- |
 | Web Authenticated | Reader, Writing Projects, Wallet, Notifications, Profile |
 | Web Author | Project Manager, My Writing Projects, Author IDE, Context, Wallet, Stats |
-| Web Admin | Overview, Moderation, Reports, Users, Taxonomy, Withdraws |
+| Web Admin | Overview, Novel Management, Moderation, Users, Taxonomy, Withdraws |
 | Mobile Reader | Home, Search, Library, Notifications, Profile |
 
 ## 4. MVP Screen Priority

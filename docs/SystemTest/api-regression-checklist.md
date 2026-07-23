@@ -18,6 +18,7 @@ Use this checklist to validate backend behavior before or alongside web E2E test
 | ID | Request | Expected |
 | :--- | :--- | :--- |
 | API-SMOKE-001 | `GET /health` | `200`, response envelope, `data.status = OK`. |
+| API-SMOKE-002 | `GET /ai/health` | `200` with `ready=true` if provider online, or `503` with clear provider message if offline. |
 
 ## 3. Postman Collections
 
@@ -59,7 +60,19 @@ Typical variables:
 | API-AUTH-004 | Call Author-owned novel update with another user. | Returns `403` or ownership error. |
 | API-AUTH-005 | Call protected endpoint without token. | Returns `401`. |
 
-## 6. Reader API Tests
+## 6. Author Chapter and Premium Pricing API Tests
+
+| ID | Steps | Expected |
+| :--- | :--- | :--- |
+| API-AUTHOR-001 | Author creates chapter with `isVip=false`, `priceCoins=0`. | Returns created draft chapter. |
+| API-AUTHOR-002 | Author creates/updates chapter with `isVip=true`, `priceCoins=10`. | Returns chapter with premium pricing. |
+| API-AUTHOR-003 | Force `isVip=true`, `priceCoins=0`. | `400`, `VALIDATION_001`; no chapter pricing mutation. |
+| API-AUTHOR-004 | Force `isVip=false`, `priceCoins=10`. | `400`, `VALIDATION_001`; no chapter pricing mutation. |
+| API-AUTHOR-005 | Update `PUBLISHED` chapter with only `isVip/priceCoins`. | Succeeds; title/content unchanged. |
+| API-AUTHOR-006 | Update `PUBLISHED` chapter title/content directly. | Fails with invalid content state until published revision workflow exists. |
+| API-AUTHOR-007 | `POST /ai/copilot/suggestions` with author-owned novel, instruction, and recent text. | If provider ready, returns suggestion and context; if offline, standard AI/provider error. |
+
+## 7. Reader API Tests
 
 | ID | Steps | Expected |
 | :--- | :--- | :--- |
@@ -71,7 +84,7 @@ Typical variables:
 | API-READ-006 | `PUT /reading/history/me`, then list/get history. | History points to latest chapter. |
 | API-READ-007 | Add/remove library. | Add returns created/saved; remove returns `204`. |
 
-## 7. Interaction and Moderation API Tests
+## 8. Interaction and Moderation API Tests
 
 | ID | Steps | Expected |
 | :--- | :--- | :--- |
@@ -84,7 +97,7 @@ Typical variables:
 | API-INT-007 | Admin opens moderation detail. | Evidence summary/report count visible. |
 | API-INT-008 | Admin resolves pending review. | Status changes; duplicate resolve returns conflict. |
 
-## 8. Wallet API Tests
+## 9. Wallet API Tests
 
 | ID | Steps | Expected |
 | :--- | :--- | :--- |
@@ -97,7 +110,7 @@ Typical variables:
 | API-WALLET-007 | Author requests withdraw. | Creates pending withdraw request. |
 | API-WALLET-008 | Admin approves/rejects withdraw. | Status changes and review metadata is saved. |
 
-## 9. Database Side-Effect Verification
+## 10. Database Side-Effect Verification
 
 Use SQL/Mongo tools only for verification, not as the primary test path.
 
@@ -112,9 +125,10 @@ Use SQL/Mongo tools only for verification, not as the primary test path.
 | Reading history | `reading_histories`. |
 | Library | `bookmarks`. |
 | VIP unlock | `chapter_unlocks`, `wallet_transactions`. |
+| Premium price change | `chapters.is_vip`, `chapters.price_coins`; existing `chapter_unlocks` unchanged. |
 | Notification | `notifications`. |
 
-## 10. API Regression Result
+## 11. API Regression Result
 
 Record:
 

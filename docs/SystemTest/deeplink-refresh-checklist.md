@@ -61,8 +61,9 @@ Login as `reader02`.
 | LINK-ADMIN-003 | `/admin/taxonomy` | Admin logged in | Admin console taxonomy tab loads. |
 | LINK-ADMIN-004 | `/admin/moderation` | Admin logged in | Moderation queue loads. |
 | LINK-ADMIN-005 | `/admin/moderation/:reviewId` | Review exists | Detail evidence page loads. |
-| LINK-ADMIN-006 | `/admin/reports` | Admin logged in | USER_REPORT-filtered queue loads. |
-| LINK-ADMIN-007 | `/admin/withdraws` | Admin logged in | Withdraw tab loads. |
+| LINK-ADMIN-006 | `/admin/novels` | Admin logged in | Admin novel management loads. |
+| LINK-ADMIN-007 | `/admin/novels/:novelId` | Novel exists | Admin novel detail loads with remove/restore controls. |
+| LINK-ADMIN-008 | `/admin/withdraws` | Admin logged in | Withdraw tab loads. |
 
 ## 6. Utility Routes
 

@@ -1,7 +1,13 @@
 import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
 import { AuthorIdeShell } from './layout/AuthorIdeShell';
 import { WebAppShell } from './layout/WebAppShell';
-import { AdminModerationDetailPage, AdminModerationPage, AdminPage } from '../features/admin/AdminPage';
+import {
+  AdminModerationDetailPage,
+  AdminModerationPage,
+  AdminNovelDetailPage,
+  AdminNovelsPage,
+  AdminPage
+} from '../features/admin/AdminPage';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';
 import { AuthorProjectsPage } from '../features/author-projects/AuthorProjectsPage';
 import { AuthorStoryContextPage } from '../features/story-context/AuthorStoryContextPage';
@@ -147,6 +153,22 @@ export const router = createBrowserRouter([
         )
       },
       {
+        path: '/admin/novels',
+        element: (
+          <RoleGuard roles={['ADMIN']}>
+            <AdminNovelsPage />
+          </RoleGuard>
+        )
+      },
+      {
+        path: '/admin/novels/:novelId',
+        element: (
+          <RoleGuard roles={['ADMIN']}>
+            <AdminNovelDetailPage />
+          </RoleGuard>
+        )
+      },
+      {
         path: '/admin/taxonomy',
         element: (
           <RoleGuard roles={['ADMIN']}>
@@ -167,14 +189,6 @@ export const router = createBrowserRouter([
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminModerationDetailPage />
-          </RoleGuard>
-        )
-      },
-      {
-        path: '/admin/reports',
-        element: (
-          <RoleGuard roles={['ADMIN']}>
-            <AdminModerationPage sourceFilter="USER_REPORT" />
           </RoleGuard>
         )
       },

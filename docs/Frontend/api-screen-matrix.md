@@ -98,6 +98,10 @@ Use it to detect missing endpoints, outdated endpoint names, or screens that sti
 | Screen | API | Required | Notes |
 | :--- | :--- | :--- | :--- |
 | Dashboard Stats | `GET /admin/dashboard/stats` | Yes | Admin only. |
+| Admin Novel List | `GET /admin/novels` | Yes | Admin-only catalog management. |
+| Admin Novel Detail | `GET /admin/novels/{novelId}` | Yes | Shows owner and chapter summary before removal/restore action. |
+| Admin Remove Novel | `DELETE /admin/novels/{novelId}` | Yes | Requires confirmation; soft-deletes novel aggregate and notifies Author. |
+| Admin Restore Novel | `POST /admin/novels/{novelId}/restore` | Yes | Restores a soft-deleted novel aggregate if Admin reverses the removal. |
 | Moderation Queue | `GET /admin/moderation/reviews` | Yes | Admin only. |
 | Moderation Detail | `GET /admin/moderation/reviews/{reviewId}` | Yes | Admin only. |
 | Resolve Moderation | `POST /admin/moderation/reviews/{reviewId}/resolve` | Yes | Admin only. |

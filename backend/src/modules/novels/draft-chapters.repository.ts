@@ -15,6 +15,9 @@ export type DraftChapterDocument = {
   autosave: boolean;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date | null;
+  deletionReason?: string | null;
+  restoredAt?: Date | null;
 };
 
 function collection() {
@@ -48,6 +51,8 @@ export async function upsertDraftChapter(input: {
         content: input.content,
         wordCount: input.wordCount,
         autosave: input.autosave,
+        deletedAt: null,
+        deletionReason: null,
         updatedAt: now
       },
       $setOnInsert: {
@@ -65,5 +70,34 @@ export async function upsertDraftChapter(input: {
 }
 
 export async function findDraftChapterByChapterId(chapterId: string) {
-  return collection().findOne({ chapterId });
+  return collection().findOne({ chapterId, deletedAt: null });
+}
+
+export async function markDraftChaptersDeletedByNovelId(novelId: string, reason: string | undefined) {
+  const now = new Date();
+  return collection().updateMany(
+    { novelId, deletedAt: null },
+    {
+      $set: {
+        deletedAt: now,
+        deletionReason: reason ?? null,
+        updatedAt: now
+      }
+    }
+  );
+}
+
+export async function restoreDraftChaptersByNovelId(novelId: string) {
+  const now = new Date();
+  return collection().updateMany(
+    { novelId, deletedAt: { $ne: null } },
+    {
+      $set: {
+        deletedAt: null,
+        deletionReason: null,
+        restoredAt: now,
+        updatedAt: now
+      }
+    }
+  );
 }

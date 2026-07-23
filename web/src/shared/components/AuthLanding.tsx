@@ -1,6 +1,6 @@
 import { Alert, Box, Button, Group, Paper, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { IconBrain } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { login, register } from '../../features/auth/auth-api';
@@ -9,6 +9,7 @@ import { getApiErrorMessage } from '../api/api-client';
 
 export function AuthLanding() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
   const setSession = useAuthStore((state) => state.setSession);
@@ -23,6 +24,7 @@ export function AuthLanding() {
     onSuccess: (session) => {
       setError(null);
       setSession(session);
+      queryClient.setQueryData(['auth', 'me'], session.user);
       navigate(getRoleHome(session.user.role), { replace: true });
     },
     onError: (caughtError) => {

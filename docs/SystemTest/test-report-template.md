@@ -40,6 +40,9 @@ Suggested filename:
 | `phase-5-reader-backend.postman_collection.json` | | | | |
 | `phase-6-mock-wallet-backend.postman_collection.json` | | | | |
 | `phase-7-profile-notification-admin.postman_collection.json` | | | | |
+| `phase-9-5-authoring-context.postman_collection.json` | | | | |
+| Manual Premium Pricing API checks | | | | |
+| Manual AI Health/Copilot API checks | | | | |
 
 ## 4. Web E2E Summary
 
@@ -50,6 +53,8 @@ Suggested filename:
 | Reader | | | | |
 | Wallet/VIP | | | | |
 | Author | | | | |
+| Authoring Context / AI Copilot | | | | |
+| Author Premium Pricing | | | | |
 | Profile/Notifications | | | | |
 | Admin | | | | |
 | Role/Permission | | | | |
@@ -64,7 +69,9 @@ Suggested filename:
 | Validation errors | | | | |
 | Interaction edge cases | | | | |
 | VIP/wallet edge cases | | | | |
+| Premium chapter pricing edge cases | | | | |
 | Moderation edge cases | | | | |
+| LLM provider online/offline | | | | |
 | Network/error states | | | | |
 | Deep-link/refresh | | | | |
 | DB side effects | | | | |
@@ -81,6 +88,8 @@ Suggested filename:
 | VIP chapter ID | |
 | Author-owned novel ID | |
 | Author-owned chapter ID | |
+| Context-enabled novel ID | |
+| LLM provider status | |
 | Comment ID | |
 | Moderation review ID | |
 | Withdraw request ID | |
@@ -105,8 +114,8 @@ Record stale/missing local test data separately from app bugs.
 | :--- | :--- | :--- |
 | OAuth is placeholder. | YES/NO | |
 | Wallet is mock/demo only. | YES/NO | |
-| AI/Copilot actions are disabled. | YES/NO | |
-| Author context CRUD is deferred. | YES/NO | |
+| AI/Copilot depends on external ngrok provider availability. | YES/NO | |
+| Published content revision workflow is deferred; published premium pricing changes are allowed. | YES/NO | |
 | Mobile app is not in Phase 8. | YES/NO | |
 
 ## 10. Final Recommendation

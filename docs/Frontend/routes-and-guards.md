@@ -32,6 +32,8 @@ This document defines planned frontend routes and access rules for the Ephurin w
 | `/profile/me` | My Profile/Settings | Authenticated | 8.4 | Profile, reading preferences, account display settings. |
 | `/authors/:authorId` | Public Author Profile | Public | 8.4 | Published novel list and follower count. |
 | `/admin` | Admin Dashboard | `ADMIN` | 8.4 | Stats and operational overview. |
+| `/admin/novels` | Admin Novel Management | `ADMIN` | 9.6 | List platform novels, inspect detail, and soft-delete/restore a novel aggregate after confirmation. |
+| `/admin/novels/:novelId` | Admin Novel Detail | `ADMIN` | 9.6 | Show owner/chapter detail and removal/restore confirmation. |
 | `/admin/moderation` | Moderation Queue | `ADMIN` | 8.4 | Pending reviews and filters. |
 | `/admin/moderation/:reviewId` | Moderation Detail | `ADMIN` | 8.4 | Evidence, target metadata, resolve action. |
 | `/admin/users` | User Management | `ADMIN` | 8.4 | Search, lock, unlock. |

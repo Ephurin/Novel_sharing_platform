@@ -429,6 +429,8 @@ export async function approveWithdrawRequest(withdrawRequestId: string, adminUse
 
     return {
       withdrawRequestId,
+      userId: wallet.userId,
+      amountCoins: result.rows[0].amount_coins,
       transactionId: result.rows[0].transaction_id,
       status: result.rows[0].status
     };
@@ -477,6 +479,9 @@ export async function rejectWithdrawRequest(withdrawRequestId: string, adminUser
 
     return {
       withdrawRequestId,
+      userId: wallet.userId,
+      amountCoins: result.rows[0].amount_coins,
+      rejectionReason: result.rows[0].rejection_reason,
       transactionId: result.rows[0].transaction_id,
       status: result.rows[0].status
     };

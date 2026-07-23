@@ -104,10 +104,33 @@ export async function updateChapterMetadata(
         is_vip = coalesce($4, is_vip),
         price_coins = coalesce($5, price_coins),
         updated_at = now()
-      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED')
+      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION')
       returning *
     `,
     [chapterId, input.title, input.wordCount, input.isVip, input.priceCoins]
+  );
+
+  return result.rows[0] ? mapChapter(result.rows[0]) : null;
+}
+
+export async function updateChapterPricing(
+  chapterId: string,
+  input: {
+    isVip: boolean;
+    priceCoins: number;
+  }
+) {
+  const result = await getPostgresPool().query(
+    `
+      update chapters
+      set
+        is_vip = $2,
+        price_coins = $3,
+        updated_at = now()
+      where chapter_id = $1 and deleted_at is null and status = 'PUBLISHED'
+      returning *
+    `,
+    [chapterId, input.isVip, input.priceCoins]
   );
 
   return result.rows[0] ? mapChapter(result.rows[0]) : null;

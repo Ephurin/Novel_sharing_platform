@@ -29,9 +29,11 @@ Use it as the working checklist before creating `backend/`, `web/`, and later `m
 | `phase-8-7-admin-moderation-deepening-checklist.md` | Admin reports, moderation detail, and moderation evidence visibility. |
 | `phase-8-8-public-guest-web-checklist.md` | Public landing/browse/detail and guest action gates. |
 | `phase-8-9-final-web-qa-checklist.md` | Final web UI QA before Phase 9 mobile. |
+| `phase-8-10-author-premium-chapter-checklist.md` | Author IDE controls and backend validation for Premium/VIP chapter pricing before publication. |
 | `../SystemTest/README.md` | System test handoff guide for another tester/agent after Phase 8 Web MVP. |
 | `phase-9-mobile-reader-app-checklist.md` | Mobile Reader App implementation and Android Expo Go review checklist. |
 | `phase-9-5-authoring-context-core-checklist.md` | Non-AI Authoring Context Core: character profiles, relationships, timeline events, and plot summaries. |
+| `phase-9-6-admin-novel-management-checklist.md` | Admin novel catalog management and reversible soft removal with Author notification. |
 | Phase 10 planned | AI/Copilot as a separate FastAPI service after Authoring Context Core is stable. |
 
 ## Source Documents

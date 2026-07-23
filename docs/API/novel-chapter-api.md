@@ -275,6 +275,14 @@ Update own draft or rejected chapter.
 **Auth:** Required  
 **Roles:** Author
 
+**Premium Rules**
+
+- Free chapter: `isVip = false`, `priceCoins = 0`.
+- Premium chapter: `isVip = true`, `priceCoins > 0`.
+- Premium settings can also be edited after publication.
+- Published content changes are still deferred to a later revision/moderation workflow; post-publication direct edits are limited to `isVip` and `priceCoins`.
+- Existing reader unlocks remain valid if the chapter price changes or becomes free later.
+
 **Errors:** `CONTENT_001`, `CONTENT_003`, `CONTENT_004`, `CONTENT_005`
 
 ### POST /chapters/{chapterId}/submit-publish

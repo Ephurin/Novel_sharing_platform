@@ -18,7 +18,7 @@ Ephurin is a platform for sharing and composing online novels, integrating Web, 
 - **Writing Copilot Context:** Character profiles, timeline events, and plot summaries are maintained as authoring context for an LLM-based writing assistant.
 - **Content Control & Moderation Service:** Keyword/rule filtering, user reports, moderation queue, and Admin final decisions for novels, chapters, and comments.
 - **Mock Payment Module:** Coin purchase, chapter unlock, donation, and withdraw workflows are implemented as an internal mock payment flow for graduation-project demonstration only.
-- **Admin Dashboard:** Content review, report handling, and operational metrics.
+- **Admin Dashboard:** Content review, report handling, novel catalog management, and operational metrics.
 
 ### 1.2.1. Project Assumptions and Documentation Baseline
 - `Final_SRS_v1.md` and `SRA_novel_platform_plan (1).md` are baseline reference documents used to derive and refine the fragmented SRS files in this folder.
@@ -103,6 +103,7 @@ flowchart TD
     -   **AI Intelligence Service**: Supports LLM-based metadata categorization, title/tag suggestions, writing-style analysis, and Writing Copilot assistance.
     -   **Writing Copilot Service**: Uses Character, Timeline, and Plot Summary data as context for LLM-assisted writing support, and may submit author-approved context update proposals back to Novel & Chapter Service.
     -   **Content Control & Moderation Service**: Handles keyword/rule filtering, user reports, moderation review queues, and Admin decisions. It does not use LLM/AI for content judgement.
+    -   **Admin Novel Management**: Lets Admin inspect platform-level novel catalog records and perform destructive novel removal with author notification.
 
 ---
 

@@ -43,6 +43,43 @@ export type WithdrawRequest = {
   createdAt: string;
 };
 
+export type AdminNovelChapter = {
+  chapterId: string;
+  novelId: string;
+  title: string;
+  chapterNumber: number;
+  status: string;
+  isVip: boolean;
+  priceCoins: number;
+  wordCount: number;
+  publishedAt: string | null;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+export type AdminNovel = {
+  novelId: string;
+  authorId: string;
+  authorUsername: string;
+  authorEmail: string;
+  title: string;
+  slug: string;
+  synopsis: string;
+  status: string;
+  serialStatus: string;
+  ageRating: string;
+  likesCount: number;
+  viewsCount: number;
+  chaptersCount: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+export type AdminNovelDetail = AdminNovel & {
+  chapters: AdminNovelChapter[];
+};
+
 export async function getDashboardStats() {
   const response = await apiClient.get<ApiEnvelope<{
     totalUsers: number;
@@ -70,6 +107,43 @@ export async function lockUser(userId: string) {
 export async function unlockUser(userId: string) {
   const response = await apiClient.patch<ApiEnvelope<AdminUser>>(`/admin/users/${userId}/unlock`);
   return response.data.data;
+}
+
+export async function listAdminNovels(input: {
+  q?: string;
+  status?: string;
+  includeDeleted?: boolean;
+} = {}) {
+  const response = await apiClient.get<ApiEnvelope<AdminNovel[]>>('/admin/novels', {
+    params: {
+      q: input.q || undefined,
+      status: input.status || undefined,
+      includeDeleted: input.includeDeleted,
+      page: 1,
+      limit: 50
+    }
+  });
+  return response.data.data;
+}
+
+export async function getAdminNovel(novelId: string) {
+  const response = await apiClient.get<ApiEnvelope<AdminNovelDetail>>(`/admin/novels/${novelId}`);
+  return response.data.data;
+}
+
+export async function removeAdminNovel(novelId: string, input: { reason?: string }) {
+  await apiClient.delete(`/admin/novels/${novelId}`, {
+    data: {
+      confirm: true,
+      reason: input.reason || undefined
+    }
+  });
+}
+
+export async function restoreAdminNovel(novelId: string, input: { reason?: string }) {
+  await apiClient.post(`/admin/novels/${novelId}/restore`, {
+    reason: input.reason || undefined
+  });
 }
 
 export async function getTaxonomy() {

@@ -1,5 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ActionIcon, Badge, Box, Button, Group, Paper, ScrollArea, Stack, Text, Textarea, TextInput, Title } from '@mantine/core';
+import {
+  ActionIcon,
+  Badge,
+  Box,
+  Button,
+  Group,
+  NumberInput,
+  Paper,
+  ScrollArea,
+  Stack,
+  Switch,
+  Text,
+  Textarea,
+  TextInput,
+  Title
+} from '@mantine/core';
 import {
   IconAdjustments,
   IconBook2,
@@ -14,6 +29,9 @@ import {
 } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { createCopilotSuggestion } from '../../features/ai-copilot/ai-copilot-api';
+import type { CopilotSuggestionResponse } from '../../features/ai-copilot/ai-copilot-api';
+import { logout } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import {
   createChapter,
@@ -55,6 +73,7 @@ const activities: Array<{ value: AuthorActivity; label: string; icon: typeof Ico
 ];
 
 const starterContent = 'Start writing your chapter draft here.';
+const minimumPremiumPriceCoins = 1;
 
 type AuthorContextOverview = {
   characters: CharacterProfile[];
@@ -81,6 +100,10 @@ export function AuthorIdeShell() {
   const [novelTitle, setNovelTitle] = useState('');
   const [chapterTitle, setChapterTitle] = useState('');
   const [editorContent, setEditorContent] = useState('');
+  const [isChapterVip, setIsChapterVip] = useState(false);
+  const [chapterPriceCoins, setChapterPriceCoins] = useState(0);
+  const [copilotInstruction, setCopilotInstruction] = useState('Continue the scene while preserving character consistency.');
+  const [copilotResult, setCopilotResult] = useState<CopilotSuggestionResponse | null>(null);
   const [statusMessage, setStatusMessage] = useState('API ready');
 
   const updateIdeContext = (nextContext: { novelId?: string; chapterId?: string | null }) => {
@@ -105,6 +128,17 @@ export function AuthorIdeShell() {
     }
 
     setSearchParams(nextParams, { replace: true });
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      clearSession();
+      queryClient.clear();
+      setStatusMessage('Logged out');
+      navigate('/login', { replace: true });
+    }
   };
 
   const novelsQuery = useQuery({
@@ -165,6 +199,8 @@ export function AuthorIdeShell() {
     if (chapterQuery.data) {
       setChapterTitle(chapterQuery.data.draft?.title ?? chapterQuery.data.title);
       setEditorContent(chapterQuery.data.draft?.content ?? chapterQuery.data.content ?? '');
+      setIsChapterVip(chapterQuery.data.isVip);
+      setChapterPriceCoins(chapterQuery.data.priceCoins);
     }
   }, [chapterQuery.data]);
 
@@ -181,19 +217,49 @@ export function AuthorIdeShell() {
   });
 
   const saveDraftMutation = useMutation({
-    mutationFn: () =>
-      updateChapter(chapterId, {
+    mutationFn: () => {
+      const pricingPayload = {
+        isVip: isChapterVip,
+        priceCoins: isChapterVip ? chapterPriceCoins : 0
+      };
+
+      if (currentChapter?.status === 'PUBLISHED') {
+        return updateChapter(chapterId, pricingPayload);
+      }
+
+      return updateChapter(chapterId, {
         title: chapterTitle,
         content: editorContent,
+        ...pricingPayload,
         autosave: false
-      }),
+      });
+    },
     onMutate: () => setStatusMessage('Saving draft...'),
     onSuccess: async (chapter) => {
+      setIsChapterVip(chapter.isVip);
+      setChapterPriceCoins(chapter.priceCoins);
       setStatusMessage(`Draft saved · version ${chapter.draftVersion ?? chapter.draft?.version ?? 'latest'}`);
       await queryClient.invalidateQueries({ queryKey: ['chapter', chapterId] });
       await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
     },
     onError: (error) => setStatusMessage(`Save failed: ${getErrorMessage(error)}`)
+  });
+
+  const savePremiumSettingsMutation = useMutation({
+    mutationFn: () =>
+      updateChapter(chapterId, {
+        isVip: isChapterVip,
+        priceCoins: isChapterVip ? Math.max(minimumPremiumPriceCoins, chapterPriceCoins) : 0
+      }),
+    onMutate: () => setStatusMessage('Saving premium settings...'),
+    onSuccess: async (chapter) => {
+      setIsChapterVip(chapter.isVip);
+      setChapterPriceCoins(chapter.priceCoins);
+      setStatusMessage(chapter.isVip ? `Premium enabled · ${chapter.priceCoins} coins` : 'Chapter is now free');
+      await queryClient.invalidateQueries({ queryKey: ['chapter', chapterId] });
+      await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
+    },
+    onError: (error) => setStatusMessage(`Premium settings failed: ${getErrorMessage(error)}`)
   });
 
   const createNovelMutation = useMutation({
@@ -216,6 +282,8 @@ export function AuthorIdeShell() {
     onSuccess: async ({ novel, chapter }) => {
       updateIdeContext({ novelId: novel.novelId, chapterId: chapter.chapterId });
       setEditorContent(chapter.draft?.content ?? starterContent);
+      setIsChapterVip(chapter.isVip);
+      setChapterPriceCoins(chapter.priceCoins);
       setStatusMessage(`Created ${novel.title} · chapter ${chapter.chapterNumber}`);
       await queryClient.invalidateQueries({ queryKey: ['novel', novel.novelId] });
       await queryClient.invalidateQueries({ queryKey: ['chapters', novel.novelId] });
@@ -237,6 +305,8 @@ export function AuthorIdeShell() {
     onSuccess: async (chapter) => {
       updateIdeContext({ chapterId: chapter.chapterId });
       setEditorContent(chapter.draft?.content ?? starterContent);
+      setIsChapterVip(chapter.isVip);
+      setChapterPriceCoins(chapter.priceCoins);
       setStatusMessage(`Created chapter ${chapter.chapterNumber}`);
       await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
       await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
@@ -267,6 +337,24 @@ export function AuthorIdeShell() {
     onError: (error) => setStatusMessage(`Submit novel failed: ${getErrorMessage(error)}`)
   });
 
+  const copilotSuggestionMutation = useMutation({
+    mutationFn: () =>
+      createCopilotSuggestion({
+        novelId,
+        chapterId: chapterId || null,
+        instruction: copilotInstruction,
+        recentText: editorContent
+      }),
+    onMutate: () => setStatusMessage('Building copilot context...'),
+    onSuccess: (result) => {
+      setCopilotResult(result);
+      setStatusMessage(
+        `Copilot context ready · ${result.context.characters.length} characters · ${result.context.recentTimelineEvents.length} events`
+      );
+    },
+    onError: (error) => setStatusMessage(`Copilot failed: ${getErrorMessage(error)}`)
+  });
+
   const currentNovel = novelQuery.data ?? null;
   const currentChapter = chapterQuery.data ?? null;
   const chapters = chaptersQuery.data ?? [];
@@ -279,6 +367,10 @@ export function AuthorIdeShell() {
     error: charactersQuery.isError || relationshipsQuery.isError || timelineQuery.isError || summariesQuery.isError
   };
   const wordCount = useMemo(() => editorContent.trim().split(/\s+/).filter(Boolean).length, [editorContent]);
+  const premiumPricingValid = !isChapterVip || chapterPriceCoins > 0;
+  const canSaveChapter = Boolean(
+    chapterId && premiumPricingValid && (currentChapter?.status === 'PUBLISHED' || editorContent)
+  );
 
   if (!accessToken) return <AuthLanding />;
 
@@ -288,15 +380,12 @@ export function AuthorIdeShell() {
         novel={currentNovel}
         chapter={currentChapter}
         userLabel={user?.username ?? 'Author'}
-        onLogout={() => {
-          clearSession();
-          setStatusMessage('Logged out');
-        }}
+        onLogout={() => void handleLogout()}
         onSave={() => saveDraftMutation.mutate()}
         onSubmitChapter={() => submitChapterMutation.mutate()}
         onSubmitNovel={() => submitNovelMutation.mutate()}
         onBackToProjects={() => navigate('/author')}
-        canSave={Boolean(chapterId && editorContent)}
+        canSave={canSaveChapter}
         canSubmitChapter={Boolean(chapterId)}
         canSubmitNovel={Boolean(novelId)}
         saving={saveDraftMutation.isPending}
@@ -347,11 +436,28 @@ export function AuthorIdeShell() {
           chapter={currentChapter}
           chapterTitle={chapterTitle}
           content={editorContent}
+          isVip={isChapterVip}
+          priceCoins={chapterPriceCoins}
           onChapterTitleChange={setChapterTitle}
           onContentChange={setEditorContent}
+          onVipChange={(checked) => {
+            setIsChapterVip(checked);
+            setChapterPriceCoins(checked ? Math.max(minimumPremiumPriceCoins, chapterPriceCoins) : 0);
+          }}
+          onPriceCoinsChange={(value) => setChapterPriceCoins(Math.max(minimumPremiumPriceCoins, value))}
+          onConfirmPremiumSettings={() => savePremiumSettingsMutation.mutate()}
+          confirmingPremiumSettings={savePremiumSettingsMutation.isPending}
           loading={chapterQuery.isFetching}
         />
-        <AssistantPanel contextOverview={contextOverview} />
+        <AssistantPanel
+          contextOverview={contextOverview}
+          instruction={copilotInstruction}
+          result={copilotResult}
+          loading={copilotSuggestionMutation.isPending}
+          canGenerate={Boolean(novelId && copilotInstruction.trim())}
+          onInstructionChange={setCopilotInstruction}
+          onGenerate={() => copilotSuggestionMutation.mutate()}
+        />
       </Box>
 
       <BottomStatusBar
@@ -849,17 +955,32 @@ function EditorWorkspace({
   chapter,
   chapterTitle,
   content,
+  isVip,
+  priceCoins,
   onChapterTitleChange,
   onContentChange,
+  onVipChange,
+  onPriceCoinsChange,
+  onConfirmPremiumSettings,
+  confirmingPremiumSettings,
   loading
 }: {
   chapter: Chapter | null;
   chapterTitle: string;
   content: string;
+  isVip: boolean;
+  priceCoins: number;
   onChapterTitleChange: (value: string) => void;
   onContentChange: (value: string) => void;
+  onVipChange: (value: boolean) => void;
+  onPriceCoinsChange: (value: number) => void;
+  onConfirmPremiumSettings: () => void;
+  confirmingPremiumSettings: boolean;
   loading: boolean;
 }) {
+  const canEditPremium = Boolean(chapter && ['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'].includes(chapter.status));
+  const premiumSettingsValid = !isVip || priceCoins >= minimumPremiumPriceCoins;
+
   return (
     <Box className="editor-workspace">
       <Group justify="space-between" mb="md">
@@ -882,6 +1003,49 @@ function EditorWorkspace({
         mb="md"
       />
 
+      <Paper p="sm" withBorder mb="md">
+        <Group justify="space-between" align="flex-start">
+          <Box>
+            <Text fw={600}>Premium chapter</Text>
+            <Text size="xs" c="dimmed">
+              Premium settings can be changed before or after publication. Published content revisions are deferred.
+            </Text>
+          </Box>
+          <Switch checked={isVip} disabled={!canEditPremium} onChange={(event) => onVipChange(event.currentTarget.checked)} />
+        </Group>
+        <NumberInput
+          label="Price coins"
+          description={isVip ? 'Must be greater than 0 for premium chapters.' : 'Free chapters always use 0 coins.'}
+          value={priceCoins}
+          min={isVip ? 1 : 0}
+          step={1}
+          allowDecimal={false}
+          disabled={!canEditPremium || !isVip}
+          mt="sm"
+          onBlur={() => {
+            if (isVip && priceCoins < minimumPremiumPriceCoins) onPriceCoinsChange(minimumPremiumPriceCoins);
+          }}
+          onChange={(value) => {
+            const numericValue = typeof value === 'number' ? value : Number(value || minimumPremiumPriceCoins);
+            onPriceCoinsChange(Math.max(minimumPremiumPriceCoins, numericValue));
+          }}
+        />
+        <Group gap={6} mt="xs">
+          {isVip ? <Badge color="yellow">VIP {priceCoins} coins</Badge> : <Badge color="green">Free</Badge>}
+          {chapter?.status === 'PUBLISHED' ? <Badge color="gray">Content locked, pricing editable</Badge> : null}
+        </Group>
+        <Button
+          size="xs"
+          variant="light"
+          mt="sm"
+          disabled={!canEditPremium || !premiumSettingsValid}
+          loading={confirmingPremiumSettings}
+          onClick={onConfirmPremiumSettings}
+        >
+          Confirm premium settings
+        </Button>
+      </Paper>
+
       <Textarea
         className="editor-textarea"
         value={content}
@@ -894,7 +1058,23 @@ function EditorWorkspace({
   );
 }
 
-function AssistantPanel({ contextOverview }: { contextOverview: AuthorContextOverview }) {
+function AssistantPanel({
+  contextOverview,
+  instruction,
+  result,
+  loading,
+  canGenerate,
+  onInstructionChange,
+  onGenerate
+}: {
+  contextOverview: AuthorContextOverview;
+  instruction: string;
+  result: CopilotSuggestionResponse | null;
+  loading: boolean;
+  canGenerate: boolean;
+  onInstructionChange: (value: string) => void;
+  onGenerate: () => void;
+}) {
   return (
     <Paper className="assistant-panel" radius={0}>
       <Group justify="space-between">
@@ -909,10 +1089,17 @@ function AssistantPanel({ contextOverview }: { contextOverview: AuthorContextOve
           <Badge size="sm">{contextOverview.plotSummaries.length} Plot Summary</Badge>
         </Group>
 
-        <Textarea label="Instruction" placeholder="Continue with quiet tension..." autosize minRows={3} disabled />
+        <Textarea
+          label="Instruction"
+          placeholder="Continue with quiet tension..."
+          autosize
+          minRows={3}
+          value={instruction}
+          onChange={(event) => onInstructionChange(event.currentTarget.value)}
+        />
 
         <Group grow>
-          <Button variant="light" disabled>
+          <Button variant="light" loading={loading} disabled={!canGenerate} onClick={onGenerate}>
             Generate
           </Button>
           <Button variant="light" disabled leftSection={<IconAdjustments size={14} />}>
@@ -920,12 +1107,28 @@ function AssistantPanel({ contextOverview }: { contextOverview: AuthorContextOve
           </Button>
         </Group>
 
+        {result ? (
+          <Paper p="sm" withBorder>
+            <Text size="xs" c="dimmed" tt="uppercase">
+              Direct API Result
+            </Text>
+            <Text size="sm" mt={4} style={{ whiteSpace: 'pre-wrap' }}>
+              {result.suggestion}
+            </Text>
+            <Group gap={6} mt="sm">
+              <Badge size="xs">{result.context.characters.length} characters</Badge>
+              <Badge size="xs">{result.context.recentTimelineEvents.length} recent events</Badge>
+              <Badge size="xs">{result.context.recentText.split(/\s+/).filter(Boolean).length}/500 words</Badge>
+            </Group>
+          </Paper>
+        ) : null}
+
         <Paper p="sm" withBorder>
           <Text size="xs" c="dimmed" tt="uppercase">
             Design Note
           </Text>
           <Text size="sm" mt={4}>
-            AI Copilot remains disabled until Phase 10. Context data is read from the backend and ready for later prompts.
+            Copilot currently calls the TypeScript backend directly. The provider is mocked; the useful part is the context contract.
           </Text>
         </Paper>
       </Stack>
