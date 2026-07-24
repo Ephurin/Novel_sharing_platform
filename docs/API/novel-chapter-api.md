@@ -270,7 +270,7 @@ Get chapter content.
 
 ### PATCH /chapters/{chapterId}
 
-Update own draft or rejected chapter.
+Update own draft/rejected/pending chapter. For a published chapter, content/title changes are saved as a new draft revision and become public only after `submit-publish` passes Content Control.
 
 **Auth:** Required  
 **Roles:** Author
@@ -280,7 +280,7 @@ Update own draft or rejected chapter.
 - Free chapter: `isVip = false`, `priceCoins = 0`.
 - Premium chapter: `isVip = true`, `priceCoins > 0`.
 - Premium settings can also be edited after publication.
-- Published content changes are still deferred to a later revision/moderation workflow; post-publication direct edits are limited to `isVip` and `priceCoins`.
+- Published content/title changes are deferred to a draft revision until the author submits publication again.
 - Existing reader unlocks remain valid if the chapter price changes or becomes free later.
 
 **Errors:** `CONTENT_001`, `CONTENT_003`, `CONTENT_004`, `CONTENT_005`
@@ -289,7 +289,7 @@ Update own draft or rejected chapter.
 
 Submit chapter for Content Control check and publication/moderation.
 
-- If keyword filtering passes, the latest draft is copied into the published chapter content and the chapter is published immediately.
+- If keyword filtering passes, the latest draft is copied into the published chapter content and the chapter is published/re-published immediately.
 - If keyword filtering matches a rule, the chapter moves to Admin moderation.
 
 **Auth:** Required  

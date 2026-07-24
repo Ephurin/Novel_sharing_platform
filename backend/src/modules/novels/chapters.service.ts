@@ -120,36 +120,56 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
     input.title === undefined &&
     input.content === undefined;
 
-  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION'].includes(chapter.status) && !isPublishedPricingOnlyUpdate) {
+  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'].includes(chapter.status) && !isPublishedPricingOnlyUpdate) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
 
   const nextTitle = input.title ?? chapter.title;
-  const nextContent = input.content;
+  const existingDraft = await findDraftChapterByChapterId(chapterId);
+  const nextContent = input.content ?? existingDraft?.content ?? chapter.content ?? '';
   const wordCount = nextContent ? countWords(nextContent) : chapter.wordCount;
   const nextIsVip = input.isVip ?? chapter.isVip;
   const nextPriceCoins = input.priceCoins ?? (nextIsVip ? chapter.priceCoins : 0);
   assertPremiumPricing({ isVip: nextIsVip, priceCoins: nextPriceCoins });
 
-  const updatedChapter = isPublishedPricingOnlyUpdate
-    ? await updateChapterPricing(chapterId, {
-        isVip: nextIsVip,
-        priceCoins: nextPriceCoins
-      })
-    : await updateChapterMetadata(chapterId, {
-        title: input.title,
-        wordCount,
-        isVip: nextIsVip,
-        priceCoins: nextPriceCoins
-      });
+  const isPublishedDraftUpdate =
+    chapter.status === 'PUBLISHED' && (input.title !== undefined || input.content !== undefined) && !isPublishedPricingOnlyUpdate;
+
+  let updatedChapter;
+
+  if (isPublishedDraftUpdate) {
+    updatedChapter =
+      input.isVip !== undefined || input.priceCoins !== undefined
+        ? await updateChapterPricing(chapterId, {
+            isVip: nextIsVip,
+            priceCoins: nextPriceCoins
+          })
+        : chapter;
+  } else if (isPublishedPricingOnlyUpdate) {
+    updatedChapter = await updateChapterPricing(chapterId, {
+      isVip: nextIsVip,
+      priceCoins: nextPriceCoins
+    });
+  } else {
+    updatedChapter = await updateChapterMetadata(chapterId, {
+      title: input.title,
+      wordCount,
+      isVip: nextIsVip,
+      priceCoins: nextPriceCoins
+    });
+  }
 
   if (!updatedChapter) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
 
-  let draft = await findDraftChapterByChapterId(chapterId);
+  let draft = existingDraft;
 
-  if (nextContent) {
+  if (input.title !== undefined || input.content !== undefined) {
+    if (!nextContent) {
+      throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+    }
+
     draft = await upsertDraftChapter({
       chapterId,
       novelId: chapter.novelId,
@@ -177,7 +197,7 @@ export async function submitChapterPublish(auth: AuthContext, chapterId: string)
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
 
-  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION'].includes(chapter.status)) {
+  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'].includes(chapter.status)) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
 

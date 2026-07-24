@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ephurin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ephurin"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      API_PREFIX: /api/v1
+      WEB_ORIGIN: http://localhost:8080
+      DB_CONNECT_ON_START: "true"
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ephurin
+      MONGODB_URI: mongodb://mongodb:27017/ephurin
+      JWT_ACCESS_SECRET: docker-demo-access-secret-change-me
+      JWT_REFRESH_SECRET: docker-demo-refresh-secret-change-me
+      JWT_ACCESS_EXPIRES_SECONDS: 3600
+      JWT_REFRESH_EXPIRES_DAYS: 7
+      REFRESH_TOKEN_COOKIE_NAME: ephurin_refresh_token
+      AI_LLM_BASE_URL: ${AI_LLM_BASE_URL:-https://foreseeable-kaliyah-fleshier.ngrok-free.dev/v1}
+      AI_LLM_API_KEY: ${AI_LLM_API_KEY:-}
+      AI_LLM_MODEL: ${AI_LLM_MODEL:-qwen3:8b}
+      AI_LLM_TIMEOUT_MS: ${AI_LLM_TIMEOUT_MS:-120000}
+      AI_LLM_MAX_TOKENS: ${AI_LLM_MAX_TOKENS:-1000}
+      AI_LLM_TEMPERATURE: ${AI_LLM_TEMPERATURE:-0.7}
+      RUN_MIGRATIONS: "true"
+      RUN_DEMO_SEED: "true"
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  mongodb_data:

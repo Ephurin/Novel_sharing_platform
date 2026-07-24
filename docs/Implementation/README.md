@@ -34,6 +34,7 @@ Use it as the working checklist before creating `backend/`, `web/`, and later `m
 | `phase-9-mobile-reader-app-checklist.md` | Mobile Reader App implementation and Android Expo Go review checklist. |
 | `phase-9-5-authoring-context-core-checklist.md` | Non-AI Authoring Context Core: character profiles, relationships, timeline events, and plot summaries. |
 | `phase-9-6-admin-novel-management-checklist.md` | Admin novel catalog management and reversible soft removal with Author notification. |
+| `../Deployment/docker-local.md` | Local Docker deployment guide with PostgreSQL, MongoDB, backend, web, and demo seed data. |
 | Phase 10 planned | AI/Copilot as a separate FastAPI service after Authoring Context Core is stable. |
 
 ## Source Documents

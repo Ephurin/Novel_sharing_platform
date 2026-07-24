@@ -772,6 +772,15 @@ function CommentCard({
       await queryClient.invalidateQueries({ queryKey: ['reader-comments', chapterId] });
     }
   });
+  const reportMutation = useMutation({
+    mutationFn: () =>
+      reportContent({
+        targetType: 'COMMENT',
+        targetId: comment.commentId,
+        reason: 'Reader report',
+        description: 'Reader reported this comment from the chapter comment list.'
+      })
+  });
 
   return (
     <Paper p="sm" withBorder>
@@ -799,11 +808,24 @@ function CommentCard({
           <Button size="compact-xs" color="red" variant="subtle" loading={deleting} onClick={onDelete}>
             Delete
           </Button>
+          <Button size="compact-xs" color="orange" variant="subtle" loading={reportMutation.isPending} onClick={() => reportMutation.mutate()}>
+            Report
+          </Button>
         </Group>
       </Group>
       {updateMutation.isError ? (
         <Alert color="red" mt="sm">
           {getApiErrorMessage(updateMutation.error)}
+        </Alert>
+      ) : null}
+      {reportMutation.isSuccess ? (
+        <Alert color="yellow" mt="sm">
+          Comment report submitted.
+        </Alert>
+      ) : null}
+      {reportMutation.isError ? (
+        <Alert color="red" mt="sm">
+          {getApiErrorMessage(reportMutation.error)}
         </Alert>
       ) : null}
     </Paper>

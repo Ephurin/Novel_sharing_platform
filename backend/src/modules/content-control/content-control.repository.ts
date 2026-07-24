@@ -140,6 +140,40 @@ export async function countReportsForReview(reviewId: string) {
   return result.rows[0]?.total ?? 0;
 }
 
+export async function listReportsForReview(reviewId: string) {
+  const result = await getPostgresPool().query(
+    `
+      select *
+      from reports
+      where review_id = $1
+      order by created_at asc
+    `,
+    [reviewId]
+  );
+
+  return result.rows;
+}
+
+export async function resolveReportsForReview(input: {
+  reviewId: string;
+  resolvedBy: string;
+  status: 'RESOLVED' | 'REJECTED';
+  resolution?: string;
+}) {
+  await getPostgresPool().query(
+    `
+      update reports
+      set status = $2,
+          resolved_by = $3,
+          resolved_at = now(),
+          resolution = $4,
+          updated_at = now()
+      where review_id = $1 and status = 'OPEN'
+    `,
+    [input.reviewId, input.status, input.resolvedBy, input.resolution ?? null]
+  );
+}
+
 export async function resolveReview(input: {
   reviewId: string;
   status: ModerationStatus;

@@ -152,6 +152,12 @@ Get a moderation review detail including safe evidence summary.
 
 Resolve a moderation review and propagate the decision to the owner service.
 
+For `source = USER_REPORT` and `targetType = COMMENT`:
+
+- `APPROVED` means the user report is accepted, so the target comment is soft-deleted and hidden from public comment lists.
+- `REJECTED` means the user report is rejected, so the target comment remains unchanged.
+- Both outcomes create notifications for the reporter(s) and the comment owner.
+
 **Auth:** Required  
 **Roles:** Admin
 

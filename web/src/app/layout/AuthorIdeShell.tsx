@@ -223,10 +223,6 @@ export function AuthorIdeShell() {
         priceCoins: isChapterVip ? chapterPriceCoins : 0
       };
 
-      if (currentChapter?.status === 'PUBLISHED') {
-        return updateChapter(chapterId, pricingPayload);
-      }
-
       return updateChapter(chapterId, {
         title: chapterTitle,
         content: editorContent,
@@ -1032,7 +1028,7 @@ function EditorWorkspace({
         />
         <Group gap={6} mt="xs">
           {isVip ? <Badge color="yellow">VIP {priceCoins} coins</Badge> : <Badge color="green">Free</Badge>}
-          {chapter?.status === 'PUBLISHED' ? <Badge color="gray">Content locked, pricing editable</Badge> : null}
+          {chapter?.status === 'PUBLISHED' ? <Badge color="gray">Published changes save as draft</Badge> : null}
         </Group>
         <Button
           size="xs"
