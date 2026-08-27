@@ -1,0 +1,346 @@
+{
+  "info": {
+    "name": "Ephurin Phase 9.5 - Authoring Context Core APIs",
+    "_postman_id": "d68a060d-44f1-4a9b-9f5a-authoring-context",
+    "description": "Review collection for Phase 9.5. Logs in reader03 as AUTHOR, creates a temporary novel/chapter, then tests character, relationship, timeline event, and plot summary CRUD.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" },
+    { "key": "authorIdentifier", "value": "reader03" },
+    { "key": "readerIdentifier", "value": "reader04" },
+    { "key": "password", "value": "StrongPassword123!" },
+    { "key": "authorToken", "value": "" },
+    { "key": "readerToken", "value": "" },
+    { "key": "novelId", "value": "" },
+    { "key": "chapterId", "value": "" },
+    { "key": "characterAId", "value": "" },
+    { "key": "characterBId", "value": "" },
+    { "key": "relationshipId", "value": "" },
+    { "key": "timelineEventId", "value": "" },
+    { "key": "novelSummaryId", "value": "" },
+    { "key": "arcSummaryId", "value": "" },
+    { "key": "chapterSummaryId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "00 Auth - Login AUTHOR reader03",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"{{authorIdentifier}}\",\n  \"password\": \"{{password}}\"\n}" },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('author login returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('role is AUTHOR', () => pm.expect(json.data.user.role).to.eql('AUTHOR'));",
+        "pm.collectionVariables.set('authorToken', json.data.accessToken);"
+      ] } }]
+    },
+    {
+      "name": "01 Auth - Login READER reader04",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"{{readerIdentifier}}\",\n  \"password\": \"{{password}}\"\n}" },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('reader login returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('role is READER', () => pm.expect(json.data.user.role).to.eql('READER'));",
+        "pm.collectionVariables.set('readerToken', json.data.accessToken);"
+      ] } }]
+    },
+    {
+      "name": "02 Setup - Create Temporary Novel",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Phase 9.5 Context Review {{$timestamp}}\",\n  \"synopsis\": \"Temporary novel created for authoring context API review.\",\n  \"genre\": \"Fantasy\",\n  \"tags\": [\"phase-9-5\"]\n}" },
+        "url": { "raw": "{{baseUrl}}/novels", "host": ["{{baseUrl}}"], "path": ["novels"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('novel created', () => pm.response.to.have.status(201));",
+        "pm.collectionVariables.set('novelId', json.data.novelId);"
+      ] } }]
+    },
+    {
+      "name": "03 Setup - Create Chapter",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Chapter One\",\n  \"content\": \"The archive door opened under a violet moon.\",\n  \"isVip\": false,\n  \"priceCoins\": 0\n}" },
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/chapters", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "chapters"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('chapter created', () => pm.response.to.have.status(201));",
+        "pm.collectionVariables.set('chapterId', json.data.chapterId);"
+      ] } }]
+    },
+    {
+      "name": "04 Characters - Create Protagonist",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Liora Test\",\n  \"role\": \"PROTAGONIST\",\n  \"description\": \"A test protagonist for Phase 9.5.\",\n  \"personality\": \"Curious and stubborn.\",\n  \"notes\": \"Created by Postman.\",\n  \"source\": \"AUTHOR_MANUAL\"\n}" },
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/characters", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "characters"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('character created', () => pm.response.to.have.status(201));",
+        "pm.test('character has name', () => pm.expect(json.data.name).to.eql('Liora Test'));",
+        "pm.collectionVariables.set('characterAId', json.data.characterId);"
+      ] } }]
+    },
+    {
+      "name": "05 Characters - Create Supporting",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Maren Test\",\n  \"role\": \"SUPPORTING\",\n  \"description\": \"A test supporting character.\",\n  \"source\": \"AUTHOR_MANUAL\"\n}" },
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/characters", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "characters"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('second character created', () => pm.response.to.have.status(201));",
+        "pm.collectionVariables.set('characterBId', json.data.characterId);"
+      ] } }]
+    },
+    {
+      "name": "06 Characters - List",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/characters", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "characters"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('characters list returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('characters contain created records', () => pm.expect(json.data.map((item) => item.characterId)).to.include(pm.collectionVariables.get('characterAId')));"
+      ] } }]
+    },
+    {
+      "name": "07 Characters - Update",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Liora Test Updated\",\n  \"notes\": \"Updated by Postman.\"\n}" },
+        "url": { "raw": "{{baseUrl}}/characters/{{characterAId}}", "host": ["{{baseUrl}}"], "path": ["characters", "{{characterAId}}"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('character updated', () => pm.response.to.have.status(200));",
+        "pm.test('name changed', () => pm.expect(json.data.name).to.eql('Liora Test Updated'));"
+      ] } }]
+    },
+    {
+      "name": "08 Relationships - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"sourceCharacterId\": \"{{characterAId}}\",\n  \"targetCharacterId\": \"{{characterBId}}\",\n  \"relationshipType\": \"MENTOR\",\n  \"description\": \"Maren teaches Liora archive rules.\"\n}" },
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/character-relationships", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "character-relationships"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('relationship created', () => pm.response.to.have.status(201));",
+        "pm.test('relationship type is MENTOR', () => pm.expect(json.data.relationshipType).to.eql('MENTOR'));",
+        "pm.collectionVariables.set('relationshipId', json.data.relationshipId);"
+      ] } }]
+    },
+    {
+      "name": "09 Relationships - List",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/character-relationships", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "character-relationships"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('relationships list returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('relationship appears', () => pm.expect(json.data.map((item) => item.relationshipId)).to.include(pm.collectionVariables.get('relationshipId')));"
+      ] } }]
+    },
+    {
+      "name": "10 Timeline - Create Linked Event",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Archive door opens\",\n  \"eventOrder\": 1,\n  \"chapterId\": \"{{chapterId}}\",\n  \"summary\": \"Liora and Maren enter the archive together.\",\n  \"source\": \"AUTHOR_MANUAL\"\n}" },
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/timeline-events", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "timeline-events"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('timeline event created', () => pm.response.to.have.status(201));",
+        "pm.test('chapter link is preserved', () => pm.expect(json.data.chapterId).to.eql(pm.collectionVariables.get('chapterId')));",
+        "pm.collectionVariables.set('timelineEventId', json.data.eventId);"
+      ] } }]
+    },
+    {
+      "name": "11 Timeline - Update",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"eventOrder\": 2,\n  \"summary\": \"The archive door opens and reveals a hidden chamber.\"\n}" },
+        "url": { "raw": "{{baseUrl}}/timeline-events/{{timelineEventId}}", "host": ["{{baseUrl}}"], "path": ["timeline-events", "{{timelineEventId}}"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('timeline event updated', () => pm.response.to.have.status(200));",
+        "pm.test('event order changed', () => pm.expect(json.data.eventOrder).to.eql(2));"
+      ] } }]
+    },
+    {
+      "name": "12 Timeline - List Ordered",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/timeline-events", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "timeline-events"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('timeline list returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('timeline appears ordered', () => pm.expect(json.data[0].eventOrder).to.be.at.most(json.data[json.data.length - 1].eventOrder));"
+      ] } }]
+    },
+    {
+      "name": "13 Summaries - Upsert Novel Summary",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"scope\": \"NOVEL\",\n  \"summary\": \"A temporary novel summary for Phase 9.5 review.\",\n  \"source\": \"AUTHOR_MANUAL\"\n}" },
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/plot-summaries", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "plot-summaries"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('novel summary saved', () => pm.expect([200, 201]).to.include(pm.response.code));",
+        "pm.test('scope is NOVEL', () => pm.expect(json.data.scope).to.eql('NOVEL'));",
+        "pm.collectionVariables.set('novelSummaryId', json.data.summaryId);"
+      ] } }]
+    },
+    {
+      "name": "14 Summaries - Create Arc Summary",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"scope\": \"ARC\",\n  \"arcName\": \"Review Arc\",\n  \"startChapterNumber\": 1,\n  \"endChapterNumber\": 1,\n  \"summary\": \"A test arc summary.\",\n  \"source\": \"AUTHOR_MANUAL\"\n}" },
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/plot-summaries", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "plot-summaries"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('arc summary saved', () => pm.expect([200, 201]).to.include(pm.response.code));",
+        "pm.test('scope is ARC', () => pm.expect(json.data.scope).to.eql('ARC'));",
+        "pm.collectionVariables.set('arcSummaryId', json.data.summaryId);"
+      ] } }]
+    },
+    {
+      "name": "15 Summaries - Create Chapter Summary",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authorToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"scope\": \"CHAPTER\",\n  \"chapterId\": \"{{chapterId}}\",\n  \"summary\": \"The first chapter introduces the archive.\",\n  \"source\": \"AUTHOR_MANUAL\"\n}" },
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/plot-summaries", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "plot-summaries"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('chapter summary saved', () => pm.expect([200, 201]).to.include(pm.response.code));",
+        "pm.test('scope is CHAPTER', () => pm.expect(json.data.scope).to.eql('CHAPTER'));",
+        "pm.collectionVariables.set('chapterSummaryId', json.data.summaryId);"
+      ] } }]
+    },
+    {
+      "name": "16 Summaries - List",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/plot-summaries", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "plot-summaries"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "const json = pm.response.json();",
+        "pm.test('summary list returns 200', () => pm.response.to.have.status(200));",
+        "pm.test('summary scopes exist', () => pm.expect(json.data.map((item) => item.scope)).to.include.members(['NOVEL', 'ARC', 'CHAPTER']));"
+      ] } }]
+    },
+    {
+      "name": "17 AuthZ - Reader Cannot Read Author Context",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/characters", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "characters"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('reader receives forbidden', () => pm.response.to.have.status(403));"
+      ] } }]
+    },
+    {
+      "name": "18 Cleanup - Delete Timeline Event",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": { "raw": "{{baseUrl}}/timeline-events/{{timelineEventId}}", "host": ["{{baseUrl}}"], "path": ["timeline-events", "{{timelineEventId}}"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('timeline delete returns 204', () => pm.response.to.have.status(204));"
+      ] } }]
+    },
+    {
+      "name": "19 Cleanup - Delete Relationship",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": { "raw": "{{baseUrl}}/character-relationships/{{relationshipId}}", "host": ["{{baseUrl}}"], "path": ["character-relationships", "{{relationshipId}}"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('relationship delete returns 204', () => pm.response.to.have.status(204));"
+      ] } }]
+    },
+    {
+      "name": "20 Cleanup - Archive Character",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authorToken}}" }],
+        "url": { "raw": "{{baseUrl}}/characters/{{characterAId}}", "host": ["{{baseUrl}}"], "path": ["characters", "{{characterAId}}"] }
+      },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('character archive returns 204', () => pm.response.to.have.status(204));"
+      ] } }]
+    }
+  ]
+}

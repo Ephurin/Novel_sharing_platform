@@ -1,0 +1,360 @@
+{
+  "info": {
+    "name": "Ephurin Phase 4 - Content Control + Interaction",
+    "_postman_id": "97a0c458-333c-4b83-9974-phase4review",
+    "description": "Postman collection for Phase 4 review only. Requires existing users reader02/admin, reader03/author, reader04/reader and an existing chapterId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" },
+    { "key": "adminIdentifier", "value": "reader02" },
+    { "key": "authorIdentifier", "value": "reader03" },
+    { "key": "readerIdentifier", "value": "reader04" },
+    { "key": "password", "value": "StrongPassword123!" },
+    { "key": "chapterId", "value": "PASTE_EXISTING_CHAPTER_UUID_HERE" },
+    { "key": "adminToken", "value": "" },
+    { "key": "authorToken", "value": "" },
+    { "key": "readerToken", "value": "" },
+    { "key": "adminUserId", "value": "" },
+    { "key": "authorUserId", "value": "" },
+    { "key": "readerUserId", "value": "" },
+    { "key": "directCheckReviewId", "value": "" },
+    { "key": "cleanCommentId", "value": "" },
+    { "key": "flaggedCommentId", "value": "" },
+    { "key": "flaggedReviewId", "value": "" },
+    { "key": "reportId", "value": "" },
+    { "key": "reportReviewId", "value": "" },
+    { "key": "deleteCommentId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "00 Auth - Login ADMIN reader02",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{adminIdentifier}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('ADMIN login returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('reader02 role is ADMIN', () => pm.expect(json.data.user.role).to.eql('ADMIN'));",
+            "pm.collectionVariables.set('adminToken', json.data.accessToken);",
+            "pm.collectionVariables.set('adminUserId', json.data.user.userId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "01 Auth - Login AUTHOR reader03",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{authorIdentifier}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('AUTHOR login returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('reader03 role is AUTHOR', () => pm.expect(json.data.user.role).to.eql('AUTHOR'));",
+            "pm.collectionVariables.set('authorToken', json.data.accessToken);",
+            "pm.collectionVariables.set('authorUserId', json.data.user.userId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "02 Auth - Login READER reader04",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{readerIdentifier}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('READER login returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('reader04 role is READER', () => pm.expect(json.data.user.role).to.eql('READER'));",
+            "pm.collectionVariables.set('readerToken', json.data.accessToken);",
+            "pm.collectionVariables.set('readerUserId', json.data.user.userId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "03 Content Control - Admin Direct Keyword Check",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"targetType\": \"CHAPTER\",\n  \"targetId\": \"{{chapterId}}\",\n  \"content\": \"This sample contains badword for keyword filter testing.\",\n  \"submittedBy\": \"{{authorUserId}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/content-control/check", "host": ["{{baseUrl}}"], "path": ["content-control", "check"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('keyword check returns NEED_ADMIN_REVIEW', () => pm.expect(json.data.result).to.eql('NEED_ADMIN_REVIEW'));",
+            "pm.test('moderation review is created', () => pm.expect(json.data.moderationReviewId).to.be.a('string').and.not.empty);",
+            "pm.collectionVariables.set('directCheckReviewId', json.data.moderationReviewId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "04 Comments - Create Clean Comment",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Lovely chapter. The pacing feels good.\",\n  \"paragraphOffset\": 1\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/chapters/{{chapterId}}/comments", "host": ["{{baseUrl}}"], "path": ["chapters", "{{chapterId}}", "comments"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('clean comment returns 201', () => pm.response.to.have.status(201));",
+            "pm.test('clean comment is APPROVED', () => pm.expect(json.data.status).to.eql('APPROVED'));",
+            "pm.collectionVariables.set('cleanCommentId', json.data.commentId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "05 Comments - Create Flagged Comment",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"This contains badword and should be moderated.\",\n  \"paragraphOffset\": 1\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/chapters/{{chapterId}}/comments", "host": ["{{baseUrl}}"], "path": ["chapters", "{{chapterId}}", "comments"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('flagged comment returns 201', () => pm.response.to.have.status(201));",
+            "pm.test('flagged comment is PENDING_MODERATION', () => pm.expect(json.data.status).to.eql('PENDING_MODERATION'));",
+            "pm.test('flagged comment has moderationReviewId', () => pm.expect(json.data.moderationReviewId).to.be.a('string').and.not.empty);",
+            "pm.collectionVariables.set('flaggedCommentId', json.data.commentId);",
+            "pm.collectionVariables.set('flaggedReviewId', json.data.moderationReviewId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "06 Comments - Public List Shows Approved Only",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/chapters/{{chapterId}}/comments?page=1&limit=20", "host": ["{{baseUrl}}"], "path": ["chapters", "{{chapterId}}", "comments"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const comments = json.data || [];",
+            "pm.test('comment list returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('clean comment is visible', () => pm.expect(comments.some(c => c.commentId === pm.collectionVariables.get('cleanCommentId'))).to.eql(true));",
+            "pm.test('flagged pending comment is hidden', () => pm.expect(comments.some(c => c.commentId === pm.collectionVariables.get('flaggedCommentId'))).to.eql(false));",
+            "pm.test('all public comments are APPROVED', () => comments.forEach(c => pm.expect(c.status).to.eql('APPROVED')));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "07 Reports - Reader Reports Flagged Comment",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"targetType\": \"COMMENT\",\n  \"targetId\": \"{{flaggedCommentId}}\",\n  \"reason\": \"HARASSMENT\",\n  \"description\": \"Reader reports this comment during Phase 4 review.\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/reports", "host": ["{{baseUrl}}"], "path": ["reports"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('report returns 201', () => pm.response.to.have.status(201));",
+            "pm.test('report status is PENDING', () => pm.expect(json.data.status).to.eql('PENDING'));",
+            "pm.collectionVariables.set('reportId', json.data.reportId);",
+            "pm.collectionVariables.set('reportReviewId', json.data.moderationReviewId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "08 Admin Moderation - List Pending Reviews",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": { "raw": "{{baseUrl}}/admin/moderation/reviews?status=PENDING&page=1&limit=20", "host": ["{{baseUrl}}"], "path": ["admin", "moderation", "reviews"], "query": [{ "key": "status", "value": "PENDING" }, { "key": "page", "value": "1" }, { "key": "limit", "value": "20" }] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const reviews = json.data || [];",
+            "pm.test('pending review list returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('flagged review appears in pending queue', () => pm.expect(reviews.some(r => r.reviewId === pm.collectionVariables.get('flaggedReviewId'))).to.eql(true));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "09 Admin Moderation - Get Flagged Review Detail",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": { "raw": "{{baseUrl}}/admin/moderation/reviews/{{flaggedReviewId}}", "host": ["{{baseUrl}}"], "path": ["admin", "moderation", "reviews", "{{flaggedReviewId}}"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('review detail returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('review detail has evidenceSummary', () => pm.expect(json.data.evidenceSummary).to.be.an('object'));",
+            "pm.test('keyword review contains matched rules', () => pm.expect(json.data.evidenceSummary.matchedRules.length).to.be.greaterThan(0));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "10 Admin Moderation - Resolve Flagged Comment",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"REJECTED\",\n  \"reason\": \"Content violates demo keyword policy.\",\n  \"action\": \"HIDE_CONTENT\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/admin/moderation/reviews/{{flaggedReviewId}}/resolve", "host": ["{{baseUrl}}"], "path": ["admin", "moderation", "reviews", "{{flaggedReviewId}}", "resolve"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('resolve returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('review becomes REJECTED', () => pm.expect(json.data.status).to.eql('REJECTED'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "11 Comments - Update Clean Comment To Flagged",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Updated comment now contains harassment keyword.\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/comments/{{cleanCommentId}}", "host": ["{{baseUrl}}"], "path": ["comments", "{{cleanCommentId}}"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('update returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('updated comment becomes PENDING_MODERATION', () => pm.expect(json.data.status).to.eql('PENDING_MODERATION'));",
+            "pm.test('updated comment has moderation review', () => pm.expect(json.data.moderationReviewId).to.be.a('string').and.not.empty);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "12 Comments - Create Comment For Delete",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Temporary comment to delete.\",\n  \"paragraphOffset\": 2\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/chapters/{{chapterId}}/comments", "host": ["{{baseUrl}}"], "path": ["chapters", "{{chapterId}}", "comments"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('delete target comment created', () => pm.response.to.have.status(201));",
+            "pm.collectionVariables.set('deleteCommentId', json.data.commentId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "13 Comments - Delete Own Comment",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/comments/{{deleteCommentId}}", "host": ["{{baseUrl}}"], "path": ["comments", "{{deleteCommentId}}"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('delete returns 204', () => pm.response.to.have.status(204));"
+          ]
+        }
+      }]
+    }
+  ]
+}

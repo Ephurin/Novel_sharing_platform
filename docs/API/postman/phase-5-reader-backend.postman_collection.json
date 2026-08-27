@@ -1,0 +1,390 @@
+{
+  "info": {
+    "name": "Ephurin Phase 5 - Reader Backend APIs",
+    "_postman_id": "fd2d9658-444c-4a55-9b73-phase5reader",
+    "description": "Postman collection for Phase 5 review. Requires one published novel, one corresponding published non-VIP chapter, and the author's userId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" },
+    { "key": "readerIdentifier", "value": "reader04" },
+    { "key": "password", "value": "StrongPassword123!" },
+    { "key": "novelId", "value": "PASTE_PUBLISHED_NOVEL_UUID_HERE" },
+    { "key": "chapterId", "value": "PASTE_PUBLISHED_CHAPTER_UUID_HERE" },
+    { "key": "authorId", "value": "PASTE_AUTHOR_USER_UUID_HERE" },
+    { "key": "readerToken", "value": "" },
+    { "key": "readerUserId", "value": "" },
+    { "key": "likesCountAfterLike", "value": "" },
+    { "key": "followersCountAfterFollow", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "00 Auth - Login READER reader04",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"{{readerIdentifier}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('READER login returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('reader04 role is READER', () => pm.expect(json.data.user.role).to.eql('READER'));",
+            "pm.collectionVariables.set('readerToken', json.data.accessToken);",
+            "pm.collectionVariables.set('readerUserId', json.data.user.userId);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "01 Reading - Search Published Novels",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/reading/search?page=1&limit=20&sort=updatedAt&order=desc",
+          "host": ["{{baseUrl}}"],
+          "path": ["reading", "search"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "20" },
+            { "key": "sort", "value": "updatedAt" },
+            { "key": "order", "value": "desc" }
+          ]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const items = json.data || [];",
+            "pm.test('search returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('search response has pagination meta', () => pm.expect(json.meta).to.have.property('totalItems'));",
+            "const novelId = pm.variables.get('novelId');",
+            "pm.test('published novel appears in search', () => pm.expect(items.some(n => n.novelId === novelId)).to.eql(true));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "02 Reading - Get Reader Novel Detail",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/reading/novels/{{novelId}}", "host": ["{{baseUrl}}"], "path": ["reading", "novels", "{{novelId}}"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('novel detail returns 200', () => pm.response.to.have.status(200));",
+            "const novelId = pm.variables.get('novelId');",
+            "const chapterId = pm.variables.get('chapterId');",
+            "pm.collectionVariables.set('novelId', json.data.novelId);",
+            "pm.collectionVariables.set('authorId', json.data.authorId);",
+            "pm.test('novel detail matches requested novel', () => pm.expect(json.data.novelId).to.eql(novelId));",
+            "pm.test('novel detail includes published chapter', () => pm.expect((json.data.chapters || []).some(c => c.chapterId === chapterId)).to.eql(true));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "03 Reading - Get Reader Chapter Content",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/reading/chapters/{{chapterId}}", "host": ["{{baseUrl}}"], "path": ["reading", "chapters", "{{chapterId}}"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('chapter content returns 200', () => pm.response.to.have.status(200));",
+            "const chapterId = pm.variables.get('chapterId');",
+            "pm.collectionVariables.set('chapterId', json.data.chapterId);",
+            "pm.test('chapter detail matches requested chapter', () => pm.expect(json.data.chapterId).to.eql(chapterId));",
+            "pm.test('chapter content is exposed for non-VIP published chapter', () => pm.expect(json.data.content).to.be.a('string').and.not.empty);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "04 Reading - Get Preferences",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/reading/preferences/me", "host": ["{{baseUrl}}"], "path": ["reading", "preferences", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('get preferences returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('preferences contain fontSize', () => pm.expect(json.data).to.have.property('fontSize'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "05 Reading - Update Preferences",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fontFamily\": \"serif\",\n  \"fontSize\": 18,\n  \"background\": \"DARK\",\n  \"lineHeight\": 1.6\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/reading/preferences/me", "host": ["{{baseUrl}}"], "path": ["reading", "preferences", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('update preferences returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('background is saved as DARK', () => pm.expect(json.data.background).to.eql('DARK'));",
+            "pm.test('lineHeight is saved', () => pm.expect(json.data.lineHeight).to.eql(1.6));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "06 Reading - Sync History",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"novelId\": \"{{novelId}}\",\n  \"chapterId\": \"{{chapterId}}\",\n  \"paragraphIndex\": 2,\n  \"pageOffset\": 0.5\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/reading/history/me", "host": ["{{baseUrl}}"], "path": ["reading", "history", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('sync history returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('history sync is true', () => pm.expect(json.data.synced).to.eql(true));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "07 Reading - List History",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/reading/history/me?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["reading", "history", "me"],
+          "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const items = json.data || [];",
+            "pm.test('history list returns 200', () => pm.response.to.have.status(200));",
+            "const novelId = pm.variables.get('novelId');",
+            "pm.test('history contains synced novel', () => pm.expect(items.some(h => h.novelId === novelId)).to.eql(true));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "08 Reading - Get History Detail",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/reading/history/me/{{novelId}}", "host": ["{{baseUrl}}"], "path": ["reading", "history", "me", "{{novelId}}"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('history detail returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('history detail has latest paragraph index', () => pm.expect(json.data.paragraphIndex).to.eql(2));",
+            "pm.test('history detail has latest page offset', () => pm.expect(json.data.pageOffset).to.eql(0.5));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "09 Reading - Add To Library",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{readerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"novelId\": \"{{novelId}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/reading/library/me", "host": ["{{baseUrl}}"], "path": ["reading", "library", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('add library returns 201 or conflict if already added', () => pm.expect([201, 409]).to.include(pm.response.code));",
+            "if (pm.response.code === 201) { pm.test('library add returns bookmarked true', () => pm.expect(json.data.bookmarked).to.eql(true)); }"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "10 Reading - List Library",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/reading/library/me?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["reading", "library", "me"],
+          "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "const items = json.data || [];",
+            "pm.test('library list returns 200', () => pm.response.to.have.status(200));",
+            "const novelId = pm.variables.get('novelId');",
+            "pm.test('library contains target novel', () => pm.expect(items.some(n => n.novelId === novelId)).to.eql(true));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "11 Interactions - Like Novel",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/likes", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "likes"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('like returns 200 or conflict if already liked', () => pm.expect([200, 409]).to.include(pm.response.code));",
+            "if (pm.response.code === 200) {",
+            "  pm.test('like response says liked true', () => pm.expect(json.data.liked).to.eql(true));",
+            "  pm.collectionVariables.set('likesCountAfterLike', String(json.data.likesCount));",
+            "}"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "12 Interactions - Unlike Novel",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/novels/{{novelId}}/likes/me", "host": ["{{baseUrl}}"], "path": ["novels", "{{novelId}}", "likes", "me"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('unlike returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('unlike response says liked false', () => pm.expect(json.data.liked).to.eql(false));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "13 Interactions - Follow Author",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/authors/{{authorId}}/follow", "host": ["{{baseUrl}}"], "path": ["authors", "{{authorId}}", "follow"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('follow returns 200 or conflict if already followed', () => pm.expect([200, 409]).to.include(pm.response.code));",
+            "if (pm.response.code === 200) { pm.test('follow response says following true', () => pm.expect(json.data.following).to.eql(true)); }"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "14 Interactions - Follower Count",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/authors/{{authorId}}/followers/count", "host": ["{{baseUrl}}"], "path": ["authors", "{{authorId}}", "followers", "count"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('follower count returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('follower count is numeric', () => pm.expect(json.data.followersCount).to.be.a('number'));",
+            "pm.collectionVariables.set('followersCountAfterFollow', String(json.data.followersCount));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "15 Interactions - Unfollow Author",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/authors/{{authorId}}/follow", "host": ["{{baseUrl}}"], "path": ["authors", "{{authorId}}", "follow"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "const json = pm.response.json();",
+            "pm.test('unfollow returns 200', () => pm.response.to.have.status(200));",
+            "pm.test('unfollow response says following false', () => pm.expect(json.data.following).to.eql(false));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "16 Reading - Remove From Library",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{readerToken}}" }],
+        "url": { "raw": "{{baseUrl}}/reading/library/me/{{novelId}}", "host": ["{{baseUrl}}"], "path": ["reading", "library", "me", "{{novelId}}"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('remove library returns 204', () => pm.response.to.have.status(204));"
+          ]
+        }
+      }]
+    }
+  ]
+}
