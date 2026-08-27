@@ -11,6 +11,7 @@
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Kiến trúc hiện tại, dữ liệu, pipeline và kiến trúc đích |
 | [ROADMAP.md](ROADMAP.md) | Thứ tự phát triển và exit criteria |
 | [UX.md](UX.md) | Kiến trúc thông tin và nguyên tắc trải nghiệm viết |
+| [PIPELINE.md](PIPELINE.md) | Sơ đồ hóa toàn bộ pipeline: bootstrap, import, writing loop, analysis, generation |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Quy tắc mở rộng hệ thống và chuẩn chất lượng |
 | [API reference](../ai-service/docs/API_DOC.md) | Endpoint của FastAPI AI service |
 
