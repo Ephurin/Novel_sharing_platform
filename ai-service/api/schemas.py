@@ -22,6 +22,59 @@ class ConsistencyWarning(BaseModel):
     message: str
 
 
+class RevisionAnalysisOptions(BaseModel):
+    extract_entities: bool = True
+    extract_events: bool = True
+    extract_state_transitions: bool = False
+    check_consistency: bool = True
+    build_embeddings: bool = False
+
+
+class RevisionAnalysisRequest(BaseModel):
+    novel_id: str = Field(..., min_length=1)
+    chapter_id: str = Field(..., min_length=1)
+    content_hash: str = Field(..., min_length=64, max_length=64)
+    operation: str = "incremental_story_analysis"
+    base_revision_id: str | None = None
+    options: RevisionAnalysisOptions = Field(default_factory=RevisionAnalysisOptions)
+
+
+class ProposalDecisionRequest(BaseModel):
+    expected_brain_version: int = Field(..., ge=1)
+
+
+class ProposalRejectRequest(BaseModel):
+    reason: str | None = None
+
+
+class ProposalEditAcceptRequest(ProposalDecisionRequest):
+    edited_payload: dict
+    reason: str | None = None
+
+
+class ProposalGroupAcceptRequest(ProposalDecisionRequest):
+    proposal_ids: list[str] = Field(..., min_length=1)
+    reason: str | None = None
+
+
+class CorrectionEventPayload(BaseModel):
+    event_type: str = Field(min_length=1)
+    summary: str = Field(min_length=1)
+    participants: list[str] = Field(default_factory=list)
+    chapter: int = Field(default=1, ge=1)
+
+
+class CorrectionTransitionPayload(BaseModel):
+    entity_id: str = Field(min_length=1)
+    attribute_key: str = Field(min_length=1, max_length=100)
+    new_value: object
+
+
+class EventCorrectionRequest(ProposalDecisionRequest):
+    replacement: CorrectionEventPayload
+    transitions: list[CorrectionTransitionPayload] = Field(default_factory=list)
+
+
 # ──────────────────────────────────────────────
 #  /extract-entities
 # ──────────────────────────────────────────────

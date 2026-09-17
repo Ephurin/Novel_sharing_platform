@@ -1,137 +1,124 @@
-"""
-Event Summarizer Service
-========================
-Uses LLM to extract and summarize events from narrative text, matching them against approved entities.
-"""
+import json
 import logging
-import uuid
 import re
-from typing import List, Dict, Any
+import uuid
 from datetime import datetime, timezone
+from typing import Any
 
+from pydantic import ValidationError
+
+from core.exceptions import EventExtractionError
 from core.story_kb_manager import EventHistoryEntry
+from core.structured_outputs import EventExtractionOutput, NarrativeEventOutput, PipelineMetadata
+
 
 logger = logging.getLogger(__name__)
 
+
 def extract_narrative_events(
     text: str,
-    approved_entities: List[Dict[str, Any]],
-    llm_service,
-    chapter_num: int = 1
-) -> List[EventHistoryEntry]:
-    """
-    Extracts structured events from text using LLM, filtering/matching with approved entities.
-    """
+    approved_entities: list[dict[str, Any]],
+    llm_service: Any,
+    chapter_num: int = 1,
+    pipeline_version: str = "event-v1",
+    prompt_version: str = "event-extraction-v1",
+) -> list[EventHistoryEntry]:
     if not text or not text.strip():
         return []
 
-    # Get active/approved entity names for context
-    entity_names = []
-    for ent in approved_entities:
-        name = ent.get("normalized_name") or ent.get("raw_name") or ent.get("word") or ent.get("name")
-        if name:
-            entity_names.append(name)
-    
-    entity_names = list(set(entity_names))
+    entity_names = sorted(
+        {
+            str(name).strip()
+            for entity in approved_entities
+            if (name := entity.get("normalized_name") or entity.get("raw_name") or entity.get("word") or entity.get("name"))
+            and str(name).strip()
+        }
+    )
     if not entity_names:
         return []
-
-    entity_names_str = ", ".join(entity_names)
+    if llm_service is None:
+        raise EventExtractionError("LLM provider is unavailable")
 
     system_prompt = (
-        "You are an expert narrative analyst specializing in event extraction and narrative memory.\n"
-        "Your task is to identify and extract narrative EVENTS from the given text passage.\n"
-        "An event represents a significant narrative action, interaction, or development involving the entities.\n"
-        "Keep the event summaries concise but informative. Do not extract tiny, insignificant actions (like 'A walked 2 steps').\n"
-        "Only extract events involving the known entities listed in the prompt.\n"
-        "Return ONLY valid JSON. Required format:\n"
-        "{\n"
-        "  \"events\": [\n"
-        "    {\n"
-        "      \"participants\": [\"Entity A\", \"Entity B\"],\n"
-        "      \"locations\": [\"Location X\"],\n"
-        "      \"summary\": \"Concise Vietnamese summary of the event (e.g., Tiêu Trần cùng Lâm Nguyệt Nhi lao nhanh xuống núi để lánh nạn).\",\n"
-        "      \"event_type\": \"battle | movement | meeting | training | dialogue | general\",\n"
-        "      \"emotion_tags\": [\"fear\", \"anger\", \"revenge\", \"concern\", \"neutral\"],\n"
-        "      \"importance_score\": 0.8,\n"
-        "      \"consequences\": [\"Consequence A (e.g., Tiêu Trần lo lắng)\", \"Consequence B (e.g., Tiêu Gia bị đe dọa)\"]\n"
-        "    }\n"
-        "  ]\n"
-        "}\n"
-        "If no significant narrative events are found, return an empty events list."
+        "You are a narrative event extractor. Only extract significant events involving the supplied known entities. "
+        "Return only valid JSON with an 'events' array. Every event must contain participants, locations, summary, "
+        "event_type, emotion_tags, importance_score between 0 and 1, and consequences. Return an empty array when "
+        "there is no significant event."
     )
-
     user_prompt = (
         f"Text passage: {text.strip()}\n"
-        f"Known entities (ONLY extract events related to these): {entity_names_str}\n"
-        "Extract all narrative events."
+        f"Known entities: {', '.join(entity_names)}\n"
+        "Extract narrative events."
     )
 
     try:
-        raw_output = llm_service._call_llm(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt
-        )
+        raw_output = llm_service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
     except Exception as exc:
-        logger.error("LLM Event Summarization failed: %s", exc)
-        return []
+        raise EventExtractionError(f"provider call failed: {exc}") from exc
 
-    # Parse JSON output
-    cleaned = raw_output.strip()
-    if cleaned.startswith("```"):
-        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
-        cleaned = re.sub(r"\s*```$", "", cleaned)
-
-    parsed = llm_service._parse_json_like_output(cleaned)
-
-    raw_events = []
-    if isinstance(parsed, dict) and "events" in parsed:
-        raw_events = parsed["events"]
-    elif isinstance(parsed, list):
-        raw_events = parsed
-
-    results: List[EventHistoryEntry] = []
-    for raw in raw_events:
-        summary = raw.get("summary", "").strip()
-        if not summary:
-            continue
-
-        participants = [str(p).strip() for p in raw.get("participants", []) if str(p).strip()]
-        locations = [str(l).strip() for l in raw.get("locations", []) if str(l).strip()]
-        
-        # Filter participants to only those who are known entities or have a substring overlap
-        valid_participants = []
-        for p in participants:
-            p_lower = p.lower()
-            for known in entity_names:
-                if p_lower in known.lower() or known.lower() in p_lower:
-                    valid_participants.append(known)
-                    break
-        valid_participants = list(set(valid_participants))
-
-        # Check importance score
-        try:
-            importance = float(raw.get("importance_score", 0.5))
-        except (TypeError, ValueError):
-            importance = 0.5
-
-        # Consequences
-        consequences = [str(c).strip() for c in raw.get("consequences", []) if str(c).strip()]
-
-        entry = EventHistoryEntry(
-            event_id=f"evt_{uuid.uuid4().hex[:8]}",
-            chapter=chapter_num,
-            timestamp=datetime.now(timezone.utc).isoformat(),
-            participants=valid_participants if valid_participants else participants,
-            locations=locations,
-            summary=summary,
-            event_type=raw.get("event_type", "general"),
-            emotion_tags=raw.get("emotion_tags", []),
-            importance_score=importance,
-            consequences=consequences,
-            source="AI"
+    raw_events = _parse_items(raw_output, "events")
+    try:
+        extraction = EventExtractionOutput(
+            events=[NarrativeEventOutput.model_validate(item) for item in raw_events],
+            metadata=PipelineMetadata(
+                pipeline_version=pipeline_version,
+                model_name=str(getattr(llm_service, "model", "unknown") or "unknown"),
+                prompt_version=prompt_version,
+            ),
         )
-        results.append(entry)
+    except ValidationError as exc:
+        raise EventExtractionError(f"model output failed schema validation: {exc}") from exc
+
+    known_names = {name.casefold(): name for name in entity_names}
+    results: list[EventHistoryEntry] = []
+    for event in extraction.events:
+        participants = []
+        for participant in event.participants:
+            normalized_participant = participant.strip().casefold()
+            match = next(
+                (
+                    canonical
+                    for known, canonical in known_names.items()
+                    if normalized_participant in known or known in normalized_participant
+                ),
+                None,
+            )
+            if match and match not in participants:
+                participants.append(match)
+
+        results.append(
+            EventHistoryEntry(
+                event_id=f"evt_{uuid.uuid4().hex[:8]}",
+                chapter=chapter_num,
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                participants=participants or event.participants,
+                locations=event.locations,
+                summary=event.summary,
+                event_type=event.event_type,
+                emotion_tags=event.emotion_tags,
+                importance_score=event.importance_score,
+                consequences=event.consequences,
+                source="AI",
+            )
+        )
 
     logger.info("Event summarizer: extracted %d events from text", len(results))
     return results
+
+
+def _parse_items(raw_output: Any, key: str) -> list[Any]:
+    if raw_output is None or not str(raw_output).strip():
+        raise EventExtractionError("provider returned empty output")
+    cleaned = str(raw_output).strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+    try:
+        parsed = json.loads(cleaned)
+    except json.JSONDecodeError as exc:
+        raise EventExtractionError("model output is not valid JSON") from exc
+    if isinstance(parsed, list):
+        return parsed
+    if isinstance(parsed, dict) and isinstance(parsed.get(key), list):
+        return parsed[key]
+    raise EventExtractionError(f"model output must be an array or an object containing '{key}'")

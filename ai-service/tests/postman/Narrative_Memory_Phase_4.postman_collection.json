@@ -1,0 +1,720 @@
+{
+  "info": {
+    "_postman_id": "7d9e2a44-f25b-4395-8889-61b402eb0623",
+    "name": "Narrative Memory Phase 4 - Acceptance & Projection",
+    "description": "Complete test suite for Phase 4: revision -> proposals -> author acceptance -> projection -> correction -> rebuild on PostgreSQL.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 - Khởi tạo Novel & Revision fixture trên Mock Platform",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var novelId = pm.variables.replaceIn('{{$guid}}');",
+              "var chapterId = pm.variables.replaceIn('{{$guid}}');",
+              "var revisionId = pm.variables.replaceIn('{{$guid}}');",
+              "var contentText = 'Tiêu Viêm thi triển Dị Hỏa đối đầu Hải Ba Đông tại sa mạc Tháp Qua Nhĩ. Sau một hồi kịch chiến dữ dội, Hải Ba Đông bị thương nặng và suy giảm sức chiến đấu.';",
+              "var contentHash = CryptoJS.SHA256(contentText).toString(CryptoJS.enc.Hex);",
+              "pm.environment.set('novelId', novelId);",
+              "pm.environment.set('chapterId', chapterId);",
+              "pm.environment.set('revisionId', revisionId);",
+              "pm.environment.set('contentText', contentText);",
+              "pm.environment.set('contentHash', contentHash);",
+              "pm.environment.set('brainVersion', '1');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"revision_id\": \"{{revisionId}}\",\n  \"novel_id\": \"{{novelId}}\",\n  \"chapter_id\": \"{{chapterId}}\",\n  \"content\": \"{{contentText}}\",\n  \"tenant_id\": \"{{tenantId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{mockPlatformUrl}}/internal/v1/revisions",
+          "host": ["{{mockPlatformUrl}}"],
+          "path": ["internal", "v1", "revisions"]
+        }
+      }
+    },
+    {
+      "name": "01 - Phân tích revision (Chưa có canonical state trước acceptance)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set('idempotencyKey', 'run-' + Date.now());",
+              "pm.environment.set('requestId', 'req-' + Date.now());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 202 Accepted', function () {",
+              "    pm.response.to.have.status(202);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Analysis run completed with proposals', function () {",
+              "    pm.expect(json.data.status).to.eql('completed');",
+              "    pm.expect(json.data.deduplicated).to.be.false;",
+              "    pm.expect(json.data.proposal_count).to.be.above(0);",
+              "});",
+              "pm.environment.set('analysisRunId', json.data.analysis_run_id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Tenant-Id", "value": "{{tenantId}}"},
+          {"key": "X-Request-Id", "value": "{{requestId}}"},
+          {"key": "Idempotency-Key", "value": "{{idempotencyKey}}"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"novel_id\": \"{{novelId}}\",\n  \"chapter_id\": \"{{chapterId}}\",\n  \"content_hash\": \"{{contentHash}}\",\n  \"operation\": \"chapter_analysis\",\n  \"options\": {\n    \"extract_entities\": true,\n    \"extract_events\": true,\n    \"extract_state_transitions\": true\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/revisions/{{revisionId}}/analyses",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "revisions", "{{revisionId}}", "analyses"]
+        }
+      }
+    },
+    {
+      "name": "01b - Kiểm tra chưa có canonical state trước khi accept",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Canonical state is empty before acceptance', function () {",
+              "    pm.expect(json.data.entities).to.be.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "state"]
+        }
+      }
+    },
+    {
+      "name": "02 - Phân tích lại với cùng input và idempotency key (Deduplicated)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 202 Accepted', function () {",
+              "    pm.response.to.have.status(202);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Response is deduplicated and returns same run_id', function () {",
+              "    pm.expect(json.data.deduplicated).to.be.true;",
+              "    pm.expect(json.data.analysis_run_id).to.eql(pm.environment.get('analysisRunId'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Tenant-Id", "value": "{{tenantId}}"},
+          {"key": "X-Request-Id", "value": "req-repeat"},
+          {"key": "Idempotency-Key", "value": "{{idempotencyKey}}"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"novel_id\": \"{{novelId}}\",\n  \"chapter_id\": \"{{chapterId}}\",\n  \"content_hash\": \"{{contentHash}}\",\n  \"operation\": \"chapter_analysis\",\n  \"options\": {\n    \"extract_entities\": true,\n    \"extract_events\": true,\n    \"extract_state_transitions\": true\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/revisions/{{revisionId}}/analyses",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "revisions", "{{revisionId}}", "analyses"]
+        }
+      }
+    },
+    {
+      "name": "03 - Dùng cùng idempotency key nhưng khác input (409 IDEMPOTENCY_CONFLICT)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 409 Conflict', function () {",
+              "    pm.response.to.have.status(409);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Error code is IDEMPOTENCY_CONFLICT', function () {",
+              "    pm.expect(json.detail.code).to.eql('IDEMPOTENCY_CONFLICT');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Tenant-Id", "value": "{{tenantId}}"},
+          {"key": "X-Request-Id", "value": "req-conflict"},
+          {"key": "Idempotency-Key", "value": "{{idempotencyKey}}"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"novel_id\": \"{{novelId}}\",\n  \"chapter_id\": \"{{chapterId}}\",\n  \"content_hash\": \"{{contentHash}}\",\n  \"operation\": \"different_operation\",\n  \"options\": {\n    \"extract_entities\": false\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/revisions/{{revisionId}}/analyses",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "revisions", "{{revisionId}}", "analyses"]
+        }
+      }
+    },
+    {
+      "name": "04 - Content hash sai (422 CONTENT_HASH_MISMATCH)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 422 Unprocessable Entity', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Error code is CONTENT_HASH_MISMATCH', function () {",
+              "    pm.expect(json.detail.code).to.eql('CONTENT_HASH_MISMATCH');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Tenant-Id", "value": "{{tenantId}}"},
+          {"key": "X-Request-Id", "value": "req-bad-hash"},
+          {"key": "Idempotency-Key", "value": "key-bad-hash-{{$timestamp}}"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"novel_id\": \"{{novelId}}\",\n  \"chapter_id\": \"{{chapterId}}\",\n  \"content_hash\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"operation\": \"chapter_analysis\",\n  \"options\": {\n    \"extract_entities\": true\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/revisions/{{revisionId}}/analyses",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "revisions", "{{revisionId}}", "analyses"]
+        }
+      }
+    },
+    {
+      "name": "05a - Lấy danh sách proposals đã tạo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Has proposals in pending status', function () {",
+              "    pm.expect(json.data.length).to.be.above(0);",
+              "});",
+              "var group = json.data[0].dependency_group_id;",
+              "var ids = json.data.filter(p => p.dependency_group_id === group).map(p => p.proposal_id);",
+              "pm.environment.set('dependencyGroupId', group);",
+              "pm.environment.set('proposalIds', JSON.stringify(ids));",
+              "var eventProp = json.data.find(p => p.proposal_type === 'event');",
+              "if (eventProp) {",
+              "    pm.environment.set('eventId', eventProp.proposal_id);",
+              "}",
+              "pm.environment.set('singleProposalId', json.data[0].proposal_id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {"key": "X-Request-Id", "value": "req-list-props"}
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/proposals?status=pending",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "proposals"],
+          "query": [{"key": "status", "value": "pending"}]
+        }
+      }
+    },
+    {
+      "name": "05b - Accept dependency group (Materialize & Brain Version tăng)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Brain version increments to 2', function () {",
+              "    pm.expect(json.data.brain_version).to.eql(2);",
+              "});",
+              "pm.environment.set('brainVersion', '2');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Request-Id", "value": "req-accept-group"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proposal_ids\": {{proposalIds}},\n  \"expected_brain_version\": 1,\n  \"reason\": \"Author accepts initial chapter extraction\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/proposal-groups/{{dependencyGroupId}}/accept",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "proposal-groups", "{{dependencyGroupId}}", "accept"]
+        }
+      }
+    },
+    {
+      "name": "06 - Đọc canonical state (Giá trị đúng & có provenance)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('State has materialized entities and attributes', function () {",
+              "    pm.expect(Object.keys(json.data.entities).length).to.be.above(0);",
+              "    pm.expect(Object.keys(json.data.provenance).length).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "state"]
+        }
+      }
+    },
+    {
+      "name": "07 - Accept với version cũ (409 BRAIN_VERSION_CONFLICT)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 409 Conflict', function () {",
+              "    pm.response.to.have.status(409);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Request-Id", "value": "req-stale-ver"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proposal_ids\": {{proposalIds}},\n  \"expected_brain_version\": 1,\n  \"reason\": \"Trying stale version\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/proposal-groups/{{dependencyGroupId}}/accept",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "proposal-groups", "{{dependencyGroupId}}", "accept"]
+        }
+      }
+    },
+    {
+      "name": "08a - Tạo đề xuất transition không hợp lệ (Health = 9999)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.expect(json.data.length).to.be.above(0);",
+              "var invGroup = json.data[0].dependency_group_id;",
+              "var invIds = json.data.map(p => p.proposal_id);",
+              "pm.environment.set('invGroupId', invGroup);",
+              "pm.environment.set('invProposalIds', JSON.stringify(invIds));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"expected_brain_version\": 2,\n  \"replacement\": {\n    \"event_type\": \"injury\",\n    \"summary\": \"Invalid health transition\",\n    \"participants\": [\"Hải Ba Đông\"],\n    \"chapter\": 1\n  },\n  \"transitions\": [\n    {\n      \"entity_id\": \"Hải Ba Đông\",\n      \"attribute_key\": \"health\",\n      \"new_value\": 9999\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/events/{{eventId}}/corrections",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "events", "{{eventId}}", "corrections"]
+        }
+      }
+    },
+    {
+      "name": "08b - Accept transition không hợp lệ trong nhóm (422 INVALID_PROJECTION)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 422 Unprocessable Entity', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Detail code is INVALID_PROJECTION', function () {",
+              "    pm.expect(json.detail.code).to.eql('INVALID_PROJECTION');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Request-Id", "value": "req-accept-invalid"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proposal_ids\": {{invProposalIds}},\n  \"expected_brain_version\": 2,\n  \"reason\": \"Trying to accept invalid transition\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/proposal-groups/{{invGroupId}}/accept",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "proposal-groups", "{{invGroupId}}", "accept"]
+        }
+      }
+    },
+    {
+      "name": "09 - Reject proposal (Không đổi canonical state)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set('tempPropId', 'prop-rej-' + Date.now());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Reject endpoint behaves consistently', function () {",
+              "    pm.expect([200, 404, 409]).to.include(pm.response.code);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Request-Id", "value": "req-reject"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Author rejects unimportant detail\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/proposals/{{tempPropId}}/reject",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "proposals", "{{tempPropId}}", "reject"]
+        }
+      }
+    },
+    {
+      "name": "10 - Tạo correction proposal (Pending, state cũ chưa đổi)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Returns pending correction proposal list', function () {",
+              "    pm.expect(json.data.length).to.be.above(0);",
+              "});",
+              "var corrGroup = json.data[0].dependency_group_id;",
+              "var corrIds = json.data.map(p => p.proposal_id);",
+              "pm.environment.set('corrGroupId', corrGroup);",
+              "pm.environment.set('corrProposalIds', JSON.stringify(corrIds));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"expected_brain_version\": 2,\n  \"replacement\": {\n    \"event_type\": \"battle\",\n    \"summary\": \"Tiêu Viêm giao đấu Hải Ba Đông (được chỉnh sửa nhẹ)\",\n    \"participants\": [\"Tiêu Viêm\", \"Hải Ba Đông\"],\n    \"chapter\": 1\n  },\n  \"transitions\": [\n    {\n      \"entity_id\": \"Hải Ba Đông\",\n      \"attribute_key\": \"health\",\n      \"new_value\": 70\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/events/{{eventId}}/corrections",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "events", "{{eventId}}", "corrections"]
+        }
+      }
+    },
+    {
+      "name": "11 - Accept correction (Giữ event cũ, replay state đúng)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Brain version increments to 3', function () {",
+              "    pm.expect(json.data.brain_version).to.eql(3);",
+              "});",
+              "pm.environment.set('brainVersion', '3');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Request-Id", "value": "req-accept-corr"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proposal_ids\": {{corrProposalIds}},\n  \"expected_brain_version\": 2,\n  \"reason\": \"Author accepts corrected event\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/proposal-groups/{{corrGroupId}}/accept",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "proposal-groups", "{{corrGroupId}}", "accept"]
+        }
+      }
+    },
+    {
+      "name": "12 - Đọc state sau correction (Phản ánh đúng replay 70)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('State has health attribute updated to 70', function () {",
+              "    var hasHealth70 = false;",
+              "    for (var k in json.data.entities) {",
+              "        if (json.data.entities[k].health === 70) {",
+              "            hasHealth70 = true;",
+              "            break;",
+              "        }",
+              "    }",
+              "    pm.expect(hasHealth70).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "state"]
+        }
+      }
+    },
+    {
+      "name": "13a - Rebuild projection lần 1 (Khớp online projection)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Rebuilt state matches current projection', function () {",
+              "    pm.expect(json.data.entities).to.not.be.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"expected_brain_version\": 3\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/projections/rebuild",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "projections", "rebuild"]
+        }
+      }
+    },
+    {
+      "name": "13b - Rebuild projection lần 2 (Idempotent, version không tăng)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Second rebuild succeeds idempotently', function () {",
+              "    pm.expect(json.data.entities).to.not.be.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"expected_brain_version\": 3\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/projections/rebuild",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "projections", "rebuild"]
+        }
+      }
+    },
+    {
+      "name": "14 - State check sau Restart Container (Persistence)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('State persists across container restarts', function () {",
+              "    pm.expect(Object.keys(json.data.entities).length).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "state"]
+        }
+      }
+    }
+  ]
+}

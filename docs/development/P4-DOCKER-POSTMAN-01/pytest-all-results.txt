@@ -1,0 +1,148 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Laptop\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Laptop\OneDrive\Documents\testproject\ai-service
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.13.0
+collecting ... collected 107 items
+
+tests/test_entity_pipeline.py::EntityPipelineTests::test_malformed_output_raises_explicit_error PASSED [  0%]
+tests/test_entity_pipeline.py::EntityPipelineTests::test_missing_provider_is_not_treated_as_empty_result PASSED [  1%]
+tests/test_entity_pipeline.py::EntityPipelineTests::test_provider_failure_raises_explicit_error PASSED [  2%]
+tests/test_entity_pipeline.py::EntityPipelineTests::test_schema_invalid_output_raises_explicit_error PASSED [  3%]
+tests/test_entity_pipeline.py::EntityPipelineTests::test_valid_empty_result_is_not_an_error PASSED [  4%]
+tests/test_entity_pipeline.py::EntityPipelineTests::test_valid_output_has_stable_schema_and_order PASSED [  5%]
+tests/test_llm_services.py::LLMClientTests::test_disabled_provider_is_an_explicit_error PASSED [  6%]
+tests/test_llm_services.py::InteractionExtractionTests::test_malformed_event_result_is_an_explicit_error PASSED [  7%]
+tests/test_llm_services.py::InteractionExtractionTests::test_provider_event_failure_is_an_explicit_error PASSED [  8%]
+tests/test_llm_services.py::InteractionExtractionTests::test_valid_empty_event_result_is_not_an_error PASSED [  9%]
+tests/test_migrations.py::MigrationTests::test_upgrade_and_downgrade_clean_database PASSED [ 10%]
+tests/test_narrative_application_service.py::NarrativeApplicationServiceTests::test_application_layer_has_no_filesystem_dependency PASSED [ 11%]
+tests/test_narrative_application_service.py::NarrativeApplicationServiceTests::test_sync_entities_uses_repository_and_preserves_failure_details PASSED [ 12%]
+tests/test_narrative_repository_contract.py::InMemoryNarrativeRepositoryTests::test_alias_and_evidence_mention_are_idempotent PASSED [ 13%]
+tests/test_narrative_repository_contract.py::InMemoryNarrativeRepositoryTests::test_analysis_run_is_idempotent_and_rejects_changed_input PASSED [ 14%]
+tests/test_narrative_repository_contract.py::InMemoryNarrativeRepositoryTests::test_dependency_group_materializes_atomically_and_increments_once PASSED [ 14%]
+tests/test_narrative_repository_contract.py::InMemoryNarrativeRepositoryTests::test_empty_story_brain_is_created_on_read PASSED [ 15%]
+tests/test_narrative_repository_contract.py::InMemoryNarrativeRepositoryTests::test_entity_upsert_is_case_insensitive_and_counts_mentions PASSED [ 16%]
+tests/test_narrative_repository_contract.py::InMemoryNarrativeRepositoryTests::test_event_is_appended_without_overwriting_history PASSED [ 17%]
+tests/test_narrative_repository_contract.py::InMemoryNarrativeRepositoryTests::test_missing_proposal_cannot_be_decided PASSED [ 18%]
+tests/test_narrative_repository_contract.py::InMemoryNarrativeRepositoryTests::test_proposal_save_is_idempotent_and_decision_is_explicit PASSED [ 19%]
+tests/test_narrative_repository_contract.py::JsonNarrativeRepositoryTests::test_alias_and_evidence_mention_are_idempotent PASSED [ 20%]
+tests/test_narrative_repository_contract.py::JsonNarrativeRepositoryTests::test_analysis_run_is_idempotent_and_rejects_changed_input PASSED [ 21%]
+tests/test_narrative_repository_contract.py::JsonNarrativeRepositoryTests::test_dependency_group_materializes_atomically_and_increments_once PASSED [ 22%]
+tests/test_narrative_repository_contract.py::JsonNarrativeRepositoryTests::test_empty_story_brain_is_created_on_read PASSED [ 23%]
+tests/test_narrative_repository_contract.py::JsonNarrativeRepositoryTests::test_entity_upsert_is_case_insensitive_and_counts_mentions PASSED [ 24%]
+tests/test_narrative_repository_contract.py::JsonNarrativeRepositoryTests::test_event_is_appended_without_overwriting_history PASSED [ 25%]
+tests/test_narrative_repository_contract.py::JsonNarrativeRepositoryTests::test_missing_proposal_cannot_be_decided PASSED [ 26%]
+tests/test_narrative_repository_contract.py::JsonNarrativeRepositoryTests::test_proposal_save_is_idempotent_and_decision_is_explicit PASSED [ 27%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_alias_and_evidence_mention_are_idempotent PASSED [ 28%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_analysis_run_is_idempotent_and_rejects_changed_input PASSED [ 28%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_author_locked_entity_rolls_back_conflicting_group PASSED [ 29%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_dependency_group_materializes_atomically_and_increments_once PASSED [ 30%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_empty_story_brain_is_created_on_read PASSED [ 31%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_entity_upsert_is_case_insensitive_and_counts_mentions PASSED [ 32%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_event_is_appended_without_overwriting_history PASSED [ 33%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_missing_proposal_cannot_be_decided PASSED [ 34%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_proposal_save_is_idempotent_and_decision_is_explicit PASSED [ 35%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_stale_proposal_version_is_rejected PASSED [ 36%]
+tests/test_narrative_repository_contract.py::PostgresNarrativeRepositoryTests::test_tenant_scope_prevents_cross_tenant_reads PASSED [ 37%]
+tests/test_narrative_route_compatibility.py::NarrativeRouteCompatibilityTests::test_legacy_kb_relation_and_graph_routes_use_application_service PASSED [ 38%]
+tests/test_postgres_integration.py::test_alembic_migrations_lifecycle PASSED [ 39%]
+tests/test_postgres_integration.py::test_acceptance_rebuild_and_correction_history PASSED [ 40%]
+tests/test_postgres_integration.py::test_projection_error_rolls_back_entire_transaction PASSED [ 41%]
+tests/test_postgres_integration.py::test_author_lock_blocks_conflicting_changes PASSED [ 42%]
+tests/test_postgres_integration.py::test_tenant_and_novel_isolation PASSED [ 42%]
+tests/test_postgres_integration.py::test_concurrent_accept_proposal_group_exact_one_succeeds PASSED [ 43%]
+tests/test_postgres_integration.py::test_concurrent_rebuild_and_acceptance PASSED [ 44%]
+tests/test_revision_analysis_routes.py::RevisionAnalysisRouteTests::test_analyze_list_accept_and_reject_routes PASSED [ 45%]
+tests/test_revision_analysis_routes.py::RevisionAnalysisRouteTests::test_bulk_group_accept_materializes_once PASSED [ 46%]
+tests/test_revision_analysis_routes.py::RevisionAnalysisRouteTests::test_reject_endpoint_does_not_materialize_entity PASSED [ 47%]
+tests/test_revision_analysis_workflow.py::RevisionAnalysisWorkflowTests::test_analysis_creates_evidenced_proposals_without_canonical_writes PASSED [ 48%]
+tests/test_revision_analysis_workflow.py::RevisionAnalysisWorkflowTests::test_author_accept_materializes_entity_and_increments_brain_version PASSED [ 49%]
+tests/test_revision_analysis_workflow.py::RevisionAnalysisWorkflowTests::test_same_revision_and_idempotency_key_does_not_duplicate_or_recall_llm PASSED [ 50%]
+tests/test_revision_content_provider.py::PlatformRevisionClientTests::test_fetches_revision_with_tenant_and_service_auth PASSED [ 51%]
+tests/test_settings.py::SettingsTests::test_defaults_disable_provider_and_keep_local_cors PASSED [ 52%]
+tests/test_settings.py::SettingsTests::test_environment_values_are_parsed PASSED [ 53%]
+tests/test_settings.py::SettingsTests::test_invalid_provider_is_rejected PASSED [ 54%]
+tests/test_settings.py::SettingsTests::test_postgres_repository_requires_database_url PASSED [ 55%]
+tests/test_state_projection.py::test_rebuild_equals_online_and_provenance_survives_reload[memory] PASSED [ 56%]
+tests/test_state_projection.py::test_rebuild_equals_online_and_provenance_survives_reload[json] PASSED [ 57%]
+tests/test_state_projection.py::test_rebuild_equals_online_and_provenance_survives_reload[sql] PASSED [ 57%]
+tests/test_state_projection.py::test_correction_replays_at_original_position_and_preserves_history[memory] PASSED [ 58%]
+tests/test_state_projection.py::test_correction_replays_at_original_position_and_preserves_history[json] PASSED [ 59%]
+tests/test_state_projection.py::test_correction_replays_at_original_position_and_preserves_history[sql] PASSED [ 60%]
+tests/test_state_projection.py::test_bad_transition_rolls_back_whole_group_then_can_retry[memory] PASSED [ 61%]
+tests/test_state_projection.py::test_bad_transition_rolls_back_whole_group_then_can_retry[json] PASSED [ 62%]
+tests/test_state_projection.py::test_bad_transition_rolls_back_whole_group_then_can_retry[sql] PASSED [ 63%]
+tests/test_state_projection.py::test_transition_cannot_reference_another_story[memory] PASSED [ 64%]
+tests/test_state_projection.py::test_transition_cannot_reference_another_story[json] PASSED [ 65%]
+tests/test_state_projection.py::test_transition_cannot_reference_another_story[sql] PASSED [ 66%]
+tests/test_state_projection.py::test_relationship_projection_has_transition_provenance[memory] PASSED [ 67%]
+tests/test_state_projection.py::test_relationship_projection_has_transition_provenance[json] PASSED [ 68%]
+tests/test_state_projection.py::test_relationship_projection_has_transition_provenance[sql] PASSED [ 69%]
+tests/test_state_projection.py::test_locked_relationship_rolls_back[memory] PASSED [ 70%]
+tests/test_state_projection.py::test_locked_relationship_rolls_back[json] PASSED [ 71%]
+tests/test_state_projection.py::test_locked_relationship_rolls_back[sql] PASSED [ 71%]
+tests/test_state_projection.py::test_initial_fact_produces_transition_and_baseline[memory] PASSED [ 72%]
+tests/test_state_projection.py::test_initial_fact_produces_transition_and_baseline[json] PASSED [ 73%]
+tests/test_state_projection.py::test_initial_fact_produces_transition_and_baseline[sql] PASSED [ 74%]
+tests/test_state_projection.py::test_rebuild_failure_keeps_previous_projection_and_retry_is_safe[memory] PASSED [ 75%]
+tests/test_state_projection.py::test_rebuild_failure_keeps_previous_projection_and_retry_is_safe[json] PASSED [ 76%]
+tests/test_state_projection.py::test_rebuild_failure_keeps_previous_projection_and_retry_is_safe[sql] PASSED [ 77%]
+tests/test_state_projection.py::test_correction_service_creates_pending_group[memory] PASSED [ 78%]
+tests/test_state_projection.py::test_correction_service_creates_pending_group[json] PASSED [ 79%]
+tests/test_state_projection.py::test_correction_service_creates_pending_group[sql] PASSED [ 80%]
+tests/test_state_projection.py::test_duplicate_event_and_competing_correction_are_rejected[memory] PASSED [ 81%]
+tests/test_state_projection.py::test_duplicate_event_and_competing_correction_are_rejected[json] PASSED [ 82%]
+tests/test_state_projection.py::test_duplicate_event_and_competing_correction_are_rejected[sql] PASSED [ 83%]
+tests/test_state_projection.py::test_matching_author_relationship_is_preserved_and_rebuild_matches[memory] PASSED [ 84%]
+tests/test_state_projection.py::test_matching_author_relationship_is_preserved_and_rebuild_matches[json] PASSED [ 85%]
+tests/test_state_projection.py::test_matching_author_relationship_is_preserved_and_rebuild_matches[sql] PASSED [ 85%]
+tests/test_state_projection.py::test_sql_tenant_scope_on_state_and_correction[memory] SKIPPED [ 86%]
+tests/test_state_projection.py::test_sql_tenant_scope_on_state_and_correction[json] SKIPPED [ 87%]
+tests/test_state_projection.py::test_sql_tenant_scope_on_state_and_correction[sql] PASSED [ 88%]
+tests/test_state_projection_routes.py::test_state_correction_review_and_rebuild_routes PASSED [ 89%]
+tests/test_state_projection_routes.py::test_invalid_transition_review_returns_422_and_keeps_proposals_pending PASSED [ 90%]
+tests/test_state_transition_proposals.py::test_analysis_generates_reviewable_transitions_then_accepts_group PASSED [ 91%]
+tests/test_state_transition_proposals.py::test_bad_provider_output_is_explicit_failure[not json] PASSED [ 92%]
+tests/test_state_transition_proposals.py::test_bad_provider_output_is_explicit_failure[{"transitions":[{"entity":"Minh"}]}] PASSED [ 93%]
+tests/test_state_transition_proposals.py::test_relationship_inference_is_proposed_with_evidence PASSED [ 94%]
+tests/test_structured_extraction.py::EventExtractionTests::test_malformed_event_output_is_explicit PASSED [ 95%]
+tests/test_structured_extraction.py::EventExtractionTests::test_valid_empty_event_list_is_not_an_error PASSED [ 96%]
+tests/test_structured_extraction.py::EventExtractionTests::test_valid_event_is_converted_to_internal_model PASSED [ 97%]
+tests/test_structured_extraction.py::StateExtractionTests::test_invalid_state_schema_is_explicit PASSED [ 98%]
+tests/test_structured_extraction.py::StateExtractionTests::test_valid_empty_state_list_is_not_an_error PASSED [ 99%]
+tests/test_structured_extraction.py::StateExtractionTests::test_valid_state_is_converted_to_internal_model PASSED [100%]
+
+============================== warnings summary ===============================
+main.py:126
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:126: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+main.py:131
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:131: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 105 passed, 2 skipped, 4 warnings in 6.54s ==================

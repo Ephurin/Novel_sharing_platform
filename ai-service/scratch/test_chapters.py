@@ -18,7 +18,7 @@ logging.getLogger("ai-service").setLevel(logging.WARNING)
 
 client = TestClient(app)
 
-STORY_DIR = BASE_DIR.parent / "docs" / "test_story"
+STORY_DIR = BASE_DIR / "scratch" / "test_data" / "stories" / "set1"
 
 def test_chapter(file_path):
     with open(file_path, "r", encoding="utf-8") as f:

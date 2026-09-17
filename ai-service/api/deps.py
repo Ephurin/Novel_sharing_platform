@@ -10,6 +10,8 @@ Route functions sử dụng qua `Depends(get_xxx)` để:
 
 from fastapi import Depends, HTTPException, Request
 
+from application.narrative_service import NarrativeApplicationService
+from application.revision_analysis_service import RevisionAnalysisService
 from core.consistency import ConsistencyChecker, ConsistencyEngine
 from core.story_kb_manager import StoryKBManager
 from core.candidate_processor import CandidateProcessor
@@ -31,6 +33,14 @@ def get_consistency_engine(request: Request) -> ConsistencyEngine:
 
 def get_story_kb(request: Request) -> StoryKBManager:
     return request.app.state.story_kb
+
+
+def get_narrative_service(request: Request) -> NarrativeApplicationService:
+    return request.app.state.narrative_service
+
+
+def get_revision_analysis_service(request: Request) -> RevisionAnalysisService:
+    return request.app.state.revision_analysis_service
 
 
 def get_candidate_processor(request: Request) -> CandidateProcessor:

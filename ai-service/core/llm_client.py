@@ -15,11 +15,13 @@ class LLMClient:
         model: str = "gpt-4o-mini",
         api_key: str = "",
         timeout_seconds: int = 30,
+        base_url: str = "",
     ) -> None:
         self.provider = provider.lower().strip()
         self.model = model
         self.api_key = (api_key or "").strip() or self._resolve_api_key()
         self.timeout_seconds = timeout_seconds
+        self.base_url = base_url.rstrip("/")
 
     def _resolve_api_key(self) -> str:
         if self.provider == "gemini":
@@ -33,6 +35,8 @@ class LLMClient:
                 os.getenv("OPENAI_API_KEY", "").strip()
                 or os.getenv("LLM_API_KEY", "").strip()
             )
+        if self.provider == "groq":
+            return os.getenv("GROQ_API_KEY", "").strip() or os.getenv("LLM_API_KEY", "").strip()
         return os.getenv("LLM_API_KEY", "").strip()
 
     def generate(
@@ -46,9 +50,11 @@ class LLMClient:
             raise ValueError("prompt must not be empty")
 
         if self.provider in {"none", ""}:
-            return "LLM provider is disabled. Set LLM_PROVIDER and API key env variables to enable."
+            raise LLMClientError("LLM provider is disabled")
 
         if self.provider == "openai":
+            return self._call_openai(prompt, system_prompt, temperature, max_tokens)
+        if self.provider == "groq":
             return self._call_openai(prompt, system_prompt, temperature, max_tokens)
         if self.provider == "gemini":
             return self._call_gemini(prompt, system_prompt, temperature, max_tokens)
@@ -82,7 +88,7 @@ class LLMClient:
             "ngrok-skip-browser-warning": "true",
         }
 
-        base_url = os.getenv("CUSTOM_LLM_URL")
+        base_url = self.base_url or (os.getenv("CUSTOM_LLM_URL") or "").rstrip("/")
         url = f"{base_url}/chat/completions" if base_url else "https://api.openai.com/v1/chat/completions"
 
         try:

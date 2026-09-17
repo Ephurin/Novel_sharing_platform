@@ -1,0 +1,17 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Laptop\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Laptop\OneDrive\Documents\testproject\ai-service
+configfile: pytest.ini
+plugins: anyio-4.13.0
+collecting ... collected 7 items
+
+tests/test_postgres_integration.py::test_alembic_migrations_lifecycle PASSED [ 14%]
+tests/test_postgres_integration.py::test_acceptance_rebuild_and_correction_history PASSED [ 28%]
+tests/test_postgres_integration.py::test_projection_error_rolls_back_entire_transaction PASSED [ 42%]
+tests/test_postgres_integration.py::test_author_lock_blocks_conflicting_changes PASSED [ 57%]
+tests/test_postgres_integration.py::test_tenant_and_novel_isolation PASSED [ 71%]
+tests/test_postgres_integration.py::test_concurrent_accept_proposal_group_exact_one_succeeds PASSED [ 85%]
+tests/test_postgres_integration.py::test_concurrent_rebuild_and_acceptance PASSED [100%]
+
+============================== 7 passed in 1.82s ==============================

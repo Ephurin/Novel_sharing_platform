@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from pathlib import Path
 
 # Add current directory to path
 sys.path.append(os.getcwd())
@@ -9,7 +10,7 @@ from services.entity_pipeline.pipeline import EntityPipeline
 
 def test():
     pipeline = EntityPipeline()
-    chapter_path = "c:/Users/Laptop/Documents/testproject/docs/test_story/chapter_1.md"
+    chapter_path = Path(__file__).resolve().parent / "test_data" / "stories" / "set1" / "chapter_1.md"
 
     with open(chapter_path, "r", encoding="utf-8") as f:
         text = f.read()

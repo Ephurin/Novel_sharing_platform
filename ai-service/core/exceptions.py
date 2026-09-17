@@ -17,10 +17,24 @@ class AIServiceError(Exception):
 
 
 class EntityExtractionError(AIServiceError):
-    """Lỗi khi hybrid pipeline trích xuất entity thất bại."""
+    """Lỗi khi entity pipeline trích xuất thất bại."""
 
     def __init__(self, detail: str = "Entity extraction failed."):
         super().__init__(f"Entity extraction error: {detail}")
+
+
+class EventExtractionError(AIServiceError):
+    """Lỗi khi event pipeline gọi provider hoặc validate output thất bại."""
+
+    def __init__(self, detail: str = "Event extraction failed."):
+        super().__init__(f"Event extraction error: {detail}")
+
+
+class StateExtractionError(AIServiceError):
+    """Lỗi khi state pipeline gọi provider hoặc validate output thất bại."""
+
+    def __init__(self, detail: str = "State extraction failed."):
+        super().__init__(f"State extraction error: {detail}")
 
 
 class KBWriteError(AIServiceError):

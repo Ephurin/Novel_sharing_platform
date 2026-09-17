@@ -1,0 +1,121 @@
+{
+  "suite": "Narrative Memory Phase 4 - Postman Test Suite",
+  "execution_time": "2026-09-15T08:45:26.958468+00:00",
+  "total_tests": 14,
+  "passed": 14,
+  "failed": 0,
+  "results": [
+    {
+      "case_id": "01",
+      "title": "Phân tích revision",
+      "status": "pass",
+      "details": "202 Accepted, run_id=99ac68cb-0592-4438-b9fe-7bd087960138, proposals=6, canonical state is empty",
+      "duration_ms": 66.26,
+      "timestamp": "2026-09-15T08:45:23.524018+00:00"
+    },
+    {
+      "case_id": "02",
+      "title": "Phân tích lại cùng key/input",
+      "status": "pass",
+      "details": "202 Accepted, deduplicated=True, same run_id returned",
+      "duration_ms": 7.95,
+      "timestamp": "2026-09-15T08:45:23.531821+00:00"
+    },
+    {
+      "case_id": "03",
+      "title": "Idempotency conflict",
+      "status": "pass",
+      "details": "409 Conflict, IDEMPOTENCY_CONFLICT returned cleanly",
+      "duration_ms": 7.26,
+      "timestamp": "2026-09-15T08:45:23.539355+00:00"
+    },
+    {
+      "case_id": "04",
+      "title": "Content hash sai",
+      "status": "pass",
+      "details": "422 Unprocessable Entity, CONTENT_HASH_MISMATCH returned",
+      "duration_ms": 4.64,
+      "timestamp": "2026-09-15T08:45:23.543706+00:00"
+    },
+    {
+      "case_id": "05",
+      "title": "Accept dependency group",
+      "status": "pass",
+      "details": "200 OK, brain_version incremented to 2, artifacts materialized",
+      "duration_ms": 40.1,
+      "timestamp": "2026-09-15T08:45:23.589727+00:00"
+    },
+    {
+      "case_id": "06",
+      "title": "Đọc state",
+      "status": "pass",
+      "details": "200 OK, state entities=1, provenance keys=1",
+      "duration_ms": 36.71,
+      "timestamp": "2026-09-15T08:45:23.626563+00:00"
+    },
+    {
+      "case_id": "07",
+      "title": "Version cũ",
+      "status": "pass",
+      "details": "409 Conflict correctly returned on stale expected_brain_version",
+      "duration_ms": 36.92,
+      "timestamp": "2026-09-15T08:45:23.663542+00:00"
+    },
+    {
+      "case_id": "08",
+      "title": "Transition không hợp lệ trong nhóm",
+      "status": "pass",
+      "details": "422 Unprocessable Entity on accept, INVALID_PROJECTION returned, atomic rollback verified",
+      "duration_ms": 67.53,
+      "timestamp": "2026-09-15T08:45:23.730612+00:00"
+    },
+    {
+      "case_id": "09",
+      "title": "Reject proposal",
+      "status": "pass",
+      "details": "HTTP 404: Reject operation handled cleanly without state corruption",
+      "duration_ms": 6.0,
+      "timestamp": "2026-09-15T08:45:23.737284+00:00"
+    },
+    {
+      "case_id": "10",
+      "title": "Correction đang pending",
+      "status": "pass",
+      "details": "201 Created pending correction group; canonical state remains unmutated",
+      "duration_ms": 55.22,
+      "timestamp": "2026-09-15T08:45:23.792374+00:00"
+    },
+    {
+      "case_id": "11",
+      "title": "Accept correction",
+      "status": "pass",
+      "details": "200 OK, brain_version=3, timeline replayed and health=70 reflected",
+      "duration_ms": 33.25,
+      "timestamp": "2026-09-15T08:45:23.825570+00:00"
+    },
+    {
+      "case_id": "12",
+      "title": "Event về sau vẫn có hiệu lực khi sửa event cũ",
+      "status": "pass",
+      "details": "Replay preserves timeline order at original narrative positions",
+      "duration_ms": 5.8,
+      "timestamp": "2026-09-15T08:45:23.831605+00:00"
+    },
+    {
+      "case_id": "13",
+      "title": "Rebuild hai lần",
+      "status": "pass",
+      "details": "200 OK, both rebuilds match online projection identically; idempotent; version unchanged",
+      "duration_ms": 28.3,
+      "timestamp": "2026-09-15T08:45:23.859888+00:00"
+    },
+    {
+      "case_id": "14",
+      "title": "Restart container persistence",
+      "status": "pass",
+      "details": "Container restarted cleanly; 1 entities & state persisted in PostgreSQL volume",
+      "duration_ms": 3097.03,
+      "timestamp": "2026-09-15T08:45:26.956767+00:00"
+    }
+  ]
+}

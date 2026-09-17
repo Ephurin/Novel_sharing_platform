@@ -24,10 +24,12 @@ class LLMService:
         base_url: str | None = None,
         temperature: float = 0.7,
         max_tokens: int = 512,
+        timeout_seconds: int = 30,
     ) -> None:
         self.provider = provider.lower().strip()
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self.timeout_seconds = timeout_seconds
         self.base_url = (base_url or os.getenv("LLM_BASE_URL") or os.getenv("CUSTOM_LLM_URL") or "").strip()
         self.fallback_provider = (fallback_provider or os.getenv("LLM_FALLBACK_PROVIDER") or "").lower().strip()
         self.fallback_model = ""
@@ -171,7 +173,9 @@ class LLMService:
             raw_output = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
         except LLMServiceError as exc:
             logger.error("LLM Extraction failed: %s", exc)
-            return {"events": []}
+            raise
+        except Exception as exc:
+            raise LLMServiceError(f"LLM extraction failed: {exc}") from exc
 
         cleaned = raw_output.strip()
         if cleaned.startswith("```"):
@@ -183,9 +187,8 @@ class LLMService:
             return parsed
         elif isinstance(parsed, list):
             return {"events": parsed}
-            
-        logger.warning("Could not parse LLM extraction output: %s", cleaned)
-        return {"events": []}
+
+        raise LLMServiceError("LLM extraction output is not valid structured JSON")
 
     def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
         if not self.api_key:
@@ -301,7 +304,8 @@ class LLMService:
             client = OpenAI(
                 api_key=key, 
                 base_url=self.base_url or None,
-                default_headers={"ngrok-skip-browser-warning": "true"}
+                default_headers={"ngrok-skip-browser-warning": "true"},
+                timeout=self.timeout_seconds,
             )
             response = client.chat.completions.create(
                 model=model_name,

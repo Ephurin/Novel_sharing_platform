@@ -16,9 +16,11 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from application.narrative_service import NarrativeApplicationService
 from api.schemas import ProcessInteractionsRequest, RelationOverrideRequest
-from api.deps import get_entity_pipeline, get_llm_service, get_story_kb
+from api.deps import get_entity_pipeline, get_llm_service, get_narrative_service, get_story_kb
 from core.entity_resolver import resolve_entities, find_kb_entities_in_text
+from core.exceptions import EntityExtractionError
 from core.story_kb_manager import StoryKBManager
 from services.interaction_service import decide_interaction
 from services.state_extraction import extract_states
@@ -44,10 +46,12 @@ def process_interactions(
 ):
     started = time.perf_counter()
 
-    # ── Step 1: NER via hybrid pipeline ──────────────────
+    # ── Step 1: Entity extraction via pure-LLM pipeline ──
     try:
         raw_results = pipeline.run(payload.text, llm_service=llm_service)
         entities = pipeline_to_interaction_format(raw_results)
+    except EntityExtractionError:
+        raise
     except Exception as exc:
         logger.error("Hybrid pipeline failed: %s", exc)
         raise HTTPException(status_code=500, detail=str(exc))
@@ -121,10 +125,9 @@ def process_interactions(
 @router.get("/kb/{story_id}")
 def get_kb(
     story_id: str,
-    kb_manager: StoryKBManager = Depends(get_story_kb),
+    narrative: NarrativeApplicationService = Depends(get_narrative_service),
 ):
-    kb = kb_manager.load_kb(story_id)
-    return kb.model_dump()
+    return narrative.get_snapshot(story_id)
 
 
 # ──────────────────────────────────────────────
@@ -134,15 +137,14 @@ def get_kb(
 @router.post("/relation/override")
 def override_relation(
     payload: RelationOverrideRequest,
-    kb_manager: StoryKBManager = Depends(get_story_kb),
+    narrative: NarrativeApplicationService = Depends(get_narrative_service),
 ):
     try:
-        result = kb_manager.override_relation(
+        result = narrative.override_relation(
             story_id=payload.story_id,
             subject=payload.subject,
             relation_type=payload.relation,
             object_name=payload.object,
-            source="author",
         )
         return result
     except Exception as exc:

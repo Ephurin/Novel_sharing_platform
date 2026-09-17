@@ -64,6 +64,8 @@ celerybeat-schedule
 *.h5
 *.onnx
 **/models/
+!ai-service/models/
+!ai-service/models/*.py
 **/groq_key.md
 
 # Misc

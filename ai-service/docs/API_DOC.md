@@ -237,7 +237,7 @@ Tài liệu này liệt kê tất cả các endpoints hiện có của hệ th�
 ### `POST /v1/enhanced/process-interactions`
 - **Mô tả:** Pipeline xử lý toàn diện: NER -> Entity Resolution -> LLM Event Extraction -> State Management -> Auto Persistence.
 - **Mô tả quy trình:**
-  1. Nhận diện nhân vật/địa điểm thông qua hybrid pipeline.
+  1. Nhận diện nhân vật/địa điểm thông qua pure-LLM entity pipeline.
   2. Khớp thực thể với dữ liệu đã có trong KB (Entity Resolution).
   3. LLM phân tích các sự kiện diễn ra giữa các nhân vật/thực thể.
   4. LLM cập nhật trạng thái (máu, vị trí, thuộc tính vật phẩm).
@@ -400,4 +400,3 @@ Tài liệu này liệt kê tất cả các endpoints hiện có của hệ th�
     "output": "Nội dung phản hồi được sinh ra từ LLM..."
   }
   ```
-

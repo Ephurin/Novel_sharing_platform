@@ -13,6 +13,7 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from application.narrative_service import NarrativeApplicationService
 from api.schemas import (
     AnalyzeChapterRequest,
     AnalyzeChapterResponse,
@@ -35,6 +36,7 @@ from api.deps import (
     get_entity_pipeline,
     get_llm_client,
     get_llm_service,
+    get_narrative_service,
     get_story_kb,
     get_candidate_processor,
     get_span_expander,
@@ -45,7 +47,7 @@ from core.candidate_processor import CandidateProcessor
 from core.llm_service import LLMServiceError
 from core.span_expander import SpanExpander
 from core.story_kb_manager import StoryKBManager
-from core.exceptions import EntityExtractionError
+from core.exceptions import EntityExtractionError, EventExtractionError, StateExtractionError
 from services.entity_pipeline.pipeline import EntityPipeline
 from services.entity_helpers import (
     pipeline_to_entity_out,
@@ -75,6 +77,8 @@ def extract_entities(
 
     try:
         raw_results = pipeline.run(payload.text, llm_service=llm_service)
+    except EntityExtractionError:
+        raise
     except Exception as exc:
         logger.error("Hybrid pipeline failed in extract-entities: %s", exc)
         raise HTTPException(status_code=500, detail=str(exc))
@@ -97,9 +101,9 @@ def extract_entities(
 @router.post("/graph/related", response_model=GraphLookupResponse)
 def graph_related(
     payload: GraphLookupRequest,
-    kb: StoryKBManager = Depends(get_story_kb),
+    narrative: NarrativeApplicationService = Depends(get_narrative_service),
 ) -> GraphLookupResponse:
-    related = kb.adapter_get_related_entities("default_story", payload.entity, limit=payload.limit)
+    related = narrative.related_entities("default_story", payload.entity, payload.limit)
     return GraphLookupResponse(entity=payload.entity, related=related)
 
 
@@ -132,15 +136,15 @@ def llm_generate(
 def suggest_next(
     payload: SuggestNextRequest,
     llm_service=Depends(require_llm_service),
-    kb: StoryKBManager = Depends(get_story_kb),
+    narrative: NarrativeApplicationService = Depends(get_narrative_service),
     engine: ConsistencyEngine = Depends(get_consistency_engine),
 ) -> SuggestNextResponse:
     started = time.perf_counter()
 
-    graph_context = kb.adapter_get_story_context(
+    graph_context = narrative.story_context(
         payload.story_id, payload.character_name, limit=payload.graph_limit
     )
-    graph_data = kb.adapter_get_consistency_graph_data(
+    graph_data = narrative.consistency_data(
         payload.story_id, payload.character_name
     )
 
@@ -245,31 +249,20 @@ def sync_story(
     payload: SyncStoryRequest,
     pipeline: EntityPipeline = Depends(get_entity_pipeline),
     llm_service=Depends(get_llm_service),
-    kb: StoryKBManager = Depends(get_story_kb),
+    narrative: NarrativeApplicationService = Depends(get_narrative_service),
 ) -> SyncStoryResponse:
     started = time.perf_counter()
 
     try:
         raw_results = pipeline.run(payload.story_content, llm_service=llm_service)
         entities = pipeline_to_sync_format(raw_results)
+    except EntityExtractionError:
+        raise
     except Exception as exc:
         logger.error("Hybrid pipeline failed in sync_story: %s", exc)
         raise HTTPException(status_code=500, detail=str(exc))
 
-    db_updates: list[dict] = []
-    for entity in entities:
-        try:
-            result = kb.upsert_entity(payload.story_id, entity)
-            db_updates.append(result)
-        except Exception as exc:
-            logger.error("StoryKB write failed for %s: %s", payload.story_id, exc)
-            db_updates.append({
-                "entity": entity.get("word", ""),
-                "label": entity.get("entity", ""),
-                "story_id": payload.story_id,
-                "status": "failed",
-                "reason": str(exc),
-            })
+    db_updates = narrative.sync_entities(payload.story_id, entities)
 
     updated_count = sum(1 for item in db_updates if item.get("status") == "updated")
     failed_count = len(db_updates) - updated_count
@@ -303,7 +296,7 @@ def analyze_chapter(
     payload: AnalyzeChapterRequest,
     pipeline: EntityPipeline = Depends(get_entity_pipeline),
     llm_service=Depends(get_llm_service),
-    kb: StoryKBManager = Depends(get_story_kb),
+    narrative: NarrativeApplicationService = Depends(get_narrative_service),
     expander: SpanExpander = Depends(get_span_expander),
     processor: CandidateProcessor = Depends(get_candidate_processor),
 ) -> AnalyzeChapterResponse:
@@ -312,11 +305,13 @@ def analyze_chapter(
     try:
         raw_results = pipeline.run(payload.text, llm_service=llm_service)
         entities = pipeline_to_entity_out(raw_results)
+    except EntityExtractionError:
+        raise
     except Exception as exc:
         logger.error("Hybrid pipeline failed in analyze_chapter: %s", exc)
         raise HTTPException(status_code=500, detail=str(exc))
 
-    known_locations = kb.get_known_locations(payload.story_id)
+    known_locations = narrative.known_locations(payload.story_id)
     # The span expander might still be useful for boundary refinement
     expanded_entities = expander.expand_entities(payload.text, entities, extra_locations=known_locations)
     candidates = processor.process_entities(expanded_entities, payload.text)
@@ -390,6 +385,8 @@ def confirm_kb(
             
             # Save the updated KB back to storage
             kb.save_kb(payload.story_id, kb_obj)
+        except (EventExtractionError, StateExtractionError):
+            raise
         except Exception as exc:
             logger.error("Event/State processing failed in /kb/confirm: %s", exc)
 

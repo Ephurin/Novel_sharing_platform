@@ -1,4 +1,4 @@
-# AI Story Co-Pilot Service — Ephurin Novel Platform
+# AI Story Co-Pilot Service
 
 Dịch vụ AI thế hệ mới, tích hợp LLM (Large Language Models) để hỗ trợ tác giả xây dựng thế giới truyện nhất quán, thông minh và có chiều sâu thông qua đồ thị tri thức (Knowledge Graph).
 
@@ -66,6 +66,8 @@ ai-service/
 │   ├── llm_client.py           #    🤖 Client kết nối trực tiếp với LLM providers
 │   ├── llm_service.py          #    🧩 High-level LLM orchestration (Trích xuất NER, Relations)
 │   ├── consistency.py          #    ✅ ConsistencyChecker & ConsistencyEngine
+│   ├── settings.py             #    ⚙️ Typed settings đọc từ environment
+│   ├── structured_outputs.py   #    📐 Versioned entity/event/state output schemas
 │   ├── story_kb_manager.py     #    💾 Quản lý Knowledge Base
 │   ├── entity_resolver.py      #    🔗 Fuzzy matching + chuẩn hóa tên thực thể
 │   ├── candidate_processor.py  #    📊 Xử lý NER output → Candidates cho HITL review
@@ -89,11 +91,17 @@ ai-service/
 │
 ├── scratch/                    # 🧪 Test & Debug Scripts
 │
-└── docs/                       # 📖 Tài liệu dự án
+└── docs/                       # 📖 Tài liệu sát với service
+    ├── README.md               #    📑 Mục lục & hướng dẫn tài liệu Copilot
     ├── API_DOC.md              #    📡 API Reference
-    ├── DESIGN.md               #    🎨 UX/UI Design Spec
-    └── PIPELINE_DESIGN.md      #    🔬 Pipeline Architecture
+    ├── STATE_PROJECTION.md     #    ⚡ State Projection & Event Sourcing
+    ├── ARCHITECTURE.md         #    🏛️ Kiến trúc chi tiết
+    ├── DATA_MODEL.md           #    💾 Data Model & Invariants
+    ├── API_CONTRACTS.md        #    📋 API Contracts & Job Lifecycle
+    └── ...                     #    Các tài liệu thiết kế khác
 ```
+
+Tài liệu sản phẩm, kiến trúc, roadmap và UX chuẩn nằm tại [`docs/README.md`](docs/README.md).
 
 ---
 
@@ -101,7 +109,7 @@ ai-service/
 
 - **Backend Framework**: FastAPI (Python 3.10+)
 - **LLM Providers**: Qwen-2.5 (Ngrok/Colab), Google Gemini 2.0 Flash, OpenAI, Groq Cloud
-- **Storage**: JSON-based Graph Storage (Sẵn sàng cho Neo4j)
+- **Storage hiện tại**: JSON-based Story KB; PostgreSQL schema `narrative` là đích migration của MVP
 
 ---
 
@@ -111,9 +119,22 @@ Hệ thống yêu cầu các API Key hoặc Custom Endpoint để hoạt động
 
 ```bash
 # Trong thư mục ai-service
+LLM_ENABLED=true
 LLM_PROVIDER=openai
 LLM_MODEL=qwen2.5:7b
-CUSTOM_LLM_URL=https://<your-ngrok-url>.ngrok-free.dev/v1
+LLM_BASE_URL=https://<your-ngrok-url>.ngrok-free.dev/v1
+LLM_TIMEOUT_SECONDS=30
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+
+# Storage backend: json mặc định, postgres sau khi chạy migration
+NARRATIVE_REPOSITORY=json
+DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/novel_platform
+DEFAULT_TENANT_ID=00000000-0000-0000-0000-000000000001
+DEFAULT_ACTOR_ID=00000000-0000-0000-0000-000000000001
+
+# Version metadata cho structured pipeline output
+ENTITY_PIPELINE_VERSION=entity-v1
+ENTITY_PROMPT_VERSION=entity-extraction-v1
 
 # Tùy chọn fallback
 LLM_FALLBACK_PROVIDER=gemini
@@ -135,6 +156,13 @@ cd ai-service
 
 # Cài đặt thư viện (nếu chưa có)
 pip install -r requirements.txt
+
+# Kiểm tra cấu hình và chạy unit tests không cần API key thật
+python check_startup.py
+python -m unittest discover -s tests -v
+
+# Khi dùng NARRATIVE_REPOSITORY=postgres
+alembic -c alembic.ini upgrade head
 
 # Chạy server (mặc định tại cổng 8000)
 uvicorn main:app --reload --port 8000
@@ -159,12 +187,21 @@ curl http://localhost:8000/health
 - [x] Áp dụng triết lý **Human-in-the-Loop**, tối ưu hóa backend 90% và trao quyền cho tác giả.
 - [x] Tích hợp LLM Colab qua Ngrok Endpoint.
 - [x] Refactor codebase: Cấu trúc gọn nhẹ, khởi động tức thì.
+- [x] Centralized typed Settings cho provider, endpoint, timeout, CORS và pipeline version.
+- [x] Entity/event/state structured output validation và fail-explicit provider/parsing errors.
+- [x] Fake-LLM unit tests không cần API key thật.
+- [x] Domain/repository boundary với JSON adapter, in-memory fake và contract tests.
+- [x] PostgreSQL ORM/Alembic foundation với tenant scope, idempotency và optimistic locking.
+- [x] Revision analysis và proposal-first review với evidence, atomic dependency groups và Platform revision adapter.
 
 ### 🚧 Đang triển khai
 - [ ] **Vector Search (RAG)**: Hỗ trợ bối cảnh truyện dài hàng trăm chương.
 - [ ] **Advanced Graph Visualization**: Trực quan hóa mối quan hệ nhân vật dưới dạng đồ thị động.
-- [ ] **Pydantic Settings**: Quản lý cấu hình tập trung bằng `BaseSettings`.
 
 ---
 
 © 2026 Novel Sharing Platform Team.
+
+## Phase 4: state projections
+
+See [State projection and correction workflow](docs/STATE_PROJECTION.md) for the migration, proposal review API, rebuild command, and validation limits. State-transition extraction is opt-in through `options.extract_state_transitions`.

@@ -14,6 +14,7 @@ class KBEntity(BaseModel):
     status: str = "Alive"
     location: str = "Unknown"
     mentions: int = 1
+    is_locked: bool = False
 
 class KBRelation(BaseModel):
     subject: str
@@ -61,9 +62,15 @@ class StoryKB(BaseModel):
         "updated_at": datetime.now(timezone.utc).isoformat()
     })
     entities: Dict[str, KBEntity] = Field(default_factory=dict)
+    entity_aliases: List[Dict[str, Any]] = Field(default_factory=list)
+    entity_mentions: List[Dict[str, Any]] = Field(default_factory=list)
+    facts: List[Dict[str, Any]] = Field(default_factory=list)
+    state_transitions: List[Dict[str, Any]] = Field(default_factory=list)
+    narrative_projection: Dict[str, Any] = Field(default_factory=dict)
     relations: List[KBRelation] = Field(default_factory=list)
     events: List[KBEvent] = Field(default_factory=list)
     enhanced_events: List[Dict[str, Any]] = Field(default_factory=list)
+    proposals: List[Dict[str, Any]] = Field(default_factory=list)
     relation_history: List[Dict[str, Any]] = Field(default_factory=list)
     entity_states: Dict[str, List[Dict[str, Any]]] = Field(default_factory=dict)
     event_history: List[EventHistoryEntry] = Field(default_factory=list)
@@ -97,6 +104,25 @@ class StoryKBManager:
             logger.error(f"Failed to load KB for {story_id}: {exc}")
             return StoryKB(story_id=story_id)
 
+    def save_narrative_kb(self, story_id: str, kb: StoryKB) -> None:
+        """Atomic replacement with explicit errors for the canonical proposal workflow."""
+        import os
+        import tempfile
+        destination = self._get_file_path(story_id)
+        kb.metadata["updated_at"] = datetime.now(timezone.utc).isoformat()
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=self.storage_dir,
+                                             suffix=".tmp", delete=False) as output:
+                temporary = output.name
+                output.write(kb.model_dump_json(indent=2))
+                output.flush()
+                os.fsync(output.fileno())
+            os.replace(temporary, destination)
+        finally:
+            if temporary and os.path.exists(temporary):
+                os.unlink(temporary)
+
     def save_kb(self, story_id: str, kb: StoryKB) -> None:
         file_path = self._get_file_path(story_id)
         kb.metadata["updated_at"] = datetime.now(timezone.utc).isoformat()
@@ -127,8 +153,6 @@ class StoryKBManager:
         
         name = str(entity_data.get("word") or entity_data.get("Entity") or entity_data.get("name") or entity_data.get("normalized_name") or entity_data.get("raw_name") or "").strip()
         label = str(entity_data.get("type") or entity_data.get("entity") or entity_data.get("Label") or "UNKNOWN").strip()
-        
-        logger.warning(f"[UPSERT DEBUG] name={name}, label={label}, raw_keys={list(entity_data.keys())}, type_val={entity_data.get('type')!r}, entity_val={entity_data.get('entity')!r}")
         
         if not name:
             return {"status": "skipped", "reason": "empty_entity_name"}

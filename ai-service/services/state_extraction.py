@@ -1,136 +1,103 @@
-"""
-State Extraction Service
-========================
-Uses LLM to extract entity state changes (health, location, emotion, status)
-from narrative text. Only extracts states for known/anchored entities.
-"""
+import json
 import logging
 import re
-from typing import List
+from typing import Any
 
+from pydantic import ValidationError
+
+from core.exceptions import StateExtractionError
+from core.structured_outputs import PipelineMetadata, StateChangeOutput, StateExtractionOutput
 from models.entity_state import EntityState
+
 
 logger = logging.getLogger(__name__)
 
-# Allowed attributes — anything outside this set is discarded
-VALID_ATTRIBUTES = {"health", "location", "emotion", "status"}
 
-
-def extract_states(text: str, entities: list[dict], llm_service) -> List[EntityState]:
-    """Extract entity state changes from text using LLM inference.
-
-    Args:
-        text: The raw narrative text.
-        entities: List of resolved entity dicts (must have 'resolved_name' or 'word').
-        llm_service: An initialised LLMService instance.
-
-    Returns:
-        A list of validated EntityState objects.
-    """
-    if not text or not text.strip():
+def extract_states(
+    text: str,
+    entities: list[dict[str, Any]],
+    llm_service: Any,
+    pipeline_version: str = "state-v1",
+    prompt_version: str = "state-extraction-v1",
+) -> list[EntityState]:
+    if not text or not text.strip() or not entities:
         return []
 
-    if not entities:
-        return []
-
-    # Build entity name set for anchoring
-    entity_names = [
-        e.get("resolved_name", e.get("word", ""))
-        for e in entities
-        if e.get("resolved_name", e.get("word", ""))
-    ]
-    entity_names = list(set(entity_names))
+    entity_names = sorted(
+        {
+            str(name).strip()
+            for entity in entities
+            if (name := entity.get("resolved_name") or entity.get("word")) and str(name).strip()
+        }
+    )
     if not entity_names:
         return []
-
-    entity_names_str = ", ".join(entity_names)
+    if llm_service is None:
+        raise StateExtractionError("LLM provider is unavailable")
 
     system_prompt = (
-        "You are an expert narrative analyst specializing in character state tracking. "
-        "Your task is to extract STATE CHANGES of entities from the given text passage.\n"
-        "Only extract states for entities in the provided list.\n"
-        "Valid state types: health (physical condition), location (current place), "
-        "emotion (feelings), status (general state like alive, dead, captured).\n"
-        "Return ONLY valid JSON, no explanations. Required format:\n"
-        "{\n"
-        "  \"states\": [\n"
-        "    {\n"
-        "      \"entity\": \"Entity Name\",\n"
-        "      \"attribute\": \"health | location | emotion | status\",\n"
-        "      \"value\": \"state value (e.g.: wounded, happy, Ashenhold, dead)\",\n"
-        "      \"confidence\": 0.9\n"
-        "    }\n"
-        "  ]\n"
-        "}\n"
-        "If no state changes are detected, return an empty states array."
+        "You are a narrative state extractor. Only extract state changes for supplied entities. "
+        "Valid attributes are health, location, emotion, and status. Return only valid JSON with a 'states' array. "
+        "Every state must contain entity, attribute, value, and confidence between 0 and 1."
     )
-
     user_prompt = (
         f"Text passage: {text.strip()}\n"
-        f"Known entities (ONLY extract states for these): {entity_names_str}\n"
-        "Extract all state changes."
+        f"Known entities: {', '.join(entity_names)}\n"
+        "Extract state changes."
     )
 
     try:
-        raw_output = llm_service._call_llm(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt
-        )
+        raw_output = llm_service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
     except Exception as exc:
-        logger.error("LLM State Extraction failed: %s", exc)
-        return []
+        raise StateExtractionError(f"provider call failed: {exc}") from exc
 
-    # Parse JSON output
-    cleaned = raw_output.strip()
-    if cleaned.startswith("```"):
-        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
-        cleaned = re.sub(r"\s*```$", "", cleaned)
+    raw_states = _parse_items(raw_output, "states")
+    try:
+        extraction = StateExtractionOutput(
+            states=[StateChangeOutput.model_validate(item) for item in raw_states],
+            metadata=PipelineMetadata(
+                pipeline_version=pipeline_version,
+                model_name=str(getattr(llm_service, "model", "unknown") or "unknown"),
+                prompt_version=prompt_version,
+            ),
+        )
+    except ValidationError as exc:
+        raise StateExtractionError(f"model output failed schema validation: {exc}") from exc
 
-    parsed = llm_service._parse_json_like_output(cleaned)
-
-    raw_states = []
-    if isinstance(parsed, dict) and "states" in parsed:
-        raw_states = parsed["states"]
-    elif isinstance(parsed, list):
-        raw_states = parsed
-
-    # Validate and build EntityState objects
-    results: List[EntityState] = []
-    entity_names_lower = {n.casefold() for n in entity_names}
-
-    for raw in raw_states:
-        entity_name = raw.get("entity", "")
-        attribute = raw.get("attribute", "").lower().strip()
-        value = raw.get("value", "")
-        confidence = float(raw.get("confidence", 0.8))
-
-        # Guard: only extract for known entities
-        if entity_name.casefold() not in entity_names_lower:
-            logger.debug("State extraction skipped unknown entity: %s", entity_name)
+    canonical_names = {name.casefold(): name for name in entity_names}
+    results: list[EntityState] = []
+    for state in extraction.states:
+        canonical_name = canonical_names.get(state.entity.casefold())
+        if canonical_name is None or state.confidence < 0.5:
             continue
-
-        # Guard: only allow valid attributes
-        if attribute not in VALID_ATTRIBUTES:
-            logger.debug("State extraction skipped invalid attribute: %s", attribute)
-            continue
-
-        # Guard: reject empty values
-        if not value or not str(value).strip():
-            continue
-
-        # Guard: reject low confidence noise
-        if confidence < 0.5:
-            logger.debug("State extraction skipped low confidence (%.2f): %s.%s", confidence, entity_name, attribute)
-            continue
-
-        results.append(EntityState(
-            entity_id=entity_name,
-            attribute=attribute,
-            value=str(value).strip(),
-            confidence=confidence,
-            source="AI",
-            raw_text=text
-        ))
+        results.append(
+            EntityState(
+                entity_id=canonical_name,
+                attribute=state.attribute,
+                value=state.value.strip(),
+                confidence=state.confidence,
+                source="AI",
+                raw_text=text,
+            )
+        )
 
     logger.info("State extraction: %d states from %d entities", len(results), len(entity_names))
     return results
+
+
+def _parse_items(raw_output: Any, key: str) -> list[Any]:
+    if raw_output is None or not str(raw_output).strip():
+        raise StateExtractionError("provider returned empty output")
+    cleaned = str(raw_output).strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+    try:
+        parsed = json.loads(cleaned)
+    except json.JSONDecodeError as exc:
+        raise StateExtractionError("model output is not valid JSON") from exc
+    if isinstance(parsed, list):
+        return parsed
+    if isinstance(parsed, dict) and isinstance(parsed.get(key), list):
+        return parsed[key]
+    raise StateExtractionError(f"model output must be an array or an object containing '{key}'")

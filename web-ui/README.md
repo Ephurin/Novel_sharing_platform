@@ -1,55 +1,31 @@
-# 🎨 Ephurin Co-Pilot Web UI
-Frontend trực quan cho hệ thống hỗ trợ sáng tác thông minh. Thay thế đồ thị phức tạp bằng giao diện **Wiki Drawer** thân thiện, giúp tác giả quản lý nhân vật và bối cảnh dễ dàng.
+# AI Writing Copilot Web UI
 
----
+Frontend IDE cho tác giả viết truyện, duyệt Story Brain và làm việc với AI suggestions.
 
-## ✨ Tính năng nổi bật
-- **Wiki Drawer**: Giao diện dạng Fandom Wiki hiển thị hồ sơ thực thể (Nhân vật, Địa điểm, Kỹ năng...).
-- **Conflict Highlighting**: Tự động cảnh báo mâu thuẫn logic ngay trên giao diện (ví dụ: nhân vật đã chết nhưng vẫn hoạt động).
-- **Timeline View**: Theo dõi dòng thời gian sự kiện của từng nhân vật với các chỉ số cảm xúc.
-- **Entity Profile**: Quản lý thuộc tính động (Máu, Vị trí, Trạng thái) và quan hệ giữa các nhân vật.
-- **Smart Suggestions**: Nhận gợi ý tiếp nối nội dung dựa trên dữ liệu từ Knowledge Base.
+## Stack
 
----
+- React 19 + Vite
+- Tiptap rich-text editor
+- Zustand state management
+- Tailwind CSS
+- React Flow
+- Axios
 
-## 🛠️ Công nghệ sử dụng
-- **Core**: React 18, Vite
-- **State Management**: Zustand
-- **Styling**: Vanilla CSS (Premium Dark Theme)
-- **Icons**: Lucide React
-- **HTTP Client**: Axios
+## Chạy local
 
----
-
-## 🏁 Hướng dẫn khởi động
-
-### 1. Cài đặt
-Yêu cầu Node.js 18+
+Yêu cầu Node.js tương thích với Vite 8.
 
 ```bash
-cd web-ui
-
-# Cài đặt dependencies
 npm install
-```
-
-### 2. Chạy Dev Server
-```bash
 npm run dev
 ```
-Mặc định frontend sẽ chạy tại: [http://localhost:5173](http://localhost:5173)
 
-### 3. Cấu hình kết nối Backend
-Nếu Backend chạy ở cổng khác 8000, hãy cập nhật `BASE_URL` tại file:
-`src/services/api.js`
+Frontend mặc định chạy tại `http://localhost:5173` và hiện gọi AI service tại `http://localhost:8000` qua `src/services/api.js`.
 
----
+## Cấu trúc chính
 
-## 📂 Cấu trúc thư mục chính
-- `src/components/`: Chứa các thành phần giao diện (WikiDrawer, Timeline, Editor...).
-- `src/services/api.js`: Quản lý các cuộc gọi API sang Backend.
-- `src/store/useStore.js`: Quản lý trạng thái toàn cục của ứng dụng.
-- `src/index.css`: Toàn bộ CSS hệ thống (Dark theme, Animations).
+- `src/components/`: IDE, editor, AI panel, wiki, timeline và graph UI.
+- `src/services/api.js`: HTTP client cho AI service.
+- `src/store/useStore.js`: state của phiên viết và AI workflow.
 
----
-© 2026 Novel Sharing Platform Team.
+Tài liệu sản phẩm, kiến trúc và UX chuẩn nằm tại [`../docs/README.md`](../docs/README.md).

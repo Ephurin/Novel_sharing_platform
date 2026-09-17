@@ -1,54 +1,35 @@
-# AI Writing Copilot Documentation
+# Ephurin Novel Sharing Platform — Documentation
 
-Đây là nguồn tài liệu chuẩn cho module AI Writing Copilot trong Novel Sharing Platform. Bộ SRA/SRS của dự án chính được giữ nguyên tại `docs/SRA_doc/` và không trộn vào specification của Copilot.
+Chào mừng đến với hệ thống tài liệu kỹ thuật của nền tảng **Ephurin Novel Sharing Platform**.
 
-## Bắt đầu từ đây
+---
 
-| Tài liệu | Nội dung |
+## 📚 Cấu trúc Tài liệu Hệ thống
+
+| Phân hệ / Thư mục | Mô tả nội dung |
 |---|---|
-| [PRODUCT.md](PRODUCT.md) | Tầm nhìn, người dùng, phạm vi và ranh giới với Novel Platform |
-| [USE_CASES.md](USE_CASES.md) | Hai luồng khởi tạo Story Brain và vòng lặp sáng tác chính |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Kiến trúc hiện tại, dữ liệu, pipeline và kiến trúc đích |
-| [ROADMAP.md](ROADMAP.md) | Thứ tự phát triển và exit criteria |
-| [UX.md](UX.md) | Kiến trúc thông tin và nguyên tắc trải nghiệm viết |
-| [PIPELINE.md](PIPELINE.md) | Sơ đồ hóa toàn bộ pipeline: bootstrap, import, writing loop, analysis, generation |
-| [DEVELOPMENT.md](DEVELOPMENT.md) | Quy tắc mở rộng hệ thống và chuẩn chất lượng |
-| [API reference](../ai-service/docs/API_DOC.md) | Endpoint của FastAPI AI service |
+| [SRA_doc/](SRA_doc/) | Báo cáo Phân tích Yêu cầu Phần mềm (SRA) qua các Phase (Phase 1, 2, 3) |
+| [SRS/](SRS/) | Bộ đặc tả yêu cầu chi tiết (SRS) cho 9 phân hệ dịch vụ của nền tảng |
+| [Backend/](Backend/) | Thiết kế kiến trúc Backend (Node.js/Express), module structure và service flows |
+| [Frontend/](Frontend/) | Thiết kế Frontend (Web & Mobile), design system, wireframes, user flows và screen specs |
+| [Database/](Database/) | Lược đồ CSDL PostgreSQL & MongoDB, danh mục index và enums |
+| [API/](API/) | Đặc tả chuẩn RESTful API, mã lỗi và conventions |
+| [SystemTest/](SystemTest/) | Kế hoạch kiểm thử hệ thống, kịch bản E2E và báo cáo kiểm thử |
+| [Implementation/](Implementation/) | Kế hoạch và checklist triển khai từ Phase 0 đến Phase 9 |
+| [AI Service Docs](../ai-service/docs/README.md) | **Tài liệu AI Service & AI Writing Copilot** (Story Brain, State Projection, NER Pipeline...) |
 
-## Implementation review pack
+---
 
-Các tài liệu dưới đây là bản thiết kế đích để review trước khi viết migration và API mới:
+## 📄 Tài liệu Tổng quan
 
-| Tài liệu | Nội dung |
-|---|---|
-| [DATA_MODEL.md](DATA_MODEL.md) | ERD, DDL draft, invariants, transaction và migration từ JSON |
-| [API_CONTRACTS.md](API_CONTRACTS.md) | API đích, job lifecycle, proposal review và error contract |
-| [ADRS.md](ADRS.md) | Các quyết định kiến trúc cần accept/reject |
-| [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) | Phase triển khai, mapping code cũ và exit criteria |
-| [TEST_AND_EVALUATION.md](TEST_AND_EVALUATION.md) | Test pyramid, golden datasets, metrics và release gates |
-| [SECURITY_AND_OPERATIONS.md](SECURITY_AND_OPERATIONS.md) | Permission, privacy, observability, SLO và recovery |
+- [Final_SRS_v1.md](Final_SRS_v1.md): Bản SRS tổng hợp hoàn chỉnh của đồ án.
+- [techstack.md](techstack.md): Lựa chọn công nghệ chuẩn và định hướng phát triển.
+- [SRA_novel_platform_plan (1).md](SRA_novel_platform_plan%20(1).md): Kế hoạch dự án và phân rã công việc ban đầu.
 
-Các tài liệu này đang ở trạng thái **Draft for review**. Endpoint và DDL bên trong chưa được triển khai.
+---
 
-### Thứ tự review đề xuất
+## 🤖 Dịch vụ AI & Writing Copilot
 
-1. `ADRS.md`: accept/reject các quyết định nền tảng.
-2. `DATA_MODEL.md`: kiểm tra aggregate, source of truth và transaction.
-3. `API_CONTRACTS.md`: kiểm tra workflow từ góc nhìn frontend/platform.
-4. `IMPLEMENTATION_PLAN.md`: kiểm tra thứ tự migration và phạm vi MVP.
-5. `TEST_AND_EVALUATION.md`: chốt quality gates.
-6. `SECURITY_AND_OPERATIONS.md`: chốt privacy, permission, SLO và budget.
+Toàn bộ tài liệu thiết kế chi tiết cho module **AI Service / Writing Copilot** (bao gồm Architecture, Data Model, API Contracts, Pipeline, State Projection, ADRs...) được lưu trữ tập trung tại thư mục dịch vụ:
 
-Ghi comment hoặc sửa trực tiếp các mục **Open questions**; sau review, đổi trạng thái ADR liên quan thành `Accepted` trước khi bắt đầu phase tương ứng.
-
-## Nguồn sự thật
-
-1. Code trong `web-ui/` và `ai-service/` quyết định hành vi hiện tại.
-2. `docs/ARCHITECTURE.md` mô tả kiến trúc đã thống nhất.
-3. `docs/ROADMAP.md` là backlog định hướng duy nhất.
-4. `docs/ADRS.md` ghi quyết định đã được chấp nhận trước khi implementation.
-5. Khi code thay đổi API, schema hoặc pipeline, cập nhật tài liệu liên quan trong cùng thay đổi.
-
-## Phạm vi repo
-
-Repo tập trung vào authoring IDE và Story Brain: entity, event, world state, consistency, retrieval và writing assistance. Authentication, publishing, reader experience, community, moderation vận hành và payment thuộc Novel Platform bên ngoài.
+👉 **[Xem tài liệu AI Service tại ai-service/docs/](../ai-service/docs/README.md)**

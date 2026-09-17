@@ -1,0 +1,98 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: p4-postgres
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: test_novel_platform
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - p4_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d test_novel_platform"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  mock-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: p4-mock-platform
+    command: python -m tests.mock_platform.server
+    environment:
+      PORT: "8080"
+      SERVICE_TOKEN: "test-token"
+    ports:
+      - "127.0.0.1:8081:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: p4-migrate
+    command: alembic upgrade head
+    environment:
+      DATABASE_URL: postgresql+psycopg://testuser:testpass@postgres:5432/test_novel_platform
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: p4-ai-service
+    command: uvicorn tests.harness.test_app:app --host 0.0.0.0 --port 8000
+    environment:
+      SERVICE_NAME: "AI Service - Narrative Memory Test"
+      NARRATIVE_REPOSITORY: postgres
+      DATABASE_URL: postgresql+psycopg://testuser:testpass@postgres:5432/test_novel_platform
+      PLATFORM_API_BASE_URL: http://mock-platform:8080
+      PLATFORM_SERVICE_TOKEN: test-token
+      DEFAULT_TENANT_ID: "00000000-0000-0000-0000-000000000001"
+      DEFAULT_ACTOR_ID: "00000000-0000-0000-0000-000000000001"
+      LLM_PROVIDER: "none"
+      USE_FAKE_LLM: "true"
+      CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      mock-platform:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  integration-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: p4-integration-test
+    command: pytest -v tests/test_postgres_integration.py
+    environment:
+      TEST_DATABASE_URL: postgresql+psycopg://testuser:testpass@postgres:5432/test_novel_platform
+    depends_on:
+      ai-service:
+        condition: service_healthy
+    profiles:
+      - test
+
+volumes:
+  p4_postgres_data:
+    name: p4_postgres_data
