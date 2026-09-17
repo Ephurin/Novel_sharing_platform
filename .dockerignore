@@ -1,0 +1,11 @@
+.git
+.agents
+.codex
+backend/node_modules
+backend/dist
+web/node_modules
+web/dist
+mobile/node_modules
+docs/images
+docs/SystemTest/reports
+*.log

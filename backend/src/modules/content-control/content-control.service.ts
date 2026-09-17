@@ -14,11 +14,19 @@ import {
   findReviewById,
   listActiveFilterRules,
   listReviews as listReviewRows,
+  listReportsForReview,
+  resolveReportsForReview,
   resolveReview as resolveReviewRow
 } from './content-control.repository.js';
 import { createModerationEvidence, findModerationEvidence } from './moderation-evidence.repository.js';
 import type { MatchedRule, ModerationStatus, ModerationTargetType } from './content-control.types.js';
-import { updateCommentModerationStatus, type CommentStatus } from '../interactions/comments.repository.js';
+import {
+  findCommentById,
+  softDeleteComment,
+  updateCommentModerationStatus,
+  type CommentStatus
+} from '../interactions/comments.repository.js';
+import { createNotification } from '../interactions/notifications.repository.js';
 import { publishNovel, rejectNovelPublication } from '../novels/novels.repository.js';
 import { findChapterById, publishChapter, rejectChapterPublication } from '../novels/chapters.repository.js';
 import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
@@ -186,8 +194,12 @@ export async function resolveModerationReview(
   }
 
   if (resolved.target_type === 'COMMENT') {
-    const commentStatus: CommentStatus = resolved.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
-    await updateCommentModerationStatus(resolved.target_id, commentStatus, resolved.review_id);
+    if (resolved.source === 'USER_REPORT') {
+      await resolveCommentUserReport(auth, resolved, input.reason);
+    } else {
+      const commentStatus: CommentStatus = resolved.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
+      await updateCommentModerationStatus(resolved.target_id, commentStatus, resolved.review_id);
+    }
   }
 
   if (resolved.target_type === 'NOVEL') {
@@ -228,4 +240,77 @@ export async function resolveModerationReview(
     targetType: resolved.target_type as ModerationTargetType,
     targetId: resolved.target_id
   };
+}
+
+async function resolveCommentUserReport(
+  auth: AuthContext,
+  resolved: {
+    review_id: string;
+    target_id: string;
+    status: ModerationStatus;
+  },
+  reason?: string
+) {
+  const comment = await findCommentById(resolved.target_id);
+  const reports = await listReportsForReview(resolved.review_id);
+  const reportAccepted = resolved.status === 'APPROVED';
+  const reportStatus = reportAccepted ? 'RESOLVED' : 'REJECTED';
+  const resolution = reason ?? (reportAccepted ? 'Comment report approved by Admin.' : 'Comment report rejected by Admin.');
+
+  await resolveReportsForReview({
+    reviewId: resolved.review_id,
+    resolvedBy: auth.userId,
+    status: reportStatus,
+    resolution
+  });
+
+  if (reportAccepted && comment) {
+    await softDeleteComment(resolved.target_id);
+  }
+
+  if (comment) {
+    await createNotification({
+      userId: comment.userId,
+      type: reportAccepted ? 'COMMENT_REMOVED_BY_REPORT' : 'COMMENT_REPORT_REJECTED_OWNER',
+      title: reportAccepted ? 'Bình luận của bạn đã bị gỡ' : 'Báo cáo bình luận đã bị từ chối',
+      content: reportAccepted
+        ? `Bình luận của bạn đã bị gỡ sau khi Admin duyệt báo cáo.${reason ? ` Lý do: ${reason}` : ''}`
+        : `Admin đã từ chối báo cáo đối với bình luận của bạn. Bình luận được giữ nguyên.${reason ? ` Lý do: ${reason}` : ''}`,
+      payload: {
+        reviewId: resolved.review_id,
+        commentId: resolved.target_id,
+        chapterId: comment.chapterId,
+        novelId: comment.novelId,
+        decision: resolved.status,
+        adminId: auth.userId,
+        reason: reason ?? null
+      }
+    });
+  }
+
+  const notifiedUserIds = new Set(comment ? [comment.userId] : []);
+  for (const report of reports) {
+    const reporterId = report.reporter_id as string;
+    if (notifiedUserIds.has(reporterId)) {
+      continue;
+    }
+
+    notifiedUserIds.add(reporterId);
+    await createNotification({
+      userId: reporterId,
+      type: reportAccepted ? 'COMMENT_REPORT_APPROVED' : 'COMMENT_REPORT_REJECTED',
+      title: reportAccepted ? 'Báo cáo bình luận đã được duyệt' : 'Báo cáo bình luận đã bị từ chối',
+      content: reportAccepted
+        ? `Admin đã duyệt báo cáo của bạn và gỡ bình luận vi phạm.${reason ? ` Lý do: ${reason}` : ''}`
+        : `Admin đã từ chối báo cáo của bạn. Bình luận được giữ nguyên.${reason ? ` Lý do: ${reason}` : ''}`,
+      payload: {
+        reviewId: resolved.review_id,
+        reportId: report.report_id,
+        commentId: resolved.target_id,
+        decision: resolved.status,
+        adminId: auth.userId,
+        reason: reason ?? null
+      }
+    });
+  }
 }

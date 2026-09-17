@@ -194,7 +194,12 @@ export async function unlockVipChapter(chapterId: string) {
   return response.data.data;
 }
 
-export async function reportContent(input: { targetType: 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER'; targetId: string; reason: string }) {
+export async function reportContent(input: {
+  targetType: 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER';
+  targetId: string;
+  reason: string;
+  description?: string;
+}) {
   const response = await apiClient.post<ApiEnvelope<{ reportId: string; status: string }>>('/reports', input);
   return response.data.data;
 }

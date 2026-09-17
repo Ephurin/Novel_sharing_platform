@@ -104,7 +104,7 @@ export async function updateChapterMetadata(
         is_vip = coalesce($4, is_vip),
         price_coins = coalesce($5, price_coins),
         updated_at = now()
-      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION')
+      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED')
       returning *
     `,
     [chapterId, input.title, input.wordCount, input.isVip, input.priceCoins]
@@ -141,7 +141,7 @@ export async function submitChapterForPublish(chapterId: string) {
     `
       update chapters
       set status = 'PENDING_MODERATION', updated_at = now()
-      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED')
+      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PUBLISHED')
       returning *
     `,
     [chapterId]
@@ -168,7 +168,7 @@ export async function publishChapter(
         status = 'PUBLISHED',
         published_at = coalesce(published_at, now()),
         updated_at = now()
-      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION')
+      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED')
       returning *
     `,
     [chapterId, input.title, input.content, input.wordCount]
