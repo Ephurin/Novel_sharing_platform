@@ -4,8 +4,10 @@ import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { env } from '../../core/config/env.js';
 import { findChapterById } from './chapters.repository.js';
-import { findDraftChapterByChapterId, upsertDraftChapter } from './draft-chapters.repository.js';
+import { findDraftChapterByChapterId, upsertDraftChapter, syncDraftFromRevisionConditional } from './draft-chapters.repository.js';
 import { getNovel } from './novels.service.js';
+import { insertOutboxEvent } from './outbox.repository.js';
+import { triggerImmediateProcessing } from '../../jobs/outbox-processor.js';
 import {
   findLatestRevisionByChapterId,
   findRevisionById,
@@ -98,26 +100,58 @@ export async function createSnapshot(
     });
 
     await updateChapterLatestRevision(client, chapterId, record.revisionId, wordCount);
+
+    // Transactional Outbox for incremental analysis
+    await insertOutboxEvent(client, {
+      eventType: 'INCREMENTAL_ANALYSIS',
+      novelId: chapter.novelId,
+      chapterId,
+      revisionId: record.revisionId,
+      contentHash,
+      createdBy: auth.userId,
+      payload: { operation: 'incremental_story_analysis' }
+    });
+
     return record;
   });
 
-  // Dual-write to Mongo draft storage with reconciliation fallback
+  // Dual-write to Mongo draft storage with conditional reconciliation
+  const snapshotTime = new Date();
   try {
-    await upsertDraftChapter({
+    await syncDraftFromRevisionConditional({
       chapterId,
-      novelId: chapter.novelId,
-      authorId: auth.userId,
+      revisionId: revision.revisionId,
       title: chapter.title,
       content,
       wordCount,
-      autosave: false
+      acceptTimestamp: snapshotTime
     });
   } catch (mongoErr: any) {
     console.error(
-      `[DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB upsertDraftChapter failed in snapshot for revision ${revision.revisionId}:`,
+      `[DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB sync failed in snapshot for revision ${revision.revisionId}:`,
       mongoErr?.message || mongoErr
     );
+    try {
+      await insertOutboxEvent(undefined as any, {
+        eventType: 'MONGO_DRAFT_SYNC',
+        novelId: chapter.novelId,
+        chapterId,
+        revisionId: revision.revisionId,
+        contentHash,
+        createdBy: auth.userId,
+        payload: {
+          title: chapter.title,
+          content,
+          wordCount,
+          acceptTimestamp: snapshotTime.toISOString()
+        }
+      });
+    } catch (outboxErr) {
+      console.error('[Outbox] Failed to queue MONGO_DRAFT_SYNC fallback:', outboxErr);
+    }
   }
+
+  triggerImmediateProcessing();
 
   return revision;
 }
@@ -230,71 +264,68 @@ export async function acceptDraft(
     });
 
     await updateChapterLatestRevision(client, chapterId, record.revisionId, newWordCount);
+
+    // Transactional Outbox: guarantee incremental analysis is persisted with the revision
+    await insertOutboxEvent(client, {
+      eventType: 'INCREMENTAL_ANALYSIS',
+      novelId: chapter.novelId,
+      chapterId,
+      revisionId: record.revisionId,
+      contentHash: newContentHash,
+      createdBy: auth.userId,
+      payload: {
+        operation: 'incremental_story_analysis'
+      }
+    });
+
     return record;
   });
 
-  // 3. Dual-write to MongoDB draft storage with reconciliation fallback
+  // 3. Dual-write to MongoDB draft storage with conditional reconciliation
+  const acceptTime = new Date();
   try {
-    await upsertDraftChapter({
+    const syncRes = await syncDraftFromRevisionConditional({
       chapterId,
-      novelId: chapter.novelId,
-      authorId: auth.userId,
+      revisionId: newRevision.revisionId,
       title: chapter.title,
       content: newRevision.content,
       wordCount: newRevision.wordCount,
-      autosave: false
+      acceptTimestamp: acceptTime
     });
+    if (syncRes.status === 'skipped_newer_draft') {
+      console.log(
+        `[MongoDB Reconciliation] Skipped draft sync for revision ${newRevision.revisionId}: newer manual draft in progress.`
+      );
+    }
   } catch (mongoErr: any) {
     console.error(
-      `[DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB upsertDraftChapter failed for revision ${newRevision.revisionId}:`,
+      `[DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB sync failed for revision ${newRevision.revisionId}, queuing outbox event:`,
       mongoErr?.message || mongoErr
     );
+    try {
+      await insertOutboxEvent(undefined as any, {
+        eventType: 'MONGO_DRAFT_SYNC',
+        novelId: chapter.novelId,
+        chapterId,
+        revisionId: newRevision.revisionId,
+        contentHash: newRevision.contentHash,
+        createdBy: auth.userId,
+        payload: {
+          title: chapter.title,
+          content: newRevision.content,
+          wordCount: newRevision.wordCount,
+          acceptTimestamp: acceptTime.toISOString()
+        }
+      });
+    } catch (outboxErr) {
+      console.error('[Outbox] Failed to queue MONGO_DRAFT_SYNC fallback:', outboxErr);
+    }
   }
 
-  // 4. Post-accept background dispatch of incremental analysis (durable fire-and-forget)
-  dispatchIncrementalAnalysis(chapter.novelId, chapterId, newRevision, auth.userId);
+  // 4. Trigger immediate durable outbox processing
+  triggerImmediateProcessing();
 
   return { revision: newRevision, chapterId };
-}
-
-function dispatchIncrementalAnalysis(
-  novelId: string,
-  chapterId: string,
-  revision: ChapterRevisionRecord,
-  userId: string
-) {
-  const analysisUrl = `${env.AI_SERVICE_URL}/v1/revisions/${revision.revisionId}/analyses`;
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'X-Tenant-Id': '00000000-0000-0000-0000-000000000001',
-    'X-Actor-Id': userId,
-    'X-Request-Id': crypto.randomUUID(),
-    'Idempotency-Key': `analysis-${revision.revisionId}`
-  };
-  if (env.PLATFORM_SERVICE_TOKEN) {
-    headers['Authorization'] = `Bearer ${env.PLATFORM_SERVICE_TOKEN}`;
-  }
-
-  fetch(analysisUrl, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      novel_id: novelId,
-      chapter_id: chapterId,
-      revision_id: revision.revisionId,
-      content_hash: revision.contentHash,
-      operation: 'incremental_story_analysis'
-    })
-  })
-    .then(async (res) => {
-      if (!res.ok) {
-        const body = await res.text().catch(() => '');
-        console.warn(`[RevisionAnalysis] Background dispatch failed HTTP ${res.status}:`, body);
-      }
-    })
-    .catch((err) => {
-      console.warn(`[RevisionAnalysis] Background dispatch network error:`, err?.message || err);
-    });
 }
 
 export async function getRevision(

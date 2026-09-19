@@ -131,5 +131,6 @@ class NarrativeRepository(Protocol):
         chapter_number: int | None = None,
         character_name: str | None = None,
         limit_recent_events: int = 20,
+        token_budget: int | None = None,
     ) -> WritingContextPackage: ...
 

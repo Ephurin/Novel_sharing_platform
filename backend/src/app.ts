@@ -8,6 +8,7 @@ import { notFoundMiddleware } from './core/middleware/not-found.middleware.js';
 import { successResponse } from './core/response/response.js';
 import { adminRoutes } from './modules/admin/admin.routes.js';
 import { aiCopilotRoutes } from './modules/ai-copilot/ai-copilot.routes.js';
+import { aiGatewayRoutes } from './modules/ai/ai-gateway.routes.js';
 import {
   adminModerationRoutes,
   contentControlRoutes,
@@ -51,6 +52,7 @@ export function createApp() {
 
   app.use(`${env.API_PREFIX}/auth`, authRoutes);
   app.use(`${env.API_PREFIX}/ai`, aiCopilotRoutes);
+  app.use(`${env.API_PREFIX}/ai`, aiGatewayRoutes);
   app.use(`${env.API_PREFIX}/users`, usersRoutes);
   app.use(`${env.API_PREFIX}`, storyContextRoutes);
   app.use(`${env.API_PREFIX}/novels`, novelsRoutes);

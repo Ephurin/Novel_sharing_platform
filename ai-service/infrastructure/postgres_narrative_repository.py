@@ -1248,6 +1248,10 @@ class PostgresNarrativeRepository:
             )
             for v in (record.validations or [])
         )
+        ctx_summary = dict(record.context_summary or {})
+        brain_version_used = ctx_summary.get("brain_version_used", record.brain_version)
+        context_hash = ctx_summary.get("context_hash", "")
+        chapter_number = ctx_summary.get("chapter_number")
         return WritingGenerationJob(
             job_id=str(record.job_id),
             novel_id=str(record.novel_id),
@@ -1270,9 +1274,12 @@ class PostgresNarrativeRepository:
             patch=patch,
             validation_status=record.validation_status,
             validations=validations,
-            context_summary=dict(record.context_summary or {}),
+            context_summary=ctx_summary,
             model_info={"name": record.model_name or "", "prompt_version": record.prompt_version or ""},
             error=dict(record.error) if record.error else None,
+            brain_version_used=brain_version_used,
+            context_hash=context_hash,
+            chapter_number=chapter_number,
         )
 
     def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
@@ -1394,6 +1401,14 @@ class PostgresNarrativeRepository:
                         )
                     return self._to_writing_job(existing)
 
+            ctx_summary = dict(job.context_summary or {})
+            if job.brain_version_used is not None:
+                ctx_summary["brain_version_used"] = job.brain_version_used
+            if job.context_hash:
+                ctx_summary["context_hash"] = job.context_hash
+            if job.chapter_number is not None:
+                ctx_summary["chapter_number"] = job.chapter_number
+
             record = WritingGenerationRecord(
                 id=uuid.uuid4(),
                 job_id=job_uuid,
@@ -1402,7 +1417,7 @@ class PostgresNarrativeRepository:
                 chapter_id=self._stable_uuid("chapter", job.chapter_id),
                 revision_id=self._stable_uuid("revision", job.revision_id),
                 base_content_hash=job.content_hash,
-                brain_version=job.expected_brain_version,
+                brain_version=job.brain_version_used or job.expected_brain_version,
                 operation=job.operation,
                 selection_start=job.selection.get("start", 0),
                 selection_end=job.selection.get("end", 0),
@@ -1418,7 +1433,7 @@ class PostgresNarrativeRepository:
                 patch=asdict(job.patch) if job.patch else None,
                 validation_status=job.validation_status,
                 validations=[asdict(v) for v in job.validations],
-                context_summary=job.context_summary,
+                context_summary=ctx_summary,
                 model_name=job.model_info.get("name"),
                 prompt_version=job.model_info.get("prompt_version"),
                 error=job.error,
@@ -1457,7 +1472,15 @@ class PostgresNarrativeRepository:
             record.patch = asdict(job.patch) if job.patch else None
             record.validation_status = job.validation_status
             record.validations = [asdict(v) for v in job.validations]
-            record.context_summary = job.context_summary
+            ctx_summary = dict(job.context_summary or {})
+            if job.brain_version_used is not None:
+                ctx_summary["brain_version_used"] = job.brain_version_used
+                record.brain_version = job.brain_version_used
+            if job.context_hash:
+                ctx_summary["context_hash"] = job.context_hash
+            if job.chapter_number is not None:
+                ctx_summary["chapter_number"] = job.chapter_number
+            record.context_summary = ctx_summary
             record.error = job.error
             session.flush()
             return self._to_writing_job(record)
@@ -1469,6 +1492,7 @@ class PostgresNarrativeRepository:
         chapter_number: int | None = None,
         character_name: str | None = None,
         limit_recent_events: int = 20,
+        token_budget: int | None = None,
     ) -> WritingContextPackage:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
@@ -1483,56 +1507,6 @@ class PostgresNarrativeRepository:
                     *self._scope(EntityRecord, novel_id),
                 )
             ).all()
-            states = session.scalars(
-                select(CurrentEntityStateRecord).where(
-                    *self._scope(CurrentEntityStateRecord, novel_id)
-                )
-            ).all()
-            state_by_entity = {str(s.entity_id): s.state for s in states}
-
-            entities_out = []
-            states_out = []
-            for e in entities:
-                e_id = str(e.id)
-                attrs = e.static_attributes or {}
-                entities_out.append({
-                    "entity_id": e_id,
-                    "name": e.canonical_name,
-                    "entity_type": e.entity_type,
-                    "status": str(attrs.get("status", "Alive")),
-                    "location": str(attrs.get("location", "Unknown")),
-                    "is_locked": e.is_locked,
-                })
-                c_state = state_by_entity.get(e_id, {})
-                states_out.append({
-                    "entity_id": e_id,
-                    "name": e.canonical_name,
-                    "status": c_state.get("status", attrs.get("status", "Alive")),
-                    "location": c_state.get("location", attrs.get("location", "Unknown")),
-                    "state": c_state,
-                })
-
-            event_stmt = select(EventRecord).where(
-                EventRecord.confirmation_status == "confirmed",
-                *self._scope(EventRecord, novel_id),
-            )
-            if chapter_number is not None:
-                event_stmt = event_stmt.where(EventRecord.chapter_number <= chapter_number)
-            event_stmt = event_stmt.order_by(EventRecord.narrative_order.desc()).limit(limit_recent_events)
-            events = session.scalars(event_stmt).all()
-            events_sorted = sorted(events, key=lambda x: x.narrative_order)
-            events_out = [
-                {
-                    "event_id": str(ev.id),
-                    "narrative_order": ev.narrative_order,
-                    "chapter_number": ev.chapter_number,
-                    "event_type": ev.event_type,
-                    "summary": ev.summary,
-                    "participants": list(ev.participants),
-                    "metadata": dict(ev.event_metadata),
-                }
-                for ev in events_sorted
-            ]
 
             facts = session.scalars(
                 select(FactRecord).where(
@@ -1540,25 +1514,192 @@ class PostgresNarrativeRepository:
                     *self._scope(FactRecord, novel_id),
                 )
             ).all()
-            rules_out = []
-            for f in facts:
-                if f.is_locked or f.fact_type in ("world_rule", "character_trait"):
-                    rules_out.append({
-                        "id": str(f.id),
-                        "fact_type": f.fact_type,
+
+            # 1. Confirmed Events with temporal cutoff and supersede resolution
+            event_stmt = select(EventRecord).where(
+                EventRecord.confirmation_status == "confirmed",
+                *self._scope(EventRecord, novel_id),
+            )
+            if chapter_number is not None:
+                event_stmt = event_stmt.where(EventRecord.chapter_number <= chapter_number)
+            candidate_events = session.scalars(
+                event_stmt.order_by(EventRecord.narrative_order.asc(), EventRecord.id.asc())
+            ).all()
+
+            # Supersede resolution among events up to cutoff
+            by_id: dict[str, EventRecord] = {}
+            replacements: dict[str, str] = {}
+            for ev in candidate_events:
+                ev_id_str = str(ev.id)
+                target = (ev.event_metadata or {}).get("supersedes_id")
+                if target:
+                    replacements[str(target)] = ev_id_str
+                by_id[ev_id_str] = ev
+
+            active_events = [ev for ev in candidate_events if str(ev.id) not in replacements]
+            events_for_output = active_events[-limit_recent_events:]
+
+            # 2. Entity state resolution (as-of chapter cutoff if chapter_number specified)
+            state_by_entity: dict[str, dict[str, Any]] = {}
+            if chapter_number is not None:
+                active_event_uuids = [ev.id for ev in active_events]
+                trans_stmt = select(StateTransitionRecord).where(
+                    *self._scope(StateTransitionRecord, novel_id),
+                )
+                if active_event_uuids:
+                    trans_stmt = trans_stmt.where(
+                        (StateTransitionRecord.fact_id.is_not(None)) |
+                        (StateTransitionRecord.event_id.in_(active_event_uuids))
+                    )
+                else:
+                    trans_stmt = trans_stmt.where(StateTransitionRecord.fact_id.is_not(None))
+                transitions = session.scalars(
+                    trans_stmt.order_by(StateTransitionRecord.sequence.asc())
+                ).all()
+
+                proj_entities = [self._to_entity(e) for e in entities]
+                proj_facts = [
+                    {
+                        "fact_id": str(f.id),
+                        "subject_entity_id": str(f.subject_entity_id) if f.subject_entity_id else None,
                         "fact_key": f.fact_key,
                         "fact_value": f.fact_value,
                         "is_locked": f.is_locked,
-                    })
+                    }
+                    for f in facts
+                ]
+                proj_events = [self._to_event(e) for e in active_events]
+                proj_trans = [
+                    {
+                        "transition_id": str(t.id),
+                        "entity_id": str(t.entity_id),
+                        "event_id": str(t.event_id) if t.event_id else None,
+                        "fact_id": str(t.fact_id) if t.fact_id else None,
+                        "attribute_key": t.attribute_key,
+                        "new_value": t.new_value,
+                    }
+                    for t in transitions
+                ]
+                try:
+                    projected = project(proj_entities, proj_facts, proj_events, proj_trans)
+                    state_by_entity = projected.get("entities", {})
+                except Exception:
+                    current_states = session.scalars(
+                        select(CurrentEntityStateRecord).where(*self._scope(CurrentEntityStateRecord, novel_id))
+                    ).all()
+                    state_by_entity = {str(s.entity_id): s.state for s in current_states}
+            else:
+                current_states = session.scalars(
+                    select(CurrentEntityStateRecord).where(*self._scope(CurrentEntityStateRecord, novel_id))
+                ).all()
+                state_by_entity = {str(s.entity_id): s.state for s in current_states}
 
-            token_budget = {
-                "used": 400 + len(entities_out) * 45 + len(events_out) * 55 + len(rules_out) * 35,
-                "maximum": 12000,
-            }
+            # 3. Facts and World rules separation
+            locked_rules = []
+            other_rules = []
+            for f in facts:
+                f_dict = {
+                    "id": str(f.id),
+                    "fact_type": f.fact_type,
+                    "fact_key": f.fact_key,
+                    "fact_value": f.fact_value,
+                    "is_locked": f.is_locked,
+                }
+                if f.is_locked:
+                    locked_rules.append(f_dict)
+                elif f.fact_type in ("world_rule", "character_trait"):
+                    other_rules.append(f_dict)
+
+            # 4. Deterministic Token Budget Enforcement
+            target_maximum = token_budget if (token_budget is not None and token_budget > 0) else 12000
+            base_overhead = 300
+            locked_rules_cost = len(locked_rules) * 35
+
+            if locked_rules_cost + base_overhead > target_maximum:
+                budget_info = {
+                    "used": locked_rules_cost + base_overhead,
+                    "maximum": target_maximum,
+                    "budget_overflow": True,
+                    "locked_overflow": True,
+                }
+                rules_out = locked_rules
+                entities_out: list[dict[str, Any]] = []
+                states_out: list[dict[str, Any]] = []
+                events_out: list[dict[str, Any]] = []
+            else:
+                remaining = target_maximum - (locked_rules_cost + base_overhead)
+                rules_out = list(locked_rules)
+                for r in other_rules:
+                    if remaining >= 35:
+                        rules_out.append(r)
+                        remaining -= 35
+
+                entities_out = []
+                states_out = []
+                sorted_entities = sorted(
+                    entities,
+                    key=lambda e: (
+                        0 if e.is_locked else 1,
+                        0 if (character_name and e.canonical_name.lower() == character_name.lower()) else 1,
+                        e.canonical_name,
+                    ),
+                )
+                for e in sorted_entities:
+                    if remaining >= 45 or e.is_locked:
+                        e_id = str(e.id)
+                        attrs = e.static_attributes or {}
+                        c_state = state_by_entity.get(e_id, {})
+                        entities_out.append({
+                            "entity_id": e_id,
+                            "name": e.canonical_name,
+                            "entity_type": e.entity_type,
+                            "status": str(c_state.get("status", attrs.get("status", "Alive"))),
+                            "location": str(c_state.get("location", attrs.get("location", "Unknown"))),
+                            "is_locked": e.is_locked,
+                        })
+                        states_out.append({
+                            "entity_id": e_id,
+                            "name": e.canonical_name,
+                            "status": str(c_state.get("status", attrs.get("status", "Alive"))),
+                            "location": str(c_state.get("location", attrs.get("location", "Unknown"))),
+                            "state": c_state,
+                        })
+                        remaining = max(0, remaining - 45)
+
+                selected_events = []
+                for ev in reversed(events_for_output):
+                    if remaining >= 55:
+                        selected_events.append(ev)
+                        remaining -= 55
+                    else:
+                        break
+                selected_events.reverse()
+                events_out = [
+                    {
+                        "event_id": str(ev.id),
+                        "narrative_order": ev.narrative_order,
+                        "chapter_number": ev.chapter_number,
+                        "event_type": ev.event_type,
+                        "summary": ev.summary,
+                        "participants": list(ev.participants),
+                        "metadata": dict(ev.event_metadata),
+                    }
+                    for ev in selected_events
+                ]
+
+                used_tokens = base_overhead + len(rules_out) * 35 + len(entities_out) * 45 + len(events_out) * 55
+                budget_info = {
+                    "used": used_tokens,
+                    "maximum": target_maximum,
+                    "budget_overflow": used_tokens > target_maximum,
+                    "locked_overflow": False,
+                }
+
             context_summary = {
                 "entity_ids": [e["entity_id"] for e in entities_out],
                 "event_ids": [ev["event_id"] for ev in events_out],
                 "fact_ids": [r["id"] for r in rules_out],
+                "cutoff_chapter": chapter_number,
             }
             return WritingContextPackage(
                 brain_version=brain_version,
@@ -1567,7 +1708,7 @@ class PostgresNarrativeRepository:
                 recent_events=tuple(events_out),
                 world_rules=tuple(rules_out),
                 author_constraints=(),
-                token_budget=token_budget,
+                token_budget=budget_info,
                 context_summary=context_summary,
             )
 

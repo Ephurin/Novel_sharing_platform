@@ -313,6 +313,7 @@ class WritingGenerationRequest(BaseModel):
     constraints: list[str] = Field(default_factory=list)
     style: dict = Field(default_factory=dict)
     expected_brain_version: int = Field(1, ge=1)
+    chapter_number: int | None = None
     actor_id: str | None = None
     idempotency_key: str = ""
 

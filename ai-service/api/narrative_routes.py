@@ -481,6 +481,7 @@ def create_writing_generation(
             constraints=payload.constraints,
             style=payload.style,
             expected_brain_version=payload.expected_brain_version,
+            chapter_number=payload.chapter_number,
             actor_id=payload.actor_id,
             idempotency_key=payload.idempotency_key,
             process_inline=False,

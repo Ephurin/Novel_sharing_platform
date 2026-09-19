@@ -181,4 +181,7 @@ class WritingGenerationJob:
     context_summary: dict[str, list[str]] = field(default_factory=dict)
     model_info: dict[str, str] = field(default_factory=dict)
     error: dict[str, Any] | None = None
+    brain_version_used: int | None = None
+    context_hash: str = ""
+    chapter_number: int | None = None
 

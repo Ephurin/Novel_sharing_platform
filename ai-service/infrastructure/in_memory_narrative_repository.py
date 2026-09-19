@@ -577,69 +577,176 @@ class InMemoryNarrativeRepository:
         chapter_number: int | None = None,
         character_name: str | None = None,
         limit_recent_events: int = 20,
+        token_budget: int | None = None,
     ) -> WritingContextPackage:
         brain = self.get_story_brain(story_id)
         brain_version = int(brain.metadata.get("brain_version", "1"))
 
-        entities_out = []
-        states_out = []
-        for entity in brain.entities:
-            e_dict = {
-                "entity_id": entity.entity_id or entity.name,
-                "name": entity.name,
-                "entity_type": entity.entity_type,
-                "status": entity.status,
-                "location": entity.location,
-                "is_locked": entity.is_locked,
-            }
-            entities_out.append(e_dict)
-            current_state = brain.current_state.get(entity.name, {})
-            states_out.append({
-                "entity_id": entity.entity_id or entity.name,
-                "name": entity.name,
-                "status": current_state.get("status", entity.status),
-                "location": current_state.get("location", entity.location),
-                "state": current_state,
-            })
-
-        events_filtered = []
+        # 1. Confirmed Events with temporal cutoff and supersede resolution
+        candidate_events = []
         for ev in brain.events:
-            ev_chapter = getattr(ev, "chapter", 1) or 1
+            ev_chapter = getattr(ev, "chapter", 1) or getattr(ev, "chapter_number", 1) or 1
             if chapter_number is not None and ev_chapter > chapter_number:
                 continue
-            events_filtered.append({
-                "event_id": ev.event_id,
-                "chapter_number": ev_chapter,
-                "event_type": ev.event_type,
-                "summary": ev.summary,
-                "participants": list(ev.participants),
-                "metadata": dict(ev.metadata),
-            })
-        events_filtered = sorted(events_filtered, key=lambda x: x.get("chapter_number", 1))[-limit_recent_events:]
+            candidate_events.append(ev)
 
-        rules_out = []
+        candidate_events = sorted(
+            candidate_events,
+            key=lambda x: (getattr(x, "narrative_order", 0) or getattr(x, "chapter", 0) or 0, getattr(x, "event_id", "")),
+        )
+
+        by_id = {}
+        replacements = {}
+        for ev in candidate_events:
+            meta = getattr(ev, "metadata", {}) or {}
+            target = meta.get("supersedes_id")
+            if target:
+                replacements[str(target)] = str(ev.event_id)
+            by_id[str(ev.event_id)] = ev
+
+        active_events = [ev for ev in candidate_events if str(ev.event_id) not in replacements]
+        events_for_output = active_events[-limit_recent_events:]
+
+        # 2. Entity State Resolution (as-of chapter cutoff if chapter_number specified)
+        as_of_states: dict[str, dict[str, Any]] = {}
+        if chapter_number is not None and getattr(brain, "transitions", None):
+            active_event_ids = {str(ev.event_id) for ev in active_events}
+            active_transitions = [
+                t for t in brain.transitions
+                if t.get("fact_id") or str(t.get("event_id")) in active_event_ids
+            ]
+            try:
+                proj = project(brain.entities, brain.facts, active_events, active_transitions)
+                as_of_states = proj.get("entities", {})
+            except Exception:
+                as_of_states = {}
+
+        # 3. Facts and World rules separation
+        locked_rules = []
+        other_rules = []
         for fact in brain.facts:
+            f_id = str(fact.get("id") or fact.get("fact_id") or "")
             f_type = fact.get("fact_type") or fact.get("type", "")
-            if fact.get("is_locked") or f_type in ("world_rule", "character_trait"):
-                rules_out.append(fact)
+            f_locked = bool(fact.get("is_locked", False))
+            f_dict = {
+                "id": f_id,
+                "fact_type": f_type,
+                "fact_key": fact.get("fact_key", ""),
+                "fact_value": fact.get("fact_value", fact.get("statement", "")),
+                "is_locked": f_locked,
+            }
+            if f_locked:
+                locked_rules.append(f_dict)
+            elif f_type in ("world_rule", "character_trait"):
+                other_rules.append(f_dict)
 
-        token_budget = {
-            "used": 400 + len(entities_out) * 45 + len(events_filtered) * 55 + len(rules_out) * 35,
-            "maximum": 12000,
-        }
+        # 4. Deterministic Token Budget Enforcement
+        target_maximum = token_budget if (token_budget is not None and token_budget > 0) else 12000
+        base_overhead = 300
+        locked_rules_cost = len(locked_rules) * 35
+
+        if locked_rules_cost + base_overhead > target_maximum:
+            budget_info = {
+                "used": locked_rules_cost + base_overhead,
+                "maximum": target_maximum,
+                "budget_overflow": True,
+                "locked_overflow": True,
+            }
+            rules_out = locked_rules
+            entities_out: list[dict[str, Any]] = []
+            states_out: list[dict[str, Any]] = []
+            events_out: list[dict[str, Any]] = []
+        else:
+            remaining = target_maximum - (locked_rules_cost + base_overhead)
+            rules_out = list(locked_rules)
+            for r in other_rules:
+                if remaining >= 35:
+                    rules_out.append(r)
+                    remaining -= 35
+
+            entities_out = []
+            states_out = []
+            raw_current_state = brain.current_state.get("entities", brain.current_state) if isinstance(brain.current_state, dict) else {}
+            sorted_entities = sorted(
+                brain.entities,
+                key=lambda e: (
+                    0 if e.is_locked else 1,
+                    0 if (character_name and e.name.lower() == character_name.lower()) else 1,
+                    e.name,
+                ),
+            )
+            for entity in sorted_entities:
+                if remaining >= 45 or entity.is_locked:
+                    e_id = str(entity.entity_id or entity.name)
+                    e_state = (
+                        as_of_states.get(e_id)
+                        or as_of_states.get(entity.name)
+                        or raw_current_state.get(e_id)
+                        or raw_current_state.get(entity.name)
+                        or {}
+                    )
+                    status = str(e_state.get("status", entity.status or "Alive"))
+                    location = str(e_state.get("location", entity.location or "Unknown"))
+                    entities_out.append({
+                        "entity_id": e_id,
+                        "name": entity.name,
+                        "entity_type": entity.entity_type,
+                        "status": status,
+                        "location": location,
+                        "is_locked": entity.is_locked,
+                    })
+                    states_out.append({
+                        "entity_id": e_id,
+                        "name": entity.name,
+                        "status": status,
+                        "location": location,
+                        "state": e_state,
+                    })
+                    remaining = max(0, remaining - 45)
+
+            selected_events = []
+            for ev in reversed(events_for_output):
+                if remaining >= 55:
+                    selected_events.append(ev)
+                    remaining -= 55
+                else:
+                    break
+            selected_events.reverse()
+            events_out = [
+                {
+                    "event_id": str(ev.event_id),
+                    "narrative_order": getattr(ev, "narrative_order", 0) or getattr(ev, "chapter", 1),
+                    "chapter_number": getattr(ev, "chapter", 1) or getattr(ev, "chapter_number", 1) or 1,
+                    "event_type": ev.event_type,
+                    "summary": ev.summary,
+                    "participants": list(ev.participants),
+                    "metadata": dict(getattr(ev, "metadata", {}) or {}),
+                }
+                for ev in selected_events
+            ]
+
+            used_tokens = base_overhead + len(rules_out) * 35 + len(entities_out) * 45 + len(events_out) * 55
+            budget_info = {
+                "used": used_tokens,
+                "maximum": target_maximum,
+                "budget_overflow": used_tokens > target_maximum,
+                "locked_overflow": False,
+            }
+
         context_summary = {
             "entity_ids": [str(e["entity_id"]) for e in entities_out],
-            "event_ids": [str(e["event_id"]) for e in events_filtered],
+            "event_ids": [str(e["event_id"]) for e in events_out],
             "fact_ids": [str(f.get("id") or f.get("fact_id", i)) for i, f in enumerate(rules_out)],
+            "cutoff_chapter": chapter_number,
         }
         return WritingContextPackage(
             brain_version=brain_version,
             entities=tuple(entities_out),
             current_states=tuple(states_out),
-            recent_events=tuple(events_filtered),
+            recent_events=tuple(events_out),
             world_rules=tuple(rules_out),
             author_constraints=(),
-            token_budget=token_budget,
+            token_budget=budget_info,
             context_summary=context_summary,
         )
 

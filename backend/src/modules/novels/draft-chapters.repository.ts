@@ -13,6 +13,8 @@ export type DraftChapterDocument = {
   wordCount: number;
   version: number;
   autosave: boolean;
+  lastAcceptedRevisionId?: string | null;
+  lastAcceptedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
@@ -38,6 +40,7 @@ export async function upsertDraftChapter(input: {
   content: string;
   wordCount: number;
   autosave: boolean;
+  lastAcceptedRevisionId?: string | null;
 }) {
   const now = new Date();
 
@@ -51,6 +54,9 @@ export async function upsertDraftChapter(input: {
         content: input.content,
         wordCount: input.wordCount,
         autosave: input.autosave,
+        ...(input.lastAcceptedRevisionId !== undefined
+          ? { lastAcceptedRevisionId: input.lastAcceptedRevisionId, lastAcceptedAt: now }
+          : {}),
         deletedAt: null,
         deletionReason: null,
         updatedAt: now
@@ -67,6 +73,51 @@ export async function upsertDraftChapter(input: {
   );
 
   return findDraftChapterByChapterId(input.chapterId);
+}
+
+export async function syncDraftFromRevisionConditional(input: {
+  chapterId: string;
+  revisionId: string;
+  title?: string;
+  content: string;
+  wordCount: number;
+  acceptTimestamp: Date;
+}): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {
+  const now = new Date();
+  const existing = await collection().findOne({ chapterId: input.chapterId, deletedAt: null });
+  if (existing) {
+    if (existing.updatedAt && existing.updatedAt > input.acceptTimestamp) {
+      return { status: 'skipped_newer_draft', draft: existing };
+    }
+  }
+
+  const result = await collection().updateOne(
+    {
+      chapterId: input.chapterId,
+      $or: [
+        { updatedAt: { $lte: input.acceptTimestamp } },
+        { updatedAt: { $exists: false } }
+      ]
+    },
+    {
+      $set: {
+        ...(input.title ? { title: input.title } : {}),
+        content: input.content,
+        wordCount: input.wordCount,
+        lastAcceptedRevisionId: input.revisionId,
+        lastAcceptedAt: input.acceptTimestamp,
+        updatedAt: now
+      },
+      $inc: { version: 1 }
+    }
+  );
+
+  if (result.matchedCount === 0 && existing) {
+    return { status: 'skipped_newer_draft', draft: existing };
+  }
+
+  const updated = await findDraftChapterByChapterId(input.chapterId);
+  return { status: 'synced', draft: updated };
 }
 
 export async function findDraftChapterByChapterId(chapterId: string) {

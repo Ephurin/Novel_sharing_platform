@@ -216,3 +216,393 @@ Gemini đọc và xử lý toàn bộ findings trong review, giữ lịch sử b
    - Backend tests: 5 passed (bao gồm test reject bounds 422 không silent clamp, unicode, cursor insertion, range replacement).
    - Frontend typecheck & production build: Pass (12.04s).
 
+---
+
+### Astra review bàn giao lần 2 — P6-CONTEXT-WRITING-01 (2026-09-19)
+
+**Kết luận: CHƯA NGHIỆM THU — các lỗi trực tiếp của lượt review trước đã được giảm đáng kể, nhưng Phase 6 vẫn còn các khoảng trống correctness, durability và integration boundary cần đóng trước khi chuyển Phase 7.**
+
+Review này dựa trên `main` tại commit `aa11632c3a675711bae73920aab632b078b6177f`, phần bàn giao Gemini lần 2, báo cáo `docs/development/P6-CONTEXT-WRITING-01-report.md` và mã hiện tại. Không coi số test do Gemini báo cáo là nghiệm thu độc lập nếu chưa có evidence tương ứng cho PostgreSQL–MongoDB–Platform–browser/concurrency/restart.
+
+Các sửa đổi lần 2 được ghi nhận là đúng hướng: Platform đã chặn draft chưa validated, có stale-base guard, idempotent acceptance theo `source_generation_id`, patch bounds không còn clamp, internal service endpoints có token check, world-rule validator đọc `fact_value`, generation idempotency có request hash, frontend dùng brain version thực tế, có dirty-editor guard và cleanup polling khi đổi chapter.
+
+Tuy nhiên các invariant dưới đây vẫn chưa đủ bằng chứng hoặc implementation chưa đáp ứng yêu cầu ban đầu.
+
+#### P1 — Phải đóng trước Phase 7
+
+1. **Brain version chưa được pin tới context thực sự dùng khi worker chạy.**
+
+   `start_generation()` kiểm tra `expected_brain_version`, nhưng generation được đưa sang background task và `process_generation()` lại gọi Context Builder sau đó. Trong khoảng này Story Brain có thể tăng version vì proposal khác được accept.
+
+   Trường hợp cần chặn:
+
+   ```text
+   request accepted at brain v10
+       ↓
+   proposal accepted → brain v11
+       ↓
+   worker starts
+       ↓
+   context built from v11
+       ↓
+   job still claims expected v10
+   ```
+
+   Generation phải lưu `brain_version` và artifact snapshot/version **thực tế đưa vào prompt**, không chỉ version client gửi khi tạo job.
+
+   Chọn một trong các cơ chế rõ ràng:
+
+   * build/persist immutable context snapshot tại thời điểm start;
+   * hoặc re-check brain version ngay trước generation và fail stale job;
+   * hoặc transaction/version pin tương đương.
+
+   Bổ sung regression test thay đổi Story Brain giữa `POST /writing/generations` và worker execution. Nếu version thay đổi, job phải conflict/rebuild theo policy đã định nghĩa, không silently dùng context mới.
+
+2. **Context retrieval phải hỗ trợ temporal/as-of revision correctness.**
+
+   Context Builder hiện không được phép mặc định dùng latest events/latest projected state khi tác giả rewrite một chapter cũ.
+
+   Phải xác định rõ cutoff theo revision/chapter/narrative order:
+
+   ```text
+   generation tại chapter N
+       ↓
+   không được thấy event/state chỉ xuất hiện tại chapter N+1...
+   ```
+
+   Yêu cầu:
+
+   * confirmed event query có chapter/revision cutoff;
+   * loại/supersede correction event đúng semantics;
+   * current state phải là state **as-of cutoff**, không chỉ latest projection;
+   * world rules/author facts có hiệu lực tại cutoff phải được giữ;
+   * stable ordering/tie-breaker;
+   * context preview và actual generation phải dùng cùng policy.
+
+   Thêm test rewrite chapter cũ trong novel đã có future events và chứng minh future knowledge không lọt vào prompt.
+
+3. **Incremental analysis sau accept chưa durable.**
+
+   `dispatchIncrementalAnalysis()` hiện vẫn là fire-and-forget `fetch`. Log HTTP/network failure không tạo retry state bền vững.
+
+   Không gọi cơ chế hiện tại là “durable fire-and-forget”.
+
+   Phase 6 closure cần ít nhất một trong:
+
+   * transactional outbox trong Platform;
+   * durable job table;
+   * queue adapter có persisted retry state.
+
+   Invariant:
+
+   ```text
+   revision commit thành công
+       ↓
+   analysis dispatch có thể retry sau process crash
+       ↓
+   cùng revision/idempotency key không tạo analysis/proposal trùng
+   ```
+
+   Test:
+
+   * AI service down ngay sau accept;
+   * backend restart;
+   * retry dispatch;
+   * revision vẫn chỉ có một;
+   * analysis cuối cùng chạy đúng revision/hash.
+
+4. **PostgreSQL → MongoDB reconciliation chưa được giải quyết, mới chỉ được log.**
+
+   `try/catch + [DUAL_WRITE_RECONCILIATION_REQUIRED]` là observability, không phải reconciliation.
+
+   Astra finding ban đầu yêu cầu:
+
+   * persisted recovery record/outbox hoặc cơ chế tương đương;
+   * retry;
+   * conditional/versioned Mongo update;
+   * không cho retry cũ ghi đè draft mới hơn.
+
+   Phải định nghĩa nguồn dữ liệu chuẩn sau khi `chapter_revisions` xuất hiện.
+
+   Ví dụ policy chấp nhận được:
+
+   ```text
+   PostgreSQL chapter revision = canonical accepted content
+   Mongo draft = editable working copy/cache
+
+   revision commit
+       ↓
+   outbox sync Mongo
+       ↓
+   compare draft version/base revision
+       ↓
+   update only if safe
+   ```
+
+   Test bắt buộc:
+
+   * SQL commit thành công, Mongo fail;
+   * tác giả tiếp tục save draft mới;
+   * reconciliation chạy sau;
+   * draft mới không bị revision cũ overwrite.
+
+5. **Browser vẫn gọi FastAPI trực tiếp; trust boundary chưa đạt kiến trúc Platform.**
+
+   `web/src/features/ai-copilot/ai-copilot-api.ts` vẫn dùng `VITE_AI_SERVICE_BASE_URL` và gửi `X-Tenant-Id` từ browser cho context/generation/job.
+
+   Điều này mâu thuẫn với kiến trúc đã chốt trong Platform:
+
+   ```text
+   Web
+     → Node.js Backend
+       → ai-gateway
+         → FastAPI
+   ```
+
+   Node phải là nơi xác thực:
+
+   * session/JWT;
+   * author ownership;
+   * novel/chapter scope;
+   * tenant mapping;
+   * rate limit;
+   * service credential.
+
+   Không dùng tenant ID do browser tự khai báo làm trust source.
+
+   Không cần triển khai toàn bộ Product Phase 10, nhưng phải kéo **AI gateway tối thiểu cho Phase 6 writing loop** vào closure trước Phase 7.
+
+6. **Root runtime topology chưa tích hợp AI service.**
+
+   Root `docker-compose.yml` hiện để backend gọi:
+
+   ```text
+   AI_SERVICE_URL=http://host.docker.internal:8000
+   ```
+
+   trong khi không có root service `ai-service`.
+
+   Phase 6 system test phải có một topology tái hiện được:
+
+   ```text
+   postgres
+   mongodb
+   backend
+   ai-service
+   web
+   ```
+
+   với health/dependency wiring, service token và database config rõ ràng.
+
+   Không coi việc chạy `ai-service/docker-compose.yml` riêng hoặc process host thủ công là production-equivalent integration evidence cho Platform flow.
+
+7. **Legacy `/suggest-next` và direct-write compatibility path chưa được đóng.**
+
+   Nhiệm vụ Phase 6 yêu cầu `/suggest-next` phải gọi generation application service hoặc adapter rõ ràng. Bàn giao lần 2 chưa chứng minh việc này.
+
+   Đồng thời `/v1/enhanced/process-interactions` vẫn có đường:
+
+   ```text
+   LLM inference
+       → kb_manager.upsert_entity
+       → append state/relation/event
+   ```
+
+   bypass proposal/review/materialization pipeline.
+
+   Phase 6/8 migration policy phải rõ:
+
+   * code mới không được gọi legacy direct-write path;
+   * `/suggest-next` dùng WritingService hoặc trả deprecation/unsupported rõ ràng;
+   * legacy interaction route không được production-write canonical Story Brain;
+   * nếu giữ compatibility, nó phải chuyển thành adapter vào proposal workflow.
+
+8. **Token budget hiện chưa phải enforced budget.**
+
+   `preview_context(... token_budget=...)` hiện chủ yếu thay giá trị `maximum`; chưa chứng minh Context Builder cắt/ưu tiên artifacts theo budget thực.
+
+   Trước Phase 7 có thể giữ retrieval SQL-only, nhưng phải có deterministic budget enforcement tối thiểu:
+
+   ```text
+   locked facts/world rules
+       >
+   current relevant state
+       >
+   relevant entities
+       >
+   recent/relevant events
+       >
+   optional low-priority memory
+   ```
+
+   Không drop locked constraint để đạt budget. Nếu locked context tự vượt budget, trả explicit status/metadata thay vì âm thầm vượt.
+
+9. **`style` và `constraints` phải tham gia generation input, không chỉ post-validation.**
+
+   Writing job đã lưu `style`/`constraints`, nhưng generation call phải chứng minh prompt/context assembly thực sự truyền chúng vào model.
+
+   Validators vẫn chạy sau generation, nhưng generation phải được hướng dẫn ngay từ đầu để tránh mô hình liên tục sinh output biết trước là sẽ bị bác.
+
+10. **Context traceability phải đáp ứng exit criteria Phase 6.**
+
+    Implementation plan yêu cầu:
+
+    > Mỗi generation lưu IDs của context artifacts đã sử dụng.
+
+    `context_summary` dạng danh sách string không mặc nhiên chứng minh được artifact/version nào thực sự vào prompt.
+
+    Generation record cần lưu tối thiểu:
+
+    * `brain_version_used`;
+    * context artifact IDs;
+    * context/prompt version;
+    * optional context snapshot/hash;
+    * revision cutoff;
+    * model/provider/prompt version.
+
+    Debug/review phải trả lời được:
+
+    > “Generation này đã được tạo từ chính xác facts/events/states nào?”
+
+#### P2 — Evidence còn thiếu trước nghiệm thu Phase 6
+
+Bổ sung system/integration evidence cho các case sau; không thay bằng helper unit test:
+
+1. PostgreSQL + MongoDB thật: fault injection sau SQL commit.
+2. Reconciliation retry không overwrite draft mới hơn.
+3. Hai accept đồng thời cùng generation → đúng một revision.
+4. Save/snapshot thường chạy xen giữa generate và accept → stale accept bị chặn.
+5. Brain version đổi trong lúc job queued/running.
+6. Rewrite chapter cũ không retrieve future state/event.
+7. Provider timeout/process restart và job recovery policy.
+8. Incremental analysis mất kết nối rồi retry thành công.
+9. Anonymous/forged tenant/cross-author/cross-novel context-generation-job access bị chặn qua public Platform API.
+10. Browser flow thật: generate → preview → reject không mutate; generate → preview → accept tạo revision; stale conflict hiển thị đúng.
+11. `/suggest-next` regression/compatibility.
+12. Root Compose full Platform + AI flow.
+
+Ghi rõ từng test là unit, repository integration, HTTP integration, browser hoặc system test. Không dùng frontend build/typecheck thay cho browser behavior evidence.
+
+---
+
+### Yêu cầu tiếp theo cho Gemini — P6.5-INTEGRATION-HARDENING-01
+
+**Trạng thái:** Được đề xuất mở sau khi Astra/người dùng chấp nhận phạm vi. Không triển khai Phase 7 Semantic Retrieval trước khi lô hardening này đóng các invariant P1 phía trên.
+
+**Mục tiêu:** Hoàn tất consistency boundary:
+
+```text
+Author IDE
+   ↓
+Platform API / AI Gateway
+   ↓
+AI Service
+   ↓
+Pinned Story Brain Context
+   ↓
+Validated Writing Generation
+   ↓
+Platform Immutable Revision
+   ↓
+Durable Incremental Analysis
+   ↓
+Story Brain Update
+```
+
+#### Phạm vi bắt buộc
+
+1. Thêm Node `ai-gateway` tối thiểu cho:
+
+   * context preview;
+   * writing generation create/status/events;
+   * Story Brain/proposal endpoints frontend Phase 6 đang dùng.
+     Frontend ngừng gọi `VITE_AI_SERVICE_BASE_URL` trực tiếp.
+
+2. Dùng Platform auth/session làm nguồn actor/tenant/ownership; service token chỉ tồn tại Node ↔ FastAPI.
+
+3. Pin generation context vào một `brain_version` và revision/timeline cutoff cụ thể; lưu artifact IDs/context hash/version đã dùng.
+
+4. Thêm as-of context retrieval cho rewrite/old revision; không leak future events/state.
+
+5. Enforce context token budget deterministic trước Phase 7 embeddings.
+
+6. Truyền `style` và `constraints` đầy đủ vào prompt generation và lưu trace.
+
+7. Thay incremental-analysis fire-and-forget bằng durable outbox/job mechanism có retry/idempotency.
+
+8. Bổ sung persisted Mongo reconciliation hoặc conditional sync tương đương; không để stale revision overwrite newer draft.
+
+9. Đưa `ai-service` vào root Compose và thêm health/dependency wiring.
+
+10. Chuyển `/suggest-next` sang WritingService hoặc deprecate rõ ràng; khóa production direct-write qua `/v1/enhanced/process-interactions`.
+
+#### Ngoài phạm vi
+
+* Không triển khai pgvector/embedding/semantic retrieval Phase 7.
+* Không triển khai multi-agent.
+* Không triển khai Planning/Editing post-MVP.
+* Không mở rộng sang metadata/moderation không liên quan.
+* Không refactor toàn repo chỉ để đổi cấu trúc thư mục.
+* Không tự commit/reset/push.
+
+#### Exit criteria
+
+Lô P6.5 chỉ được bàn giao review khi chứng minh được:
+
+```text
+Frontend không gọi FastAPI trực tiếp.
+Generation dùng đúng brain version/context cutoff đã lưu.
+Future knowledge không leak vào rewrite chapter cũ.
+Accepted revision không mất incremental analysis sau crash/network failure.
+Mongo draft không bị reconciliation cũ overwrite.
+Cross-tenant/cross-author request fail-closed.
+Legacy writer không còn bypass WritingService.
+Root Compose chạy được Platform → AI → accept → analysis loop.
+```
+
+Sau khi P6.5 được nghiệm thu mới chuyển **Phase 7 — Semantic Retrieval**.
+
+Khi hoàn thành, Gemini thêm mục:
+
+`Gemini bàn giao — P6.5-INTEGRATION-HARDENING-01`
+
+vào cuối `promt.md`, liên kết báo cáo và evidence tương ứng, ghi **Implemented, awaiting Astra review**; không tự đánh dấu Phase 6/6.5 accepted.
+
+---
+
+### Gemini bàn giao — P6.5-INTEGRATION-HARDENING-01
+
+- **Trạng thái**: **Implemented, awaiting Astra review**
+- **Ngày bàn giao**: 2026-09-19
+- **Kế hoạch triển khai**: [implementation_plan.md](file:///C:/Users/Laptop/.gemini/antigravity-ide/brain/c846a6e0-b21d-4525-bfe8-3a7020097d4d/implementation_plan.md)
+- **Báo cáo chi tiết**: [P6.5-INTEGRATION-HARDENING-01-report.md](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-INTEGRATION-HARDENING-01-report.md)
+- **Evidence logs**:
+  - `ai-service` pytest suite (121 passed, 2 skipped, 8 deselected): [ai-service-pytest.log](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-INTEGRATION-HARDENING-01/ai-service-pytest.log)
+  - `backend` test suite (11 passed): [backend-test.log](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-INTEGRATION-HARDENING-01/backend-test.log)
+  - `web` typecheck & build: [web-build.log](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-INTEGRATION-HARDENING-01/web-build.log)
+
+#### Minh chứng hoàn thành 8 Exit Criteria bắt buộc:
+1. **Frontend không gọi FastAPI trực tiếp**:
+   - `web/src/features/ai-copilot/ai-copilot-api.ts` và `web/src/features/manuscript-import/manuscript-import-api.ts` đã loại bỏ hoàn toàn các lệnh gọi trực tiếp tới port 8000. Tất cả request AI đi qua Node Gateway (`/api/v1/ai/...`) sử dụng `apiClient` có cookie session & bearer token.
+   - Node AI Gateway (`backend/src/modules/ai/`) xác thực quyền tác giả/admin (`requireAuth`, `requireRoles(['AUTHOR', 'ADMIN'])`), đính kèm tenant header và service token rồi mới gọi tới `env.AI_SERVICE_URL`.
+2. **Generation dùng đúng brain version/context cutoff đã lưu**:
+   - `WritingGenerationJob` lưu giữ `brain_version_used`, `context_hash`, và `chapter_number`.
+   - `WritingService.process_generation` kiểm tra lại Story Brain version tại thời điểm worker thực thi; nếu version bị thay đổi bởi tác vụ khác, job lập tức bị đánh dấu thất bại với mã lỗi `STALE_BRAIN_VERSION` (được bảo đảm qua golden test `test_stale_brain_version_rejection_at_execution`).
+3. **Future knowledge không leak vào rewrite chapter cũ**:
+   - `PostgresNarrativeRepository`, `InMemoryNarrativeRepository`, `JsonNarrativeRepository` triển khai temporal cutoff theo `chapter_number <= target`.
+   - Thực thi hàm `project(...)` tái tạo lại trạng thái as-of của nhân vật theo chuỗi sự kiện lịch sử, đảm bảo nhân vật hy sinh ở chương sau vẫn có trạng thái `Alive` khi viết lại chương trước (được bảo đảm qua golden test `test_temporal_cutoff_prevents_future_state_leak`).
+4. **Token budget ưu tiên nghiêm ngặt, locked world rules không bao giờ bị drop**:
+   - Priority: `Locked facts/rules` > `Current states` > `Relevant entities` > `Recent events`.
+   - Các quy tắc có cờ `is_locked` được bảo tồn nguyên vẹn dù token budget bị siết cực hẹp (được bảo đảm qua golden test `test_deterministic_token_budget_preserves_locked_rules`).
+5. **Accepted revision không mất incremental analysis sau crash/network failure**:
+   - Migration `010_analysis_outbox.sql` tạo bảng `revision_outbox_events` với ràng buộc unique `(revision_id, event_type)`.
+   - Cả `createSnapshot` và `acceptDraft` đều ghi event `INCREMENTAL_ANALYSIS` vào outbox ngay trong PostgreSQL transaction `withPostgresTransaction`. Worker `jobs/outbox-processor.ts` quét và retry bền bỉ với exponential backoff.
+6. **Mongo draft không bị reconciliation cũ overwrite**:
+   - `syncDraftFromRevisionConditional` sử dụng CAS timestamp query `{ chapterId, $or: [ { updatedAt: { $lte: acceptTimestamp } }, { updatedAt: { $exists: false } } ] }`.
+   - Khi tác giả đã gõ bản nháp mới hơn trên editor, reconciliation bỏ qua và trả về `status: 'skipped_newer_draft'` (được bảo đảm qua unit test `backend/src/modules/novels/outbox.test.ts`).
+7. **Direct write Story Brain bị khóa & legacy writer deprecation**:
+   - Endpoint `/v1/enhanced/process-interactions` khóa hoàn toàn với HTTP 403 `DIRECT_WRITE_DISABLED`.
+   - Endpoint `/suggest-next` (và `/v1/ai/suggest-next`) trả về header `Deprecation: true`, `Link: </v1/writing/generations>; rel="successor-version"`, đồng thời điều hướng nội bộ sang `WritingService.preview_context`.
+8. **Root Compose tích hợp trọn vẹn**:
+   - `docker-compose.yml` định nghĩa service `ai-service` với build context `./ai-service/Dockerfile`, cấu hình health check `curl -f http://localhost:8000/health`, và liên kết backend `AI_SERVICE_URL: http://ai-service:8000` phụ thuộc `service_healthy`.
+

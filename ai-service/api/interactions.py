@@ -44,17 +44,14 @@ def process_interactions(
     llm_service=Depends(get_llm_service),
     kb_manager: StoryKBManager = Depends(get_story_kb),
 ):
-    started = time.perf_counter()
-
-    # ── Step 1: Entity extraction via pure-LLM pipeline ──
-    try:
-        raw_results = pipeline.run(payload.text, llm_service=llm_service)
-        entities = pipeline_to_interaction_format(raw_results)
-    except EntityExtractionError:
-        raise
-    except Exception as exc:
-        logger.error("Hybrid pipeline failed: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+    # Phase 6.5 invariant: Direct write to canonical Story Brain is locked
+    raise HTTPException(
+        status_code=403,
+        detail={
+            "code": "DIRECT_WRITE_DISABLED",
+            "message": "Direct write to canonical Story Brain is disabled; use revision analysis and proposal review pipeline",
+        },
+    )
 
     # ── Step 1.5: Entity Resolution ─────────────────────
     kb = kb_manager.load_kb(payload.story_id)

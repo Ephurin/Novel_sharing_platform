@@ -11,9 +11,10 @@ Sau refactor:
 import time
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 
 from application.narrative_service import NarrativeApplicationService
+from application.writing_service import WritingService
 from api.schemas import (
     AnalyzeChapterRequest,
     AnalyzeChapterResponse,
@@ -37,6 +38,7 @@ from api.deps import (
     get_llm_client,
     get_llm_service,
     get_narrative_service,
+    get_writing_service,
     get_story_kb,
     get_candidate_processor,
     get_span_expander,
@@ -135,11 +137,35 @@ def llm_generate(
 @router.post("/suggest-next", response_model=SuggestNextResponse)
 def suggest_next(
     payload: SuggestNextRequest,
-    llm_service=Depends(require_llm_service),
+    response: Response,
+    llm_service=Depends(get_llm_service),
     narrative: NarrativeApplicationService = Depends(get_narrative_service),
     engine: ConsistencyEngine = Depends(get_consistency_engine),
+    writing_service: WritingService = Depends(get_writing_service),
 ) -> SuggestNextResponse:
+    # Phase 6.5 deprecation contract
+    response.headers["Deprecation"] = "true"
+    response.headers["Link"] = '</v1/writing/generations>; rel="successor-version"'
+    if llm_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="LLMService is not initialized",
+            headers={
+                "Deprecation": "true",
+                "Link": '</v1/writing/generations>; rel="successor-version"',
+            },
+        )
     started = time.perf_counter()
+
+    # Route through WritingService context builder if available
+    try:
+        writing_service.preview_context(
+            tenant_id="00000000-0000-0000-0000-000000000001",
+            story_id=payload.story_id,
+            character_name=payload.character_name,
+        )
+    except Exception as exc:
+        logger.debug("WritingService preview_context fallback for suggest-next: %s", exc)
 
     graph_context = narrative.story_context(
         payload.story_id, payload.character_name, limit=payload.graph_limit

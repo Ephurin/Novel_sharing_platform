@@ -1,8 +1,8 @@
 {
   "story_id": "story",
   "metadata": {
-    "created_at": "2026-09-17T04:34:34.025092+00:00",
-    "updated_at": "2026-09-17T04:34:34.054724+00:00"
+    "created_at": "2026-09-19T16:21:20.677127+00:00",
+    "updated_at": "2026-09-19T16:21:20.721115+00:00"
   },
   "entities": {
     "minh": {
@@ -61,10 +61,10 @@
   "enhanced_events": [],
   "proposals": [
     {
-      "proposal_id": "ac6caf89-83ab-4805-a5f8-37bc6ad654e8",
+      "proposal_id": "391c5e3b-fd70-4b8a-a5f1-09d2bcb32450",
       "proposal_type": "event",
       "payload": {
-        "event_id": "ac6caf89-83ab-4805-a5f8-37bc6ad654e8",
+        "event_id": "391c5e3b-fd70-4b8a-a5f1-09d2bcb32450",
         "event_type": "injury",
         "summary": "Minh was injured",
         "participants": [
@@ -73,7 +73,7 @@
         "chapter": 1
       },
       "analysis_run_id": null,
-      "dependency_group_id": "937f32f3-80a9-42e3-896b-29f2236910cf",
+      "dependency_group_id": "cefbc830-81a5-48fa-b533-e1c2fe2a99d7",
       "materialization_order": 0,
       "evidence": [],
       "confidence": null,
@@ -82,10 +82,10 @@
       "decision_reason": null
     },
     {
-      "proposal_id": "b260e2e4-a531-4fea-820e-07441fa3ca80",
+      "proposal_id": "bd517eb9-9b07-4c14-aba7-7a9064f8ca8d",
       "proposal_type": "state_transition",
       "payload": {
-        "event_id": "ac6caf89-83ab-4805-a5f8-37bc6ad654e8",
+        "event_id": "391c5e3b-fd70-4b8a-a5f1-09d2bcb32450",
         "entity_id": "Minh",
         "attribute_key": "active_relationships",
         "new_value": {
@@ -93,7 +93,7 @@
         }
       },
       "analysis_run_id": null,
-      "dependency_group_id": "937f32f3-80a9-42e3-896b-29f2236910cf",
+      "dependency_group_id": "cefbc830-81a5-48fa-b533-e1c2fe2a99d7",
       "materialization_order": 1,
       "evidence": [],
       "confidence": null,
@@ -113,7 +113,7 @@
         "source": "author",
         "locked": true
       },
-      "timestamp": "2026-09-17T04:34:34.044073+00:00"
+      "timestamp": "2026-09-19T16:21:20.705110+00:00"
     }
   ],
   "entity_states": {},

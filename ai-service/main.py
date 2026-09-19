@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import router
+from api.routes import router, suggest_next
 from api.interactions import router as interaction_router
 from api.narrative_routes import router as narrative_router, internal_router as internal_narrative_router
 from application.narrative_service import NarrativeApplicationService
@@ -196,3 +196,4 @@ app.include_router(router)
 app.include_router(interaction_router)
 app.include_router(narrative_router)
 app.include_router(internal_narrative_router)
+app.add_api_route("/suggest-next", suggest_next, methods=["POST"], deprecated=True)

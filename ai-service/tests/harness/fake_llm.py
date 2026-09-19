@@ -121,6 +121,8 @@ class FakeDeterministicLLMService:
         context_package: dict[str, Any] | None = None,
         start_offset: int | None = None,
         end_offset: int | None = None,
+        style: dict[str, Any] | None = None,
+        constraints: list[str] | tuple[str, ...] | None = None,
     ) -> dict[str, Any]:
         instruction_lower = (instruction or "").lower()
         if "dead character test" in instruction_lower or "hải ba đông sống lại" in instruction_lower:

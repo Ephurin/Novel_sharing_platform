@@ -515,6 +515,7 @@ class JsonNarrativeRepository:
         chapter_number: int | None = None,
         character_name: str | None = None,
         limit_recent_events: int = 20,
+        token_budget: int | None = None,
     ) -> WritingContextPackage:
         from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
         memory = InMemoryNarrativeRepository()
@@ -524,5 +525,6 @@ class JsonNarrativeRepository:
             chapter_number=chapter_number,
             character_name=character_name,
             limit_recent_events=limit_recent_events,
+            token_budget=token_budget,
         )
 

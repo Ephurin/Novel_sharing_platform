@@ -129,26 +129,17 @@ export async function fetchContextPreview(
   storyBrainId: string,
   options?: { chapterNumber?: number; characterName?: string; tokenBudget?: number }
 ): Promise<ContextPreviewData> {
-  const aiBase = import.meta.env.VITE_AI_SERVICE_BASE_URL ?? 'http://127.0.0.1:8000/v1';
-  const tenantId = import.meta.env.VITE_AI_TENANT_ID ?? '00000000-0000-0000-0000-000000000001';
-
-  const params = new URLSearchParams();
-  if (options?.chapterNumber) params.append('chapter_number', String(options.chapterNumber));
-  if (options?.characterName) params.append('character_name', options.characterName);
-  if (options?.tokenBudget) params.append('token_budget', String(options.tokenBudget));
-
-  const url = `${aiBase}/story-brains/${storyBrainId}/context-preview?${params.toString()}`;
-  const res = await fetch(url, {
-    headers: {
-      'X-Tenant-Id': tenantId,
-      'X-Request-Id': crypto.randomUUID(),
-    },
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch context preview: ${res.statusText}`);
-  }
-  const json = await res.json();
-  return json.data;
+  const response = await apiClient.get<ApiEnvelope<ContextPreviewData>>(
+    `/ai/story-brains/${storyBrainId}/context-preview`,
+    {
+      params: {
+        chapter_number: options?.chapterNumber,
+        character_name: options?.characterName,
+        token_budget: options?.tokenBudget,
+      },
+    }
+  );
+  return response.data.data;
 }
 
 export async function startWritingGeneration(input: {
@@ -161,18 +152,13 @@ export async function startWritingGeneration(input: {
   instruction: string;
   expectedBrainVersion?: number;
   idempotencyKey?: string;
+  chapterNumber?: number;
+  style?: string;
+  constraints?: string[];
 }): Promise<WritingGenerationJob> {
-  const aiBase = import.meta.env.VITE_AI_SERVICE_BASE_URL ?? 'http://127.0.0.1:8000/v1';
-  const tenantId = import.meta.env.VITE_AI_TENANT_ID ?? '00000000-0000-0000-0000-000000000001';
-
-  const res = await fetch(`${aiBase}/writing/generations`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Tenant-Id': tenantId,
-      'X-Request-Id': crypto.randomUUID(),
-    },
-    body: JSON.stringify({
+  const response = await apiClient.post<ApiEnvelope<WritingGenerationJob>>(
+    '/ai/writing/generations',
+    {
       novel_id: input.novelId,
       chapter_id: input.chapterId,
       revision_id: input.revisionId,
@@ -182,29 +168,17 @@ export async function startWritingGeneration(input: {
       instruction: input.instruction,
       expected_brain_version: input.expectedBrainVersion ?? 1,
       idempotency_key: input.idempotencyKey ?? '',
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail?.message || err.detail?.code || `Generation request failed (${res.status})`);
-  }
-  const json = await res.json();
-  return json.data;
+      chapter_number: input.chapterNumber,
+      style: input.style,
+      constraints: input.constraints,
+    }
+  );
+  return response.data.data;
 }
 
 export async function getJobStatus(jobId: string): Promise<WritingGenerationJob> {
-  const aiBase = import.meta.env.VITE_AI_SERVICE_BASE_URL ?? 'http://127.0.0.1:8000/v1';
-  const res = await fetch(`${aiBase}/jobs/${jobId}`, {
-    headers: {
-      'X-Request-Id': crypto.randomUUID(),
-    },
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to get job: ${res.statusText}`);
-  }
-  const json = await res.json();
-  return json.data;
+  const response = await apiClient.get<ApiEnvelope<WritingGenerationJob>>(`/ai/jobs/${jobId}`);
+  return response.data.data;
 }
 
 export async function acceptDraftRevision(chapterId: string, generationId: string) {

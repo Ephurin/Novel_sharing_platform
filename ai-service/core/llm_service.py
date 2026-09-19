@@ -457,12 +457,17 @@ class LLMService:
         end_offset: int | None = None,
         instruction: str = "",
         context_package: dict[str, Any] | None = None,
+        style: dict[str, Any] | None = None,
+        constraints: list[str] | tuple[str, ...] | None = None,
     ) -> dict[str, Any]:
         """Generate draft text and patch coordinates using LLM or local fallback."""
         context_str = json.dumps(context_package or {}, ensure_ascii=False)
+        style_str = json.dumps(style or {}, ensure_ascii=False) if style else ""
+        constraints_str = "; ".join(str(c) for c in (constraints or [])) if constraints else ""
+
         system_prompt = (
             "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\n"
-            "Dựa trên bối cảnh thế giới, nhân vật và yêu cầu của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\n"
+            "Dựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\n"
             "Chỉ trả về định dạng JSON hợp lệ:\n"
             "{\n"
             '  "draft_text": "Nội dung văn bản được sinh ra",\n'
@@ -476,6 +481,10 @@ class LLMService:
             f"Yêu cầu / Chỉ dẫn: {instruction}\n"
             f"Bối cảnh tiểu thuyết (Story Brain): {context_str}\n"
         )
+        if style_str:
+            user_prompt += f"Phong cách văn phong (Style): {style_str}\n"
+        if constraints_str:
+            user_prompt += f"Ràng buộc bắt buộc (Constraints): {constraints_str}\n"
 
         patch_start = start_offset if start_offset is not None else cursor_offset
         patch_end = end_offset if end_offset is not None else cursor_offset

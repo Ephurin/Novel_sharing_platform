@@ -56,6 +56,7 @@ class WritingService:
             chapter_number=chapter_number,
             character_name=character_name,
             limit_recent_events=limit_recent_events,
+            token_budget=token_budget,
         )
 
         if token_budget is not None and token_budget > 0:
@@ -89,10 +90,14 @@ class WritingService:
         constraints: list[str] | tuple[str, ...] = (),
         style: dict[str, Any] | None = None,
         expected_brain_version: int = 1,
+        chapter_number: int | None = None,
         actor_id: str | None = None,
         idempotency_key: str = "",
         process_inline: bool = True,
     ) -> WritingGenerationJob:
+        if chapter_number is None:
+            chapter_number = selection.get("chapter_number")
+
         # 1. Canonical request hash for idempotency integrity
         canonical_dict = {
             "novel_id": novel_id,
@@ -107,6 +112,7 @@ class WritingService:
             },
             "instruction": instruction.strip(),
             "expected_brain_version": expected_brain_version,
+            "chapter_number": chapter_number,
             "style": style or {},
             "constraints": list(constraints or ()),
         }
@@ -170,6 +176,8 @@ class WritingService:
         selection_with_meta = dict(selection)
         if base_content_length is not None:
             selection_with_meta["base_content_length"] = base_content_length
+        if chapter_number is not None:
+            selection_with_meta["chapter_number"] = chapter_number
 
         # 4. Create queued job
         job = WritingGenerationJob(
@@ -190,6 +198,7 @@ class WritingService:
             input_hash=input_hash,
             status="queued",
             stage="queued",
+            chapter_number=chapter_number,
         )
 
         saved_job = self._repository.create_writing_job(job)
@@ -204,6 +213,44 @@ class WritingService:
         job = self._repository.get_writing_job(job_id)
         if job.status == "completed":
             return job
+
+        # 1. Pinned Story Brain Version Recheck (Invariant: do not silently use newer brain version)
+        brain = self._repository.get_story_brain(job.novel_id)
+        current_brain_version = int(brain.metadata.get("brain_version", "1"))
+        if job.expected_brain_version > 0 and current_brain_version != job.expected_brain_version:
+            logger.warning(
+                "Story brain version conflict for job %s: expected %s, found %s",
+                job_id, job.expected_brain_version, current_brain_version,
+            )
+            stale_job = WritingGenerationJob(
+                job_id=job.job_id,
+                novel_id=job.novel_id,
+                chapter_id=job.chapter_id,
+                revision_id=job.revision_id,
+                content_hash=job.content_hash,
+                tenant_id=job.tenant_id,
+                operation=job.operation,
+                selection=job.selection,
+                instruction=job.instruction,
+                constraints=job.constraints,
+                style=job.style,
+                expected_brain_version=job.expected_brain_version,
+                actor_id=job.actor_id,
+                idempotency_key=job.idempotency_key,
+                input_hash=job.input_hash,
+                status="failed",
+                stage="failed",
+                validation_status="failed",
+                error={
+                    "code": "STALE_BRAIN_VERSION",
+                    "message": f"Story brain version changed from {job.expected_brain_version} to {current_brain_version} while job was queued",
+                },
+                brain_version_used=current_brain_version,
+                chapter_number=job.chapter_number,
+            )
+            return self._repository.save_writing_job(stale_job)
+
+        brain_version_used = current_brain_version
 
         # Stage: preparing_context
         job = WritingGenerationJob(
@@ -224,13 +271,19 @@ class WritingService:
             input_hash=job.input_hash,
             status="generating",
             stage="preparing_context",
+            brain_version_used=brain_version_used,
+            chapter_number=job.chapter_number,
         )
         self._repository.save_writing_job(job)
 
         context_package = self.preview_context(
             tenant_id=job.tenant_id,
             story_id=job.novel_id,
+            chapter_number=job.chapter_number,
         )
+        context_hash = hashlib.sha256(
+            json.dumps(context_package.context_summary, sort_keys=True).encode("utf-8")
+        ).hexdigest()
 
         # Stage: generating
         job = WritingGenerationJob(
@@ -252,6 +305,9 @@ class WritingService:
             status="generating",
             stage="generating",
             context_summary=context_package.context_summary,
+            brain_version_used=brain_version_used,
+            context_hash=context_hash,
+            chapter_number=job.chapter_number,
         )
         self._repository.save_writing_job(job)
 
@@ -271,7 +327,7 @@ class WritingService:
             except Exception:
                 pass
 
-        # Call LLM service
+        # Call LLM service with style and constraints
         try:
             llm_result = self._llm_service.generate_writing_draft(
                 operation=job.operation,
@@ -287,6 +343,8 @@ class WritingService:
                     "world_rules": list(context_package.world_rules),
                     "recent_events": list(context_package.recent_events),
                 },
+                style=job.style,
+                constraints=job.constraints,
             )
         except Exception as exc:
             logger.error("LLM draft generation failed for job %s: %s", job_id, exc)
@@ -309,6 +367,8 @@ class WritingService:
                 status="failed",
                 stage="failed",
                 error={"message": str(exc)},
+                brain_version_used=brain_version_used,
+                chapter_number=job.chapter_number,
             )
             return self._repository.save_writing_job(job)
 
@@ -371,6 +431,9 @@ class WritingService:
             validations=tuple(validations),
             context_summary=context_package.context_summary,
             model_info=model_info,
+            brain_version_used=brain_version_used,
+            context_hash=context_hash,
+            chapter_number=job.chapter_number,
         )
 
         return self._repository.save_writing_job(completed_job)
