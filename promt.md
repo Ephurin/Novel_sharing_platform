@@ -606,3 +606,340 @@ vào cuối `promt.md`, liên kết báo cáo và evidence tương ứng, ghi **
 8. **Root Compose tích hợp trọn vẹn**:
    - `docker-compose.yml` định nghĩa service `ai-service` với build context `./ai-service/Dockerfile`, cấu hình health check `curl -f http://localhost:8000/health`, và liên kết backend `AI_SERVICE_URL: http://ai-service:8000` phụ thuộc `service_healthy`.
 
+---
+
+### Astra review bàn giao — P6.5-INTEGRATION-HARDENING-01 (2026-09-19)
+
+**Kết luận: NEEDS REVISION — chưa nghiệm thu P6.5, chưa chuyển Phase 7.**
+
+Review dựa trên `main` tại commit `0ab9a91c89b516404c38e3a84d26c6ede9fe4e31`, mục Gemini bàn giao trong file này, `docs/development/P6.5-INTEGRATION-HARDENING-01-report.md`, diff từ `aa11632c3a675711bae73920aab632b078b6177f` và mã hiện tại. P6.5 có implementation thực và đã cải thiện đáng kể Phase 6: frontend AI flow đã đi qua Node Gateway, worker có brain-version recheck, style/constraints được truyền vào writing LLM, direct-write interaction endpoint bị khóa, revision có transactional outbox record và root Compose đã khai báo `ai-service`. Tuy nhiên một số exit criteria trong báo cáo mạnh hơn guarantee thực tế và còn các lỗi P1 về durability, authorization, temporal correctness và deployment topology.
+
+Không coi số lượng unit/golden test trong báo cáo là bằng chứng system-level khi evidence tương ứng không có trong repository. Thư mục evidence được report dẫn bằng `file:///...` hiện không tồn tại dưới `docs/development/` trên `main`.
+
+#### P1 — Phải sửa trước khi nghiệm thu P6.5
+
+1. **Outbox tồn tại nhưng worker không được khởi động khi backend boot.**
+
+   `backend/src/jobs/outbox-processor.ts` có `startOutboxProcessor()`, nhưng `backend/src/main.ts` không import/gọi hàm này và shutdown cũng không stop processor.
+
+   Hiện trạng:
+
+   ```text
+   revision + INCREMENTAL_ANALYSIS outbox commit
+       ↓
+   backend crash trước triggerImmediateProcessing()
+       ↓
+   backend restart
+       ↓
+   không có periodic processor tự chạy
+       ↓
+   event PENDING có thể nằm yên vô hạn
+   ```
+
+   `triggerImmediateProcessing()` sau request không thay thế startup recovery.
+
+   **Yêu cầu:** start periodic outbox processor sau khi database kết nối/migration sẵn sàng; stop processor khi graceful shutdown; test restart với event PENDING tồn tại từ process trước.
+
+2. **Fallback enqueue cho Mongo reconciliation bị lỗi runtime.**
+
+   Trong `chapter-revisions.service.ts`, nhánh Mongo failure gọi:
+
+   ```ts
+   insertOutboxEvent(undefined as any, ...)
+   ```
+
+   trong khi `insertOutboxEvent(client, ...)` gọi trực tiếp `client.query(...)`. Cast `as any` chỉ bỏ lỗi TypeScript; runtime vẫn fail khi `client` là undefined.
+
+   Như vậy chính lúc Mongo lỗi thì enqueue `MONGO_DRAFT_SYNC` cũng có thể lỗi và chỉ còn console log.
+
+   **Yêu cầu:** repository method phải hỗ trợ optional DB client/pool executor đúng cách hoặc tạo transaction/pool call riêng; thêm integration test gây Mongo failure và xác nhận row `MONGO_DRAFT_SYNC` thật sự tồn tại trong PostgreSQL.
+
+3. **`syncDraftFromRevisionConditional()` có thể trả `synced` nhưng không tạo draft.**
+
+   Method dùng `updateOne` không `upsert: true`. Nếu chapter chưa có Mongo draft, `matchedCount === 0`, `existing === null`, code tiếp tục đọc lại và có thể trả:
+
+   ```text
+   status = synced
+   draft = null
+   ```
+
+   Test hiện tại chỉ mô phỏng CAS bằng function local, không chạy repository Mongo thật nên không bắt lỗi này.
+
+   **Yêu cầu:** định nghĩa semantics cho draft chưa tồn tại và implement atomic upsert/CAS tương ứng; test trên MongoDB thật.
+
+4. **Temporal cutoff đã được implement ở repository nhưng Author IDE không truyền chapter cutoff.**
+
+   `WritingAssistantPanel.tsx` hiện gọi:
+
+   ```ts
+   fetchContextPreview(novelId)
+   ```
+
+   và `startWritingGeneration(...)` mà không truyền `chapterNumber`.
+
+   Vì vậy product flow mặc định vẫn có `chapter_number=None`, trong khi golden test chỉ chứng minh repository hoạt động khi caller chủ động truyền chapter number.
+
+   **Yêu cầu:** không tin chapter number do browser tự khai báo. Node AI Gateway phải derive chapter number từ canonical `chapterId`/Platform DB, xác nhận chapter thuộc novel/author, rồi overwrite cutoff gửi sang FastAPI. Context preview và generation phải dùng cùng cutoff.
+
+5. **PostgreSQL temporal cutoff vẫn có thể leak future facts và latest state.**
+
+   `get_structured_context()` lọc confirmed events theo `EventRecord.chapter_number <= cutoff`, nhưng:
+   - facts được load toàn bộ không có source revision/chapter cutoff;
+   - state transition có `fact_id` được giữ không phụ thuộc cutoff của fact;
+   - nếu `project(...)` lỗi, code fallback sang `CurrentEntityStateRecord` latest state.
+
+   Fail-open sang latest state là trái mục tiêu as-of retrieval.
+
+   **Yêu cầu:** provenance của fact phải cho phép xác định effective chapter/revision hoặc policy rõ cho author-global facts; future manuscript-derived facts không được vào past context. Nếu as-of projection không dựng được, fail closed/omit uncertain state với explicit diagnostic; không dùng latest projection làm fallback cho old-chapter generation. Thêm PostgreSQL integration fixtures cho future fact và projection failure.
+
+6. **AI Gateway mới kiểm tra role, chưa kiểm tra resource ownership.**
+
+   `requireAuth + requireRoles(['AUTHOR','ADMIN'])` chỉ chứng minh caller là Author/Admin, chưa chứng minh caller sở hữu:
+   - novel trong context/bootstrap/review queue;
+   - chapter/revision trong writing generation;
+   - job được đọc;
+   - proposal/group được quyết định.
+
+   `GET /api/v1/ai/jobs/:jobId` hiện có nguy cơ IDOR nếu author biết job ID. Gateway gửi `X-User-Id` nhưng FastAPI không dùng header này như authorization policy.
+
+   **Yêu cầu:** Node phải resolve và verify ownership trước khi forward. Với job/proposal/group ID không mang novel ID trên URL, cần lookup trusted metadata hoặc internal endpoint scoped để xác minh owner/novel trước khi trả dữ liệu/mutate. Thêm negative tests cross-author/cross-novel.
+
+7. **Tenant mapping vẫn là hard-coded default, chưa phải trusted tenant boundary.**
+
+   `AIGatewayService` fallback:
+
+   ```text
+   00000000-0000-0000-0000-000000000001
+   ```
+
+   và controller hiện không truyền tenant derived từ auth/session.
+
+   Nếu hệ thống hiện tại cố ý single-tenant thì phải ghi rõ invariant và bỏ claim cross-tenant production isolation ở Gateway. Nếu multi-tenant là requirement thì phải derive tenant từ trusted Platform identity, không từ browser/default constant.
+
+8. **FastAPI vẫn có thể bị browser/client gọi trực tiếp trong production topology.**
+
+   Frontend code đã ngừng gọi FastAPI trực tiếp, nhưng các route `/v1/...` vẫn chủ yếu tin `X-Tenant-Id` và không enforce service credential; root Compose còn publish `8000:8000`.
+
+   **Yêu cầu:** production-facing AI routes dùng bởi Gateway phải require service authentication hoặc network topology tương đương fail-closed. Không coi “frontend hiện không gọi port 8000” là security boundary.
+
+9. **Root Compose chưa chạy đúng Story Brain/LLM architecture đã báo cáo.**
+
+   `docker-compose.yml` có service `ai-service`, nhưng hiện không set:
+   - `NARRATIVE_REPOSITORY=postgres`;
+   - `LLM_PROVIDER`.
+
+   Theo `Settings`, defaults tương ứng là:
+   - repository = `json`;
+   - provider = `none` → LLM disabled.
+
+   `ai-service/Dockerfile` cũng chỉ chạy Uvicorn, không chạy Alembic migration.
+
+   Vì vậy health-check xanh chưa chứng minh root Compose chạy được vòng:
+
+   ```text
+   Platform → PostgreSQL Story Brain → writing generation → accept → durable analysis
+   ```
+
+   **Yêu cầu:** chốt Compose dev/test profile rõ ràng; PostgreSQL Narrative repository phải được enable khi system test P6.5, Alembic phải được upgrade trước service readiness, LLM có thể dùng fake deterministic provider cho system test nhưng phải cấu hình explicit và ghi đúng loại evidence. Không bắt buộc gọi model thật để nghiệm thu correctness.
+
+10. **Legacy `/suggest-next` vẫn bypass WritingService.**
+
+    Route có gọi `writing_service.preview_context(...)` nhưng bỏ kết quả rồi tiếp tục dùng:
+
+    ```text
+    narrative.story_context
+    → llm_service.generate_suggestion
+    → ConsistencyEngine
+    ```
+
+    Đây vẫn là independent legacy writer; chỉ thêm deprecation header chưa đạt invariant “legacy writer không còn bypass WritingService”.
+
+    **Yêu cầu:** hoặc adapter thật sang WritingService/generation workflow và giữ response compatibility, hoặc disable/deprecate route theo contract rõ ràng. Không gọi preview rồi tiếp tục writer cũ.
+
+11. **Brain version vẫn có race ở accept.**
+
+    P6.5 đã re-check brain version khi worker bắt đầu generation, nhưng sau khi job complete có thể:
+
+    ```text
+    generation completed using brain v10
+        ↓
+    author accepts another proposal → brain v11
+        ↓
+    accept old generation
+    ```
+
+    `acceptDraft()` hiện không verify brain version used; internal generation trust response cũng không trả `brain_version_used/context_hash/chapter_number`.
+
+    **Yêu cầu:** chốt policy: stale-brain generation có được accept hay phải revalidate/reject. Nếu reject, Platform phải lấy trusted `brain_version_used`, kiểm tra current version tại accept boundary và trả conflict. Nếu cho phép, phải có explicit revalidation semantics; không im lặng coi v10 draft là current.
+
+#### P2 — Cần sửa hoặc ghi rõ trước khi đóng batch
+
+12. **Gateway thiếu SSE proxy `/jobs/:jobId/events`.**
+
+    Phase 6 API có SSE endpoint, nhưng Gateway chỉ proxy polling `GET /jobs/:jobId`. Nếu polling là product path chính thì có thể ghi SSE unsupported/deferred; nếu vẫn quảng bá SSE trong Phase 6 contract thì Gateway phải proxy auth-safe.
+
+13. **Gateway khai báo `POST /proposals/:proposalId/decision` nhưng chưa có bằng chứng FastAPI route tương ứng.**
+
+    Kiểm tra và đồng bộ contract; không để public Gateway route forward tới path không tồn tại.
+
+14. **Context trace chưa đủ mạnh.**
+
+    `context_hash` hiện hash `context_summary`/artifact IDs, không phải serialized context package thực tế đưa vào prompt. Nếu mutable artifact thay nội dung mà ID giữ nguyên, hash có thể không đổi.
+
+    **Yêu cầu:** lưu/hash canonical prompt-context payload hoặc version/hash từng artifact đủ để tái hiện chính xác context dùng cho generation. Internal trust response nên expose trace metadata cần cho Platform audit, không expose manuscript không cần thiết.
+
+15. **Evidence logs được report dẫn bằng local `file:///...` nhưng chưa được commit vào repository.**
+
+    Tạo thư mục evidence dưới `docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/` hoặc tên batch tương ứng, lưu command/log summary tái hiện được. Không cần commit artefact khổng lồ; có thể lưu concise logs, fixture IDs, exit codes và report system test.
+
+---
+
+### Giao Gemini — P6.5-R1-INTEGRATION-CLOSURE-01
+
+**Ngày giao:** 2026-09-19
+
+**Trạng thái:** Đã giao; Gemini sửa implementation và bàn giao lại để Astra review.
+
+**Mục tiêu:** Đóng các lỗi correctness/durability/security còn lại của P6.5. Đây là correction batch, không phải phase tính năng mới. Không triển khai Phase 7 Semantic Retrieval, pgvector, embeddings, multi-agent hoặc planning/editing.
+
+#### Phạm vi bắt buộc
+
+1. **Outbox lifecycle và restart recovery**
+   - Start periodic outbox processor khi backend boot sau DB readiness.
+   - Stop processor trong graceful shutdown.
+   - Tránh nhiều processor trong cùng process.
+   - Xác định policy claim/locking cho nhiều backend instance nếu topology có thể scale >1; tối thiểu không double-process cùng event một cách nguy hiểm.
+   - Test PENDING event được xử lý sau backend restart mà không cần request mới.
+
+2. **Sửa Mongo reconciliation thật**
+   - Sửa `insertOutboxEvent` fallback để dùng pool khi không có transaction client.
+   - Xử lý draft chưa tồn tại bằng atomic CAS/upsert đúng semantics.
+   - Không để delayed reconciliation overwrite newer author draft.
+   - Test với MongoDB thật: Mongo unavailable/failure → PostgreSQL outbox row tồn tại → Mongo recover → event retry → sync hoặc skip-newer-draft đúng.
+
+3. **Canonical chapter cutoff**
+   - Node derive `chapterNumber` từ `chapterId`, không tin client.
+   - Xác minh chapter thuộc requested novel và author.
+   - Context preview và generation phải dùng cùng canonical cutoff.
+   - Frontend không cần tự chịu trách nhiệm security/correctness cho cutoff.
+
+4. **Temporal fact/state correctness**
+   - Gắn/đọc provenance để manuscript-derived facts tuân thủ as-of cutoff.
+   - Author-global/locked facts cần policy effective-from rõ ràng.
+   - Không fallback old-chapter projection sang latest current state.
+   - Bổ sung PostgreSQL integration tests cho future event, future fact, superseded/correction event và projector failure.
+
+5. **AI Gateway authorization**
+   - Verify ownership cho novel/chapter/revision trước context/generation/bootstrap.
+   - Verify job/proposal/group thuộc resource mà current user được phép truy cập trước read/mutation.
+   - ADMIN bypass theo policy hiện có, AUTHOR fail-closed.
+   - Không chỉ dựa vào role hoặc opaque ID.
+   - Add cross-author, cross-novel, forged ID tests.
+
+6. **Tenant/service trust**
+   - Chốt single-tenant hoặc multi-tenant model hiện tại trong docs/report.
+   - Nếu multi-tenant: derive tenant từ trusted auth/account mapping.
+   - Nếu single-tenant MVP: explicit invariant + không nhận browser tenant selector.
+   - FastAPI production routes sau Gateway phải require trusted service authentication hoặc tương đương network enforcement; tests thiếu/sai service credential phải fail.
+
+7. **Root Compose system topology**
+   - Configure AI service explicit repository/provider mode.
+   - Chạy Alembic migrations trước AI readiness khi dùng PostgreSQL repository.
+   - Fake deterministic LLM được phép cho system correctness test; ghi rõ fake.
+   - Root Compose phải chứng minh được ít nhất:
+     ```text
+     login/authorized author
+       → context through Node Gateway
+       → writing generation
+       → validated result
+       → Platform accept
+       → immutable revision + outbox
+       → incremental analysis retry/complete
+     ```
+   - Không dùng health endpoint đơn thuần làm evidence cho full loop.
+
+8. **Legacy route closure**
+   - `/suggest-next` phải thực sự dùng WritingService/generation adapter hoặc trả deprecation/disabled response không chạy legacy independent LLM writer.
+   - `/v1/enhanced/process-interactions` tiếp tục fail-closed; xóa unreachable direct-write body nếu hợp lý và không làm mất compatibility docs/tests.
+
+9. **Accept-time brain policy**
+   - Internal generation trust metadata trả `brain_version_used`, context trace/hash và cutoff cần thiết.
+   - Chốt behavior khi brain version thay đổi sau generation nhưng trước accept.
+   - Implement server-side recheck/revalidation hoặc conflict theo policy.
+   - Add test cho concurrent brain update trước accept.
+
+10. **Gateway contract cleanup**
+    - Quyết định SSE proxy: implement authenticated proxy hoặc ghi rõ polling-only và cập nhật contract/frontend.
+    - Xóa/sửa Gateway route forward tới FastAPI endpoint không tồn tại.
+    - Đồng bộ error/status contract qua Gateway.
+
+11. **Context traceability**
+    - Hash/version context thực sự đưa vào LLM, không chỉ list ID nếu artifact mutable.
+    - Generation persistence phải trả lời được: revision/cutoff/brain version/artifact content version nào đã dùng.
+    - Không log full manuscript hoặc secrets.
+
+#### Kiểm thử bắt buộc
+
+Phải phân loại rõ unit / repository integration / HTTP integration / browser / system. Tối thiểu có:
+
+1. Backend startup xử lý outbox PENDING có từ trước restart.
+2. Outbox retry sau AI service 5xx/network failure.
+3. Mongo failure rồi recovery; fallback row được enqueue thật.
+4. Mongo reconciliation không overwrite draft mới hơn và tạo được draft nếu trước đó chưa có.
+5. Gateway cross-author novel/chapter/job/proposal access bị 403/404 theo contract.
+6. Context/generation dùng canonical chapter cutoff derive từ DB.
+7. PostgreSQL future event + future fact không leak vào old chapter.
+8. Projection failure không fallback latest future state.
+9. Brain version thay đổi lúc queued → generation fail stale.
+10. Brain version thay đổi sau completion trước accept → behavior đúng policy.
+11. `/suggest-next` không gọi legacy independent writer.
+12. Root Compose full Platform → AI → accept → outbox → incremental analysis flow.
+13. Migration backend 010 và Alembic head chạy trên database test sạch; rollback/test policy theo conventions hiện có.
+14. Web typecheck/build và browser smoke cho context/generate/preview/accept/conflict qua Node Gateway.
+15. Regression suites Phase 4/5/6 không fail.
+
+Không dùng mock function local thay cho Mongo/PostgreSQL behavior khi tiêu chí đang kiểm tra database semantics. Không dùng build frontend thay browser flow. Không dùng fake LLM để tuyên bố chất lượng văn chương; fake LLM chỉ chứng minh orchestration/correctness.
+
+#### Evidence và báo cáo
+
+Tạo:
+
+- `docs/development/P6.5-R1-INTEGRATION-CLOSURE-01-report.md`
+- `docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/`
+
+Report phải có:
+- finding → root cause → diff/file → test/evidence;
+- cấu hình root Compose dùng trong system test;
+- migration versions;
+- auth/tenant model;
+- outbox state machine/retry semantics;
+- Mongo CAS/upsert semantics;
+- temporal cutoff/fact policy;
+- accept-time brain-version policy;
+- bảng test với command, exit code, pass/fail/skip;
+- phần nào dùng fake LLM, phần nào là PostgreSQL/Mongo/Platform/browser thật;
+- blocker/known limitation còn lại.
+
+Không dẫn evidence chỉ bằng `file:///...`; evidence cần nằm trong repository hoặc report phải chứa đủ output tóm tắt tái hiện được.
+
+#### Giới hạn thay đổi
+
+- Chỉ sửa phạm vi cần cho P6.5-R1 ở `backend/`, `ai-service/`, `web/`, root Compose, test/docs liên quan.
+- Không triển khai Phase 7.
+- Không thêm vector DB/pgvector/embedding.
+- Không multi-agent.
+- Không refactor diện rộng ngoài root cause.
+- Không xóa lịch sử review/bàn giao trong `promt.md`.
+- Không tự đánh dấu P6.5 accepted/completed.
+- Không reset/clean/force push hoặc tự xóa dữ liệu dev ngoài test database/volume đã được cô lập.
+
+#### Bàn giao lại
+
+Khi hoàn thành, append vào cuối `promt.md`:
+
+`Gemini bàn giao — P6.5-R1-INTEGRATION-CLOSURE-01`
+
+với trạng thái **Fixed, awaiting Astra review**, liên kết report/evidence và bảng từng finding phía trên → file sửa → test/evidence.
+
+**Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu correction batch này.**
+
