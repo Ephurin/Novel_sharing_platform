@@ -1,0 +1,22 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Laptop\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Laptop\OneDrive\Documents\testproject\ai-service
+configfile: pytest.ini
+plugins: anyio-4.13.0
+collecting ... collected 12 items
+
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_01_context_preview_budget_and_rules PASSED [  8%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_02_out_of_bounds_selection_rejected_422 PASSED [ 16%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_03_content_hash_mismatch_rejected_409 PASSED [ 25%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_04_brain_version_conflict_rejected_409 PASSED [ 33%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_05_idempotency_returns_same_job PASSED [ 41%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_06_dead_character_rule_violation_caught PASSED [ 50%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_07_locked_world_rule_violation_caught PASSED [ 58%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_08_polymorphic_get_job_and_internal_api PASSED [ 66%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_09_astra_probe_postgres_fact_value_rule_caught PASSED [ 75%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_10_patch_upper_bound_violation_caught PASSED [ 83%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_11_idempotency_key_conflict_different_input_rejected_409 PASSED [ 91%]
+tests/test_writing_validation_golden.py::WritingValidationGoldenTests::test_12_internal_endpoint_service_token_auth PASSED [100%]
+
+======================= 12 passed, 4 warnings in 0.97s ========================

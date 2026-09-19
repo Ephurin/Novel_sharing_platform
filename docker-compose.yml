@@ -10,7 +10,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ephurin"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d ephurin" ]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -22,7 +22,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      test: [ "CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok" ]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -52,6 +52,8 @@ services:
       AI_LLM_TEMPERATURE: ${AI_LLM_TEMPERATURE:-0.7}
       RUN_MIGRATIONS: "true"
       RUN_DEMO_SEED: "true"
+      AI_SERVICE_URL: ${AI_SERVICE_URL:-http://host.docker.internal:8000}
+      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-test-token}
     ports:
       - "4000:4000"
     depends_on:

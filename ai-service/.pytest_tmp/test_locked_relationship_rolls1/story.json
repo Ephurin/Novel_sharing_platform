@@ -1,0 +1,124 @@
+{
+  "story_id": "story",
+  "metadata": {
+    "created_at": "2026-09-17T04:34:34.025092+00:00",
+    "updated_at": "2026-09-17T04:34:34.054724+00:00"
+  },
+  "entities": {
+    "minh": {
+      "name": "Minh",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    "lan": {
+      "name": "Lan",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  },
+  "entity_aliases": [],
+  "entity_mentions": [],
+  "facts": [],
+  "state_transitions": [],
+  "narrative_projection": {},
+  "relations": [
+    {
+      "subject": "Minh",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lan",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Minh",
+      "relation": "ENEMY_OF",
+      "object": "Lan",
+      "metadata": {},
+      "source": "author",
+      "locked": true
+    }
+  ],
+  "events": [],
+  "enhanced_events": [],
+  "proposals": [
+    {
+      "proposal_id": "ac6caf89-83ab-4805-a5f8-37bc6ad654e8",
+      "proposal_type": "event",
+      "payload": {
+        "event_id": "ac6caf89-83ab-4805-a5f8-37bc6ad654e8",
+        "event_type": "injury",
+        "summary": "Minh was injured",
+        "participants": [
+          "Minh"
+        ],
+        "chapter": 1
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "937f32f3-80a9-42e3-896b-29f2236910cf",
+      "materialization_order": 0,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 1,
+      "status": "pending",
+      "decision_reason": null
+    },
+    {
+      "proposal_id": "b260e2e4-a531-4fea-820e-07441fa3ca80",
+      "proposal_type": "state_transition",
+      "payload": {
+        "event_id": "ac6caf89-83ab-4805-a5f8-37bc6ad654e8",
+        "entity_id": "Minh",
+        "attribute_key": "active_relationships",
+        "new_value": {
+          "Lan": "ALLY_OF"
+        }
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "937f32f3-80a9-42e3-896b-29f2236910cf",
+      "materialization_order": 1,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 1,
+      "status": "pending",
+      "decision_reason": null
+    }
+  ],
+  "relation_history": [
+    {
+      "action": "override",
+      "relation": {
+        "subject": "Minh",
+        "relation": "ENEMY_OF",
+        "object": "Lan",
+        "metadata": {},
+        "source": "author",
+        "locked": true
+      },
+      "timestamp": "2026-09-17T04:34:34.044073+00:00"
+    }
+  ],
+  "entity_states": {},
+  "event_history": [],
+  "current_world_state": {
+    "characters": {}
+  }
+}

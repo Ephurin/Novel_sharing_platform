@@ -26,6 +26,7 @@ import {
 } from '../features/reader/ReaderPage';
 import { AuthLanding } from '../shared/components/AuthLanding';
 import { WalletPage } from '../features/wallet/WalletPage';
+import { ManuscriptImportPage } from '../features/manuscript-import/ManuscriptImportPage';
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +51,16 @@ export const router = createBrowserRouter([
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
           <AuthorIdeShell />
+        </RoleGuard>
+      </AuthGate>
+    )
+  },
+  {
+    path: '/author/import/:novelId',
+    element: (
+      <AuthGate>
+        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+          <ManuscriptImportPage />
         </RoleGuard>
       </AuthGate>
     )

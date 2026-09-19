@@ -14,6 +14,24 @@ class NarrativeApplicationService:
     def get_story_brain(self, story_id: str) -> StoryBrain:
         return self._repository.get_story_brain(story_id)
 
+    def get_story_brain_summary(self, story_id: str) -> dict[str, Any]:
+        brain = self._repository.get_story_brain(story_id)
+        return {
+            "id": brain.metadata.get("brain_id", story_id),
+            "novel_id": story_id,
+            "status": brain.metadata.get("status", "active"),
+            "brain_version": int(brain.metadata.get("brain_version", "1")),
+            "baseline_revision_id": brain.metadata.get("baseline_revision_id"),
+            "counts": {
+                "entities": len(brain.entities),
+                "events": len(brain.events),
+                "pending_proposals": sum(
+                    item.status == ProposalStatus.PENDING for item in brain.proposals
+                ),
+                "open_findings": 0,
+            },
+        }
+
     def get_current_state(self, story_id: str) -> dict[str, Any]:
         return self._repository.get_current_state(story_id)
 
@@ -58,6 +76,14 @@ class NarrativeApplicationService:
 
     def get_snapshot(self, story_id: str) -> dict[str, Any]:
         return self._repository.export_snapshot(story_id)
+
+    def merge_entities(
+        self, story_id: str, source_entity_id: str, target_entity_id: str,
+        expected_brain_version: int
+    ) -> dict[str, Any]:
+        return self._repository.merge_entities(
+            story_id, source_entity_id, target_entity_id, expected_brain_version
+        )
 
     def sync_entities(
         self, story_id: str, entities: list[dict[str, Any]]

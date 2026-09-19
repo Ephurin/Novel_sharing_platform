@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import uuid
-from dataclasses import replace
+from dataclasses import asdict, replace
 from typing import Any
 
 from core.story_kb_manager import KBRelation, KBEntity, StoryKBManager
-from domain.errors import OptimisticLockError, ProposalAlreadyDecidedError
+from domain.errors import IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
 from domain.models import (
     AnalysisRun,
+    BootstrapJob,
+    BootstrapRevision,
     NarrativeAlias,
     NarrativeEntity,
     NarrativeEvent,
@@ -16,6 +18,8 @@ from domain.models import (
     NarrativeRelation,
     ProposalStatus,
     StoryBrain,
+    WritingContextPackage,
+    WritingGenerationJob,
 )
 
 
@@ -23,6 +27,8 @@ class JsonNarrativeRepository:
     def __init__(self, manager: StoryKBManager) -> None:
         self._manager = manager
         self._analysis_runs: dict[str, AnalysisRun] = {}
+        self._bootstrap_jobs: dict[str, BootstrapJob] = {}
+        self._writing_jobs: dict[str, WritingGenerationJob] = {}
 
     def get_story_brain(self, story_id: str) -> StoryBrain:
         kb = self._manager.load_kb(story_id)
@@ -47,6 +53,7 @@ class JsonNarrativeRepository:
                 NarrativeEntity(
                     name=entity.name,
                     entity_id=self._entity_id(story_id, entity.name),
+
                     entity_type=entity.entity_type,
                     status=entity.status,
                     location=entity.location,
@@ -333,6 +340,80 @@ class JsonNarrativeRepository:
     def export_snapshot(self, story_id: str) -> dict[str, Any]:
         return self._manager.load_kb(story_id).model_dump()
 
+    def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        kb = self._manager.load_kb(job.novel_id)
+        jobs = dict(kb.metadata.get("bootstrap_jobs", {}))
+        if job.job_id in jobs:
+            return self._job_from_dict(jobs[job.job_id])
+        jobs[job.job_id] = asdict(job)
+        kb.metadata["bootstrap_jobs"] = jobs
+        kb.metadata["status"] = "importing"
+        self._manager.save_narrative_kb(job.novel_id, kb)
+        return job
+
+    def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
+        for file_path in self._manager.storage_dir.glob("*.json"):
+            kb = self._manager.load_kb(file_path.stem)
+            data = kb.metadata.get("bootstrap_jobs", {}).get(job_id)
+            if data:
+                return self._job_from_dict(data)
+        raise KeyError(f"Bootstrap job not found: {job_id}")
+
+    def save_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        kb = self._manager.load_kb(job.novel_id)
+        jobs = dict(kb.metadata.get("bootstrap_jobs", {}))
+        if job.job_id not in jobs:
+            raise KeyError(f"Bootstrap job not found: {job.job_id}")
+        jobs[job.job_id] = asdict(job)
+        kb.metadata["bootstrap_jobs"] = jobs
+        self._manager.save_narrative_kb(job.novel_id, kb)
+        return job
+
+    def activate_baseline(
+        self, story_id: str, job_id: str, baseline_revision_id: str
+    ) -> dict[str, Any]:
+        job = self.get_bootstrap_job(job_id)
+        if job.novel_id != story_id:
+            raise KeyError(job_id)
+        kb = self._manager.load_kb(story_id)
+        kb.metadata["status"] = "active"
+        kb.metadata["baseline_revision_id"] = baseline_revision_id
+        self._manager.save_narrative_kb(story_id, kb)
+        return {
+            "story_brain_id": story_id,
+            "status": "active",
+            "baseline_revision_id": baseline_revision_id,
+            "brain_version": int(kb.metadata.get("brain_version", "1")),
+        }
+
+    def merge_entities(
+        self, story_id: str, source_entity_id: str, target_entity_id: str,
+        expected_brain_version: int
+    ) -> dict[str, Any]:
+        from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
+        memory = InMemoryNarrativeRepository()
+        memory._brains[story_id] = self.get_story_brain(story_id)
+        result = memory.merge_entities(
+            story_id, source_entity_id, target_entity_id, expected_brain_version
+        )
+        brain = memory.get_story_brain(story_id)
+        kb = self._manager.load_kb(story_id)
+        kb.entities = {
+            entity.name.casefold(): KBEntity(
+                name=entity.name, entity_type=entity.entity_type, status=entity.status,
+                location=entity.location, mentions=entity.mentions, is_locked=entity.is_locked
+            )
+            for entity in brain.entities
+        }
+        kb.entity_aliases = [asdict(item) for item in brain.aliases]
+        kb.entity_mentions = [asdict(item) for item in brain.mentions]
+        kb.facts = list(brain.facts)
+        kb.state_transitions = list(brain.transitions)
+        kb.narrative_projection = brain.current_state
+        kb.metadata = brain.metadata
+        self._manager.save_narrative_kb(story_id, kb)
+        return result
+
     @staticmethod
     def _proposal_from_dict(item: dict[str, Any]) -> NarrativeProposal:
         return NarrativeProposal(
@@ -368,3 +449,80 @@ class JsonNarrativeRepository:
     @staticmethod
     def _entity_id(story_id: str, name: str) -> str:
         return str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:{name.casefold()}"))
+
+    @staticmethod
+    def _job_from_dict(data: dict[str, Any]) -> BootstrapJob:
+        return BootstrapJob(
+            job_id=str(data["job_id"]),
+            novel_id=str(data["novel_id"]),
+            tenant_id=str(data["tenant_id"]),
+            revisions=tuple(BootstrapRevision(**item) for item in data.get("revisions", [])),
+            locale=str(data.get("locale", "vi-VN")),
+            options=dict(data.get("options", {})),
+            status=str(data.get("status", "queued")),
+            progress_current=int(data.get("progress_current", 0)),
+            stage=str(data.get("stage", "queued")),
+            result=data.get("result"),
+            error=data.get("error"),
+        )
+
+    def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        self._bootstrap_jobs[job.job_id] = job
+        return job
+
+    def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
+        if job_id not in self._bootstrap_jobs:
+            raise KeyError(f"Bootstrap job not found: {job_id}")
+        return self._bootstrap_jobs[job_id]
+
+    def save_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        if job.job_id not in self._bootstrap_jobs:
+            raise KeyError(f"Bootstrap job not found: {job.job_id}")
+        self._bootstrap_jobs[job.job_id] = job
+        return job
+
+    def create_writing_job(self, job: WritingGenerationJob) -> WritingGenerationJob:
+        for existing in self._writing_jobs.values():
+            if (
+                existing.tenant_id == job.tenant_id
+                and existing.novel_id == job.novel_id
+                and existing.idempotency_key
+                and existing.idempotency_key == job.idempotency_key
+            ):
+                if existing.input_hash != job.input_hash:
+                    raise IdempotencyConflictError(
+                        f"Idempotency key {job.idempotency_key} reused with different input"
+                    )
+                return existing
+        self._writing_jobs[job.job_id] = job
+        return job
+
+    def get_writing_job(self, job_id: str) -> WritingGenerationJob:
+        if job_id not in self._writing_jobs:
+            raise KeyError(f"Writing generation job not found: {job_id}")
+        return self._writing_jobs[job_id]
+
+    def save_writing_job(self, job: WritingGenerationJob) -> WritingGenerationJob:
+        if job.job_id not in self._writing_jobs:
+            raise KeyError(f"Writing generation job not found: {job.job_id}")
+        self._writing_jobs[job.job_id] = job
+        return job
+
+    def get_structured_context(
+        self,
+        story_id: str,
+        *,
+        chapter_number: int | None = None,
+        character_name: str | None = None,
+        limit_recent_events: int = 20,
+    ) -> WritingContextPackage:
+        from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
+        memory = InMemoryNarrativeRepository()
+        memory._brains[story_id] = self.get_story_brain(story_id)
+        return memory.get_structured_context(
+            story_id,
+            chapter_number=chapter_number,
+            character_name=character_name,
+            limit_recent_events=limit_recent_events,
+        )
+

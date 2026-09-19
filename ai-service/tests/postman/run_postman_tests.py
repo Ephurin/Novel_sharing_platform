@@ -80,6 +80,8 @@ class ScenarioRunner:
         self.brain_version = 1
         self.corr_group_id = ""
         self.corr_proposal_ids: list[str] = []
+        self.later_event_id = ""
+        self.state_before_correction: dict[str, Any] = {}
 
     def setup_fixture(self) -> None:
         # Register revision in mock-platform
@@ -99,26 +101,6 @@ class ScenarioRunner:
             print(f"Warning: Failed registering dynamic fixture in mock-platform ({code}): {body}")
         else:
             print(f"Registered fresh test fixture in mock-platform: novel_id={self.novel_id}, revision_id={self.revision_id}")
-
-        # Update postman environment file with active namespace
-        env_path = POSTMAN_DIR / "Narrative_Memory_Phase_4.postman_environment.json"
-        if env_path.exists():
-            try:
-                with open(env_path, "r", encoding="utf-8") as f:
-                    env_data = json.load(f)
-                mapping = {
-                    "novelId": self.novel_id,
-                    "chapterId": self.chapter_id,
-                    "revisionId": self.revision_id,
-                    "contentHash": self.content_hash,
-                }
-                for item in env_data.get("values", []):
-                    if item.get("key") in mapping:
-                        item["value"] = mapping[item["key"]]
-                with open(env_path, "w", encoding="utf-8") as f:
-                    json.dump(env_data, f, indent=2, ensure_ascii=False)
-            except Exception as e:
-                print(f"Warning updating environment file: {e}")
 
     def record(self, case_id: str, title: str, status: str, details: str, duration_ms: float) -> None:
         self.results.append(
@@ -383,24 +365,123 @@ class ScenarioRunner:
 
         # 9. Reject proposal (Không làm thay đổi canonical state)
         t0 = time.perf_counter()
-        # Create a single temporary proposal to test reject
-        code, body, _ = http_request(
-            "POST",
-            f"{self.base_url}/v1/proposals/00000000-0000-0000-0000-000000000099/reject",
-            headers={"X-Request-Id": "req-reject-09"},
-            body={"reason": "Author rejects proposal"},
+        before_code, before_body, _ = http_request(
+            "GET", f"{self.base_url}/v1/story-brains/{self.novel_id}/state"
         )
-        # 404 for non-existent proposal is also clean, or 200 if existed
-        self.record("09", "Reject proposal", "pass", f"HTTP {code}: Reject operation handled cleanly without state corruption", (time.perf_counter() - t0) * 1000)
+        reject_id = inv_p_ids[0] if inv_code == 201 and inv_body.get("data") else None
+        if reject_id is None:
+            self.record("09", "Reject proposal", "fail", "No real pending proposal is available to reject", 0)
+        else:
+            code, body, _ = http_request(
+                "POST", f"{self.base_url}/v1/proposals/{reject_id}/reject",
+                headers={"X-Request-Id": "req-reject-09"},
+                body={"reason": "Author rejects invalid correction"},
+            )
+            after_code, after_body, _ = http_request(
+                "GET", f"{self.base_url}/v1/story-brains/{self.novel_id}/state"
+            )
+            rejected_code, rejected_body, _ = http_request(
+                "GET", f"{self.base_url}/v1/story-brains/{self.novel_id}/proposals?status=rejected",
+                headers={"X-Request-Id": "req-reject-verify"},
+            )
+            was_rejected = any(p.get("proposal_id") == reject_id for p in rejected_body.get("data", []))
+            if (code == 200 and body.get("data", {}).get("status") == "rejected"
+                    and before_code == after_code == 200 and before_body.get("data") == after_body.get("data")
+                    and rejected_code == 200 and was_rejected):
+                self.record("09", "Reject proposal", "pass", "Rejected a real pending proposal; state and provenance are unchanged", (time.perf_counter() - t0) * 1000)
+            else:
+                self.record("09", "Reject proposal", "fail", f"Reject invariant failed: status={code}, state_changed={before_body != after_body}, listed={was_rejected}", (time.perf_counter() - t0) * 1000)
+
+        # Arrange a genuinely later accepted event. Correcting the original event
+        # must replay this event afterwards, so its health=40 transition wins.
+        later_revision_id = str(__import__("uuid").uuid4())
+        later_content = "Tieu Viem va Hai Ba Dong pha tran phap tai Mac Gia."
+        later_hash = hashlib.sha256(later_content.encode("utf-8")).hexdigest()
+        fixture_code, _, _ = http_request(
+            "POST",
+            f"{self.mock_platform_url}/internal/v1/revisions",
+            body={
+                "revision_id": later_revision_id,
+                "novel_id": self.novel_id,
+                "chapter_id": self.chapter_id,
+                "content": later_content,
+                "tenant_id": self.tenant_id,
+            },
+        )
+        later_code, later_body, _ = http_request(
+            "POST",
+            f"{self.base_url}/v1/revisions/{later_revision_id}/analyses",
+            headers={
+                "X-Tenant-Id": self.tenant_id,
+                "X-Request-Id": "req-later-analysis",
+                "Idempotency-Key": f"later-{later_revision_id}",
+            },
+            body={
+                "novel_id": self.novel_id,
+                "chapter_id": self.chapter_id,
+                "content_hash": later_hash,
+                "operation": "chapter_analysis",
+                "options": {
+                    "extract_entities": True,
+                    "extract_events": True,
+                    "extract_state_transitions": True,
+                },
+            },
+        )
+        later_run_id = later_body.get("data", {}).get("analysis_run_id")
+        props_code, props_body, _ = http_request(
+            "GET",
+            f"{self.base_url}/v1/story-brains/{self.novel_id}/proposals?status=pending",
+            headers={"X-Request-Id": "req-later-proposals"},
+        )
+        later_props = [
+            proposal for proposal in props_body.get("data", [])
+            if proposal.get("analysis_run_id") == later_run_id
+        ]
+        later_group_id = later_props[0]["dependency_group_id"] if later_props else ""
+        later_ids = [
+            proposal["proposal_id"] for proposal in later_props
+            if proposal.get("dependency_group_id") == later_group_id
+        ]
+        later_event = next(
+            (proposal for proposal in later_props if proposal.get("proposal_type") == "event"),
+            None,
+        )
+        later_accept_code, later_accept_body = 0, {}
+        if later_group_id:
+            later_accept_code, later_accept_body, _ = http_request(
+                "POST",
+                f"{self.base_url}/v1/proposal-groups/{later_group_id}/accept",
+                headers={"X-Request-Id": "req-accept-later"},
+                body={
+                    "proposal_ids": later_ids,
+                    "expected_brain_version": 2,
+                    "reason": "Accept later narrative event for replay-order verification",
+                },
+            )
+        if (
+            fixture_code in {200, 201}
+            and later_code == 202
+            and props_code == 200
+            and later_event
+            and later_accept_code == 200
+            and later_accept_body.get("data", {}).get("brain_version") == 3
+        ):
+            self.later_event_id = later_event["proposal_id"]
+            self.brain_version = 3
 
         # 10. Correction đang pending (Event/state cũ chưa đổi)
         t0 = time.perf_counter()
+        before_corr_code, before_corr_body, _ = http_request(
+            "GET", f"{self.base_url}/v1/story-brains/{self.novel_id}/state"
+        )
+        self.state_before_correction = before_corr_body.get("data", {})
         code, body, _ = http_request(
             "POST",
             f"{self.base_url}/v1/story-brains/{self.novel_id}/events/{self.event_id}/corrections",
             headers={"X-Request-Id": "req-valid-corr"},
             body={
-                "expected_brain_version": 2,
+                "expected_brain_version": 3,
                 "replacement": {
                     "event_type": "battle",
                     "summary": "Tiêu Viêm kịch chiến Hải Ba Đông (chỉnh sửa: Hải Ba Đông chỉ thương nhẹ)",
@@ -422,11 +503,9 @@ class ScenarioRunner:
             self.corr_proposal_ids = [p["proposal_id"] for p in corr_props]
             # Verify canonical state is still old state before acceptance
             st_code, st_body, _ = http_request("GET", f"{self.base_url}/v1/story-brains/{self.novel_id}/state")
-            health_values = [
-                attr.get("health") for attr in st_body.get("data", {}).get("entities", {}).values() if "health" in attr
-            ]
-            if 70 not in health_values:
-                self.record("10", "Correction đang pending", "pass", f"201 Created pending correction group; canonical state remains unmutated", (time.perf_counter() - t0) * 1000)
+            if (before_corr_code == st_code == 200
+                    and st_body.get("data") == self.state_before_correction):
+                self.record("10", "Correction đang pending", "pass", "201 Created; complete state and provenance snapshot is unchanged", (time.perf_counter() - t0) * 1000)
             else:
                 self.record("10", "Correction đang pending", "fail", "Canonical state prematurely reflected pending correction", (time.perf_counter() - t0) * 1000)
         else:
@@ -440,32 +519,43 @@ class ScenarioRunner:
             headers={"X-Request-Id": "req-accept-corr"},
             body={
                 "proposal_ids": self.corr_proposal_ids,
-                "expected_brain_version": 2,
+                "expected_brain_version": 3,
                 "reason": "Author approves correction",
             },
         )
-        if code == 200 and body.get("data", {}).get("brain_version") == 3:
-            self.brain_version = 3
-            # Check state now has health=70
+        if code == 200 and body.get("data", {}).get("brain_version") == 4:
+            self.brain_version = 4
+            # The corrected early event is replayed before the later event.
             st_code, st_body, _ = http_request("GET", f"{self.base_url}/v1/story-brains/{self.novel_id}/state")
             health_values = [
                 attr.get("health") for attr in st_body.get("data", {}).get("entities", {}).values() if "health" in attr
             ]
-            if 70 in health_values:
-                self.record("11", "Accept correction", "pass", f"200 OK, brain_version=3, timeline replayed and health=70 reflected", (time.perf_counter() - t0) * 1000)
+            if 40 in health_values and 70 not in health_values:
+                self.record("11", "Accept correction", "pass", "200 OK, brain_version=4; correction accepted and later health=40 remains effective", (time.perf_counter() - t0) * 1000)
             else:
-                self.record("11", "Accept correction", "fail", f"Health 70 not found in replayed state: {st_body}", (time.perf_counter() - t0) * 1000)
+                self.record("11", "Accept correction", "fail", f"Expected later health=40 after replay: {st_body}", (time.perf_counter() - t0) * 1000)
         else:
-            self.record("11", "Accept correction", "fail", f"Expected 200 with brain_version=3, got {code}: {body}", (time.perf_counter() - t0) * 1000)
+            self.record("11", "Accept correction", "fail", f"Expected 200 with brain_version=4, got {code}: {body}", (time.perf_counter() - t0) * 1000)
 
         # 12. Correction event cũ khi có event về sau (Replay preserves subsequent events)
         t0 = time.perf_counter()
-        # Verify subsequent event order preservation logic
         st_code, st_body, _ = http_request("GET", f"{self.base_url}/v1/story-brains/{self.novel_id}/state")
-        if st_code == 200:
-            self.record("12", "Event về sau vẫn có hiệu lực khi sửa event cũ", "pass", "Replay preserves timeline order at original narrative positions", (time.perf_counter() - t0) * 1000)
+        state_data = st_body.get("data", {})
+        health_entries = [
+            (entity_id, attributes.get("health"))
+            for entity_id, attributes in state_data.get("entities", {}).items()
+            if "health" in attributes
+        ]
+        later_provenance = any(
+            state_data.get("provenance", {}).get(entity_id, {}).get("health", {}).get("event_id")
+            == self.later_event_id
+            for entity_id, value in health_entries
+            if value == 40
+        )
+        if st_code == 200 and self.later_event_id and later_provenance:
+            self.record("12", "Event về sau vẫn có hiệu lực khi sửa event cũ", "pass", "Final health=40 and provenance point to the accepted later event", (time.perf_counter() - t0) * 1000)
         else:
-            self.record("12", "Event về sau vẫn có hiệu lực", "fail", f"Failed reading state: {st_body}", (time.perf_counter() - t0) * 1000)
+            self.record("12", "Event về sau vẫn có hiệu lực", "fail", f"Later-event replay/provenance invariant failed: event={self.later_event_id}, state={st_body}", (time.perf_counter() - t0) * 1000)
 
         # 13. Rebuild hai lần (Bằng online projection, provenance ổn định, version không tăng)
         t0 = time.perf_counter()
@@ -487,6 +577,15 @@ class ScenarioRunner:
         # 14. Restart container (Dữ liệu và trạng thái proposal/state vẫn còn)
         t0 = time.perf_counter()
         print("Restarting containers p4-ai-service and p4-postgres to verify persistence...")
+        before_restart_code, before_restart_body, _ = http_request(
+            "GET", f"{self.base_url}/v1/story-brains/{self.novel_id}/state"
+        )
+        before_props_code, before_props_body, _ = http_request(
+            "GET",
+            f"{self.base_url}/v1/story-brains/{self.novel_id}/proposals?status=rejected",
+            headers={"X-Request-Id": "req-before-restart-proposals"},
+        )
+        subprocess.run(["docker", "restart", "p4-postgres"], check=True, capture_output=True)
         subprocess.run(["docker", "restart", "p4-ai-service"], check=True, capture_output=True)
         # Wait for health
         healthy = False
@@ -502,9 +601,16 @@ class ScenarioRunner:
 
         if healthy:
             st_code, st_body, _ = http_request("GET", f"{self.base_url}/v1/story-brains/{self.novel_id}/state")
-            entities_after = st_body.get("data", {}).get("entities", {})
-            if st_code == 200 and len(entities_after) > 0:
-                self.record("14", "Restart container persistence", "pass", f"Container restarted cleanly; {len(entities_after)} entities & state persisted in PostgreSQL volume", (time.perf_counter() - t0) * 1000)
+            props_code, props_body, _ = http_request(
+                "GET",
+                f"{self.base_url}/v1/story-brains/{self.novel_id}/proposals?status=rejected",
+                headers={"X-Request-Id": "req-after-restart-proposals"},
+            )
+            if (st_code == before_restart_code == 200
+                    and props_code == before_props_code == 200
+                    and st_body.get("data") == before_restart_body.get("data")
+                    and props_body.get("data") == before_props_body.get("data")):
+                self.record("14", "Restart container persistence", "pass", "PostgreSQL and API restarted; state, provenance, and rejected proposals match their snapshots", (time.perf_counter() - t0) * 1000)
             else:
                 self.record("14", "Restart container persistence", "fail", f"State missing after restart: {st_body}", (time.perf_counter() - t0) * 1000)
         else:

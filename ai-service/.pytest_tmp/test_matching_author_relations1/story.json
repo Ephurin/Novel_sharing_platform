@@ -1,0 +1,175 @@
+{
+  "story_id": "story",
+  "metadata": {
+    "created_at": "2026-09-17T04:34:34.658399+00:00",
+    "updated_at": "2026-09-17T04:34:34.726338+00:00",
+    "brain_version": "2"
+  },
+  "entities": {
+    "minh": {
+      "name": "Minh",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    "lan": {
+      "name": "Lan",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  },
+  "entity_aliases": [],
+  "entity_mentions": [],
+  "facts": [],
+  "state_transitions": [
+    {
+      "transition_id": "b58f0fc1-868e-451b-91f4-785cc7a0954b",
+      "entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
+      "event_id": "278d59e1-eab8-479d-a3b1-14956432694d",
+      "fact_id": null,
+      "attribute_key": "active_relationships",
+      "new_value": {
+        "Lan": "ALLY_OF"
+      }
+    }
+  ],
+  "narrative_projection": {
+    "entities": {
+      "974095f1-83a1-526b-bd0b-9833f10d08e4": {
+        "active_relationships": {
+          "Lan": "ALLY_OF"
+        }
+      }
+    },
+    "provenance": {
+      "974095f1-83a1-526b-bd0b-9833f10d08e4": {
+        "active_relationships": {
+          "transition_id": "b58f0fc1-868e-451b-91f4-785cc7a0954b",
+          "event_id": "278d59e1-eab8-479d-a3b1-14956432694d",
+          "fact_id": null
+        }
+      }
+    },
+    "relationships": [
+      {
+        "subject_entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
+        "object_entity_id": "7d12d2e9-3e86-5638-a167-cebd9fa98e8c",
+        "relation": "ALLY_OF",
+        "transition_id": "b58f0fc1-868e-451b-91f4-785cc7a0954b",
+        "event_id": "278d59e1-eab8-479d-a3b1-14956432694d",
+        "fact_id": null
+      }
+    ],
+    "projection_version": 1
+  },
+  "relations": [
+    {
+      "subject": "Minh",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lan",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Minh",
+      "relation": "ALLY_OF",
+      "object": "Lan",
+      "metadata": {},
+      "source": "author",
+      "locked": true
+    }
+  ],
+  "events": [],
+  "enhanced_events": [
+    {
+      "event_id": "278d59e1-eab8-479d-a3b1-14956432694d",
+      "event_type": "injury",
+      "summary": "Minh was injured",
+      "participants": [
+        "Minh"
+      ],
+      "chapter": 1,
+      "evidence": []
+    }
+  ],
+  "proposals": [
+    {
+      "proposal_id": "278d59e1-eab8-479d-a3b1-14956432694d",
+      "proposal_type": "event",
+      "payload": {
+        "event_id": "278d59e1-eab8-479d-a3b1-14956432694d",
+        "event_type": "injury",
+        "summary": "Minh was injured",
+        "participants": [
+          "Minh"
+        ],
+        "chapter": 1
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "81f917b0-fa7e-42cd-b331-0a19cb32f4d2",
+      "materialization_order": 0,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 1,
+      "status": "accepted",
+      "decision_reason": null
+    },
+    {
+      "proposal_id": "b58f0fc1-868e-451b-91f4-785cc7a0954b",
+      "proposal_type": "state_transition",
+      "payload": {
+        "event_id": "278d59e1-eab8-479d-a3b1-14956432694d",
+        "entity_id": "Minh",
+        "attribute_key": "active_relationships",
+        "new_value": {
+          "Lan": "ALLY_OF"
+        }
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "81f917b0-fa7e-42cd-b331-0a19cb32f4d2",
+      "materialization_order": 1,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 1,
+      "status": "accepted",
+      "decision_reason": null
+    }
+  ],
+  "relation_history": [
+    {
+      "action": "override",
+      "relation": {
+        "subject": "Minh",
+        "relation": "ALLY_OF",
+        "object": "Lan",
+        "metadata": {},
+        "source": "author",
+        "locked": true
+      },
+      "timestamp": "2026-09-17T04:34:34.681895+00:00"
+    }
+  ],
+  "entity_states": {},
+  "event_history": [],
+  "current_world_state": {
+    "characters": {}
+  }
+}

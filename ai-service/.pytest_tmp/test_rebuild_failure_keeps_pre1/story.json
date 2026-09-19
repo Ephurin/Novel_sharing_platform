@@ -1,0 +1,139 @@
+{
+  "story_id": "story",
+  "metadata": {
+    "created_at": "2026-09-17T04:34:34.219396+00:00",
+    "updated_at": "2026-09-17T04:34:34.269738+00:00",
+    "brain_version": "2"
+  },
+  "entities": {
+    "minh": {
+      "name": "Minh",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    "lan": {
+      "name": "Lan",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  },
+  "entity_aliases": [],
+  "entity_mentions": [],
+  "facts": [],
+  "state_transitions": [
+    {
+      "transition_id": "e9950a38-bba1-4b91-938d-c52644846257",
+      "entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
+      "event_id": "5f6d0157-7492-41b6-9f8e-f710396173c9",
+      "fact_id": null,
+      "attribute_key": "health",
+      "new_value": 90
+    }
+  ],
+  "narrative_projection": {
+    "entities": {
+      "974095f1-83a1-526b-bd0b-9833f10d08e4": {
+        "health": 90
+      }
+    },
+    "provenance": {
+      "974095f1-83a1-526b-bd0b-9833f10d08e4": {
+        "health": {
+          "transition_id": "e9950a38-bba1-4b91-938d-c52644846257",
+          "event_id": "5f6d0157-7492-41b6-9f8e-f710396173c9",
+          "fact_id": null
+        }
+      }
+    },
+    "relationships": [],
+    "projection_version": 1
+  },
+  "relations": [
+    {
+      "subject": "Minh",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lan",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [
+    {
+      "event_id": "5f6d0157-7492-41b6-9f8e-f710396173c9",
+      "event_type": "injury",
+      "summary": "Minh was injured",
+      "participants": [
+        "Minh"
+      ],
+      "chapter": 1,
+      "evidence": []
+    }
+  ],
+  "proposals": [
+    {
+      "proposal_id": "5f6d0157-7492-41b6-9f8e-f710396173c9",
+      "proposal_type": "event",
+      "payload": {
+        "event_id": "5f6d0157-7492-41b6-9f8e-f710396173c9",
+        "event_type": "injury",
+        "summary": "Minh was injured",
+        "participants": [
+          "Minh"
+        ],
+        "chapter": 1
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "0a13ee59-e85d-4d58-8ffa-90b8d545519a",
+      "materialization_order": 0,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 1,
+      "status": "accepted",
+      "decision_reason": null
+    },
+    {
+      "proposal_id": "e9950a38-bba1-4b91-938d-c52644846257",
+      "proposal_type": "state_transition",
+      "payload": {
+        "event_id": "5f6d0157-7492-41b6-9f8e-f710396173c9",
+        "entity_id": "Minh",
+        "attribute_key": "health",
+        "new_value": 90
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "0a13ee59-e85d-4d58-8ffa-90b8d545519a",
+      "materialization_order": 1,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 1,
+      "status": "accepted",
+      "decision_reason": null
+    }
+  ],
+  "relation_history": [],
+  "entity_states": {},
+  "event_history": [],
+  "current_world_state": {
+    "characters": {}
+  }
+}

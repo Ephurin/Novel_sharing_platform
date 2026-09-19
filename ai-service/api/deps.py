@@ -12,6 +12,8 @@ from fastapi import Depends, HTTPException, Request
 
 from application.narrative_service import NarrativeApplicationService
 from application.revision_analysis_service import RevisionAnalysisService
+from application.bootstrap_service import ManuscriptBootstrapService
+from application.writing_service import WritingService
 from core.consistency import ConsistencyChecker, ConsistencyEngine
 from core.story_kb_manager import StoryKBManager
 from core.candidate_processor import CandidateProcessor
@@ -43,6 +45,14 @@ def get_revision_analysis_service(request: Request) -> RevisionAnalysisService:
     return request.app.state.revision_analysis_service
 
 
+def get_bootstrap_service(request: Request) -> ManuscriptBootstrapService:
+    return request.app.state.bootstrap_service
+
+
+def get_writing_service(request: Request) -> WritingService:
+    return request.app.state.writing_service
+
+
 def get_candidate_processor(request: Request) -> CandidateProcessor:
     return request.app.state.candidate_processor
 
@@ -71,3 +81,8 @@ def require_llm_service(request: Request):
     if svc is None:
         raise HTTPException(status_code=503, detail="LLMService is not initialized")
     return svc
+
+
+def get_settings(request: Request):
+    return getattr(request.app.state, "settings", None)
+

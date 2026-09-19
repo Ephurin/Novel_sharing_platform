@@ -104,8 +104,10 @@ the old application does not interpret event correction metadata.
   relationships, locks and cross-novel references.
 - SQL tests exercise tenant isolation; migration tests cover upgrade, downgrade and
   preservation of existing foundation rows. PostgreSQL offline SQL is also compiled.
-- Live PostgreSQL transaction/concurrency validation is still pending; SQLite cannot verify
-  PostgreSQL row-lock behavior.
+- Live PostgreSQL transaction/concurrency validation passed on 2026-09-17 in the isolated
+  `postgres-integration` Compose service: all 7 migration, rollback, isolation and concurrent
+  acceptance/rebuild tests passed. The default unit suite deselects these tests; run the
+  explicit Compose profile shown in the Phase 4 verification report.
 - The existing HTTP service binds a configured tenant/actor. Repository isolation is tested,
   but this is not public multi-tenant authentication. Keep it behind the trusted internal
   deployment boundary until request authentication and author/novel authorization are wired.

@@ -27,8 +27,9 @@ import {
   IconTimeline,
   IconUsers
 } from '@tabler/icons-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { WritingAssistantPanel } from '../../features/ai-copilot/WritingAssistantPanel';
 import { createCopilotSuggestion } from '../../features/ai-copilot/ai-copilot-api';
 import type { CopilotSuggestionResponse } from '../../features/ai-copilot/ai-copilot-api';
 import { logout } from '../../features/auth/auth-api';
@@ -105,6 +106,19 @@ export function AuthorIdeShell() {
   const [copilotInstruction, setCopilotInstruction] = useState('Continue the scene while preserving character consistency.');
   const [copilotResult, setCopilotResult] = useState<CopilotSuggestionResponse | null>(null);
   const [statusMessage, setStatusMessage] = useState('API ready');
+  const editorTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const getTextSelection = () => {
+    const el = editorTextareaRef.current;
+    if (!el) return { start: 0, end: 0, selectedText: '' };
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    return {
+      start,
+      end,
+      selectedText: el.value.slice(start, end)
+    };
+  };
 
   const updateIdeContext = (nextContext: { novelId?: string; chapterId?: string | null }) => {
     const nextNovelId = nextContext.novelId ?? novelId;
@@ -444,15 +458,19 @@ export function AuthorIdeShell() {
           onConfirmPremiumSettings={() => savePremiumSettingsMutation.mutate()}
           confirmingPremiumSettings={savePremiumSettingsMutation.isPending}
           loading={chapterQuery.isFetching}
+          editorRef={editorTextareaRef}
         />
-        <AssistantPanel
-          contextOverview={contextOverview}
-          instruction={copilotInstruction}
-          result={copilotResult}
-          loading={copilotSuggestionMutation.isPending}
-          canGenerate={Boolean(novelId && copilotInstruction.trim())}
-          onInstructionChange={setCopilotInstruction}
-          onGenerate={() => copilotSuggestionMutation.mutate()}
+        <WritingAssistantPanel
+          novelId={novelId}
+          chapterId={chapterId}
+          editorContent={editorContent}
+          onApplyContent={(newContent) => {
+            setEditorContent(newContent);
+            setStatusMessage('Draft updated from AI suggestion');
+            void queryClient.invalidateQueries({ queryKey: ['chapter', chapterId] });
+            void queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
+          }}
+          getTextSelection={getTextSelection}
         />
       </Box>
 
@@ -959,7 +977,8 @@ function EditorWorkspace({
   onPriceCoinsChange,
   onConfirmPremiumSettings,
   confirmingPremiumSettings,
-  loading
+  loading,
+  editorRef
 }: {
   chapter: Chapter | null;
   chapterTitle: string;
@@ -973,6 +992,7 @@ function EditorWorkspace({
   onConfirmPremiumSettings: () => void;
   confirmingPremiumSettings: boolean;
   loading: boolean;
+  editorRef?: React.RefObject<HTMLTextAreaElement | null>;
 }) {
   const canEditPremium = Boolean(chapter && ['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'].includes(chapter.status));
   const premiumSettingsValid = !isVip || priceCoins >= minimumPremiumPriceCoins;
@@ -1043,6 +1063,7 @@ function EditorWorkspace({
       </Paper>
 
       <Textarea
+        ref={editorRef}
         className="editor-textarea"
         value={content}
         onChange={(event) => onContentChange(event.currentTarget.value)}

@@ -446,3 +446,65 @@ class LLMService:
                 pass
 
         return None
+
+    def generate_writing_draft(
+        self,
+        *,
+        operation: str,
+        selected_text: str = "",
+        cursor_offset: int = 0,
+        start_offset: int | None = None,
+        end_offset: int | None = None,
+        instruction: str = "",
+        context_package: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Generate draft text and patch coordinates using LLM or local fallback."""
+        context_str = json.dumps(context_package or {}, ensure_ascii=False)
+        system_prompt = (
+            "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\n"
+            "Dựa trên bối cảnh thế giới, nhân vật và yêu cầu của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\n"
+            "Chỉ trả về định dạng JSON hợp lệ:\n"
+            "{\n"
+            '  "draft_text": "Nội dung văn bản được sinh ra",\n'
+            '  "explanation": "Lý giải ngắn gọn về hướng phát triển cốt truyện"\n'
+            "}"
+        )
+        user_prompt = (
+            f"Thao tác: {operation}\n"
+            f"Đoạn văn được chọn: {selected_text}\n"
+            f"Vị trí con trỏ: {cursor_offset}\n"
+            f"Yêu cầu / Chỉ dẫn: {instruction}\n"
+            f"Bối cảnh tiểu thuyết (Story Brain): {context_str}\n"
+        )
+
+        patch_start = start_offset if start_offset is not None else cursor_offset
+        patch_end = end_offset if end_offset is not None else cursor_offset
+
+        try:
+            raw_output = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+            cleaned = raw_output.strip()
+            if cleaned.startswith("```"):
+                cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+                cleaned = re.sub(r"\s*```$", "", cleaned)
+            parsed = self._parse_json_like_output(cleaned)
+            draft_text = ""
+            if isinstance(parsed, dict):
+                draft_text = parsed.get("draft_text") or parsed.get("draft") or ""
+            if not draft_text:
+                draft_text = cleaned
+        except Exception as exc:
+            if self._local_fallback_enabled():
+                logger.warning("LLM generation failed, using local draft fallback: %s", exc)
+                draft_text = f"Đoạn văn tự động bổ sung dựa trên hướng dẫn: {instruction.strip() or 'Tiếp diễn mạch truyện'}"
+            else:
+                raise LLMServiceError(f"Writing generation failed: {exc}") from exc
+
+        return {
+            "draft_text": draft_text,
+            "patch": {
+                "start": patch_start,
+                "end": patch_end,
+                "replacement": draft_text,
+            },
+            "model_info": {"model": self.model, "provider": self.provider},
+        }

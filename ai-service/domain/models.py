@@ -89,6 +89,31 @@ class AnalysisRun:
 
 
 @dataclass(frozen=True, slots=True)
+class BootstrapRevision:
+    chapter_id: str
+    revision_id: str
+    content_hash: str
+    status: str = "pending"
+    proposal_count: int = 0
+    analysis_run_id: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class BootstrapJob:
+    job_id: str
+    novel_id: str
+    tenant_id: str
+    revisions: tuple[BootstrapRevision, ...]
+    locale: str = "vi-VN"
+    options: dict[str, bool] = field(default_factory=dict)
+    status: str = "queued"
+    progress_current: int = 0
+    stage: str = "queued"
+    result: dict[str, Any] | None = None
+    error: dict[str, Any] | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class StoryBrain:
     story_id: str
     entities: tuple[NarrativeEntity, ...] = ()
@@ -101,3 +126,59 @@ class StoryBrain:
     proposals: tuple[NarrativeProposal, ...] = ()
     current_state: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class WritingPatch:
+    start: int
+    end: int
+    replacement: str
+
+
+@dataclass(frozen=True, slots=True)
+class ValidationResult:
+    validator: str
+    passed: bool
+    code: str
+    message: str
+
+
+@dataclass(frozen=True, slots=True)
+class WritingContextPackage:
+    brain_version: int
+    entities: tuple[dict[str, Any], ...] = ()
+    current_states: tuple[dict[str, Any], ...] = ()
+    recent_events: tuple[dict[str, Any], ...] = ()
+    world_rules: tuple[dict[str, Any], ...] = ()
+    author_constraints: tuple[str, ...] = ()
+    token_budget: dict[str, int] = field(default_factory=dict)
+    context_summary: dict[str, list[str]] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class WritingGenerationJob:
+    job_id: str
+    novel_id: str
+    chapter_id: str
+    revision_id: str
+    content_hash: str
+    tenant_id: str
+    operation: str
+    selection: dict[str, int]
+    instruction: str
+    constraints: tuple[str, ...] = ()
+    style: dict[str, Any] = field(default_factory=dict)
+    expected_brain_version: int = 1
+    actor_id: str | None = None
+    idempotency_key: str = ""
+    input_hash: str = ""
+    status: str = "queued"
+    stage: str = "queued"
+    draft: str | None = None
+    patch: WritingPatch | None = None
+    validation_status: str = "pending"
+    validations: tuple[ValidationResult, ...] = ()
+    context_summary: dict[str, list[str]] = field(default_factory=dict)
+    model_info: dict[str, str] = field(default_factory=dict)
+    error: dict[str, Any] | None = None
+

@@ -1,30 +1,246 @@
 from __future__ import annotations
 
+import asyncio
+import json
 from dataclasses import asdict
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
+from fastapi.responses import StreamingResponse
 
-from api.deps import get_narrative_service, get_revision_analysis_service
+from api.deps import (
+    get_bootstrap_service,
+    get_narrative_service,
+    get_revision_analysis_service,
+    get_settings,
+    get_writing_service,
+)
 from api.schemas import (
     EventCorrectionRequest,
+    BaselineActivationRequest,
+    EntityMergeRequest,
+    ManuscriptBootstrapRequest,
     ProposalDecisionRequest,
     ProposalEditAcceptRequest,
     ProposalGroupAcceptRequest,
     ProposalRejectRequest,
     RevisionAnalysisRequest,
+    WritingGenerationRequest,
 )
 from application.narrative_service import NarrativeApplicationService
+from application.bootstrap_service import ManuscriptBootstrapService
+from application.writing_service import WritingService
 from application.ports import ContentHashMismatchError, RevisionNotFoundError
 from application.revision_analysis_service import RevisionAnalysisService
 from domain.errors import (
     IdempotencyConflictError,
+    BaselineReviewRequiredError,
+    BootstrapLimitExceededError,
     OptimisticLockError,
     ProposalAlreadyDecidedError,
+    SelectionOutOfBoundsError,
+    WritingGenerationNotFoundError,
 )
 from domain.projection import ProjectionError
 
 
 router = APIRouter(prefix="/v1", tags=["narrative-memory"])
+internal_router = APIRouter(prefix="/internal/v1", tags=["internal-writing"])
+
+
+@router.get("/story-brains/by-novel/{novel_id}")
+def get_story_brain_by_novel(
+    novel_id: str,
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    return {
+        "data": service.get_story_brain_summary(novel_id),
+        "meta": {"schema_version": 1},
+    }
+
+
+@router.post("/story-brains/bootstrap/from-manuscript", status_code=202)
+def bootstrap_from_manuscript(
+    payload: ManuscriptBootstrapRequest,
+    background_tasks: BackgroundTasks,
+    tenant_id: str = Header(..., alias="X-Tenant-Id"),
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    try:
+        job = service.start(
+            tenant_id=tenant_id,
+            novel_id=payload.novel_id,
+            revisions=[item.model_dump() for item in payload.revisions],
+            locale=payload.locale,
+            options=payload.options.model_dump(),
+        )
+    except RevisionNotFoundError as exc:
+        raise HTTPException(404, detail={"code": "REVISION_NOT_FOUND"}) from exc
+    except ContentHashMismatchError as exc:
+        raise HTTPException(422, detail={"code": "CONTENT_HASH_MISMATCH"}) from exc
+    except BootstrapLimitExceededError as exc:
+        raise HTTPException(
+            422, detail={"code": "BOOTSTRAP_LIMIT_EXCEEDED", "details": exc.details}
+        ) from exc
+    if job.status not in {"waiting_review", "completed"}:
+        background_tasks.add_task(service.process, job.job_id)
+    return {
+        "data": {
+            "job_id": job.job_id,
+            "story_brain_id": payload.novel_id,
+            "status": job.status,
+        },
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.get("/jobs/{job_id}")
+def get_job(
+    job_id: str,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    bootstrap_service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    writing_service: WritingService = Depends(get_writing_service),
+):
+    try:
+        job = bootstrap_service.get_job(job_id)
+        data = asdict(job)
+        data["type"] = "bootstrap"
+        data["progress"] = {
+            "current": job.progress_current,
+            "total": len(job.revisions),
+            "unit": "chapter",
+            "stage": job.stage,
+        }
+        return {"data": data, "meta": {"request_id": request_id, "schema_version": 1}}
+    except Exception:
+        pass
+
+    try:
+        w_job = writing_service._repository.get_writing_job(job_id)
+        data = asdict(w_job)
+        data["type"] = "writing_generation"
+        data["progress"] = {
+            "stage": w_job.stage,
+            "status": w_job.status,
+        }
+        return {"data": data, "meta": {"request_id": request_id, "schema_version": 1}}
+    except Exception as exc:
+        raise HTTPException(404, detail={"code": "JOB_NOT_FOUND"}) from exc
+
+
+@router.get("/jobs/{job_id}/events")
+async def stream_job_events(
+    job_id: str,
+    writing_service: WritingService = Depends(get_writing_service),
+    bootstrap_service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    async def event_generator():
+        for _ in range(60):
+            try:
+                w_job = writing_service._repository.get_writing_job(job_id)
+                payload = {
+                    "job_id": w_job.job_id,
+                    "type": "writing_generation",
+                    "status": w_job.status,
+                    "stage": w_job.stage,
+                    "validation_status": w_job.validation_status,
+                }
+                yield f"event: update\ndata: {json.dumps(payload)}\n\n"
+                if w_job.status in ("completed", "failed"):
+                    yield f"event: done\ndata: {json.dumps(payload)}\n\n"
+                    break
+            except Exception:
+                try:
+                    b_job = bootstrap_service.get_job(job_id)
+                    payload = {
+                        "job_id": b_job.job_id,
+                        "type": "bootstrap",
+                        "status": b_job.status,
+                        "stage": b_job.stage,
+                    }
+                    yield f"event: update\ndata: {json.dumps(payload)}\n\n"
+                    if b_job.status in ("completed", "failed", "waiting_review"):
+                        yield f"event: done\ndata: {json.dumps(payload)}\n\n"
+                        break
+                except Exception:
+                    yield f"event: error\ndata: {json.dumps({'code': 'JOB_NOT_FOUND'})}\n\n"
+                    break
+            await asyncio.sleep(0.5)
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+@router.post("/jobs/{job_id}/resume", status_code=202)
+def resume_job(
+    job_id: str,
+    background_tasks: BackgroundTasks,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    try:
+        job = service.get_job(job_id)
+    except KeyError as exc:
+        raise HTTPException(404, detail={"code": "JOB_NOT_FOUND"}) from exc
+    if job.status not in {"waiting_review", "completed"}:
+        background_tasks.add_task(service.resume, job_id)
+    return {"data": {"job_id": job_id, "status": job.status}, "meta": {"request_id": request_id}}
+
+
+@router.get("/story-brains/{brain_id}/review-queue")
+def get_review_queue(
+    brain_id: str,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    return {
+        "data": service.review_queue(brain_id),
+        "meta": {"request_id": request_id, "next_cursor": None},
+    }
+
+
+@router.post("/story-brains/{brain_id}/baseline/activate")
+def activate_baseline(
+    brain_id: str,
+    payload: BaselineActivationRequest,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    try:
+        result = service.activate_baseline(brain_id, payload.job_id)
+    except KeyError as exc:
+        raise HTTPException(404, detail={"code": "JOB_NOT_FOUND"}) from exc
+    except BaselineReviewRequiredError as exc:
+        raise HTTPException(
+            409,
+            detail={
+                "code": "BASELINE_REVIEW_REQUIRED",
+                "pending_proposal_ids": exc.pending_proposal_ids,
+            },
+        ) from exc
+    return {"data": result, "meta": {"request_id": request_id, "schema_version": 1}}
+
+
+@router.post("/story-brains/{brain_id}/entities/merge")
+def merge_entities(
+    brain_id: str,
+    payload: EntityMergeRequest,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    try:
+        result = service.merge_entities(
+            brain_id,
+            payload.source_entity_id,
+            payload.target_entity_id,
+            payload.expected_brain_version,
+        )
+    except KeyError as exc:
+        raise HTTPException(404, detail={"code": "ENTITY_NOT_FOUND"}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={"code": "BRAIN_VERSION_CONFLICT"}) from exc
+    except ValueError as exc:
+        raise HTTPException(400, detail={"code": "INVALID_ENTITY_MERGE", "message": str(exc)}) from exc
+    return {"data": result, "meta": {"request_id": request_id, "schema_version": 1}}
 
 
 @router.get("/story-brains/{brain_id}/state")
@@ -210,3 +426,129 @@ def accept_proposal_group(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail={"code": "INVALID_PROPOSAL_GROUP"}) from exc
     return {"data": result, "meta": {"request_id": request_id, "schema_version": 1}}
+
+
+# ──────────────────────────────────────────────
+#  Writing Loop Endpoints (P6)
+# ──────────────────────────────────────────────
+
+@router.get("/story-brains/{brain_id}/context-preview")
+def preview_writing_context(
+    brain_id: str,
+    chapter_number: int | None = Query(None),
+    character_name: str | None = Query(None),
+    token_budget: int | None = Query(None),
+    tenant_id: str = Header(..., alias="X-Tenant-Id"),
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: WritingService = Depends(get_writing_service),
+):
+    try:
+        package = service.preview_context(
+            tenant_id=tenant_id,
+            story_id=brain_id,
+            chapter_number=chapter_number,
+            character_name=character_name,
+            token_budget=token_budget,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=404, detail={"code": "STORY_BRAIN_NOT_FOUND", "message": str(exc)}) from exc
+
+    return {
+        "data": asdict(package),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.post("/writing/generations", status_code=202)
+def create_writing_generation(
+    payload: WritingGenerationRequest,
+    background_tasks: BackgroundTasks,
+    tenant_id: str = Header(..., alias="X-Tenant-Id"),
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: WritingService = Depends(get_writing_service),
+):
+    try:
+        selection_dict = payload.selection.model_dump()
+        job = service.start_generation(
+            tenant_id=tenant_id,
+            novel_id=payload.novel_id,
+            chapter_id=payload.chapter_id,
+            revision_id=payload.revision_id,
+            content_hash=payload.content_hash,
+            operation=payload.operation,
+            selection=selection_dict,
+            instruction=payload.instruction,
+            constraints=payload.constraints,
+            style=payload.style,
+            expected_brain_version=payload.expected_brain_version,
+            actor_id=payload.actor_id,
+            idempotency_key=payload.idempotency_key,
+            process_inline=False,
+        )
+    except SelectionOutOfBoundsError as exc:
+        raise HTTPException(422, detail={"code": "SELECTION_OUT_OF_BOUNDS", "message": str(exc)}) from exc
+    except ContentHashMismatchError as exc:
+        raise HTTPException(409, detail={"code": "CONTENT_HASH_MISMATCH", "message": str(exc)}) from exc
+    except IdempotencyConflictError as exc:
+        raise HTTPException(409, detail={"code": "IDEMPOTENCY_CONFLICT", "message": str(exc)}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={"code": "OPTIMISTIC_LOCK_CONFLICT", "message": str(exc)}) from exc
+    except Exception as exc:
+        raise HTTPException(400, detail={"code": "GENERATION_REQUEST_FAILED", "message": str(exc)}) from exc
+
+    if job.status not in ("completed", "failed"):
+        background_tasks.add_task(service.process_generation, job.job_id)
+
+    return {
+        "data": asdict(job),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+# ──────────────────────────────────────────────
+#  Internal Server-to-Server Writing API (Platform Trust Contract)
+# ──────────────────────────────────────────────
+
+@internal_router.get("/writing/generations/{generation_id}")
+def get_internal_writing_generation(
+    generation_id: str,
+    authorization: str | None = Header(None),
+    x_service_token: str | None = Header(None, alias="X-Service-Token"),
+    x_internal_service_key: str | None = Header(None, alias="X-Internal-Service-Key"),
+    service: WritingService = Depends(get_writing_service),
+    settings=Depends(get_settings),
+):
+    expected_token = getattr(settings, "platform_service_token", "") if settings else ""
+    if expected_token:
+        token = None
+        if authorization and authorization.startswith("Bearer "):
+            token = authorization[7:].strip()
+        elif x_service_token:
+            token = x_service_token.strip()
+        elif x_internal_service_key:
+            token = x_internal_service_key.strip()
+        if not token:
+            raise HTTPException(401, detail={"code": "SERVICE_AUTH_REQUIRED", "message": "Service token required"})
+        if token != expected_token:
+            raise HTTPException(403, detail={"code": "SERVICE_AUTH_INVALID", "message": "Invalid service token"})
+
+    try:
+        job = service._repository.get_writing_job(generation_id)
+    except Exception as exc:
+        raise HTTPException(404, detail={"code": "GENERATION_NOT_FOUND", "message": str(exc)}) from exc
+
+    return {
+        "data": {
+            "job_id": job.job_id,
+            "novel_id": job.novel_id,
+            "chapter_id": job.chapter_id,
+            "revision_id": job.revision_id,
+            "content_hash": job.content_hash,
+            "operation": job.operation,
+            "draft": job.draft,
+            "patch": asdict(job.patch) if job.patch else None,
+            "validation_status": job.validation_status,
+            "validations": [asdict(v) for v in job.validations],
+            "status": job.status,
+        }
+    }

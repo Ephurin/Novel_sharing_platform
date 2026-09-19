@@ -23,6 +23,9 @@ import { readingRoutes } from './modules/reading/reading.routes.js';
 import { storyContextRoutes } from './modules/story-context/story-context.routes.js';
 import { authorsRoutes, usersRoutes } from './modules/users/users.routes.js';
 import { walletResourceRoutes, walletRoutes } from './modules/wallet/wallet.routes.js';
+import { internalGetRevisionController } from './modules/novels/chapter-revisions.controller.js';
+import { internalRevisionSchema } from './modules/novels/chapter-revisions.schemas.js';
+import { validateRequest } from './core/validation/validate.js';
 
 export function createApp() {
   const app = express();
@@ -63,6 +66,13 @@ export function createApp() {
   app.use(`${env.API_PREFIX}`, notificationRoutes);
   app.use(`${env.API_PREFIX}`, socialRoutes);
   app.use(`${env.API_PREFIX}`, walletResourceRoutes);
+
+  // Internal server-to-server endpoints (e.g. AI Service)
+  app.get(
+    '/internal/v1/revisions/:revisionId',
+    validateRequest(internalRevisionSchema),
+    internalGetRevisionController
+  );
 
   app.use(notFoundMiddleware);
   app.use(errorMiddleware);

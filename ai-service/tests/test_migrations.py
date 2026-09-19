@@ -26,12 +26,15 @@ class MigrationTests(unittest.TestCase):
             self.assertIn("entities", tables)
             self.assertIn("analysis_runs", tables)
             self.assertIn("proposals", tables)
+            self.assertIn("bootstrap_jobs", tables)
             self.assertTrue({"state_transitions", "current_entity_states", "event_participants"} <= tables)
             engine.dispose()
 
             command.downgrade(config, "0001_narrative_foundation")
             engine = create_engine(database_url)
-            self.assertNotIn("state_transitions", inspect(engine).get_table_names())
+            downgraded_tables = inspect(engine).get_table_names()
+            self.assertNotIn("state_transitions", downgraded_tables)
+            self.assertNotIn("bootstrap_jobs", downgraded_tables)
             with engine.begin() as connection:
                 connection.exec_driver_sql("INSERT INTO story_brains (id, tenant_id, novel_id, status, brain_version, schema_version) VALUES ('a', 'b', 'c', 'active', 1, 1)")
             engine.dispose()

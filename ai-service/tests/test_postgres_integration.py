@@ -20,7 +20,7 @@ from sqlalchemy import create_engine, func, inspect, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from domain.errors import OptimisticLockError
-from domain.models import NarrativeProposal, ProposalStatus
+from domain.models import BootstrapJob, BootstrapRevision, NarrativeProposal, ProposalStatus
 from domain.projection import ProjectionError
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
@@ -36,27 +36,31 @@ from infrastructure.orm_models import (
 )
 from infrastructure.postgres_narrative_repository import PostgresNarrativeRepository
 
+
+pytestmark = pytest.mark.postgres_integration
+
 SERVICE_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_TEST_DB = "postgresql+psycopg://testuser:testpass@127.0.0.1:5433/test_novel_platform"
-
-
 def get_postgres_url() -> str:
     url = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
     if not url or not url.startswith("postgresql"):
-        # Fallback to local default port 5433 mapped from Docker Compose
-        url = DEFAULT_TEST_DB
+        raise pytest.UsageError(
+            "TEST_DATABASE_URL must be a PostgreSQL URL. Start the `test` Compose profile "
+            "or provide an isolated PostgreSQL database."
+        )
     return url
 
 
 @pytest.fixture(scope="session")
 def pg_engine():
     url = get_postgres_url()
-    engine = create_engine(url, pool_pre_ping=True)
+    engine = create_engine(url, pool_pre_ping=True, connect_args={"connect_timeout": 5})
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
     except Exception as exc:
-        pytest.skip(f"PostgreSQL database not available at {url}: {exc}")
+        raise pytest.UsageError(
+            f"PostgreSQL integration database is unavailable at {url}: {exc}"
+        ) from exc
     yield engine
     engine.dispose()
 
@@ -172,7 +176,7 @@ def test_alembic_migrations_lifecycle(pg_engine):
     command.upgrade(alembic_cfg, "head")
     inspector = inspect(pg_engine)
     tables_head = set(inspector.get_table_names(schema=SCHEMA))
-    assert {"event_participants", "state_transitions", "current_entity_states"}.issubset(tables_head)
+    assert {"event_participants", "state_transitions", "current_entity_states", "bootstrap_jobs"}.issubset(tables_head)
 
     # Verify baseline row survived the upgrade
     with pg_engine.connect() as conn:
@@ -426,26 +430,32 @@ def test_concurrent_rebuild_and_acceptance(repo, session_factory):
 
     barrier = threading.Barrier(2)
     results = {}
+    errors = []
 
     def accept_worker():
-        thread_repo = PostgresNarrativeRepository(
-            session_factory, tenant_id=repo._tenant_id, actor_id=repo._actor_id
-        )
-        barrier.wait(timeout=5)
-        results["accept"] = thread_repo.accept_proposal_group(
-            novel_id, p_ids, expected_brain_version=1
-        )
+        try:
+            thread_repo = PostgresNarrativeRepository(
+                session_factory, tenant_id=repo._tenant_id, actor_id=repo._actor_id
+            )
+            barrier.wait(timeout=5)
+            results["accept"] = thread_repo.accept_proposal_group(
+                novel_id, p_ids, expected_brain_version=1
+            )
+        except Exception as exc:
+            errors.append(exc)
 
     def rebuild_worker():
-        thread_repo = PostgresNarrativeRepository(
-            session_factory, tenant_id=repo._tenant_id, actor_id=repo._actor_id
-        )
-        barrier.wait(timeout=5)
-        # Rebuild might see version 1 or version 2 depending on lock order
         try:
+            thread_repo = PostgresNarrativeRepository(
+                session_factory, tenant_id=repo._tenant_id, actor_id=repo._actor_id
+            )
+            barrier.wait(timeout=5)
+            # Rebuild may lose the version race, which must leave no stale projection.
             results["rebuild"] = thread_repo.rebuild_projection(novel_id, expected_brain_version=1)
         except OptimisticLockError:
             results["rebuild"] = "locked_out"
+        except Exception as exc:
+            errors.append(exc)
 
     t1 = threading.Thread(target=accept_worker)
     t2 = threading.Thread(target=rebuild_worker)
@@ -455,8 +465,73 @@ def test_concurrent_rebuild_and_acceptance(repo, session_factory):
     t1.join(timeout=10)
     t2.join(timeout=10)
 
-    # Both threads finished cleanly, state is deterministic
+    assert not t1.is_alive() and not t2.is_alive(), "Concurrent workers did not finish"
+    assert not errors, f"Concurrent workers failed: {errors!r}"
+    assert results.get("accept", {}).get("brain_version") == 2
+    assert results.get("rebuild") == "locked_out" or isinstance(results.get("rebuild"), dict)
     tieu_y_tien_id = str(repo.list_entities(novel_id)[0].entity_id)
     state = repo.get_current_state(novel_id)
     assert tieu_y_tien_id in state["entities"]
     assert state["entities"][tieu_y_tien_id]["health"] == 90
+    assert state["provenance"][tieu_y_tien_id]["health"]["event_id"] == group[0].proposal_id
+    assert int(repo.get_story_brain(novel_id).metadata["brain_version"]) == 2
+
+
+def test_bootstrap_job_persistence_and_entity_merge(repo, session_factory):
+    novel_id = str(uuid.uuid4())
+    revision_id = str(uuid.uuid4())
+    job = BootstrapJob(
+        job_id=str(uuid.uuid4()),
+        novel_id=novel_id,
+        tenant_id=str(repo._tenant_id),
+        revisions=(
+            BootstrapRevision(
+                chapter_id=str(uuid.uuid4()),
+                revision_id=revision_id,
+                content_hash="a" * 64,
+            ),
+        ),
+    )
+    repo.create_bootstrap_job(job)
+    running = repo.save_bootstrap_job(
+        BootstrapJob(
+            job_id=job.job_id,
+            novel_id=job.novel_id,
+            tenant_id=job.tenant_id,
+            revisions=(BootstrapRevision(
+                chapter_id=job.revisions[0].chapter_id,
+                revision_id=revision_id,
+                content_hash="a" * 64,
+                status="completed",
+                proposal_count=2,
+            ),),
+            status="waiting_review",
+            progress_current=1,
+            stage="review",
+            result={"required_proposal_ids": []},
+        )
+    )
+    assert running.progress_current == 1
+    restarted_repo = PostgresNarrativeRepository(
+        session_factory,
+        tenant_id=str(repo._tenant_id),
+        actor_id=str(repo._actor_id),
+    )
+    persisted = restarted_repo.get_bootstrap_job(job.job_id)
+    assert persisted.status == "waiting_review"
+    assert persisted.revisions[0].status == "completed"
+    activated = restarted_repo.activate_baseline(novel_id, job.job_id, revision_id)
+    assert activated["status"] == "active"
+    brain_after_activation = restarted_repo.get_story_brain(novel_id)
+    assert brain_after_activation.metadata["baseline_revision_id"] == revision_id
+
+    repo.upsert_entity(novel_id, {"name": "Hải Ba Đông", "type": "PER"})
+    repo.upsert_entity(novel_id, {"name": "Hai Ba Dong", "type": "PER"})
+    entities = repo.list_entities(novel_id)
+    source = next(item for item in entities if item.name == "Hai Ba Dong")
+    target = next(item for item in entities if item.name == "Hải Ba Đông")
+    merged = repo.merge_entities(
+        novel_id, source.entity_id, target.entity_id, expected_brain_version=1
+    )
+    assert merged["brain_version"] == 2
+    assert [item.name for item in repo.list_entities(novel_id)] == ["Hải Ba Đông"]

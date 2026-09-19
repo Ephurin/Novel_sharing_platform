@@ -1,0 +1,259 @@
+{
+  "story_id": "story",
+  "metadata": {
+    "created_at": "2026-09-17T04:34:34.477301+00:00",
+    "updated_at": "2026-09-17T04:34:34.572299+00:00",
+    "brain_version": "3"
+  },
+  "entities": {
+    "minh": {
+      "name": "Minh",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    "lan": {
+      "name": "Lan",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  },
+  "entity_aliases": [],
+  "entity_mentions": [],
+  "facts": [],
+  "state_transitions": [
+    {
+      "transition_id": "8cfc3c14-1d19-4ebc-afb3-707e52d51a62",
+      "entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
+      "event_id": "e18fbbec-568f-4b66-9a72-f82aac188017",
+      "fact_id": null,
+      "attribute_key": "health",
+      "new_value": 90
+    },
+    {
+      "transition_id": "afd2586c-6017-42f4-bedd-87db73e6e074",
+      "entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
+      "event_id": "2b654e06-cf16-42e0-bfc8-5902d38822de",
+      "fact_id": null,
+      "attribute_key": "health",
+      "new_value": 80
+    }
+  ],
+  "narrative_projection": {
+    "entities": {
+      "974095f1-83a1-526b-bd0b-9833f10d08e4": {
+        "health": 80
+      }
+    },
+    "provenance": {
+      "974095f1-83a1-526b-bd0b-9833f10d08e4": {
+        "health": {
+          "transition_id": "afd2586c-6017-42f4-bedd-87db73e6e074",
+          "event_id": "2b654e06-cf16-42e0-bfc8-5902d38822de",
+          "fact_id": null
+        }
+      }
+    },
+    "relationships": [],
+    "projection_version": 1
+  },
+  "relations": [
+    {
+      "subject": "Minh",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lan",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [
+    {
+      "event_id": "e18fbbec-568f-4b66-9a72-f82aac188017",
+      "event_type": "injury",
+      "summary": "Minh was injured",
+      "participants": [
+        "Minh"
+      ],
+      "chapter": 1,
+      "evidence": []
+    },
+    {
+      "event_id": "2b654e06-cf16-42e0-bfc8-5902d38822de",
+      "event_type": "injury",
+      "summary": "Minh was injured",
+      "participants": [
+        "Minh"
+      ],
+      "chapter": 1,
+      "supersedes_id": "e18fbbec-568f-4b66-9a72-f82aac188017",
+      "evidence": []
+    }
+  ],
+  "proposals": [
+    {
+      "proposal_id": "e18fbbec-568f-4b66-9a72-f82aac188017",
+      "proposal_type": "event",
+      "payload": {
+        "event_id": "e18fbbec-568f-4b66-9a72-f82aac188017",
+        "event_type": "injury",
+        "summary": "Minh was injured",
+        "participants": [
+          "Minh"
+        ],
+        "chapter": 1
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "2b19a286-9dc2-4064-8c5a-0a8ba671d138",
+      "materialization_order": 0,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 1,
+      "status": "accepted",
+      "decision_reason": null
+    },
+    {
+      "proposal_id": "8cfc3c14-1d19-4ebc-afb3-707e52d51a62",
+      "proposal_type": "state_transition",
+      "payload": {
+        "event_id": "e18fbbec-568f-4b66-9a72-f82aac188017",
+        "entity_id": "Minh",
+        "attribute_key": "health",
+        "new_value": 90
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "2b19a286-9dc2-4064-8c5a-0a8ba671d138",
+      "materialization_order": 1,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 1,
+      "status": "accepted",
+      "decision_reason": null
+    },
+    {
+      "proposal_id": "acb2cb2e-d97c-4259-b044-41b75bf4cc69",
+      "proposal_type": "event",
+      "payload": {
+        "event_id": "e18fbbec-568f-4b66-9a72-f82aac188017",
+        "event_type": "injury",
+        "summary": "Minh was injured",
+        "participants": [
+          "Minh"
+        ],
+        "chapter": 1
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "2b19a286-9dc2-4064-8c5a-0a8ba671d138",
+      "materialization_order": 0,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 2,
+      "status": "pending",
+      "decision_reason": null
+    },
+    {
+      "proposal_id": "2b654e06-cf16-42e0-bfc8-5902d38822de",
+      "proposal_type": "event",
+      "payload": {
+        "event_id": "2b654e06-cf16-42e0-bfc8-5902d38822de",
+        "event_type": "injury",
+        "summary": "Minh was injured",
+        "participants": [
+          "Minh"
+        ],
+        "chapter": 1,
+        "supersedes_id": "e18fbbec-568f-4b66-9a72-f82aac188017"
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "76c4fb63-1d8f-48e7-bbf4-eacdc5a241ce",
+      "materialization_order": 0,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 2,
+      "status": "accepted",
+      "decision_reason": null
+    },
+    {
+      "proposal_id": "afd2586c-6017-42f4-bedd-87db73e6e074",
+      "proposal_type": "state_transition",
+      "payload": {
+        "event_id": "2b654e06-cf16-42e0-bfc8-5902d38822de",
+        "entity_id": "Minh",
+        "attribute_key": "health",
+        "new_value": 80
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "76c4fb63-1d8f-48e7-bbf4-eacdc5a241ce",
+      "materialization_order": 1,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 2,
+      "status": "accepted",
+      "decision_reason": null
+    },
+    {
+      "proposal_id": "1efb6122-adb0-4c41-994f-f59420adec35",
+      "proposal_type": "event",
+      "payload": {
+        "event_id": "1efb6122-adb0-4c41-994f-f59420adec35",
+        "event_type": "injury",
+        "summary": "Minh was injured",
+        "participants": [
+          "Minh"
+        ],
+        "chapter": 1,
+        "supersedes_id": "e18fbbec-568f-4b66-9a72-f82aac188017"
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "d92f8fef-97ea-45bd-b065-306f9a6d7f24",
+      "materialization_order": 0,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 3,
+      "status": "pending",
+      "decision_reason": null
+    },
+    {
+      "proposal_id": "821d7b82-863e-4701-85df-14dfabeaee14",
+      "proposal_type": "state_transition",
+      "payload": {
+        "event_id": "1efb6122-adb0-4c41-994f-f59420adec35",
+        "entity_id": "Minh",
+        "attribute_key": "health",
+        "new_value": 60
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": "d92f8fef-97ea-45bd-b065-306f9a6d7f24",
+      "materialization_order": 1,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 3,
+      "status": "pending",
+      "decision_reason": null
+    }
+  ],
+  "relation_history": [],
+  "entity_states": {},
+  "event_history": [],
+  "current_world_state": {
+    "characters": {}
+  }
+}

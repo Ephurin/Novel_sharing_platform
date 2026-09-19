@@ -1,0 +1,14 @@
+> ephurin-web@0.1.0 typecheck
+> tsc -b --noEmit
+[No TypeScript errors]
+
+> ephurin-web@0.1.0 build
+> tsc -b && vite build
+
+✓ 7056 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.42 kB │ gzip:   0.28 kB
+dist/assets/index-BiX0OAsX.css  204.02 kB │ gzip:  30.03 kB
+dist/assets/index-CTnEY8PQ.js   755.48 kB │ gzip: 229.99 kB
+✓ built in 12.04s

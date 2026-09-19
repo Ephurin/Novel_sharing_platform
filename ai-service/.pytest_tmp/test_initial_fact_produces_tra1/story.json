@@ -1,0 +1,116 @@
+{
+  "story_id": "story",
+  "metadata": {
+    "created_at": "2026-09-17T04:34:34.109235+00:00",
+    "updated_at": "2026-09-17T04:34:34.172908+00:00",
+    "brain_version": "2"
+  },
+  "entities": {
+    "minh": {
+      "name": "Minh",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    "lan": {
+      "name": "Lan",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  },
+  "entity_aliases": [],
+  "entity_mentions": [],
+  "facts": [
+    {
+      "fact_id": "e10330f5-0c5c-518a-83e5-62c9b0d9be96",
+      "subject_entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
+      "fact_type": "initial_state",
+      "fact_key": "location",
+      "fact_value": "Village",
+      "is_locked": false
+    }
+  ],
+  "state_transitions": [
+    {
+      "transition_id": "b5116738-3f85-5bbc-8515-405f0437e13c",
+      "entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
+      "event_id": null,
+      "fact_id": "e10330f5-0c5c-518a-83e5-62c9b0d9be96",
+      "attribute_key": "location",
+      "new_value": "Village"
+    }
+  ],
+  "narrative_projection": {
+    "entities": {
+      "974095f1-83a1-526b-bd0b-9833f10d08e4": {
+        "location": "Village"
+      }
+    },
+    "provenance": {
+      "974095f1-83a1-526b-bd0b-9833f10d08e4": {
+        "location": {
+          "transition_id": "b5116738-3f85-5bbc-8515-405f0437e13c",
+          "event_id": null,
+          "fact_id": "e10330f5-0c5c-518a-83e5-62c9b0d9be96"
+        }
+      }
+    },
+    "relationships": [],
+    "projection_version": 1
+  },
+  "relations": [
+    {
+      "subject": "Minh",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    },
+    {
+      "subject": "Lan",
+      "relation": "MENTIONED_IN",
+      "object": "story",
+      "metadata": {
+        "score": 0.0
+      },
+      "source": "system",
+      "locked": false
+    }
+  ],
+  "events": [],
+  "enhanced_events": [],
+  "proposals": [
+    {
+      "proposal_id": "74b0544d-cec9-4e35-8da3-9827ebc940f0",
+      "proposal_type": "fact",
+      "payload": {
+        "subject_entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
+        "fact_type": "initial_state",
+        "fact_key": "location",
+        "fact_value": "Village"
+      },
+      "analysis_run_id": null,
+      "dependency_group_id": null,
+      "materialization_order": 0,
+      "evidence": [],
+      "confidence": null,
+      "expected_brain_version": 1,
+      "status": "accepted",
+      "decision_reason": null
+    }
+  ],
+  "relation_history": [],
+  "entity_states": {},
+  "event_history": [],
+  "current_world_state": {
+    "characters": {}
+  }
+}

@@ -1,13 +1,11 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16.4-alpine3.20
     container_name: p4-postgres
     environment:
       POSTGRES_USER: testuser
       POSTGRES_PASSWORD: testpass
       POSTGRES_DB: test_novel_platform
-    ports:
-      - "127.0.0.1:5433:5432"
     volumes:
       - p4_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -84,12 +82,28 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: p4-integration-test
-    command: pytest -v tests/test_postgres_integration.py
+    command: pytest -o addopts= -v -m postgres_integration tests/test_postgres_integration.py
     environment:
-      TEST_DATABASE_URL: postgresql+psycopg://testuser:testpass@postgres:5432/test_novel_platform
+      TEST_DATABASE_URL: postgresql+psycopg://testuser:testpass@postgres-integration:5432/test_novel_platform_integration
+      REQUIRE_POSTGRES_INTEGRATION: "true"
     depends_on:
-      ai-service:
+      postgres-integration:
         condition: service_healthy
+    profiles:
+      - test
+
+  postgres-integration:
+    image: postgres:16.4-alpine3.20
+    container_name: p4-postgres-integration
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: test_novel_platform_integration
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d test_novel_platform_integration"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
     profiles:
       - test
 

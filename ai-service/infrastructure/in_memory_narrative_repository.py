@@ -5,9 +5,10 @@ from typing import Any
 import uuid
 
 from domain.projection import ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload
-from domain.errors import OptimisticLockError, ProposalAlreadyDecidedError
+from domain.errors import IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
 from domain.models import (
     AnalysisRun,
+    BootstrapJob,
     NarrativeAlias,
     NarrativeEntity,
     NarrativeEvent,
@@ -16,6 +17,8 @@ from domain.models import (
     NarrativeRelation,
     ProposalStatus,
     StoryBrain,
+    WritingContextPackage,
+    WritingGenerationJob,
 )
 
 
@@ -23,6 +26,8 @@ class InMemoryNarrativeRepository:
     def __init__(self) -> None:
         self._brains: dict[str, StoryBrain] = {}
         self._analysis_runs: dict[str, AnalysisRun] = {}
+        self._bootstrap_jobs: dict[str, BootstrapJob] = {}
+        self._writing_jobs: dict[str, WritingGenerationJob] = {}
 
     def get_story_brain(self, story_id: str) -> StoryBrain:
         if story_id not in self._brains:
@@ -64,6 +69,9 @@ class InMemoryNarrativeRepository:
                     name=name,
                     entity_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:{name.casefold()}")),
                     entity_type=entity_type,
+                    status=str(entity_data.get("status") or "Alive"),
+                    location=str(entity_data.get("location") or "Unknown"),
+                    is_locked=bool(entity_data.get("is_locked", False)),
                 )
             )
         else:
@@ -75,6 +83,9 @@ class InMemoryNarrativeRepository:
                     if current.entity_type == "UNKNOWN" and entity_type != "UNKNOWN"
                     else current.entity_type
                 ),
+                status=str(entity_data.get("status") or current.status),
+                location=str(entity_data.get("location") or current.location),
+                is_locked=bool(entity_data.get("is_locked", current.is_locked)),
                 mentions=current.mentions + 1,
             )
         self._brains[story_id] = replace(brain, entities=tuple(entities))
@@ -428,3 +439,207 @@ class InMemoryNarrativeRepository:
 
     def export_snapshot(self, story_id: str) -> dict[str, Any]:
         return asdict(self.get_story_brain(story_id))
+
+    def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        self._bootstrap_jobs[job.job_id] = job
+        return job
+
+    def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
+        if job_id not in self._bootstrap_jobs:
+            raise KeyError(f"Bootstrap job not found: {job_id}")
+        return self._bootstrap_jobs[job_id]
+
+    def save_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        if job.job_id not in self._bootstrap_jobs:
+            raise KeyError(f"Bootstrap job not found: {job.job_id}")
+        self._bootstrap_jobs[job.job_id] = job
+        return job
+
+    def activate_baseline(
+        self, story_id: str, job_id: str, baseline_revision_id: str
+    ) -> dict[str, Any]:
+        job = self.get_bootstrap_job(job_id)
+        if job.novel_id != story_id:
+            raise KeyError(job_id)
+        brain = self.get_story_brain(story_id)
+        self._brains[story_id] = replace(
+            brain,
+            metadata={
+                **brain.metadata,
+                "status": "active",
+                "baseline_revision_id": baseline_revision_id,
+            },
+        )
+        return {
+            "story_brain_id": story_id,
+            "status": "active",
+            "baseline_revision_id": baseline_revision_id,
+            "brain_version": int(brain.metadata.get("brain_version", "1")),
+        }
+
+    def merge_entities(
+        self,
+        story_id: str,
+        source_entity_id: str,
+        target_entity_id: str,
+        expected_brain_version: int,
+    ) -> dict[str, Any]:
+        if source_entity_id == target_entity_id:
+            raise ValueError("Source and target entity must differ")
+        brain = self.get_story_brain(story_id)
+        current_version = int(brain.metadata.get("brain_version", "1"))
+        if current_version != expected_brain_version:
+            raise OptimisticLockError(story_id)
+        source = next((item for item in brain.entities if item.entity_id == source_entity_id), None)
+        target = next((item for item in brain.entities if item.entity_id == target_entity_id), None)
+        if source is None or target is None:
+            raise KeyError("Entity not found")
+        aliases = {
+            (item.entity_id, item.normalized_alias): item for item in brain.aliases
+            if item.entity_id != source_entity_id
+        }
+        source_alias = NarrativeAlias(
+            str(uuid.uuid5(uuid.NAMESPACE_URL, f"alias:{target_entity_id}:{source.name.casefold()}")),
+            target_entity_id,
+            source.name,
+            source.name.casefold(),
+        )
+        aliases[(target_entity_id, source_alias.normalized_alias)] = source_alias
+        for item in brain.aliases:
+            if item.entity_id == source_entity_id:
+                moved = replace(item, entity_id=target_entity_id)
+                aliases[(target_entity_id, moved.normalized_alias)] = moved
+        mentions = tuple(
+            replace(item, entity_id=target_entity_id)
+            if item.entity_id == source_entity_id else item
+            for item in brain.mentions
+        )
+        transitions = tuple(
+            {**item, "entity_id": target_entity_id}
+            if item.get("entity_id") == source_entity_id else item
+            for item in brain.transitions
+        )
+        facts = tuple(
+            {**item, "subject_entity_id": target_entity_id}
+            if item.get("subject_entity_id") == source_entity_id else item
+            for item in brain.facts
+        )
+        entities = tuple(item for item in brain.entities if item.entity_id != source_entity_id)
+        state = project(entities, facts, brain.events, transitions)
+        self._brains[story_id] = replace(
+            brain,
+            entities=entities,
+            aliases=tuple(aliases.values()),
+            mentions=mentions,
+            facts=facts,
+            transitions=transitions,
+            current_state=state,
+            metadata={**brain.metadata, "brain_version": str(current_version + 1)},
+        )
+        return {
+            "source_entity_id": source_entity_id,
+            "target_entity_id": target_entity_id,
+            "brain_version": current_version + 1,
+            "status": "merged",
+        }
+
+    def create_writing_job(self, job: WritingGenerationJob) -> WritingGenerationJob:
+        for existing in self._writing_jobs.values():
+            if (
+                existing.tenant_id == job.tenant_id
+                and existing.novel_id == job.novel_id
+                and existing.idempotency_key
+                and existing.idempotency_key == job.idempotency_key
+            ):
+                if existing.input_hash != job.input_hash:
+                    raise IdempotencyConflictError(
+                        f"Idempotency key {job.idempotency_key} reused with different input"
+                    )
+                return existing
+        self._writing_jobs[job.job_id] = job
+        return job
+
+    def get_writing_job(self, job_id: str) -> WritingGenerationJob:
+        if job_id not in self._writing_jobs:
+            raise KeyError(f"Writing generation job not found: {job_id}")
+        return self._writing_jobs[job_id]
+
+    def save_writing_job(self, job: WritingGenerationJob) -> WritingGenerationJob:
+        if job.job_id not in self._writing_jobs:
+            raise KeyError(f"Writing generation job not found: {job.job_id}")
+        self._writing_jobs[job.job_id] = job
+        return job
+
+    def get_structured_context(
+        self,
+        story_id: str,
+        *,
+        chapter_number: int | None = None,
+        character_name: str | None = None,
+        limit_recent_events: int = 20,
+    ) -> WritingContextPackage:
+        brain = self.get_story_brain(story_id)
+        brain_version = int(brain.metadata.get("brain_version", "1"))
+
+        entities_out = []
+        states_out = []
+        for entity in brain.entities:
+            e_dict = {
+                "entity_id": entity.entity_id or entity.name,
+                "name": entity.name,
+                "entity_type": entity.entity_type,
+                "status": entity.status,
+                "location": entity.location,
+                "is_locked": entity.is_locked,
+            }
+            entities_out.append(e_dict)
+            current_state = brain.current_state.get(entity.name, {})
+            states_out.append({
+                "entity_id": entity.entity_id or entity.name,
+                "name": entity.name,
+                "status": current_state.get("status", entity.status),
+                "location": current_state.get("location", entity.location),
+                "state": current_state,
+            })
+
+        events_filtered = []
+        for ev in brain.events:
+            ev_chapter = getattr(ev, "chapter", 1) or 1
+            if chapter_number is not None and ev_chapter > chapter_number:
+                continue
+            events_filtered.append({
+                "event_id": ev.event_id,
+                "chapter_number": ev_chapter,
+                "event_type": ev.event_type,
+                "summary": ev.summary,
+                "participants": list(ev.participants),
+                "metadata": dict(ev.metadata),
+            })
+        events_filtered = sorted(events_filtered, key=lambda x: x.get("chapter_number", 1))[-limit_recent_events:]
+
+        rules_out = []
+        for fact in brain.facts:
+            f_type = fact.get("fact_type") or fact.get("type", "")
+            if fact.get("is_locked") or f_type in ("world_rule", "character_trait"):
+                rules_out.append(fact)
+
+        token_budget = {
+            "used": 400 + len(entities_out) * 45 + len(events_filtered) * 55 + len(rules_out) * 35,
+            "maximum": 12000,
+        }
+        context_summary = {
+            "entity_ids": [str(e["entity_id"]) for e in entities_out],
+            "event_ids": [str(e["event_id"]) for e in events_filtered],
+            "fact_ids": [str(f.get("id") or f.get("fact_id", i)) for i, f in enumerate(rules_out)],
+        }
+        return WritingContextPackage(
+            brain_version=brain_version,
+            entities=tuple(entities_out),
+            current_states=tuple(states_out),
+            recent_events=tuple(events_filtered),
+            world_rules=tuple(rules_out),
+            author_constraints=(),
+            token_budget=token_budget,
+            context_summary=context_summary,
+        )
+

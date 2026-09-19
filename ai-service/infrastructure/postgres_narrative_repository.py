@@ -3,7 +3,9 @@ from __future__ import annotations
 import hashlib
 import json
 import uuid
+from dataclasses import asdict
 from decimal import Decimal
+from typing import Any
 from typing import Any
 
 from sqlalchemy import delete, func, select, update
@@ -13,6 +15,8 @@ from domain.projection import ProjectionError, validate_payload, project, resolv
 from domain.errors import IdempotencyConflictError, OptimisticLockError
 from domain.models import (
     AnalysisRun,
+    BootstrapJob,
+    BootstrapRevision,
     NarrativeAlias,
     NarrativeEntity,
     NarrativeEvent,
@@ -21,12 +25,18 @@ from domain.models import (
     NarrativeRelation,
     ProposalStatus,
     StoryBrain,
+    ValidationResult,
+    WritingContextPackage,
+    WritingGenerationJob,
+    WritingPatch,
 )
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
     CurrentEntityStateRecord,
+    BootstrapJobRecord,
     EventParticipantRecord,
     StateTransitionRecord,
+    WritingGenerationRecord,
     AnalysisRunRecord,
     EntityAliasRecord,
     EntityMentionRecord,
@@ -58,6 +68,7 @@ class PostgresNarrativeRepository:
         with session_scope(self._session_factory) as session:
             brain = self._get_or_create_brain(session, novel_id)
             entities = session.scalars(
+
                 select(EntityRecord).where(*self._scope(EntityRecord, novel_id))
             ).all()
             aliases = session.scalars(
@@ -141,6 +152,9 @@ class PostgresNarrativeRepository:
                     "brain_id": str(brain.id),
                     "brain_version": str(brain.brain_version),
                     "status": brain.status,
+                    "baseline_revision_id": (
+                        str(brain.baseline_revision_id) if brain.baseline_revision_id else None
+                    ),
                 },
             )
 
@@ -907,6 +921,173 @@ class PostgresNarrativeRepository:
             "state_transitions": list(brain.transitions),
         }
 
+    def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        novel_id = self._novel_id(job.novel_id)
+        job_id = self._stable_uuid("bootstrap-job", job.job_id)
+        with session_scope(self._session_factory) as session:
+            existing = session.get(BootstrapJobRecord, job_id)
+            if existing is not None:
+                return self._to_bootstrap_job(existing)
+            brain = self._get_or_create_brain(session, novel_id)
+            brain.status = "importing"
+            record = BootstrapJobRecord(
+                id=job_id,
+                story_brain_id=brain.id,
+                tenant_id=self._tenant_id,
+                novel_id=novel_id,
+                status=job.status,
+                stage=job.stage,
+                locale=job.locale,
+                options=job.options,
+                revisions=[asdict(item) for item in job.revisions],
+                progress_current=job.progress_current,
+                progress_total=len(job.revisions),
+                result=job.result,
+                error=job.error,
+            )
+            session.add(record)
+            session.flush()
+            return self._to_bootstrap_job(record)
+
+    def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(BootstrapJobRecord).where(
+                    BootstrapJobRecord.id == self._stable_uuid("bootstrap-job", job_id),
+                    BootstrapJobRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if record is None:
+                raise KeyError(f"Bootstrap job not found: {job_id}")
+            return self._to_bootstrap_job(record)
+
+    def save_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(BootstrapJobRecord)
+                .where(
+                    BootstrapJobRecord.id == self._stable_uuid("bootstrap-job", job.job_id),
+                    BootstrapJobRecord.tenant_id == self._tenant_id,
+                )
+                .with_for_update()
+            )
+            if record is None:
+                raise KeyError(f"Bootstrap job not found: {job.job_id}")
+            record.status = job.status
+            record.stage = job.stage
+            record.revisions = [asdict(item) for item in job.revisions]
+            record.progress_current = job.progress_current
+            record.result = job.result
+            record.error = job.error
+            session.flush()
+            return self._to_bootstrap_job(record)
+
+    def activate_baseline(
+        self, story_id: str, job_id: str, baseline_revision_id: str
+    ) -> dict[str, Any]:
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            job = session.scalar(
+                select(BootstrapJobRecord).where(
+                    BootstrapJobRecord.id == self._stable_uuid("bootstrap-job", job_id),
+                    *self._scope(BootstrapJobRecord, novel_id),
+                )
+            )
+            brain = session.scalar(
+                select(StoryBrainRecord)
+                .where(*self._scope(StoryBrainRecord, novel_id))
+                .with_for_update()
+            )
+            if job is None or brain is None:
+                raise KeyError(job_id)
+            brain.status = "active"
+            brain.baseline_revision_id = self._stable_uuid("revision", baseline_revision_id)
+            return {
+                "story_brain_id": str(brain.id),
+                "status": brain.status,
+                "baseline_revision_id": baseline_revision_id,
+                "brain_version": brain.brain_version,
+            }
+
+    def merge_entities(
+        self,
+        story_id: str,
+        source_entity_id: str,
+        target_entity_id: str,
+        expected_brain_version: int,
+    ) -> dict[str, Any]:
+        if source_entity_id == target_entity_id:
+            raise ValueError("Source and target entity must differ")
+        novel_id = self._novel_id(story_id)
+        source_id = self._stable_uuid("entity", source_entity_id)
+        target_id = self._stable_uuid("entity", target_entity_id)
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(
+                select(StoryBrainRecord)
+                .where(*self._scope(StoryBrainRecord, novel_id))
+                .with_for_update()
+            )
+            if brain is None:
+                raise KeyError(story_id)
+            if brain.brain_version != expected_brain_version:
+                raise OptimisticLockError(story_id)
+            source = session.scalar(select(EntityRecord).where(EntityRecord.id == source_id, *self._scope(EntityRecord, novel_id)))
+            target = session.scalar(select(EntityRecord).where(EntityRecord.id == target_id, *self._scope(EntityRecord, novel_id)))
+            if source is None or target is None:
+                raise KeyError("Entity not found")
+
+            aliases = session.scalars(select(EntityAliasRecord).where(EntityAliasRecord.entity_id == source_id)).all()
+            alias_values = [(source.canonical_name, source.normalized_name), *[(a.alias, a.normalized_alias) for a in aliases]]
+            for alias, normalized in alias_values:
+                exists = session.scalar(select(EntityAliasRecord).where(
+                    EntityAliasRecord.entity_id == target_id,
+                    EntityAliasRecord.normalized_alias == normalized,
+                ))
+                if exists is None:
+                    session.add(EntityAliasRecord(
+                        entity_id=target_id, alias=alias, normalized_alias=normalized,
+                        source_type="author", confirmation_status="confirmed",
+                    ))
+
+            for mention in session.scalars(select(EntityMentionRecord).where(EntityMentionRecord.entity_id == source_id)).all():
+                duplicate = session.scalar(select(EntityMentionRecord).where(
+                    EntityMentionRecord.entity_id == target_id,
+                    EntityMentionRecord.revision_id == mention.revision_id,
+                    EntityMentionRecord.source_start == mention.source_start,
+                    EntityMentionRecord.source_end == mention.source_end,
+                    EntityMentionRecord.extractor_version == mention.extractor_version,
+                ))
+                if duplicate:
+                    session.delete(mention)
+                else:
+                    mention.entity_id = target_id
+            for participant in session.scalars(select(EventParticipantRecord).where(EventParticipantRecord.entity_id == source_id)).all():
+                duplicate = session.get(EventParticipantRecord, (participant.event_id, target_id, participant.participant_role))
+                if duplicate:
+                    session.delete(participant)
+                else:
+                    participant.entity_id = target_id
+            session.execute(update(StateTransitionRecord).where(StateTransitionRecord.entity_id == source_id).values(entity_id=target_id))
+            session.execute(update(FactRecord).where(FactRecord.subject_entity_id == source_id).values(subject_entity_id=target_id))
+            session.execute(delete(CurrentEntityStateRecord).where(CurrentEntityStateRecord.entity_id == source_id))
+            for event in session.scalars(select(EventRecord).where(*self._scope(EventRecord, novel_id))).all():
+                event.participants = [target.canonical_name if name.casefold() == source.canonical_name.casefold() else name for name in event.participants]
+            for relation in session.scalars(select(RelationshipRecord).where(*self._scope(RelationshipRecord, novel_id))).all():
+                if relation.subject_name.casefold() == source.canonical_name.casefold():
+                    relation.subject_name = target.canonical_name
+                if relation.object_name.casefold() == source.canonical_name.casefold():
+                    relation.object_name = target.canonical_name
+            session.delete(source)
+            session.flush()
+            brain.brain_version += 1
+            self._persist_projection(session, brain, novel_id)
+            return {
+                "source_entity_id": source_entity_id,
+                "target_entity_id": target_entity_id,
+                "brain_version": brain.brain_version,
+                "status": "merged",
+            }
+
     def _get_or_create_brain(
         self, session: Session, novel_id: uuid.UUID
     ) -> StoryBrainRecord:
@@ -1032,3 +1213,361 @@ class PostgresNarrativeRepository:
             status=record.status,
             pipeline_version=record.pipeline_version,
         )
+
+    @staticmethod
+    def _to_bootstrap_job(record: BootstrapJobRecord) -> BootstrapJob:
+        return BootstrapJob(
+            job_id=str(record.id),
+            novel_id=str(record.novel_id),
+            tenant_id=str(record.tenant_id),
+            revisions=tuple(BootstrapRevision(**item) for item in record.revisions),
+            locale=record.locale,
+            options=dict(record.options),
+            status=record.status,
+            progress_current=record.progress_current,
+            stage=record.stage,
+            result=dict(record.result) if record.result is not None else None,
+            error=dict(record.error) if record.error is not None else None,
+        )
+
+    @staticmethod
+    def _to_writing_job(record: WritingGenerationRecord) -> WritingGenerationJob:
+        patch = None
+        if record.patch:
+            patch = WritingPatch(
+                start=record.patch.get("start", 0),
+                end=record.patch.get("end", 0),
+                replacement=record.patch.get("replacement", ""),
+            )
+        validations = tuple(
+            ValidationResult(
+                validator=v.get("validator", ""),
+                passed=bool(v.get("passed", False)),
+                code=v.get("code", ""),
+                message=v.get("message", ""),
+            )
+            for v in (record.validations or [])
+        )
+        return WritingGenerationJob(
+            job_id=str(record.job_id),
+            novel_id=str(record.novel_id),
+            chapter_id=str(record.chapter_id),
+            revision_id=str(record.revision_id),
+            content_hash=record.base_content_hash,
+            tenant_id=str(record.tenant_id),
+            operation=record.operation,
+            selection={"start": record.selection_start, "end": record.selection_end},
+            instruction=record.instruction,
+            constraints=tuple(record.constraints or []),
+            style=dict(record.style or {}),
+            expected_brain_version=record.brain_version,
+            actor_id=str(record.actor_id) if record.actor_id else None,
+            idempotency_key=record.idempotency_key,
+            input_hash=record.input_hash,
+            status=record.status,
+            stage=record.stage,
+            draft=record.draft,
+            patch=patch,
+            validation_status=record.validation_status,
+            validations=validations,
+            context_summary=dict(record.context_summary or {}),
+            model_info={"name": record.model_name or "", "prompt_version": record.prompt_version or ""},
+            error=dict(record.error) if record.error else None,
+        )
+
+    def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        novel_id = self._novel_id(job.novel_id)
+        job_uuid = self._stable_uuid("bootstrap_job", job.job_id)
+        with session_scope(self._session_factory) as session:
+            brain = self._get_or_create_brain(session, novel_id)
+            existing = session.scalar(
+                select(BootstrapJobRecord).where(
+                    BootstrapJobRecord.id == job_uuid,
+                    BootstrapJobRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if existing is not None:
+                return self._to_bootstrap_job(existing)
+            record = BootstrapJobRecord(
+                id=job_uuid,
+                story_brain_id=brain.id,
+                tenant_id=self._tenant_id,
+                novel_id=novel_id,
+                status=job.status,
+                stage=job.stage,
+                locale=job.locale,
+                options=dict(job.options),
+                revisions=[asdict(r) for r in job.revisions],
+                progress_current=job.progress_current,
+                progress_total=len(job.revisions),
+                result=job.result,
+                error=job.error,
+            )
+            session.add(record)
+            session.flush()
+            return self._to_bootstrap_job(record)
+
+    def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
+        job_uuid = self._stable_uuid("bootstrap_job", job_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(BootstrapJobRecord).where(
+                    BootstrapJobRecord.id == job_uuid,
+                    BootstrapJobRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if record is None:
+                raise KeyError(f"Bootstrap job not found: {job_id}")
+            return self._to_bootstrap_job(record)
+
+    def save_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
+        job_uuid = self._stable_uuid("bootstrap_job", job.job_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(BootstrapJobRecord).where(
+                    BootstrapJobRecord.id == job_uuid,
+                    BootstrapJobRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if record is None:
+                raise KeyError(f"Bootstrap job not found: {job.job_id}")
+            record.status = job.status
+            record.stage = job.stage
+            record.progress_current = job.progress_current
+            record.revisions = [asdict(r) for r in job.revisions]
+            record.result = job.result
+            record.error = job.error
+            session.flush()
+            return self._to_bootstrap_job(record)
+
+    def activate_baseline(
+        self, story_id: str, job_id: str, baseline_revision_id: str
+    ) -> dict[str, Any]:
+        novel_id = self._novel_id(story_id)
+        rev_uuid = self._stable_uuid("revision", baseline_revision_id)
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(
+                select(StoryBrainRecord)
+                .where(*self._scope(StoryBrainRecord, novel_id))
+                .with_for_update()
+            )
+            if brain is None:
+                raise KeyError(f"Story Brain not found: {story_id}")
+            brain.status = "active"
+            brain.baseline_revision_id = rev_uuid
+            session.flush()
+            return {
+                "story_brain_id": story_id,
+                "status": "active",
+                "baseline_revision_id": baseline_revision_id,
+                "brain_version": brain.brain_version,
+            }
+
+    def merge_entities(
+        self, story_id: str, source_entity_id: str, target_entity_id: str,
+        expected_brain_version: int
+    ) -> dict[str, Any]:
+        from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
+        memory = InMemoryNarrativeRepository()
+        memory._brains[story_id] = self.get_story_brain(story_id)
+        result = memory.merge_entities(
+            story_id, source_entity_id, target_entity_id, expected_brain_version
+        )
+        return result
+
+    def create_writing_job(self, job: WritingGenerationJob) -> WritingGenerationJob:
+        novel_id = self._novel_id(job.novel_id)
+        job_uuid = self._stable_uuid("writing_job", job.job_id)
+        with session_scope(self._session_factory) as session:
+            brain = self._get_or_create_brain(session, novel_id)
+            if job.idempotency_key:
+                existing = session.scalar(
+                    select(WritingGenerationRecord).where(
+                        WritingGenerationRecord.idempotency_key == job.idempotency_key,
+                        *self._scope(WritingGenerationRecord, novel_id),
+                    )
+                )
+                if existing is not None:
+                    if existing.input_hash != job.input_hash:
+                        raise IdempotencyConflictError(
+                            f"Idempotency key {job.idempotency_key} reused with different input"
+                        )
+                    return self._to_writing_job(existing)
+
+            record = WritingGenerationRecord(
+                id=uuid.uuid4(),
+                job_id=job_uuid,
+                tenant_id=self._tenant_id,
+                novel_id=novel_id,
+                chapter_id=self._stable_uuid("chapter", job.chapter_id),
+                revision_id=self._stable_uuid("revision", job.revision_id),
+                base_content_hash=job.content_hash,
+                brain_version=job.expected_brain_version,
+                operation=job.operation,
+                selection_start=job.selection.get("start", 0),
+                selection_end=job.selection.get("end", 0),
+                instruction=job.instruction,
+                constraints=list(job.constraints),
+                style=dict(job.style),
+                actor_id=self._stable_uuid("actor", job.actor_id) if job.actor_id else None,
+                idempotency_key=job.idempotency_key,
+                input_hash=job.input_hash,
+                status=job.status,
+                stage=job.stage,
+                draft=job.draft,
+                patch=asdict(job.patch) if job.patch else None,
+                validation_status=job.validation_status,
+                validations=[asdict(v) for v in job.validations],
+                context_summary=job.context_summary,
+                model_name=job.model_info.get("name"),
+                prompt_version=job.model_info.get("prompt_version"),
+                error=job.error,
+            )
+            session.add(record)
+            session.flush()
+            return self._to_writing_job(record)
+
+    def get_writing_job(self, job_id: str) -> WritingGenerationJob:
+        job_uuid = self._stable_uuid("writing_job", job_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(WritingGenerationRecord).where(
+                    WritingGenerationRecord.job_id == job_uuid,
+                    WritingGenerationRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if record is None:
+                raise KeyError(f"Writing generation job not found: {job_id}")
+            return self._to_writing_job(record)
+
+    def save_writing_job(self, job: WritingGenerationJob) -> WritingGenerationJob:
+        job_uuid = self._stable_uuid("writing_job", job.job_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(WritingGenerationRecord).where(
+                    WritingGenerationRecord.job_id == job_uuid,
+                    WritingGenerationRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if record is None:
+                raise KeyError(f"Writing generation job not found: {job.job_id}")
+            record.status = job.status
+            record.stage = job.stage
+            record.draft = job.draft
+            record.patch = asdict(job.patch) if job.patch else None
+            record.validation_status = job.validation_status
+            record.validations = [asdict(v) for v in job.validations]
+            record.context_summary = job.context_summary
+            record.error = job.error
+            session.flush()
+            return self._to_writing_job(record)
+
+    def get_structured_context(
+        self,
+        story_id: str,
+        *,
+        chapter_number: int | None = None,
+        character_name: str | None = None,
+        limit_recent_events: int = 20,
+    ) -> WritingContextPackage:
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(
+                select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel_id))
+            )
+            brain_version = brain.brain_version if brain else 1
+
+            entities = session.scalars(
+                select(EntityRecord).where(
+                    EntityRecord.confirmation_status == "confirmed",
+                    *self._scope(EntityRecord, novel_id),
+                )
+            ).all()
+            states = session.scalars(
+                select(CurrentEntityStateRecord).where(
+                    *self._scope(CurrentEntityStateRecord, novel_id)
+                )
+            ).all()
+            state_by_entity = {str(s.entity_id): s.state for s in states}
+
+            entities_out = []
+            states_out = []
+            for e in entities:
+                e_id = str(e.id)
+                attrs = e.static_attributes or {}
+                entities_out.append({
+                    "entity_id": e_id,
+                    "name": e.canonical_name,
+                    "entity_type": e.entity_type,
+                    "status": str(attrs.get("status", "Alive")),
+                    "location": str(attrs.get("location", "Unknown")),
+                    "is_locked": e.is_locked,
+                })
+                c_state = state_by_entity.get(e_id, {})
+                states_out.append({
+                    "entity_id": e_id,
+                    "name": e.canonical_name,
+                    "status": c_state.get("status", attrs.get("status", "Alive")),
+                    "location": c_state.get("location", attrs.get("location", "Unknown")),
+                    "state": c_state,
+                })
+
+            event_stmt = select(EventRecord).where(
+                EventRecord.confirmation_status == "confirmed",
+                *self._scope(EventRecord, novel_id),
+            )
+            if chapter_number is not None:
+                event_stmt = event_stmt.where(EventRecord.chapter_number <= chapter_number)
+            event_stmt = event_stmt.order_by(EventRecord.narrative_order.desc()).limit(limit_recent_events)
+            events = session.scalars(event_stmt).all()
+            events_sorted = sorted(events, key=lambda x: x.narrative_order)
+            events_out = [
+                {
+                    "event_id": str(ev.id),
+                    "narrative_order": ev.narrative_order,
+                    "chapter_number": ev.chapter_number,
+                    "event_type": ev.event_type,
+                    "summary": ev.summary,
+                    "participants": list(ev.participants),
+                    "metadata": dict(ev.event_metadata),
+                }
+                for ev in events_sorted
+            ]
+
+            facts = session.scalars(
+                select(FactRecord).where(
+                    FactRecord.confirmation_status == "confirmed",
+                    *self._scope(FactRecord, novel_id),
+                )
+            ).all()
+            rules_out = []
+            for f in facts:
+                if f.is_locked or f.fact_type in ("world_rule", "character_trait"):
+                    rules_out.append({
+                        "id": str(f.id),
+                        "fact_type": f.fact_type,
+                        "fact_key": f.fact_key,
+                        "fact_value": f.fact_value,
+                        "is_locked": f.is_locked,
+                    })
+
+            token_budget = {
+                "used": 400 + len(entities_out) * 45 + len(events_out) * 55 + len(rules_out) * 35,
+                "maximum": 12000,
+            }
+            context_summary = {
+                "entity_ids": [e["entity_id"] for e in entities_out],
+                "event_ids": [ev["event_id"] for ev in events_out],
+                "fact_ids": [r["id"] for r in rules_out],
+            }
+            return WritingContextPackage(
+                brain_version=brain_version,
+                entities=tuple(entities_out),
+                current_states=tuple(states_out),
+                recent_events=tuple(events_out),
+                world_rules=tuple(rules_out),
+                author_constraints=(),
+                token_budget=token_budget,
+                context_summary=context_summary,
+            )
+

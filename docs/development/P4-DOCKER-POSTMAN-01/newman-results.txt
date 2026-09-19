@@ -2,117 +2,139 @@
 
 Narrative Memory Phase 4 - Acceptance & Projection
 
-ΓåÆ 00 - Khß╗ƒi tß║ío Novel & Revision fixture tr├¬n Mock Platform
-  Γöî
-  Γöé `Using "CryptoJS" is deprecated. Use "require('crypto-
-  Γöé js')" instead.`
-  Γöö
-  POST http://127.0.0.1:8081/internal/v1/revisions [201 Created, 805B, 28ms]
-  ΓêÜ  Status code is 201 Created
+→ 00 - Khởi tạo Novel & Revision fixture trên Mock Platform
+  POST http://127.0.0.1:8081/internal/v1/revisions [201 Created, 805B, 23ms]
+  √  Status code is 201 Created
 
-ΓåÆ 01 - Ph├ón t├¡ch revision (Ch╞░a c├│ canonical state tr╞░ß╗¢c acceptance)
-  POST http://127.0.0.1:8000/v1/revisions/4d83d5db-f2ab-4b81-a551-edf3fdc5b2f6/analyses [202 Accepted, 369B, 44ms]
-  ΓêÜ  Status code is 202 Accepted
-  ΓêÜ  Analysis run completed with proposals
+→ 01 - Phân tích revision (Chưa có canonical state trước acceptance)
+  POST http://127.0.0.1:8000/v1/revisions/63780767-80e5-4899-a94b-87d8c3c09fd4/analyses [202 Accepted, 369B, 59ms]
+  √  Status code is 202 Accepted
+  √  Analysis run completed with proposals
 
-ΓåÆ 01b - Kiß╗âm tra ch╞░a c├│ canonical state tr╞░ß╗¢c khi accept
-  GET http://127.0.0.1:8000/v1/story-brains/fe25d391-ef83-4dc9-b6f6-3f77adbbe23e/state [200 OK, 236B, 14ms]
-  ΓêÜ  Status code is 200
-  ΓêÜ  Canonical state is empty before acceptance
+→ 01b - Kiểm tra chưa có canonical state trước khi accept
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/state [200 OK, 236B, 11ms]
+  √  Status code is 200
+  √  Canonical state is empty before acceptance
 
-ΓåÆ 02 - Ph├ón t├¡ch lß║íi vß╗¢i c├╣ng input v├á idempotency key (Deduplicated)
-  POST http://127.0.0.1:8000/v1/revisions/4d83d5db-f2ab-4b81-a551-edf3fdc5b2f6/analyses [202 Accepted, 361B, 15ms]
-  ΓêÜ  Status code is 202 Accepted
-  ΓêÜ  Response is deduplicated and returns same run_id
+→ 02 - Phân tích lại với cùng input và idempotency key (Deduplicated)
+  POST http://127.0.0.1:8000/v1/revisions/63780767-80e5-4899-a94b-87d8c3c09fd4/analyses [202 Accepted, 361B, 17ms]
+  √  Status code is 202 Accepted
+  √  Response is deduplicated and returns same run_id
 
-ΓåÆ 03 - D├╣ng c├╣ng idempotency key nh╞░ng kh├íc input (409 IDEMPOTENCY_CONFLICT)
-  POST http://127.0.0.1:8000/v1/revisions/4d83d5db-f2ab-4b81-a551-edf3fdc5b2f6/analyses [409 Conflict, 173B, 15ms]
-  ΓêÜ  Status code is 409 Conflict
-  ΓêÜ  Error code is IDEMPOTENCY_CONFLICT
+→ 03 - Dùng cùng idempotency key nhưng khác input (409 IDEMPOTENCY_CONFLICT)
+  POST http://127.0.0.1:8000/v1/revisions/63780767-80e5-4899-a94b-87d8c3c09fd4/analyses [409 Conflict, 173B, 17ms]
+  √  Status code is 409 Conflict
+  √  Error code is IDEMPOTENCY_CONFLICT
 
-ΓåÆ 04 - Content hash sai (422 CONTENT_HASH_MISMATCH)
-  POST http://127.0.0.1:8000/v1/revisions/4d83d5db-f2ab-4b81-a551-edf3fdc5b2f6/analyses [422 Unprocessable Entity, 186B, 52ms]
-  ΓêÜ  Status code is 422 Unprocessable Entity
-  ΓêÜ  Error code is CONTENT_HASH_MISMATCH
+→ 04 - Content hash sai (422 CONTENT_HASH_MISMATCH)
+  POST http://127.0.0.1:8000/v1/revisions/63780767-80e5-4899-a94b-87d8c3c09fd4/analyses [422 Unprocessable Entity, 186B, 12ms]
+  √  Status code is 422 Unprocessable Entity
+  √  Error code is CONTENT_HASH_MISMATCH
 
-ΓåÆ 05a - Lß║Ñy danh s├ích proposals ─æ├ú tß║ío
-  GET http://127.0.0.1:8000/v1/story-brains/fe25d391-ef83-4dc9-b6f6-3f77adbbe23e/proposals?status=pending [200 OK, 3.95kB, 10ms]
-  ΓêÜ  Status code is 200
-  ΓêÜ  Has proposals in pending status
+→ 05a - Lấy danh sách proposals đã tạo
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/proposals?status=pending [200 OK, 3.95kB, 11ms]
+  √  Status code is 200
+  √  Has proposals in pending status
 
-ΓåÆ 05b - Accept dependency group (Materialize & Brain Version t─âng)
-  POST http://127.0.0.1:8000/v1/proposal-groups/18900e3b-7c83-58a8-811b-7d46a5869944/accept [200 OK, 746B, 44ms]
-  ΓêÜ  Status code is 200
-  ΓêÜ  Brain version increments to 2
+→ 05b - Accept dependency group (Materialize & Brain Version tăng)
+  POST http://127.0.0.1:8000/v1/proposal-groups/8acaf2fe-9182-563e-95c9-94e750976bcc/accept [200 OK, 746B, 104ms]
+  √  Status code is 200
+  √  Brain version increments to 2
 
-ΓåÆ 06 - ─Éß╗ìc canonical state (Gi├í trß╗ï ─æ├║ng & c├│ provenance)
-  GET http://127.0.0.1:8000/v1/story-brains/fe25d391-ef83-4dc9-b6f6-3f77adbbe23e/state [200 OK, 908B, 12ms]
-  ΓêÜ  Status code is 200
-  ΓêÜ  State has materialized entities and attributes
+→ 06 - Đọc canonical state (Giá trị đúng & có provenance)
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/state [200 OK, 908B, 14ms]
+  √  Status code is 200
+  √  State has materialized entities and attributes
 
-ΓåÆ 07 - Accept vß╗¢i version c┼⌐ (409 BRAIN_VERSION_CONFLICT)
-  POST http://127.0.0.1:8000/v1/proposal-groups/18900e3b-7c83-58a8-811b-7d46a5869944/accept [409 Conflict, 175B, 20ms]
-  ΓêÜ  Status code is 409 Conflict
+→ 07 - Accept với version cũ (409 BRAIN_VERSION_CONFLICT)
+  POST http://127.0.0.1:8000/v1/proposal-groups/8acaf2fe-9182-563e-95c9-94e750976bcc/accept [409 Conflict, 175B, 28ms]
+  √  Status code is 409 Conflict
 
-ΓåÆ 08a - Tß║ío ─æß╗ü xuß║Ñt transition kh├┤ng hß╗úp lß╗ç (Health = 9999)
-  POST http://127.0.0.1:8000/v1/story-brains/fe25d391-ef83-4dc9-b6f6-3f77adbbe23e/events/6c275cba-c535-5866-b0f2-6960a071edf0/corrections [201 Created, 1.43kB, 34ms]
-  ΓêÜ  Status code is 201 Created
+→ 08a - Tạo đề xuất transition không hợp lệ (Health = 9999)
+  POST http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/events/e35c0b97-67c5-51ba-972f-44cfbf4d0aed/corrections [201 Created, 1.43kB, 26ms]
+  √  Status code is 201 Created
 
-ΓåÆ 08b - Accept transition kh├┤ng hß╗úp lß╗ç trong nh├│m (422 INVALID_PROJECTION)
-  POST http://127.0.0.1:8000/v1/proposal-groups/ac64b8a3-35c4-4582-b5c5-8d7f424a1b88/accept [422 Unprocessable Entity, 237B, 26ms]
-  ΓêÜ  Status code is 422 Unprocessable Entity
-  ΓêÜ  Detail code is INVALID_PROJECTION
+→ 08b - Accept transition không hợp lệ trong nhóm (422 INVALID_PROJECTION)
+  POST http://127.0.0.1:8000/v1/proposal-groups/f3360926-28ac-49e8-ba28-ba054bd77241/accept [422 Unprocessable Entity, 237B, 21ms]
+  √  Status code is 422 Unprocessable Entity
+  √  Detail code is INVALID_PROJECTION
 
-ΓåÆ 09 - Reject proposal (Kh├┤ng ─æß╗òi canonical state)
-  POST http://127.0.0.1:8000/v1/proposals/prop-rej-1789462361282/reject [404 Not Found, 172B, 6ms]
-  ΓêÜ  Reject endpoint behaves consistently
+→ 09a - Snapshot canonical state trước reject
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/state [200 OK, 908B, 11ms]
 
-ΓåÆ 10 - Tß║ío correction proposal (Pending, state c┼⌐ ch╞░a ─æß╗òi)
-  POST http://127.0.0.1:8000/v1/story-brains/fe25d391-ef83-4dc9-b6f6-3f77adbbe23e/events/6c275cba-c535-5866-b0f2-6960a071edf0/corrections [201 Created, 1.48kB, 23ms]
-  ΓêÜ  Status code is 201 Created
-  ΓêÜ  Returns pending correction proposal list
+→ 09b - Reject proposal thật
+  POST http://127.0.0.1:8000/v1/proposals/e9d745cd-8f27-4257-9116-bc4b1cae5650/reject [200 OK, 263B, 25ms]
+  √  Real pending proposal is rejected
 
-ΓåÆ 11 - Accept correction (Giß╗» event c┼⌐, replay state ─æ├║ng)
-  POST http://127.0.0.1:8000/v1/proposal-groups/e92a0af7-d6eb-4308-b7a4-f5b7dbbe805e/accept [200 OK, 433B, 36ms]
-  ΓêÜ  Status code is 200
-  ΓêÜ  Brain version increments to 3
+→ 09c - State và provenance không đổi sau reject
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/state [200 OK, 908B, 10ms]
+  √  Canonical snapshot is unchanged
 
-ΓåÆ 12 - ─Éß╗ìc state sau correction (Phß║ún ├ính ─æ├║ng replay 70)
-  GET http://127.0.0.1:8000/v1/story-brains/fe25d391-ef83-4dc9-b6f6-3f77adbbe23e/state [200 OK, 459B, 6ms]
-  ΓêÜ  Status code is 200
-  ΓêÜ  State has health attribute updated to 70
+→ 12a - Tạo revision cho event xảy ra về sau
+  POST http://127.0.0.1:8081/internal/v1/revisions [201 Created, 525B, 6ms]
 
-ΓåÆ 13a - Rebuild projection lß║ºn 1 (Khß╗¢p online projection)
-  POST http://127.0.0.1:8000/v1/story-brains/fe25d391-ef83-4dc9-b6f6-3f77adbbe23e/projections/rebuild [200 OK, 459B, 22ms]
-  ΓêÜ  Status code is 200
-  ΓêÜ  Rebuilt state matches current projection
+→ 12b - Phân tích revision của event về sau
+  POST http://127.0.0.1:8000/v1/revisions/660619ff-e613-425c-a79a-47595aa67192/analyses [202 Accepted, 370B, 39ms]
 
-ΓåÆ 13b - Rebuild projection lß║ºn 2 (Idempotent, version kh├┤ng t─âng)
-  POST http://127.0.0.1:8000/v1/story-brains/fe25d391-ef83-4dc9-b6f6-3f77adbbe23e/projections/rebuild [200 OK, 459B, 17ms]
-  ΓêÜ  Status code is 200
-  ΓêÜ  Second rebuild succeeds idempotently
+→ 12c - Lấy proposal group của event về sau
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/proposals?status=pending [200 OK, 2.18kB, 9ms]
 
-ΓåÆ 14 - State check sau Restart Container (Persistence)
-  GET http://127.0.0.1:8000/v1/story-brains/fe25d391-ef83-4dc9-b6f6-3f77adbbe23e/state [200 OK, 459B, 10ms]
-  ΓêÜ  Status code is 200
-  ΓêÜ  State persists across container restarts
+→ 12d - Accept event về sau
+  POST http://127.0.0.1:8000/v1/proposal-groups/819801ca-3c4c-523a-a087-8fbb023f14eb/accept [200 OK, 434B, 31ms]
 
-ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
-Γöé                         Γöé         executed Γöé           failed Γöé
-Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
-Γöé              iterations Γöé                1 Γöé                0 Γöé
-Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
-Γöé                requests Γöé               19 Γöé                0 Γöé
-Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
-Γöé            test-scripts Γöé               19 Γöé                0 Γöé
-Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
-Γöé      prerequest-scripts Γöé                3 Γöé                0 Γöé
-Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
-Γöé              assertions Γöé               34 Γöé                0 Γöé
-Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö┤ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö┤ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
-Γöé total run duration: 2s                                        Γöé
-Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
-Γöé total data received: 11kB (approx)                            Γöé
-Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
-Γöé average response time: 22ms [min: 6ms, max: 52ms, s.d.: 13ms] Γöé
-ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+→ 10a - Snapshot state trước pending correction
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/state [200 OK, 908B, 12ms]
+
+→ 10b - Tạo correction proposal (Pending, state cũ chưa đổi)
+  POST http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/events/e35c0b97-67c5-51ba-972f-44cfbf4d0aed/corrections [201 Created, 1.48kB, 34ms]
+  √  Status code is 201 Created
+  √  Returns pending correction proposal list
+
+→ 10c - Pending correction không đổi state/provenance
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/state [200 OK, 908B, 12ms]
+  √  Pending correction leaves complete snapshot unchanged
+
+→ 11 - Accept correction (replay giữ hiệu lực event về sau)
+  POST http://127.0.0.1:8000/v1/proposal-groups/c35e74c4-716c-45fe-84e1-8006e551459f/accept [200 OK, 433B, 41ms]
+  √  Status code is 200
+  √  Brain version increments to 4
+
+→ 12 - Sửa event cũ vẫn giữ hiệu lực event về sau
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/state [200 OK, 459B, 11ms]
+  √  Status code is 200
+  √  Later health=40 and provenance still win after replay
+
+→ 13a - Rebuild projection lần 1 (Khớp online projection)
+  POST http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/projections/rebuild [200 OK, 459B, 25ms]
+  √  Status code is 200
+  √  Rebuilt state matches current projection
+
+→ 13b - Rebuild projection lần 2 (Idempotent, version không tăng)
+  POST http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/projections/rebuild [200 OK, 459B, 26ms]
+  √  Status code is 200
+  √  Second rebuild succeeds idempotently
+
+→ 14 - Snapshot cuối cho runner restart PostgreSQL và API
+  GET http://127.0.0.1:8000/v1/story-brains/10389aeb-c493-45c4-bf98-415100af3f65/state [200 OK, 459B, 9ms]
+  √  Status code is 200
+  √  Final state is ready for orchestrated restart comparison
+
+┌─────────────────────────┬───────────────────┬──────────────────┐
+│                         │          executed │           failed │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              iterations │                 1 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│                requests │                27 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│            test-scripts │                27 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│      prerequest-scripts │                 3 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              assertions │                36 │                0 │
+├─────────────────────────┴───────────────────┴──────────────────┤
+│ total run duration: 2.8s                                       │
+├────────────────────────────────────────────────────────────────┤
+│ total data received: 17.2kB (approx)                           │
+├────────────────────────────────────────────────────────────────┤
+│ average response time: 23ms [min: 6ms, max: 104ms, s.d.: 19ms] │
+└────────────────────────────────────────────────────────────────┘

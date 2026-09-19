@@ -2,7 +2,16 @@ from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
 
-from domain.models import AnalysisRun, NarrativeEntity, NarrativeEvent, NarrativeProposal, StoryBrain
+from domain.models import (
+    AnalysisRun,
+    BootstrapJob,
+    NarrativeEntity,
+    NarrativeEvent,
+    NarrativeProposal,
+    StoryBrain,
+    WritingContextPackage,
+    WritingGenerationJob,
+)
 
 
 @runtime_checkable
@@ -93,3 +102,34 @@ class NarrativeRepository(Protocol):
     ) -> dict[str, Any]: ...
 
     def export_snapshot(self, story_id: str) -> dict[str, Any]: ...
+
+    def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob: ...
+
+    def get_bootstrap_job(self, job_id: str) -> BootstrapJob: ...
+
+    def save_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob: ...
+
+    def activate_baseline(
+        self, story_id: str, job_id: str, baseline_revision_id: str
+    ) -> dict[str, Any]: ...
+
+    def merge_entities(
+        self, story_id: str, source_entity_id: str, target_entity_id: str,
+        expected_brain_version: int
+    ) -> dict[str, Any]: ...
+
+    def create_writing_job(self, job: WritingGenerationJob) -> WritingGenerationJob: ...
+
+    def get_writing_job(self, job_id: str) -> WritingGenerationJob: ...
+
+    def save_writing_job(self, job: WritingGenerationJob) -> WritingGenerationJob: ...
+
+    def get_structured_context(
+        self,
+        story_id: str,
+        *,
+        chapter_number: int | None = None,
+        character_name: str | None = None,
+        limit_recent_events: int = 20,
+    ) -> WritingContextPackage: ...
+

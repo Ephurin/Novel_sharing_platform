@@ -209,6 +209,35 @@ class AnalysisRunRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class BootstrapJobRecord(Base):
+    __tablename__ = "bootstrap_jobs"
+    __table_args__ = ({"schema": SCHEMA},)
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    story_brain_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey(f"{SCHEMA}.story_brains.id", ondelete="CASCADE"), nullable=False
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="queued")
+    stage: Mapped[str] = mapped_column(String(50), nullable=False, default="queued")
+    locale: Mapped[str] = mapped_column(String(20), nullable=False, default="vi-VN")
+    options: Mapped[dict[str, Any]] = mapped_column(
+        JSON_TYPE, nullable=False, default=dict, server_default=text("'{}'")
+    )
+    revisions: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSON_TYPE, nullable=False, default=list, server_default=text("'[]'")
+    )
+    progress_current: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    progress_total: Mapped[int] = mapped_column(Integer, nullable=False)
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSON_TYPE)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON_TYPE)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
 class ProposalRecord(Base):
     __tablename__ = "proposals"
     __table_args__ = ({"schema": SCHEMA},)
@@ -317,3 +346,52 @@ class CurrentEntityStateRecord(Base):
     state: Mapped[dict[str, Any]] = mapped_column(JSON_TYPE, nullable=False)
     provenance: Mapped[dict[str, Any]] = mapped_column(JSON_TYPE, nullable=False)
     projection_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+
+
+class WritingGenerationRecord(Base):
+    __tablename__ = "writing_generations"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "novel_id", "idempotency_key", name="uq_writing_gen_tenant_idempotency"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    job_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, unique=True, index=True)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    chapter_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    revision_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    base_content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    brain_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    operation: Mapped[str] = mapped_column(String(50), nullable=False)
+    selection_start: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    selection_end: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    instruction: Mapped[str] = mapped_column(Text, nullable=False)
+    constraints: Mapped[list[str]] = mapped_column(
+        JSON_TYPE, nullable=False, default=list, server_default=text("'[]'")
+    )
+    style: Mapped[dict[str, Any]] = mapped_column(
+        JSON_TYPE, nullable=False, default=dict, server_default=text("'{}'")
+    )
+    actor_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    idempotency_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    input_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="queued")
+    stage: Mapped[str] = mapped_column(String(50), nullable=False, default="queued")
+    draft: Mapped[str | None] = mapped_column(Text)
+    patch: Mapped[dict[str, Any] | None] = mapped_column(JSON_TYPE)
+    validation_status: Mapped[str] = mapped_column(String(30), nullable=False, default="pending")
+    validations: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSON_TYPE, nullable=False, default=list, server_default=text("'[]'")
+    )
+    context_summary: Mapped[dict[str, Any]] = mapped_column(
+        JSON_TYPE, nullable=False, default=dict, server_default=text("'{}'")
+    )
+    model_name: Mapped[str | None] = mapped_column(String(100))
+    prompt_version: Mapped[str | None] = mapped_column(String(50))
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON_TYPE)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+

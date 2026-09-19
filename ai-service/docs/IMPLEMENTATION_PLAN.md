@@ -144,7 +144,7 @@ class NarrativeRepository:
 
 ## Phase 2 — PostgreSQL foundation
 
-> **Status:** Implementation completed on 2026-09-06; live PostgreSQL validation remains pending because no disposable PostgreSQL test database is available locally. Alembic upgrade/downgrade passes on a clean SQLite compatibility database, PostgreSQL offline SQL compiles successfully, and repository contracts cover tenant isolation, idempotency conflicts, and optimistic locking.
+> **Status:** Implementation completed on 2026-09-06 and live PostgreSQL validation completed on 2026-09-17. Alembic upgrade/downgrade, data preservation, tenant isolation, idempotency conflicts, optimistic locking and concurrent writes pass against a disposable PostgreSQL 16.4 Compose database.
 
 ### Tasks
 
@@ -200,7 +200,7 @@ class NarrativeRepository:
 
 ## Phase 4 — Event sourcing và state projection
 
-> **Status:** Implementation completed on 2026-09-15 for the revision/proposal API. Confirmed transitions, participant records, deterministic state/relationship projections, atomic correction acceptance, rebuild API/CLI and migration 0002 are implemented. Memory, JSON and SQL compatibility tests pass; live PostgreSQL concurrency validation remains pending. See [STATE_PROJECTION.md](STATE_PROJECTION.md) for rollout, rollback and legacy compatibility limits.
+> **Status:** Completed and verified on 2026-09-17 for the revision/proposal API. Confirmed transitions, participant records, deterministic state/relationship projections, atomic correction acceptance, rebuild API/CLI and migration 0002 are implemented. Memory, JSON and SQL compatibility tests pass. Live PostgreSQL migration, rollback, isolation and concurrency tests pass in a disposable Compose database; the HTTP/Newman suite and restart runner also verify proposal/state persistence and correction replay with a later event. See [STATE_PROJECTION.md](STATE_PROJECTION.md) for rollout, rollback and legacy compatibility limits.
 
 ### Tasks
 
@@ -219,6 +219,8 @@ class NarrativeRepository:
 - Historical event không bị overwrite.
 
 ## Phase 5 — Import existing manuscript
+
+> **Status:** Completed and verified on 2026-09-17. The import API now creates durable, idempotent bootstrap jobs from immutable revisions, checkpoints every chapter, segments scenes, extracts explicit world rules, resolves canonical entities across chapters, prioritizes review, gates baseline activation, and supports safe duplicate merges. The author frontend includes import onboarding and a priority review queue. See [MANUSCRIPT_IMPORT.md](MANUSCRIPT_IMPORT.md) for the API flow, recovery behavior, and operational checks.
 
 ### Tasks
 

@@ -26,6 +26,7 @@ class RevisionAnalysisOptions(BaseModel):
     extract_entities: bool = True
     extract_events: bool = True
     extract_state_transitions: bool = False
+    extract_world_rules: bool = False
     check_consistency: bool = True
     build_embeddings: bool = False
 
@@ -73,6 +74,34 @@ class CorrectionTransitionPayload(BaseModel):
 class EventCorrectionRequest(ProposalDecisionRequest):
     replacement: CorrectionEventPayload
     transitions: list[CorrectionTransitionPayload] = Field(default_factory=list)
+
+
+class BootstrapRevisionInput(BaseModel):
+    chapter_id: str = Field(min_length=1)
+    revision_id: str = Field(min_length=1)
+    content_hash: str = Field(min_length=64, max_length=64)
+
+
+class BootstrapOptions(BaseModel):
+    extract_world_rules: bool = True
+    build_embeddings: bool = False
+    require_review_for_all: bool = True
+
+
+class ManuscriptBootstrapRequest(BaseModel):
+    novel_id: str = Field(min_length=1)
+    revisions: list[BootstrapRevisionInput] = Field(min_length=1)
+    locale: str = "vi-VN"
+    options: BootstrapOptions = Field(default_factory=BootstrapOptions)
+
+
+class BaselineActivationRequest(BaseModel):
+    job_id: str = Field(min_length=1)
+
+
+class EntityMergeRequest(ProposalDecisionRequest):
+    source_entity_id: str = Field(min_length=1)
+    target_entity_id: str = Field(min_length=1)
 
 
 # ──────────────────────────────────────────────
@@ -261,3 +290,66 @@ class RelationOverrideRequest(BaseModel):
     subject: str = Field(..., min_length=1)
     relation: str = Field(..., min_length=1)
     object: str = Field(..., min_length=1)
+
+
+# ──────────────────────────────────────────────
+#  Writing Generation & Context Preview Schemas
+# ──────────────────────────────────────────────
+
+class WritingGenerationSelection(BaseModel):
+    start: int | None = None
+    end: int | None = None
+    cursor: int = 0
+
+
+class WritingGenerationRequest(BaseModel):
+    novel_id: str = Field(..., min_length=1)
+    chapter_id: str = Field(..., min_length=1)
+    revision_id: str = Field(..., min_length=1)
+    content_hash: str = Field(..., min_length=64, max_length=64)
+    operation: str = Field("continue", min_length=1)
+    selection: WritingGenerationSelection = Field(default_factory=WritingGenerationSelection)
+    instruction: str = ""
+    constraints: list[str] = Field(default_factory=list)
+    style: dict = Field(default_factory=dict)
+    expected_brain_version: int = Field(1, ge=1)
+    actor_id: str | None = None
+    idempotency_key: str = ""
+
+
+class WritingPatchResponse(BaseModel):
+    start: int
+    end: int
+    replacement: str
+
+
+class ValidationResultResponse(BaseModel):
+    validator: str
+    passed: bool
+    code: str
+    message: str
+
+
+class WritingGenerationResponse(BaseModel):
+    job_id: str
+    status: str
+    stage: str
+    draft: str | None = None
+    patch: WritingPatchResponse | None = None
+    validation_status: str = "pending"
+    validations: list[ValidationResultResponse] = Field(default_factory=list)
+    context_summary: dict[str, list[str]] = Field(default_factory=dict)
+    model_info: dict[str, str] = Field(default_factory=dict)
+    error: dict | None = None
+
+
+class ContextPreviewResponse(BaseModel):
+    brain_version: int
+    entities: list[dict] = Field(default_factory=list)
+    current_states: list[dict] = Field(default_factory=list)
+    recent_events: list[dict] = Field(default_factory=list)
+    world_rules: list[dict] = Field(default_factory=list)
+    author_constraints: list[str] = Field(default_factory=list)
+    token_budget: dict = Field(default_factory=dict)
+    context_summary: dict[str, list[str]] = Field(default_factory=dict)
+

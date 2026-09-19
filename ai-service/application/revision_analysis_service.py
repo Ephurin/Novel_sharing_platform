@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import uuid
 from dataclasses import dataclass
 from typing import Any
@@ -122,6 +123,38 @@ class RevisionAnalysisService:
                 )
                 approved_entities.append(
                     {"normalized_name": name, "raw_name": name, "type": str(item["entity"])}
+                )
+
+        if options.get("extract_world_rules", False):
+            for match in re.finditer(
+                r"(?im)^\s*(?:luật|quy\s*tắc|world\s*rule|rule)\s*:\s*(?P<rule>[^\r\n]+)",
+                revision.content,
+            ):
+                rule = match.group("rule").strip()
+                if not rule:
+                    continue
+                rule_hash = hashlib.sha256(rule.casefold().encode("utf-8")).hexdigest()[:16]
+                proposals.append(
+                    self._proposal(
+                        run,
+                        group_id,
+                        "fact",
+                        {
+                            "fact_type": "world_rule",
+                            "fact_key": f"world_rule_{rule_hash}",
+                            "fact_value": rule,
+                            "priority": 100,
+                        },
+                        {
+                            "revision_id": revision_id,
+                            "start": match.start("rule"),
+                            "end": match.end("rule"),
+                            "text_hash": content_hash,
+                        },
+                        1.0,
+                        brain_version,
+                        len(proposals),
+                    )
                 )
 
         if options.get("extract_events", True):

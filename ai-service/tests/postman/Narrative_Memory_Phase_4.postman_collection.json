@@ -18,6 +18,7 @@
               "var chapterId = pm.variables.replaceIn('{{$guid}}');",
               "var revisionId = pm.variables.replaceIn('{{$guid}}');",
               "var contentText = 'Tiêu Viêm thi triển Dị Hỏa đối đầu Hải Ba Đông tại sa mạc Tháp Qua Nhĩ. Sau một hồi kịch chiến dữ dội, Hải Ba Đông bị thương nặng và suy giảm sức chiến đấu.';",
+              "var CryptoJS = require('crypto-js');",
               "var contentHash = CryptoJS.SHA256(contentText).toString(CryptoJS.enc.Hex);",
               "pm.environment.set('novelId', novelId);",
               "pm.environment.set('chapterId', chapterId);",
@@ -407,7 +408,8 @@
               "var invGroup = json.data[0].dependency_group_id;",
               "var invIds = json.data.map(p => p.proposal_id);",
               "pm.environment.set('invGroupId', invGroup);",
-              "pm.environment.set('invProposalIds', JSON.stringify(invIds));"
+              "pm.environment.set('invProposalIds', JSON.stringify(invIds));",
+              "pm.environment.set('invProposalId', invIds[0]);"
             ]
           }
         }
@@ -465,24 +467,40 @@
       }
     },
     {
-      "name": "09 - Reject proposal (Không đổi canonical state)",
+      "name": "09a - Snapshot canonical state trước reject",
       "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.environment.set('tempPropId', 'prop-rej-' + Date.now());"
-            ]
-          }
-        },
         {
           "listen": "test",
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Reject endpoint behaves consistently', function () {",
-              "    pm.expect([200, 404, 409]).to.include(pm.response.code);",
+              "pm.response.to.have.status(200);",
+              "pm.environment.set('stateBeforeReject', JSON.stringify(pm.response.json().data));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "state"]
+        }
+      }
+    },
+    {
+      "name": "09b - Reject proposal thật",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Real pending proposal is rejected', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().data.status).to.eql('rejected');",
               "});"
             ]
           }
@@ -499,14 +517,198 @@
           "raw": "{\n  \"reason\": \"Author rejects unimportant detail\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/v1/proposals/{{tempPropId}}/reject",
+          "raw": "{{baseUrl}}/v1/proposals/{{invProposalId}}/reject",
           "host": ["{{baseUrl}}"],
-          "path": ["v1", "proposals", "{{tempPropId}}", "reject"]
+          "path": ["v1", "proposals", "{{invProposalId}}", "reject"]
         }
       }
     },
     {
-      "name": "10 - Tạo correction proposal (Pending, state cũ chưa đổi)",
+      "name": "09c - State và provenance không đổi sau reject",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "pm.test('Canonical snapshot is unchanged', function () {",
+              "    pm.expect(JSON.stringify(pm.response.json().data)).to.eql(pm.environment.get('stateBeforeReject'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "state"]
+        }
+      }
+    },
+    {
+      "name": "12a - Tạo revision cho event xảy ra về sau",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var CryptoJS = require('crypto-js');",
+              "var laterRevisionId = pm.variables.replaceIn('{{$guid}}');",
+              "var laterContent = 'Tieu Viem va Hai Ba Dong pha tran phap tai Mac Gia.';",
+              "pm.environment.set('laterRevisionId', laterRevisionId);",
+              "pm.environment.set('laterContent', laterContent);",
+              "pm.environment.set('laterContentHash', CryptoJS.SHA256(laterContent).toString(CryptoJS.enc.Hex));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.response.to.have.status(201);"]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"revision_id\": \"{{laterRevisionId}}\",\n  \"novel_id\": \"{{novelId}}\",\n  \"chapter_id\": \"{{chapterId}}\",\n  \"content\": \"{{laterContent}}\",\n  \"tenant_id\": \"{{tenantId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{mockPlatformUrl}}/internal/v1/revisions",
+          "host": ["{{mockPlatformUrl}}"],
+          "path": ["internal", "v1", "revisions"]
+        }
+      }
+    },
+    {
+      "name": "12b - Phân tích revision của event về sau",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(202);",
+              "pm.environment.set('laterAnalysisRunId', pm.response.json().data.analysis_run_id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Tenant-Id", "value": "{{tenantId}}"},
+          {"key": "X-Request-Id", "value": "req-later-analysis"},
+          {"key": "Idempotency-Key", "value": "later-{{laterRevisionId}}"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"novel_id\": \"{{novelId}}\",\n  \"chapter_id\": \"{{chapterId}}\",\n  \"content_hash\": \"{{laterContentHash}}\",\n  \"operation\": \"chapter_analysis\",\n  \"options\": {\n    \"extract_entities\": false,\n    \"extract_events\": true,\n    \"extract_state_transitions\": true\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/revisions/{{laterRevisionId}}/analyses",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "revisions", "{{laterRevisionId}}", "analyses"]
+        }
+      }
+    },
+    {
+      "name": "12c - Lấy proposal group của event về sau",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "var proposals = pm.response.json().data.filter(p => p.analysis_run_id === pm.environment.get('laterAnalysisRunId'));",
+              "pm.expect(proposals.length).to.be.above(0);",
+              "var group = proposals[0].dependency_group_id;",
+              "pm.environment.set('laterGroupId', group);",
+              "pm.environment.set('laterProposalIds', JSON.stringify(proposals.filter(p => p.dependency_group_id === group).map(p => p.proposal_id)));",
+              "pm.environment.set('laterEventId', proposals.find(p => p.proposal_type === 'event').proposal_id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{"key": "X-Request-Id", "value": "req-later-proposals"}],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/proposals?status=pending",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "proposals"],
+          "query": [{"key": "status", "value": "pending"}]
+        }
+      }
+    },
+    {
+      "name": "12d - Accept event về sau",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "pm.expect(pm.response.json().data.brain_version).to.eql(3);",
+              "pm.environment.set('brainVersion', '3');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "X-Request-Id", "value": "req-accept-later"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proposal_ids\": {{laterProposalIds}},\n  \"expected_brain_version\": 2,\n  \"reason\": \"Accept later event for replay-order test\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/proposal-groups/{{laterGroupId}}/accept",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "proposal-groups", "{{laterGroupId}}", "accept"]
+        }
+      }
+    },
+    {
+      "name": "10a - Snapshot state trước pending correction",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "pm.environment.set('stateBeforeCorrection', JSON.stringify(pm.response.json().data));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "state"]
+        }
+      }
+    },
+    {
+      "name": "10b - Tạo correction proposal (Pending, state cũ chưa đổi)",
       "event": [
         {
           "listen": "test",
@@ -535,7 +737,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"expected_brain_version\": 2,\n  \"replacement\": {\n    \"event_type\": \"battle\",\n    \"summary\": \"Tiêu Viêm giao đấu Hải Ba Đông (được chỉnh sửa nhẹ)\",\n    \"participants\": [\"Tiêu Viêm\", \"Hải Ba Đông\"],\n    \"chapter\": 1\n  },\n  \"transitions\": [\n    {\n      \"entity_id\": \"Hải Ba Đông\",\n      \"attribute_key\": \"health\",\n      \"new_value\": 70\n    }\n  ]\n}"
+          "raw": "{\n  \"expected_brain_version\": 3,\n  \"replacement\": {\n    \"event_type\": \"battle\",\n    \"summary\": \"Tiêu Viêm giao đấu Hải Ba Đông (được chỉnh sửa nhẹ)\",\n    \"participants\": [\"Tiêu Viêm\", \"Hải Ba Đông\"],\n    \"chapter\": 1\n  },\n  \"transitions\": [\n    {\n      \"entity_id\": \"Hải Ba Đông\",\n      \"attribute_key\": \"health\",\n      \"new_value\": 70\n    }\n  ]\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/events/{{eventId}}/corrections",
@@ -545,7 +747,33 @@
       }
     },
     {
-      "name": "11 - Accept correction (Giữ event cũ, replay state đúng)",
+      "name": "10c - Pending correction không đổi state/provenance",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "pm.test('Pending correction leaves complete snapshot unchanged', function () {",
+              "    pm.expect(JSON.stringify(pm.response.json().data)).to.eql(pm.environment.get('stateBeforeCorrection'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/state",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "story-brains", "{{novelId}}", "state"]
+        }
+      }
+    },
+    {
+      "name": "11 - Accept correction (replay giữ hiệu lực event về sau)",
       "event": [
         {
           "listen": "test",
@@ -556,10 +784,10 @@
               "    pm.response.to.have.status(200);",
               "});",
               "var json = pm.response.json();",
-              "pm.test('Brain version increments to 3', function () {",
-              "    pm.expect(json.data.brain_version).to.eql(3);",
+              "pm.test('Brain version increments to 4', function () {",
+              "    pm.expect(json.data.brain_version).to.eql(4);",
               "});",
-              "pm.environment.set('brainVersion', '3');"
+              "pm.environment.set('brainVersion', '4');"
             ]
           }
         }
@@ -572,7 +800,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"proposal_ids\": {{corrProposalIds}},\n  \"expected_brain_version\": 2,\n  \"reason\": \"Author accepts corrected event\"\n}"
+          "raw": "{\n  \"proposal_ids\": {{corrProposalIds}},\n  \"expected_brain_version\": 3,\n  \"reason\": \"Author accepts corrected event\"\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/v1/proposal-groups/{{corrGroupId}}/accept",
@@ -582,7 +810,7 @@
       }
     },
     {
-      "name": "12 - Đọc state sau correction (Phản ánh đúng replay 70)",
+      "name": "12 - Sửa event cũ vẫn giữ hiệu lực event về sau",
       "event": [
         {
           "listen": "test",
@@ -593,15 +821,16 @@
               "    pm.response.to.have.status(200);",
               "});",
               "var json = pm.response.json();",
-              "pm.test('State has health attribute updated to 70', function () {",
-              "    var hasHealth70 = false;",
+              "pm.test('Later health=40 and provenance still win after replay', function () {",
+              "    var matched = false;",
               "    for (var k in json.data.entities) {",
-              "        if (json.data.entities[k].health === 70) {",
-              "            hasHealth70 = true;",
+              "        var healthProv = (json.data.provenance[k] || {}).health || {};",
+              "        if (json.data.entities[k].health === 40 && healthProv.event_id === pm.environment.get('laterEventId')) {",
+              "            matched = true;",
               "            break;",
               "        }",
               "    }",
-              "    pm.expect(hasHealth70).to.be.true;",
+              "    pm.expect(matched).to.be.true;",
               "});"
             ]
           }
@@ -643,7 +872,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"expected_brain_version\": 3\n}"
+          "raw": "{\n  \"expected_brain_version\": 4\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/projections/rebuild",
@@ -678,7 +907,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"expected_brain_version\": 3\n}"
+          "raw": "{\n  \"expected_brain_version\": 4\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/v1/story-brains/{{novelId}}/projections/rebuild",
@@ -688,7 +917,7 @@
       }
     },
     {
-      "name": "14 - State check sau Restart Container (Persistence)",
+      "name": "14 - Snapshot cuối cho runner restart PostgreSQL và API",
       "event": [
         {
           "listen": "test",
@@ -699,8 +928,9 @@
               "    pm.response.to.have.status(200);",
               "});",
               "var json = pm.response.json();",
-              "pm.test('State persists across container restarts', function () {",
+              "pm.test('Final state is ready for orchestrated restart comparison', function () {",
               "    pm.expect(Object.keys(json.data.entities).length).to.be.above(0);",
+              "    pm.environment.set('stateBeforeRestart', JSON.stringify(json.data));",
               "});"
             ]
           }

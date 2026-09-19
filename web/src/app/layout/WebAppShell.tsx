@@ -72,7 +72,7 @@ export function WebAppShell() {
             />
           ))}
           <Text size="xs" c="dimmed" mt="auto">
-            AI entry points stay disabled
+            AI Copilot: Sẵn sàng trong Author IDE
           </Text>
         </Stack>
         <Box className="web-content">

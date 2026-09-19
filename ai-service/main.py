@@ -8,9 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import router
 from api.interactions import router as interaction_router
-from api.narrative_routes import router as narrative_router
+from api.narrative_routes import router as narrative_router, internal_router as internal_narrative_router
 from application.narrative_service import NarrativeApplicationService
 from application.revision_analysis_service import RevisionAnalysisService
+from application.bootstrap_service import ManuscriptBootstrapService
+from application.writing_service import WritingService
 from core.consistency import ConsistencyChecker, ConsistencyEngine
 from core.llm_client import LLMClient, LLMClientError
 from core.llm_service import LLMService, LLMServiceError
@@ -112,6 +114,16 @@ app.state.revision_analysis_service = RevisionAnalysisService(
     app.state.entity_pipeline,
     app.state.llm_service,
 )
+app.state.bootstrap_service = ManuscriptBootstrapService(
+    app.state.narrative_repository,
+    app.state.revision_content_provider,
+    app.state.revision_analysis_service,
+)
+app.state.writing_service = WritingService(
+    app.state.narrative_repository,
+    app.state.llm_service,
+    app.state.revision_content_provider,
+)
 
 
 @app.middleware("http")
@@ -183,3 +195,4 @@ def health_check() -> dict[str, str]:
 app.include_router(router)
 app.include_router(interaction_router)
 app.include_router(narrative_router)
+app.include_router(internal_narrative_router)
