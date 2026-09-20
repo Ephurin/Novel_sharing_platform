@@ -1257,3 +1257,35 @@ Finding
 
 **Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu P6.5-R2.**
 
+---
+
+### Gemini bàn giao — P6.5-R2-FINAL-CLOSURE-01
+
+- **Thời điểm bàn giao:** 2026-09-20T12:05:00+07:00
+- **Trạng thái:** **Fixed, awaiting Astra review**
+- **Báo cáo kỹ thuật chi tiết:** [docs/development/P6.5-R2-FINAL-CLOSURE-01-report.md](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-R2-FINAL-CLOSURE-01-report.md)
+- **Thư mục bằng chứng kiểm thử:** [docs/development/P6.5-R2-FINAL-CLOSURE-01/](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-R2-FINAL-CLOSURE-01/)
+
+#### Bảng Đối Soát 12 Phát Hiện
+
+| Finding | Root Cause | File / Code sửa | Loại Test | Evidence Path trong repo |
+|---|---|---|---|---|
+| **P1-1 (Fake Provider Trap)** | `LLM_PROVIDER="fake"` không nằm trong whitelist của `Settings.from_env()` và thiếu mock implementation chuẩn trong runtime composition root. | `ai-service/core/settings.py`<br>`ai-service/core/fake_llm.py`<br>`ai-service/main.py` | Unit & Config Test | `docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log` |
+| **P1-2 (Proposal & Group IDOR)** | Node AI Gateway tin tưởng `req.body.novel_id` hoặc bỏ qua kiểm tra quyền sở hữu khi nhận ID từ path parameter. | `ai-service/api/narrative_routes.py`<br>`backend/src/modules/ai/ai-gateway.controller.ts` | Negative Security HTTP Test (Cross-author 403) | `docs/development/P6.5-R2-FINAL-CLOSURE-01/backend-tests.log` |
+| **P1-3 (Service Token Auth)** | Các endpoint `/v1` và `/internal/v1` của AI Service không bắt buộc xác thực token nội bộ giữa các service. | `ai-service/api/deps.py`<br>`ai-service/api/routes.py`<br>`ai-service/api/narrative_routes.py`<br>`ai-service/main.py` | Auth Middleware Integration Test (401/403/200) | `docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log` |
+| **P1-4 (Silent Fallback Loop)** | Khối try/catch trong `/suggest-next` âm thầm nuốt lỗi sinh văn bản và trả về dữ liệu quan hệ narrative cũ. | `ai-service/api/routes.py` | Negative Error Propagation Test (500 SUGGEST_NEXT_FAILED) | `docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log` |
+| **P1-5 (Selected Text Loss)** | `/suggest-next` không đưa `current_text` vào selection span hợp lệ để `WritingService` gửi vào LLM Prompt. | `ai-service/api/routes.py`<br>`ai-service/application/writing_service.py` | Functional End-to-End Pipeline Test | `docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log` |
+| **P1-6 (Temporal Fact Cutoff)** | Các fact trích xuất từ revision gia tăng (incremental revisions) thiếu lưu vết chương (`chapter_number`) dẫn đến rò rỉ fact tương lai vào chương cũ. | `ai-service/infrastructure/orm_models.py`<br>`ai-service/infrastructure/postgres_narrative_repository.py`<br>`ai-service/infrastructure/in_memory_narrative_repository.py`<br>`ai-service/migrations/versions/0005_revision_provenance.py` | Temporal Cutoff Deterministic Contract Test | `docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log` |
+| **P1-7 (Fail-Closed Freshness)** | `acceptDraft` bỏ qua lỗi (fail-open) khi gọi Story Brain và không truyền service token bảo mật. | `backend/src/modules/novels/chapter-revisions.service.ts` | Fail-Closed Consistency Test (503 & 409) | `docs/development/P6.5-R2-FINAL-CLOSURE-01/backend-tests.log` |
+| **P1-8 (Outbox Missing Fields & Mongo Race)** | Payload outbox thiếu `novelId`/`authorId`; Mongo insert draft bị đụng `E11000 duplicate key` khi đồng thời outbox retry và tác giả thao tác. | `backend/src/modules/novels/chapter-revisions.service.ts`<br>`backend/src/modules/novels/draft-chapters.repository.ts`<br>`backend/src/jobs/outbox-processor.ts` | Dual-Write Resilience & Idempotency Test | `docs/development/P6.5-R2-FINAL-CLOSURE-01/backend-tests.log` |
+| **P1-9 (Context Hash Granularity)** | `context_hash` chỉ băm ID thực thể và sự kiện, bỏ qua nội dung trạng thái và luật thế giới (weak hash). | `ai-service/application/writing_service.py` | Cache Invalidation & Hash Differentiation Test | `docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log` |
+| **P2-10 (Duplicate Repository Code)** | `postgres_narrative_repository.py` bị dán đè duplicate code các phương thức bootstrap và writing. | `ai-service/infrastructure/postgres_narrative_repository.py` | Static Compilation & Lint Analysis | `docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log` |
+| **P2-11 (Missing Negative Test Coverage)** | Thiếu test case tự động cho negative security probes, service auth, fail-closed freshness, và cutoff gia tăng. | `ai-service/tests/test_p65_r2_final.py`<br>`backend/src/modules/ai/ai-gateway.test.ts` | Automated Negative Suite (Pytest + Node Test Runner) | `docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log`<br>`docs/development/P6.5-R2-FINAL-CLOSURE-01/backend-tests.log` |
+| **P2-12 (Outbox Concurrency Safety)** | Outbox worker thiếu cơ chế khóa bản ghi đồng thời (`SKIP LOCKED`) tránh tranh chấp xử lý song song. | `backend/src/modules/novels/outbox.repository.ts`<br>`backend/src/jobs/outbox-processor.ts` | Concurrency Transactional Locking Verification | `docs/development/P6.5-R2-FINAL-CLOSURE-01/backend-tests.log` |
+
+#### Tổng Kết Kiểm Thử
+- **AI-Service:** 131 tests passed, 2 skipped, 0 failed (`docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log`).
+- **Backend:** 18 tests passed across 3 suites, 0 typecheck errors (`docs/development/P6.5-R2-FINAL-CLOSURE-01/backend-tests.log`).
+- **Web Frontend:** Build sạch sẽ, 7056 modules compiled thành công (`docs/development/P6.5-R2-FINAL-CLOSURE-01/frontend-build.log`).
+- **Zero Phase 7 Scope:** Tuyệt đối không pgvector, không embeddings, không semantic retrieval, không multi-agent.
+

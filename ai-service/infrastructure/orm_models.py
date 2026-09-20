@@ -183,13 +183,30 @@ class FactRecord(Base):
     priority: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     is_locked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     source_revision_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    chapter_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     source_start: Mapped[int | None] = mapped_column(Integer)
     source_end: Mapped[int | None] = mapped_column(Integer)
     created_by: Mapped[uuid.UUID | None] = mapped_column(Uuid)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class RevisionProvenanceRecord(Base):
+    __tablename__ = "revision_provenances"
+    __table_args__ = ({"schema": SCHEMA},)
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    story_brain_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey(f"{SCHEMA}.story_brains.id", ondelete="CASCADE"), nullable=False
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    chapter_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    chapter_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class AnalysisRunRecord(Base):
+
     __tablename__ = "analysis_runs"
     __table_args__ = ({"schema": SCHEMA},)
 

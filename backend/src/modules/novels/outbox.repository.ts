@@ -94,6 +94,7 @@ export async function fetchPendingOutboxEvents(
   limit: number = 20
 ): Promise<RevisionOutboxEvent[]> {
   const executor = client ?? getPostgresPool();
+  const lockClause = client ? 'for update skip locked' : '';
   const result = await executor.query(
     `
       select *
@@ -102,12 +103,47 @@ export async function fetchPendingOutboxEvents(
         and next_retry_at <= now()
       order by created_at asc
       limit $1
+      ${lockClause}
     `,
     [limit]
   );
 
   return result.rows.map(mapOutboxEvent);
 }
+
+export async function claimPendingOutboxEvents(
+  client: DbClient,
+  limit: number = 20
+): Promise<RevisionOutboxEvent[]> {
+  const result = await client.query(
+    `
+      select *
+      from revision_outbox_events
+      where status in ('PENDING', 'PROCESSING')
+        and next_retry_at <= now()
+      order by created_at asc
+      limit $1
+      for update skip locked
+    `,
+    [limit]
+  );
+
+  const events = result.rows.map(mapOutboxEvent);
+  if (events.length > 0) {
+    const eventIds = events.map((e) => e.eventId);
+    await client.query(
+      `
+        update revision_outbox_events
+        set status = 'PROCESSING',
+            updated_at = now()
+        where event_id = any($1::uuid[])
+      `,
+      [eventIds]
+    );
+  }
+  return events;
+}
+
 
 export async function markOutboxEventCompleted(
   client: DbClient | undefined,

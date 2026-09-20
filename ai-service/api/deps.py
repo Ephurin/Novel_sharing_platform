@@ -8,7 +8,7 @@ Route functions sử dụng qua `Depends(get_xxx)` để:
 - Tránh truy cập request.app.state rải rác khắp nơi
 """
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, Header, HTTPException, Request
 
 from application.narrative_service import NarrativeApplicationService
 from application.revision_analysis_service import RevisionAnalysisService
@@ -85,4 +85,34 @@ def require_llm_service(request: Request):
 
 def get_settings(request: Request):
     return getattr(request.app.state, "settings", None)
+
+
+def require_service_token(
+    request: Request,
+    authorization: str | None = Header(None),
+    x_service_token: str | None = Header(None, alias="X-Service-Token"),
+    x_internal_service_key: str | None = Header(None, alias="X-Internal-Service-Key"),
+) -> None:
+    settings = getattr(request.app.state, "settings", None)
+    expected_token = getattr(settings, "platform_service_token", "") if settings else ""
+    if not expected_token:
+        return
+    token = None
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization[7:].strip()
+    elif x_service_token:
+        token = x_service_token.strip()
+    elif x_internal_service_key:
+        token = x_internal_service_key.strip()
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail={"code": "SERVICE_AUTH_REQUIRED", "message": "Service token required"},
+        )
+    if token != expected_token:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "SERVICE_AUTH_INVALID", "message": "Invalid service token"},
+        )
+
 

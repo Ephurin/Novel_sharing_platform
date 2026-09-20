@@ -96,6 +96,7 @@ class BootstrapRevision:
     status: str = "pending"
     proposal_count: int = 0
     analysis_run_id: str | None = None
+    chapter_number: int | None = None
 
 
 @dataclass(frozen=True, slots=True)

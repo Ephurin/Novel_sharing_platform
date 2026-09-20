@@ -83,6 +83,7 @@ export async function syncDraftFromRevisionConditional(input: {
   wordCount: number;
   acceptTimestamp: Date;
   novelId?: string;
+  authorId?: string;
 }): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {
   const now = new Date();
   const existing = await collection().findOne({ chapterId: input.chapterId, deletedAt: null });
@@ -91,11 +92,11 @@ export async function syncDraftFromRevisionConditional(input: {
       return { status: 'skipped_newer_draft', draft: existing };
     }
   } else {
-    // If draft does not exist yet, atomically create it
+    // If draft does not exist yet, atomically create it with trusted ownership
     const newDraft: DraftChapterDocument = {
       novelId: input.novelId ?? '',
       chapterId: input.chapterId,
-      authorId: '',
+      authorId: input.authorId ?? '',
       title: input.title ?? 'Chương mới',
       content: input.content,
       wordCount: input.wordCount,
@@ -107,8 +108,19 @@ export async function syncDraftFromRevisionConditional(input: {
       updatedAt: now,
       deletedAt: null
     };
-    await collection().insertOne(newDraft as any);
-    return { status: 'synced', draft: newDraft };
+    try {
+      await collection().insertOne(newDraft as any);
+      return { status: 'synced', draft: newDraft };
+    } catch (err: any) {
+      if (err?.code === 11000 || String(err?.message).includes('E11000')) {
+        const found = await collection().findOne({ chapterId: input.chapterId, deletedAt: null });
+        if (found && found.updatedAt && found.updatedAt > input.acceptTimestamp) {
+          return { status: 'skipped_newer_draft', draft: found };
+        }
+      } else {
+        throw err;
+      }
+    }
   }
 
   const result = await collection().updateOne(
@@ -122,6 +134,8 @@ export async function syncDraftFromRevisionConditional(input: {
     {
       $set: {
         ...(input.title ? { title: input.title } : {}),
+        ...(input.novelId ? { novelId: input.novelId } : {}),
+        ...(input.authorId ? { authorId: input.authorId } : {}),
         content: input.content,
         wordCount: input.wordCount,
         lastAcceptedRevisionId: input.revisionId,
@@ -131,6 +145,7 @@ export async function syncDraftFromRevisionConditional(input: {
       $inc: { version: 1 }
     }
   );
+
 
   if (result.matchedCount === 0 && existing) {
     return { status: 'skipped_newer_draft', draft: existing };

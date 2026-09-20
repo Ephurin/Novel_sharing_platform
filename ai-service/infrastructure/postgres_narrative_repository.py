@@ -48,6 +48,7 @@ from infrastructure.orm_models import (
     ProposalDecisionRecord,
     ProposalRecord,
     RelationshipRecord,
+    RevisionProvenanceRecord,
     StoryBrainRecord,
 )
 
@@ -440,6 +441,22 @@ class PostgresNarrativeRepository:
                 raise KeyError(f"Proposal not found: {proposal_id}")
             return str(record.novel_id), self._to_proposal(record)
 
+    def locate_proposal_group(self, group_id: str) -> tuple[str, list[NarrativeProposal]]:
+        group_uuid = self._stable_uuid("proposal-group", group_id)
+        with session_scope(self._session_factory) as session:
+            records = session.scalars(
+                select(ProposalRecord)
+                .where(
+                    ProposalRecord.dependency_group_id == group_uuid,
+                    ProposalRecord.tenant_id == self._tenant_id,
+                )
+                .order_by(ProposalRecord.materialization_order, ProposalRecord.created_at)
+            ).all()
+            if not records:
+                raise KeyError(f"Proposal group not found: {group_id}")
+            return str(records[0].novel_id), [self._to_proposal(item) for item in records]
+
+
     def accept_proposal_group(
         self,
         story_id: str,
@@ -572,6 +589,21 @@ class PostgresNarrativeRepository:
                     artifact_ids.append(str(alias.id))
                 elif proposal.proposal_type == "fact":
                     evidence = proposal.evidence[0] if proposal.evidence else {}
+                    fact_ch = payload.get("chapter_number")
+                    rev_uuid = (
+                        self._stable_uuid("revision", str(evidence["revision_id"]))
+                        if evidence.get("revision_id")
+                        else None
+                    )
+                    if fact_ch is None and rev_uuid:
+                        prov = session.scalar(
+                            select(RevisionProvenanceRecord).where(
+                                RevisionProvenanceRecord.revision_id == rev_uuid,
+                                *self._scope(RevisionProvenanceRecord, novel_id),
+                            )
+                        )
+                        if prov:
+                            fact_ch = prov.chapter_number
                     fact = FactRecord(
                         story_brain_id=brain.id,
                         tenant_id=self._tenant_id,
@@ -584,15 +616,12 @@ class PostgresNarrativeRepository:
                         fact_type=str(payload.get("fact_type", "world_rule")),
                         fact_key=str(payload["fact_key"]),
                         fact_value=payload["fact_value"],
+                        chapter_number=fact_ch,
                         source_type="AI",
                         confirmation_status="confirmed",
                         confidence=proposal.confidence,
                         priority=int(payload.get("priority", 0)),
-                        source_revision_id=(
-                            self._stable_uuid("revision", str(evidence["revision_id"]))
-                            if evidence.get("revision_id")
-                            else None
-                        ),
+                        source_revision_id=rev_uuid,
                         source_start=evidence.get("start"),
                         source_end=evidence.get("end"),
                         created_by=self._actor_id,
@@ -948,6 +977,31 @@ class PostgresNarrativeRepository:
                 error=job.error,
             )
             session.add(record)
+            for idx, rev in enumerate(job.revisions):
+                r_id_str = getattr(rev, "revision_id", None)
+                if r_id_str:
+                    c_id_str = getattr(rev, "chapter_id", None) or ""
+                    ch_val = getattr(rev, "chapter_number", None)
+                    ch_num = ch_val if ch_val is not None else (idx + 1)
+                    r_uuid = self._stable_uuid("revision", r_id_str)
+                    c_uuid = self._stable_uuid("chapter", c_id_str)
+                    existing_prov = session.scalar(
+                        select(RevisionProvenanceRecord).where(
+                            RevisionProvenanceRecord.revision_id == r_uuid,
+                            *self._scope(RevisionProvenanceRecord, novel_id),
+                        )
+                    )
+                    if existing_prov is None:
+                        session.add(
+                            RevisionProvenanceRecord(
+                                id=uuid.uuid4(),
+                                tenant_id=self._tenant_id,
+                                novel_id=novel_id,
+                                chapter_id=c_uuid,
+                                revision_id=r_uuid,
+                                chapter_number=ch_num,
+                            )
+                        )
             session.flush()
             return self._to_bootstrap_job(record)
 
@@ -1010,6 +1064,38 @@ class PostgresNarrativeRepository:
                 "baseline_revision_id": baseline_revision_id,
                 "brain_version": brain.brain_version,
             }
+
+    def record_revision_provenance(
+        self,
+        story_id: str,
+        chapter_id: str,
+        revision_id: str,
+        chapter_number: int,
+    ) -> None:
+        novel_id = self._novel_id(story_id)
+        rev_uuid = self._stable_uuid("revision", revision_id)
+        chap_uuid = self._stable_uuid("chapter", chapter_id)
+        with session_scope(self._session_factory) as session:
+            existing = session.scalar(
+                select(RevisionProvenanceRecord).where(
+                    RevisionProvenanceRecord.revision_id == rev_uuid,
+                    *self._scope(RevisionProvenanceRecord, novel_id),
+                )
+            )
+            if existing is None:
+                record = RevisionProvenanceRecord(
+                    id=uuid.uuid4(),
+                    tenant_id=self._tenant_id,
+                    novel_id=novel_id,
+                    chapter_id=chap_uuid,
+                    revision_id=rev_uuid,
+                    chapter_number=chapter_number,
+                )
+                session.add(record)
+            else:
+                existing.chapter_number = chapter_number
+                existing.chapter_id = chap_uuid
+            session.flush()
 
     def merge_entities(
         self,
@@ -1284,105 +1370,6 @@ class PostgresNarrativeRepository:
             chapter_number=chapter_number,
         )
 
-    def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
-        novel_id = self._novel_id(job.novel_id)
-        job_uuid = self._stable_uuid("bootstrap_job", job.job_id)
-        with session_scope(self._session_factory) as session:
-            brain = self._get_or_create_brain(session, novel_id)
-            existing = session.scalar(
-                select(BootstrapJobRecord).where(
-                    BootstrapJobRecord.id == job_uuid,
-                    BootstrapJobRecord.tenant_id == self._tenant_id,
-                )
-            )
-            if existing is not None:
-                return self._to_bootstrap_job(existing)
-            record = BootstrapJobRecord(
-                id=job_uuid,
-                story_brain_id=brain.id,
-                tenant_id=self._tenant_id,
-                novel_id=novel_id,
-                status=job.status,
-                stage=job.stage,
-                locale=job.locale,
-                options=dict(job.options),
-                revisions=[asdict(r) for r in job.revisions],
-                progress_current=job.progress_current,
-                progress_total=len(job.revisions),
-                result=job.result,
-                error=job.error,
-            )
-            session.add(record)
-            session.flush()
-            return self._to_bootstrap_job(record)
-
-    def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
-        job_uuid = self._stable_uuid("bootstrap_job", job_id)
-        with session_scope(self._session_factory) as session:
-            record = session.scalar(
-                select(BootstrapJobRecord).where(
-                    BootstrapJobRecord.id == job_uuid,
-                    BootstrapJobRecord.tenant_id == self._tenant_id,
-                )
-            )
-            if record is None:
-                raise KeyError(f"Bootstrap job not found: {job_id}")
-            return self._to_bootstrap_job(record)
-
-    def save_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
-        job_uuid = self._stable_uuid("bootstrap_job", job.job_id)
-        with session_scope(self._session_factory) as session:
-            record = session.scalar(
-                select(BootstrapJobRecord).where(
-                    BootstrapJobRecord.id == job_uuid,
-                    BootstrapJobRecord.tenant_id == self._tenant_id,
-                )
-            )
-            if record is None:
-                raise KeyError(f"Bootstrap job not found: {job.job_id}")
-            record.status = job.status
-            record.stage = job.stage
-            record.progress_current = job.progress_current
-            record.revisions = [asdict(r) for r in job.revisions]
-            record.result = job.result
-            record.error = job.error
-            session.flush()
-            return self._to_bootstrap_job(record)
-
-    def activate_baseline(
-        self, story_id: str, job_id: str, baseline_revision_id: str
-    ) -> dict[str, Any]:
-        novel_id = self._novel_id(story_id)
-        rev_uuid = self._stable_uuid("revision", baseline_revision_id)
-        with session_scope(self._session_factory) as session:
-            brain = session.scalar(
-                select(StoryBrainRecord)
-                .where(*self._scope(StoryBrainRecord, novel_id))
-                .with_for_update()
-            )
-            if brain is None:
-                raise KeyError(f"Story Brain not found: {story_id}")
-            brain.status = "active"
-            brain.baseline_revision_id = rev_uuid
-            session.flush()
-            return {
-                "story_brain_id": story_id,
-                "status": "active",
-                "baseline_revision_id": baseline_revision_id,
-                "brain_version": brain.brain_version,
-            }
-
-    def merge_entities(
-        self, story_id: str, source_entity_id: str, target_entity_id: str,
-        expected_brain_version: int
-    ) -> dict[str, Any]:
-        from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
-        memory = InMemoryNarrativeRepository()
-        memory._brains[story_id] = self.get_story_brain(story_id)
-        result = memory.merge_entities(
-            story_id, source_entity_id, target_entity_id, expected_brain_version
-        )
-        return result
 
     def create_writing_job(self, job: WritingGenerationJob) -> WritingGenerationJob:
         novel_id = self._novel_id(job.novel_id)
@@ -1528,6 +1515,11 @@ class PostgresNarrativeRepository:
                                 revision_chapters[r_uuid] = int(ch_num)
                             except Exception:
                                 pass
+                provenances = session.scalars(
+                    select(RevisionProvenanceRecord).where(*self._scope(RevisionProvenanceRecord, novel_id))
+                ).all()
+                for prov in provenances:
+                    revision_chapters[prov.revision_id] = prov.chapter_number
 
             raw_facts = session.scalars(
                 select(FactRecord).where(

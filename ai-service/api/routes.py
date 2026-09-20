@@ -46,6 +46,7 @@ from api.deps import (
     get_candidate_processor,
     get_span_expander,
     require_llm_service,
+    require_service_token,
 )
 from core.consistency import ConsistencyChecker, ConsistencyEngine
 from core.candidate_processor import CandidateProcessor
@@ -63,7 +64,8 @@ from services.event_summarizer import extract_narrative_events
 from services.world_state_updater import update_world_state
 
 
-router = APIRouter(prefix="/v1/ai", tags=["ai"])
+router = APIRouter(prefix="/v1/ai", tags=["ai"], dependencies=[Depends(require_service_token)])
+
 logger = logging.getLogger(__name__)
 
 
@@ -172,9 +174,10 @@ def suggest_next(
             chapter_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"chapter:{payload.story_id}")),
             revision_id=f"ephemeral:{content_hash}",
             content_hash=content_hash,
+            source_text=payload.current_text,
             operation="continue",
             selection={
-                "start": len(payload.current_text),
+                "start": 0,
                 "end": len(payload.current_text),
                 "cursor": len(payload.current_text),
             },
@@ -232,106 +235,15 @@ def suggest_next(
             status="accepted" if is_consistent else "conflict_detected",
             processing_ms=processing_ms,
         )
+    except HTTPException:
+        raise
     except Exception as exc:
-        logger.warning("WritingService delegation fallback for suggest-next: %s", exc)
+        logger.error("WritingService generation failed for suggest-next: %s", exc)
+        raise HTTPException(
+            status_code=500,
+            detail={"code": "SUGGEST_NEXT_FAILED", "message": f"WritingService generation failed: {exc}"},
+        ) from exc
 
-    graph_context = narrative.story_context(
-        payload.story_id, payload.character_name, limit=payload.graph_limit
-    )
-    graph_data = narrative.consistency_data(
-        payload.story_id, payload.character_name
-    )
-
-    attempts = 0
-    regenerated = False
-    final_suggestions: list[str] = []
-    final_validations: list[dict] = []
-    conflict_detected = False
-    current_text_for_attempt = payload.current_text
-
-    for attempt in range(1, payload.max_regenerations + 2):
-        attempts = attempt
-
-        try:
-            generated = llm_service.generate_suggestion(
-                current_text=current_text_for_attempt,
-                graph_context=graph_context,
-                mood=payload.mood,
-            )
-        except LLMServiceError:
-            raise
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
-
-        suggestions = generated.get("suggestions", []) if isinstance(generated, dict) else []
-        final_suggestions = [str(item).strip() for item in suggestions if str(item).strip()]
-        final_validations = []
-        conflict_messages: list[str] = []
-        conflict_detected = False
-
-        for suggestion in final_suggestions:
-            result = engine.validate_suggestion(suggestion, graph_data)
-            errors = result.get("errors", []) if isinstance(result, dict) else []
-
-            normalized_errors: list[dict[str, str]] = []
-            for error in errors:
-                code = str(error.get("code", "UNKNOWN_CONFLICT"))
-                message = str(error.get("message", "Consistency conflict detected"))
-                normalized_errors.append({"code": code, "message": message})
-                conflict_messages.append(message)
-
-            if result.get("regenerate_required", False):
-                conflict_detected = True
-
-            final_validations.append(
-                {
-                    "suggestion": suggestion,
-                    "is_consistent": bool(result.get("is_consistent", False)),
-                    "action": str(result.get("action", "Regenerate")),
-                    "errors": normalized_errors,
-                }
-            )
-
-        if not conflict_detected:
-            break
-
-        if attempt <= payload.max_regenerations:
-            regenerated = True
-            unique_conflicts = list(dict.fromkeys(conflict_messages))
-            conflict_text = "; ".join(unique_conflicts) if unique_conflicts else "Tranh mau thuan voi graph data"
-            current_text_for_attempt = (
-                payload.current_text
-                + "\n\nRang buoc nhat quan bat buoc: "
-                + conflict_text
-                + ". Hay tao lai 3 huong di tiep theo khong mau thuan voi graph data."
-            )
-            continue
-
-        regenerated = True
-        break
-
-    processing_ms = round((time.perf_counter() - started) * 1000.0, 3)
-    status = "accepted" if not conflict_detected else "conflict_after_max_regenerate"
-
-    logger.info(
-        "suggest-next completed: character=%s attempts=%d regenerated=%s status=%s time_ms=%.3f",
-        payload.character_name,
-        attempts,
-        regenerated,
-        status,
-        processing_ms,
-    )
-
-    return SuggestNextResponse(
-        character_name=payload.character_name,
-        graph_context=graph_context,
-        suggestions=final_suggestions,
-        validations=final_validations,
-        attempts=attempts,
-        regenerated=regenerated,
-        status=status,
-        processing_ms=processing_ms,
-    )
 
 
 # ──────────────────────────────────────────────

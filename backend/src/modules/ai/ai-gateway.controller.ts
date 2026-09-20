@@ -235,9 +235,19 @@ export async function acceptProposalGroupController(
     const userId = req.auth!.userId;
     const userRole = req.auth!.role;
 
-    if (req.body?.novel_id) {
-      await assertNovelOwnership(userId, userRole, req.body.novel_id);
+    const resolution = await aiGatewayService.forwardRequest<{ novel_id: string; group_id: string; proposal_ids: string[] }>({
+      method: 'GET',
+      path: `/internal/v1/proposal-groups/${groupId}/novel`,
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    const trustedNovelId = resolution?.novel_id;
+    if (!trustedNovelId) {
+      throw new AppError(404, 'PROPOSAL_GROUP_NOT_FOUND', 'Proposal group not found');
     }
+
+    await assertNovelOwnership(userId, userRole, trustedNovelId);
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
@@ -263,9 +273,19 @@ export async function rejectProposalController(
     const userId = req.auth!.userId;
     const userRole = req.auth!.role;
 
-    if (req.body?.novel_id) {
-      await assertNovelOwnership(userId, userRole, req.body.novel_id);
+    const resolution = await aiGatewayService.forwardRequest<{ novel_id: string; proposal_id: string }>({
+      method: 'GET',
+      path: `/internal/v1/proposals/${proposalId}/novel`,
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    const trustedNovelId = resolution?.novel_id;
+    if (!trustedNovelId) {
+      throw new AppError(404, 'PROPOSAL_NOT_FOUND', 'Proposal not found');
     }
+
+    await assertNovelOwnership(userId, userRole, trustedNovelId);
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
@@ -291,9 +311,19 @@ export async function editAndAcceptProposalController(
     const userId = req.auth!.userId;
     const userRole = req.auth!.role;
 
-    if (req.body?.novel_id) {
-      await assertNovelOwnership(userId, userRole, req.body.novel_id);
+    const resolution = await aiGatewayService.forwardRequest<{ novel_id: string; proposal_id: string }>({
+      method: 'GET',
+      path: `/internal/v1/proposals/${proposalId}/novel`,
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    const trustedNovelId = resolution?.novel_id;
+    if (!trustedNovelId) {
+      throw new AppError(404, 'PROPOSAL_NOT_FOUND', 'Proposal not found');
     }
+
+    await assertNovelOwnership(userId, userRole, trustedNovelId);
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
@@ -308,6 +338,7 @@ export async function editAndAcceptProposalController(
     next(error);
   }
 }
+
 
 export async function activateBaselineController(
   req: Request,

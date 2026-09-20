@@ -52,14 +52,15 @@ class Settings:
     @classmethod
     def from_env(cls) -> "Settings":
         provider = (os.getenv("LLM_PROVIDER", "none") or "none").strip().lower()
-        if provider not in {"none", "gemini", "openai", "groq"}:
-            raise ValueError("LLM_PROVIDER must be one of: none, gemini, openai, groq")
+        if provider not in {"none", "gemini", "openai", "groq", "fake"}:
+            raise ValueError("LLM_PROVIDER must be one of: none, gemini, openai, groq, fake")
 
         default_model = {
             "gemini": "gemini-2.5-flash-lite",
             "openai": "gpt-4o-mini",
             "groq": "llama-3.3-70b-versatile",
             "none": "disabled",
+            "fake": "fake-p4-model",
         }[provider]
         configured_base_url = (os.getenv("LLM_BASE_URL") or os.getenv("CUSTOM_LLM_URL") or "").strip()
         if provider == "groq" and not configured_base_url:

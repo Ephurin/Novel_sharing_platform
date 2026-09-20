@@ -2,10 +2,11 @@ import logging
 import time
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.deps import require_service_token
 from api.routes import router, suggest_next
 from api.interactions import router as interaction_router
 from api.narrative_routes import router as narrative_router, internal_router as internal_narrative_router
@@ -82,23 +83,29 @@ app.state.narrative_repository = build_narrative_repository(settings, app.state.
 app.state.narrative_service = NarrativeApplicationService(app.state.narrative_repository)
 app.state.candidate_processor = CandidateProcessor()
 app.state.span_expander = SpanExpander()
+app.state.candidate_processor = CandidateProcessor()
+app.state.span_expander = SpanExpander()
 app.state.entity_pipeline = EntityPipeline(
     pipeline_version=settings.pipeline_version,
     prompt_version=settings.entity_prompt_version,
 )
 
 try:
-    app.state.llm_service = (
-        LLMService(
-            provider=settings.llm_provider,
-            model=settings.llm_model,
-            api_key="",
-            base_url=settings.llm_base_url,
-            timeout_seconds=settings.llm_timeout_seconds,
+    if settings.llm_provider == "fake":
+        from core.fake_llm import FakeDeterministicLLMService
+        app.state.llm_service = FakeDeterministicLLMService(model=settings.llm_model)
+    else:
+        app.state.llm_service = (
+            LLMService(
+                provider=settings.llm_provider,
+                model=settings.llm_model,
+                api_key="",
+                base_url=settings.llm_base_url,
+                timeout_seconds=settings.llm_timeout_seconds,
+            )
+            if settings.llm_enabled and settings.llm_provider != "none"
+            else None
         )
-        if settings.llm_enabled and settings.llm_provider != "none"
-        else None
-    )
 except Exception:
     app.state.llm_service = None
     logger.exception("LLMService initialization failed. Suggestion endpoint will return 503.")
@@ -196,4 +203,10 @@ app.include_router(router)
 app.include_router(interaction_router)
 app.include_router(narrative_router)
 app.include_router(internal_narrative_router)
-app.add_api_route("/suggest-next", suggest_next, methods=["POST"], deprecated=True)
+app.add_api_route(
+    "/suggest-next",
+    suggest_next,
+    methods=["POST"],
+    dependencies=[Depends(require_service_token)],
+    deprecated=True,
+)

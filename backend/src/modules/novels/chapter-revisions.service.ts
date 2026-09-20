@@ -141,7 +141,10 @@ export async function createSnapshot(
         contentHash,
         createdBy: auth.userId,
         payload: {
+          novelId: chapter.novelId,
+          authorId: auth.userId,
           title: chapter.title,
+          chapterNumber: chapter.chapterNumber,
           content,
           wordCount,
           acceptTimestamp: snapshotTime.toISOString()
@@ -150,6 +153,7 @@ export async function createSnapshot(
     } catch (outboxErr) {
       console.error('[Outbox] Failed to queue MONGO_DRAFT_SYNC fallback:', outboxErr);
     }
+
   }
 
   triggerImmediateProcessing();
@@ -211,34 +215,53 @@ export async function acceptDraft(
     throw new AppError(400, 'CHAPTER_MISMATCH', 'Generation chapter does not match target chapter');
   }
 
-  // Accept-Time Brain Freshness Policy: Ensure Story Brain has not advanced since draft was generated
+  // Accept-Time Brain Freshness Policy: Ensure Story Brain has not advanced since draft was generated (strictly fail-closed)
   if (generation.brain_version_used) {
     try {
       const brainUrl = `${env.AI_SERVICE_URL}/v1/story-brains/by-novel/${chapter.novelId}`;
-      const brainRes = await fetch(brainUrl, {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Tenant-Id': '00000000-0000-0000-0000-000000000001',
-          'X-Request-Id': crypto.randomUUID()
-        }
-      });
-      if (brainRes.ok) {
-        const brainBody = (await brainRes.json()) as any;
-        const currentVersion = brainBody?.data?.brain_version;
-        if (typeof currentVersion === 'number' && currentVersion > generation.brain_version_used) {
-          throw new AppError(
-            409,
-            'BRAIN_VERSION_CONFLICT',
-            `Story Brain has advanced to version ${currentVersion} since draft was generated (version ${generation.brain_version_used}). Please review or regenerate.`
-          );
-        }
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-Tenant-Id': '00000000-0000-0000-0000-000000000001',
+        'X-Request-Id': crypto.randomUUID()
+      };
+      if (env.PLATFORM_SERVICE_TOKEN) {
+        headers['Authorization'] = `Bearer ${env.PLATFORM_SERVICE_TOKEN}`;
+        headers['X-Service-Token'] = env.PLATFORM_SERVICE_TOKEN;
+      }
+      const brainRes = await fetch(brainUrl, { headers });
+      if (!brainRes.ok) {
+        throw new AppError(
+          503,
+          'AI_SERVICE_UNAVAILABLE',
+          `Could not verify Story Brain version freshness: AI Service returned HTTP ${brainRes.status}`
+        );
+      }
+      const brainBody = (await brainRes.json()) as any;
+      const currentVersion = brainBody?.data?.brain_version;
+      if (typeof currentVersion !== 'number') {
+        throw new AppError(
+          502,
+          'AI_SERVICE_INVALID_RESPONSE',
+          'Could not parse current Story Brain version from AI Service'
+        );
+      }
+      if (currentVersion > generation.brain_version_used) {
+        throw new AppError(
+          409,
+          'BRAIN_VERSION_CONFLICT',
+          `Story Brain has advanced to version ${currentVersion} since draft was generated (version ${generation.brain_version_used}). Please review or regenerate.`
+        );
       }
     } catch (err: any) {
       if (err instanceof AppError) throw err;
-      // If brain summary fails to load, log warning but do not block accept unless brain version check explicitly failed
-      console.warn('[acceptDraft] Failed to check story brain version freshness:', err?.message || err);
+      throw new AppError(
+        503,
+        'AI_SERVICE_UNAVAILABLE',
+        `Could not verify Story Brain version freshness: ${err?.message || 'Network error'}`
+      );
     }
   }
+
 
   // 2. Transactional dual-write & conflict verification
   const newRevision = await withPostgresTransaction(async (client) => {
@@ -321,7 +344,8 @@ export async function acceptDraft(
       content: newRevision.content,
       wordCount: newRevision.wordCount,
       acceptTimestamp: acceptTime,
-      novelId: chapter.novelId
+      novelId: chapter.novelId,
+      authorId: auth.userId,
     });
     if (syncRes.status === 'skipped_newer_draft') {
       console.log(
@@ -342,7 +366,10 @@ export async function acceptDraft(
         contentHash: newRevision.contentHash,
         createdBy: auth.userId,
         payload: {
+          novelId: chapter.novelId,
+          authorId: auth.userId,
           title: chapter.title,
+          chapterNumber: chapter.chapterNumber,
           content: newRevision.content,
           wordCount: newRevision.wordCount,
           acceptTimestamp: acceptTime.toISOString()
@@ -352,6 +379,7 @@ export async function acceptDraft(
       console.error('[Outbox] Failed to queue MONGO_DRAFT_SYNC fallback:', outboxErr);
     }
   }
+
 
   // 4. Trigger immediate durable outbox processing
   triggerImmediateProcessing();
@@ -400,10 +428,13 @@ export async function getInternalRevision(revisionId: string) {
     throw new AppError(404, 'REVISION_NOT_FOUND', 'Chapter revision not found');
   }
 
+  const chapter = await findChapterById(revision.chapterId);
+
   return {
     revision_id: revision.revisionId,
     novel_id: revision.novelId,
     chapter_id: revision.chapterId,
+    chapter_number: chapter ? chapter.chapterNumber : undefined,
     content: revision.content,
     content_hash: revision.contentHash
   };

@@ -57,6 +57,8 @@ class NarrativeRepository(Protocol):
 
     def locate_proposal(self, proposal_id: str) -> tuple[str, NarrativeProposal]: ...
 
+    def locate_proposal_group(self, group_id: str) -> tuple[str, list[NarrativeProposal]]: ...
+
     def accept_proposal_group(
         self,
         story_id: str,
@@ -131,6 +133,13 @@ class NarrativeRepository(Protocol):
         chapter_number: int | None = None,
         character_name: str | None = None,
         limit_recent_events: int = 20,
-        token_budget: int | None = None,
     ) -> WritingContextPackage: ...
+
+    def record_revision_provenance(
+        self,
+        story_id: str,
+        chapter_id: str,
+        revision_id: str,
+        chapter_number: int,
+    ) -> None: ...
 

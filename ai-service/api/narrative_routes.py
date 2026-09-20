@@ -13,6 +13,7 @@ from api.deps import (
     get_revision_analysis_service,
     get_settings,
     get_writing_service,
+    require_service_token,
 )
 from api.schemas import (
     EventCorrectionRequest,
@@ -43,8 +44,9 @@ from domain.errors import (
 from domain.projection import ProjectionError
 
 
-router = APIRouter(prefix="/v1", tags=["narrative-memory"])
-internal_router = APIRouter(prefix="/internal/v1", tags=["internal-writing"])
+router = APIRouter(prefix="/v1", tags=["narrative-memory"], dependencies=[Depends(require_service_token)])
+internal_router = APIRouter(prefix="/internal/v1", tags=["internal-writing"], dependencies=[Depends(require_service_token)])
+
 
 
 @router.get("/story-brains/by-novel/{novel_id}")
@@ -556,3 +558,34 @@ def get_internal_writing_generation(
             "chapter_number": job.chapter_number,
         }
     }
+
+
+@internal_router.get("/proposals/{proposal_id}/novel")
+def resolve_proposal_novel(
+    proposal_id: str,
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    try:
+        novel_id, proposal = service.resolve_proposal_novel(proposal_id)
+        return {"data": {"novel_id": str(novel_id), "proposal_id": proposal.proposal_id}}
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
+
+
+@internal_router.get("/proposal-groups/{group_id}/novel")
+def resolve_proposal_group_novel(
+    group_id: str,
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    try:
+        novel_id, proposals = service.resolve_proposal_group_novel(group_id)
+        return {
+            "data": {
+                "novel_id": str(novel_id),
+                "group_id": group_id,
+                "proposal_ids": [p.proposal_id for p in proposals],
+            }
+        }
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail={"code": "PROPOSAL_GROUP_NOT_FOUND"}) from exc
+

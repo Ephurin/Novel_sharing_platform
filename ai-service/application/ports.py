@@ -11,6 +11,8 @@ class RevisionContent:
     chapter_id: str
     content: str
     content_hash: str
+    chapter_number: int | None = None
+
 
 
 class RevisionContentProvider(Protocol):

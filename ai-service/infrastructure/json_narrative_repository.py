@@ -212,6 +212,18 @@ class JsonNarrativeRepository:
                     return kb.story_id, self._proposal_from_dict(item)
         raise KeyError(f"Proposal not found: {proposal_id}")
 
+    def locate_proposal_group(self, group_id: str) -> tuple[str, list[NarrativeProposal]]:
+        for file_path in self._manager.storage_dir.glob("*.json"):
+            kb = self._manager.load_kb(file_path.stem)
+            group = [
+                self._proposal_from_dict(item)
+                for item in kb.proposals
+                if item.get("dependency_group_id") == group_id
+            ]
+            if group:
+                return kb.story_id, group
+        raise KeyError(f"Proposal group not found: {group_id}")
+
     def accept_proposal_group(
         self,
         story_id: str,
@@ -527,4 +539,13 @@ class JsonNarrativeRepository:
             limit_recent_events=limit_recent_events,
             token_budget=token_budget,
         )
+
+    def record_revision_provenance(
+        self,
+        story_id: str,
+        chapter_id: str,
+        revision_id: str,
+        chapter_number: int,
+    ) -> None:
+        pass
 

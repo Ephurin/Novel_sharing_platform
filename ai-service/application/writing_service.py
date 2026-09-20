@@ -94,6 +94,7 @@ class WritingService:
         actor_id: str | None = None,
         idempotency_key: str = "",
         process_inline: bool = True,
+        source_text: str | None = None,
     ) -> WritingGenerationJob:
         if chapter_number is None:
             chapter_number = selection.get("chapter_number")
@@ -137,7 +138,7 @@ class WritingService:
             except (WritingGenerationNotFoundError, KeyError):
                 pass
 
-        # 2. Content & Bounds validation via Revision Provider (if present)
+        # 2. Content & Bounds validation via Revision Provider or source_text
         cursor = selection.get("cursor", 0)
         start = selection.get("start", cursor)
         end = selection.get("end", cursor)
@@ -148,7 +149,16 @@ class WritingService:
             )
 
         base_content_length: int | None = None
-        if self._revision_provider and not revision_id.startswith("ephemeral:"):
+        if source_text is not None:
+            actual_source_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()
+            if actual_source_hash != content_hash:
+                raise ContentHashMismatchError(revision_id)
+            base_content_length = len(source_text)
+            if start > base_content_length or end > base_content_length or cursor > base_content_length:
+                raise SelectionOutOfBoundsError(
+                    f"Selection offsets ({start}, {end}, cursor={cursor}) exceed text length {base_content_length}"
+                )
+        elif self._revision_provider and not revision_id.startswith("ephemeral:"):
             rev_content = self._revision_provider.get_revision(
                 tenant_id=tenant_id,
                 novel_id=novel_id,
@@ -176,6 +186,8 @@ class WritingService:
             )
 
         selection_with_meta = dict(selection)
+        if source_text is not None:
+            selection_with_meta["source_text"] = source_text
         if base_content_length is not None:
             selection_with_meta["base_content_length"] = base_content_length
         if chapter_number is not None:
@@ -183,6 +195,7 @@ class WritingService:
 
         # 4. Create queued job
         job = WritingGenerationJob(
+
             job_id=job_id,
             novel_id=novel_id,
             chapter_id=chapter_id,
@@ -283,8 +296,15 @@ class WritingService:
             story_id=job.novel_id,
             chapter_number=job.chapter_number,
         )
+        prompt_context = {
+            "brain_version": context_package.brain_version,
+            "entities": list(context_package.entities),
+            "current_states": list(context_package.current_states),
+            "world_rules": list(context_package.world_rules),
+            "recent_events": list(context_package.recent_events),
+        }
         context_hash = hashlib.sha256(
-            json.dumps(context_package.context_summary, sort_keys=True).encode("utf-8")
+            json.dumps(prompt_context, sort_keys=True, default=str).encode("utf-8")
         ).hexdigest()
 
         # Stage: generating
@@ -313,9 +333,16 @@ class WritingService:
         )
         self._repository.save_writing_job(job)
 
-        # Extract selected text if revision provider available
+        # Extract selected text if source_text or revision provider available
         selected_text = ""
-        if self._revision_provider:
+        if job.selection.get("source_text") is not None:
+            raw_text = str(job.selection["source_text"])
+            start = job.selection.get("start", 0)
+            end = job.selection.get("end", len(raw_text))
+            selected_text = raw_text[start:end]
+            if not selected_text and start == end and raw_text:
+                selected_text = raw_text
+        elif self._revision_provider:
             try:
                 rev = self._revision_provider.get_revision(
                     tenant_id=job.tenant_id,
@@ -328,6 +355,7 @@ class WritingService:
                 selected_text = rev.content[start:end]
             except Exception:
                 pass
+
 
         # Call LLM service with style and constraints
         try:

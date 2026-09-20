@@ -84,7 +84,16 @@ class RevisionAnalysisService:
         brain = self._repository.get_story_brain(novel_id)
         brain_version = int(brain.metadata.get("brain_version", "1"))
         group_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"proposal-group:{run.run_id}"))
+        chapter_number = getattr(revision, "chapter_number", None)
+        if hasattr(self._repository, "record_revision_provenance") and chapter_number is not None:
+            self._repository.record_revision_provenance(
+                story_id=novel_id,
+                chapter_id=chapter_id,
+                revision_id=revision_id,
+                chapter_number=chapter_number,
+            )
         proposals: list[NarrativeProposal] = []
+
         approved_entities: list[dict[str, str]] = [
             {"normalized_name": e.name, "raw_name": e.name, "type": e.entity_type}
             for e in brain.entities]
@@ -144,9 +153,12 @@ class RevisionAnalysisService:
                             "fact_key": f"world_rule_{rule_hash}",
                             "fact_value": rule,
                             "priority": 100,
+                            "chapter_number": chapter_number,
                         },
                         {
                             "revision_id": revision_id,
+                            "chapter_id": chapter_id,
+                            "chapter_number": chapter_number,
                             "start": match.start("rule"),
                             "end": match.end("rule"),
                             "text_hash": content_hash,

@@ -118,7 +118,15 @@ class StoryKBManager:
                 output.write(kb.model_dump_json(indent=2))
                 output.flush()
                 os.fsync(output.fileno())
-            os.replace(temporary, destination)
+            import time
+            for attempt in range(5):
+                try:
+                    os.replace(temporary, destination)
+                    break
+                except (PermissionError, OSError):
+                    if attempt == 4:
+                        raise
+                    time.sleep(0.05)
         finally:
             if temporary and os.path.exists(temporary):
                 os.unlink(temporary)

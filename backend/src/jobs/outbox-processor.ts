@@ -1,5 +1,7 @@
 import { env } from '../core/config/env.js';
+import { getPostgresPool } from '../core/database/postgres.js';
 import {
+  claimPendingOutboxEvents,
   fetchPendingOutboxEvents,
   markOutboxEventCompleted,
   markOutboxEventFailed,
@@ -25,7 +27,20 @@ export async function processOutboxOnce(limit: number = 10): Promise<{
   let failed = 0;
 
   try {
-    const events = await fetchPendingOutboxEvents(undefined, limit);
+    const pool = getPostgresPool();
+    const client = await pool.connect();
+    let events: RevisionOutboxEvent[] = [];
+    try {
+      await client.query('BEGIN');
+      events = await claimPendingOutboxEvents(client, limit);
+      await client.query('COMMIT');
+    } catch (claimErr) {
+      await client.query('ROLLBACK');
+      throw claimErr;
+    } finally {
+      client.release();
+    }
+
     for (const event of events) {
       processed++;
       try {
@@ -89,6 +104,9 @@ async function handleOutboxEvent(event: RevisionOutboxEvent): Promise<void> {
     const result = await syncDraftFromRevisionConditional({
       chapterId: event.chapterId,
       revisionId: event.revisionId,
+      novelId: payload.novelId || event.novelId,
+      authorId: payload.authorId || event.createdBy || '',
+      title: payload.title,
       content: payload.content || '',
       wordCount: payload.wordCount || 0,
       acceptTimestamp: new Date(payload.acceptTimestamp || event.createdAt)
@@ -103,6 +121,7 @@ async function handleOutboxEvent(event: RevisionOutboxEvent): Promise<void> {
     console.warn(`[OutboxProcessor] Unhandled event type: ${event.eventType}`);
   }
 }
+
 
 export function triggerImmediateProcessing(): void {
   setTimeout(() => {

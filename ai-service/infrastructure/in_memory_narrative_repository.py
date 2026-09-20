@@ -28,6 +28,7 @@ class InMemoryNarrativeRepository:
         self._analysis_runs: dict[str, AnalysisRun] = {}
         self._bootstrap_jobs: dict[str, BootstrapJob] = {}
         self._writing_jobs: dict[str, WritingGenerationJob] = {}
+        self._revision_provenance: dict[tuple[str, str], int] = {}
 
     def get_story_brain(self, story_id: str) -> StoryBrain:
         if story_id not in self._brains:
@@ -186,6 +187,13 @@ class InMemoryNarrativeRepository:
                     return story_id, proposal
         raise KeyError(f"Proposal not found: {proposal_id}")
 
+    def locate_proposal_group(self, group_id: str) -> tuple[str, list[NarrativeProposal]]:
+        for story_id, brain in self._brains.items():
+            matching = [p for p in brain.proposals if str(getattr(p, "dependency_group_id", "")) == group_id]
+            if matching:
+                return story_id, matching
+        raise KeyError(f"Proposal group not found: {group_id}")
+
     def accept_proposal_group(
         self,
         story_id: str,
@@ -270,7 +278,18 @@ class InMemoryNarrativeRepository:
                 artifact_ids.append(alias_id)
             elif proposal.proposal_type == "fact":
                 fact_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"fact:{proposal.proposal_id}"))
-                facts.append({"fact_id": fact_id, **payload, "is_locked": False})
+                evidence = proposal.evidence[0] if proposal.evidence else {}
+                rev_id = evidence.get("revision_id")
+                fact_ch = payload.get("chapter_number")
+                if fact_ch is None and rev_id:
+                    fact_ch = self._revision_provenance.get((story_id, str(rev_id)))
+                facts.append({
+                    "fact_id": fact_id,
+                    **payload,
+                    "chapter_number": fact_ch,
+                    "source_revision_id": rev_id,
+                    "is_locked": False,
+                })
                 artifact_ids.append(fact_id)
                 if payload.get("subject_entity_id"):
                     transitions.append(transition_from_payload(
@@ -442,7 +461,22 @@ class InMemoryNarrativeRepository:
 
     def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
         self._bootstrap_jobs[job.job_id] = job
+        for idx, rev in enumerate(job.revisions):
+            r_id = getattr(rev, "revision_id", None)
+            if r_id:
+                ch_val = getattr(rev, "chapter_number", None)
+                ch_num = ch_val if ch_val is not None else (idx + 1)
+                self._revision_provenance[(job.novel_id, str(r_id))] = ch_num
         return job
+
+    def record_revision_provenance(
+        self,
+        story_id: str,
+        chapter_id: str,
+        revision_id: str,
+        chapter_number: int,
+    ) -> None:
+        self._revision_provenance[(story_id, str(revision_id))] = chapter_number
 
     def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
         if job_id not in self._bootstrap_jobs:
@@ -613,6 +647,8 @@ class InMemoryNarrativeRepository:
             f_ch = fact.get("chapter_number") or fact.get("chapter")
             if f_ch is None and isinstance(fact.get("fact_value"), dict):
                 f_ch = fact["fact_value"].get("chapter_number") or fact["fact_value"].get("chapter")
+            if f_ch is None and fact.get("source_revision_id"):
+                f_ch = self._revision_provenance.get((story_id, str(fact["source_revision_id"])))
             if f_ch is not None and int(f_ch) > chapter_number:
                 return False
             return True

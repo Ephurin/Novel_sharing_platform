@@ -80,13 +80,17 @@ class PlatformRevisionClient:
             or str(data["chapter_id"]) != chapter_id
         ):
             raise RevisionNotFoundError(revision_id)
+        ch_num = data.get("chapter_number")
         return RevisionContent(
             revision_id=str(data["revision_id"]),
             novel_id=str(data["novel_id"]),
             chapter_id=str(data["chapter_id"]),
             content=str(data["content"]),
             content_hash=str(data["content_hash"]),
+            chapter_number=int(ch_num) if ch_num is not None else None,
         )
+
+
 
 
 def build_revision_content_provider(

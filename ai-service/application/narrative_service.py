@@ -233,9 +233,16 @@ class NarrativeApplicationService:
         story_id, _ = self._repository.locate_proposal(proposal_id)
         return self.reject_proposal(story_id, proposal_id, reason)
 
+    def resolve_proposal_novel(self, proposal_id: str) -> tuple[str, NarrativeProposal]:
+        return self._repository.locate_proposal(proposal_id)
+
+    def resolve_proposal_group_novel(self, group_id: str) -> tuple[str, list[NarrativeProposal]]:
+        return self._repository.locate_proposal_group(group_id)
+
     def decide_proposal(
         self, story_id: str, proposal_id: str, accepted: bool, reason: str | None = None
     ) -> NarrativeProposal:
+
         return self._repository.decide_proposal(story_id, proposal_id, accepted, reason)
 
     def _find_proposal(self, story_id: str, proposal_id: str) -> NarrativeProposal:

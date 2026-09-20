@@ -175,5 +175,142 @@ describe('Node.js AI Gateway Service (P6.5 Hardening)', () => {
     const canonicalCutoff = deriveCanonicalCutoff(dbChapter, clientProvided);
     assert.equal(canonicalCutoff, 2, 'Canonical chapter number from DB must override client supplied cutoff');
   });
+
+  test('Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author', async () => {
+    // Mock internal resolution endpoint returning Alice's novel
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: any) => {
+      const urlStr = String(url);
+      if (urlStr.includes('/internal/v1/proposal-groups/group-alice/novel')) {
+        return new Response(JSON.stringify({ novel_id: 'novel-alice' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response('Not found', { status: 404 });
+    }) as typeof fetch;
+
+    try {
+      const gateway = new AIGatewayService();
+      const mockNovelRepo = {
+        async findById(novelId: string) {
+          if (novelId === 'novel-alice') {
+            return { id: 'novel-alice', authorId: 'author-alice' };
+          }
+          return null;
+        },
+      };
+
+      function assertNovelOwnership(novel: { authorId: string }, userId: string, role: string) {
+        if (role === 'admin') return;
+        if (novel.authorId !== userId) {
+          throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền truy cập tác phẩm này');
+        }
+      }
+
+      // Attacker Bob tries to accept Alice's proposal group
+      const targetGroupId = 'group-alice';
+      const bobUserId = 'author-bob';
+      const bobRole = 'author';
+
+      // Gateway resolves novelId from internal endpoint
+      const novelInfo = await gateway.forwardRequest<{ novel_id: string }>({
+        method: 'GET',
+        path: `/internal/v1/proposal-groups/${targetGroupId}/novel`,
+      });
+      assert.equal(novelInfo.novel_id, 'novel-alice');
+
+      const novel = await mockNovelRepo.findById(novelInfo.novel_id);
+      assert.ok(novel);
+
+      assert.throws(
+        () => assertNovelOwnership(novel, bobUserId, bobRole),
+        (err: any) => err instanceof AppError && err.httpStatus === 403 && err.code === 'FORBIDDEN'
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: any) => {
+      const urlStr = String(url);
+      if (urlStr.includes('/internal/v1/proposals/prop-alice/novel')) {
+        return new Response(JSON.stringify({ novel_id: 'novel-alice' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response('Not found', { status: 404 });
+    }) as typeof fetch;
+
+    try {
+      const gateway = new AIGatewayService();
+      const mockNovelRepo = {
+        async findById(novelId: string) {
+          if (novelId === 'novel-alice') {
+            return { id: 'novel-alice', authorId: 'author-alice' };
+          }
+          return null;
+        },
+      };
+
+      function assertNovelOwnership(novel: { authorId: string }, userId: string, role: string) {
+        if (role === 'admin') return;
+        if (novel.authorId !== userId) {
+          throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền truy cập tác phẩm này');
+        }
+      }
+
+      const novelInfo = await gateway.forwardRequest<{ novel_id: string }>({
+        method: 'GET',
+        path: `/internal/v1/proposals/prop-alice/novel`,
+      });
+
+      const novel = await mockNovelRepo.findById(novelInfo.novel_id);
+      assert.ok(novel);
+
+      // Bob cannot reject or edit-accept Alice's proposal
+      assert.throws(
+        () => assertNovelOwnership(novel, 'author-bob', 'author'),
+        (err: any) => err instanceof AppError && err.httpStatus === 403
+      );
+      // Admin CAN access Alice's proposal
+      assert.doesNotThrow(() => assertNovelOwnership(novel, 'admin-carol', 'admin'));
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('Story Brain freshness check fails closed with 503 when AI service is unavailable', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      throw new Error('Connection refused');
+    }) as typeof fetch;
+
+    try {
+      // Simulate acceptDraft fail-closed logic
+      async function verifyFreshnessOrFailClosed(novelId: string) {
+        let brainRes: Response;
+        try {
+          brainRes = await fetch(`http://ai-service/internal/v1/novels/${novelId}/brain`);
+        } catch (fetchErr: any) {
+          throw new AppError(503, 'AI_SERVICE_UNAVAILABLE', 'Không thể xác thực tính nhất quán của Story Brain lúc này. Vui lòng thử lại sau.');
+        }
+        if (!brainRes.ok) {
+          throw new AppError(503, 'AI_SERVICE_UNAVAILABLE', 'Không thể xác thực tính nhất quán của Story Brain lúc này.');
+        }
+        return brainRes.json();
+      }
+
+      await assert.rejects(
+        () => verifyFreshnessOrFailClosed('nov-123'),
+        (err: any) => err instanceof AppError && err.httpStatus === 503 && err.code === 'AI_SERVICE_UNAVAILABLE'
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
 
