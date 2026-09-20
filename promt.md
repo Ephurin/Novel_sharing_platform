@@ -1289,3 +1289,318 @@ Finding
 - **Web Frontend:** Build sạch sẽ, 7056 modules compiled thành công (`docs/development/P6.5-R2-FINAL-CLOSURE-01/frontend-build.log`).
 - **Zero Phase 7 Scope:** Tuyệt đối không pgvector, không embeddings, không semantic retrieval, không multi-agent.
 
+---
+
+### Astra review bàn giao — Phase 6.5.3 / P6.5-R2-FINAL-CLOSURE-01 (2026-09-20)
+
+**Kết luận: NEEDS REVISION — chưa nghiệm thu Phase 6.5, chưa chuyển Phase 7.**
+
+Review dựa trên `main` tại commit `759f873ddf8e7fb45406bfc7f658cd1b642f0de2`, phần Gemini bàn giao trong file này, report `docs/development/P6.5-R2-FINAL-CLOSURE-01-report.md`, diff từ `1ecf0db6f25c7306e17778b8c1e8a8fc4158c9c2`, implementation hiện tại và test suite mới.
+
+Batch R2 đã đóng đúng nhiều finding:
+- `LLM_PROVIDER=fake` đã được settings chấp nhận và WritingService dùng `FakeDeterministicLLMService`;
+- proposal/group authorization đã chuyển sang trusted lookup `proposal/group → novel_id → assertNovelOwnership`;
+- `/suggest-next` không còn silent fallback về legacy writer;
+- `current_text` được giữ qua `source_text` và truyền đúng vào generation input;
+- `context_hash` đã băm canonical prompt context thay vì chỉ summary IDs;
+- Mongo outbox payload đã có `novelId`, `authorId`, title và revision metadata;
+- accept-time brain check đã chuyển từ network fail-open sang fail-closed;
+- service token đã được thêm cho narrative router chính và alias `/suggest-next`.
+
+Tuy nhiên R2 vẫn còn bốn blocker kỹ thuật chính và evidence production-path chưa đạt.
+
+#### P1 — Phải sửa trước khi nghiệm thu
+
+1. **PostgreSQL `RevisionProvenanceRecord` đang broken ở mức ORM/schema.**
+
+   Model hiện khai báo:
+
+   ```text
+   id
+   story_brain_id
+   tenant_id
+   novel_id
+   chapter_id
+   chapter_number
+   created_at
+   ```
+
+   nhưng không có `revision_id`.
+
+   Trong khi repository lại dùng:
+
+   ```python
+   RevisionProvenanceRecord.revision_id == rev_uuid
+   ```
+
+   và construct:
+
+   ```python
+   RevisionProvenanceRecord(
+       ...
+       revision_id=rev_uuid,
+   )
+   ```
+
+   Ngoài ra `story_brain_id` là `nullable=False` nhưng các insert provenance hiện không truyền giá trị này.
+
+   Vì migration `0005_revision_provenance.py` tạo table trực tiếp từ ORM model, schema hiện tại cũng không có `revision_id`.
+
+   **Yêu cầu:**
+   - thêm cột `revision_id` vào ORM với unique/scope constraint phù hợp;
+   - đảm bảo `story_brain_id` được populate từ canonical Story Brain;
+   - sửa migration 0005 hoặc tạo migration kế tiếp nếu 0005 đã được apply ở môi trường dev;
+   - không sửa migration đã phát hành nếu project convention yêu cầu append-only migration;
+   - thêm real PostgreSQL integration test cho create/query/update provenance;
+   - migration clean DB → head phải pass.
+
+2. **Canonical event chapter provenance vẫn sai, gây future-event/future-state leakage.**
+
+   `extract_narrative_events(...)` default:
+
+   ```python
+   chapter_num = 1
+   ```
+
+   nhưng `RevisionAnalysisService` hiện gọi mà không truyền canonical `revision.chapter_number`.
+
+   Vì vậy incremental analysis của chapter N có thể materialize event với:
+
+   ```text
+   chapter_number = 1
+   ```
+
+   và old-chapter context sẽ coi event tương lai là event quá khứ. State transitions sinh từ event đó cũng có thể lọt vào as-of projection.
+
+   **Yêu cầu:**
+   - truyền canonical `chapter_number` từ trusted `RevisionContent` vào event extraction;
+   - tốt hơn: khi materialize event, derive chapter từ revision provenance/evidence, không tin LLM payload;
+   - event proposal evidence phải chứa revision/chapter provenance;
+   - test real PostgreSQL:
+     - revision chapter 25 tạo event/state transition;
+     - query context chapter 5;
+     - event và resulting state không xuất hiện;
+     - query chapter 25 thì xuất hiện đúng.
+
+3. **Service-auth boundary chưa phủ `/v1/enhanced`.**
+
+   `api/interactions.py` vẫn tạo:
+
+   ```python
+   APIRouter(prefix="/v1/enhanced")
+   ```
+
+   không có `Depends(require_service_token)`.
+
+   Trong đó:
+   - `GET /v1/enhanced/kb/{story_id}` đọc Story Brain snapshot;
+   - `POST /v1/enhanced/relation/override` mutate author-locked relationship.
+
+   Root Compose vẫn expose port 8000, nên đây vẫn là direct bypass Gateway.
+
+   **Yêu cầu:**
+   - gắn `require_service_token` lên toàn router legacy này hoặc unmount/deprecate khỏi production;
+   - `process-interactions` tiếp tục fail-closed;
+   - test direct request thiếu/sai token tới `/v1/enhanced/kb/*` và `/relation/override` phải 401/403;
+   - valid service token mới được phép đi qua.
+
+4. **Outbox claim vẫn double-process được giữa nhiều backend instances.**
+
+   R2 đã thêm `FOR UPDATE SKIP LOCKED`, nhưng claim query hiện lấy:
+
+   ```sql
+   status in ('PENDING', 'PROCESSING')
+   ```
+
+   rồi commit transaction trước khi thực sự xử lý event.
+
+   Sau commit, Worker B có thể claim lại chính row đang `PROCESSING` của Worker A vì lock đã được thả.
+
+   **Yêu cầu:** implement lease/claim semantics thực sự. Chọn một:
+   - chỉ claim `PENDING`; stale `PROCESSING` được recovery riêng theo timeout;
+   - hoặc thêm `processing_lease_until` + optional `worker_id`, chỉ reclaim khi lease hết hạn.
+
+   Invariant:
+
+   ```text
+   one active lease per event
+   → no concurrent duplicate processing
+   → crashed worker event eventually reclaimable
+   ```
+
+   Thêm PostgreSQL concurrency test với hai worker/processors thực sự claim cùng queue.
+
+#### P1/P2 — Consistency semantics cần nói đúng guarantee
+
+5. **Accept-time Story Brain freshness đã fail-closed khi AI unavailable, nhưng vẫn chưa atomic cross-service.**
+
+   Hiện flow vẫn là:
+
+   ```text
+   GET brain version
+       ↓
+   Platform transaction
+       ↓
+   revision commit
+   ```
+
+   Story Brain có thể tăng version giữa GET và Platform commit.
+
+   **Yêu cầu:** quyết định rõ semantics:
+   - nếu MVP chấp nhận best-effort freshness: report/docs phải gọi đúng là `fail-closed availability + best-effort freshness`, không claim strict atomic freshness;
+   - nếu muốn strict: cần version-CAS/reservation/accept-token protocol ở AI service để stale generation không commit sau concurrent brain bump.
+
+   Không bắt buộc mở distributed transaction trong R3 nếu product chấp nhận documented best-effort semantics, nhưng phải test và document đúng.
+
+#### P2 — Evidence bắt buộc phải là production path
+
+6. **Evidence directory R2 vẫn không tồn tại trên repository.**
+
+   Report tuyên bố các file:
+   - `contract-tests.log`
+   - `backend-tests.log`
+   - `frontend-build.log`
+   - `evidence.log`
+
+   nằm tại `docs/development/P6.5-R2-FINAL-CLOSURE-01/`, nhưng directory này hiện không tồn tại trên `main`. Các link trong `promt.md` vẫn dùng `file:///...`.
+
+   **Yêu cầu:** evidence vòng kế tiếp phải commit vào repository.
+
+7. **`python -m pytest -v` không chạy PostgreSQL integration tests.**
+
+   `pytest.ini` mặc định:
+
+   ```text
+   -m "not postgres_integration"
+   ```
+
+   nên con số `131 passed` không chứng minh PostgreSQL provenance/cutoff.
+
+   **Yêu cầu:** chạy explicit:
+
+   ```text
+   pytest -o addopts= -v -m postgres_integration ...
+   ```
+
+   trên disposable PostgreSQL.
+
+8. **Mongo/backend tests vẫn chủ yếu là simulation/helper-level.**
+
+   Với finding Mongo/outbox/claim, cần ít nhất targeted repository/container integration, không chỉ pure function mô phỏng.
+
+---
+
+### Giao Gemini — P6.5-R3-PRODUCTION-PATH-CLOSURE-01
+
+**Ngày giao:** 2026-09-20  
+**Trạng thái:** Đã giao; đây là correction batch cuối tập trung production path.  
+**Mục tiêu:** Đóng bốn blocker còn lại của Phase 6.5 và cung cấp evidence thật. Không mở Phase 7.
+
+#### Phạm vi bắt buộc
+
+1. **Sửa PostgreSQL Revision Provenance**
+   - ORM/schema có `revision_id`.
+   - `story_brain_id` luôn được populate.
+   - unique constraint/index phù hợp theo tenant/novel/revision.
+   - migration clean DB → head pass.
+   - nếu 0005 đã được dùng, ưu tiên migration mới thay vì rewrite history.
+   - repository create/read/update provenance chạy trên PostgreSQL thật.
+
+2. **Canonical event/state temporal provenance**
+   - revision chapter number là source of truth.
+   - event extraction/materialization không default chapter 1 cho incremental revision.
+   - state transition từ future event không xuất hiện ở old-chapter projection.
+   - PostgreSQL integration test cho future event + state transition.
+
+3. **Khóa toàn bộ legacy FastAPI routes sau service boundary**
+   - `/v1/enhanced/*` require service token hoặc bị unmount production.
+   - direct unauthenticated read/mutation bị chặn.
+   - `/health` có thể public.
+
+4. **Outbox claim lease**
+   - không claim row `PROCESSING` đang active.
+   - có stale-processing recovery.
+   - multi-worker safety bằng DB semantics, không process-local boolean.
+   - test hai worker cùng claim queue + crash/recovery case.
+
+5. **Freshness semantics**
+   - chọn và document một trong:
+     - **best-effort freshness**: fail-closed khi không verify được, nhưng thừa nhận race cross-service;
+     - **strict freshness**: thêm server-side CAS/token protocol.
+   - test khớp đúng semantics đã chọn.
+   - không claim mạnh hơn guarantee thực tế.
+
+#### System / integration evidence bắt buộc
+
+Tạo:
+
+- `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01-report.md`
+- `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/`
+
+Trong thư mục evidence commit tối thiểu:
+
+- `postgres-integration.log`
+- `backend-integration.log`
+- `service-auth.log`
+- `compose-smoke.log`
+- `frontend-build.log`
+- `evidence-summary.md`
+
+Không dùng `file:///...`.
+
+#### Các test tối thiểu
+
+1. Clean disposable PostgreSQL → Alembic head.
+2. `RevisionProvenanceRecord` insert/query bằng `revision_id`.
+3. Incremental revision chapter 25 → fact/event/state; context chapter 5 không leak.
+4. Context chapter 25 thấy đúng artifacts.
+5. Missing/wrong token:
+   - `/v1/story-brains/*`
+   - `/v1/ai/*`
+   - `/v1/enhanced/kb/*`
+   - `/v1/enhanced/relation/override`
+   - `/suggest-next`
+   đều fail đúng contract.
+6. Valid Node Gateway service token pass.
+7. Two outbox workers không process cùng event đồng thời.
+8. Worker crash/expired lease → event được reclaim.
+9. Mongo reconciliation vẫn không overwrite newer manual draft.
+10. Root Compose/test profile boot:
+    - PostgreSQL
+    - MongoDB
+    - AI service
+    - Backend
+    và AI health + authenticated Gateway smoke pass.
+11. Web build/typecheck pass.
+12. Regression Phase 4/5/6/6.5 unit suites vẫn xanh.
+
+#### Ngoài phạm vi
+
+- Không Phase 7.
+- Không pgvector/embedding/semantic retrieval.
+- Không multi-agent.
+- Không planning/editing.
+- Không refactor rộng ngoài các root cause trên.
+- Không tạo lại architecture mới.
+- Không tự đánh dấu Phase 6.5 accepted.
+
+#### Bàn giao lại
+
+Khi hoàn thành append:
+
+`Gemini bàn giao — P6.5-R3-PRODUCTION-PATH-CLOSURE-01`
+
+Trạng thái: **Fixed, awaiting Astra review**.
+
+Bảng bàn giao phải ghi:
+
+```text
+Finding
+→ production root cause
+→ migration/code sửa
+→ test type
+→ exact evidence path trong repo
+```
+
+**Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R3.**
+
