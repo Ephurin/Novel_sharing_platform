@@ -93,10 +93,30 @@ def require_service_token(
     x_service_token: str | None = Header(None, alias="X-Service-Token"),
     x_internal_service_key: str | None = Header(None, alias="X-Internal-Service-Key"),
 ) -> None:
-    settings = getattr(request.app.state, "settings", None)
+    get_s = getattr(request.app, "dependency_overrides", {}).get(get_settings, get_settings)
+    if callable(get_s):
+        try:
+            settings = get_s(request)
+        except TypeError:
+            settings = get_s()
+    else:
+        settings = getattr(request.app.state, "settings", None)
+    if settings is None:
+        try:
+            from core.settings import Settings
+            settings = Settings.from_env()
+        except Exception:
+            settings = None
+    service_auth_disabled = getattr(settings, "service_auth_disabled", False) if settings else False
+    if service_auth_disabled:
+        return
+
     expected_token = getattr(settings, "platform_service_token", "") if settings else ""
     if not expected_token:
-        return
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "SERVICE_AUTH_NOT_CONFIGURED", "message": "Service authentication is not configured on AI Service"},
+        )
     token = None
     if authorization and authorization.startswith("Bearer "):
         token = authorization[7:].strip()

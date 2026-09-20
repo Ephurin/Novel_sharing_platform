@@ -670,3 +670,74 @@ def test_chapter_25_event_and_state_isolation_from_chapter_5(repo):
         f"Missing state: State transition health=65 not reflected in Chapter 25: {tieu_viem_ch25_state}"
     )
 
+
+# =========================================================================
+# 8. Migration Compatibility & NOT NULL Constraint Assertions (Blocker 1)
+# =========================================================================
+def test_alembic_head_schema_has_revision_id_not_null_and_unique_constraint(pg_engine):
+    """Assert final head schema has revision_id NOT NULL and unique constraint."""
+    inspector = inspect(pg_engine)
+    columns = {col["name"]: col for col in inspector.get_columns("revision_provenances", schema=SCHEMA)}
+    assert "revision_id" in columns, "revision_id column missing from revision_provenances"
+    assert columns["revision_id"]["nullable"] is False, "revision_id column must be NOT NULL"
+
+    constraints = inspector.get_unique_constraints("revision_provenances", schema=SCHEMA)
+    uq_names = {c["name"]: set(c["column_names"]) for c in constraints}
+    assert "uq_rev_provenance_revision" in uq_names, "uq_rev_provenance_revision unique constraint missing"
+    assert uq_names["uq_rev_provenance_revision"] == {"tenant_id", "novel_id", "revision_id"}
+
+
+def test_migration_upgrade_from_legacy_0005_schema(pg_engine):
+    """
+    Simulate upgrade path from legacy 0005 table (no revision_id), apply 0006,
+    and verify backfill, NOT NULL enforcement, and unique constraint.
+    """
+    url = get_postgres_url()
+    alembic_cfg = Config(str(SERVICE_ROOT / "alembic.ini"))
+    alembic_cfg.set_main_option("script_location", str(SERVICE_ROOT / "migrations"))
+    alembic_cfg.set_main_option("sqlalchemy.url", url)
+
+    # 1. Downgrade to 0005
+    command.downgrade(alembic_cfg, "0005_revision_provenance")
+    inspector = inspect(pg_engine)
+    cols_0005 = {c["name"] for c in inspector.get_columns("revision_provenances", schema=SCHEMA)}
+    assert "revision_id" not in cols_0005, "0005 schema must not contain revision_id"
+
+    # 2. Insert a legacy row into story_brains and revision_provenances without revision_id
+    test_tenant = uuid.uuid4()
+    test_novel = uuid.uuid4()
+    test_brain = uuid.uuid4()
+    test_prov_id = uuid.uuid4()
+    test_chap_id = uuid.uuid4()
+
+    with pg_engine.begin() as conn:
+        conn.execute(
+            text(
+                f"INSERT INTO {SCHEMA}.story_brains (id, tenant_id, novel_id, status, brain_version, schema_version) "
+                f"VALUES ('{test_brain}', '{test_tenant}', '{test_novel}', 'active', 1, 1)"
+            )
+        )
+        conn.execute(
+            text(
+                f"INSERT INTO {SCHEMA}.revision_provenances (id, story_brain_id, tenant_id, novel_id, chapter_id, chapter_number) "
+                f"VALUES ('{test_prov_id}', '{test_brain}', '{test_tenant}', '{test_novel}', '{test_chap_id}', 7)"
+            )
+        )
+
+    # 3. Upgrade to head (applies 0006)
+    command.upgrade(alembic_cfg, "head")
+
+    # 4. Verify columns and legacy row backfill
+    inspector = inspect(pg_engine)
+    cols_head = {c["name"]: c for c in inspector.get_columns("revision_provenances", schema=SCHEMA)}
+    assert "revision_id" in cols_head
+    assert cols_head["revision_id"]["nullable"] is False
+
+    with pg_engine.connect() as conn:
+        row = conn.execute(
+            text(f"SELECT revision_id, chapter_number FROM {SCHEMA}.revision_provenances WHERE id = '{test_prov_id}'")
+        ).fetchone()
+        assert row is not None
+        assert row[0] is not None, "Legacy row revision_id must be backfilled"
+        assert row[1] == 7
+

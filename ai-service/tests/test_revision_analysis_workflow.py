@@ -32,6 +32,7 @@ class RevisionAnalysisWorkflowTests(unittest.TestCase):
             chapter_id="chapter-1",
             content=self.content,
             content_hash=self.content_hash,
+            chapter_number=1,
         )
         self.repository = InMemoryNarrativeRepository()
         self.llm = SequenceLLMService(

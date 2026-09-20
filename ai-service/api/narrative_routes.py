@@ -515,26 +515,8 @@ def create_writing_generation(
 @internal_router.get("/writing/generations/{generation_id}")
 def get_internal_writing_generation(
     generation_id: str,
-    authorization: str | None = Header(None),
-    x_service_token: str | None = Header(None, alias="X-Service-Token"),
-    x_internal_service_key: str | None = Header(None, alias="X-Internal-Service-Key"),
     service: WritingService = Depends(get_writing_service),
-    settings=Depends(get_settings),
 ):
-    expected_token = getattr(settings, "platform_service_token", "") if settings else ""
-    if expected_token:
-        token = None
-        if authorization and authorization.startswith("Bearer "):
-            token = authorization[7:].strip()
-        elif x_service_token:
-            token = x_service_token.strip()
-        elif x_internal_service_key:
-            token = x_internal_service_key.strip()
-        if not token:
-            raise HTTPException(401, detail={"code": "SERVICE_AUTH_REQUIRED", "message": "Service token required"})
-        if token != expected_token:
-            raise HTTPException(403, detail={"code": "SERVICE_AUTH_INVALID", "message": "Invalid service token"})
-
     try:
         job = service._repository.get_writing_job(generation_id)
     except Exception as exc:

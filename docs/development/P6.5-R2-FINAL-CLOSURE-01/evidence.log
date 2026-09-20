@@ -1,0 +1,56 @@
+================================================================================
+EPHURIN NOVEL SHARING PLATFORM — P6.5-R2-FINAL-CLOSURE-01 EVIDENCE LOG
+Timestamp: 2026-09-20T12:05:00+07:00
+Environment: Windows, Python 3.12.10, Node.js v20+, Vite 6, PostgreSQL 16
+Status: Fixed, awaiting Astra review
+================================================================================
+
+1. FINDING-BY-FINDING VERIFICATION MATRIX
+
+| Finding # | Category | Description | Verification Status | Concrete Test / Evidence Reference |
+|---|---|---|---|---|
+| P1-1 | Setting / Config | Fake Provider Config Trap: LLM_PROVIDER="fake" validation error | RESOLVED | Added "fake" to supported providers in core/settings.py. Created core/fake_llm.py with FakeDeterministicLLMService. Verified via test_finding1_fake_llm_service_and_settings. |
+| P1-2 | Security / IDOR | Proposal / Group IDOR in Node AI Gateway | RESOLVED | Added /internal/v1/proposals/:id/novel and /internal/v1/proposal-groups/:id/novel. Node Gateway resolves novelId and runs assertNovelOwnership. Verified via Node tests 7 & 8 (403 Forbidden on cross-author access). |
+| P1-3 | Security / Auth | Python endpoints missing Service Token Auth | RESOLVED | Added require_service_token dependency to /v1 routes, /internal routes, and /suggest-next. /health left open. Verified via test_finding3_service_token_auth_enforcement (401 without token, 403 on invalid token, 200 on valid token). |
+| P1-4 | Reliability / Silent Fail | Silent Fallback loop in /suggest-next | RESOLVED | Removed silent try-catch falling back to narrative graph. Failures raise 500 SUGGEST_NEXT_FAILED. Verified via test_finding4_suggest_next_no_silent_fallback_on_error. |
+| P1-5 | Functional / Truncation | Selected Text Loss in /suggest-next | RESOLVED | Passed source_text=payload.current_text and selection=[0:len] into start_generation. Writing service extracts selected_text from job.selection. Verified via test_finding5_suggest_next_preserves_current_text. |
+| P1-6 | Functional / Cutoff | Temporal Cutoff for Incremental Revision Analysis | RESOLVED | Added RevisionProvenanceRecord and FactRecord.chapter_number. Ingested provenance in bootstrap and incremental revisions. Fact filter enforces f.chapter_number <= chapter_number. Verified via test_finding6_temporal_cutoff_incremental_revisions. |
+| P1-7 | Consistency / Freshness | Fail-Closed Story Brain Freshness Check in acceptDraft | RESOLVED | acceptDraft sends service token, throws 503 AI_SERVICE_UNAVAILABLE on service failure, throws 409 BRAIN_VERSION_CONFLICT on version advance. Verified via Node test 9. |
+| P1-8 | Consistency / Mongo | Missing novelId/authorId in Outbox Sync & Race Condition | RESOLVED | Outbox payloads now carry novelId, authorId, title, chapterNumber. Mongo repository handles E11000 duplicate key race gracefully. Verified via Node outbox test suite. |
+| P1-9 | Functional / Idempotency | Context Hash Granularity (Weak Hash) | RESOLVED | context_hash now hashes the full serialized prompt_context dict (entities, current_states, world_rules, recent_events) rather than just IDs. Verified via test_finding9_context_hash_reflects_content_changes. |
+| P2-10 | Architecture / Cleanliness | Duplicate / Dead Code in Repository | RESOLVED | Removed duplicate bootstrap and writing methods from postgres_narrative_repository.py. Code compiles cleanly with 0 syntax/lint errors. |
+| P2-11 | Testing / Coverage | Missing Negative Automated Test Coverage | RESOLVED | Added test_p65_r2_final.py (7 comprehensive tests) and backend test cases (cross-author IDOR, fail-closed brain freshness). |
+| P2-12 | Concurrency / Outbox | Outbox Concurrent Execution Safety | RESOLVED | Implemented claimPendingOutboxEvents with SELECT FOR UPDATE SKIP LOCKED. Claims rows atomically and sets status to PROCESSING. Verified via outbox processor integration. |
+
+================================================================================
+2. TEST SUITE EXECUTION SUMMARY
+
+A. AI-Service (Python / Pytest):
+   - Command: python -m pytest -v
+   - Total Collected: 141 items (8 deselected, 133 selected)
+   - Results: 131 passed, 2 skipped, 0 failed
+   - Duration: 4.71s
+   - Log File: docs/development/P6.5-R2-FINAL-CLOSURE-01/contract-tests.log
+
+B. Backend (Node.js / tsx test runner & TypeScript compiler):
+   - Commands: npm test & npm run typecheck
+   - Total Tests: 18 tests across 3 suites
+   - Results: 18 passed, 0 failed
+   - Typecheck: 0 TypeScript errors (tsc -p tsconfig.json --noEmit)
+   - Duration: ~1.2s
+   - Log File: docs/development/P6.5-R2-FINAL-CLOSURE-01/backend-tests.log
+
+C. Frontend (Vite / React):
+   - Command: npm run build
+   - Modules Transformed: 7056
+   - Result: Exit code 0, dist/ chunks successfully emitted
+   - Duration: 14.51s
+   - Log File: docs/development/P6.5-R2-FINAL-CLOSURE-01/frontend-build.log
+
+================================================================================
+3. ZERO PHASE 7 SCOPE CERTIFICATION
+   - pgvector: NONE (No vector extension, embeddings, or similarity operators introduced)
+   - Embedding models: NONE (No SentenceTransformers, OpenAI embeddings, or cosine index)
+   - Multi-agent workflows: NONE (Deterministic single-turn LLM and rules validation only)
+   - Semantic retrieval: NONE (Exact structured and relational lookup only)
+================================================================================

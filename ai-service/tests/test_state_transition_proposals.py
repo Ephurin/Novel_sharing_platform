@@ -32,7 +32,7 @@ def test_analysis_generates_reviewable_transitions_then_accepts_group():
         json.dumps({"events": [{"participants": ["Minh"], "event_type": "injury", "summary": content}]}),
         json.dumps({"transitions": [{"entity": "Minh", "attribute_key": "health", "new_value": 80, "confidence": 0.9}]})])
     service = RevisionAnalysisService(repo, InMemoryRevisionContentProvider([
-        RevisionContent(revision_id="r1", novel_id="n1", chapter_id="c1", content=content, content_hash=digest)]),
+        RevisionContent(revision_id="r1", novel_id="n1", chapter_id="c1", content=content, content_hash=digest, chapter_number=1)]),
         EntityPipeline("test", "test"), llm)
     kwargs = dict(tenant_id="t1", novel_id="n1", chapter_id="c1", revision_id="r1",
         content_hash=digest, operation="analysis", idempotency_key="key",

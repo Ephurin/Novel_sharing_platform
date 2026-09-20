@@ -1,0 +1,109 @@
+> ephurin-backend@0.1.0 test
+> tsx --test "src/**/*.test.ts"
+
+TAP version 13
+# Subtest: Node.js AI Gateway Service (P6.5 Hardening)
+    # Subtest: AIGatewayService forwards headers with tenant, user, and service token
+    ok 1 - AIGatewayService forwards headers with tenant, user, and service token
+      ---
+      duration_ms: 17.0765
+      ...
+    # Subtest: AIGatewayService builds query parameters correctly for context-preview
+    ok 2 - AIGatewayService builds query parameters correctly for context-preview
+      ---
+      duration_ms: 0.7804
+      ...
+    # Subtest: AIGatewayService propagates remote AI errors as AppError with correct status code
+    ok 3 - AIGatewayService propagates remote AI errors as AppError with correct status code
+      ---
+      duration_ms: 0.7495
+      ...
+    # Subtest: AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+    ok 4 - AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+      ---
+      duration_ms: 0.2971
+      ...
+    # Subtest: assertNovelOwnership enforces author access control with 403 FORBIDDEN
+    ok 5 - assertNovelOwnership enforces author access control with 403 FORBIDDEN
+      ---
+      duration_ms: 0.2307
+      ...
+    # Subtest: Canonical chapter cutoff derivation from DB record overrides client cutoff
+    ok 6 - Canonical chapter cutoff derivation from DB record overrides client cutoff
+      ---
+      duration_ms: 0.1061
+      ...
+    1..6
+ok 1 - Node.js AI Gateway Service (P6.5 Hardening)
+  ---
+  duration_ms: 20.0857
+  type: 'suite'
+  ...
+# Subtest: Chapter Revisions & Patch Application
+    # Subtest: applyPatchToContent correctly applies insertion at cursor
+    ok 1 - applyPatchToContent correctly applies insertion at cursor
+      ---
+      duration_ms: 0.8107
+      ...
+    # Subtest: applyPatchToContent correctly replaces selection range
+    ok 2 - applyPatchToContent correctly replaces selection range
+      ---
+      duration_ms: 0.145
+      ...
+    # Subtest: applyPatchToContent handles unicode code points without splitting multi-byte characters
+    ok 3 - applyPatchToContent handles unicode code points without splitting multi-byte characters
+      ---
+      duration_ms: 0.1137
+      ...
+    # Subtest: applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+    ok 4 - applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+      ---
+      duration_ms: 0.499
+      ...
+    # Subtest: applyPatchToContent allows valid boundary edge cases (0 to length)
+    ok 5 - applyPatchToContent allows valid boundary edge cases (0 to length)
+      ---
+      duration_ms: 0.1141
+      ...
+    1..5
+ok 2 - Chapter Revisions & Patch Application
+  ---
+  duration_ms: 2.7179
+  type: 'suite'
+  ...
+# Subtest: Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+    # Subtest: Exponential backoff for outbox retries is bounded by 300s
+    ok 1 - Exponential backoff for outbox retries is bounded by 300s
+      ---
+      duration_ms: 0.5808
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation preserves newer manual draft edits
+    ok 2 - Conditional MongoDB draft reconciliation preserves newer manual draft edits
+      ---
+      duration_ms: 0.2275
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation creates new draft if not found
+    ok 3 - Conditional MongoDB draft reconciliation creates new draft if not found
+      ---
+      duration_ms: 0.1524
+      ...
+    # Subtest: Accept-time brain version conflict rejects stale generation
+    ok 4 - Accept-time brain version conflict rejects stale generation
+      ---
+      duration_ms: 0.117
+      ...
+    1..4
+ok 3 - Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ---
+  duration_ms: 1.9578
+  type: 'suite'
+  ...
+1..3
+# tests 15
+# suites 3
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 632.341

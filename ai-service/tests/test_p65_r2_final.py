@@ -84,10 +84,12 @@ def test_env():
             orig_settings,
             llm_provider="fake",
             platform_service_token="test-secret-token",
+            service_auth_disabled=False,
         )
     else:
         os.environ["LLM_PROVIDER"] = "fake"
         os.environ["PLATFORM_SERVICE_TOKEN"] = "test-secret-token"
+        os.environ["SERVICE_AUTH_DISABLED"] = "false"
         app.state.settings = Settings.from_env()
 
     client = TestClient(app)
@@ -454,4 +456,120 @@ def test_p65_r3_service_auth_all_endpoints(test_env):
         },
     )
     assert res_prev_valid.status_code == 200
+
+
+def test_p65_r4_service_auth_unset_fails_closed(test_env):
+    """P6.5-R4 Finding 3: Protected routes fail-closed with 503 when PLATFORM_SERVICE_TOKEN is unset."""
+    client: TestClient = test_env["client"]
+    novel_id = test_env["novel_id"]
+    current_settings = app.state.settings
+
+    try:
+        # Case A: platform_service_token is unset and service_auth_disabled=False -> FAILS CLOSED with 503
+        app.state.settings = replace(
+            current_settings,
+            platform_service_token="",
+            service_auth_disabled=False,
+        )
+
+        res_suggest = client.post(
+            "/suggest-next",
+            json={"current_text": "Tiêu Viêm", "story_id": novel_id},
+        )
+        assert res_suggest.status_code == 503
+        assert res_suggest.json()["detail"]["code"] == "SERVICE_AUTH_NOT_CONFIGURED"
+
+        res_enhanced = client.get(f"/v1/enhanced/kb/{novel_id}")
+        assert res_enhanced.status_code == 503
+        assert res_enhanced.json()["detail"]["code"] == "SERVICE_AUTH_NOT_CONFIGURED"
+
+        # Even with a token sent, server is not configured -> 503
+        res_with_token = client.get(
+            f"/v1/enhanced/kb/{novel_id}",
+            headers={"Authorization": "Bearer some-token"},
+        )
+        assert res_with_token.status_code == 503
+        assert res_with_token.json()["detail"]["code"] == "SERVICE_AUTH_NOT_CONFIGURED"
+
+        # Case B: explicit dev flag service_auth_disabled=True -> allows bypass
+        app.state.settings = replace(
+            current_settings,
+            platform_service_token="",
+            service_auth_disabled=True,
+        )
+        res_bypassed = client.get(f"/v1/story-brains/by-novel/{novel_id}")
+        assert res_bypassed.status_code == 200
+
+    finally:
+        app.state.settings = current_settings
+
+
+def test_p65_r4_temporal_missing_provenance_fails_closed(test_env):
+    """P6.5-R4 Finding 4: Revisions missing canonical chapter_number fail closed and never default to chapter 1."""
+    from application.revision_analysis_service import RevisionAnalysisService
+    from services.entity_pipeline.pipeline import EntityPipeline
+
+    repo: InMemoryNarrativeRepository = test_env["repo"]
+    novel_id = test_env["novel_id"]
+    rev_missing_id = str(uuid.uuid4())
+    text_content = "Tiêu Viêm luyện chế đan dược."
+    content_hash = hashlib.sha256(text_content.encode("utf-8")).hexdigest()
+
+    # Provider returns revision with chapter_number=None
+    rev_missing = RevisionContent(
+        revision_id=rev_missing_id,
+        novel_id=novel_id,
+        chapter_id=test_env["chapter_id"],
+        content=text_content,
+        content_hash=content_hash,
+        chapter_number=None,
+    )
+    provider = InMemoryRevisionContentProvider([rev_missing])
+
+    analysis_service = RevisionAnalysisService(
+        repository=repo,
+        revision_provider=provider,
+        entity_pipeline=EntityPipeline(),
+        llm_service=test_env["fake_llm"],
+    )
+
+    # analyze MUST raise ValueError when chapter_number is None
+    with pytest.raises(ValueError, match="Canonical chapter_number is required"):
+        analysis_service.analyze(
+            tenant_id="00000000-0000-0000-0000-000000000001",
+            novel_id=novel_id,
+            chapter_id=test_env["chapter_id"],
+            revision_id=rev_missing_id,
+            content_hash=content_hash,
+            operation="incremental_story_analysis",
+            idempotency_key="missing-ch-test",
+            options={"extract_events": True, "extract_entities": True},
+        )
+
+    # Verify zero proposals were materialized
+    brain = repo.get_story_brain(novel_id)
+    assert not any(getattr(p, "revision_id", None) == rev_missing_id for p in brain.proposals)
+
+    # Acceptance of event proposal without chapter provenance must also raise ValueError
+    bad_event_prop = NarrativeProposal(
+        proposal_id=str(uuid.uuid4()),
+        proposal_type="event",
+        payload={
+            "event_id": str(uuid.uuid4()),
+            "event_type": "battle",
+            "summary": "Trận chiến không rõ chương",
+            "participants": [],
+        },
+        dependency_group_id=str(uuid.uuid4()),
+        evidence=(),
+        expected_brain_version=int(brain.metadata.get("brain_version", "1")),
+    )
+    repo.save_proposals(novel_id, [bad_event_prop])
+
+    with pytest.raises(ValueError, match="canonical chapter provenance"):
+        repo.accept_proposal_group(
+            story_id=novel_id,
+            proposal_ids=[bad_event_prop.proposal_id],
+            expected_brain_version=int(brain.metadata.get("brain_version", "1")),
+        )
 

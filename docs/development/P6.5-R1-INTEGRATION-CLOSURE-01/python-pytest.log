@@ -1,0 +1,18 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Laptop\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Laptop\OneDrive\Documents\testproject\ai-service
+configfile: pytest.ini
+plugins: anyio-4.13.0
+collecting ... collected 8 items
+
+tests/test_p65_hardening.py::P65IntegrationHardeningTests::test_deterministic_token_budget_preserves_locked_rules PASSED [ 12%]
+tests/test_p65_hardening.py::P65IntegrationHardeningTests::test_direct_interactions_write_locked PASSED [ 25%]
+tests/test_p65_hardening.py::P65IntegrationHardeningTests::test_stale_brain_version_rejection_at_execution PASSED [ 37%]
+tests/test_p65_hardening.py::P65IntegrationHardeningTests::test_suggest_next_deprecation_header PASSED [ 50%]
+tests/test_p65_hardening.py::P65IntegrationHardeningTests::test_temporal_cutoff_prevents_future_state_leak PASSED [ 62%]
+tests/test_p65_r1_temporal.py::P65R1TemporalHardeningTests::test_facts_filtered_by_chapter_cutoff PASSED [ 75%]
+tests/test_p65_r1_temporal.py::P65R1TemporalHardeningTests::test_fail_closed_on_projection_error PASSED [ 87%]
+tests/test_p65_r1_temporal.py::P65R1TemporalHardeningTests::test_suggest_next_delegates_to_writing_service PASSED [100%]
+
+======================== 8 passed, 4 warnings in 0.99s ========================

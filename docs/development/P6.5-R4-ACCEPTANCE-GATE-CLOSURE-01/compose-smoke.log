@@ -1,0 +1,156 @@
+$ docker-compose config
+(exit code: 0)
+
+name: testproject
+services:
+  ai-service:
+    build:
+      context: C:\Users\Laptop\OneDrive\Documents\testproject\ai-service
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: true
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ephurin
+      LLM_API_KEY: ""
+      LLM_BASE_URL: https://foreseeable-kaliyah-fleshier.ngrok-free.dev/v1
+      LLM_MODEL: qwen3:8b
+      LLM_PROVIDER: fake
+      NARRATIVE_REPOSITORY: postgres
+      PLATFORM_API_BASE_URL: http://backend:4000
+      PLATFORM_SERVICE_TOKEN: test-token
+      PORT: "8000"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -f http://localhost:8000/health || exit 1
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8000
+        published: "8000"
+        protocol: tcp
+  backend:
+    build:
+      context: C:\Users\Laptop\OneDrive\Documents\testproject
+      dockerfile: backend/Dockerfile
+    depends_on:
+      ai-service:
+        condition: service_healthy
+        required: true
+      mongodb:
+        condition: service_healthy
+        required: true
+      postgres:
+        condition: service_healthy
+        required: true
+    environment:
+      AI_LLM_API_KEY: ""
+      AI_LLM_BASE_URL: https://foreseeable-kaliyah-fleshier.ngrok-free.dev/v1
+      AI_LLM_MAX_TOKENS: "1000"
+      AI_LLM_MODEL: qwen3:8b
+      AI_LLM_TEMPERATURE: "0.7"
+      AI_LLM_TIMEOUT_MS: "120000"
+      AI_SERVICE_URL: http://ai-service:8000
+      API_PREFIX: /api/v1
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ephurin
+      DB_CONNECT_ON_START: "true"
+      JWT_ACCESS_EXPIRES_SECONDS: "3600"
+      JWT_ACCESS_SECRET: docker-demo-access-secret-change-me
+      JWT_REFRESH_EXPIRES_DAYS: "7"
+      JWT_REFRESH_SECRET: docker-demo-refresh-secret-change-me
+      MONGODB_URI: mongodb://mongodb:27017/ephurin
+      NODE_ENV: production
+      PLATFORM_SERVICE_TOKEN: test-token
+      PORT: "4000"
+      REFRESH_TOKEN_COOKIE_NAME: ephurin_refresh_token
+      RUN_DEMO_SEED: "true"
+      RUN_MIGRATIONS: "true"
+      WEB_ORIGIN: http://localhost:8080
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 4000
+        published: "4000"
+        protocol: tcp
+  mongodb:
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - db.adminCommand('ping').ok
+      timeout: 5s
+      interval: 10s
+      retries: 20
+    image: mongo:7
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 27017
+        published: "27017"
+        protocol: tcp
+    volumes:
+      - type: volume
+        source: mongodb_data
+        target: /data/db
+        volume: {}
+  postgres:
+    environment:
+      POSTGRES_DB: ephurin
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U postgres -d ephurin
+      timeout: 5s
+      interval: 5s
+      retries: 20
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5432"
+        protocol: tcp
+    volumes:
+      - type: volume
+        source: postgres_data
+        target: /var/lib/postgresql/data
+        volume: {}
+  web:
+    build:
+      context: C:\Users\Laptop\OneDrive\Documents\testproject
+      dockerfile: web/Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    depends_on:
+      backend:
+        condition: service_started
+        required: true
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "8080"
+        protocol: tcp
+networks:
+  default:
+    name: testproject_default
+volumes:
+  mongodb_data:
+    name: testproject_mongodb_data
+  postgres_data:
+    name: testproject_postgres_data

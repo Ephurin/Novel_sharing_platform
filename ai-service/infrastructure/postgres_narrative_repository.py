@@ -563,7 +563,7 @@ class PostgresNarrativeRepository:
                     if event_ch is None:
                         event_ch = payload.get("chapter_number") or payload.get("chapter")
                     if event_ch is None:
-                        event_ch = 1
+                        raise ValueError(f"Event proposal {external_id} lacks canonical chapter provenance")
 
                     event = EventRecord(
                         id=self._stable_uuid("event", str(payload.get("event_id") or external_id)),

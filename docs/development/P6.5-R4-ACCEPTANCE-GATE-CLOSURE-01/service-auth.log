@@ -1,0 +1,46 @@
+$ C:\Users\Laptop\AppData\Local\Programs\Python\Python312\python.exe -m pytest tests/test_p65_r2_final.py -k service_auth or service_token -v
+(exit code: 0)
+
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Laptop\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Laptop\OneDrive\Documents\testproject\ai-service
+configfile: pytest.ini
+plugins: anyio-4.13.0
+collecting ... collected 10 items / 7 deselected / 3 selected
+
+tests/test_p65_r2_final.py::test_finding3_service_token_auth_enforcement PASSED [ 33%]
+tests/test_p65_r2_final.py::test_p65_r3_service_auth_all_endpoints PASSED [ 66%]
+tests/test_p65_r2_final.py::test_p65_r4_service_auth_unset_fails_closed PASSED [100%]
+
+============================== warnings summary ===============================
+main.py:145
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:145: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+main.py:150
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:150: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 3 passed, 7 deselected, 4 warnings in 0.97s =================

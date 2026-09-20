@@ -20,6 +20,12 @@ def upgrade() -> None:
             f"ALTER TABLE {SCHEMA}.revision_provenances ADD COLUMN IF NOT EXISTS revision_id UUID"
         )
         op.execute(
+            f"UPDATE {SCHEMA}.revision_provenances SET revision_id = gen_random_uuid() WHERE revision_id IS NULL"
+        )
+        op.execute(
+            f"ALTER TABLE {SCHEMA}.revision_provenances ALTER COLUMN revision_id SET NOT NULL"
+        )
+        op.execute(
             f"""
             DO $$
             BEGIN
@@ -35,6 +41,9 @@ def upgrade() -> None:
         op.execute(
             f"CREATE INDEX IF NOT EXISTS ix_revision_provenances_revision_id ON {SCHEMA}.revision_provenances (revision_id)"
         )
+    else:
+        with op.batch_alter_table("revision_provenances") as batch_op:
+            batch_op.add_column(sa.Column("revision_id", sa.Uuid(), nullable=True))
 
 
 def downgrade() -> None:
@@ -44,5 +53,11 @@ def downgrade() -> None:
             f"ALTER TABLE {SCHEMA}.revision_provenances DROP CONSTRAINT IF EXISTS uq_rev_provenance_revision"
         )
         op.execute(
+            f"DROP INDEX IF EXISTS {SCHEMA}.ix_revision_provenances_revision_id"
+        )
+        op.execute(
             f"ALTER TABLE {SCHEMA}.revision_provenances DROP COLUMN IF EXISTS revision_id"
         )
+    else:
+        with op.batch_alter_table("revision_provenances") as batch_op:
+            batch_op.drop_column("revision_id")

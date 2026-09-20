@@ -26,5 +26,12 @@ def downgrade() -> None:
 
 
 def _tables():
-    excluded = {"event_participants", "state_transitions", "current_entity_states", "bootstrap_jobs", "writing_generations"}
+    excluded = {
+        "event_participants",
+        "state_transitions",
+        "current_entity_states",
+        "bootstrap_jobs",
+        "writing_generations",
+        "revision_provenances",
+    }
     return [t for t in Base.metadata.sorted_tables if t.name not in excluded]

@@ -255,7 +255,7 @@ class InMemoryNarrativeRepository:
                 if event_ch is None:
                     event_ch = payload.get("chapter_number") or payload.get("chapter")
                 if event_ch is None:
-                    event_ch = 1
+                    raise ValueError(f"Event proposal {proposal.proposal_id} lacks canonical chapter provenance")
                 events.append(
                     NarrativeEvent(
                         event_id=event_id,

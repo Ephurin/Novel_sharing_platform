@@ -85,7 +85,13 @@ class RevisionAnalysisService:
         brain_version = int(brain.metadata.get("brain_version", "1"))
         group_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"proposal-group:{run.run_id}"))
         chapter_number = getattr(revision, "chapter_number", None)
-        if hasattr(self._repository, "record_revision_provenance") and chapter_number is not None:
+        if chapter_number is None and hasattr(self._repository, "get_revision_provenance"):
+            prov = self._repository.get_revision_provenance(novel_id, revision_id)
+            if prov:
+                chapter_number = prov.get("chapter_number")
+        if chapter_number is None:
+            raise ValueError(f"Canonical chapter_number is required for revision analysis of revision {revision_id}")
+        if hasattr(self._repository, "record_revision_provenance"):
             self._repository.record_revision_provenance(
                 story_id=novel_id,
                 chapter_id=chapter_id,
@@ -174,15 +180,15 @@ class RevisionAnalysisService:
                 revision.content,
                 approved_entities,
                 self._llm_service,
-                chapter_num=chapter_number if chapter_number is not None else 1,
+                chapter_num=chapter_number,
             )
             for index, event in enumerate(events, start=len(proposals)):
                 payload = {
                     "event_type": event.event_type,
                     "participants": event.participants,
                     "summary": event.summary,
-                    "chapter": chapter_number if chapter_number is not None else event.chapter,
-                    "chapter_number": chapter_number if chapter_number is not None else event.chapter,
+                    "chapter": chapter_number,
+                    "chapter_number": chapter_number,
                     "locations": event.locations,
                     "consequences": event.consequences,
                 }

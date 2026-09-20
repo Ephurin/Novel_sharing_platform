@@ -48,6 +48,7 @@ class Settings:
     cors_origins: tuple[str, ...]
     pipeline_version: str
     entity_prompt_version: str
+    service_auth_disabled: bool = False
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -102,4 +103,5 @@ class Settings:
             ),
             pipeline_version=(os.getenv("ENTITY_PIPELINE_VERSION", "entity-v1") or "").strip(),
             entity_prompt_version=(os.getenv("ENTITY_PROMPT_VERSION", "entity-extraction-v1") or "").strip(),
+            service_auth_disabled=_env_bool("SERVICE_AUTH_DISABLED", False),
         )

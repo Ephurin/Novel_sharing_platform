@@ -43,6 +43,7 @@ class RevisionAnalysisRouteTests(unittest.TestCase):
             chapter_id="chapter-route",
             content=content,
             content_hash=self.content_hash,
+            chapter_number=1,
         )
         repository = InMemoryNarrativeRepository()
         self.repository = repository

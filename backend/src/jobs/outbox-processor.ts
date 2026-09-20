@@ -45,12 +45,12 @@ export async function processOutboxOnce(limit: number = 10): Promise<{
       processed++;
       try {
         await handleOutboxEvent(event);
-        await markOutboxEventCompleted(undefined, event.eventId);
+        await markOutboxEventCompleted(undefined, event.eventId, event.claimToken);
         succeeded++;
       } catch (err: any) {
         failed++;
         const backoffSeconds = Math.min(300, Math.pow(2, event.retryCount + 1) * 5);
-        await markOutboxEventFailed(undefined, event.eventId, err?.message || String(err), backoffSeconds);
+        await markOutboxEventFailed(undefined, event.eventId, err?.message || String(err), backoffSeconds, event.claimToken);
         console.warn(
           `[OutboxProcessor] Event ${event.eventId} (${event.eventType}) failed (attempt ${event.retryCount + 1}):`,
           err?.message || err

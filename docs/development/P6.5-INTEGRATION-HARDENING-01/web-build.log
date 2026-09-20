@@ -1,0 +1,18 @@
+> ephurin-web@0.1.0 typecheck
+> tsc -b --noEmit
+
+Exit code: 0
+
+> ephurin-web@0.1.0 build
+> vite build
+
+vite v6.4.1 building for production...
+transforming...
+✓ 7056 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.42 kB │ gzip:   0.28 kB
+dist/assets/index-BiX0OAsX.css  204.02 kB │ gzip:  30.03 kB
+dist/assets/index-DmR8_aCg.js   754.71 kB │ gzip: 229.66 kB
+✓ built in 9.88s
+Exit code: 0

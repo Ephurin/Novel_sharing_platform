@@ -1845,3 +1845,22 @@ Acceptance blocker
 
 **Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R4.**
 
+---
+
+### Gemini bàn giao — P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01
+
+Trạng thái: **Fixed, awaiting Astra review**
+
+#### Bảng Bàn Giao Kỹ Thuật
+
+| Acceptance Blocker | Code / Migration Fix | Real Test Type | Exact Evidence Path |
+| :--- | :--- | :--- | :--- |
+| **1. Migration compatibility & schema invariant**: Alembic 0005 model coupling gãy và thiếu `revision_id NOT NULL` & `uq_rev_provenance_revision` | - Decouple `0005_revision_provenance.py` khỏi model động, dùng DDL tĩnh.<br>- Viết migration `0006_fix_revision_provenance.py`: thêm `revision_id UUID`, backfill UUID, set `NOT NULL`, thêm `uq_rev_provenance_revision` & index.<br>- Loại trừ `revision_provenances` khỏi SQLite 0001 auto-create. | PostgreSQL Integration Test (Real Database):<br>- `test_migration_upgrade_from_legacy_0005_schema`<br>- `test_alembic_head_schema_has_revision_id_not_null_and_unique_constraint` | `docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/postgres-integration.log`<br>`docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/postgres-integration.txt` |
+| **2. Outbox Lease Fencing**: Worker chạy chậm/crash tỉnh lại sau lease expiry có thể hoàn tất sự kiện đã được worker mới claim | - Tạo migration `011_outbox_claim_token.sql` thêm `claim_token UUID` & index.<br>- Cập nhật `claimPendingOutboxEvents` sinh `claim_token = gen_random_uuid()` nguyên tử.<br>- Cập nhật `markOutboxEventCompleted` và `markOutboxEventFailed` lọc theo `claim_token` (stale worker finalize ảnh hưởng 0 rows). | PostgreSQL Concurrency Test (Real Multi-Worker):<br>- `outbox.postgres.test.ts` (2 workers đồng thời claim queue; lease expiry + stale worker hoàn tất an toàn) | `docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/backend-integration.log`<br>`docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/backend-integration.txt` |
+| **3. Service-auth Fail-Closed Boundary**: Khi `PLATFORM_SERVICE_TOKEN` chưa cấu hình, request có thể bị lọt hoặc hành xử thiếu an toàn | - Cấu hình `service_auth_disabled` trong `Settings`.<br>- `require_service_token` trả về HTTP 503 `SERVICE_AUTH_NOT_CONFIGURED` khi thiếu token trừ khi dev flag `service_auth_disabled=True`.<br>- Bảo vệ toàn diện `internal_narrative_router`, `/v1/ai`, `/v1/enhanced`, và `/suggest-next`. | FastAPI Route & Security Integration Test:<br>- `test_p65_r4_service_auth_unset_fails_closed`<br>- `test_finding3_service_token_auth_enforcement`<br>- `test_p65_r3_service_auth_all_endpoints` | `docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/service-auth.log`<br>`docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/service-auth.txt` |
+| **4. Temporal Missing-Provenance Fail-Closed**: Revision thiếu `chapter_number` có nguy cơ ngầm định chapter 1 gây sai lệch dòng thời gian | - `RevisionAnalysisService.analyze` bắt buộc `chapter_number` chính tắc (từ revision hoặc bảng xuất xứ), ném `ValueError` fail-closed nếu thiếu.<br>- Repository từ chối đề xuất sự kiện thiếu xuất xứ chương trong `accept_proposal_group`.<br>- `propose_event_correction` tự động bảo toàn `orig_chapter` của sự kiện gốc. | Core Temporal & Pipeline Integration Test:<br>- `test_p65_r4_temporal_missing_provenance_fails_closed`<br>- Toàn bộ 134 bài kiểm thử `ai-service` đạt 100% green | `docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/evidence-summary.md`<br>`docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01-report.md` |
+| **5. Committed Evidence & Clean Scope**: `.gitignore` loại trừ tệp log, thiếu chứng cứ thực thi tất định có thể theo dõi | - Cập nhật `.gitignore` mở quy tắc `!docs/development/**/*.log` và `!docs/development/**/*.txt`.<br>- Ghi nhận toàn bộ kết quả thực thi thật dạng UTF-8 vào thư mục chứng cứ.<br>- Tạo báo cáo kỹ thuật đóng cổng `P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01-report.md`.<br>- Nghiêm ngặt giữ 0% scope Phase 7, không commit/push git, để thay đổi unstaged cục bộ. | Production Build & Topology Verification:<br>- `docker-compose config`<br>- `web`: `tsc -b` + `vite build`<br>- `backend`: `tsc` + 22 unit/integration tests pass | `docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/compose-smoke.log`<br>`docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/compose-smoke.txt`<br>`docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/frontend-build.log`<br>`docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/frontend-build.txt` |
+
+**Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R4.**
+
+

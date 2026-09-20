@@ -1,0 +1,43 @@
+=================================================================
+PRODUCTION PATH SMOKE VERIFICATION — P6.5-R3-PRODUCTION-PATH-CLOSURE-01
+Timestamp: 2026-09-20T10:32:02Z
+=================================================================
+
+[1/5] Verifying PostgreSQL application database:
+  [OK] PostgreSQL Server: PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35227, 64-bit
+  [OK] Alembic Head Revision: 0006_fix_revision_provenance
+
+[2/5] Verifying MongoDB database:
+  [OK] MongoDB Server: TCP socket connection succeeded on localhost:27017
+
+[3/5] Verifying AI Service Application & Boundaries:
+  [OK] Public Health Check: GET /health -> HTTP 200 {'status': 'ok'}
+  [OK] Unauthenticated Access Blocked: GET /v1/enhanced/kb/test-story -> HTTP 401 SERVICE_AUTH_REQUIRED
+  [OK] Invalid Service Token Rejected: GET /v1/enhanced/kb/test-story -> HTTP 403 SERVICE_AUTH_INVALID
+  [OK] Valid Service Token Accepted: GET /v1/enhanced/kb/test-story -> HTTP 200/404 (Auth Passed)
+  [OK] Authenticated Suggest-Next: POST /suggest-next -> HTTP 200, keys: ['character_name', 'graph_context', 'suggestions', 'validations', 'attempts', 'regenerated', 'status', 'processing_ms']
+
+[4/5] Verifying Outbox Lease Invariants & Concurrency Safety:
+  [OK] Lease claim query enforces status = 'PENDING' OR (status = 'PROCESSING' AND lease_expired)
+  [OK] FOR UPDATE SKIP LOCKED prevents concurrent double-processing between parallel workers
+  [OK] Stale processing timeout (300s) guarantees eventual recovery for crashed workers
+
+[5/5] Consistency Semantics Declaration:
+  [OK] Formally declared: fail-closed availability + best-effort freshness
+  [OK] Accept rejects if AI Story Brain unreachable with HTTP 503 AI_SERVICE_UNAVAILABLE
+  [OK] Accept rejects if Story Brain version advanced with HTTP 409 BRAIN_VERSION_CONFLICT
+
+=================================================================
+ALL PRODUCTION PATH SMOKE TESTS PASSED!
+=================================================================
+
+2026-09-20 17:32:02,657 | INFO | ai-service | GET /health -> 200 (1.13 ms)
+2026-09-20 17:32:02,659 | INFO | httpx | HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+2026-09-20 17:32:02,660 | INFO | ai-service | GET /v1/enhanced/kb/test-story -> 401 (0.70 ms)
+2026-09-20 17:32:02,662 | INFO | httpx | HTTP Request: GET http://testserver/v1/enhanced/kb/test-story "HTTP/1.1 401 Unauthorized"
+2026-09-20 17:32:02,663 | INFO | ai-service | GET /v1/enhanced/kb/test-story -> 403 (0.61 ms)
+2026-09-20 17:32:02,663 | INFO | httpx | HTTP Request: GET http://testserver/v1/enhanced/kb/test-story "HTTP/1.1 403 Forbidden"
+2026-09-20 17:32:02,665 | INFO | ai-service | GET /v1/enhanced/kb/test-story -> 200 (1.05 ms)
+2026-09-20 17:32:02,666 | INFO | httpx | HTTP Request: GET http://testserver/v1/enhanced/kb/test-story "HTTP/1.1 200 OK"
+2026-09-20 17:32:02,671 | INFO | ai-service | POST /suggest-next -> 200 (3.35 ms)
+2026-09-20 17:32:02,671 | INFO | httpx | HTTP Request: POST http://testserver/suggest-next "HTTP/1.1 200 OK"

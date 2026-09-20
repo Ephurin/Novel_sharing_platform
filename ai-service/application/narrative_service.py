@@ -49,7 +49,8 @@ class NarrativeApplicationService:
         if any(e.metadata.get("supersedes_id") == event_id for e in brain.events):
             raise ProjectionError("Event has already been superseded")
         group_id, proposal_id = str(uuid.uuid4()), str(uuid.uuid4())
-        payload = {**replacement, "event_id": proposal_id, "supersedes_id": event_id}
+        orig_chapter = getattr(original, "chapter", None) or original.metadata.get("chapter_number") or original.metadata.get("chapter")
+        payload = {"chapter": orig_chapter, **replacement, "event_id": proposal_id, "supersedes_id": event_id}
         proposals = [NarrativeProposal(proposal_id=proposal_id, proposal_type="event", payload=payload,
             dependency_group_id=group_id, expected_brain_version=expected_brain_version,
             evidence=tuple(original.metadata.get("evidence", [])))]

@@ -19,6 +19,7 @@ export type RevisionOutboxEvent = {
   maxRetries: number;
   nextRetryAt: Date;
   lastError: string | null;
+  claimToken: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -38,6 +39,7 @@ function mapOutboxEvent(row: QueryResultRow): RevisionOutboxEvent {
     maxRetries: row.max_retries,
     nextRetryAt: row.next_retry_at,
     lastError: row.last_error,
+    claimToken: row.claim_token ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -122,43 +124,53 @@ export async function claimPendingOutboxEvents(
 ): Promise<RevisionOutboxEvent[]> {
   const result = await client.query(
     `
-      select *
-      from revision_outbox_events
-      where (
-        (status = 'PENDING' and next_retry_at <= now())
-        or
-        (status = 'PROCESSING' and updated_at <= now() - ($2 || ' seconds')::interval)
+      with eligible as (
+        select event_id
+        from revision_outbox_events
+        where (
+          (status = 'PENDING' and next_retry_at <= now())
+          or
+          (status = 'PROCESSING' and updated_at <= now() - ($2 || ' seconds')::interval)
+        )
+        order by created_at asc
+        limit $1
+        for update skip locked
       )
-      order by created_at asc
-      limit $1
-      for update skip locked
+      update revision_outbox_events o
+      set status = 'PROCESSING',
+          claim_token = gen_random_uuid(),
+          updated_at = now()
+      from eligible
+      where o.event_id = eligible.event_id
+      returning o.*
     `,
     [limit, staleThresholdSeconds]
   );
 
-  const events = result.rows.map(mapOutboxEvent);
-  if (events.length > 0) {
-    const eventIds = events.map((e) => e.eventId);
-    await client.query(
-      `
-        update revision_outbox_events
-        set status = 'PROCESSING',
-            updated_at = now()
-        where event_id = any($1::uuid[])
-      `,
-      [eventIds]
-    );
-  }
-  return events;
+  return result.rows.map(mapOutboxEvent);
 }
 
 
 export async function markOutboxEventCompleted(
   client: DbClient | undefined,
-  eventId: string
-): Promise<void> {
+  eventId: string,
+  claimToken?: string | null
+): Promise<boolean> {
   const executor = client ?? getPostgresPool();
-  await executor.query(
+  if (claimToken) {
+    const result = await executor.query(
+      `
+        update revision_outbox_events
+        set status = 'COMPLETED',
+            updated_at = now()
+        where event_id = $1 and claim_token = $2 and status = 'PROCESSING'
+      `,
+      [eventId, claimToken]
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  const result = await executor.query(
     `
       update revision_outbox_events
       set status = 'COMPLETED',
@@ -167,16 +179,37 @@ export async function markOutboxEventCompleted(
     `,
     [eventId]
   );
+  return (result.rowCount ?? 0) > 0;
 }
 
 export async function markOutboxEventFailed(
   client: DbClient | undefined,
   eventId: string,
   error: string,
-  retryDelaySeconds: number = 10
-): Promise<void> {
+  retryDelaySeconds: number = 10,
+  claimToken?: string | null
+): Promise<boolean> {
   const executor = client ?? getPostgresPool();
-  await executor.query(
+  if (claimToken) {
+    const result = await executor.query(
+      `
+        update revision_outbox_events
+        set retry_count = retry_count + 1,
+            status = case
+              when retry_count + 1 >= max_retries then 'FAILED'
+              else 'PENDING'
+            end,
+            last_error = $2,
+            next_retry_at = now() + ($3 || ' seconds')::interval,
+            updated_at = now()
+        where event_id = $1 and claim_token = $4 and status = 'PROCESSING'
+      `,
+      [eventId, error, retryDelaySeconds, claimToken]
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  const result = await executor.query(
     `
       update revision_outbox_events
       set retry_count = retry_count + 1,
@@ -191,6 +224,7 @@ export async function markOutboxEventFailed(
     `,
     [eventId, error, retryDelaySeconds]
   );
+  return (result.rowCount ?? 0) > 0;
 }
 
 export async function findOutboxEventByRevisionAndType(
