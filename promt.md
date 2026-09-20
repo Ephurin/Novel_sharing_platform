@@ -1863,4 +1863,231 @@ Trạng thái: **Fixed, awaiting Astra review**
 
 **Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R4.**
 
+---
+
+### Astra review bàn giao — Phase 6.5.5 / P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01 (2026-09-20)
+
+**Kết luận: NEEDS REVISION — R4 đã đóng phần lớn acceptance gates, nhưng còn 2 blocker trực tiếp trước khi có thể ACCEPT Phase 6.5. Chưa chuyển Phase 7.**
+
+Review dựa trên `main` tại commit `fff3b43db368ee8041ba2e1c49bddd8af28092bb`, phần Gemini bàn giao trong file này, report `docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01-report.md`, evidence đã commit, diff từ `e20917c893c91fe0b9e55df225553666f52a9cb3`, migration/code/tests hiện tại.
+
+#### Những acceptance gate đã được xác nhận
+
+- `RevisionProvenanceRecord` final schema có `revision_id`, `NOT NULL`, unique constraint và repository CRUD chạy trên PostgreSQL thật.
+- Có explicit PostgreSQL migration compatibility test từ legacy 0005 shape → head.
+- Temporal analysis thiếu `chapter_number` đã fail closed, không fallback chapter 1.
+- Event materialization thiếu canonical chapter provenance đã fail closed.
+- Service auth thiếu cấu hình đã trả `503 SERVICE_AUTH_NOT_CONFIGURED`; invalid token 403; valid token pass.
+- Outbox đã có claim token và PostgreSQL integration test chứng minh stale token không finalize được lease mới.
+- Evidence files vòng R4 lần này thực sự có trong repository.
+- AI unit suite, PostgreSQL integration, backend tests/typecheck và frontend build/typecheck đều có evidence.
+
+#### P1 — Legacy provenance migration backfill hiện bảo toàn schema nhưng không bảo toàn semantics
+
+`0006_fix_revision_provenance.py` hiện backfill legacy row bằng:
+
+```sql
+UPDATE narrative.revision_provenances
+SET revision_id = gen_random_uuid()
+WHERE revision_id IS NULL;
+```
+
+Runtime lookup lại dùng:
+
+```text
+external revision_id
+→ _stable_uuid("revision", external revision_id)
+→ RevisionProvenanceRecord.revision_id
+```
+
+Do đó một legacy row được gán UUID ngẫu nhiên sẽ không còn resolve được từ revision thật. Migration test hiện chỉ assert:
+
+```text
+revision_id IS NOT NULL
+```
+
+chứ không assert:
+
+```text
+lookup bằng revision ID gốc vẫn trả đúng chapter_number
+```
+
+Schema integrity pass nhưng semantic provenance bị mất.
+
+**Yêu cầu:**
+- Không backfill provenance bằng UUID ngẫu nhiên rồi coi là migrated thành công.
+- Chọn một policy rõ:
+  1. **Deterministic reconstruction** từ authoritative data nếu đủ dữ liệu; hoặc
+  2. **Controlled rebuild** provenance từ Platform/bootstrap revision metadata; hoặc
+  3. Nếu legacy rows thực tế không thể map an toàn, migration phải **fail actionably** khi phát hiện rows cần backfill thay vì silently invent revision IDs.
+- Với project hiện tại, nếu chứng minh legacy 0005 provenance table từ bản broken trước không thể chứa canonical usable rows, có thể document table là rebuildable/non-authoritative và migrate bằng controlled clear+rebuild; nhưng phải có explicit evidence/policy.
+- Test upgrade phải chứng minh semantic invariant:
+  ```text
+  known legacy revision
+  → upgrade/rebuild
+  → get_revision_provenance(novel, original_revision_id)
+  → đúng chapter_number
+  ```
+  hoặc chứng minh migration từ chối data không thể phục hồi với actionable error.
+
+#### P1 — Root Compose smoke chưa phải live system smoke
+
+Acceptance gate R4 yêu cầu:
+
+```text
+Root Compose smoke Platform ↔ AI auth
+```
+
+nhưng `compose-smoke.log` hiện chỉ chạy:
+
+```text
+docker-compose config
+```
+
+Điều này chỉ chứng minh YAML/environment resolve hợp lệ, chưa chứng minh:
+- containers boot;
+- Alembic/backend migrations chạy;
+- AI service thực sự kết nối PostgreSQL;
+- backend kết nối Mongo;
+- service token hoạt động qua network thật;
+- direct FastAPI unauthenticated request bị block;
+- Node Gateway authenticated request tới AI pass.
+
+Report phải gọi evidence hiện tại là **topology config validation**, không phải live smoke.
+
+**Yêu cầu live smoke:**
+1. Start isolated root Compose/test profile:
+   ```text
+   PostgreSQL + MongoDB + AI service + Backend
+   ```
+2. Wait health/readiness.
+3. Verify direct AI:
+   - `GET /health` → 200;
+   - protected `/v1/...` thiếu token → 401/503 theo configured state;
+   - wrong token → 403;
+   - valid service token → expected non-auth business response.
+4. Verify Platform → AI:
+   - login/seed authorized author hoặc dùng supported test-auth flow;
+   - call Node AI Gateway endpoint;
+   - request đến AI thành công với service credential do Node inject.
+5. Verify PostgreSQL Narrative repository is actually active, không JSON fallback.
+6. Verify at least một writing/context request through Node Gateway.
+7. Verify Mongo is reachable from backend.
+
+#### P2 — Mongo reconciliation cần một live regression probe trong system smoke
+
+Backend suite vẫn chứa simulation-level Mongo reconciliation tests. R5 không cần xây full Mongo test harness mới, nhưng khi root Compose đã chạy thật, thêm một targeted live probe:
+- tạo/seed chapter + draft;
+- sync accepted revision vào Mongo;
+- tạo newer manual draft rồi chạy delayed reconciliation;
+- verify newer draft không bị overwrite;
+- nếu practical, verify no-draft recovery creates document với non-empty `novelId` và `authorId`.
+
+Không cần mở rộng architecture; đây chỉ là acceptance evidence cho path đã implement.
+
+#### P2 — Outbox fencing API nên tránh accidental unfenced finalize
+
+`markOutboxEventCompleted/Failed` vẫn giữ fallback path khi không truyền `claimToken`, cho phép update chỉ theo `event_id`. Production processor hiện đã truyền token đúng nên không phải blocker độc lập, nhưng API surface vẫn có thể bị dùng sai sau này.
+
+**Khuyến nghị trong R5:** với event ở trạng thái `PROCESSING`, production finalize path nên require claim token. Nếu cần helper unfenced cho admin/test, đặt tên riêng rõ ràng thay vì optional token trên cùng function.
+
+---
+
+### Giao Gemini — P6.5-R5-FINAL-VERIFICATION-01
+
+**Ngày giao:** 2026-09-20  
+**Trạng thái:** Đã giao; đây là batch verification/semantic migration cuối.  
+**Mục tiêu:** Đóng semantic migration provenance và cung cấp live root-Compose system evidence. Không thêm feature mới.
+
+#### Phạm vi bắt buộc
+
+1. **Semantic legacy provenance migration**
+   - Xóa policy random UUID backfill.
+   - Reconstruct/rebuild/fail-actionably theo policy đã document.
+   - Test original revision ID vẫn resolve đúng sau migration nếu data recoverable.
+   - Nếu legacy rows unrecoverable, migration phải không silently fabricate provenance.
+   - Clean DB → head vẫn pass.
+   - Legacy 0005 → head test phải kiểm tra semantic behavior, không chỉ NOT NULL.
+
+2. **Live root Compose smoke**
+   - Chạy containers thật, không chỉ `docker compose config`.
+   - PostgreSQL, MongoDB, AI service, Backend đều ready.
+   - AI Narrative repository xác nhận PostgreSQL.
+   - Service-auth direct negative/positive probes.
+   - Node Gateway → AI authenticated request pass.
+   - At least one context/writing API call qua Node.
+
+3. **Live Mongo reconciliation probe**
+   - newer manual draft không bị delayed revision overwrite;
+   - recovery create có ownership metadata đúng nếu case này được test.
+
+4. **Fencing API hardening**
+   - Production PROCESSING completion/failure bắt buộc active claim token hoặc equivalent guard.
+   - Không để accidental no-token call bypass fencing.
+
+#### Evidence bắt buộc
+
+Tạo:
+
+- `docs/development/P6.5-R5-FINAL-VERIFICATION-01-report.md`
+- `docs/development/P6.5-R5-FINAL-VERIFICATION-01/`
+
+Commit tối thiểu:
+- `migration-semantic.txt`
+- `compose-live-smoke.txt`
+- `gateway-auth-smoke.txt`
+- `mongo-reconciliation.txt`
+- `regression-summary.md`
+
+Không cần duplicate cả `.log` và `.txt`; một artifact text tái hiện được là đủ.
+
+#### Acceptance criteria
+
+R5 chỉ được bàn giao khi:
+
+```text
+legacy provenance migration does not invent semantic revision identity
+AND
+root Compose actually boots
+AND
+direct AI auth boundary is verified over live HTTP
+AND
+Node Gateway → AI works over live HTTP
+AND
+PostgreSQL Narrative repository is active
+AND
+Mongo reconciliation live probe passes
+AND
+regression suites remain green
+```
+
+Nếu Docker/live environment có blocker ngoài code, report phải ghi blocker thật; không thay live smoke bằng `docker compose config` rồi gọi PASS.
+
+#### Ngoài phạm vi
+
+- Không Phase 7.
+- Không pgvector/embedding/semantic retrieval.
+- Không multi-agent/planning/editing.
+- Không đổi architecture Phase 6.5.
+- Không mở thêm feature.
+- Không tự đánh dấu Phase 6.5 accepted.
+
+#### Bàn giao lại
+
+Append:
+
+`Gemini bàn giao — P6.5-R5-FINAL-VERIFICATION-01`
+
+Trạng thái: **Fixed, awaiting Astra review**.
+
+Bảng bàn giao:
+
+```text
+Final blocker
+→ semantic/runtime fix
+→ live/integration evidence
+→ exact committed evidence path
+```
+
+**Nếu R5 đáp ứng các gate trên và không phát hiện regression mới, vòng review kế tiếp sẽ là quyết định ACCEPT/REJECT Phase 6.5 thay vì mở rộng scope.**
 
