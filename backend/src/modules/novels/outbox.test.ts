@@ -170,5 +170,124 @@ describe('Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)', () => 
     const freshCheck = checkBrainFreshness(2, 2);
     assert.equal(freshCheck.allowed, true);
   });
+
+  test('Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker', () => {
+    type MockOutboxRow = {
+      event_id: string;
+      status: 'PENDING' | 'PROCESSING' | 'COMPLETED';
+      next_retry_at: Date;
+      updated_at: Date;
+    };
+
+    function simulateClaim(
+      rows: MockOutboxRow[],
+      limit: number = 10,
+      staleThresholdSeconds: number = 300
+    ): MockOutboxRow[] {
+      const now = new Date();
+      const cutoff = new Date(now.getTime() - staleThresholdSeconds * 1000);
+      const eligible = rows.filter((r) => {
+        if (r.status === 'PENDING' && r.next_retry_at <= now) return true;
+        if (r.status === 'PROCESSING' && r.updated_at <= cutoff) return true;
+        return false;
+      }).slice(0, limit);
+
+      for (const row of eligible) {
+        row.status = 'PROCESSING';
+        row.updated_at = now;
+      }
+      return eligible;
+    }
+
+    const now = new Date();
+    const queue: MockOutboxRow[] = [
+      {
+        event_id: 'ev-1',
+        status: 'PENDING',
+        next_retry_at: now,
+        updated_at: now,
+      },
+      {
+        event_id: 'ev-2',
+        status: 'PENDING',
+        next_retry_at: now,
+        updated_at: now,
+      },
+    ];
+
+    // Worker A claims ev-1
+    const claimedByWorkerA = simulateClaim(queue, 1);
+    assert.equal(claimedByWorkerA.length, 1);
+    assert.equal(claimedByWorkerA[0].event_id, 'ev-1');
+    assert.equal(claimedByWorkerA[0].status, 'PROCESSING');
+
+    // Worker B immediately tries to claim -> must NOT claim ev-1 (it is actively PROCESSING)
+    const claimedByWorkerB = simulateClaim(queue, 1);
+    assert.equal(claimedByWorkerB.length, 1);
+    assert.equal(claimedByWorkerB[0].event_id, 'ev-2');
+
+    // Worker C tries to claim -> no pending or stale events left
+    const claimedByWorkerC = simulateClaim(queue, 1);
+    assert.equal(claimedByWorkerC.length, 0);
+  });
+
+  test('Outbox expired lease recovery: crashed worker event is reclaimed after timeout', () => {
+    type MockOutboxRow = {
+      event_id: string;
+      status: 'PENDING' | 'PROCESSING' | 'COMPLETED';
+      next_retry_at: Date;
+      updated_at: Date;
+    };
+
+    function simulateClaim(
+      rows: MockOutboxRow[],
+      limit: number = 10,
+      staleThresholdSeconds: number = 300
+    ): MockOutboxRow[] {
+      const now = new Date();
+      const cutoff = new Date(now.getTime() - staleThresholdSeconds * 1000);
+      const eligible = rows.filter((r) => {
+        if (r.status === 'PENDING' && r.next_retry_at <= now) return true;
+        if (r.status === 'PROCESSING' && r.updated_at <= cutoff) return true;
+        return false;
+      }).slice(0, limit);
+
+      for (const row of eligible) {
+        row.status = 'PROCESSING';
+        row.updated_at = now;
+      }
+      return eligible;
+    }
+
+    const now = new Date();
+    // ev-crashed has been stuck in PROCESSING for 400 seconds (lease expired)
+    const staleTime = new Date(now.getTime() - 400 * 1000);
+    // ev-active has been in PROCESSING for only 30 seconds (lease active)
+    const activeTime = new Date(now.getTime() - 30 * 1000);
+
+    const queue: MockOutboxRow[] = [
+      {
+        event_id: 'ev-crashed',
+        status: 'PROCESSING',
+        next_retry_at: staleTime,
+        updated_at: staleTime,
+      },
+      {
+        event_id: 'ev-active',
+        status: 'PROCESSING',
+        next_retry_at: activeTime,
+        updated_at: activeTime,
+      },
+    ];
+
+    // Worker recovers crashed event
+    const claimed = simulateClaim(queue, 10, 300);
+    assert.equal(claimed.length, 1);
+    assert.equal(claimed[0].event_id, 'ev-crashed');
+    assert.equal(claimed[0].status, 'PROCESSING');
+    // active event was NOT claimed
+    assert.equal(queue.find((r) => r.event_id === 'ev-active')?.status, 'PROCESSING');
+  });
 });
+
 

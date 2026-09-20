@@ -18,7 +18,13 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from application.narrative_service import NarrativeApplicationService
 from api.schemas import ProcessInteractionsRequest, RelationOverrideRequest
-from api.deps import get_entity_pipeline, get_llm_service, get_narrative_service, get_story_kb
+from api.deps import (
+    get_entity_pipeline,
+    get_llm_service,
+    get_narrative_service,
+    get_story_kb,
+    require_service_token,
+)
 from core.entity_resolver import resolve_entities, find_kb_entities_in_text
 from core.exceptions import EntityExtractionError
 from core.story_kb_manager import StoryKBManager
@@ -29,7 +35,11 @@ from services.entity_helpers import pipeline_to_interaction_format
 from models.event import Event
 
 
-router = APIRouter(prefix="/v1/enhanced", tags=["interactions"])
+router = APIRouter(
+    prefix="/v1/enhanced",
+    tags=["interactions"],
+    dependencies=[Depends(require_service_token)],
+)
 logger = logging.getLogger(__name__)
 
 

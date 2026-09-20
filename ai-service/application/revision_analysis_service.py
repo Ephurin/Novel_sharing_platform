@@ -171,19 +171,25 @@ class RevisionAnalysisService:
 
         if options.get("extract_events", True):
             events = extract_narrative_events(
-                revision.content, approved_entities, self._llm_service
+                revision.content,
+                approved_entities,
+                self._llm_service,
+                chapter_num=chapter_number if chapter_number is not None else 1,
             )
             for index, event in enumerate(events, start=len(proposals)):
                 payload = {
                     "event_type": event.event_type,
                     "participants": event.participants,
                     "summary": event.summary,
-                    "chapter": event.chapter,
+                    "chapter": chapter_number if chapter_number is not None else event.chapter,
+                    "chapter_number": chapter_number if chapter_number is not None else event.chapter,
                     "locations": event.locations,
                     "consequences": event.consequences,
                 }
                 evidence = {
                     "revision_id": revision_id,
+                    "chapter_id": chapter_id,
+                    "chapter_number": chapter_number,
                     "start": 0,
                     "end": len(revision.content),
                     "text_hash": content_hash,

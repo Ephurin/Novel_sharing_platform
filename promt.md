@@ -1604,3 +1604,25 @@ Finding
 
 **Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R3.**
 
+---
+
+### Gemini bàn giao — P6.5-R3-PRODUCTION-PATH-CLOSURE-01
+
+**Ngày bàn giao:** 2026-09-20  
+**Trạng thái:** **Fixed, awaiting Astra review**  
+**Report:** `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01-report.md`  
+**Evidence directory:** `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/`  
+**Phạm vi Phase 7:** Tuyệt đối không có (không pgvector, không embedding, không semantic retrieval, không multi-agent, không planning/editing).
+
+| Finding | Production Root Cause | Migration / Code Sửa | Test Type | Exact Evidence Path trong Repo |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. PostgreSQL Revision Provenance Record ORM & Schema** | `RevisionProvenanceRecord` trong `orm_models.py` thiếu cột `revision_id` và unique constraint `(tenant_id, novel_id, revision_id)`. `story_brain_id` là `nullable=False` nhưng khi insert bị bỏ sót. | - `ai-service/infrastructure/orm_models.py`<br>- `ai-service/migrations/versions/0006_fix_revision_provenance.py`<br>- `ai-service/infrastructure/postgres_narrative_repository.py` (`create_bootstrap_job`, `record_revision_provenance`, `get_revision_provenance`) | Real PostgreSQL 18 integration tests: clean DB $\to$ Alembic head migration, provenance create/query/update/tenant isolation | `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/postgres-integration.log` |
+| **2. Canonical Event & State Temporal Provenance Leakage** | `RevisionAnalysisService` không truyền `chapter_number` sang `extract_narrative_events` (bị default 1). Khi materialize, `accept_proposal_group` lấy `payload.get("chapter", 1)` thay vì derive từ revision provenance record, làm event/state chapter 25 lọt vào context chapter 5. | - `ai-service/application/revision_analysis_service.py`<br>- `ai-service/infrastructure/postgres_narrative_repository.py`<br>- `ai-service/infrastructure/in_memory_narrative_repository.py` | Real PostgreSQL 18 temporal isolation test: incremental revision chapter 25 tạo event và state transition; context chapter 5 hoàn toàn không leak; context chapter 25 thấy đúng | `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/postgres-integration.log` |
+| **3. Service-Auth Boundary chưa phủ `/v1/enhanced`** | Router `APIRouter(prefix="/v1/enhanced")` trong `api/interactions.py` không có `dependencies=[Depends(require_service_token)]`, gây lỗ hổng bypass Gateway qua port 8000. | `ai-service/api/interactions.py`: thêm `dependencies=[Depends(require_service_token)]` cho toàn bộ router `/v1/enhanced` | FastAPI TestClient service-token boundary tests: missing/wrong token trả về 401/403, valid token được phép | `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/service-auth.log` |
+| **4. Outbox Claim Double-Processing Concurrency** | `claimPendingOutboxEvents` query `status in ('PENDING', 'PROCESSING')` và commit ngay lập tức, thả row lock khiến worker khác có thể claim lại chính row đang `PROCESSING`. | `backend/src/modules/novels/outbox.repository.ts`: query chỉ claim `PENDING` hoặc stale `PROCESSING` quá lease timeout (>300s) với `FOR UPDATE SKIP LOCKED`, update atomic `status = 'PROCESSING', updated_at = now()` | Multi-worker concurrency tests & expired lease recovery tests | `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/backend-integration.log` |
+| **5. Consistency Semantics Guarantee** | Platform transaction và AI Story Brain là hai hệ thống lưu trữ khác nhau, không có 2PC. Cần định danh chính xác cam kết chất lượng dịch vụ thay vì tuyên bố strict atomicity ảo. | `backend/src/modules/novels/chapter-revisions.service.ts` & Architecture report: xác nhận cam kết `fail-closed availability + best-effort freshness` (fail closed 503 khi AI down, fail closed 409 khi brain bumped) | Unit tests & Documentation | `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/backend-integration.log` |
+| **Production-Path Smoke & Build Verification** | Cần kiểm chứng toàn chuỗi production path trên database thật và frontend build production. | `web/` build và typecheck, live smoke test PostgreSQL 18, MongoDB 27017, AI Service public `/health`, unauthenticated rejection, authenticated Gateway access | Full smoke test & Production Vite build / Typecheck | `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/compose-smoke.log`<br>`docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/frontend-build.log`<br>`docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/evidence-summary.md` |
+
+**Quyết định chuyển Phase:** Giữ nguyên quy định: **Chưa chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R3.**
+
+

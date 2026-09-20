@@ -192,7 +192,10 @@ class FactRecord(Base):
 
 class RevisionProvenanceRecord(Base):
     __tablename__ = "revision_provenances"
-    __table_args__ = ({"schema": SCHEMA},)
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "novel_id", "revision_id", name="uq_rev_provenance_revision"),
+        {"schema": SCHEMA},
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
     story_brain_id: Mapped[uuid.UUID] = mapped_column(
@@ -201,6 +204,7 @@ class RevisionProvenanceRecord(Base):
     tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
     novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
     chapter_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    revision_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
     chapter_number: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

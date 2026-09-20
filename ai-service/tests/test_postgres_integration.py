@@ -535,3 +535,138 @@ def test_bootstrap_job_persistence_and_entity_merge(repo, session_factory):
     )
     assert merged["brain_version"] == 2
     assert [item.name for item in repo.list_entities(novel_id)] == ["Hải Ba Đông"]
+
+
+def test_revision_provenance_lifecycle(repo, session_factory):
+    novel_id = f"test-novel-provenance-{uuid.uuid4().hex[:8]}"
+    chap_id = "chapter-10"
+    rev_id = f"rev-xyz-{uuid.uuid4().hex[:8]}"
+
+    # 1. Record provenance
+    repo.record_revision_provenance(
+        story_id=novel_id,
+        chapter_id=chap_id,
+        revision_id=rev_id,
+        chapter_number=10,
+    )
+
+    # 2. Query provenance
+    prov = repo.get_revision_provenance(novel_id, rev_id)
+    assert prov is not None
+    assert prov["chapter_number"] == 10
+    assert prov["story_brain_id"] is not None
+    assert prov["novel_id"] is not None
+    assert prov["chapter_id"] is not None
+
+    # 3. Update provenance
+    repo.record_revision_provenance(
+        story_id=novel_id,
+        chapter_id=chap_id,
+        revision_id=rev_id,
+        chapter_number=11,
+    )
+    prov_updated = repo.get_revision_provenance(novel_id, rev_id)
+    assert prov_updated is not None
+    assert prov_updated["chapter_number"] == 11
+
+    # 4. Tenant isolation: a different tenant cannot access this provenance
+    other_tenant_repo = PostgresNarrativeRepository(
+        session_factory,
+        tenant_id=str(uuid.uuid4()),
+        actor_id=str(uuid.uuid4()),
+    )
+    assert other_tenant_repo.get_revision_provenance(novel_id, rev_id) is None
+
+
+def test_chapter_25_event_and_state_isolation_from_chapter_5(repo):
+    novel_id = f"novel-temporal-{uuid.uuid4().hex[:8]}"
+
+    # Step 1: Create confirmed entity Tiêu Viêm
+    repo.upsert_entity(novel_id, {"name": "Tiêu Viêm", "type": "PER"})
+    entities = repo.list_entities(novel_id)
+    ent = next(item for item in entities if item.name == "Tiêu Viêm")
+    ent_id = ent.entity_id
+
+    # Record provenance for revision at chapter 25
+    rev_id_25 = f"rev-ch25-{uuid.uuid4().hex[:8]}"
+    repo.record_revision_provenance(
+        story_id=novel_id,
+        chapter_id="chap-25",
+        revision_id=rev_id_25,
+        chapter_number=25,
+    )
+
+    # Step 2: Create event proposal at chapter 25
+    group_id = str(uuid.uuid4())
+    event_id = str(uuid.uuid4())
+    ev_prop = NarrativeProposal(
+        proposal_id=str(uuid.uuid4()),
+        proposal_type="event",
+        payload={
+            "event_id": event_id,
+            "event_type": "battle",
+            "summary": "Tiêu Viêm defeated Nạp Lan Yên Nhiên at Vân Lam Tông",
+            "participants": ["Tiêu Viêm"],
+            "chapter": 25,
+            "chapter_number": 25,
+        },
+        analysis_run_id=str(uuid.uuid4()),
+        dependency_group_id=group_id,
+        materialization_order=0,
+        evidence=({"revision_id": rev_id_25, "chapter_number": 25},),
+        confidence=0.95,
+        expected_brain_version=1,
+    )
+
+    # Step 3: Create state_transition proposal linked to the chapter 25 event
+    st_prop = NarrativeProposal(
+        proposal_id=str(uuid.uuid4()),
+        proposal_type="state_transition",
+        payload={
+            "entity_id": ent_id,
+            "event_id": event_id,
+            "attribute_key": "health",
+            "new_value": 65,
+        },
+        analysis_run_id=ev_prop.analysis_run_id,
+        dependency_group_id=group_id,
+        materialization_order=1,
+        evidence=ev_prop.evidence,
+        confidence=0.95,
+        expected_brain_version=1,
+    )
+
+    repo.save_proposals(novel_id, [ev_prop, st_prop])
+    repo.accept_proposal_group(
+        novel_id,
+        [ev_prop.proposal_id, st_prop.proposal_id],
+        expected_brain_version=1,
+    )
+
+    # Query structured context at chapter 5: Future chapter 25 event and resulting state must NOT appear!
+    ctx_ch5 = repo.get_structured_context(novel_id, chapter_number=5)
+    event_summaries_ch5 = [ev.get("summary") for ev in ctx_ch5.recent_events]
+    assert not any("Vân Lam Tông" in str(s) for s in event_summaries_ch5), (
+        f"Temporal leakage: Chapter 25 event appeared in Chapter 5 context: {event_summaries_ch5}"
+    )
+    # Entity dynamic state in chapter 5 must NOT have health 65
+    ch5_states = {s.get("entity_id") or s.get("name"): s for s in ctx_ch5.current_states}
+    tieu_viem_ch5_state = ch5_states.get(ent_id) or ch5_states.get("Tiêu Viêm") or {}
+    ch5_health = tieu_viem_ch5_state.get("state", {}).get("health")
+    assert ch5_health != 65, (
+        f"Temporal leakage: State transition health=65 appeared in Chapter 5: {tieu_viem_ch5_state}"
+    )
+
+    # Query structured context at chapter 25: Future chapter 25 event and resulting state MUST appear!
+    ctx_ch25 = repo.get_structured_context(novel_id, chapter_number=25)
+    event_summaries_ch25 = [ev.get("summary") for ev in ctx_ch25.recent_events]
+    assert any("Vân Lam Tông" in str(s) for s in event_summaries_ch25), (
+        f"Missing event: Chapter 25 event not found in Chapter 25 context: {event_summaries_ch25}"
+    )
+    ch25_states = {s.get("entity_id") or s.get("name"): s for s in ctx_ch25.current_states}
+    tieu_viem_ch25_state = ch25_states.get(ent_id) or ch25_states.get("Tiêu Viêm") or {}
+    ch25_health = tieu_viem_ch25_state.get("state", {}).get("health")
+    assert ch25_health == 65, (
+        f"Missing state: State transition health=65 not reflected in Chapter 25: {tieu_viem_ch25_state}"
+    )
+

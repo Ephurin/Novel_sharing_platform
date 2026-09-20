@@ -217,6 +217,11 @@ export async function acceptDraft(
 
   // Accept-Time Brain Freshness Policy: Ensure Story Brain has not advanced since draft was generated (strictly fail-closed)
   if (generation.brain_version_used) {
+    // 1b. Fail-closed Story Brain freshness verification (best-effort freshness semantics):
+    // If AI service is unreachable, we fail closed with 503 AI_SERVICE_UNAVAILABLE.
+    // If Story Brain version advanced past brain_version_used, fail closed with 409 BRAIN_VERSION_CONFLICT.
+    // Note on consistency guarantee: fail-closed availability + best-effort freshness. Cross-service
+    // atomic distributed transactions between Platform Postgres and AI Story Brain are out of scope for MVP.
     try {
       const brainUrl = `${env.AI_SERVICE_URL}/v1/story-brains/by-novel/${chapter.novelId}`;
       const headers: Record<string, string> = {

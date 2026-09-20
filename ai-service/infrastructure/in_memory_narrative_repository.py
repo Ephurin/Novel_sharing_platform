@@ -245,13 +245,24 @@ class InMemoryNarrativeRepository:
                 event_id = str(payload.get("event_id") or proposal.proposal_id)
                 for participant in payload.get("participants", []):
                     resolve_entity(participant, entities)
+                evidence = proposal.evidence[0] if proposal.evidence else {}
+                rev_id = evidence.get("revision_id")
+                event_ch = None
+                if rev_id:
+                    event_ch = self._revision_provenance.get((story_id, str(rev_id)))
+                if event_ch is None:
+                    event_ch = evidence.get("chapter_number")
+                if event_ch is None:
+                    event_ch = payload.get("chapter_number") or payload.get("chapter")
+                if event_ch is None:
+                    event_ch = 1
                 events.append(
                     NarrativeEvent(
                         event_id=event_id,
                         event_type=str(payload["event_type"]),
                         participants=tuple(payload.get("participants", [])),
                         summary=str(payload["summary"]),
-                        chapter=int(payload.get("chapter", 1)),
+                        chapter=int(event_ch),
                         metadata={**payload, "evidence": list(proposal.evidence)},
                     )
                 )
@@ -477,6 +488,20 @@ class InMemoryNarrativeRepository:
         chapter_number: int,
     ) -> None:
         self._revision_provenance[(story_id, str(revision_id))] = chapter_number
+
+    def get_revision_provenance(
+        self,
+        story_id: str,
+        revision_id: str,
+    ) -> dict[str, Any] | None:
+        ch_num = self._revision_provenance.get((story_id, str(revision_id)))
+        if ch_num is None:
+            return None
+        return {
+            "story_id": story_id,
+            "revision_id": str(revision_id),
+            "chapter_number": ch_num,
+        }
 
     def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
         if job_id not in self._bootstrap_jobs:

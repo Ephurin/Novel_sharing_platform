@@ -1,8 +1,8 @@
 {
   "story_id": "story",
   "metadata": {
-    "created_at": "2026-09-20T05:04:45.836447+00:00",
-    "updated_at": "2026-09-20T05:04:45.925841+00:00",
+    "created_at": "2026-09-20T10:28:18.231060+00:00",
+    "updated_at": "2026-09-20T10:28:18.317311+00:00",
     "brain_version": "3"
   },
   "entities": {
@@ -28,9 +28,9 @@
   "facts": [],
   "state_transitions": [
     {
-      "transition_id": "760ab1e6-3693-49ad-9b6a-e61d5c2d311e",
+      "transition_id": "514c1d18-33f3-4617-96fc-1e2d5c69b091",
       "entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
-      "event_id": "1a236e3c-3c62-4ece-8cbf-9e081e58a9b8",
+      "event_id": "ed8da5a5-84cd-4e93-81be-1b8c06b640c5",
       "fact_id": null,
       "attribute_key": "active_relationships",
       "new_value": {
@@ -38,9 +38,9 @@
       }
     },
     {
-      "transition_id": "5c780d9d-4d62-4a33-857d-64310223c66e",
+      "transition_id": "2f2fd3d6-eac2-4104-b6c5-c53da660b438",
       "entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
-      "event_id": "e5d7d6c1-f497-499a-a4ad-41d2d73d0eee",
+      "event_id": "4e85659e-63b1-4272-bfe1-308de19691b6",
       "fact_id": null,
       "attribute_key": "active_relationships",
       "new_value": {}
@@ -55,8 +55,8 @@
     "provenance": {
       "974095f1-83a1-526b-bd0b-9833f10d08e4": {
         "active_relationships": {
-          "transition_id": "5c780d9d-4d62-4a33-857d-64310223c66e",
-          "event_id": "e5d7d6c1-f497-499a-a4ad-41d2d73d0eee",
+          "transition_id": "2f2fd3d6-eac2-4104-b6c5-c53da660b438",
+          "event_id": "4e85659e-63b1-4272-bfe1-308de19691b6",
           "fact_id": null
         }
       }
@@ -89,7 +89,7 @@
   "events": [],
   "enhanced_events": [
     {
-      "event_id": "1a236e3c-3c62-4ece-8cbf-9e081e58a9b8",
+      "event_id": "ed8da5a5-84cd-4e93-81be-1b8c06b640c5",
       "event_type": "injury",
       "summary": "Minh was injured",
       "participants": [
@@ -99,23 +99,23 @@
       "evidence": []
     },
     {
-      "event_id": "e5d7d6c1-f497-499a-a4ad-41d2d73d0eee",
+      "event_id": "4e85659e-63b1-4272-bfe1-308de19691b6",
       "event_type": "injury",
       "summary": "Minh was injured",
       "participants": [
         "Minh"
       ],
       "chapter": 1,
-      "supersedes_id": "1a236e3c-3c62-4ece-8cbf-9e081e58a9b8",
+      "supersedes_id": "ed8da5a5-84cd-4e93-81be-1b8c06b640c5",
       "evidence": []
     }
   ],
   "proposals": [
     {
-      "proposal_id": "1a236e3c-3c62-4ece-8cbf-9e081e58a9b8",
+      "proposal_id": "ed8da5a5-84cd-4e93-81be-1b8c06b640c5",
       "proposal_type": "event",
       "payload": {
-        "event_id": "1a236e3c-3c62-4ece-8cbf-9e081e58a9b8",
+        "event_id": "ed8da5a5-84cd-4e93-81be-1b8c06b640c5",
         "event_type": "injury",
         "summary": "Minh was injured",
         "participants": [
@@ -124,7 +124,7 @@
         "chapter": 1
       },
       "analysis_run_id": null,
-      "dependency_group_id": "3932b035-5f56-4576-bc2c-5a78b13e92dc",
+      "dependency_group_id": "af0350a8-0271-4514-8abf-c28825695a65",
       "materialization_order": 0,
       "evidence": [],
       "confidence": null,
@@ -133,10 +133,10 @@
       "decision_reason": null
     },
     {
-      "proposal_id": "760ab1e6-3693-49ad-9b6a-e61d5c2d311e",
+      "proposal_id": "514c1d18-33f3-4617-96fc-1e2d5c69b091",
       "proposal_type": "state_transition",
       "payload": {
-        "event_id": "1a236e3c-3c62-4ece-8cbf-9e081e58a9b8",
+        "event_id": "ed8da5a5-84cd-4e93-81be-1b8c06b640c5",
         "entity_id": "Minh",
         "attribute_key": "active_relationships",
         "new_value": {
@@ -144,7 +144,7 @@
         }
       },
       "analysis_run_id": null,
-      "dependency_group_id": "3932b035-5f56-4576-bc2c-5a78b13e92dc",
+      "dependency_group_id": "af0350a8-0271-4514-8abf-c28825695a65",
       "materialization_order": 1,
       "evidence": [],
       "confidence": null,
@@ -153,20 +153,20 @@
       "decision_reason": null
     },
     {
-      "proposal_id": "e5d7d6c1-f497-499a-a4ad-41d2d73d0eee",
+      "proposal_id": "4e85659e-63b1-4272-bfe1-308de19691b6",
       "proposal_type": "event",
       "payload": {
-        "event_id": "e5d7d6c1-f497-499a-a4ad-41d2d73d0eee",
+        "event_id": "4e85659e-63b1-4272-bfe1-308de19691b6",
         "event_type": "injury",
         "summary": "Minh was injured",
         "participants": [
           "Minh"
         ],
         "chapter": 1,
-        "supersedes_id": "1a236e3c-3c62-4ece-8cbf-9e081e58a9b8"
+        "supersedes_id": "ed8da5a5-84cd-4e93-81be-1b8c06b640c5"
       },
       "analysis_run_id": null,
-      "dependency_group_id": "232bc53b-7740-4d2d-8b32-b5c66b1c2782",
+      "dependency_group_id": "e02e546d-ac08-408b-838a-4c695d3dcb31",
       "materialization_order": 0,
       "evidence": [],
       "confidence": null,
@@ -175,16 +175,16 @@
       "decision_reason": null
     },
     {
-      "proposal_id": "5c780d9d-4d62-4a33-857d-64310223c66e",
+      "proposal_id": "2f2fd3d6-eac2-4104-b6c5-c53da660b438",
       "proposal_type": "state_transition",
       "payload": {
-        "event_id": "e5d7d6c1-f497-499a-a4ad-41d2d73d0eee",
+        "event_id": "4e85659e-63b1-4272-bfe1-308de19691b6",
         "entity_id": "Minh",
         "attribute_key": "active_relationships",
         "new_value": {}
       },
       "analysis_run_id": null,
-      "dependency_group_id": "232bc53b-7740-4d2d-8b32-b5c66b1c2782",
+      "dependency_group_id": "e02e546d-ac08-408b-838a-4c695d3dcb31",
       "materialization_order": 1,
       "evidence": [],
       "confidence": null,

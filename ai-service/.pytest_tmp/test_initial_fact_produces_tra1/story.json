@@ -1,8 +1,8 @@
 {
   "story_id": "story",
   "metadata": {
-    "created_at": "2026-09-20T05:04:46.108638+00:00",
-    "updated_at": "2026-09-20T05:04:46.159184+00:00",
+    "created_at": "2026-09-20T10:28:18.516388+00:00",
+    "updated_at": "2026-09-20T10:28:18.579052+00:00",
     "brain_version": "2"
   },
   "entities": {
@@ -27,7 +27,7 @@
   "entity_mentions": [],
   "facts": [
     {
-      "fact_id": "9e51de6c-ac68-5223-b6c1-e9bd74fe861f",
+      "fact_id": "9c22cd73-6983-5d70-b255-3d8b1d585783",
       "subject_entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
       "fact_type": "initial_state",
       "fact_key": "location",
@@ -39,10 +39,10 @@
   ],
   "state_transitions": [
     {
-      "transition_id": "ad8086b0-0c85-5698-8502-6e2cf23f1e14",
+      "transition_id": "f9432cb4-6ccf-55d2-b36c-f258b8991c19",
       "entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",
       "event_id": null,
-      "fact_id": "9e51de6c-ac68-5223-b6c1-e9bd74fe861f",
+      "fact_id": "9c22cd73-6983-5d70-b255-3d8b1d585783",
       "attribute_key": "location",
       "new_value": "Village"
     }
@@ -56,9 +56,9 @@
     "provenance": {
       "974095f1-83a1-526b-bd0b-9833f10d08e4": {
         "location": {
-          "transition_id": "ad8086b0-0c85-5698-8502-6e2cf23f1e14",
+          "transition_id": "f9432cb4-6ccf-55d2-b36c-f258b8991c19",
           "event_id": null,
-          "fact_id": "9e51de6c-ac68-5223-b6c1-e9bd74fe861f"
+          "fact_id": "9c22cd73-6983-5d70-b255-3d8b1d585783"
         }
       }
     },
@@ -91,7 +91,7 @@
   "enhanced_events": [],
   "proposals": [
     {
-      "proposal_id": "98fb2e54-fba7-4728-8641-0db3a1b565d6",
+      "proposal_id": "03eecb1c-dae8-48ee-9d91-2beda2b3082d",
       "proposal_type": "fact",
       "payload": {
         "subject_entity_id": "974095f1-83a1-526b-bd0b-9833f10d08e4",

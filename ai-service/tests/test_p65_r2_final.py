@@ -386,3 +386,72 @@ def test_finding9_context_hash_reflects_content_changes(test_env):
     assert job1.context_hash != ""
     assert job2.context_hash != ""
     assert job1.context_hash != job2.context_hash, "context_hash must differ when state content changes!"
+
+
+def test_p65_r3_service_auth_all_endpoints(test_env):
+    """P6.5-R3 Finding 3: Complete service-auth boundary coverage on /v1/enhanced, /v1/story-brains, /v1/ai, and /suggest-next."""
+    client: TestClient = test_env["client"]
+    novel_id = test_env["novel_id"]
+
+    # 1. /v1/enhanced/kb/{story_id}
+    res_kb_no_auth = client.get(f"/v1/enhanced/kb/{novel_id}")
+    assert res_kb_no_auth.status_code == 401
+    assert res_kb_no_auth.json()["detail"]["code"] == "SERVICE_AUTH_REQUIRED"
+
+    res_kb_bad_auth = client.get(f"/v1/enhanced/kb/{novel_id}", headers={"Authorization": "Bearer bad-token"})
+    assert res_kb_bad_auth.status_code == 403
+    assert res_kb_bad_auth.json()["detail"]["code"] == "SERVICE_AUTH_INVALID"
+
+    res_kb_valid = client.get(f"/v1/enhanced/kb/{novel_id}", headers={"Authorization": "Bearer test-secret-token"})
+    assert res_kb_valid.status_code in (200, 404)
+
+    # 2. /v1/enhanced/relation/override
+    res_rel_no_auth = client.post("/v1/enhanced/relation/override", json={"story_id": novel_id, "entity_a": "A", "entity_b": "B", "relation": "ALLY"})
+    assert res_rel_no_auth.status_code == 401
+    assert res_rel_no_auth.json()["detail"]["code"] == "SERVICE_AUTH_REQUIRED"
+
+    res_rel_bad_auth = client.post("/v1/enhanced/relation/override", headers={"Authorization": "Bearer bad-token"}, json={"story_id": novel_id, "entity_a": "A", "entity_b": "B", "relation": "ALLY"})
+    assert res_rel_bad_auth.status_code == 403
+    assert res_rel_bad_auth.json()["detail"]["code"] == "SERVICE_AUTH_INVALID"
+
+    # 3. /v1/enhanced/process-interactions
+    res_proc_no_auth = client.post("/v1/enhanced/process-interactions", json={"story_id": novel_id, "text": "Hello"})
+    assert res_proc_no_auth.status_code == 401
+
+    res_proc_bad_auth = client.post("/v1/enhanced/process-interactions", headers={"Authorization": "Bearer bad-token"}, json={"story_id": novel_id, "text": "Hello"})
+    assert res_proc_bad_auth.status_code == 403
+
+    # 4. /v1/story-brains/by-novel/{novel_id}
+    res_brain_no_auth = client.get(f"/v1/story-brains/by-novel/{novel_id}")
+    assert res_brain_no_auth.status_code == 401
+
+    res_brain_bad_auth = client.get(f"/v1/story-brains/by-novel/{novel_id}", headers={"Authorization": "Bearer bad-token"})
+    assert res_brain_bad_auth.status_code == 403
+
+    res_brain_valid = client.get(f"/v1/story-brains/by-novel/{novel_id}", headers={"Authorization": "Bearer test-secret-token"})
+    assert res_brain_valid.status_code == 200
+
+    # 5. /v1/ai/extract-entities
+    res_ai_no_auth = client.post("/v1/ai/extract-entities", json={"text": "Tiêu Viêm cầm kiếm"})
+    assert res_ai_no_auth.status_code == 401
+
+    res_ai_bad_auth = client.post("/v1/ai/extract-entities", headers={"Authorization": "Bearer bad-token"}, json={"text": "Tiêu Viêm cầm kiếm"})
+    assert res_ai_bad_auth.status_code == 403
+
+    # 6. /v1/story-brains/{story_id}/context-preview
+    res_prev_no_auth = client.get(f"/v1/story-brains/{novel_id}/context-preview")
+    assert res_prev_no_auth.status_code == 401
+
+    res_prev_bad_auth = client.get(f"/v1/story-brains/{novel_id}/context-preview", headers={"Authorization": "Bearer bad-token"})
+    assert res_prev_bad_auth.status_code == 403
+
+    res_prev_valid = client.get(
+        f"/v1/story-brains/{novel_id}/context-preview",
+        headers={
+            "Authorization": "Bearer test-secret-token",
+            "X-Tenant-Id": "00000000-0000-0000-0000-000000000001",
+            "X-Request-Id": "test-req-1",
+        },
+    )
+    assert res_prev_valid.status_code == 200
+

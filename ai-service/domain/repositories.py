@@ -143,3 +143,9 @@ class NarrativeRepository(Protocol):
         chapter_number: int,
     ) -> None: ...
 
+    def get_revision_provenance(
+        self,
+        story_id: str,
+        revision_id: str,
+    ) -> dict[str, Any] | None: ...
+

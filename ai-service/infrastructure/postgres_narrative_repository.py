@@ -542,6 +542,29 @@ class PostgresNarrativeRepository:
                             *self._scope(EventRecord, novel_id)
                         )
                     )
+                    evidence = proposal.evidence[0] if proposal.evidence else {}
+                    rev_uuid = (
+                        self._stable_uuid("revision", str(evidence["revision_id"]))
+                        if evidence.get("revision_id")
+                        else None
+                    )
+                    event_ch = None
+                    if rev_uuid:
+                        prov = session.scalar(
+                            select(RevisionProvenanceRecord).where(
+                                RevisionProvenanceRecord.revision_id == rev_uuid,
+                                *self._scope(RevisionProvenanceRecord, novel_id),
+                            )
+                        )
+                        if prov:
+                            event_ch = prov.chapter_number
+                    if event_ch is None:
+                        event_ch = evidence.get("chapter_number")
+                    if event_ch is None:
+                        event_ch = payload.get("chapter_number") or payload.get("chapter")
+                    if event_ch is None:
+                        event_ch = 1
+
                     event = EventRecord(
                         id=self._stable_uuid("event", str(payload.get("event_id") or external_id)),
                         story_brain_id=brain.id,
@@ -552,7 +575,7 @@ class PostgresNarrativeRepository:
                         summary=str(payload["summary"]),
                         participants=list(payload.get("participants", [])),
                         event_metadata={**payload, "evidence": list(proposal.evidence)},
-                        chapter_number=int(payload.get("chapter", 1)),
+                        chapter_number=int(event_ch),
                         source_type="AI",
                         confirmation_status="confirmed",
                     )
@@ -995,6 +1018,7 @@ class PostgresNarrativeRepository:
                         session.add(
                             RevisionProvenanceRecord(
                                 id=uuid.uuid4(),
+                                story_brain_id=brain.id,
                                 tenant_id=self._tenant_id,
                                 novel_id=novel_id,
                                 chapter_id=c_uuid,
@@ -1076,6 +1100,7 @@ class PostgresNarrativeRepository:
         rev_uuid = self._stable_uuid("revision", revision_id)
         chap_uuid = self._stable_uuid("chapter", chapter_id)
         with session_scope(self._session_factory) as session:
+            brain = self._get_or_create_brain(session, novel_id)
             existing = session.scalar(
                 select(RevisionProvenanceRecord).where(
                     RevisionProvenanceRecord.revision_id == rev_uuid,
@@ -1085,6 +1110,7 @@ class PostgresNarrativeRepository:
             if existing is None:
                 record = RevisionProvenanceRecord(
                     id=uuid.uuid4(),
+                    story_brain_id=brain.id,
                     tenant_id=self._tenant_id,
                     novel_id=novel_id,
                     chapter_id=chap_uuid,
@@ -1096,6 +1122,33 @@ class PostgresNarrativeRepository:
                 existing.chapter_number = chapter_number
                 existing.chapter_id = chap_uuid
             session.flush()
+
+    def get_revision_provenance(
+        self,
+        story_id: str,
+        revision_id: str,
+    ) -> dict[str, Any] | None:
+        novel_id = self._novel_id(story_id)
+        rev_uuid = self._stable_uuid("revision", revision_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(RevisionProvenanceRecord).where(
+                    RevisionProvenanceRecord.revision_id == rev_uuid,
+                    *self._scope(RevisionProvenanceRecord, novel_id),
+                )
+            )
+            if record is None:
+                return None
+            return {
+                "id": str(record.id),
+                "story_brain_id": str(record.story_brain_id),
+                "tenant_id": str(record.tenant_id),
+                "novel_id": str(record.novel_id),
+                "chapter_id": str(record.chapter_id),
+                "revision_id": str(record.revision_id),
+                "chapter_number": record.chapter_number,
+                "created_at": record.created_at,
+            }
 
     def merge_entities(
         self,
