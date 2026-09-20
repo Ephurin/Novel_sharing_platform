@@ -974,4 +974,286 @@ với trạng thái **Fixed, awaiting Astra review**, liên kết report/evidenc
 
 **Cam kết**: Không tự ý chuyển Phase 7, không commit/push git, chờ Astra review và nghiệm thu batch P6.5-R1.
 
+---
+
+### Astra review bàn giao — Phase 6.5.2 / P6.5-R1-INTEGRATION-CLOSURE-01 (2026-09-20)
+
+**Kết luận: NEEDS REVISION — chưa nghiệm thu P6.5-R1, chưa chuyển Phase 7.**
+
+Review dựa trên `main` tại commit `8c13ae4e586a3837736aad890a9cbb4be932b579`, phần Gemini bàn giao ở cuối file này, report `docs/development/P6.5-R1-INTEGRATION-CLOSURE-01-report.md`, diff từ `249d9472b2a10961f858456874eadc09ef9670fc`, và implementation hiện tại.
+
+Batch này có tiến bộ thực:
+- outbox processor đã được start/stop cùng backend lifecycle;
+- `insertOutboxEvent` có pool fallback;
+- frontend truyền `chapterId`, Node derive canonical `chapter_number`;
+- projection lỗi tại old-chapter cutoff đã fail-closed thay vì fallback latest state;
+- internal generation trust response đã expose `brain_version_used`, `context_hash`, `chapter_number`;
+- phantom route `/decision` đã được thay bằng `/edit-and-accept`;
+- Alembic đã được đưa vào AI container startup.
+
+Tuy nhiên các blocker sau vẫn tồn tại và một số test/evidence trong report chưa kiểm tra production path thực tế.
+
+#### P1 — Phải đóng trước khi nghiệm thu
+
+1. **Root Compose hiện cấu hình provider không hợp lệ và có thể không boot AI service.**
+
+   `docker-compose.yml` đặt:
+
+   ```yaml
+   LLM_PROVIDER: ${LLM_PROVIDER:-fake}
+   ```
+
+   nhưng `ai-service/core/settings.py` chỉ chấp nhận:
+
+   ```text
+   none | gemini | openai | groq
+   ```
+
+   `Settings.from_env()` chạy khi import `main.py`, nên default Compose có thể fail ngay với `ValueError` trước khi Uvicorn/healthcheck start.
+
+   **Yêu cầu:** hoặc implement deterministic fake provider như một provider hợp lệ trong composition root, hoặc tạo explicit test profile/entrypoint dùng fake service injection. Không chỉ đặt chuỗi `fake` vào environment nếu production settings không hỗ trợ. Bổ sung root Compose boot evidence.
+
+2. **Proposal/group mutation vẫn có IDOR path.**
+
+   Các controller:
+   - `acceptProposalGroupController`
+   - `rejectProposalController`
+   - `editAndAcceptProposalController`
+
+   chỉ verify novel ownership khi client tự gửi `req.body.novel_id`.
+
+   Canonical FastAPI contracts không yêu cầu `novel_id`; frontend hiện cũng không gửi trường này cho accept/reject. Vì vậy một Author biết opaque proposal/group ID có thể bypass ownership check.
+
+   **Yêu cầu:** Node phải resolve trusted `proposal/group → novel_id` trước mutation rồi chạy `assertNovelOwnership`. Không dùng body `novel_id` do client khai báo làm authorization source. Thêm HTTP negative tests cross-author cho accept group, reject proposal và edit-and-accept.
+
+3. **FastAPI public `/v1` routes vẫn chưa enforce service trust boundary.**
+
+   Frontend đã đi qua Node Gateway, nhưng các public Narrative/Writing routes vẫn chủ yếu tin `X-Tenant-Id`; chỉ internal generation endpoint có explicit service-token check. Root Compose còn publish port 8000.
+
+   **Yêu cầu:** chốt một trong hai:
+   - require `PLATFORM_SERVICE_TOKEN` cho production-facing `/v1` routes sau Gateway; hoặc
+   - network topology thực sự không expose AI service ngoài internal network và có test/config tương ứng.
+
+   Với root Compose hiện publish `8000:8000`, service auth là lựa chọn rõ ràng hơn. Tests thiếu/sai token phải fail; Gateway token đúng phải pass.
+
+4. **`/suggest-next` vẫn còn silent fallback sang writer legacy.**
+
+   Route hiện:
+
+   ```text
+   try WritingService
+   except Exception
+       → legacy narrative.story_context
+       → llm_service.generate_suggestion
+       → ConsistencyEngine
+   ```
+
+   Đây vẫn là bypass architecture mới khi WritingService gặp lỗi.
+
+   **Yêu cầu:** WritingService failure phải trả compatibility error/deprecated response rõ ràng hoặc adapter thật; không silently quay lại independent writer.
+
+5. **`/suggest-next` adapter làm mất `current_text`.**
+
+   Route tạo `revision_id="ephemeral:..."`, nhưng `process_generation()` lấy `selected_text` từ Revision Provider. Ephemeral revision không tồn tại, exception bị nuốt và `selected_text=""`.
+
+   Kết quả generation có thể không nhìn thấy đoạn văn mà client gửi.
+
+   **Yêu cầu:** không tạo fake revision chỉ để bypass provider. Nếu giữ compatibility adapter, phải truyền/persist immutable source text thực sự vào WritingService bằng một contract rõ ràng, hoặc materialize một trusted ephemeral content provider có hash/bounds validation. Test phải chứng minh prompt/generation input chứa đúng `current_text`, không chỉ assert HTTP 200.
+
+6. **Temporal fact cutoff chưa bao phủ incremental revisions sau bootstrap.**
+
+   PostgreSQL hiện dựng `revision_id → chapter_number` chủ yếu từ `BootstrapJobRecord.revisions`. Facts sinh từ incremental analysis sau bootstrap có `source_revision_id` nhưng revision đó có thể không nằm trong bootstrap map; nếu `fact_value` không tự mang chapter metadata thì `_is_fact_allowed()` có thể cho future fact lọt vào old-chapter rewrite.
+
+   Test hiện tại dùng `InMemoryNarrativeRepository` và tự nhét `chapter_number` vào fixture, không chứng minh production PostgreSQL provenance path.
+
+   **Yêu cầu:** resolve canonical `source_revision_id → chapter_id → chapter_number` cho mọi revision, không phụ thuộc bootstrap ordering. Có thể dùng trusted Platform revision metadata/cache/table nhưng phải deterministic. Bổ sung PostgreSQL integration test:
+   - bootstrap chapter 1..N;
+   - tạo revision mới chapter N+K;
+   - incremental analysis materialize fact từ revision mới;
+   - query context chapter cũ;
+   - future fact không xuất hiện.
+
+7. **Accept-time brain freshness hiện vẫn fail-open và không atomic.**
+
+   Platform fetch current brain version trước transaction. Nếu fetch lỗi, code chỉ warning rồi tiếp tục accept. Ngoài ra brain có thể tăng version sau GET nhưng trước revision commit.
+
+   **Yêu cầu:** chốt guarantee rõ:
+   - nếu policy là strict freshness: failure to verify phải fail-closed và cần server-side revalidation/accept token/version protocol đủ để không coi GET best-effort là atomic;
+   - nếu chỉ best-effort: docs/report phải nói rõ và không claim strict conflict prevention.
+
+   Với Phase 6.5 invariant hiện tại, ưu tiên strict fail-closed. Thêm test AI brain endpoint unavailable và concurrent brain bump trước accept.
+
+8. **Mongo reconciliation recovery path có thể tạo document thiếu ownership metadata.**
+
+   Khi draft chưa tồn tại, `syncDraftFromRevisionConditional()` tạo:
+   - `novelId: input.novelId ?? ''`
+   - `authorId: ''`
+
+   Trong outbox processor, `MONGO_DRAFT_SYNC` lại không truyền `novelId`/author metadata đầy đủ.
+
+   **Yêu cầu:** outbox payload phải chứa trusted `novelId`, `authorId`, title và revision metadata cần thiết; recovery insert không được tạo draft với ownership fields rỗng. Concurrent create phải xử lý duplicate-key/idempotency đúng.
+
+9. **`context_hash` vẫn chưa hash context thực sự đưa vào prompt.**
+
+   Code hiện hash:
+
+   ```python
+   json.dumps(context_package.context_summary, sort_keys=True)
+   ```
+
+   tức chủ yếu IDs/summary metadata, không phải canonical payload gồm entities/state/rules/events thực tế. Artifact content thay đổi nhưng IDs giữ nguyên có thể làm hash không đổi dù prompt context khác.
+
+   **Yêu cầu:** hash canonical serialized prompt context thực sự truyền vào `generate_writing_draft`, hoặc hash per-artifact content/version đủ để tái hiện chính xác input. `context_hash` phải thay đổi khi prompt context thay đổi.
+
+#### P2 — Evidence và concurrency cần hoàn thiện
+
+10. **Evidence directory vẫn chưa tồn tại trên repository.**
+
+    Report dẫn `docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/` bằng `file:///...`, nhưng directory này không tồn tại trên `main`.
+
+    **Yêu cầu:** commit concise evidence dưới repository. Không cần log khổng lồ; cần command, exit code, environment/profile và output tóm tắt đủ tái hiện.
+
+11. **Các test mới phần lớn vẫn helper/InMemory, chưa test production semantics.**
+
+    Ví dụ:
+    - ownership test tự định nghĩa function local;
+    - canonical cutoff test dùng helper local;
+    - Mongo CAS test mô phỏng object JS;
+    - accept brain-version test dùng pure function local;
+    - temporal tests mới dùng InMemory repository.
+
+    **Yêu cầu:** bổ sung targeted integration/system tests cho đúng repository/controller/runtime path được claim.
+
+12. **Outbox chưa có row claiming/locking cho multi-instance processor.**
+
+    `fetchPendingOutboxEvents()` select PENDING/PROCESSING nhưng không atomically claim rows bằng `FOR UPDATE SKIP LOCKED`/status transition trong transaction. Một process có `isProcessing` guard nội bộ, nhưng hai backend instances có thể cùng xử lý event.
+
+    Với MVP single backend instance có thể defer, nhưng report phải ghi explicit deployment invariant. Nếu root topology có thể scale backend >1, cần implement claim semantics trước khi gọi durable multi-instance safe.
+
+---
+
+### Giao Gemini — P6.5-R2-FINAL-CLOSURE-01
+
+**Ngày giao:** 2026-09-20  
+**Trạng thái:** Đã giao; sửa xong append bàn giao để Astra review.  
+**Mục tiêu:** Chỉ đóng các blocker còn lại của Phase 6.5. Không mở Phase 7, không thêm pgvector/embedding/multi-agent/planning.
+
+#### Phạm vi bắt buộc
+
+1. **Sửa root Compose provider**
+   - Không dùng unsupported `LLM_PROVIDER=fake`.
+   - Nếu cần deterministic system tests, implement explicit fake/test composition path hợp lệ.
+   - Chứng minh `docker compose up` đưa AI service lên healthy với PostgreSQL Narrative repository + Alembic head.
+
+2. **Enforce proposal/group ownership từ trusted lookup**
+   - Resolve proposal/group → novel ở server.
+   - AUTHOR chỉ mutate resource thuộc novel của mình; ADMIN theo policy.
+   - Không dựa vào body `novel_id`.
+   - Negative HTTP tests cho group accept, proposal reject, proposal edit-and-accept.
+
+3. **Đóng service-auth boundary**
+   - Gateway → FastAPI có token bắt buộc cho production `/v1` routes, hoặc internal-only network topology tương đương được chứng minh.
+   - Missing/wrong token fail.
+   - Health endpoint có thể public nếu cần orchestration.
+   - Không để direct browser call với forged `X-Tenant-Id` mutate/read Story Brain.
+
+4. **Đóng `/suggest-next` compatibility**
+   - Không legacy fallback.
+   - Không fake revision làm mất source text.
+   - Adapter phải dùng WritingService với đúng `current_text`/hash/bounds hoặc trả deprecation error rõ ràng.
+   - Test xác nhận exact source text tới generation input.
+
+5. **Canonical revision provenance cho temporal facts**
+   - Mọi `source_revision_id` phải resolve được chapter number, kể cả incremental revisions sau bootstrap.
+   - Old-chapter context loại future events, future facts và future state.
+   - PostgreSQL integration test thực, không InMemory-only.
+
+6. **Accept-time brain policy**
+   - Chốt strict vs best-effort trong docs.
+   - Nếu strict: verification failure fail-closed; stale brain trước commit không được materialize revision mà không revalidation.
+   - Test unavailable brain endpoint + brain bump race.
+
+7. **Mongo recovery metadata**
+   - Outbox payload có trusted novel/author/title/revision metadata.
+   - Recovery create không có empty `novelId`/`authorId`.
+   - Concurrent/idempotent insert semantics rõ và test trên MongoDB thật hoặc container integration.
+
+8. **Context trace**
+   - Hash canonical context payload thực sự gửi LLM.
+   - Persist/expose `context_hash`, brain version, cutoff và artifact/version trace cần thiết.
+   - Test đổi content với cùng artifact ID → hash phải đổi.
+
+9. **Evidence**
+   - Tạo:
+     - `docs/development/P6.5-R2-FINAL-CLOSURE-01-report.md`
+     - `docs/development/P6.5-R2-FINAL-CLOSURE-01/`
+   - Evidence nằm trong repo, không `file:///...`.
+   - Phân loại unit / repository integration / HTTP / browser / system.
+
+#### System evidence tối thiểu
+
+Phải có một reproducible flow trên root Compose/test profile:
+
+```text
+PostgreSQL + MongoDB + AI service + Backend
+    ↓
+authorized author
+    ↓
+Node AI Gateway
+    ↓
+context preview with canonical cutoff
+    ↓
+writing generation
+    ↓
+validated completed job
+    ↓
+accept revision
+    ↓
+brain freshness policy enforced
+    ↓
+revision + outbox
+    ↓
+incremental analysis processed
+```
+
+Và negative probes:
+- direct FastAPI request thiếu service credential;
+- cross-author proposal/group mutation;
+- future incremental fact trong old-chapter rewrite;
+- Mongo reconciliation sau failure;
+- AI brain endpoint unavailable lúc accept;
+- `/suggest-next` không chạy legacy fallback.
+
+Fake LLM chỉ được dùng để chứng minh orchestration/correctness, không dùng để claim chất lượng văn chương.
+
+#### Giới hạn thay đổi
+
+- Chỉ sửa root causes của R2 trong `backend/`, `ai-service/`, `web/`, Compose, test/docs liên quan.
+- Không triển khai Phase 7.
+- Không thêm pgvector/embeddings.
+- Không multi-agent.
+- Không refactor diện rộng.
+- Không xóa lịch sử review.
+- Không tự đánh dấu Phase 6.5 accepted.
+- Không force push/reset/clean dữ liệu ngoài isolated test environment.
+
+#### Bàn giao lại
+
+Khi hoàn thành, append vào cuối `promt.md`:
+
+`Gemini bàn giao — P6.5-R2-FINAL-CLOSURE-01`
+
+với trạng thái **Fixed, awaiting Astra review**.
+
+Bàn giao phải có bảng:
+
+```text
+Finding
+→ root cause
+→ file/code sửa
+→ test loại gì
+→ evidence path trong repo
+```
+
+**Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu P6.5-R2.**
 
