@@ -34,6 +34,8 @@ services:
     environment:
       APP_ENV: production
       PORT: 8000
+      NARRATIVE_REPOSITORY: postgres
+      LLM_PROVIDER: ${LLM_PROVIDER:-fake}
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ephurin
       PLATFORM_API_BASE_URL: http://backend:4000
       PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-test-token}

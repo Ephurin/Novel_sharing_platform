@@ -124,7 +124,8 @@ export async function createSnapshot(
       title: chapter.title,
       content,
       wordCount,
-      acceptTimestamp: snapshotTime
+      acceptTimestamp: snapshotTime,
+      novelId: chapter.novelId
     });
   } catch (mongoErr: any) {
     console.error(
@@ -132,7 +133,7 @@ export async function createSnapshot(
       mongoErr?.message || mongoErr
     );
     try {
-      await insertOutboxEvent(undefined as any, {
+      await insertOutboxEvent(undefined, {
         eventType: 'MONGO_DRAFT_SYNC',
         novelId: chapter.novelId,
         chapterId,
@@ -208,6 +209,35 @@ export async function acceptDraft(
 
   if (generation.chapter_id !== chapterId) {
     throw new AppError(400, 'CHAPTER_MISMATCH', 'Generation chapter does not match target chapter');
+  }
+
+  // Accept-Time Brain Freshness Policy: Ensure Story Brain has not advanced since draft was generated
+  if (generation.brain_version_used) {
+    try {
+      const brainUrl = `${env.AI_SERVICE_URL}/v1/story-brains/by-novel/${chapter.novelId}`;
+      const brainRes = await fetch(brainUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Tenant-Id': '00000000-0000-0000-0000-000000000001',
+          'X-Request-Id': crypto.randomUUID()
+        }
+      });
+      if (brainRes.ok) {
+        const brainBody = (await brainRes.json()) as any;
+        const currentVersion = brainBody?.data?.brain_version;
+        if (typeof currentVersion === 'number' && currentVersion > generation.brain_version_used) {
+          throw new AppError(
+            409,
+            'BRAIN_VERSION_CONFLICT',
+            `Story Brain has advanced to version ${currentVersion} since draft was generated (version ${generation.brain_version_used}). Please review or regenerate.`
+          );
+        }
+      }
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
+      // If brain summary fails to load, log warning but do not block accept unless brain version check explicitly failed
+      console.warn('[acceptDraft] Failed to check story brain version freshness:', err?.message || err);
+    }
   }
 
   // 2. Transactional dual-write & conflict verification
@@ -290,7 +320,8 @@ export async function acceptDraft(
       title: chapter.title,
       content: newRevision.content,
       wordCount: newRevision.wordCount,
-      acceptTimestamp: acceptTime
+      acceptTimestamp: acceptTime,
+      novelId: chapter.novelId
     });
     if (syncRes.status === 'skipped_newer_draft') {
       console.log(
@@ -303,7 +334,7 @@ export async function acceptDraft(
       mongoErr?.message || mongoErr
     );
     try {
-      await insertOutboxEvent(undefined as any, {
+      await insertOutboxEvent(undefined, {
         eventType: 'MONGO_DRAFT_SYNC',
         novelId: chapter.novelId,
         chapterId,

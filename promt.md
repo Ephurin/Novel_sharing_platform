@@ -943,3 +943,35 @@ với trạng thái **Fixed, awaiting Astra review**, liên kết report/evidenc
 
 **Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu correction batch này.**
 
+---
+
+## Gemini bàn giao — P6.5-R1-INTEGRATION-CLOSURE-01
+
+- **Trạng thái**: `Fixed, awaiting Astra review`
+- **Báo cáo chi tiết**: [docs/development/P6.5-R1-INTEGRATION-CLOSURE-01-report.md](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-R1-INTEGRATION-CLOSURE-01-report.md)
+- **Thư mục evidence logs**: [docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/)
+  - Python Pytest (8/8 passed): [python-pytest.log](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/python-pytest.log)
+  - Backend Unit/Integration Tests (15/15 passed): [backend-test.log](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/backend-test.log)
+  - Backend Typecheck (0 errors): [backend-typecheck.log](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/backend-typecheck.log)
+  - Web Typecheck (0 errors): [web-typecheck.log](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/web-typecheck.log)
+  - Web Production Build (7,056 modules transformed, built in 12.06s): [web-build.log](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/P6.5-R1-INTEGRATION-CLOSURE-01/web-build.log)
+
+### Bảng đối soát 11 Finding của Astra -> File sửa -> Test/Evidence
+
+| # | Finding của Astra | File sửa đổi | Test / Evidence xác thực |
+|---|---|---|---|
+| 1 | Outbox background lifecycle | `backend/src/main.ts` | Khởi động `startOutboxProcessor()` khi boot và `stopOutboxProcessor()` khi shutdown; `backend/src/modules/novels/outbox.test.ts` (15/15 passed) |
+| 2 | Real MongoDB draft reconciliation CAS & atomic creation | `backend/src/modules/novels/draft-chapters.repository.ts`, `backend/src/modules/novels/outbox.repository.ts` | `syncDraftFromRevisionConditional` tạo document mới nếu chưa có draft, CAS giữ nguyên draft tác giả sửa tay; `insertOutboxEvent` fallback pool không crash |
+| 3 | Canonical chapter cutoff derivation | `backend/src/modules/ai/ai-gateway.controller.ts`, `web/src/features/ai-copilot/WritingAssistantPanel.tsx`, `web/src/features/ai-copilot/ai-copilot-api.ts` | Node Gateway tra DB lấy `chapterNumber` ghi đè cutoff từ client; test `Canonical chapter cutoff derivation from DB record overrides client cutoff` passed |
+| 4 | Temporal fact/state correctness & fail-closed projection | `ai-service/infrastructure/postgres_narrative_repository.py`, `ai-service/infrastructure/in_memory_narrative_repository.py` | Projection lỗi chuyển sang fail-closed (`state_by_entity = {}`), facts ở chapter sau bị lọc khỏi context; tests `test_facts_filtered_by_chapter_cutoff`, `test_fail_closed_on_projection_error` passed |
+| 5 | AI Gateway resource authorization | `backend/src/modules/ai/ai-gateway.controller.ts` | Kiểm tra tác quyền novel/chapter theo author/admin, trả 403 FORBIDDEN khi truy cập trái phép; test `assertNovelOwnership enforces author access control with 403 FORBIDDEN` passed |
+| 6 | Single-tenant platform MVP documentation | `docs/development/P6.5-R1-INTEGRATION-CLOSURE-01-report.md` | Tài liệu hóa mô hình single-tenant `00000000-0000-0000-0000-000000000001`, phân tách ranh giới bảo mật cấp author qua JWT và `PLATFORM_SERVICE_TOKEN` |
+| 7 | Root docker-compose.yml topology & Alembic migrations | `docker-compose.yml`, `ai-service/Dockerfile` | Thiết lập `NARRATIVE_REPOSITORY: postgres`, `LLM_PROVIDER: fake`, `CMD` chạy `alembic upgrade head` trước khi start uvicorn |
+| 8 | Legacy route closure (/suggest-next) | `ai-service/api/routes.py`, `ai-service/application/writing_service.py` | Định tuyến `/suggest-next` qua `writing_service.start_generation(..., process_inline=True)` với ephemeral revision; test `test_suggest_next_delegates_to_writing_service` passed |
+| 9 | Accept-time brain version conflict policy | `backend/src/modules/novels/chapter-revisions.service.ts` | Kiểm tra `brain_version` hiện tại khi accept draft, trả 409 `BRAIN_VERSION_CONFLICT` nếu stale; test `Accept-time brain version conflict rejects stale generation` passed |
+| 10 | Gateway contract cleanup (/edit-and-accept) | `backend/src/modules/ai/ai-gateway.routes.ts`, `backend/src/modules/ai/ai-gateway.controller.ts` | Thay route ảo `/decision` bằng canonical `POST /proposals/:proposalId/edit-and-accept` |
+| 11 | Context traceability | `ai-service/application/writing_service.py`, `ai-service/api/narrative_routes.py` | Hash context package thành `context_hash`, lưu trữ vào job và expose qua endpoint generation status |
+
+**Cam kết**: Không tự ý chuyển Phase 7, không commit/push git, chờ Astra review và nghiệm thu batch P6.5-R1.
+
+

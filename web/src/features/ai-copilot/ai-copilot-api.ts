@@ -127,12 +127,13 @@ export type ChapterRevision = {
 
 export async function fetchContextPreview(
   storyBrainId: string,
-  options?: { chapterNumber?: number; characterName?: string; tokenBudget?: number }
+  options?: { chapterNumber?: number; chapterId?: string; characterName?: string; tokenBudget?: number }
 ): Promise<ContextPreviewData> {
   const response = await apiClient.get<ApiEnvelope<ContextPreviewData>>(
     `/ai/story-brains/${storyBrainId}/context-preview`,
     {
       params: {
+        chapter_id: options?.chapterId,
         chapter_number: options?.chapterNumber,
         character_name: options?.characterName,
         token_budget: options?.tokenBudget,

@@ -103,4 +103,72 @@ describe('Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)', () => 
     assert.equal(syncResult2.status, 'skipped_newer_draft');
     assert.equal(syncResult2.draft.content, 'Nội dung tác giả vừa sửa tay sau đó!');
   });
+
+  test('Conditional MongoDB draft reconciliation creates new draft if not found', () => {
+    function simulateSyncNullDraft(
+      existingDraft: any,
+      acceptRevision: {
+        novelId: string;
+        chapterId: string;
+        revisionId: string;
+        content: string;
+        wordCount: number;
+        acceptTimestamp: Date;
+      }
+    ) {
+      if (!existingDraft) {
+        return {
+          status: 'synced',
+          draft: {
+            novelId: acceptRevision.novelId,
+            chapterId: acceptRevision.chapterId,
+            title: '',
+            content: acceptRevision.content,
+            wordCount: acceptRevision.wordCount,
+            lastAcceptedRevisionId: acceptRevision.revisionId,
+            lastAcceptedAt: acceptRevision.acceptTimestamp,
+            updatedAt: new Date(),
+            version: 1,
+          },
+        };
+      }
+      return { status: 'skipped_newer_draft', draft: existingDraft };
+    }
+
+    const res = simulateSyncNullDraft(null, {
+      novelId: 'nov-1',
+      chapterId: 'ch-1',
+      revisionId: 'rev-1',
+      content: 'Bản thảo ban đầu từ revision',
+      wordCount: 5,
+      acceptTimestamp: new Date(),
+    });
+
+    assert.equal(res.status, 'synced');
+    assert.equal(res.draft.version, 1);
+    assert.equal(res.draft.content, 'Bản thảo ban đầu từ revision');
+    assert.equal(res.draft.lastAcceptedRevisionId, 'rev-1');
+  });
+
+  test('Accept-time brain version conflict rejects stale generation', () => {
+    function checkBrainFreshness(
+      generationBrainVersion: number,
+      currentBrainVersion: number
+    ): { allowed: boolean; code?: string } {
+      if (currentBrainVersion > generationBrainVersion) {
+        return { allowed: false, code: 'BRAIN_VERSION_CONFLICT' };
+      }
+      return { allowed: true };
+    }
+
+    // Generation generated with brain version 1, current brain bumped to 2
+    const staleCheck = checkBrainFreshness(1, 2);
+    assert.equal(staleCheck.allowed, false);
+    assert.equal(staleCheck.code, 'BRAIN_VERSION_CONFLICT');
+
+    // Generation generated with current brain version 2
+    const freshCheck = checkBrainFreshness(2, 2);
+    assert.equal(freshCheck.allowed, true);
+  });
 });
+

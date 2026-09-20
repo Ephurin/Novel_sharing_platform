@@ -44,7 +44,7 @@ function mapOutboxEvent(row: QueryResultRow): RevisionOutboxEvent {
 }
 
 export async function insertOutboxEvent(
-  client: DbClient,
+  client: DbClient | undefined,
   input: {
     eventType: string;
     novelId: string;
@@ -56,7 +56,8 @@ export async function insertOutboxEvent(
     maxRetries?: number;
   }
 ): Promise<RevisionOutboxEvent> {
-  const result = await client.query(
+  const executor = client ?? getPostgresPool();
+  const result = await executor.query(
     `
       insert into revision_outbox_events (
         event_type,

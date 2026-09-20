@@ -551,5 +551,8 @@ def get_internal_writing_generation(
             "validation_status": job.validation_status,
             "validations": [asdict(v) for v in job.validations],
             "status": job.status,
+            "brain_version_used": job.brain_version_used,
+            "context_hash": job.context_hash,
+            "chapter_number": job.chapter_number,
         }
     }

@@ -8,8 +8,10 @@ Sau refactor:
 - Route functions chỉ làm nhiệm vụ orchestration: nhận request → gọi service → trả response
 """
 
+import hashlib
 import time
 import logging
+import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
@@ -28,6 +30,7 @@ from api.schemas import (
     LLMGenerateResponse,
     SuggestNextRequest,
     SuggestNextResponse,
+    SuggestionValidationOut,
     SyncStoryRequest,
     SyncStoryResponse,
 )
@@ -157,15 +160,80 @@ def suggest_next(
         )
     started = time.perf_counter()
 
-    # Route through WritingService context builder if available
+    # Unified generation via WritingService (Phase 6.5 consolidation)
     try:
-        writing_service.preview_context(
-            tenant_id="00000000-0000-0000-0000-000000000001",
-            story_id=payload.story_id,
+        content_hash = hashlib.sha256(payload.current_text.encode("utf-8")).hexdigest()
+        tenant_id = "00000000-0000-0000-0000-000000000001"
+        brain = writing_service._repository.get_story_brain(payload.story_id)
+        expected_brain_version = int(brain.metadata.get("brain_version", "1")) if brain else 1
+        job = writing_service.start_generation(
+            tenant_id=tenant_id,
+            novel_id=payload.story_id,
+            chapter_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"chapter:{payload.story_id}")),
+            revision_id=f"ephemeral:{content_hash}",
+            content_hash=content_hash,
+            operation="continue",
+            selection={
+                "start": len(payload.current_text),
+                "end": len(payload.current_text),
+                "cursor": len(payload.current_text),
+            },
+            instruction=f"Tiếp tục đoạn văn cho nhân vật {payload.character_name} với mood {payload.mood}",
+            style={"mood": payload.mood},
+            expected_brain_version=expected_brain_version,
+            process_inline=True,
+        )
+
+        suggestion_text = job.draft or ""
+        suggestions = [suggestion_text] if suggestion_text else []
+        validations: list[SuggestionValidationOut] = []
+        is_consistent = job.validation_status in ("passed", "pending")
+        if job.validations:
+            for v in job.validations:
+                if isinstance(v, dict):
+                    code = str(v.get("code") or v.get("check_type") or "CONSISTENCY_CHECK")
+                    msg = str(v.get("message", "Validation result"))
+                    passed = bool(v.get("passed", True))
+                else:
+                    code = str(getattr(v, "code", "") or getattr(v, "validator", "CONSISTENCY_CHECK"))
+                    msg = str(getattr(v, "message", "Validation result"))
+                    passed = bool(getattr(v, "passed", True))
+                errs = [{"code": code, "message": msg}] if not passed else []
+                validations.append(
+                    SuggestionValidationOut(
+                        suggestion=suggestion_text,
+                        is_consistent=passed,
+                        action="Accept" if passed else "Regenerate",
+                        errors=errs,
+                    )
+                )
+        else:
+            validations.append(
+                SuggestionValidationOut(
+                    suggestion=suggestion_text,
+                    is_consistent=is_consistent,
+                    action="Accept" if is_consistent else "Regenerate",
+                    errors=[],
+                )
+            )
+
+        graph_context = narrative.story_context(
+            payload.story_id, payload.character_name, limit=payload.graph_limit
+        )
+        processing_ms = round((time.perf_counter() - started) * 1000.0, 3)
+
+        return SuggestNextResponse(
             character_name=payload.character_name,
+            graph_context=graph_context,
+            suggestions=suggestions,
+            validations=validations,
+            attempts=1,
+            regenerated=False,
+            status="accepted" if is_consistent else "conflict_detected",
+            processing_ms=processing_ms,
         )
     except Exception as exc:
-        logger.debug("WritingService preview_context fallback for suggest-next: %s", exc)
+        logger.warning("WritingService delegation fallback for suggest-next: %s", exc)
 
     graph_context = narrative.story_context(
         payload.story_id, payload.character_name, limit=payload.graph_limit

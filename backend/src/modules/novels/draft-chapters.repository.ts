@@ -82,6 +82,7 @@ export async function syncDraftFromRevisionConditional(input: {
   content: string;
   wordCount: number;
   acceptTimestamp: Date;
+  novelId?: string;
 }): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {
   const now = new Date();
   const existing = await collection().findOne({ chapterId: input.chapterId, deletedAt: null });
@@ -89,6 +90,25 @@ export async function syncDraftFromRevisionConditional(input: {
     if (existing.updatedAt && existing.updatedAt > input.acceptTimestamp) {
       return { status: 'skipped_newer_draft', draft: existing };
     }
+  } else {
+    // If draft does not exist yet, atomically create it
+    const newDraft: DraftChapterDocument = {
+      novelId: input.novelId ?? '',
+      chapterId: input.chapterId,
+      authorId: '',
+      title: input.title ?? 'Chương mới',
+      content: input.content,
+      wordCount: input.wordCount,
+      version: 1,
+      autosave: false,
+      lastAcceptedRevisionId: input.revisionId,
+      lastAcceptedAt: input.acceptTimestamp,
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null
+    };
+    await collection().insertOne(newDraft as any);
+    return { status: 'synced', draft: newDraft };
   }
 
   const result = await collection().updateOne(

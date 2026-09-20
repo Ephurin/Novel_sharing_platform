@@ -148,7 +148,7 @@ class WritingService:
             )
 
         base_content_length: int | None = None
-        if self._revision_provider:
+        if self._revision_provider and not revision_id.startswith("ephemeral:"):
             rev_content = self._revision_provider.get_revision(
                 tenant_id=tenant_id,
                 novel_id=novel_id,
@@ -164,6 +164,8 @@ class WritingService:
                 raise SelectionOutOfBoundsError(
                     f"Selection offsets ({start}, {end}, cursor={cursor}) exceed text length {base_content_length}"
                 )
+        elif revision_id.startswith("ephemeral:"):
+            base_content_length = max(cursor, end)
 
         # 3. Brain Version validation
         brain = self._repository.get_story_brain(novel_id)

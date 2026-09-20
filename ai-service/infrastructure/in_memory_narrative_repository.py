@@ -607,16 +607,30 @@ class InMemoryNarrativeRepository:
         active_events = [ev for ev in candidate_events if str(ev.event_id) not in replacements]
         events_for_output = active_events[-limit_recent_events:]
 
+        def _is_fact_allowed(fact: dict[str, Any]) -> bool:
+            if chapter_number is None:
+                return True
+            f_ch = fact.get("chapter_number") or fact.get("chapter")
+            if f_ch is None and isinstance(fact.get("fact_value"), dict):
+                f_ch = fact["fact_value"].get("chapter_number") or fact["fact_value"].get("chapter")
+            if f_ch is not None and int(f_ch) > chapter_number:
+                return False
+            return True
+
+        active_facts = [f for f in brain.facts if _is_fact_allowed(f)]
+
         # 2. Entity State Resolution (as-of chapter cutoff if chapter_number specified)
         as_of_states: dict[str, dict[str, Any]] = {}
         if chapter_number is not None and getattr(brain, "transitions", None):
             active_event_ids = {str(ev.event_id) for ev in active_events}
+            active_fact_ids = {str(f.get("id") or f.get("fact_id")) for f in active_facts}
             active_transitions = [
                 t for t in brain.transitions
-                if t.get("fact_id") or str(t.get("event_id")) in active_event_ids
+                if (t.get("fact_id") and str(t.get("fact_id")) in active_fact_ids)
+                or (t.get("event_id") and str(t.get("event_id")) in active_event_ids)
             ]
             try:
-                proj = project(brain.entities, brain.facts, active_events, active_transitions)
+                proj = project(brain.entities, active_facts, active_events, active_transitions)
                 as_of_states = proj.get("entities", {})
             except Exception:
                 as_of_states = {}
@@ -624,7 +638,7 @@ class InMemoryNarrativeRepository:
         # 3. Facts and World rules separation
         locked_rules = []
         other_rules = []
-        for fact in brain.facts:
+        for fact in active_facts:
             f_id = str(fact.get("id") or fact.get("fact_id") or "")
             f_type = fact.get("fact_type") or fact.get("type", "")
             f_locked = bool(fact.get("is_locked", False))

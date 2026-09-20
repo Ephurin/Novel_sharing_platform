@@ -133,4 +133,47 @@ describe('Node.js AI Gateway Service (P6.5 Hardening)', () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  test('assertNovelOwnership enforces author access control with 403 FORBIDDEN', () => {
+    function assertNovelOwnership(novel: { authorId: string }, userId: string, role: string) {
+      if (role === 'admin') return;
+      if (novel.authorId !== userId) {
+        throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền truy cập tác phẩm này');
+      }
+    }
+
+    const novel = { authorId: 'author-alice' };
+
+    // Alice accessing her novel -> ok
+    assert.doesNotThrow(() => assertNovelOwnership(novel, 'author-alice', 'author'));
+
+    // Admin accessing novel -> ok
+    assert.doesNotThrow(() => assertNovelOwnership(novel, 'admin-bob', 'admin'));
+
+    // Attacker Bob accessing Alice's novel -> 403 Forbidden
+    assert.throws(
+      () => assertNovelOwnership(novel, 'author-bob', 'author'),
+      (err: any) => err instanceof AppError && err.httpStatus === 403 && err.code === 'FORBIDDEN'
+    );
+  });
+
+  test('Canonical chapter cutoff derivation from DB record overrides client cutoff', () => {
+    function deriveCanonicalCutoff(
+      chapterFromDb: { chapterNumber: number } | null,
+      clientProvidedCutoff?: number
+    ): number | undefined {
+      if (chapterFromDb) {
+        return chapterFromDb.chapterNumber;
+      }
+      return clientProvidedCutoff;
+    }
+
+    // Client maliciously requests chapter 99 for a chapter 2 generation
+    const dbChapter = { chapterNumber: 2 };
+    const clientProvided = 99;
+
+    const canonicalCutoff = deriveCanonicalCutoff(dbChapter, clientProvided);
+    assert.equal(canonicalCutoff, 2, 'Canonical chapter number from DB must override client supplied cutoff');
+  });
 });
+

@@ -3,7 +3,7 @@ import { requireAuth, requireRoles } from '../../core/security/auth.middleware.j
 import {
   acceptProposalGroupController,
   activateBaselineController,
-  decideProposalController,
+  editAndAcceptProposalController,
   getContextPreviewController,
   getJobStatusController,
   getReviewQueueController,
@@ -57,8 +57,8 @@ aiGatewayRoutes.post(
 );
 
 aiGatewayRoutes.post(
-  '/proposals/:proposalId/decision',
-  decideProposalController
+  '/proposals/:proposalId/edit-and-accept',
+  editAndAcceptProposalController
 );
 
 // Writing Generations

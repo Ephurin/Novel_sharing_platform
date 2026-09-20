@@ -125,7 +125,7 @@ export function WritingAssistantPanel({
     setPreviewLoading(true);
     setPreviewError(null);
     try {
-      const data = await fetchContextPreview(novelId);
+      const data = await fetchContextPreview(novelId, { chapterId });
       setPreviewData(data);
     } catch (err: unknown) {
       setPreviewError(err instanceof Error ? err.message : 'Không thể tải ngữ cảnh cốt truyện');
@@ -180,7 +180,7 @@ export function WritingAssistantPanel({
       let brainVer = previewData?.brain_version;
       if (!brainVer && novelId) {
         try {
-          const preview = await fetchContextPreview(novelId);
+          const preview = await fetchContextPreview(novelId, { chapterId });
           setPreviewData(preview);
           brainVer = preview.brain_version;
         } catch {

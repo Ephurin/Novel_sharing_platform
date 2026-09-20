@@ -1,8 +1,8 @@
 {
   "story_id": "other",
   "metadata": {
-    "created_at": "2026-09-19T16:21:20.372790+00:00",
-    "updated_at": "2026-09-19T16:21:20.386885+00:00"
+    "created_at": "2026-09-19T16:57:16.707397+00:00",
+    "updated_at": "2026-09-19T16:57:16.719759+00:00"
   },
   "entities": {
     "minh": {
@@ -35,16 +35,16 @@
   "enhanced_events": [],
   "proposals": [
     {
-      "proposal_id": "f687be83-3cea-48a9-ad4e-71e9d265c8d2",
+      "proposal_id": "896ed9da-eb8c-4297-aee8-fc584b1e106c",
       "proposal_type": "state_transition",
       "payload": {
-        "event_id": "ad178f46-f53e-4ef2-8708-09c1d7ff0e4f",
+        "event_id": "94ebbb0e-7469-4e70-afae-8b115bb580fe",
         "entity_id": "Minh",
         "attribute_key": "health",
         "new_value": 90
       },
       "analysis_run_id": null,
-      "dependency_group_id": "35b6cdea-d4c9-45d4-8a5a-0516da978a87",
+      "dependency_group_id": "2004edd2-3497-4cde-9302-d9a7842cbaf1",
       "materialization_order": 1,
       "evidence": [],
       "confidence": null,

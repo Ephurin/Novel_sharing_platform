@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import uuid
 from dataclasses import asdict
 from decimal import Decimal
 from typing import Any
-from typing import Any
 
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.orm import Session, sessionmaker
+
+logger = logging.getLogger(__name__)
 
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
 from domain.errors import IdempotencyConflictError, OptimisticLockError
@@ -1508,12 +1510,49 @@ class PostgresNarrativeRepository:
                 )
             ).all()
 
-            facts = session.scalars(
+            # If chapter_number is specified, build map of revision_id -> chapter_number from BootstrapJobRecord
+            revision_chapters: dict[uuid.UUID, int] = {}
+            if chapter_number is not None:
+                bootstrap_jobs = session.scalars(
+                    select(BootstrapJobRecord).where(*self._scope(BootstrapJobRecord, novel_id))
+                ).all()
+                for b_job in bootstrap_jobs:
+                    for idx, rev in enumerate(b_job.revisions or []):
+                        r_id_str = rev.get("revision_id")
+                        if r_id_str:
+                            ch_num = rev.get("chapter_number")
+                            if ch_num is None:
+                                ch_num = idx + 1
+                            try:
+                                r_uuid = uuid.UUID(str(r_id_str))
+                                revision_chapters[r_uuid] = int(ch_num)
+                            except Exception:
+                                pass
+
+            raw_facts = session.scalars(
                 select(FactRecord).where(
                     FactRecord.confirmation_status == "confirmed",
                     *self._scope(FactRecord, novel_id),
                 )
             ).all()
+
+            def _is_fact_allowed(f: FactRecord) -> bool:
+                if chapter_number is None:
+                    return True
+                if hasattr(f, "chapter_number") and f.chapter_number is not None and f.chapter_number > chapter_number:
+                    return False
+                if hasattr(f, "chapter") and f.chapter is not None and f.chapter > chapter_number:
+                    return False
+                if isinstance(f.fact_value, dict):
+                    f_ch = f.fact_value.get("chapter_number") or f.fact_value.get("chapter")
+                    if f_ch is not None and int(f_ch) > chapter_number:
+                        return False
+                if f.source_revision_id and f.source_revision_id in revision_chapters:
+                    if revision_chapters[f.source_revision_id] > chapter_number:
+                        return False
+                return True
+
+            facts = [f for f in raw_facts if _is_fact_allowed(f)]
 
             # 1. Confirmed Events with temporal cutoff and supersede resolution
             event_stmt = select(EventRecord).where(
@@ -1543,16 +1582,19 @@ class PostgresNarrativeRepository:
             state_by_entity: dict[str, dict[str, Any]] = {}
             if chapter_number is not None:
                 active_event_uuids = [ev.id for ev in active_events]
+                allowed_fact_uuids = [f.id for f in facts]
                 trans_stmt = select(StateTransitionRecord).where(
                     *self._scope(StateTransitionRecord, novel_id),
                 )
+                conditions = []
                 if active_event_uuids:
-                    trans_stmt = trans_stmt.where(
-                        (StateTransitionRecord.fact_id.is_not(None)) |
-                        (StateTransitionRecord.event_id.in_(active_event_uuids))
-                    )
+                    conditions.append(StateTransitionRecord.event_id.in_(active_event_uuids))
+                if allowed_fact_uuids:
+                    conditions.append(StateTransitionRecord.fact_id.in_(allowed_fact_uuids))
+                if conditions:
+                    trans_stmt = trans_stmt.where(or_(*conditions))
                 else:
-                    trans_stmt = trans_stmt.where(StateTransitionRecord.fact_id.is_not(None))
+                    trans_stmt = trans_stmt.where(StateTransitionRecord.id.is_(None))
                 transitions = session.scalars(
                     trans_stmt.order_by(StateTransitionRecord.sequence.asc())
                 ).all()
@@ -1583,11 +1625,14 @@ class PostgresNarrativeRepository:
                 try:
                     projected = project(proj_entities, proj_facts, proj_events, proj_trans)
                     state_by_entity = projected.get("entities", {})
-                except Exception:
-                    current_states = session.scalars(
-                        select(CurrentEntityStateRecord).where(*self._scope(CurrentEntityStateRecord, novel_id))
-                    ).all()
-                    state_by_entity = {str(s.entity_id): s.state for s in current_states}
+                except Exception as exc:
+                    logger.warning(
+                        "State projection failed for novel %s at chapter %s; failing closed with empty dynamic state: %s",
+                        novel_id,
+                        chapter_number,
+                        exc,
+                    )
+                    state_by_entity = {}
             else:
                 current_states = session.scalars(
                     select(CurrentEntityStateRecord).where(*self._scope(CurrentEntityStateRecord, novel_id))

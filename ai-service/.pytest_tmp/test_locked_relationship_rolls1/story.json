@@ -1,8 +1,8 @@
 {
   "story_id": "story",
   "metadata": {
-    "created_at": "2026-09-19T16:21:20.677127+00:00",
-    "updated_at": "2026-09-19T16:21:20.721115+00:00"
+    "created_at": "2026-09-19T16:57:16.926376+00:00",
+    "updated_at": "2026-09-19T16:57:16.963752+00:00"
   },
   "entities": {
     "minh": {
@@ -61,10 +61,10 @@
   "enhanced_events": [],
   "proposals": [
     {
-      "proposal_id": "391c5e3b-fd70-4b8a-a5f1-09d2bcb32450",
+      "proposal_id": "601ab6e2-b1ac-4d75-b933-6a79971b0f94",
       "proposal_type": "event",
       "payload": {
-        "event_id": "391c5e3b-fd70-4b8a-a5f1-09d2bcb32450",
+        "event_id": "601ab6e2-b1ac-4d75-b933-6a79971b0f94",
         "event_type": "injury",
         "summary": "Minh was injured",
         "participants": [
@@ -73,7 +73,7 @@
         "chapter": 1
       },
       "analysis_run_id": null,
-      "dependency_group_id": "cefbc830-81a5-48fa-b533-e1c2fe2a99d7",
+      "dependency_group_id": "fb1c695b-7716-44a0-abcf-0d101deb4aed",
       "materialization_order": 0,
       "evidence": [],
       "confidence": null,
@@ -82,10 +82,10 @@
       "decision_reason": null
     },
     {
-      "proposal_id": "bd517eb9-9b07-4c14-aba7-7a9064f8ca8d",
+      "proposal_id": "268dcfd3-c3b6-4ceb-921c-9c8875c6ceda",
       "proposal_type": "state_transition",
       "payload": {
-        "event_id": "391c5e3b-fd70-4b8a-a5f1-09d2bcb32450",
+        "event_id": "601ab6e2-b1ac-4d75-b933-6a79971b0f94",
         "entity_id": "Minh",
         "attribute_key": "active_relationships",
         "new_value": {
@@ -93,7 +93,7 @@
         }
       },
       "analysis_run_id": null,
-      "dependency_group_id": "cefbc830-81a5-48fa-b533-e1c2fe2a99d7",
+      "dependency_group_id": "fb1c695b-7716-44a0-abcf-0d101deb4aed",
       "materialization_order": 1,
       "evidence": [],
       "confidence": null,
@@ -113,7 +113,7 @@
         "source": "author",
         "locked": true
       },
-      "timestamp": "2026-09-19T16:21:20.705110+00:00"
+      "timestamp": "2026-09-19T16:57:16.947233+00:00"
     }
   ],
   "entity_states": {},
