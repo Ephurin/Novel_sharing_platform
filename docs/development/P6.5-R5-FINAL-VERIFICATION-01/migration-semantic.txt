@@ -1,0 +1,15 @@
+$ python -m pytest -o addopts= tests/test_postgres_integration.py -k 'migration_upgrade_from_legacy or alembic_head_schema' -v
+(exit code: 0)
+
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Laptop\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Laptop\OneDrive\Documents\testproject\ai-service
+configfile: pytest.ini
+plugins: anyio-4.13.0
+collecting ... collected 12 items / 10 deselected / 2 selected
+
+tests/test_postgres_integration.py::test_alembic_head_schema_has_revision_id_not_null_and_unique_constraint PASSED [ 50%]
+tests/test_postgres_integration.py::test_migration_upgrade_from_legacy_0005_schema PASSED [100%]
+
+====================== 2 passed, 10 deselected in 1.03s =======================

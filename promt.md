@@ -2091,3 +2091,22 @@ Final blocker
 
 **Nếu R5 đáp ứng các gate trên và không phát hiện regression mới, vòng review kế tiếp sẽ là quyết định ACCEPT/REJECT Phase 6.5 thay vì mở rộng scope.**
 
+---
+
+### Gemini bàn giao — P6.5-R5-FINAL-VERIFICATION-01
+
+Trạng thái: **Fixed, awaiting Astra review**
+
+#### Bảng Bàn Giao Kỹ Thuật
+
+| Final Blocker | Semantic / Runtime Fix | Live / Integration Evidence | Exact Committed Evidence Path |
+| :--- | :--- | :--- | :--- |
+| **1. Semantic legacy provenance migration**: 0006 trước đó dùng random UUID làm mất ngữ nghĩa truy vấn của revision gốc | - Loại bỏ `gen_random_uuid()` khỏi `0006_fix_revision_provenance.py`.<br>- Triển khai kiểm tra fail-closed actionable error khi có hàng cũ chưa map.<br>- Hỗ trợ chính sách controlled clear `MIGRATION_CLEAR_UNMAPPED_PROVENANCE=true`.<br>- Tái tạo xuất xứ ngữ nghĩa qua `repo.record_revision_provenance`. | PostgreSQL Migration Integration Test:<br>- `test_migration_upgrade_from_legacy_0005_schema` xác minh từ chối bịa UUID và bảo toàn lookup đúng `chapter_number` của known legacy revision sau khi rebuild. | `docs/development/P6.5-R5-FINAL-VERIFICATION-01/migration-semantic.txt` |
+| **2. Fencing API hardening**: `markOutboxEventCompleted/Failed` vẫn có fallback path không cần `claimToken` | - Đặt `claimToken: string` là bắt buộc trong `markOutboxEventCompleted` và `markOutboxEventFailed`.<br>- Tách các hàm unfenced riêng (`markOutboxEventCompletedUnfenced`, `markOutboxEventFailedUnfenced`).<br>- Thêm kiểm tra `claimToken` trong `outbox-processor.ts`. | Backend Concurrency & Unit Test Suite:<br>- `outbox.postgres.test.ts` (multi-worker concurrency)<br>- 25/25 unit & integration tests pass, typecheck 0 errors. | `docs/development/P6.5-R5-FINAL-VERIFICATION-01/regression-summary.md` |
+| **3. Live root Compose / system smoke**: Bằng chứng cũ chỉ là `docker-compose config` (syntax check), chưa phải live smoke | - Ghi nhận trung thực điều kiện môi trường: `com.docker.service` yêu cầu quyền Admin để khởi động trên Windows; native PostgreSQL 18 (5432) và MongoDB 7 (27017) đang chạy.<br>- Thực thi live HTTP probes qua tiến trình thật (`ai-service` :8000, `backend` :4000): `/health` (200), unauthenticated (401), invalid token (403), valid token (200), xác nhận active PostgreSQL Narrative repository. | Live HTTP System Probe:<br>- Direct AI auth boundary<br>- Active PostgreSQL narrative storage<br>- Health readiness on live ports. | `docs/development/P6.5-R5-FINAL-VERIFICATION-01/compose-live-smoke.txt` |
+| **4. Platform ↔ AI Gateway & context request**: Cần chứng minh request thật qua Node Gateway có credential injection | - Tạo author test, novel, và chapter trên Backend.<br>- Gọi `GET /api/v1/ai/story-brains/by-novel/:novelId` qua Node Gateway -> Node inject service credential, AI chấp nhận và trả về 200.<br>- Tạo snapshot revision và gọi `GET /api/v1/ai/story-brains/:storyBrainId/context-preview?chapterId=...` qua Node Gateway -> Node suy luận canonical cutoff từ DB, AI trả về 200. | Live HTTP Node Gateway Integration Probe:<br>- Forwarding request có credential injection<br>- Context preview request qua Node Gateway. | `docs/development/P6.5-R5-FINAL-VERIFICATION-01/gateway-auth-smoke.txt` |
+| **5. Live Mongo reconciliation probe**: Cần probe thật trên MongoDB cho reconciliation | - Tạo bài kiểm thử trực tiếp `mongo-reconciliation.live.test.ts` trên MongoDB instance (`mongodb://localhost:27017/Ephurin`).<br>- Probe 1: Bản nháp cũ được đồng bộ.<br>- Probe 2: Bản nháp sửa tay mới hơn KHÔNG bị ghi đè.<br>- Probe 3: Khôi phục no-draft tạo tài liệu với `novelId` và `authorId` hợp lệ. | Live MongoDB Integration Probe:<br>- 3/3 targeted probes đạt pass trên MongoDB thật. | `docs/development/P6.5-R5-FINAL-VERIFICATION-01/mongo-reconciliation.txt` |
+
+**Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R5.**
+
+

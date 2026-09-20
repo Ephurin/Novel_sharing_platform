@@ -19,9 +19,21 @@ def upgrade() -> None:
         op.execute(
             f"ALTER TABLE {SCHEMA}.revision_provenances ADD COLUMN IF NOT EXISTS revision_id UUID"
         )
-        op.execute(
-            f"UPDATE {SCHEMA}.revision_provenances SET revision_id = gen_random_uuid() WHERE revision_id IS NULL"
-        )
+        res = bind.execute(
+            sa.text(f"SELECT count(*) FROM {SCHEMA}.revision_provenances WHERE revision_id IS NULL")
+        ).scalar()
+        if res and res > 0:
+            import os
+            allow_clear = os.getenv("MIGRATION_CLEAR_UNMAPPED_PROVENANCE", "").lower() in ("true", "1", "yes")
+            if allow_clear:
+                op.execute(f"DELETE FROM {SCHEMA}.revision_provenances WHERE revision_id IS NULL")
+            else:
+                raise RuntimeError(
+                    f"Found {res} unmapped legacy revision_provenance rows without revision_id. "
+                    "Legacy 0005 schema did not track revision_id, so automatic random mapping is unsafe and prohibited. "
+                    "Set MIGRATION_CLEAR_UNMAPPED_PROVENANCE=true to discard unmapped cache rows and rebuild them from Platform, "
+                    "or clear the table manually."
+                )
         op.execute(
             f"ALTER TABLE {SCHEMA}.revision_provenances ALTER COLUMN revision_id SET NOT NULL"
         )
@@ -44,6 +56,21 @@ def upgrade() -> None:
     else:
         with op.batch_alter_table("revision_provenances") as batch_op:
             batch_op.add_column(sa.Column("revision_id", sa.Uuid(), nullable=True))
+        res = bind.execute(
+            sa.text("SELECT count(*) FROM revision_provenances WHERE revision_id IS NULL")
+        ).scalar()
+        if res and res > 0:
+            import os
+            allow_clear = os.getenv("MIGRATION_CLEAR_UNMAPPED_PROVENANCE", "").lower() in ("true", "1", "yes")
+            if allow_clear:
+                bind.execute(sa.text("DELETE FROM revision_provenances WHERE revision_id IS NULL"))
+            else:
+                raise RuntimeError(
+                    f"Found {res} unmapped legacy revision_provenance rows without revision_id. "
+                    "Legacy 0005 schema did not track revision_id, so automatic random mapping is unsafe and prohibited. "
+                    "Set MIGRATION_CLEAR_UNMAPPED_PROVENANCE=true to discard unmapped cache rows and rebuild them, "
+                    "or clear the table manually."
+                )
 
 
 def downgrade() -> None:

@@ -88,10 +88,12 @@ describe('PostgreSQL Outbox Multi-Worker Lease Fencing Integration', () => {
       await client1.query('COMMIT');
       await client2.query('COMMIT');
 
-      const totalClaimed = claimed1.length + claimed2.length;
-      assert.equal(totalClaimed, 1, 'Exactly one worker must claim the event');
+      const eventClaimed1 = claimed1.filter((e) => e.eventId === event.eventId);
+      const eventClaimed2 = claimed2.filter((e) => e.eventId === event.eventId);
+      const totalClaimed = eventClaimed1.length + eventClaimed2.length;
+      assert.equal(totalClaimed, 1, 'Exactly one worker must claim the specific event');
 
-      const activeEvent = claimed1.length > 0 ? claimed1[0] : claimed2[0];
+      const activeEvent = eventClaimed1.length > 0 ? eventClaimed1[0] : eventClaimed2[0];
       assert.equal(activeEvent.eventId, event.eventId);
       assert.ok(activeEvent.claimToken, 'Claimed event must have a non-null claim_token');
       assert.equal(activeEvent.status, 'PROCESSING');

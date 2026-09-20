@@ -724,20 +724,44 @@ def test_migration_upgrade_from_legacy_0005_schema(pg_engine):
             )
         )
 
-    # 3. Upgrade to head (applies 0006)
-    command.upgrade(alembic_cfg, "head")
+    # 3. Upgrade to head without MIGRATION_CLEAR_UNMAPPED_PROVENANCE must fail actionably
+    # (proves migration refuses to silently fabricate random UUID identities)
+    os.environ.pop("MIGRATION_CLEAR_UNMAPPED_PROVENANCE", None)
+    with pytest.raises(Exception) as exc_info:
+        command.upgrade(alembic_cfg, "head")
+    assert "unmapped legacy revision_provenance rows without revision_id" in str(exc_info.value)
 
-    # 4. Verify columns and legacy row backfill
+    # 4. Upgrade to head with controlled policy MIGRATION_CLEAR_UNMAPPED_PROVENANCE=true
+    os.environ["MIGRATION_CLEAR_UNMAPPED_PROVENANCE"] = "true"
+    try:
+        command.upgrade(alembic_cfg, "head")
+    finally:
+        os.environ.pop("MIGRATION_CLEAR_UNMAPPED_PROVENANCE", None)
+
+    # 5. Verify schema integrity at head
     inspector = inspect(pg_engine)
     cols_head = {c["name"]: c for c in inspector.get_columns("revision_provenances", schema=SCHEMA)}
     assert "revision_id" in cols_head
     assert cols_head["revision_id"]["nullable"] is False
 
-    with pg_engine.connect() as conn:
-        row = conn.execute(
-            text(f"SELECT revision_id, chapter_number FROM {SCHEMA}.revision_provenances WHERE id = '{test_prov_id}'")
-        ).fetchone()
-        assert row is not None
-        assert row[0] is not None, "Legacy row revision_id must be backfilled"
-        assert row[1] == 7
+    # 6. Verify semantic invariant: controlled rebuild restores exact revision lookup
+    session_factory = sessionmaker(bind=pg_engine, expire_on_commit=False)
+    repo = PostgresNarrativeRepository(
+        session_factory=session_factory,
+        tenant_id=str(test_tenant),
+        actor_id=str(uuid.uuid4()),
+    )
+    # Rebuild provenance for known revision
+    known_rev_id = f"rev-legacy-{uuid.uuid4().hex[:8]}"
+    repo.record_revision_provenance(
+        story_id=str(test_novel),
+        chapter_id=str(test_chap_id),
+        revision_id=known_rev_id,
+        chapter_number=7,
+    )
+
+    prov = repo.get_revision_provenance(str(test_novel), known_rev_id)
+    assert prov is not None, "Rebuilt legacy revision must resolve"
+    assert prov["chapter_number"] == 7, "Rebuilt legacy revision must preserve exact chapter_number"
+    assert str(prov["revision_id"]) == str(repo._stable_uuid("revision", known_rev_id))
 

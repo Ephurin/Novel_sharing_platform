@@ -43,6 +43,10 @@ export async function processOutboxOnce(limit: number = 10): Promise<{
 
     for (const event of events) {
       processed++;
+      if (!event.claimToken) {
+        console.error(`[OutboxProcessor] Event ${event.eventId} missing active claim token. Skipping.`);
+        continue;
+      }
       try {
         await handleOutboxEvent(event);
         await markOutboxEventCompleted(undefined, event.eventId, event.claimToken);

@@ -154,22 +154,29 @@ export async function claimPendingOutboxEvents(
 export async function markOutboxEventCompleted(
   client: DbClient | undefined,
   eventId: string,
-  claimToken?: string | null
+  claimToken: string
+): Promise<boolean> {
+  if (!claimToken) {
+    throw new Error(`markOutboxEventCompleted requires a valid claimToken for event ${eventId}`);
+  }
+  const executor = client ?? getPostgresPool();
+  const result = await executor.query(
+    `
+      update revision_outbox_events
+      set status = 'COMPLETED',
+          updated_at = now()
+      where event_id = $1 and claim_token = $2 and status = 'PROCESSING'
+    `,
+    [eventId, claimToken]
+  );
+  return (result.rowCount ?? 0) > 0;
+}
+
+export async function markOutboxEventCompletedUnfenced(
+  client: DbClient | undefined,
+  eventId: string
 ): Promise<boolean> {
   const executor = client ?? getPostgresPool();
-  if (claimToken) {
-    const result = await executor.query(
-      `
-        update revision_outbox_events
-        set status = 'COMPLETED',
-            updated_at = now()
-        where event_id = $1 and claim_token = $2 and status = 'PROCESSING'
-      `,
-      [eventId, claimToken]
-    );
-    return (result.rowCount ?? 0) > 0;
-  }
-
   const result = await executor.query(
     `
       update revision_outbox_events
@@ -186,29 +193,38 @@ export async function markOutboxEventFailed(
   client: DbClient | undefined,
   eventId: string,
   error: string,
-  retryDelaySeconds: number = 10,
-  claimToken?: string | null
+  retryDelaySeconds: number,
+  claimToken: string
+): Promise<boolean> {
+  if (!claimToken) {
+    throw new Error(`markOutboxEventFailed requires a valid claimToken for event ${eventId}`);
+  }
+  const executor = client ?? getPostgresPool();
+  const result = await executor.query(
+    `
+      update revision_outbox_events
+      set retry_count = retry_count + 1,
+          status = case
+            when retry_count + 1 >= max_retries then 'FAILED'
+            else 'PENDING'
+          end,
+          last_error = $2,
+          next_retry_at = now() + ($3 || ' seconds')::interval,
+          updated_at = now()
+      where event_id = $1 and claim_token = $4 and status = 'PROCESSING'
+    `,
+    [eventId, error, retryDelaySeconds, claimToken]
+  );
+  return (result.rowCount ?? 0) > 0;
+}
+
+export async function markOutboxEventFailedUnfenced(
+  client: DbClient | undefined,
+  eventId: string,
+  error: string,
+  retryDelaySeconds: number = 10
 ): Promise<boolean> {
   const executor = client ?? getPostgresPool();
-  if (claimToken) {
-    const result = await executor.query(
-      `
-        update revision_outbox_events
-        set retry_count = retry_count + 1,
-            status = case
-              when retry_count + 1 >= max_retries then 'FAILED'
-              else 'PENDING'
-            end,
-            last_error = $2,
-            next_retry_at = now() + ($3 || ' seconds')::interval,
-            updated_at = now()
-        where event_id = $1 and claim_token = $4 and status = 'PROCESSING'
-      `,
-      [eventId, error, retryDelaySeconds, claimToken]
-    );
-    return (result.rowCount ?? 0) > 0;
-  }
-
   const result = await executor.query(
     `
       update revision_outbox_events

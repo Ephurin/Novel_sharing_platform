@@ -1,0 +1,21 @@
+=== LIVE SYSTEM READINESS PROBE ===
+Timestamp: 2026-09-20T15:42:53Z
+Host Topology: Native PostgreSQL 18 (port 5432) + Native MongoDB 7 (port 27017)
+Environment Note: NOTE: Docker Desktop Service (com.docker.service) is stopped on this Windows host and requires elevated Administrator rights to start the Windows service. Native live services (PostgreSQL 18 on :5432 and MongoDB on :27017) are actively running. Running live system smoke directly across live processes against native databases.
+
+1. AI Service Health: GET http://localhost:8000/health -> 200 OK
+2. Backend Service Health: GET http://localhost:4000/api/v1/health -> 200 OK
+3. Direct AI Unauthenticated: GET /v1/story-brains/by-novel/* -> 401 SERVICE_AUTH_REQUIRED (PASS)
+4. Direct AI Invalid Token: GET /v1/story-brains/by-novel/* -> 403 SERVICE_AUTH_INVALID (PASS)
+5. Direct AI Valid Token: GET /v1/story-brains/by-novel/* -> 200 OK (Brain Version 1) (PASS)
+6. PostgreSQL Narrative Repository Active: verified live DB connection to PostgreSQL ephurin (PASS)
+=== NODE AI GATEWAY -> AI SERVICE INTEGRATION SMOKE ===
+Timestamp: 2026-09-20T15:43:02Z
+1. Test Novel Created: 7283bde0-3e81-4bca-b1dd-0e276b5a5bde (Author: 2a641b9b-d97c-44c4-ae8f-af664c9e08a9)
+   -> Test Chapter Created: 18618afd-6706-4296-b8b8-72f64bfe0878
+2. Node Gateway -> AI Service Auth Forwarding: GET /api/v1/ai/story-brains/by-novel/* -> 200 OK (PASS)
+   -> Injected Service Credential Accepted by AI Service. Brain ID: 41af4e28-3e7f-43b7-9507-58f3f07422ff
+   -> Revision Snapshot Created: 4ad14bfd-437f-4ee2-81f9-f6ddbb41a823
+3. Node Gateway -> AI Context Preview: GET /api/v1/ai/story-brains/:id/context-preview -> 200 OK (PASS)
+   -> Canonical Chapter Cutoff Derived from DB, Service Token Injected and Accepted by AI Service.
+4. MongoDB Live Reachability: verified through backend connection pool on port 27017 (PASS)
