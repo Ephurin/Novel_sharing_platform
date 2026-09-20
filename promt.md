@@ -2109,4 +2109,232 @@ Trạng thái: **Fixed, awaiting Astra review**
 
 **Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R5.**
 
+---
+
+### Astra review bàn giao — Phase 6.5.6 / P6.5-R5-FINAL-VERIFICATION-01 (2026-09-20)
+
+**Kết luận: CODE-LEVEL ACCEPTED, ENVIRONMENT ACCEPTANCE GATE PENDING — chưa đánh dấu Phase 6.5 hoàn tất chỉ vì root Compose chưa được boot thật theo acceptance contract đã đặt.**
+
+Review dựa trên `main` tại commit `086d8b8596d3d348adebf3df07b03e7795c2fc65`, phần Gemini bàn giao trong file này, report `docs/development/P6.5-R5-FINAL-VERIFICATION-01-report.md`, toàn bộ evidence R5 đã commit, diff từ `3a271a655c62176dc60fa04ba468b79e2b526806`, migration/code/tests hiện tại.
+
+#### Các blocker code-level R5 đã được đóng
+
+1. **Semantic legacy provenance migration**
+   - Đã loại bỏ random UUID backfill.
+   - Legacy row không map được sẽ fail closed với actionable error.
+   - Controlled clear chỉ chạy khi operator bật explicit `MIGRATION_CLEAR_UNMAPPED_PROVENANCE=true`.
+   - PostgreSQL migration test chứng minh không fabricate revision identity.
+   - Sau controlled rebuild bằng authoritative revision metadata, `get_revision_provenance` resolve đúng stable revision identity/chapter number.
+
+   **Đánh giá:** ACCEPT code-level.
+
+   Lưu ý vận hành: legacy 0005 schema vốn không chứa revision ID nên migration không thể tự phục hồi semantic identity chỉ từ table này. Controlled clear/rebuild là policy hợp lệ miễn operator thực sự rebuild từ Platform/bootstrap authoritative metadata trước khi dựa vào historical provenance. Không được mô tả đây là automatic reconstruction.
+
+2. **Outbox fencing**
+   - `claimToken` đã bắt buộc trên production completed/failed path.
+   - stale token finalize trả false/0 rows.
+   - PostgreSQL two-worker test tồn tại và chạy thật.
+   - processor truyền active token.
+
+   **Đánh giá:** ACCEPT.
+
+3. **Temporal provenance fail-closed**
+   - Revision analysis thiếu canonical chapter number fail closed.
+   - Event proposal thiếu canonical chapter provenance không materialize.
+   - Future event/state isolation đã có PostgreSQL integration evidence từ R3/R4.
+
+   **Đánh giá:** ACCEPT.
+
+4. **Service-auth boundary**
+   - Missing configured token fail closed.
+   - invalid token 403; valid token pass.
+   - live direct HTTP probe R5 xác nhận boundary trên AI process thật.
+
+   **Đánh giá:** ACCEPT.
+
+5. **Node Gateway → AI live integration**
+   - Live author/novel/chapter flow đã chạy.
+   - Gateway ownership + service-token injection pass.
+   - Context preview qua Node Gateway pass với canonical chapter cutoff.
+
+   **Đánh giá:** ACCEPT functional/runtime path.
+
+6. **Mongo reconciliation**
+   - Live MongoDB test 3/3:
+     - old draft sync;
+     - newer manual draft không bị overwrite;
+     - no-draft recovery có non-empty novelId/authorId.
+
+   **Đánh giá:** ACCEPT.
+
+7. **Regression/evidence**
+   - R5 evidence files có thật trong repository.
+   - AI/backend/web regression summary xanh.
+   - Không phát hiện Phase 7 scope creep.
+
+   **Đánh giá:** ACCEPT.
+
+#### Acceptance gate duy nhất chưa đạt đúng wording đã giao
+
+R5 acceptance criteria đã ghi:
+
+```text
+root Compose actually boots
+```
+
+Nhưng R5 report/evidence trung thực xác nhận:
+- Docker Desktop service không chạy trên workstation do cần quyền Administrator;
+- PostgreSQL/MongoDB chạy native;
+- AI service và backend được chạy live như native processes;
+- functional HTTP/Gateway/Mongo probes đều pass.
+
+Đây là **live system verification**, nhưng không phải **root Docker Compose packaging/topology verification**.
+
+Những thứ vẫn chưa được chứng minh bằng actual Compose boot:
+- Dockerfile build của từng service tại HEAD;
+- Alembic startup trong container;
+- backend migration/startup trong container;
+- Docker internal DNS `backend ↔ ai-service ↔ postgres ↔ mongodb`;
+- root Compose health/dependency ordering;
+- environment propagation trong container image/runtime.
+
+Không được thay `docker compose up` bằng native processes rồi gọi root-Compose gate PASS.
+
+#### Không mở thêm correction feature
+
+Tại thời điểm review này, Astra **không tìm thấy blocker code-level mới** cần R6 implementation. Vì vậy vòng kế tiếp là verification-only.
+
+---
+
+### Giao Gemini — P6.5-R6-ROOT-COMPOSE-ACCEPTANCE-VERIFICATION-01
+
+**Ngày giao:** 2026-09-20  
+**Trạng thái:** Verification-only.  
+**Mục tiêu:** Chỉ chứng minh root Compose topology/package thực sự chạy ở HEAD. Không sửa code trừ khi actual Compose run làm lộ một defect cụ thể.
+
+#### Nguyên tắc
+
+- Đây **không phải feature batch**.
+- Không Phase 7.
+- Không refactor.
+- Không đổi semantics đã accepted.
+- Nếu Docker environment không khả dụng, bàn giao trạng thái **BLOCKED BY ENVIRONMENT**, không fabricate PASS.
+- Nếu Compose run lộ defect, sửa đúng root cause tối thiểu, test lại rồi ghi evidence.
+
+#### Verification bắt buộc
+
+Trên environment có Docker Engine hoạt động:
+
+1. Start từ root:
+   ```text
+   docker compose down -v
+   docker compose build
+   docker compose up -d
+   ```
+
+2. Chờ và ghi trạng thái:
+   ```text
+   docker compose ps
+   ```
+
+   Bắt buộc:
+   - postgres healthy;
+   - mongodb healthy;
+   - ai-service healthy;
+   - backend running/healthy nếu có healthcheck;
+   - web running.
+
+3. Xác minh migration/container startup:
+   - AI Alembic head thực sự applied trong container DB;
+   - backend migrations bao gồm 011 claim token;
+   - AI runtime dùng `NARRATIVE_REPOSITORY=postgres`;
+   - AI runtime dùng configured service token/fake deterministic provider cho verification.
+
+4. HTTP probes từ host:
+   - web/backend health;
+   - AI `/health`;
+   - direct AI protected route missing token → 401;
+   - wrong token → 403;
+   - valid service token → expected business response.
+
+5. Platform → AI Gateway:
+   - seed/login author bằng supported flow;
+   - create/use novel + chapter;
+   - Gateway Story Brain request → 200;
+   - Gateway context preview → 200;
+   - nếu practical, writing generation với fake provider → completed/validated response;
+   - không cần claim prose quality.
+
+6. Durable boundary smoke:
+   - accepted/snapshot revision có outbox row;
+   - outbox processor có thể gọi AI route với service token;
+   - không cần fault-injection lớn vì đã covered R4/R5, chỉ xác nhận container-network path.
+
+7. Mongo smoke:
+   - backend container kết nối Mongo;
+   - không cần chạy lại toàn 3 reconciliation probes nếu R5 live-native evidence vẫn valid, nhưng ít nhất một draft read/write qua backend/container path.
+
+8. Cleanup:
+   ```text
+   docker compose down -v
+   ```
+
+#### Evidence bắt buộc
+
+Tạo:
+
+- `docs/development/P6.5-R6-ROOT-COMPOSE-ACCEPTANCE-VERIFICATION-01-report.md`
+- `docs/development/P6.5-R6-ROOT-COMPOSE-ACCEPTANCE-VERIFICATION-01/`
+
+Commit:
+- `compose-build.txt`
+- `compose-ps.txt`
+- `container-migrations.txt`
+- `compose-http-smoke.txt`
+- `gateway-compose-smoke.txt`
+- `outbox-container-smoke.txt`
+- `evidence-summary.md`
+
+Evidence phải là command/output thật, có exit code hoặc trạng thái đủ kiểm chứng.
+
+#### Nếu environment vẫn không có Docker
+
+Không sửa code để né gate.
+
+Bàn giao:
+
+```text
+Status: BLOCKED BY ENVIRONMENT
+Reason: Docker Engine unavailable / insufficient permissions
+Code-level Phase 6.5: accepted
+Root-Compose packaging gate: unverified
+```
+
+và dừng ở đó để người dùng chạy verification trên máy/CI có Docker.
+
+#### Acceptance quyết định vòng sau
+
+Nếu actual root Compose boot + HTTP/Gateway/container-network smoke đều pass và không lộ regression mới:
+
+```text
+Phase 6.5 = ACCEPTED
+→ được phép bắt đầu Phase 7 theo IMPLEMENTATION_PLAN.md
+```
+
+Nếu actual Compose run lộ defect:
+- chỉ sửa defect cụ thể;
+- không mở scope khác;
+- bàn giao lại evidence.
+
+#### Bàn giao lại
+
+Append:
+
+`Gemini bàn giao — P6.5-R6-ROOT-COMPOSE-ACCEPTANCE-VERIFICATION-01`
+
+Trạng thái phải là một trong hai:
+- **Verified, awaiting Astra acceptance**
+- **Blocked by environment**
+
+**Không tự bắt đầu Phase 7 trước quyết định ACCEPT cuối của Astra/người dùng.**
 
