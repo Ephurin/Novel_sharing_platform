@@ -1625,4 +1625,223 @@ Finding
 
 **Quyết định chuyển Phase:** Giữ nguyên quy định: **Chưa chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R3.**
 
+---
+
+### Astra review bàn giao — Phase 6.5.4 / P6.5-R3-PRODUCTION-PATH-CLOSURE-01 (2026-09-20)
+
+**Kết luận: NEEDS REVISION — R3 đã rất gần nghiệm thu nhưng vẫn còn acceptance blockers. Chưa chuyển Phase 7.**
+
+Review dựa trên `main` tại commit `5f8a06dc5e84aa2b7779190f4400fdcd0da4cf3f`, phần Gemini bàn giao trong file này, report `docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01-report.md`, evidence summary, diff từ `c53dbf4eddcb830601e2031044b82c2a2fba45c1`, migration/code/tests hiện tại.
+
+R3 đã sửa đúng các root cause lớn:
+- ORM đã có `revision_id`, `story_brain_id` được populate ở repository;
+- event chapter đã lấy canonical chapter number/provenance thay vì mặc định tin LLM payload;
+- `/v1/enhanced/*` đã gắn service-token dependency;
+- outbox đã tách active `PROCESSING` khỏi stale `PROCESSING`;
+- freshness semantics đã được mô tả đúng là `fail-closed availability + best-effort freshness`;
+- evidence directory lần này tồn tại trong repository.
+
+Tuy nhiên chưa thể ACCEPT vì các điểm sau.
+
+#### P1 — Migration upgrade path từ database đã apply 0005 chưa an toàn
+
+Migration `0006_fix_revision_provenance.py` hiện:
+
+```sql
+ALTER TABLE narrative.revision_provenances
+ADD COLUMN IF NOT EXISTS revision_id UUID;
+```
+
+sau đó tạo unique constraint/index, nhưng:
+- không backfill rows cũ;
+- không `ALTER COLUMN revision_id SET NOT NULL`;
+- ORM lại khai báo `revision_id nullable=False`.
+
+Clean DB → head có thể xanh vì migration `0005_revision_provenance.py` import `RevisionProvenanceRecord.__table__` từ ORM hiện tại, nên clean DB vô tình tạo schema mới ngay từ 0005. Điều đó không chứng minh upgrade path của một DB đã chạy **0005 cũ** trước R3.
+
+**Yêu cầu:**
+1. Thêm explicit migration compatibility test:
+   - dựng schema ở trạng thái 0005 **cũ** (table provenance không có `revision_id`);
+   - có thể thêm fixture row cũ nếu hợp lệ;
+   - upgrade 0006/next migration;
+   - verify schema cuối khớp ORM: `revision_id NOT NULL`, unique constraint/index đúng.
+2. Nếu legacy rows không thể backfill an toàn, migration phải:
+   - reconstruct deterministically từ bootstrap/revision metadata; hoặc
+   - fail migration với actionable message; hoặc
+   - nếu table R2 được xác định là disposable/non-authoritative, document và rebuild có kiểm soát.
+3. Không để production DB tồn tại rows `revision_id IS NULL` trong khi ORM coi NOT NULL.
+4. Tránh phụ thuộc historical migration vào mutable ORM model nếu có thể; migration mới phải normalize schema rõ ràng.
+
+#### P1 — Outbox lease thiếu fencing token/owner
+
+R3 đã chặn Worker B claim một row `PROCESSING` còn lease active. Tuy nhiên sau khi lease hết hạn:
+
+```text
+Worker A claim event
+    ↓
+A bị treo > 300s
+    ↓
+Worker B reclaim event
+    ↓
+A sống lại
+    ↓
+A vẫn có thể markCompleted/markFailed(eventId)
+```
+
+`markOutboxEventCompleted` và `markOutboxEventFailed` hiện chỉ filter bằng `event_id`, không kiểm tra lease owner/token. Vì vậy stale worker có thể finalize trạng thái của lease mới.
+
+Tests hiện tại trong `outbox.test.ts` vẫn mô phỏng queue bằng object local, chưa chạy two-worker PostgreSQL claim/finalize race thật.
+
+**Yêu cầu:**
+- thêm `processing_token`/claim UUID hoặc `worker_id + lease_version`;
+- claim atomically tạo token mới;
+- complete/fail phải `WHERE event_id = ? AND processing_token = ? AND status='PROCESSING'`;
+- stale owner finalize phải affect 0 rows;
+- expired lease được worker mới reclaim với token mới;
+- thêm PostgreSQL integration test hai workers + stale worker finalize.
+
+Nếu team quyết định single-instance-only, có thể defer fencing nhưng phải bỏ claim “multi-worker safe” và document deployment invariant. Với R3 hiện đã tuyên bố multi-worker safety, cần fencing để guarantee khớp claim.
+
+#### P1 — Service auth vẫn fail-open khi PLATFORM_SERVICE_TOKEN bị thiếu
+
+`require_service_token()` hiện:
+
+```python
+expected_token = settings.platform_service_token
+if not expected_token:
+    return
+```
+
+Tức nếu production deploy bị thiếu/misconfigure `PLATFORM_SERVICE_TOKEN`, toàn bộ protected routers trở thành public. Root Compose có token mặc định nên tests hiện tại không bắt case này.
+
+**Yêu cầu:**
+- protected routes phải fail closed khi expected service token chưa cấu hình;
+- có thể trả 503 `SERVICE_AUTH_NOT_CONFIGURED` để phân biệt deployment error;
+- chỉ cho phép auth-disabled mode bằng explicit dev/test flag, không tự động dựa trên token rỗng;
+- test missing configured token ≠ public access.
+
+#### P1/P2 — Temporal analysis vẫn fail-open về chapter 1 nếu canonical chapter_number vắng
+
+R3 đã truyền:
+
+```python
+chapter_num=chapter_number if chapter_number is not None else 1
+```
+
+Nếu Platform revision metadata thiếu/corrupt chapter number, incremental revision tương lai lại bị materialize thành chapter 1 — đúng failure mode từng gây future leakage.
+
+Facts cũng có thể mang `chapter_number=None` và được temporal filter cho qua.
+
+**Yêu cầu:**
+- với incremental/temporal analysis cần chapter provenance, thiếu canonical `chapter_number` phải fail closed hoặc đánh artifact non-canonical/pending không được materialize;
+- không default chapter 1 cho revision analysis production path;
+- bootstrap legacy path nếu cần fallback phải explicit và tách khỏi incremental path;
+- test revision provider trả `chapter_number=None` → không tạo canonical future event/fact/state.
+
+#### P2 — Evidence files được report liệt kê nhưng chưa thực sự commit
+
+Directory hiện tồn tại nhưng GitHub chỉ thấy:
+
+`docs/development/P6.5-R3-PRODUCTION-PATH-CLOSURE-01/evidence-summary.md`
+
+Các file report nói đã commit:
+- `postgres-integration.log`
+- `backend-integration.log`
+- `service-auth.log`
+- `compose-smoke.log`
+- `frontend-build.log`
+
+không xuất hiện trong commit/directory listing.
+
+**Yêu cầu:** commit concise logs hoặc deterministic text evidence thật vào R4 directory. Nếu `.gitignore` chặn `*.log`, dùng `.txt`/Markdown hoặc force-add có chủ đích. Không chỉ ghi summary rằng log tồn tại.
+
+#### P2 — “Backend integration” hiện chưa phải DB integration cho outbox
+
+Diff chỉ bổ sung tests mô phỏng lease bằng in-memory arrays trong `outbox.test.ts`. Đây là unit contract test, không phải PostgreSQL multi-worker integration.
+
+**Yêu cầu:** evidence phải đặt đúng tên loại test. Với fencing/claim semantics, cần PostgreSQL thật.
+
+---
+
+### Giao Gemini — P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01
+
+**Ngày giao:** 2026-09-20  
+**Trạng thái:** Đã giao; đây là batch acceptance-gate cuối, không mở rộng feature.  
+**Mục tiêu:** Đóng migration compatibility, outbox fencing, auth fail-closed, temporal missing-provenance fail-closed và evidence thật. Sau batch này Astra sẽ review để ACCEPT/REJECT Phase 6.5.
+
+#### Phạm vi bắt buộc
+
+1. **Migration compatibility**
+   - Test/handle upgrade từ schema 0005 cũ.
+   - Final DB schema phải có `revision_id UUID NOT NULL`.
+   - Unique constraint/index đúng.
+   - Legacy rows được backfill/rebuild/fail-actionably theo policy đã document.
+   - Clean DB → head và old-0005 → head đều pass.
+
+2. **Outbox fencing**
+   - Thêm claim token/lease version hoặc equivalent.
+   - Complete/fail chỉ thành công với active claim.
+   - Stale worker không finalize được lease mới.
+   - Expired lease reclaim được.
+   - Real PostgreSQL concurrency test, không simulation-only.
+
+3. **Service-auth configuration fail-closed**
+   - Missing expected token trên protected route không được bypass.
+   - Explicit dev/test override nếu thực sự cần.
+   - Root Compose vẫn authenticated bình thường.
+   - Negative test cho unset token.
+
+4. **Temporal missing-provenance fail-closed**
+   - Incremental revision thiếu canonical chapter number không default 1.
+   - Không materialize canonical event/fact/state thiếu provenance.
+   - Test provider trả chapter_number=None.
+
+5. **Evidence thật trong repo**
+   - Tạo `docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01-report.md`.
+   - Tạo `docs/development/P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01/`.
+   - Commit output/evidence files thật; dùng `.txt` hoặc `.md` nếu `.log` bị ignore.
+
+#### Acceptance tests tối thiểu
+
+- PostgreSQL clean DB → Alembic head.
+- PostgreSQL old-0005-compatible schema → head.
+- Assert `revision_id nullable = false`.
+- Provenance CRUD/tenant isolation.
+- Chapter 25 event/fact/state không leak chapter 5.
+- Missing chapter provenance fails closed.
+- Two PostgreSQL workers claim same queue: exactly one active token per event.
+- Lease expiry + reclaim; stale token complete/fail affects 0 rows.
+- Missing configured service token returns deployment/auth error, không public.
+- Invalid token 403; valid token 200/expected business response.
+- Root Compose smoke Platform ↔ AI auth.
+- Mongo reconciliation regression vẫn pass.
+- AI unit regression + backend typecheck/tests + web build/typecheck.
+
+#### Ngoài phạm vi
+
+- Không Phase 7.
+- Không pgvector/embedding/semantic retrieval.
+- Không multi-agent/planning/editing.
+- Không refactor rộng.
+- Không đổi freshness semantics đã chốt (`fail-closed availability + best-effort freshness`) trừ khi phát hiện correctness bug trực tiếp.
+- Không tự đánh dấu Phase 6.5 accepted.
+
+#### Bàn giao lại
+
+Append:
+
+`Gemini bàn giao — P6.5-R4-ACCEPTANCE-GATE-CLOSURE-01`
+
+Trạng thái: **Fixed, awaiting Astra review**.
+
+Bảng bàn giao:
+
+```text
+Acceptance blocker
+→ code/migration fix
+→ real test type
+→ exact committed evidence path
+```
+
+**Không chuyển Phase 7 cho đến khi Astra/người dùng nghiệm thu R4.**
 
