@@ -9,7 +9,11 @@ from benchmarks.p7_embedding_benchmark import (
     cosine_similarity,
     evaluate_ranked_ids,
     l2_normalize,
+    DEFAULT_CORPUS,
+    DEFAULT_QUERIES,
+    load_json,
     recent_rank,
+    run_recent,
     semantic_rank,
 )
 
@@ -111,3 +115,26 @@ def test_aggregate_metrics_averages_query_metrics() -> None:
     assert aggregate["mrr_at_k"] == pytest.approx(0.5)
     assert aggregate["ndcg_at_k"] == pytest.approx(0.5)
     assert aggregate["hit_query_rate"] == pytest.approx(0.5)
+
+
+def test_frozen_recent_baseline_matches_recorded_metrics() -> None:
+    corpus = load_json(DEFAULT_CORPUS)
+    queries = load_json(DEFAULT_QUERIES)
+
+    result = run_recent(corpus["memories"], queries["queries"], ks=(5, 10, 20))
+
+    assert result["aggregate"]["5"]["recall_at_k"] == pytest.approx(
+        0.2955404383975812
+    )
+    assert result["aggregate"]["10"]["recall_at_k"] == pytest.approx(
+        0.40948601662887374
+    )
+    assert result["aggregate"]["10"]["mrr_at_k"] == pytest.approx(
+        0.32857142857142857
+    )
+    assert result["aggregate"]["10"]["ndcg_at_k"] == pytest.approx(
+        0.3160096321739041
+    )
+    assert result["aggregate"]["20"]["recall_at_k"] == pytest.approx(
+        0.6256235827664399
+    )
