@@ -81,7 +81,7 @@ P7-01 embedding/model selection MUST use:
 - corpus: `memory_chunks_canonical.json` (216 memories);
 - queries: `core_gold_queries.json` (21 queries).
 
-The 19-query challenge split is diagnostic only until human review promotes uncertain labels.
+The 19-query challenge split is diagnostic only until human review promotes uncertain labels. Because some challenge positives are intentionally `inferred`, challenge diagnostics use `.data/Frozen_v1/memory_chunks.json` (the full 232-memory audit corpus), not the 216-memory canonical benchmark corpus.
 
 Primary metrics:
 
