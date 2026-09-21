@@ -1,222 +1,238 @@
 # Active Agent Handoff — Ephurin Novel Platform
 
-> **File này cố ý ngắn.** Chỉ chứa context đang hoạt động cho coding agent.
-> Lịch sử đầy đủ đã archive tại:
+> File này chỉ chứa context đang hoạt động cho coding agent.
+> Lịch sử Phase 6/6.5 đã archive tại:
 > `docs/development/archive/promt-history-through-P6.5-R6-2026-09-21.md`
 >
-> **Không đọc archive cho task thường ngày** trừ khi cần audit một quyết định cũ.
+> Không đọc archive cho task thường ngày trừ khi cần audit quyết định cũ.
 
 ---
 
-## 1. Vai trò và quy tắc làm việc
+## 1. Vai trò và quy tắc
 
-- **Astra = planner/reviewer.** Đọc code/report/evidence, chia lô, xác định invariant và nghiệm thu.
-- **Gemini = worker.** Chỉ triển khai/verify đúng lô đang được giao; không tự mở phase hoặc scope mới.
-- Test pass **không đồng nghĩa nghiệm thu**. Gemini bàn giao ở trạng thái chờ review; Astra/người dùng quyết định ACCEPT.
-- Không reset/clean/force-push, không xóa thay đổi đang có, không sửa module ngoài scope.
-- Không commit/push thay người dùng trừ khi được yêu cầu rõ.
+- **Astra = planner/reviewer.**
+- **Gemini = worker.**
+- Gemini chỉ làm đúng lô đang active, không tự mở scope/phase.
+- Test pass không đồng nghĩa nghiệm thu; Astra/người dùng quyết định ACCEPT.
+- Không reset/clean/force-push, không xóa thay đổi hiện có.
 - Không gọi mock/unit test là integration/system evidence.
-- Báo cáo chi tiết + logs/evidence đặt dưới `docs/development/`; `promt.md` chỉ giữ trạng thái/tóm tắt hiện hành.
-- Khi bàn giao, **append ngắn** vào cuối file này. Không chép lại toàn bộ lịch sử cũ.
+- Báo cáo chi tiết + evidence đặt dưới `docs/development/`.
+- `promt.md` chỉ giữ active state + bàn giao ngắn.
 
-### Tài liệu bắt buộc trước khi sửa code
-
-Đọc tối thiểu:
+Đọc tối thiểu trước khi sửa code:
 
 1. `SKILL/AGENTS.md`
 2. `SKILL/AI_CODING_STANDARDS.md`
 3. `SKILL/ARCHITECTURE.md`
 4. `ai-service/docs/IMPLEMENTATION_PLAN.md`
-5. Tài liệu module liên quan trong `docs/`
-
-Các quy tắc kiến trúc/security trong `SKILL/` là source of truth; file này chỉ điều phối task.
-
----
-
-## 2. Trạng thái hiện tại
-
-### Phase 6.5 — Integration Hardening
-
-**Code-level status: ACCEPTED.**
-
-Implementation chính gần nhất:
-- `086d8b8596d3d348adebf3df07b03e7795c2fc65` — Phase 6.5.6 / R5 implementation.
-- Review sau R5: code-level accepted; chỉ còn environment/package verification của root Compose.
-
-Các invariant đã được review và coi là đóng ở code-level:
-
-- Browser/Frontend đi qua Node AI Gateway.
-- Gateway kiểm tra ownership và inject service credential.
-- FastAPI protected routes fail closed khi auth thiếu/sai cấu hình.
-- Canonical chapter cutoff + temporal provenance không fallback chapter 1.
-- Future event/fact/state bị chặn khỏi old-chapter context theo provenance.
-- Writing generation lưu brain/context trace và dùng canonical context hash.
-- Accept-time Story Brain policy: **fail-closed availability + best-effort freshness**; không claim distributed atomic freshness.
-- Transactional outbox có startup recovery, retry, lease + fencing token.
-- Mongo reconciliation không overwrite newer manual draft; no-draft recovery có ownership metadata.
-- Legacy `/suggest-next` không còn independent writer fallback.
-- PostgreSQL migration/provenance path đã có real integration tests.
-- R5 live-native probes đã xác nhận Gateway → AI, service auth, PostgreSQL repository và Mongo reconciliation.
-
-Evidence gần nhất:
-- `docs/development/P6.5-R5-FINAL-VERIFICATION-01-report.md`
-- `docs/development/P6.5-R5-FINAL-VERIFICATION-01/`
-
-### Gate duy nhất còn mở
-
-**Root Docker Compose packaging/topology chưa được verify bằng actual Docker boot.**
-
-R5 chạy live native processes vì Docker Desktop trên workstation không khả dụng. Điều này xác nhận functional runtime path nhưng chưa xác nhận:
-
-- Dockerfile build tại HEAD;
-- Alembic/backend migrations trong container;
-- internal DNS `backend ↔ ai-service ↔ postgres ↔ mongodb`;
-- Compose health/dependency ordering;
-- container environment propagation.
-
-**Không sửa lại các subsystem đã accepted nếu Compose không lộ defect cụ thể.**
+5. `ai-service/docs/ADRS.md`
+6. `ai-service/docs/DATA_MODEL.md`
+7. Tài liệu module liên quan trong `docs/`
 
 ---
 
-## 3. ACTIVE TASK — P6.5-R6-ROOT-COMPOSE-ACCEPTANCE-VERIFICATION-01
+## 2. Trạng thái phase
 
-**Loại:** verification-only.  
-**Không phải feature batch.**
+### Phase 6 / 6.5 — ACCEPTED
+
+**Accepted:** 2026-09-21.
+
+Project owner đã xác nhận root Compose/web flow chạy ổn định và cho phép kết thúc Phase 6.
+
+Các invariant đã đóng:
+
+- Browser/Frontend → Node AI Gateway → AI Service.
+- Ownership + service credential boundary.
+- Protected FastAPI routes fail closed.
+- Canonical revision/chapter provenance; không fallback chapter 1.
+- Temporal cutoff chặn future fact/event/state leakage.
+- Structured context + context hash + generation trace.
+- Accept-time freshness: **fail-closed availability + best-effort freshness**.
+- Transactional outbox + retry + lease + fencing token.
+- Mongo reconciliation không overwrite newer manual draft.
+- PostgreSQL narrative repository + migration integration.
+- Legacy `/suggest-next` không còn independent writer path.
+
+Phase 6/6.5 không reopen trừ khi Phase 7 làm lộ correctness regression trực tiếp.
+
+---
+
+## 3. Phase 7 — Semantic Retrieval
+
+### Kiến trúc đã chốt
+
+Theo `IMPLEMENTATION_PLAN.md`, `ADRS.md`, `DATA_MODEL.md`:
+
+- Semantic memory là **derived/rebuildable index**, không phải source of truth.
+- Dùng PostgreSQL + **pgvector**, chưa dùng vector DB riêng.
+- Không index pending/rejected proposals như canonical memory.
+- Không retrieve raw novel text mặc định.
+- Embedding/model version phải traceable và rebuildable.
+- Hybrid ranking gồm:
+  - semantic score;
+  - entity overlap;
+  - temporal relevance;
+  - importance;
+  - relationship relevance.
+- Phase 7 exit criterion quan trọng: hybrid retrieval phải tốt hơn recent-only baseline trên labeled queries.
+
+**Phase 7 gate:** chốt embedding model + vector dimension bằng benchmark trước khi freeze migration/vector column.
+
+---
+
+## 4. ACTIVE TASK — P7-01-EMBEDDING-BENCHMARK-ADR
+
+**Loại:** architecture/evaluation gate.  
+**Không triển khai full semantic retrieval trong lô này.**
 
 ### Mục tiêu
 
-Trên environment có Docker Engine hoạt động, chứng minh root Compose thực sự boot và các service giao tiếp đúng.
+Chọn embedding model + dimension cho Phase 7 bằng benchmark có thể tái hiện, sau đó ghi ADR chính thức.
 
-### Bắt buộc verify
+### Phạm vi bắt buộc
 
-```text
-docker compose down -v
-docker compose build
-docker compose up -d
-docker compose ps
-```
+1. **Inventory current retrieval baseline**
+   - xác định current SQL/recent-only context path;
+   - không thay behavior production;
+   - ghi rõ baseline query/ranking hiện tại.
 
-Phải xác nhận:
+2. **Dataset đánh giá nhỏ nhưng có nhãn**
+   - tạo labeled retrieval queries từ fixture/story test hiện có;
+   - bao phủ tối thiểu:
+     - character memory;
+     - old-but-important event;
+     - world rule;
+     - relationship context;
+     - temporally relevant event;
+     - semantically related scene với lexical overlap thấp.
+   - mỗi query có expected relevant artifact IDs/ranks.
+   - không dùng rejected/pending proposal làm ground truth canonical.
 
-1. PostgreSQL healthy.
-2. MongoDB healthy.
-3. AI service healthy.
-4. Backend chạy ổn định.
-5. Web chạy.
-6. AI Alembic head applied.
-7. Backend migrations gồm outbox claim-token migration applied.
-8. AI runtime dùng `NARRATIVE_REPOSITORY=postgres`.
-9. AI service auth qua live container network:
-   - `/health` 200;
-   - protected route thiếu token → 401;
-   - wrong token → 403;
-   - valid service token → expected response.
-10. Node Gateway → AI:
-    - authorized author;
-    - Story Brain request pass;
-    - context preview pass;
-    - nếu practical, fake-provider writing generation pass.
-11. Outbox processor gọi AI được qua container network.
-12. Backend container read/write Mongo được.
-13. Cleanup bằng `docker compose down -v`.
+3. **Embedding candidate benchmark**
+   - benchmark ít nhất 2 candidate phù hợp với deployment hiện tại.
+   - ghi:
+     - model;
+     - dimension;
+     - provider/runtime;
+     - latency;
+     - batch behavior;
+     - multilingual/Vietnamese behavior;
+     - retrieval quality.
+   - nếu candidate cần paid/external API, benchmark phải tách rõ cost/network dependency.
+   - không hard-code lựa chọn trước khi có kết quả.
 
-### Không được làm
+4. **Metrics**
+   Tối thiểu:
+   - Recall@K;
+   - MRR hoặc nDCG@K;
+   - latency;
+   - index/storage footprint estimate.
 
-- Không Phase 7.
-- Không pgvector/embedding/semantic retrieval.
-- Không multi-agent/planning/editing.
-- Không refactor architecture.
-- Không sửa code chỉ để “làm evidence đẹp hơn”.
-- Nếu Compose lộ lỗi thật, chỉ sửa root cause tối thiểu rồi rerun verification.
+5. **Baseline comparison**
+   - so embedding-only và recent-only baseline.
+   - nếu practical, prototype offline hybrid scoring.
+   - không claim Phase 7 exit criterion chỉ từ vài anecdotal examples.
 
-### Nếu Docker không khả dụng
+6. **ADR**
+   Tạo ADR mới, ví dụ:
+   `ai-service/docs/ADR-012-EMBEDDING-MODEL.md`
 
-Bàn giao chính xác:
+   ADR phải ghi:
+   - decision;
+   - model/version;
+   - dimension;
+   - distance metric;
+   - normalization policy;
+   - versioning/reindex policy;
+   - fallback/rollback;
+   - benchmark evidence;
+   - rejected alternatives.
 
-```text
-Status: BLOCKED BY ENVIRONMENT
-Reason: Docker Engine unavailable / insufficient permissions
-Code-level Phase 6.5: accepted
-Root-Compose packaging gate: unverified
-```
+7. **Schema recommendation**
+   - đề xuất `memory_chunks` fields/index dựa trên model đã chọn;
+   - chưa freeze/apply pgvector migration nếu benchmark chưa đủ kết luận.
 
-Không fabricate PASS.
+### Guardrails
 
-Project owner có thể **explicitly waive** gate này; nếu chưa có quyết định waive rõ ràng thì Phase 7 vẫn chưa được mở.
+- Không multi-agent.
+- Không specialized vector DB.
+- Không auto-index rejected/pending proposals.
+- Không đổi canonical Story Brain semantics.
+- Không lưu raw chain-of-thought.
+- Không rewrite Phase 6 context builder.
+- Không thêm production migration trước khi ADR kết luận model/dimension.
+- Không tối ưu premature ANN index nếu dataset chưa đủ lớn để justify.
 
 ---
 
-## 4. Evidence R6
+## 5. Evidence P7-01
 
 Tạo:
 
-- `docs/development/P6.5-R6-ROOT-COMPOSE-ACCEPTANCE-VERIFICATION-01-report.md`
-- `docs/development/P6.5-R6-ROOT-COMPOSE-ACCEPTANCE-VERIFICATION-01/`
+- `docs/development/P7-01-EMBEDDING-BENCHMARK-ADR-report.md`
+- `docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/`
 
 Evidence tối thiểu:
 
-- `compose-build.txt`
-- `compose-ps.txt`
-- `container-migrations.txt`
-- `compose-http-smoke.txt`
-- `gateway-compose-smoke.txt`
-- `outbox-container-smoke.txt`
-- `evidence-summary.md`
+- `dataset.md` hoặc machine-readable fixture + README;
+- `baseline-results.md`;
+- `candidate-results.md`;
+- `benchmark-command.txt`;
+- `decision-summary.md`.
 
-Evidence phải là command/output thật; không thay `docker compose up` bằng `docker compose config`.
+Benchmark phải reproducible; nếu API/provider bên ngoài không khả dụng thì ghi BLOCKED/PARTIAL, không fabricate số liệu.
 
 ---
 
-## 5. Format bàn giao Gemini
+## 6. Acceptance criteria P7-01
 
-Khi R6 xong, chỉ append một mục ngắn:
+P7-01 chỉ được bàn giao khi:
+
+```text
+labeled retrieval dataset exists
+AND
+recent-only baseline measured
+AND
+>=2 embedding candidates measured
+AND
+quality + latency + dimension are recorded
+AND
+ADR selects one model/dimension with evidence
+AND
+reindex/version policy is explicit
+AND
+no production pgvector schema is frozen before the decision
+```
+
+Nếu benchmark không có winner rõ:
+- bàn giao INCONCLUSIVE;
+- nêu thêm evidence cần thu;
+- không tự chọn model theo cảm tính.
+
+---
+
+## 7. Format bàn giao Gemini
+
+Append ngắn:
 
 ```markdown
 ---
 
-### Gemini bàn giao — P6.5-R6-ROOT-COMPOSE-ACCEPTANCE-VERIFICATION-01
+### Gemini bàn giao — P7-01-EMBEDDING-BENCHMARK-ADR
 
-Status: Verified, awaiting Astra acceptance
-# hoặc: Blocked by environment
+Status: Completed, awaiting Astra review
+# hoặc: Partial / Blocked / Inconclusive
 
-- Compose build/boot: PASS|BLOCKED|FAIL
-- Container migrations: PASS|BLOCKED|FAIL
-- AI auth smoke: PASS|BLOCKED|FAIL
-- Gateway → AI smoke: PASS|BLOCKED|FAIL
-- Outbox container smoke: PASS|BLOCKED|FAIL
-- Mongo container smoke: PASS|BLOCKED|FAIL
-- Code changes: none | <root-cause files only>
+- Dataset: <count queries / artifact classes>
+- Baseline: <metric summary>
+- Candidate A: <model, dim, quality, latency>
+- Candidate B: <model, dim, quality, latency>
+- Decision: <model + dimension | inconclusive>
+- ADR: <path>
 - Report: <path>
 - Evidence: <directory>
+- Production code changes: none | <very small benchmark-only hooks>
 - Remaining blocker: none | <exact blocker>
 ```
 
-Không paste log dài vào `promt.md`.
-
----
-
-## 6. Quyết định sau R6
-
-Nếu actual root Compose boot + container-network smoke pass và không xuất hiện correctness regression:
-
-```text
-Phase 6.5 = ACCEPTED
-Phase 7 may begin according to ai-service/docs/IMPLEMENTATION_PLAN.md
-```
-
-Nếu Compose lộ defect, sửa defect tối thiểu và bàn giao lại.
-
-Nếu environment bị block, chờ project owner verify/waive; không tự chuyển Phase 7.
-
----
-
-## 7. Lịch sử/audit
-
-Chỉ khi cần truy nguyên quyết định cũ mới đọc:
-
-- Full coordination history:
-  `docs/development/archive/promt-history-through-P6.5-R6-2026-09-21.md`
-- Reports/evidence từng batch:
-  `docs/development/P6.5-*/`
-
-**Không copy lịch sử archive trở lại file này.**
+Không paste raw benchmark logs dài vào `promt.md`.
