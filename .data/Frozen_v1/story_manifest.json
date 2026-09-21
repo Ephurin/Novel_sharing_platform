@@ -569,6 +569,8 @@
     "secondary_queries": ".data/Frozen_v1/challenge_queries.json",
     "temporal_rule": "Candidates with chapter_number > query.chapter_cutoff must be excluded before ranking.",
     "unjudged_policy": "Unlisted memories are unjudged, not automatically irrelevant.",
-    "challenge_policy": "Challenge queries are excluded from the primary model-selection aggregate until their uncertain positive labels are human-reviewed."
+    "challenge_policy": "Challenge queries are excluded from the primary model-selection aggregate until their uncertain positive labels are human-reviewed.",
+    "audit_corpus": ".data/Frozen_v1/memory_chunks.json",
+    "challenge_corpus": ".data/Frozen_v1/memory_chunks.json"
   }
 }
