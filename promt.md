@@ -103,6 +103,45 @@ Astra consolidated the real-novel corpus on 2026-09-21:
 **Do not concatenate Batch_1..Batch_7**; they are cumulative working snapshots. Do not regenerate/relabel the frozen dataset unless a concrete defect is found. Primary embedding-ADR metrics use the core-gold split only.
 
 
+### P7-01 execution status — IN PROGRESS
+
+Astra đã chuẩn bị benchmark infrastructure và baseline:
+
+- Harness: `ai-service/benchmarks/p7_embedding_benchmark.py`
+- Unit/regression tests: `ai-service/tests/test_p7_embedding_benchmark.py`
+- Vietnamese diagnostic: `.data/Frozen_v1/vietnamese_diagnostic_queries.json` (10 queries)
+- Evidence: `docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/`
+- Report: `docs/development/P7-01-EMBEDDING-BENCHMARK-ADR-report.md`
+
+Recent-only baseline trên 21 core-gold queries:
+
+```text
+K=5   Recall=0.2955  MRR=0.3286  nDCG=0.2782
+K=10  Recall=0.4095  MRR=0.3286  nDCG=0.3160
+K=20  Recall=0.6256  MRR=0.3482  nDCG=0.4038
+```
+
+### Next worker action — real embedding measurements
+
+Không tạo thêm dataset và không sửa production retrieval.
+
+1. Chạy:
+   `cd ai-service && pytest -q tests/test_p7_embedding_benchmark.py`
+2. Chạy Candidate A:
+   `gemini-embedding-001 @ 768`
+3. Chạy Candidate B:
+   `gemini-embedding-2 @ 768`
+4. Chạy Vietnamese diagnostic cho cả hai candidate.
+5. Chọn candidate tốt hơn ở round 768 rồi chạy lại candidate đó ở 1536.
+6. Optional: nếu execution environment **đã có** `OPENAI_API_KEY`, benchmark `text-embedding-3-small @ 768` như third-provider comparison. Không yêu cầu/paste/commit secrets.
+7. Cập nhật `candidate-results.md`, `decision-summary.md`, report và ADR-012 bằng **số đo thật**.
+
+Commands đầy đủ nằm trong:
+`docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/benchmark-command.txt`.
+
+Nếu provider credential/quota không khả dụng: bàn giao **PARTIAL/BLOCKED**, không fabricate metric và không freeze pgvector migration.
+
+
 ### Phạm vi bắt buộc
 
 1. **Inventory current retrieval baseline**
