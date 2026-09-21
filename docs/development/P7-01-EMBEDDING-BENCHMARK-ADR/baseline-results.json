@@ -1,0 +1,30 @@
+{
+  "dataset_version": "aethelgard-retrieval-eval-v1.0.0",
+  "provider": "recent",
+  "model": "chapter-recency-only",
+  "description": "Evaluation proxy for the existing recent-only context strategy: all canonical memory chunks at or before the query cutoff, ranked by chapter_number DESC then memory_id DESC.",
+  "production_reference": "PostgresNarrativeRepository.get_structured_context filters confirmed events by chapter cutoff, resolves superseded events, and keeps the last limit_recent_events.",
+  "query_count": 21,
+  "memory_count": 216,
+  "temporal_gate": "memory.chapter_number <= query.chapter_cutoff",
+  "metrics": {
+    "5": {
+      "recall_at_k": 0.2955404383975812,
+      "mrr_at_k": 0.32857142857142857,
+      "ndcg_at_k": 0.2781885117577082,
+      "hit_query_rate": 0.7142857142857143
+    },
+    "10": {
+      "recall_at_k": 0.40948601662887374,
+      "mrr_at_k": 0.32857142857142857,
+      "ndcg_at_k": 0.3160096321739041,
+      "hit_query_rate": 0.7142857142857143
+    },
+    "20": {
+      "recall_at_k": 0.6256235827664399,
+      "mrr_at_k": 0.3482327613906562,
+      "ndcg_at_k": 0.4038161413311074,
+      "hit_query_rate": 1
+    }
+  }
+}
