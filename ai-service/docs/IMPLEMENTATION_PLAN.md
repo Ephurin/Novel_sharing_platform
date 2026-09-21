@@ -240,6 +240,8 @@ class NarrativeRepository:
 
 ## Phase 6 — Context builder và writing loop
 
+> **Status:** Completed and accepted on 2026-09-21. Structured context, writing generation, revision acceptance, temporal provenance, service-auth boundary, transactional outbox/fencing, Mongo reconciliation, and Platform↔AI integration were hardened through Phase 6.5. The project owner verified the root Compose/web flow and authorized Phase 7.
+
 ### Tasks
 
 - Tạo structured context package.
@@ -257,6 +259,8 @@ class NarrativeRepository:
 - Generation không vi phạm locked facts trong golden cases.
 
 ## Phase 7 — Semantic retrieval
+
+> **Status:** Active from 2026-09-21. First gate: benchmark and ADR must select the embedding model and vector dimension before pgvector schema/index implementation is frozen.
 
 ### Tasks
 
