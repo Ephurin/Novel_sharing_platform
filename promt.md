@@ -97,7 +97,7 @@ Astra consolidated the real-novel corpus on 2026-09-21:
 - Manifest: `.data/Frozen_v1/story_manifest.json`
 - Benchmark corpus: `.data/Frozen_v1/memory_chunks_canonical.json` (**216 canonical memories**)
 - Primary queries: `.data/Frozen_v1/core_gold_queries.json` (**21 core-gold queries**)
-- Secondary diagnostics: `.data/Frozen_v1/challenge_queries.json` (**19 challenge queries**)
+- Secondary diagnostics: `.data/Frozen_v1/challenge_queries.json` (**19 challenge queries**) with `.data/Frozen_v1/memory_chunks.json` (full 232-memory audit corpus)
 - Report: `.data/Frozen_v1/dataset_report.md`
 
 **Do not concatenate Batch_1..Batch_7**; they are cumulative working snapshots. Do not regenerate/relabel the frozen dataset unless a concrete defect is found. Primary embedding-ADR metrics use the core-gold split only.
