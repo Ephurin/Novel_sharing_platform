@@ -1,0 +1,52 @@
+# Run from repository root unless noted.
+
+# 1) Deterministic recent-only baseline (no API key needed)
+cd ai-service
+python benchmarks/p7_embedding_benchmark.py \
+  --provider recent \
+  --output ../docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/baseline-run.json
+
+# 2) Candidate A — Gemini Embedding 001, 768 dimensions
+# Requires GEMINI_API_KEY or GOOGLE_API_KEY in the local environment.
+python benchmarks/p7_embedding_benchmark.py \
+  --provider gemini \
+  --model gemini-embedding-001 \
+  --dimension 768 \
+  --batch-size 32 \
+  --output ../docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/gemini-001-768.json
+
+# 3) Candidate B — Gemini Embedding 2, 768 dimensions
+python benchmarks/p7_embedding_benchmark.py \
+  --provider gemini \
+  --model gemini-embedding-2 \
+  --dimension 768 \
+  --batch-size 16 \
+  --output ../docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/gemini-2-768.json
+
+# 4) Dimension sweep for the better Gemini model
+# Repeat the winning model at 1536 dimensions.
+python benchmarks/p7_embedding_benchmark.py \
+  --provider gemini \
+  --model <winner-from-768-round> \
+  --dimension 1536 \
+  --batch-size 16 \
+  --output ../docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/winner-1536.json
+
+# Optional third-provider comparison if OPENAI_API_KEY is available.
+python benchmarks/p7_embedding_benchmark.py \
+  --provider openai \
+  --model text-embedding-3-small \
+  --dimension 768 \
+  --batch-size 64 \
+  --output ../docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/openai-3-small-768.json
+
+# Vietnamese cross-lingual diagnostic: replace --queries while keeping canonical corpus.
+python benchmarks/p7_embedding_benchmark.py \
+  --provider gemini \
+  --model <candidate> \
+  --dimension 768 \
+  --queries ../.data/Frozen_v1/vietnamese_diagnostic_queries.json \
+  --output ../docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/<candidate>-vi-diagnostic.json
+
+# Unit tests
+pytest -q tests/test_p7_embedding_benchmark.py
