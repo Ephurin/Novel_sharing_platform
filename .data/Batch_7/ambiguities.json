@@ -1,0 +1,858 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "processed_through_chapter": 61,
+  "ambiguities": [
+    {
+      "ambiguity_id": "amb-001",
+      "chapters": [
+        2,
+        9,
+        10
+      ],
+      "type": "character_attribute_conflict",
+      "entities": [
+        "char-005"
+      ],
+      "description": "Toby is explicitly described as ten years old in chapter 2, but as fifteen years old in chapters 9 and 10.",
+      "ground_truth_policy": "Do not use Toby’s exact age as retrieval ground truth until human review or later source clarification.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-002",
+      "chapters": [
+        2,
+        6,
+        7,
+        9
+      ],
+      "type": "character_attribute_conflict",
+      "entities": [
+        "char-004"
+      ],
+      "description": "Gregor is explicitly described as sixty-five in chapters 2, 7, and 9, but as sixty in chapter 6.",
+      "ground_truth_policy": "Treat Gregor as elderly; exclude exact age from benchmark ground truth.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-003",
+      "chapters": [
+        2,
+        3,
+        5,
+        6,
+        15
+      ],
+      "type": "character_state_conflict",
+      "entities": [
+        "char-001"
+      ],
+      "description": "Alan’s continuing shoulder injury is described as left shoulder in chapter 2 and again as the left shoulder drooping in chapter 15, but it is repeatedly described as the right shoulder in chapters 3, 5, 6, and 11–19.",
+      "ground_truth_policy": "The existence and persistence of the shoulder injury are canonical; exact side is excluded from ground truth.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-004",
+      "chapters": [
+        5,
+        6
+      ],
+      "type": "event_state_conflict",
+      "entities": [
+        "char-007",
+        "char-008"
+      ],
+      "description": "Chapter 5 states Miller and Jory have not been found and may be deeper underground; chapter 6 has Alan report that they died on the second underground level.",
+      "ground_truth_policy": "Do not label their death/location as canonical in B01. Memory chunks preserve the chapter-5 uncertainty; chapter-6 death statement is treated as a conflicting report, not resolved fact.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-005",
+      "chapters": [
+        4,
+        5,
+        9,
+        10,
+        13,
+        16,
+        17,
+        19
+      ],
+      "type": "world_property_conflict",
+      "entities": [
+        "item-002"
+      ],
+      "description": "The creatures’ corrosive secretion is alternately described using acid and alkaline terminology, and neutralization chemistry is internally inconsistent.",
+      "ground_truth_policy": "Use only the robust narrative fact that the secretion is highly corrosive/toxic; do not benchmark exact acid-vs-alkali chemistry.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-006",
+      "chapters": [
+        9,
+        10,
+        11,
+        12
+      ],
+      "type": "temporal_continuity_conflict",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "loc-001",
+        "loc-004"
+      ],
+      "description": "Chapter 9 ends with defenders and villagers retreating into the council-house refuge and sealing the door after the horde breaches Oakhaven. Chapter 10 resets to a pre-assault preparation sequence; chapters 11–12 then continue that branch with a western defense and Roland’s arrival. The chapter-10+ sequence is internally progressive but its placement relative to the chapter-9 refuge ending is unresolved.",
+      "ground_truth_policy": "Treat chapters 10–19 as an internally ordered branch for local state changes, but do not use the chapter-9→10 transition as clean temporal ground truth until human review.",
+      "review_status": "ambiguous"
+    },
+    {
+      "ambiguity_id": "amb-007",
+      "chapters": [
+        1,
+        2,
+        8
+      ],
+      "type": "character_attribute_conflict",
+      "entities": [
+        "char-002"
+      ],
+      "description": "Elena’s hair is described as black in chapter 1, brown in chapter 2, and chestnut in chapter 8.",
+      "ground_truth_policy": "Exclude exact hair color from retrieval ground truth.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-008",
+      "chapters": [
+        5,
+        6,
+        7,
+        10,
+        14,
+        19,
+        20,
+        21,
+        22,
+        26,
+        28
+      ],
+      "type": "causal_claim_not_fully_verified",
+      "entities": [
+        "org-001",
+        "structure-001",
+        "structure-002",
+        "loc-005"
+      ],
+      "description": "Temple extraction behavior is directly observed locally (chapter 14), and Alistair directly confirms in chapters 20–21 that he accepts sacrifice to maintain the Vòm Trời / stabilize Solaria. However, some broader technical claims about the complete siphoning chain, exact system mechanics, and all downstream effects remain only partially demonstrated.",
+      "ground_truth_policy": "Treat local extraction and Alistair’s stated maintenance/sacrifice objective as canonical. Keep unobserved engineering details and numerical/causal claims as attributed or inferred until directly demonstrated.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-009",
+      "chapters": [
+        3,
+        13,
+        19
+      ],
+      "type": "entity_identity_ambiguity",
+      "entities": [
+        "char-007",
+        "char-015"
+      ],
+      "description": "A scout named Miller is introduced as missing in chapter 3, while chapter 13 refers to an elderly blacksmith Miller and chapter 19 mentions Miller’s children. The source does not explicitly establish whether these references name the same person.",
+      "ground_truth_policy": "Keep the scout Miller and blacksmith Miller as separate entity IDs. Do not merge until explicit source evidence resolves identity.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-010",
+      "chapters": [
+        13,
+        17,
+        19
+      ],
+      "type": "character_state_measurement_conflict",
+      "entities": [
+        "char-001"
+      ],
+      "description": "The stated size/severity measurements of Alan’s persistent shoulder tear fluctuate sharply (for example, from centimeters-like “phân” descriptions to several “tấc” and back), beyond a clearly narrated healing/reinjury progression.",
+      "ground_truth_policy": "The persistent and worsening shoulder injury is valid ground truth; exclude exact wound length measurements from evaluation labels.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-011",
+      "chapters": [
+        12,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        54
+      ],
+      "type": "unverified_character_motive_claim",
+      "entities": [
+        "char-003",
+        "char-009",
+        "char-010"
+      ],
+      "description": "Earlier chapters contain unverified claims about Alistair knowingly sacrificing Oakhaven, seeing the truth beyond the false sky, seeking divine ascent, or directing the wider plan. Chapters 20–21 directly confirm his sacrifice/maintenance position; chapter 54 narrator exposition directly confirms that he discovered the artificial sky/ecological crisis and adopts an extreme utilitarian sacrifice logic. The divine-ascent interpretation remains unconfirmed.",
+      "ground_truth_policy": "Treat Alistair’s sacrifice/maintenance position and chapter-54 false-sky/utilitarian backstory as canonical from their respective chapters. Keep the divine-ascent interpretation unverified unless later source text directly confirms it.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-012",
+      "chapters": [
+        18,
+        19
+      ],
+      "type": "location_state_conflict",
+      "entities": [
+        "loc-001",
+        "loc-009"
+      ],
+      "description": "Chapter 18 directly establishes that the northern tunnel entrance collapses behind the refugees. Chapter 19 then narrates that Oakhaven itself has been completely buried under vast rockfall, a much larger destruction state not directly shown in chapter 18.",
+      "ground_truth_policy": "Treat the escape route/tunnel entrance as sealed. Do not use total burial/destruction of the entire village as high-confidence ground truth without later confirmation.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-013",
+      "chapters": [
+        20,
+        22,
+        26,
+        29,
+        50,
+        51,
+        52
+      ],
+      "type": "population_state_conflict",
+      "entities": [
+        "loc-001",
+        "char-002",
+        "loc-015"
+      ],
+      "description": "Chapter 20 describes only nineteen surviving Oakhaven lives at the north tower, while chapters 22, 26, 29 and 50–52 refer to more than three hundred or roughly four hundred Oakhaven refugees. The source does not explain how the population increases by this scale.",
+      "ground_truth_policy": "Do not use a precise survivor count as benchmark ground truth across this span. Use only local chapter-specific counts when explicitly querying that chapter.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-014",
+      "chapters": [
+        20,
+        21,
+        22,
+        54
+      ],
+      "type": "character_state_conflict",
+      "entities": [
+        "char-003",
+        "item-007"
+      ],
+      "description": "Chapter 20 introduces Alistair with the right arm already amputated/replaced by an ancient metal apparatus containing a Space Core fragment. Chapter 21 depicts the spatial rupture severing/damaging the same right-arm area as a fresh biological injury. Chapter 54 again states that the right arm had been lost in the old Demon King battle and replaced by a spatial black-metal prosthetic.",
+      "ground_truth_policy": "Canonicalize only that Alistair has a major right-arm prosthetic/Space-Core state before the late Solaria battle and is severely damaged by the chapter-21 rupture. Do not freeze the exact anatomy or whether chapter 21 “severs” an already prosthetic limb without human review.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-015",
+      "chapters": [
+        22,
+        23,
+        25
+      ],
+      "type": "temporal_continuity_conflict",
+      "entities": [
+        "char-002",
+        "char-011",
+        "char-016",
+        "loc-014",
+        "loc-015"
+      ],
+      "description": "Chapter 22 has Elena reunite with Brand, meet Bram, and establish an alliance at the route to the fourth forge. Chapter 23 then presents Elena as having spent two days and nights alone crossing the Răng Cưa area under pursuit, without explaining a departure from that group; chapter 25 later reunites her with Alan before they again head toward Bram.",
+      "ground_truth_policy": "Preserve each chapter’s local events but do not assume a clean elapsed-time sequence between chapters 22–25. Avoid using “two days alone” as a high-confidence global timeline fact.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-016",
+      "chapters": [
+        20,
+        23,
+        24,
+        25
+      ],
+      "type": "important_object_state_conflict",
+      "entities": [
+        "char-001"
+      ],
+      "description": "Alistair explicitly crushes Alan’s ordinary iron short sword into pieces in chapter 20, yet chapters 23–25 again give Alan an ordinary iron short sword/its hilt without narrating acquisition of a replacement.",
+      "ground_truth_policy": "Treat the chapter-20 sword destruction as canonical and the later ordinary-sword identity as unresolved. Do not infer that the same destroyed weapon survived.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-017",
+      "chapters": [
+        23,
+        24,
+        25
+      ],
+      "type": "character_state_continuity_conflict",
+      "entities": [
+        "char-001",
+        "char-002"
+      ],
+      "description": "Alan and Elena remain separated through chapters 23–24, and chapter 25 stages their reunion near its end, but the opening of chapter 25 says Alan’s shoulder was “just stitched/treated by Elena,” implying treatment that could not have occurred in the shown sequence.",
+      "ground_truth_policy": "Do not use Elena’s pre-reunion treatment in chapter 25 as clean temporal ground truth. Treat their visible reunion later in chapter 25 as the reliable state transition.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-018",
+      "chapters": [
+        22,
+        26
+      ],
+      "type": "narrative_replay",
+      "entities": [
+        "char-002",
+        "char-016",
+        "org-003",
+        "loc-015"
+      ],
+      "description": "Chapter 22 explicitly establishes the Oakhaven–Frostspine dwarf survival alliance through Elena’s offer to detoxify water in exchange for shelter. Chapter 26 repeats the same initial distrust, water-for-shelter bargain, proof, and acceptance as though the alliance were being created for the first time.",
+      "ground_truth_policy": "Use chapter 22 as the earlier alliance-establishment anchor. Treat chapter 26 as a replay/reaffirmation and exclude its “first establishment” framing from clean chronology benchmarks.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-019",
+      "chapters": [
+        27,
+        28,
+        32,
+        33,
+        35,
+        36
+      ],
+      "type": "important_object_measurement_conflict",
+      "entities": [
+        "item-008"
+      ],
+      "description": "The newly forged Thần Tinh short sword is described as two and a half thước long in chapter 27 but as two thước two tấc in chapter 28; chapters 32, 33, 35, and 36 repeatedly use the two-thước-two-tấc measurement. The later repetition favors one reading but does not erase the explicit chapter-27 conflict.",
+      "ground_truth_policy": "Canonicalize the object and its anti-mana function, but not its exact length until reviewed.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-020",
+      "chapters": [
+        21,
+        23
+      ],
+      "type": "world_power_open_question",
+      "entities": [
+        "char-002",
+        "skill-002"
+      ],
+      "description": "Chapter 21 first identifies Elena as possessing a Bản Nguyên Tịnh Hóa important to Solaria, while earlier chapters primarily frame her methods as non-mana medicine/chemistry; chapter 23 says this power is fully blocked. Its origin, prior availability, and exact mechanics are not explained in the processed source.",
+      "ground_truth_policy": "It is canonical that Alistair names this power and chapter 23 says it is blocked. Do not infer its full mechanics or prior usage history.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-021",
+      "chapters": [
+        27,
+        28,
+        29,
+        31,
+        32
+      ],
+      "type": "important_object_narrative_replay",
+      "entities": [
+        "item-008",
+        "item-011",
+        "char-016",
+        "char-019"
+      ],
+      "description": "Chapter 27 forges Alan’s first Thần Tinh sword and chapters 28–29 use it in combat. Chapters 31–32 then repeat the setup “obtain Thần Tinh ore → forge the first anti-Temple short sword” as though the weapon did not already exist.",
+      "ground_truth_policy": "Use chapter 27 as the clean origin anchor because the sword is demonstrably present in chapters 28–29. Retain chapter 32 as an explicit source event but mark its first-forging framing as narrative replay and a hard negative for object-history retrieval.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-022",
+      "chapters": [
+        30,
+        31,
+        32,
+        33,
+        37,
+        38,
+        39,
+        42,
+        45,
+        46,
+        49,
+        50,
+        53
+      ],
+      "type": "infrastructure_count_conflict",
+      "entities": [
+        "structure-001",
+        "loc-002",
+        "loc-017"
+      ],
+      "description": "Auxiliary Pressure Pillar totals and survival states conflict across the source: earlier chapters alternate between twelve and six; chapters 38 and 46 say twelve pillars collapse in chain reactions; chapter 39 reports eight still remaining; chapter 49 says artillery is fed by Pillar No. 4; chapter 50 again says all twelve auxiliary pillars are disabled; chapter 53 still has an active numbered pillar in Solaria.",
+      "ground_truth_policy": "Do not freeze a global exact pillar count or assume every repeated number identifies the same physical pillar. Store local destruction events with provenance and use them as hard negatives where chronology or numbering conflicts.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-023",
+      "chapters": [
+        30,
+        31,
+        32
+      ],
+      "type": "character_location_transition_gap",
+      "entities": [
+        "char-011",
+        "char-016",
+        "loc-015",
+        "loc-018"
+      ],
+      "description": "Chapter 30 says Brand and Bram are separated from Alan/Elena at the collapsed fourth forge and retreat through maintenance chambers. Chapter 32 places Bram at the ancient-tomb forge and Brand later arrives there, but their route/reunion with the new alliance is not narrated.",
+      "ground_truth_policy": "Treat their explicit presence in chapter 32 as canonical local state, but do not invent the missing travel/reunion sequence or timing.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-024",
+      "chapters": [
+        40,
+        42,
+        44,
+        45
+      ],
+      "type": "repeated_pillar_2_destruction",
+      "entities": [
+        "structure-001",
+        "item-013"
+      ],
+      "description": "Pressure Pillar No. 2 is explicitly destroyed in chapter 40, destroyed again in chapter 42, planned as still intact in chapter 44, and destroyed a third time in chapter 45.",
+      "ground_truth_policy": "Treat all scenes as source evidence but do not use chapters 40/42/45 as three distinct canonical destructions. For clean chronology queries, later repetitions should be hard negatives unless a human editor selects an intended version.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-025",
+      "chapters": [
+        37,
+        41
+      ],
+      "type": "nullification_charge_count_conflict",
+      "entities": [
+        "item-013"
+      ],
+      "description": "Chapter 37 explicitly forges two nullification charges; chapter 41 refers to a container holding three without narrating production of an additional charge.",
+      "ground_truth_policy": "Do not freeze an exact inventory count after chapter 37 without human review.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-026",
+      "chapters": [
+        31,
+        44
+      ],
+      "type": "relationship_state_reset",
+      "entities": [
+        "char-020",
+        "char-002",
+        "char-001"
+      ],
+      "description": "Gargas already accepts Korgan’s token and escorts Alan/Elena to Valora in chapter 31, but chapter 44 presents him as a hostile young Demon fighter whose trust is won anew after Elena treats him.",
+      "ground_truth_policy": "Keep the chapter-44 medical debt as a local canonical relationship event, but do not treat it as Gargas’s first contact with or first acceptance of the humans.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-027",
+      "chapters": [
+        41,
+        44
+      ],
+      "type": "contested_historical_battle_account",
+      "entities": [
+        "char-021",
+        "char-019",
+        "char-020",
+        "char-009",
+        "char-022",
+        "loc-017"
+      ],
+      "description": "The old Battle of Hẻm Vực/Thung Lũng Tro Tàn receives conflicting blame: Garrick says Demon forces abandoned Varian/Oakhaven; Valora blames Kaelen as a traitor; Gargas later says humans abandoned Demon cavalry; Garrick then says Varian died covering the Demon withdrawal.",
+      "ground_truth_policy": "Store these as attributed memories only. Do not canonicalize which side betrayed whom or the exact old-battle sequence without independent source evidence.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-028",
+      "chapters": [
+        42,
+        45,
+        47,
+        49,
+        53
+      ],
+      "type": "repeated_true_sky_revelation",
+      "entities": [
+        "structure-002"
+      ],
+      "description": "Chapters 42, 45, 47, 49 and 53 repeatedly present local breaks in the artificial sky revealing natural stars, several times framing the event as a fresh or first milestone.",
+      "ground_truth_policy": "The fact that natural stars become locally visible is source-explicit. Use chapter 42 provisionally as the first on-page reveal and treat later “first/new reveal” framings as narrative echoes unless human review establishes distinct spatial barriers.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-029",
+      "chapters": [
+        45,
+        47,
+        48,
+        49
+      ],
+      "type": "roland_cavalry_force_state_replay",
+      "entities": [
+        "char-010",
+        "org-001",
+        "loc-017"
+      ],
+      "description": "Chapter 45 says a landslide buries Roland’s three-thousand heavy cavalry; chapter 47 again sends three thousand cavalry into a valley and buries them, with Roland escaping; chapter 48 then says three thousand heavy cavalry are finding a detour, and chapter 49 again fields three thousand at the eastern exit.",
+      "ground_truth_policy": "Treat each local scene as source-explicit but do not freeze an exact surviving force count or a clean continuous chronology. For “first burial/destruction” retrieval, prefer the earliest on-page event and use later semantic matches as replay hard negatives.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-030",
+      "chapters": [
+        34,
+        53
+      ],
+      "type": "numbered_pillar_identity_scope_ambiguity",
+      "entities": [
+        "structure-001",
+        "loc-020",
+        "loc-023"
+      ],
+      "description": "An auxiliary Pressure Pillar No. 1 is destroyed at the wind-pass campaign in chapter 34, while chapter 53 destroys another Pressure Pillar No. 1 at Solaria’s commercial crossroads. The source does not explicitly state whether numbering resets by region/network or the later scene replays the earlier numbered target.",
+      "ground_truth_policy": "Do not merge the two physical sites solely by pillar number. Preserve both local events and require human review before treating “Pillar No. 1” as a globally unique entity.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-031",
+      "chapters": [
+        17,
+        54,
+        56,
+        58
+      ],
+      "type": "Alistair_divine_ascent_vs_final_stated_intent",
+      "entities": [
+        "char-003",
+        "structure-002"
+      ],
+      "description": "Chapter 17 contains a Varian-attributed interpretation that Alistair might seek divinity; chapter 56 has Valora call his activity a divine-ascension ritual. Chapter 54 narrator exposition confirms utilitarian sacrifice but not divine ascent, while chapter 58 Alistair directly states a current intention to smash the artificial cage together with its living beings.",
+      "ground_truth_policy": "Do not promote “Alistair wants to become a god” to canonical motive. Preserve chapter-56 wording as Valora-attributed and treat chapter-58 speech as his explicit current intent, not retroactive proof of the earlier divine-ascent interpretation.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-032",
+      "chapters": [
+        56,
+        57
+      ],
+      "type": "near_duplicate_final_assault_scene_pattern",
+      "entities": [
+        "char-001",
+        "char-002",
+        "loc-026"
+      ],
+      "description": "Chapters 56 and 57 repeat unusually similar Alan injury descriptions, Elena shoulder-angle instructions, filter-mask advice, chemical lens disruption and Thần Tinh infrastructure sabotage. Chapter 57 also describes a “warhorse” collapsing inside the cathedral Vespera fight despite the attackers being introduced as assassins descending from rafters.",
+      "ground_truth_policy": "Retain distinct local outcomes (Solar Array destroyed in ch56; Vespera/cable supports defeated in ch57) but tag the repeated micro-beats as narrative echo. Do not use repeated wording as independent evidence for a new character-state transition.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-033",
+      "chapters": [
+        17,
+        60,
+        61
+      ],
+      "type": "seed_provenance_not_established",
+      "entities": [
+        "item-005",
+        "loc-001",
+        "char-002"
+      ],
+      "description": "Chapter 17 evacuates Oakhaven’s reserve seeds, but chapters 60–61 describe return-journey seeds as collected from border/food stores and do not explicitly identify them as the same physical cache.",
+      "ground_truth_policy": "Do not merge the ending seeds with item-005 as the same physical objects. It is valid to label a thematic/setup-payoff relation, but not physical-object identity.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-034",
+      "chapters": [
+        60,
+        61
+      ],
+      "type": "Thần_Tinh_sword_vs_recycled_metal_scope",
+      "entities": [
+        "item-008",
+        "item-011"
+      ],
+      "description": "Chapter 60 broadly describes Thần Tinh and captured Temple metal being turned into farm tools while simultaneously showing Alan still holding his personal Thần Tinh sword. Chapter 61 confirms the personal sword remains intact and is retired at Gregor’s memorial.",
+      "ground_truth_policy": "Interpret the recycled material as bulk/recovered Thần Tinh and other metal, not Alan’s personal sword. Do not infer from the chapter title “Luyện Kiếm Thành Cày” that item-008 was melted down.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-035",
+      "chapters": [
+        18,
+        60,
+        61
+      ],
+      "type": "late_two_year_timeline_anchor",
+      "entities": [
+        "loc-001",
+        "char-004",
+        "char-010"
+      ],
+      "description": "Chapter 61 explicitly calls Roland’s destruction of Oakhaven and Gregor’s death events from two years earlier, while chapters 18–60 provide very few calendar anchors and are often narrated as a continuous campaign.",
+      "ground_truth_policy": "Store the two-year statement as an explicit late narrator anchor, but do not interpolate exact durations between intermediate chapters without additional source evidence.",
+      "review_status": "needs_human_review"
+    }
+  ],
+  "open_questions": [
+    {
+      "open_question_id": "oq-001",
+      "as_of_chapter": 10,
+      "question": "What is the reliable fate of Miller and Jory?",
+      "related_ambiguity_ids": [
+        "amb-004"
+      ]
+    },
+    {
+      "open_question_id": "oq-002",
+      "as_of_chapter": 10,
+      "question": "How should chapter 10 be ordered relative to the chapter-9 refuge ending?",
+      "related_ambiguity_ids": [
+        "amb-006"
+      ]
+    },
+    {
+      "open_question_id": "oq-003",
+      "as_of_chapter": 10,
+      "question": "Are Thánh Đô and Solaria the same location, and are Tòa Thánh and Thần Điện strict aliases or distinct institutional layers?",
+      "related_ambiguity_ids": []
+    },
+    {
+      "open_question_id": "oq-004",
+      "as_of_chapter": 19,
+      "question": "Is the blacksmith Miller the same person as the scout Miller introduced earlier?",
+      "related_ambiguity_ids": [
+        "amb-009"
+      ]
+    },
+    {
+      "open_question_id": "oq-005",
+      "as_of_chapter": 28,
+      "question": "Alistair now directly confirms willingness to sacrifice Oakhaven to maintain the Vòm Trời and use Elena for Solaria; are the earlier Varian-attributed claims about the void/false sky and Alistair seeking divine ascent ever directly confirmed?",
+      "related_ambiguity_ids": [
+        "amb-011"
+      ]
+    },
+    {
+      "open_question_id": "oq-006",
+      "as_of_chapter": 19,
+      "question": "Was all of Oakhaven physically buried/destroyed, or only the northern escape entrance sealed?",
+      "related_ambiguity_ids": [
+        "amb-012"
+      ]
+    },
+    {
+      "open_question_id": "oq-007",
+      "as_of_chapter": 28,
+      "question": "What is the reliable Oakhaven survivor count after the north-tower escape?",
+      "related_ambiguity_ids": [
+        "amb-013"
+      ]
+    },
+    {
+      "open_question_id": "oq-008",
+      "as_of_chapter": 28,
+      "question": "What is the exact continuity of Alistair’s right arm and the Mảnh Lõi Không Gian across chapters 20–22?",
+      "related_ambiguity_ids": [
+        "amb-014"
+      ]
+    },
+    {
+      "open_question_id": "oq-009",
+      "as_of_chapter": 28,
+      "question": "How should chapters 22–26 be ordered around Elena’s time alone, reunion with Alan, and the repeated dwarf-alliance bargain?",
+      "related_ambiguity_ids": [
+        "amb-015",
+        "amb-017",
+        "amb-018"
+      ]
+    },
+    {
+      "open_question_id": "oq-010",
+      "as_of_chapter": 28,
+      "question": "What are the origin and exact mechanics of Elena’s Bản Nguyên Tịnh Hóa, and why was it not previously foregrounded?",
+      "related_ambiguity_ids": [
+        "amb-020"
+      ]
+    },
+    {
+      "open_question_id": "oq-011",
+      "as_of_chapter": 36,
+      "question": "How should the repeated Thần Tinh first-forging scene in chapter 32 be reconciled with the chapter-27 forge and chapter-28/29 combat use?",
+      "related_ambiguity_ids": [
+        "amb-021"
+      ]
+    },
+    {
+      "open_question_id": "oq-012",
+      "as_of_chapter": 36,
+      "question": "Is the intended auxiliary Pressure Pillar total twelve, six, or six as a subset of twelve?",
+      "related_ambiguity_ids": [
+        "amb-022"
+      ]
+    },
+    {
+      "open_question_id": "oq-013",
+      "as_of_chapter": 36,
+      "question": "What exactly is the Mảnh Lõi Sinh Mệnh, how do the characters know it is in the lower tomb, and what function will it have?",
+      "related_ambiguity_ids": []
+    },
+    {
+      "open_question_id": "oq-014",
+      "as_of_chapter": 36,
+      "question": "How did Brand and Bram move from the collapsed fourth forge to the ancient-tomb alliance/forge between chapters 30 and 32?",
+      "related_ambiguity_ids": [
+        "amb-023"
+      ]
+    },
+    {
+      "open_question_id": "oq-015",
+      "as_of_chapter": 45,
+      "question": "Which of chapters 40, 42, or 45 represents the intended canonical destruction of Pressure Pillar No. 2, and are the others accidental narrative replays?",
+      "related_ambiguity_ids": [
+        "amb-024"
+      ]
+    },
+    {
+      "open_question_id": "oq-016",
+      "as_of_chapter": 45,
+      "question": "What is the intended historical truth of the twenty-year-old Hẻm Vực/Tro Tàn battle, given the mutually conflicting Human and Demon testimonies?",
+      "related_ambiguity_ids": [
+        "amb-027"
+      ]
+    },
+    {
+      "open_question_id": "oq-017",
+      "as_of_chapter": 45,
+      "question": "Why does the Mảnh Lõi Sinh Mệnh search disappear from chapters 37–45 without an on-page recovery, failure, or explicit abandonment?",
+      "related_ambiguity_ids": []
+    },
+    {
+      "open_question_id": "oq-018",
+      "as_of_chapter": 45,
+      "question": "Is chapter 42 intended as the first local glimpse of natural stars, with chapter 45 repeating it, or are these meant to be separate breaches of the false sky?",
+      "related_ambiguity_ids": [
+        "amb-028"
+      ]
+    },
+    {
+      "question_id": "oq-022",
+      "question": "Does the Mảnh Lõi Sinh Mệnh ever re-enter the narrative after its unrecovered state in chapters 34–36, or is that objective silently dropped?",
+      "chapters": [
+        34,
+        35,
+        36,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55
+      ],
+      "status": "open",
+      "review_status": "high_confidence",
+      "legacy_collision_id": "oq-015"
+    },
+    {
+      "question_id": "oq-023",
+      "question": "Should chapter 54 narrator exposition be treated as fully resolving the earlier Varian-attributed false-sky account while leaving only the “divine ascent” portion unconfirmed?",
+      "chapters": [
+        17,
+        54
+      ],
+      "status": "open",
+      "review_status": "needs_human_review",
+      "legacy_collision_id": "oq-016"
+    },
+    {
+      "question_id": "oq-024",
+      "question": "Are repeated numbered Pressure Pillars region-local numbering schemes or narrative replays of the same target?",
+      "chapters": [
+        34,
+        40,
+        42,
+        45,
+        49,
+        53
+      ],
+      "status": "open",
+      "review_status": "needs_human_review",
+      "legacy_collision_id": "oq-017"
+    },
+    {
+      "question_id": "oq-025",
+      "question": "What is the intended surviving strength of Roland’s heavy cavalry after the repeated burial/destruction scenes in chapters 45 and 47?",
+      "chapters": [
+        45,
+        47,
+        48,
+        49
+      ],
+      "status": "open",
+      "review_status": "needs_human_review",
+      "legacy_collision_id": "oq-018"
+    },
+    {
+      "question_id": "oq-019",
+      "question": "How should the chapter-54 statement that Alistair lost his right arm in the old Demon King battle be reconciled with the chapter-21 fresh severing/damage scene?",
+      "chapters": [
+        20,
+        21,
+        54
+      ],
+      "status": "open",
+      "review_status": "needs_human_review"
+    },
+    {
+      "question_id": "oq-020",
+      "question": "Does the two-year statement in chapter 61 reflect the intended total elapsed time since Gregor’s death, or a late continuity insertion inconsistent with the campaign’s otherwise compressed chronology?",
+      "chapters": [
+        18,
+        61
+      ],
+      "status": "open",
+      "review_status": "needs_human_review"
+    },
+    {
+      "question_id": "oq-021",
+      "question": "Are any of the seeds planted in rebuilt Oakhaven physically the same reserve seeds evacuated in chapter 17, or are they new supplies collected before the return?",
+      "chapters": [
+        17,
+        60,
+        61
+      ],
+      "status": "open",
+      "review_status": "needs_human_review"
+    }
+  ]
+}

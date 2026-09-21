@@ -1,0 +1,6 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "generation_status": "deferred",
+  "queries": [],
+  "note": "Official retrieval-query generation is deferred until a larger story span has been processed, so long-range positives, hard negatives, and future-leak traps can be labeled reliably."
+}

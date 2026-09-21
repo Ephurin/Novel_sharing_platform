@@ -1,0 +1,729 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "processed_through_chapter": 10,
+  "memory_count": 29,
+  "memories": [
+    {
+      "memory_id": "mem-000001",
+      "memory_type": "event_summary",
+      "chapter_number": 1,
+      "chapter_title": "HOÀNG HÔN TRÊN TIỀN ĐỒN",
+      "entities": [
+        "char-001",
+        "loc-001",
+        "loc-003"
+      ],
+      "content": "Alan kills a corrupted mist wolf near Oakhaven; its black corrosive fluids and the forest’s decay establish that the local ecological disturbance is abnormal.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 1,
+        "evidence_summary": "The chapter directly depicts the corrupted wolf attack, black fluid, and decaying forest conditions."
+      },
+      "tags": [
+        "setup",
+        "environmental_corruption"
+      ]
+    },
+    {
+      "memory_id": "mem-000002",
+      "memory_type": "character_memory",
+      "chapter_number": 1,
+      "chapter_title": "HOÀNG HÔN TRÊN TIỀN ĐỒN",
+      "entities": [
+        "char-001",
+        "state-001",
+        "skill-001"
+      ],
+      "content": "Alan has a shattered mana core and compensates with physical technique such as Flash Surge, but forcing the technique causes immediate pain, bleeding, and muscular injury.",
+      "importance": 0.98,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 1,
+        "evidence_summary": "The narration explicitly states the broken mana core and depicts Flash Surge causing severe physical backlash."
+      },
+      "tags": [
+        "core_character_state",
+        "world_rule",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000003",
+      "memory_type": "world_rule",
+      "chapter_number": 1,
+      "chapter_title": "HOÀNG HÔN TRÊN TIỀN ĐỒN",
+      "entities": [
+        "char-002",
+        "item-001",
+        "loc-002"
+      ],
+      "content": "Elena observes that the altered Hoa Chuông Trầm Tích and the wolf’s black blood are associated with corrosive mana leakage and depletion of underground water around Frostspine.",
+      "importance": 0.86,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 1,
+        "evidence_summary": "Elena explicitly gives this diagnosis; the causal mechanism is her interpretation at this point."
+      },
+      "tags": [
+        "environmental_corruption",
+        "inferred_causality"
+      ]
+    },
+    {
+      "memory_id": "mem-000004",
+      "memory_type": "relationship_memory",
+      "chapter_number": 1,
+      "chapter_title": "HOÀNG HÔN TRÊN TIỀN ĐỒN",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "org-001"
+      ],
+      "content": "Elena initially places real hope in Alistair as a possible rescuer, while Alan remains wary that a Temple-led rescue may come with coercion.",
+      "importance": 0.92,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 1,
+        "evidence_summary": "Elena voices respect and hope for Alistair; Alan explicitly worries that the Hero may bring chains rather than salvation."
+      },
+      "tags": [
+        "relationship_history",
+        "ideological_contrast",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000005",
+      "memory_type": "character_memory",
+      "chapter_number": 2,
+      "chapter_title": "BỘT BÁNH MÌ VÀ NHỮNG ĐÓA CHUÔNG SẪM MÀU",
+      "entities": [
+        "char-001",
+        "char-005"
+      ],
+      "content": "Alan teaches Toby that footwork and reading an opponent’s hips and feet matter more than simply swinging with shoulder strength.",
+      "importance": 0.74,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 2,
+        "evidence_summary": "The chapter directly shows Alan correcting Toby’s stance and explaining his combat principles."
+      },
+      "tags": [
+        "mentor_memory",
+        "low_lexical_overlap_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000006",
+      "memory_type": "location_memory",
+      "chapter_number": 2,
+      "chapter_title": "BỘT BÁNH MÌ VÀ NHỮNG ĐÓA CHUÔNG SẪM MÀU",
+      "entities": [
+        "loc-001",
+        "loc-002",
+        "item-001",
+        "char-006"
+      ],
+      "content": "Oakhaven’s water tastes metallic, Hoa Chuông Trầm Tích bloom weeks early and darken, and villagers receive reports that Alistair’s Temple delegation is moving north.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 2,
+        "evidence_summary": "Martha reports the water and flower changes and relays news of the approaching delegation."
+      },
+      "tags": [
+        "environmental_corruption",
+        "approaching_faction"
+      ]
+    },
+    {
+      "memory_id": "mem-000007",
+      "memory_type": "event_summary",
+      "chapter_number": 2,
+      "chapter_title": "BỘT BÁNH MÌ VÀ NHỮNG ĐÓA CHUÔNG SẪM MÀU",
+      "entities": [
+        "char-004",
+        "loc-001",
+        "loc-002",
+        "org-001"
+      ],
+      "content": "Gregor shows Alan a cracked boundary stone leaking black corrosive fluid and warns that the land’s vitality is being drained toward Temple magic farther south.",
+      "importance": 0.86,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 2,
+        "evidence_summary": "The crack and black fluid are directly observed; Gregor’s explanation of what is draining the land is an asserted interpretation."
+      },
+      "tags": [
+        "setup",
+        "world_mechanism",
+        "inferred_causality"
+      ]
+    },
+    {
+      "memory_id": "mem-000008",
+      "memory_type": "event_summary",
+      "chapter_number": 3,
+      "chapter_title": "Điềm Báo Dưới Lòng Đất",
+      "entities": [
+        "char-007",
+        "char-008",
+        "char-001",
+        "char-002",
+        "loc-004"
+      ],
+      "content": "Miller and Jory fail to return from inspecting the west tunnel, so Alan and Elena volunteer to search for them.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 3,
+        "evidence_summary": "Gregor explicitly reports both scouts missing, and Alan decides to go after them with Elena accompanying him."
+      },
+      "tags": [
+        "missing_persons",
+        "quest_trigger"
+      ]
+    },
+    {
+      "memory_id": "mem-000009",
+      "memory_type": "location_memory",
+      "chapter_number": 3,
+      "chapter_title": "Điềm Báo Dưới Lòng Đất",
+      "entities": [
+        "loc-004",
+        "char-001",
+        "char-002"
+      ],
+      "content": "At the west tunnel entrance, Alan and Elena find torn structural timber, corrosive black slime, and heavy four-toed tracks indicating an abnormal large creature below.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 3,
+        "evidence_summary": "The chapter directly describes the damaged entrance, black slime, and tracks before they enter."
+      },
+      "tags": [
+        "danger_evidence",
+        "setup"
+      ]
+    },
+    {
+      "memory_id": "mem-000010",
+      "memory_type": "location_memory",
+      "chapter_number": 4,
+      "chapter_title": "BÓNG TỐI HẦM NGẦM PHÍA TÂY",
+      "entities": [
+        "loc-004",
+        "loc-001"
+      ],
+      "content": "The west underground network is an old Oakhaven defensive system built by earlier settlers and is now contaminated by black mineral fluid and signs of predation.",
+      "importance": 0.72,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 4,
+        "evidence_summary": "Narration explicitly identifies the tunnels as an old defensive network and describes current contamination."
+      },
+      "tags": [
+        "location_history"
+      ]
+    },
+    {
+      "memory_id": "mem-000011",
+      "memory_type": "event_summary",
+      "chapter_number": 4,
+      "chapter_title": "BÓNG TỐI HẦM NGẦM PHÍA TÂY",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-007",
+        "char-008",
+        "loc-004"
+      ],
+      "content": "Alan and Elena find Oakhaven patrol equipment, blood, and signs of a body being dragged deeper into the tunnel, but no confirmed bodies of Miller or Jory at this stage.",
+      "importance": 0.91,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 4,
+        "evidence_summary": "The chapter shows damaged patrol gear and blood without identifying recovered bodies."
+      },
+      "tags": [
+        "missing_persons",
+        "continuity_anchor"
+      ]
+    },
+    {
+      "memory_id": "mem-000012",
+      "memory_type": "event_summary",
+      "chapter_number": 4,
+      "chapter_title": "BÓNG TỐI HẦM NGẦM PHÍA TÂY",
+      "entities": [
+        "char-001",
+        "char-002",
+        "loc-004"
+      ],
+      "content": "A large eyeless chitin-armored creature is discovered clinging to the tunnel ceiling with part of a human arm caught in its jaws.",
+      "importance": 0.83,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 4,
+        "evidence_summary": "The creature and human arm are directly described at the chapter climax."
+      },
+      "tags": [
+        "creature_encounter"
+      ]
+    },
+    {
+      "memory_id": "mem-000013",
+      "memory_type": "event_summary",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "char-001",
+        "char-002",
+        "skill-001",
+        "item-002"
+      ],
+      "content": "Alan and Elena defeat the giant chitin creature by combining Hỏa Thạch-based chemical disruption with precise attacks on unarmored joints and the neck.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "The fight directly depicts Elena creating openings and Alan exploiting mechanical weak points."
+      },
+      "tags": [
+        "combat_tactic",
+        "relationship_relevance"
+      ]
+    },
+    {
+      "memory_id": "mem-000014",
+      "memory_type": "world_rule",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "char-001",
+        "skill-001",
+        "state-001"
+      ],
+      "content": "Flash Surge can temporarily let Alan close distance against faster enemies, but with his broken mana core it produces severe bleeding, lung/chest distress, and worsening shoulder damage.",
+      "importance": 0.96,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "The chapter explicitly depicts these costs during and after Alan uses Flash Surge."
+      },
+      "tags": [
+        "world_rule",
+        "core_character_state",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000015",
+      "memory_type": "important_object",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "item-003",
+        "char-002",
+        "loc-002"
+      ],
+      "content": "Elena extracts a corrupted, overloaded Earth Vein Core fragment from the defeated creature.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "The crystal fragment is physically removed from the creature and identified by Elena."
+      },
+      "tags": [
+        "important_object",
+        "setup_payoff_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000016",
+      "memory_type": "world_rule",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "item-003",
+        "char-002",
+        "org-001",
+        "structure-001",
+        "loc-005"
+      ],
+      "content": "Elena concludes from the overloaded core fragment that energy is being siphoned from Frostspine toward large pressure-control infrastructure associated with Solaria, contributing to biological mutations.",
+      "importance": 0.91,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "The mechanism is stated by Elena as a conclusion drawn from the recovered core fragment, not independently demonstrated in B01."
+      },
+      "tags": [
+        "inferred_causality",
+        "world_mechanism",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000017",
+      "memory_type": "event_summary",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "char-007",
+        "char-008",
+        "char-001",
+        "char-002"
+      ],
+      "content": "After the creature is killed, Miller and Jory still have not been found; Alan considers that they may have been taken deeper underground.",
+      "importance": 0.85,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "Alan explicitly says they are not there and speculates that they may be deeper in the tunnel system."
+      },
+      "tags": [
+        "missing_persons",
+        "open_question"
+      ]
+    },
+    {
+      "memory_id": "mem-000018",
+      "memory_type": "character_memory",
+      "chapter_number": 6,
+      "chapter_title": "VẾT NỨT LÒNG ĐẤT VÀ MẦM SỐNG MONG MANH",
+      "entities": [
+        "char-001",
+        "char-002"
+      ],
+      "content": "Elena treats Alan’s worsened shoulder injury after the tunnel fight; the scene shows high mutual trust and personal tenderness without explicitly naming their relationship.",
+      "importance": 0.72,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 6,
+        "evidence_summary": "The caregiving and affectionate gestures are directly depicted; the relationship label is not stated."
+      },
+      "tags": [
+        "relationship_history",
+        "needs_context"
+      ]
+    },
+    {
+      "memory_id": "mem-000019",
+      "memory_type": "event_summary",
+      "chapter_number": 6,
+      "chapter_title": "VẾT NỨT LÒNG ĐẤT VÀ MẦM SỐNG MONG MANH",
+      "entities": [
+        "char-010",
+        "char-003",
+        "char-004",
+        "loc-001"
+      ],
+      "content": "Gregor relays a report that a Temple delegation including Captain Roland and Alistair is approaching Oakhaven.",
+      "importance": 0.8,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 6,
+        "evidence_summary": "Gregor explicitly reports the delegation’s movement toward the valley."
+      },
+      "tags": [
+        "approaching_faction"
+      ]
+    },
+    {
+      "memory_id": "mem-000020",
+      "memory_type": "event_summary",
+      "chapter_number": 6,
+      "chapter_title": "VẾT NỨT LÒNG ĐẤT VÀ MẦM SỐNG MONG MANH",
+      "entities": [
+        "loc-002",
+        "loc-001",
+        "char-001",
+        "char-002"
+      ],
+      "content": "A sudden underground shock shakes Alan and Elena’s room, reinforcing that the instability beneath Frostspine is escalating.",
+      "importance": 0.67,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 6,
+        "evidence_summary": "The chapter directly depicts the tremor and both characters reacting to it."
+      },
+      "tags": [
+        "escalation"
+      ]
+    },
+    {
+      "memory_id": "mem-000021",
+      "memory_type": "relationship_memory",
+      "chapter_number": 7,
+      "chapter_title": "ĐÊM HOA CHUÔNG ĐẬP NHỊP MÁU",
+      "entities": [
+        "char-001",
+        "char-004",
+        "loc-001"
+      ],
+      "content": "Narration explicitly identifies Gregor as Alan’s foster father and emphasizes Gregor’s lifelong role protecting Oakhaven.",
+      "importance": 0.94,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 7,
+        "evidence_summary": "The narration calls Gregor Alan’s foster father."
+      },
+      "tags": [
+        "relationship_history",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000022",
+      "memory_type": "world_rule",
+      "chapter_number": 7,
+      "chapter_title": "ĐÊM HOA CHUÔNG ĐẬP NHỊP MÁU",
+      "entities": [
+        "item-001",
+        "structure-001",
+        "structure-002",
+        "char-002",
+        "loc-005"
+      ],
+      "content": "Elena says the pressure-control system at Solaria is drawing power from the borderlands to maintain or repair the artificial sky barrier, and the deep-rooted flowers are absorbing leaked contamination.",
+      "importance": 0.89,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 7,
+        "evidence_summary": "Elena states this explanation while examining the flowers; B01 does not independently verify the full mechanism."
+      },
+      "tags": [
+        "world_mechanism",
+        "inferred_causality",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000023",
+      "memory_type": "event_summary",
+      "chapter_number": 7,
+      "chapter_title": "ĐÊM HOA CHUÔNG ĐẬP NHỊP MÁU",
+      "entities": [
+        "item-001",
+        "char-001",
+        "char-002",
+        "loc-001"
+      ],
+      "content": "During a field inspection, thousands of Hoa Chuông Trầm Tích turn blood-red as a strong quake and black contamination surge through the creek; Alan shields Elena and they retreat.",
+      "importance": 0.84,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 7,
+        "evidence_summary": "The color change, quake, contamination, protective action, and retreat are directly depicted."
+      },
+      "tags": [
+        "escalation",
+        "relationship_relevance"
+      ]
+    },
+    {
+      "memory_id": "mem-000024",
+      "memory_type": "motivation",
+      "chapter_number": 8,
+      "chapter_title": "ĐÊM HOA CHUÔNG NỞ VÀ TIẾNG SẤM DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-002",
+        "char-003",
+        "loc-007"
+      ],
+      "content": "Elena’s trust in Alistair is reinforced by medical records she cites about him exhausting his own power to protect civilians during the Jericho plague.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 8,
+        "evidence_summary": "The chapter directly has Elena cite the old medical account as the reason she believes Alistair may help Oakhaven."
+      },
+      "tags": [
+        "character_motivation",
+        "relationship_history",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000025",
+      "memory_type": "motivation",
+      "chapter_number": 8,
+      "chapter_title": "ĐÊM HOA CHUÔNG NỞ VÀ TIẾNG SẤM DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-001",
+        "char-003",
+        "org-001",
+        "loc-001"
+      ],
+      "content": "Alan is willing to accept genuine help from Alistair but says he will resist if the Temple tries to seize Oakhaven’s winter food; his skepticism is rooted in distrust of concentrated power and “greater-good” logic.",
+      "importance": 0.93,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 8,
+        "evidence_summary": "Alan explicitly states these conditions and his warning about powerful figures viewing people as abstractions."
+      },
+      "tags": [
+        "character_motivation",
+        "relationship_history",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000026",
+      "memory_type": "event_summary",
+      "chapter_number": 8,
+      "chapter_title": "ĐÊM HOA CHUÔNG NỞ VÀ TIẾNG SẤM DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-005",
+        "loc-001",
+        "loc-004"
+      ],
+      "content": "The flower festival is interrupted by violent underground activity; Toby arrives wounded and reports that chitin creatures have broken through the west-side barriers and are flooding toward Oakhaven.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 8,
+        "evidence_summary": "The chapter directly depicts the disruption and Toby’s report."
+      },
+      "tags": [
+        "attack_trigger",
+        "setup_payoff"
+      ]
+    },
+    {
+      "memory_id": "mem-000027",
+      "memory_type": "event_summary",
+      "chapter_number": 9,
+      "chapter_title": "HUYẾT CHIẾN ĐÊM HOA CHUÔNG",
+      "entities": [
+        "char-004",
+        "char-001",
+        "char-002",
+        "char-011",
+        "loc-001"
+      ],
+      "content": "Oakhaven mounts an emergency defense against a large chitin-creature assault while Gregor coordinates barriers, evacuation, and use of Elena’s chemical countermeasures.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 9,
+        "evidence_summary": "The chapter directly depicts the organized village defense."
+      },
+      "tags": [
+        "battle",
+        "community_memory"
+      ]
+    },
+    {
+      "memory_id": "mem-000028",
+      "memory_type": "character_memory",
+      "chapter_number": 9,
+      "chapter_title": "HUYẾT CHIẾN ĐÊM HOA CHUÔNG",
+      "entities": [
+        "char-001",
+        "char-011",
+        "char-012"
+      ],
+      "content": "When Roger is seized and dragged toward the forest, Brand tries to rush after him; Alan stops Brand after identifying the rescue attempt as a lure that would collapse the defensive flank.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 9,
+        "evidence_summary": "The chapter directly shows Roger being dragged away, Brand attempting pursuit, and Alan preventing it for tactical reasons."
+      },
+      "tags": [
+        "character_decision",
+        "relationship_relevance",
+        "old_important_event_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000029",
+      "memory_type": "event_summary",
+      "chapter_number": 9,
+      "chapter_title": "HUYẾT CHIẾN ĐÊM HOA CHUÔNG",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "loc-001"
+      ],
+      "content": "After the outer defense is overwhelmed, the surviving villagers retreat into the stone refuge beneath the council house; Alan seals the heavy door while the chitin horde remains outside.",
+      "importance": 0.97,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 9,
+        "evidence_summary": "The chapter explicitly ends with the villagers, Alan, Elena, and Gregor inside the refuge and the door sealed."
+      },
+      "tags": [
+        "temporal_anchor",
+        "battle_outcome",
+        "continuity_anchor"
+      ]
+    }
+  ],
+  "notes": [
+    "Chapter 10 contains a major temporal/continuity conflict with chapter 9. Conflicted chapter-10 sequence claims are excluded from retrieval ground truth in B01 and recorded in ambiguities.json."
+  ]
+}

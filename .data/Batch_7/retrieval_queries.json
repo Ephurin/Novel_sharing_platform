@@ -1,0 +1,1144 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "generation_status": "queries_frozen_through_B07_whole_story_extracted",
+  "queries": [
+    {
+      "query_id": "rq-0001",
+      "chapter_cutoff": 19,
+      "query": "At this point in the story, what evidence supports the suspicion that Alistair knowingly accepts sacrificing Oakhaven for a larger system?",
+      "query_type": "future_leakage_trap",
+      "relevant_memory_ids": [
+        "mem-000035",
+        "mem-000042",
+        "mem-000053"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000035",
+        "mem-000042"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000025"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000064",
+        "mem-000067"
+      ],
+      "difficulty": "hard",
+      "reason": "Before chapter 20, the evidence is indirect or attributed. Chapters 20–21 provide much stronger direct confirmation, so retrieving them would be a future-information leak.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000046",
+        "mem-000061"
+      ]
+    },
+    {
+      "query_id": "rq-0002",
+      "chapter_cutoff": 21,
+      "query": "What earlier preparation lets Elena briefly affect Alistair despite his overwhelming magical defenses?",
+      "query_type": "setup_payoff",
+      "relevant_memory_ids": [
+        "mem-000041",
+        "mem-000068"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000041",
+        "mem-000068"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000038",
+        "mem-000048"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The useful memory is seven chapters old and described as a corrupted-root sample/countermeasure rather than as an “anti-Alistair weapon,” creating lexical distance.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000052",
+        "mem-000066"
+      ]
+    },
+    {
+      "query_id": "rq-0003",
+      "chapter_cutoff": 21,
+      "query": "How has Elena’s attitude toward Alistair changed from the beginning of the story to their direct confrontation?",
+      "query_type": "relationship_history",
+      "relevant_memory_ids": [
+        "mem-000004",
+        "mem-000035",
+        "mem-000042",
+        "mem-000044",
+        "mem-000067"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000004",
+        "mem-000044",
+        "mem-000067"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000025"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "Requires temporal ordering across early admiration, growing doubt, rejection of savior dependence, and direct opposition.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000046",
+        "mem-000053"
+      ]
+    },
+    {
+      "query_id": "rq-0004",
+      "chapter_cutoff": 24,
+      "query": "Without using magic or a tracking device, what clue gives Alan a concrete route toward Elena after they are separated?",
+      "query_type": "low_lexical_overlap_semantic_relation",
+      "relevant_memory_ids": [
+        "mem-000080",
+        "mem-000081"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000080"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000075",
+        "mem-000076"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "medium",
+      "reason": "The query asks for a tracking clue but the memory is encoded as a torn scarf carrying Elena’s distinctive field-camouflage trace.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000077",
+        "mem-000079"
+      ]
+    },
+    {
+      "query_id": "rq-0005",
+      "chapter_cutoff": 28,
+      "query": "Why does Gregor’s death still matter to Alan and Elena during the underground resistance?",
+      "query_type": "old_but_important",
+      "relevant_memory_ids": [
+        "mem-000056",
+        "mem-000057",
+        "mem-000085"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000057",
+        "mem-000085"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000031"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The motivational source is ten chapters old by the cutoff and must be connected to a later explicit commitment not to waste his sacrifice.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000092",
+        "mem-000093"
+      ]
+    },
+    {
+      "query_id": "rq-0006",
+      "chapter_cutoff": 28,
+      "query": "What chain of events turns the loss of Alan’s ordinary sword into a weapon that can actually disrupt Temple magic?",
+      "query_type": "multiple_memory_reasoning",
+      "relevant_memory_ids": [
+        "mem-000066",
+        "mem-000088",
+        "mem-000089",
+        "mem-000090",
+        "mem-000093",
+        "mem-000094"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000066",
+        "mem-000089",
+        "mem-000094"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000068"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "Requires linking object loss, later material/forge setup, the new sword’s rule, and its first combat validation.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000013",
+        "mem-000055"
+      ]
+    },
+    {
+      "query_id": "rq-0007",
+      "chapter_cutoff": 28,
+      "query": "What evidence shows that the Thần Tinh sword’s anti-mana property is not merely a claim made at the forge?",
+      "query_type": "world_rule",
+      "relevant_memory_ids": [
+        "mem-000090",
+        "mem-000094"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000094"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000093"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "medium",
+      "reason": "Chapter 27 states the property; chapter 28 provides observed combat confirmation against Garen’s protection.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000079",
+        "mem-000088"
+      ]
+    },
+    {
+      "query_id": "rq-0008",
+      "chapter_cutoff": 27,
+      "query": "Why are the Frostspine dwarves willing to shelter and fight alongside the Oakhaven refugees?",
+      "query_type": "multiple_memory_reasoning",
+      "relevant_memory_ids": [
+        "mem-000072",
+        "mem-000073",
+        "mem-000074",
+        "mem-000087",
+        "mem-000088"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000073"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000086"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "Requires combining shared infrastructure damage, Elena’s reciprocal medical/water offer, and the emerging anti-Temple weapons partnership. Chapter 26 repeats the bargain, so it is only acceptable rather than highly relevant.",
+      "review_status": "needs_human_review",
+      "hard_negative_memory_ids": [
+        "mem-000063",
+        "mem-000092"
+      ]
+    },
+    {
+      "query_id": "rq-0009",
+      "chapter_cutoff": 30,
+      "query": "How do Alan and Elena obtain a credible way to approach Valora’s forces without being treated as Temple spies?",
+      "query_type": "future_leakage_trap",
+      "relevant_memory_ids": [
+        "mem-000101",
+        "mem-000102",
+        "mem-000103"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000101",
+        "mem-000103"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000104"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000105",
+        "mem-000106"
+      ],
+      "difficulty": "hard",
+      "reason": "At cutoff 30, the answer is only the rescue, intelligence, and recognition token. Chapter 31 provides the much cleaner proof that Gargas accepts the token and Valora accepts the alliance, but that is future information.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000096",
+        "mem-000100"
+      ]
+    },
+    {
+      "query_id": "rq-0010",
+      "chapter_cutoff": 33,
+      "query": "What changes Valora’s view of the Oakhaven group from suspicious outsiders into credible battlefield allies?",
+      "query_type": "relationship_history",
+      "relevant_memory_ids": [
+        "mem-000101",
+        "mem-000103",
+        "mem-000105",
+        "mem-000106",
+        "mem-000113",
+        "mem-000114"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000106",
+        "mem-000114"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000108"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "Requires following trust formation across Korgan’s rescue, proof of passage, negotiation, and a later joint combat payoff rather than retrieving a single alliance sentence.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000110",
+        "mem-000111"
+      ]
+    },
+    {
+      "query_id": "rq-0011",
+      "chapter_cutoff": 32,
+      "query": "Which memory should anchor the origin of Alan’s Thần Tinh sword, and which later “first forging” scene should not replace that origin?",
+      "query_type": "temporal_supersession",
+      "relevant_memory_ids": [
+        "mem-000089",
+        "mem-000090",
+        "mem-000093",
+        "mem-000094"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000089"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000088"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000110"
+      ],
+      "difficulty": "hard",
+      "reason": "The sword is forged in chapter 27 and demonstrably used in chapters 28–29. Chapter 32 repeats a “first forging” and is an explicit narrative replay that a ranker should not promote as the canonical origin.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000108",
+        "mem-000111"
+      ]
+    },
+    {
+      "query_id": "rq-0012",
+      "chapter_cutoff": 34,
+      "query": "How does the resistance disable an auxiliary Pressure Pillar instead of trying to overpower its magic directly?",
+      "query_type": "multiple_memory_reasoning",
+      "relevant_memory_ids": [
+        "mem-000090",
+        "mem-000115",
+        "mem-000116",
+        "mem-000117",
+        "mem-000118"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000116",
+        "mem-000118"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000098",
+        "mem-000094"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "Requires connecting earlier anti-mana material knowledge, a salvaged lens, Elena’s nullification-charge plan, and the actual cable/lens sabotage observed at Pillar No. 1.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000109",
+        "mem-000119"
+      ]
+    },
+    {
+      "query_id": "rq-0013",
+      "chapter_cutoff": 35,
+      "query": "Why is Korgan still strategically important several chapters after Elena saves him?",
+      "query_type": "old_but_important",
+      "relevant_memory_ids": [
+        "mem-000101",
+        "mem-000102",
+        "mem-000103",
+        "mem-000105",
+        "mem-000120"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000103",
+        "mem-000105"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000104"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000132"
+      ],
+      "difficulty": "hard",
+      "reason": "Korgan himself is mostly absent, but his token and intelligence open the Valora/tomb route and continue shaping the operation. Chapter 36 adds a new claim about Korgan’s gate trap that is future information at this cutoff.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000111",
+        "mem-000117"
+      ]
+    },
+    {
+      "query_id": "rq-0014",
+      "chapter_cutoff": 36,
+      "query": "What evidence shows that the Human–Demon alliance has expanded beyond a bargain between Elena and Valora?",
+      "query_type": "relationship_history",
+      "relevant_memory_ids": [
+        "mem-000101",
+        "mem-000113",
+        "mem-000114",
+        "mem-000128",
+        "mem-000129"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000114",
+        "mem-000129"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000106",
+        "mem-000130"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The relationship evolves from saving one scout, to leader-level alliance, to joint combat, and finally to civilian trust and resource transfer.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000109",
+        "mem-000121"
+      ]
+    },
+    {
+      "query_id": "rq-0015",
+      "chapter_cutoff": 36,
+      "query": "As of the end of chapter 36, what is actually known about the Mảnh Lõi Sinh Mệnh, and has the group obtained it yet?",
+      "query_type": "temporal_state",
+      "relevant_memory_ids": [
+        "mem-000120",
+        "mem-000121",
+        "mem-000131",
+        "mem-000134"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000121",
+        "mem-000131"
+      ],
+      "acceptable_memory_ids": [],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "medium",
+      "reason": "The object is repeatedly treated as the next objective, but by the chapter cutoff it remains unseen and unrecovered. This query protects against a model turning a goal into an accomplished fact.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000125",
+        "mem-000130"
+      ]
+    },
+    {
+      "query_id": "rq-0016",
+      "chapter_cutoff": 36,
+      "query": "How does the story’s anti-magic strategy evolve from a weapon for fighting individuals into a method for sabotaging infrastructure?",
+      "query_type": "low_lexical_overlap_semantic_relation",
+      "relevant_memory_ids": [
+        "mem-000090",
+        "mem-000094",
+        "mem-000098",
+        "mem-000116",
+        "mem-000118",
+        "mem-000122",
+        "mem-000123"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000090",
+        "mem-000118",
+        "mem-000123"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000115",
+        "mem-000117"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The same underlying anti-mana principle appears under different lexical forms: sword contact, lens contamination, nullification charges, copper-link sabotage, and gate unlocking.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000109",
+        "mem-000127"
+      ]
+    },
+    {
+      "query_id": "rq-0017",
+      "chapter_cutoff": 45,
+      "query": "As of chapter 45, what is the last confirmed state of the Mảnh Lõi Sinh Mệnh, despite many more recent battles?",
+      "query_type": "recent_but_irrelevant_vs_old_but_important",
+      "relevant_memory_ids": [
+        "mem-000120",
+        "mem-000121",
+        "mem-000131",
+        "mem-000134"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000131",
+        "mem-000134"
+      ],
+      "acceptable_memory_ids": [],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "Chapters 37–45 shift almost entirely to sabotage and Hẻm Vực fighting. A recency-biased retriever can miss that the last clean object state remains “searching, not recovered” from chapters 34–36.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000143",
+        "mem-000149",
+        "mem-000155",
+        "mem-000164"
+      ]
+    },
+    {
+      "query_id": "rq-0018",
+      "chapter_cutoff": 38,
+      "query": "How did the resistance turn Thần Tinh from a close-combat anti-magic weapon into a tool for sabotaging Temple infrastructure?",
+      "query_type": "multiple_memory_reasoning",
+      "relevant_memory_ids": [
+        "mem-000090",
+        "mem-000116",
+        "mem-000130",
+        "mem-000137",
+        "mem-000138",
+        "mem-000143"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000137",
+        "mem-000138",
+        "mem-000143"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000123"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The answer spans sword behavior, raw-ore supply, charge design and successful lens sabotage, with low lexical overlap between weapon combat and infrastructure attack.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000110",
+        "mem-000115"
+      ]
+    },
+    {
+      "query_id": "rq-0019",
+      "chapter_cutoff": 41,
+      "query": "Why does the Human–Demon alliance continue to function even when the old Hẻm Vực grievance resurfaces?",
+      "query_type": "relationship_history",
+      "relevant_memory_ids": [
+        "mem-000101",
+        "mem-000106",
+        "mem-000114",
+        "mem-000129",
+        "mem-000136",
+        "mem-000151",
+        "mem-000152",
+        "mem-000153"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000152",
+        "mem-000153"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000105",
+        "mem-000108"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The query requires retrieving both the accumulated trust/payoffs and the chapter-41 conflict/de-escalation rather than treating the grievance as a total alliance collapse.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000151"
+      ]
+    },
+    {
+      "query_id": "rq-0020",
+      "chapter_cutoff": 45,
+      "query": "What does the source actually establish about who betrayed whom in the old Hẻm Vực/Tro Tàn battle?",
+      "query_type": "multiple_memory_ambiguity_reasoning",
+      "relevant_memory_ids": [
+        "mem-000151",
+        "mem-000161"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000151",
+        "mem-000161"
+      ],
+      "acceptable_memory_ids": [],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The correct retrieval behavior is to surface conflicting attributed accounts and preserve uncertainty, not collapse one speaker’s accusation into canonical history.",
+      "review_status": "needs_human_review",
+      "hard_negative_memory_ids": [
+        "mem-000152",
+        "mem-000162"
+      ]
+    },
+    {
+      "query_id": "rq-0021",
+      "chapter_cutoff": 41,
+      "query": "By the end of chapter 41, has the story directly shown natural stars beyond the artificial sky, or is that still only an inferred/claimed reality?",
+      "query_type": "future_leakage_trap",
+      "relevant_memory_ids": [
+        "mem-000053",
+        "mem-000064"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000053"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000022"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000156",
+        "mem-000165"
+      ],
+      "difficulty": "hard",
+      "reason": "Natural stars are directly shown only in later chapters. The earlier cutoff has claims about the artificial sky but no on-page visual confirmation, so later revelations are high-similarity future leaks.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000156",
+        "mem-000165"
+      ]
+    },
+    {
+      "query_id": "rq-0022",
+      "chapter_cutoff": 43,
+      "query": "What earlier actions explain why Demon troops are willing to rely on Elena’s non-mana medicine by the Hẻm Vực campaign?",
+      "query_type": "setup_payoff_relationship",
+      "relevant_memory_ids": [
+        "mem-000101",
+        "mem-000105",
+        "mem-000106",
+        "mem-000128",
+        "mem-000129",
+        "mem-000136"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000101",
+        "mem-000128",
+        "mem-000136"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000114"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000162"
+      ],
+      "difficulty": "hard",
+      "reason": "Trust is built through Korgan’s rescue, negotiated exchange, civilian treatment and later troop-level respect; chapter 44 provides an even stronger but future example that must not leak at cutoff 43.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000162"
+      ]
+    },
+    {
+      "query_id": "rq-0023",
+      "chapter_cutoff": 45,
+      "query": "Which memory should establish the first on-page destruction of Pressure Pillar No. 2, and which later matches are narrative-replay hard negatives?",
+      "query_type": "temporal_replay_hard_negative",
+      "relevant_memory_ids": [
+        "mem-000149"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000149"
+      ],
+      "acceptable_memory_ids": [],
+      "must_not_retrieve_memory_ids": [
+        "mem-000155",
+        "mem-000164"
+      ],
+      "difficulty": "hard",
+      "reason": "The same numbered pillar is destroyed three times. For “first on-page destruction,” chapter 40 is temporally first; chapters 42 and 45 are later semantic matches that should be treated as replay negatives for this specific query.",
+      "review_status": "needs_human_review",
+      "hard_negative_memory_ids": [
+        "mem-000155",
+        "mem-000163",
+        "mem-000164"
+      ]
+    },
+    {
+      "query_id": "rq-0024",
+      "chapter_cutoff": 45,
+      "query": "Why is the route through Hẻm Vực dangerous even when Temple soldiers are not the immediate threat?",
+      "query_type": "world_rule_location_history",
+      "relevant_memory_ids": [
+        "mem-000133",
+        "mem-000157",
+        "mem-000158",
+        "mem-000159"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000157",
+        "mem-000158"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000126"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "medium",
+      "reason": "The answer depends on old geological/toxic tomb context plus the later siphoning-tainted beetle swarm and Elena’s heat/ozone observation, not on the military blockade alone.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000160",
+        "mem-000164"
+      ]
+    },
+    {
+      "query_id": "rq-0025",
+      "chapter_cutoff": 49,
+      "query": "Which memory should establish the first on-page burial of Roland’s three-thousand heavy cavalry, and which later Hẻm Vực matches should be treated as chronology-replay negatives?",
+      "query_type": "temporal_replay_hard_negative",
+      "relevant_memory_ids": [
+        "mem-000164"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000164"
+      ],
+      "acceptable_memory_ids": [],
+      "must_not_retrieve_memory_ids": [
+        "mem-000172"
+      ],
+      "difficulty": "hard",
+      "reason": "Chapter 45 is the earliest on-page burial in this sequence. Chapter 47 repeats the same three-thousand-cavalry burial, while chapters 48–49 revive the force; semantic similarity alone should not override chronology.",
+      "review_status": "needs_human_review",
+      "hard_negative_memory_ids": [
+        "mem-000172",
+        "mem-000176"
+      ]
+    },
+    {
+      "query_id": "rq-0026",
+      "chapter_cutoff": 53,
+      "query": "By the end of chapter 53, what is actually supported about why Alistair accepts sacrifice, without leaking the narrator explanation that appears later?",
+      "query_type": "future_leakage_character_motivation",
+      "relevant_memory_ids": [
+        "mem-000064",
+        "mem-000067"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000064",
+        "mem-000067"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000053"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000193",
+        "mem-000194"
+      ],
+      "difficulty": "hard",
+      "reason": "Before chapter 54, Alistair directly supports sacrifice/maintenance but the deeper false-sky/utilitarian backstory is not yet narrator-confirmed. Chapter 54 memories explain the motive better but are future information at cutoff 53.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000193",
+        "mem-000194"
+      ]
+    },
+    {
+      "query_id": "rq-0027",
+      "chapter_cutoff": 55,
+      "query": "How did the coalition get into Solaria without assaulting the main outer gates, and why was that route hard for Temple surveillance to detect?",
+      "query_type": "location_history_world_rule",
+      "relevant_memory_ids": [
+        "mem-000182",
+        "mem-000185",
+        "mem-000186"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000185",
+        "mem-000186"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000180"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "medium",
+      "reason": "The answer requires the old map/setup at the buffer stream, the sewer’s chemical blind-spot property, and the actual silent gate breach rather than a generic Solaria battle memory.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000197",
+        "mem-000200"
+      ]
+    },
+    {
+      "query_id": "rq-0028",
+      "chapter_cutoff": 55,
+      "query": "What chain of events turned the Solaria slum population from a hidden resistance network into an armed force capable of joining the Inner Gate assault?",
+      "query_type": "multiple_memory_reasoning_setup_payoff",
+      "relevant_memory_ids": [
+        "mem-000189",
+        "mem-000191",
+        "mem-000197",
+        "mem-000199",
+        "mem-000200"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000189",
+        "mem-000191",
+        "mem-000197"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000186"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The causal chain spans Sael’s conditional mobilization, the pillar signal, capture of the arsenal and later use of the armed uprising at the Inner Gate.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000183",
+        "mem-000198"
+      ]
+    },
+    {
+      "query_id": "rq-0029",
+      "chapter_cutoff": 55,
+      "query": "Which non-mana technique explains how Elena can both disrupt Temple sensing equipment in the field and hide the attic safehouse from a patrol?",
+      "query_type": "low_lexical_overlap_world_rule",
+      "relevant_memory_ids": [
+        "mem-000168",
+        "mem-000188"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000188"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000126",
+        "mem-000185"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "Different scenes use different chemical mixtures and wording, but the shared retrieval target is Elena’s repeated use of ordinary chemistry to interfere with magical sensing rather than overpowering it with mana.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000174",
+        "mem-000199"
+      ]
+    },
+    {
+      "query_id": "rq-0030",
+      "chapter_cutoff": 55,
+      "query": "What is the last supported state of the Mảnh Lõi Sinh Mệnh by chapter 55?",
+      "query_type": "recent_but_irrelevant_vs_old_but_important",
+      "relevant_memory_ids": [
+        "mem-000121",
+        "mem-000131",
+        "mem-000134"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000131",
+        "mem-000134"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000120"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The object drops out of the narrative after chapter 36. Correct retrieval must reach back to the unrecovered search state instead of confusing it with newer “Lõi Địa Mạch” memories or inventing an acquisition.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000174",
+        "mem-000175"
+      ]
+    },
+    {
+      "query_id": "rq-0031",
+      "chapter_cutoff": 55,
+      "query": "Why can Gargas, Valora and the wider Demon force operate as trusted allies of Alan and Elena during the Solaria campaign despite the older Human–Demon grievance?",
+      "query_type": "relationship_history_setup_payoff",
+      "relevant_memory_ids": [
+        "mem-000101",
+        "mem-000128",
+        "mem-000129",
+        "mem-000136",
+        "mem-000162",
+        "mem-000171",
+        "mem-000181"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000101",
+        "mem-000128",
+        "mem-000181"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000129",
+        "mem-000162"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "Trust accumulates through medical rescue, civilian treatment, troop-level respect and repeated battlefield cooperation; the old disputed battle history is not sufficient to explain the current state.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000157",
+        "mem-000158"
+      ]
+    },
+    {
+      "query_id": "rq-0032",
+      "chapter_cutoff": 55,
+      "query": "Which part of the earlier Varian-attributed story about Alistair is directly confirmed by chapter 54, and which interpretation should still not be promoted to canon?",
+      "query_type": "temporal_supersession_source_status",
+      "relevant_memory_ids": [
+        "mem-000053",
+        "mem-000193",
+        "mem-000194"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000193",
+        "mem-000194"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000064",
+        "mem-000067"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "Chapter 54 directly confirms discovery of the false sky/ecological crisis and an extreme utilitarian sacrifice motive, but it does not confirm the earlier “divine ascent” interpretation embedded in the attributed chapter-17 account.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000053"
+      ]
+    },
+    {
+      "query_id": "rq-0033",
+      "chapter_cutoff": 57,
+      "query": "Before the coalition reaches Alistair at the Origin Altar, what is the strongest source-supported explanation for why he accepts mass sacrifice, and what later statement must not leak into this cutoff?",
+      "query_type": "future_leakage_character_motivation",
+      "relevant_memory_ids": [
+        "mem-000064",
+        "mem-000067",
+        "mem-000193",
+        "mem-000194"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000194"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000053",
+        "mem-000204"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000209",
+        "mem-000210"
+      ],
+      "difficulty": "hard",
+      "reason": "At cutoff 57, narrator-supported extreme utilitarian preservation is valid; Alistair’s chapter-58 direct cage-destruction threat is future information and must not overwrite the earlier state.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000210"
+      ]
+    },
+    {
+      "query_id": "rq-0034",
+      "chapter_cutoff": 58,
+      "query": "How is Alistair’s spatial/gravity power source neutralized in the final battle, and which earlier object rule makes that outcome intelligible?",
+      "query_type": "multiple_memory_reasoning_important_object",
+      "relevant_memory_ids": [
+        "mem-000090",
+        "mem-000123",
+        "mem-000208",
+        "mem-000212",
+        "mem-000213"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000208",
+        "mem-000212"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000094"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The answer requires connecting the old Thần Tinh nullification rule to a new target, the Space Core prosthesis, rather than matching only final-battle wording.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000110"
+      ]
+    },
+    {
+      "query_id": "rq-0035",
+      "chapter_cutoff": 59,
+      "query": "What concrete world-state change follows Alan cutting the last siphoning cable after Alistair is defeated?",
+      "query_type": "world_rule_causality",
+      "relevant_memory_ids": [
+        "mem-000215",
+        "mem-000216",
+        "mem-000217"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000215",
+        "mem-000216"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000170",
+        "mem-000178"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "medium",
+      "reason": "The query tests causal retrieval: final cable severance releases the Earth Vein Core and starts ecological recovery, while earlier sabotage events are similar but incomplete.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000170",
+        "mem-000178"
+      ]
+    },
+    {
+      "query_id": "rq-0036",
+      "chapter_cutoff": 61,
+      "query": "Trace the canonical lifecycle of Alan’s personal Thần Tinh sword from its origin to its final state, excluding the replayed “first forging” scene.",
+      "query_type": "important_object_history_temporal",
+      "relevant_memory_ids": [
+        "mem-000089",
+        "mem-000094",
+        "mem-000122",
+        "mem-000212",
+        "mem-000213",
+        "mem-000220",
+        "mem-000229"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000089",
+        "mem-000229"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000097",
+        "mem-000199"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000110"
+      ],
+      "difficulty": "hard",
+      "reason": "Correct retrieval must start from chapter 27, follow the sword through anti-mana combat and the final duel, note that chapter 60 does not melt the personal sword, and end with retirement at Gregor’s memorial. Chapter 32 is a chronology replay.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000110"
+      ]
+    },
+    {
+      "query_id": "rq-0037",
+      "chapter_cutoff": 61,
+      "query": "How does Gregor’s chapter-18 entrustment of Oakhaven’s future receive a payoff at the end of the novel?",
+      "query_type": "setup_payoff_old_important_event",
+      "relevant_memory_ids": [
+        "mem-000056",
+        "mem-000057",
+        "mem-000085",
+        "mem-000226",
+        "mem-000229",
+        "mem-000231"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000057",
+        "mem-000229"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000219"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "This requires retrieving a relationship/event setup more than forty chapters old and linking it to the return, memorial and reconstruction rather than recent battle details.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": []
+    },
+    {
+      "query_id": "rq-0038",
+      "chapter_cutoff": 61,
+      "query": "Are the red-maple/agricultural seeds used during the return to Oakhaven explicitly the same physical reserve seeds evacuated in chapter 17?",
+      "query_type": "similar_object_provenance_ambiguity",
+      "relevant_memory_ids": [
+        "mem-000051",
+        "mem-000228"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000051",
+        "mem-000228"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000219",
+        "mem-000224"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "hard",
+      "reason": "The corpus must preserve thematic continuity without inventing physical identity: chapters 60–61 source later seeds from stores and never explicitly tie them to the chapter-17 cache.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": []
+    },
+    {
+      "query_id": "rq-0039",
+      "chapter_cutoff": 60,
+      "query": "What happens to the Human–Demon alliance after the military victory at Solaria: does it simply end, or is it transformed into another relationship?",
+      "query_type": "relationship_history_temporal_supersession",
+      "relevant_memory_ids": [
+        "mem-000218",
+        "mem-000222",
+        "mem-000223"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000222"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000153",
+        "mem-000171"
+      ],
+      "must_not_retrieve_memory_ids": [],
+      "difficulty": "medium",
+      "reason": "Chapter 59 closes the wartime pact, but chapter 60 supersedes a simple “alliance ended” interpretation with open trade, corridor security and knowledge/resource exchange.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": []
+    },
+    {
+      "query_id": "rq-0040",
+      "chapter_cutoff": 59,
+      "query": "At the first natural dawn after Alistair falls, has Oakhaven already been rebuilt, or is rebuilding still only a return goal?",
+      "query_type": "future_leakage_location_state",
+      "relevant_memory_ids": [
+        "mem-000219"
+      ],
+      "highly_relevant_memory_ids": [
+        "mem-000219"
+      ],
+      "acceptable_memory_ids": [
+        "mem-000217"
+      ],
+      "must_not_retrieve_memory_ids": [
+        "mem-000225",
+        "mem-000226",
+        "mem-000227",
+        "mem-000228",
+        "mem-000229",
+        "mem-000230",
+        "mem-000231",
+        "mem-000232"
+      ],
+      "difficulty": "hard",
+      "reason": "At cutoff 59 the characters only decide to return. All direct evidence of ecological recovery and reconstruction in Oakhaven comes from chapter 61 and must be excluded.",
+      "review_status": "high_confidence",
+      "hard_negative_memory_ids": [
+        "mem-000225",
+        "mem-000226",
+        "mem-000231"
+      ]
+    }
+  ],
+  "note": "After chapters 1–61, 40 retrieval queries are frozen. B07 adds final-battle object/world-rule reasoning, Gregor long-range payoff, postwar alliance supersession, seed-provenance guardrails, sword lifecycle retrieval, and future-leak tests for Alistair motive and Oakhaven reconstruction.",
+  "candidate_categories_identified": [
+    "relationship_history",
+    "temporal_supersession",
+    "setup_payoff",
+    "important_object",
+    "character_motivation",
+    "multiple_memory_reasoning",
+    "future_leakage_trap",
+    "old_but_important",
+    "low_lexical_overlap",
+    "world_rule",
+    "hard_negative",
+    "important_object_history",
+    "temporal_state",
+    "alliance_history",
+    "infrastructure_sabotage",
+    "narrative_replay_negative",
+    "recent_but_irrelevant_vs_old_but_important",
+    "multiple_memory_ambiguity_reasoning",
+    "setup_payoff_relationship",
+    "temporal_replay_hard_negative",
+    "world_rule_location_history",
+    "future_leakage_character_motivation",
+    "location_history_world_rule",
+    "multiple_memory_reasoning_setup_payoff",
+    "low_lexical_overlap_world_rule",
+    "relationship_history_setup_payoff",
+    "temporal_supersession_source_status",
+    "final_battle_object_reasoning",
+    "postwar_relationship_supersession",
+    "seed_provenance_ambiguity",
+    "ending_state_future_leakage",
+    "full_object_lifecycle"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "generation_status": "deferred_until_larger_span",
+  "queries": [],
+  "note": "After chapters 1–19, several strong long-range/query candidates exist (Elena→Alistair belief supersession, Gregor foster-father setup→sacrifice, anti-Temple countermeasure setup→payoff, reserve seeds, Flash Surge cumulative cost). Official query IDs remain deferred until later chapters provide payoff memories and future-leak negatives.",
+  "candidate_categories_identified": [
+    "relationship_history",
+    "temporal_supersession",
+    "setup_payoff",
+    "important_object",
+    "character_motivation",
+    "multiple_memory_reasoning",
+    "future_leakage_trap",
+    "old_but_important"
+  ]
+}

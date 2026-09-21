@@ -1,0 +1,160 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "processed_through_chapter": 10,
+  "ambiguities": [
+    {
+      "ambiguity_id": "amb-001",
+      "chapters": [
+        2,
+        9,
+        10
+      ],
+      "type": "character_attribute_conflict",
+      "entities": [
+        "char-005"
+      ],
+      "description": "Toby is explicitly described as ten years old in chapter 2, but as fifteen years old in chapters 9 and 10.",
+      "ground_truth_policy": "Do not use Toby’s exact age as retrieval ground truth until human review or later source clarification.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-002",
+      "chapters": [
+        2,
+        6,
+        7,
+        9
+      ],
+      "type": "character_attribute_conflict",
+      "entities": [
+        "char-004"
+      ],
+      "description": "Gregor is explicitly described as sixty-five in chapters 2, 7, and 9, but as sixty in chapter 6.",
+      "ground_truth_policy": "Treat Gregor as elderly; exclude exact age from benchmark ground truth.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-003",
+      "chapters": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "type": "character_state_conflict",
+      "entities": [
+        "char-001"
+      ],
+      "description": "Alan’s continuing shoulder injury is described as left shoulder in chapter 2 but right shoulder in chapters 3, 5, and 6.",
+      "ground_truth_policy": "The existence and persistence of the shoulder injury are canonical; exact side is excluded from ground truth.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-004",
+      "chapters": [
+        5,
+        6
+      ],
+      "type": "event_state_conflict",
+      "entities": [
+        "char-007",
+        "char-008"
+      ],
+      "description": "Chapter 5 states Miller and Jory have not been found and may be deeper underground; chapter 6 has Alan report that they died on the second underground level.",
+      "ground_truth_policy": "Do not label their death/location as canonical in B01. Memory chunks preserve the chapter-5 uncertainty; chapter-6 death statement is treated as a conflicting report, not resolved fact.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-005",
+      "chapters": [
+        4,
+        5,
+        9,
+        10
+      ],
+      "type": "world_property_conflict",
+      "entities": [
+        "item-002"
+      ],
+      "description": "The creatures’ corrosive secretion is alternately described using acid and alkaline terminology, and neutralization chemistry is internally inconsistent.",
+      "ground_truth_policy": "Use only the robust narrative fact that the secretion is highly corrosive/toxic; do not benchmark exact acid-vs-alkali chemistry.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-006",
+      "chapters": [
+        9,
+        10
+      ],
+      "type": "temporal_continuity_conflict",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "loc-001",
+        "loc-004"
+      ],
+      "description": "Chapter 9 ends with the defenders and villagers retreating into the council-house refuge and sealing the door after the horde breaches Oakhaven. Chapter 10 then depicts Alan and Elena emerging from an underground route, reporting a west-tunnel expedition, while Gregor organizes defenses before the horde arrives again. The sequence reads as a temporal reset/replay rather than a clean continuation.",
+      "ground_truth_policy": "Do not use chapter-10 attack-preparation chronology as temporal ground truth without human review. Keep chapter 9 ending as the last high-confidence temporal anchor of B01.",
+      "review_status": "ambiguous"
+    },
+    {
+      "ambiguity_id": "amb-007",
+      "chapters": [
+        1,
+        2,
+        8
+      ],
+      "type": "character_attribute_conflict",
+      "entities": [
+        "char-002"
+      ],
+      "description": "Elena’s hair is described as black in chapter 1, brown in chapter 2, and chestnut in chapter 8.",
+      "ground_truth_policy": "Exclude exact hair color from retrieval ground truth.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-008",
+      "chapters": [
+        5,
+        6,
+        7,
+        10
+      ],
+      "type": "causal_claim_not_fully_verified",
+      "entities": [
+        "org-001",
+        "structure-001",
+        "structure-002",
+        "loc-005"
+      ],
+      "description": "Characters increasingly attribute Frostspine’s ecological collapse to Temple/Solaria siphoning and pressure-control infrastructure, but B01 evidence is primarily their interpretation plus a corrupted core fragment, not an independently observed system-level confirmation.",
+      "ground_truth_policy": "Store the mechanism as inferred until later chapters provide direct confirmation.",
+      "review_status": "high_confidence"
+    }
+  ],
+  "open_questions": [
+    {
+      "open_question_id": "oq-001",
+      "as_of_chapter": 10,
+      "question": "What is the reliable fate of Miller and Jory?",
+      "related_ambiguity_ids": [
+        "amb-004"
+      ]
+    },
+    {
+      "open_question_id": "oq-002",
+      "as_of_chapter": 10,
+      "question": "How should chapter 10 be ordered relative to the chapter-9 refuge ending?",
+      "related_ambiguity_ids": [
+        "amb-006"
+      ]
+    },
+    {
+      "open_question_id": "oq-003",
+      "as_of_chapter": 10,
+      "question": "Are Thánh Đô and Solaria the same location, and are Tòa Thánh and Thần Điện strict aliases or distinct institutional layers?",
+      "related_ambiguity_ids": []
+    }
+  ]
+}

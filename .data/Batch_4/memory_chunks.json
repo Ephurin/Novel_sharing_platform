@@ -1,0 +1,3451 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "processed_through_chapter": 36,
+  "memory_count": 134,
+  "memories": [
+    {
+      "memory_id": "mem-000001",
+      "memory_type": "event_summary",
+      "chapter_number": 1,
+      "chapter_title": "HOÀNG HÔN TRÊN TIỀN ĐỒN",
+      "entities": [
+        "char-001",
+        "loc-001",
+        "loc-003"
+      ],
+      "content": "Alan kills a corrupted mist wolf near Oakhaven; its black corrosive fluids and the forest’s decay establish that the local ecological disturbance is abnormal.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 1,
+        "evidence_summary": "The chapter directly depicts the corrupted wolf attack, black fluid, and decaying forest conditions."
+      },
+      "tags": [
+        "setup",
+        "environmental_corruption"
+      ]
+    },
+    {
+      "memory_id": "mem-000002",
+      "memory_type": "character_memory",
+      "chapter_number": 1,
+      "chapter_title": "HOÀNG HÔN TRÊN TIỀN ĐỒN",
+      "entities": [
+        "char-001",
+        "state-001",
+        "skill-001"
+      ],
+      "content": "Alan has a shattered mana core and compensates with physical technique such as Flash Surge, but forcing the technique causes immediate pain, bleeding, and muscular injury.",
+      "importance": 0.98,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 1,
+        "evidence_summary": "The narration explicitly states the broken mana core and depicts Flash Surge causing severe physical backlash."
+      },
+      "tags": [
+        "core_character_state",
+        "world_rule",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000003",
+      "memory_type": "world_rule",
+      "chapter_number": 1,
+      "chapter_title": "HOÀNG HÔN TRÊN TIỀN ĐỒN",
+      "entities": [
+        "char-002",
+        "item-001",
+        "loc-002"
+      ],
+      "content": "Elena observes that the altered Hoa Chuông Trầm Tích and the wolf’s black blood are associated with corrosive mana leakage and depletion of underground water around Frostspine.",
+      "importance": 0.86,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 1,
+        "evidence_summary": "Elena explicitly gives this diagnosis; the causal mechanism is her interpretation at this point."
+      },
+      "tags": [
+        "environmental_corruption",
+        "inferred_causality"
+      ]
+    },
+    {
+      "memory_id": "mem-000004",
+      "memory_type": "relationship_memory",
+      "chapter_number": 1,
+      "chapter_title": "HOÀNG HÔN TRÊN TIỀN ĐỒN",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "org-001"
+      ],
+      "content": "Elena initially places real hope in Alistair as a possible rescuer, while Alan remains wary that a Temple-led rescue may come with coercion.",
+      "importance": 0.92,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 1,
+        "evidence_summary": "Elena voices respect and hope for Alistair; Alan explicitly worries that the Hero may bring chains rather than salvation."
+      },
+      "tags": [
+        "relationship_history",
+        "ideological_contrast",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000005",
+      "memory_type": "character_memory",
+      "chapter_number": 2,
+      "chapter_title": "BỘT BÁNH MÌ VÀ NHỮNG ĐÓA CHUÔNG SẪM MÀU",
+      "entities": [
+        "char-001",
+        "char-005"
+      ],
+      "content": "Alan teaches Toby that footwork and reading an opponent’s hips and feet matter more than simply swinging with shoulder strength.",
+      "importance": 0.74,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 2,
+        "evidence_summary": "The chapter directly shows Alan correcting Toby’s stance and explaining his combat principles."
+      },
+      "tags": [
+        "mentor_memory",
+        "low_lexical_overlap_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000006",
+      "memory_type": "location_memory",
+      "chapter_number": 2,
+      "chapter_title": "BỘT BÁNH MÌ VÀ NHỮNG ĐÓA CHUÔNG SẪM MÀU",
+      "entities": [
+        "loc-001",
+        "loc-002",
+        "item-001",
+        "char-006"
+      ],
+      "content": "Oakhaven’s water tastes metallic, Hoa Chuông Trầm Tích bloom weeks early and darken, and villagers receive reports that Alistair’s Temple delegation is moving north.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 2,
+        "evidence_summary": "Martha reports the water and flower changes and relays news of the approaching delegation."
+      },
+      "tags": [
+        "environmental_corruption",
+        "approaching_faction"
+      ]
+    },
+    {
+      "memory_id": "mem-000007",
+      "memory_type": "event_summary",
+      "chapter_number": 2,
+      "chapter_title": "BỘT BÁNH MÌ VÀ NHỮNG ĐÓA CHUÔNG SẪM MÀU",
+      "entities": [
+        "char-004",
+        "loc-001",
+        "loc-002",
+        "org-001"
+      ],
+      "content": "Gregor shows Alan a cracked boundary stone leaking black corrosive fluid and warns that the land’s vitality is being drained toward Temple magic farther south.",
+      "importance": 0.86,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 2,
+        "evidence_summary": "The crack and black fluid are directly observed; Gregor’s explanation of what is draining the land is an asserted interpretation."
+      },
+      "tags": [
+        "setup",
+        "world_mechanism",
+        "inferred_causality"
+      ]
+    },
+    {
+      "memory_id": "mem-000008",
+      "memory_type": "event_summary",
+      "chapter_number": 3,
+      "chapter_title": "Điềm Báo Dưới Lòng Đất",
+      "entities": [
+        "char-007",
+        "char-008",
+        "char-001",
+        "char-002",
+        "loc-004"
+      ],
+      "content": "Miller and Jory fail to return from inspecting the west tunnel, so Alan and Elena volunteer to search for them.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 3,
+        "evidence_summary": "Gregor explicitly reports both scouts missing, and Alan decides to go after them with Elena accompanying him."
+      },
+      "tags": [
+        "missing_persons",
+        "quest_trigger"
+      ]
+    },
+    {
+      "memory_id": "mem-000009",
+      "memory_type": "location_memory",
+      "chapter_number": 3,
+      "chapter_title": "Điềm Báo Dưới Lòng Đất",
+      "entities": [
+        "loc-004",
+        "char-001",
+        "char-002"
+      ],
+      "content": "At the west tunnel entrance, Alan and Elena find torn structural timber, corrosive black slime, and heavy four-toed tracks indicating an abnormal large creature below.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 3,
+        "evidence_summary": "The chapter directly describes the damaged entrance, black slime, and tracks before they enter."
+      },
+      "tags": [
+        "danger_evidence",
+        "setup"
+      ]
+    },
+    {
+      "memory_id": "mem-000010",
+      "memory_type": "location_memory",
+      "chapter_number": 4,
+      "chapter_title": "BÓNG TỐI HẦM NGẦM PHÍA TÂY",
+      "entities": [
+        "loc-004",
+        "loc-001"
+      ],
+      "content": "The west underground network is an old Oakhaven defensive system built by earlier settlers and is now contaminated by black mineral fluid and signs of predation.",
+      "importance": 0.72,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 4,
+        "evidence_summary": "Narration explicitly identifies the tunnels as an old defensive network and describes current contamination."
+      },
+      "tags": [
+        "location_history"
+      ]
+    },
+    {
+      "memory_id": "mem-000011",
+      "memory_type": "event_summary",
+      "chapter_number": 4,
+      "chapter_title": "BÓNG TỐI HẦM NGẦM PHÍA TÂY",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-007",
+        "char-008",
+        "loc-004"
+      ],
+      "content": "Alan and Elena find Oakhaven patrol equipment, blood, and signs of a body being dragged deeper into the tunnel, but no confirmed bodies of Miller or Jory at this stage.",
+      "importance": 0.91,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 4,
+        "evidence_summary": "The chapter shows damaged patrol gear and blood without identifying recovered bodies."
+      },
+      "tags": [
+        "missing_persons",
+        "continuity_anchor"
+      ]
+    },
+    {
+      "memory_id": "mem-000012",
+      "memory_type": "event_summary",
+      "chapter_number": 4,
+      "chapter_title": "BÓNG TỐI HẦM NGẦM PHÍA TÂY",
+      "entities": [
+        "char-001",
+        "char-002",
+        "loc-004"
+      ],
+      "content": "A large eyeless chitin-armored creature is discovered clinging to the tunnel ceiling with part of a human arm caught in its jaws.",
+      "importance": 0.83,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 4,
+        "evidence_summary": "The creature and human arm are directly described at the chapter climax."
+      },
+      "tags": [
+        "creature_encounter"
+      ]
+    },
+    {
+      "memory_id": "mem-000013",
+      "memory_type": "event_summary",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "char-001",
+        "char-002",
+        "skill-001",
+        "item-002"
+      ],
+      "content": "Alan and Elena defeat the giant chitin creature by combining Hỏa Thạch-based chemical disruption with precise attacks on unarmored joints and the neck.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "The fight directly depicts Elena creating openings and Alan exploiting mechanical weak points."
+      },
+      "tags": [
+        "combat_tactic",
+        "relationship_relevance"
+      ]
+    },
+    {
+      "memory_id": "mem-000014",
+      "memory_type": "world_rule",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "char-001",
+        "skill-001",
+        "state-001"
+      ],
+      "content": "Flash Surge can temporarily let Alan close distance against faster enemies, but with his broken mana core it produces severe bleeding, lung/chest distress, and worsening shoulder damage.",
+      "importance": 0.96,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "The chapter explicitly depicts these costs during and after Alan uses Flash Surge."
+      },
+      "tags": [
+        "world_rule",
+        "core_character_state",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000015",
+      "memory_type": "important_object",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "item-003",
+        "char-002",
+        "loc-002"
+      ],
+      "content": "Elena extracts a corrupted, overloaded Earth Vein Core fragment from the defeated creature.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "The crystal fragment is physically removed from the creature and identified by Elena."
+      },
+      "tags": [
+        "important_object",
+        "setup_payoff_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000016",
+      "memory_type": "world_rule",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "item-003",
+        "char-002",
+        "org-001",
+        "structure-001",
+        "loc-005"
+      ],
+      "content": "Elena concludes from the overloaded core fragment that energy is being siphoned from Frostspine toward large pressure-control infrastructure associated with Solaria, contributing to biological mutations.",
+      "importance": 0.91,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "The mechanism is stated by Elena as a conclusion drawn from the recovered core fragment, not independently demonstrated in B01."
+      },
+      "tags": [
+        "inferred_causality",
+        "world_mechanism",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000017",
+      "memory_type": "event_summary",
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "entities": [
+        "char-007",
+        "char-008",
+        "char-001",
+        "char-002"
+      ],
+      "content": "After the creature is killed, Miller and Jory still have not been found; Alan considers that they may have been taken deeper underground.",
+      "importance": 0.85,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 5,
+        "evidence_summary": "Alan explicitly says they are not there and speculates that they may be deeper in the tunnel system."
+      },
+      "tags": [
+        "missing_persons",
+        "open_question"
+      ]
+    },
+    {
+      "memory_id": "mem-000018",
+      "memory_type": "character_memory",
+      "chapter_number": 6,
+      "chapter_title": "VẾT NỨT LÒNG ĐẤT VÀ MẦM SỐNG MONG MANH",
+      "entities": [
+        "char-001",
+        "char-002"
+      ],
+      "content": "Elena treats Alan’s worsened shoulder injury after the tunnel fight; the scene shows high mutual trust and personal tenderness without explicitly naming their relationship.",
+      "importance": 0.72,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 6,
+        "evidence_summary": "The caregiving and affectionate gestures are directly depicted; the relationship label is not stated."
+      },
+      "tags": [
+        "relationship_history",
+        "needs_context"
+      ]
+    },
+    {
+      "memory_id": "mem-000019",
+      "memory_type": "event_summary",
+      "chapter_number": 6,
+      "chapter_title": "VẾT NỨT LÒNG ĐẤT VÀ MẦM SỐNG MONG MANH",
+      "entities": [
+        "char-010",
+        "char-003",
+        "char-004",
+        "loc-001"
+      ],
+      "content": "Gregor relays a report that a Temple delegation including Captain Roland and Alistair is approaching Oakhaven.",
+      "importance": 0.8,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 6,
+        "evidence_summary": "Gregor explicitly reports the delegation’s movement toward the valley."
+      },
+      "tags": [
+        "approaching_faction"
+      ]
+    },
+    {
+      "memory_id": "mem-000020",
+      "memory_type": "event_summary",
+      "chapter_number": 6,
+      "chapter_title": "VẾT NỨT LÒNG ĐẤT VÀ MẦM SỐNG MONG MANH",
+      "entities": [
+        "loc-002",
+        "loc-001",
+        "char-001",
+        "char-002"
+      ],
+      "content": "A sudden underground shock shakes Alan and Elena’s room, reinforcing that the instability beneath Frostspine is escalating.",
+      "importance": 0.67,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 6,
+        "evidence_summary": "The chapter directly depicts the tremor and both characters reacting to it."
+      },
+      "tags": [
+        "escalation"
+      ]
+    },
+    {
+      "memory_id": "mem-000021",
+      "memory_type": "relationship_memory",
+      "chapter_number": 7,
+      "chapter_title": "ĐÊM HOA CHUÔNG ĐẬP NHỊP MÁU",
+      "entities": [
+        "char-001",
+        "char-004",
+        "loc-001"
+      ],
+      "content": "Narration explicitly identifies Gregor as Alan’s foster father and emphasizes Gregor’s lifelong role protecting Oakhaven.",
+      "importance": 0.94,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 7,
+        "evidence_summary": "The narration calls Gregor Alan’s foster father."
+      },
+      "tags": [
+        "relationship_history",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000022",
+      "memory_type": "world_rule",
+      "chapter_number": 7,
+      "chapter_title": "ĐÊM HOA CHUÔNG ĐẬP NHỊP MÁU",
+      "entities": [
+        "item-001",
+        "structure-001",
+        "structure-002",
+        "char-002",
+        "loc-005"
+      ],
+      "content": "Elena says the pressure-control system at Solaria is drawing power from the borderlands to maintain or repair the artificial sky barrier, and the deep-rooted flowers are absorbing leaked contamination.",
+      "importance": 0.89,
+      "status": "inferred",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 7,
+        "evidence_summary": "Elena states this explanation while examining the flowers; B01 does not independently verify the full mechanism."
+      },
+      "tags": [
+        "world_mechanism",
+        "inferred_causality",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000023",
+      "memory_type": "event_summary",
+      "chapter_number": 7,
+      "chapter_title": "ĐÊM HOA CHUÔNG ĐẬP NHỊP MÁU",
+      "entities": [
+        "item-001",
+        "char-001",
+        "char-002",
+        "loc-001"
+      ],
+      "content": "During a field inspection, thousands of Hoa Chuông Trầm Tích turn blood-red as a strong quake and black contamination surge through the creek; Alan shields Elena and they retreat.",
+      "importance": 0.84,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 7,
+        "evidence_summary": "The color change, quake, contamination, protective action, and retreat are directly depicted."
+      },
+      "tags": [
+        "escalation",
+        "relationship_relevance"
+      ]
+    },
+    {
+      "memory_id": "mem-000024",
+      "memory_type": "motivation",
+      "chapter_number": 8,
+      "chapter_title": "ĐÊM HOA CHUÔNG NỞ VÀ TIẾNG SẤM DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-002",
+        "char-003",
+        "loc-007"
+      ],
+      "content": "Elena’s trust in Alistair is reinforced by medical records she cites about him exhausting his own power to protect civilians during the Jericho plague.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 8,
+        "evidence_summary": "The chapter directly has Elena cite the old medical account as the reason she believes Alistair may help Oakhaven."
+      },
+      "tags": [
+        "character_motivation",
+        "relationship_history",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000025",
+      "memory_type": "motivation",
+      "chapter_number": 8,
+      "chapter_title": "ĐÊM HOA CHUÔNG NỞ VÀ TIẾNG SẤM DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-001",
+        "char-003",
+        "org-001",
+        "loc-001"
+      ],
+      "content": "Alan is willing to accept genuine help from Alistair but says he will resist if the Temple tries to seize Oakhaven’s winter food; his skepticism is rooted in distrust of concentrated power and “greater-good” logic.",
+      "importance": 0.93,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 8,
+        "evidence_summary": "Alan explicitly states these conditions and his warning about powerful figures viewing people as abstractions."
+      },
+      "tags": [
+        "character_motivation",
+        "relationship_history",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000026",
+      "memory_type": "event_summary",
+      "chapter_number": 8,
+      "chapter_title": "ĐÊM HOA CHUÔNG NỞ VÀ TIẾNG SẤM DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-005",
+        "loc-001",
+        "loc-004"
+      ],
+      "content": "The flower festival is interrupted by violent underground activity; Toby arrives wounded and reports that chitin creatures have broken through the west-side barriers and are flooding toward Oakhaven.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 8,
+        "evidence_summary": "The chapter directly depicts the disruption and Toby’s report."
+      },
+      "tags": [
+        "attack_trigger",
+        "setup_payoff"
+      ]
+    },
+    {
+      "memory_id": "mem-000027",
+      "memory_type": "event_summary",
+      "chapter_number": 9,
+      "chapter_title": "HUYẾT CHIẾN ĐÊM HOA CHUÔNG",
+      "entities": [
+        "char-004",
+        "char-001",
+        "char-002",
+        "char-011",
+        "loc-001"
+      ],
+      "content": "Oakhaven mounts an emergency defense against a large chitin-creature assault while Gregor coordinates barriers, evacuation, and use of Elena’s chemical countermeasures.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 9,
+        "evidence_summary": "The chapter directly depicts the organized village defense."
+      },
+      "tags": [
+        "battle",
+        "community_memory"
+      ]
+    },
+    {
+      "memory_id": "mem-000028",
+      "memory_type": "character_memory",
+      "chapter_number": 9,
+      "chapter_title": "HUYẾT CHIẾN ĐÊM HOA CHUÔNG",
+      "entities": [
+        "char-001",
+        "char-011",
+        "char-012"
+      ],
+      "content": "When Roger is seized and dragged toward the forest, Brand tries to rush after him; Alan stops Brand after identifying the rescue attempt as a lure that would collapse the defensive flank.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 9,
+        "evidence_summary": "The chapter directly shows Roger being dragged away, Brand attempting pursuit, and Alan preventing it for tactical reasons."
+      },
+      "tags": [
+        "character_decision",
+        "relationship_relevance",
+        "old_important_event_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000029",
+      "memory_type": "event_summary",
+      "chapter_number": 9,
+      "chapter_title": "HUYẾT CHIẾN ĐÊM HOA CHUÔNG",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "loc-001"
+      ],
+      "content": "After the outer defense is overwhelmed, the surviving villagers retreat into the stone refuge beneath the council house; Alan seals the heavy door while the chitin horde remains outside.",
+      "importance": 0.97,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 9,
+        "evidence_summary": "The chapter explicitly ends with the villagers, Alan, Elena, and Gregor inside the refuge and the door sealed."
+      },
+      "tags": [
+        "temporal_anchor",
+        "battle_outcome",
+        "continuity_anchor"
+      ]
+    },
+    {
+      "memory_id": "mem-000030",
+      "memory_type": "event_summary",
+      "chapter_number": 11,
+      "chapter_title": "THÉP LẠNH VÀ LỬA THIÊU",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "char-011",
+        "loc-001"
+      ],
+      "content": "Oakhaven’s western defenders use heated tar, Hỏa Thạch, corrosive mixtures, and attacks on joint gaps to stop another chitin-creature push, although the western barrier is badly damaged.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 11,
+        "evidence_summary": "The chapter depicts the creatures striking the western barrier and the defenders combining traps, chemicals, and targeted physical attacks to halt them."
+      },
+      "tags": [
+        "defense",
+        "combined_tactics"
+      ]
+    },
+    {
+      "memory_id": "mem-000031",
+      "memory_type": "relationship_memory",
+      "chapter_number": 11,
+      "chapter_title": "THÉP LẠNH VÀ LỬA THIÊU",
+      "entities": [
+        "char-001",
+        "char-004"
+      ],
+      "content": "Gregor intervenes in close combat when an injured Alan is threatened by a larger chitin creature, reinforcing his protective role toward Alan before later events.",
+      "importance": 0.78,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 11,
+        "evidence_summary": "Gregor jumps into the fight and strikes the creature that is advancing on the kneeling Alan."
+      },
+      "tags": [
+        "relationship_history",
+        "setup_payoff"
+      ]
+    },
+    {
+      "memory_id": "mem-000032",
+      "memory_type": "event_summary",
+      "chapter_number": 11,
+      "chapter_title": "THÉP LẠNH VÀ LỬA THIÊU",
+      "entities": [
+        "char-010",
+        "org-001",
+        "loc-001"
+      ],
+      "content": "Immediately after the creature assault subsides, Temple horns and armored cavalry approach Oakhaven from the south; Gregor identifies the arriving force as Roland’s Temple detachment.",
+      "importance": 0.86,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 11,
+        "evidence_summary": "The chapter ends with Temple horns, cavalry, and Gregor naming Roland’s force as it reaches the settlement."
+      },
+      "tags": [
+        "faction_arrival",
+        "arc_transition"
+      ]
+    },
+    {
+      "memory_id": "mem-000033",
+      "memory_type": "event_summary",
+      "chapter_number": 12,
+      "chapter_title": "GÓT GIÀY SẮT VÀ SẮC LỆNH NIÊM PHONG",
+      "entities": [
+        "char-010",
+        "item-004",
+        "org-001",
+        "org-002",
+        "loc-001"
+      ],
+      "content": "Roland reads Edict No. 107, placing Oakhaven under direct Temple military control and suspending local extraction, farming, food storage, and distribution during the stated cleansing operation.",
+      "importance": 0.96,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 12,
+        "evidence_summary": "Roland publicly reads the edict and states the restrictions in Oakhaven’s square."
+      },
+      "tags": [
+        "major_event",
+        "law_order",
+        "resource_control"
+      ]
+    },
+    {
+      "memory_id": "mem-000034",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 12,
+      "chapter_title": "GÓT GIÀY SẮT VÀ SẮC LỆNH NIÊM PHONG",
+      "entities": [
+        "char-010",
+        "char-004",
+        "char-011",
+        "loc-001"
+      ],
+      "content": "Roland gives Oakhaven twenty-four hours to surrender its grain reserves and west-tunnel keys, threatening forced occupation and execution of resistance leaders if the order is not obeyed.",
+      "importance": 0.93,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 12,
+        "evidence_summary": "Roland states the twenty-four-hour deadline and consequences before departing."
+      },
+      "tags": [
+        "ultimatum",
+        "deadline",
+        "future_constraint"
+      ]
+    },
+    {
+      "memory_id": "mem-000035",
+      "memory_type": "relationship_memory",
+      "chapter_number": 12,
+      "chapter_title": "GÓT GIÀY SẮT VÀ SẮC LỆNH NIÊM PHONG",
+      "entities": [
+        "char-002",
+        "char-003",
+        "char-010"
+      ],
+      "content": "Elena’s long-held trust in Alistair is seriously shaken when Roland says Oakhaven’s grain will support Alistair’s northern mission; she begins questioning whether the hero she admired is complicit.",
+      "importance": 0.92,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 12,
+        "evidence_summary": "The narration explicitly contrasts Elena’s prior admiration with her shock at Roland’s order and claims about Alistair."
+      },
+      "tags": [
+        "relationship_history",
+        "temporal_supersession",
+        "belief_change"
+      ]
+    },
+    {
+      "memory_id": "mem-000036",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 12,
+      "chapter_title": "GÓT GIÀY SẮT VÀ SẮC LỆNH NIÊM PHONG",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "loc-001"
+      ],
+      "content": "After Roland leaves, Gregor, Alan, and Elena decide to protect Oakhaven’s grain and move civilians into Frostspine rather than submit to the seizure order.",
+      "importance": 0.91,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 12,
+        "evidence_summary": "The chapter ends with Gregor ordering preparation, Elena committing her medical knowledge, and the group choosing resistance and evacuation."
+      },
+      "tags": [
+        "resistance",
+        "evacuation_plan"
+      ]
+    },
+    {
+      "memory_id": "mem-000037",
+      "memory_type": "important_object",
+      "chapter_number": 13,
+      "chapter_title": "ĐÁ THẠI VÀ ĐỘC CHẤT",
+      "entities": [
+        "structure-003",
+        "loc-009",
+        "char-001"
+      ],
+      "content": "An ancient teleportation array exists beneath the ruins, but its mana channels are badly damaged; Alan says activating it would expose the refuge to Temple detection within moments.",
+      "importance": 0.72,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 13,
+        "evidence_summary": "Alan and Gregor discuss the damaged ancient array as a possible escape route and the detection risk of powering it."
+      },
+      "tags": [
+        "escape_route",
+        "world_structure",
+        "risk"
+      ]
+    },
+    {
+      "memory_id": "mem-000038",
+      "memory_type": "important_object",
+      "chapter_number": 13,
+      "chapter_title": "ĐÁ THAI VÀ ĐỘC CHẤT",
+      "entities": [
+        "char-002",
+        "item-002",
+        "org-001"
+      ],
+      "content": "Elena prepares a corrosive Hỏa Thạch-based compound intended to weaken the magical linkage and armor joints of Temple soldiers, turning her medical/chemical knowledge into an anti-armor tool.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 13,
+        "evidence_summary": "Elena presents the mixture and explains how it should attack Temple armor and create openings for ordinary steel."
+      },
+      "tags": [
+        "setup_payoff",
+        "countermeasure",
+        "important_object"
+      ]
+    },
+    {
+      "memory_id": "mem-000039",
+      "memory_type": "relationship_memory",
+      "chapter_number": 13,
+      "chapter_title": "ĐÁ THAI VÀ ĐỘC CHẤT",
+      "entities": [
+        "char-001",
+        "char-002"
+      ],
+      "content": "Alan commits to hold the western approach against Roland, and Elena states that she will remain directly behind him with her battlefield chemicals and medical support.",
+      "importance": 0.76,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 13,
+        "evidence_summary": "Their exchange at the end of the chapter explicitly commits each to a role in the coming defense."
+      },
+      "tags": [
+        "relationship_history",
+        "commitment"
+      ]
+    },
+    {
+      "memory_id": "mem-000040",
+      "memory_type": "event_summary",
+      "chapter_number": 14,
+      "chapter_title": "RÌNH RẬP TRONG SƯƠNG MUỐI",
+      "entities": [
+        "char-001",
+        "char-002",
+        "item-006",
+        "org-001",
+        "loc-002"
+      ],
+      "content": "Alan and Elena directly observe Temple knights drive a brass-and-crystal device into an old tree’s roots; the device activates and the tree rapidly shrivels and dies while energy is drawn from it.",
+      "importance": 0.97,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 14,
+        "evidence_summary": "The draining and death of the tree occur on-page while Alan and Elena watch from concealment."
+      },
+      "tags": [
+        "direct_evidence",
+        "world_mechanism",
+        "siphoning",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000041",
+      "memory_type": "important_object",
+      "chapter_number": 14,
+      "chapter_title": "RÌNH RẬP TRONG SƯƠNG MUỐI",
+      "entities": [
+        "char-002",
+        "item-006"
+      ],
+      "content": "Elena collects corrupted root samples after observing the Temple extraction device and plans to use them to create a poison or countermeasure against Temple quang-energy systems.",
+      "importance": 0.84,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 14,
+        "evidence_summary": "Elena produces two corrupted roots she collected and states that she will work with the forge to develop a countermeasure."
+      },
+      "tags": [
+        "setup_payoff",
+        "sample",
+        "countermeasure"
+      ]
+    },
+    {
+      "memory_id": "mem-000042",
+      "memory_type": "relationship_memory",
+      "chapter_number": 14,
+      "chapter_title": "RÌNH RẬP TRONG SƯƠNG MUỐI",
+      "entities": [
+        "char-002",
+        "char-003"
+      ],
+      "content": "After seeing the extraction device kill a tree, Elena shifts from questioning Alistair to openly blaming him for complicity; this records Elena’s belief change, not independently verified knowledge of Alistair’s intent.",
+      "importance": 0.89,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 14,
+        "evidence_summary": "Elena explicitly says Alistair must know and has allowed the borderlands to be destroyed; the belief itself is explicit, while the accusation remains unverified."
+      },
+      "tags": [
+        "relationship_history",
+        "belief_change",
+        "temporal_supersession"
+      ]
+    },
+    {
+      "memory_id": "mem-000043",
+      "memory_type": "important_object",
+      "chapter_number": 15,
+      "chapter_title": "SỰ CHUẨN BỊ TRƯỚC CƠN BÃO THÉP",
+      "entities": [
+        "char-002",
+        "char-005",
+        "loc-001"
+      ],
+      "content": "Elena and Toby help conceal grain and other supplies with peat, mud, plant resin, and layered containers so Temple detection methods will have difficulty identifying the hidden stores.",
+      "importance": 0.77,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 15,
+        "evidence_summary": "The chapter depicts Elena preparing the masking mixture and Toby helping prepare concealed grain containers."
+      },
+      "tags": [
+        "resource_preservation",
+        "civilian_preparation"
+      ]
+    },
+    {
+      "memory_id": "mem-000044",
+      "memory_type": "motivation",
+      "chapter_number": 15,
+      "chapter_title": "SỰ CHUẨN BỊ TRƯỚC CƠN BÃO THÉP",
+      "entities": [
+        "char-002",
+        "char-003",
+        "char-001"
+      ],
+      "content": "Elena explicitly abandons her expectation that Alistair will save Oakhaven and says the villagers must save themselves if he chooses to sacrifice the settlement for Solaria.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 15,
+        "evidence_summary": "Elena tells Alan she no longer believes in a savior and that they can only save themselves."
+      },
+      "tags": [
+        "character_motivation",
+        "temporal_supersession",
+        "belief_change"
+      ]
+    },
+    {
+      "memory_id": "mem-000045",
+      "memory_type": "scene_summary",
+      "chapter_number": 15,
+      "chapter_title": "SỰ CHUẨN BỊ TRƯỚC CƠN BÃO THÉP",
+      "entities": [
+        "char-001",
+        "char-011",
+        "loc-001",
+        "org-001"
+      ],
+      "content": "Alan trains roughly twenty Oakhaven defenders to exploit the three-finger armor gap beneath a Temple knight’s raised arm and to use mud, narrow terrain, axes, and farm tools instead of meeting heavy cavalry head-on.",
+      "importance": 0.79,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 15,
+        "evidence_summary": "Alan gives the assembled villagers a tactical lesson on armor mechanics and terrain before the attack."
+      },
+      "tags": [
+        "training",
+        "world_rule",
+        "combat_knowledge"
+      ]
+    },
+    {
+      "memory_id": "mem-000046",
+      "memory_type": "event_summary",
+      "chapter_number": 15,
+      "chapter_title": "SỰ CHUẨN BỊ TRƯỚC CƠN BÃO THÉP",
+      "entities": [
+        "char-003",
+        "org-001",
+        "loc-001"
+      ],
+      "content": "A scout report says Alistair’s banner has passed the third mountain pass with a Temple squad equipped with high-pressure quang-energy optics; Alistair still does not appear directly in the chapter.",
+      "importance": 0.76,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 15,
+        "evidence_summary": "Alan relays Brand’s reconnaissance report about the banner and approaching unit."
+      },
+      "tags": [
+        "approaching_character",
+        "reported_information"
+      ]
+    },
+    {
+      "memory_id": "mem-000047",
+      "memory_type": "event_summary",
+      "chapter_number": 16,
+      "chapter_title": "BẪY LẦY CẠN SƯỜN NAM",
+      "entities": [
+        "char-014",
+        "char-001",
+        "char-002",
+        "char-011",
+        "loc-010",
+        "org-001"
+      ],
+      "content": "Marcus leads a twelve-knight Temple assault into the prepared south dry-marsh trap, where hidden mud collapses the cavalry formation and Oakhaven defenders attack the immobilized riders.",
+      "importance": 0.94,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 16,
+        "evidence_summary": "The chapter explicitly depicts the twelve-knight charge entering the disguised mud trap and losing formation."
+      },
+      "tags": [
+        "battle",
+        "terrain_trap",
+        "payoff"
+      ]
+    },
+    {
+      "memory_id": "mem-000048",
+      "memory_type": "world_rule",
+      "chapter_number": 16,
+      "chapter_title": "BẪY LẦY CẠN SƯỜN NAM",
+      "entities": [
+        "char-002",
+        "item-002",
+        "org-001"
+      ],
+      "content": "Elena’s Hỏa Thạch/corrosive countermeasure proves operationally effective against Temple cavalry by disrupting a horse and rider protected by quang-energy equipment, creating exploitable openings.",
+      "importance": 0.86,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 16,
+        "evidence_summary": "Elena triggers the prepared chemical mixture near Marcus; the resulting reaction blinds/disrupts his mount and breaks the attack sequence."
+      },
+      "tags": [
+        "setup_payoff",
+        "countermeasure",
+        "combat_rule"
+      ]
+    },
+    {
+      "memory_id": "mem-000049",
+      "memory_type": "event_summary",
+      "chapter_number": 16,
+      "chapter_title": "BẪY LẦY CẠN SƯỜN NAM",
+      "entities": [
+        "char-001",
+        "char-014",
+        "char-011",
+        "org-001"
+      ],
+      "content": "Alan kills Marcus at the south trap, and the chapter states that the remaining eleven Temple knights are subsequently defeated after their formation collapses.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 16,
+        "evidence_summary": "Alan kills Marcus with a thrust through an armor gap; the text then states the eleven remaining knights are defeated in the rout."
+      },
+      "tags": [
+        "major_event",
+        "character_death",
+        "battle_outcome"
+      ]
+    },
+    {
+      "memory_id": "mem-000050",
+      "memory_type": "event_summary",
+      "chapter_number": 16,
+      "chapter_title": "BẪY LẦY CẠN SƯỜN NAM",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "loc-001"
+      ],
+      "content": "After defeating Marcus’s detachment, Oakhaven salvages Temple weapons and armor while Alan orders deeper civilian movement toward the northern underground ruins in anticipation of Roland’s retaliation.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 16,
+        "evidence_summary": "The defenders collect captured metal and Alan directs Brand and Elena toward forging and civilian evacuation."
+      },
+      "tags": [
+        "aftermath",
+        "evacuation"
+      ]
+    },
+    {
+      "memory_id": "mem-000051",
+      "memory_type": "important_object",
+      "chapter_number": 17,
+      "chapter_title": "PHẾ TÍCH SƯỜN BẮC VÀ LỬA LÒ RÈN CUỐI CÙNG",
+      "entities": [
+        "item-005",
+        "loc-009",
+        "char-004",
+        "char-005",
+        "char-006"
+      ],
+      "content": "During the final civilian evacuation into the northern ruins, Oakhaven carries its remaining medical supplies and reserve seeds underground with the elderly and children.",
+      "importance": 0.91,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 17,
+        "evidence_summary": "The refugee column is described carrying medical crates and the last reserve seeds into the ruins."
+      },
+      "tags": [
+        "long_range_dependency",
+        "important_object",
+        "survival",
+        "setup"
+      ]
+    },
+    {
+      "memory_id": "mem-000052",
+      "memory_type": "important_object",
+      "chapter_number": 17,
+      "chapter_title": "PHẾ TÍCH SƯỜN BẮC VÀ LỬA LÒ RÈN CUỐI CÙNG",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "item-002"
+      ],
+      "content": "Alan, Brand, and Elena finish ten improvised mines packed with Hỏa Thạch, metal fragments, and Elena’s corrupted-root coating to attack Temple armor during the escape.",
+      "importance": 0.84,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 17,
+        "evidence_summary": "The forge scene explicitly describes the final ten mines and Elena coating fragments with the extracted root toxin."
+      },
+      "tags": [
+        "setup_payoff",
+        "improvised_weapon",
+        "escape"
+      ]
+    },
+    {
+      "memory_id": "mem-000053",
+      "memory_type": "secret_or_revelation",
+      "chapter_number": 17,
+      "chapter_title": "PHẾ TÍCH SƯỜN BẮC VÀ LỬA LÒ RÈN CUỐI CÙNG",
+      "entities": [
+        "char-001",
+        "char-003",
+        "char-009",
+        "structure-002"
+      ],
+      "content": "Alan says Varian once told him that Alistair saw a void or truth beyond the artificial sky after defeating the Demon King and chose a destructive path aimed at breaking the enclosure or becoming divine; by chapter 17 this is an attributed claim, not independently confirmed fact.",
+      "importance": 0.94,
+      "status": "inferred",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 17,
+        "evidence_summary": "Alan explicitly attributes the account to Varian while explaining his interpretation of Alistair’s fall."
+      },
+      "tags": [
+        "secret_or_revelation",
+        "attributed_claim",
+        "future_verification",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000054",
+      "memory_type": "event_summary",
+      "chapter_number": 17,
+      "chapter_title": "PHẾ TÍCH SƯỜN BẮC VÀ LỬA LÒ RÈN CUỐI CÙNG",
+      "entities": [
+        "char-010",
+        "char-001",
+        "char-002",
+        "char-011",
+        "loc-009"
+      ],
+      "content": "Roland’s patrol detects evidence of the northern evacuation and closes on the forge, forcing Alan, Elena, and Brand to extinguish the forge and retreat into the underground passage with their prepared mines.",
+      "importance": 0.89,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 17,
+        "evidence_summary": "Toby reports the approaching patrol; Alan orders the forge extinguished and the group to move into the passage."
+      },
+      "tags": [
+        "pursuit",
+        "evacuation",
+        "arc_transition"
+      ]
+    },
+    {
+      "memory_id": "mem-000055",
+      "memory_type": "event_summary",
+      "chapter_number": 18,
+      "chapter_title": "KHÚC CA CHIẾN BẠI ĐẦU TIÊN CỦA PHÀM NHÂN",
+      "entities": [
+        "char-001",
+        "char-010",
+        "char-002",
+        "char-004"
+      ],
+      "content": "Roland personally breaks into the forge. Alan uses Flash Surge to wound Roland’s knee but is overpowered; Elena’s corrosive attack creates a brief escape opening.",
+      "importance": 0.93,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 18,
+        "evidence_summary": "The chapter depicts the direct duel, Alan’s successful but limited strike, Roland’s counterattack, and Elena’s intervention."
+      },
+      "tags": [
+        "direct_confrontation",
+        "battle",
+        "relationship_relevance"
+      ]
+    },
+    {
+      "memory_id": "mem-000056",
+      "memory_type": "event_summary",
+      "chapter_number": 18,
+      "chapter_title": "KHÚC CA CHIẾN BẠI ĐẦU TIÊN CỦA PHÀM NHÂN",
+      "entities": [
+        "char-004",
+        "char-010",
+        "char-001",
+        "loc-001"
+      ],
+      "content": "Gregor is fatally stabbed by Roland while physically holding him back so Alan, Elena, Brand, and the refugees can escape into the northern underground route.",
+      "importance": 0.99,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 18,
+        "evidence_summary": "Roland’s sword pierces Gregor’s chest; Gregor remains standing and locks the blade while ordering Alan to flee."
+      },
+      "tags": [
+        "character_death",
+        "major_event",
+        "setup_payoff",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000057",
+      "memory_type": "relationship_memory",
+      "chapter_number": 18,
+      "chapter_title": "KHÚC CA CHIẾN BẠI ĐẦU TIÊN CỦA PHÀM NHÂN",
+      "entities": [
+        "char-004",
+        "char-001",
+        "item-005"
+      ],
+      "content": "In his final stand, Gregor explicitly entrusts Oakhaven and its future—framed through the settlement’s surviving “seeds”—to Alan before Alan is forced to leave him behind.",
+      "importance": 0.98,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 18,
+        "evidence_summary": "Gregor orders Alan to take Elena away and says Oakhaven’s seed/future must not die there."
+      },
+      "tags": [
+        "relationship_history",
+        "promise_or_commitment",
+        "setup_payoff",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000058",
+      "memory_type": "event_summary",
+      "chapter_number": 18,
+      "chapter_title": "KHÚC CA CHIẾN BẠI ĐẦU TIÊN CỦA PHÀM NHÂN",
+      "entities": [
+        "char-002",
+        "loc-009",
+        "item-002",
+        "char-010"
+      ],
+      "content": "Elena detonates Hỏa Thạch in the tunnel roof after the escape, collapsing the northern entrance and creating a rock barrier between the refugees and Roland’s force.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 18,
+        "evidence_summary": "Elena throws the explosive charge, causing the roof to collapse and seal the passage."
+      },
+      "tags": [
+        "escape",
+        "location_state",
+        "barrier"
+      ]
+    },
+    {
+      "memory_id": "mem-000059",
+      "memory_type": "location_memory",
+      "chapter_number": 19,
+      "chapter_title": "CON ĐƯỜNG BĂNG GIÁ DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "loc-009",
+        "loc-011",
+        "char-001",
+        "char-002",
+        "char-011",
+        "char-006"
+      ],
+      "content": "The Oakhaven refugees move deeper through the northern underground route and reach an old dwarven mechanical pump station, where Elena establishes a temporary medical shelter.",
+      "importance": 0.91,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 19,
+        "evidence_summary": "Brand leads the group to the old pump station; civilians enter and Elena begins treating the injured there."
+      },
+      "tags": [
+        "refuge",
+        "location_history",
+        "survival"
+      ]
+    },
+    {
+      "memory_id": "mem-000060",
+      "memory_type": "character_memory",
+      "chapter_number": 19,
+      "chapter_title": "CON ĐƯỜNG BĂNG GIÁ DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-001",
+        "char-002",
+        "skill-001",
+        "state-001"
+      ],
+      "content": "Alan’s repeated use of Flash Surge has accumulated severe physical damage: his shoulder injury worsens, one eye is blood-filled, and Elena warns that another overlong burst could permanently disable his sword arm.",
+      "importance": 0.96,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 19,
+        "evidence_summary": "The chapter details Alan’s worsening injuries and Elena explicitly warns that exceeding roughly three seconds again could destroy the arm’s function."
+      },
+      "tags": [
+        "long_range_dependency",
+        "character_state",
+        "cost_of_power",
+        "temporal_state"
+      ]
+    },
+    {
+      "memory_id": "mem-000061",
+      "memory_type": "motivation",
+      "chapter_number": 19,
+      "chapter_title": "CON ĐƯỜNG BĂNG GIÁ DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-002",
+        "structure-004",
+        "char-003",
+        "loc-005"
+      ],
+      "content": "Elena says the refugees must reach the Frostspine Earth Vein Core beneath the fourth mine before Roland catches them, and frames this as part of the longer struggle that may eventually require confronting Alistair at Solaria.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 19,
+        "evidence_summary": "Elena explicitly names the Earth Vein Core beneath the fourth mine as the next objective and references future opposition to Alistair."
+      },
+      "tags": [
+        "new_goal",
+        "long_range_dependency",
+        "future_objective"
+      ]
+    },
+    {
+      "memory_id": "mem-000062",
+      "memory_type": "event_summary",
+      "chapter_number": 19,
+      "chapter_title": "CON ĐƯỜNG BĂNG GIÁ DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "loc-011",
+        "char-001",
+        "char-002",
+        "char-011"
+      ],
+      "content": "At the pump-station refuge, the group hears a large chitin-creature mass moving along the corrupted underground vein toward them, forcing another immediate defensive decision.",
+      "importance": 0.8,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 19,
+        "evidence_summary": "The chapter ends with the sound and smell of chitin creatures approaching the refuge and the group preparing to respond."
+      },
+      "tags": [
+        "cliffhanger",
+        "immediate_threat"
+      ]
+    },
+    {
+      "memory_id": "mem-000063",
+      "memory_type": "event_summary",
+      "chapter_number": 20,
+      "chapter_title": "SỨC MẠNH TUYỆT ĐỐI VÀ LƯỠI KIẾM GÃY",
+      "entities": [
+        "loc-012",
+        "structure-005",
+        "char-001",
+        "char-002",
+        "char-006",
+        "char-011",
+        "loc-016"
+      ],
+      "content": "At the ancient north tower, the refugees attempt to use a damaged teleportation array with only a few activation cycles available; Alan stays behind to delay pursuit while Elena initially remains with him.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 20,
+        "evidence_summary": "The tower array is active but overloaded; Elena says it can support at most three teleportation waves, while Alan orders the others to leave and stays to hold the approach."
+      },
+      "tags": [
+        "escape",
+        "resource_constraint",
+        "temporal_state"
+      ]
+    },
+    {
+      "memory_id": "mem-000064",
+      "memory_type": "secret_or_revelation",
+      "chapter_number": 20,
+      "chapter_title": "SỨC MẠNH TUYỆT ĐỐI VÀ LƯỠI KIẾM GÃY",
+      "entities": [
+        "char-003",
+        "char-001",
+        "loc-001",
+        "structure-002",
+        "loc-005"
+      ],
+      "content": "Alistair directly states that Oakhaven’s sacrifice is necessary to maintain the Vòm Trời, providing the first direct confirmation that he accepts the settlement as expendable for the larger system.",
+      "importance": 0.98,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 20,
+        "evidence_summary": "During the tower confrontation Alistair tells Alan that their sacrifice is required to maintain the Vòm Trời and describes Oakhaven as expendable."
+      },
+      "tags": [
+        "direct_confirmation",
+        "temporal_supersession",
+        "future_leakage_anchor"
+      ]
+    },
+    {
+      "memory_id": "mem-000065",
+      "memory_type": "important_object",
+      "chapter_number": 20,
+      "chapter_title": "SỨC MẠNH TUYỆT ĐỐI VÀ LƯỠI KIẾM GÃY",
+      "entities": [
+        "char-003",
+        "item-007"
+      ],
+      "content": "Alistair appears with a right-arm mechanical/ancient apparatus associated with a Mảnh Lõi Không Gian that can generate strong spatial or gravitational effects.",
+      "importance": 0.78,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 20,
+        "evidence_summary": "The chapter introduces Alistair with his right arm described as replaced by an ancient metal construct containing a Space Core fragment; chapter 21 creates a continuity conflict about that arm."
+      },
+      "tags": [
+        "important_object",
+        "state_conflict_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000066",
+      "memory_type": "event_summary",
+      "chapter_number": 20,
+      "chapter_title": "SỨC MẠNH TUYỆT ĐỐI VÀ LƯỠI KIẾM GÃY",
+      "entities": [
+        "char-001",
+        "char-003"
+      ],
+      "content": "In their first direct clash, Alistair overwhelms Alan, destroys Alan’s ordinary iron short sword, and leaves Alan badly injured near the teleportation array.",
+      "importance": 0.92,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 20,
+        "evidence_summary": "Alistair catches and crushes Alan’s iron short sword and then strikes him down near the array."
+      },
+      "tags": [
+        "relationship_change",
+        "important_object_loss",
+        "setup_payoff"
+      ]
+    },
+    {
+      "memory_id": "mem-000067",
+      "memory_type": "secret_or_revelation",
+      "chapter_number": 21,
+      "chapter_title": "VẾT RÁCH KHÔNG GIAN VÀ VỰC THẲM",
+      "entities": [
+        "char-003",
+        "char-002",
+        "skill-002",
+        "structure-001",
+        "loc-005"
+      ],
+      "content": "Alistair tells Elena that her Bản Nguyên Tịnh Hóa is the key to stabilizing Solaria’s pillar system and frames using her as a sacrifice as a calculation that would save many people in the center.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 21,
+        "evidence_summary": "Alistair explicitly addresses Elena and says her Purification Origin is needed to stabilize Solaria’s pillars; the truth of his numerical justification is not independently verified."
+      },
+      "tags": [
+        "attributed_claim",
+        "direct_dialogue",
+        "motivation",
+        "future_leakage_anchor"
+      ]
+    },
+    {
+      "memory_id": "mem-000068",
+      "memory_type": "event_summary",
+      "chapter_number": 21,
+      "chapter_title": "VẾT RÁCH KHÔNG GIAN VÀ VỰC THẲM",
+      "entities": [
+        "char-002",
+        "char-003",
+        "item-006"
+      ],
+      "content": "Elena uses the corrupted-root countermeasure prepared from the chapter-14 extraction site against Alistair; it briefly degrades a vulnerable armor joint and creates an opening.",
+      "importance": 0.92,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 21,
+        "evidence_summary": "Elena throws the final corrupted-root preparation she had distilled from the roots collected earlier; it affects Alistair’s shoulder joint long enough to create a short opening."
+      },
+      "tags": [
+        "setup_payoff",
+        "long_range_dependency",
+        "important_object"
+      ]
+    },
+    {
+      "memory_id": "mem-000069",
+      "memory_type": "event_summary",
+      "chapter_number": 21,
+      "chapter_title": "VẾT RÁCH KHÔNG GIAN VÀ VỰC THẲM",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "structure-005",
+        "loc-012"
+      ],
+      "content": "Alan overloads the ancient tower array to force Elena’s escape and create a spatial rupture that severely damages Alistair’s right-arm area before the tower collapses.",
+      "importance": 0.99,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 21,
+        "evidence_summary": "Alan reverses/overloads the array, a spatial tear opens, Elena is teleported away, and Alistair’s right-arm area is cut by the rupture; the exact arm state conflicts with chapter 20."
+      },
+      "tags": [
+        "setup_payoff",
+        "irreversible_event",
+        "state_conflict_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000070",
+      "memory_type": "event_summary",
+      "chapter_number": 21,
+      "chapter_title": "VẾT RÁCH KHÔNG GIAN VÀ VỰC THẲM",
+      "entities": [
+        "char-001",
+        "loc-013",
+        "loc-012"
+      ],
+      "content": "After the tower collapses, Alan falls into Vực Thẳm Răng Cưa and is separated from Elena; the chapter does not confirm his death.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 21,
+        "evidence_summary": "The collapsing tower throws Alan over the edge into the chasm while Elena has already been teleported away."
+      },
+      "tags": [
+        "separation",
+        "cliffhanger",
+        "survival_state"
+      ]
+    },
+    {
+      "memory_id": "mem-000071",
+      "memory_type": "character_memory",
+      "chapter_number": 22,
+      "chapter_title": "LIÊN MINH DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-002",
+        "char-001",
+        "char-011"
+      ],
+      "content": "Elena initially treats Alan’s fall as a probable sacrifice but suppresses her grief and prioritizes medical care and the survival of the displaced Oakhaven group.",
+      "importance": 0.83,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 22,
+        "evidence_summary": "Elena is devastated by Alan’s fall but immediately redirects herself toward treating Brand and organizing the refugees."
+      },
+      "tags": [
+        "motivation",
+        "relationship_memory",
+        "character_state"
+      ]
+    },
+    {
+      "memory_id": "mem-000072",
+      "memory_type": "event_summary",
+      "chapter_number": 22,
+      "chapter_title": "LIÊN MINH DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-002",
+        "char-016",
+        "org-003",
+        "loc-015"
+      ],
+      "content": "Elena’s group encounters Bram and Frostspine dwarven smiths near the fourth forge level, establishing contact with a new underground faction affected by the same poisoned water system.",
+      "importance": 0.8,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 22,
+        "evidence_summary": "Bram arrives with dwarf patrols and describes polluted forge water and damage linked to pressure-system instability."
+      },
+      "tags": [
+        "new_faction",
+        "location_memory"
+      ]
+    },
+    {
+      "memory_id": "mem-000073",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 22,
+      "chapter_title": "LIÊN MINH DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "char-002",
+        "char-016",
+        "org-003",
+        "loc-015"
+      ],
+      "content": "Elena proposes a reciprocal survival pact: Oakhaven needs shelter, while she will use non-mana medical/chemical knowledge to detoxify the dwarves’ water; Bram accepts mutual defense and access to the fourth forge.",
+      "importance": 0.96,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 22,
+        "evidence_summary": "Elena explicitly offers water detoxification for shelter; Bram calls the bargain fair, opens the route to the forge, and declares Oakhaven and the Frostspine dwarves in the same defensive trench."
+      },
+      "tags": [
+        "alliance",
+        "promise",
+        "relationship_change",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000074",
+      "memory_type": "world_rule",
+      "chapter_number": 22,
+      "chapter_title": "LIÊN MINH DƯỚI LÒNG ĐẤT",
+      "entities": [
+        "org-003",
+        "loc-015",
+        "structure-001"
+      ],
+      "content": "The Frostspine forge community’s groundwater is visibly contaminated and corrosive enough to damage metalwork; Bram attributes the worsening condition to Solaria pressure-system activity.",
+      "importance": 0.76,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 22,
+        "evidence_summary": "Bram directly reports black corrosive groundwater and damaged metal; the causal attribution to Solaria is spoken by characters rather than independently measured at system scale."
+      },
+      "tags": [
+        "environmental_state",
+        "attributed_cause"
+      ]
+    },
+    {
+      "memory_id": "mem-000075",
+      "memory_type": "event_summary",
+      "chapter_number": 23,
+      "chapter_title": "BAO LA TRONG BÓNG TỐI HẺM NÚI",
+      "entities": [
+        "char-001",
+        "char-002",
+        "org-004",
+        "loc-014"
+      ],
+      "content": "After the tower collapse, Alan and Elena are alive but separated in the Răng Cưa canyon area; Elena evades Vespera pursuit while Alan survives the fall and begins moving to find her.",
+      "importance": 0.91,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 23,
+        "evidence_summary": "The chapter alternates between Elena avoiding a Vespera search party and Alan recovering enough to move through the canyon toward her."
+      },
+      "tags": [
+        "parallel_state",
+        "relationship_history",
+        "pursuit"
+      ]
+    },
+    {
+      "memory_id": "mem-000076",
+      "memory_type": "character_memory",
+      "chapter_number": 23,
+      "chapter_title": "BAO LA TRONG BÓNG TỐI HẺM NÚI",
+      "entities": [
+        "char-001",
+        "char-002",
+        "loc-014"
+      ],
+      "content": "Despite serious injuries from the tower fall, Alan improvises basic stabilization and continues searching for Elena, using their bond and his promise to protect her as his main motivation.",
+      "importance": 0.86,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 23,
+        "evidence_summary": "Alan survives the fall, stabilizes himself sufficiently to move, and explicitly focuses on finding/protecting Elena."
+      },
+      "tags": [
+        "character_motivation",
+        "relationship_memory",
+        "long_term_state"
+      ]
+    },
+    {
+      "memory_id": "mem-000077",
+      "memory_type": "organization_memory",
+      "chapter_number": 23,
+      "chapter_title": "BAO LA TRONG BÓNG TỐI HẺM NÚI",
+      "entities": [
+        "org-004",
+        "org-001",
+        "char-002"
+      ],
+      "content": "Vespera is presented as a Temple pursuit/assassination unit actively hunting Elena through the Răng Cưa area.",
+      "importance": 0.74,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 23,
+        "evidence_summary": "Elena identifies/encounters Vespera pursuers and later chapters explicitly describe Vespera as a Temple assassination unit."
+      },
+      "tags": [
+        "organization",
+        "pursuit"
+      ]
+    },
+    {
+      "memory_id": "mem-000078",
+      "memory_type": "scene_summary",
+      "chapter_number": 23,
+      "chapter_title": "BAO LA TRONG BÓNG TỐI HẺM NÚI",
+      "entities": [
+        "char-002",
+        "org-004",
+        "item-002"
+      ],
+      "content": "Elena uses traps, Hỏa Thạch-derived materials, and medical precision to disable part of a Vespera search team rather than confronting them through conventional magic.",
+      "importance": 0.68,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 23,
+        "evidence_summary": "Elena sets corrosive/fire-powder traps and uses precise non-magical attacks during the pursuit."
+      },
+      "tags": [
+        "competence",
+        "low_lexical_overlap_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000079",
+      "memory_type": "event_summary",
+      "chapter_number": 24,
+      "chapter_title": "DẤU VẾT TRÊN TUYẾT LẠNH",
+      "entities": [
+        "char-001",
+        "loc-014"
+      ],
+      "content": "Alan defeats another corrupted mist wolf while injured, relying on timing, joint targeting, and ordinary steel rather than mana.",
+      "importance": 0.62,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 24,
+        "evidence_summary": "Alan encounters a mutated mist wolf on the snowy slope and kills it using physical sword technique despite his impaired condition."
+      },
+      "tags": [
+        "character_competence",
+        "world_state"
+      ]
+    },
+    {
+      "memory_id": "mem-000080",
+      "memory_type": "important_object",
+      "chapter_number": 24,
+      "chapter_title": "DẤU VẾT TRÊN TUYẾT LẠNH",
+      "entities": [
+        "char-001",
+        "char-002",
+        "loc-014"
+      ],
+      "content": "Alan finds a torn piece of Elena’s gray field scarf carrying her distinctive camouflage preparation and trace evidence, giving him a non-magical trail toward her route.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 24,
+        "evidence_summary": "Alan recognizes a torn gray cloth fragment as Elena’s scarf by its material and distinctive daisy-resin/peat camouflage scent and uses nearby traces to continue tracking."
+      },
+      "tags": [
+        "object_history",
+        "low_lexical_overlap",
+        "relationship_memory"
+      ]
+    },
+    {
+      "memory_id": "mem-000081",
+      "memory_type": "motivation",
+      "chapter_number": 24,
+      "chapter_title": "DẤU VẾT TRÊN TUYẾT LẠNH",
+      "entities": [
+        "char-001",
+        "char-002"
+      ],
+      "content": "Finding Elena’s scarf converts Alan’s uncertainty into a concrete belief that she recently passed through the area and strengthens his determination to reach her.",
+      "importance": 0.78,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 24,
+        "evidence_summary": "Alan interprets the cloth and trail as evidence Elena is ahead and explicitly tells her to wait for him."
+      },
+      "tags": [
+        "motivation",
+        "object_to_motivation"
+      ]
+    },
+    {
+      "memory_id": "mem-000082",
+      "memory_type": "event_summary",
+      "chapter_number": 25,
+      "chapter_title": "ĐƯỜNG DAO TRONG BÓNG TỐI PHẾ TÍCH",
+      "entities": [
+        "char-001",
+        "char-002",
+        "org-004"
+      ],
+      "content": "Alan reaches a Vespera search operation in the old mine while Elena is trapped behind a reinforced machine-room door; he attacks from outside as Elena triggers a pressure trap from inside.",
+      "importance": 0.86,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 25,
+        "evidence_summary": "Alan silently attacks the Vespera team outside the machine room while Elena releases high-pressure steam from within."
+      },
+      "tags": [
+        "multi_actor_coordination",
+        "reunion_setup"
+      ]
+    },
+    {
+      "memory_id": "mem-000083",
+      "memory_type": "scene_summary",
+      "chapter_number": 25,
+      "chapter_title": "ĐƯỜNG DAO TRONG BÓNG TỐI PHẾ TÍCH",
+      "entities": [
+        "char-001",
+        "char-002",
+        "org-004"
+      ],
+      "content": "Alan and Elena independently exploit the same mechanical environment against Vespera, combining Alan’s close-range timing with Elena’s pressure/chemical trap despite having been separated.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 25,
+        "evidence_summary": "Their actions converge on the same Vespera squad from opposite sides of the machine-room door."
+      },
+      "tags": [
+        "relationship_relevance",
+        "low_lexical_overlap",
+        "coordination"
+      ]
+    },
+    {
+      "memory_id": "mem-000084",
+      "memory_type": "relationship_memory",
+      "chapter_number": 25,
+      "chapter_title": "ĐƯỜNG DAO TRONG BÓNG TỐI PHẾ TÍCH",
+      "entities": [
+        "char-001",
+        "char-002"
+      ],
+      "content": "Alan and Elena reunite alive in the old mine and immediately return to their established pattern of mutual medical and combat support.",
+      "importance": 0.94,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 25,
+        "evidence_summary": "After the Vespera fight, they confirm the other is alive and decide to move together toward Bram’s fourth forge."
+      },
+      "tags": [
+        "relationship_history",
+        "reunion",
+        "temporal_state"
+      ]
+    },
+    {
+      "memory_id": "mem-000085",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 25,
+      "chapter_title": "ĐƯỜNG DAO TRONG BÓNG TỐI PHẾ TÍCH",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "loc-015"
+      ],
+      "content": "After reuniting, Alan and Elena commit to reaching the fourth forge and continuing the resistance so Gregor’s sacrifice is not wasted.",
+      "importance": 0.83,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 25,
+        "evidence_summary": "Elena explicitly invokes Gregor’s sacrifice while agreeing to continue to Bram’s forge with Alan."
+      },
+      "tags": [
+        "old_but_important",
+        "motivation",
+        "relationship_memory"
+      ]
+    },
+    {
+      "memory_id": "mem-000086",
+      "memory_type": "event_summary",
+      "chapter_number": 26,
+      "chapter_title": "LÒ RÈN DƯỚI LÒNG ĐẤT VÀ KHẾ ƯỚC SÒNG PHẲNG",
+      "entities": [
+        "char-002",
+        "char-016",
+        "org-003",
+        "loc-015"
+      ],
+      "content": "Chapter 26 narrates a second first-time-style bargain in which Elena proves a water-filtration method and Bram grants Oakhaven shelter; this largely repeats the alliance already established in chapter 22.",
+      "importance": 0.7,
+      "status": "canonical",
+      "review_status": "ambiguous",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 26,
+        "evidence_summary": "Bram initially distrusts the refugees, Elena offers to clean the forge water in exchange for shelter, demonstrates filtration, and Bram accepts—closely replaying chapter 22."
+      },
+      "tags": [
+        "narrative_echo",
+        "temporal_reset",
+        "do_not_use_as_clean_ground_truth"
+      ]
+    },
+    {
+      "memory_id": "mem-000087",
+      "memory_type": "world_rule",
+      "chapter_number": 26,
+      "chapter_title": "LÒ RÈN DƯỚI LÒNG ĐẤT VÀ KHẾ ƯỚC SÒNG PHẲNG",
+      "entities": [
+        "char-002",
+        "org-003",
+        "loc-015"
+      ],
+      "content": "Elena demonstrates that a peat/plant/fungal filtration mixture can remove the forge water’s visible corrosive contamination well enough for the dwarves to restart their cooling system and accept it as drinkable.",
+      "importance": 0.83,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 26,
+        "evidence_summary": "The improvised filter produces clear water; Elena and then Bram drink it, and the forge cooling system is restarted."
+      },
+      "tags": [
+        "world_rule",
+        "demonstrated_method"
+      ]
+    },
+    {
+      "memory_id": "mem-000088",
+      "memory_type": "important_object",
+      "chapter_number": 26,
+      "chapter_title": "LÒ RÈN DƯỚI LÒNG ĐẤT VÀ KHẾ ƯỚC SÒNG PHẲNG",
+      "entities": [
+        "char-016",
+        "char-001",
+        "char-002",
+        "org-003"
+      ],
+      "content": "Bram proposes using Frostspine Thần Tinh ore plus Elena’s anti-mana chemical knowledge to forge weapons capable of disrupting Temple quang-energy defenses.",
+      "importance": 0.91,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 26,
+        "evidence_summary": "Bram says ordinary iron fails against Temple high-pressure magic but Thần Tinh combined with Elena’s chemistry could produce anti-divine weapons."
+      },
+      "tags": [
+        "weapon_setup",
+        "setup_payoff",
+        "important_object"
+      ]
+    },
+    {
+      "memory_id": "mem-000089",
+      "memory_type": "important_object",
+      "chapter_number": 27,
+      "chapter_title": "LỬA ĐỎ LÒ RÈN VÀ THÉP LẠNH THẦN TINH",
+      "entities": [
+        "item-008",
+        "char-001",
+        "char-002",
+        "char-011",
+        "char-016",
+        "org-003"
+      ],
+      "content": "Bram, Alan, Elena, and Brand collaboratively forge the first Thần Tinh short sword for Alan from anti-mana ore using mechanical heat/pressure and Elena’s purification treatment.",
+      "importance": 0.98,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 27,
+        "evidence_summary": "The chapter follows the forge process and ends with Alan receiving the completed Thần Tinh short sword."
+      },
+      "tags": [
+        "setup_payoff",
+        "important_object",
+        "collaboration",
+        "long_range_dependency"
+      ]
+    },
+    {
+      "memory_id": "mem-000090",
+      "memory_type": "world_rule",
+      "chapter_number": 27,
+      "chapter_title": "LỬA ĐỎ LÒ RÈN VÀ THÉP LẠNH THẦN TINH",
+      "entities": [
+        "item-008",
+        "org-003"
+      ],
+      "content": "The Thần Tinh blade is described as naturally resistant to mana and able to strip magical effects toward a purely physical state rather than carrying its own magical enchantment.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 27,
+        "evidence_summary": "Bram explains Thần Tinh’s anti-mana property and the finished blade produces no residual mana while being intended to disrupt divine barriers."
+      },
+      "tags": [
+        "world_rule",
+        "retrieval_core",
+        "low_lexical_overlap"
+      ]
+    },
+    {
+      "memory_id": "mem-000091",
+      "memory_type": "character_memory",
+      "chapter_number": 27,
+      "chapter_title": "LỬA ĐỎ LÒ RÈN VÀ THÉP LẠNH THẦN TINH",
+      "entities": [
+        "char-001",
+        "loc-005",
+        "state-001"
+      ],
+      "content": "Alan states that his mana core broke beneath a Solaria temple tower ten years earlier and links that event to his abandonment of trust in divine authority.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 27,
+        "evidence_summary": "While accepting the new sword, Alan directly says the core broke under a Solaria temple tower ten years ago and that he abandoned divine authority from that moment."
+      },
+      "tags": [
+        "backstory",
+        "motivation",
+        "old_event_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000092",
+      "memory_type": "event_summary",
+      "chapter_number": 27,
+      "chapter_title": "LỬA ĐỎ LÒ RÈN VÀ THÉP LẠNH THẦN TINH",
+      "entities": [
+        "char-005",
+        "char-010",
+        "loc-015",
+        "org-001"
+      ],
+      "content": "Toby warns that Roland is approaching the fourth forge with roughly thirty heavy Temple cavalry, prompting Alan, Elena, Brand, and Bram to prepare an underground ambush.",
+      "importance": 0.84,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 27,
+        "evidence_summary": "Toby reports Roland’s heavy cavalry entering the eastern Frostspine route; the group immediately plans traps in mine passage three."
+      },
+      "tags": [
+        "immediate_threat",
+        "battle_setup"
+      ]
+    },
+    {
+      "memory_id": "mem-000093",
+      "memory_type": "event_summary",
+      "chapter_number": 28,
+      "chapter_title": "TIẾNG SÉT TRONG SƯƠNG MUỐI",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "char-017",
+        "item-008",
+        "org-001"
+      ],
+      "content": "The resistance ambush in mine passage three disrupts the Temple vanguard; Alan’s new Thần Tinh blade defeats Garen by breaking his mana defense at a physical armor gap.",
+      "importance": 0.96,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 28,
+        "evidence_summary": "Elena’s trap blinds/disrupts the vanguard, Brand’s fighters attack mobility points, and Alan’s Thần Tinh blade shuts down Garen’s protective mana when it connects."
+      },
+      "tags": [
+        "setup_payoff",
+        "weapon_payoff",
+        "hybrid_retrieval"
+      ]
+    },
+    {
+      "memory_id": "mem-000094",
+      "memory_type": "world_rule",
+      "chapter_number": 28,
+      "chapter_title": "TIẾNG SÉT TRONG SƯƠNG MUỐI",
+      "entities": [
+        "item-008",
+        "char-017"
+      ],
+      "content": "The first combat use of the Thần Tinh sword demonstrates the anti-mana property described in chapter 27: contact through an exposed armor gap causes Garen’s quang-energy protection to fail.",
+      "importance": 0.94,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 28,
+        "evidence_summary": "The narration explicitly describes the blade stripping Garen’s circulating quang-energy defense when it penetrates the armor gap."
+      },
+      "tags": [
+        "world_rule_payoff",
+        "setup_payoff",
+        "low_lexical_overlap"
+      ]
+    },
+    {
+      "memory_id": "mem-000095",
+      "memory_type": "motivation",
+      "chapter_number": 28,
+      "chapter_title": "TIẾNG SÉT TRONG SƯƠNG MUỐI",
+      "entities": [
+        "char-001",
+        "char-010",
+        "item-009",
+        "structure-004",
+        "loc-015"
+      ],
+      "content": "Alan says Roland’s next objective is to bring the central siphoning lens to the Frostspine Earth Vein Core; he believes completing that extraction would collapse the mountain and kill the refugees, so the resistance must continue.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 28,
+        "evidence_summary": "Alan explicitly describes Roland’s intended target and the collapse consequence; by chapter 28 the lens/core interaction has not yet occurred on page."
+      },
+      "tags": [
+        "attributed_prediction",
+        "stakes",
+        "future_objective"
+      ]
+    },
+    {
+      "memory_id": "mem-000096",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 28,
+      "chapter_title": "TIẾNG SÉT TRONG SƯƠNG MUỐI",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "char-016",
+        "structure-004"
+      ],
+      "content": "Alan, Elena, Brand, and Bram’s forces commit to defending the Frostspine Earth Vein Core against Roland after defeating the vanguard.",
+      "importance": 0.86,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 28,
+        "evidence_summary": "The chapter closes with the group preparing the next defensive layer and framing the Earth Vein Core as the immediate objective."
+      },
+      "tags": [
+        "group_goal",
+        "arc_memory",
+        "relationship_relevance"
+      ]
+    },
+    {
+      "memory_id": "mem-000097",
+      "memory_type": "event_summary",
+      "chapter_number": 29,
+      "chapter_title": "BẪY QUÁ ÁP TRONG LÒ RÈN CỔ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-010",
+        "char-016",
+        "item-008",
+        "item-009",
+        "loc-015"
+      ],
+      "content": "Elena and Bram trigger a corrosive overpressure trap in the fourth forge that fouls Roland’s siphoning lens and armor joints; Alan uses the opening to wound Roland with the Thần Tinh sword.",
+      "importance": 0.96,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 29,
+        "evidence_summary": "The steam/mold trap visibly dims Roland’s siphoning-fed light, rusts armor joints, and lets Alan penetrate his right-side armor gap with the Thần Tinh blade."
+      },
+      "tags": [
+        "setup_payoff",
+        "combat",
+        "anti_mana",
+        "relationship_relevance"
+      ]
+    },
+    {
+      "memory_id": "mem-000098",
+      "memory_type": "world_rule",
+      "chapter_number": 29,
+      "chapter_title": "BẪY QUÁ ÁP TRONG LÒ RÈN CỔ",
+      "entities": [
+        "char-002",
+        "char-010",
+        "item-009"
+      ],
+      "content": "Corrosive fungal/chemical contamination on a siphoning lens can interrupt its mana-draw frequency and temporarily suppress the quang-energy it feeds to Temple equipment.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 29,
+        "evidence_summary": "Roland’s chest lens is coated by the corrosive trap; the narration explicitly states that its siphoning frequency is interrupted and his sword’s light dies."
+      },
+      "tags": [
+        "world_rule",
+        "observed_effect",
+        "low_lexical_overlap"
+      ]
+    },
+    {
+      "memory_id": "mem-000099",
+      "memory_type": "relationship_memory",
+      "chapter_number": 29,
+      "chapter_title": "BẪY QUÁ ÁP TRONG LÒ RÈN CỔ",
+      "entities": [
+        "char-001",
+        "char-010",
+        "item-008"
+      ],
+      "content": "Alan and Roland clash again: Alan badly wounds Roland through an armor gap with the Thần Tinh sword, but Roland remains combat-capable and orders the forge purged.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 29,
+        "evidence_summary": "Alan stabs beneath Roland’s right arm after the trap, Roland throws him away, survives, and commands his cavalry to kill the resistance."
+      },
+      "tags": [
+        "relationship_history",
+        "adversaries",
+        "temporal_state"
+      ]
+    },
+    {
+      "memory_id": "mem-000100",
+      "memory_type": "event_summary",
+      "chapter_number": 29,
+      "chapter_title": "BẪY QUÁ ÁP TRONG LÒ RÈN CỔ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "char-016",
+        "loc-015",
+        "org-001"
+      ],
+      "content": "Bram detonates the forge’s overpressure system, collapsing the fourth-forge roof and sealing the Temple cavalry route; the collapse forces Alan and Elena into a lower fissure while Brand and Bram withdraw through maintenance chambers.",
+      "importance": 0.94,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 29,
+        "evidence_summary": "The steam system explodes, the roof collapses, and chapter 30 opens with Alan/Elena physically separated from Brand/Bram after the collapse."
+      },
+      "tags": [
+        "location_change",
+        "battle_outcome",
+        "group_separation"
+      ]
+    },
+    {
+      "memory_id": "mem-000101",
+      "memory_type": "character_memory",
+      "chapter_number": 30,
+      "chapter_title": "KHE NỨT ĐỊA TẦNG VÀ CHIẾN BINH TRONG SƯƠNG",
+      "entities": [
+        "char-002",
+        "char-018"
+      ],
+      "content": "Elena chooses to treat the wounded Demon scout Korgan instead of treating him as an enemy, surgically removing a Temple siphoning device and neutralizing its poison without mana.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 30,
+        "evidence_summary": "Elena stops Alan from finishing the wounded scout, removes the embedded siphoning lens, applies herbal treatment, and Korgan stabilizes."
+      },
+      "tags": [
+        "character_action",
+        "cross_faction",
+        "relationship_setup",
+        "medical"
+      ]
+    },
+    {
+      "memory_id": "mem-000102",
+      "memory_type": "arc_memory",
+      "chapter_number": 30,
+      "chapter_title": "KHE NỨT ĐỊA TẦNG VÀ CHIẾN BINH TRONG SƯƠNG",
+      "entities": [
+        "char-018",
+        "char-019",
+        "loc-017",
+        "loc-018",
+        "structure-001",
+        "org-005"
+      ],
+      "content": "Korgan identifies himself as a scout under Valora and reports that Temple forces have deployed auxiliary Pressure Pillars around Frostspine while Valora is gathering Demon forces at the northwestern ancient tomb.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 30,
+        "evidence_summary": "Korgan directly names Valora, the ancient tomb, and twelve auxiliary Pressure Pillars; later chapters conflict on the exact total number of pillars."
+      },
+      "tags": [
+        "attributed_intelligence",
+        "arc_setup",
+        "infrastructure",
+        "count_conflict"
+      ]
+    },
+    {
+      "memory_id": "mem-000103",
+      "memory_type": "important_object",
+      "chapter_number": 30,
+      "chapter_title": "KHE NỨT ĐỊA TẦNG VÀ CHIẾN BINH TRONG SƯƠNG",
+      "entities": [
+        "char-018",
+        "char-001",
+        "char-002",
+        "item-010",
+        "org-005"
+      ],
+      "content": "Korgan gives Alan and Elena a blood-red cloth recognition token so Demon patrols will identify them as contacts rather than enemies on the route to Valora.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 30,
+        "evidence_summary": "Korgan throws them his blood-marked wrist cloth and explicitly says patrols will recognize his order/token."
+      },
+      "tags": [
+        "important_object",
+        "safe_passage",
+        "setup_payoff"
+      ]
+    },
+    {
+      "memory_id": "mem-000104",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 30,
+      "chapter_title": "KHE NỨT ĐỊA TẦNG VÀ CHIẾN BINH TRONG SƯƠNG",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-018",
+        "char-019",
+        "loc-018"
+      ],
+      "content": "After saving Korgan and receiving his token, Alan and Elena commit to seeking Valora’s forces at the ancient tomb as the next step in building resistance against the Temple.",
+      "importance": 0.85,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 30,
+        "evidence_summary": "The chapter ends with Alan and Elena heading toward the northwestern ancient tomb, explicitly treating Korgan’s contact as the first anchor for a broader alliance."
+      },
+      "tags": [
+        "alliance_setup",
+        "arc_memory",
+        "location_goal"
+      ]
+    },
+    {
+      "memory_id": "mem-000105",
+      "memory_type": "event_summary",
+      "chapter_number": 31,
+      "chapter_title": "RÌA ĐẤT CHẾT VÀ BÓNG ÁO GIÁP ĐEN",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-018",
+        "char-020",
+        "item-010",
+        "loc-018"
+      ],
+      "content": "At the ancient-tomb entrance, Gargas initially treats Alan and Elena as possible Temple spies, but Korgan’s blood-red token and the account of his rescue persuade him to escort them inside.",
+      "importance": 0.92,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 31,
+        "evidence_summary": "Elena displays Korgan’s token; Gargas recognizes its distinctive knot, questions them, then identifies himself and grants passage to Valora."
+      },
+      "tags": [
+        "setup_payoff",
+        "safe_passage",
+        "entity_overlap"
+      ]
+    },
+    {
+      "memory_id": "mem-000106",
+      "memory_type": "relationship_memory",
+      "chapter_number": 31,
+      "chapter_title": "RÌA ĐẤT CHẾT VÀ BÓNG ÁO GIÁP ĐEN",
+      "entities": [
+        "char-002",
+        "char-019",
+        "char-001",
+        "org-005"
+      ],
+      "content": "Elena proposes an explicitly reciprocal Human–Demon alliance: Oakhaven contributes anti-quang medicine and practical anti-cavalry knowledge, while Valora’s faction supplies Thần Tinh ore and forge support; Valora accepts.",
+      "importance": 0.97,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 31,
+        "evidence_summary": "Elena frames the pact as an equal exchange rather than asylum, and Valora directly says she accepts the alliance."
+      },
+      "tags": [
+        "relationship_history",
+        "alliance",
+        "promise_or_commitment",
+        "hybrid_retrieval"
+      ]
+    },
+    {
+      "memory_id": "mem-000107",
+      "memory_type": "location_memory",
+      "chapter_number": 31,
+      "chapter_title": "RÌA ĐẤT CHẾT VÀ BÓNG ÁO GIÁP ĐEN",
+      "entities": [
+        "loc-018",
+        "char-019",
+        "char-020",
+        "org-005"
+      ],
+      "content": "The Lăng Mộ Quỷ Tộc/Lăng Mộ Thượng Cổ functions as Valora’s fortified underground base, containing patrols, a large hall, armed Demon forces, and old forge infrastructure.",
+      "importance": 0.78,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 31,
+        "evidence_summary": "Gargas escorts the pair through the tomb into a large hall occupied by hundreds of Demon fighters under Valora."
+      },
+      "tags": [
+        "location_history",
+        "faction_base"
+      ]
+    },
+    {
+      "memory_id": "mem-000108",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 31,
+      "chapter_title": "RÌA ĐẤT CHẾT VÀ BÓNG ÁO GIÁP ĐEN",
+      "entities": [
+        "char-019",
+        "char-001",
+        "char-002",
+        "item-011",
+        "item-008",
+        "org-005"
+      ],
+      "content": "Valora commits Demon Thần Tinh resources and forge access to the anti-Temple effort after accepting the alliance with Alan and Elena.",
+      "importance": 0.88,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 31,
+        "evidence_summary": "Valora promises ore and activation of an old forge so the alliance can produce anti-Temple weapons."
+      },
+      "tags": [
+        "resource_commitment",
+        "alliance",
+        "important_object"
+      ]
+    },
+    {
+      "memory_id": "mem-000109",
+      "memory_type": "arc_memory",
+      "chapter_number": 31,
+      "chapter_title": "RÌA ĐẤT CHẾT VÀ BÓNG ÁO GIÁP ĐEN",
+      "entities": [
+        "char-019",
+        "structure-001",
+        "loc-017"
+      ],
+      "content": "Valora says twelve auxiliary Pressure Pillars are sealing Hẻm Vực Tro Tàn and gives the alliance a sixteen-hour window before the Temple ultimatum closes.",
+      "importance": 0.74,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 31,
+        "evidence_summary": "Valora explicitly states both the twelve-pillar blockade and a sixteen-hour deadline; later chapters conflict on the pillar total and do not consistently maintain the countdown."
+      },
+      "tags": [
+        "attributed_state",
+        "count_conflict",
+        "deadline",
+        "do_not_overgeneralize"
+      ]
+    },
+    {
+      "memory_id": "mem-000110",
+      "memory_type": "scene_summary",
+      "chapter_number": 32,
+      "chapter_title": "LỬA ĐỎ LÒ RÈN CỔ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-016",
+        "item-008",
+        "item-011",
+        "loc-018"
+      ],
+      "content": "Chapter 32 depicts Bram, Alan, and Elena forging what it calls the first Thần Tinh short sword at the ancient-tomb forge, even though the same sword was already forged in chapter 27 and used in chapters 28–29.",
+      "importance": 0.82,
+      "status": "canonical",
+      "review_status": "ambiguous",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 32,
+        "evidence_summary": "The chapter explicitly repeats a first-forging sequence and again presents a newly finished two-thước-two-tấc Thần Tinh blade."
+      },
+      "tags": [
+        "narrative_echo",
+        "temporal_reset",
+        "important_object",
+        "do_not_use_as_clean_ground_truth"
+      ]
+    },
+    {
+      "memory_id": "mem-000111",
+      "memory_type": "event_summary",
+      "chapter_number": 32,
+      "chapter_title": "LỬA ĐỎ LÒ RÈN CỔ",
+      "entities": [
+        "char-011",
+        "char-019",
+        "char-010",
+        "structure-001",
+        "loc-018"
+      ],
+      "content": "Brand warns that Temple forces are placing multiple auxiliary Pressure Pillars around the ancient tomb, causing severe geological pressure loss and threatening to collapse the area.",
+      "importance": 0.86,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 32,
+        "evidence_summary": "Brand arrives at the forge reporting six field extraction devices around the tomb; the ground then visibly shakes and cracks."
+      },
+      "tags": [
+        "infrastructure_threat",
+        "arc_progression",
+        "stakes"
+      ]
+    },
+    {
+      "memory_id": "mem-000112",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 32,
+      "chapter_title": "LỬA ĐỎ LÒ RÈN CỔ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "char-016",
+        "char-019",
+        "loc-019"
+      ],
+      "content": "Alan and Elena leave the forge to coordinate with Valora at the northwestern dry marsh, while Bram is told to secure the forge/refugee area against the Temple encirclement.",
+      "importance": 0.8,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 32,
+        "evidence_summary": "Alan assigns Bram to lock the forge and moves with Elena toward Valora’s dry-marsh position after Brand’s warning; Brand/Bram’s route to the tomb is not narrated cleanly."
+      },
+      "tags": [
+        "group_goal",
+        "location_change",
+        "continuity_gap"
+      ]
+    },
+    {
+      "memory_id": "mem-000113",
+      "memory_type": "event_summary",
+      "chapter_number": 33,
+      "chapter_title": "BÃO THÉP TRÊN ĐẦM LẦY CẠN",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "char-018",
+        "char-019",
+        "org-005",
+        "org-001",
+        "loc-019",
+        "item-008"
+      ],
+      "content": "At the northwestern dry marsh, Oakhaven fighters and Valora’s Demon cavalry execute a coordinated ambush that disables Temple lenses/armor and destroys the patrol formation.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 33,
+        "evidence_summary": "Elena’s chemical trap blinds and corrodes the cavalry, Alan kills exposed riders with the Thần Tinh sword, and Valora’s cavalry charges to finish the broken formation."
+      },
+      "tags": [
+        "joint_battle",
+        "alliance_payoff",
+        "setup_payoff"
+      ]
+    },
+    {
+      "memory_id": "mem-000114",
+      "memory_type": "relationship_memory",
+      "chapter_number": 33,
+      "chapter_title": "BÃO THÉP TRÊN ĐẦM LẦY CẠN",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-019",
+        "org-005"
+      ],
+      "content": "After the joint victory, Valora openly revises her view of Oakhaven, recognizing that their non-mana medicine and Thần Tinh combat can defeat Temple equipment; the alliance becomes an operational battlefield partnership.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 33,
+        "evidence_summary": "Valora explicitly states that Oakhaven humans are not weak as Temple histories claimed and acknowledges their anti-quang effectiveness."
+      },
+      "tags": [
+        "relationship_history",
+        "belief_change",
+        "alliance_payoff"
+      ]
+    },
+    {
+      "memory_id": "mem-000115",
+      "memory_type": "important_object",
+      "chapter_number": 33,
+      "chapter_title": "BÃO THÉP TRÊN ĐẦM LẦY CẠN",
+      "entities": [
+        "char-002",
+        "item-009",
+        "structure-001"
+      ],
+      "content": "Elena salvages a broken siphoning lens from a defeated Temple rider for analysis after the dry-marsh battle.",
+      "importance": 0.8,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 33,
+        "evidence_summary": "Elena removes a cracked siphoning lens from a fallen rider and inspects its crystal structure."
+      },
+      "tags": [
+        "important_object",
+        "salvage",
+        "setup"
+      ]
+    },
+    {
+      "memory_id": "mem-000116",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 33,
+      "chapter_title": "BÃO THÉP TRÊN ĐẦM LẦY CẠN",
+      "entities": [
+        "char-002",
+        "char-019",
+        "item-011",
+        "structure-001"
+      ],
+      "content": "Elena proposes combining corrupted-root chemistry with powdered Thần Tinh to make nullification charges for the auxiliary Pressure Pillars; Valora agrees to supply raw ore.",
+      "importance": 0.91,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 33,
+        "evidence_summary": "Elena explains the proposed charge mechanism and Valora agrees that Demon ore and Oakhaven chemistry will be combined for pillar sabotage."
+      },
+      "tags": [
+        "setup_payoff",
+        "infrastructure_sabotage",
+        "multi_memory"
+      ]
+    },
+    {
+      "memory_id": "mem-000117",
+      "memory_type": "event_summary",
+      "chapter_number": 34,
+      "chapter_title": "CHỐT CHẶN TRÊN ĐÈO GIÓ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "structure-001",
+        "loc-020",
+        "item-008"
+      ],
+      "content": "Alan, Elena, and Brand assault auxiliary Pressure Pillar No. 1 at the wind pass, disable its guards and lens system, sever its copper links, and cause the pillar to collapse.",
+      "importance": 0.97,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 34,
+        "evidence_summary": "Elena’s chemical charge blinds the lens, Alan defeats guards with Thần Tinh, and Brand smashes the copper junction until Pillar No. 1 shuts down and falls."
+      },
+      "tags": [
+        "infrastructure_sabotage",
+        "battle_outcome",
+        "setup_payoff"
+      ]
+    },
+    {
+      "memory_id": "mem-000118",
+      "memory_type": "world_rule",
+      "chapter_number": 34,
+      "chapter_title": "CHỐT CHẶN TRÊN ĐÈO GIÓ",
+      "entities": [
+        "structure-001",
+        "item-008",
+        "char-002",
+        "char-011"
+      ],
+      "content": "An auxiliary Pressure Pillar can be disabled by breaking its siphoning/energy-link hardware: chemical lens disruption plus severing the copper transmission junction causes its runes and energy flow to fail.",
+      "importance": 0.93,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 34,
+        "evidence_summary": "The pillar visibly loses its linked energy and shuts down after the lens/guard system is disrupted and Brand breaks the copper junction."
+      },
+      "tags": [
+        "world_rule",
+        "observed_effect",
+        "infrastructure"
+      ]
+    },
+    {
+      "memory_id": "mem-000119",
+      "memory_type": "arc_memory",
+      "chapter_number": 34,
+      "chapter_title": "CHỐT CHẶN TRÊN ĐÈO GIÓ",
+      "entities": [
+        "char-002",
+        "char-003",
+        "structure-001",
+        "loc-005"
+      ],
+      "content": "Elena says destroying Pillar No. 1 will temporarily choke the energy feeding Alistair’s main ritual/repair system for roughly three hours.",
+      "importance": 0.7,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 34,
+        "evidence_summary": "This is Elena’s explicit tactical assessment after the pillar falls; the three-hour downstream effect is not independently observed within the chapter."
+      },
+      "tags": [
+        "attributed_prediction",
+        "temporal_relevance",
+        "do_not_overgeneralize"
+      ]
+    },
+    {
+      "memory_id": "mem-000120",
+      "memory_type": "motivation",
+      "chapter_number": 34,
+      "chapter_title": "CHỐT CHẶN TRÊN ĐÈO GIÓ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "char-018",
+        "loc-018",
+        "item-012"
+      ],
+      "content": "After Pillar No. 1 falls, the group’s immediate objective becomes reaching the lower ancient tomb and finding the Mảnh Lõi Sinh Mệnh before Roland can close the western encirclement.",
+      "importance": 0.87,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 34,
+        "evidence_summary": "Brand and Alan explicitly discuss infiltrating the tomb level containing the Life Core Fragment; the object itself has not yet appeared on page."
+      },
+      "tags": [
+        "future_objective",
+        "important_object",
+        "arc_progression"
+      ]
+    },
+    {
+      "memory_id": "mem-000121",
+      "memory_type": "important_object",
+      "chapter_number": 34,
+      "chapter_title": "CHỐT CHẶN TRÊN ĐÈO GIÓ",
+      "entities": [
+        "item-012",
+        "loc-018"
+      ],
+      "content": "The Mảnh Lõi Sinh Mệnh is introduced as an important object believed to be located in the lower ancient tomb, but its nature, provenance, and exact function are not yet demonstrated.",
+      "importance": 0.79,
+      "status": "inferred",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 34,
+        "evidence_summary": "Characters treat the Life Core Fragment as a known target; there is no direct sighting or recovery by chapter 34."
+      },
+      "tags": [
+        "open_question",
+        "important_object",
+        "do_not_overclaim"
+      ]
+    },
+    {
+      "memory_id": "mem-000122",
+      "memory_type": "event_summary",
+      "chapter_number": 35,
+      "chapter_title": "KẾT GIỚI TRÊN NGƯỠNG CỬA ĐẤT CHẾT",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "loc-018",
+        "item-008"
+      ],
+      "content": "At the sealed obsidian tomb gate, Elena identifies three siphoning-fed copper lines controlling the lock, and Alan cuts all three with the Thần Tinh sword to release the gate mechanism.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 35,
+        "evidence_summary": "Alan severs the three energized copper cables after Elena identifies the mechanism; the gate runes dim and the mechanical lock begins to open."
+      },
+      "tags": [
+        "setup_payoff",
+        "important_object",
+        "infrastructure_sabotage"
+      ]
+    },
+    {
+      "memory_id": "mem-000123",
+      "memory_type": "world_rule",
+      "chapter_number": 35,
+      "chapter_title": "KẾT GIỚI TRÊN NGƯỠNG CỬA ĐẤT CHẾT",
+      "entities": [
+        "item-008",
+        "loc-018"
+      ],
+      "content": "The Thần Tinh blade can cut mana-bearing copper links while nullifying the energy flow at contact, avoiding the spark/feedback reaction that ordinary magical or high-heat force would risk at the tomb gate.",
+      "importance": 0.91,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 35,
+        "evidence_summary": "The sword cuts each powered cable and the narration explicitly describes the mana flow being suppressed without sparks or a high-energy reaction."
+      },
+      "tags": [
+        "world_rule_payoff",
+        "low_lexical_overlap",
+        "object_function"
+      ]
+    },
+    {
+      "memory_id": "mem-000124",
+      "memory_type": "event_summary",
+      "chapter_number": 35,
+      "chapter_title": "KẾT GIỚI TRÊN NGƯỠNG CỬA ĐẤT CHẾT",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "org-001",
+        "loc-018"
+      ],
+      "content": "Temple cavalry arrive while the tomb gate is opening; Alan and Elena hold them off long enough for Brand to force the door, then all three enter and the obsidian gate closes behind them.",
+      "importance": 0.93,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 35,
+        "evidence_summary": "The group fights pursuing cavalry at the gate, squeezes through the opening, and the gate closes, cutting off the immediate pursuit."
+      },
+      "tags": [
+        "escape",
+        "location_change",
+        "teamwork"
+      ]
+    },
+    {
+      "memory_id": "mem-000125",
+      "memory_type": "scene_summary",
+      "chapter_number": 35,
+      "chapter_title": "KẾT GIỚI TRÊN NGƯỠNG CỬA ĐẤT CHẾT",
+      "entities": [
+        "loc-018"
+      ],
+      "content": "Once the gate closes, a faint green light is visible deeper inside the ancient tomb, marking the direction of the next descent but not yet identifying its source.",
+      "importance": 0.61,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 35,
+        "evidence_summary": "The closing lines show a pale green pulsing light deeper in the tomb; its source is not established in chapter 35."
+      },
+      "tags": [
+        "foreshadowing",
+        "open_question"
+      ]
+    },
+    {
+      "memory_id": "mem-000126",
+      "memory_type": "world_rule",
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "entities": [
+        "char-002",
+        "item-001",
+        "loc-018"
+      ],
+      "content": "Inside the tomb, Elena mixes activated charcoal, snow fungus, and dried Hoa Chuông Trầm Tích into a damp filter applied to cloth masks, which reduces the corrosive effect of the toxic gas enough for travel.",
+      "importance": 0.87,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 36,
+        "evidence_summary": "Elena identifies the toxic gas, prepares the herbal/charcoal solution, applies it to their mask edges, and Alan’s breathing irritation visibly eases."
+      },
+      "tags": [
+        "world_rule",
+        "medical_method",
+        "old_object_reuse"
+      ]
+    },
+    {
+      "memory_id": "mem-000127",
+      "memory_type": "event_summary",
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "loc-018",
+        "org-005"
+      ],
+      "content": "Alan and Elena discover more than thirty Demon refugees—mainly elders and children—trapped in a lower tomb chamber by the toxic conditions created around the siphoning-damaged earth veins.",
+      "importance": 0.9,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 36,
+        "evidence_summary": "The chapter directly describes over thirty Demon civilians, including more than ten injured children, sheltering in the lower chamber."
+      },
+      "tags": [
+        "civilian_state",
+        "location_history",
+        "faction_context"
+      ]
+    },
+    {
+      "memory_id": "mem-000128",
+      "memory_type": "character_memory",
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "entities": [
+        "char-002",
+        "org-005"
+      ],
+      "content": "Elena treats a badly poisoned Demon child with surgery, herbal absorbents, and acupuncture, and the successful treatment changes the refugees’ immediate hostility into respect and trust.",
+      "importance": 0.95,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 36,
+        "evidence_summary": "The mother initially threatens the newcomers; after Elena treats the child and its blood returns toward normal, the refugees bow and acknowledge her."
+      },
+      "tags": [
+        "character_action",
+        "relationship_payoff",
+        "medical",
+        "low_lexical_overlap"
+      ]
+    },
+    {
+      "memory_id": "mem-000129",
+      "memory_type": "relationship_memory",
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "org-005",
+        "item-011"
+      ],
+      "content": "The Demon civilians explicitly say Alan and Elena are not their enemies and give them two raw Thần Tinh ingots to support anti-Temple weapons, extending the alliance beyond Valora’s leadership to civilians.",
+      "importance": 0.92,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 36,
+        "evidence_summary": "After the child is saved, the Demon mother offers two raw Thần Tinh ingots and states that the humans are not enemies."
+      },
+      "tags": [
+        "relationship_history",
+        "alliance_expansion",
+        "important_object"
+      ]
+    },
+    {
+      "memory_id": "mem-000130",
+      "memory_type": "important_object",
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "entities": [
+        "item-011",
+        "char-002",
+        "org-005"
+      ],
+      "content": "Two raw Thần Tinh ingots from the deep tomb are donated to Elena by Demon refugees for future anti-Temple weapon construction.",
+      "importance": 0.84,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 36,
+        "evidence_summary": "The Demon mother physically presents two unrefined ingots and states their intended use against Temple weapons."
+      },
+      "tags": [
+        "important_object_history",
+        "resource_transfer",
+        "setup"
+      ]
+    },
+    {
+      "memory_id": "mem-000131",
+      "memory_type": "arc_memory",
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "loc-018",
+        "item-012"
+      ],
+      "content": "By the end of chapter 36, Alan and Elena have not found the Mảnh Lõi Sinh Mệnh; they are still moving deeper toward the sixth level of the tomb.",
+      "importance": 0.86,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 36,
+        "evidence_summary": "The chapter closes with Alan looking toward the descending passage to the sixth level after the refugee encounter; no recovery of the Life Core Fragment occurs."
+      },
+      "tags": [
+        "objective_state",
+        "future_leakage_guard",
+        "temporal_state"
+      ]
+    },
+    {
+      "memory_id": "mem-000132",
+      "memory_type": "character_memory",
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "entities": [
+        "char-001",
+        "char-018",
+        "loc-018"
+      ],
+      "content": "Alan says Korgan had prepared/camouflaged the tomb entrance with a steam trap, which should delay Roland’s breach attempt for several hours.",
+      "importance": 0.66,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 36,
+        "evidence_summary": "Alan explicitly attributes the gate-side trap preparation to Korgan and estimates a roughly six-hour delay; the claim is not independently shown in chapter 36."
+      },
+      "tags": [
+        "attributed_claim",
+        "old_character_relevance",
+        "future_leak_candidate"
+      ]
+    },
+    {
+      "memory_id": "mem-000133",
+      "memory_type": "location_memory",
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "entities": [
+        "loc-018",
+        "structure-001",
+        "loc-005"
+      ],
+      "content": "The lower ancient tomb is suffering toxic geological degradation associated in the narration and Elena’s analysis with overdrawn siphoning systems; this makes the tomb both a refuge and a hazardous infrastructure target.",
+      "importance": 0.78,
+      "status": "canonical",
+      "review_status": "needs_human_review",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 36,
+        "evidence_summary": "Cracked walls vent corrosive gas, Elena links it to overdrawn siphoning, and civilians are trapped by the resulting conditions."
+      },
+      "tags": [
+        "location_history",
+        "world_rule_context",
+        "infrastructure_damage"
+      ]
+    },
+    {
+      "memory_id": "mem-000134",
+      "memory_type": "promise_or_commitment",
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "entities": [
+        "char-001",
+        "char-002",
+        "org-005",
+        "item-012"
+      ],
+      "content": "After aiding the Demon civilians, Alan and Elena continue deeper into the tomb rather than abandoning the search for the Mảnh Lõi Sinh Mệnh.",
+      "importance": 0.8,
+      "status": "canonical",
+      "review_status": "high_confidence",
+      "source_evidence": {
+        "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+        "chapter_number": 36,
+        "evidence_summary": "The final lines show them oriented toward the sixth level, with the Life Core search still active."
+      },
+      "tags": [
+        "arc_progression",
+        "commitment",
+        "objective_state"
+      ]
+    }
+  ],
+  "notes": [
+    "Chapter 10 contains a major temporal/continuity conflict with chapter 9. Conflicted chapter-10 sequence claims are excluded from retrieval ground truth in B01 and recorded in ambiguities.json.",
+    "B02 preserves all claims about Alistair’s knowledge, motives, or hidden-sky experience as character-attributed or inferred unless directly observed.",
+    "Chapter 14 upgrades the local existence of Temple energy-extraction behavior from inference to direct observation, but the complete Solaria/false-sky causal chain remains only partially verified.",
+    "Chapter 20–21 directly confirms that Alistair accepts sacrificing Oakhaven to maintain the Vòm Trời, partially superseding earlier motive uncertainty; claims about the void/false sky and divine ascent remain unconfirmed.",
+    "Chapter 22 and chapter 26 contain a strong narrative replay of the Oakhaven–dwarf alliance bargain. Chapter 26 memories are retained with ambiguous review status and excluded from clean chronology ground truth.",
+    "The chapter-14 corrupted-root countermeasure pays off directly against Alistair in chapter 21, and the chapter-20 destruction of Alan’s ordinary sword sets up the Thần Tinh replacement forged in chapter 27 and validated in chapter 28.",
+    "B04 adds a second major narrative replay: chapter 32 re-forges a “first” Thần Tinh sword after the sword was already forged in chapter 27 and used in chapters 28–29. The repeated scene is retained but excluded from clean object chronology ground truth.",
+    "B04 expands the anti-Temple alliance from Oakhaven–dwarves to Valora’s Demon forces and later Demon civilians; Korgan’s rescue/token is the key bridge.",
+    "Exact auxiliary Pressure Pillar totals are not frozen because chapters 30–31 state twelve while chapters 32–33 repeatedly describe six in the same broader Frostspine campaign.",
+    "The Mảnh Lõi Sinh Mệnh is only a named/assumed objective by chapter 36; it has not been directly observed or recovered and must not be treated as an acquired object."
+  ]
+}

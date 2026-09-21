@@ -1,0 +1,1093 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "processed_through_chapter": 36,
+  "entities": [
+    {
+      "entity_id": "char-001",
+      "canonical_name": "Alan",
+      "aliases": [],
+      "entity_type": "character",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Former southern-war combatant; broken mana core; central defender of Oakhaven."
+    },
+    {
+      "entity_id": "char-002",
+      "canonical_name": "Elena",
+      "aliases": [],
+      "entity_type": "character",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Battlefield-trained healer/medical practitioner; close companion of Alan."
+    },
+    {
+      "entity_id": "char-003",
+      "canonical_name": "Alistair",
+      "aliases": [
+        "Anh Hùng Ánh Sáng",
+        "Anh Hùng"
+      ],
+      "entity_type": "character",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Hero credited in-story with defeating the Demon King; not physically present in chapters 1–10."
+    },
+    {
+      "entity_id": "char-004",
+      "canonical_name": "Gregor",
+      "aliases": [
+        "Trưởng làng Gregor",
+        "trưởng làng"
+      ],
+      "entity_type": "character",
+      "first_chapter": 2,
+      "review_status": "high_confidence",
+      "notes": "Leader of Oakhaven; explicitly described in chapter 7 as Alan’s foster father. Age is inconsistent in source."
+    },
+    {
+      "entity_id": "char-005",
+      "canonical_name": "Toby",
+      "aliases": [],
+      "entity_type": "character",
+      "first_chapter": 2,
+      "review_status": "needs_human_review",
+      "notes": "Oakhaven youth trained by Alan; age is inconsistent (10 in chapter 2; 15 in chapter 9/10)."
+    },
+    {
+      "entity_id": "char-006",
+      "canonical_name": "Martha",
+      "aliases": [
+        "bà Martha"
+      ],
+      "entity_type": "character",
+      "first_chapter": 2,
+      "review_status": "high_confidence",
+      "notes": "Oakhaven baker; later assists civilian defense/medical support."
+    },
+    {
+      "entity_id": "char-007",
+      "canonical_name": "Miller",
+      "aliases": [],
+      "entity_type": "character",
+      "first_chapter": 3,
+      "review_status": "ambiguous",
+      "notes": "One of two Oakhaven scouts sent to inspect the west tunnel; fate is contradictory across chapters 5–6."
+    },
+    {
+      "entity_id": "char-008",
+      "canonical_name": "Jory",
+      "aliases": [],
+      "entity_type": "character",
+      "first_chapter": 3,
+      "review_status": "ambiguous",
+      "notes": "One of two Oakhaven scouts sent to inspect the west tunnel; fate is contradictory across chapters 5–6."
+    },
+    {
+      "entity_id": "char-009",
+      "canonical_name": "Varian",
+      "aliases": [
+        "Sư phụ Varian"
+      ],
+      "entity_type": "character",
+      "first_chapter": 4,
+      "review_status": "high_confidence",
+      "notes": "Referenced by Alan as his teacher/master; no direct scene appearance in B01."
+    },
+    {
+      "entity_id": "char-010",
+      "canonical_name": "Roland",
+      "aliases": [
+        "Đội trưởng Roland"
+      ],
+      "entity_type": "character",
+      "first_chapter": 6,
+      "review_status": "high_confidence",
+      "notes": "Reported leader/captain associated with the approaching Temple delegation; no direct appearance in B01."
+    },
+    {
+      "entity_id": "char-011",
+      "canonical_name": "Brand",
+      "aliases": [],
+      "entity_type": "character",
+      "first_chapter": 9,
+      "review_status": "high_confidence",
+      "notes": "Oakhaven hunter/defender active during the chitin-creature assault."
+    },
+    {
+      "entity_id": "char-012",
+      "canonical_name": "Roger",
+      "aliases": [],
+      "entity_type": "character",
+      "first_chapter": 9,
+      "review_status": "high_confidence",
+      "notes": "Oakhaven guard wounded and dragged away during the chapter 9 assault."
+    },
+    {
+      "entity_id": "char-013",
+      "canonical_name": "Quỷ Vương",
+      "aliases": [
+        "Demon King"
+      ],
+      "entity_type": "character",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Past antagonist whom in-story narration/reports credit Alistair with defeating."
+    },
+    {
+      "entity_id": "loc-001",
+      "canonical_name": "Oakhaven",
+      "aliases": [
+        "thung lũng Oakhaven",
+        "tiền đồn Oakhaven"
+      ],
+      "entity_type": "location",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Primary setting of B01."
+    },
+    {
+      "entity_id": "loc-002",
+      "canonical_name": "Frostspine",
+      "aliases": [
+        "đỉnh Frostspine",
+        "rặng Frostspine",
+        "núi Frostspine"
+      ],
+      "entity_type": "location",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Mountain/range bordering Oakhaven and its underground water/mana system."
+    },
+    {
+      "entity_id": "loc-003",
+      "canonical_name": "Rừng Phong Hổ Phách",
+      "aliases": [],
+      "entity_type": "location",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Forest near Oakhaven showing ecological corruption."
+    },
+    {
+      "entity_id": "loc-004",
+      "canonical_name": "Hầm ngầm phía Tây",
+      "aliases": [
+        "hầm ngầm sườn Tây",
+        "cửa hầm ngầm phía Tây"
+      ],
+      "entity_type": "location",
+      "first_chapter": 3,
+      "review_status": "high_confidence",
+      "notes": "Old underground defensive network/mine area where chitin creatures appear."
+    },
+    {
+      "entity_id": "loc-005",
+      "canonical_name": "Solaria",
+      "aliases": [],
+      "entity_type": "location",
+      "first_chapter": 5,
+      "review_status": "high_confidence",
+      "notes": "City/center associated with Temple pressure-control infrastructure in B01 claims."
+    },
+    {
+      "entity_id": "loc-006",
+      "canonical_name": "Thánh Đô",
+      "aliases": [],
+      "entity_type": "location",
+      "first_chapter": 2,
+      "review_status": "needs_human_review",
+      "notes": "Mentioned as origin/direction of Temple actors; not merged with Solaria in B01."
+    },
+    {
+      "entity_id": "loc-007",
+      "canonical_name": "Jericho",
+      "aliases": [],
+      "entity_type": "location",
+      "first_chapter": 8,
+      "review_status": "high_confidence",
+      "notes": "City cited by Elena in an old medical account of Alistair’s past actions."
+    },
+    {
+      "entity_id": "loc-008",
+      "canonical_name": "miền Nam",
+      "aliases": [
+        "chiến trường miền Nam",
+        "sa trường miền Nam"
+      ],
+      "entity_type": "location",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Broad historical region tied to Alan, Elena, Gregor, and reported history of Alistair."
+    },
+    {
+      "entity_id": "org-001",
+      "canonical_name": "Thần Điện",
+      "aliases": [
+        "Tòa Thánh Thần Điện"
+      ],
+      "entity_type": "organization",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Religious/political institution associated with the approaching delegation and mana infrastructure."
+    },
+    {
+      "entity_id": "org-002",
+      "canonical_name": "Tòa Thánh",
+      "aliases": [],
+      "entity_type": "organization",
+      "first_chapter": 2,
+      "review_status": "needs_human_review",
+      "notes": "Often used alongside Thần Điện. Not merged with org-001 pending stronger structural evidence."
+    },
+    {
+      "entity_id": "item-001",
+      "canonical_name": "Hoa Chuông Trầm Tích",
+      "aliases": [
+        "Hoa Chuông",
+        "hoa Chuông Trầm Tích"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Narratively important medicinal/environmental indicator plant."
+    },
+    {
+      "entity_id": "item-002",
+      "canonical_name": "Bột Hỏa Thạch",
+      "aliases": [
+        "bột nấm Hỏa Thạch"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 3,
+      "review_status": "high_confidence",
+      "notes": "Combat/medical chemical material used by Elena against chitin creatures."
+    },
+    {
+      "entity_id": "item-003",
+      "canonical_name": "Mảnh Lõi Địa Mạch bị quá tải",
+      "aliases": [
+        "mảnh Lõi Địa Mạch"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 5,
+      "review_status": "high_confidence",
+      "notes": "Crystal fragment extracted from the defeated chitin creature."
+    },
+    {
+      "entity_id": "skill-001",
+      "canonical_name": "Flash Surge",
+      "aliases": [],
+      "entity_type": "skill_power",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Alan’s burst-mobility technique; repeatedly causes severe physical strain because his mana core is broken."
+    },
+    {
+      "entity_id": "state-001",
+      "canonical_name": "Lõi mana vỡ của Alan",
+      "aliases": [
+        "lõi mana vỡ nát",
+        "chiếc lõi mana vỡ"
+      ],
+      "entity_type": "skill_power",
+      "first_chapter": 1,
+      "review_status": "high_confidence",
+      "notes": "Persistent physical/power-state limitation central to Alan."
+    },
+    {
+      "entity_id": "structure-001",
+      "canonical_name": "Cột Trụ Điều Áp",
+      "aliases": [
+        "hệ thống Cột Trụ Điều Áp",
+        "Trụ Điều Áp"
+      ],
+      "entity_type": "world_structure",
+      "first_chapter": 5,
+      "review_status": "needs_human_review",
+      "notes": "Infrastructure Elena/Alan associate with mana siphoning; causal role is not independently verified in B01."
+    },
+    {
+      "entity_id": "structure-002",
+      "canonical_name": "Bức Tường Vòm Trời",
+      "aliases": [
+        "vòm trời nhân tạo",
+        "vòm kính nhân tạo",
+        "lồng kính"
+      ],
+      "entity_type": "world_structure",
+      "first_chapter": 6,
+      "review_status": "needs_human_review",
+      "notes": "World structure referenced by characters; exact nature not independently established in B01."
+    },
+    {
+      "entity_id": "char-014",
+      "canonical_name": "Marcus",
+      "aliases": [
+        "Tư lệnh phó Marcus"
+      ],
+      "entity_type": "character",
+      "first_chapter": 16,
+      "review_status": "high_confidence",
+      "notes": "Deputy commander under Roland; leads the twelve-knight assault at the south dry-marsh trap and is killed by Alan."
+    },
+    {
+      "entity_id": "char-015",
+      "canonical_name": "Miller [thợ rèn]",
+      "aliases": [
+        "lão thợ rèn Miller"
+      ],
+      "entity_type": "character",
+      "first_chapter": 13,
+      "review_status": "ambiguous",
+      "notes": "Name attached to an Oakhaven forge in chapter 13. Kept separate from char-007 (the missing scout Miller) because the source does not prove they are the same person."
+    },
+    {
+      "entity_id": "loc-009",
+      "canonical_name": "Phế tích hầm ngầm sườn Bắc",
+      "aliases": [
+        "phế tích sườn Bắc",
+        "hầm ngầm phế tích sườn Bắc",
+        "ngách hầm ngầm sườn Bắc"
+      ],
+      "entity_type": "location",
+      "first_chapter": 13,
+      "review_status": "high_confidence",
+      "notes": "Ancient underground refuge/escape network used for Oakhaven civilian evacuation."
+    },
+    {
+      "entity_id": "loc-010",
+      "canonical_name": "Bãi lầy cạn sườn Nam",
+      "aliases": [
+        "bẫy lầy cạn sườn Nam",
+        "đầm lầy cạn sườn Nam"
+      ],
+      "entity_type": "location",
+      "first_chapter": 16,
+      "review_status": "high_confidence",
+      "notes": "Prepared ambush ground where Oakhaven defeats Marcus’s mounted Temple detachment."
+    },
+    {
+      "entity_id": "loc-011",
+      "canonical_name": "Trạm bơm cơ học cổ của thợ lùn",
+      "aliases": [
+        "trạm bơm cơ học cũ của thợ lùn"
+      ],
+      "entity_type": "location",
+      "first_chapter": 19,
+      "review_status": "high_confidence",
+      "notes": "Dry underground shelter reached by the refugees after escaping through the northern tunnels."
+    },
+    {
+      "entity_id": "item-004",
+      "canonical_name": "Sắc lệnh số 107",
+      "aliases": [
+        "Sắc lệnh Tòa Thánh tối cao",
+        "temple_edict_01"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 12,
+      "review_status": "high_confidence",
+      "notes": "Roland reads this edict in Oakhaven; it places the area under Temple military control and orders restrictions/seizure affecting food and local resources."
+    },
+    {
+      "entity_id": "item-005",
+      "canonical_name": "Hạt giống dự trữ Oakhaven",
+      "aliases": [
+        "hạt giống dự trữ cuối cùng"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 17,
+      "review_status": "high_confidence",
+      "notes": "Reserve seeds carried with civilians during the northern-underground evacuation; explicitly framed as part of Oakhaven’s future."
+    },
+    {
+      "entity_id": "item-006",
+      "canonical_name": "Thiết bị siphoning quang năng",
+      "aliases": [
+        "thiết bị cơ khí bằng đồng thau",
+        "trạm dò tìm",
+        "trạm định vị"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 14,
+      "review_status": "needs_human_review",
+      "notes": "Temple field device observed being driven into tree roots and rapidly draining/killing the tree. The source uses overlapping detection/location and siphoning language, so exact device taxonomy remains uncertain."
+    },
+    {
+      "entity_id": "structure-003",
+      "canonical_name": "Pháp trận Thượng Cổ dưới phế tích",
+      "aliases": [
+        "trận pháp Thượng Cổ",
+        "pháp trận dịch chuyển dã chiến"
+      ],
+      "entity_type": "world_structure",
+      "first_chapter": 13,
+      "review_status": "high_confidence",
+      "notes": "Damaged ancient array under the ruins; Alan says its mana channels are cracked and activation would be detectable by Temple sensors."
+    },
+    {
+      "entity_id": "structure-004",
+      "canonical_name": "Lõi Địa Mạch Frostspine",
+      "aliases": [
+        "Lõi Địa Mạch"
+      ],
+      "entity_type": "world_structure",
+      "first_chapter": 19,
+      "review_status": "needs_human_review",
+      "notes": "Named by Elena as a destination beneath the fourth mine; not yet directly reached or observed by chapter 19."
+    },
+    {
+      "entity_id": "char-016",
+      "canonical_name": "Bram",
+      "aliases": [
+        "lão Bram",
+        "thợ rèn Bram",
+        "thủ lĩnh thợ rèn hầm rèn thứ tư"
+      ],
+      "entity_type": "character",
+      "first_chapter": 22,
+      "review_status": "high_confidence",
+      "notes": "Dwarven/dwarf-blooded master smith who leads the fourth Frostspine forge and negotiates an alliance with the Oakhaven refugees."
+    },
+    {
+      "entity_id": "char-017",
+      "canonical_name": "Garen",
+      "aliases": [
+        "kỵ sĩ phó chỉ huy Garen"
+      ],
+      "entity_type": "character",
+      "first_chapter": 28,
+      "review_status": "high_confidence",
+      "notes": "Temple heavy-cavalry deputy commander leading the vanguard into mine passage three."
+    },
+    {
+      "entity_id": "org-003",
+      "canonical_name": "Tộc thợ lùn Frostspine",
+      "aliases": [
+        "người lùn Frostspine",
+        "thợ rèn người lùn Frostspine",
+        "tộc thợ lùn"
+      ],
+      "entity_type": "organization",
+      "first_chapter": 22,
+      "review_status": "high_confidence",
+      "notes": "Underground smithing community based around the Frostspine forge levels; allies with Oakhaven in this batch."
+    },
+    {
+      "entity_id": "org-004",
+      "canonical_name": "Vespera",
+      "aliases": [
+        "sát thủ Vespera",
+        "đội Vespera",
+        "đội ám sát Vespera"
+      ],
+      "entity_type": "organization",
+      "first_chapter": 23,
+      "review_status": "high_confidence",
+      "notes": "Temple-affiliated pursuit/assassination unit hunting Elena and later searching the old mine complex."
+    },
+    {
+      "entity_id": "loc-012",
+      "canonical_name": "Tháp canh Thượng Cổ sườn Bắc",
+      "aliases": [
+        "tháp canh phế tích Thượng Cổ",
+        "tháp canh cổ sườn Bắc"
+      ],
+      "entity_type": "location",
+      "first_chapter": 20,
+      "review_status": "high_confidence",
+      "notes": "Ancient tower on Frostspine used as a last defensive/teleportation point before its collapse."
+    },
+    {
+      "entity_id": "loc-013",
+      "canonical_name": "Vực Thẳm Răng Cưa",
+      "aliases": [
+        "Vực Thẳm Răng Cưa"
+      ],
+      "entity_type": "location",
+      "first_chapter": 21,
+      "review_status": "high_confidence",
+      "notes": "Deep chasm below the collapsing north tower into which Alan falls at the end of chapter 21."
+    },
+    {
+      "entity_id": "loc-014",
+      "canonical_name": "Hẻm Núi Răng Cưa",
+      "aliases": [
+        "Hẻm Núi Răng Cưa",
+        "hạ lưu hẻm núi Răng Cưa"
+      ],
+      "entity_type": "location",
+      "first_chapter": 23,
+      "review_status": "high_confidence",
+      "notes": "Canyon zone where Alan and Elena separately survive and attempt to find one another after the tower collapse. Not merged with Vực Thẳm Răng Cưa because the source does not explicitly equate them."
+    },
+    {
+      "entity_id": "loc-015",
+      "canonical_name": "Hầm rèn thứ tư Frostspine",
+      "aliases": [
+        "hầm rèn thứ tư",
+        "đại sảnh hầm rèn thứ tư",
+        "tầng hầm rèn thứ tư"
+      ],
+      "entity_type": "location",
+      "first_chapter": 22,
+      "review_status": "high_confidence",
+      "notes": "Dwarven underground forge/refuge that becomes the resistance base for Oakhaven survivors."
+    },
+    {
+      "entity_id": "loc-016",
+      "canonical_name": "Vùng Đệm",
+      "aliases": [
+        "Vùng Đệm"
+      ],
+      "entity_type": "location",
+      "first_chapter": 2,
+      "review_status": "needs_human_review",
+      "notes": "Named earlier as a trading/travel region and in chapter 20 as the intended destination of the ancient teleportation array; exact geography remains underspecified."
+    },
+    {
+      "entity_id": "structure-005",
+      "canonical_name": "Pháp trận dịch chuyển Thượng Cổ tại tháp canh",
+      "aliases": [
+        "Pháp trận dịch chuyển Thượng Cổ",
+        "pháp trận Thượng Cổ ở tháp canh"
+      ],
+      "entity_type": "world_structure",
+      "first_chapter": 20,
+      "review_status": "needs_human_review",
+      "notes": "Teleportation array inside the north ancient tower. Kept separate from structure-003 because the manuscript does not explicitly prove they are the same array."
+    },
+    {
+      "entity_id": "item-007",
+      "canonical_name": "Mảnh Lõi Không Gian",
+      "aliases": [
+        "Lõi Không Gian",
+        "Mảnh Lõi Không Gian trên tay Alistair"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 20,
+      "review_status": "needs_human_review",
+      "notes": "Space-related core fragment embedded in or associated with Alistair’s right-arm apparatus in chapter 20; right-arm continuity becomes contradictory in chapter 21."
+    },
+    {
+      "entity_id": "item-008",
+      "canonical_name": "Đoản kiếm Thần Tinh của Alan",
+      "aliases": [
+        "lưỡi đoản kiếm Thần Tinh",
+        "lưỡi kiếm mẫn diệt",
+        "thanh đoản kiếm Thần Tinh"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 27,
+      "review_status": "high_confidence",
+      "notes": "Anti-mana short sword forged collaboratively by Bram, Alan, Elena, and Brand from Frostspine Thần Tinh ore."
+    },
+    {
+      "entity_id": "item-009",
+      "canonical_name": "Thấu kính siphoning trung tâm của Roland",
+      "aliases": [
+        "thấu kính siphoning trung tâm",
+        "thấu kính siphoning chính"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 28,
+      "review_status": "needs_human_review",
+      "notes": "Central Temple siphoning lens that Alan says Roland is bringing toward the Frostspine Earth Vein Core; not yet directly captured or examined by chapter 28."
+    },
+    {
+      "entity_id": "skill-002",
+      "canonical_name": "Bản Nguyên Tịnh Hóa của Elena",
+      "aliases": [
+        "Bản Nguyên Tịnh Hóa"
+      ],
+      "entity_type": "skill_power",
+      "first_chapter": 21,
+      "review_status": "needs_human_review",
+      "notes": "Alistair explicitly identifies Elena’s Purification Origin as important to stabilizing Solaria’s pillar system. Chapter 23 says it is fully blocked; its prior history and exact mechanics remain unexplained."
+    },
+    {
+      "entity_id": "char-018",
+      "canonical_name": "Korgan",
+      "aliases": [
+        "trinh sát Korgan"
+      ],
+      "entity_type": "character",
+      "first_chapter": 30,
+      "review_status": "high_confidence",
+      "notes": "Demon scout under Valora; saved by Elena in chapter 30 and provides a recognition token for passage to Valora’s forces."
+    },
+    {
+      "entity_id": "char-019",
+      "canonical_name": "Valora",
+      "aliases": [
+        "Đại tướng Valora"
+      ],
+      "entity_type": "character",
+      "first_chapter": 30,
+      "review_status": "high_confidence",
+      "notes": "Demon general commanding forces of Hẻm Vực Tro Tàn; directly appears in chapter 31 and accepts an equal anti-Temple alliance."
+    },
+    {
+      "entity_id": "char-020",
+      "canonical_name": "Gargas",
+      "aliases": [
+        "chỉ huy Gargas"
+      ],
+      "entity_type": "character",
+      "first_chapter": 31,
+      "review_status": "high_confidence",
+      "notes": "Commander of the patrol guarding the entrance to the ancient tomb; recognizes Korgan’s token and escorts Alan and Elena to Valora."
+    },
+    {
+      "entity_id": "loc-017",
+      "canonical_name": "Hẻm Vực Tro Tàn",
+      "aliases": [
+        "Ashen Ravine"
+      ],
+      "entity_type": "location",
+      "first_chapter": 30,
+      "review_status": "high_confidence",
+      "notes": "Northwestern/southern-border conflict zone associated with Valora’s Demon forces and the ancient tomb."
+    },
+    {
+      "entity_id": "loc-018",
+      "canonical_name": "Lăng Mộ Quỷ Tộc",
+      "aliases": [
+        "Lăng Mộ Thượng Cổ",
+        "Lăng Mộ cổ",
+        "lăng mộ Thượng Cổ"
+      ],
+      "entity_type": "location",
+      "first_chapter": 30,
+      "review_status": "high_confidence",
+      "notes": "Ancient Demon tomb/base in the northwestern Frostspine area. The source uses Lăng Mộ Quỷ Tộc and Lăng Mộ Thượng Cổ interchangeably across chapters 30–36."
+    },
+    {
+      "entity_id": "loc-019",
+      "canonical_name": "Đầm lầy cạn Tây Bắc",
+      "aliases": [
+        "đầm lầy cạn Tây Bắc",
+        "vùng đầm lầy cạn"
+      ],
+      "entity_type": "location",
+      "first_chapter": 31,
+      "review_status": "high_confidence",
+      "notes": "Dry-marsh battlefield near the approach to Hẻm Vực Tro Tàn and the ancient tomb."
+    },
+    {
+      "entity_id": "loc-020",
+      "canonical_name": "Đèo Gió sườn Tây Bắc",
+      "aliases": [
+        "Đèo Gió",
+        "đèo gió sườn Tây"
+      ],
+      "entity_type": "location",
+      "first_chapter": 34,
+      "review_status": "high_confidence",
+      "notes": "Wind-pass approach where the resistance attacks an auxiliary Pressure Pillar and advances toward the tomb."
+    },
+    {
+      "entity_id": "org-005",
+      "canonical_name": "Vương đoàn Hẻm Vực Tro Tàn",
+      "aliases": [
+        "liên quân Ma tộc",
+        "lực lượng Ma tộc của Valora",
+        "phân đội tuần phong Hẻm Vực Tro Tàn"
+      ],
+      "entity_type": "organization",
+      "first_chapter": 30,
+      "review_status": "high_confidence",
+      "notes": "Demon military/refugee faction under Valora opposing Temple extraction operations around Frostspine."
+    },
+    {
+      "entity_id": "item-010",
+      "canonical_name": "Ấn lệnh vải đỏ của Korgan",
+      "aliases": [
+        "mảnh vải đỏ thẫm dính máu",
+        "ấn lệnh của Korgan"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 30,
+      "review_status": "high_confidence",
+      "notes": "Recognition token given by Korgan to Alan and Elena; Gargas accepts it as proof they were sent by Korgan."
+    },
+    {
+      "entity_id": "item-011",
+      "canonical_name": "Quặng Thần Tinh",
+      "aliases": [
+        "Thần Tinh thô",
+        "quặng Celestite"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 22,
+      "review_status": "high_confidence",
+      "notes": "Raw anti-mana ore used to forge the Thần Tinh sword and later offered by Demon allies. Registered in B04 because its raw-material history becomes independently retrieval-relevant."
+    },
+    {
+      "entity_id": "item-012",
+      "canonical_name": "Mảnh Lõi Sinh Mệnh",
+      "aliases": [
+        "Life Core Fragment"
+      ],
+      "entity_type": "important_item",
+      "first_chapter": 34,
+      "review_status": "needs_human_review",
+      "notes": "Named as an objective believed to lie in the lower ancient tomb. It has not been directly seen or recovered by the end of chapter 36."
+    }
+  ],
+  "alias_resolution_notes": [
+    {
+      "subject": "Thần Điện / Tòa Thánh",
+      "status": "unresolved",
+      "note": "Terms are closely related in the text but B01 does not establish whether they are strict aliases or distinct institutional levels."
+    },
+    {
+      "subject": "Thánh Đô / Solaria",
+      "status": "unresolved",
+      "note": "Both are used as central religious/political locations; B01 does not explicitly establish identity."
+    },
+    {
+      "subject": "Miller (scout) / Miller (blacksmith)",
+      "status": "unresolved",
+      "note": "Chapter 3 introduces a missing scout named Miller; chapter 13 names an elderly blacksmith Miller and chapter 19 references Miller’s children. They are kept as separate entities until the source proves identity."
+    },
+    {
+      "subject": "Pháp trận Thượng Cổ dưới phế tích / Pháp trận tại tháp canh",
+      "status": "unresolved",
+      "note": "Both are ancient teleportation-related structures in the northern escape route, but the source does not explicitly establish identity. Kept as structure-003 and structure-005."
+    },
+    {
+      "subject": "Vực Thẳm Răng Cưa / Hẻm Núi Răng Cưa",
+      "status": "unresolved",
+      "note": "The names occur in adjacent survival sequences after the tower collapse, but are not explicitly declared to be the same geographic feature. Kept separate."
+    },
+    {
+      "subject": "Lăng Mộ Thượng Cổ / Lăng Mộ Quỷ Tộc",
+      "status": "resolved",
+      "note": "Chapters 30–36 use these names for the same northwestern Frostspine tomb/base, with continuous gate, halls, Valora forces, and lower levels. Consolidated as loc-018."
+    }
+  ],
+  "relationships": [
+    {
+      "relationship_id": "rel-001",
+      "a": "char-001",
+      "b": "char-002",
+      "relationship_type": "close_companions",
+      "first_chapter": 1,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 1,
+          "change": "Elena treats Alan’s combat injury and monitors the strain caused by his broken mana core."
+        },
+        {
+          "chapter_number": 5,
+          "change": "They coordinate tightly in combat, combining Elena’s chemical/medical knowledge with Alan’s mechanical swordsmanship."
+        },
+        {
+          "chapter_number": 6,
+          "change": "A quiet caregiving scene shows mutual trust and personal affection, but the source does not explicitly label the relationship."
+        },
+        {
+          "chapter_number": 13,
+          "change": "Elena says she will remain directly behind Alan during the coming defense, continuing their established combat-and-medical coordination."
+        },
+        {
+          "chapter_number": 18,
+          "change": "Elena creates an opening against Roland, then escapes with Alan and Brand after Gregor’s last stand."
+        },
+        {
+          "chapter_number": 19,
+          "change": "Elena continues treating Alan’s escalating Flash Surge damage while the refugees move underground."
+        },
+        {
+          "chapter_number": 20,
+          "change": "Elena refuses to leave Alan alone at the tower and stays to provide battlefield support while civilians begin teleporting."
+        },
+        {
+          "chapter_number": 21,
+          "change": "Alan deliberately activates the ancient array so Elena escapes while he remains behind; the tower collapse separates them."
+        },
+        {
+          "chapter_number": 23,
+          "change": "While separated, both characters orient their survival decisions around finding/protecting the other."
+        },
+        {
+          "chapter_number": 25,
+          "change": "Alan and Elena reunite in the old mine and immediately resume coordinated resistance and medical/combat support."
+        },
+        {
+          "chapter_number": 29,
+          "change": "Elena actively shields the injured Alan and coordinates the final corrosive/steam defense while the fourth forge collapses."
+        },
+        {
+          "chapter_number": 35,
+          "change": "Alan and Elena again cover each other during the gate breach, combining Thần Tinh sword strikes with Elena’s anti-mana projectiles to enter the ancient tomb."
+        }
+      ],
+      "current_state": "reunited_close_companions_mutual_reliance",
+      "current_state_chapter": 36
+    },
+    {
+      "relationship_id": "rel-002",
+      "a": "char-001",
+      "b": "char-004",
+      "relationship_type": "foster_family",
+      "first_chapter": 7,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 3,
+          "change": "Gregor entrusts Alan with finding Miller and Jory."
+        },
+        {
+          "chapter_number": 7,
+          "change": "Narration explicitly calls Gregor Alan’s foster father."
+        },
+        {
+          "chapter_number": 11,
+          "change": "Gregor physically intervenes against a chitin creature threatening the injured Alan during the western defense."
+        },
+        {
+          "chapter_number": 18,
+          "change": "Gregor sacrifices himself against Roland so Alan, Elena, Brand, and the refugees can escape; he explicitly entrusts Oakhaven’s future to Alan."
+        }
+      ],
+      "current_state": "foster_family_gregor_deceased",
+      "current_state_chapter": 18
+    },
+    {
+      "relationship_id": "rel-003",
+      "a": "char-001",
+      "b": "char-005",
+      "relationship_type": "mentor_student",
+      "first_chapter": 2,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 2,
+          "change": "Alan teaches Toby footwork and tells him to read body movement rather than stare at the weapon."
+        }
+      ]
+    },
+    {
+      "relationship_id": "rel-004",
+      "a": "char-001",
+      "b": "char-009",
+      "relationship_type": "master_student",
+      "first_chapter": 4,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 4,
+          "change": "Alan refers to Varian as his master and cites Varian’s view of Alistair."
+        }
+      ]
+    },
+    {
+      "relationship_id": "rel-005",
+      "a": "char-002",
+      "b": "char-003",
+      "relationship_type": "evolving_view_of_Alistair",
+      "first_chapter": 1,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 1,
+          "change": "Elena expresses hope and respect for Alistair as a rescuer."
+        },
+        {
+          "chapter_number": 8,
+          "change": "Elena cites old medical records about Jericho to explain why she believes Alistair may still protect ordinary people."
+        },
+        {
+          "chapter_number": 12,
+          "change": "Elena’s admiration is shaken when Roland attributes the grain seizure and cleansing campaign to Alistair’s needs and authority."
+        },
+        {
+          "chapter_number": 14,
+          "change": "After directly seeing Temple equipment drain a living tree, Elena begins openly blaming Alistair for complicity, though his knowledge is not independently proven."
+        },
+        {
+          "chapter_number": 15,
+          "change": "Elena explicitly says she no longer believes in a savior and that Oakhaven must save itself."
+        },
+        {
+          "chapter_number": 19,
+          "change": "Elena states that Alistair is no longer a hero in her view and frames future opposition to him as necessary."
+        },
+        {
+          "chapter_number": 20,
+          "change": "Elena directly confronts Alistair during the tower defense rather than treating him as a hoped-for rescuer."
+        },
+        {
+          "chapter_number": 21,
+          "change": "Elena explicitly rejects Alistair’s utilitarian sacrifice logic after he says her power should be used to stabilize Solaria."
+        }
+      ],
+      "current_state": "direct_hostile_opposition",
+      "current_state_chapter": 21
+    },
+    {
+      "relationship_id": "rel-006",
+      "a": "char-001",
+      "b": "char-003",
+      "relationship_type": "evolving_opposition_to_Alistair",
+      "first_chapter": 1,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 1,
+          "change": "Alan hopes Alistair brings rescue rather than chains."
+        },
+        {
+          "chapter_number": 8,
+          "change": "Alan says he will accept genuine purification but resist any attempt to seize Oakhaven’s winter food."
+        },
+        {
+          "chapter_number": 12,
+          "change": "Alan interprets Roland’s edict as confirmation that Oakhaven is being sacrificed for Solaria and shifts from conditional skepticism toward active resistance."
+        },
+        {
+          "chapter_number": 16,
+          "change": "Alan openly calls Alistair a false god while opposing the Temple assault."
+        },
+        {
+          "chapter_number": 17,
+          "change": "Alan repeats a claim attributed to Varian that Alistair saw something beyond the sky and chose a destructive path; this claim remains unverified in-source at this point."
+        },
+        {
+          "chapter_number": 20,
+          "change": "Alan and Alistair fight directly for the first time; Alistair destroys Alan’s ordinary short sword and seriously injures him."
+        },
+        {
+          "chapter_number": 21,
+          "change": "Alan overloads the ancient teleportation array, creating a spatial rupture that severely damages/severs Alistair’s right-arm area before Alan falls into the chasm."
+        }
+      ],
+      "current_state": "direct_enemies_after_first_clash",
+      "current_state_chapter": 21
+    },
+    {
+      "relationship_id": "rel-007",
+      "a": "char-011",
+      "b": "char-012",
+      "relationship_type": "comrades",
+      "first_chapter": 9,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 9,
+          "change": "Brand tries to rescue Roger after Roger is seized; Alan stops him because the attack is being used as a lure."
+        }
+      ]
+    },
+    {
+      "relationship_id": "rel-008",
+      "a": "char-001",
+      "b": "char-010",
+      "relationship_type": "adversaries",
+      "first_chapter": 12,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 12,
+          "change": "Roland’s ultimatum places Alan and Oakhaven in direct opposition to Temple enforcement."
+        },
+        {
+          "chapter_number": 18,
+          "change": "Alan and Roland fight directly at the forge; Alan briefly wounds Roland but is overwhelmed."
+        },
+        {
+          "chapter_number": 29,
+          "change": "Alan wounds Roland with the Thần Tinh sword after Elena’s trap interrupts Roland’s siphoning lens; Roland survives and orders the forge purged."
+        }
+      ],
+      "current_state": "active_adversaries",
+      "current_state_chapter": 29
+    },
+    {
+      "relationship_id": "rel-009",
+      "a": "char-002",
+      "b": "char-016",
+      "relationship_type": "survival_allies",
+      "first_chapter": 22,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 22,
+          "change": "Elena offers medical/water-detoxification knowledge in exchange for shelter and mutual defense; Bram accepts a survival alliance."
+        },
+        {
+          "chapter_number": 26,
+          "change": "A very similar bargain is narrated again as though being established for the first time; the alliance itself remains explicit, but chronology is flagged as a narrative replay."
+        },
+        {
+          "chapter_number": 32,
+          "change": "Bram is again shown cooperating with Alan and Elena at the ancient-tomb forge, though the repeated “first sword” forging is flagged as a narrative replay."
+        }
+      ],
+      "current_state": "allied_against_temple",
+      "current_state_chapter": 32
+    },
+    {
+      "relationship_id": "rel-010",
+      "a": "char-002",
+      "b": "char-018",
+      "relationship_type": "rescuer_to_allied_contact",
+      "first_chapter": 30,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 30,
+          "change": "Elena removes a Temple siphoning device and treats Korgan’s poisoned wound without mana."
+        },
+        {
+          "chapter_number": 30,
+          "change": "Korgan identifies himself, provides intelligence about Valora and the auxiliary pillars, and gives Elena/Alan a recognition token for safe passage."
+        }
+      ],
+      "current_state": "trusted_contact",
+      "current_state_chapter": 30
+    },
+    {
+      "relationship_id": "rel-011",
+      "a": "char-002",
+      "b": "char-019",
+      "relationship_type": "negotiated_allies",
+      "first_chapter": 31,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 31,
+          "change": "Elena proposes an equal exchange of anti-Temple medical/chemical knowledge for Demon ore and forge support; Valora accepts."
+        },
+        {
+          "chapter_number": 33,
+          "change": "The alliance is validated in a joint ambush against Temple cavalry, and Valora explicitly acknowledges Oakhaven’s effectiveness."
+        }
+      ],
+      "current_state": "battlefield_allies",
+      "current_state_chapter": 33
+    },
+    {
+      "relationship_id": "rel-012",
+      "a": "char-001",
+      "b": "char-019",
+      "relationship_type": "military_allies",
+      "first_chapter": 31,
+      "status": "canonical",
+      "history": [
+        {
+          "chapter_number": 31,
+          "change": "Valora accepts Alan and Elena into an equal anti-Temple alliance after Korgan’s rescue is verified."
+        },
+        {
+          "chapter_number": 33,
+          "change": "Alan and Valora’s forces fight the Temple cavalry together; Valora formally recognizes the anti-mana effectiveness of Alan’s sword."
+        }
+      ],
+      "current_state": "battlefield_allies",
+      "current_state_chapter": 33
+    }
+  ]
+}

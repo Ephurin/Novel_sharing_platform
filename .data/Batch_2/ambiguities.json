@@ -1,0 +1,260 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "processed_through_chapter": 19,
+  "ambiguities": [
+    {
+      "ambiguity_id": "amb-001",
+      "chapters": [
+        2,
+        9,
+        10
+      ],
+      "type": "character_attribute_conflict",
+      "entities": [
+        "char-005"
+      ],
+      "description": "Toby is explicitly described as ten years old in chapter 2, but as fifteen years old in chapters 9 and 10.",
+      "ground_truth_policy": "Do not use Toby’s exact age as retrieval ground truth until human review or later source clarification.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-002",
+      "chapters": [
+        2,
+        6,
+        7,
+        9
+      ],
+      "type": "character_attribute_conflict",
+      "entities": [
+        "char-004"
+      ],
+      "description": "Gregor is explicitly described as sixty-five in chapters 2, 7, and 9, but as sixty in chapter 6.",
+      "ground_truth_policy": "Treat Gregor as elderly; exclude exact age from benchmark ground truth.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-003",
+      "chapters": [
+        2,
+        3,
+        5,
+        6,
+        15
+      ],
+      "type": "character_state_conflict",
+      "entities": [
+        "char-001"
+      ],
+      "description": "Alan’s continuing shoulder injury is described as left shoulder in chapter 2 and again as the left shoulder drooping in chapter 15, but it is repeatedly described as the right shoulder in chapters 3, 5, 6, and 11–19.",
+      "ground_truth_policy": "The existence and persistence of the shoulder injury are canonical; exact side is excluded from ground truth.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-004",
+      "chapters": [
+        5,
+        6
+      ],
+      "type": "event_state_conflict",
+      "entities": [
+        "char-007",
+        "char-008"
+      ],
+      "description": "Chapter 5 states Miller and Jory have not been found and may be deeper underground; chapter 6 has Alan report that they died on the second underground level.",
+      "ground_truth_policy": "Do not label their death/location as canonical in B01. Memory chunks preserve the chapter-5 uncertainty; chapter-6 death statement is treated as a conflicting report, not resolved fact.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-005",
+      "chapters": [
+        4,
+        5,
+        9,
+        10,
+        13,
+        16,
+        17,
+        19
+      ],
+      "type": "world_property_conflict",
+      "entities": [
+        "item-002"
+      ],
+      "description": "The creatures’ corrosive secretion is alternately described using acid and alkaline terminology, and neutralization chemistry is internally inconsistent.",
+      "ground_truth_policy": "Use only the robust narrative fact that the secretion is highly corrosive/toxic; do not benchmark exact acid-vs-alkali chemistry.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-006",
+      "chapters": [
+        9,
+        10,
+        11,
+        12
+      ],
+      "type": "temporal_continuity_conflict",
+      "entities": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "loc-001",
+        "loc-004"
+      ],
+      "description": "Chapter 9 ends with defenders and villagers retreating into the council-house refuge and sealing the door after the horde breaches Oakhaven. Chapter 10 resets to a pre-assault preparation sequence; chapters 11–12 then continue that branch with a western defense and Roland’s arrival. The chapter-10+ sequence is internally progressive but its placement relative to the chapter-9 refuge ending is unresolved.",
+      "ground_truth_policy": "Treat chapters 10–19 as an internally ordered branch for local state changes, but do not use the chapter-9→10 transition as clean temporal ground truth until human review.",
+      "review_status": "ambiguous"
+    },
+    {
+      "ambiguity_id": "amb-007",
+      "chapters": [
+        1,
+        2,
+        8
+      ],
+      "type": "character_attribute_conflict",
+      "entities": [
+        "char-002"
+      ],
+      "description": "Elena’s hair is described as black in chapter 1, brown in chapter 2, and chestnut in chapter 8.",
+      "ground_truth_policy": "Exclude exact hair color from retrieval ground truth.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-008",
+      "chapters": [
+        5,
+        6,
+        7,
+        10,
+        14,
+        19
+      ],
+      "type": "causal_claim_not_fully_verified",
+      "entities": [
+        "org-001",
+        "structure-001",
+        "structure-002",
+        "loc-005"
+      ],
+      "description": "Early chapters attribute Frostspine’s ecological collapse to Temple/Solaria siphoning. Chapter 14 directly shows Temple equipment extracting energy through a tree root and rapidly killing the tree, confirming local extraction behavior. However, the full causal chain from those devices to Solaria’s pressure system, maintenance of the artificial sky, and Alistair’s knowledge remains character interpretation by chapter 19.",
+      "ground_truth_policy": "Local Temple extraction through field equipment is canonical from chapter 14. Keep the larger Solaria/false-sky mechanism and Alistair-knowledge claims as inferred until directly confirmed.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-009",
+      "chapters": [
+        3,
+        13,
+        19
+      ],
+      "type": "entity_identity_ambiguity",
+      "entities": [
+        "char-007",
+        "char-015"
+      ],
+      "description": "A scout named Miller is introduced as missing in chapter 3, while chapter 13 refers to an elderly blacksmith Miller and chapter 19 mentions Miller’s children. The source does not explicitly establish whether these references name the same person.",
+      "ground_truth_policy": "Keep the scout Miller and blacksmith Miller as separate entity IDs. Do not merge until explicit source evidence resolves identity.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-010",
+      "chapters": [
+        13,
+        17,
+        19
+      ],
+      "type": "character_state_measurement_conflict",
+      "entities": [
+        "char-001"
+      ],
+      "description": "The stated size/severity measurements of Alan’s persistent shoulder tear fluctuate sharply (for example, from centimeters-like “phân” descriptions to several “tấc” and back), beyond a clearly narrated healing/reinjury progression.",
+      "ground_truth_policy": "The persistent and worsening shoulder injury is valid ground truth; exclude exact wound length measurements from evaluation labels.",
+      "review_status": "needs_human_review"
+    },
+    {
+      "ambiguity_id": "amb-011",
+      "chapters": [
+        12,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "type": "unverified_character_motive_claim",
+      "entities": [
+        "char-003",
+        "char-009",
+        "char-010"
+      ],
+      "description": "Multiple characters increasingly assert that Alistair knowingly supports the Oakhaven sacrifice, saw a void/truth beyond the false sky, seeks divine ascent, or directs the wider plan. By chapter 19 Alistair has still not directly appeared to confirm these motives. Roland’s claims and Alan’s Varian-attributed account are evidence of what those speakers say, not independent confirmation of Alistair’s inner intent.",
+      "ground_truth_policy": "Queries may retrieve these as attributed beliefs/reports. Do not label Alistair’s knowledge, motive, or apotheosis goal as canonical fact until later direct source evidence confirms it.",
+      "review_status": "high_confidence"
+    },
+    {
+      "ambiguity_id": "amb-012",
+      "chapters": [
+        18,
+        19
+      ],
+      "type": "location_state_conflict",
+      "entities": [
+        "loc-001",
+        "loc-009"
+      ],
+      "description": "Chapter 18 directly establishes that the northern tunnel entrance collapses behind the refugees. Chapter 19 then narrates that Oakhaven itself has been completely buried under vast rockfall, a much larger destruction state not directly shown in chapter 18.",
+      "ground_truth_policy": "Treat the escape route/tunnel entrance as sealed. Do not use total burial/destruction of the entire village as high-confidence ground truth without later confirmation.",
+      "review_status": "needs_human_review"
+    }
+  ],
+  "open_questions": [
+    {
+      "open_question_id": "oq-001",
+      "as_of_chapter": 10,
+      "question": "What is the reliable fate of Miller and Jory?",
+      "related_ambiguity_ids": [
+        "amb-004"
+      ]
+    },
+    {
+      "open_question_id": "oq-002",
+      "as_of_chapter": 10,
+      "question": "How should chapter 10 be ordered relative to the chapter-9 refuge ending?",
+      "related_ambiguity_ids": [
+        "amb-006"
+      ]
+    },
+    {
+      "open_question_id": "oq-003",
+      "as_of_chapter": 10,
+      "question": "Are Thánh Đô and Solaria the same location, and are Tòa Thánh and Thần Điện strict aliases or distinct institutional layers?",
+      "related_ambiguity_ids": []
+    },
+    {
+      "open_question_id": "oq-004",
+      "as_of_chapter": 19,
+      "question": "Is the blacksmith Miller the same person as the scout Miller introduced earlier?",
+      "related_ambiguity_ids": [
+        "amb-009"
+      ]
+    },
+    {
+      "open_question_id": "oq-005",
+      "as_of_chapter": 19,
+      "question": "Which claims about Alistair’s knowledge of the false sky, complicity, and intended divine ascent will later be directly confirmed?",
+      "related_ambiguity_ids": [
+        "amb-011"
+      ]
+    },
+    {
+      "open_question_id": "oq-006",
+      "as_of_chapter": 19,
+      "question": "Was all of Oakhaven physically buried/destroyed, or only the northern escape entrance sealed?",
+      "related_ambiguity_ids": [
+        "amb-012"
+      ]
+    }
+  ]
+}

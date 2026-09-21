@@ -1,0 +1,550 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "story_title": "AETHELGARD: THE SOUL OF THE MORTAL BLADE",
+  "source_file": "Aethelgard_Toan_Bo_61_Chuong.md",
+  "source_sha256": "efec940164f3eeb11fb14550456c00aa123e0967ee04faa585f140a738cde2b5",
+  "source_policy": "This manuscript is the sole source of truth for story content. Analysis/report files are excluded from canonical extraction.",
+  "chapter_count": 61,
+  "chapter_range": [
+    1,
+    61
+  ],
+  "structure": "single_markdown_file",
+  "detected_source_issues": [
+    {
+      "issue_id": "src-001",
+      "type": "heading_format",
+      "chapter_number": 3,
+      "detail": "Chapter 3 uses an H3-style heading while the other chapter headings use H1-style formatting."
+    }
+  ],
+  "processing": {
+    "pass": "cross_story_consolidation",
+    "completed_batches": [
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B07"
+    ],
+    "processed_chapters": [
+      1,
+      61
+    ],
+    "next_batch": "CONSOLIDATION",
+    "next_range": null,
+    "id_policy": "Entity and memory IDs are append-only and will not be renumbered across batches."
+  },
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "chapter_title": "HOÀNG HÔN TRÊN TIỀN ĐỒN",
+      "heading_level": 1,
+      "char_count": 5289,
+      "word_count_approx": 1164
+    },
+    {
+      "chapter_number": 2,
+      "chapter_title": "BỘT BÁNH MÌ VÀ NHỮNG ĐÓA CHUÔNG SẪM MÀU",
+      "heading_level": 1,
+      "char_count": 10920,
+      "word_count_approx": 2401
+    },
+    {
+      "chapter_number": 3,
+      "chapter_title": "Điềm Báo Dưới Lòng Đất",
+      "heading_level": 3,
+      "char_count": 7160,
+      "word_count_approx": 1566
+    },
+    {
+      "chapter_number": 4,
+      "chapter_title": "BÓNG TỐI HẦM NGẦM PHÍA TÂY",
+      "heading_level": 1,
+      "char_count": 13330,
+      "word_count_approx": 2929
+    },
+    {
+      "chapter_number": 5,
+      "chapter_title": "KIẾM THUẬT PHÀM NHÂN",
+      "heading_level": 1,
+      "char_count": 15425,
+      "word_count_approx": 3397
+    },
+    {
+      "chapter_number": 6,
+      "chapter_title": "VẾT NỨT LÒNG ĐẤT VÀ MẦM SỐNG MONG MANH",
+      "heading_level": 1,
+      "char_count": 12660,
+      "word_count_approx": 2767
+    },
+    {
+      "chapter_number": 7,
+      "chapter_title": "ĐÊM HOA CHUÔNG ĐẬP NHỊP MÁU",
+      "heading_level": 1,
+      "char_count": 11538,
+      "word_count_approx": 2511
+    },
+    {
+      "chapter_number": 8,
+      "chapter_title": "ĐÊM HOA CHUÔNG NỞ VÀ TIẾNG SẤM DƯỚI LÒNG ĐẤT",
+      "heading_level": 1,
+      "char_count": 12848,
+      "word_count_approx": 2805
+    },
+    {
+      "chapter_number": 9,
+      "chapter_title": "HUYẾT CHIẾN ĐÊM HOA CHUÔNG",
+      "heading_level": 1,
+      "char_count": 17435,
+      "word_count_approx": 3826
+    },
+    {
+      "chapter_number": 10,
+      "chapter_title": "TIỀN ĐỒN VÀO THẾ THỦ",
+      "heading_level": 1,
+      "char_count": 12450,
+      "word_count_approx": 2705
+    },
+    {
+      "chapter_number": 11,
+      "chapter_title": "THÉP LẠNH VÀ LỬA THIÊU",
+      "heading_level": 1,
+      "char_count": 16125,
+      "word_count_approx": 3522
+    },
+    {
+      "chapter_number": 12,
+      "chapter_title": "GÓT GIÀY SẮT VÀ SẮC LỆNH NIÊM PHONG",
+      "heading_level": 1,
+      "char_count": 11618,
+      "word_count_approx": 2512
+    },
+    {
+      "chapter_number": 13,
+      "chapter_title": "ĐÁ THẠI VÀ ĐỘC CHẤT",
+      "heading_level": 1,
+      "char_count": 12772,
+      "word_count_approx": 2801
+    },
+    {
+      "chapter_number": 14,
+      "chapter_title": "RÌNH RẬP TRONG SƯƠNG MUỐI",
+      "heading_level": 1,
+      "char_count": 10919,
+      "word_count_approx": 2401
+    },
+    {
+      "chapter_number": 15,
+      "chapter_title": "SỰ CHUẨN BỊ TRƯỚC CƠN BÃO THÉP",
+      "heading_level": 1,
+      "char_count": 11364,
+      "word_count_approx": 2511
+    },
+    {
+      "chapter_number": 16,
+      "chapter_title": "BẪY LẦY CẠN SƯỜN NAM",
+      "heading_level": 1,
+      "char_count": 13064,
+      "word_count_approx": 2880
+    },
+    {
+      "chapter_number": 17,
+      "chapter_title": "PHẾ TÍCH SƯỜN BẮC VÀ LỬA LÒ RÈN CUỐI CÙNG",
+      "heading_level": 1,
+      "char_count": 13604,
+      "word_count_approx": 3010
+    },
+    {
+      "chapter_number": 18,
+      "chapter_title": "KHÚC CA CHIẾN BẠI ĐẦU TIÊN CỦA PHÀM NHÂN",
+      "heading_level": 1,
+      "char_count": 12399,
+      "word_count_approx": 2671
+    },
+    {
+      "chapter_number": 19,
+      "chapter_title": "CON ĐƯỜNG BĂNG GIÁ DƯỚI LÒNG ĐẤT",
+      "heading_level": 1,
+      "char_count": 12939,
+      "word_count_approx": 2863
+    },
+    {
+      "chapter_number": 20,
+      "chapter_title": "SỨC MẠNH TUYỆT ĐỐI VÀ LƯỠI KIẾM GÃY",
+      "heading_level": 1,
+      "char_count": 12584,
+      "word_count_approx": 2725
+    },
+    {
+      "chapter_number": 21,
+      "chapter_title": "VẾT RÁCH KHÔNG GIAN VÀ VỰC THẲM",
+      "heading_level": 1,
+      "char_count": 12092,
+      "word_count_approx": 2639
+    },
+    {
+      "chapter_number": 22,
+      "chapter_title": "LIÊN MINH DƯỚI LÒNG ĐẤT",
+      "heading_level": 1,
+      "char_count": 12030,
+      "word_count_approx": 2653
+    },
+    {
+      "chapter_number": 23,
+      "chapter_title": "BAO LA TRONG BÓNG TỐI HẺM NÚI",
+      "heading_level": 1,
+      "char_count": 12376,
+      "word_count_approx": 2767
+    },
+    {
+      "chapter_number": 24,
+      "chapter_title": "DẤU VẾT TRÊN TUYẾT LẠNH",
+      "heading_level": 1,
+      "char_count": 11258,
+      "word_count_approx": 2507
+    },
+    {
+      "chapter_number": 25,
+      "chapter_title": "ĐƯỜNG DAO TRONG BÓNG TỐI PHẾ TÍCH",
+      "heading_level": 1,
+      "char_count": 12643,
+      "word_count_approx": 2814
+    },
+    {
+      "chapter_number": 26,
+      "chapter_title": "LÒ RÈN DƯỚI LÒNG ĐẤT VÀ KHẾ ƯỚC SÒNG PHẲNG",
+      "heading_level": 1,
+      "char_count": 12496,
+      "word_count_approx": 2748
+    },
+    {
+      "chapter_number": 27,
+      "chapter_title": "LỬA ĐỎ LÒ RÈN VÀ THÉP LẠNH THẦN TINH",
+      "heading_level": 1,
+      "char_count": 12784,
+      "word_count_approx": 2810
+    },
+    {
+      "chapter_number": 28,
+      "chapter_title": "TIẾNG SÉT TRONG SƯƠNG MUỐI",
+      "heading_level": 1,
+      "char_count": 15059,
+      "word_count_approx": 3307
+    },
+    {
+      "chapter_number": 29,
+      "chapter_title": "BẪY QUÁ ÁP TRONG LÒ RÈN CỔ",
+      "heading_level": 1,
+      "char_count": 11667,
+      "word_count_approx": 2586
+    },
+    {
+      "chapter_number": 30,
+      "chapter_title": "KHE NỨT ĐỊA TẦNG VÀ CHIẾN BINH TRONG SƯƠNG",
+      "heading_level": 1,
+      "char_count": 13031,
+      "word_count_approx": 2883
+    },
+    {
+      "chapter_number": 31,
+      "chapter_title": "RÌA ĐẤT CHẾT VÀ BÓNG ÁO GIÁP ĐEN",
+      "heading_level": 1,
+      "char_count": 18146,
+      "word_count_approx": 3988
+    },
+    {
+      "chapter_number": 32,
+      "chapter_title": "LỬA ĐỎ LÒ RÈN CỔ",
+      "heading_level": 1,
+      "char_count": 11479,
+      "word_count_approx": 2528
+    },
+    {
+      "chapter_number": 33,
+      "chapter_title": "BÃO THÉP TRÊN ĐẦM LẦY CẠN",
+      "heading_level": 1,
+      "char_count": 12261,
+      "word_count_approx": 2731
+    },
+    {
+      "chapter_number": 34,
+      "chapter_title": "CHỐT CHẶN TRÊN ĐÈO GIÓ",
+      "heading_level": 1,
+      "char_count": 12431,
+      "word_count_approx": 2762
+    },
+    {
+      "chapter_number": 35,
+      "chapter_title": "KẾT GIỚI TRÊN NGƯỠNG CỬA ĐẤT CHẾT",
+      "heading_level": 1,
+      "char_count": 12644,
+      "word_count_approx": 2797
+    },
+    {
+      "chapter_number": 36,
+      "chapter_title": "ÁNH SÁNG XANH TRONG LĂNG MỘ CỔ",
+      "heading_level": 1,
+      "char_count": 13074,
+      "word_count_approx": 2911
+    },
+    {
+      "chapter_number": 37,
+      "chapter_title": "LỬA THẢO DƯỢC DƯỚI VÒM ĐÁ OBSIDIAN",
+      "heading_level": 1,
+      "char_count": 17483,
+      "word_count_approx": 3844,
+      "processing_status": "processed_B05"
+    },
+    {
+      "chapter_number": 38,
+      "chapter_title": "BÃO TUYẾT SƯỜN TÂY VÀ ĐOÀN KHÁNG THẦN",
+      "heading_level": 1,
+      "char_count": 11833,
+      "word_count_approx": 2610,
+      "processing_status": "processed_B05"
+    },
+    {
+      "chapter_number": 39,
+      "chapter_title": "VẾT THƯƠNG VÀ LỬA ẤM",
+      "heading_level": 1,
+      "char_count": 11527,
+      "word_count_approx": 2558,
+      "processing_status": "processed_B05"
+    },
+    {
+      "chapter_number": 40,
+      "chapter_title": "ĐẤT SẬP SƯỜN TÂY BẮC",
+      "heading_level": 1,
+      "char_count": 11475,
+      "word_count_approx": 2552,
+      "processing_status": "processed_B05"
+    },
+    {
+      "chapter_number": 41,
+      "chapter_title": "LỬA TRẠI HẺM VỰC VÀ KHẾ ƯỚC SÒNG PHẲNG",
+      "heading_level": 1,
+      "char_count": 12195,
+      "word_count_approx": 2678,
+      "processing_status": "processed_B05"
+    },
+    {
+      "chapter_number": 42,
+      "chapter_title": "BÃO TUYẾT SƯỜN TÂY BẮC VÀ CỘT TRỤ SỐ HAI",
+      "heading_level": 1,
+      "char_count": 11361,
+      "word_count_approx": 2501,
+      "processing_status": "processed_B05"
+    },
+    {
+      "chapter_number": 43,
+      "chapter_title": "CƠN TRIỀU BỌ ĐÁ BĂNG BÊN RÌA HẺM VỰC",
+      "heading_level": 1,
+      "char_count": 12172,
+      "word_count_approx": 2690,
+      "processing_status": "processed_B05"
+    },
+    {
+      "chapter_number": 44,
+      "chapter_title": "LỬA TRẠI HẺM VỰC TRO TÀN",
+      "heading_level": 1,
+      "char_count": 12251,
+      "word_count_approx": 2692,
+      "processing_status": "processed_B05"
+    },
+    {
+      "chapter_number": 45,
+      "chapter_title": "NHÁT CHÉM MỞ ĐƯỜNG SƯỜN TÂY BẮC",
+      "heading_level": 1,
+      "char_count": 11727,
+      "word_count_approx": 2599,
+      "processing_status": "processed_B05"
+    },
+    {
+      "chapter_number": 46,
+      "chapter_title": "VỰC SÂU TRO TÀN VÀ LƯỠI KIẾM THẦN TINH",
+      "heading_level": 1,
+      "char_count": 13035,
+      "word_count_approx": 2867
+    },
+    {
+      "chapter_number": 47,
+      "chapter_title": "THẾ TRẬN TRÊN THUNG LŨNG ĐÁ XÁM",
+      "heading_level": 1,
+      "char_count": 12015,
+      "word_count_approx": 2651
+    },
+    {
+      "chapter_number": 48,
+      "chapter_title": "THÂM NHẬP HẺM VỰC TRO TÀN",
+      "heading_level": 1,
+      "char_count": 11792,
+      "word_count_approx": 2609
+    },
+    {
+      "chapter_number": 49,
+      "chapter_title": "PHÒNG TUYẾN TRÊN VỰC ĐÁ SẠT LỞ",
+      "heading_level": 1,
+      "char_count": 11749,
+      "word_count_approx": 2595
+    },
+    {
+      "chapter_number": 50,
+      "chapter_title": "BÌNH MINH TRÊN BỜ SUỐI CẠN",
+      "heading_level": 1,
+      "char_count": 11370,
+      "word_count_approx": 2475
+    },
+    {
+      "chapter_number": 51,
+      "chapter_title": "CỬA CỐNG SỐ BẢY VÀ LÒI THÀNH SOLARIA",
+      "heading_level": 1,
+      "char_count": 11531,
+      "word_count_approx": 2539
+    },
+    {
+      "chapter_number": 52,
+      "chapter_title": "HẠI CƠ NƠI CĂN GÁC MÁI VÀ TIẾNG GIÀY SẮT",
+      "heading_level": 1,
+      "char_count": 11341,
+      "word_count_approx": 2499
+    },
+    {
+      "chapter_number": 53,
+      "chapter_title": "TIẾNG SẤM TRONG LÒNG KHU Ổ CHUỘT",
+      "heading_level": 1,
+      "char_count": 11606,
+      "word_count_approx": 2569
+    },
+    {
+      "chapter_number": 54,
+      "chapter_title": "CƠN BÃO KHO QUÂN NHƯ VÀ BÓNG TỐI ALISTAIR",
+      "heading_level": 1,
+      "char_count": 11399,
+      "word_count_approx": 2499
+    },
+    {
+      "chapter_number": 55,
+      "chapter_title": "BẢO BẠO CỔNG TRONG VÀ TIẾNG KHIÊN ĐỒNG SỤP VỠ",
+      "heading_level": 1,
+      "char_count": 11672,
+      "word_count_approx": 2541
+    },
+    {
+      "chapter_number": 56,
+      "chapter_title": "BẬC THANG ĐẠI THÁP VÀ TRẬN PHÁP THÁI DƯƠNG",
+      "heading_level": 1,
+      "char_count": 13063,
+      "word_count_approx": 2861,
+      "processing_status": "processed_B07"
+    },
+    {
+      "chapter_number": 57,
+      "chapter_title": "VÒM ĐIỆN THÁNH CƯỜNG VÀ BÓNG SÁT THỦ VESPERA",
+      "heading_level": 1,
+      "char_count": 10899,
+      "word_count_approx": 2396,
+      "processing_status": "processed_B07"
+    },
+    {
+      "chapter_number": 58,
+      "chapter_title": "VỰC THẲM ĐÀI TẾ KHỞI NGUYÊN",
+      "heading_level": 1,
+      "char_count": 12309,
+      "word_count_approx": 2673,
+      "processing_status": "processed_B07"
+    },
+    {
+      "chapter_number": 59,
+      "chapter_title": "BÌNH MINH TỰ DO ĐẦU TIÊN",
+      "heading_level": 1,
+      "char_count": 11083,
+      "word_count_approx": 2400,
+      "processing_status": "processed_B07"
+    },
+    {
+      "chapter_number": 60,
+      "chapter_title": "LUYỆN KIẾM THÀNH CÀY",
+      "heading_level": 1,
+      "char_count": 11690,
+      "word_count_approx": 2551,
+      "processing_status": "processed_B07"
+    },
+    {
+      "chapter_number": 61,
+      "chapter_title": "HẠT GIỐNG TRỞ VỀ OAKHAVEN",
+      "heading_level": 1,
+      "char_count": 11674,
+      "word_count_approx": 2549,
+      "processing_status": "processed_B07"
+    }
+  ],
+  "batch_notes": [
+    {
+      "batch": "B02",
+      "chapters": [
+        11,
+        19
+      ],
+      "note": "Chapters 11–19 form a largely continuous Oakhaven resistance/evacuation sequence, but their relation to the chapter-9/chapter-10 temporal reset remains unresolved."
+    },
+    {
+      "batch": "B03",
+      "chapters": [
+        20,
+        28
+      ],
+      "note": "Direct Alistair confrontation, separation/reunion, dwarf alliance, and Thần Tinh weapon setup/payoff provide the first strong long-range retrieval labels. Multiple chronology/object-state conflicts are preserved in ambiguities rather than reconciled."
+    },
+    {
+      "batch": "B04",
+      "range": [
+        29,
+        36
+      ],
+      "memory_ids": [
+        "mem-000097",
+        "mem-000134"
+      ],
+      "query_ids": [
+        "rq-0009",
+        "rq-0016"
+      ],
+      "summary": "Expanded the resistance into a Human–Demon alliance, tracked auxiliary-pillar sabotage and tomb entry, and flagged the chapter-32 Thần Tinh first-forging replay."
+    },
+    {
+      "batch": "B05",
+      "range": [
+        37,
+        45
+      ],
+      "memory_ids": [
+        "mem-000135",
+        "mem-000166"
+      ],
+      "query_ids": [
+        "rq-0017",
+        "rq-0024"
+      ],
+      "summary": "Forged and deployed Thần Tinh nullification charges, deepened Human–Demon trust, introduced contested old-war testimony, and flagged severe repeated-destruction loops around Pressure Pillar No. 2 and the first true-sky reveal."
+    },
+    {
+      "batch": "B07",
+      "range": [
+        56,
+        61
+      ],
+      "memory_ids": [
+        "mem-000202",
+        "mem-000232"
+      ],
+      "query_ids": [
+        "rq-0033",
+        "rq-0040"
+      ],
+      "summary": "Completed final assault, Alistair defeat/death, final siphoning shutdown, natural-sky transition, postwar alliance transformation and Oakhaven reconstruction; guarded divine-ascent, seed provenance and late two-year timeline claims."
+    }
+  ]
+}
