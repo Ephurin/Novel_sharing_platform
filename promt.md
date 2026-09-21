@@ -89,6 +89,20 @@ Theo `IMPLEMENTATION_PLAN.md`, `ADRS.md`, `DATA_MODEL.md`:
 
 Chọn embedding model + dimension cho Phase 7 bằng benchmark có thể tái hiện, sau đó ghi ADR chính thức.
 
+### Frozen evaluation corpus — READY
+
+Astra consolidated the real-novel corpus on 2026-09-21:
+
+- Dataset version: `aethelgard-retrieval-eval-v1.0.0`
+- Manifest: `.data/Frozen_v1/story_manifest.json`
+- Benchmark corpus: `.data/Frozen_v1/memory_chunks_canonical.json` (**216 canonical memories**)
+- Primary queries: `.data/Frozen_v1/core_gold_queries.json` (**21 core-gold queries**)
+- Secondary diagnostics: `.data/Frozen_v1/challenge_queries.json` (**19 challenge queries**)
+- Report: `.data/Frozen_v1/dataset_report.md`
+
+**Do not concatenate Batch_1..Batch_7**; they are cumulative working snapshots. Do not regenerate/relabel the frozen dataset unless a concrete defect is found. Primary embedding-ADR metrics use the core-gold split only.
+
+
 ### Phạm vi bắt buộc
 
 1. **Inventory current retrieval baseline**
@@ -96,17 +110,12 @@ Chọn embedding model + dimension cho Phase 7 bằng benchmark có thể tái h
    - không thay behavior production;
    - ghi rõ baseline query/ranking hiện tại.
 
-2. **Dataset đánh giá nhỏ nhưng có nhãn**
-   - tạo labeled retrieval queries từ fixture/story test hiện có;
-   - bao phủ tối thiểu:
-     - character memory;
-     - old-but-important event;
-     - world rule;
-     - relationship context;
-     - temporally relevant event;
-     - semantically related scene với lexical overlap thấp.
-   - mỗi query có expected relevant artifact IDs/ranks.
-   - không dùng rejected/pending proposal làm ground truth canonical.
+2. **Dùng frozen real-novel evaluation corpus**
+   - dùng `.data/Frozen_v1/memory_chunks_canonical.json` làm corpus chính;
+   - dùng `.data/Frozen_v1/core_gold_queries.json` làm primary benchmark;
+   - dùng `.data/Frozen_v1/challenge_queries.json` chỉ cho secondary diagnostics;
+   - enforce `chapter_number <= chapter_cutoff` trước ranking;
+   - không concatenate các Batch cũ và không tự relabel dataset.
 
 3. **Embedding candidate benchmark**
    - benchmark ít nhất 2 candidate phù hợp với deployment hiện tại.
