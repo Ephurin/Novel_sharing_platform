@@ -1,0 +1,622 @@
+{
+  "story_id": "aethelgard-soul-mortal-blade-61ch",
+  "dataset_version": "aethelgard-retrieval-eval-v1.0.0",
+  "split": "vietnamese_cross_lingual_diagnostic",
+  "description": "Vietnamese-query to English-memory diagnostic derived from core-gold labels. Diagnostic only; not used for primary model selection.",
+  "source_split": "core_gold",
+  "memory_language": "en",
+  "query_language": "vi",
+  "query_count": 10,
+  "label_schema": {
+    "0": "explicit_hard_negative",
+    "1": "acceptable_context",
+    "2": "relevant",
+    "3": "highly_relevant",
+    "-1": "prohibited_future_or_invalid",
+    "unjudged": "A memory absent from labels is unjudged, not automatically irrelevant."
+  },
+  "queries": [
+    {
+      "query_id": "rq-0002",
+      "chapter_cutoff": 21,
+      "query": "Sự chuẩn bị nào từ trước giúp Elena có thể tạm thời tác động đến Alistair dù lớp phòng thủ ma thuật của ông ta áp đảo?",
+      "query_type": "setup_payoff",
+      "difficulty": "hard",
+      "reason": "The useful memory is seven chapters old and described as a corrupted-root sample/countermeasure rather than as an “anti-Alistair weapon,” creating lexical distance.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000041",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000068",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000038",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000048",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000052",
+          "grade": 0,
+          "label": "hard_negative"
+        },
+        {
+          "memory_id": "mem-000066",
+          "grade": 0,
+          "label": "hard_negative"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000041",
+        "mem-000068",
+        "mem-000038",
+        "mem-000048"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "What earlier preparation lets Elena briefly affect Alistair despite his overwhelming magical defenses?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    },
+    {
+      "query_id": "rq-0003",
+      "chapter_cutoff": 21,
+      "query": "Thái độ của Elena đối với Alistair đã thay đổi như thế nào từ đầu truyện đến cuộc đối đầu trực tiếp?",
+      "query_type": "relationship_history",
+      "difficulty": "hard",
+      "reason": "Requires temporal ordering across early admiration, growing doubt, rejection of savior dependence, and direct opposition.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000004",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000044",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000067",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000035",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000042",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000025",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000046",
+          "grade": 0,
+          "label": "hard_negative"
+        },
+        {
+          "memory_id": "mem-000053",
+          "grade": 0,
+          "label": "hard_negative"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000004",
+        "mem-000044",
+        "mem-000067",
+        "mem-000035",
+        "mem-000042",
+        "mem-000025"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "How has Elena’s attitude toward Alistair changed from the beginning of the story to their direct confrontation?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    },
+    {
+      "query_id": "rq-0004",
+      "chapter_cutoff": 24,
+      "query": "Không dùng ma thuật hay thiết bị theo dõi, manh mối nào cho Alan một hướng cụ thể để tìm Elena sau khi họ bị chia cắt?",
+      "query_type": "low_lexical_overlap_semantic_relation",
+      "difficulty": "medium",
+      "reason": "The query asks for a tracking clue but the memory is encoded as a torn scarf carrying Elena’s distinctive field-camouflage trace.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000080",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000081",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000075",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000076",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000077",
+          "grade": 0,
+          "label": "hard_negative"
+        },
+        {
+          "memory_id": "mem-000079",
+          "grade": 0,
+          "label": "hard_negative"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000080",
+        "mem-000081",
+        "mem-000075",
+        "mem-000076"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "Without using magic or a tracking device, what clue gives Alan a concrete route toward Elena after they are separated?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    },
+    {
+      "query_id": "rq-0005",
+      "chapter_cutoff": 28,
+      "query": "Vì sao cái chết của Gregor vẫn còn ảnh hưởng đến Alan và Elena trong thời kỳ kháng chiến dưới lòng đất?",
+      "query_type": "old_but_important",
+      "difficulty": "hard",
+      "reason": "The motivational source is ten chapters old by the cutoff and must be connected to a later explicit commitment not to waste his sacrifice.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000057",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000085",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000056",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000031",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000092",
+          "grade": 0,
+          "label": "hard_negative"
+        },
+        {
+          "memory_id": "mem-000093",
+          "grade": 0,
+          "label": "hard_negative"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000057",
+        "mem-000085",
+        "mem-000056",
+        "mem-000031"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "Why does Gregor’s death still matter to Alan and Elena during the underground resistance?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    },
+    {
+      "query_id": "rq-0007",
+      "chapter_cutoff": 28,
+      "query": "Bằng chứng nào cho thấy khả năng kháng mana của kiếm Thần Tinh không chỉ là lời khẳng định tại lò rèn?",
+      "query_type": "world_rule",
+      "difficulty": "medium",
+      "reason": "Chapter 27 states the property; chapter 28 provides observed combat confirmation against Garen’s protection.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000094",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000090",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000093",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000079",
+          "grade": 0,
+          "label": "hard_negative"
+        },
+        {
+          "memory_id": "mem-000088",
+          "grade": 0,
+          "label": "hard_negative"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000094",
+        "mem-000090",
+        "mem-000093"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "What evidence shows that the Thần Tinh sword’s anti-mana property is not merely a claim made at the forge?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    },
+    {
+      "query_id": "rq-0016",
+      "chapter_cutoff": 36,
+      "query": "Chiến lược chống ma thuật trong truyện phát triển từ một vũ khí đối phó cá nhân thành phương pháp phá hoại hạ tầng như thế nào?",
+      "query_type": "low_lexical_overlap_semantic_relation",
+      "difficulty": "hard",
+      "reason": "The same underlying anti-mana principle appears under different lexical forms: sword contact, lens contamination, nullification charges, copper-link sabotage, and gate unlocking.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000090",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000118",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000123",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000094",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000098",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000116",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000122",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000115",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000117",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000109",
+          "grade": 0,
+          "label": "hard_negative"
+        },
+        {
+          "memory_id": "mem-000127",
+          "grade": 0,
+          "label": "hard_negative"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000090",
+        "mem-000118",
+        "mem-000123",
+        "mem-000094",
+        "mem-000098",
+        "mem-000116",
+        "mem-000122",
+        "mem-000115",
+        "mem-000117"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "How does the story’s anti-magic strategy evolve from a weapon for fighting individuals into a method for sabotaging infrastructure?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    },
+    {
+      "query_id": "rq-0027",
+      "chapter_cutoff": 55,
+      "query": "Liên quân vào Solaria bằng cách nào mà không tấn công trực diện các cổng ngoài, và vì sao tuyến đường đó khó bị hệ thống giám sát của Thần Điện phát hiện?",
+      "query_type": "location_history_world_rule",
+      "difficulty": "medium",
+      "reason": "The answer requires the old map/setup at the buffer stream, the sewer’s chemical blind-spot property, and the actual silent gate breach rather than a generic Solaria battle memory.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000185",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000186",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000182",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000180",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000197",
+          "grade": 0,
+          "label": "hard_negative"
+        },
+        {
+          "memory_id": "mem-000200",
+          "grade": 0,
+          "label": "hard_negative"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000185",
+        "mem-000186",
+        "mem-000182",
+        "mem-000180"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "How did the coalition get into Solaria without assaulting the main outer gates, and why was that route hard for Temple surveillance to detect?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    },
+    {
+      "query_id": "rq-0029",
+      "chapter_cutoff": 55,
+      "query": "Kỹ thuật không dùng mana nào giải thích việc Elena vừa có thể làm nhiễu thiết bị cảm biến của Thần Điện ngoài chiến trường, vừa che giấu căn gác an toàn khỏi đội tuần tra?",
+      "query_type": "low_lexical_overlap_world_rule",
+      "difficulty": "hard",
+      "reason": "Different scenes use different chemical mixtures and wording, but the shared retrieval target is Elena’s repeated use of ordinary chemistry to interfere with magical sensing rather than overpowering it with mana.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000188",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000168",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000126",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000185",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000174",
+          "grade": 0,
+          "label": "hard_negative"
+        },
+        {
+          "memory_id": "mem-000199",
+          "grade": 0,
+          "label": "hard_negative"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000188",
+        "mem-000168",
+        "mem-000126",
+        "mem-000185"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "Which non-mana technique explains how Elena can both disrupt Temple sensing equipment in the field and hide the attic safehouse from a patrol?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    },
+    {
+      "query_id": "rq-0037",
+      "chapter_cutoff": 61,
+      "query": "Việc Gregor giao phó tương lai Oakhaven ở chương 18 được đáp lại như thế nào ở cuối truyện?",
+      "query_type": "setup_payoff_old_important_event",
+      "difficulty": "hard",
+      "reason": "This requires retrieving a relationship/event setup more than forty chapters old and linking it to the return, memorial and reconstruction rather than recent battle details.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000057",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000229",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000056",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000085",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000226",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000231",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "memory_id": "mem-000219",
+          "grade": 1,
+          "label": "acceptable_context"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000057",
+        "mem-000229",
+        "mem-000056",
+        "mem-000085",
+        "mem-000226",
+        "mem-000231",
+        "mem-000219"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "How does Gregor’s chapter-18 entrustment of Oakhaven’s future receive a payoff at the end of the novel?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    },
+    {
+      "query_id": "rq-0040",
+      "chapter_cutoff": 59,
+      "query": "Vào bình minh tự nhiên đầu tiên sau khi Alistair thất bại, Oakhaven đã được xây dựng lại chưa, hay việc tái thiết vẫn mới chỉ là mục tiêu trở về?",
+      "query_type": "future_leakage_location_state",
+      "difficulty": "hard",
+      "reason": "At cutoff 59 the characters only decide to return. All direct evidence of ecological recovery and reconstruction in Oakhaven comes from chapter 61 and must be excluded.",
+      "review_status": "high_confidence",
+      "split": "core_gold",
+      "labels": [
+        {
+          "memory_id": "mem-000219",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "memory_id": "mem-000217",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "memory_id": "mem-000225",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        },
+        {
+          "memory_id": "mem-000226",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        },
+        {
+          "memory_id": "mem-000227",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        },
+        {
+          "memory_id": "mem-000228",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        },
+        {
+          "memory_id": "mem-000229",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        },
+        {
+          "memory_id": "mem-000230",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        },
+        {
+          "memory_id": "mem-000231",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        },
+        {
+          "memory_id": "mem-000232",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "positive_memory_ids": [
+        "mem-000219",
+        "mem-000217"
+      ],
+      "challenge_reasons": [],
+      "consolidation_note": null,
+      "source_query": "At the first natural dawn after Alistair falls, has Oakhaven already been rebuilt, or is rebuilding still only a return goal?",
+      "language": "vi",
+      "diagnostic_only": true,
+      "translation_review_status": "high_confidence"
+    }
+  ]
+}
