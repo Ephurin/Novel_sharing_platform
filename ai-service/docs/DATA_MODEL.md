@@ -746,7 +746,7 @@ CREATE TABLE narrative.memory_chunks (
     memory_type VARCHAR(40) NOT NULL,
     content TEXT NOT NULL,
     content_hash VARCHAR(64) NOT NULL,
-    embedding VECTOR,
+    embedding VECTOR(768),
     importance_score NUMERIC(5,4) NOT NULL DEFAULT 0.5,
     narrative_order BIGINT,
     metadata JSONB NOT NULL DEFAULT '{}',
@@ -757,7 +757,7 @@ CREATE TABLE narrative.memory_chunks (
 );
 ```
 
-Kích thước vector phải được chốt theo embedding model trong migration thật; DDL trên cố ý chưa khóa dimension ở bản review.
+Vector dimension đã được chốt bởi ADR-012 ngày 2026-09-22: `gemini-embedding-2 @ 768`. Migration Phase 7 phải dùng `VECTOR(768)`, explicit L2 normalization và cosine distance. Embedding recipe/version phải rebuildable; thay model/dimension/instruction recipe không được overwrite vector cũ in-place.
 
 `memory_type`: `event_summary`, `scene_summary`, `chapter_summary`, `character_memory`, `arc_summary`, `world_rule`.
 
@@ -807,7 +807,7 @@ CREATE INDEX idx_memory_metadata
     ON narrative.memory_chunks USING GIN (metadata);
 ```
 
-Vector index được thêm sau khi chốt dimension và dữ liệu đủ lớn:
+ANN vector index chỉ được thêm sau khi dữ liệu/latency production đủ lớn để justify. ADR-012 đã chốt cosine semantics, nên nếu HNSW được thêm ở task sau thì opclass phải là `vector_cosine_ops`:
 
 ```sql
 CREATE INDEX idx_memory_embedding_hnsw
