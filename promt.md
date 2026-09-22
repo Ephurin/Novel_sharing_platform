@@ -10,13 +10,14 @@
 
 ## 1. Vai trò và quy tắc
 
-- **Astra = planner/reviewer.**
-- **Gemini = worker.**
+- **Astra = architect / planner / reviewer.**
+- **Gemini = coding worker.**
 - Gemini chỉ làm đúng lô đang active, không tự mở scope/phase.
 - Test pass không đồng nghĩa nghiệm thu; Astra/người dùng quyết định ACCEPT.
 - Không reset/clean/force-push, không xóa thay đổi hiện có.
+- Không commit credential/secret/local key file.
 - Không gọi mock/unit test là integration/system evidence.
-- Báo cáo chi tiết + evidence đặt dưới `docs/development/`.
+- Báo cáo + evidence đặt dưới `docs/development/`.
 - `promt.md` chỉ giữ active state + bàn giao ngắn.
 
 Đọc tối thiểu trước khi sửa code:
@@ -27,326 +28,505 @@
 4. `ai-service/docs/IMPLEMENTATION_PLAN.md`
 5. `ai-service/docs/ADRS.md`
 6. `ai-service/docs/DATA_MODEL.md`
-7. Tài liệu module liên quan trong `docs/`
+7. `ai-service/docs/ADR-012-EMBEDDING-MODEL.md`
+8. migration/ORM/repository code liên quan.
 
 ---
 
-## 2. Trạng thái phase
+## 2. Phase status
 
 ### Phase 6 / 6.5 — ACCEPTED
 
-**Accepted:** 2026-09-21.
-
-Project owner đã xác nhận root Compose/web flow chạy ổn định và cho phép kết thúc Phase 6.
+Accepted: **2026-09-21**.
 
 Các invariant đã đóng:
 
 - Browser/Frontend → Node AI Gateway → AI Service.
 - Ownership + service credential boundary.
-- Protected FastAPI routes fail closed.
-- Canonical revision/chapter provenance; không fallback chapter 1.
-- Temporal cutoff chặn future fact/event/state leakage.
+- Protected routes fail closed.
+- Canonical revision/chapter provenance.
+- Temporal cutoff chống future leakage.
 - Structured context + context hash + generation trace.
-- Accept-time freshness: **fail-closed availability + best-effort freshness**.
-- Transactional outbox + retry + lease + fencing token.
-- Mongo reconciliation không overwrite newer manual draft.
-- PostgreSQL narrative repository + migration integration.
-- Legacy `/suggest-next` không còn independent writer path.
+- Accept-time freshness.
+- Transactional outbox + lease/fencing.
+- Mongo reconciliation.
+- PostgreSQL narrative repository.
+- Legacy `/suggest-next` delegate qua WritingService.
 
-Phase 6/6.5 không reopen trừ khi Phase 7 làm lộ correctness regression trực tiếp.
+Không reopen Phase 6 trừ correctness regression trực tiếp do Phase 7.
 
----
+### P7-01 — Embedding Benchmark + ADR — ACCEPTED
 
-## 3. Phase 7 — Semantic Retrieval
+Accepted by Astra: **2026-09-22**.
 
-### Kiến trúc đã chốt
+Frozen benchmark:
 
-Theo `IMPLEMENTATION_PLAN.md`, `ADRS.md`, `DATA_MODEL.md`:
+- dataset: `aethelgard-retrieval-eval-v1.0.0`
+- 216 canonical memories
+- 21 core-gold English queries
+- 10 Vietnamese cross-lingual diagnostic queries
 
-- Semantic memory là **derived/rebuildable index**, không phải source of truth.
-- Dùng PostgreSQL + **pgvector**, chưa dùng vector DB riêng.
-- Không index pending/rejected proposals như canonical memory.
-- Không retrieve raw novel text mặc định.
-- Embedding/model version phải traceable và rebuildable.
-- Hybrid ranking gồm:
-  - semantic score;
-  - entity overlap;
-  - temporal relevance;
-  - importance;
-  - relationship relevance.
-- Phase 7 exit criterion quan trọng: hybrid retrieval phải tốt hơn recent-only baseline trên labeled queries.
-
-**Phase 7 gate:** chốt embedding model + vector dimension bằng benchmark trước khi freeze migration/vector column.
-
----
-
-## 4. ACTIVE TASK — P7-01-EMBEDDING-BENCHMARK-ADR
-
-**Loại:** architecture/evaluation gate.  
-**Không triển khai full semantic retrieval trong lô này.**
-
-### Mục tiêu
-
-Chọn embedding model + dimension cho Phase 7 bằng benchmark có thể tái hiện, sau đó ghi ADR chính thức.
-
-### Frozen evaluation corpus — READY
-
-Astra consolidated the real-novel corpus on 2026-09-21:
-
-- Dataset version: `aethelgard-retrieval-eval-v1.0.0`
-- Manifest: `.data/Frozen_v1/story_manifest.json`
-- Benchmark corpus: `.data/Frozen_v1/memory_chunks_canonical.json` (**216 canonical memories**)
-- Primary queries: `.data/Frozen_v1/core_gold_queries.json` (**21 core-gold queries**)
-- Secondary diagnostics: `.data/Frozen_v1/challenge_queries.json` (**19 challenge queries**) with `.data/Frozen_v1/memory_chunks.json` (full 232-memory audit corpus)
-- Report: `.data/Frozen_v1/dataset_report.md`
-
-**Do not concatenate Batch_1..Batch_7**; they are cumulative working snapshots. Do not regenerate/relabel the frozen dataset unless a concrete defect is found. Primary embedding-ADR metrics use the core-gold split only.
-
-
-### P7-01 execution status — IN PROGRESS
-
-Astra đã chuẩn bị benchmark infrastructure và baseline:
-
-- Harness: `ai-service/benchmarks/p7_embedding_benchmark.py`
-- Unit/regression tests: `ai-service/tests/test_p7_embedding_benchmark.py`
-- Vietnamese diagnostic: `.data/Frozen_v1/vietnamese_diagnostic_queries.json` (10 queries)
-- Evidence: `docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/`
-- Report: `docs/development/P7-01-EMBEDDING-BENCHMARK-ADR-report.md`
-
-Recent-only baseline trên 21 core-gold queries:
+Recent-only baseline @10:
 
 ```text
-K=5   Recall=0.2955  MRR=0.3286  nDCG=0.2782
-K=10  Recall=0.4095  MRR=0.3286  nDCG=0.3160
-K=20  Recall=0.6256  MRR=0.3482  nDCG=0.4038
+Recall = 0.4095
+MRR    = 0.3286
+nDCG   = 0.3160
 ```
 
-### Next worker action — real embedding measurements
-
-Không tạo thêm dataset và không sửa production retrieval.
-
-1. Chạy:
-   `cd ai-service && pytest -q tests/test_p7_embedding_benchmark.py`
-2. Chạy Candidate A:
-   `gemini-embedding-001 @ 768`
-3. Chạy Candidate B:
-   `gemini-embedding-2 @ 768`
-4. Chạy Vietnamese diagnostic cho cả hai candidate.
-5. Chọn candidate tốt hơn ở round 768 rồi chạy lại candidate đó ở 1536.
-6. Optional: nếu execution environment **đã có** `OPENAI_API_KEY`, benchmark `text-embedding-3-small @ 768` như third-provider comparison. Không yêu cầu/paste/commit secrets.
-7. Cập nhật `candidate-results.md`, `decision-summary.md`, report và ADR-012 bằng **số đo thật**.
-
-Commands đầy đủ nằm trong:
-`docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/benchmark-command.txt`.
-
-Nếu provider credential/quota không khả dụng: bàn giao **PARTIAL/BLOCKED**, không fabricate metric và không freeze pgvector migration.
-
-
-### Phạm vi bắt buộc
-
-1. **Inventory current retrieval baseline**
-   - xác định current SQL/recent-only context path;
-   - không thay behavior production;
-   - ghi rõ baseline query/ranking hiện tại.
-
-2. **Dùng frozen real-novel evaluation corpus**
-   - dùng `.data/Frozen_v1/memory_chunks_canonical.json` làm corpus chính;
-   - dùng `.data/Frozen_v1/core_gold_queries.json` làm primary benchmark;
-   - dùng `.data/Frozen_v1/challenge_queries.json` chỉ cho secondary diagnostics;
-   - enforce `chapter_number <= chapter_cutoff` trước ranking;
-   - không concatenate các Batch cũ và không tự relabel dataset.
-
-3. **Embedding candidate benchmark**
-   - benchmark ít nhất 2 candidate phù hợp với deployment hiện tại.
-   - ghi:
-     - model;
-     - dimension;
-     - provider/runtime;
-     - latency;
-     - batch behavior;
-     - multilingual/Vietnamese behavior;
-     - retrieval quality.
-   - nếu candidate cần paid/external API, benchmark phải tách rõ cost/network dependency.
-   - không hard-code lựa chọn trước khi có kết quả.
-
-4. **Metrics**
-   Tối thiểu:
-   - Recall@K;
-   - MRR hoặc nDCG@K;
-   - latency;
-   - index/storage footprint estimate.
-
-5. **Baseline comparison**
-   - so embedding-only và recent-only baseline.
-   - nếu practical, prototype offline hybrid scoring.
-   - không claim Phase 7 exit criterion chỉ từ vài anecdotal examples.
-
-6. **ADR**
-   Tạo ADR mới, ví dụ:
-   `ai-service/docs/ADR-012-EMBEDDING-MODEL.md`
-
-   ADR phải ghi:
-   - decision;
-   - model/version;
-   - dimension;
-   - distance metric;
-   - normalization policy;
-   - versioning/reindex policy;
-   - fallback/rollback;
-   - benchmark evidence;
-   - rejected alternatives.
-
-7. **Schema recommendation**
-   - đề xuất `memory_chunks` fields/index dựa trên model đã chọn;
-   - chưa freeze/apply pgvector migration nếu benchmark chưa đủ kết luận.
-
-### Guardrails
-
-- Không multi-agent.
-- Không specialized vector DB.
-- Không auto-index rejected/pending proposals.
-- Không đổi canonical Story Brain semantics.
-- Không lưu raw chain-of-thought.
-- Không rewrite Phase 6 context builder.
-- Không thêm production migration trước khi ADR kết luận model/dimension.
-- Không tối ưu premature ANN index nếu dataset chưa đủ lớn để justify.
-
----
-
-## 5. Evidence P7-01
-
-Tạo:
-
-- `docs/development/P7-01-EMBEDDING-BENCHMARK-ADR-report.md`
-- `docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/`
-
-Evidence tối thiểu:
-
-- `dataset.md` hoặc machine-readable fixture + README;
-- `baseline-results.md`;
-- `candidate-results.md`;
-- `benchmark-command.txt`;
-- `decision-summary.md`.
-
-Benchmark phải reproducible; nếu API/provider bên ngoài không khả dụng thì ghi BLOCKED/PARTIAL, không fabricate số liệu.
-
----
-
-## 6. Acceptance criteria P7-01
-
-P7-01 chỉ được bàn giao khi:
+Accepted embedding contract:
 
 ```text
-labeled retrieval dataset exists
-AND
-recent-only baseline measured
-AND
->=2 embedding candidates measured
-AND
-quality + latency + dimension are recorded
-AND
-ADR selects one model/dimension with evidence
-AND
-reindex/version policy is explicit
-AND
-no production pgvector schema is frozen before the decision
+model              = gemini-embedding-2
+dimension          = 768
+normalization      = explicit L2
+distance           = cosine distance (<=>)
+future ANN opclass = vector_cosine_ops
+embedding_version  = gemini-embedding-2-768-v1
 ```
 
-Nếu benchmark không có winner rõ:
-- bàn giao INCONCLUSIVE;
-- nêu thêm evidence cần thu;
-- không tự chọn model theo cảm tính.
+Primary winner @10:
+
+```text
+Recall = 0.6747
+MRR    = 0.9024
+nDCG   = 0.7097
+```
+
+1536 dimensions did not improve K=10/K=20 quality and doubled vector storage.
+
+Important review note:
+
+- Candidate A used batch size 32; Candidate B used batch size 16.
+- Therefore A-vs-B latency is **recorded but not apples-to-apples comparative evidence**.
+- Model selection is based on retrieval quality.
+- The 768-vs-1536 comparison is valid for latency/storage because both use the same model and batch size 16.
+- Independent Astra audit recomputed aggregate metrics from raw `per_query` results and found **zero future-memory cutoff violations**.
+
+ADR:
+
+`ai-service/docs/ADR-012-EMBEDDING-MODEL.md`
+
+Evidence:
+
+`docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/`
 
 ---
 
-## 7. Format bàn giao Gemini
+## 3. Phase 7 architecture invariants
 
-Append ngắn:
+Semantic memory is a **derived/rebuildable index**, never canonical truth.
+
+```text
+Canonical Story Brain
+        ↓
+derived narrative memories
+        ↓
+embedding
+        ↓
+PostgreSQL + pgvector
+        ↓
+semantic candidates
+        ↓
+hybrid rank
+        ↓
+token-budget context
+        ↓
+Writing LLM
+```
+
+Hybrid ranking later includes:
+
+```text
+semantic similarity
++ entity overlap
++ temporal relevance
++ importance
++ relationship relevance
+```
+
+Invariant:
+
+```text
+embedding similarity != narrative truth
+```
+
+Canonical events/facts + temporal rules remain authoritative.
+
+Never:
+
+- index pending/rejected proposal as canonical memory;
+- use raw novel text as default semantic-memory row;
+- let embedding provider mutation become canonical Story Brain mutation;
+- call provider while holding a long DB transaction;
+- leak future memory beyond cutoff;
+- add a specialized vector DB in Phase 7 MVP.
+
+---
+
+# 4. ACTIVE TASK — P7-02-MEMORY-PGVECTOR-FOUNDATION
+
+**Type:** production storage/materialization foundation.
+
+**Goal:** introduce pgvector-capable PostgreSQL, versioned `memory_chunks`, and rebuildable embedding materialization without changing production context retrieval yet.
+
+P7-02 ends **before** semantic retrieval is wired into Context Builder.
+
+## 4.1 Runtime / dependency foundation
+
+Current root Compose still uses:
+
+```yaml
+postgres:16-alpine
+```
+
+This image does not provide the required pgvector extension by default.
+
+Implement a pgvector-enabled PostgreSQL 16 runtime using the official `pgvector/pgvector` image compatible with PG16.
+
+Requirements:
+
+- preserve PostgreSQL major version 16;
+- do not wipe/reset existing volumes;
+- keep root Compose health behavior working;
+- add Python `pgvector` integration compatible with SQLAlchemy;
+- no external/specialized vector database.
+
+Do not silently fall back to plain PostgreSQL if the extension cannot be enabled.
+
+## 4.2 Alembic migration
+
+Create the next migration after:
+
+`0006_fix_revision_provenance`
+
+Expected new revision name may be:
+
+`0007_semantic_memory_foundation`
+
+Migration must:
+
+1. `CREATE EXTENSION IF NOT EXISTS vector`;
+2. create `narrative.memory_chunks`;
+3. freeze the accepted vector dimension at `VECTOR(768)`;
+4. create deterministic relational indexes needed for version/timeline access;
+5. support downgrade without damaging pre-existing canonical Story Brain tables.
+
+Do **not** create HNSW/IVFFlat yet. Exact vector search is sufficient for the next retriever task; ANN needs production-scale evidence first.
+
+Recommended fields:
+
+```text
+id
+story_brain_id
+tenant_id
+novel_id
+chapter_id
+revision_id
+event_id
+entity_id
+memory_type
+content
+content_hash
+importance_score
+narrative_order
+entity_ids
+embedding VECTOR(768)
+embedding_model
+embedding_version
+metadata
+created_at
+```
+
+Required uniqueness at minimum:
+
+```text
+(story_brain_id, content_hash, embedding_version)
+```
+
+Indexes at minimum:
+
+```text
+(story_brain_id, narrative_order)
+(story_brain_id, embedding_version)
+```
+
+If `entity_ids` is retained as a UUID array, it is derived metadata for future hybrid ranking; do not make it a source of truth.
+
+## 4.3 ORM/domain boundary
+
+Add the production ORM/domain representation for semantic memory.
+
+Prefer a **separate semantic-memory repository/port** instead of forcing JSON/InMemory NarrativeRepository implementations to pretend they support vectors.
+
+Suggested boundary:
+
+```python
+class SemanticMemoryRepository(Protocol):
+    def upsert_memory_chunk(...): ...
+    def list_memory_chunks(...): ...
+    def delete_embedding_version(...): ...
+```
+
+The exact method names may differ, but preserve:
+
+- tenant + novel + story-brain scoping;
+- idempotency;
+- embedding version isolation;
+- derived/rebuildable semantics.
+
+Do not couple semantic-memory persistence to API schemas.
+
+## 4.4 Canonical memory materialization
+
+For the first production vertical slice, derive memory from **confirmed canonical events** rather than raw chapter text.
+
+Initial supported memory type:
+
+```text
+event_summary
+```
+
+Source:
+
+```text
+confirmed/non-superseded canonical event
+→ event.summary
+→ derived memory chunk
+```
+
+Carry provenance:
+
+- story_brain_id;
+- tenant_id;
+- novel_id;
+- chapter_id;
+- revision_id;
+- event_id;
+- narrative_order;
+- participating entity IDs when available;
+- content_hash.
+
+Rules:
+
+- pending/rejected proposals MUST NOT materialize;
+- superseded/inactive event must not become an active canonical semantic memory;
+- retry must not duplicate the same content/version;
+- deleting/rebuilding semantic memory must not mutate canonical event/fact/state data.
+
+Do not add LLM-generated chapter/arc summaries in this batch.
+
+## 4.5 Embedding port + implementation
+
+Create a dedicated embedding abstraction; do not route embeddings through the prose-writing LLM interface.
+
+Accepted recipe:
+
+```text
+provider/model: gemini-embedding-2
+dimension:      768
+normalization:  explicit L2
+version:        gemini-embedding-2-768-v1
+distance:       cosine
+```
+
+Document prefix:
+
+```text
+Represent this canonical narrative memory for semantic search:
+```
+
+Query prefix is reserved for P7-03:
+
+```text
+Represent this narrative retrieval query for semantic search:
+```
+
+Requirements:
+
+- fake embedding provider for deterministic tests;
+- real Gemini adapter may read one authorized provider credential from environment;
+- never commit/paste keys;
+- do **not** copy benchmark-only multi-key rotation into production;
+- provider call happens outside DB transaction;
+- L2-normalize before persistence;
+- verify returned vector dimension is exactly 768;
+- provider/parsing/dimension failures are explicit failures, never silent zero/empty vectors.
+
+## 4.6 Reindex/version behavior
+
+P7-02 must make this possible:
+
+```text
+embedding-v1 active
+↓
+build embedding-v2 rows in parallel
+↓
+verify v2 completeness
+↓
+later switch active version
+↓
+keep v1 for rollback
+↓
+purge v1 only after verification
+```
+
+Do not overwrite v1 vectors in place when embedding recipe/model changes.
+
+Changes to any of these require a new embedding version:
+
+- provider/model;
+- output dimension;
+- query/document instruction recipe;
+- normalization policy with semantic effect.
+
+## 4.7 Production retrieval behavior
+
+**Must remain unchanged in P7-02.**
+
+Current Context Builder / WritingService continues to use the Phase 6 structured SQL/recent-event path.
+
+Do not yet:
+
+- call vector search from `preview_context()`;
+- change `WritingService`;
+- change generation context selection;
+- implement hybrid ranker;
+- implement context compression;
+- claim Phase 7 exit criteria.
+
+P7-03 will introduce the semantic retriever after the storage/materialization foundation is accepted.
+
+## 4.8 Tests required
+
+### Unit / deterministic
+
+Cover at minimum:
+
+- memory chunk content-hash/idempotency;
+- only confirmed canonical event materializes;
+- pending/rejected artifact cannot materialize;
+- superseded event handling;
+- embedding dimension == 768;
+- L2 normalization;
+- provider failure is explicit;
+- different embedding versions coexist;
+- reindex does not delete old version.
+
+### PostgreSQL integration
+
+Must run against **real PostgreSQL with pgvector**, not SQLite/mock.
+
+Verify:
+
+1. Alembic upgrade from current head succeeds.
+2. `vector` extension exists.
+3. `memory_chunks.embedding` is dimension 768.
+4. Insert/read a 768-d vector succeeds.
+5. Wrong vector dimension fails.
+6. Exact cosine ordering works.
+7. tenant/novel/story-brain isolation holds.
+8. retry/upsert is idempotent.
+9. downgrade back to 0006 does not damage pre-existing canonical tables/data.
+10. re-upgrade succeeds.
+
+### Root Compose smoke
+
+Verify at minimum:
+
+- pgvector PostgreSQL container healthy;
+- AI service starts with PostgreSQL repository;
+- existing Phase 6 health/auth/gateway path does not regress.
+
+Do not describe unit tests as live integration evidence.
+
+---
+
+## 5. P7-02 evidence
+
+Create:
+
+```text
+docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION-report.md
+docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION/
+```
+
+Evidence should include:
+
+```text
+migration-up-down.txt
+pgvector-capability.txt
+semantic-memory-integration.txt
+compose-smoke.txt
+test-summary.md
+schema-summary.md
+```
+
+Do not store secrets or raw embedding request payloads containing private manuscript text.
+
+---
+
+## 6. P7-02 acceptance criteria
+
+P7-02 may be handed off only when:
+
+```text
+ADR-012 contract preserved
+AND
+root PostgreSQL runtime supports pgvector
+AND
+migration freezes VECTOR(768)
+AND
+memory_chunks is derived + versioned + rebuildable
+AND
+canonical-only materialization is enforced
+AND
+embedding adapter validates + L2-normalizes vectors
+AND
+provider call is outside DB transaction
+AND
+parallel embedding versions can coexist
+AND
+live PostgreSQL pgvector integration passes
+AND
+migration downgrade/re-upgrade is verified
+AND
+Phase 6 recent-context behavior is unchanged
+AND
+no ANN index is added without evidence
+AND
+no semantic retriever/hybrid/context-compression scope is introduced
+```
+
+If live pgvector integration cannot be run, hand off **PARTIAL/BLOCKED**, not Completed.
+
+---
+
+## 7. Expected Gemini handoff
+
+Append only a short block:
 
 ```markdown
 ---
 
-### Gemini bàn giao — P7-01-EMBEDDING-BENCHMARK-ADR
+### Gemini handoff — P7-02-MEMORY-PGVECTOR-FOUNDATION
 
 Status: Completed, awaiting Astra review
-# hoặc: Partial / Blocked / Inconclusive
+# or Partial / Blocked
 
-- Dataset: <count queries / artifact classes>
-- Baseline: <metric summary>
-- Candidate A: <model, dim, quality, latency>
-- Candidate B: <model, dim, quality, latency>
-- Decision: <model + dimension | inconclusive>
-- ADR: <path>
+- Migration: <revision>
+- PostgreSQL image/pgvector: <result>
+- Memory schema: <summary>
+- Canonical materialization: <summary>
+- Embedding adapter: <summary>
+- Version/reindex behavior: <summary>
+- Unit tests: <result>
+- Live pgvector integration: <result>
+- Root Compose smoke: <result>
 - Report: <path>
-- Evidence: <directory>
-- Production code changes: none | <very small benchmark-only hooks>
+- Evidence: <dir>
+- Production semantic retrieval changes: NONE
 - Remaining blocker: none | <exact blocker>
 ```
 
-Không paste raw benchmark logs dài vào `promt.md`.
-
----
-
-### Gemini bàn giao — P7-01-EMBEDDING-BENCHMARK-ADR
-
-Status: Completed, awaiting Astra review
-
-- Tests:
-  - command: python -m pytest -q tests/test_p7_embedding_benchmark.py
-  - result: 6 passed in 0.05s
-
-- Dataset:
-  - 216 canonical memories
-  - 21 core-gold queries
-  - 10 Vietnamese diagnostic queries
-
-- Recent baseline @10:
-  - Recall: 0.4095
-  - MRR: 0.3286
-  - nDCG: 0.3160
-
-- Candidate A:
-  - model: gemini-embedding-001
-  - dimension: 768
-  - Recall@10: 0.6440
-  - MRR@10: 0.8719
-  - nDCG@10: 0.7039
-  - latency: p50 = 1919.5 ms, mean = 1846.2 ms
-  - Vietnamese nDCG@10: 0.6807
-
-- Candidate B:
-  - model: gemini-embedding-2
-  - dimension: 768
-  - Recall@10: 0.6747
-  - MRR@10: 0.9024
-  - nDCG@10: 0.7097
-  - latency: p50 = 1366.8 ms, mean = 1395.7 ms
-  - Vietnamese nDCG@10: 0.6572 (Recall@5 = 0.5647, MRR@5 = 0.8500, Recall@20 = 0.8667, nDCG@20 = 0.7419)
-
-- Dimension sweep:
-  - model: gemini-embedding-2
-  - 768: Recall@10 = 0.6747, MRR@10 = 0.9024, nDCG@10 = 0.7097, mean latency = 1395.7 ms, storage = 0.633 MiB
-  - 1536: Recall@10 = 0.6600, MRR@10 = 0.9024, nDCG@10 = 0.7046, mean latency = 1501.3 ms, storage = 1.266 MiB
-  - conclusion: 1536 không tăng quality (Recall@10/20 và nDCG@10/20 đều giảm nhẹ), độ trễ tăng 7.6%, storage vector tăng 100%. Chọn 768 dimensions.
-
-- Optional OpenAI:
-  - not executed — credential unavailable
-
-- Decision:
-  - model: gemini-embedding-2
-  - dimension: 768
-  - distance: Cosine distance (<=>) / Inner product (<#>) trên L2-normalized vectors
-  - normalization: L2 normalization bắt buộc ở cả chiều write và query
-  - confidence: High
-
-- ADR:
-  - ai-service/docs/ADR-012-EMBEDDING-MODEL.md
-
-- Evidence:
-  - docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/
-
-- Production changes:
-  - NONE
-
-- Remaining blocker:
-  - none
+Do not paste long raw logs into `promt.md`.
