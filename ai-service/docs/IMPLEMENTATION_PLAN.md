@@ -260,7 +260,7 @@ class NarrativeRepository:
 
 ## Phase 7 — Semantic retrieval
 
-> **Status:** Active from 2026-09-21. First gate: benchmark and ADR must select the embedding model and vector dimension before pgvector schema/index implementation is frozen.
+> **Status:** Active from 2026-09-21. P7-01 embedding benchmark gate accepted on 2026-09-22: `gemini-embedding-2 @ 768`, cosine distance, L2 normalization. Proceed with pgvector/memory foundation before semantic retrieval integration.
 
 ### Tasks
 
@@ -351,6 +351,6 @@ Phase 4
 - [x] Chốt proposal auto-materialization và dependency-group acceptance policy.
 - [x] Hoãn full planning suite; World Bible review là baseline gate của MVP.
 - **Phase 3 gate:** chọn queue implementation; không block Phase 0–2.
-- **Phase 7 gate:** chốt embedding model/dimension bằng benchmark.
+- [x] **Phase 7 gate:** embedding model/dimension accepted via ADR-012 (`gemini-embedding-2 @ 768`).
 
 Pre-implementation phase được xem là hoàn tất khi các mục phase-gated có owner và deadline theo phase như trên; không cần khóa sớm công nghệ chưa được dùng ở Phase 0–2.
