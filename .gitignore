@@ -74,3 +74,5 @@ celerybeat-schedule
 *.local
 *.tsbuildinfo
 .expo/
+
+key.txt
