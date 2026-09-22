@@ -284,3 +284,69 @@ Status: Completed, awaiting Astra review
 ```
 
 Không paste raw benchmark logs dài vào `promt.md`.
+
+---
+
+### Gemini bàn giao — P7-01-EMBEDDING-BENCHMARK-ADR
+
+Status: Completed, awaiting Astra review
+
+- Tests:
+  - command: python -m pytest -q tests/test_p7_embedding_benchmark.py
+  - result: 6 passed in 0.05s
+
+- Dataset:
+  - 216 canonical memories
+  - 21 core-gold queries
+  - 10 Vietnamese diagnostic queries
+
+- Recent baseline @10:
+  - Recall: 0.4095
+  - MRR: 0.3286
+  - nDCG: 0.3160
+
+- Candidate A:
+  - model: gemini-embedding-001
+  - dimension: 768
+  - Recall@10: 0.6440
+  - MRR@10: 0.8719
+  - nDCG@10: 0.7039
+  - latency: p50 = 1919.5 ms, mean = 1846.2 ms
+  - Vietnamese nDCG@10: 0.6807
+
+- Candidate B:
+  - model: gemini-embedding-2
+  - dimension: 768
+  - Recall@10: 0.6747
+  - MRR@10: 0.9024
+  - nDCG@10: 0.7097
+  - latency: p50 = 1366.8 ms, mean = 1395.7 ms
+  - Vietnamese nDCG@10: 0.6572 (Recall@5 = 0.5647, MRR@5 = 0.8500, Recall@20 = 0.8667, nDCG@20 = 0.7419)
+
+- Dimension sweep:
+  - model: gemini-embedding-2
+  - 768: Recall@10 = 0.6747, MRR@10 = 0.9024, nDCG@10 = 0.7097, mean latency = 1395.7 ms, storage = 0.633 MiB
+  - 1536: Recall@10 = 0.6600, MRR@10 = 0.9024, nDCG@10 = 0.7046, mean latency = 1501.3 ms, storage = 1.266 MiB
+  - conclusion: 1536 không tăng quality (Recall@10/20 và nDCG@10/20 đều giảm nhẹ), độ trễ tăng 7.6%, storage vector tăng 100%. Chọn 768 dimensions.
+
+- Optional OpenAI:
+  - not executed — credential unavailable
+
+- Decision:
+  - model: gemini-embedding-2
+  - dimension: 768
+  - distance: Cosine distance (<=>) / Inner product (<#>) trên L2-normalized vectors
+  - normalization: L2 normalization bắt buộc ở cả chiều write và query
+  - confidence: High
+
+- ADR:
+  - ai-service/docs/ADR-012-EMBEDDING-MODEL.md
+
+- Evidence:
+  - docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/
+
+- Production changes:
+  - NONE
+
+- Remaining blocker:
+  - none

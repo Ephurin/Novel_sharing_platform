@@ -195,8 +195,14 @@
 - [x] Chọn shared database với schema `narrative` riêng.
 - [x] Chốt policy autosave/checkpoint analysis.
 - [x] Chốt retention và debug trace policy.
-- **Phase 3 gate:** chọn queue implementation; không block Phase 0–2 vì domain dùng queue interface.
-- **Phase 7 gate:** chọn embedding model/dimension bằng benchmark.
+- [x] **Phase 3 gate:** chọn queue implementation; không block Phase 0–2 vì domain dùng queue interface.
+- [x] **Phase 7 gate:** chọn embedding model/dimension bằng benchmark ([ADR-012](ADR-012-EMBEDDING-MODEL.md)).
+
+## ADR-012 — Embedding Model, Vector Dimension, and Reindexing Strategy
+
+**Status:** Proposed (Benchmark completed on 2026-09-22)  
+**Decision:** Chọn `gemini-embedding-2` với vector dimension `768`, chuẩn hóa L2 bắt buộc, cosine distance trong pgvector, instruction prefix phân biệt query/document, và chiến lược parallel reindex không downtime.  
+**Tài liệu chi tiết:** [ADR-012-EMBEDDING-MODEL.md](ADR-012-EMBEDDING-MODEL.md)
 
 ## 2026-09-15 — Phase 4 deterministic projection
 

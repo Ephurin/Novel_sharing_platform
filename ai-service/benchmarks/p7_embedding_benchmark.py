@@ -232,11 +232,14 @@ def embed_gemini(
             "google-genai is required for provider=gemini"
         ) from exc
 
-    api_key = (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or "").strip()
-    if not api_key:
+    raw_keys = (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or "").strip()
+    if not raw_keys:
         raise BenchmarkError("GEMINI_API_KEY or GOOGLE_API_KEY is required")
 
-    client = genai.Client(api_key=api_key)
+    keys = [k.strip() for k in raw_keys.replace(";", ",").split(",") if k.strip()]
+    clients = [genai.Client(api_key=k) for k in keys]
+    current_client_idx = 0
+
     vectors: list[list[float]] = []
     request_latencies: list[float] = []
 
@@ -247,13 +250,32 @@ def embed_gemini(
                 "RETRIEVAL_QUERY" if is_query else "RETRIEVAL_DOCUMENT"
             )
 
-        started = time.perf_counter()
-        response = client.models.embed_content(
-            model=model,
-            contents=_gemini_contents(batch, model, is_query=is_query),
-            config=types.EmbedContentConfig(**config_kwargs),
-        )
-        request_latencies.append((time.perf_counter() - started) * 1000.0)
+        max_attempts = max(10, len(keys) * 3)
+        response = None
+        for attempt in range(max_attempts):
+            client = clients[current_client_idx]
+            started = time.perf_counter()
+            try:
+                response = client.models.embed_content(
+                    model=model,
+                    contents=_gemini_contents(batch, model, is_query=is_query),
+                    config=types.EmbedContentConfig(**config_kwargs),
+                )
+                request_latencies.append((time.perf_counter() - started) * 1000.0)
+                break
+            except Exception as exc:
+                err_str = str(exc)
+                if ("429" in err_str or "RESOURCE_EXHAUSTED" in err_str) and attempt < max_attempts - 1:
+                    if len(clients) > 1:
+                        current_client_idx = (current_client_idx + 1) % len(clients)
+                        time.sleep(2)
+                    else:
+                        time.sleep(25)
+                    continue
+                raise
+
+        if response is None:
+            raise BenchmarkError("Failed to embed batch after retries")
 
         response_vectors = [
             l2_normalize(embedding.values)
