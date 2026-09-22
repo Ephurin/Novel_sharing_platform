@@ -1,6 +1,6 @@
 # P7-01 — Embedding Benchmark + ADR Report
 
-Status: **COMPLETED — AWAITING ASTRA REVIEW**
+Status: **ACCEPTED — 2026-09-22**
 
 **Task**: `P7-01-EMBEDDING-BENCHMARK-ADR`  
 **Evaluation Date**: 2026-09-22  
@@ -21,7 +21,7 @@ This evaluation gate completes real API measurements across multiple embedding c
   - MRR@10 increased from `0.3286` to **`0.9024`** (+174.6%).
   - nDCG@10 increased from `0.3160` to **`0.7097`** (+124.6%).
   - Top-5 hit rate reached **100%** across all 21 core-gold queries.
-  - Critical long-range setups (`old_but_important`, `temporal_supersession`) where recency achieved 0% recall were completely resolved.
+  - Critical long-range setups improved substantially; some individual archetypes are fully recovered while low-lexical-overlap cases remain partial and are deferred to later hybrid ranking.
 - **Dimension Sweep**: Tested 768 vs 1536 dimensions on `gemini-embedding-2`. Increasing to 1536 provided **no quality gain** (Recall@10 dropped to `0.6600`, nDCG@10 dropped to `0.7046`) while doubling vector storage (0.633 MiB → 1.266 MiB) and increasing latency. 768 dimensions is confirmed as the optimal choice.
 - **Production Migrations**: **NONE created**. Schema recommendations are documented below for subsequent Phase 7 tasks.
 
@@ -75,7 +75,7 @@ All 6 tests passed, verifying that the temporal invariant (`memory.chapter_numbe
 | **nDCG@20** | 0.7049 | **0.7419** | **+0.0370** |
 | **Mean Request Latency** | 1746.6 ms | **1372.9 ms** | **-373.7 ms (-21.4%)** |
 
-Both models handle cross-lingual transfer well, with `gemini-embedding-2` offering superior top-rank accuracy (MRR `0.8500` vs `0.8000`), superior Recall@20 / nDCG@20, and lower latency.
+Both models handle cross-lingual transfer well. `gemini-embedding-2` is stronger at K=5 and K=20, while `gemini-embedding-001` is stronger on Recall@10 and nDCG@10. Because the two models used different batch sizes, cross-model latency is recorded but is not used as comparative evidence.
 
 ---
 
@@ -133,4 +133,13 @@ reindex/version policy explicit        PASS (parallel reindexing policy in ADR-0
 production pgvector schema frozen      NO (correct, zero production migrations added)
 ```
 
-**Task Status**: `COMPLETED — AWAITING ASTRA REVIEW`
+**Task Status**: `ACCEPTED — Astra review 2026-09-22`
+
+
+---
+
+## 7. Astra Review Result
+
+P7-01 is accepted. Independent review recomputed the aggregate metrics from each raw artifact's `per_query` results and confirmed the reported Recall/MRR/nDCG values within floating-point precision. The ranked results were also checked against each query's temporal cutoff; no future-memory leakage was found.
+
+Accepted production decision: `gemini-embedding-2 @ 768`, explicit L2 normalization, cosine distance (`<=>`), versioned/non-destructive reindexing, and SQL fallback. Cross-model latency superiority is intentionally **not** claimed because Candidate A used batch size 32 while Candidate B used batch size 16. The same-model 768-vs-1536 comparison is still valid and supports 768 on quality, latency, and storage.
