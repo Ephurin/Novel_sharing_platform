@@ -200,7 +200,7 @@
 
 ## ADR-012 — Embedding Model, Vector Dimension, and Reindexing Strategy
 
-**Status:** Proposed (Benchmark completed on 2026-09-22)  
+**Status:** Accepted (Astra review, 2026-09-22)  
 **Decision:** Chọn `gemini-embedding-2` với vector dimension `768`, chuẩn hóa L2 bắt buộc, cosine distance trong pgvector, instruction prefix phân biệt query/document, và chiến lược parallel reindex không downtime.  
 **Tài liệu chi tiết:** [ADR-012-EMBEDDING-MODEL.md](ADR-012-EMBEDDING-MODEL.md)
 
