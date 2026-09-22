@@ -68,7 +68,7 @@ Evaluation date: 2026-09-22
   - **K=20**: Recall = `0.8437`, MRR = `0.9024`, nDCG = `0.7550`, Hit Rate = `1.0000`
 - **Latency**:
   - Request count: 14 memory batches, 2 query batches
-  - Mean request latency: `1395.7 ms` (24.4% faster per request than Candidate A)
+  - Mean request latency: `1395.7 ms` (recorded at batch size 16; not directly comparable to Candidate A, which used batch size 32)
   - p50 request latency: `1366.8 ms`
   - Memory embedding total elapsed: `27,173.6 ms`
   - Query embedding total elapsed: `9,684.8 ms`
@@ -123,7 +123,7 @@ Evaluating 10 Vietnamese queries against the English narrative canonical memory 
 | **Hit Rate@20** | 1.0000 | 1.0000 | 0.0000 |
 | **Mean Request Latency** | 1746.6 ms | **1372.9 ms** | **-373.7 ms (-21.4%)** |
 
-Both models show strong cross-lingual alignment. Candidate B achieves higher top-rank precision (MRR=0.85 vs 0.80, Recall@5=0.5647 vs 0.5202) and higher Recall@20 / nDCG@20 with substantially lower request latency.
+Both models show strong cross-lingual alignment. Candidate B is stronger at K=5 and K=20, while Candidate A is stronger on Recall@10 and nDCG@10. The cross-model latency numbers are diagnostic only because Candidate A and B used different batch sizes; they are not used to select the winner.
 
 - **Evidence artifacts**:
   - `docs/development/P7-01-EMBEDDING-BENCHMARK-ADR/gemini-001-768-vi.json`
@@ -150,3 +150,14 @@ Comparison between Recent-only baseline and `gemini-embedding-2 @ 768` on challe
 | **rq-0022** | `setup_payoff_relationship` | 0.00 | **0.57** | 0.0000 | **0.8635** | High-precision retrieval across multi-chapter distance |
 | **rq-0027** | `location_history_world_rule` | 0.00 | **1.00** | 0.0000 | **0.7365** | 100% recall on world rule/location history |
 | **rq-0029** | `low_lexical_overlap_world_rule`| 0.00 | **0.50** | 0.0000 | **0.8653** | Strong relevance scoring despite distinct vocabulary |
+
+
+---
+
+## 8. Astra Review Note — 2026-09-22
+
+- Raw JSON aggregates were independently recomputed from `per_query`; reported Recall/MRR/nDCG values match within floating-point precision.
+- Ranked IDs were checked against each query cutoff; no future-memory violations were found in the measured artifacts.
+- Model selection is based on retrieval quality. Cross-model latency is not considered apples-to-apples because Candidate A used batch 32 and Candidate B used batch 16.
+- The 768-vs-1536 latency/storage comparison remains valid because both dimension-sweep runs use `gemini-embedding-2` with batch size 16.
+- P7-01 decision accepted: `gemini-embedding-2 @ 768`.
