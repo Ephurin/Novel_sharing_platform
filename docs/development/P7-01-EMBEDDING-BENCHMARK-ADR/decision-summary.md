@@ -1,6 +1,6 @@
 # Decision Summary — P7-01 Embedding Benchmark
 
-Status: **DECISIVE WINNER IDENTIFIED — READY FOR ADR-012**
+Status: **ACCEPTED — ADR-012 APPROVED 2026-09-22**
 
 Evaluation completed on 2026-09-22 against the frozen `aethelgard-retrieval-eval-v1.0.0` corpus (216 canonical memories, 21 core-gold queries, 10 Vietnamese cross-lingual diagnostic queries).
 
@@ -10,7 +10,7 @@ Evaluation completed on 2026-09-22 against the frozen `aethelgard-retrieval-eval
 
 - **Recommended model**: `gemini-embedding-2`
 - **Recommended dimension**: `768`
-- **Distance metric**: Cosine distance (`<=>` in pgvector) / Inner product (`<#>`) on L2-normalized vectors
+- **Distance metric**: Cosine distance only (`<=>` in pgvector; `vector_cosine_ops` for any future ANN index) on L2-normalized vectors
 - **Normalization policy**: Explicit L2 normalization at both write (indexing) and query time
 - **Instruction policy**:
   - Query prefix: `"Represent this narrative retrieval query for semantic search: "`
@@ -45,9 +45,16 @@ Evaluation completed on 2026-09-22 against the frozen `aethelgard-retrieval-eval
 
 4. **Cross-Lingual / Vietnamese Diagnostic Behavior**:
    - On 10 Vietnamese queries against English canonical memories, `gemini-embedding-2` achieved MRR=`0.8500` (vs `0.8000`), Recall@5=`0.5647` (vs `0.5202`), and Recall@20=`0.8667` (vs `0.8302`).
-   - Confirms strong zero-shot cross-lingual transfer without degrading retrieval performance.
+   - Confirms useful zero-shot cross-lingual transfer, but the diagnostic is mixed: Candidate A remains better on Recall@10 and nDCG@10, while Candidate B is better at K=5 and K=20. The English core-gold split remains the primary model-selection evidence.
 
 5. **Operational Trade-offs**:
    - Provider: Google Gemini API (already utilized for the LLM pipeline, requiring no new third-party vendor relationships or billing setups).
-   - Request latency: `1366.8 ms` p50, `1395.7 ms` mean, substantially faster than Candidate A (`1919.5 ms` p50).
-   - Recommended batch size: 16 texts per request to remain comfortably within API payload and rate limits.
+   - Request latency for Candidate B was recorded at batch size 16 (`1366.8 ms` p50, `1395.7 ms` mean). Candidate A used batch size 32, so A-vs-B latency is not treated as an apples-to-apples speed comparison.
+   - Batch size 16 is retained as a conservative starting configuration, not as a benchmark-proven throughput optimum.
+
+
+---
+
+## 3. Astra Acceptance
+
+P7-01 is accepted on 2026-09-22. The accepted production contract is `gemini-embedding-2`, 768 dimensions, explicit L2 normalization, cosine distance, versioned/non-destructive reindexing, and deterministic SQL fallback when semantic retrieval is unavailable. No claim of cross-model latency superiority is part of the decision.
