@@ -1,6 +1,6 @@
 # ADR-012 — Embedding Model, Vector Dimension, and Reindexing Strategy
 
-- **Status**: Proposed (backed by empirical Phase 7 benchmark measurements on 2026-09-22)
+- **Status**: Accepted (Astra review, 2026-09-22)
 - **Deciders**: Astra (Planner / Reviewer), Gemini (Worker / Benchmark Runner)
 - **Task Reference**: `P7-01-EMBEDDING-BENCHMARK-ADR`
 - **Dataset Reference**: `aethelgard-retrieval-eval-v1.0.0` (216 canonical memories, 21 core-gold queries, 10 Vietnamese cross-lingual diagnostic queries)
@@ -30,7 +30,7 @@ We decide to:
 
 1. **Select `gemini-embedding-2`** as the primary embedding model for Narrative Memory semantic retrieval.
 2. **Standardize on `768` dimensions**.
-3. **Use Cosine Distance** (`<=>` in pgvector) / Inner Product (`<#>`) operating over **strictly L2-normalized float32 vectors**.
+3. **Use Cosine Distance only** (`<=>` in pgvector; `vector_cosine_ops` for any future ANN index) over **strictly L2-normalized float32 vectors**. Inner-product operators are not part of the production contract for embedding-v1.
 4. **Apply asymmetric instruction prefixes**:
    - Query embedding prefix: `"Represent this narrative retrieval query for semantic search: "`
    - Memory embedding prefix: `"Represent this canonical narrative memory for semantic search: "`
@@ -64,7 +64,7 @@ Comparing `gemini-embedding-2` at 768 dimensions versus 1536 dimensions:
 
 Evaluating Vietnamese author queries against English canonical memories:
 - **`gemini-embedding-2 @ 768`**: Recall@5 = `0.5647`, MRR@5 = `0.8500`, nDCG@5 = `0.6163`, Recall@20 = `0.8667`, nDCG@20 = `0.7419`.
-- Outperforms `gemini-embedding-001` in top-rank accuracy (MRR `0.8500` vs `0.8000`, Recall@5 `0.5647` vs `0.5202`) with 21.4% faster request latency.
+- Cross-lingual behavior is mixed but strong: `gemini-embedding-2` is better at Recall/MRR/nDCG@5 and Recall/MRR/nDCG@20, while `gemini-embedding-001` is better at Recall@10 and nDCG@10. Cross-model latency is recorded but not used as comparative evidence because the two candidates were run with different batch sizes.
 
 ### 3.4 Key Archetype Resolutions
 
@@ -139,7 +139,7 @@ Retire and purge v1 embeddings after verification observation period
 
 1. **Provider**: Google Gemini API via `google-genai` SDK.
 2. **Credential**: Managed via `GEMINI_API_KEY` or `GOOGLE_API_KEY`.
-3. **Rate Limits**: Free tier limits rate to 100 embed requests/minute. Production background workers must employ client pacing (16 items/batch) and exponential backoff retry.
+3. **Rate Limits**: Quotas are provider/account/project dependent and may change. Production background workers must use bounded retries, provider-directed backoff when available, and conservative batching. API-key rotation must not be used to bypass provider quotas.
 4. **Storage Estimate**:
    - Float32 raw storage: 768 × 4 bytes = 3,072 bytes per memory chunk.
    - A 100-chapter novel (~500 canonical memory chunks) requires ~1.5 MB of vector data, well within standard PostgreSQL heap capabilities without requiring premature external vector databases.
@@ -149,7 +149,7 @@ Retire and purge v1 embeddings after verification observation period
 ## 8. Rejected Alternatives
 
 1. **`gemini-embedding-001 @ 768`**:
-   - Rejected due to lower ranking quality (MRR@5 `0.8571` vs `0.9024`, Recall@20 `0.7557` vs `0.8437`) and +32.3% higher request latency (`1846.2 ms` vs `1395.7 ms`).
+   - Rejected due to lower primary retrieval quality (MRR@5 `0.8571` vs `0.9024`, Recall@20 `0.7557` vs `0.8437`). The A-vs-B request-latency numbers are not treated as a fair speed comparison because the candidates used different batch sizes.
 2. **`gemini-embedding-2 @ 1536`**:
    - Rejected because doubling the dimension yielded worse ranking performance at K=10 and K=20 while doubling storage costs and increasing latency.
 3. **Specialized Vector Databases (Pinecone, Qdrant, Milvus)**:
@@ -163,13 +163,13 @@ Retire and purge v1 embeddings after verification observation period
 
 - **Positive**:
   - Dramatic quality uplift over baseline (+64.8% Recall@10, +174.6% MRR@10, +124.6% nDCG@10).
-  - Complete elimination of blind spots on long-range narrative setups.
+  - Substantial reduction of long-range retrieval blind spots; some archetypes such as low-lexical-overlap remain only partially recalled and are expected to benefit from later hybrid ranking.
   - Zero-shot cross-lingual retrieval works reliably for Vietnamese queries against English canonical lore.
   - 768 dimensions keeps vector storage lightweight and indexing fast.
 - **Negative**:
   - Requires network round-trip to Gemini Embedding API during background memory chunk creation and author query formulation.
   - Requires careful asynchronous queuing to prevent author editor latency from coupling to embedding latency.
 - **Next Steps (Phase 7 Implementation)**:
-  - Add Alembic migration for `pgvector` extension and `memory_chunks` table with `VECTOR(768)`.
-  - Implement `MemoryChunk` extraction & embedding generation background job.
-  - Implement Hybrid Ranker combining semantic score, entity overlap, importance, and temporal recency.
+  - P7-02: add the pgvector-capable PostgreSQL runtime, Alembic migration, `memory_chunks` production foundation with `VECTOR(768)`, and rebuildable/versioned embedding materialization.
+  - P7-03: implement semantic retrieval with temporal filtering before vector ranking and deterministic SQL fallback.
+  - P7-04: implement Hybrid Ranker combining semantic score, entity overlap, temporal relevance, importance, and relationship relevance.
