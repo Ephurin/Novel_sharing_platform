@@ -1,7 +1,7 @@
 {
   "dataset_version": "aethelgard-retrieval-eval-v1.0.0",
   "ranking_version": "hybrid-v1",
-  "final_head_ci_run": 35831663404,
+  "final_head_ci_run": 35832077913,
   "weights": {
     "semantic": 0.75,
     "entity_overlap": 0.03,
@@ -32,5 +32,6 @@
     "Frozen corpus includes memory types beyond the current production event_summary slice.",
     "Entity matching is deterministic canonical-name/alias matching.",
     "Relationship proxy uses temporally eligible frozen canonical edges."
-  ]
+  ],
+  "merge_commit": "4303fb3ae6bc4fc01e031a016de3a6485c55739b"
 }

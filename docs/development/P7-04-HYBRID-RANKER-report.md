@@ -1,10 +1,11 @@
 # P7-04 — Hybrid Ranker Report
 
-Status: **IMPLEMENTED — CI VERIFIED — READY FOR REVIEW**
+Status: **ACCEPTED — 2026-09-23**
 
-Branch: `astra/p7-04-hybrid-ranker`  
+Merged PR: `#3`  
+Merge commit: `4303fb3ae6bc4fc01e031a016de3a6485c55739b`  
 Ranking version: `hybrid-v1`  
-Authoritative final-head CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35831663404
+Final PR-head CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35832077913
 
 ## Goal
 
@@ -103,7 +104,7 @@ A later evaluation should use held-out novels/queries before treating the curren
 
 ## Verification
 
-Final-head CI `35831663404`:
+Final-head CI `35832077913`:
 
 ```text
 semantic/materialization/retriever/hybrid tests  23 passed
@@ -126,6 +127,10 @@ Not introduced:
 - automatic online weight learning;
 - automatic embedding-version cutover.
 
-## Remaining
+## Acceptance
 
-No known implementation blocker. Merge/owner acceptance remains.
+P7-04 was accepted and squash-merged to `main` on 2026-09-23 as:
+
+`4303fb3ae6bc4fc01e031a016de3a6485c55739b`
+
+Final PR-head CI `35832077913` passed unit/regression, live PostgreSQL+pgvector integration, and root Compose smoke. No implementation blocker remains. P7-05 context compression/token-budget packing is the next planned slice and is not active yet.

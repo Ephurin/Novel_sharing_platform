@@ -1,5 +1,5 @@
 P7-04 live PostgreSQL + pgvector evidence
-CI run: 35831663404
+CI run: 35832077913
 Result: PASS
 Tests: 10 passed in 1.43s
 

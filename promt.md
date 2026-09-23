@@ -668,10 +668,11 @@ P7-03 is accepted. P7-04 is the next planned task but is **NOT ACTIVE** until ex
 
 ---
 
-## 9. ACTIVE TASK — P7-04-HYBRID-RANKER
+## 9. P7-04-HYBRID-RANKER — ACCEPTED
 
-**Opened by owner:** 2026-09-23  
-**Implementation branch:** `astra/p7-04-hybrid-ranker`
+**Status:** ACCEPTED — 2026-09-23  
+**Merged PR:** #3  
+**Merge commit:** `4303fb3ae6bc4fc01e031a016de3a6485c55739b`
 
 Goal:
 
@@ -830,16 +831,16 @@ Regression:
 
 P7-05 remains context compression/token-budget work.
 
-Do not open P7-05 until P7-04 is accepted.
+P7-04 is accepted. P7-05 is the next planned task but is **NOT ACTIVE** until explicitly opened.
 
 
 ---
 
 ### Handoff — P7-04-HYBRID-RANKER
 
-Status: Implemented and CI verified; awaiting Astra/owner review
+Status: ACCEPTED — merged to `main` on 2026-09-23
 
-- Branch: `astra/p7-04-hybrid-ranker`
+- Merge commit: `4303fb3ae6bc4fc01e031a016de3a6485c55739b`
 - Ranking version: `hybrid-v1`
 - Weights: semantic 0.75 / entity 0.03 / temporal 0.08 / importance 0.10 / relationship 0.04
 - Candidate flow: P7-03 exact filtered semantic pool → deterministic hybrid rerank → final limit
@@ -860,12 +861,41 @@ Status: Implemented and CI verified; awaiting Astra/owner review
   - recent: Recall 0.409486 / MRR 0.328571 / nDCG 0.316010
   - semantic: Recall 0.674717 / MRR 0.902381 / nDCG 0.709746
   - hybrid: Recall 0.718556 / MRR 0.906349 / nDCG 0.721033
-- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35831663404
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35832077913
 - ANN/HNSW/IVFFlat: NONE
 - LLM reranker: NONE
 - Context compression: NONE
 - Report: `docs/development/P7-04-HYBRID-RANKER-report.md`
 - Evidence: `docs/development/P7-04-HYBRID-RANKER/`
-- Remaining blocker: merge/owner acceptance only
+- Remaining blocker: none
 
 Do not open P7-05 until P7-04 is accepted.
+
+
+---
+
+## 10. NEXT TASK — P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET — NOT ACTIVE
+
+P7-04 is closed. The next planned Phase 7 slice is deterministic context packing/compression under an explicit token budget.
+
+Do not begin P7-05 until the owner explicitly opens it.
+
+Expected boundary when opened:
+
+```text
+canonical structured context
++ hybrid-ranked semantic memories
+        ↓
+priority / redundancy / token-budget packing
+        ↓
+bounded writing context
+        ↓
+Writing LLM
+```
+
+Keep these out unless explicitly reviewed:
+- ANN/HNSW/IVFFlat;
+- specialized vector database;
+- LLM chain-of-thought summarization;
+- automatic embedding-version cutover;
+- changes that let compressed summaries override canonical Story Brain truth.
