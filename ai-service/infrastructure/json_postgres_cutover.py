@@ -11,7 +11,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from core.story_kb_manager import StoryKBManager
+from core.story_kb_manager import StoryKB, StoryKBManager
 from domain.models import NarrativeEntity, NarrativeEvent, NarrativeRelation, StoryBrain
 from domain.projection import project
 from infrastructure.json_narrative_repository import JsonNarrativeRepository
@@ -144,20 +144,25 @@ def canonical_snapshot(brain: StoryBrain) -> dict[str, Any]:
         ),
     )
 
-    events = sorted(
-        (
+    events = []
+    for index, event in enumerate(brain.events):
+        narrative_order = int(
+            event.metadata.get("narrative_order")
+            if event.metadata.get("narrative_order") is not None
+            else (index + 1) * 1024
+        )
+        events.append(
             {
                 "event_id": str(stable_uuid("event", event.event_id)),
+                "narrative_order": narrative_order,
                 "event_type": event.event_type,
                 "summary": event.summary,
                 "chapter": int(event.chapter),
                 "participants": sorted(str(value) for value in event.participants),
                 "metadata": _clean_event_metadata(event.metadata),
             }
-            for event in brain.events
-        ),
-        key=lambda item: (item["chapter"], item["event_id"]),
-    )
+        )
+    events.sort(key=lambda item: (item["narrative_order"], item["event_id"]))
 
     aliases = sorted(
         (
@@ -400,6 +405,7 @@ class JsonPostgresCutoverMigrator:
         return {"unsupported": unsupported, "warnings": warnings}
 
     def plan(self, story_id: str) -> dict[str, Any]:
+        self._strict_validate_source_file(story_id)
         source_brain = self._source.get_story_brain(story_id)
         source_snapshot = canonical_snapshot(source_brain)
         diagnostics = self.raw_legacy_diagnostics(story_id)
@@ -462,9 +468,12 @@ class JsonPostgresCutoverMigrator:
                 f"id_collisions={plan.get('id_collisions')}"
             )
 
+        self._strict_validate_source_file(story_id)
         source_brain = self._source.get_story_brain(story_id)
-        self._validate_projection(source_brain)
-        self._apply_brain(source_brain)
+        if self.source_hash(story_id) != before_hash:
+            raise CutoverMigrationError("Source JSON changed between preflight and apply")
+        self._validate_source(source_brain)
+        self._apply_brain(source_brain, expected_source_hash=before_hash)
 
         after_hash = self.source_hash(story_id)
         if after_hash != before_hash:
@@ -483,6 +492,22 @@ class JsonPostgresCutoverMigrator:
             "idempotent": False,
             "source_unchanged": after_hash == before_hash,
         }
+
+    def _strict_validate_source_file(self, story_id: str) -> None:
+        path = self.source_file(story_id)
+        if not path.exists():
+            raise FileNotFoundError(path)
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            validated = StoryKB.model_validate(raw)
+        except Exception as exc:
+            raise CutoverMigrationError(
+                f"Invalid legacy StoryKB JSON for {story_id}: {exc}"
+            ) from exc
+        if validated.story_id != story_id:
+            raise CutoverMigrationError(
+                f"Story ID mismatch: file requested as {story_id} but contains {validated.story_id}"
+            )
 
     def _validate_source(self, brain: StoryBrain) -> None:
         entity_by_id = {
@@ -505,12 +530,45 @@ class JsonPostgresCutoverMigrator:
         for mention in brain.mentions:
             resolve(mention.entity_id, label=f"Mention {mention.mention_id}")
         for index, fact in enumerate(brain.facts):
+            if not isinstance(fact.get("fact_key"), str) or not fact["fact_key"].strip():
+                raise CutoverMigrationError(
+                    f"Fact {fact.get('fact_id') or fact.get('id') or index} has no fact_key"
+                )
+            if "fact_value" not in fact:
+                raise CutoverMigrationError(
+                    f"Fact {fact.get('fact_id') or fact.get('id') or index} has no fact_value"
+                )
             if fact.get("subject_entity_id"):
                 resolve(
                     fact["subject_entity_id"],
                     label=f"Fact {fact.get('fact_id') or fact.get('id') or index}",
                 )
-        for event in brain.events:
+        previous_order: int | None = None
+        seen_orders: set[int] = set()
+        for index, event in enumerate(brain.events):
+            if not event.event_type.strip() or not event.summary.strip():
+                raise CutoverMigrationError(
+                    f"Event {event.event_id} requires nonempty type and summary"
+                )
+            if int(event.chapter) < 1:
+                raise CutoverMigrationError(
+                    f"Event {event.event_id} has invalid chapter {event.chapter}"
+                )
+            narrative_order = int(
+                event.metadata.get("narrative_order")
+                if event.metadata.get("narrative_order") is not None
+                else (index + 1) * 1024
+            )
+            if narrative_order in seen_orders:
+                raise CutoverMigrationError(
+                    f"Duplicate event narrative_order: {narrative_order}"
+                )
+            if previous_order is not None and narrative_order <= previous_order:
+                raise CutoverMigrationError(
+                    "Legacy enhanced_events order disagrees with narrative_order"
+                )
+            seen_orders.add(narrative_order)
+            previous_order = narrative_order
             for participant in event.participants:
                 resolve(participant, label=f"Event {event.event_id} participant")
         for relation in brain.relations:
@@ -673,7 +731,12 @@ class JsonPostgresCutoverMigrator:
                 "Legacy state_transitions do not replay to the canonical narrative_projection"
             )
 
-    def _apply_brain(self, brain: StoryBrain) -> None:
+    def _apply_brain(
+        self,
+        brain: StoryBrain,
+        *,
+        expected_source_hash: str | None = None,
+    ) -> None:
         story_id = brain.story_id
         novel_id = novel_uuid(story_id)
         source_snapshot = canonical_snapshot(brain)
@@ -834,11 +897,14 @@ class JsonPostgresCutoverMigrator:
 
             event_ids: dict[str, uuid.UUID] = {}
             ordered_events = list(brain.events)
+            snapshot_events = {
+                item["event_id"]: item for item in source_snapshot["events"]
+            }
             for index, event in enumerate(ordered_events):
                 event_id = stable_uuid("event", event.event_id)
-                raw_order = event.metadata.get("narrative_order")
-                narrative_order = int(raw_order) if raw_order is not None else (index + 1) * 1024
+                narrative_order = snapshot_events[str(event_id)]["narrative_order"]
                 metadata = dict(event.metadata)
+                metadata["narrative_order"] = narrative_order
                 record = EventRecord(
                     id=event_id,
                     story_brain_id=brain_record.id,
@@ -1030,6 +1096,14 @@ class JsonPostgresCutoverMigrator:
                         is_locked=False,
                         relation_metadata=dict(relation),
                     )
+                )
+
+            if (
+                expected_source_hash is not None
+                and self.source_hash(story_id) != expected_source_hash
+            ):
+                raise CutoverMigrationError(
+                    "Source JSON changed before PostgreSQL transaction commit"
                 )
 
     @staticmethod
