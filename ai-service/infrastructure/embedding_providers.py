@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import time
 from typing import Any
 
 from domain.embeddings import EmbeddingProviderError
@@ -37,48 +38,94 @@ class GeminiEmbeddingProvider:
             )
 
     def embed_document(self, text: str) -> tuple[float, ...]:
-        return self._embed_prefixed(text, DOCUMENT_INSTRUCTION, kind="document")
+        return self._embed_many(
+            (text,),
+            DOCUMENT_INSTRUCTION,
+            kind="document",
+            retry_rate_limits=False,
+        )[0]
+
+    def embed_documents(self, texts: tuple[str, ...] | list[str]) -> tuple[tuple[float, ...], ...]:
+        return self._embed_many(
+            tuple(texts),
+            DOCUMENT_INSTRUCTION,
+            kind="document",
+            retry_rate_limits=True,
+        )
 
     def embed_query(self, text: str) -> tuple[float, ...]:
-        return self._embed_prefixed(text, QUERY_INSTRUCTION, kind="query")
+        return self._embed_many(
+            (text,),
+            QUERY_INSTRUCTION,
+            kind="query",
+            retry_rate_limits=False,
+        )[0]
 
-    def _embed_prefixed(
+    def _embed_many(
         self,
-        text: str,
+        texts: tuple[str, ...],
         prefix: str,
         *,
         kind: str,
-    ) -> tuple[float, ...]:
-        if not text.strip():
-            raise EmbeddingProviderError(f"Cannot embed empty semantic-memory {kind}")
+        retry_rate_limits: bool,
+    ) -> tuple[tuple[float, ...], ...]:
+        if not texts or any(not text.strip() for text in texts):
+            raise EmbeddingProviderError(
+                f"Cannot embed empty semantic-memory {kind}"
+            )
         try:
             from google import genai
             from google.genai import types
 
             client = self._client or genai.Client(api_key=self._api_key)
-            response = client.models.embed_content(
-                model=self.model,
-                contents=[
-                    types.Content(
-                        parts=[types.Part.from_text(text=prefix + text)]
+            delays = (5, 15, 30)
+            response = None
+            for attempt in range(len(delays) + 1):
+                try:
+                    response = client.models.embed_content(
+                        model=self.model,
+                        contents=[
+                            types.Content(
+                                parts=[types.Part.from_text(text=prefix + text)]
+                            )
+                            for text in texts
+                        ],
+                        config=types.EmbedContentConfig(
+                            output_dimensionality=self.dimension
+                        ),
                     )
-                ],
-                config=types.EmbedContentConfig(
-                    output_dimensionality=self.dimension
-                ),
-            )
-            embeddings = list(response.embeddings or [])
-            if len(embeddings) != 1:
+                    break
+                except Exception as exc:
+                    error_text = str(exc)
+                    rate_limited = (
+                        "429" in error_text
+                        or "RESOURCE_EXHAUSTED" in error_text
+                    )
+                    if (
+                        retry_rate_limits
+                        and rate_limited
+                        and attempt < len(delays)
+                    ):
+                        time.sleep(delays[attempt])
+                        continue
+                    raise
+
+            embeddings = list(response.embeddings or []) if response is not None else []
+            if len(embeddings) != len(texts):
                 raise EmbeddingProviderError(
-                    f"Gemini returned {len(embeddings)} embeddings for one {kind}"
+                    f"Gemini returned {len(embeddings)} embeddings for "
+                    f"{len(texts)} {kind} inputs"
                 )
-            values = tuple(float(value) for value in embeddings[0].values)
-            if len(values) != self.dimension:
-                raise EmbeddingProviderError(
-                    f"Gemini embedding dimension mismatch: expected {self.dimension}, "
-                    f"got {len(values)}"
-                )
-            return values
+            vectors: list[tuple[float, ...]] = []
+            for embedding in embeddings:
+                values = tuple(float(value) for value in embedding.values)
+                if len(values) != self.dimension:
+                    raise EmbeddingProviderError(
+                        f"Gemini embedding dimension mismatch: expected {self.dimension}, "
+                        f"got {len(values)}"
+                    )
+                vectors.append(values)
+            return tuple(vectors)
         except EmbeddingProviderError:
             raise
         except Exception as exc:
@@ -96,6 +143,12 @@ class DeterministicFakeEmbeddingProvider:
 
     def embed_document(self, text: str) -> tuple[float, ...]:
         return self._embed_prefixed(text, DOCUMENT_INSTRUCTION, kind="document")
+
+    def embed_documents(
+        self,
+        texts: tuple[str, ...] | list[str],
+    ) -> tuple[tuple[float, ...], ...]:
+        return tuple(self.embed_document(text) for text in texts)
 
     def embed_query(self, text: str) -> tuple[float, ...]:
         return self._embed_prefixed(text, QUERY_INSTRUCTION, kind="query")
