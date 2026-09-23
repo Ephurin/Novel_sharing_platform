@@ -310,7 +310,9 @@ selection_start=100
 selection_end=500
 ```
 
-Response không chứa chain-of-thought. Chỉ trả context artifacts và provenance:
+Response không chứa chain-of-thought. Chỉ trả context artifacts và provenance.
+
+`semantic_memories` là lớp retrieval bổ sung, không thay thế `recent_events` canonical. Writing generation chỉ kích hoạt semantic retrieval khi có query + canonical chapter cutoff; nếu semantic provider/storage không khả dụng thì context quay về Phase 6 SQL deterministically:
 
 ```json
 {
@@ -319,7 +321,7 @@ Response không chứa chain-of-thought. Chỉ trả context artifacts và prove
     "entities": [],
     "current_states": [],
     "recent_events": [],
-    "retrieved_memories": [],
+    "semantic_memories": [],
     "world_rules": [],
     "author_constraints": [],
     "token_budget": {

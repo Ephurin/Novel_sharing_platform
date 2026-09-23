@@ -1,0 +1,14 @@
+P7-03 exact semantic retrieval evidence
+CI run: 35828640785
+Result: PASS
+
+Verified live against PostgreSQL + pgvector:
+- query embedding must be 768-dimensional and L2-normalized;
+- exact cosine ordering is used;
+- embedding_version is filtered before candidate ranking;
+- stale embedding rows are excluded by content_hash equality;
+- tenant/novel/story-brain scope is enforced;
+- chapter cutoff excludes future event memories before ranking;
+- missing chapter cutoff fails closed;
+- a future memory that is the mathematically closest vector does not appear at an earlier cutoff;
+- superseded event memory is excluded even before background cleanup removes its old chunk.

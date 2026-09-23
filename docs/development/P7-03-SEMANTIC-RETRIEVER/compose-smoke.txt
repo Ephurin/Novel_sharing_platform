@@ -1,0 +1,23 @@
+P7-03 root Compose evidence
+CI run: 35828640785
+Result: PASS
+
+Production-path services built/started:
+- PostgreSQL 16 + pgvector: healthy
+- MongoDB: healthy
+- AI service: healthy
+- backend: started/healthy endpoint
+- web: started and reachable
+
+Semantic runtime:
+- retriever constructed with fake embedding provider in CI
+- materializer constructed from the same semantic runtime
+- POST /internal/v1/story-brains/<id>/semantic-memory/rebuild returned 202
+
+Storage/auth regressions:
+- narrative.memory_embeddings.embedding is vector(768)
+- missing service credential -> 401
+- invalid service credential -> 403
+- valid service credential -> 200
+
+No external Gemini credential is used by CI.

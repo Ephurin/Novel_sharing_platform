@@ -628,3 +628,38 @@ Regression:
 - specialized vector DB.
 
 P7-04 remains the hybrid-ranker slice.
+
+
+---
+
+### Handoff — P7-03-SEMANTIC-RETRIEVER
+
+Status: Implemented and CI verified; awaiting Astra/owner review
+
+- Branch: `astra/p7-03-semantic-retriever`
+- Query recipe: ADR-012 query prefix + explicit L2
+- Retrieval: exact pgvector cosine
+- Temporal cutoff: PASS — required/fail-closed before semantic search
+- Embedding version isolation: PASS
+- Stale content-hash exclusion: PASS
+- Superseded-event race guard: PASS
+- Tenant semantic scope mismatch: PASS — semantic layer skips/falls back
+- Phase 6 fallback: PASS
+- Semantic memories additive to canonical recent_events: PASS
+- Context hash includes semantic memory content: PASS
+- Post-accept semantic refresh: PASS — background, canonical acceptance independent
+- Internal semantic rebuild/backfill endpoint: PASS
+- Unit/semantic tests: PASS — 17
+- P7 benchmark regression: PASS — 6
+- Phase 6 temporal/writing regressions: PASS — 25
+- Live pgvector integration: PASS — 9
+- Root Compose: PASS — retriever + materializer + rebuild 202 + pgvector/auth/backend/web
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35828640785
+- ANN/HNSW/IVFFlat: NONE
+- Hybrid ranker: NONE
+- Context compression: NONE
+- Report: `docs/development/P7-03-SEMANTIC-RETRIEVER-report.md`
+- Evidence: `docs/development/P7-03-SEMANTIC-RETRIEVER/`
+- Remaining blocker: merge/owner acceptance only
+
+Do not open P7-04 until P7-03 is accepted.
