@@ -491,6 +491,60 @@ class WritingService:
 
         return self._repository.save_writing_job(completed_job)
 
+    def _resolve_selected_text(self, job: WritingGenerationJob) -> str:
+        if job.selection.get("source_text") is not None:
+            raw_text = str(job.selection["source_text"])
+            start = job.selection.get("start", 0)
+            end = job.selection.get("end", len(raw_text))
+            selected_text = raw_text[start:end]
+            if not selected_text and start == end and raw_text:
+                selected_text = raw_text
+            return selected_text
+
+        if self._revision_provider:
+            try:
+                revision = self._revision_provider.get_revision(
+                    tenant_id=job.tenant_id,
+                    novel_id=job.novel_id,
+                    chapter_id=job.chapter_id,
+                    revision_id=job.revision_id,
+                )
+                start = job.selection.get("start", 0)
+                end = job.selection.get("end", start)
+                return revision.content[start:end]
+            except Exception:
+                return ""
+        return ""
+
+    @staticmethod
+    def _build_semantic_query(*, instruction: str, selected_text: str) -> str:
+        parts = [
+            value.strip()
+            for value in (instruction, selected_text)
+            if value and value.strip()
+        ]
+        return "\n\n".join(parts)
+
+    @staticmethod
+    def _semantic_match_payload(match: Any) -> dict[str, Any]:
+        return {
+            "memory_chunk_id": match.memory_chunk_id,
+            "memory_type": match.memory_type,
+            "content": match.content,
+            "content_hash": match.content_hash,
+            "embedding_version": match.embedding_version,
+            "cosine_distance": match.cosine_distance,
+            "narrative_order": match.narrative_order,
+            "chapter_number": match.chapter_number,
+            "chapter_id": match.chapter_id,
+            "revision_id": match.revision_id,
+            "event_id": match.event_id,
+            "entity_id": match.entity_id,
+            "entity_ids": list(match.entity_ids),
+            "importance_score": match.importance_score,
+            "metadata": dict(match.metadata),
+        }
+
     def _validate_draft(
         self,
         *,
