@@ -388,25 +388,31 @@ class JsonPostgresCutoverMigrator:
                 return bool(value)
             return value not in (None, "", 0, False)
 
-        for key in ("events", "event_history", "entity_states"):
+        # These fields belong to older StoryKB pipelines but are intentionally
+        # ignored by JsonNarrativeRepository.get_story_brain(). P8-01 migrates
+        # the adapter-backed canonical view; legacy-only fields remain archived
+        # in the untouched source JSON until the final post-release cleanup gate.
+        for key in ("events", "event_history", "entity_states", "relation_history"):
             if nonempty(raw.get(key)):
-                unsupported.append({
+                warnings.append({
                     "field": key,
                     "count": len(raw.get(key) or {}),
-                    "reason": "legacy-only field is not part of JsonNarrativeRepository canonical StoryBrain view",
+                    "reason": (
+                        "legacy-only field is not part of the current "
+                        "JsonNarrativeRepository canonical StoryBrain view; "
+                        "retained in source JSON archive"
+                    ),
                 })
         world = raw.get("current_world_state") or {}
-        if nonempty(world.get("characters")) and not nonempty(raw.get("narrative_projection")):
-            unsupported.append({
+        if nonempty(world.get("characters")):
+            warnings.append({
                 "field": "current_world_state.characters",
                 "count": len(world.get("characters") or {}),
-                "reason": "legacy world state has no canonical narrative_projection equivalent",
-            })
-        if nonempty(raw.get("relation_history")):
-            warnings.append({
-                "field": "relation_history",
-                "count": len(raw.get("relation_history") or []),
-                "reason": "audit history is retained in source JSON but is not canonical StoryBrain state",
+                "reason": (
+                    "legacy-only world state is not part of the current "
+                    "JsonNarrativeRepository canonical StoryBrain view; "
+                    "retained in source JSON archive"
+                ),
             })
         return {"unsupported": unsupported, "warnings": warnings}
 
@@ -415,6 +421,9 @@ class JsonPostgresCutoverMigrator:
         source_brain = self._source.get_story_brain(story_id)
         source_snapshot = canonical_snapshot(source_brain)
         diagnostics = self.raw_legacy_diagnostics(story_id)
+        diagnostics["warnings"].extend(
+            self._canonical_reference_warnings(source_brain)
+        )
 
         validation_error: str | None = None
         try:
@@ -515,6 +524,54 @@ class JsonPostgresCutoverMigrator:
                 f"Story ID mismatch: file requested as {story_id} but contains {validated.story_id}"
             )
 
+    @staticmethod
+    def _canonical_reference_warnings(brain: StoryBrain) -> list[dict[str, Any]]:
+        entity_ids = {
+            str(entity.entity_id or legacy_entity_uuid(brain.story_id, entity.name))
+            for entity in brain.entities
+        }
+        entity_names = {entity.name.casefold() for entity in brain.entities}
+
+        def known(reference: Any) -> bool:
+            value = str(reference)
+            return value in entity_ids or value.casefold() in entity_names
+
+        warnings: list[dict[str, Any]] = []
+        for event in brain.events:
+            unresolved = sorted(
+                {str(value) for value in event.participants if not known(value)}
+            )
+            if unresolved:
+                warnings.append({
+                    "field": f"event:{event.event_id}.participants",
+                    "count": len(unresolved),
+                    "values": unresolved,
+                    "reason": (
+                        "unresolved legacy participant labels are preserved in "
+                        "EventRecord.participants but cannot create entity join rows"
+                    ),
+                })
+
+        for index, relation in enumerate(brain.relations):
+            if relation.source == "projection" and not relation.locked:
+                continue
+            unresolved = [
+                value
+                for value in (relation.subject, relation.object)
+                if not known(value)
+            ]
+            if unresolved:
+                warnings.append({
+                    "field": f"relationship:{index}.endpoints",
+                    "count": len(unresolved),
+                    "values": unresolved,
+                    "reason": (
+                        "unresolved legacy relationship labels are preserved by "
+                        "name; they are not promoted to new canonical entities"
+                    ),
+                })
+        return warnings
+
     def _validate_source(self, brain: StoryBrain) -> None:
         entity_by_id = {
             str(entity.entity_id or legacy_entity_uuid(brain.story_id, entity.name)): entity
@@ -575,13 +632,12 @@ class JsonPostgresCutoverMigrator:
                 )
             seen_orders.add(narrative_order)
             previous_order = narrative_order
-            for participant in event.participants:
-                resolve(participant, label=f"Event {event.event_id} participant")
-        for relation in brain.relations:
-            if relation.source == "projection" and not relation.locked:
-                continue
-            resolve(relation.subject, label="Relationship subject")
-            resolve(relation.object, label="Relationship object")
+            # Legacy enhanced events may contain free-form participant names that
+            # never became canonical entities. PostgreSQL preserves the participant
+            # strings in EventRecord; only resolvable entities receive join rows.
+        # RelationshipRecord deliberately stores canonical names/labels rather than
+        # entity foreign keys. Preserve legacy free-form endpoints exactly; hybrid
+        # entity signals will only attach to endpoints that resolve to known entities.
 
         state = brain.current_state or {}
         for entity_id in (state.get("entities") or {}):
