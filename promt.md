@@ -649,12 +649,12 @@ Status: Implemented and CI verified; awaiting Astra/owner review
 - Context hash includes semantic memory content: PASS
 - Post-accept semantic refresh: PASS — background, canonical acceptance independent
 - Internal semantic rebuild/backfill endpoint: PASS
-- Unit/semantic tests: PASS — 17
+- Unit/semantic tests: PASS — 18
 - P7 benchmark regression: PASS — 6
 - Phase 6 temporal/writing regressions: PASS — 25
 - Live pgvector integration: PASS — 9
 - Root Compose: PASS — retriever + materializer + rebuild 202 + pgvector/auth/backend/web
-- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35828640785
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35829177503
 - ANN/HNSW/IVFFlat: NONE
 - Hybrid ranker: NONE
 - Context compression: NONE
