@@ -327,18 +327,33 @@ def test_conflicting_nonempty_target_is_blocked(session_factory, tmp_path: Path)
         migrator.apply(story_id)
 
 
-def test_legacy_only_canonical_ambiguity_is_blocked(session_factory, tmp_path: Path) -> None:
+def test_legacy_only_noncanonical_fields_are_archival_warnings(
+    session_factory, tmp_path: Path
+) -> None:
     story_id = str(uuid.uuid4())
     tenant_id = str(uuid.uuid4())
-    _seed_json(tmp_path, story_id, unsupported=True)
+    manager, _ = _seed_json(tmp_path, story_id, unsupported=True)
+    source_before = manager._get_file_path(story_id).read_bytes()
     migrator = _migrator(session_factory, tmp_path, tenant_id)
 
     plan = migrator.plan(story_id)
 
-    assert plan["action"] == "blocked_unsupported"
-    assert plan["unsupported"][0]["field"] == "event_history"
-    with pytest.raises(CutoverMigrationError, match="blocked_unsupported"):
-        migrator.apply(story_id)
+    assert plan["action"] == "ready"
+    assert plan["unsupported"] == []
+    assert any(item["field"] == "event_history" for item in plan["warnings"])
+
+    applied = migrator.apply(story_id)
+    assert applied["parity"] is True
+    assert manager._get_file_path(story_id).read_bytes() == source_before
+
+    target = PostgresNarrativeRepository(
+        session_factory,
+        tenant_id=tenant_id,
+        actor_id=str(uuid.uuid4()),
+    )
+    # Only the adapter-backed enhanced event is canonical; the extra
+    # event_history row remains archived in untouched source JSON.
+    assert len(target.get_story_brain(story_id).events) == 1
 
 
 
@@ -432,6 +447,39 @@ def test_dry_run_blocks_global_legacy_primary_key_collision(
             "reason": "primary key is already owned by another tenant/novel",
         }
     ]
+
+
+
+
+def test_committed_legacy_story_files_have_safe_canonical_dry_run(
+    session_factory
+) -> None:
+    tenant_id = str(uuid.uuid4())
+    storage = SERVICE_ROOT / "data"
+    expected_story_ids = (
+        "writing_session_550",
+        "writing_session_599",
+        "writing_session_968",
+        "writing_session_492",
+        "test2",
+        "test_narrative_v2",
+    )
+    migrator = _migrator(session_factory, storage, tenant_id)
+
+    plans = [migrator.plan(story_id) for story_id in expected_story_ids]
+
+    assert [plan["story_id"] for plan in plans] == list(expected_story_ids)
+    assert all(plan["action"] == "ready" for plan in plans)
+    assert all(plan["safe_to_apply"] is True for plan in plans)
+    assert all(plan["unsupported"] == [] for plan in plans)
+
+    warnings = {
+        plan["story_id"]: {item["field"] for item in plan["warnings"]}
+        for plan in plans
+    }
+    assert "entity_states" in warnings["writing_session_550"]
+    assert "event_history" in warnings["test_narrative_v2"]
+    assert "current_world_state.characters" in warnings["test_narrative_v2"]
 
 
 def test_migration_is_tenant_scoped(session_factory, tmp_path: Path) -> None:
