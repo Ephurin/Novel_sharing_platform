@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import replace
+import json
 
 from application.context_budget import (
     CONTEXT_PACKING_VERSION,
@@ -300,11 +300,10 @@ def test_writing_service_hashes_and_sends_exact_packed_prompt_context() -> None:
         world_rules=(locked,),
         recent_events=(huge,),
     )
-    packer = ContextBudgetPacker(
-        default_budget=packer_budget := ContextBudgetPacker().estimate_prompt_tokens(
-            _package(world_rules=(locked,))
-        )
+    default_budget = ContextBudgetPacker().estimate_prompt_tokens(
+        _package(world_rules=(locked,))
     )
+    packer = ContextBudgetPacker(default_budget=default_budget)
     repo = _OneContextRepository(source_package)
     llm = FakeDeterministicLLMService()
     service = WritingService(repo, llm, context_packer=packer)
@@ -333,7 +332,7 @@ def test_writing_service_hashes_and_sends_exact_packed_prompt_context() -> None:
     assert sent["world_rules"][0]["id"] == "locked"
     assert "drop-me" in job.context_summary["dropped_event_ids"]
     expected_hash = hashlib.sha256(
-        __import__("json").dumps(sent, sort_keys=True, default=str).encode("utf-8")
+        json.dumps(sent, sort_keys=True, default=str).encode("utf-8")
     ).hexdigest()
     assert job.context_hash == expected_hash
     assert job.context_summary["context_packing_version"] == [CONTEXT_PACKING_VERSION]
