@@ -4,6 +4,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+from application.hybrid_ranker import HybridRanker
 from application.semantic_memory_service import SemanticMemoryMaterializationService
 from application.semantic_retriever import SemanticRetrieverService
 from core.settings import Settings
@@ -67,6 +68,7 @@ def build_semantic_runtime(settings: Settings) -> SemanticRuntime:
                 embedding_version=settings.active_embedding_version,
                 default_limit=settings.semantic_retrieval_limit,
                 tenant_id=settings.default_tenant_id,
+                hybrid_ranker=HybridRanker(),
             ),
             materializer=SemanticMemoryMaterializationService(repository, provider),
             engine=engine,
