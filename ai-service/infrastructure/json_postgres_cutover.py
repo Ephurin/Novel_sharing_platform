@@ -193,10 +193,18 @@ def canonical_snapshot(brain: StoryBrain) -> dict[str, Any]:
         ),
         key=lambda item: item["mention_id"],
     )
-    proposals = sorted(
-        (
+    proposals = []
+    for index, item in enumerate(brain.proposals):
+        proposals.append(
             {
                 "proposal_id": str(stable_uuid("proposal", item.proposal_id)),
+                "dependency_group_id": str(
+                    stable_uuid(
+                        "proposal-group",
+                        item.dependency_group_id or f"{brain.story_id}:{index}",
+                    )
+                ),
+                "materialization_order": int(item.materialization_order or index),
                 "proposal_type": item.proposal_type,
                 "payload": canonicalize(item.payload),
                 "evidence": canonicalize(list(item.evidence)),
@@ -205,10 +213,8 @@ def canonical_snapshot(brain: StoryBrain) -> dict[str, Any]:
                 "status": item.status.value,
                 "decision_reason": item.decision_reason,
             }
-            for item in brain.proposals
-        ),
-        key=lambda item: item["proposal_id"],
-    )
+        )
+    proposals.sort(key=lambda item: item["proposal_id"])
 
     transitions = []
     for index, item in enumerate(brain.transitions):
