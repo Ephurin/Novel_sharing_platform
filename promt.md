@@ -517,3 +517,33 @@ Status: Completed, awaiting Astra review
 ```
 
 Do not open P7-03 until P7-02 is reviewed and accepted.
+
+
+---
+
+### Handoff — P7-02-MEMORY-PGVECTOR-FOUNDATION
+
+Status: Implemented and CI verified; awaiting owner merge/review
+
+- Branch: `astra/p7-02-memory-pgvector-foundation`
+- Migration: `0007_semantic_memory_foundation`
+- Schema:
+  - memory_chunks: derived content/provenance; no vector column
+  - memory_embeddings: versioned representation; `VECTOR(768)`
+- Embedding v1: `gemini-embedding-2 / 768 / L2 / cosine`
+- Canonical source filtering: PASS — confirmed + active/non-superseded events only
+- Parallel versions: PASS
+- Stale hash detection: PASS
+- Provider failure behavior: PASS — chunk survives and is retryable
+- Unit tests: PASS — 6 semantic-memory + 6 benchmark regression
+- Live pgvector integration: PASS — 5 tests
+- Migration downgrade/re-upgrade: PASS
+- Root Compose: PASS — postgres/mongo/AI/backend/web + pgvector + auth 401/403/200
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35825994127
+- Phase 6 retrieval changes: NONE
+- Semantic retriever changes: NONE
+- Report: `docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION-report.md`
+- Evidence: `docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION/`
+- Remaining blocker: merge/owner acceptance only
+
+Do not open P7-03 until P7-02 is accepted.
