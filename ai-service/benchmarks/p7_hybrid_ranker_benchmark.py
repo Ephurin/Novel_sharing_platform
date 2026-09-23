@@ -44,9 +44,15 @@ def _contains_phrase(text: str, phrase: str) -> bool:
     return re.search(rf"(?<!\w){re.escape(phrase)}(?!\w)", text, flags=re.IGNORECASE) is not None
 
 
-def resolve_query_entities(query_text: str, entities: list[dict[str, Any]]) -> set[str]:
+def resolve_query_entities(
+    query_text: str,
+    entities: list[dict[str, Any]],
+    chapter_cutoff: int,
+) -> set[str]:
     output: set[str] = set()
     for entity in entities:
+        if int(entity.get("first_chapter") or 1) > chapter_cutoff:
+            continue
         names = [entity.get("canonical_name", ""), *(entity.get("aliases") or [])]
         if any(name and _contains_phrase(query_text, str(name)) for name in names):
             output.add(str(entity["entity_id"]))
@@ -124,6 +130,7 @@ def run_proxy() -> dict[str, Any]:
         query_entities = resolve_query_entities(
             str(query["query"]),
             list(entity_payload["entities"]),
+            cutoff,
         )
         related = related_entities(
             query_entities,
