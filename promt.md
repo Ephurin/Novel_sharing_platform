@@ -874,28 +874,175 @@ P7-04 is accepted. P7-05 remains **NOT ACTIVE** until explicitly opened by the o
 
 ---
 
-## 10. NEXT TASK — P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET — NOT ACTIVE
+## 10. ACTIVE TASK — P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET
 
-P7-04 is closed. The next planned Phase 7 slice is deterministic context packing/compression under an explicit token budget.
+**Opened by owner:** 2026-09-23  
+**Implementation branch:** `astra/p7-05-context-budget`
 
-Do not begin P7-05 until the owner explicitly opens it.
-
-Expected boundary when opened:
+Goal:
 
 ```text
 canonical structured context
 + hybrid-ranked semantic memories
         ↓
-priority / redundancy / token-budget packing
+deterministic dedup + priority packing
         ↓
-bounded writing context
+bounded prompt context
+        ↓
+context hash
         ↓
 Writing LLM
 ```
 
-Keep these out unless explicitly reviewed:
+### 10.1 Single production budget owner
+
+Production writing context is budgeted in the application layer **after** semantic retrieval/hybrid ranking and **before** context hashing / LLM invocation.
+
+```text
+NarrativeRepository
+→ temporal/canonical structured candidates
+
+SemanticRetriever
+→ temporally safe hybrid-ranked memory candidates
+
+ContextBudgetPacker
+→ final prompt artifacts
+```
+
+WritingService must not ask the repository to pre-trim the same request budget and then append semantic memories outside that budget.
+
+Repository-level Phase 6 budgeting may remain as a compatibility path for direct repository callers/tests, but it is not the final P7-05 production budget authority.
+
+### 10.2 Compression definition
+
+P7-05 v1 compression is deterministic **artifact selection and redundancy removal**, not LLM summarization.
+
+Never:
+- synthesize new canonical facts;
+- rewrite locked facts/rules;
+- let a generated summary override canonical Story Brain data;
+- expose chain-of-thought.
+
+Whole artifacts are kept or dropped; protected artifacts are not text-truncated.
+
+### 10.3 Protected artifacts
+
+Must always survive packing:
+
+1. locked world rules/facts;
+2. explicit author constraints.
+
+If protected artifacts alone exceed the requested budget:
+
+```text
+keep protected artifacts intact
+mark budget_overflow = true
+mark protected_overflow = true
+do not silently truncate them
+```
+
+### 10.4 Deterministic priority
+
+After protected artifacts:
+
+```text
+entity/current-state bundles
+→ non-locked world rules
+→ hybrid-ranked semantic relevance
+→ remaining recent events
+```
+
+Within semantic memories, preserve P7-04 order.
+
+Within recent events, newer events have higher packing priority, while output remains chronological.
+
+Entity + current-state records for the same entity are treated as one packing bundle so state/entity duplication does not cause partial selection.
+
+### 10.5 Semantic/recent dedup
+
+When a semantic memory is derived from the same `event_id` as a canonical recent event:
+
+- keep the canonical recent-event representation;
+- use the semantic rank to promote that event's packing priority;
+- do not send both payloads to the prompt;
+- record the dedup in trace metadata.
+
+This removes redundant tokens without losing semantic relevance.
+
+### 10.6 Token estimation
+
+No provider/network tokenizer call in the packing path.
+
+Use a frozen deterministic estimator over canonical JSON serialization:
+
+```text
+serialization = UTF-8 JSON, ensure_ascii=false, sorted keys, compact separators
+estimated_tokens = ceil(utf8_bytes / 3)
+estimator_version = utf8-json-bytes-3-v1
+```
+
+This is intentionally conservative and reproducible. It is an estimate, not a claim of exact Gemini/Qwen tokenization.
+
+Default context budget remains `12000` estimated tokens unless an explicit positive preview budget is supplied.
+
+### 10.7 Packing invariant
+
+Unless protected artifacts alone overflow:
+
+```text
+final estimated prompt-context tokens <= maximum
+```
+
+Selection is deterministic for identical input.
+
+A large optional artifact that does not fit may be skipped while later smaller artifacts are still considered.
+
+### 10.8 Traceability
+
+Final package must expose enough provenance to reproduce packing without hidden reasoning:
+
+- packing version;
+- estimator version;
+- estimated tokens before/after;
+- maximum;
+- protected overflow flag;
+- deduplicated semantic IDs;
+- retained/dropped artifact IDs by category.
+
+`context_hash` continues hashing the exact packed prompt context passed to `generate_writing_draft`.
+
+### 10.9 Tests
+
+Deterministic:
+- final package obeys budget;
+- locked rules and author constraints survive tiny budgets;
+- protected-only overflow is explicit;
+- entity/state bundle atomicity;
+- hybrid semantic order is preserved;
+- semantic/recent duplicate event is emitted once using canonical event payload;
+- newest remaining recent events win;
+- oversized optional artifact does not block smaller later artifacts;
+- identical input produces identical packed output + trace;
+- changing packed content changes context hash;
+- dropped artifacts do not enter LLM prompt.
+
+Regression:
+- P7-03 temporal/vector safety;
+- P7-04 hybrid ranking;
+- Phase 6 locked-rule validation and writing tests.
+
+Live/Compose:
+- context preview with explicit small budget returns bounded final context;
+- production writing runtime uses the packer;
+- existing pgvector/rebuild/auth/backend/web smoke remains green.
+
+### 10.10 Out of scope
+
+- LLM-generated context summaries;
+- extractive sentence-level clipping inside protected artifacts;
 - ANN/HNSW/IVFFlat;
-- specialized vector database;
-- LLM chain-of-thought summarization;
-- automatic embedding-version cutover;
-- changes that let compressed summaries override canonical Story Brain truth.
+- specialized vector DB;
+- online learned packing weights;
+- embedding-version auto-cutover.
+
+Do not open the next Phase 7 slice until P7-05 is accepted.
