@@ -36,6 +36,7 @@ We decide to:
    - Memory embedding prefix: `"Represent this canonical narrative memory for semantic search: "`
 5. **Assign the active version identifier**: `gemini-embedding-2-768-v1`.
 6. **Implement non-destructive, parallel reindexing**: New embedding versions must be indexed alongside active embeddings before an atomic cutover, preventing downtime or data loss during model upgrades.
+7. **Separate semantic content from vector representation**: `memory_chunks` stores rebuildable narrative content/provenance; `memory_embeddings` stores model/version-specific vectors. Changing embedding model/recipe re-embeds representation rows and must not duplicate or rewrite memory content.
 
 ---
 
@@ -94,11 +95,17 @@ To maximize asymmetric semantic alignment:
 
 ## 5. Reindexing & Versioning Policy
 
-### 5.1 Version Identifier
-All vector representations stored in the database must include provenance columns:
-- `embedding_model`: `gemini-embedding-2`
-- `embedding_version`: `gemini-embedding-2-768-v1`
-- `content_hash`: SHA-256 of the un-prefixed content string
+### 5.1 Version Identifier and storage lifecycle
+`memory_chunks` and `memory_embeddings` have independent lifecycles.
+
+- `memory_chunks.content_hash`: SHA-256 of the derived narrative content before any embedding instruction prefix.
+- `memory_embeddings.embedding_model`: `gemini-embedding-2` for generation v1.
+- `memory_embeddings.embedding_version`: `gemini-embedding-2-768-v1`.
+- `memory_embeddings.content_hash`: snapshot of the chunk hash used to build that vector.
+- A vector is stale when `memory_embeddings.content_hash != memory_chunks.content_hash`.
+- `UNIQUE(memory_chunk_id, embedding_version)` allows multiple verified embedding versions to coexist without duplicating memory content.
+
+`VECTOR(768)` is the physical representation for embedding generation v1. A future model with a different dimension requires a forward schema/storage migration for its vectors, but does **not** require Story Brain re-extraction or duplication of `memory_chunks`.
 
 ### 5.2 Zero-Downtime Parallel Reindexing Pipeline
 When upgrading embedding models (e.g., from v1 to a future v2):
@@ -107,7 +114,7 @@ embedding-v1 active (serving production queries)
         ↓
 Trigger background reindex worker
         ↓
-Generate embedding-v2 rows in parallel (same story_brain, distinct embedding_version)
+Generate embedding-v2 rows in parallel for the same memory_chunks (distinct embedding_version)
         ↓
 Run automated evaluation suite on frozen queries for the story
         ↓
@@ -120,7 +127,7 @@ Verify production retrieval latency & error budgets
 Retire and purge v1 embeddings after verification observation period
 ```
 
-**Invariant**: Under no circumstances may an existing vector column or version be truncated or dropped before the candidate version is fully populated and verified.
+**Invariant**: Under no circumstances may an existing embedding version be truncated or dropped before the candidate version is fully populated and verified. Reindex operates on `memory_embeddings`; it must not rewrite canonical Story Brain data or duplicate unchanged `memory_chunks`.
 
 ---
 
@@ -170,6 +177,6 @@ Retire and purge v1 embeddings after verification observation period
   - Requires network round-trip to Gemini Embedding API during background memory chunk creation and author query formulation.
   - Requires careful asynchronous queuing to prevent author editor latency from coupling to embedding latency.
 - **Next Steps (Phase 7 Implementation)**:
-  - P7-02: add the pgvector-capable PostgreSQL runtime, Alembic migration, `memory_chunks` production foundation with `VECTOR(768)`, and rebuildable/versioned embedding materialization.
+  - P7-02: add the pgvector-capable PostgreSQL runtime, separate `memory_chunks` + `memory_embeddings`, freeze embedding generation v1 at `VECTOR(768)`, and implement rebuildable/versioned embedding materialization.
   - P7-03: implement semantic retrieval with temporal filtering before vector ranking and deterministic SQL fallback.
   - P7-04: implement Hybrid Ranker combining semantic score, entity overlap, temporal relevance, importance, and relationship relevance.

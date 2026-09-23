@@ -186,3 +186,53 @@ class WritingGenerationJob:
     context_hash: str = ""
     chapter_number: int | None = None
 
+
+
+@dataclass(frozen=True, slots=True)
+class EventMemorySource:
+    event_id: str
+    story_brain_id: str
+    tenant_id: str
+    novel_id: str
+    summary: str
+    narrative_order: int
+    chapter_number: int
+    chapter_id: str | None = None
+    revision_id: str | None = None
+    entity_ids: tuple[str, ...] = ()
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class SemanticMemoryChunk:
+    memory_chunk_id: str
+    story_brain_id: str
+    tenant_id: str
+    novel_id: str
+    source_key: str
+    memory_type: str
+    content: str
+    content_hash: str
+    importance_score: float
+    narrative_order: int | None = None
+    chapter_id: str | None = None
+    revision_id: str | None = None
+    event_id: str | None = None
+    entity_id: str | None = None
+    entity_ids: tuple[str, ...] = ()
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class SemanticMemoryEmbedding:
+    embedding_id: str
+    memory_chunk_id: str
+    story_brain_id: str
+    tenant_id: str
+    novel_id: str
+    embedding_model: str
+    embedding_version: str
+    embedding_dimension: int
+    normalization: str
+    content_hash: str
+    embedding: tuple[float, ...]

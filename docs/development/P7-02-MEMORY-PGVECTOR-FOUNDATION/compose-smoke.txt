@@ -1,0 +1,21 @@
+P7-02 root Compose smoke evidence
+CI run: 35825994127
+Result: PASS
+
+Command path:
+docker compose config
+docker compose up -d --build postgres mongodb ai-service backend web
+
+Verified:
+- PostgreSQL/pgvector healthy.
+- MongoDB healthy.
+- AI service healthy and Alembic head applied.
+- backend health endpoint responds.
+- web root responds on port 8080.
+- vector extension exists.
+- narrative.memory_embeddings.embedding is vector(768).
+- protected AI route without credential returns 401.
+- invalid service credential returns 403.
+- valid service credential returns 200.
+
+The CI environment is disposable; docker compose down -v only removes CI-created volumes and is not a production/local-volume migration instruction.

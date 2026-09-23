@@ -5,9 +5,12 @@ from typing import Any, Protocol, runtime_checkable
 from domain.models import (
     AnalysisRun,
     BootstrapJob,
+    EventMemorySource,
     NarrativeEntity,
     NarrativeEvent,
     NarrativeProposal,
+    SemanticMemoryChunk,
+    SemanticMemoryEmbedding,
     StoryBrain,
     WritingContextPackage,
     WritingGenerationJob,
@@ -149,3 +152,75 @@ class NarrativeRepository(Protocol):
         revision_id: str,
     ) -> dict[str, Any] | None: ...
 
+
+
+
+@runtime_checkable
+class SemanticMemoryRepository(Protocol):
+    """Persistence port for rebuildable semantic-memory artifacts only."""
+
+    def list_event_memory_sources(self, story_id: str) -> list[EventMemorySource]: ...
+
+    def upsert_memory_chunk(
+        self,
+        story_id: str,
+        *,
+        source_key: str,
+        memory_type: str,
+        content: str,
+        content_hash: str,
+        importance_score: float,
+        narrative_order: int | None,
+        chapter_id: str | None,
+        revision_id: str | None,
+        event_id: str | None,
+        entity_id: str | None,
+        entity_ids: tuple[str, ...],
+        metadata: dict[str, Any],
+    ) -> SemanticMemoryChunk: ...
+
+    def list_memory_chunks(
+        self,
+        story_id: str,
+        *,
+        memory_type: str | None = None,
+    ) -> list[SemanticMemoryChunk]: ...
+
+    def delete_memory_chunks_not_in_sources(
+        self,
+        story_id: str,
+        *,
+        memory_type: str,
+        active_source_keys: set[str],
+    ) -> int: ...
+
+    def get_embedding(
+        self,
+        story_id: str,
+        memory_chunk_id: str,
+        embedding_version: str,
+    ) -> SemanticMemoryEmbedding | None: ...
+
+    def upsert_embedding(
+        self,
+        story_id: str,
+        embedding: SemanticMemoryEmbedding,
+    ) -> SemanticMemoryEmbedding: ...
+
+    def list_embeddings_for_version(
+        self,
+        story_id: str,
+        embedding_version: str,
+    ) -> list[SemanticMemoryEmbedding]: ...
+
+    def delete_embedding_version(
+        self,
+        story_id: str,
+        embedding_version: str,
+    ) -> int: ...
+
+    def embedding_coverage(
+        self,
+        story_id: str,
+        embedding_version: str,
+    ) -> dict[str, int]: ...

@@ -1,0 +1,17 @@
+P7-02 semantic-memory integration evidence
+CI run: 35825994127
+Result: PASS
+
+Validated behavior:
+- only confirmed events are source candidates;
+- superseded events are excluded from active event-summary materialization;
+- retry/upsert keeps stable memory chunk identity;
+- tenant/novel/story-brain scope is enforced;
+- document embeddings are L2-normalized before persistence;
+- same chunk may hold multiple embedding versions;
+- deleting v2 preserves v1 and the memory chunk;
+- changed content_hash marks an old embedding stale;
+- provider failure leaves the chunk intact and retryable;
+- canonical event/fact/state tables are not mutated by embedding rebuild/version deletion.
+
+Phase 6 Context Builder / WritingService semantic retrieval behavior remains unchanged.

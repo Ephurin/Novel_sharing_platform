@@ -1,0 +1,17 @@
+P7-02 pgvector capability evidence
+CI run: 35825994127
+Result: PASS
+
+Runtime image:
+pgvector/pgvector:pg16
+
+Verified:
+- PostgreSQL 16 service healthy.
+- vector extension present.
+- narrative.memory_chunks has no vector column.
+- narrative.memory_embeddings.embedding reports vector(768).
+- a 768-dimensional vector can be persisted/read.
+- an invalid 2-dimensional cast to vector(768) is rejected with:
+  expected 768 dimensions, not 2
+- exact cosine ordering works with pgvector cosine semantics.
+- no HNSW or IVFFlat index is introduced by P7-02.

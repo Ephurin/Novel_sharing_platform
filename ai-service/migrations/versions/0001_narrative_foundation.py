@@ -33,5 +33,7 @@ def _tables():
         "bootstrap_jobs",
         "writing_generations",
         "revision_provenances",
+        "memory_chunks",
+        "memory_embeddings",
     }
     return [t for t in Base.metadata.sorted_tables if t.name not in excluded]

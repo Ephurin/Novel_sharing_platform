@@ -13,6 +13,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    Index,
     Numeric,
     String,
     Text,
@@ -23,10 +24,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB
+from pgvector.sqlalchemy import Vector
 
 
 SCHEMA = "narrative"
 JSON_TYPE = JSON().with_variant(JSONB(), "postgresql")
+VECTOR_768_TYPE = JSON().with_variant(Vector(768), "postgresql")
 
 
 class Base(DeclarativeBase):
@@ -207,6 +210,114 @@ class RevisionProvenanceRecord(Base):
     revision_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
     chapter_number: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class MemoryChunkRecord(Base):
+    __tablename__ = "memory_chunks"
+    __table_args__ = (
+        UniqueConstraint(
+            "story_brain_id",
+            "memory_type",
+            "source_key",
+            name="uq_memory_chunk_source",
+        ),
+        Index(
+            "ix_memory_chunks_story_order",
+            "story_brain_id",
+            "narrative_order",
+        ),
+        Index(
+            "ix_memory_chunks_story_hash",
+            "story_brain_id",
+            "content_hash",
+        ),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    story_brain_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey(f"{SCHEMA}.story_brains.id", ondelete="CASCADE"), nullable=False
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    chapter_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    revision_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    event_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey(f"{SCHEMA}.events.id", ondelete="CASCADE")
+    )
+    entity_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey(f"{SCHEMA}.entities.id", ondelete="SET NULL")
+    )
+    source_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    memory_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    importance_score: Mapped[Decimal] = mapped_column(
+        Numeric(5, 4), nullable=False, default=Decimal("0.5000")
+    )
+    narrative_order: Mapped[int | None] = mapped_column(BigInteger)
+    entity_ids: Mapped[list[str]] = mapped_column(
+        JSON_TYPE, nullable=False, default=list, server_default=text("'[]'")
+    )
+    memory_metadata: Mapped[dict[str, Any]] = mapped_column(
+        "metadata",
+        JSON_TYPE,
+        nullable=False,
+        default=dict,
+        server_default=text("'{}'"),
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class MemoryEmbeddingRecord(Base):
+    __tablename__ = "memory_embeddings"
+    __table_args__ = (
+        UniqueConstraint(
+            "memory_chunk_id",
+            "embedding_version",
+            name="uq_memory_embedding_chunk_version",
+        ),
+        CheckConstraint(
+            "embedding_dimension = 768",
+            name="ck_memory_embedding_dimension_768",
+        ),
+        CheckConstraint(
+            "normalization = 'l2'",
+            name="ck_memory_embedding_normalization_l2",
+        ),
+        Index(
+            "ix_memory_embeddings_story_version",
+            "story_brain_id",
+            "embedding_version",
+        ),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    memory_chunk_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        ForeignKey(f"{SCHEMA}.memory_chunks.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    story_brain_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey(f"{SCHEMA}.story_brains.id", ondelete="CASCADE"), nullable=False
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    embedding_model: Mapped[str] = mapped_column(String(100), nullable=False)
+    embedding_version: Mapped[str] = mapped_column(String(100), nullable=False)
+    embedding_dimension: Mapped[int] = mapped_column(Integer, nullable=False, default=768)
+    normalization: Mapped[str] = mapped_column(String(32), nullable=False, default="l2")
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    embedding: Mapped[list[float]] = mapped_column(VECTOR_768_TYPE, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 
 class AnalysisRunRecord(Base):

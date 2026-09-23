@@ -1,0 +1,14 @@
+P7-02 migration evidence
+CI run: 35825994127
+Result: PASS
+
+Validated by test_migration_downgrade_reupgrade_preserves_canonical_data:
+
+1. Upgrade through 0007_semantic_memory_foundation.
+2. Verify semantic tables exist.
+3. Preserve seeded canonical Story Brain data.
+4. Downgrade to 0006_fix_revision_provenance.
+5. Verify semantic tables are removed while canonical data remains.
+6. Re-upgrade to head successfully.
+
+0007 downgrade intentionally does not DROP EXTENSION vector because the extension may be shared by later schemas/features.

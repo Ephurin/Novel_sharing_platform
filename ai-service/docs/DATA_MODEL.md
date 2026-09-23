@@ -727,39 +727,67 @@ CREATE TABLE narrative.findings (
 );
 ```
 
-## `narrative.memory_chunks`
+## `narrative.memory_chunks` và `narrative.memory_embeddings`
 
-Semantic memory là index dẫn xuất, không phải source of truth.
+Semantic memory là derived/rebuildable index, không phải source of truth. P7-02 tách lifecycle của memory content khỏi vector representation:
+
+```text
+canonical Story Brain
+        ↓
+memory_chunks          # derived narrative content + provenance
+        ↓
+memory_embeddings      # provider/model/version-specific representation
+```
+
+Xóa/rebuild `memory_embeddings` không được làm thay đổi `memory_chunks` hoặc canonical event/fact/state. Đổi embedding model không yêu cầu re-extract Story Brain; chỉ representation layer được re-embed.
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TABLE narrative.memory_chunks (
     id UUID PRIMARY KEY,
-    story_brain_id UUID NOT NULL REFERENCES narrative.story_brains(id),
+    story_brain_id UUID NOT NULL REFERENCES narrative.story_brains(id) ON DELETE CASCADE,
     tenant_id UUID NOT NULL,
     novel_id UUID NOT NULL,
     chapter_id UUID,
     revision_id UUID,
-    event_id UUID REFERENCES narrative.events(id),
-    entity_id UUID REFERENCES narrative.entities(id),
+    event_id UUID REFERENCES narrative.events(id) ON DELETE CASCADE,
+    entity_id UUID REFERENCES narrative.entities(id) ON DELETE SET NULL,
+    source_key VARCHAR(255) NOT NULL,
     memory_type VARCHAR(40) NOT NULL,
     content TEXT NOT NULL,
     content_hash VARCHAR(64) NOT NULL,
-    embedding VECTOR(768),
     importance_score NUMERIC(5,4) NOT NULL DEFAULT 0.5,
     narrative_order BIGINT,
+    entity_ids JSONB NOT NULL DEFAULT '[]',
     metadata JSONB NOT NULL DEFAULT '{}',
-    embedding_model VARCHAR(100),
-    embedding_version VARCHAR(50),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (story_brain_id, content_hash, embedding_version)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (story_brain_id, memory_type, source_key)
+);
+
+CREATE TABLE narrative.memory_embeddings (
+    id UUID PRIMARY KEY,
+    memory_chunk_id UUID NOT NULL REFERENCES narrative.memory_chunks(id) ON DELETE CASCADE,
+    story_brain_id UUID NOT NULL REFERENCES narrative.story_brains(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL,
+    novel_id UUID NOT NULL,
+    embedding_model VARCHAR(100) NOT NULL,
+    embedding_version VARCHAR(100) NOT NULL,
+    embedding_dimension INTEGER NOT NULL CHECK (embedding_dimension = 768),
+    normalization VARCHAR(32) NOT NULL CHECK (normalization = 'l2'),
+    content_hash VARCHAR(64) NOT NULL,
+    embedding VECTOR(768) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (memory_chunk_id, embedding_version)
 );
 ```
 
-Vector dimension đã được chốt bởi ADR-012 ngày 2026-09-22: `gemini-embedding-2 @ 768`. Migration Phase 7 phải dùng `VECTOR(768)`, explicit L2 normalization và cosine distance. Embedding recipe/version phải rebuildable; thay model/dimension/instruction recipe không được overwrite vector cũ in-place.
+`memory_chunks.content_hash` là SHA-256 của derived content **trước** embedding instruction prefix. `memory_embeddings.content_hash` là snapshot hash của content đã embed; nếu hai hash khác nhau thì representation đó stale và phải rebuild.
 
-`memory_type`: `event_summary`, `scene_summary`, `chapter_summary`, `character_memory`, `arc_summary`, `world_rule`.
+P7-02 chỉ materialize `event_summary` từ confirmed/non-superseded canonical events. Các loại `scene_summary`, `chapter_summary`, `character_memory`, `arc_summary`, `world_rule` là future scope và không được LLM-generate trong batch này.
+
+Vector v1 được chốt bởi ADR-012: `gemini-embedding-2 @ 768`, explicit L2 normalization và cosine distance. `VECTOR(768)` là physical representation của embedding generation v1, không phải cam kết mọi model tương lai luôn 768 chiều. Nếu model tương lai đổi dimension, cần forward migration/new physical vector storage cho representation mới; `memory_chunks` và canonical Story Brain không cần rebuild.
 
 ## Index tối thiểu
 
@@ -803,15 +831,21 @@ CREATE INDEX idx_proposals_dependency_group
 CREATE INDEX idx_findings_review_queue
     ON narrative.findings (tenant_id, novel_id, status, severity);
 
-CREATE INDEX idx_memory_metadata
-    ON narrative.memory_chunks USING GIN (metadata);
+CREATE INDEX ix_memory_chunks_story_order
+    ON narrative.memory_chunks (story_brain_id, narrative_order);
+
+CREATE INDEX ix_memory_chunks_story_hash
+    ON narrative.memory_chunks (story_brain_id, content_hash);
+
+CREATE INDEX ix_memory_embeddings_story_version
+    ON narrative.memory_embeddings (story_brain_id, embedding_version);
 ```
 
-ANN vector index chỉ được thêm sau khi dữ liệu/latency production đủ lớn để justify. ADR-012 đã chốt cosine semantics, nên nếu HNSW được thêm ở task sau thì opclass phải là `vector_cosine_ops`:
+P7-02 không tạo HNSW/IVFFlat. Exact cosine search được dùng để kiểm chứng semantics trước. Nếu production-scale profiling sau này justify HNSW thì index phải nằm trên `memory_embeddings.embedding` và dùng `vector_cosine_ops`:
 
 ```sql
 CREATE INDEX idx_memory_embedding_hnsw
-    ON narrative.memory_chunks
+    ON narrative.memory_embeddings
     USING hnsw (embedding vector_cosine_ops);
 ```
 
@@ -904,4 +938,4 @@ last_analysis_run_id
 ## Quyết định theo phase
 
 - Queue implementation được chọn trước Phase 3; domain chỉ phụ thuộc queue interface nên không block Phase 0–2.
-- Embedding model và vector dimension được benchmark rồi chốt trước Phase 7; DDL migration của `memory_chunks.embedding` chỉ khóa dimension tại phase đó.
+- Embedding model và vector dimension được benchmark rồi chốt trước Phase 7; P7-02 khóa `memory_embeddings.embedding` ở `VECTOR(768)` cho generation v1 và giữ `memory_chunks` độc lập với embedding lifecycle.

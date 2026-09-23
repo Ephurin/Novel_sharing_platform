@@ -166,120 +166,58 @@ Never:
 
 # 4. ACTIVE TASK — P7-02-MEMORY-PGVECTOR-FOUNDATION
 
-**Type:** production storage/materialization foundation.
+**Type:** production storage/materialization foundation.  
+**Implementation branch:** `astra/p7-02-memory-pgvector-foundation`.
 
-**Goal:** introduce pgvector-capable PostgreSQL, versioned `memory_chunks`, and rebuildable embedding materialization without changing production context retrieval yet.
+**Goal:** introduce pgvector-capable PostgreSQL plus a two-layer semantic-memory model:
+
+```text
+canonical Story Brain
+        ↓
+memory_chunks
+derived content + provenance
+        ↓
+memory_embeddings
+model/version-specific vector representation
+```
 
 P7-02 ends **before** semantic retrieval is wired into Context Builder.
 
-## 4.1 Runtime / dependency foundation
+## 4.1 Runtime foundation
 
-Current root Compose still uses:
+Root Compose and the AI-service integration Compose must use PostgreSQL 16 with pgvector support:
 
-```yaml
-postgres:16-alpine
+```text
+pgvector/pgvector:pg16
 ```
-
-This image does not provide the required pgvector extension by default.
-
-Implement a pgvector-enabled PostgreSQL 16 runtime using the official `pgvector/pgvector` image compatible with PG16.
 
 Requirements:
 
 - preserve PostgreSQL major version 16;
-- do not wipe/reset existing volumes;
-- keep root Compose health behavior working;
-- add Python `pgvector` integration compatible with SQLAlchemy;
-- no external/specialized vector database.
-
-Do not silently fall back to plain PostgreSQL if the extension cannot be enabled.
+- do not reset/wipe existing user volumes as part of migration;
+- Python dependency uses `pgvector` SQLAlchemy integration;
+- `CREATE EXTENSION IF NOT EXISTS vector`;
+- no specialized vector DB.
 
 ## 4.2 Alembic migration
 
-Create the next migration after:
-
-`0006_fix_revision_provenance`
-
-Expected new revision name may be:
-
-`0007_semantic_memory_foundation`
-
-Migration must:
-
-1. `CREATE EXTENSION IF NOT EXISTS vector`;
-2. create `narrative.memory_chunks`;
-3. freeze the accepted vector dimension at `VECTOR(768)`;
-4. create deterministic relational indexes needed for version/timeline access;
-5. support downgrade without damaging pre-existing canonical Story Brain tables.
-
-Do **not** create HNSW/IVFFlat yet. Exact vector search is sufficient for the next retriever task; ANN needs production-scale evidence first.
-
-Recommended fields:
+Next migration after `0006_fix_revision_provenance`:
 
 ```text
-id
-story_brain_id
-tenant_id
-novel_id
-chapter_id
-revision_id
-event_id
-entity_id
-memory_type
-content
-content_hash
-importance_score
-narrative_order
-entity_ids
-embedding VECTOR(768)
-embedding_model
-embedding_version
-metadata
-created_at
+0007_semantic_memory_foundation
 ```
 
-Required uniqueness at minimum:
+It must create both tables and be safely downgradeable:
+
+### `narrative.memory_chunks`
+
+Contains derived narrative content/provenance only. **No vector column.**
+
+Required identity:
 
 ```text
-(story_brain_id, content_hash, embedding_version)
+UNIQUE(story_brain_id, memory_type, source_key)
 ```
-
-Indexes at minimum:
-
-```text
-(story_brain_id, narrative_order)
-(story_brain_id, embedding_version)
-```
-
-If `entity_ids` is retained as a UUID array, it is derived metadata for future hybrid ranking; do not make it a source of truth.
-
-## 4.3 ORM/domain boundary
-
-Add the production ORM/domain representation for semantic memory.
-
-Prefer a **separate semantic-memory repository/port** instead of forcing JSON/InMemory NarrativeRepository implementations to pretend they support vectors.
-
-Suggested boundary:
-
-```python
-class SemanticMemoryRepository(Protocol):
-    def upsert_memory_chunk(...): ...
-    def list_memory_chunks(...): ...
-    def delete_embedding_version(...): ...
-```
-
-The exact method names may differ, but preserve:
-
-- tenant + novel + story-brain scoping;
-- idempotency;
-- embedding version isolation;
-- derived/rebuildable semantics.
-
-Do not couple semantic-memory persistence to API schemas.
-
-## 4.4 Canonical memory materialization
-
-For the first production vertical slice, derive memory from **confirmed canonical events** rather than raw chapter text.
 
 Initial supported memory type:
 
@@ -287,246 +225,325 @@ Initial supported memory type:
 event_summary
 ```
 
-Source:
+Initial source:
 
 ```text
-confirmed/non-superseded canonical event
+confirmed + active/non-superseded canonical event
 → event.summary
-→ derived memory chunk
+→ memory_chunk
 ```
 
-Carry provenance:
+### `narrative.memory_embeddings`
 
-- story_brain_id;
-- tenant_id;
-- novel_id;
-- chapter_id;
-- revision_id;
-- event_id;
-- narrative_order;
-- participating entity IDs when available;
-- content_hash.
+Contains representation-specific data:
 
-Rules:
+```text
+memory_chunk_id
+story_brain_id
+tenant_id
+novel_id
+embedding_model
+embedding_version
+embedding_dimension
+normalization
+content_hash
+embedding VECTOR(768)
+created_at
+```
 
-- pending/rejected proposals MUST NOT materialize;
-- superseded/inactive event must not become an active canonical semantic memory;
-- retry must not duplicate the same content/version;
-- deleting/rebuilding semantic memory must not mutate canonical event/fact/state data.
+Required identity:
+
+```text
+UNIQUE(memory_chunk_id, embedding_version)
+```
+
+Embedding generation v1:
+
+```text
+model              = gemini-embedding-2
+dimension          = 768
+normalization      = l2
+distance           = cosine
+embedding_version  = gemini-embedding-2-768-v1
+```
+
+Do not create HNSW/IVFFlat in P7-02.
+
+## 4.3 Lifecycle invariant
+
+```text
+DELETE memory_embeddings
+!= DELETE memory_chunks
+!= DELETE canonical Story Brain
+```
+
+Changing provider/model/dimension/instruction recipe creates a new embedding version. Do not overwrite a verified old version in place.
+
+`memory_chunks.content_hash` is SHA-256 of the un-prefixed derived content.
+
+`memory_embeddings.content_hash` is the snapshot hash used to create that vector.
+
+If:
+
+```text
+memory_embeddings.content_hash != memory_chunks.content_hash
+```
+
+that embedding is stale and must be rebuilt.
+
+A future model with a different dimension may require a forward vector-storage migration, but must not require Story Brain re-extraction or duplication of unchanged memory content.
+
+## 4.4 Repository boundary
+
+Use a separate `SemanticMemoryRepository`; do not force JSON/InMemory `NarrativeRepository` implementations to fake vector support.
+
+Required capabilities include:
+
+```text
+list_event_memory_sources
+upsert_memory_chunk
+list_memory_chunks
+delete_memory_chunks_not_in_sources
+get_embedding
+upsert_embedding
+list_embeddings_for_version
+delete_embedding_version
+embedding_coverage
+```
+
+All PostgreSQL operations remain tenant + novel + story-brain scoped.
+
+Superseded/inactive events must not remain retrievable semantic memory. Their derived event-summary chunks may be deleted/rebuilt; canonical historical events remain untouched.
+
+## 4.5 Materialization flow
+
+```text
+read confirmed active canonical events
+        ↓
+derive/upsert memory_chunk
+        ↓
+commit short DB transaction
+        ↓
+call embedding provider OUTSIDE DB transaction
+        ↓
+validate dimension = 768
+        ↓
+explicit L2 normalize
+        ↓
+upsert memory_embedding(version)
+```
+
+Provider failure may leave a valid `memory_chunk` without an embedding. This is a legal retryable state and must not delete/corrupt the chunk.
 
 Do not add LLM-generated chapter/arc summaries in this batch.
 
-## 4.5 Embedding port + implementation
+## 4.6 Embedding adapter
 
-Create a dedicated embedding abstraction; do not route embeddings through the prose-writing LLM interface.
-
-Accepted recipe:
+Production adapter:
 
 ```text
-provider/model: gemini-embedding-2
-dimension:      768
-normalization:  explicit L2
-version:        gemini-embedding-2-768-v1
-distance:       cosine
+GeminiEmbeddingProvider
+model: gemini-embedding-2
+dimension: 768
+version: gemini-embedding-2-768-v1
 ```
 
-Document prefix:
+Document instruction:
 
 ```text
 Represent this canonical narrative memory for semantic search:
 ```
 
-Query prefix is reserved for P7-03:
-
-```text
-Represent this narrative retrieval query for semantic search:
-```
-
 Requirements:
 
-- fake embedding provider for deterministic tests;
-- real Gemini adapter may read one authorized provider credential from environment;
-- never commit/paste keys;
-- do **not** copy benchmark-only multi-key rotation into production;
-- provider call happens outside DB transaction;
-- L2-normalize before persistence;
-- verify returned vector dimension is exactly 768;
-- provider/parsing/dimension failures are explicit failures, never silent zero/empty vectors.
+- one authorized credential from environment;
+- no key logging/committing;
+- no benchmark multi-key rotation in production adapter;
+- explicit provider/dimension failures;
+- deterministic fake provider for tests.
 
-## 4.6 Reindex/version behavior
-
-P7-02 must make this possible:
-
-```text
-embedding-v1 active
-↓
-build embedding-v2 rows in parallel
-↓
-verify v2 completeness
-↓
-later switch active version
-↓
-keep v1 for rollback
-↓
-purge v1 only after verification
-```
-
-Do not overwrite v1 vectors in place when embedding recipe/model changes.
-
-Changes to any of these require a new embedding version:
-
-- provider/model;
-- output dimension;
-- query/document instruction recipe;
-- normalization policy with semantic effect.
+P7-03 owns query embeddings.
 
 ## 4.7 Production retrieval behavior
 
 **Must remain unchanged in P7-02.**
 
-Current Context Builder / WritingService continues to use the Phase 6 structured SQL/recent-event path.
+Do not:
 
-Do not yet:
-
-- call vector search from `preview_context()`;
-- change `WritingService`;
-- change generation context selection;
-- implement hybrid ranker;
+- vector-search from Context Builder;
+- modify WritingService context selection;
+- implement hybrid ranking;
 - implement context compression;
-- claim Phase 7 exit criteria.
+- create ANN index;
+- claim Phase 7 exit criterion.
 
-P7-03 will introduce the semantic retriever after the storage/materialization foundation is accepted.
+Phase 6 recent/structured SQL retrieval remains the serving path.
 
 ## 4.8 Tests required
 
-### Unit / deterministic
-
-Cover at minimum:
-
-- memory chunk content-hash/idempotency;
-- only confirmed canonical event materializes;
-- pending/rejected artifact cannot materialize;
-- superseded event handling;
-- embedding dimension == 768;
-- L2 normalization;
-- provider failure is explicit;
-- different embedding versions coexist;
-- reindex does not delete old version.
-
-### PostgreSQL integration
-
-Must run against **real PostgreSQL with pgvector**, not SQLite/mock.
+### Deterministic/unit
 
 Verify:
 
-1. Alembic upgrade from current head succeeds.
+- L2 normalization and dimension rejection;
+- content-hash/idempotent chunk identity;
+- provider failure leaves chunk retryable;
+- parallel embedding versions coexist;
+- deleting v2 preserves v1 + chunk;
+- content changes make old embedding stale;
+- inactive source cleanup does not touch canonical data.
+
+### Live PostgreSQL + pgvector
+
+Must verify:
+
+1. Alembic upgrade from 0006 to head.
 2. `vector` extension exists.
-3. `memory_chunks.embedding` is dimension 768.
-4. Insert/read a 768-d vector succeeds.
-5. Wrong vector dimension fails.
-6. Exact cosine ordering works.
-7. tenant/novel/story-brain isolation holds.
-8. retry/upsert is idempotent.
-9. downgrade back to 0006 does not damage pre-existing canonical tables/data.
-10. re-upgrade succeeds.
+3. `memory_chunks` has no vector ownership.
+4. `memory_embeddings.embedding` is `VECTOR(768)`.
+5. wrong vector dimension fails.
+6. exact cosine ordering works.
+7. only confirmed/non-superseded event sources materialize.
+8. tenant/novel/story-brain isolation.
+9. parallel embedding versions coexist.
+10. downgrade to 0006 preserves canonical tables/data.
+11. re-upgrade succeeds.
 
 ### Root Compose smoke
 
-Verify at minimum:
+Verify:
 
-- pgvector PostgreSQL container healthy;
+- pgvector PostgreSQL healthy;
 - AI service starts with PostgreSQL repository;
-- existing Phase 6 health/auth/gateway path does not regress.
+- backend/web health path remains healthy;
+- direct AI service-auth boundary still rejects unauthenticated access and accepts valid service credential.
 
-Do not describe unit tests as live integration evidence.
+Connector-only review cannot claim these live checks. If they have not run, handoff remains **PARTIAL/BLOCKED**.
 
 ---
 
-## 5. P7-02 evidence
+## 5. Evidence
 
-Create:
+Create/update:
 
 ```text
 docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION-report.md
 docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION/
 ```
 
-Evidence should include:
+Expected evidence:
 
 ```text
+schema-summary.md
+test-summary.md
 migration-up-down.txt
 pgvector-capability.txt
 semantic-memory-integration.txt
 compose-smoke.txt
-test-summary.md
-schema-summary.md
 ```
 
-Do not store secrets or raw embedding request payloads containing private manuscript text.
+Evidence files must distinguish static review from executed live commands. Never fabricate PASS.
 
 ---
 
-## 6. P7-02 acceptance criteria
+## 6. Acceptance criteria
 
-P7-02 may be handed off only when:
+P7-02 is accepted only when:
 
 ```text
 ADR-012 contract preserved
 AND
-root PostgreSQL runtime supports pgvector
+PostgreSQL runtime supports pgvector
 AND
-migration freezes VECTOR(768)
+memory_chunks lifecycle is independent from embedding lifecycle
 AND
-memory_chunks is derived + versioned + rebuildable
+memory_embeddings freezes v1 at VECTOR(768)
 AND
-canonical-only materialization is enforced
+confirmed/non-superseded canonical-only materialization is enforced
 AND
-embedding adapter validates + L2-normalizes vectors
+provider call occurs outside DB transaction
 AND
-provider call is outside DB transaction
+dimension validation + L2 normalization are enforced
 AND
-parallel embedding versions can coexist
+parallel embedding versions coexist
+AND
+stale embedding detection works via content_hash
+AND
+reindex/version deletion cannot delete canonical Story Brain data
 AND
 live PostgreSQL pgvector integration passes
 AND
 migration downgrade/re-upgrade is verified
 AND
-Phase 6 recent-context behavior is unchanged
+root Compose smoke passes
 AND
-no ANN index is added without evidence
+Phase 6 retrieval behavior remains unchanged
 AND
-no semantic retriever/hybrid/context-compression scope is introduced
+no ANN/hybrid/context-compression scope is introduced
 ```
-
-If live pgvector integration cannot be run, hand off **PARTIAL/BLOCKED**, not Completed.
 
 ---
 
-## 7. Expected Gemini handoff
+## 7. Handoff format
 
-Append only a short block:
+When implementation + live evidence are complete, append only:
 
 ```markdown
 ---
 
-### Gemini handoff — P7-02-MEMORY-PGVECTOR-FOUNDATION
+### Handoff — P7-02-MEMORY-PGVECTOR-FOUNDATION
 
 Status: Completed, awaiting Astra review
 # or Partial / Blocked
 
-- Migration: <revision>
-- PostgreSQL image/pgvector: <result>
-- Memory schema: <summary>
-- Canonical materialization: <summary>
-- Embedding adapter: <summary>
-- Version/reindex behavior: <summary>
+- Migration: 0007_semantic_memory_foundation
+- Schema:
+  - memory_chunks: <result>
+  - memory_embeddings: <result>
+- Embedding v1: gemini-embedding-2 / 768 / L2 / cosine
+- Canonical source filtering: <result>
+- Parallel versions: <result>
+- Stale hash detection: <result>
+- Provider failure behavior: <result>
 - Unit tests: <result>
 - Live pgvector integration: <result>
-- Root Compose smoke: <result>
+- Migration downgrade/re-upgrade: <result>
+- Root Compose: <result>
+- Phase 6 retrieval changes: NONE
+- Semantic retriever changes: NONE
 - Report: <path>
-- Evidence: <dir>
-- Production semantic retrieval changes: NONE
+- Evidence: <path>
 - Remaining blocker: none | <exact blocker>
 ```
 
-Do not paste long raw logs into `promt.md`.
+Do not open P7-03 until P7-02 is reviewed and accepted.
+
+
+---
+
+### Handoff — P7-02-MEMORY-PGVECTOR-FOUNDATION
+
+Status: Implemented and CI verified; awaiting owner merge/review
+
+- Branch: `astra/p7-02-memory-pgvector-foundation`
+- Migration: `0007_semantic_memory_foundation`
+- Schema:
+  - memory_chunks: derived content/provenance; no vector column
+  - memory_embeddings: versioned representation; `VECTOR(768)`
+- Embedding v1: `gemini-embedding-2 / 768 / L2 / cosine`
+- Canonical source filtering: PASS — confirmed + active/non-superseded events only
+- Parallel versions: PASS
+- Stale hash detection: PASS
+- Provider failure behavior: PASS — chunk survives and is retryable
+- Unit tests: PASS — 6 semantic-memory + 6 benchmark regression
+- Live pgvector integration: PASS — 5 tests
+- Migration downgrade/re-upgrade: PASS
+- Root Compose: PASS — postgres/mongo/AI/backend/web + pgvector + auth 401/403/200
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35825994127
+- Phase 6 retrieval changes: NONE
+- Semantic retriever changes: NONE
+- Report: `docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION-report.md`
+- Evidence: `docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION/`
+- Remaining blocker: merge/owner acceptance only
+
+Do not open P7-03 until P7-02 is accepted.
