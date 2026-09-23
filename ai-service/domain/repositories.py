@@ -12,6 +12,7 @@ from domain.models import (
     SemanticMemoryChunk,
     SemanticMemoryEmbedding,
     SemanticMemoryMatch,
+    HybridRankingSignals,
     StoryBrain,
     WritingContextPackage,
     WritingGenerationJob,
@@ -225,6 +226,14 @@ class SemanticMemoryRepository(Protocol):
         story_id: str,
         embedding_version: str,
     ) -> dict[str, int]: ...
+
+    def get_hybrid_ranking_signals(
+        self,
+        story_id: str,
+        *,
+        query_text: str,
+        chapter_number: int,
+    ) -> HybridRankingSignals: ...
 
     def search_semantic_memories(
         self,
