@@ -126,6 +126,12 @@ class PostgresSemanticMemoryRepository:
                             "event_type": event.event_type,
                             "chapter_number": int(event.chapter_number),
                             "source_type": event.source_type,
+                            "importance_score": float(
+                                event_metadata.get(
+                                    "importance_score",
+                                    event_metadata.get("importance", 0.5),
+                                )
+                            ),
                         },
                     )
                 )
