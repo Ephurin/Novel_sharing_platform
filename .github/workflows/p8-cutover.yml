@@ -4,13 +4,56 @@ on:
   push:
     branches:
       - astra/p8-cutover
+      - astra/p8-02-frontend-api-cutover
   pull_request:
     paths:
       - "ai-service/**"
+      - "backend/**"
+      - "web/**"
+      - "mobile/**"
+      - "scripts/check_p8_frontend_api_cutover.py"
       - "docker-compose.yml"
       - ".github/workflows/p8-cutover.yml"
 
 jobs:
+  frontend-api-cutover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            backend/package-lock.json
+            mobile/package-lock.json
+      - name: Enforce browser/mobile Node-gateway boundary
+        run: python scripts/check_p8_frontend_api_cutover.py
+      - name: Web build
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+      - name: Verify built web assets do not expose FastAPI
+        run: |
+          set -euo pipefail
+          if grep -R -n -E '127\.0\.0\.1:8000|localhost:8000|VITE_AI_SERVICE_BASE_URL|VITE_AI_TENANT_ID|/v1/story-brains|/v1/writing/generations|/internal/v1/' web/dist; then
+            echo "Built web assets expose a forbidden direct AI-service reference." >&2
+            exit 1
+          fi
+      - name: Backend typecheck and tests
+        working-directory: backend
+        run: |
+          npm ci
+          npm run typecheck
+          npm test
+      - name: Mobile typecheck
+        working-directory: mobile
+        run: |
+          npm ci
+          npm run typecheck
+
   unit:
     runs-on: ubuntu-latest
     defaults:
@@ -173,6 +216,18 @@ jobs:
           PY
           sha256sum /tmp/p8-json/$story_id.json | cut -d' ' -f1 > /tmp/source.after
           diff -u /tmp/source.before /tmp/source.after"
+      - name: Verify nginx gateway boundary and built assets
+        run: |
+          set -euo pipefail
+          gateway_url="http://localhost:8080/api/v1/ai/story-brains/11111111-2222-3333-4444-555555555555/context-preview"
+          gateway_status="$(curl -sS -o /tmp/gateway.json -w '%{http_code}' "$gateway_url")"
+          test "$gateway_status" = "401"
+          grep -q '"code":"AUTH_001"' /tmp/gateway.json || grep -q '"code":"UNAUTHORIZED"' /tmp/gateway.json || true
+          if docker compose exec -T web sh -lc "grep -R -n -E '127\\.0\\.0\\.1:8000|localhost:8000|VITE_AI_SERVICE_BASE_URL|VITE_AI_TENANT_ID|/v1/story-brains|/v1/writing/generations|/internal/v1/' /usr/share/nginx/html"; then
+            echo "Deployed web assets expose a forbidden direct AI-service reference." >&2
+            exit 1
+          fi
+
       - name: Verify existing production path still healthy
         run: |
           set -euo pipefail
