@@ -221,8 +221,9 @@ flowchart TD
         CTX --> CTX2["Query current_entity_states"]
         CTX2 --> CTX3["Retrieve recent events"]
         CTX3 --> CTX4["Retrieve semantic memory"]
-        CTX4 --> CTX5["Load relevant facts + world rules"]
-        CTX5 --> CTX6["Assemble structured context + token budget"]
+        CTX4 --> CTX4B["Hybrid rerank semantic candidates"]
+        CTX4B --> CTX5["Load relevant facts + world rules"]
+        CTX5 --> CTX6["Deterministic dedup + context-budget pack"]
     end
 
     CTX6 --> GEN
@@ -368,15 +369,17 @@ flowchart TD
 
         C3["3. Recent Events Query"]
 
-        C4["4. Semantic Memory Retrieval - pgvector"]
+        C4["4. Semantic Memory Retrieval - exact pgvector"]
 
-        C5["5. Facts and World Rules - locked uu tien"]
+        C4B["5. Hybrid deterministic rerank"]
 
-        C6["6. Author Instructions"]
+        C5["6. Facts and World Rules - locked uu tien"]
 
-        C1 --> C2 --> C3 --> C4 --> C5 --> C6
+        C6["7. Author Instructions / Constraints"]
 
-        C6 --> ASSEMBLE["Assemble Context Package + Token budget enforcement"]
+        C1 --> C2 --> C3 --> C4 --> C4B --> C5 --> C6
+
+        C6 --> ASSEMBLE["ContextBudgetPacker: dedup + whole-artifact packing"]
     end
 
     subgraph LLMCall["LLM Call"]
@@ -403,6 +406,9 @@ flowchart TD
 - AI service **không apply patch** — chỉ trả draft/patch cho frontend preview.
 - Platform tạo revision mới sau khi tác giả accept.
 - Mọi generation lưu IDs của context artifacts đã sử dụng (traceability).
+- P7-05 chỉ có một production budget owner sau semantic/hybrid retrieval; repository-level fixed-cost budgeting chỉ là compatibility path cho direct callers.
+- Budget được ước lượng từ canonical compact UTF-8 JSON của Story Brain context; estimator không phải exact tokenizer và không bao gồm system prompt, selected text, instruction/style/request constraints hay output tokens.
+- Locked rules/facts, author constraints và locked entity/state bundles không bị silent truncation; nếu riêng protected artifacts vượt budget thì context báo overflow rõ ràng.
 
 ---
 
