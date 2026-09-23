@@ -260,7 +260,8 @@ class PostgresSemanticMemoryRepository:
         embedding: SemanticMemoryEmbedding,
     ) -> SemanticMemoryEmbedding:
         novel_id = self._novel_id(story_id)
-        chunk_uuid = self._stable_uuid("memory-chunk", embedding.memory_chunk_id)
+        chunk_id_text = embedding.memory_chunk_id
+        chunk_uuid = self._stable_uuid("memory-chunk", chunk_id_text)
         if embedding.embedding_dimension != 768 or len(embedding.embedding) != 768:
             raise ValueError("embedding-v1 requires exactly 768 dimensions")
         if embedding.normalization != "l2":
@@ -280,10 +281,10 @@ class PostgresSemanticMemoryRepository:
                 )
             )
             if chunk is None:
-                raise KeyError(memory_chunk_id := embedding.memory_chunk_id)
+                raise KeyError(chunk_id_text)
             if embedding.content_hash != chunk.content_hash:
                 raise ValueError(
-                    f"Cannot persist stale embedding for memory chunk {memory_chunk_id}"
+                    f"Cannot persist stale embedding for memory chunk {chunk_id_text}"
                 )
             if uuid.UUID(str(embedding.story_brain_id)) != brain.id:
                 raise ValueError("Embedding story_brain_id does not match persisted memory chunk")
