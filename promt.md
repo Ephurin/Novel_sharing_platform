@@ -930,7 +930,8 @@ Whole artifacts are kept or dropped; protected artifacts are not text-truncated.
 Must always survive packing:
 
 1. locked world rules/facts;
-2. explicit author constraints.
+2. explicit author constraints;
+3. locked entity + current-state bundles (preserves the accepted Phase 6 locked-entity behavior).
 
 If protected artifacts alone exceed the requested budget:
 
