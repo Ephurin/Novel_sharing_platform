@@ -371,7 +371,14 @@ class PostgresSemanticMemoryRepository:
         with self._session_factory() as session:
             brain = self._find_brain(session, novel_id)
             if brain is None:
-                return {"memory_chunks": 0, "embeddings": 0, "fresh_embeddings": 0}
+                return {
+                    "total_chunks": 0,
+                    "embedded": 0,
+                    "current": 0,
+                    "stale": 0,
+                    "missing": 0,
+                    "fresh_embeddings": 0,
+                }
 
             chunk_filters = (
                 MemoryChunkRecord.story_brain_id == brain.id,
