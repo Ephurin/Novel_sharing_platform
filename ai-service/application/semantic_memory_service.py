@@ -111,6 +111,14 @@ class SemanticMemoryMaterializationService:
             story_id,
             self._embedding_provider.version,
         )
+        fresh_count = int(coverage.get("current", coverage.get("fresh_embeddings", 0)))
+        stale_count = int(coverage.get("stale", 0))
+        missing_count = int(
+            coverage.get(
+                "missing",
+                max(0, int(coverage.get("memory_chunks", 0)) - fresh_count - stale_count),
+            )
+        )
         return {
             "embedding_version": self._embedding_provider.version,
             "source_count": len(sources),
@@ -118,9 +126,9 @@ class SemanticMemoryMaterializationService:
             "removed_chunk_count": removed_chunks,
             "embedded_count": embedded_count,
             "reused_embedding_count": reused_embedding_count,
-            "fresh_embedding_count": coverage["current"],
-            "stale_embedding_count": coverage["stale"],
-            "missing_embedding_count": coverage["missing"],
+            "fresh_embedding_count": fresh_count,
+            "stale_embedding_count": stale_count,
+            "missing_embedding_count": missing_count,
         }
 
     @staticmethod
