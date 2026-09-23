@@ -11,6 +11,7 @@ from domain.models import (
     NarrativeProposal,
     SemanticMemoryChunk,
     SemanticMemoryEmbedding,
+    SemanticMemoryMatch,
     StoryBrain,
     WritingContextPackage,
     WritingGenerationJob,
@@ -224,3 +225,14 @@ class SemanticMemoryRepository(Protocol):
         story_id: str,
         embedding_version: str,
     ) -> dict[str, int]: ...
+
+    def search_semantic_memories(
+        self,
+        story_id: str,
+        *,
+        query_embedding: tuple[float, ...],
+        embedding_version: str,
+        chapter_number: int | None,
+        limit: int = 10,
+        memory_type: str = "event_summary",
+    ) -> list[SemanticMemoryMatch]: ...

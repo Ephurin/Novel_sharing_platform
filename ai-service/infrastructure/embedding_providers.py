@@ -8,10 +8,11 @@ from domain.embeddings import EmbeddingProviderError
 
 
 DOCUMENT_INSTRUCTION = "Represent this canonical narrative memory for semantic search: "
+QUERY_INSTRUCTION = "Represent this narrative retrieval query for semantic search: "
 
 
 class GeminiEmbeddingProvider:
-    """Production document embedding adapter for ADR-012 embedding-v1."""
+    """Production ADR-012 document/query embedding adapter."""
 
     model = "gemini-embedding-2"
     version = "gemini-embedding-2-768-v1"
@@ -36,8 +37,20 @@ class GeminiEmbeddingProvider:
             )
 
     def embed_document(self, text: str) -> tuple[float, ...]:
+        return self._embed_prefixed(text, DOCUMENT_INSTRUCTION, kind="document")
+
+    def embed_query(self, text: str) -> tuple[float, ...]:
+        return self._embed_prefixed(text, QUERY_INSTRUCTION, kind="query")
+
+    def _embed_prefixed(
+        self,
+        text: str,
+        prefix: str,
+        *,
+        kind: str,
+    ) -> tuple[float, ...]:
         if not text.strip():
-            raise EmbeddingProviderError("Cannot embed empty semantic-memory content")
+            raise EmbeddingProviderError(f"Cannot embed empty semantic-memory {kind}")
         try:
             from google import genai
             from google.genai import types
@@ -47,11 +60,7 @@ class GeminiEmbeddingProvider:
                 model=self.model,
                 contents=[
                     types.Content(
-                        parts=[
-                            types.Part.from_text(
-                                text=DOCUMENT_INSTRUCTION + text
-                            )
-                        ]
+                        parts=[types.Part.from_text(text=prefix + text)]
                     )
                 ],
                 config=types.EmbedContentConfig(
@@ -61,7 +70,7 @@ class GeminiEmbeddingProvider:
             embeddings = list(response.embeddings or [])
             if len(embeddings) != 1:
                 raise EmbeddingProviderError(
-                    f"Gemini returned {len(embeddings)} embeddings for one document"
+                    f"Gemini returned {len(embeddings)} embeddings for one {kind}"
                 )
             values = tuple(float(value) for value in embeddings[0].values)
             if len(values) != self.dimension:
@@ -86,11 +95,21 @@ class DeterministicFakeEmbeddingProvider:
     dimension = 768
 
     def embed_document(self, text: str) -> tuple[float, ...]:
+        return self._embed_prefixed(text, DOCUMENT_INSTRUCTION, kind="document")
+
+    def embed_query(self, text: str) -> tuple[float, ...]:
+        return self._embed_prefixed(text, QUERY_INSTRUCTION, kind="query")
+
+    def _embed_prefixed(
+        self,
+        text: str,
+        prefix: str,
+        *,
+        kind: str,
+    ) -> tuple[float, ...]:
         if not text.strip():
-            raise EmbeddingProviderError("Cannot embed empty semantic-memory content")
-        digest = hashlib.sha512(
-            (DOCUMENT_INSTRUCTION + text).encode("utf-8")
-        ).digest()
+            raise EmbeddingProviderError(f"Cannot embed empty semantic-memory {kind}")
+        digest = hashlib.sha512((prefix + text).encode("utf-8")).digest()
         return tuple(
             (float(digest[index % len(digest)]) - 127.5) / 127.5
             for index in range(self.dimension)

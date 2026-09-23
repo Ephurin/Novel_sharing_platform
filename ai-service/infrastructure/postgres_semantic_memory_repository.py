@@ -8,7 +8,12 @@ from typing import Any
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from domain.models import EventMemorySource, SemanticMemoryChunk, SemanticMemoryEmbedding
+from domain.models import (
+    EventMemorySource,
+    SemanticMemoryChunk,
+    SemanticMemoryEmbedding,
+    SemanticMemoryMatch,
+)
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
     EventParticipantRecord,
@@ -422,6 +427,91 @@ class PostgresSemanticMemoryRepository:
                 # Compatibility alias for early P7-02 callers.
                 "fresh_embeddings": int(fresh_embeddings),
             }
+
+    def search_semantic_memories(
+        self,
+        story_id: str,
+        *,
+        query_embedding: tuple[float, ...],
+        embedding_version: str,
+        chapter_number: int | None,
+        limit: int = 10,
+        memory_type: str = "event_summary",
+    ) -> list[SemanticMemoryMatch]:
+        """Exact cosine retrieval with scope/version/freshness/temporal filters."""
+
+        if limit <= 0:
+            return []
+        if len(query_embedding) != 768:
+            raise ValueError("semantic query requires exactly 768 dimensions")
+        norm = math.sqrt(sum(float(value) * float(value) for value in query_embedding))
+        if not math.isclose(norm, 1.0, rel_tol=1e-6, abs_tol=1e-6):
+            raise ValueError("semantic query embedding must be L2-normalized")
+
+        novel_id = self._novel_id(story_id)
+        with self._session_factory() as session:
+            brain = self._find_brain(session, novel_id)
+            if brain is None:
+                return []
+
+            distance = MemoryEmbeddingRecord.embedding.cosine_distance(
+                list(query_embedding)
+            ).label("cosine_distance")
+            statement = (
+                select(MemoryChunkRecord, MemoryEmbeddingRecord, EventRecord, distance)
+                .join(
+                    MemoryEmbeddingRecord,
+                    MemoryEmbeddingRecord.memory_chunk_id == MemoryChunkRecord.id,
+                )
+                .join(EventRecord, EventRecord.id == MemoryChunkRecord.event_id)
+                .where(
+                    MemoryChunkRecord.story_brain_id == brain.id,
+                    MemoryChunkRecord.tenant_id == self._tenant_id,
+                    MemoryChunkRecord.novel_id == novel_id,
+                    MemoryChunkRecord.memory_type == memory_type,
+                    MemoryEmbeddingRecord.story_brain_id == brain.id,
+                    MemoryEmbeddingRecord.tenant_id == self._tenant_id,
+                    MemoryEmbeddingRecord.novel_id == novel_id,
+                    MemoryEmbeddingRecord.embedding_version == embedding_version,
+                    MemoryEmbeddingRecord.embedding_dimension == 768,
+                    MemoryEmbeddingRecord.normalization == "l2",
+                    MemoryEmbeddingRecord.content_hash == MemoryChunkRecord.content_hash,
+                    EventRecord.story_brain_id == brain.id,
+                    EventRecord.tenant_id == self._tenant_id,
+                    EventRecord.novel_id == novel_id,
+                    EventRecord.confirmation_status == "confirmed",
+                )
+            )
+            if chapter_number is not None:
+                statement = statement.where(EventRecord.chapter_number <= chapter_number)
+
+            rows = session.execute(
+                statement.order_by(distance.asc(), MemoryChunkRecord.id.asc()).limit(limit)
+            ).all()
+            return [
+                SemanticMemoryMatch(
+                    memory_chunk_id=str(chunk.id),
+                    story_brain_id=str(chunk.story_brain_id),
+                    tenant_id=str(chunk.tenant_id),
+                    novel_id=str(chunk.novel_id),
+                    source_key=chunk.source_key,
+                    memory_type=chunk.memory_type,
+                    content=chunk.content,
+                    content_hash=chunk.content_hash,
+                    embedding_version=embedding.embedding_version,
+                    cosine_distance=float(cosine_distance),
+                    narrative_order=chunk.narrative_order,
+                    chapter_number=int(event.chapter_number),
+                    chapter_id=str(chunk.chapter_id) if chunk.chapter_id else None,
+                    revision_id=str(chunk.revision_id) if chunk.revision_id else None,
+                    event_id=str(chunk.event_id) if chunk.event_id else None,
+                    entity_id=str(chunk.entity_id) if chunk.entity_id else None,
+                    entity_ids=tuple(chunk.entity_ids or ()),
+                    importance_score=float(chunk.importance_score),
+                    metadata=dict(chunk.memory_metadata or {}),
+                )
+                for chunk, embedding, event, cosine_distance in rows
+            ]
 
     def _find_brain(
         self,
