@@ -1,6 +1,10 @@
 P8-01 ROOT COMPOSE SMOKE
-CI run: 35844244069
-Validated HEAD: f6b97813b4d67820d4b7aecbc7b5367c0e61cbc3
+Status: ACCEPTED
+Merged PR: #5
+Merge commit: d639979f59b7867ee4863e886afb6065214b4f7d
+Validated PR head: 792ac0676471b3b17fa7e75967b3c54aa93019d9
+Final P8 push CI: 35845116695
+Final P8 PR CI: 35845120791
 Result: PASS
 
 - postgres/pgvector: healthy
@@ -16,4 +20,4 @@ Result: PASS
 - pgvector extension probe: PASS
 - service-auth probes: missing=401, invalid=403, valid=200
 
-No committed/user legacy JSON was applied by this CI run.
+No committed/user legacy JSON was applied by CI.
