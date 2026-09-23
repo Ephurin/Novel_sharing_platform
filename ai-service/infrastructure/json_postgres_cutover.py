@@ -204,7 +204,7 @@ def canonical_snapshot(brain: StoryBrain) -> dict[str, Any]:
                         item.dependency_group_id or f"{brain.story_id}:{index}",
                     )
                 ),
-                "materialization_order": int(item.materialization_order or index),
+                "materialization_order": int(item.materialization_order),
                 "proposal_type": item.proposal_type,
                 "payload": canonicalize(item.payload),
                 "evidence": canonicalize(list(item.evidence)),
@@ -986,7 +986,7 @@ class JsonPostgresCutoverMigrator:
                                 "proposal-group",
                                 proposal.dependency_group_id or f"{story_id}:{index}",
                             ),
-                            materialization_order=int(proposal.materialization_order or index),
+                            materialization_order=int(proposal.materialization_order),
                             proposal_type=proposal.proposal_type,
                             payload=dict(proposal.payload),
                             evidence=list(proposal.evidence),
