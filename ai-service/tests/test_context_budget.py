@@ -10,6 +10,7 @@ from application.context_budget import (
 )
 from application.writing_service import WritingService
 from core.fake_llm import FakeDeterministicLLMService
+from core.llm_service import LLMService
 from domain.models import NarrativeEvent, WritingContextPackage
 from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
 
@@ -295,6 +296,44 @@ def test_repository_can_return_untrimmed_candidates_for_single_application_budge
     assert legacy.recent_events == ()
     assert len(candidates.recent_events) == 3
     assert candidates.token_budget["budget_enforced"] is False
+
+
+
+
+class _CapturingLLMService(LLMService):
+    def __init__(self) -> None:
+        super().__init__(provider="openai", model="test-model", api_key="test-key")
+        self.captured_user_prompt = ""
+
+    def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
+        self.captured_user_prompt = user_prompt
+        return '{"draft_text":"ok"}'
+
+
+def test_real_llm_prompt_uses_same_canonical_context_serialization_as_estimator() -> None:
+    package = _package(
+        entities=(_entity("Nhân vật Việt"),),
+        world_rules=(_rule("quy-tac"),),
+        author_constraints=("Không hồi sinh.",),
+    )
+    packer = ContextBudgetPacker()
+    payload = packer.prompt_context(package)
+    expected_json = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    )
+    llm = _CapturingLLMService()
+
+    llm.generate_writing_draft(
+        operation="continue",
+        instruction="Viết tiếp",
+        context_package=payload,
+    )
+
+    assert f"Bối cảnh tiểu thuyết (Story Brain): {expected_json}" in llm.captured_user_prompt
 
 
 class _OneContextRepository:
