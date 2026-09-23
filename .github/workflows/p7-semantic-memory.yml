@@ -5,6 +5,7 @@ on:
     branches:
       - astra/p7-02-memory-pgvector-foundation
       - astra/p7-03-semantic-retriever
+      - astra/p7-04-hybrid-ranker
   pull_request:
     paths:
       - "ai-service/**"
@@ -25,8 +26,10 @@ jobs:
           cache: pip
           cache-dependency-path: ai-service/requirements.txt
       - run: pip install -r requirements.txt pytest httpx
-      - name: Semantic-memory and retriever unit tests
-        run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py
+      - name: Semantic-memory, retriever and hybrid-ranker unit tests
+        run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py tests/test_hybrid_ranker.py
+      - name: Hybrid retrieval proxy regression
+        run: pytest -q tests/test_p7_hybrid_benchmark.py
       - name: Benchmark invariant regression
         run: pytest -q tests/test_p7_embedding_benchmark.py
       - name: Phase 6 temporal/writing regressions
