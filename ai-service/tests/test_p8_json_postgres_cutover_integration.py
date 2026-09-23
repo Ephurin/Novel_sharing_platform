@@ -58,8 +58,13 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
     manager = StoryKBManager(storage)
     hero_id = str(legacy_entity_uuid(story_id, "Elena"))
     ally_id = str(legacy_entity_uuid(story_id, "Alan"))
-    event_id = "legacy-event-1"
-    fact_id = "legacy-fact-1"
+    event_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:event:meeting"))
+    fact_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:fact:health"))
+    fact_transition_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:transition:health"))
+    event_transition_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:transition:location"))
+    alias_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"alias:{hero_id}:the astronomer"))
+    mention_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:mention:elena"))
+    proposal_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:proposal:pending-fact"))
 
     entities = [
         NarrativeEntity(
@@ -104,7 +109,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
     ]
     transitions = [
         {
-            "transition_id": "legacy-transition-fact",
+            "transition_id": fact_transition_id,
             "entity_id": hero_id,
             "fact_id": fact_id,
             "event_id": None,
@@ -113,7 +118,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
             "sequence": 1,
         },
         {
-            "transition_id": "legacy-transition-event",
+            "transition_id": event_transition_id,
             "entity_id": hero_id,
             "fact_id": None,
             "event_id": event_id,
@@ -151,7 +156,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
         },
         entity_aliases=[
             {
-                "alias_id": "legacy-alias-elena",
+                "alias_id": alias_id,
                 "entity_id": hero_id,
                 "alias": "The Astronomer",
                 "normalized_alias": "the astronomer",
@@ -159,7 +164,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
         ],
         entity_mentions=[
             {
-                "mention_id": "legacy-mention-elena",
+                "mention_id": mention_id,
                 "entity_id": hero_id,
                 "chapter_id": str(uuid.uuid4()),
                 "revision_id": str(uuid.uuid4()),
@@ -196,7 +201,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
         ],
         proposals=[
             {
-                "proposal_id": "legacy-proposal-1",
+                "proposal_id": proposal_id,
                 "proposal_type": "fact",
                 "payload": {"fact_key": "legacy.note", "fact_value": "pending"},
                 "evidence": [],
