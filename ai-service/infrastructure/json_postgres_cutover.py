@@ -245,21 +245,67 @@ def canonical_snapshot(brain: StoryBrain) -> dict[str, Any]:
         )
     )
 
-    state = canonicalize(brain.current_state or {
+    raw_state = brain.current_state or {
         "entities": {},
         "provenance": {},
         "relationships": [],
         "projection_version": 1,
-    })
-    if isinstance(state.get("relationships"), list):
-        state["relationships"] = sorted(
-            state["relationships"],
-            key=lambda item: (
-                str(item.get("subject_entity_id", "")),
-                str(item.get("object_entity_id", "")),
-                str(item.get("relation", "")),
-            ),
+    }
+    state_entities: dict[str, Any] = {}
+    state_provenance: dict[str, Any] = {}
+    for raw_entity_id, value in (raw_state.get("entities") or {}).items():
+        normalized_entity_id = entity_ids_by_ref.get(
+            str(raw_entity_id),
+            entity_ids_by_ref.get(str(raw_entity_id).casefold(), str(raw_entity_id)),
         )
+        state_entities[normalized_entity_id] = canonicalize(value)
+
+    for raw_entity_id, attributes in (raw_state.get("provenance") or {}).items():
+        normalized_entity_id = entity_ids_by_ref.get(
+            str(raw_entity_id),
+            entity_ids_by_ref.get(str(raw_entity_id).casefold(), str(raw_entity_id)),
+        )
+        normalized_attributes: dict[str, Any] = {}
+        for attribute, provenance in (attributes or {}).items():
+            item = dict(provenance or {})
+            if item.get("transition_id"):
+                item["transition_id"] = str(stable_uuid("transition", str(item["transition_id"])))
+            if item.get("event_id"):
+                item["event_id"] = str(stable_uuid("event", str(item["event_id"])))
+            if item.get("fact_id"):
+                item["fact_id"] = str(stable_uuid("fact", str(item["fact_id"])))
+            normalized_attributes[str(attribute)] = canonicalize(item)
+        state_provenance[normalized_entity_id] = normalized_attributes
+
+    relationships = []
+    for relationship in raw_state.get("relationships") or []:
+        item = dict(relationship)
+        for key in ("subject_entity_id", "object_entity_id"):
+            if item.get(key):
+                item[key] = entity_ids_by_ref.get(
+                    str(item[key]),
+                    entity_ids_by_ref.get(str(item[key]).casefold(), str(item[key])),
+                )
+        if item.get("transition_id"):
+            item["transition_id"] = str(stable_uuid("transition", str(item["transition_id"])))
+        if item.get("event_id"):
+            item["event_id"] = str(stable_uuid("event", str(item["event_id"])))
+        if item.get("fact_id"):
+            item["fact_id"] = str(stable_uuid("fact", str(item["fact_id"])))
+        relationships.append(canonicalize(item))
+    relationships.sort(
+        key=lambda item: (
+            str(item.get("subject_entity_id", "")),
+            str(item.get("object_entity_id", "")),
+            str(item.get("relation", "")),
+        )
+    )
+    state = {
+        "entities": canonicalize(state_entities),
+        "provenance": canonicalize(state_provenance),
+        "relationships": relationships,
+        "projection_version": int(raw_state.get("projection_version", 1) or 1),
+    }
 
     metadata = {
         "brain_version": int(brain.metadata.get("brain_version", "1") or 1),
