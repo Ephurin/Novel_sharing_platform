@@ -403,6 +403,14 @@ class JsonPostgresCutoverMigrator:
         source_brain = self._source.get_story_brain(story_id)
         source_snapshot = canonical_snapshot(source_brain)
         diagnostics = self.raw_legacy_diagnostics(story_id)
+
+        validation_error: str | None = None
+        try:
+            self._validate_source(source_brain)
+        except CutoverMigrationError as exc:
+            validation_error = str(exc)
+
+        id_collisions = self._global_id_collisions(story_id, source_snapshot)
         target_exists, target_nonempty = self._target_status(story_id)
 
         parity = None
@@ -411,12 +419,13 @@ class JsonPostgresCutoverMigrator:
             target_snapshot = canonical_snapshot(self._target.get_story_brain(story_id))
             parity = target_snapshot == source_snapshot
 
-        safe = not diagnostics["unsupported"] and (
-            not target_nonempty or parity is True
-        )
         action = (
             "blocked_unsupported"
             if diagnostics["unsupported"]
+            else "blocked_validation"
+            if validation_error
+            else "blocked_id_collision"
+            if id_collisions
             else "already_migrated"
             if parity is True
             else "blocked_conflict"
@@ -432,10 +441,12 @@ class JsonPostgresCutoverMigrator:
             "target_nonempty": target_nonempty,
             "target_counts": self._counts(target_snapshot) if target_snapshot else {},
             "parity": parity,
-            "safe_to_apply": safe and action in {"ready", "already_migrated"},
+            "safe_to_apply": action in {"ready", "already_migrated"},
             "action": action,
             "unsupported": diagnostics["unsupported"],
             "warnings": diagnostics["warnings"],
+            "validation_error": validation_error,
+            "id_collisions": id_collisions,
         }
 
     def apply(self, story_id: str) -> dict[str, Any]:
@@ -446,7 +457,9 @@ class JsonPostgresCutoverMigrator:
         if plan["action"] != "ready":
             raise CutoverMigrationError(
                 f"Migration blocked for {story_id}: {plan['action']} "
-                f"unsupported={plan['unsupported']}"
+                f"unsupported={plan['unsupported']} "
+                f"validation_error={plan.get('validation_error')} "
+                f"id_collisions={plan.get('id_collisions')}"
             )
 
         source_brain = self._source.get_story_brain(story_id)
@@ -470,6 +483,119 @@ class JsonPostgresCutoverMigrator:
             "idempotent": False,
             "source_unchanged": after_hash == before_hash,
         }
+
+    def _validate_source(self, brain: StoryBrain) -> None:
+        entity_by_id = {
+            str(entity.entity_id or legacy_entity_uuid(brain.story_id, entity.name)): entity
+            for entity in brain.entities
+        }
+        entity_by_name = {entity.name.casefold(): entity for entity in brain.entities}
+
+        def resolve(reference: Any, *, label: str) -> NarrativeEntity:
+            value = str(reference)
+            entity = entity_by_id.get(value) or entity_by_name.get(value.casefold())
+            if entity is None:
+                raise CutoverMigrationError(
+                    f"{label} references unknown legacy entity: {value}"
+                )
+            return entity
+
+        for alias in brain.aliases:
+            resolve(alias.entity_id, label=f"Alias {alias.alias_id}")
+        for mention in brain.mentions:
+            resolve(mention.entity_id, label=f"Mention {mention.mention_id}")
+        for index, fact in enumerate(brain.facts):
+            if fact.get("subject_entity_id"):
+                resolve(
+                    fact["subject_entity_id"],
+                    label=f"Fact {fact.get('fact_id') or fact.get('id') or index}",
+                )
+        for event in brain.events:
+            for participant in event.participants:
+                resolve(participant, label=f"Event {event.event_id} participant")
+        for relation in brain.relations:
+            if relation.source == "projection" and not relation.locked:
+                continue
+            resolve(relation.subject, label="Relationship subject")
+            resolve(relation.object, label="Relationship object")
+
+        state = brain.current_state or {}
+        for entity_id in (state.get("entities") or {}):
+            resolve(entity_id, label="Narrative projection")
+        for entity_id in (state.get("provenance") or {}):
+            resolve(entity_id, label="Narrative projection provenance")
+        for relationship in state.get("relationships") or []:
+            resolve(
+                relationship.get("subject_entity_id"),
+                label="Projected relationship subject",
+            )
+            resolve(
+                relationship.get("object_entity_id"),
+                label="Projected relationship object",
+            )
+
+        self._validate_projection(brain)
+
+    def _global_id_collisions(
+        self,
+        story_id: str,
+        snapshot: dict[str, Any],
+    ) -> list[dict[str, str]]:
+        """Return source IDs already owned by another tenant/novel.
+
+        PostgreSQL primary keys are global even where the logical repository scope
+        is tenant + novel. A legacy string ID reused in two JSON files must be
+        blocked rather than silently remapped during cutover.
+        """
+
+        target_novel_id = novel_uuid(story_id)
+        collisions: list[dict[str, str]] = []
+
+        def foreign_scope(record: Any) -> bool:
+            tenant = getattr(record, "tenant_id", None)
+            novel = getattr(record, "novel_id", None)
+            return (
+                tenant is not None
+                and novel is not None
+                and (
+                    uuid.UUID(str(tenant)) != self._tenant_id
+                    or uuid.UUID(str(novel)) != target_novel_id
+                )
+            )
+
+        with self._session_factory() as session:
+            checks: tuple[tuple[str, type[Any], list[dict[str, Any]], str], ...] = (
+                ("entity", EntityRecord, snapshot["entities"], "entity_id"),
+                ("mention", EntityMentionRecord, snapshot["mentions"], "mention_id"),
+                ("fact", FactRecord, snapshot["facts"], "fact_id"),
+                ("event", EventRecord, snapshot["events"], "event_id"),
+                ("proposal", ProposalRecord, snapshot["proposals"], "proposal_id"),
+                ("transition", StateTransitionRecord, snapshot["transitions"], "transition_id"),
+            )
+            for kind, model, items, key in checks:
+                for item in items:
+                    record = session.get(model, uuid.UUID(item[key]))
+                    if record is not None and foreign_scope(record):
+                        collisions.append({
+                            "kind": kind,
+                            "id": item[key],
+                            "reason": "primary key is already owned by another tenant/novel",
+                        })
+
+            for item in snapshot["aliases"]:
+                alias = session.get(EntityAliasRecord, uuid.UUID(item["alias_id"]))
+                if alias is None:
+                    continue
+                owner = session.get(EntityRecord, alias.entity_id)
+                if owner is None or foreign_scope(owner):
+                    collisions.append({
+                        "kind": "alias",
+                        "id": item["alias_id"],
+                        "reason": "primary key is already owned by another tenant/novel",
+                    })
+
+        collisions.sort(key=lambda item: (item["kind"], item["id"]))
+        return collisions
 
     def _target_status(self, story_id: str) -> tuple[bool, bool]:
         novel_id = novel_uuid(story_id)
