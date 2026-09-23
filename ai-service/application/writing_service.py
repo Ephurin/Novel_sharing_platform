@@ -7,6 +7,7 @@ import uuid
 from typing import Any
 
 import json
+from application.context_budget import ContextBudgetPacker
 from application.ports import ContentHashMismatchError, RevisionContentProvider
 from domain.errors import (
     IdempotencyConflictError,
@@ -36,11 +37,13 @@ class WritingService:
         llm_service: Any,
         revision_provider: RevisionContentProvider | None = None,
         semantic_retriever: Any | None = None,
+        context_packer: ContextBudgetPacker | None = None,
     ) -> None:
         self._repository = repository
         self._llm_service = llm_service
         self._revision_provider = revision_provider
         self._semantic_retriever = semantic_retriever
+        self._context_packer = context_packer or ContextBudgetPacker()
 
     def preview_context(
         self,
@@ -60,24 +63,9 @@ class WritingService:
             chapter_number=chapter_number,
             character_name=character_name,
             limit_recent_events=limit_recent_events,
-            token_budget=token_budget,
+            token_budget=None,
+            enforce_token_budget=False,
         )
-
-        if token_budget is not None and token_budget > 0:
-            current_budget = dict(package.token_budget)
-            current_budget["maximum"] = token_budget
-            # If used exceeds maximum, we can trim lower priority items
-            package = WritingContextPackage(
-                brain_version=package.brain_version,
-                entities=package.entities,
-                current_states=package.current_states,
-                recent_events=package.recent_events,
-                semantic_memories=package.semantic_memories,
-                world_rules=package.world_rules,
-                author_constraints=package.author_constraints,
-                token_budget=current_budget,
-                context_summary=package.context_summary,
-            )
 
         if self._semantic_retriever is not None and semantic_query and semantic_query.strip():
             result = self._semantic_retriever.retrieve(
@@ -111,7 +99,10 @@ class WritingService:
                 context_summary=context_summary,
             )
 
-        return package
+        return self._context_packer.pack(
+            package,
+            maximum=token_budget,
+        )
 
     def start_generation(
         self,
@@ -339,14 +330,7 @@ class WritingService:
             chapter_number=job.chapter_number,
             semantic_query=semantic_query,
         )
-        prompt_context = {
-            "brain_version": context_package.brain_version,
-            "entities": list(context_package.entities),
-            "current_states": list(context_package.current_states),
-            "world_rules": list(context_package.world_rules),
-            "recent_events": list(context_package.recent_events),
-            "semantic_memories": list(context_package.semantic_memories),
-        }
+        prompt_context = self._context_packer.prompt_context(context_package)
         context_hash = hashlib.sha256(
             json.dumps(prompt_context, sort_keys=True, default=str).encode("utf-8")
         ).hexdigest()
@@ -390,14 +374,7 @@ class WritingService:
                 start_offset=job.selection.get("start"),
                 end_offset=job.selection.get("end"),
                 instruction=job.instruction,
-                context_package={
-                    "brain_version": context_package.brain_version,
-                    "entities": list(context_package.entities),
-                    "current_states": list(context_package.current_states),
-                    "world_rules": list(context_package.world_rules),
-                    "recent_events": list(context_package.recent_events),
-                    "semantic_memories": list(context_package.semantic_memories),
-                },
+                context_package=prompt_context,
                 style=job.style,
                 constraints=job.constraints,
             )
