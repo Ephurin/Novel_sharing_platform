@@ -97,7 +97,7 @@ jobs:
       - name: Verify semantic retriever composition
         run: |
           set -euo pipefail
-          docker compose exec -T ai-service python -c "import main; assert main.app.state.semantic_retriever is not None; assert main.app.state.semantic_materializer is not None"
+          docker compose exec -T ai-service python -c "import main; r=main.app.state.semantic_retriever; assert r is not None; assert r._hybrid_ranker is not None; assert r._hybrid_ranker.ranking_version == 'hybrid-v1'; assert main.app.state.semantic_materializer is not None"
           code="$(curl -sS -o /tmp/semantic-rebuild.json -w '%{http_code}' -X POST \
             -H 'Authorization: Bearer test-token' \
             -H 'X-Tenant-Id: 00000000-0000-0000-0000-000000000001' \
