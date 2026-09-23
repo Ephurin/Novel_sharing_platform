@@ -332,7 +332,13 @@ class WritingService:
         )
         prompt_context = self._context_packer.prompt_context(context_package)
         context_hash = hashlib.sha256(
-            json.dumps(prompt_context, sort_keys=True, default=str).encode("utf-8")
+            json.dumps(
+                prompt_context,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                default=str,
+            ).encode("utf-8")
         ).hexdigest()
 
         # Stage: generating
