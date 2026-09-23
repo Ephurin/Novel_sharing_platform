@@ -74,37 +74,44 @@ class HybridRepository:
         )
 
 
-def test_hybrid_ranker_can_promote_strong_narrative_signal_without_losing_semantic_component():
+def test_hybrid_ranker_keeps_semantic_top1_but_can_promote_strong_lower_candidate():
     semantic_first = _match(
         "a",
-        chapter=1,
+        chapter=20,
+        entities=("other",),
+        importance=0.5,
+    )
+    semantic_second_weak = _match(
+        "b",
+        chapter=8,
         entities=("other",),
         importance=0.1,
     )
     narrative_strong = _match(
-        "b",
+        "c",
         chapter=20,
         entities=("entity-q", "entity-r"),
         importance=1.0,
     )
 
     ranked = HybridRanker().rank(
-        (semantic_first, narrative_strong),
+        (semantic_first, semantic_second_weak, narrative_strong),
         signals=HybridRankingSignals(
             query_entity_ids=("entity-q",),
             related_entity_ids=("entity-r",),
         ),
         chapter_number=20,
-        limit=2,
+        limit=3,
     )
 
-    assert [item.memory_chunk_id for item in ranked] == ["b", "a"]
-    assert ranked[0].semantic_score < ranked[1].semantic_score
-    assert ranked[0].entity_overlap_score == 1.0
-    assert ranked[0].temporal_score == 1.0
-    assert ranked[0].importance_score == 1.0
-    assert ranked[0].relationship_score == 0.5
-    assert ranked[0].hybrid_score > ranked[1].hybrid_score
+    assert [item.memory_chunk_id for item in ranked] == ["a", "c", "b"]
+    promoted = ranked[1]
+    assert promoted.semantic_score == 0.5
+    assert promoted.entity_overlap_score == 1.0
+    assert promoted.temporal_score == 1.0
+    assert promoted.importance_score == 1.0
+    assert promoted.relationship_score == 0.5
+    assert promoted.hybrid_score > ranked[2].hybrid_score
 
 
 def test_temporal_decay_and_empty_entity_signals_are_bounded_and_deterministic():
