@@ -198,6 +198,12 @@ def canonical_snapshot(brain: StoryBrain) -> dict[str, Any]:
         proposals.append(
             {
                 "proposal_id": str(stable_uuid("proposal", item.proposal_id)),
+                "analysis_run_id": str(
+                    stable_uuid(
+                        "analysis",
+                        item.analysis_run_id or f"legacy-cutover:{item.proposal_id}",
+                    )
+                ),
                 "dependency_group_id": str(
                     stable_uuid(
                         "proposal-group",
@@ -702,6 +708,18 @@ class JsonPostgresCutoverMigrator:
                             "reason": "primary key is already owned by another tenant/novel",
                         })
 
+            analysis_run_ids = sorted(
+                {item["analysis_run_id"] for item in snapshot["proposals"]}
+            )
+            for analysis_run_id in analysis_run_ids:
+                record = session.get(AnalysisRunRecord, uuid.UUID(analysis_run_id))
+                if record is not None and foreign_scope(record):
+                    collisions.append({
+                        "kind": "analysis_run",
+                        "id": analysis_run_id,
+                        "reason": "primary key is already owned by another tenant/novel",
+                    })
+
             for item in snapshot["aliases"]:
                 alias = session.get(EntityAliasRecord, uuid.UUID(item["alias_id"]))
                 if alias is None:
@@ -1008,40 +1026,51 @@ class JsonPostgresCutoverMigrator:
                     )
 
             if brain.proposals:
-                run_id = stable_uuid("analysis", f"cutover:{self._tenant_id}:{story_id}")
-                digest = hashlib.sha256(
-                    json.dumps(
-                        [asdict(item) for item in brain.proposals],
-                        ensure_ascii=False,
-                        sort_keys=True,
-                        default=str,
-                    ).encode("utf-8")
-                ).hexdigest()
-                session.add(
-                    AnalysisRunRecord(
-                        id=run_id,
-                        story_brain_id=brain_record.id,
-                        tenant_id=self._tenant_id,
-                        novel_id=novel_id,
-                        operation="legacy_cutover",
-                        status="completed",
-                        idempotency_key=f"{self._tenant_id}:legacy-cutover:{story_id}",
-                        input_hash=digest,
-                        pipeline_version="phase8-cutover-v1",
-                    )
-                )
-                for index, proposal in enumerate(brain.proposals):
+                snapshot_proposals = {
+                    item["proposal_id"]: item for item in source_snapshot["proposals"]
+                }
+                proposals_by_run: dict[str, list[Any]] = {}
+                for proposal in brain.proposals:
+                    proposal_id = str(stable_uuid("proposal", proposal.proposal_id))
+                    run_id = snapshot_proposals[proposal_id]["analysis_run_id"]
+                    proposals_by_run.setdefault(run_id, []).append(proposal)
+
+                for run_id, run_proposals in proposals_by_run.items():
+                    digest = hashlib.sha256(
+                        json.dumps(
+                            [asdict(item) for item in run_proposals],
+                            ensure_ascii=False,
+                            sort_keys=True,
+                            default=str,
+                        ).encode("utf-8")
+                    ).hexdigest()
                     session.add(
-                        ProposalRecord(
-                            id=stable_uuid("proposal", proposal.proposal_id),
-                            analysis_run_id=run_id,
+                        AnalysisRunRecord(
+                            id=uuid.UUID(run_id),
                             story_brain_id=brain_record.id,
                             tenant_id=self._tenant_id,
                             novel_id=novel_id,
-                            dependency_group_id=stable_uuid(
-                                "proposal-group",
-                                proposal.dependency_group_id or f"{story_id}:{index}",
+                            operation="legacy_cutover",
+                            status="completed",
+                            idempotency_key=(
+                                f"{self._tenant_id}:legacy-cutover:{story_id}:{run_id}"
                             ),
+                            input_hash=digest,
+                            pipeline_version="phase8-cutover-v1",
+                        )
+                    )
+
+                for proposal in brain.proposals:
+                    proposal_id = str(stable_uuid("proposal", proposal.proposal_id))
+                    snapshot = snapshot_proposals[proposal_id]
+                    session.add(
+                        ProposalRecord(
+                            id=uuid.UUID(proposal_id),
+                            analysis_run_id=uuid.UUID(snapshot["analysis_run_id"]),
+                            story_brain_id=brain_record.id,
+                            tenant_id=self._tenant_id,
+                            novel_id=novel_id,
+                            dependency_group_id=uuid.UUID(snapshot["dependency_group_id"]),
                             materialization_order=int(proposal.materialization_order),
                             proposal_type=proposal.proposal_type,
                             payload=dict(proposal.payload),
