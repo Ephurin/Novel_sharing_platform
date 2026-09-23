@@ -93,6 +93,7 @@ class WritingService:
             context_summary = dict(package.context_summary)
             context_summary["semantic_retrieval_status"] = [result.status]
             context_summary["semantic_embedding_version"] = [result.embedding_version]
+            context_summary["semantic_ranking_version"] = [result.ranking_version]
             context_summary["semantic_memory_ids"] = [
                 item["memory_chunk_id"] for item in semantic_memories
             ]
@@ -543,6 +544,11 @@ class WritingService:
             "entity_id": match.entity_id,
             "entity_ids": list(match.entity_ids),
             "importance_score": match.importance_score,
+            "semantic_score": match.semantic_score,
+            "entity_overlap_score": match.entity_overlap_score,
+            "temporal_score": match.temporal_score,
+            "relationship_score": match.relationship_score,
+            "hybrid_score": match.hybrid_score,
             "metadata": dict(match.metadata),
         }
 
