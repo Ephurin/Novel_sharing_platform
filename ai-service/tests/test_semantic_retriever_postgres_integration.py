@@ -8,13 +8,20 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
 from domain.models import NarrativeEvent, SemanticMemoryEmbedding
 from infrastructure.postgres_narrative_repository import PostgresNarrativeRepository
 from infrastructure.postgres_semantic_memory_repository import (
     PostgresSemanticMemoryRepository,
+)
+from infrastructure.orm_models import (
+    EntityRecord,
+    EventParticipantRecord,
+    EventRecord,
+    RelationshipRecord,
+    StoryBrainRecord,
 )
 
 
@@ -346,3 +353,136 @@ def test_repository_requires_temporal_cutoff(session_factory) -> None:
             embedding_version="test-model-768-v1",
             chapter_number=None,
         )
+
+
+
+def test_hybrid_signal_resolution_is_temporal_and_tenant_scoped(session_factory) -> None:
+    tenant_id, narrative, semantic = _repos(session_factory)
+    novel_id = str(uuid.uuid4())
+
+    narrative.upsert_entity(
+        novel_id,
+        {"name": "Elena", "type": "character"},
+    )
+    narrative.upsert_entity(
+        novel_id,
+        {"name": "Alan", "type": "character"},
+    )
+    narrative.upsert_entity(
+        novel_id,
+        {"name": "Valora", "type": "character"},
+    )
+    narrative.append_event(
+        novel_id,
+        NarrativeEvent(
+            event_id=str(uuid.uuid4()),
+            event_type="early_alliance",
+            summary="Elena and Alan coordinate early.",
+            chapter=2,
+        ),
+    )
+    narrative.append_event(
+        novel_id,
+        NarrativeEvent(
+            event_id=str(uuid.uuid4()),
+            event_type="future_alliance",
+            summary="Elena meets Valora later.",
+            chapter=10,
+        ),
+    )
+
+    with session_factory.begin() as session:
+        brain = session.scalar(
+            select(StoryBrainRecord).where(
+                StoryBrainRecord.tenant_id == uuid.UUID(tenant_id),
+                StoryBrainRecord.novel_id == uuid.UUID(novel_id),
+            )
+        )
+        assert brain is not None
+        entities = {
+            row.canonical_name: row
+            for row in session.scalars(
+                select(EntityRecord).where(
+                    EntityRecord.story_brain_id == brain.id,
+                    EntityRecord.tenant_id == uuid.UUID(tenant_id),
+                    EntityRecord.novel_id == uuid.UUID(novel_id),
+                )
+            ).all()
+        }
+        events = {
+            row.summary: row
+            for row in session.scalars(
+                select(EventRecord).where(
+                    EventRecord.story_brain_id == brain.id,
+                    EventRecord.tenant_id == uuid.UUID(tenant_id),
+                    EventRecord.novel_id == uuid.UUID(novel_id),
+                )
+            ).all()
+        }
+        for name in ("Elena", "Alan"):
+            session.add(
+                EventParticipantRecord(
+                    event_id=events["Elena and Alan coordinate early."].id,
+                    entity_id=entities[name].id,
+                    participant_role="actor",
+                )
+            )
+        for name in ("Elena", "Valora"):
+            session.add(
+                EventParticipantRecord(
+                    event_id=events["Elena meets Valora later."].id,
+                    entity_id=entities[name].id,
+                    participant_role="actor",
+                )
+            )
+        session.add(
+            RelationshipRecord(
+                story_brain_id=brain.id,
+                tenant_id=uuid.UUID(tenant_id),
+                novel_id=uuid.UUID(novel_id),
+                subject_name="Elena",
+                relation_type="allies",
+                object_name="Valora",
+                source_type="author",
+                relation_metadata={"first_chapter": 10},
+            )
+        )
+
+    early = semantic.get_hybrid_ranking_signals(
+        novel_id,
+        query_text="What do Elena and Valora trust each other to do?",
+        chapter_number=5,
+    )
+    with session_factory() as session:
+        ids = {
+            row.canonical_name: str(row.id)
+            for row in session.scalars(
+                select(EntityRecord).where(
+                    EntityRecord.tenant_id == uuid.UUID(tenant_id),
+                    EntityRecord.novel_id == uuid.UUID(novel_id),
+                )
+            ).all()
+        }
+
+    assert early.query_entity_ids == (ids["Elena"],)
+    assert ids["Alan"] in early.related_entity_ids
+    assert ids["Valora"] not in early.query_entity_ids
+    assert ids["Valora"] not in early.related_entity_ids
+
+    late = semantic.get_hybrid_ranking_signals(
+        novel_id,
+        query_text="What do Elena and Valora trust each other to do?",
+        chapter_number=12,
+    )
+    assert set(late.query_entity_ids) == {ids["Elena"], ids["Valora"]}
+    assert ids["Alan"] in late.related_entity_ids
+
+    other_tenant = PostgresSemanticMemoryRepository(
+        session_factory,
+        tenant_id=str(uuid.uuid4()),
+    )
+    assert other_tenant.get_hybrid_ranking_signals(
+        novel_id,
+        query_text="Elena and Valora",
+        chapter_number=12,
+    ).query_entity_ids == ()
