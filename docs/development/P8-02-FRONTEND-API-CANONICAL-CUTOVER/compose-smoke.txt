@@ -1,0 +1,15 @@
+P8-02 root Compose evidence
+
+Status: NOT YET EXECUTED / connector run not yet available for reviewed HEAD
+Reviewed HEAD: f33565b659d4f8322d8f6adccb43e9951b3c8272
+
+Configured verification:
+- web served by nginx
+- /api/v1 proxied to backend
+- unauthenticated /api/v1/ai/* request returns 401 at platform boundary
+- deployed assets contain no direct FastAPI host/port or canonical direct FastAPI paths
+- pgvector extension remains healthy
+- direct FastAPI missing/invalid/valid service-auth probes remain 401/403/200
+- P8-01 cutover CLI smoke remains present
+
+No PASS is claimed until an executed workflow run is recorded.
