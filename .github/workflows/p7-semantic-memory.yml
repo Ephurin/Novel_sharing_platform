@@ -6,6 +6,7 @@ on:
       - astra/p7-02-memory-pgvector-foundation
       - astra/p7-03-semantic-retriever
       - astra/p7-04-hybrid-ranker
+      - astra/p7-05-context-budget
   pull_request:
     paths:
       - "ai-service/**"
@@ -26,8 +27,8 @@ jobs:
           cache: pip
           cache-dependency-path: ai-service/requirements.txt
       - run: pip install -r requirements.txt pytest httpx
-      - name: Semantic-memory, retriever and hybrid-ranker unit tests
-        run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py tests/test_hybrid_ranker.py
+      - name: Semantic-memory, retrieval, hybrid and context-budget unit tests
+        run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py tests/test_hybrid_ranker.py tests/test_context_budget.py
       - name: Hybrid retrieval proxy regression
         run: pytest -q tests/test_p7_hybrid_benchmark.py
       - name: Hybrid retrieval proxy metrics
@@ -109,10 +110,10 @@ jobs:
           docker compose ps
           docker compose logs ai-service backend postgres
           exit 1
-      - name: Verify semantic retriever composition
+      - name: Verify semantic retriever and context packer composition
         run: |
           set -euo pipefail
-          docker compose exec -T ai-service python -c "import main; r=main.app.state.semantic_retriever; assert r is not None; assert r._hybrid_ranker is not None; assert r._hybrid_ranker.ranking_version == 'hybrid-v1'; assert main.app.state.semantic_materializer is not None"
+          docker compose exec -T ai-service python -c "import main; r=main.app.state.semantic_retriever; w=main.app.state.writing_service; assert r is not None; assert r._hybrid_ranker is not None; assert r._hybrid_ranker.ranking_version == 'hybrid-v1'; assert main.app.state.semantic_materializer is not None; assert w._context_packer is not None; assert w._context_packer.default_budget == 12000"
           code="$(curl -sS -o /tmp/semantic-rebuild.json -w '%{http_code}' -X POST \
             -H 'Authorization: Bearer test-token' \
             -H 'X-Tenant-Id: 00000000-0000-0000-0000-000000000001' \
@@ -146,6 +147,21 @@ jobs:
           test "$missing" = "401"
           test "$invalid" = "403"
           test "$valid" = "200"
+      - name: Verify bounded context preview
+        run: |
+          set -euo pipefail
+          novel_id="00000000-0000-0000-0000-000000000001"
+          curl -fsS -H 'Authorization: Bearer test-token'             "http://localhost:8000/v1/story-brains/by-novel/$novel_id" >/tmp/brain.json
+          curl -fsS             -H 'Authorization: Bearer test-token'             -H 'X-Tenant-Id: 00000000-0000-0000-0000-000000000001'             -H 'X-Request-Id: p7-05-budget'             "http://localhost:8000/v1/story-brains/$novel_id/context-preview?token_budget=80"             >/tmp/context.json
+          python - <<'PY'
+          import json
+          data=json.load(open("/tmp/context.json"))["data"]
+          budget=data["token_budget"]
+          assert budget["maximum"] == 80
+          assert budget["used"] <= 80 or budget["protected_overflow"]
+          assert budget["packing_version"] == "context-budget-v1"
+          assert budget["estimator_version"] == "utf8-json-bytes-3-v1"
+          PY
       - name: Show service status
         if: always()
         run: docker compose ps
