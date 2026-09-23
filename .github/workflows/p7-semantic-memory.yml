@@ -72,12 +72,12 @@ jobs:
         env:
           LLM_PROVIDER: fake
           PLATFORM_SERVICE_TOKEN: test-token
-        run: docker compose up -d --build postgres mongodb ai-service backend
+        run: docker compose up -d --build postgres mongodb ai-service backend web
       - name: Wait for health
         run: |
           set -euo pipefail
           for i in {1..60}; do
-            if curl -fsS http://localhost:8000/health >/dev/null && curl -fsS http://localhost:4000/api/v1/health >/dev/null; then
+            if curl -fsS http://localhost:8000/health >/dev/null && curl -fsS http://localhost:4000/api/v1/health >/dev/null && curl -fsS http://localhost:8080/ >/dev/null; then
               exit 0
             fi
             sleep 3
@@ -106,14 +106,17 @@ jobs:
           route="http://localhost:8000/v1/story-brains/00000000-0000-0000-0000-000000000001/context-preview"
           missing="$(curl -sS -o /tmp/missing.json -w '%{http_code}' "$route")"
           invalid="$(curl -sS -o /tmp/invalid.json -w '%{http_code}' -H 'Authorization: Bearer invalid-token' "$route")"
+          valid_route="http://localhost:8000/v1/story-brains/by-novel/00000000-0000-0000-0000-000000000001"
+          valid="$(curl -sS -o /tmp/valid.json -w '%{http_code}' -H 'Authorization: Bearer test-token' "$valid_route")"
           test "$missing" = "401"
           test "$invalid" = "403"
+          test "$valid" = "200"
       - name: Show service status
         if: always()
         run: docker compose ps
       - name: Logs on failure
         if: failure()
-        run: docker compose logs --no-color postgres mongodb ai-service backend
+        run: docker compose logs --no-color postgres mongodb ai-service backend web
       - name: Shutdown
         if: always()
         run: docker compose down -v
