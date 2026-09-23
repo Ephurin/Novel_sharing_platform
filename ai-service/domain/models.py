@@ -150,6 +150,7 @@ class WritingContextPackage:
     entities: tuple[dict[str, Any], ...] = ()
     current_states: tuple[dict[str, Any], ...] = ()
     recent_events: tuple[dict[str, Any], ...] = ()
+    semantic_memories: tuple[dict[str, Any], ...] = ()
     world_rules: tuple[dict[str, Any], ...] = ()
     author_constraints: tuple[str, ...] = ()
     token_budget: dict[str, int] = field(default_factory=dict)
@@ -236,3 +237,34 @@ class SemanticMemoryEmbedding:
     normalization: str
     content_hash: str
     embedding: tuple[float, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class SemanticMemoryMatch:
+    memory_chunk_id: str
+    story_brain_id: str
+    tenant_id: str
+    novel_id: str
+    source_key: str
+    memory_type: str
+    content: str
+    content_hash: str
+    embedding_version: str
+    cosine_distance: float
+    narrative_order: int | None = None
+    chapter_number: int | None = None
+    chapter_id: str | None = None
+    revision_id: str | None = None
+    event_id: str | None = None
+    entity_id: str | None = None
+    entity_ids: tuple[str, ...] = ()
+    importance_score: float = 0.5
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class SemanticRetrievalResult:
+    matches: tuple[SemanticMemoryMatch, ...] = ()
+    status: str = "ok"
+    embedding_version: str = ""
+    fallback_reason: str | None = None

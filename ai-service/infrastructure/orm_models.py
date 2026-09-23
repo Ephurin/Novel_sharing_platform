@@ -29,7 +29,7 @@ from pgvector.sqlalchemy import Vector
 
 SCHEMA = "narrative"
 JSON_TYPE = JSON().with_variant(JSONB(), "postgresql")
-VECTOR_768_TYPE = JSON().with_variant(Vector(768), "postgresql")
+VECTOR_768_TYPE = Vector(768).with_variant(JSON(), "sqlite")
 
 
 class Base(DeclarativeBase):

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - astra/p7-02-memory-pgvector-foundation
+      - astra/p7-03-semantic-retriever
   pull_request:
     paths:
       - "ai-service/**"
@@ -24,10 +25,12 @@ jobs:
           cache: pip
           cache-dependency-path: ai-service/requirements.txt
       - run: pip install -r requirements.txt pytest httpx
-      - name: Semantic-memory unit tests
-        run: pytest -q tests/test_semantic_memory_service.py
+      - name: Semantic-memory and retriever unit tests
+        run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py
       - name: Benchmark invariant regression
         run: pytest -q tests/test_p7_embedding_benchmark.py
+      - name: Phase 6 temporal/writing regressions
+        run: pytest -q tests/test_p65_r1_temporal.py tests/test_p65_r2_final.py tests/test_writing_validation_golden.py
 
   pgvector-integration:
     runs-on: ubuntu-latest
@@ -60,7 +63,7 @@ jobs:
           cache-dependency-path: ai-service/requirements.txt
       - run: pip install -r requirements.txt pytest httpx
       - name: Live PostgreSQL + pgvector integration
-        run: pytest -o addopts= -q -m postgres_integration tests/test_semantic_memory_postgres_integration.py
+        run: pytest -o addopts= -q -m postgres_integration tests/test_semantic_memory_postgres_integration.py tests/test_semantic_retriever_postgres_integration.py
 
   root-compose-smoke:
     runs-on: ubuntu-latest
@@ -72,6 +75,9 @@ jobs:
         env:
           LLM_PROVIDER: fake
           PLATFORM_SERVICE_TOKEN: test-token
+          EMBEDDING_PROVIDER: fake
+          SEMANTIC_RETRIEVAL_ENABLED: "true"
+          ACTIVE_EMBEDDING_VERSION: fake-embedding-768-v1
         run: docker compose up -d --build postgres mongodb ai-service backend web
       - name: Wait for health
         run: |
@@ -85,6 +91,17 @@ jobs:
           docker compose ps
           docker compose logs ai-service backend postgres
           exit 1
+      - name: Verify semantic retriever composition
+        run: |
+          set -euo pipefail
+          docker compose exec -T ai-service python -c "import main; assert main.app.state.semantic_retriever is not None; assert main.app.state.semantic_materializer is not None"
+          code="$(curl -sS -o /tmp/semantic-rebuild.json -w '%{http_code}' -X POST \
+            -H 'Authorization: Bearer test-token' \
+            -H 'X-Tenant-Id: 00000000-0000-0000-0000-000000000001' \
+            -H 'X-Request-Id: p7-03-compose' \
+            http://localhost:8000/internal/v1/story-brains/00000000-0000-0000-0000-000000000001/semantic-memory/rebuild)"
+          test "$code" = "202"
+
       - name: Verify pgvector schema capability
         run: |
           set -euo pipefail

@@ -53,6 +53,10 @@ def get_writing_service(request: Request) -> WritingService:
     return request.app.state.writing_service
 
 
+def get_semantic_materializer(request: Request):
+    return getattr(request.app.state, "semantic_materializer", None)
+
+
 def get_candidate_processor(request: Request) -> CandidateProcessor:
     return request.app.state.candidate_processor
 

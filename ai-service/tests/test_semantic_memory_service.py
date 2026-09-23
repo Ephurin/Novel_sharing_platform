@@ -129,6 +129,18 @@ class FailingProvider(DeterministicFakeEmbeddingProvider):
     def embed_document(self, text: str):
         raise EmbeddingProviderError("provider unavailable")
 
+    def embed_documents(self, texts):
+        raise EmbeddingProviderError("provider unavailable")
+
+
+class BatchCountingProvider(DeterministicFakeEmbeddingProvider):
+    def __init__(self) -> None:
+        self.batch_sizes: list[int] = []
+
+    def embed_documents(self, texts):
+        self.batch_sizes.append(len(texts))
+        return super().embed_documents(texts)
+
 
 def make_source(summary: str = "Mira rescued Eldric at the north gate") -> EventMemorySource:
     return EventMemorySource(
@@ -260,3 +272,25 @@ def test_inactive_event_chunk_is_removed_without_touching_other_sources() -> Non
     result = service.materialize_event_memories(active.novel_id)
     assert result["removed_chunk_count"] == 1
     assert {chunk.event_id for chunk in repository.chunks.values()} == {active.event_id}
+
+
+def test_materialization_batches_document_embeddings() -> None:
+    base = make_source("event-0")
+    sources = [
+        replace(
+            base,
+            event_id=str(uuid.uuid4()),
+            summary=f"event-{index}",
+            narrative_order=(index + 1) * 1024,
+        )
+        for index in range(33)
+    ]
+    repository = FakeSemanticMemoryRepository(sources)
+    provider = BatchCountingProvider()
+    service = SemanticMemoryMaterializationService(repository, provider)
+
+    result = service.materialize_event_memories(base.novel_id)
+
+    assert result["embedded_count"] == 33
+    assert provider.batch_sizes == [16, 16, 1]
+    assert len(repository.embeddings) == 33

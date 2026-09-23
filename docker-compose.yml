@@ -42,6 +42,12 @@ services:
       LLM_BASE_URL: ${AI_LLM_BASE_URL:-https://foreseeable-kaliyah-fleshier.ngrok-free.dev/v1}
       LLM_API_KEY: ${AI_LLM_API_KEY:-}
       LLM_MODEL: ${AI_LLM_MODEL:-qwen3:8b}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-none}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      SEMANTIC_RETRIEVAL_ENABLED: ${SEMANTIC_RETRIEVAL_ENABLED:-false}
+      ACTIVE_EMBEDDING_VERSION: ${ACTIVE_EMBEDDING_VERSION:-}
+      SEMANTIC_RETRIEVAL_LIMIT: ${SEMANTIC_RETRIEVAL_LIMIT:-8}
     ports:
       - "8000:8000"
     healthcheck:

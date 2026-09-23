@@ -35,10 +35,12 @@ class WritingService:
         repository: NarrativeRepository,
         llm_service: Any,
         revision_provider: RevisionContentProvider | None = None,
+        semantic_retriever: Any | None = None,
     ) -> None:
         self._repository = repository
         self._llm_service = llm_service
         self._revision_provider = revision_provider
+        self._semantic_retriever = semantic_retriever
 
     def preview_context(
         self,
@@ -49,6 +51,8 @@ class WritingService:
         character_name: str | None = None,
         limit_recent_events: int = 20,
         token_budget: int | None = None,
+        semantic_query: str | None = None,
+        semantic_limit: int | None = None,
     ) -> WritingContextPackage:
         """Fetch and structure narrative context for writing assistance."""
         package = self._repository.get_structured_context(
@@ -68,10 +72,42 @@ class WritingService:
                 entities=package.entities,
                 current_states=package.current_states,
                 recent_events=package.recent_events,
+                semantic_memories=package.semantic_memories,
                 world_rules=package.world_rules,
                 author_constraints=package.author_constraints,
                 token_budget=current_budget,
                 context_summary=package.context_summary,
+            )
+
+        if self._semantic_retriever is not None and semantic_query and semantic_query.strip():
+            result = self._semantic_retriever.retrieve(
+                story_id,
+                query_text=semantic_query,
+                chapter_number=chapter_number,
+                limit=semantic_limit,
+                tenant_id=tenant_id,
+            )
+            semantic_memories = tuple(
+                self._semantic_match_payload(match) for match in result.matches
+            )
+            context_summary = dict(package.context_summary)
+            context_summary["semantic_retrieval_status"] = [result.status]
+            context_summary["semantic_embedding_version"] = [result.embedding_version]
+            context_summary["semantic_memory_ids"] = [
+                item["memory_chunk_id"] for item in semantic_memories
+            ]
+            if result.fallback_reason:
+                context_summary["semantic_fallback_reason"] = [result.fallback_reason]
+            package = WritingContextPackage(
+                brain_version=package.brain_version,
+                entities=package.entities,
+                current_states=package.current_states,
+                recent_events=package.recent_events,
+                semantic_memories=semantic_memories,
+                world_rules=package.world_rules,
+                author_constraints=package.author_constraints,
+                token_budget=package.token_budget,
+                context_summary=context_summary,
             )
 
         return package
@@ -291,10 +327,16 @@ class WritingService:
         )
         self._repository.save_writing_job(job)
 
+        selected_text = self._resolve_selected_text(job)
+        semantic_query = self._build_semantic_query(
+            instruction=job.instruction,
+            selected_text=selected_text,
+        )
         context_package = self.preview_context(
             tenant_id=job.tenant_id,
             story_id=job.novel_id,
             chapter_number=job.chapter_number,
+            semantic_query=semantic_query,
         )
         prompt_context = {
             "brain_version": context_package.brain_version,
@@ -302,6 +344,7 @@ class WritingService:
             "current_states": list(context_package.current_states),
             "world_rules": list(context_package.world_rules),
             "recent_events": list(context_package.recent_events),
+            "semantic_memories": list(context_package.semantic_memories),
         }
         context_hash = hashlib.sha256(
             json.dumps(prompt_context, sort_keys=True, default=str).encode("utf-8")
@@ -333,28 +376,8 @@ class WritingService:
         )
         self._repository.save_writing_job(job)
 
-        # Extract selected text if source_text or revision provider available
-        selected_text = ""
-        if job.selection.get("source_text") is not None:
-            raw_text = str(job.selection["source_text"])
-            start = job.selection.get("start", 0)
-            end = job.selection.get("end", len(raw_text))
-            selected_text = raw_text[start:end]
-            if not selected_text and start == end and raw_text:
-                selected_text = raw_text
-        elif self._revision_provider:
-            try:
-                rev = self._revision_provider.get_revision(
-                    tenant_id=job.tenant_id,
-                    novel_id=job.novel_id,
-                    chapter_id=job.chapter_id,
-                    revision_id=job.revision_id,
-                )
-                start = job.selection.get("start", 0)
-                end = job.selection.get("end", start)
-                selected_text = rev.content[start:end]
-            except Exception:
-                pass
+        # selected_text was resolved before context retrieval so the same
+        # author text participates in both semantic lookup and generation.
 
 
         # Call LLM service with style and constraints
@@ -372,6 +395,7 @@ class WritingService:
                     "current_states": list(context_package.current_states),
                     "world_rules": list(context_package.world_rules),
                     "recent_events": list(context_package.recent_events),
+                    "semantic_memories": list(context_package.semantic_memories),
                 },
                 style=job.style,
                 constraints=job.constraints,
@@ -467,6 +491,60 @@ class WritingService:
         )
 
         return self._repository.save_writing_job(completed_job)
+
+    def _resolve_selected_text(self, job: WritingGenerationJob) -> str:
+        if job.selection.get("source_text") is not None:
+            raw_text = str(job.selection["source_text"])
+            start = job.selection.get("start", 0)
+            end = job.selection.get("end", len(raw_text))
+            selected_text = raw_text[start:end]
+            if not selected_text and start == end and raw_text:
+                selected_text = raw_text
+            return selected_text
+
+        if self._revision_provider:
+            try:
+                revision = self._revision_provider.get_revision(
+                    tenant_id=job.tenant_id,
+                    novel_id=job.novel_id,
+                    chapter_id=job.chapter_id,
+                    revision_id=job.revision_id,
+                )
+                start = job.selection.get("start", 0)
+                end = job.selection.get("end", start)
+                return revision.content[start:end]
+            except Exception:
+                return ""
+        return ""
+
+    @staticmethod
+    def _build_semantic_query(*, instruction: str, selected_text: str) -> str:
+        parts = [
+            value.strip()
+            for value in (instruction, selected_text)
+            if value and value.strip()
+        ]
+        return "\n\n".join(parts)
+
+    @staticmethod
+    def _semantic_match_payload(match: Any) -> dict[str, Any]:
+        return {
+            "memory_chunk_id": match.memory_chunk_id,
+            "memory_type": match.memory_type,
+            "content": match.content,
+            "content_hash": match.content_hash,
+            "embedding_version": match.embedding_version,
+            "cosine_distance": match.cosine_distance,
+            "narrative_order": match.narrative_order,
+            "chapter_number": match.chapter_number,
+            "chapter_id": match.chapter_id,
+            "revision_id": match.revision_id,
+            "event_id": match.event_id,
+            "entity_id": match.entity_id,
+            "entity_ids": list(match.entity_ids),
+            "importance_score": match.importance_score,
+            "metadata": dict(match.metadata),
+        }
 
     def _validate_draft(
         self,

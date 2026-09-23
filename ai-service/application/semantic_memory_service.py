@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import uuid
 
 from domain.embeddings import EmbeddingProvider, EmbeddingProviderError, l2_normalize
@@ -9,6 +10,8 @@ from domain.repositories import SemanticMemoryRepository
 
 
 EVENT_MEMORY_TYPE = "event_summary"
+EMBEDDING_BATCH_SIZE = 16
+logger = logging.getLogger(__name__)
 
 
 class SemanticMemoryMaterializationService:
@@ -38,7 +41,10 @@ class SemanticMemoryMaterializationService:
         chunk_count = 0
         embedded_count = 0
         reused_embedding_count = 0
+        pending_chunks = []
 
+        # Persist derived content first. Each repository call owns a short
+        # transaction; no provider/network call is made while it is open.
         for source in usable_sources:
             content = source.summary.strip()
             content_hash = self._content_hash(content)
@@ -71,41 +77,65 @@ class SemanticMemoryMaterializationService:
             if existing is not None and existing.content_hash == chunk.content_hash:
                 reused_embedding_count += 1
                 continue
+            pending_chunks.append(chunk)
 
+        # Document backfill is batchable. Gemini v1 uses the same batch shape
+        # proven by the P7-01 benchmark. Query embedding remains fail-fast.
+        batch_embedder = getattr(self._embedding_provider, "embed_documents", None)
+        for start in range(0, len(pending_chunks), EMBEDDING_BATCH_SIZE):
+            batch = pending_chunks[start : start + EMBEDDING_BATCH_SIZE]
             try:
-                raw_vector = self._embedding_provider.embed_document(chunk.content)
-                normalized = l2_normalize(
-                    raw_vector,
-                    expected_dimension=self._embedding_provider.dimension,
-                )
+                if callable(batch_embedder):
+                    raw_vectors = list(
+                        batch_embedder([chunk.content for chunk in batch])
+                    )
+                else:
+                    raw_vectors = [
+                        self._embedding_provider.embed_document(chunk.content)
+                        for chunk in batch
+                    ]
+                if len(raw_vectors) != len(batch):
+                    raise EmbeddingProviderError(
+                        f"Embedding provider returned {len(raw_vectors)} vectors "
+                        f"for batch of {len(batch)} memories"
+                    )
+                normalized_vectors = [
+                    l2_normalize(
+                        raw_vector,
+                        expected_dimension=self._embedding_provider.dimension,
+                    )
+                    for raw_vector in raw_vectors
+                ]
             except EmbeddingProviderError as exc:
+                first_chunk = batch[0].memory_chunk_id if batch else "unknown"
                 raise EmbeddingProviderError(
-                    f"Embedding failed for semantic memory {chunk.memory_chunk_id}"
+                    f"Embedding failed for semantic memory batch starting {first_chunk}"
                 ) from exc
 
-            embedding_id = str(
-                uuid.uuid5(
-                    uuid.NAMESPACE_URL,
-                    f"memory-embedding:{chunk.memory_chunk_id}:{self._embedding_provider.version}",
+            for chunk, normalized in zip(batch, normalized_vectors):
+                embedding_id = str(
+                    uuid.uuid5(
+                        uuid.NAMESPACE_URL,
+                        f"memory-embedding:{chunk.memory_chunk_id}:{self._embedding_provider.version}",
+                    )
                 )
-            )
-            self._repository.upsert_embedding(
-                story_id,
-                SemanticMemoryEmbedding(
-                    embedding_id=embedding_id,
-                    memory_chunk_id=chunk.memory_chunk_id,
-                    story_brain_id=chunk.story_brain_id,
-                    tenant_id=chunk.tenant_id,
-                    novel_id=chunk.novel_id,
-                    embedding_model=self._embedding_provider.model,
-                    embedding_version=self._embedding_provider.version,
-                    embedding_dimension=self._embedding_provider.dimension,
-                    normalization="l2",
-                    content_hash=chunk.content_hash,
-                    embedding=normalized,
-                ),
-            )
-            embedded_count += 1
+                self._repository.upsert_embedding(
+                    story_id,
+                    SemanticMemoryEmbedding(
+                        embedding_id=embedding_id,
+                        memory_chunk_id=chunk.memory_chunk_id,
+                        story_brain_id=chunk.story_brain_id,
+                        tenant_id=chunk.tenant_id,
+                        novel_id=chunk.novel_id,
+                        embedding_model=self._embedding_provider.model,
+                        embedding_version=self._embedding_provider.version,
+                        embedding_dimension=self._embedding_provider.dimension,
+                        normalization="l2",
+                        content_hash=chunk.content_hash,
+                        embedding=normalized,
+                    ),
+                )
+                embedded_count += 1
 
         coverage = self._repository.embedding_coverage(
             story_id,
@@ -138,3 +168,23 @@ class SemanticMemoryMaterializationService:
     @staticmethod
     def _content_hash(content: str) -> str:
         return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
+def refresh_semantic_memory_safely(
+    service: SemanticMemoryMaterializationService | None,
+    story_id: str,
+) -> dict[str, int | str]:
+    """Best-effort post-commit refresh; never rolls back canonical acceptance."""
+    if service is None:
+        return {"status": "disabled"}
+    try:
+        result = service.materialize_event_memories(story_id)
+        return {"status": "ok", **result}
+    except Exception as exc:
+        logger.warning(
+            "Semantic-memory refresh failed for story %s (%s); "
+            "canonical Story Brain remains authoritative",
+            story_id,
+            type(exc).__name__,
+        )
+        return {"status": "fallback", "reason": type(exc).__name__}

@@ -553,22 +553,113 @@ P7-02 is accepted. P7-03 is the next planned task but is **NOT ACTIVE** until ex
 
 ---
 
-## 8. NEXT TASK — P7-03-SEMANTIC-RETRIEVER — NOT ACTIVE
+## 8. ACTIVE TASK — P7-03-SEMANTIC-RETRIEVER
 
-P7-02 is closed. The next planned Phase 7 slice is semantic retrieval over the accepted pgvector/memory foundation.
+**Opened by owner:** 2026-09-23  
+**Implementation branch:** `astra/p7-03-semantic-retriever`
 
-Do not begin P7-03 until the owner explicitly opens it.
-
-Expected P7-03 boundary, when opened:
+Goal:
 
 ```text
+Phase 6 structured SQL context (authoritative baseline)
+        +
 author/query text
         ↓
-query embedding (ADR-012 recipe)
+query embedding using ADR-012 query recipe
         ↓
-temporal/version scoped exact cosine retrieval
+tenant/novel/story-brain
++ embedding_version
++ freshness
++ temporal cutoff
         ↓
-deterministic fallback to Phase 6 SQL retrieval
+exact pgvector cosine ordering
+        ↓
+semantic_memories added to writing context
 ```
 
-Hybrid ranking, context compression, and ANN indexing remain later tasks unless explicitly included in a reviewed P7-03 scope.
+### Invariants
+
+- Phase 6 structured SQL context remains authoritative and always available as deterministic fallback.
+- Query embedding recipe:
+  `Represent this narrative retrieval query for semantic search: {query_text}`
+- Query vector is explicitly L2-normalized.
+- Retrieval must use only the configured/active embedding version.
+- Stale rows where embedding.content_hash != chunk.content_hash are excluded.
+- Temporal filtering occurs in SQL before vector ranking semantics; future event memories must never be candidates.
+- Exact cosine distance `<=>`; no ANN/HNSW/IVFFlat in P7-03.
+- Semantic similarity is candidate relevance, not canonical truth.
+- Provider/repository failure must not fail writing generation; fallback is Phase 6 context.
+- Retrieved semantic memories must be traceable in context hash/summary.
+
+### Initial production integration
+
+P7-03 may add an optional `semantic_memories` field to `WritingContextPackage` and pass it to WritingService/LLM context. Do not replace canonical `recent_events` with semantic results.
+
+Generation query may combine author instruction with selected/revision text when available. Empty queries skip semantic retrieval.
+
+### Required tests
+
+Deterministic:
+- query instruction differs from document instruction;
+- query dimension validation + L2 normalization;
+- retrieval failure returns Phase 6 fallback unchanged;
+- semantic matches are additive, traceable, and included in context hash.
+
+Live PostgreSQL + pgvector:
+- exact cosine ordering via `<=>`;
+- strict embedding_version isolation;
+- stale embedding exclusion;
+- tenant/novel/story-brain isolation;
+- temporal cutoff excludes future event memory before ranking;
+- no future-memory leakage at multiple cutoffs.
+
+Regression:
+- WritingService works unchanged when semantic retriever is absent/disabled.
+- Existing Phase 6 temporal/golden tests remain green.
+
+### Out of scope
+
+- hybrid ranker;
+- entity-overlap weighting;
+- importance/relationship weighted scoring;
+- context compression;
+- ANN indexes;
+- embedding-version quality cutover automation;
+- specialized vector DB.
+
+P7-04 remains the hybrid-ranker slice.
+
+
+---
+
+### Handoff — P7-03-SEMANTIC-RETRIEVER
+
+Status: Implemented and CI verified; awaiting Astra/owner review
+
+- Branch: `astra/p7-03-semantic-retriever`
+- Query recipe: ADR-012 query prefix + explicit L2
+- Retrieval: exact pgvector cosine
+- Temporal cutoff: PASS — required/fail-closed before semantic search
+- Embedding version isolation: PASS
+- Stale content-hash exclusion: PASS
+- Superseded-event race guard: PASS
+- Tenant semantic scope mismatch: PASS — semantic layer skips/falls back
+- Phase 6 fallback: PASS
+- Semantic memories additive to canonical recent_events: PASS
+- Context hash includes semantic memory content: PASS
+- Post-accept semantic refresh: PASS — background, canonical acceptance independent
+- Internal semantic rebuild/backfill endpoint: PASS
+- Unit/semantic tests: PASS — 18
+- P7 benchmark regression: PASS — 6
+- Phase 6 temporal/writing regressions: PASS — 25
+- Live pgvector integration: PASS — 9
+- Root Compose: PASS — retriever + materializer + rebuild 202 + pgvector/auth/backend/web
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35829177503
+- ANN/HNSW/IVFFlat: NONE
+- Hybrid ranker: NONE
+- Context compression: NONE
+- Report: `docs/development/P7-03-SEMANTIC-RETRIEVER-report.md`
+- Evidence: `docs/development/P7-03-SEMANTIC-RETRIEVER/`
+- Remaining blocker: merge/owner acceptance only
+
+Do not open P7-04 until P7-03 is accepted.

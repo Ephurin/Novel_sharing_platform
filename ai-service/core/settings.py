@@ -48,6 +48,10 @@ class Settings:
     cors_origins: tuple[str, ...]
     pipeline_version: str
     entity_prompt_version: str
+    semantic_retrieval_enabled: bool
+    embedding_provider: str
+    active_embedding_version: str
+    semantic_retrieval_limit: int
     service_auth_disabled: bool = False
 
     @classmethod
@@ -74,6 +78,15 @@ class Settings:
         database_url = (os.getenv("DATABASE_URL", "") or "").strip()
         if repository == "postgres" and not database_url:
             raise ValueError("DATABASE_URL is required when NARRATIVE_REPOSITORY=postgres")
+
+        embedding_provider = (os.getenv("EMBEDDING_PROVIDER", "none") or "none").strip().lower()
+        if embedding_provider not in {"none", "gemini", "fake"}:
+            raise ValueError("EMBEDDING_PROVIDER must be one of: none, gemini, fake")
+        default_embedding_version = {
+            "gemini": "gemini-embedding-2-768-v1",
+            "fake": "fake-embedding-768-v1",
+            "none": "gemini-embedding-2-768-v1",
+        }[embedding_provider]
 
         return cls(
             service_name=(os.getenv("SERVICE_NAME", "AI Service - Story Platform") or "").strip(),
@@ -103,5 +116,15 @@ class Settings:
             ),
             pipeline_version=(os.getenv("ENTITY_PIPELINE_VERSION", "entity-v1") or "").strip(),
             entity_prompt_version=(os.getenv("ENTITY_PROMPT_VERSION", "entity-extraction-v1") or "").strip(),
+            semantic_retrieval_enabled=_env_bool(
+                "SEMANTIC_RETRIEVAL_ENABLED",
+                embedding_provider != "none",
+            ),
+            embedding_provider=embedding_provider,
+            active_embedding_version=(
+                os.getenv("ACTIVE_EMBEDDING_VERSION", default_embedding_version)
+                or default_embedding_version
+            ).strip(),
+            semantic_retrieval_limit=_env_int("SEMANTIC_RETRIEVAL_LIMIT", 8),
             service_auth_disabled=_env_bool("SERVICE_AUTH_DISABLED", False),
         )
