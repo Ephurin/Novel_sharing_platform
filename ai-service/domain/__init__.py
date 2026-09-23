@@ -9,7 +9,7 @@ from domain.models import (
     ProposalStatus,
     StoryBrain,
 )
-from domain.repositories import NarrativeRepository
+from domain.repositories import NarrativeRepository, SemanticMemoryRepository
 
 __all__ = [
     "NarrativeEntity",
@@ -20,6 +20,7 @@ __all__ = [
     "NarrativeProposal",
     "NarrativeRelation",
     "NarrativeRepository",
+    "SemanticMemoryRepository",
     "ProposalStatus",
     "StoryBrain",
 ]
