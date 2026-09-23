@@ -869,7 +869,7 @@ Status: ACCEPTED — merged to `main` on 2026-09-23
 - Evidence: `docs/development/P7-04-HYBRID-RANKER/`
 - Remaining blocker: none
 
-Do not open P7-05 until P7-04 is accepted.
+P7-04 is accepted. P7-05 remains **NOT ACTIVE** until explicitly opened by the owner.
 
 
 ---
