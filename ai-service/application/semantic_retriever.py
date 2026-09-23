@@ -49,17 +49,20 @@ class SemanticRetrieverService:
             return SemanticRetrievalResult(
                 status="skipped",
                 embedding_version=self.embedding_version,
+                ranking_version="not-ranked",
             )
         if chapter_number is None:
             return SemanticRetrievalResult(
                 status="skipped",
                 embedding_version=self.embedding_version,
+                ranking_version="not-ranked",
                 fallback_reason="missing_temporal_cutoff",
             )
         if self.tenant_id is not None and tenant_id is not None and tenant_id != self.tenant_id:
             return SemanticRetrievalResult(
                 status="skipped",
                 embedding_version=self.embedding_version,
+                ranking_version="not-ranked",
                 fallback_reason="tenant_scope_mismatch",
             )
 
@@ -133,5 +136,6 @@ class SemanticRetrieverService:
             return SemanticRetrievalResult(
                 status="fallback",
                 embedding_version=self.embedding_version,
+                ranking_version="phase6-fallback",
                 fallback_reason=reason,
             )
