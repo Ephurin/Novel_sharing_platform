@@ -157,6 +157,7 @@ jobs:
           import json
           data=json.load(open("/tmp/context.json"))["data"]
           budget=data["token_budget"]
+          print(json.dumps(budget, sort_keys=True))
           assert budget["maximum"] == 80
           assert budget["used"] <= 80 or budget["protected_overflow"]
           assert budget["packing_version"] == "context-budget-v1"
