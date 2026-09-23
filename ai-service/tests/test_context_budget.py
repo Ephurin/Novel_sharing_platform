@@ -10,7 +10,8 @@ from application.context_budget import (
 )
 from application.writing_service import WritingService
 from core.fake_llm import FakeDeterministicLLMService
-from domain.models import WritingContextPackage
+from domain.models import NarrativeEvent, WritingContextPackage
+from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
 
 
 def _entity(entity_id: str, *, locked: bool = False, pad: str = "") -> dict:
@@ -262,6 +263,38 @@ def test_identical_input_produces_identical_package_and_trace() -> None:
     second = packer.pack(package, maximum=800)
 
     assert first == second
+
+
+
+
+def test_repository_can_return_untrimmed_candidates_for_single_application_budget_owner() -> None:
+    repo = InMemoryNarrativeRepository()
+    story_id = "budget-owner-story"
+    for index in range(3):
+        repo.append_event(
+            story_id,
+            NarrativeEvent(
+                event_id=f"event-{index}",
+                event_type="event",
+                summary="x" * 400,
+                chapter=index + 1,
+            ),
+        )
+
+    legacy = repo.get_structured_context(
+        story_id,
+        token_budget=50,
+        enforce_token_budget=True,
+    )
+    candidates = repo.get_structured_context(
+        story_id,
+        token_budget=50,
+        enforce_token_budget=False,
+    )
+
+    assert legacy.recent_events == ()
+    assert len(candidates.recent_events) == 3
+    assert candidates.token_budget["budget_enforced"] is False
 
 
 class _OneContextRepository:
