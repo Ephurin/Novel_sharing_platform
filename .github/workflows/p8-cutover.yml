@@ -1,0 +1,160 @@
+name: P8 Cutover and Migration
+
+on:
+  push:
+    branches:
+      - astra/p8-cutover
+  pull_request:
+    paths:
+      - "ai-service/**"
+      - "docker-compose.yml"
+      - ".github/workflows/p8-cutover.yml"
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ai-service/requirements.txt
+      - run: pip install -r requirements.txt pytest httpx
+      - name: Full AI-service non-PostgreSQL regression
+        run: pytest -q
+
+  postgres-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: p8_cutover
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p8_cutover"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_cutover
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_cutover
+    defaults:
+      run:
+        working-directory: ai-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ai-service/requirements.txt
+      - run: pip install -r requirements.txt pytest httpx
+      - name: Live PostgreSQL integration suite
+        run: pytest -o addopts= -q -m postgres_integration
+
+  root-compose-cutover-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose
+        run: docker compose config
+      - name: Start production-path services
+        env:
+          LLM_PROVIDER: fake
+          PLATFORM_SERVICE_TOKEN: test-token
+          EMBEDDING_PROVIDER: fake
+          SEMANTIC_RETRIEVAL_ENABLED: "true"
+          ACTIVE_EMBEDDING_VERSION: fake-embedding-768-v1
+        run: docker compose up -d --build postgres mongodb ai-service backend web
+      - name: Wait for health
+        run: |
+          set -euo pipefail
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8000/health >/dev/null && curl -fsS http://localhost:4000/api/v1/health >/dev/null && curl -fsS http://localhost:8080/ >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose ps
+          docker compose logs ai-service backend postgres
+          exit 1
+      - name: Run cutover CLI dry-run apply and idempotent reapply
+        run: |
+          set -euo pipefail
+          story_id="11111111-2222-3333-4444-555555555555"
+          docker compose exec -T ai-service sh -lc "mkdir -p /tmp/p8-json && cat > /tmp/p8-json/$story_id.json <<'JSON'
+          {
+            \"story_id\": \"11111111-2222-3333-4444-555555555555\",
+            \"metadata\": {\"brain_version\": \"3\", \"status\": \"active\"},
+            \"entities\": {
+              \"elena\": {
+                \"name\": \"Elena\",
+                \"entity_type\": \"character\",
+                \"status\": \"Alive\",
+                \"location\": \"Observatory\",
+                \"mentions\": 4,
+                \"is_locked\": true
+              }
+            }
+          }
+          JSON
+          sha256sum /tmp/p8-json/$story_id.json | cut -d' ' -f1 > /tmp/source.before
+          python -m application.migrate_json_to_postgres --json-storage /tmp/p8-json --story-id $story_id --output /tmp/dry-run.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/dry-run.json'))
+          story=data['stories'][0]
+          assert data['mode']=='dry-run'
+          assert story['action']=='ready'
+          assert story['safe_to_apply'] is True
+          print(json.dumps(story, sort_keys=True))
+          PY
+          python -m application.migrate_json_to_postgres --json-storage /tmp/p8-json --story-id $story_id --apply --output /tmp/apply.json
+          python - <<'PY'
+          import json
+          story=json.load(open('/tmp/apply.json'))['stories'][0]
+          assert story['action']=='already_migrated'
+          assert story['applied'] is True
+          assert story['parity'] is True
+          assert story['source_unchanged'] is True
+          print(json.dumps(story, sort_keys=True))
+          PY
+          python -m application.migrate_json_to_postgres --json-storage /tmp/p8-json --story-id $story_id --apply --output /tmp/reapply.json
+          python - <<'PY'
+          import json
+          story=json.load(open('/tmp/reapply.json'))['stories'][0]
+          assert story['action']=='already_migrated'
+          assert story['applied'] is False
+          assert story['idempotent'] is True
+          print(json.dumps(story, sort_keys=True))
+          PY
+          sha256sum /tmp/p8-json/$story_id.json | cut -d' ' -f1 > /tmp/source.after
+          diff -u /tmp/source.before /tmp/source.after"
+      - name: Verify existing production path still healthy
+        run: |
+          set -euo pipefail
+          docker compose exec -T postgres psql -U postgres -d ephurin -Atc "SELECT extname FROM pg_extension WHERE extname='vector'" | grep -qx vector
+          route="http://localhost:8000/v1/story-brains/11111111-2222-3333-4444-555555555555/context-preview"
+          missing="$(curl -sS -o /tmp/missing.json -w '%{http_code}' "$route")"
+          invalid="$(curl -sS -o /tmp/invalid.json -w '%{http_code}' -H 'Authorization: Bearer invalid-token' "$route")"
+          valid="$(curl -sS -o /tmp/valid.json -w '%{http_code}' -H 'Authorization: Bearer test-token' "$route")"
+          test "$missing" = "401"
+          test "$invalid" = "403"
+          test "$valid" = "200"
+      - name: Show service status
+        if: always()
+        run: docker compose ps
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --no-color postgres mongodb ai-service backend web
+      - name: Shutdown
+        if: always()
+        run: docker compose down -v
