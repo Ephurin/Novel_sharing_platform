@@ -65,6 +65,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
     alias_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"alias:{hero_id}:the astronomer"))
     mention_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:mention:elena"))
     proposal_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:proposal:pending-fact"))
+    analysis_run_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:analysis:legacy"))
 
     entities = [
         NarrativeEntity(
@@ -202,6 +203,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
         proposals=[
             {
                 "proposal_id": proposal_id,
+                "analysis_run_id": analysis_run_id,
                 "proposal_type": "fact",
                 "payload": {"fact_key": "legacy.note", "fact_value": "pending"},
                 "evidence": [],
@@ -283,6 +285,7 @@ def test_dry_run_is_read_only_then_apply_has_full_canonical_parity(
     assert len(target_snapshot["mentions"]) == 1
     assert len(target_snapshot["facts"]) == 1
     assert len(target_snapshot["proposals"]) == 1
+    assert target_snapshot["proposals"][0]["analysis_run_id"] == analysis_run_id
     assert len(target_snapshot["transitions"]) == 2
 
     rebuilt = target.rebuild_projection(story_id, expected_brain_version=4)
@@ -487,6 +490,32 @@ def test_committed_legacy_story_files_have_safe_canonical_dry_run(
     assert "entity_states" in warnings["writing_session_550"]
     assert "event_history" in warnings["test_narrative_v2"]
     assert "current_world_state.characters" in warnings["test_narrative_v2"]
+
+
+def test_dry_run_blocks_analysis_run_primary_key_collision(
+    session_factory, tmp_path: Path
+) -> None:
+    tenant_id = str(uuid.uuid4())
+    first_story = str(uuid.uuid4())
+    second_story = str(uuid.uuid4())
+
+    first_manager, _ = _seed_json(tmp_path, first_story)
+    first_run_id = first_manager.load_kb(first_story).proposals[0]["analysis_run_id"]
+    first_migrator = _migrator(session_factory, tmp_path, tenant_id)
+    assert first_migrator.apply(first_story)["parity"] is True
+
+    second_manager, _ = _seed_json(tmp_path, second_story)
+    second_kb = second_manager.load_kb(second_story)
+    second_kb.proposals[0]["analysis_run_id"] = first_run_id
+    second_manager.save_narrative_kb(second_story, second_kb)
+
+    plan = _migrator(session_factory, tmp_path, tenant_id).plan(second_story)
+
+    assert plan["action"] == "blocked_id_collision"
+    assert {
+        (item["kind"], item["id"])
+        for item in plan["id_collisions"]
+    } == {("analysis_run", first_run_id)}
 
 
 def test_migration_is_tenant_scoped(session_factory, tmp_path: Path) -> None:
