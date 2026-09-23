@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import math
 from dataclasses import dataclass
 
@@ -7,6 +8,8 @@ import pytest
 
 from application.semantic_retriever import SemanticRetrieverService
 from application.writing_service import WritingService
+from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
+from tests.harness.fake_llm import FakeDeterministicLLMService
 from domain.models import (
     SemanticMemoryMatch,
     SemanticRetrievalResult,
@@ -259,3 +262,78 @@ def test_missing_temporal_cutoff_skips_semantic_query() -> None:
     assert result.matches == ()
     assert result.fallback_reason == "missing_temporal_cutoff"
     assert repo.query_embedding is None
+
+
+def test_semantic_memory_content_changes_generation_context_hash() -> None:
+    repo = InMemoryNarrativeRepository()
+    novel_id = "10000000-0000-0000-0000-000000000777"
+    source_text = "A short current chapter passage."
+    content_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()
+
+    first = _match()
+    semantic = StubSemanticRetriever(
+        SemanticRetrievalResult(
+            matches=(first,),
+            status="ok",
+            embedding_version=first.embedding_version,
+        )
+    )
+    service = WritingService(
+        repo,
+        FakeDeterministicLLMService(),
+        semantic_retriever=semantic,
+    )
+
+    job1 = service.start_generation(
+        tenant_id="00000000-0000-0000-0000-000000000001",
+        novel_id=novel_id,
+        chapter_id="chapter-5",
+        revision_id="ephemeral:context-hash-1",
+        content_hash=content_hash,
+        operation="continue",
+        selection={"start": 0, "end": 0, "cursor": 0},
+        instruction="Recall the old promise.",
+        chapter_number=5,
+        source_text=source_text,
+    )
+
+    second = SemanticMemoryMatch(
+        memory_chunk_id="mem-old-2",
+        story_brain_id=first.story_brain_id,
+        tenant_id=first.tenant_id,
+        novel_id=first.novel_id,
+        source_key="event:event-old-2",
+        memory_type=first.memory_type,
+        content="A different old memory is now retrieved.",
+        content_hash="b" * 64,
+        embedding_version=first.embedding_version,
+        cosine_distance=0.05,
+        narrative_order=2048,
+        chapter_number=4,
+        event_id="event-old-2",
+        importance_score=0.8,
+    )
+    semantic.result = SemanticRetrievalResult(
+        matches=(second,),
+        status="ok",
+        embedding_version=second.embedding_version,
+    )
+
+    job2 = service.start_generation(
+        tenant_id="00000000-0000-0000-0000-000000000001",
+        novel_id=novel_id,
+        chapter_id="chapter-5",
+        revision_id="ephemeral:context-hash-2",
+        content_hash=content_hash,
+        operation="continue",
+        selection={"start": 0, "end": 0, "cursor": 0},
+        instruction="Recall the old promise.",
+        chapter_number=5,
+        source_text=source_text,
+    )
+
+    assert job1.context_hash
+    assert job2.context_hash
+    assert job1.context_hash != job2.context_hash
+    assert job1.context_summary["semantic_memory_ids"] == ["mem-old-1"]
+    assert job2.context_summary["semantic_memory_ids"] == ["mem-old-2"]

@@ -29,6 +29,8 @@ jobs:
         run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py
       - name: Benchmark invariant regression
         run: pytest -q tests/test_p7_embedding_benchmark.py
+      - name: Phase 6 temporal/writing regressions
+        run: pytest -q tests/test_p65_r1_temporal.py tests/test_p65_r2_final.py tests/test_writing_validation_golden.py
 
   pgvector-integration:
     runs-on: ubuntu-latest
