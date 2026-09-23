@@ -364,7 +364,13 @@ def test_writing_service_hashes_and_sends_exact_packed_prompt_context() -> None:
     assert sent["world_rules"][0]["id"] == "locked"
     assert "drop-me" in job.context_summary["dropped_event_ids"]
     expected_hash = hashlib.sha256(
-        json.dumps(sent, sort_keys=True, default=str).encode("utf-8")
+        json.dumps(
+            sent,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            default=str,
+        ).encode("utf-8")
     ).hexdigest()
     assert job.context_hash == expected_hash
     assert job.context_summary["context_packing_version"] == [CONTEXT_PACKING_VERSION]
