@@ -44,6 +44,12 @@ class SemanticRetrieverService:
                 status="skipped",
                 embedding_version=self.embedding_version,
             )
+        if chapter_number is None:
+            return SemanticRetrievalResult(
+                status="skipped",
+                embedding_version=self.embedding_version,
+                fallback_reason="missing_temporal_cutoff",
+            )
 
         try:
             raw_vector = self._embedding_provider.embed_query(query)

@@ -243,3 +243,19 @@ def test_writing_context_without_retriever_is_phase6_compatible() -> None:
     assert package.recent_events[0]["event_id"] == "canonical-1"
     assert package.semantic_memories == ()
     assert "semantic_retrieval_status" not in package.context_summary
+
+
+def test_missing_temporal_cutoff_skips_semantic_query() -> None:
+    repo = CapturingRepository(matches=[_match()])
+    service = SemanticRetrieverService(repo, AxisProvider())
+
+    result = service.retrieve(
+        "story-1",
+        query_text="query that would otherwise retrieve memories",
+        chapter_number=None,
+    )
+
+    assert result.status == "skipped"
+    assert result.matches == ()
+    assert result.fallback_reason == "missing_temporal_cutoff"
+    assert repo.query_embedding is None

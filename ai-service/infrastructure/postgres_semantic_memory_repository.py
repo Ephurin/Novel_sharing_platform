@@ -442,6 +442,8 @@ class PostgresSemanticMemoryRepository:
 
         if limit <= 0:
             return []
+        if chapter_number is None:
+            raise ValueError("semantic event retrieval requires a chapter cutoff")
         if len(query_embedding) != 768:
             raise ValueError("semantic query requires exactly 768 dimensions")
         norm = math.sqrt(sum(float(value) * float(value) for value in query_embedding))
@@ -453,6 +455,26 @@ class PostgresSemanticMemoryRepository:
             brain = self._find_brain(session, novel_id)
             if brain is None:
                 return []
+
+            # A correction can be accepted immediately before the background
+            # materializer removes the superseded chunk. Derive the inactive
+            # event IDs here as an additional fail-closed guard so superseded
+            # memories never enter vector candidate ranking during that race.
+            confirmed_events = session.scalars(
+                select(EventRecord).where(
+                    EventRecord.story_brain_id == brain.id,
+                    EventRecord.tenant_id == self._tenant_id,
+                    EventRecord.novel_id == novel_id,
+                    EventRecord.confirmation_status == "confirmed",
+                )
+            ).all()
+            superseded_ids: set[uuid.UUID] = set()
+            for event_record in confirmed_events:
+                target = (event_record.event_metadata or {}).get("supersedes_id")
+                if target:
+                    superseded_ids.add(
+                        self._stable_uuid("event", str(target))
+                    )
 
             distance = MemoryEmbeddingRecord.embedding.cosine_distance(
                 list(query_embedding)
@@ -482,8 +504,9 @@ class PostgresSemanticMemoryRepository:
                     EventRecord.confirmation_status == "confirmed",
                 )
             )
-            if chapter_number is not None:
-                statement = statement.where(EventRecord.chapter_number <= chapter_number)
+            statement = statement.where(EventRecord.chapter_number <= chapter_number)
+            if superseded_ids:
+                statement = statement.where(EventRecord.id.not_in(superseded_ids))
 
             rows = session.execute(
                 statement.order_by(distance.asc(), MemoryChunkRecord.id.asc()).limit(limit)

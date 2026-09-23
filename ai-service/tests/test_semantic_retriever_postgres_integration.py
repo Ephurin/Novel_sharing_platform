@@ -276,3 +276,73 @@ def test_repository_rejects_non_normalized_or_wrong_dimension_query(session_fact
             embedding_version="test-model-768-v1",
             chapter_number=1,
         )
+
+
+def test_superseded_event_is_excluded_even_before_chunk_cleanup(session_factory) -> None:
+    _, narrative, semantic = _repos(session_factory)
+    novel_id = str(uuid.uuid4())
+
+    original_external_id = str(uuid.uuid4())
+    narrative.append_event(
+        novel_id,
+        NarrativeEvent(
+            event_id=original_external_id,
+            event_type="meeting",
+            summary="Original memory that is about to be superseded.",
+            chapter=2,
+        ),
+    )
+    original_source = semantic.list_event_memory_sources(novel_id)[0]
+    original_chunk = _materialize_chunk(semantic, novel_id, original_source)
+    query = _unit_axis(1.0)
+    _embed(
+        semantic,
+        novel_id,
+        original_chunk,
+        version="test-model-768-v1",
+        vector=query,
+    )
+
+    # Add the correction but intentionally do NOT run materializer cleanup.
+    # Retrieval itself must already exclude the now-superseded original.
+    narrative.append_event(
+        novel_id,
+        NarrativeEvent(
+            event_id=str(uuid.uuid4()),
+            event_type="meeting",
+            summary="Corrected active memory.",
+            chapter=2,
+            metadata={"supersedes_id": original_external_id},
+        ),
+    )
+
+    matches = semantic.search_semantic_memories(
+        novel_id,
+        query_embedding=query,
+        embedding_version="test-model-768-v1",
+        chapter_number=5,
+        limit=10,
+    )
+    assert matches == []
+
+
+def test_repository_requires_temporal_cutoff(session_factory) -> None:
+    _, narrative, semantic = _repos(session_factory)
+    novel_id = str(uuid.uuid4())
+    narrative.append_event(
+        novel_id,
+        NarrativeEvent(
+            event_id=str(uuid.uuid4()),
+            event_type="seed",
+            summary="Seed event",
+            chapter=1,
+        ),
+    )
+
+    with pytest.raises(ValueError, match="chapter cutoff"):
+        semantic.search_semantic_memories(
+            novel_id,
+            query_embedding=_unit_axis(1.0),
+            embedding_version="test-model-768-v1",
+            chapter_number=None,
+        )
