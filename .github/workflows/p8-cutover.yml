@@ -86,6 +86,34 @@ jobs:
           docker compose ps
           docker compose logs ai-service backend postgres
           exit 1
+      - name: Dry-run committed legacy StoryKB inventory
+        run: |
+          set -euo pipefail
+          docker compose exec -T ai-service python -m application.migrate_json_to_postgres             --json-storage data --all --output /tmp/repo-inventory.json
+          docker compose exec -T ai-service python - <<'PY'
+          import json
+          expected = {
+              "writing_session_550",
+              "writing_session_599",
+              "writing_session_968",
+              "writing_session_492",
+              "test2",
+              "test_narrative_v2",
+          }
+          data=json.load(open("/tmp/repo-inventory.json"))
+          stories=data["stories"]
+          assert {item["story_id"] for item in stories} == expected
+          assert all(item["action"] == "ready" for item in stories)
+          assert all(item["safe_to_apply"] is True for item in stories)
+          assert all(item["unsupported"] == [] for item in stories)
+          print(json.dumps({
+              item["story_id"]: {
+                  "action": item["action"],
+                  "warning_fields": [w["field"] for w in item["warnings"]],
+              }
+              for item in stories
+          }, ensure_ascii=False, sort_keys=True))
+          PY
       - name: Run cutover CLI dry-run apply and idempotent reapply
         run: |
           set -euo pipefail
