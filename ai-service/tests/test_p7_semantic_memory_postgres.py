@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 
 from domain.models import SemanticMemoryEmbedding
 from infrastructure.orm_models import MemoryEmbeddingRecord, SCHEMA, StoryBrainRecord
-from infrastructure.semantic_memory_repository import PostgresSemanticMemoryRepository
+from infrastructure.postgres_semantic_memory_repository import PostgresSemanticMemoryRepository
 
 
 pytestmark = pytest.mark.postgres_integration
