@@ -118,7 +118,9 @@ class SemanticMemoryMaterializationService:
             "removed_chunk_count": removed_chunks,
             "embedded_count": embedded_count,
             "reused_embedding_count": reused_embedding_count,
-            "fresh_embedding_count": coverage["fresh_embeddings"],
+            "fresh_embedding_count": coverage["current"],
+            "stale_embedding_count": coverage["stale"],
+            "missing_embedding_count": coverage["missing"],
         }
 
     @staticmethod
