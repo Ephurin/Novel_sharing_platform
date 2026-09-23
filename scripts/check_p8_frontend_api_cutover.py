@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+GUARD_VERSION = "p8-02-v1"
 SCAN_ROOTS = [ROOT / "web" / "src", ROOT / "mobile" / "src"]
 ENV_FILES = [ROOT / "web" / ".env.example", ROOT / "mobile" / ".env.example"]
 TEXT_SUFFIXES = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".env", ".example"}
@@ -101,7 +102,7 @@ def main() -> int:
         return 1
 
     print(
-        f"P8-02 frontend/API cutover guard: PASS ({scanned} files scanned; "
+        f"P8-02 frontend/API cutover guard: PASS [{GUARD_VERSION}] ({scanned} files scanned; "
         "browser/mobile boundary is Node-gateway-only)"
     )
     return 0
