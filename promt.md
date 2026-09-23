@@ -553,10 +553,11 @@ P7-02 is accepted. P7-03 is the next planned task but is **NOT ACTIVE** until ex
 
 ---
 
-## 8. ACTIVE TASK — P7-03-SEMANTIC-RETRIEVER
+## 8. P7-03-SEMANTIC-RETRIEVER — ACCEPTED
 
-**Opened by owner:** 2026-09-23  
-**Implementation branch:** `astra/p7-03-semantic-retriever`
+**Status:** ACCEPTED — 2026-09-23  
+**Merged PR:** #2  
+**Merge commit:** `40ded408a48bac83ea1d1373a9388204796fae8a`
 
 Goal:
 
@@ -634,9 +635,9 @@ P7-04 remains the hybrid-ranker slice.
 
 ### Handoff — P7-03-SEMANTIC-RETRIEVER
 
-Status: Implemented and CI verified; awaiting Astra/owner review
+Status: ACCEPTED — merged to `main` on 2026-09-23
 
-- Branch: `astra/p7-03-semantic-retriever`
+- Merge commit: `40ded408a48bac83ea1d1373a9388204796fae8a`
 - Query recipe: ADR-012 query prefix + explicit L2
 - Retrieval: exact pgvector cosine
 - Temporal cutoff: PASS — required/fail-closed before semantic search
@@ -654,12 +655,42 @@ Status: Implemented and CI verified; awaiting Astra/owner review
 - Phase 6 temporal/writing regressions: PASS — 25
 - Live pgvector integration: PASS — 9
 - Root Compose: PASS — retriever + materializer + rebuild 202 + pgvector/auth/backend/web
-- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35829177503
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35830009532
 - ANN/HNSW/IVFFlat: NONE
 - Hybrid ranker: NONE
 - Context compression: NONE
 - Report: `docs/development/P7-03-SEMANTIC-RETRIEVER-report.md`
 - Evidence: `docs/development/P7-03-SEMANTIC-RETRIEVER/`
-- Remaining blocker: merge/owner acceptance only
+- Remaining blocker: none
 
-Do not open P7-04 until P7-03 is accepted.
+P7-03 is accepted. P7-04 is the next planned task but is **NOT ACTIVE** until explicitly opened.
+
+
+---
+
+## 9. NEXT TASK — P7-04-HYBRID-RANKER — NOT ACTIVE
+
+P7-03 is closed. The next planned Phase 7 slice combines semantic candidates with narrative signals.
+
+Do not begin P7-04 until the owner explicitly opens it.
+
+Expected boundary when opened:
+
+```text
+semantic candidates
+        +
+entity overlap
+temporal relevance
+importance
+relationship relevance
+        ↓
+deterministic hybrid score
+        ↓
+ranked context candidates
+```
+
+Keep these out unless explicitly scoped:
+- context compression/token packing changes beyond ranking output;
+- ANN/HNSW/IVFFlat;
+- specialized vector database;
+- automatic embedding-version quality cutover.

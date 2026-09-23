@@ -260,7 +260,7 @@ class NarrativeRepository:
 
 ## Phase 7 — Semantic retrieval
 
-> **Status:** Active from 2026-09-21. P7-01 embedding benchmark gate accepted on 2026-09-22. P7-02 pgvector + versioned semantic-memory foundation accepted on 2026-09-23. P7-03 exact semantic retriever is implemented and CI verified on 2026-09-23, awaiting merge/acceptance; Phase 6 fallback remains authoritative and hybrid weighting is deferred to P7-04.
+> **Status:** Active from 2026-09-21. P7-01 embedding benchmark accepted on 2026-09-22. P7-02 pgvector + versioned semantic-memory foundation accepted on 2026-09-23. P7-03 exact semantic retriever accepted on 2026-09-23 with Phase 6 fallback preserved. P7-04 hybrid ranking is the next planned slice and is not active until explicitly opened.
 
 ### Tasks
 

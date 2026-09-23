@@ -1,9 +1,10 @@
 # P7-03 — Semantic Retriever Report
 
-Status: **IMPLEMENTED — CI VERIFIED — READY FOR REVIEW**
+Status: **ACCEPTED — 2026-09-23**
 
-Branch: `astra/p7-03-semantic-retriever`  
-Authoritative CI run: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35829177503
+Merged PR: `#2`  
+Merge commit: `40ded408a48bac83ea1d1373a9388204796fae8a`  
+Final HEAD CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35830009532
 
 ## Goal
 
@@ -90,7 +91,7 @@ It queues best-effort semantic materialization and returns 202 when semantic run
 
 ## Verification
 
-Authoritative PR CI run `35829177503` at runtime HEAD `1ce446d34ba01c11267051afd8a65ced83c6b83e`:
+Authoritative PR CI run `35830009532` at runtime HEAD `1ce446d34ba01c11267051afd8a65ced83c6b83e`:
 
 ```text
 semantic/materialization/retriever unit tests   18 passed
@@ -145,6 +146,10 @@ SEMANTIC_RETRIEVAL_LIMIT=8
 
 Leaving `ACTIVE_EMBEDDING_VERSION` empty lets Settings choose the provider's frozen default `gemini-embedding-2-768-v1`.
 
-## Remaining
+## Acceptance
 
-No known implementation blocker. Merge/acceptance remains.
+P7-03 was accepted and squash-merged to `main` on 2026-09-23 as:
+
+`40ded408a48bac83ea1d1373a9388204796fae8a`
+
+Final HEAD CI `35830009532` passed unit, live PostgreSQL/pgvector integration, and root Compose smoke. No implementation blocker remains. P7-04 hybrid ranking is the next planned slice and is not active yet.

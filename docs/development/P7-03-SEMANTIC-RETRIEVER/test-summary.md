@@ -1,6 +1,6 @@
 # P7-03 test summary
 
-Authoritative run: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35829177503
+Authoritative run: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35830009532
 
 Executed:
 
