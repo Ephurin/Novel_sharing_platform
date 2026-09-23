@@ -714,11 +714,11 @@ Use an explainable bounded score:
 
 ```text
 hybrid =
-  0.55 * semantic_rank_score
-+ 0.10 * entity_overlap
-+ 0.10 * temporal_relevance
+  0.75 * semantic_rank_score
++ 0.03 * entity_overlap
++ 0.08 * temporal_relevance
 + 0.10 * importance
-+ 0.15 * relationship_relevance
++ 0.04 * relationship_relevance
 ```
 
 Initial semantic component is rank-normalized from exact cosine candidate order:
