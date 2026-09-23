@@ -287,17 +287,27 @@ def test_wrong_dimension_rejected_and_exact_cosine_ordering_works(session_factor
             ),
         )
 
+    query_vector = "[" + ",".join(str(value) for value in vector_a) + "]"
     with session_factory() as session:
-        ranked = session.scalars(
-            select(MemoryEmbeddingRecord)
-            .where(
-                MemoryEmbeddingRecord.embedding_version == "test-768-v1",
-                MemoryEmbeddingRecord.tenant_id == uuid.UUID(chunks[0].tenant_id),
-                MemoryEmbeddingRecord.novel_id == uuid.UUID(chunks[0].novel_id),
-            )
-            .order_by(MemoryEmbeddingRecord.embedding.cosine_distance(list(vector_a)))
-        ).all()
-    assert [str(row.memory_chunk_id) for row in ranked] == [
+        ranked_ids = session.execute(
+            text(
+                f"""
+                SELECT memory_chunk_id::text
+                FROM {SCHEMA}.memory_embeddings
+                WHERE embedding_version = :embedding_version
+                  AND tenant_id = :tenant_id
+                  AND novel_id = :novel_id
+                ORDER BY embedding <=> CAST(:query_vector AS vector)
+                """
+            ),
+            {
+                "embedding_version": "test-768-v1",
+                "tenant_id": uuid.UUID(chunks[0].tenant_id),
+                "novel_id": uuid.UUID(chunks[0].novel_id),
+                "query_vector": query_vector,
+            },
+        ).scalars().all()
+    assert ranked_ids == [
         chunks[0].memory_chunk_id,
         chunks[1].memory_chunk_id,
     ]
