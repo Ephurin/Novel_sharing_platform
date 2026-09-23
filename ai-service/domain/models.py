@@ -153,7 +153,7 @@ class WritingContextPackage:
     semantic_memories: tuple[dict[str, Any], ...] = ()
     world_rules: tuple[dict[str, Any], ...] = ()
     author_constraints: tuple[str, ...] = ()
-    token_budget: dict[str, int] = field(default_factory=dict)
+    token_budget: dict[str, Any] = field(default_factory=dict)
     context_summary: dict[str, list[str]] = field(default_factory=dict)
 
 
