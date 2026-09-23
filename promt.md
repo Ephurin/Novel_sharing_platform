@@ -1401,3 +1401,30 @@ docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER/
 
 P8-03 must not begin until P8-02 is accepted.
 
+
+
+---
+
+### Handoff — P8-02-FRONTEND-API-CANONICAL-CUTOVER
+
+Status: Partial — implementation committed, awaiting executed CI/Compose evidence
+
+- Branch: `astra/p8-02-frontend-api-cutover`
+- Draft PR: #6
+- Browser AI calls: shared Platform `apiClient` + `/ai/*` gateway paths
+- Mobile API base: `EXPO_PUBLIC_API_BASE_URL` only
+- Legacy web AI public env vars: REMOVED
+- Static cutover guard: IMPLEMENTED — `scripts/check_p8_frontend_api_cutover.py`
+- P8 CI frontend/API job: IMPLEMENTED
+- Built-asset direct FastAPI scan: IMPLEMENTED
+- nginx `/api/v1/ai/*` auth-boundary Compose probe: IMPLEMENTED
+- Backend/server-to-server FastAPI references: PRESERVED / ALLOWED
+- PostgreSQL narrative storage changes: NONE
+- P8-03 JSON deprecation/read-only changes: NONE
+- Report: `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER-report.md`
+- Evidence: `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER/`
+- Executed web/backend/mobile CI: PENDING
+- Executed root Compose cutover smoke: PENDING
+- Remaining blocker: GitHub Actions evidence on current PR head
+
+Do not start P8-03 until P8-02 is reviewed and accepted.
