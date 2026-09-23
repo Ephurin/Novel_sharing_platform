@@ -25,7 +25,7 @@ jobs:
           cache-dependency-path: ai-service/requirements.txt
       - run: pip install -r requirements.txt pytest httpx
       - name: Semantic-memory unit tests
-        run: pytest -q tests/test_semantic_memory.py
+        run: pytest -q tests/test_semantic_memory_service.py
       - name: Benchmark invariant regression
         run: pytest -q tests/test_p7_embedding_benchmark.py
 
@@ -60,7 +60,7 @@ jobs:
           cache-dependency-path: ai-service/requirements.txt
       - run: pip install -r requirements.txt pytest httpx
       - name: Live PostgreSQL + pgvector integration
-        run: pytest -o addopts= -q -m postgres_integration tests/test_p7_semantic_memory_postgres.py
+        run: pytest -o addopts= -q -m postgres_integration tests/test_semantic_memory_postgres_integration.py
 
   root-compose-smoke:
     runs-on: ubuntu-latest
