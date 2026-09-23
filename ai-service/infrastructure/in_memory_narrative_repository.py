@@ -637,6 +637,7 @@ class InMemoryNarrativeRepository:
         character_name: str | None = None,
         limit_recent_events: int = 20,
         token_budget: int | None = None,
+        enforce_token_budget: bool = True,
     ) -> WritingContextPackage:
         brain = self.get_story_brain(story_id)
         brain_version = int(brain.metadata.get("brain_version", "1"))
@@ -715,97 +716,142 @@ class InMemoryNarrativeRepository:
             elif f_type in ("world_rule", "character_trait"):
                 other_rules.append(f_dict)
 
-        # 4. Deterministic Token Budget Enforcement
+        # 4. Phase 6 compatibility budget. P7-05 production calls this
+        # repository with enforcement disabled, then packs the combined
+        # canonical + semantic context once in the application layer.
         target_maximum = token_budget if (token_budget is not None and token_budget > 0) else 12000
         base_overhead = 300
         locked_rules_cost = len(locked_rules) * 35
 
-        if locked_rules_cost + base_overhead > target_maximum:
-            budget_info = {
-                "used": locked_rules_cost + base_overhead,
-                "maximum": target_maximum,
-                "budget_overflow": True,
-                "locked_overflow": True,
-            }
-            rules_out = locked_rules
-            entities_out: list[dict[str, Any]] = []
-            states_out: list[dict[str, Any]] = []
-            events_out: list[dict[str, Any]] = []
-        else:
-            remaining = target_maximum - (locked_rules_cost + base_overhead)
-            rules_out = list(locked_rules)
-            for r in other_rules:
-                if remaining >= 35:
-                    rules_out.append(r)
-                    remaining -= 35
+        sorted_entities = sorted(
+            brain.entities,
+            key=lambda e: (
+                0 if e.is_locked else 1,
+                0 if (character_name and e.name.lower() == character_name.lower()) else 1,
+                e.name,
+            ),
+        )
+        raw_current_state = (
+            brain.current_state.get("entities", brain.current_state)
+            if isinstance(brain.current_state, dict)
+            else {}
+        )
 
-            entities_out = []
-            states_out = []
-            raw_current_state = brain.current_state.get("entities", brain.current_state) if isinstance(brain.current_state, dict) else {}
-            sorted_entities = sorted(
-                brain.entities,
-                key=lambda e: (
-                    0 if e.is_locked else 1,
-                    0 if (character_name and e.name.lower() == character_name.lower()) else 1,
-                    e.name,
-                ),
-            )
+        def _all_entity_outputs() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+            entities_all: list[dict[str, Any]] = []
+            states_all: list[dict[str, Any]] = []
             for entity in sorted_entities:
-                if remaining >= 45 or entity.is_locked:
-                    e_id = str(entity.entity_id or entity.name)
-                    e_state = (
-                        as_of_states.get(e_id)
-                        or as_of_states.get(entity.name)
-                        or raw_current_state.get(e_id)
-                        or raw_current_state.get(entity.name)
-                        or {}
-                    )
-                    status = str(e_state.get("status", entity.status or "Alive"))
-                    location = str(e_state.get("location", entity.location or "Unknown"))
-                    entities_out.append({
-                        "entity_id": e_id,
-                        "name": entity.name,
-                        "entity_type": entity.entity_type,
-                        "status": status,
-                        "location": location,
-                        "is_locked": entity.is_locked,
-                    })
-                    states_out.append({
-                        "entity_id": e_id,
-                        "name": entity.name,
-                        "status": status,
-                        "location": location,
-                        "state": e_state,
-                    })
-                    remaining = max(0, remaining - 45)
+                e_id = str(entity.entity_id or entity.name)
+                e_state = (
+                    as_of_states.get(e_id)
+                    or as_of_states.get(entity.name)
+                    or raw_current_state.get(e_id)
+                    or raw_current_state.get(entity.name)
+                    or {}
+                )
+                status = str(e_state.get("status", entity.status or "Alive"))
+                location = str(e_state.get("location", entity.location or "Unknown"))
+                entities_all.append({
+                    "entity_id": e_id,
+                    "name": entity.name,
+                    "entity_type": entity.entity_type,
+                    "status": status,
+                    "location": location,
+                    "is_locked": entity.is_locked,
+                })
+                states_all.append({
+                    "entity_id": e_id,
+                    "name": entity.name,
+                    "status": status,
+                    "location": location,
+                    "state": e_state,
+                })
+            return entities_all, states_all
 
-            selected_events = []
-            for ev in reversed(events_for_output):
-                if remaining >= 55:
-                    selected_events.append(ev)
-                    remaining -= 55
-                else:
-                    break
-            selected_events.reverse()
-            events_out = [
+        def _event_outputs(selected: list[Any]) -> list[dict[str, Any]]:
+            return [
                 {
                     "event_id": str(ev.event_id),
-                    "narrative_order": getattr(ev, "narrative_order", 0) or getattr(ev, "chapter", 1),
-                    "chapter_number": getattr(ev, "chapter", 1) or getattr(ev, "chapter_number", 1) or 1,
+                    "narrative_order": getattr(ev, "narrative_order", 0)
+                    or getattr(ev, "chapter", 1),
+                    "chapter_number": getattr(ev, "chapter", 1)
+                    or getattr(ev, "chapter_number", 1)
+                    or 1,
                     "event_type": ev.event_type,
                     "summary": ev.summary,
                     "participants": list(ev.participants),
                     "metadata": dict(getattr(ev, "metadata", {}) or {}),
                 }
-                for ev in selected_events
+                for ev in selected
             ]
 
-            used_tokens = base_overhead + len(rules_out) * 35 + len(entities_out) * 45 + len(events_out) * 55
+        if not enforce_token_budget:
+            rules_out = [*locked_rules, *other_rules]
+            entities_out, states_out = _all_entity_outputs()
+            events_out = _event_outputs(events_for_output)
+            used_tokens = (
+                base_overhead
+                + len(rules_out) * 35
+                + len(entities_out) * 45
+                + len(events_out) * 55
+            )
+            budget_info = {
+                "used": used_tokens,
+                "maximum": target_maximum,
+                "budget_overflow": used_tokens > target_maximum,
+                "locked_overflow": locked_rules_cost + base_overhead > target_maximum,
+                "budget_enforced": False,
+            }
+        elif locked_rules_cost + base_overhead > target_maximum:
+            budget_info = {
+                "used": locked_rules_cost + base_overhead,
+                "maximum": target_maximum,
+                "budget_overflow": True,
+                "locked_overflow": True,
+                "budget_enforced": True,
+            }
+            rules_out = locked_rules
+            entities_out = []
+            states_out = []
+            events_out = []
+        else:
+            remaining = target_maximum - (locked_rules_cost + base_overhead)
+            rules_out = list(locked_rules)
+            for rule in other_rules:
+                if remaining >= 35:
+                    rules_out.append(rule)
+                    remaining -= 35
+
+            entities_out = []
+            states_out = []
+            for entity, state in zip(*_all_entity_outputs()):
+                if remaining >= 45 or bool(entity.get("is_locked")):
+                    entities_out.append(entity)
+                    states_out.append(state)
+                    remaining = max(0, remaining - 45)
+
+            selected_events = []
+            for event in reversed(events_for_output):
+                if remaining >= 55:
+                    selected_events.append(event)
+                    remaining -= 55
+                else:
+                    break
+            selected_events.reverse()
+            events_out = _event_outputs(selected_events)
+
+            used_tokens = (
+                base_overhead
+                + len(rules_out) * 35
+                + len(entities_out) * 45
+                + len(events_out) * 55
+            )
             budget_info = {
                 "used": used_tokens,
                 "maximum": target_maximum,
                 "budget_overflow": used_tokens > target_maximum,
                 "locked_overflow": False,
+                "budget_enforced": True,
             }
 
         context_summary = {
