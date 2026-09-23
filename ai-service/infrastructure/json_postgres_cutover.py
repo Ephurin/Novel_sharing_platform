@@ -95,6 +95,12 @@ def canonical_snapshot(brain: StoryBrain) -> dict[str, Any]:
         key=lambda item: (item["entity_id"], item["name"].casefold()),
     )
 
+    entity_ids_by_ref: dict[str, str] = {}
+    for entity in brain.entities:
+        entity_id = str(entity.entity_id or legacy_entity_uuid(brain.story_id, entity.name))
+        entity_ids_by_ref[entity_id] = entity_id
+        entity_ids_by_ref[entity.name.casefold()] = entity_id
+
     facts = []
     for index, fact in enumerate(brain.facts):
         raw_id = fact.get("fact_id") or fact.get("id") or f"{fact.get('fact_key', 'fact')}:{index}"
@@ -102,7 +108,10 @@ def canonical_snapshot(brain: StoryBrain) -> dict[str, Any]:
             {
                 "fact_id": str(stable_uuid("fact", str(raw_id))),
                 "subject_entity_id": (
-                    str(stable_uuid("entity", str(fact["subject_entity_id"])))
+                    entity_ids_by_ref.get(
+                        str(fact["subject_entity_id"]),
+                        entity_ids_by_ref.get(str(fact["subject_entity_id"]).casefold()),
+                    )
                     if fact.get("subject_entity_id")
                     else None
                 ),
@@ -196,12 +205,44 @@ def canonical_snapshot(brain: StoryBrain) -> dict[str, Any]:
         key=lambda item: item["proposal_id"],
     )
 
-    transitions = sorted(
-        (canonicalize(dict(item)) for item in brain.transitions),
+    transitions = []
+    for index, item in enumerate(brain.transitions):
+        raw = dict(item)
+        entity_ref = raw.get("entity_id")
+        transitions.append({
+            "transition_id": str(
+                stable_uuid(
+                    "transition",
+                    str(raw.get("transition_id") or f"{brain.story_id}:{index}"),
+                )
+            ),
+            "entity_id": (
+                entity_ids_by_ref.get(
+                    str(entity_ref),
+                    entity_ids_by_ref.get(str(entity_ref).casefold()),
+                )
+                if entity_ref is not None
+                else None
+            ),
+            "event_id": (
+                str(stable_uuid("event", str(raw["event_id"])))
+                if raw.get("event_id")
+                else None
+            ),
+            "fact_id": (
+                str(stable_uuid("fact", str(raw["fact_id"])))
+                if raw.get("fact_id")
+                else None
+            ),
+            "attribute_key": raw.get("attribute_key"),
+            "new_value": canonicalize(raw.get("new_value")),
+            "sequence": int(raw.get("sequence", index + 1) or index + 1),
+        })
+    transitions.sort(
         key=lambda item: (
             int(item.get("sequence", 0) or 0),
             str(item.get("transition_id", "")),
-        ),
+        )
     )
 
     state = canonicalize(brain.current_state or {
@@ -397,7 +438,6 @@ class JsonPostgresCutoverMigrator:
                 return False, False
             canonical_models = (
                 EntityRecord,
-                EntityAliasRecord,
                 EntityMentionRecord,
                 FactRecord,
                 RelationshipRecord,
