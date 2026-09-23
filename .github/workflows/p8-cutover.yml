@@ -89,7 +89,14 @@ jobs:
       - name: Dry-run committed legacy StoryKB inventory
         run: |
           set -euo pipefail
-          docker compose exec -T ai-service python -m application.migrate_json_to_postgres             --json-storage data --all --output /tmp/repo-inventory.json
+          # Production images intentionally exclude data/writing_session_*.json.
+          # Copy the committed checkout snapshot into a temporary container path
+          # so the production runtime validates every legacy file without
+          # changing what is shipped in the image.
+          docker compose exec -T ai-service mkdir -p /tmp/p8-repo-data
+          docker compose cp ai-service/data/. ai-service:/tmp/p8-repo-data
+          docker compose exec -T ai-service python -m application.migrate_json_to_postgres \
+            --json-storage /tmp/p8-repo-data --all --output /tmp/repo-inventory.json
           docker compose exec -T ai-service python - <<'PY'
           import json
           expected = {
