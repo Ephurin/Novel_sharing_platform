@@ -343,6 +343,48 @@ def test_legacy_only_canonical_ambiguity_is_blocked(session_factory, tmp_path: P
 
 
 
+
+
+def test_dry_run_rejects_malformed_storykb_json(
+    session_factory, tmp_path: Path
+) -> None:
+    story_id = str(uuid.uuid4())
+    tenant_id = str(uuid.uuid4())
+    path = tmp_path / f"{story_id}.json"
+    path.write_text('{"story_id": ', encoding="utf-8")
+
+    migrator = _migrator(session_factory, tmp_path, tenant_id)
+    with pytest.raises(CutoverMigrationError, match="Invalid legacy StoryKB JSON"):
+        migrator.plan(story_id)
+
+
+def test_dry_run_rejects_event_order_disagreement(
+    session_factory, tmp_path: Path
+) -> None:
+    story_id = str(uuid.uuid4())
+    tenant_id = str(uuid.uuid4())
+    manager, hero_id = _seed_json(tmp_path, story_id)
+    kb = manager.load_kb(story_id)
+    ally_id = str(legacy_entity_uuid(story_id, "Alan"))
+    kb.enhanced_events[0]["narrative_order"] = 2048
+    kb.enhanced_events.append(
+        {
+            "event_id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:event:earlier-order")),
+            "event_type": "observation",
+            "participants": [hero_id, ally_id],
+            "summary": "A later list item claims an earlier narrative order.",
+            "chapter": 3,
+            "narrative_order": 1024,
+        }
+    )
+    manager.save_narrative_kb(story_id, kb)
+
+    plan = _migrator(session_factory, tmp_path, tenant_id).plan(story_id)
+
+    assert plan["action"] == "blocked_validation"
+    assert "disagrees with narrative_order" in plan["validation_error"]
+
+
 def test_dry_run_blocks_unknown_canonical_entity_reference(
     session_factory, tmp_path: Path
 ) -> None:
