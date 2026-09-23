@@ -50,6 +50,8 @@ jobs:
         run: pytest -q tests/test_p7_embedding_benchmark.py
       - name: Phase 6 temporal/writing regressions
         run: pytest -q tests/test_p65_r1_temporal.py tests/test_p65_r2_final.py tests/test_writing_validation_golden.py
+      - name: Full AI-service non-PostgreSQL regression
+        run: pytest -q
 
   pgvector-integration:
     runs-on: ubuntu-latest
