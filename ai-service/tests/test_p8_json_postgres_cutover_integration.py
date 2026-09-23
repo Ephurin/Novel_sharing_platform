@@ -19,7 +19,9 @@ from infrastructure.json_postgres_cutover import (
     JsonPostgresCutoverMigrator,
     canonical_snapshot,
     legacy_entity_uuid,
+    novel_uuid,
 )
+from infrastructure.orm_models import AnalysisRunRecord, StoryBrainRecord
 from infrastructure.postgres_narrative_repository import PostgresNarrativeRepository
 
 
@@ -490,6 +492,46 @@ def test_committed_legacy_story_files_have_safe_canonical_dry_run(
     assert "entity_states" in warnings["writing_session_550"]
     assert "event_history" in warnings["test_narrative_v2"]
     assert "current_world_state.characters" in warnings["test_narrative_v2"]
+
+
+def test_existing_same_scope_analysis_run_marks_target_nonempty(
+    session_factory, tmp_path: Path
+) -> None:
+    story_id = str(uuid.uuid4())
+    tenant_id = str(uuid.uuid4())
+    manager, _ = _seed_json(tmp_path, story_id)
+    run_id = manager.load_kb(story_id).proposals[0]["analysis_run_id"]
+
+    target = PostgresNarrativeRepository(
+        session_factory,
+        tenant_id=tenant_id,
+        actor_id=str(uuid.uuid4()),
+    )
+    target.get_story_brain(story_id)
+    with session_factory.begin() as session:
+        brain = session.query(StoryBrainRecord).filter_by(
+            tenant_id=uuid.UUID(tenant_id),
+            novel_id=novel_uuid(story_id),
+        ).one()
+        session.add(
+            AnalysisRunRecord(
+                id=uuid.UUID(run_id),
+                story_brain_id=brain.id,
+                tenant_id=uuid.UUID(tenant_id),
+                novel_id=novel_uuid(story_id),
+                operation="existing",
+                status="completed",
+                idempotency_key=f"{tenant_id}:existing:{story_id}",
+                input_hash="0" * 64,
+                pipeline_version="test",
+            )
+        )
+
+    plan = _migrator(session_factory, tmp_path, tenant_id).plan(story_id)
+
+    assert plan["target_nonempty"] is True
+    assert plan["action"] == "blocked_conflict"
+    assert plan["safe_to_apply"] is False
 
 
 def test_dry_run_blocks_analysis_run_primary_key_collision(
