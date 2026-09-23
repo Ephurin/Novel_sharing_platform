@@ -407,7 +407,14 @@ def test_dry_run_blocks_unknown_canonical_entity_reference(
     tenant_id = str(uuid.uuid4())
     manager, _ = _seed_json(tmp_path, story_id)
     kb = manager.load_kb(story_id)
-    kb.enhanced_events[0]["participants"].append("Unknown Legacy Person")
+    kb.entity_aliases.append(
+        {
+            "alias_id": str(uuid.uuid4()),
+            "entity_id": str(uuid.uuid4()),
+            "alias": "Orphan Alias",
+            "normalized_alias": "orphan alias",
+        }
+    )
     manager.save_narrative_kb(story_id, kb)
 
     migrator = _migrator(session_factory, tmp_path, tenant_id)
