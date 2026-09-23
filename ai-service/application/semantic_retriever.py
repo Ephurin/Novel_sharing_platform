@@ -69,7 +69,7 @@ class SemanticRetrieverService:
                 raw_vector,
                 expected_dimension=self._embedding_provider.dimension,
             )
-            final_limit = max(1, int(limit or self.default_limit))
+            final_limit = min(64, max(1, int(limit or self.default_limit)))
             candidate_limit = (
                 min(64, max(final_limit * 4, 20))
                 if self._hybrid_ranker is not None
