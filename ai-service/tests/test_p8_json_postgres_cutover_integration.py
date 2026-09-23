@@ -341,6 +341,57 @@ def test_legacy_only_canonical_ambiguity_is_blocked(session_factory, tmp_path: P
         migrator.apply(story_id)
 
 
+
+
+def test_dry_run_blocks_unknown_canonical_entity_reference(
+    session_factory, tmp_path: Path
+) -> None:
+    story_id = str(uuid.uuid4())
+    tenant_id = str(uuid.uuid4())
+    manager, _ = _seed_json(tmp_path, story_id)
+    kb = manager.load_kb(story_id)
+    kb.enhanced_events[0]["participants"].append("Unknown Legacy Person")
+    manager.save_narrative_kb(story_id, kb)
+
+    migrator = _migrator(session_factory, tmp_path, tenant_id)
+    plan = migrator.plan(story_id)
+
+    assert plan["action"] == "blocked_validation"
+    assert plan["safe_to_apply"] is False
+    assert "unknown legacy entity" in plan["validation_error"].lower()
+
+
+def test_dry_run_blocks_global_legacy_primary_key_collision(
+    session_factory, tmp_path: Path
+) -> None:
+    tenant_id = str(uuid.uuid4())
+    first_story = str(uuid.uuid4())
+    second_story = str(uuid.uuid4())
+
+    first_manager, _ = _seed_json(tmp_path, first_story)
+    first_alias_id = first_manager.load_kb(first_story).entity_aliases[0]["alias_id"]
+    first_migrator = _migrator(session_factory, tmp_path, tenant_id)
+    assert first_migrator.apply(first_story)["parity"] is True
+
+    second_manager, _ = _seed_json(tmp_path, second_story)
+    second_kb = second_manager.load_kb(second_story)
+    second_kb.entity_aliases[0]["alias_id"] = first_alias_id
+    second_manager.save_narrative_kb(second_story, second_kb)
+
+    second_migrator = _migrator(session_factory, tmp_path, tenant_id)
+    plan = second_migrator.plan(second_story)
+
+    assert plan["action"] == "blocked_id_collision"
+    assert plan["safe_to_apply"] is False
+    assert plan["id_collisions"] == [
+        {
+            "kind": "alias",
+            "id": first_alias_id,
+            "reason": "primary key is already owned by another tenant/novel",
+        }
+    ]
+
+
 def test_migration_is_tenant_scoped(session_factory, tmp_path: Path) -> None:
     story_id = str(uuid.uuid4())
     source_tenant = str(uuid.uuid4())
