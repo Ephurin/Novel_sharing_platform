@@ -29,7 +29,7 @@ from core.span_expander import SpanExpander
 from core.story_kb_manager import StoryKBManager
 from core.settings import Settings
 from infrastructure.repository_factory import build_narrative_repository
-from infrastructure.semantic_retriever_factory import build_semantic_retriever
+from infrastructure.semantic_retriever_factory import build_semantic_runtime
 from infrastructure.revision_content_provider import build_revision_content_provider
 from services.entity_pipeline.pipeline import EntityPipeline
 
@@ -81,7 +81,9 @@ app.state.consistency_checker = ConsistencyChecker(low_confidence_threshold=0.60
 app.state.consistency_engine = ConsistencyEngine()
 app.state.story_kb = StoryKBManager()
 app.state.narrative_repository = build_narrative_repository(settings, app.state.story_kb)
-app.state.semantic_retriever = build_semantic_retriever(settings)
+app.state.semantic_runtime = build_semantic_runtime(settings)
+app.state.semantic_retriever = app.state.semantic_runtime.retriever
+app.state.semantic_materializer = app.state.semantic_runtime.materializer
 app.state.narrative_service = NarrativeApplicationService(app.state.narrative_repository)
 app.state.candidate_processor = CandidateProcessor()
 app.state.span_expander = SpanExpander()
@@ -155,7 +157,7 @@ def shutdown_event() -> None:
     engine = getattr(app.state.narrative_repository, "engine", None)
     if engine is not None:
         engine.dispose()
-    semantic_engine = getattr(app.state.semantic_retriever, "engine", None)
+    semantic_engine = getattr(app.state.semantic_runtime, "engine", None)
     if semantic_engine is not None:
         semantic_engine.dispose()
 

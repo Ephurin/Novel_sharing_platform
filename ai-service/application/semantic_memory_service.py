@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import uuid
 
 from domain.embeddings import EmbeddingProvider, EmbeddingProviderError, l2_normalize
@@ -9,6 +10,7 @@ from domain.repositories import SemanticMemoryRepository
 
 
 EVENT_MEMORY_TYPE = "event_summary"
+logger = logging.getLogger(__name__)
 
 
 class SemanticMemoryMaterializationService:
@@ -138,3 +140,23 @@ class SemanticMemoryMaterializationService:
     @staticmethod
     def _content_hash(content: str) -> str:
         return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
+def refresh_semantic_memory_safely(
+    service: SemanticMemoryMaterializationService | None,
+    story_id: str,
+) -> dict[str, int | str]:
+    """Best-effort post-commit refresh; never rolls back canonical acceptance."""
+    if service is None:
+        return {"status": "disabled"}
+    try:
+        result = service.materialize_event_memories(story_id)
+        return {"status": "ok", **result}
+    except Exception as exc:
+        logger.warning(
+            "Semantic-memory refresh failed for story %s (%s); "
+            "canonical Story Brain remains authoritative",
+            story_id,
+            type(exc).__name__,
+        )
+        return {"status": "fallback", "reason": type(exc).__name__}

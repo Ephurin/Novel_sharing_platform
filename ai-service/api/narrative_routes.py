@@ -12,6 +12,7 @@ from api.deps import (
     get_narrative_service,
     get_revision_analysis_service,
     get_settings,
+    get_semantic_materializer,
     get_writing_service,
     require_service_token,
 )
@@ -28,6 +29,7 @@ from api.schemas import (
     WritingGenerationRequest,
 )
 from application.narrative_service import NarrativeApplicationService
+from application.semantic_memory_service import refresh_semantic_memory_safely
 from application.bootstrap_service import ManuscriptBootstrapService
 from application.writing_service import WritingService
 from application.ports import ContentHashMismatchError, RevisionNotFoundError
@@ -339,10 +341,13 @@ def list_proposals(
 def accept_proposal(
     proposal_id: str,
     payload: ProposalDecisionRequest,
+    background_tasks: BackgroundTasks,
     request_id: str = Header(..., alias="X-Request-Id"),
     service: NarrativeApplicationService = Depends(get_narrative_service),
+    semantic_materializer = Depends(get_semantic_materializer),
 ):
     try:
+        story_id, _ = service.resolve_proposal_novel(proposal_id)
         result = service.accept_proposal_by_id(
             proposal_id, payload.expected_brain_version
         )
@@ -354,6 +359,12 @@ def accept_proposal(
         raise HTTPException(422, detail={"code": "INVALID_PROJECTION", "message": str(exc)}) from exc
     except ProposalAlreadyDecidedError as exc:
         raise HTTPException(status_code=409, detail={"code": "PROPOSAL_ALREADY_DECIDED"}) from exc
+    if semantic_materializer is not None:
+        background_tasks.add_task(
+            refresh_semantic_memory_safely,
+            semantic_materializer,
+            story_id,
+        )
     return {"data": result, "meta": {"request_id": request_id, "schema_version": 1}}
 
 
@@ -382,10 +393,13 @@ def reject_proposal(
 def edit_and_accept_proposal(
     proposal_id: str,
     payload: ProposalEditAcceptRequest,
+    background_tasks: BackgroundTasks,
     request_id: str = Header(..., alias="X-Request-Id"),
     service: NarrativeApplicationService = Depends(get_narrative_service),
+    semantic_materializer = Depends(get_semantic_materializer),
 ):
     try:
+        story_id, _ = service.resolve_proposal_novel(proposal_id)
         result = service.accept_proposal_by_id(
             proposal_id,
             payload.expected_brain_version,
@@ -400,6 +414,12 @@ def edit_and_accept_proposal(
         raise HTTPException(422, detail={"code": "INVALID_PROJECTION", "message": str(exc)}) from exc
     except ProposalAlreadyDecidedError as exc:
         raise HTTPException(status_code=409, detail={"code": "PROPOSAL_ALREADY_DECIDED"}) from exc
+    if semantic_materializer is not None:
+        background_tasks.add_task(
+            refresh_semantic_memory_safely,
+            semantic_materializer,
+            story_id,
+        )
     return {"data": result, "meta": {"request_id": request_id, "schema_version": 1}}
 
 
@@ -407,10 +427,13 @@ def edit_and_accept_proposal(
 def accept_proposal_group(
     group_id: str,
     payload: ProposalGroupAcceptRequest,
+    background_tasks: BackgroundTasks,
     request_id: str = Header(..., alias="X-Request-Id"),
     service: NarrativeApplicationService = Depends(get_narrative_service),
+    semantic_materializer = Depends(get_semantic_materializer),
 ):
     try:
+        story_id, _ = service.resolve_proposal_group_novel(group_id)
         result = service.accept_proposal_group_by_ids(
             group_id,
             payload.proposal_ids,
@@ -427,6 +450,12 @@ def accept_proposal_group(
         raise HTTPException(status_code=409, detail={"code": "PROPOSAL_ALREADY_DECIDED"}) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail={"code": "INVALID_PROPOSAL_GROUP"}) from exc
+    if semantic_materializer is not None:
+        background_tasks.add_task(
+            refresh_semantic_memory_safely,
+            semantic_materializer,
+            story_id,
+        )
     return {"data": result, "meta": {"request_id": request_id, "schema_version": 1}}
 
 
@@ -505,6 +534,33 @@ def create_writing_generation(
     return {
         "data": asdict(job),
         "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@internal_router.post(
+    "/story-brains/{brain_id}/semantic-memory/rebuild",
+    status_code=202,
+)
+def rebuild_semantic_memory(
+    brain_id: str,
+    background_tasks: BackgroundTasks,
+    semantic_materializer = Depends(get_semantic_materializer),
+):
+    if semantic_materializer is None:
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "SEMANTIC_MEMORY_DISABLED"},
+        )
+    background_tasks.add_task(
+        refresh_semantic_memory_safely,
+        semantic_materializer,
+        brain_id,
+    )
+    return {
+        "data": {
+            "story_brain_id": brain_id,
+            "status": "queued",
+        }
     }
 
 
