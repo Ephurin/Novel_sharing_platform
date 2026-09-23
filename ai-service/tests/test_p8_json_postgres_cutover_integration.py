@@ -69,7 +69,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
             status="Alive",
             location="Observatory",
             mentions=7,
-            is_locked=True,
+            is_locked=False,
         ),
         NarrativeEntity(
             name="Alan",
@@ -78,6 +78,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
             status="Alive",
             location="Archive",
             mentions=3,
+            is_locked=True,
         ),
     ]
     facts = [
@@ -137,7 +138,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
                 status="Alive",
                 location="Observatory",
                 mentions=7,
-                is_locked=True,
+                is_locked=False,
             ),
             "alan": KBEntity(
                 name="Alan",
@@ -145,6 +146,7 @@ def _seed_json(storage: Path, story_id: str, *, unsupported: bool = False) -> tu
                 status="Alive",
                 location="Archive",
                 mentions=3,
+                is_locked=True,
             ),
         },
         entity_aliases=[
@@ -268,7 +270,7 @@ def test_dry_run_is_read_only_then_apply_has_full_canonical_parity(
         "status": "Alive",
         "location": "Observatory",
         "mentions": 7,
-        "is_locked": True,
+        "is_locked": False,
     }
     assert target_snapshot["relations"][0]["locked"] is True
     assert target_snapshot["events"][0]["chapter"] == 2
@@ -277,6 +279,12 @@ def test_dry_run_is_read_only_then_apply_has_full_canonical_parity(
     assert len(target_snapshot["facts"]) == 1
     assert len(target_snapshot["proposals"]) == 1
     assert len(target_snapshot["transitions"]) == 2
+
+    rebuilt = target.rebuild_projection(story_id, expected_brain_version=4)
+    assert canonical_snapshot(target.get_story_brain(story_id))["state"] == canonical_snapshot(
+        migrator._source.get_story_brain(story_id)
+    )["state"]
+    assert rebuilt == target.get_current_state(story_id)
 
 
 def test_second_apply_is_idempotent(session_factory, tmp_path: Path) -> None:
