@@ -1,0 +1,19 @@
+P8-01 ROOT COMPOSE SMOKE
+CI run: 35844244069
+Validated HEAD: f6b97813b4d67820d4b7aecbc7b5367c0e61cbc3
+Result: PASS
+
+- postgres/pgvector: healthy
+- mongodb: healthy
+- ai-service: healthy
+- backend: healthy
+- web: healthy
+- committed 6-file legacy inventory dry-run: PASS
+- synthetic fixture dry-run: action=ready
+- synthetic fixture explicit apply: applied=true, parity=true, source_unchanged=true
+- synthetic fixture second apply: applied=false, idempotent=true, parity=true
+- source SHA-256 before/after: unchanged
+- pgvector extension probe: PASS
+- service-auth probes: missing=401, invalid=403, valid=200
+
+No committed/user legacy JSON was applied by this CI run.
