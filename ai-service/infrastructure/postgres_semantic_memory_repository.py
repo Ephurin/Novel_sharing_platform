@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import re
 import uuid
 from decimal import Decimal
 from typing import Any
@@ -10,16 +11,20 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from domain.models import (
     EventMemorySource,
+    HybridRankingSignals,
     SemanticMemoryChunk,
     SemanticMemoryEmbedding,
     SemanticMemoryMatch,
 )
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
+    EntityAliasRecord,
+    EntityRecord,
     EventParticipantRecord,
     EventRecord,
     MemoryChunkRecord,
     MemoryEmbeddingRecord,
+    RelationshipRecord,
     RevisionProvenanceRecord,
     StoryBrainRecord,
 )
@@ -121,6 +126,12 @@ class PostgresSemanticMemoryRepository:
                             "event_type": event.event_type,
                             "chapter_number": int(event.chapter_number),
                             "source_type": event.source_type,
+                            "importance_score": float(
+                                event_metadata.get(
+                                    "importance_score",
+                                    event_metadata.get("importance", 0.5),
+                                )
+                            ),
                         },
                     )
                 )
@@ -427,6 +438,147 @@ class PostgresSemanticMemoryRepository:
                 # Compatibility alias for early P7-02 callers.
                 "fresh_embeddings": int(fresh_embeddings),
             }
+
+    def get_hybrid_ranking_signals(
+        self,
+        story_id: str,
+        *,
+        query_text: str,
+        chapter_number: int,
+    ) -> HybridRankingSignals:
+        """Resolve temporally safe query entities and one-hop relationship signals."""
+
+        query = query_text.strip()
+        if not query:
+            return HybridRankingSignals()
+
+        novel_id = self._novel_id(story_id)
+        with self._session_factory() as session:
+            brain = self._find_brain(session, novel_id)
+            if brain is None:
+                return HybridRankingSignals()
+
+            events = session.scalars(
+                select(EventRecord)
+                .where(
+                    EventRecord.story_brain_id == brain.id,
+                    EventRecord.tenant_id == self._tenant_id,
+                    EventRecord.novel_id == novel_id,
+                    EventRecord.confirmation_status == "confirmed",
+                    EventRecord.chapter_number <= int(chapter_number),
+                )
+                .order_by(EventRecord.narrative_order.asc(), EventRecord.id.asc())
+            ).all()
+
+            superseded_ids: set[uuid.UUID] = set()
+            for event in events:
+                target = (event.event_metadata or {}).get("supersedes_id")
+                if target:
+                    superseded_ids.add(self._stable_uuid("event", str(target)))
+            active_event_ids = [
+                event.id for event in events if event.id not in superseded_ids
+            ]
+            if not active_event_ids:
+                return HybridRankingSignals()
+
+            participant_rows = session.execute(
+                select(
+                    EventParticipantRecord.event_id,
+                    EventParticipantRecord.entity_id,
+                ).where(EventParticipantRecord.event_id.in_(active_event_ids))
+            ).all()
+            participants_by_event: dict[uuid.UUID, set[uuid.UUID]] = {}
+            eligible_entity_ids: set[uuid.UUID] = set()
+            for event_id, entity_id in participant_rows:
+                participants_by_event.setdefault(event_id, set()).add(entity_id)
+                eligible_entity_ids.add(entity_id)
+
+            if not eligible_entity_ids:
+                return HybridRankingSignals()
+
+            entities = session.scalars(
+                select(EntityRecord).where(
+                    EntityRecord.id.in_(eligible_entity_ids),
+                    EntityRecord.story_brain_id == brain.id,
+                    EntityRecord.tenant_id == self._tenant_id,
+                    EntityRecord.novel_id == novel_id,
+                    EntityRecord.confirmation_status == "confirmed",
+                )
+            ).all()
+            entity_by_id = {entity.id: entity for entity in entities}
+            id_by_name = {
+                entity.canonical_name.casefold(): entity.id for entity in entities
+            }
+
+            aliases = session.scalars(
+                select(EntityAliasRecord).where(
+                    EntityAliasRecord.entity_id.in_(list(entity_by_id)),
+                    EntityAliasRecord.confirmation_status == "confirmed",
+                )
+            ).all()
+            names_by_id: dict[uuid.UUID, set[str]] = {
+                entity_id: {entity.canonical_name}
+                for entity_id, entity in entity_by_id.items()
+            }
+            for alias in aliases:
+                names_by_id.setdefault(alias.entity_id, set()).add(alias.alias)
+
+            query_entity_ids: set[uuid.UUID] = set()
+            for entity_id, names in names_by_id.items():
+                if any(self._contains_phrase(query, name) for name in names):
+                    query_entity_ids.add(entity_id)
+
+            if not query_entity_ids:
+                return HybridRankingSignals()
+
+            related_entity_ids: set[uuid.UUID] = set()
+
+            # Prior canonical co-participation is a temporally safe relationship signal.
+            for event_entities in participants_by_event.values():
+                if event_entities & query_entity_ids:
+                    related_entity_ids.update(event_entities - query_entity_ids)
+
+            # Explicit graph edges are used only when they carry narrative-time provenance.
+            relationships = session.scalars(
+                select(RelationshipRecord).where(
+                    RelationshipRecord.story_brain_id == brain.id,
+                    RelationshipRecord.tenant_id == self._tenant_id,
+                    RelationshipRecord.novel_id == novel_id,
+                )
+            ).all()
+            for relationship in relationships:
+                metadata = dict(relationship.relation_metadata or {})
+                raw_chapter = metadata.get("first_chapter", metadata.get("chapter_number"))
+                if raw_chapter is None:
+                    continue
+                try:
+                    relation_chapter = int(raw_chapter)
+                except (TypeError, ValueError):
+                    continue
+                if relation_chapter > int(chapter_number):
+                    continue
+
+                subject_id = id_by_name.get(relationship.subject_name.casefold())
+                object_id = id_by_name.get(relationship.object_name.casefold())
+                if subject_id in query_entity_ids and object_id in eligible_entity_ids:
+                    related_entity_ids.add(object_id)
+                if object_id in query_entity_ids and subject_id in eligible_entity_ids:
+                    related_entity_ids.add(subject_id)
+
+            return HybridRankingSignals(
+                query_entity_ids=tuple(sorted(str(value) for value in query_entity_ids)),
+                related_entity_ids=tuple(
+                    sorted(str(value) for value in related_entity_ids - query_entity_ids)
+                ),
+            )
+
+    @staticmethod
+    def _contains_phrase(text: str, phrase: str) -> bool:
+        normalized = phrase.strip()
+        if len(normalized) < 2:
+            return False
+        pattern = rf"(?<!\w){re.escape(normalized)}(?!\w)"
+        return re.search(pattern, text, flags=re.IGNORECASE) is not None
 
     def search_semantic_memories(
         self,

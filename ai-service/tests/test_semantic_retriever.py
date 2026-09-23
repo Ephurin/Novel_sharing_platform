@@ -156,6 +156,7 @@ def test_semantic_retriever_dimension_failure_falls_back_without_raising() -> No
 
     assert result.status == "fallback"
     assert result.matches == ()
+    assert result.ranking_version == "phase6-fallback"
     assert result.fallback_reason == "EmbeddingProviderError"
 
 
@@ -268,6 +269,7 @@ def test_missing_temporal_cutoff_skips_semantic_query() -> None:
 
     assert result.status == "skipped"
     assert result.matches == ()
+    assert result.ranking_version == "not-ranked"
     assert result.fallback_reason == "missing_temporal_cutoff"
     assert repo.query_embedding is None
 

@@ -668,29 +668,204 @@ P7-03 is accepted. P7-04 is the next planned task but is **NOT ACTIVE** until ex
 
 ---
 
-## 9. NEXT TASK — P7-04-HYBRID-RANKER — NOT ACTIVE
+## 9. ACTIVE TASK — P7-04-HYBRID-RANKER
 
-P7-03 is closed. The next planned Phase 7 slice combines semantic candidates with narrative signals.
+**Opened by owner:** 2026-09-23  
+**Implementation branch:** `astra/p7-04-hybrid-ranker`
 
-Do not begin P7-04 until the owner explicitly opens it.
-
-Expected boundary when opened:
+Goal:
 
 ```text
-semantic candidates
+exact semantic candidates (P7-03)
         +
-entity overlap
+query entity overlap
 temporal relevance
-importance
-relationship relevance
+memory importance
+canonical relationship relevance
         ↓
 deterministic hybrid score
         ↓
-ranked context candidates
+ranked semantic_memories
 ```
 
-Keep these out unless explicitly scoped:
-- context compression/token packing changes beyond ranking output;
+### 9.1 Core boundary
+
+P7-04 reranks semantic candidates only. It does not replace P7-03 filtering.
+
+Required order:
+
+```text
+tenant/version/freshness/temporal/canonical SQL filters
+        ↓
+exact cosine semantic candidate pool
+        ↓
+hybrid signal resolution
+        ↓
+deterministic hybrid rerank
+        ↓
+final limit
+```
+
+Future/stale/wrong-version rows must never be reintroduced by the ranker.
+
+### 9.2 Frozen initial scoring recipe
+
+Use an explainable bounded score:
+
+```text
+hybrid =
+  0.75 * semantic_rank_score
++ 0.03 * entity_overlap
++ 0.08 * temporal_relevance
++ 0.10 * importance
++ 0.04 * relationship_relevance
+```
+
+Initial semantic component is rank-normalized from exact cosine candidate order:
+
+```text
+semantic_rank_score = 1 / log2(rank + 2)
+```
+
+where zero-based semantic rank 0 => 1.0.
+
+Temporal relevance:
+
+```text
+age = max(0, chapter_cutoff - memory.chapter_number)
+temporal = 1 / (1 + age / 12)
+```
+
+All component scores must be clamped to [0,1].
+
+These weights are an offline calibration proxy over the frozen Aethelgard core-gold semantic top-20; do not claim they are universally optimal.
+
+### 9.3 Query/entity signals
+
+Resolve query entities deterministically from canonical entity names + confirmed aliases. No LLM entity extraction inside ranking.
+
+Temporal safety:
+- query-entity candidates must be grounded in canonical data available at/before chapter cutoff where possible;
+- relationship relevance must not use future relationship facts;
+- relationship rows without usable narrative-time provenance must not be treated as temporally safe evidence.
+
+Relationship signal may use temporally-proven canonical graph edges and/or confirmed prior event co-participation, but must remain explainable and deterministic.
+
+### 9.4 Candidate overfetch
+
+Hybrid ranking needs room to promote non-top semantic candidates.
+
+```text
+final semantic memories = 8
+semantic candidate pool  = max(final_limit * 4, 20)
+hard cap                 = 64
+```
+
+Do not change pgvector to ANN.
+
+### 9.5 Failure semantics
+
+```text
+embedding/vector retrieval failure
+→ Phase 6 fallback (existing P7-03 behavior)
+
+hybrid signal/ranker failure after semantic candidates exist
+→ semantic-only ordering
+→ do NOT discard successful semantic retrieval
+```
+
+Trace ranking mode/version and component scores in context artifacts without exposing chain-of-thought.
+
+### 9.6 Offline evaluation gate
+
+Add deterministic P7-04 benchmark/evidence using:
+- frozen `aethelgard-retrieval-eval-v1.0.0`;
+- accepted P7-01 `gemini-embedding-2 @ 768` saved ranked results;
+- canonical memory metadata;
+- frozen entity/relationship catalog.
+
+Required reporting:
+
+```text
+recent-only baseline @10
+semantic-only @10
+hybrid proxy @10
+```
+
+At minimum hybrid proxy must remain above recent-only baseline and should not regress accepted semantic-only aggregate quality. Clearly label rank-based offline proxy limitations.
+
+### 9.7 Production integration
+
+Extend P7-03 semantic result traceability with ranking mode/version and hybrid/component scores. WritingService continues to treat semantic memories as additive to canonical Phase 6 context.
+
+### 9.8 Tests
+
+Deterministic coverage:
+- semantic order remains dominant but strong narrative signals can rerank candidates;
+- entity overlap, temporal decay, importance and relationship contributions;
+- deterministic tie-break;
+- empty/no entity signal remains valid;
+- hybrid failure falls back to semantic-only, not Phase 6;
+- component scores + ranking version enter context trace/hash.
+
+Live PostgreSQL coverage:
+- query entity resolution is tenant/novel/story scoped;
+- temporal cutoff prevents future entity/relationship evidence;
+- candidate pool still obeys P7-03 version/freshness/future filters;
+- hybrid rerank cannot resurrect filtered rows.
+
+Regression:
+- P7-01 benchmark invariants;
+- P7-03 semantic retrieval tests;
+- Phase 6 writing/temporal tests.
+
+### 9.9 Out of scope
+
+- context compression/token packing;
 - ANN/HNSW/IVFFlat;
 - specialized vector database;
-- automatic embedding-version quality cutover.
+- LLM-based reranking;
+- automatic online weight learning;
+- automatic embedding-version cutover.
+
+P7-05 remains context compression/token-budget work.
+
+Do not open P7-05 until P7-04 is accepted.
+
+
+---
+
+### Handoff — P7-04-HYBRID-RANKER
+
+Status: Implemented and CI verified; awaiting Astra/owner review
+
+- Branch: `astra/p7-04-hybrid-ranker`
+- Ranking version: `hybrid-v1`
+- Weights: semantic 0.75 / entity 0.03 / temporal 0.08 / importance 0.10 / relationship 0.04
+- Candidate flow: P7-03 exact filtered semantic pool → deterministic hybrid rerank → final limit
+- Candidate overfetch: `min(64, max(final_limit * 4, 20))`
+- Query entity resolution: canonical names + confirmed aliases; tenant/novel/story scoped; temporal evidence required
+- Relationship signal: prior canonical co-participation + explicitly time-proven canonical graph edges
+- Future/stale/wrong-version resurrection: BLOCKED by P7-03 candidate gate
+- Hybrid-signal failure: PASS — semantic-only fallback preserves successful retrieval
+- Embedding/vector failure: PASS — existing Phase 6 fallback preserved
+- Ranking trace/context hash: PASS
+- Hybrid unit/retrieval suite: PASS — 23
+- Hybrid proxy regression: PASS — 1
+- P7 embedding benchmark regression: PASS — 6
+- Phase 6 temporal/writing regressions: PASS — 25
+- Live PostgreSQL + pgvector integration: PASS — 10
+- Root Compose: PASS — hybrid runtime + materializer + rebuild + pgvector/auth/backend/web
+- Frozen proxy @10:
+  - recent: Recall 0.409486 / MRR 0.328571 / nDCG 0.316010
+  - semantic: Recall 0.674717 / MRR 0.902381 / nDCG 0.709746
+  - hybrid: Recall 0.718556 / MRR 0.906349 / nDCG 0.721033
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35831663404
+- ANN/HNSW/IVFFlat: NONE
+- LLM reranker: NONE
+- Context compression: NONE
+- Report: `docs/development/P7-04-HYBRID-RANKER-report.md`
+- Evidence: `docs/development/P7-04-HYBRID-RANKER/`
+- Remaining blocker: merge/owner acceptance only
+
+Do not open P7-05 until P7-04 is accepted.

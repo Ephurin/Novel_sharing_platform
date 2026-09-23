@@ -259,7 +259,18 @@ class SemanticMemoryMatch:
     entity_id: str | None = None
     entity_ids: tuple[str, ...] = ()
     importance_score: float = 0.5
+    semantic_score: float = 0.0
+    entity_overlap_score: float = 0.0
+    temporal_score: float = 0.0
+    relationship_score: float = 0.0
+    hybrid_score: float = 0.0
     metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class HybridRankingSignals:
+    query_entity_ids: tuple[str, ...] = ()
+    related_entity_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -267,4 +278,5 @@ class SemanticRetrievalResult:
     matches: tuple[SemanticMemoryMatch, ...] = ()
     status: str = "ok"
     embedding_version: str = ""
+    ranking_version: str = "semantic-only-v1"
     fallback_reason: str | None = None

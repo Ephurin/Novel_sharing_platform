@@ -1,0 +1,36 @@
+{
+  "dataset_version": "aethelgard-retrieval-eval-v1.0.0",
+  "ranking_version": "hybrid-v1",
+  "final_head_ci_run": 35831663404,
+  "weights": {
+    "semantic": 0.75,
+    "entity_overlap": 0.03,
+    "temporal": 0.08,
+    "importance": 0.1,
+    "relationship": 0.04
+  },
+  "at_10": {
+    "recent": {
+      "recall": 0.4094860166288738,
+      "mrr": 0.32857142857142857,
+      "ndcg": 0.31600963217390415
+    },
+    "semantic": {
+      "recall": 0.6747165532879819,
+      "mrr": 0.9023809523809524,
+      "ndcg": 0.7097458111693811
+    },
+    "hybrid": {
+      "recall": 0.7185563114134543,
+      "mrr": 0.9063492063492065,
+      "ndcg": 0.7210327585636553
+    }
+  },
+  "limitations": [
+    "Saved P7-01 semantic top-20 rank order is used instead of raw cosine magnitudes.",
+    "Core-gold is used for calibration/regression and is not a held-out set.",
+    "Frozen corpus includes memory types beyond the current production event_summary slice.",
+    "Entity matching is deterministic canonical-name/alias matching.",
+    "Relationship proxy uses temporally eligible frozen canonical edges."
+  ]
+}

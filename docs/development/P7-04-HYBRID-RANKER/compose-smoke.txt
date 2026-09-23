@@ -1,0 +1,18 @@
+P7-04 root Compose smoke evidence
+CI run: 35831663404
+Result: PASS
+
+Production-path services:
+- PostgreSQL + pgvector
+- MongoDB
+- AI service
+- backend
+- web
+
+The running AI service explicitly asserted:
+- semantic retriever exists;
+- semantic materializer exists;
+- hybrid ranker exists;
+- hybrid ranker ranking_version == hybrid-v1.
+
+Existing semantic rebuild endpoint, vector(768) capability and service-auth 401/403/200 checks remain green.
