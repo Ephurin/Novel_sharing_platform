@@ -495,7 +495,7 @@ When implementation + live evidence are complete, append only:
 
 ### Handoff — P7-02-MEMORY-PGVECTOR-FOUNDATION
 
-Status: Completed, awaiting Astra review
+Status: ACCEPTED — merged to `main` on 2026-09-23
 # or Partial / Blocked
 
 - Migration: 0007_semantic_memory_foundation
@@ -1171,7 +1171,7 @@ P8-05 is intentionally not part of the immediate cutover unless separately opene
 
 ---
 
-## 13. P8-01-JSON-POSTGRES-MIGRATION-PARITY — COMPLETED, AWAITING ASTRA REVIEW
+## 13. P8-01-JSON-POSTGRES-MIGRATION-PARITY — ACCEPTED
 
 Goal:
 
@@ -1282,7 +1282,9 @@ P8-02 must not begin until P8-01 is accepted.
 
 Status: Completed, awaiting Astra review
 
-- Branch: `astra/p8-cutover`
+- Merged PR: #5
+- Merge commit: `d639979f59b7867ee4863e886afb6065214b4f7d`
+- Validated PR head: `792ac0676471b3b17fa7e75967b3c54aa93019d9`
 - Migration mode: dry-run by default; explicit `--apply`
 - Apply transaction: PASS
 - Conflicting non-empty target refusal: PASS
@@ -1290,7 +1292,7 @@ Status: Completed, awaiting Astra review
 - Entity status/location/mentions/locks: PASS
 - Fact/relationship lock preservation: PASS
 - Event identity/chapter/participants/narrative order: PASS
-- Proposal dependency group/materialization order: PASS
+- Proposal analysis-run/dependency-group/materialization-order provenance: PASS
 - Projection provenance normalization + rebuild parity: PASS
 - Strict malformed JSON rejection: PASS
 - Canonical reference validation: PASS
@@ -1301,13 +1303,15 @@ Status: Completed, awaiting Astra review
 - Committed legacy inventory: 6/6 dry-run ready
 - Legacy-only fields: archived in untouched JSON + warning diagnostics
 - Full AI-service regression: PASS — 176 passed, 2 skipped
-- Live PostgreSQL integration: PASS — 32 passed
+- Live PostgreSQL integration: PASS — 34 passed
 - Root Compose: PASS
-- CI evidence: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35844244069
+- P8 push CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35845116695
+- P8 PR CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35845120791
+- P7 regression CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35845120781
 - Report: `docs/development/P8-01-JSON-POSTGRES-MIGRATION-PARITY-report.md`
 - Evidence: `docs/development/P8-01-JSON-POSTGRES-MIGRATION-PARITY/`
 - Real committed/user JSON applied by CI: NONE
 - P8-02 changes: NONE
-- Remaining blocker: Astra acceptance / merge only
+- Remaining blocker: none
 
-Do not start P8-02 until P8-01 is accepted.
+P8-01 is accepted. P8-02 is the next Phase 8 slice and is not active until explicitly opened.
