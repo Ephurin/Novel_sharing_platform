@@ -312,7 +312,9 @@ selection_end=500
 
 Response không chứa chain-of-thought. Chỉ trả context artifacts và provenance.
 
-`semantic_memories` là lớp retrieval bổ sung, không thay thế `recent_events` canonical. Writing generation chỉ kích hoạt semantic retrieval khi có query + canonical chapter cutoff; nếu semantic provider/storage không khả dụng thì context quay về Phase 6 SQL deterministically:
+`semantic_memories` là lớp retrieval bổ sung, không thay thế `recent_events` canonical. Writing generation chỉ kích hoạt semantic retrieval khi có query + canonical chapter cutoff; nếu semantic provider/storage không khả dụng thì context quay về Phase 6 SQL deterministically.
+
+P7-04 rerank semantic candidates bằng deterministic hybrid rank sau khi P7-03 đã áp dụng tenant/version/freshness/temporal filters. Trace public/debug có thể chứa `semantic_ranking_version` và các component score bounded; đây là retrieval provenance, không phải chain-of-thought. Nếu hybrid signal resolution lỗi sau khi exact semantic candidates đã có, hệ thống giữ semantic-only ordering thay vì bỏ toàn bộ semantic retrieval:
 
 ```json
 {

@@ -831,3 +831,41 @@ Regression:
 P7-05 remains context compression/token-budget work.
 
 Do not open P7-05 until P7-04 is accepted.
+
+
+---
+
+### Handoff — P7-04-HYBRID-RANKER
+
+Status: Implemented and CI verified; awaiting Astra/owner review
+
+- Branch: `astra/p7-04-hybrid-ranker`
+- Ranking version: `hybrid-v1`
+- Weights: semantic 0.75 / entity 0.03 / temporal 0.08 / importance 0.10 / relationship 0.04
+- Candidate flow: P7-03 exact filtered semantic pool → deterministic hybrid rerank → final limit
+- Candidate overfetch: `min(64, max(final_limit * 4, 20))`
+- Query entity resolution: canonical names + confirmed aliases; tenant/novel/story scoped; temporal evidence required
+- Relationship signal: prior canonical co-participation + explicitly time-proven canonical graph edges
+- Future/stale/wrong-version resurrection: BLOCKED by P7-03 candidate gate
+- Hybrid-signal failure: PASS — semantic-only fallback preserves successful retrieval
+- Embedding/vector failure: PASS — existing Phase 6 fallback preserved
+- Ranking trace/context hash: PASS
+- Hybrid unit/retrieval suite: PASS — 23
+- Hybrid proxy regression: PASS — 1
+- P7 embedding benchmark regression: PASS — 6
+- Phase 6 temporal/writing regressions: PASS — 25
+- Live PostgreSQL + pgvector integration: PASS — 10
+- Root Compose: PASS — hybrid runtime + materializer + rebuild + pgvector/auth/backend/web
+- Frozen proxy @10:
+  - recent: Recall 0.409486 / MRR 0.328571 / nDCG 0.316010
+  - semantic: Recall 0.674717 / MRR 0.902381 / nDCG 0.709746
+  - hybrid: Recall 0.718556 / MRR 0.906349 / nDCG 0.721033
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35831663404
+- ANN/HNSW/IVFFlat: NONE
+- LLM reranker: NONE
+- Context compression: NONE
+- Report: `docs/development/P7-04-HYBRID-RANKER-report.md`
+- Evidence: `docs/development/P7-04-HYBRID-RANKER/`
+- Remaining blocker: merge/owner acceptance only
+
+Do not open P7-05 until P7-04 is accepted.

@@ -1,0 +1,22 @@
+P7-04 live PostgreSQL + pgvector evidence
+CI run: 35831663404
+Result: PASS
+Tests: 10 passed in 1.43s
+
+Verified P7-03 invariants remain active:
+- exact cosine retrieval;
+- vector(768);
+- embedding version isolation;
+- stale hash exclusion;
+- tenant/novel/story isolation;
+- temporal cutoff;
+- superseded-event guard.
+
+P7-04 addition:
+- query entity signals are scoped to the same tenant/novel/story;
+- future entity/relationship evidence does not enter an earlier cutoff;
+- unrelated tenant receives no query entity signal.
+
+The expected wrong-dimension test still emits PostgreSQL:
+expected 768 dimensions, not 2
+This is deliberate rejection evidence, not a failed test.
