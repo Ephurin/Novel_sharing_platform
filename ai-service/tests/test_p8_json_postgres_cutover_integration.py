@@ -245,6 +245,7 @@ def test_dry_run_is_read_only_then_apply_has_full_canonical_parity(
     story_id = str(uuid.uuid4())
     tenant_id = str(uuid.uuid4())
     manager, hero_id = _seed_json(tmp_path, story_id)
+    analysis_run_id = manager.load_kb(story_id).proposals[0]["analysis_run_id"]
     source_file = manager._get_file_path(story_id)
     source_before = source_file.read_bytes()
 
