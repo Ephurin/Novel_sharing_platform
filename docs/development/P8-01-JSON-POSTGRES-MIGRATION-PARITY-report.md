@@ -1,9 +1,12 @@
 # P8-01 — JSON → PostgreSQL Migration Parity Report
 
-**Status:** Completed, awaiting Astra review  
-**Branch:** `astra/p8-cutover`  
-**Validated HEAD:** `f6b97813b4d67820d4b7aecbc7b5367c0e61cbc3`  
-**CI run:** https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35844244069  
+**Status:** ACCEPTED — 2026-09-23  
+**Merged PR:** #5  
+**Merge commit:** `d639979f59b7867ee4863e886afb6065214b4f7d`  
+**Final validated PR head:** `792ac0676471b3b17fa7e75967b3c54aa93019d9`  
+**P8 push CI:** https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35845116695  
+**P8 PR CI:** https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35845120791  
+**P7 regression CI:** https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35845120781  
 **Date:** 2026-09-23
 
 ## Scope
@@ -16,7 +19,7 @@ It does **not**:
 - delete JSON data;
 - delete legacy adapters;
 - start P8-02/P8-03 cleanup;
-- automatically apply committed legacy JSON into PostgreSQL in CI.
+- automatically apply committed/user legacy JSON into PostgreSQL in CI.
 
 ## Implemented contract
 
@@ -32,12 +35,14 @@ It does **not**:
 - derives parity from the current `JsonNarrativeRepository` canonical StoryBrain view;
 - preserves stable IDs and canonical fields;
 - validates canonical references and projection replay before apply;
-- detects global PostgreSQL PK collisions before INSERT;
+- detects global PostgreSQL primary-key collisions before INSERT;
+- treats existing same-scope canonical/analysis-run rows as occupied target state;
 - refuses conflicting non-empty target stories;
 - applies a story in one PostgreSQL transaction;
 - checks source SHA-256 before/during/after apply;
 - verifies post-apply canonical snapshot parity;
 - supports idempotent reapply;
+- preserves proposal dependency-group/materialization-order and analysis-run provenance;
 - keeps legacy-only/noncanonical fields archived in untouched source JSON and reports them as warnings.
 
 ## Canonical parity surface
@@ -48,16 +53,16 @@ Snapshot comparison covers:
 - facts + locks;
 - explicit/locked relationships;
 - events including deterministic narrative order;
-- proposals including dependency group + materialization order;
+- proposals including analysis-run identity, dependency group and materialization order;
 - state transitions;
 - current projection state + normalized provenance/relationships;
 - Story Brain status/version/baseline metadata.
 
 Projection rebuild is tested after migration to ensure the stored transition history reconstructs the migrated state.
 
-## Safety findings
+## Committed legacy inventory
 
-Committed legacy StoryKB inventory contains six files:
+The committed StoryKB inventory contains six files:
 
 - `writing_session_550`
 - `writing_session_599`
@@ -66,15 +71,15 @@ Committed legacy StoryKB inventory contains six files:
 - `test2`
 - `test_narrative_v2`
 
-All six currently dry-run as:
-- `action=ready`
-- `safe_to_apply=true`
-- no unsupported canonical rows
-- no global ID collisions
+All six dry-run as:
+- `action=ready`;
+- `safe_to_apply=true`;
+- no unsupported canonical rows;
+- no global ID collisions.
 
 Legacy-only fields and unresolved human-readable relation/event labels are reported as warnings, not silently promoted into canonical FK truth.
 
-The four `data/writing_session_*.json` files are intentionally excluded from the production image by `ai-service/.dockerignore`. Compose CI therefore copies the committed checkout snapshot to a temporary container directory and executes the production migration runtime against that snapshot. The image-shipping policy is unchanged.
+The four `data/writing_session_*.json` files are intentionally excluded from the production image by `ai-service/.dockerignore`. Compose CI copies the committed checkout snapshot to a temporary container directory and executes the production migration runtime against that snapshot. The image-shipping policy is unchanged.
 
 ## Executed evidence
 
@@ -87,7 +92,7 @@ The four `data/writing_session_*.json` files are intentionally excluded from the
 ### Live PostgreSQL integration
 
 ```text
-32 passed, 178 deselected
+34 passed, 178 deselected, 5 warnings
 ```
 
 Coverage includes:
@@ -100,7 +105,10 @@ Coverage includes:
 - strict malformed JSON rejection;
 - event narrative-order drift rejection;
 - unknown canonical FK rejection;
-- global legacy primary-key collision rejection;
+- global legacy PK collision rejection;
+- proposal analysis-run provenance preservation;
+- analysis-run PK collision rejection;
+- existing same-scope analysis-run occupancy rejection;
 - tenant isolation;
 - source hash unchanged;
 - committed six-file legacy inventory dry-run.
@@ -111,14 +119,14 @@ PASS:
 - production-path PostgreSQL/pgvector, MongoDB, AI service, backend and web started healthy;
 - all six committed JSON files were dry-run through the production AI image runtime;
 - synthetic cutover fixture dry-run returned `ready`;
-- explicit apply returned parity=true and source_unchanged=true;
-- second apply returned `applied=false, idempotent=true`;
+- explicit synthetic apply returned `parity=true` and `source_unchanged=true`;
+- second synthetic apply returned `applied=false, idempotent=true`;
 - source file SHA-256 was unchanged;
 - pgvector extension remained available;
 - auth boundary returned 401/403/200 on expected probes.
 
-## Review conclusion
+## Acceptance
 
-P8-01 acceptance criteria are satisfied by the implementation and CI evidence at the validated HEAD.
+P8-01 is **ACCEPTED**. PR #5 was merged to `main` as `d639979f59b7867ee4863e886afb6065214b4f7d`.
 
-No real committed/user JSON was automatically applied to PostgreSQL by CI. Real cutover remains an explicit operator action after review/acceptance.
+No real committed/user JSON was automatically applied to PostgreSQL by CI. Real cutover remains an explicit operator action after review.
