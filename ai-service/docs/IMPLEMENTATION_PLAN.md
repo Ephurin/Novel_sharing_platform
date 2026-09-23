@@ -260,7 +260,7 @@ class NarrativeRepository:
 
 ## Phase 7 — Semantic retrieval
 
-> **Status:** Active from 2026-09-21. P7-01 embedding benchmark accepted on 2026-09-22. P7-02 pgvector + versioned semantic-memory foundation accepted on 2026-09-23. P7-03 exact semantic retriever accepted on 2026-09-23 with Phase 6 fallback preserved. P7-04 deterministic hybrid ranking accepted on 2026-09-23. P7-05 context compression/token-budget packing is the next planned slice and is not active until explicitly opened.
+> **Status:** Active from 2026-09-21. P7-01 embedding benchmark accepted on 2026-09-22. P7-02 pgvector + versioned semantic-memory foundation accepted on 2026-09-23. P7-03 exact semantic retriever accepted on 2026-09-23 with Phase 6 fallback preserved. P7-04 deterministic hybrid ranking accepted on 2026-09-23. P7-05 deterministic context packing/token-budget enforcement is implemented and CI verified on 2026-09-23, awaiting merge/acceptance.
 
 ### Tasks
 

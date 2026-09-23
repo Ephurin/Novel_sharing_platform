@@ -1047,3 +1047,47 @@ Live/Compose:
 - embedding-version auto-cutover.
 
 Do not open the next Phase 7 slice until P7-05 is accepted.
+
+
+---
+
+### Handoff — P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET
+
+Status: Implemented and CI verified; awaiting Astra/owner review
+
+- Branch: `astra/p7-05-context-budget`
+- Packing version: `context-budget-v1`
+- Token estimator: `utf8-json-bytes-3-v1`
+- Default Story Brain context budget: 12000 estimated tokens
+- Production budget owner: application-layer `ContextBudgetPacker` after hybrid retrieval
+- Compression mode: deterministic whole-artifact selection + semantic/recent dedup; no LLM summarization
+- Protected artifacts: locked rules/facts, author constraints, locked entity/state bundles
+- Protected overflow: PASS — protected artifacts remain intact and overflow is explicit
+- Entity/state bundle atomicity: PASS
+- Hybrid semantic order preservation: PASS
+- Semantic/recent same-event dedup: PASS — canonical recent-event representation retained
+- Newest remaining recent-event priority: PASS
+- Oversized optional artifact skip: PASS — later smaller artifacts can still fit
+- Prompt serialization parity: PASS — estimator, context hash and real LLM context JSON share canonical serialization
+- Dropped artifacts excluded from LLM prompt: PASS
+- Repository compatibility path: PASS — Phase 6 direct callers may still request repository-level enforcement
+- P7 semantic/retrieval/hybrid/context-budget selective tests: PASS — 35
+- Hybrid proxy regression: PASS — 1
+- P7 embedding benchmark regressions: PASS — 6
+- Phase 6 temporal/writing regressions: PASS — 25
+- Full AI-service non-PostgreSQL regression: PASS — 176 passed, 2 skipped, 22 deselected
+- Live PostgreSQL + pgvector integration: PASS — 10
+- Root Compose: PASS — packer composed + bounded preview + existing pgvector/rebuild/auth/backend/web smoke
+- Compose budget probe: maximum=80 / used=46 / overflow=false
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35834328251
+- ANN/HNSW/IVFFlat: NONE
+- Specialized vector DB: NONE
+- LLM context summarizer: NONE
+- Schema migration: NONE
+- Report: `docs/development/P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET-report.md`
+- Evidence: `docs/development/P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET/`
+- Remaining blocker: merge/owner acceptance only
+
+Important scope note: the 12000/explicit budget is an estimate for the serialized Story Brain context payload only. System prompt, selected text, instruction, style, request constraints and model output tokens are outside this estimator.
+
+Do not open Phase 8 until P7-05 is accepted.

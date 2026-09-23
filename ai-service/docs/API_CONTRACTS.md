@@ -314,7 +314,21 @@ Response không chứa chain-of-thought. Chỉ trả context artifacts và prove
 
 `semantic_memories` là lớp retrieval bổ sung, không thay thế `recent_events` canonical. Writing generation chỉ kích hoạt semantic retrieval khi có query + canonical chapter cutoff; nếu semantic provider/storage không khả dụng thì context quay về Phase 6 SQL deterministically.
 
-P7-04 rerank semantic candidates bằng deterministic hybrid rank sau khi P7-03 đã áp dụng tenant/version/freshness/temporal filters. Trace public/debug có thể chứa `semantic_ranking_version` và các component score bounded; đây là retrieval provenance, không phải chain-of-thought. Nếu hybrid signal resolution lỗi sau khi exact semantic candidates đã có, hệ thống giữ semantic-only ordering thay vì bỏ toàn bộ semantic retrieval:
+P7-04 rerank semantic candidates bằng deterministic hybrid rank sau khi P7-03 đã áp dụng tenant/version/freshness/temporal filters. Trace public/debug có thể chứa `semantic_ranking_version` và các component score bounded; đây là retrieval provenance, không phải chain-of-thought. Nếu hybrid signal resolution lỗi sau khi exact semantic candidates đã có, hệ thống giữ semantic-only ordering thay vì bỏ toàn bộ semantic retrieval.
+
+P7-05 áp dụng một budget owner cuối cùng ở application layer **sau** hybrid retrieval và **trước** context hash/LLM. Compression v1 không dùng LLM để tóm tắt; nó chỉ chọn whole artifacts + loại redundancy deterministically. Locked rules/facts, author constraints và locked entity/state bundles được bảo toàn nguyên vẹn. Semantic memory trùng `event_id` với `recent_events` dùng canonical recent-event payload một lần, nhưng semantic rank vẫn có thể nâng priority khi packing.
+
+Estimator contract:
+
+```text
+packing_version   = context-budget-v1
+estimator_version = utf8-json-bytes-3-v1
+serialization     = UTF-8 JSON, ensure_ascii=false, sorted keys, compact separators
+estimated_tokens  = ceil(utf8_bytes / 3)
+default_maximum   = 12000
+```
+
+Đây là budget ước lượng cho **Story Brain context JSON**, không phải exact tokenizer hay total model prompt budget. System prompt, selected text, instruction, style, request constraints và output tokens nằm ngoài số này. Nếu protected artifacts tự chúng vượt budget, hệ thống giữ nguyên protected artifacts và trả `protected_overflow=true` thay vì silent truncation:
 
 ```json
 {
@@ -328,7 +342,14 @@ P7-04 rerank semantic candidates bằng deterministic hybrid rank sau khi P7-03 
     "author_constraints": [],
     "token_budget": {
       "used": 7200,
-      "maximum": 12000
+      "maximum": 12000,
+      "estimated_before": 9300,
+      "budget_overflow": false,
+      "protected_overflow": false,
+      "packing_version": "context-budget-v1",
+      "estimator_version": "utf8-json-bytes-3-v1",
+      "deduplicated_semantic_count": 2,
+      "dropped_artifact_count": 4
     }
   },
   "meta": {}

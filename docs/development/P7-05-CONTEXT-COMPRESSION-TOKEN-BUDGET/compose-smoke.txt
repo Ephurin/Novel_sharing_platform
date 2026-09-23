@@ -1,0 +1,18 @@
+P7-05 root Compose smoke evidence
+CI run: 35834328251
+Result: PASS
+
+Production composition asserts:
+- semantic retriever exists;
+- hybrid ranker exists and is hybrid-v1;
+- semantic materializer exists;
+- WritingService has ContextBudgetPacker;
+- default Story Brain context budget is 12000.
+
+Live bounded-preview probe:
+GET /v1/story-brains/<novel>/context-preview?token_budget=80
+
+Observed token_budget:
+{"budget_overflow": false, "deduplicated_semantic_count": 0, "dropped_artifact_count": 0, "estimated_before": 46, "estimator_version": "utf8-json-bytes-3-v1", "maximum": 80, "packing_version": "context-budget-v1", "protected_overflow": false, "used": 46}
+
+Existing VECTOR(768), semantic rebuild, 401/403/200 auth boundary, backend/web health and service startup checks also passed.
