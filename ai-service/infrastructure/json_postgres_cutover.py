@@ -747,6 +747,7 @@ class JsonPostgresCutoverMigrator:
             if brain is None:
                 return False, False
             canonical_models = (
+                AnalysisRunRecord,
                 EntityRecord,
                 EntityMentionRecord,
                 FactRecord,
