@@ -461,7 +461,13 @@ class LLMService:
         constraints: list[str] | tuple[str, ...] | None = None,
     ) -> dict[str, Any]:
         """Generate draft text and patch coordinates using LLM or local fallback."""
-        context_str = json.dumps(context_package or {}, ensure_ascii=False)
+        context_str = json.dumps(
+            context_package or {},
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            default=str,
+        )
         style_str = json.dumps(style or {}, ensure_ascii=False) if style else ""
         constraints_str = "; ".join(str(c) for c in (constraints or [])) if constraints else ""
 
