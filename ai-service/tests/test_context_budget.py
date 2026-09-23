@@ -10,8 +10,7 @@ from application.context_budget import (
 )
 from application.writing_service import WritingService
 from core.fake_llm import FakeDeterministicLLMService
-from domain.models import NarrativeEvent, WritingContextPackage
-from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
+from domain.models import WritingContextPackage
 
 
 def _entity(entity_id: str, *, locked: bool = False, pad: str = "") -> dict:
