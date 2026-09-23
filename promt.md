@@ -1171,7 +1171,7 @@ P8-05 is intentionally not part of the immediate cutover unless separately opene
 
 ---
 
-## 13. ACTIVE TASK — P8-01-JSON-POSTGRES-MIGRATION-PARITY
+## 13. P8-01-JSON-POSTGRES-MIGRATION-PARITY — COMPLETED, AWAITING ASTRA REVIEW
 
 Goal:
 
@@ -1274,3 +1274,40 @@ docs/development/P8-01-JSON-POSTGRES-MIGRATION-PARITY/
 ```
 
 P8-02 must not begin until P8-01 is accepted.
+
+
+---
+
+### Handoff — P8-01-JSON-POSTGRES-MIGRATION-PARITY
+
+Status: Completed, awaiting Astra review
+
+- Branch: `astra/p8-cutover`
+- Migration mode: dry-run by default; explicit `--apply`
+- Apply transaction: PASS
+- Conflicting non-empty target refusal: PASS
+- Stable legacy identity preservation: PASS
+- Entity status/location/mentions/locks: PASS
+- Fact/relationship lock preservation: PASS
+- Event identity/chapter/participants/narrative order: PASS
+- Proposal dependency group/materialization order: PASS
+- Projection provenance normalization + rebuild parity: PASS
+- Strict malformed JSON rejection: PASS
+- Canonical reference validation: PASS
+- Global PK collision preflight: PASS
+- Source SHA-256 unchanged: PASS
+- Idempotent reapply: PASS
+- Tenant isolation: PASS
+- Committed legacy inventory: 6/6 dry-run ready
+- Legacy-only fields: archived in untouched JSON + warning diagnostics
+- Full AI-service regression: PASS — 176 passed, 2 skipped
+- Live PostgreSQL integration: PASS — 32 passed
+- Root Compose: PASS
+- CI evidence: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35844244069
+- Report: `docs/development/P8-01-JSON-POSTGRES-MIGRATION-PARITY-report.md`
+- Evidence: `docs/development/P8-01-JSON-POSTGRES-MIGRATION-PARITY/`
+- Real committed/user JSON applied by CI: NONE
+- P8-02 changes: NONE
+- Remaining blocker: Astra acceptance / merge only
+
+Do not start P8-02 until P8-01 is accepted.
