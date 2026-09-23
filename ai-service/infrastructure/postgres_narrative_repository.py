@@ -1535,6 +1535,7 @@ class PostgresNarrativeRepository:
         character_name: str | None = None,
         limit_recent_events: int = 20,
         token_budget: int | None = None,
+        enforce_token_budget: bool = True,
     ) -> WritingContextPackage:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
@@ -1700,89 +1701,134 @@ class PostgresNarrativeRepository:
                 elif f.fact_type in ("world_rule", "character_trait"):
                     other_rules.append(f_dict)
 
-            # 4. Deterministic Token Budget Enforcement
+            # 4. Phase 6 compatibility budget. P7-05 production disables
+            # this repository-level trim and performs one final pack after
+            # hybrid semantic retrieval in the application layer.
             target_maximum = token_budget if (token_budget is not None and token_budget > 0) else 12000
             base_overhead = 300
             locked_rules_cost = len(locked_rules) * 35
 
-            if locked_rules_cost + base_overhead > target_maximum:
+            sorted_entities = sorted(
+                entities,
+                key=lambda e: (
+                    0 if e.is_locked else 1,
+                    0 if (
+                        character_name
+                        and e.canonical_name.lower() == character_name.lower()
+                    )
+                    else 1,
+                    e.canonical_name,
+                ),
+            )
+
+            def _all_entity_outputs() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+                entities_all: list[dict[str, Any]] = []
+                states_all: list[dict[str, Any]] = []
+                for entity in sorted_entities:
+                    e_id = str(entity.id)
+                    attrs = entity.static_attributes or {}
+                    c_state = state_by_entity.get(e_id, {})
+                    status = str(c_state.get("status", attrs.get("status", "Alive")))
+                    location = str(c_state.get("location", attrs.get("location", "Unknown")))
+                    entities_all.append({
+                        "entity_id": e_id,
+                        "name": entity.canonical_name,
+                        "entity_type": entity.entity_type,
+                        "status": status,
+                        "location": location,
+                        "is_locked": entity.is_locked,
+                    })
+                    states_all.append({
+                        "entity_id": e_id,
+                        "name": entity.canonical_name,
+                        "status": status,
+                        "location": location,
+                        "state": c_state,
+                    })
+                return entities_all, states_all
+
+            def _event_outputs(selected: list[EventRecord]) -> list[dict[str, Any]]:
+                return [
+                    {
+                        "event_id": str(event.id),
+                        "narrative_order": event.narrative_order,
+                        "chapter_number": event.chapter_number,
+                        "event_type": event.event_type,
+                        "summary": event.summary,
+                        "participants": list(event.participants),
+                        "metadata": dict(event.event_metadata),
+                    }
+                    for event in selected
+                ]
+
+            if not enforce_token_budget:
+                rules_out = [*locked_rules, *other_rules]
+                entities_out, states_out = _all_entity_outputs()
+                events_out = _event_outputs(events_for_output)
+                used_tokens = (
+                    base_overhead
+                    + len(rules_out) * 35
+                    + len(entities_out) * 45
+                    + len(events_out) * 55
+                )
+                budget_info = {
+                    "used": used_tokens,
+                    "maximum": target_maximum,
+                    "budget_overflow": used_tokens > target_maximum,
+                    "locked_overflow": locked_rules_cost + base_overhead > target_maximum,
+                    "budget_enforced": False,
+                }
+            elif locked_rules_cost + base_overhead > target_maximum:
                 budget_info = {
                     "used": locked_rules_cost + base_overhead,
                     "maximum": target_maximum,
                     "budget_overflow": True,
                     "locked_overflow": True,
+                    "budget_enforced": True,
                 }
                 rules_out = locked_rules
-                entities_out: list[dict[str, Any]] = []
-                states_out: list[dict[str, Any]] = []
-                events_out: list[dict[str, Any]] = []
+                entities_out = []
+                states_out = []
+                events_out = []
             else:
                 remaining = target_maximum - (locked_rules_cost + base_overhead)
                 rules_out = list(locked_rules)
-                for r in other_rules:
+                for rule in other_rules:
                     if remaining >= 35:
-                        rules_out.append(r)
+                        rules_out.append(rule)
                         remaining -= 35
 
                 entities_out = []
                 states_out = []
-                sorted_entities = sorted(
-                    entities,
-                    key=lambda e: (
-                        0 if e.is_locked else 1,
-                        0 if (character_name and e.canonical_name.lower() == character_name.lower()) else 1,
-                        e.canonical_name,
-                    ),
-                )
-                for e in sorted_entities:
-                    if remaining >= 45 or e.is_locked:
-                        e_id = str(e.id)
-                        attrs = e.static_attributes or {}
-                        c_state = state_by_entity.get(e_id, {})
-                        entities_out.append({
-                            "entity_id": e_id,
-                            "name": e.canonical_name,
-                            "entity_type": e.entity_type,
-                            "status": str(c_state.get("status", attrs.get("status", "Alive"))),
-                            "location": str(c_state.get("location", attrs.get("location", "Unknown"))),
-                            "is_locked": e.is_locked,
-                        })
-                        states_out.append({
-                            "entity_id": e_id,
-                            "name": e.canonical_name,
-                            "status": str(c_state.get("status", attrs.get("status", "Alive"))),
-                            "location": str(c_state.get("location", attrs.get("location", "Unknown"))),
-                            "state": c_state,
-                        })
+                all_entities, all_states = _all_entity_outputs()
+                for entity, state in zip(all_entities, all_states):
+                    if remaining >= 45 or bool(entity.get("is_locked")):
+                        entities_out.append(entity)
+                        states_out.append(state)
                         remaining = max(0, remaining - 45)
 
                 selected_events = []
-                for ev in reversed(events_for_output):
+                for event in reversed(events_for_output):
                     if remaining >= 55:
-                        selected_events.append(ev)
+                        selected_events.append(event)
                         remaining -= 55
                     else:
                         break
                 selected_events.reverse()
-                events_out = [
-                    {
-                        "event_id": str(ev.id),
-                        "narrative_order": ev.narrative_order,
-                        "chapter_number": ev.chapter_number,
-                        "event_type": ev.event_type,
-                        "summary": ev.summary,
-                        "participants": list(ev.participants),
-                        "metadata": dict(ev.event_metadata),
-                    }
-                    for ev in selected_events
-                ]
+                events_out = _event_outputs(selected_events)
 
-                used_tokens = base_overhead + len(rules_out) * 35 + len(entities_out) * 45 + len(events_out) * 55
+                used_tokens = (
+                    base_overhead
+                    + len(rules_out) * 35
+                    + len(entities_out) * 45
+                    + len(events_out) * 55
+                )
                 budget_info = {
                     "used": used_tokens,
                     "maximum": target_maximum,
                     "budget_overflow": used_tokens > target_maximum,
                     "locked_overflow": False,
+                    "budget_enforced": True,
                 }
 
             context_summary = {
