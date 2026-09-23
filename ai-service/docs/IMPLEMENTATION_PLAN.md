@@ -260,7 +260,7 @@ class NarrativeRepository:
 
 ## Phase 7 — Semantic retrieval
 
-> **Status:** Active from 2026-09-21. P7-01 embedding benchmark accepted on 2026-09-22. P7-02 pgvector + versioned semantic-memory foundation accepted on 2026-09-23. P7-03 exact semantic retriever accepted on 2026-09-23 with Phase 6 fallback preserved. P7-04 deterministic hybrid ranking accepted on 2026-09-23. P7-05 deterministic context packing/token-budget enforcement is implemented and CI verified on 2026-09-23, awaiting merge/acceptance.
+> **Status:** COMPLETED / ACCEPTED on 2026-09-23. P7-01 through P7-05 are accepted: embedding selection, pgvector/versioned semantic memory, exact temporal retrieval, hybrid ranking, and deterministic context packing/token-budget enforcement.
 
 ### Tasks
 
@@ -282,9 +282,12 @@ semantic score
 
 ### Exit criteria
 
-- Hybrid retrieval tốt hơn recent-only baseline trên labeled queries.
-- Không index rejected/proposed artifacts như canonical memory.
-- Embeddings có thể xóa/rebuild theo version.
+- [x] Hybrid retrieval tốt hơn recent-only baseline trên labeled queries.
+- [x] Không index rejected/proposed artifacts như canonical memory.
+- [x] Embeddings có thể xóa/rebuild theo version.
+- [x] Final production context có một deterministic budget owner sau semantic/hybrid retrieval.
+- [x] Packed Story Brain context obeys requested estimate budget hoặc báo protected overflow rõ ràng.
+- [x] Context hash phản ánh exact packed Story Brain payload gửi vào LLM.
 
 ## Phase 8 — Cutover và cleanup
 

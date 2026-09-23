@@ -874,10 +874,11 @@ P7-04 is accepted. P7-05 remains **NOT ACTIVE** until explicitly opened by the o
 
 ---
 
-## 10. ACTIVE TASK — P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET
+## 10. P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET — ACCEPTED
 
-**Opened by owner:** 2026-09-23  
-**Implementation branch:** `astra/p7-05-context-budget`
+**Status:** ACCEPTED — 2026-09-23  
+**Merged PR:** #4  
+**Merge commit:** `db1dd06034b0a22278b56fcb0ff0531b032c96ae`
 
 Goal:
 
@@ -1046,16 +1047,16 @@ Live/Compose:
 - online learned packing weights;
 - embedding-version auto-cutover.
 
-Do not open the next Phase 7 slice until P7-05 is accepted.
+P7-05 is accepted. The planned Phase 7 scope is complete.
 
 
 ---
 
 ### Handoff — P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET
 
-Status: Implemented and CI verified; awaiting Astra/owner review
+Status: ACCEPTED — merged to `main` on 2026-09-23
 
-- Branch: `astra/p7-05-context-budget`
+- Merge commit: `db1dd06034b0a22278b56fcb0ff0531b032c96ae`
 - Packing version: `context-budget-v1`
 - Token estimator: `utf8-json-bytes-3-v1`
 - Default Story Brain context budget: 12000 estimated tokens
@@ -1079,15 +1080,79 @@ Status: Implemented and CI verified; awaiting Astra/owner review
 - Live PostgreSQL + pgvector integration: PASS — 10
 - Root Compose: PASS — packer composed + bounded preview + existing pgvector/rebuild/auth/backend/web smoke
 - Compose budget probe: maximum=80 / used=46 / overflow=false
-- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35834328251
+- CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35834820452
 - ANN/HNSW/IVFFlat: NONE
 - Specialized vector DB: NONE
 - LLM context summarizer: NONE
 - Schema migration: NONE
 - Report: `docs/development/P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET-report.md`
 - Evidence: `docs/development/P7-05-CONTEXT-COMPRESSION-TOKEN-BUDGET/`
-- Remaining blocker: merge/owner acceptance only
+- Remaining blocker: none
 
 Important scope note: the 12000/explicit budget is an estimate for the serialized Story Brain context payload only. System prompt, selected text, instruction, style, request constraints and model output tokens are outside this estimator.
 
-Do not open Phase 8 until P7-05 is accepted.
+P7-05 and the planned Phase 7 scope are accepted. Phase 8 remains **NOT ACTIVE** until explicitly opened by the owner.
+
+
+---
+
+## 11. PHASE 7 — ACCEPTED / CLOSED
+
+**Accepted:** 2026-09-23
+
+Completed slices:
+
+```text
+P7-01  embedding benchmark + ADR
+P7-02  versioned semantic memory + pgvector foundation
+P7-03  exact temporally safe semantic retriever
+P7-04  deterministic hybrid narrative ranker
+P7-05  deterministic context packing + token budget
+```
+
+Phase 7 serving path is now:
+
+```text
+Canonical Story Brain
+        ↓
+derived/versioned semantic memory
+        ↓
+exact pgvector retrieval
+        ↓
+hybrid-v1 deterministic rerank
+        ↓
+context-budget-v1 dedup + packing
+        ↓
+canonical context hash
+        ↓
+Writing LLM
+```
+
+Phase 7 invariants remain:
+
+- canonical Story Brain is authoritative;
+- semantic memory is derived/rebuildable;
+- future/stale/wrong-version semantic rows cannot enter candidates;
+- hybrid signals cannot resurrect filtered rows;
+- context compression does not synthesize canonical truth;
+- protected canonical artifacts are never silently truncated;
+- no ANN/specialized vector DB was introduced in the Phase 7 MVP.
+
+---
+
+## 12. NEXT PHASE — PHASE 8 CUTOVER AND CLEANUP — NOT ACTIVE
+
+Do not begin Phase 8 until explicitly opened by the owner.
+
+Planned boundary from the accepted implementation plan:
+
+```text
+dry-run JSON migration
+→ compare entity/event/state snapshots
+→ frontend/API cutover
+→ legacy deprecation/read-only transition
+→ rollback rehearsal
+→ remove old direct JSON write paths only after a stable release
+```
+
+Do not perform destructive cleanup or remove rollback paths merely because Phase 7 is complete.

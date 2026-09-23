@@ -1,11 +1,12 @@
 # P7-05 — Context Compression / Token Budget Report
 
-Status: **IMPLEMENTED — CI VERIFIED — READY FOR REVIEW**
+Status: **ACCEPTED — 2026-09-23**
 
-Branch: `astra/p7-05-context-budget`  
+Merged PR: `#4`  
+Merge commit: `db1dd06034b0a22278b56fcb0ff0531b032c96ae`  
 Packing version: `context-budget-v1`  
 Estimator version: `utf8-json-bytes-3-v1`  
-Authoritative code-head CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35834328251
+Final PR-head CI: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35834820452
 
 ## Goal
 
@@ -106,7 +107,7 @@ Final `token_budget` includes:
 
 ## Verification
 
-Code-head CI `35834328251`:
+Code-head CI `35834820452`:
 
 ```text
 semantic/retrieval/hybrid/context-budget selective  35 passed
@@ -146,6 +147,12 @@ Not introduced:
 - online learned packing weights;
 - embedding-version auto-cutover.
 
-## Remaining
+## Acceptance
 
-No known implementation blocker. Merge/owner acceptance remains.
+P7-05 was accepted and squash-merged to `main` on 2026-09-23 as:
+
+`db1dd06034b0a22278b56fcb0ff0531b032c96ae`
+
+Final PR-head CI `35834820452` passed selective and full AI-service regression, live PostgreSQL+pgvector integration, and root Compose smoke. No implementation blocker remains.
+
+P7-05 completes the planned Phase 7 scope. Phase 8 cutover/cleanup is the next planned phase and is not active yet.
