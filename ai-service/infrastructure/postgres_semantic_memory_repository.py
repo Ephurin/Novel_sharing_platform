@@ -577,7 +577,7 @@ class PostgresSemanticMemoryRepository:
         normalized = phrase.strip()
         if len(normalized) < 2:
             return False
-        pattern = rf"(?<!\\w){re.escape(normalized)}(?!\\w)"
+        pattern = rf"(?<!\w){re.escape(normalized)}(?!\w)"
         return re.search(pattern, text, flags=re.IGNORECASE) is not None
 
     def search_semantic_memories(
