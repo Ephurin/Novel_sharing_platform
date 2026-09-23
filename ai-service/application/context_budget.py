@@ -83,7 +83,6 @@ class ContextBudgetPacker:
             else:
                 orphan_states.append(state)
 
-        entity_bundles: list[tuple[dict[str, Any], dict[str, Any] | None]] = []
         bundled_state_ids: set[str] = set()
         locked_entity_bundles: list[tuple[dict[str, Any], dict[str, Any] | None]] = []
         optional_entity_bundles: list[tuple[dict[str, Any], dict[str, Any] | None]] = []
@@ -93,7 +92,6 @@ class ContextBudgetPacker:
             if state is not None and entity_id:
                 bundled_state_ids.add(entity_id)
             bundle = (entity, state)
-            entity_bundles.append(bundle)
             if bool(entity.get("is_locked")):
                 locked_entity_bundles.append(bundle)
             else:
