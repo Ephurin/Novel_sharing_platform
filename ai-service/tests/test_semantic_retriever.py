@@ -81,7 +81,15 @@ class StubSemanticRetriever:
     result: SemanticRetrievalResult
     last_query: str | None = None
 
-    def retrieve(self, story_id: str, *, query_text: str, chapter_number: int | None, limit=None):
+    def retrieve(
+        self,
+        story_id: str,
+        *,
+        query_text: str,
+        chapter_number: int | None,
+        limit=None,
+        tenant_id: str | None = None,
+    ):
         self.last_query = query_text
         return self.result
 
@@ -337,3 +345,24 @@ def test_semantic_memory_content_changes_generation_context_hash() -> None:
     assert job1.context_hash != job2.context_hash
     assert job1.context_summary["semantic_memory_ids"] == ["mem-old-1"]
     assert job2.context_summary["semantic_memory_ids"] == ["mem-old-2"]
+
+
+def test_semantic_retriever_skips_cross_tenant_scope() -> None:
+    repo = CapturingRepository(matches=[_match()])
+    service = SemanticRetrieverService(
+        repo,
+        AxisProvider(),
+        tenant_id="tenant-a",
+    )
+
+    result = service.retrieve(
+        "story-1",
+        query_text="query",
+        chapter_number=5,
+        tenant_id="tenant-b",
+    )
+
+    assert result.status == "skipped"
+    assert result.matches == ()
+    assert result.fallback_reason == "tenant_scope_mismatch"
+    assert repo.query_embedding is None

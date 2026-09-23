@@ -85,6 +85,7 @@ class WritingService:
                 query_text=semantic_query,
                 chapter_number=chapter_number,
                 limit=semantic_limit,
+                tenant_id=tenant_id,
             )
             semantic_memories = tuple(
                 self._semantic_match_payload(match) for match in result.matches

@@ -20,11 +20,13 @@ class SemanticRetrieverService:
         *,
         embedding_version: str | None = None,
         default_limit: int = 8,
+        tenant_id: str | None = None,
     ) -> None:
         self._repository = repository
         self._embedding_provider = embedding_provider
         self.embedding_version = embedding_version or embedding_provider.version
         self.default_limit = max(1, int(default_limit))
+        self.tenant_id = tenant_id
         if self.embedding_version != embedding_provider.version:
             raise ValueError(
                 "Query embedding provider version must match active document embedding version"
@@ -37,6 +39,7 @@ class SemanticRetrieverService:
         query_text: str,
         chapter_number: int | None,
         limit: int | None = None,
+        tenant_id: str | None = None,
     ) -> SemanticRetrievalResult:
         query = query_text.strip()
         if not query:
@@ -49,6 +52,12 @@ class SemanticRetrieverService:
                 status="skipped",
                 embedding_version=self.embedding_version,
                 fallback_reason="missing_temporal_cutoff",
+            )
+        if self.tenant_id is not None and tenant_id is not None and tenant_id != self.tenant_id:
+            return SemanticRetrievalResult(
+                status="skipped",
+                embedding_version=self.embedding_version,
+                fallback_reason="tenant_scope_mismatch",
             )
 
         try:
