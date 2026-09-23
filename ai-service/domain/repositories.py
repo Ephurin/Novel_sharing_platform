@@ -179,6 +179,21 @@ class SemanticMemoryRepository(Protocol):
         metadata: dict[str, Any],
     ) -> SemanticMemoryChunk: ...
 
+    def list_memory_chunks(
+        self,
+        story_id: str,
+        *,
+        memory_type: str | None = None,
+    ) -> list[SemanticMemoryChunk]: ...
+
+    def delete_memory_chunks_not_in_sources(
+        self,
+        story_id: str,
+        *,
+        memory_type: str,
+        active_source_keys: set[str],
+    ) -> int: ...
+
     def get_embedding(
         self,
         story_id: str,
