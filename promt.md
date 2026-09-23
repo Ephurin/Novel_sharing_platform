@@ -1140,19 +1140,137 @@ Phase 7 invariants remain:
 
 ---
 
-## 12. NEXT PHASE — PHASE 8 CUTOVER AND CLEANUP — NOT ACTIVE
+## 12. PHASE 8 — CUTOVER AND CLEANUP — ACTIVE
 
-Do not begin Phase 8 until explicitly opened by the owner.
+**Opened by owner:** 2026-09-23  
+**Implementation branch:** `astra/p8-cutover`
 
-Planned boundary from the accepted implementation plan:
+Phase 8 is operational cutover, not a new Story Brain architecture phase.
+
+Safety invariant:
 
 ```text
-dry-run JSON migration
-→ compare entity/event/state snapshots
-→ frontend/API cutover
-→ legacy deprecation/read-only transition
-→ rollback rehearsal
-→ remove old direct JSON write paths only after a stable release
+cut over only after parity evidence
+retain rollback path through stability window
+delete legacy write paths only after explicit final cleanup gate
 ```
 
-Do not perform destructive cleanup or remove rollback paths merely because Phase 7 is complete.
+Never delete user JSON data or existing PostgreSQL data as part of an automatic cutover command.
+
+### Phase 8 slices
+
+```text
+P8-01  JSON → PostgreSQL dry-run migration + snapshot parity
+P8-02  frontend/API canonical cutover verification
+P8-03  legacy deprecation + JSON read-only production mode
+P8-04  rollback rehearsal + cleanup readiness
+P8-05  destructive legacy removal — deferred until post-release stability gate
+```
+
+P8-05 is intentionally not part of the immediate cutover unless separately opened after a stable release.
+
+---
+
+## 13. ACTIVE TASK — P8-01-JSON-POSTGRES-MIGRATION-PARITY
+
+Goal:
+
+```text
+legacy JSON Story Brain
+        ↓
+validate + normalize
+        ↓
+dry-run migration plan
+        ↓
+explicit apply into empty/scoped PostgreSQL target
+        ↓
+canonical snapshot comparison
+        ↓
+parity report
+```
+
+### 13.1 Dry-run first
+
+CLI/tool must default to dry-run. Apply requires explicit `--apply`.
+
+Dry-run:
+- reads JSON source only;
+- reads target PostgreSQL only for collision/parity checks;
+- does not mutate source or target;
+- emits deterministic plan + unsupported-field diagnostics;
+- exits non-zero for unsafe/unmappable canonical rows.
+
+### 13.2 Apply safety
+
+Apply must:
+- be tenant + novel scoped;
+- run in a DB transaction;
+- be idempotent for an already-identical migrated snapshot;
+- refuse a non-empty conflicting target;
+- never truncate/drop schema/tables/volumes;
+- never mutate source JSON;
+- preserve stable legacy IDs where the existing adapters define them;
+- preserve locked flags, entity status/location/mentions, canonical facts, relationships, confirmed events and current state/projection when safely representable.
+
+No invented revision/chapter provenance. If legacy data requires missing provenance for a target invariant, fail actionably.
+
+### 13.3 Canonical snapshot parity
+
+Do not compare raw JSON byte-for-byte.
+
+Canonical parity view must normalize and compare at least:
+
+```text
+entities:
+  id/name/type/status/location/mentions/is_locked
+
+events:
+  event_id/type/summary/chapter/participants/canonical metadata
+
+state:
+  current entity projection + provenance + relationships
+```
+
+Also report facts/relations/aliases/mentions/proposals/transitions counts and parity when supported.
+
+Ignore non-semantic serialization noise such as JSON file timestamps/order where it does not affect Story Brain truth.
+
+### 13.4 Unsupported legacy fields
+
+The raw StoryKB contains older fields such as `events`, `event_history`, `current_world_state` in addition to the canonical adapter-backed fields.
+
+P8-01 must distinguish:
+- adapter-backed canonical fields;
+- legacy-only informational fields;
+- unsupported canonical data requiring manual intervention.
+
+Never silently promote an old field into canonical PostgreSQL truth merely because it exists in JSON.
+
+### 13.5 Tests/evidence
+
+Deterministic tests:
+- dry-run makes no writes;
+- apply into empty target;
+- second apply is idempotent;
+- conflicting non-empty target fails;
+- locked entity/fact/relationship fields survive;
+- entity status/location/mentions survive;
+- event identity/chapter/participants survive;
+- snapshot normalization deterministic;
+- unsupported canonical rows fail with actionable diagnostics.
+
+Live PostgreSQL:
+- migrate seeded JSON fixture into real PostgreSQL;
+- compare canonical entity/event/state snapshot;
+- rerun apply idempotently;
+- prove JSON source file hash unchanged;
+- prove no unrelated tenant/novel rows change.
+
+Evidence:
+
+```text
+docs/development/P8-01-JSON-POSTGRES-MIGRATION-PARITY-report.md
+docs/development/P8-01-JSON-POSTGRES-MIGRATION-PARITY/
+```
+
+P8-02 must not begin until P8-01 is accepted.
