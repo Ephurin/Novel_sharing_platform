@@ -14,7 +14,7 @@ from domain.embeddings import EmbeddingProviderError
 from domain.repositories import SemanticMemoryRepository
 from infrastructure.embedding_providers import DeterministicFakeEmbeddingProvider
 from infrastructure.orm_models import Base, EventRecord, SCHEMA, StoryBrainRecord
-from infrastructure.semantic_memory_repository import PostgresSemanticMemoryRepository
+from infrastructure.postgres_semantic_memory_repository import PostgresSemanticMemoryRepository
 
 
 TENANT_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
