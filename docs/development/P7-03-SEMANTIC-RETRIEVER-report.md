@@ -3,7 +3,7 @@
 Status: **IMPLEMENTED — CI VERIFIED — READY FOR REVIEW**
 
 Branch: `astra/p7-03-semantic-retriever`  
-Authoritative CI run: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35828640785
+Authoritative CI run: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35829177503
 
 ## Goal
 
@@ -90,10 +90,10 @@ It queues best-effort semantic materialization and returns 202 when semantic run
 
 ## Verification
 
-Authoritative CI run `35828640785`:
+Authoritative PR CI run `35829177503` at runtime HEAD `1ce446d34ba01c11267051afd8a65ced83c6b83e`:
 
 ```text
-semantic/materialization/retriever unit tests   17 passed
+semantic/materialization/retriever unit tests   18 passed
 P7 embedding benchmark regressions              6 passed
 Phase 6 temporal/writing regressions            25 passed
 live PostgreSQL + pgvector integration           9 passed
