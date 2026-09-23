@@ -404,9 +404,15 @@ class PostgresSemanticMemoryRepository:
                     MemoryEmbeddingRecord.content_hash == MemoryChunkRecord.content_hash,
                 )
             ) or 0
+            stale_embeddings = max(0, int(total_embeddings) - int(fresh_embeddings))
+            missing_embeddings = max(0, int(total_chunks) - int(fresh_embeddings) - stale_embeddings)
             return {
-                "memory_chunks": int(total_chunks),
-                "embeddings": int(total_embeddings),
+                "total_chunks": int(total_chunks),
+                "embedded": int(total_embeddings),
+                "current": int(fresh_embeddings),
+                "stale": stale_embeddings,
+                "missing": missing_embeddings,
+                # Compatibility alias for early P7-02 callers.
                 "fresh_embeddings": int(fresh_embeddings),
             }
 
