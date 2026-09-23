@@ -12,11 +12,11 @@ HYBRID_RANKING_VERSION = "hybrid-v1"
 
 @dataclass(frozen=True, slots=True)
 class HybridRankingWeights:
-    semantic: float = 0.55
-    entity_overlap: float = 0.10
-    temporal: float = 0.10
+    semantic: float = 0.75
+    entity_overlap: float = 0.03
+    temporal: float = 0.08
     importance: float = 0.10
-    relationship: float = 0.15
+    relationship: float = 0.04
 
     def __post_init__(self) -> None:
         values = (
