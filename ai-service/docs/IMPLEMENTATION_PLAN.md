@@ -260,7 +260,7 @@ class NarrativeRepository:
 
 ## Phase 7 — Semantic retrieval
 
-> **Status:** Active from 2026-09-21. P7-01 embedding benchmark gate accepted on 2026-09-22: `gemini-embedding-2 @ 768`, cosine distance, L2 normalization. Proceed with pgvector/memory foundation before semantic retrieval integration.
+> **Status:** Active from 2026-09-21. P7-01 embedding benchmark gate accepted on 2026-09-22 (`gemini-embedding-2 @ 768`, cosine distance, L2 normalization). P7-02 pgvector + versioned semantic-memory foundation accepted on 2026-09-23 (`memory_chunks` separated from `memory_embeddings`, `VECTOR(768)`, live migration/Compose verification). Next planned slice is semantic retrieval; it is not active until explicitly opened.
 
 ### Tasks
 

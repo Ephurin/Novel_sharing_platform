@@ -164,10 +164,12 @@ Never:
 
 ---
 
-# 4. ACTIVE TASK — P7-02-MEMORY-PGVECTOR-FOUNDATION
+# 4. P7-02-MEMORY-PGVECTOR-FOUNDATION — ACCEPTED
 
-**Type:** production storage/materialization foundation.  
-**Implementation branch:** `astra/p7-02-memory-pgvector-foundation`.
+**Status:** ACCEPTED — 2026-09-23.  
+**Merged PR:** #1  
+**Merge commit:** `382442dad84a99446ee0174426dc5e0c1b2a2dff`  
+**Type:** production storage/materialization foundation.
 
 **Goal:** introduce pgvector-capable PostgreSQL plus a two-layer semantic-memory model:
 
@@ -523,9 +525,9 @@ Do not open P7-03 until P7-02 is reviewed and accepted.
 
 ### Handoff — P7-02-MEMORY-PGVECTOR-FOUNDATION
 
-Status: Implemented and CI verified; awaiting owner merge/review
+Status: ACCEPTED — merged to `main` on 2026-09-23
 
-- Branch: `astra/p7-02-memory-pgvector-foundation`
+- Merge commit: `382442dad84a99446ee0174426dc5e0c1b2a2dff`
 - Migration: `0007_semantic_memory_foundation`
 - Schema:
   - memory_chunks: derived content/provenance; no vector column
@@ -544,6 +546,29 @@ Status: Implemented and CI verified; awaiting owner merge/review
 - Semantic retriever changes: NONE
 - Report: `docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION-report.md`
 - Evidence: `docs/development/P7-02-MEMORY-PGVECTOR-FOUNDATION/`
-- Remaining blocker: merge/owner acceptance only
+- Remaining blocker: none
 
-Do not open P7-03 until P7-02 is accepted.
+P7-02 is accepted. P7-03 is the next planned task but is **NOT ACTIVE** until explicitly opened.
+
+
+---
+
+## 8. NEXT TASK — P7-03-SEMANTIC-RETRIEVER — NOT ACTIVE
+
+P7-02 is closed. The next planned Phase 7 slice is semantic retrieval over the accepted pgvector/memory foundation.
+
+Do not begin P7-03 until the owner explicitly opens it.
+
+Expected P7-03 boundary, when opened:
+
+```text
+author/query text
+        ↓
+query embedding (ADR-012 recipe)
+        ↓
+temporal/version scoped exact cosine retrieval
+        ↓
+deterministic fallback to Phase 6 SQL retrieval
+```
+
+Hybrid ranking, context compression, and ANN indexing remain later tasks unless explicitly included in a reviewed P7-03 scope.

@@ -1,8 +1,9 @@
 # P7-02 — Memory + pgvector Foundation Report
 
-Status: **IMPLEMENTED — CI VERIFIED — READY FOR OWNER REVIEW**
+Status: **ACCEPTED — 2026-09-23**
 
-Branch: `astra/p7-02-memory-pgvector-foundation`  
+Merged PR: `#1`  
+Merge commit: `382442dad84a99446ee0174426dc5e0c1b2a2dff`  
 Migration: `0007_semantic_memory_foundation`  
 CI run: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/35825994127
 
@@ -94,6 +95,10 @@ Phase 6 serving retrieval unchanged                PASS
 no ANN/hybrid/compression scope                     PASS
 ```
 
-## Remaining
+## Acceptance
 
-No implementation blocker is known. Branch remains unmerged pending owner review.
+P7-02 was accepted and squash-merged to `main` on 2026-09-23 as commit:
+
+`382442dad84a99446ee0174426dc5e0c1b2a2dff`
+
+No implementation blocker remains. P7-03 semantic retrieval is the next planned slice but is not active yet.
