@@ -291,13 +291,13 @@ semantic score
 
 ## Phase 8 — Cutover và cleanup
 
-> **Status:** ACTIVE. P8-01 JSON → PostgreSQL migration/parity gate was ACCEPTED on 2026-09-23 via PR #5 (`d639979f59b7867ee4863e886afb6065214b4f7d`). Frontend/API cutover, legacy deprecation/read-only mode, rollback rehearsal and final destructive cleanup remain separate slices.
+> **Status:** ACTIVE. P8-01 was ACCEPTED on 2026-09-23 via PR #5 (`d639979f59b7867ee4863e886afb6065214b4f7d`). P8-02 frontend/API canonical cutover was ACCEPTED on 2026-09-24 via PR #6 (`12a0dc57186472c72c5318d8f3bde5185d33f307`). Legacy deprecation/read-only mode, rollback rehearsal and final destructive cleanup remain separate slices.
 
 ### Tasks
 
 - [x] Chạy JSON migration tool ở dry-run.
 - [x] So sánh entity/event/state snapshots + projection rebuild parity.
-- [ ] Chuyển frontend sang API mới.
+- [x] Chuyển frontend sang API mới.
 - [ ] Route legacy thêm deprecation header.
 - [ ] Chuyển JSON repository read-only.
 - [ ] Diễn tập rollback/cutover recovery.
