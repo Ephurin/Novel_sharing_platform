@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 #  POST /process-interactions
 # ──────────────────────────────────────────────
 
-@router.post("/process-interactions")
+@router.post("/process-interactions", deprecated=True)
 def process_interactions(
     payload: ProcessInteractionsRequest,
     pipeline: EntityPipeline = Depends(get_entity_pipeline),
@@ -60,6 +60,10 @@ def process_interactions(
         detail={
             "code": "DIRECT_WRITE_DISABLED",
             "message": "Direct write to canonical Story Brain is disabled; use revision analysis and proposal review pipeline",
+        },
+        headers={
+            "Deprecation": "true",
+            "Link": '</v1/revisions/{revision_id}/analyses>; rel="successor-version"',
         },
     )
 
