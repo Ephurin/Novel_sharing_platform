@@ -1,0 +1,54 @@
+=== P8-01 MIGRATION / PARITY LOCAL REPLAY ===
+Timestamp: 2026-09-24T10:11:05+07:00
+Commit SHA: 9a49acb9990f82195f3185f9b05a7ed258bcba61
+Runtime: Production container runtime (p8_verification-ai-service-1)
+
+1. Committed Legacy StoryKB Inventory Dry-Run:
+   - Source data: ai-service/data copied to /tmp/p8-repo-data inside container
+   - Command: python -m application.migrate_json_to_postgres --json-storage /tmp/p8-repo-data --all --output /tmp/repo-inventory.json
+   - Files evaluated (6):
+     * writing_session_550: action=ready, safe_to_apply=True, unsupported=[]
+     * writing_session_599: action=ready, safe_to_apply=True, unsupported=[]
+     * writing_session_968: action=ready, safe_to_apply=True, unsupported=[]
+     * writing_session_492: action=ready, safe_to_apply=True, unsupported=[]
+     * test2: action=ready, safe_to_apply=True, unsupported=[]
+     * test_narrative_v2: action=ready, safe_to_apply=True, unsupported=[]
+   - Result: 6/6 ready, safe_to_apply=True, 0 unsupported canonical rows
+   - Noncanonical fields (entity_states, relation_history, unresolved relation labels) properly categorized as warnings and retained in source JSON.
+
+2. Synthetic Scoped JSON Migration Replay:
+   - Synthetic fixture story created in /tmp/p8-json
+   - SHA-256 before apply recorded
+   - Dry-run:
+     * Mode: dry-run
+     * Action: ready
+     * Safe to apply: True
+   - Explicit Apply:
+     * Command: python -m application.migrate_json_to_postgres --json-storage /tmp/p8-json --story-id <id> --apply
+     * Action: already_migrated
+     * Applied: True
+     * Parity: True
+     * Source unchanged: True
+     * SHA-256 after apply: Identical to SHA-256 before apply (verified)
+   - Idempotent Reapply:
+     * Command: python -m application.migrate_json_to_postgres --json-storage /tmp/p8-json --story-id <id> --apply
+     * Action: already_migrated
+     * Applied: False
+     * Idempotent: True
+     * SHA-256 after reapply: Identical to original
+
+3. Conflicting Non-Empty Target Rejection:
+   - Mutated source entity status to "Dead" creating divergence with database state
+   - Dry-run on conflicting target:
+     * Action: blocked_conflict
+     * Safe to apply: False
+   - Apply on conflicting target:
+     * Exited with code 2 (safe rejection, non-zero exit)
+
+4. Database & Source Integrity:
+   - Schema integrity verified: 18 tables in narrative schema (entities, story_brains, events, etc.) and 29 in public schema
+   - No tables dropped or truncated
+   - Unrelated tenant/novel rows unmodified
+   - Source JSON files in ai-service/data clean and unmodified in git (working tree clean)
+
+Status: PASS

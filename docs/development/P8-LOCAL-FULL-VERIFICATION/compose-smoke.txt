@@ -1,0 +1,49 @@
+=== ROOT DOCKER COMPOSE FULL SMOKE ===
+Timestamp: 2026-09-24T10:02:00+07:00
+Commit SHA: 9a49acb9990f82195f3185f9b05a7ed258bcba61
+Project: p8_verification (isolated test volumes; user production volumes protected)
+
+Environment Configuration:
+  LLM_PROVIDER=fake
+  PLATFORM_SERVICE_TOKEN=test-token
+  EMBEDDING_PROVIDER=fake
+  SEMANTIC_RETRIEVAL_ENABLED=true
+  ACTIVE_EMBEDDING_VERSION=fake-embedding-768-v1
+
+Command:
+docker compose -p p8_verification up -d --build postgres mongodb ai-service backend web
+
+Services Status:
+- p8_verification-postgres-1: Up (healthy), port 5432
+- p8_verification-mongodb-1: Up (healthy), port 27017
+- p8_verification-ai-service-1: Up (healthy), port 8000
+- p8_verification-backend-1: Up, port 4000
+- p8_verification-web-1: Up, port 8080
+
+Health Check Probes:
+1) http://localhost:8000/health
+   HTTP 200 OK -> {"status":"ok"}
+2) http://localhost:4000/api/v1/health
+   HTTP 200 OK -> {"success":true,"data":{"status":"OK","service":"ephurin-backend"},"error":null,"meta":{}}
+3) http://localhost:8080/
+   HTTP 200 OK -> Nginx serving static assets
+4) PostgreSQL pgvector check:
+   docker compose -p p8_verification exec -T postgres psql -U postgres -d ephurin -Atc "SELECT extname FROM pg_extension WHERE extname='vector'"
+   Output: vector (Confirmed)
+
+Nginx Gateway Boundary:
+- http://localhost:8080/api/v1/ai/story-brains/11111111-2222-3333-4444-555555555555/context-preview (unauthenticated)
+  Result: HTTP 401 Unauthorized -> {"code":"AUTH_002","message":"Missing access token"}
+
+Deployed Web Assets Scan:
+- Command: docker compose -p p8_verification exec -T web sh -lc "grep -R -n -E '127\.0\.0\.1:8000|localhost:8000|VITE_AI_SERVICE_BASE_URL|VITE_AI_TENANT_ID|/v1/story-brains|/v1/writing/generations|/internal/v1/' /usr/share/nginx/html"
+  Result: 0 matches (Exit code 1). No direct FastAPI or private env references in deployed web container.
+
+Direct FastAPI Protected Route Service-Auth Boundary:
+Route: http://localhost:8000/v1/story-brains/11111111-2222-3333-4444-555555555555/context-preview
+1) Missing token: HTTP 401 Unauthorized -> {"detail":{"code":"SERVICE_AUTH_REQUIRED","message":"Service token required"}}
+2) Invalid token: HTTP 403 Forbidden -> {"detail":{"code":"SERVICE_AUTH_INVALID","message":"Invalid service token"}}
+3) Valid test token (http://localhost:8000/v1/story-brains/by-novel/11111111-2222-3333-4444-555555555555 with Bearer test-token):
+   HTTP 200 OK -> {"data":{"id":"...","novel_id":"11111111-2222-3333-4444-555555555555","status":"active","brain_version":1...}}
+
+Status: PASS

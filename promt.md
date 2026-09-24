@@ -395,3 +395,27 @@ Environment: <short summary>
 ```
 
 Do not open P8-03. Supervisor will decide the next step after reviewing this local evidence.
+
+---
+
+### Gemini Local Verification — Phase 8
+
+Status: PASS
+Tested commit: 9a49acb9990f82195f3185f9b05a7ed258bcba61
+Environment: Windows (win32 x64), Docker 29.7.2, Docker Compose v5.5.1, Python 3.11.9, Node v24.19.0, npm 11.17.0
+
+- Static cutover guard: PASS (58 files scanned, 0 violations)
+- Web build/assets: PASS (build 11.86s, 0 forbidden direct AI references in web/dist)
+- Backend deterministic/gateway tests: PASS (20/20 tests passed, 0 failed)
+- Mobile typecheck: PASS (0 errors)
+- AI-service regression: PASS (176 passed, 2 skipped, 34 deselected)
+- PostgreSQL + pgvector integration: PASS (34 passed, 178 deselected, pgvector 0.8.6 confirmed)
+- P8-01 migration/parity replay: PASS (6/6 inventory ready, synthetic parity verified, idempotent reapply verified, conflicting target safely rejected)
+- P8-02 gateway cutover replay: PASS (unauthenticated 401, author 200 with packed context/budget, cross-author 403)
+- Root Compose smoke: PASS (all 5 services healthy, Nginx proxy verified, protected FastAPI 401/403/200 verified)
+- Source JSON unchanged: YES (ai-service/data clean in git)
+- User/prod data modified: NO (isolated project volumes used; user volumes preserved)
+- Report: docs/development/P8-LOCAL-FULL-VERIFICATION-report.md
+- Evidence: docs/development/P8-LOCAL-FULL-VERIFICATION/
+- Remaining blocker: none
+
