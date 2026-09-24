@@ -19,19 +19,24 @@
   - thiết kế;
   - sửa code;
   - review;
-  - chuẩn bị test/evidence contract;
+  - merge implementation vào `main` sau khi code review + CI xanh;
+  - chuẩn bị local test/evidence contract;
   - không tự tuyên bố ACCEPT thay Supervisor.
 
-- **Gemini = local execution / verification worker**
+- **Gemini / Antigravity = local execution / verification worker**
+  - làm việc trực tiếp trên `main` sau merge;
+  - pull latest `main` trước khi chạy;
   - chạy test thật trên máy local có Docker;
   - chạy Compose/live integration;
-  - ghi lại command + kết quả thật;
+  - ghi lại command + kết quả thật và push evidence trở lại `main`;
   - không tự mở scope;
   - không tự sửa kiến trúc nếu chưa có lỗi tái hiện rõ ràng.
 
 Quy tắc chung:
 
+- Implementation merge != acceptance.
 - Test pass != acceptance.
+- Workflow mặc định: develop/review on slice branch -> CI xanh -> merge `main` -> local Docker verification trên `main` -> Supervisor ACCEPT.
 - Không reset/clean/force-push.
 - Không xóa dữ liệu người dùng.
 - Không commit secret/key/local credential.
@@ -135,7 +140,7 @@ P8-04  rollback rehearsal + cleanup readiness
 P8-05  destructive legacy removal — deferred until post-release stability gate
 ```
 
-**P8-03 is ACTIVE.**
+**P8-03 implementation is MERGED to `main`; local verification is ACTIVE.**
 
 ---
 
@@ -170,9 +175,12 @@ This closes the independent local verification gate for accepted P8-01/P8-02.
 
 ---
 
-# 5. ACTIVE TASK — P8-03 LEGACY DEPRECATION + JSON READ-ONLY PRODUCTION MODE
+# 5. ACTIVE TASK — P8-03 LOCAL VERIFICATION ON MAIN
 
-**Branch:** `astra/p8-03-legacy-json-readonly`
+**Implementation status:** MERGED  
+**PR:** #7  
+**Merge commit:** `d094b2977abc6e56fcebff222120ee7d276ceb40`  
+**Execution branch:** `main`
 
 ## Goal
 
@@ -185,7 +193,7 @@ direct JSON writes -> fail closed
 
 P8-03 không xóa JSON, không xóa adapter, không làm rollback rehearsal và không làm P8-05 destructive cleanup.
 
-## Implementation currently prepared by ChatGPT/Astra
+## Implementation merged by ChatGPT/Astra
 
 - production `APP_ENV=production` bắt buộc `NARRATIVE_REPOSITORY=postgres` và JSON mode mặc định `read-only`;
 - production reject explicit `JSON_REPOSITORY_MODE=read-write`;
@@ -209,7 +217,7 @@ docs/development/P8-03-LEGACY-JSON-READONLY/
 
 Gemini **không phát triển feature** cho slice này trừ khi Supervisor/ChatGPT giao fix cụ thể.
 
-Trên branch P8-03, chạy và ghi evidence thật:
+Trên latest `main`, chạy và ghi evidence thật:
 
 1. P8-03 targeted tests:
    - `tests/test_p8_legacy_json_readonly.py`
@@ -282,4 +290,4 @@ Tested commit: <sha>
 - Remaining blocker: none | <exact blocker>
 ```
 
-Do not open P8-04. Supervisor decides acceptance.
+Do not open P8-04. P8-03 is merged but NOT ACCEPTED until Supervisor reviews local evidence.
