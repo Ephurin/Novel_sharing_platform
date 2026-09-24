@@ -175,139 +175,20 @@ This closes the independent local verification gate for accepted P8-01/P8-02.
 
 ---
 
-# 5. ACTIVE TASK — P8-03 LOCAL VERIFICATION ON MAIN
+# 5. P8-03 — ACCEPTED
 
-**Implementation status:** MERGED  
-**PR:** #7  
-**Merge commit:** `d094b2977abc6e56fcebff222120ee7d276ceb40`  
-**Execution branch:** `main`
+- PR: #7
+- implementation merge: `d094b2977abc6e56fcebff222120ee7d276ceb40`
+- local verification evidence commit: `4af13876c891a9edf27318862643b4187a7c24aa`
+- tested commit: `014cf9f082d498af567f7b4047bcb4a13600f7ed`
+- targeted read-only/settings: PASS — 10/10
+- full AI-service regression: PASS — 182 passed, 2 skipped, 34 deselected
+- PostgreSQL + pgvector: PASS — 34 passed, 184 deselected
+- P8-01 migration regression: PASS
+- P8-02 cutover regression: PASS
+- root Compose production path: PASS
+- JSON source unchanged: YES
+- user/prod data modified: NO
+- Supervisor ACCEPT: 2026-09-24
 
-## Goal
-
-```text
-production canonical writes -> PostgreSQL
-legacy JSON -> readable archive / migration source
-legacy writer APIs -> deprecated
-direct JSON writes -> fail closed
-```
-
-P8-03 không xóa JSON, không xóa adapter, không làm rollback rehearsal và không làm P8-05 destructive cleanup.
-
-## Implementation merged by ChatGPT/Astra
-
-- production `APP_ENV=production` bắt buộc `NARRATIVE_REPOSITORY=postgres` và JSON mode mặc định `read-only`;
-- production reject explicit `JSON_REPOSITORY_MODE=read-write`;
-- `StoryKBManager(read_only=True)` chặn disk save trước khi mutate file;
-- production composition tạo legacy manager read-only;
-- `/v1/ai/kb/confirm` deprecated + fail closed HTTP 409 `LEGACY_JSON_READ_ONLY`;
-- `/v1/ai/sync-story` deprecated;
-- `/v1/ai/suggest-next` giữ successor Writing Generation;
-- `/v1/enhanced/process-interactions` vẫn 403 direct-write-disabled và có deprecation metadata;
-- `.env.example` khuyến nghị PostgreSQL + read-only JSON;
-- dev/test JSON fixtures vẫn writable để migration/repository tests hoạt động.
-
-Report:
-
-```text
-docs/development/P8-03-LEGACY-JSON-READONLY-report.md
-docs/development/P8-03-LEGACY-JSON-READONLY/
-```
-
-## Gemini responsibility — local Docker verification
-
-Gemini **không phát triển feature** cho slice này trừ khi Supervisor/ChatGPT giao fix cụ thể.
-
-Trên latest `main`, chạy và ghi evidence thật:
-
-1. P8-03 targeted tests:
-   - `tests/test_p8_legacy_json_readonly.py`
-   - `tests/test_settings.py`
-2. full AI-service regression;
-3. live PostgreSQL + pgvector integration;
-4. P8-01 migration/parity regression;
-5. P8-02 gateway/frontend cutover regression;
-6. root Docker Compose production path.
-
-Phải prove:
-
-- production setting bắt buộc PostgreSQL và không cho JSON read-write;
-- legacy JSON existing snapshot đọc được;
-- write attempt không đổi source SHA-256;
-- `/v1/ai/kb/confirm` read-only trả 409 + deprecation + successor headers;
-- root Compose vẫn `NARRATIVE_REPOSITORY=postgres`;
-- migration tooling vẫn đọc/replay fixture JSON được;
-- không user/prod JSON nào bị sửa;
-- PostgreSQL/pgvector/P7 regressions vẫn green.
-
-Evidence cần tạo/update:
-
-```text
-docs/development/P8-03-LEGACY-JSON-READONLY/
-  environment.txt
-  targeted-tests.txt
-  ai-service-regression.txt
-  postgres-integration.txt
-  p8-01-regression.txt
-  p8-02-regression.txt
-  compose-smoke.txt
-  json-source-hash.txt
-```
-
-Mỗi file ghi exact command, exit code, test totals, timestamp, tested commit SHA. Không paste secret.
-
-## Failure protocol
-
-Nếu fail:
-
-- không tuyên bố PASS;
-- giữ exact command + relevant log;
-- không tự sửa rộng;
-- handoff failure cho ChatGPT/Astra;
-- sau fix rerun gate fail + regressions liên quan.
-
-## Gemini handoff format
-
-Append cuối file này:
-
-```markdown
----
-
-### Gemini Verification — P8-03
-
-Status: PASS | PARTIAL | BLOCKED
-Tested commit: <sha>
-
-- Targeted read-only/settings tests: <result>
-- Full AI-service regression: <result>
-- PostgreSQL + pgvector: <result>
-- P8-01 migration regression: <result>
-- P8-02 cutover regression: <result>
-- Root Compose: <result>
-- JSON source unchanged: <result>
-- User/prod data modified: NO
-- Report: docs/development/P8-03-LEGACY-JSON-READONLY-report.md
-- Evidence: docs/development/P8-03-LEGACY-JSON-READONLY/
-- Remaining blocker: none | <exact blocker>
-```
-
-Do not open P8-04. P8-03 is merged but NOT ACCEPTED until Supervisor reviews local evidence.
-
----
-
-### Gemini Verification — P8-03
-
-Status: PASS
-Tested commit: 014cf9f082d498af567f7b4047bcb4a13600f7ed
-
-- Targeted read-only/settings tests: PASS (10/10 passed)
-- Full AI-service regression: PASS (182 passed, 2 skipped, 34 deselected)
-- PostgreSQL + pgvector: PASS (34 passed, 184 deselected, pgvector 0.8.6)
-- P8-01 migration regression: PASS (6/6 inventory ready, synthetic parity & idempotent reapply verified, conflict safely rejected)
-- P8-02 cutover regression: PASS (unauthenticated 401, author 200 with packed context, cross-author 403, direct FastAPI 401/403/200)
-- Root Compose: PASS (APP_ENV=production, NARRATIVE_REPOSITORY=postgres, JSON_REPOSITORY_MODE=read-only, /v1/ai/kb/confirm 409 + deprecation)
-- JSON source unchanged: YES (ai-service/data SHA-256 hashes matched before and after, 0 files modified)
-- User/prod data modified: NO (isolated project volumes used; user volumes preserved)
-- Report: docs/development/P8-03-LEGACY-JSON-READONLY-report.md
-- Evidence: docs/development/P8-03-LEGACY-JSON-READONLY/
-- Remaining blocker: none
-
+P8-04 may now open. P8-05 remains closed.
