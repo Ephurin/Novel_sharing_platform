@@ -187,7 +187,7 @@ P8-03 không xóa JSON, không xóa adapter, không làm rollback rehearsal và 
 
 ## Implementation currently prepared by ChatGPT/Astra
 
-- production `APP_ENV=production` => JSON mode mặc định `read-only`;
+- production `APP_ENV=production` bắt buộc `NARRATIVE_REPOSITORY=postgres` và JSON mode mặc định `read-only`;
 - production reject explicit `JSON_REPOSITORY_MODE=read-write`;
 - `StoryKBManager(read_only=True)` chặn disk save trước khi mutate file;
 - production composition tạo legacy manager read-only;
@@ -222,7 +222,7 @@ Trên branch P8-03, chạy và ghi evidence thật:
 
 Phải prove:
 
-- production setting không cho JSON read-write;
+- production setting bắt buộc PostgreSQL và không cho JSON read-write;
 - legacy JSON existing snapshot đọc được;
 - write attempt không đổi source SHA-256;
 - `/v1/ai/kb/confirm` read-only trả 409 + deprecation + successor headers;
