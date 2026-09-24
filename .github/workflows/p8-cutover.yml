@@ -42,12 +42,23 @@ jobs:
             echo "Built web assets expose a forbidden direct AI-service reference." >&2
             exit 1
           fi
-      - name: Backend typecheck and tests
+      - name: Backend typecheck and deterministic tests
         working-directory: backend
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ephurin_ci_placeholder
+          MONGODB_URI: mongodb://localhost:27017/ephurin_ci_placeholder
+          JWT_ACCESS_SECRET: p8-ci-access-secret
+          JWT_REFRESH_SECRET: p8-ci-refresh-secret
+          PLATFORM_SERVICE_TOKEN: p8-ci-service-token
         run: |
+          set -euo pipefail
           npm ci
           npm run typecheck
-          npm test
+          mapfile -t tests < <(find src -name '*.test.ts' ! -name '*.live.test.ts' ! -name '*.postgres.test.ts' -print | sort)
+          test "${#tests[@]}" -gt 0
+          npx tsx --test "${tests[@]}"
+          test -f src/modules/ai/ai-gateway.test.ts
       - name: Mobile typecheck
         working-directory: mobile
         run: |
