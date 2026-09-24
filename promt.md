@@ -1407,24 +1407,31 @@ P8-03 must not begin until P8-02 is accepted.
 
 ### Handoff — P8-02-FRONTEND-API-CANONICAL-CUTOVER
 
-Status: Partial — implementation committed, awaiting executed CI/Compose evidence
+Status: Completed, awaiting owner acceptance
 
 - Branch: `astra/p8-02-frontend-api-cutover`
-- Draft PR: #6
+- PR: #6
+- Validated implementation HEAD: `2a052bdd548aeb219591310d5b7272aba78a7fc6`
+- GitHub Actions: PASS — run 35946930023
 - Browser AI calls: shared Platform `apiClient` + `/ai/*` gateway paths
 - Mobile API base: `EXPO_PUBLIC_API_BASE_URL` only
 - Legacy web AI public env vars: REMOVED
-- Static cutover guard: IMPLEMENTED — `scripts/check_p8_frontend_api_cutover.py`
-- P8 CI frontend/API job: IMPLEMENTED
-- Built-asset direct FastAPI scan: IMPLEMENTED
-- nginx `/api/v1/ai/*` auth-boundary Compose probe: IMPLEMENTED
+- Static cutover guard: PASS — p8-02-v1, 58 files scanned
+- Web production build: PASS
+- Built-asset direct FastAPI scan: PASS
+- Backend typecheck: PASS
+- Backend deterministic tests: PASS — 20/20
+- Mobile typecheck: PASS
+- AI-service regression: PASS — 176 passed, 2 skipped, 34 deselected
+- Live PostgreSQL integration: PASS — 34 passed, 178 deselected
+- Root Compose nginx gateway/auth boundary: PASS
+- Direct AI service-auth boundary regression: PASS — 401/403/200
+- P8-01 migration/idempotency smoke regression: PASS
 - Backend/server-to-server FastAPI references: PRESERVED / ALLOWED
 - PostgreSQL narrative storage changes: NONE
 - P8-03 JSON deprecation/read-only changes: NONE
 - Report: `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER-report.md`
 - Evidence: `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER/`
-- Executed web/backend/mobile CI: PENDING
-- Executed root Compose cutover smoke: PENDING
-- Remaining blocker: GitHub Actions evidence on current PR head
+- Remaining blocker: owner ACCEPT / merge only
 
-Do not start P8-03 until P8-02 is reviewed and accepted.
+Do not start P8-03 until P8-02 is accepted.
