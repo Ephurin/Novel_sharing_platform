@@ -1314,4 +1314,124 @@ Status: Completed, awaiting Astra review
 - P8-02 changes: NONE
 - Remaining blocker: none
 
-P8-01 is accepted. P8-02 is the next Phase 8 slice and is not active until explicitly opened.
+P8-01 is accepted.
+
+---
+
+## 14. ACTIVE TASK — P8-02-FRONTEND-API-CANONICAL-CUTOVER
+
+**Opened by owner:** 2026-09-23  
+**Implementation branch:** `astra/p8-02-frontend-api-cutover`
+
+Goal:
+
+```text
+Browser / mobile clients
+        ↓
+Platform API client
+        ↓
+Node AI Gateway (/api/v1/ai/*)
+        ↓
+service-authenticated FastAPI
+```
+
+P8-02 does not change Story Brain storage. PostgreSQL remains the production narrative repository.
+
+### 14.1 Browser boundary
+
+Frontend code must never:
+- know FastAPI port 8000;
+- use `VITE_AI_SERVICE_BASE_URL`;
+- use browser-supplied `VITE_AI_TENANT_ID`;
+- send service tokens;
+- call `/v1/story-brains`, `/v1/writing/generations`, or `/internal/v1/*` directly.
+
+All web AI calls go through shared `apiClient` and Node routes under `/api/v1/ai/*`.
+
+### 14.2 Mobile boundary
+
+Mobile may use the normal Platform `EXPO_PUBLIC_API_BASE_URL` only. It must not gain a direct AI-service base URL or service token.
+
+### 14.3 Gateway contract
+
+Node AI Gateway remains responsible for:
+- user authentication + AUTHOR/ADMIN role gate;
+- novel/chapter ownership;
+- canonical chapter cutoff derivation;
+- tenant/user/request/service headers toward FastAPI;
+- fail-closed ownership checks for proposal/group/job resources.
+
+Server-to-server Platform calls to FastAPI are allowed; browser/mobile direct calls are not.
+
+### 14.4 Cutover regression guard
+
+Add a deterministic source scan that fails CI if frontend/mobile application source or public env examples contain:
+- direct FastAPI host/port;
+- direct AI-service public env variables;
+- service token variables;
+- direct canonical FastAPI Story Brain / writing paths.
+
+The guard must allow Node backend server-to-server references.
+
+### 14.5 Verification
+
+Required:
+- web typecheck/build passes;
+- backend typecheck/tests pass;
+- existing Node AI Gateway tests pass;
+- static cutover guard passes;
+- root Compose web serves through nginx `/api/v1` proxy;
+- no direct port-8000 reference exists in built web assets;
+- canonical API route still reaches backend gateway with auth boundary;
+- existing P8-01/P7 production path remains green.
+
+### 14.6 Out of scope
+
+- deprecating/removing JSON writes (P8-03);
+- rollback rehearsal (P8-04);
+- deleting legacy endpoints/files (P8-05);
+- exposing FastAPI directly to browsers for convenience.
+
+Evidence:
+
+```text
+docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER-report.md
+docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER/
+```
+
+P8-03 must not begin until P8-02 is accepted.
+
+
+
+---
+
+### Handoff — P8-02-FRONTEND-API-CANONICAL-CUTOVER
+
+Status: Completed, awaiting owner acceptance
+
+- Branch: `astra/p8-02-frontend-api-cutover`
+- PR: #6
+- Validated implementation HEAD: `2a052bdd548aeb219591310d5b7272aba78a7fc6`
+- GitHub Actions: PASS — run 35946930023
+- Browser AI calls: shared Platform `apiClient` + `/ai/*` gateway paths
+- Mobile API base: `EXPO_PUBLIC_API_BASE_URL` only
+- Legacy web AI public env vars: REMOVED
+- Static cutover guard: PASS — p8-02-v1, 58 files scanned
+- Web production build: PASS
+- Built-asset direct FastAPI scan: PASS
+- Backend typecheck: PASS
+- Backend deterministic tests: PASS — 20/20
+- Mobile typecheck: PASS
+- AI-service regression: PASS — 176 passed, 2 skipped, 34 deselected
+- Live PostgreSQL integration: PASS — 34 passed, 178 deselected
+- Root Compose nginx gateway/auth boundary: PASS
+- Direct AI service-auth boundary regression: PASS — 401/403/200
+- P8-01 migration/idempotency smoke regression: PASS
+- Backend/server-to-server FastAPI references: PRESERVED / ALLOWED
+- PostgreSQL narrative storage changes: NONE
+- P8-03 JSON deprecation/read-only changes: NONE
+- Report: `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER-report.md`
+- Evidence: `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER/`
+- Remaining blocker: owner ACCEPT / merge only
+
+Do not start P8-03 until P8-02 is accepted.

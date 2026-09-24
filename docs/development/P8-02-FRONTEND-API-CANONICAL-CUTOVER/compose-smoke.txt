@@ -1,0 +1,26 @@
+P8-02 root Compose evidence
+
+Status: PASS
+Validated HEAD: 2a052bdd548aeb219591310d5b7272aba78a7fc6
+GitHub Actions run: 35946930023
+Job: root-compose-cutover-smoke
+
+Verified:
+- docker compose config: PASS
+- postgres: healthy
+- mongodb: healthy
+- ai-service: healthy
+- backend: running
+- web/nginx: running on :8080
+- committed legacy StoryKB inventory: 6/6 action=ready
+- P8-01 synthetic dry-run: ready / safe_to_apply=true
+- P8-01 apply parity: PASS, source_unchanged=true
+- P8-01 reapply: PASS, idempotent=true, applied=false
+- nginx /api/v1/ai/* unauthenticated route: HTTP 401
+- deployed web asset forbidden-reference scan: PASS
+- pgvector extension: present
+- direct AI missing service auth: HTTP 401
+- direct AI invalid service auth: HTTP 403
+- direct AI valid service auth: HTTP 200
+
+Result: P8-02 client -> nginx -> Node gateway boundary is live and the accepted P8-01/P7 production path remains healthy.
