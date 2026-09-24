@@ -7,6 +7,7 @@ on:
       - astra/p8-02-frontend-api-cutover
       - astra/p8-03-legacy-json-readonly
       - astra/p8-04-rollback-cleanup-readiness
+      - astra/p8-05-final-cleanup-gate
   pull_request:
     paths:
       - "ai-service/**"
@@ -15,6 +16,8 @@ on:
       - "mobile/**"
       - "scripts/check_p8_frontend_api_cutover.py"
       - "scripts/check_p8_cleanup_readiness.py"
+      - "scripts/check_p8_final_cleanup_gate.py"
+      - "docs/development/P8-05-FINAL-CLEANUP-GATE/**"
       - "docker-compose.yml"
       - ".github/workflows/p8-cutover.yml"
 
@@ -406,4 +409,33 @@ jobs:
           if engine is not None:
               engine.dispose()
           print("source database unchanged: PASS")
+          PY
+
+
+  final-cleanup-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm production cleanup preconditions remain intact
+        run: python scripts/check_p8_cleanup_readiness.py
+      - name: Assert destructive P8-05 cleanup is still blocked
+        run: python scripts/check_p8_final_cleanup_gate.py --expect-blocked
+      - name: Validate cleanup manifest safety contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("docs/development/P8-05-FINAL-CLEANUP-GATE/cleanup-manifest.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          assert data["destructive_cleanup_authorized"] is False
+          retained = {item["path"] for item in data["retain_offline_migration_and_test_tooling"]}
+          assert "ai-service/core/story_kb_manager.py" in retained
+          assert "ai-service/infrastructure/json_narrative_repository.py" in retained
+          assert "ai-service/infrastructure/json_postgres_cutover.py" in retained
+          assert "ai-service/application/migrate_json_to_postgres.py" in retained
+          never = set(data["never_automatic"])
+          assert "delete legacy JSON source files" in never
+          assert "drop or truncate PostgreSQL user data" in never
+          assert "set supervisor_cleanup_gate_accepted=true" in never
+          print("P8-05 cleanup manifest safety contract: PASS")
           PY
