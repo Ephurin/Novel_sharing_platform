@@ -1,7 +1,9 @@
 # P8-04 — Rollback Rehearsal + Cleanup Readiness
 
-**Status:** IMPLEMENTED — CI/local evidence pending  
-**Branch:** `astra/p8-04-rollback-cleanup-readiness`
+**Status:** MERGED — local verification pending  
+**PR:** #8  
+**Merge commit:** `50fe44621bc9a7251055e3acb07cd49509839f72`  
+**Execution branch:** `main`
 
 ## Scope
 
@@ -33,7 +35,7 @@ P8-04 does not:
 
 `.github/workflows/p8-cutover.yml` includes a `rollback-rehearsal` job for the P8-04 branch.
 
-The job uses ephemeral PostgreSQL/pgvector, seeds a synthetic canonical story, takes a custom-format backup, restores it to a separate DB, and compares canonical/migration/vector state.
+The job uses ephemeral PostgreSQL/pgvector, seeds a synthetic canonical story, takes a custom-format backup, restores it to a separate DB, and compares canonical/migration/vector state. P8 Cutover run #66 and P7 Semantic run #81 both completed successfully before merge.
 
 ## Local acceptance evidence
 
