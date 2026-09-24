@@ -32,6 +32,7 @@ def _env_csv(name: str, default: tuple[str, ...]) -> tuple[str, ...]:
 
 @dataclass(frozen=True, slots=True)
 class Settings:
+    app_env: str
     service_name: str
     service_version: str
     llm_enabled: bool
@@ -41,6 +42,7 @@ class Settings:
     llm_timeout_seconds: int
     database_url: str
     narrative_repository: str
+    json_repository_mode: str
     default_tenant_id: str
     default_actor_id: str
     platform_api_base_url: str
@@ -71,9 +73,22 @@ class Settings:
         if provider == "groq" and not configured_base_url:
             configured_base_url = "https://api.groq.com/openai/v1"
 
+        app_env = (os.getenv("APP_ENV", "development") or "development").strip().lower()
+        if app_env not in {"development", "test", "production"}:
+            raise ValueError("APP_ENV must be one of: development, test, production")
+
         repository = (os.getenv("NARRATIVE_REPOSITORY", "json") or "json").strip().lower()
         if repository not in {"json", "postgres"}:
             raise ValueError("NARRATIVE_REPOSITORY must be one of: json, postgres")
+
+        default_json_mode = "read-only" if app_env == "production" else "read-write"
+        json_repository_mode = (
+            os.getenv("JSON_REPOSITORY_MODE", default_json_mode) or default_json_mode
+        ).strip().lower()
+        if json_repository_mode not in {"read-only", "read-write"}:
+            raise ValueError("JSON_REPOSITORY_MODE must be one of: read-only, read-write")
+        if app_env == "production" and json_repository_mode != "read-only":
+            raise ValueError("JSON_REPOSITORY_MODE must be read-only when APP_ENV=production")
 
         database_url = (os.getenv("DATABASE_URL", "") or "").strip()
         if repository == "postgres" and not database_url:
@@ -89,6 +104,7 @@ class Settings:
         }[embedding_provider]
 
         return cls(
+            app_env=app_env,
             service_name=(os.getenv("SERVICE_NAME", "AI Service - Story Platform") or "").strip(),
             service_version=(os.getenv("SERVICE_VERSION", "1.0.0") or "").strip(),
             llm_enabled=_env_bool("LLM_ENABLED", provider != "none"),
@@ -98,6 +114,7 @@ class Settings:
             llm_timeout_seconds=_env_int("LLM_TIMEOUT_SECONDS", 30),
             database_url=database_url,
             narrative_repository=repository,
+            json_repository_mode=json_repository_mode,
             default_tenant_id=(
                 os.getenv("DEFAULT_TENANT_ID", "00000000-0000-0000-0000-000000000001") or ""
             ).strip(),
