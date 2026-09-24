@@ -81,7 +81,11 @@ def main() -> int:
 
     path = args.gate if args.gate.is_absolute() else ROOT / args.gate
     result = evaluate(load_gate(path))
-    result["gate_file"] = str(path.relative_to(ROOT)).replace("\\", "/")
+    try:
+        display_path = path.relative_to(ROOT)
+    except ValueError:
+        display_path = path
+    result["gate_file"] = str(display_path).replace("\\", "/")
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
 
     if args.expect_blocked:
