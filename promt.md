@@ -132,15 +132,15 @@ Browser / mobile
   - `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER-report.md`
   - `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER/`
 
-### Remaining slices
+### Phase 8 status
 
 ```text
-P8-03  legacy deprecation + JSON read-only production mode
-P8-04  rollback rehearsal + cleanup readiness
+P8-03  ACCEPTED
+P8-04  implementation MERGED; local rollback verification ACTIVE on main
 P8-05  destructive legacy removal — deferred until post-release stability gate
 ```
 
-**P8-03 implementation is MERGED to `main`; local verification is ACTIVE.**
+**Current active slice: P8-04 local verification on `main`.**
 
 ---
 
