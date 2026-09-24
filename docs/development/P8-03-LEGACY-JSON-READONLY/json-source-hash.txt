@@ -1,0 +1,27 @@
+=== COMMITTED / USER JSON SOURCE SHA-256 HASH VERIFICATION ===
+Timestamp: 2026-09-24T10:48:21+07:00
+Commit SHA: 014cf9f082d498af567f7b4047bcb4a13600f7ed
+
+Directory: ai-service/data
+
+File Hashes (SHA-256):
+51f6c691f352734864c0becf7b3d9dfa65edc15043a46f18adfef0bdecad11c6  test2.json
+a5e4aa17a9395b4e1c1c3f30259e7f935efe2f9150e40b8ed4b00e9804f6b382  test_narrative_v2.json
+eab8148e3b7400505e478fabe904f7ac9cb3a035e9d600148a0009a0ef0d1061  writing_session_492.json
+1d9f463768497d5784e9006a47d0cf4273b3e6c0b1155d8d56c2b20f8936f242  writing_session_550.json
+c641fb0b5401a63693f2784634e55a417e6d7045b217f282d3ccec73bc7cd1ae  writing_session_599.json
+26683719d4581193026882fdec292655569b4ab819ae223468c0acb28897214a  writing_session_968.json
+
+Comparison with Baseline Hashes:
+- test2.json: MATCH (before == after)
+- test_narrative_v2.json: MATCH (before == after)
+- writing_session_492.json: MATCH (before == after)
+- writing_session_550.json: MATCH (before == after)
+- writing_session_599.json: MATCH (before == after)
+- writing_session_968.json: MATCH (before == after)
+
+Git Status Verification:
+Working tree clean for ai-service/data; zero bytes modified or deleted.
+User production volumes preserved; no data modified or deleted.
+
+Status: PASS

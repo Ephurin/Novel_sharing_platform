@@ -1,0 +1,26 @@
+=== FULL AI-SERVICE NON-POSTGRESQL REGRESSION ===
+Timestamp: 2026-09-24T10:43:25+07:00
+Commit SHA: 014cf9f082d498af567f7b4047bcb4a13600f7ed
+
+Command:
+cd ai-service
+pytest -q
+
+Exit code: 0
+
+Output:
+........................................................................ [ 39%]
+........................................................................ [ 78%]
+.............ss.........................                                 [100%]
+============================== warnings summary ===============================
+main.py:152: DeprecationWarning: on_event is deprecated, use lifespan event handlers instead.
+main.py:157: DeprecationWarning: on_event is deprecated, use lifespan event handlers instead.
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+182 passed, 2 skipped, 34 deselected, 4 warnings in 5.86s
+
+Summary:
+- Total passed: 182 (176 baseline + 6 new P8-03 unit/settings tests)
+- Skipped: 2
+- Deselected: 34 (postgres integration tests deselected in default unit run)
+- Failed: 0
+Status: PASS

@@ -291,3 +291,23 @@ Tested commit: <sha>
 ```
 
 Do not open P8-04. P8-03 is merged but NOT ACCEPTED until Supervisor reviews local evidence.
+
+---
+
+### Gemini Verification — P8-03
+
+Status: PASS
+Tested commit: 014cf9f082d498af567f7b4047bcb4a13600f7ed
+
+- Targeted read-only/settings tests: PASS (10/10 passed)
+- Full AI-service regression: PASS (182 passed, 2 skipped, 34 deselected)
+- PostgreSQL + pgvector: PASS (34 passed, 184 deselected, pgvector 0.8.6)
+- P8-01 migration regression: PASS (6/6 inventory ready, synthetic parity & idempotent reapply verified, conflict safely rejected)
+- P8-02 cutover regression: PASS (unauthenticated 401, author 200 with packed context, cross-author 403, direct FastAPI 401/403/200)
+- Root Compose: PASS (APP_ENV=production, NARRATIVE_REPOSITORY=postgres, JSON_REPOSITORY_MODE=read-only, /v1/ai/kb/confirm 409 + deprecation)
+- JSON source unchanged: YES (ai-service/data SHA-256 hashes matched before and after, 0 files modified)
+- User/prod data modified: NO (isolated project volumes used; user volumes preserved)
+- Report: docs/development/P8-03-LEGACY-JSON-READONLY-report.md
+- Evidence: docs/development/P8-03-LEGACY-JSON-READONLY/
+- Remaining blocker: none
+

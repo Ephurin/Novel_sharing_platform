@@ -1,0 +1,23 @@
+=== P8-02 FRONTEND / API GATEWAY CUTOVER REGRESSION UNDER P8-03 ===
+Timestamp: 2026-09-24T10:48:06+07:00
+Commit SHA: 014cf9f082d498af567f7b4047bcb4a13600f7ed
+
+1. Static Cutover Guard:
+   - Command: python scripts/check_p8_frontend_api_cutover.py
+   - Exit code: 0
+   - Output: P8-02 frontend/API cutover guard: PASS [p8-02-v1] (58 files scanned; browser/mobile boundary is Node-gateway-only)
+
+2. End-to-End Client Boundary Traversal (Port 8080 Nginx -> Port 4000 Backend -> Port 8000 FastAPI):
+   - Unauthenticated call to /api/v1/ai/story-brains/:novelId/context-preview:
+     HTTP 401 Unauthorized (AUTH_002: Missing access token)
+   - Authenticated author call (reader03@example.com for novel 81b923d7-5507-48ea-9a84-5303fd1de5f4):
+     HTTP 200 OK (brain_version=1, token_budget packing_version=context-budget-v1)
+   - Cross-author call (reader04@example.com for same novel):
+     HTTP 403 Forbidden
+
+3. Direct FastAPI Service-Auth Boundary:
+   - Missing token: HTTP 401 Unauthorized
+   - Invalid token: HTTP 403 Forbidden
+   - Valid test token: HTTP 200 OK
+
+Status: PASS

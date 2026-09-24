@@ -1,0 +1,31 @@
+=== LIVE POSTGRESQL + PGVECTOR INTEGRATION SUITE ===
+Timestamp: 2026-09-24T10:44:10+07:00
+Commit SHA: 014cf9f082d498af567f7b4047bcb4a13600f7ed
+
+Environment:
+- Container: pgvector/pgvector:pg16 (clean container p8-03-test-postgres)
+- Database: p8_cutover
+- Extension: vector (pgvector 0.8.6 confirmed)
+- TEST_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/p8_cutover
+- DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/p8_cutover
+
+Command:
+cd ai-service
+pytest -o addopts= -q -m postgres_integration
+
+Exit code: 0
+
+Output:
+..................................                                       [100%]
+============================== warnings summary ===============================
+main.py:152: DeprecationWarning: on_event is deprecated, use lifespan event handlers instead.
+main.py:157: DeprecationWarning: on_event is deprecated, use lifespan event handlers instead.
+tests/test_p8_json_postgres_cutover_integration.py::test_legacy_only_noncanonical_fields_are_archival_warnings: UserWarning
+34 passed, 184 deselected, 5 warnings in 7.82s
+
+Summary:
+All 34 live PostgreSQL integration tests passed:
+- pgvector VECTOR(768) behavior and dimension mismatch rejection confirmed
+- Semantic temporal/version cutoff and memory isolation regressions confirmed green
+- P8 cutover and parity integration tests remain green
+Status: PASS

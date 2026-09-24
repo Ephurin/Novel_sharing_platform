@@ -1,0 +1,28 @@
+=== P8-01 MIGRATION / PARITY REGRESSION UNDER P8-03 ===
+Timestamp: 2026-09-24T10:47:09+07:00
+Commit SHA: 014cf9f082d498af567f7b4047bcb4a13600f7ed
+Runtime: Production container runtime (p8_03_verification-ai-service-1)
+
+Execution Summary:
+1. Committed Legacy StoryKB Inventory Dry-Run:
+   - Command: python -m application.migrate_json_to_postgres --json-storage /tmp/p8-repo-data --all --output /tmp/repo-inventory.json
+   - Verified 6 files: writing_session_550, writing_session_599, writing_session_968, writing_session_492, test2, test_narrative_v2
+   - Result: 6/6 ready, safe_to_apply=True, unsupported=[]
+   - Invariant: Read-only production environment still allows migration tool to safely inspect and plan cutover of existing legacy snapshots.
+
+2. Synthetic Scoped JSON Migration Replay:
+   - Dry-run: action=ready, safe_to_apply=True
+   - Explicit Apply: applied=True, parity=True, source_unchanged=True
+   - Reapply: applied=False, idempotent=True, source_unchanged=True
+   - Source SHA-256 before, after apply, and after reapply strictly unchanged.
+
+3. Conflicting Target Rejection:
+   - Mutated source entity status to "Dead"
+   - Dry-run: action=blocked_conflict, safe_to_apply=False
+   - Apply: Safely rejected with exit code 2
+
+4. Database Schema Integrity:
+   - 18 tables in narrative schema (entities, story_brains, events, etc.) and 29 in public schema verified intact.
+   - Zero tables truncated or dropped.
+
+Status: PASS

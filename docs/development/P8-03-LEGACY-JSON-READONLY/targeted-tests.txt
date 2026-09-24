@@ -1,0 +1,30 @@
+=== P8-03 TARGETED TESTS EVIDENCE ===
+Timestamp: 2026-09-24T10:43:03+07:00
+Commit SHA: 014cf9f082d498af567f7b4047bcb4a13600f7ed
+
+Command:
+cd ai-service
+pytest -v tests/test_p8_legacy_json_readonly.py tests/test_settings.py
+
+Exit code: 0
+
+Results:
+tests/test_p8_legacy_json_readonly.py::LegacyJsonReadOnlyTests::test_legacy_kb_confirm_fails_closed_with_deprecation_headers PASSED
+tests/test_p8_legacy_json_readonly.py::LegacyJsonReadOnlyTests::test_read_only_manager_blocks_atomic_narrative_save PASSED
+tests/test_p8_legacy_json_readonly.py::LegacyJsonReadOnlyTests::test_read_only_manager_can_read_existing_snapshot_but_cannot_write PASSED
+tests/test_settings.py::SettingsTests::test_defaults_disable_provider_and_keep_local_cors PASSED
+tests/test_settings.py::SettingsTests::test_environment_values_are_parsed PASSED
+tests/test_settings.py::SettingsTests::test_invalid_provider_is_rejected PASSED
+tests/test_settings.py::SettingsTests::test_postgres_repository_requires_database_url PASSED
+tests/test_settings.py::SettingsTests::test_production_forces_json_read_only_mode PASSED
+tests/test_settings.py::SettingsTests::test_production_rejects_json_read_write_mode PASSED
+tests/test_settings.py::SettingsTests::test_production_requires_postgres_repository PASSED
+
+Total: 10 passed, 0 failed, 4 warnings in 1.10s
+
+Invariants Proven:
+1. Production settings require NARRATIVE_REPOSITORY=postgres and force JSON_REPOSITORY_MODE=read-only.
+2. Production rejects explicit JSON_REPOSITORY_MODE=read-write.
+3. StoryKBManager in read-only mode can read existing snapshots but raises StoryKBReadOnlyError on write attempts without altering disk data or SHA-256.
+4. Legacy /v1/ai/kb/confirm fails closed with HTTP 409 LEGACY_JSON_READ_ONLY and returns Deprecation / Link successor headers.
+Status: PASS
