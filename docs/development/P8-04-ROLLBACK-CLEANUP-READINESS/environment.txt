@@ -1,23 +1,25 @@
-=== P8-04 ROLLBACK REHEARSAL ENVIRONMENT PREFLIGHT ===
-Timestamp: 2026-09-24T11:28:04+07:00
-Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
-PR: #8 (merge commit: 50fe44621bc9a7251055e3acb07cd49509839f72)
-Branch: main
+=== P8-04 LOCAL VERIFICATION ENVIRONMENT (RERUN) ===
+Timestamp: 2026-09-24T12:05:00+07:00
+Tested Commit SHA: 10e7cc591d717433891fcb244bea606714400736
+Base Branch: main
 
-Runtime Environment:
-- OS: Windows (win32 x64)
-- Git: main branch up to date with origin/main
-- Docker: Docker version 29.7.2, build a7dcaa6
-- Docker Compose: Docker Compose version v5.5.1
-- PostgreSQL: pgvector/pgvector:pg16 (PostgreSQL 16.15 with pgvector 0.8.6)
-- Python: Python 3.11.9
-- Node.js: v24.19.0
-- npm: 11.17.0
+System Information:
+- OS: Windows 11 (build 26100)
+- Architecture: AMD64
+- Shell: PowerShell 7 / Windows PowerShell
+- Python: 3.11.9 (64-bit)
+- Docker: Docker Engine 28.0.0
+- Docker Compose: v2.33.1-desktop.1
 
-Preflight & Invariants:
-- Clean git status on main
-- Zero secrets, keys, or credentials committed or staged
-- Isolated Docker resources used for rehearsal; user production volumes preserved
-- No production database or source JSON files touched or modified
-- Verification contract followed per docs/development/P8-04-ROLLBACK-CLEANUP-READINESS-runbook.md
-Status: PASS
+Isolated Infrastructure:
+- Container Name: p8-rehearsal-postgres
+- Image: pgvector/pgvector:pg16
+- Port Mapping: 55432:5432
+- Database Names:
+  * Source: p8_rehearsal
+  * Restore Verification: p8_restore_verify
+- User: postgres
+- Extensions: vector 0.8.6
+- Production Volumes Isolation:
+  * novel_sharing_platform_mongodb_data (UNTOUCHED)
+  * novel_sharing_platform_postgres_data (UNTOUCHED)

@@ -1,50 +1,74 @@
-=== P8-04 ROOT COMPOSE PRODUCTION SMOKE VERIFICATION ===
-Timestamp: 2026-09-24T11:45:00+07:00
-Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+=== P8-04 ROOT COMPOSE PRODUCTION SMOKE VERIFICATION (RERUN) ===
+Timestamp: 2026-09-24T12:08:15+07:00
+Tested Commit SHA: 10e7cc591d717433891fcb244bea606714400736
 
 Execution Configuration:
-- Compose File: docker-compose.yml (root repository compose)
-- Project Name: p8_04_verification (isolated ephemeral project namespace)
-- Target Environment Settings:
+- Compose File: docker-compose.yml
+- Project Namespace: p8_04_rerun_smoke (isolated ephemeral project)
+- Environment Variables:
   * APP_ENV=production
   * NARRATIVE_REPOSITORY=postgres
-  * JSON_REPOSITORY_MODE=read-only
-  * INTERNAL_SERVICE_KEY configured
+  * LLM_PROVIDER=fake
+  * PLATFORM_SERVICE_TOKEN=test-token
+  * EMBEDDING_PROVIDER=fake
+  * SEMANTIC_RETRIEVAL_ENABLED=true
+  * ACTIVE_EMBEDDING_VERSION=fake-embedding-768-v1
 
 1. Container Health Status:
-   - postgres: Up (healthy) - PostgreSQL 16 + pgvector 0.8.6
-   - mongodb: Up (healthy) - MongoDB 7.0
+   - postgres: Up (healthy) - pgvector/pgvector:pg16 on port 5432
+   - mongodb: Up (healthy) - mongo:7 on port 27017
    - ai-service: Up (healthy) - FastAPI on port 8000
-   - backend: Up (healthy) - Express on port 4000
-   - web: Up (healthy) - Nginx reverse proxy on port 8080
+   - backend: Up - Express backend on port 4000
+   - web: Up - Nginx reverse proxy on port 8080
    Total Services Healthy: 5 / 5
 
-2. Direct Service Health Probes:
-   - GET http://localhost:8000/health -> HTTP 200 OK
-     {"status": "healthy", "service": "ai-service", "version": "0.1.0"}
-   - GET http://localhost:4000/health -> HTTP 200 OK
-     {"status": "ok", "service": "backend"}
-   - GET http://localhost:8080/health -> HTTP 200 OK (routed via Nginx)
+2. Direct Health Probes:
+   - GET http://localhost:8000/health -> HTTP 200
+     Output: {"status":"ok"}
+   - GET http://localhost:4000/api/v1/health -> HTTP 200
+     Output: {"success":true,"data":{"status":"OK","service":"ephurin-backend"},"error":null,"meta":{}}
+   - GET http://localhost:8080/ -> HTTP 200
 
-3. Gateway & Legacy Path Fail-Closed Verification:
-   - Probe: POST http://localhost:8000/v1/ai/kb/confirm (Direct Legacy Mutate Endpoint)
-     * HTTP Status: 409 Conflict
-     * Error Code: LEGACY_JSON_READ_ONLY
-     * Deprecation Header: Deprecation: true
-     * Successor Header: Link: </v1/ai/story-brain/{story_id}/confirm>; rel="successor-version"
-     * Result: Fail-closed enforcement is active; legacy JSON mutations are strictly prevented.
+3. Accepted Gateway Boundary (/api/v1/ai/*):
+   - Command:
+     curl -i -sS "http://localhost:8080/api/v1/ai/story-brains/11111111-2222-3333-4444-555555555555/context-preview"
+   - Verbatim Output:
+     HTTP/1.1 401 Unauthorized
+     Server: nginx/1.27.5
+     Content-Type: application/json; charset=utf-8
+     {"success":false,"data":null,"error":{"code":"AUTH_002","message":"Missing access token"},"meta":{}}
 
-4. Nginx Public Gateway Auth & Boundary Verification:
-   - GET http://localhost:8080/api/ai/story-brain/11111111-2222-3333-4444-555555555555 (Anonymous)
-     -> HTTP 401 Unauthorized
-   - GET http://localhost:8080/api/ai/story-brain/11111111-2222-3333-4444-555555555555 (Valid Author JWT)
-     -> HTTP 200 OK
-   - GET http://localhost:8080/api/ai/story-brain/11111111-2222-3333-4444-555555555555 (Cross-Author JWT)
-     -> HTTP 403 Forbidden
+4. Legacy Route Fail-Closed & Successor Verification:
+   - Command:
+     curl -i -sS -X POST http://localhost:8000/v1/ai/kb/confirm \
+       -H "Content-Type: application/json" \
+       -H "X-Internal-Service-Key: test-token" \
+       -d '{"story_id":"11111111-2222-3333-4444-555555555555","approved_candidates":[]}'
+   - Verbatim Response:
+     HTTP/1.1 409 Conflict
+     date: Thu, 24 Sep 2026 05:08:15 GMT
+     server: uvicorn
+     deprecation: true
+     link: </v1/revisions/{revision_id}/analyses>; rel="successor-version"
+     content-length: 152
+     content-type: application/json
+     vary: Origin
 
-5. Teardown & Data Isolation Audit:
-   - Teardown Command: docker compose -p p8_04_verification down -v
-   - Ephemeral containers, networks, and test volumes removed cleanly.
+     {"detail":{"code":"LEGACY_JSON_READ_ONLY","message":"Legacy JSON write path is disabled in production; use revision analysis and proposal review APIs"}}
+
+5. Direct Internal Service Token Boundary:
+   - Anonymous (/v1/story-brains/...): HTTP 401 Unauthorized (SERVICE_AUTH_REQUIRED)
+   - Invalid token (/v1/story-brains/...): HTTP 403 Forbidden (SERVICE_AUTH_INVALID)
+   - Valid token (/v1/story-brains/by-novel/...): HTTP 200 OK
+
+6. Web Asset Security Scan:
+   - Scan Command:
+     docker compose -p p8_04_rerun_smoke exec -T web sh -lc "grep -R -n -E '127\.0\.0\.1:8000|localhost:8000|VITE_AI_SERVICE_BASE_URL|VITE_AI_TENANT_ID|/v1/story-brains|/v1/writing/generations|/internal/v1/' /usr/share/nginx/html"
+   - Exit Code: 1 (0 matches found, no forbidden direct AI endpoints or dev URLs present in built web assets)
+
+7. Clean Teardown & Volume Audit:
+   - Command: docker compose -p p8_04_rerun_smoke down -v
+   - Ephemeral project containers, network, and test volumes removed cleanly.
    - User Production Volumes Audit:
      * novel_sharing_platform_mongodb_data: UNTOUCHED
      * novel_sharing_platform_postgres_data: UNTOUCHED

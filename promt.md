@@ -497,3 +497,30 @@ Tested commit: <actual latest-main sha>
 Until this rerun is reviewed, the previous `Status: PASS` block from commit `7ed01d0...` is **not valid acceptance evidence**.
 
 Do not open P8-05.
+
+---
+
+### Gemini Verification — P8-04 RERUN
+
+Status: PASS
+Tested commit: 10e7cc591d717433891fcb244bea606714400736
+
+- Cleanup-readiness guard: PASS (production postgres-only, legacy json read-only, cleanup deferred)
+- Backup rehearsal: PASS (SHA-256: ad984f48c2926fa3706cce21bee7c9c8be5d3cf4b9c493b4993a3cf761739527)
+- Restore rehearsal: PASS (exit code 0 into isolated p8_restore_verify DB)
+- Canonical snapshot parity via PostgresNarrativeRepository.export_snapshot: PASS (deep equality match, SHA-256: e8930dce7ef9783c3d09c9626e9266621ee69e62d1367828ccb12853f0eb0c42)
+- Alembic parity: PASS (head revision 0007_semantic_memory_foundation on both source and restored)
+- pgvector parity: PASS (vector:0.8.6 on both source and restored)
+- VECTOR(768) schema check: PASS (narrative.memory_embeddings.embedding is vector(768), check constraints present)
+- HNSW/IVFFlat present: NO (consistent with Phase 7 MVP frozen contract)
+- Source database unchanged: PASS (deep equality match before and after restore, SHA-256: e8930dce7ef9783c3d09c9626e9266621ee69e62d1367828ccb12853f0eb0c42)
+- Targeted P8-03 tests: PASS (10 passed in 1.21s: test_p8_legacy_json_readonly.py, test_settings.py)
+- Full AI-service regression: PASS (182 passed, 2 skipped, 34 deselected in 5.81s)
+- PostgreSQL marker postgres_integration: PASS (34 passed, 184 deselected in 6.41s)
+- P8-01/P8-02/P8-03 regressions: PASS (6/6 inventory stories ready, gateway & internal auth boundaries enforced)
+- Root Compose /api/v1/ai boundary: PASS (5/5 services healthy, Nginx 401 unauthorized on anonymous /api/v1/ai/...)
+- kb/confirm 409 + revision-analysis successor: PASS (HTTP 409 LEGACY_JSON_READ_ONLY, Deprecation: true, Link: </v1/revisions/{revision_id}/analyses>; rel="successor-version")
+- User/prod data modified: NO
+- Evidence: docs/development/P8-04-ROLLBACK-CLEANUP-READINESS/
+- Remaining blocker: none
+

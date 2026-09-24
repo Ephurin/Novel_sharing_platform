@@ -1,11 +1,11 @@
-=== P8-04 ISOLATED POSTGRESQL RESTORE REHEARSAL ===
-Timestamp: 2026-09-24T11:34:06+07:00
-Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+=== P8-04 ISOLATED POSTGRESQL RESTORE REHEARSAL (RERUN) ===
+Timestamp: 2026-09-24T12:06:27+07:00
+Tested Commit SHA: 10e7cc591d717433891fcb244bea606714400736
 
 Target Database Preparation:
 - Target Container: p8-rehearsal-postgres (isolated test container on port 55432)
-- Target Database: p8_restore_verify (clean newly created empty database)
-- Creation Command:
+- Target Database: p8_restore_verify (clean newly created database)
+- Setup Commands:
   docker exec p8-rehearsal-postgres psql -U postgres -d postgres -c "DROP DATABASE IF EXISTS p8_restore_verify;"
   docker exec p8-rehearsal-postgres psql -U postgres -d postgres -c "CREATE DATABASE p8_restore_verify;"
 
@@ -21,10 +21,10 @@ docker exec p8-rehearsal-postgres pg_restore \
 Exit code: 0
 Output: (clean exit, no errors)
 
-Verification Steps:
+Post-Restore Verification:
 1. Target database restored successfully without warnings or schema errors.
-2. Extensions (vector) and schema migrations present and functional in p8_restore_verify.
-3. Tables and indices restored with exact row count parity.
+2. Extensions (vector 0.8.6) and schema migrations present in p8_restore_verify.
+3. Tables and records restored with full integrity under narrative schema.
 4. Source database (p8_rehearsal) completely unaffected during restore execution.
 
 Status: PASS

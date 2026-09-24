@@ -1,31 +1,48 @@
-=== P8-04 MIGRATION AND VECTOR EXTENSION PARITY ===
-Timestamp: 2026-09-24T11:34:07+07:00
-Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+=== P8-04 MIGRATION AND VECTOR EXTENSION PARITY (RERUN) ===
+Timestamp: 2026-09-24T12:06:27+07:00
+Tested Commit SHA: 10e7cc591d717433891fcb244bea606714400736
 
 1. Alembic Migration Head Parity:
-   - Migration Head Revision: 0007_semantic_memory_foundation
-   - Migration Table: alembic_version
-   - Source Database (p8_rehearsal) Revision:
-     ['0007_semantic_memory_foundation']
-   - Restored Database (p8_restore_verify) Revision:
-     ['0007_semantic_memory_foundation']
+   - Query: SELECT version_num FROM alembic_version ORDER BY version_num;
+   - Source Database (p8_rehearsal):
+     0007_semantic_memory_foundation
+   - Restored Database (p8_restore_verify):
+     0007_semantic_memory_foundation
    - Parity: MATCH (Identical head revision)
 
 2. pgvector Extension Parity:
-   - Extension Name: vector
-   - Source Database (p8_rehearsal) Extension Query:
-     SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';
-     Result: ('vector', '0.8.6')
-   - Restored Database (p8_restore_verify) Extension Query:
-     SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';
-     Result: ('vector', '0.8.6')
+   - Query: SELECT extname || ':' || extversion FROM pg_extension WHERE extname='vector';
+   - Source Database (p8_rehearsal):
+     vector:0.8.6
+   - Restored Database (p8_restore_verify):
+     vector:0.8.6
    - Parity: MATCH (Identical extension version)
 
-3. Vector Schema & Functional Parity:
-   - Table: story_memory_items
-   - Vector Column: embedding (vector(1536))
-   - Index: HNSW vector index on embedding column
-   - Schema Match: Restored schema contains identical column definitions, data types, constraints, and index definitions as source schema.
-   - Vector Functionality: vector distance operators (<->, <=>, <#>) verified available in restored database.
+3. Semantic Memory Vector Schema Check:
+   - Schema / Table: narrative.memory_embeddings
+   - Column Query:
+     SELECT column_name, data_type, udt_name 
+     FROM information_schema.columns 
+     WHERE table_schema='narrative' AND table_name='memory_embeddings' AND column_name='embedding';
+   - Column Result:
+     embedding|USER-DEFINED|vector
+   - Vector Dimension: VECTOR(768)
+   - Table Constraints:
+     * ck_memory_embedding_dimension_768: CHECK (embedding_dimension = 768)
+     * ck_memory_embedding_normalization_l2: CHECK (normalization = 'l2')
+     * uq_memory_embedding_chunk_version: UNIQUE (memory_chunk_id, embedding_version)
+
+4. Index Inspection:
+   - Query:
+     SELECT indexname, indexdef 
+     FROM pg_indexes 
+     WHERE schemaname='narrative' AND tablename='memory_embeddings';
+   - Actual Indexes:
+     * memory_embeddings_pkey: CREATE UNIQUE INDEX memory_embeddings_pkey ON narrative.memory_embeddings USING btree (id)
+     * uq_memory_embedding_chunk_version: CREATE UNIQUE INDEX uq_memory_embedding_chunk_version ON narrative.memory_embeddings USING btree (memory_chunk_id, embedding_version)
+     * ix_narrative_memory_embeddings_tenant_id: CREATE INDEX ix_narrative_memory_embeddings_tenant_id ON narrative.memory_embeddings USING btree (tenant_id)
+     * ix_memory_embeddings_story_version: CREATE INDEX ix_memory_embeddings_story_version ON narrative.memory_embeddings USING btree (story_brain_id, embedding_version)
+     * ix_narrative_memory_embeddings_novel_id: CREATE INDEX ix_narrative_memory_embeddings_novel_id ON narrative.memory_embeddings USING btree (novel_id)
+   - HNSW/IVFFlat index present: NO (consistent with frozen Phase 7 MVP specification)
 
 Status: PASS

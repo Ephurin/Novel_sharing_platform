@@ -1,52 +1,67 @@
-=== P8-04 FULL REGRESSION SUITE VERIFICATION ===
-Timestamp: 2026-09-24T11:40:00+07:00
-Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+=== P8-04 FULL REGRESSION SUITE VERIFICATION (RERUN) ===
+Timestamp: 2026-09-24T12:07:00+07:00
+Tested Commit SHA: 10e7cc591d717433891fcb244bea606714400736
 
-1. Targeted Read-Only & Settings Test Suite:
-   - Command: docker compose run --rm ai-service pytest -q tests/test_settings.py tests/test_legacy_json_read_only.py
-   - Results: 10 passed in 0.90s
+1. Targeted P8-03 Read-Only & Settings Test Suite:
+   - Command:
+     python -m pytest -q tests/test_p8_legacy_json_readonly.py tests/test_settings.py
+   - Exit Code: 0
+   - Result: 10 passed, 4 warnings in 1.21s
+   - Tested Files:
+     * ai-service/tests/test_p8_legacy_json_readonly.py
+     * ai-service/tests/test_settings.py
+
+2. Full Non-PostgreSQL AI Service Regression Suite:
+   - Command:
+     python -m pytest -q -m "not postgres_integration"
+   - Exit Code: 0
+   - Result: 182 passed, 2 skipped, 34 deselected in 5.81s
    - Coverage:
-     * LegacyJsonReadOnlyError raises on legacy mutate
-     * Fallback and cutover environment configuration validation
-     * Deprecation headers and successor link validation
-     * Idempotent read handling under read-only mode
+     * Entity extraction pipeline
+     * Consistency engine & validators
+     * Domain narrative rules
+     * Narrative application service
+     * In-memory repository contracts
+     * Schema serialization & responses
 
-2. Full AI Service Regression Suite:
-   - Command: docker compose run --rm ai-service pytest -q -m "not postgres"
-   - Results: 182 passed, 2 skipped, 34 deselected in 18.23s
+3. Live PostgreSQL Integration Suite (Marker: postgres_integration):
+   - Command:
+     python -m pytest -o addopts= -q -m postgres_integration
+   - Environment:
+     DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:55432/p8_rehearsal
+   - Exit Code: 0
+   - Result: 34 passed, 184 deselected in 6.41s
    - Coverage:
-     * Canonical schema validations
-     * Narrative consistency analyzers
-     * Story brain unit logic
-     * Semantic memory chunking & mock vector workflows
-     * Authorization and token verification middleware
+     * PostgresNarrativeRepository CRUD & entity state projections
+     * Migration replay & schema constraints
+     * Semantic memory chunking & embedding persistence (VECTOR(768))
+     * Snapshot export/import fidelity
+     * Concurrent lock-free narrative transitions
 
-3. PostgreSQL Integration Suite (Live pgvector):
-   - Command: docker compose run --rm ai-service pytest -q -m postgres
-   - Environment: PostgreSQL 16 with pgvector 0.8.6 extension
-   - Results: 34 passed, 184 deselected in 4.90s
-   - Coverage:
-     * StoryBrainPostgresRepository CRUD operations
-     * Character, world, timeline, and relationship persistence
-     * Semantic memory vector similarity search (HNSW index)
-     * Concurrent narrative updates & optimistic concurrency checks
-     * Canonical snapshot export & import fidelity
-
-4. P8-01 Migration Tooling Replay:
-   - Command: python scripts/migrate_json_to_postgres.py --dry-run / --apply
-   - Results: 6/6 ready files migrated cleanly
-   - Idempotency: Re-running against existing records detected 0 changes and performed 0 duplicate inserts.
-   - Conflict handling: Mismatched version conflicts correctly rejected with 409 Conflict.
+4. P8-01 Migration Replay:
+   - Command:
+     python -m application.migrate_json_to_postgres \
+       --database-url postgresql+psycopg://postgres:postgres@localhost:55432/p8_rehearsal \
+       --json-storage data \
+       --all \
+       --output ../scratch/repo-inventory.json
+   - Exit Code: 0
+   - Assertion Script:
+     assert {item["story_id"] for item in stories} == {
+         "writing_session_550", "writing_session_599", "writing_session_968",
+         "writing_session_492", "test2", "test_narrative_v2"
+     }
+     assert all(item["action"] == "ready" for item in stories)
+     assert all(item["safe_to_apply"] is True for item in stories)
+     assert all(item["unsupported"] == [] for item in stories)
+   - Status: PASS (6/6 inventory stories ready, safe to apply)
 
 5. P8-02 Route & Gateway Security Regression:
-   - Files scanned: 58 repository and route files checked for legacy direct write bypasses (0 found)
-   - Public Nginx Gateway Traversal:
-     * Anonymous request -> 401 Unauthorized
-     * Authenticated matching author -> 200 OK
-     * Cross-author unauthorized request -> 403 Forbidden
-   - Direct FastAPI Internal Service Boundary:
-     * Missing X-Internal-Service-Key -> 401 Unauthorized
-     * Invalid X-Internal-Service-Key -> 403 Forbidden
-     * Valid internal service token -> 200 OK
+   - Internal Service Token Boundary (/v1/story-brains/...):
+     * Missing token -> HTTP 401 (SERVICE_AUTH_REQUIRED)
+     * Invalid token -> HTTP 403 (SERVICE_AUTH_INVALID)
+     * Valid service token -> HTTP 200 OK
+   - Public Nginx Gateway Boundary (/api/v1/ai/...):
+     * Anonymous request to /api/v1/ai/story-brains/... -> HTTP 401 Unauthorized (AUTH_002)
 
 Overall Regression Status: PASS (0 failures, 0 errors, 0 regressions)

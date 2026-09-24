@@ -1,13 +1,13 @@
-=== P8-04 CLEANUP READINESS GUARD AND LEGACY INVENTORY ===
-Timestamp: 2026-09-24T11:30:24+07:00
-Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+=== P8-04 CLEANUP READINESS GUARD (RERUN) ===
+Timestamp: 2026-09-24T12:01:44+07:00
+Tested Commit SHA: 10e7cc591d717433891fcb244bea606714400736
 
 Command:
 python scripts/check_p8_cleanup_readiness.py
 
-Exit code: 0
+Exit Code: 0
 
-Output:
+Verbatim Output:
 {
   "checked_contracts": {
     "ai-service/.env.example": [
@@ -151,11 +151,8 @@ Output:
   "status": "PASS"
 }
 
-Key Findings:
-- production_write_boundary: postgres-only
-- legacy_json_mode: read-only
-- p8_05_cleanup_allowed: false
-- p8_05_gate: DEFERRED_UNTIL_POST_RELEASE_STABILITY
-- All production configuration contracts verified present; zero forbidden configurations found
-- Legacy cleanup inventory cataloged; no destructive actions authorized
-Status: PASS
+Result:
+- Production write boundary: postgres-only (enforced)
+- Legacy JSON mode: read-only (enforced)
+- P8-05 cleanup allowed: false (deferred until post-release stability gate)
+- Status: PASS

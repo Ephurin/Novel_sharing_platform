@@ -1,11 +1,20 @@
-=== P8-04 ISOLATED POSTGRESQL BACKUP REHEARSAL ===
-Timestamp: 2026-09-24T11:34:04+07:00
-Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+=== P8-04 ISOLATED POSTGRESQL BACKUP REHEARSAL (RERUN) ===
+Timestamp: 2026-09-24T12:06:25+07:00
+Tested Commit SHA: 10e7cc591d717433891fcb244bea606714400736
 
 Source Database Preparation:
-- Database: p8_rehearsal (isolated container p8-rehearsal-postgres)
-- Migration: alembic upgrade head -> revision '0007_semantic_memory_foundation'
-- Seed fixture: 11111111-2222-3333-4444-555555555555 (synthetic Elena character in Observatory, brain_version 3) via migrate_json_to_postgres --apply
+- Container: p8-rehearsal-postgres (image: pgvector/pgvector:pg16, port 55432:5432)
+- Database: p8_rehearsal
+- Migration Command: python -m alembic upgrade head
+  Target revision reached: 0007_semantic_memory_foundation
+- Seed Fixture: story_id="11111111-2222-3333-4444-555555555555" (Elena, Observatory, brain_version 3)
+- Seed Command:
+  python -m application.migrate_json_to_postgres \
+    --json-storage scratch/p8_seed_json \
+    --story-id 11111111-2222-3333-4444-555555555555 \
+    --apply \
+    --output scratch/p8-rehearsal-seed.json
+  Result: applied=True, parity=True, safe_to_apply=True
 
 Backup Command:
 docker exec p8-rehearsal-postgres pg_dump \
@@ -18,10 +27,16 @@ docker exec p8-rehearsal-postgres pg_dump \
 
 Exit code: 0
 
+Checksum Command:
+docker exec p8-rehearsal-postgres sha256sum /tmp/p8-rehearsal.dump
+
+Actual Checksum Output:
+ad984f48c2926fa3706cce21bee7c9c8be5d3cf4b9c493b4993a3cf761739527  /tmp/p8-rehearsal.dump
+
 Backup Artifact Details:
-- Target File: /tmp/p8-rehearsal.dump (inside isolated container)
+- Target File: /tmp/p8-rehearsal.dump
 - Dump format: PostgreSQL custom archive (compressed, restorable with pg_restore)
-- SHA-256 Checksum: 07241503b5069b51cc055ff7d0bdfb58ee80fa0e69a556da90267197d022f95e
+- SHA-256: ad984f48c2926fa3706cce21bee7c9c8be5d3cf4b9c493b4993a3cf761739527
 - File integrity: Verified non-empty valid custom dump
 
 Status: PASS

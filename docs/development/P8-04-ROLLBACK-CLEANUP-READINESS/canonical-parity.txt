@@ -1,36 +1,71 @@
-=== P8-04 CANONICAL STORY BRAIN SNAPSHOT PARITY ===
-Timestamp: 2026-09-24T11:34:08+07:00
-Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+=== P8-04 CANONICAL STORY BRAIN SNAPSHOT PARITY (RERUN) ===
+Timestamp: 2026-09-24T12:06:28+07:00
+Tested Commit SHA: 10e7cc591d717433891fcb244bea606714400736
 
 Verification Subject:
 - Story UUID: 11111111-2222-3333-4444-555555555555
-- Source Database: p8_rehearsal (isolated container p8-rehearsal-postgres)
-- Restored Database: p8_restore_verify (isolated container p8-rehearsal-postgres)
-- Verification Method: StoryBrainPostgresRepository.export_canonical_snapshot(story_id)
+- Repository Class: PostgresNarrativeRepository (via build_narrative_repository factory)
+- Snapshot Method: export_snapshot(story_id)
 
-Canonical Entities Verified:
-1. Story Narrative Metadata:
-   - story_id: 11111111-2222-3333-4444-555555555555
-   - brain_version: 3
-   - status: Match
-2. Character Profiles:
-   - Character ID: Elena (char-elena-01)
-   - Profile attributes, traits, and metadata: Match
-3. World & Setting Entries:
-   - Location: The Observatory
-   - Setting lore & attributes: Match
-4. Story Timeline & Events:
-   - Event sequence, timestamps, narrative ordering: Match
-5. Entity Relationships:
-   - Graph edges, relational descriptors: Match
-6. Semantic Memory & Vector Embeddings:
-   - Memory items, text representations, vector dimensions (1536): Match
+Execution Code:
+```python
+from core.settings import Settings
+from core.story_kb_manager import StoryKBManager
+from infrastructure.repository_factory import build_narrative_repository
 
-Comparison Result:
-- Source DB Snapshot SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 (canonical JSON representation)
-- Restored DB Snapshot SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 (canonical JSON representation)
-- Deep Equality Check: IDENTICAL
-- Mismatched Keys: NONE
-- Missing Records: NONE
+# Source DB Export
+os.environ["DATABASE_URL"] = "postgresql+psycopg://postgres:postgres@localhost:55432/p8_rehearsal"
+source_repo = build_narrative_repository(Settings.from_env(), StoryKBManager(scratch_dir / "p8-unused"))
+source_snapshot = source_repo.export_snapshot("11111111-2222-3333-4444-555555555555")
+
+# Restored DB Export
+os.environ["DATABASE_URL"] = "postgresql+psycopg://postgres:postgres@localhost:55432/p8_restore_verify"
+restore_repo = build_narrative_repository(Settings.from_env(), StoryKBManager(scratch_dir / "p8-unused-restore"))
+restored_snapshot = restore_repo.export_snapshot("11111111-2222-3333-4444-555555555555")
+
+assert source_snapshot == restored_snapshot
+```
+
+Serialized Snapshot SHA-256 Checksums:
+- Source Snapshot SHA-256:   e8930dce7ef9783c3d09c9626e9266621ee69e62d1367828ccb12853f0eb0c42
+- Restored Snapshot SHA-256: e8930dce7ef9783c3d09c9626e9266621ee69e62d1367828ccb12853f0eb0c42
+- Deep Equality Assertion:   IDENTICAL (source_snapshot == restored_snapshot evaluates to True)
+
+Serialized Canonical Snapshot Content:
+{
+  "current_world_state": {
+    "characters": {}
+  },
+  "enhanced_events": [],
+  "entities": {
+    "elena": {
+      "entity_type": "character",
+      "location": "Observatory",
+      "mentions": 4,
+      "name": "Elena",
+      "status": "Alive"
+    }
+  },
+  "entity_states": {},
+  "event_history": [],
+  "events": [],
+  "metadata": {
+    "baseline_revision_id": null,
+    "brain_id": "9b6dd4a7-8316-4964-b7ae-2e26dbb11ef8",
+    "brain_version": "3",
+    "status": "active"
+  },
+  "narrative_projection": {
+    "entities": {},
+    "projection_version": 1,
+    "provenance": {},
+    "relationships": []
+  },
+  "proposals": [],
+  "relation_history": [],
+  "relations": [],
+  "state_transitions": [],
+  "story_id": "11111111-2222-3333-4444-555555555555"
+}
 
 Status: PASS

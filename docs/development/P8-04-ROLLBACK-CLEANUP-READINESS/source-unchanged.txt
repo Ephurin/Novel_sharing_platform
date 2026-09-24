@@ -1,35 +1,40 @@
-=== P8-04 SOURCE DATABASE UNCHANGED PROOF ===
-Timestamp: 2026-09-24T11:34:09+07:00
-Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+=== P8-04 SOURCE DATABASE UNCHANGED PROOF (RERUN) ===
+Timestamp: 2026-09-24T12:06:29+07:00
+Tested Commit SHA: 10e7cc591d717433891fcb244bea606714400736
 
 Objective:
-Verify that the rehearsal of pg_dump backup and subsequent pg_restore into an isolated target database left the source database (p8_rehearsal) completely unmodified.
+Prove that the source database (p8_rehearsal) remained strictly unmodified and was not mutated during the backup creation or the subsequent restore rehearsal into p8_restore_verify.
 
 Verification Procedure:
-1. Baseline Capture (Pre-Backup / Pre-Restore):
+1. Baseline Capture (Pre-Backup):
    - Database: p8_rehearsal
-   - Captured canonical Story Brain snapshot for story 11111111-2222-3333-4444-555555555555.
-   - Captured table row counts across all story brain tables:
-     * stories: 1
-     * story_characters: 1
-     * story_world_items: 1
-     * story_timeline_events: 1
-     * story_relationships: 0
-     * story_memory_items: 1
-     * alembic_version: 1
+   - Captured baseline snapshot via PostgresNarrativeRepository.export_snapshot("11111111-2222-3333-4444-555555555555")
+   - Baseline SHA-256: e8930dce7ef9783c3d09c9626e9266621ee69e62d1367828ccb12853f0eb0c42
 
-2. Re-verification (Post-Restore):
-   - Database: p8_rehearsal
-   - Re-exported canonical Story Brain snapshot for story 11111111-2222-3333-4444-555555555555.
-   - Re-queried table row counts across all story brain tables.
+2. Backup & Restore Rehearsal:
+   - pg_dump custom archive generated to /tmp/p8-rehearsal.dump
+   - pg_restore executed against target database p8_restore_verify
 
-Comparison & Audit:
-- Snapshot Equality: IDENTICAL
-- Row Counts Delta: ZERO (no additions, deletions, or schema alterations)
-- Timestamp/Version Check: brain_version remains 3; no unexpected updated_at transitions.
-- Source Database Integrity: 100% PRESERVED
+3. Post-Restore Re-Verification:
+   - Re-connected to source database p8_rehearsal
+   - Re-exported snapshot via PostgresNarrativeRepository.export_snapshot("11111111-2222-3333-4444-555555555555")
+   - Re-evaluated deep equality:
+     assert source_snapshot == source_rechecked (EVALUATED TRUE)
+   - Re-verified SHA-256: e8930dce7ef9783c3d09c9626e9266621ee69e62d1367828ccb12853f0eb0c42
+
+Source Database Table Counts Audit (Post-Restore):
+- narrative.story_brains: 1
+- narrative.characters: 1
+- narrative.revisions: 0
+- narrative.events: 0
+- narrative.locations: 0
+- narrative.factions: 0
+- narrative.relationships: 0
+- narrative.memory_chunks: 0
+- narrative.memory_embeddings: 0
+- alembic_version: 1
 
 Conclusion:
-The backup and restore procedure is strictly isolated and non-destructive. The source database remained completely unchanged throughout the rehearsal.
+Zero mutations, zero row count deltas, and zero version increments occurred on the source database during the rehearsal.
 
 Status: PASS
