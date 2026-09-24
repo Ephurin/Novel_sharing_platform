@@ -1,7 +1,9 @@
 # P8-03 — Legacy Deprecation + JSON Read-Only Production Mode
 
-**Status:** IMPLEMENTED — local verification pending  
-**Branch:** `astra/p8-03-legacy-json-readonly`
+**Status:** MERGED — local verification pending  
+**PR:** #7  
+**Merge commit:** `d094b2977abc6e56fcebff222120ee7d276ceb40`  
+**Execution branch:** `main`
 
 ## Goal
 
@@ -61,4 +63,4 @@ Evidence belongs under:
 docs/development/P8-03-LEGACY-JSON-READONLY/
 ```
 
-Do not mark accepted until local Docker evidence is committed/reviewed by Supervisor.
+Implementation is merged, but do not mark P8-03 accepted until local Docker evidence from `main` is committed and reviewed by Supervisor.
