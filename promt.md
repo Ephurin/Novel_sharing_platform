@@ -193,9 +193,12 @@ This closes the independent local verification gate for accepted P8-01/P8-02.
 
 ---
 
-# 6. ACTIVE TASK — P8-04 ROLLBACK REHEARSAL + CLEANUP READINESS
+# 6. ACTIVE TASK — P8-04 LOCAL ROLLBACK VERIFICATION ON MAIN
 
-**Development branch:** `astra/p8-04-rollback-cleanup-readiness`
+**Implementation status:** MERGED  
+**PR:** #8  
+**Merge commit:** `50fe44621bc9a7251055e3acb07cd49509839f72`  
+**Execution branch:** `main`
 
 ## Goal
 
@@ -211,7 +214,7 @@ accepted PostgreSQL cutover
 
 P8-04 proves recoverability. It does **not** perform destructive cleanup.
 
-## Implemented by ChatGPT/Astra
+## Implementation merged by ChatGPT/Astra
 
 - `scripts/check_p8_cleanup_readiness.py`
   - fails if production config permits JSON canonical writes;
@@ -242,20 +245,30 @@ P8-04 proves recoverability. It does **not** perform destructive cleanup.
 - never delete legacy routes/adapters in P8-04;
 - P8-05 remains deferred until explicit post-release stability acceptance.
 
-## Development verification
+## Development verification — COMPLETE
 
-GitHub CI on this branch must pass:
+GitHub CI passed before merge:
 
-1. cleanup readiness guard;
-2. rollback rehearsal job;
-3. P8 cutover regression;
-4. P7 semantic regression.
+- P8 Cutover and Migration run #66: SUCCESS;
+- rollback-rehearsal: SUCCESS;
+- PostgreSQL integration: SUCCESS;
+- full AI-service regression: SUCCESS;
+- frontend/API cutover: SUCCESS;
+- root Compose cutover smoke: SUCCESS;
+- P7 Semantic Memory Foundation run #81: SUCCESS.
 
-After code review + green CI, merge implementation into `main`.
+Rollback CI specifically proved:
 
-## Post-merge local verification
+- cleanup-readiness guard PASS;
+- `pg_dump --format=custom` backup created;
+- restore into isolated `p8_restore_verify` PASS;
+- canonical restore parity PASS;
+- Alembic/vector state parity PASS;
+- source database unchanged PASS.
 
-Gemini/Antigravity then works on latest `main` and repeats the rollback rehearsal using isolated Docker resources.
+## Local verification
+
+Gemini/Antigravity works on latest `main` and repeats the rollback rehearsal using isolated Docker resources. Pull latest `main` before starting.
 
 Required evidence:
 
@@ -278,7 +291,7 @@ Evidence must include exact commands, exit codes, timestamps, tested commit, bac
 
 P8-04 remains NOT ACCEPTED until:
 
-- implementation merged to `main`;
+- implementation merged to `main` at `50fe44621bc9a7251055e3acb07cd49509839f72`;
 - local Docker restore rehearsal passes on `main`;
 - source DB/data remains unchanged;
 - P8-01/P8-02/P8-03 regressions remain green;
