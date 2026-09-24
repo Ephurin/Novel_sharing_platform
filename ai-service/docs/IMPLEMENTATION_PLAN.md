@@ -291,15 +291,15 @@ semantic score
 
 ## Phase 8 — Cutover và cleanup
 
-> **Status:** ACTIVE. P8-01 and P8-02 are ACCEPTED. P8-03 legacy deprecation + JSON read-only production mode is ACTIVE on `astra/p8-03-legacy-json-readonly`; local Docker acceptance evidence is pending. P8-04/P8-05 remain closed.
+> **Status:** ACTIVE. P8-01 and P8-02 are ACCEPTED. P8-03 implementation was merged to `main` via PR #7 (`d094b2977abc6e56fcebff222120ee7d276ceb40`); local Docker acceptance evidence on `main` is pending. P8-04/P8-05 remain closed.
 
 ### Tasks
 
 - [x] Chạy JSON migration tool ở dry-run.
 - [x] So sánh entity/event/state snapshots + projection rebuild parity.
 - [x] Chuyển frontend sang API mới.
-- [ ] Route legacy thêm deprecation header.
-- [ ] Chuyển JSON repository read-only.
+- [x] Route legacy thêm deprecation header.
+- [x] Chuyển JSON repository read-only.
 - [ ] Diễn tập rollback/cutover recovery.
 - [ ] Sau một release ổn định mới xóa direct JSON write paths.
 
