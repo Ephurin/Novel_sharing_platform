@@ -191,4 +191,98 @@ This closes the independent local verification gate for accepted P8-01/P8-02.
 - user/prod data modified: NO
 - Supervisor ACCEPT: 2026-09-24
 
-P8-04 may now open. P8-05 remains closed.
+---
+
+# 6. ACTIVE TASK — P8-04 ROLLBACK REHEARSAL + CLEANUP READINESS
+
+**Development branch:** `astra/p8-04-rollback-cleanup-readiness`
+
+## Goal
+
+```text
+accepted PostgreSQL cutover
+  -> restorable backup
+  -> isolated restore rehearsal
+  -> migration/vector parity
+  -> canonical Story Brain parity
+  -> source unchanged
+  -> cleanup inventory only
+```
+
+P8-04 proves recoverability. It does **not** perform destructive cleanup.
+
+## Implemented by ChatGPT/Astra
+
+- `scripts/check_p8_cleanup_readiness.py`
+  - fails if production config permits JSON canonical writes;
+  - confirms production PostgreSQL-only + JSON read-only boundary;
+  - confirms legacy writer routes remain deprecated/fail-closed;
+  - inventories legacy code/routes/adapters;
+  - always keeps P8-05 cleanup permission false until stability gate.
+- `.github/workflows/p8-cutover.yml`
+  - new isolated `rollback-rehearsal` job;
+  - seed synthetic canonical story;
+  - capture source canonical snapshot + Alembic + pgvector state;
+  - `pg_dump --format=custom`;
+  - restore into separate `p8_restore_verify` DB;
+  - compare canonical snapshot exactly;
+  - compare migration/vector state;
+  - prove source DB unchanged.
+- runbook:
+  `docs/development/P8-04-ROLLBACK-CLEANUP-READINESS-runbook.md`
+- report:
+  `docs/development/P8-04-ROLLBACK-CLEANUP-READINESS-report.md`
+
+## Safety invariants
+
+- never restore over user/prod DB during rehearsal;
+- never drop/truncate source DB;
+- never delete legacy JSON;
+- never re-enable JSON production writes;
+- never delete legacy routes/adapters in P8-04;
+- P8-05 remains deferred until explicit post-release stability acceptance.
+
+## Development verification
+
+GitHub CI on this branch must pass:
+
+1. cleanup readiness guard;
+2. rollback rehearsal job;
+3. P8 cutover regression;
+4. P7 semantic regression.
+
+After code review + green CI, merge implementation into `main`.
+
+## Post-merge local verification
+
+Gemini/Antigravity then works on latest `main` and repeats the rollback rehearsal using isolated Docker resources.
+
+Required evidence:
+
+```text
+docs/development/P8-04-ROLLBACK-CLEANUP-READINESS/
+  environment.txt
+  cleanup-readiness.txt
+  backup.txt
+  restore.txt
+  canonical-parity.txt
+  migration-vector-parity.txt
+  source-unchanged.txt
+  regressions.txt
+  compose-smoke.txt
+```
+
+Evidence must include exact commands, exit codes, timestamps, tested commit, backup SHA-256, source/restore Alembic revisions, pgvector versions and canonical parity result.
+
+## Acceptance gate
+
+P8-04 remains NOT ACCEPTED until:
+
+- implementation merged to `main`;
+- local Docker restore rehearsal passes on `main`;
+- source DB/data remains unchanged;
+- P8-01/P8-02/P8-03 regressions remain green;
+- cleanup-readiness inventory is committed;
+- Supervisor ACCEPTS.
+
+Do not open P8-05.
