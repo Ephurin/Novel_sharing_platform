@@ -1,0 +1,31 @@
+=== P8-04 MIGRATION AND VECTOR EXTENSION PARITY ===
+Timestamp: 2026-09-24T11:34:07+07:00
+Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+
+1. Alembic Migration Head Parity:
+   - Migration Head Revision: 0007_semantic_memory_foundation
+   - Migration Table: alembic_version
+   - Source Database (p8_rehearsal) Revision:
+     ['0007_semantic_memory_foundation']
+   - Restored Database (p8_restore_verify) Revision:
+     ['0007_semantic_memory_foundation']
+   - Parity: MATCH (Identical head revision)
+
+2. pgvector Extension Parity:
+   - Extension Name: vector
+   - Source Database (p8_rehearsal) Extension Query:
+     SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';
+     Result: ('vector', '0.8.6')
+   - Restored Database (p8_restore_verify) Extension Query:
+     SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';
+     Result: ('vector', '0.8.6')
+   - Parity: MATCH (Identical extension version)
+
+3. Vector Schema & Functional Parity:
+   - Table: story_memory_items
+   - Vector Column: embedding (vector(1536))
+   - Index: HNSW vector index on embedding column
+   - Schema Match: Restored schema contains identical column definitions, data types, constraints, and index definitions as source schema.
+   - Vector Functionality: vector distance operators (<->, <=>, <#>) verified available in restored database.
+
+Status: PASS

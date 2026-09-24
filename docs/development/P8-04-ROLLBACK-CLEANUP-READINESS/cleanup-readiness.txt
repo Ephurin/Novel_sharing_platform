@@ -1,0 +1,161 @@
+=== P8-04 CLEANUP READINESS GUARD AND LEGACY INVENTORY ===
+Timestamp: 2026-09-24T11:30:24+07:00
+Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+
+Command:
+python scripts/check_p8_cleanup_readiness.py
+
+Exit code: 0
+
+Output:
+{
+  "checked_contracts": {
+    "ai-service/.env.example": [
+      "NARRATIVE_REPOSITORY=postgres: present",
+      "JSON_REPOSITORY_MODE=read-only: present"
+    ],
+    "ai-service/api/interactions.py": [
+      "@router.post(\"/process-interactions\", deprecated=True): present",
+      "\"code\": \"DIRECT_WRITE_DISABLED\": present"
+    ],
+    "ai-service/api/routes.py": [
+      "@router.post(\"/kb/confirm\", response_model=ConfirmKBResponse, deprecated=True): present",
+      "\"code\": \"LEGACY_JSON_READ_ONLY\": present",
+      "@router.post(\"/sync-story\", response_model=SyncStoryResponse, deprecated=True): present",
+      "@router.post(\"/suggest-next\", response_model=SuggestNextResponse, deprecated=True): present"
+    ],
+    "ai-service/core/settings.py": [
+      "NARRATIVE_REPOSITORY must be postgres when APP_ENV=production: present",
+      "JSON_REPOSITORY_MODE must be read-only when APP_ENV=production: present"
+    ],
+    "ai-service/main.py": [
+      "read_only=settings.json_repository_mode == \"read-only\": present"
+    ],
+    "docker-compose.yml": [
+      "NARRATIVE_REPOSITORY: postgres: present",
+      "APP_ENV: production: present"
+    ]
+  },
+  "failures": [],
+  "legacy_cleanup_candidates": {
+    "ai-service/api/deps.py": [
+      "StoryKBManager"
+    ],
+    "ai-service/api/interactions.py": [
+      "StoryKBManager"
+    ],
+    "ai-service/api/routes.py": [
+      "/suggest-next",
+      "StoryKBManager"
+    ],
+    "ai-service/api/schemas.py": [
+      "/suggest-next"
+    ],
+    "ai-service/application/rebuild_projection.py": [
+      "StoryKBManager"
+    ],
+    "ai-service/core/story_kb_manager.py": [
+      "StoryKBManager"
+    ],
+    "ai-service/docs/API_CONTRACTS.md": [
+      "/suggest-next",
+      "/v1/ai/kb/confirm",
+      "/v1/enhanced/process-interactions"
+    ],
+    "ai-service/docs/API_DOC.md": [
+      "/suggest-next",
+      "/v1/ai/kb/confirm",
+      "/v1/ai/sync-story",
+      "/v1/enhanced/process-interactions"
+    ],
+    "ai-service/docs/IMPLEMENTATION_PLAN.md": [
+      "/suggest-next",
+      "JsonNarrativeRepository",
+      "StoryKBManager"
+    ],
+    "ai-service/docs/PIPELINE.md": [
+      "/suggest-next",
+      "StoryKBManager"
+    ],
+    "ai-service/docs/STATE_PROJECTION.md": [
+      "/v1/ai/kb/confirm"
+    ],
+    "ai-service/docs/TEST_AND_EVALUATION.md": [
+      "JsonNarrativeRepository"
+    ],
+    "ai-service/infrastructure/__init__.py": [
+      "JsonNarrativeRepository"
+    ],
+    "ai-service/infrastructure/json_narrative_repository.py": [
+      "JsonNarrativeRepository",
+      "StoryKBManager"
+    ],
+    "ai-service/infrastructure/json_postgres_cutover.py": [
+      "JsonNarrativeRepository",
+      "StoryKBManager"
+    ],
+    "ai-service/infrastructure/repository_factory.py": [
+      "JsonNarrativeRepository",
+      "StoryKBManager"
+    ],
+    "ai-service/main.py": [
+      "/suggest-next",
+      "StoryKBManager"
+    ],
+    "ai-service/scratch/debug_ner.py": [
+      "StoryKBManager"
+    ],
+    "ai-service/scratch/test_api_pipeline.py": [
+      "/v1/enhanced/process-interactions"
+    ],
+    "ai-service/scratch/test_confirm_v2.py": [
+      "/v1/ai/kb/confirm"
+    ],
+    "ai-service/scratch/test_integrated_api.py": [
+      "/v1/enhanced/process-interactions"
+    ],
+    "ai-service/scratch/test_wiki_endpoint.py": [
+      "/v1/enhanced/process-interactions"
+    ],
+    "ai-service/tests/test_narrative_repository_contract.py": [
+      "JsonNarrativeRepository",
+      "StoryKBManager"
+    ],
+    "ai-service/tests/test_p65_hardening.py": [
+      "/suggest-next",
+      "/v1/enhanced/process-interactions"
+    ],
+    "ai-service/tests/test_p65_r1_temporal.py": [
+      "/suggest-next"
+    ],
+    "ai-service/tests/test_p65_r2_final.py": [
+      "/suggest-next",
+      "/v1/enhanced/process-interactions"
+    ],
+    "ai-service/tests/test_p8_json_postgres_cutover_integration.py": [
+      "StoryKBManager"
+    ],
+    "ai-service/tests/test_p8_legacy_json_readonly.py": [
+      "/v1/ai/kb/confirm",
+      "StoryKBManager"
+    ],
+    "ai-service/tests/test_state_projection.py": [
+      "JsonNarrativeRepository",
+      "StoryKBManager"
+    ]
+  },
+  "legacy_json_mode": "read-only",
+  "p8_05_cleanup_allowed": false,
+  "p8_05_gate": "DEFERRED_UNTIL_POST_RELEASE_STABILITY",
+  "production_write_boundary": "postgres-only",
+  "status": "PASS"
+}
+
+Key Findings:
+- production_write_boundary: postgres-only
+- legacy_json_mode: read-only
+- p8_05_cleanup_allowed: false
+- p8_05_gate: DEFERRED_UNTIL_POST_RELEASE_STABILITY
+- All production configuration contracts verified present; zero forbidden configurations found
+- Legacy cleanup inventory cataloged; no destructive actions authorized
+Status: PASS

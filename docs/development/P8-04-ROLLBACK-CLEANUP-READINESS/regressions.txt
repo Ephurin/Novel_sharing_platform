@@ -1,0 +1,52 @@
+=== P8-04 FULL REGRESSION SUITE VERIFICATION ===
+Timestamp: 2026-09-24T11:40:00+07:00
+Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+
+1. Targeted Read-Only & Settings Test Suite:
+   - Command: docker compose run --rm ai-service pytest -q tests/test_settings.py tests/test_legacy_json_read_only.py
+   - Results: 10 passed in 0.90s
+   - Coverage:
+     * LegacyJsonReadOnlyError raises on legacy mutate
+     * Fallback and cutover environment configuration validation
+     * Deprecation headers and successor link validation
+     * Idempotent read handling under read-only mode
+
+2. Full AI Service Regression Suite:
+   - Command: docker compose run --rm ai-service pytest -q -m "not postgres"
+   - Results: 182 passed, 2 skipped, 34 deselected in 18.23s
+   - Coverage:
+     * Canonical schema validations
+     * Narrative consistency analyzers
+     * Story brain unit logic
+     * Semantic memory chunking & mock vector workflows
+     * Authorization and token verification middleware
+
+3. PostgreSQL Integration Suite (Live pgvector):
+   - Command: docker compose run --rm ai-service pytest -q -m postgres
+   - Environment: PostgreSQL 16 with pgvector 0.8.6 extension
+   - Results: 34 passed, 184 deselected in 4.90s
+   - Coverage:
+     * StoryBrainPostgresRepository CRUD operations
+     * Character, world, timeline, and relationship persistence
+     * Semantic memory vector similarity search (HNSW index)
+     * Concurrent narrative updates & optimistic concurrency checks
+     * Canonical snapshot export & import fidelity
+
+4. P8-01 Migration Tooling Replay:
+   - Command: python scripts/migrate_json_to_postgres.py --dry-run / --apply
+   - Results: 6/6 ready files migrated cleanly
+   - Idempotency: Re-running against existing records detected 0 changes and performed 0 duplicate inserts.
+   - Conflict handling: Mismatched version conflicts correctly rejected with 409 Conflict.
+
+5. P8-02 Route & Gateway Security Regression:
+   - Files scanned: 58 repository and route files checked for legacy direct write bypasses (0 found)
+   - Public Nginx Gateway Traversal:
+     * Anonymous request -> 401 Unauthorized
+     * Authenticated matching author -> 200 OK
+     * Cross-author unauthorized request -> 403 Forbidden
+   - Direct FastAPI Internal Service Boundary:
+     * Missing X-Internal-Service-Key -> 401 Unauthorized
+     * Invalid X-Internal-Service-Key -> 403 Forbidden
+     * Valid internal service token -> 200 OK
+
+Overall Regression Status: PASS (0 failures, 0 errors, 0 regressions)

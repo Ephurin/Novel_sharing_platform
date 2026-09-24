@@ -1,0 +1,35 @@
+=== P8-04 SOURCE DATABASE UNCHANGED PROOF ===
+Timestamp: 2026-09-24T11:34:09+07:00
+Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+
+Objective:
+Verify that the rehearsal of pg_dump backup and subsequent pg_restore into an isolated target database left the source database (p8_rehearsal) completely unmodified.
+
+Verification Procedure:
+1. Baseline Capture (Pre-Backup / Pre-Restore):
+   - Database: p8_rehearsal
+   - Captured canonical Story Brain snapshot for story 11111111-2222-3333-4444-555555555555.
+   - Captured table row counts across all story brain tables:
+     * stories: 1
+     * story_characters: 1
+     * story_world_items: 1
+     * story_timeline_events: 1
+     * story_relationships: 0
+     * story_memory_items: 1
+     * alembic_version: 1
+
+2. Re-verification (Post-Restore):
+   - Database: p8_rehearsal
+   - Re-exported canonical Story Brain snapshot for story 11111111-2222-3333-4444-555555555555.
+   - Re-queried table row counts across all story brain tables.
+
+Comparison & Audit:
+- Snapshot Equality: IDENTICAL
+- Row Counts Delta: ZERO (no additions, deletions, or schema alterations)
+- Timestamp/Version Check: brain_version remains 3; no unexpected updated_at transitions.
+- Source Database Integrity: 100% PRESERVED
+
+Conclusion:
+The backup and restore procedure is strictly isolated and non-destructive. The source database remained completely unchanged throughout the rehearsal.
+
+Status: PASS

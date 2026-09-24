@@ -1,0 +1,52 @@
+=== P8-04 ROOT COMPOSE PRODUCTION SMOKE VERIFICATION ===
+Timestamp: 2026-09-24T11:45:00+07:00
+Commit SHA: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+
+Execution Configuration:
+- Compose File: docker-compose.yml (root repository compose)
+- Project Name: p8_04_verification (isolated ephemeral project namespace)
+- Target Environment Settings:
+  * APP_ENV=production
+  * NARRATIVE_REPOSITORY=postgres
+  * JSON_REPOSITORY_MODE=read-only
+  * INTERNAL_SERVICE_KEY configured
+
+1. Container Health Status:
+   - postgres: Up (healthy) - PostgreSQL 16 + pgvector 0.8.6
+   - mongodb: Up (healthy) - MongoDB 7.0
+   - ai-service: Up (healthy) - FastAPI on port 8000
+   - backend: Up (healthy) - Express on port 4000
+   - web: Up (healthy) - Nginx reverse proxy on port 8080
+   Total Services Healthy: 5 / 5
+
+2. Direct Service Health Probes:
+   - GET http://localhost:8000/health -> HTTP 200 OK
+     {"status": "healthy", "service": "ai-service", "version": "0.1.0"}
+   - GET http://localhost:4000/health -> HTTP 200 OK
+     {"status": "ok", "service": "backend"}
+   - GET http://localhost:8080/health -> HTTP 200 OK (routed via Nginx)
+
+3. Gateway & Legacy Path Fail-Closed Verification:
+   - Probe: POST http://localhost:8000/v1/ai/kb/confirm (Direct Legacy Mutate Endpoint)
+     * HTTP Status: 409 Conflict
+     * Error Code: LEGACY_JSON_READ_ONLY
+     * Deprecation Header: Deprecation: true
+     * Successor Header: Link: </v1/ai/story-brain/{story_id}/confirm>; rel="successor-version"
+     * Result: Fail-closed enforcement is active; legacy JSON mutations are strictly prevented.
+
+4. Nginx Public Gateway Auth & Boundary Verification:
+   - GET http://localhost:8080/api/ai/story-brain/11111111-2222-3333-4444-555555555555 (Anonymous)
+     -> HTTP 401 Unauthorized
+   - GET http://localhost:8080/api/ai/story-brain/11111111-2222-3333-4444-555555555555 (Valid Author JWT)
+     -> HTTP 200 OK
+   - GET http://localhost:8080/api/ai/story-brain/11111111-2222-3333-4444-555555555555 (Cross-Author JWT)
+     -> HTTP 403 Forbidden
+
+5. Teardown & Data Isolation Audit:
+   - Teardown Command: docker compose -p p8_04_verification down -v
+   - Ephemeral containers, networks, and test volumes removed cleanly.
+   - User Production Volumes Audit:
+     * novel_sharing_platform_mongodb_data: UNTOUCHED
+     * novel_sharing_platform_postgres_data: UNTOUCHED
+
+Status: PASS

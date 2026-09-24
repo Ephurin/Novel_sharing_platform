@@ -299,3 +299,23 @@ P8-04 remains NOT ACCEPTED until:
 - Supervisor ACCEPTS.
 
 Do not open P8-05.
+
+---
+
+### Gemini Verification — P8-04
+
+Status: PASS
+Tested commit: 9478be96a09b829e305f9ea6fb6e5d18d837933a
+
+- Cleanup-readiness guard: PASS (production postgres-only, legacy json read-only, cleanup deferred)
+- Backup rehearsal (pg_dump custom): PASS (SHA-256: 07241503b5069b51cc055ff7d0bdfb58ee80fa0e69a556da90267197d022f95e)
+- Restore rehearsal (pg_restore): PASS (isolated p8_restore_verify DB)
+- Canonical snapshot parity: PASS (exact match before and after restore)
+- Migration & vector parity: PASS (Alembic 0007_semantic_memory_foundation, pgvector 0.8.6)
+- Source database unchanged: PASS (exact match)
+- Regressions (P8-01, P8-02, P8-03, full AI-service, postgres integration): PASS
+- Root Compose smoke: PASS (all 5 services healthy, Nginx proxy OK, kb/confirm 409 fail-closed)
+- User/prod data modified: NO
+- Evidence: docs/development/P8-04-ROLLBACK-CLEANUP-READINESS/
+- Remaining blocker: none
+
