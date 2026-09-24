@@ -291,7 +291,7 @@ semantic score
 
 ## Phase 8 — Cutover và cleanup
 
-> **Status:** ACTIVE. P8-01, P8-02 and P8-03 are ACCEPTED. P8-04 rollback rehearsal + cleanup readiness is ACTIVE on `astra/p8-04-rollback-cleanup-readiness`. P8-05 remains closed.
+> **Status:** ACTIVE. P8-01, P8-02 and P8-03 are ACCEPTED. P8-04 implementation is merged to `main` via PR #8 (`50fe44621bc9a7251055e3acb07cd49509839f72`) after green rollback/P7/P8 CI; local Docker acceptance evidence on `main` is pending. P8-05 remains closed.
 
 ### Tasks
 
