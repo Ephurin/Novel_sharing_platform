@@ -364,3 +364,27 @@ Until then:
 - do not drop/truncate PostgreSQL data.
 
 P8-05 remains ACTIVE / BLOCKED_PENDING_STABILITY.
+
+---
+
+### Gemini Verification — P8-05 GATE PREPARATION
+
+Status: PASS (GATE OPERATIONAL / CLEANUP BLOCKED)
+Tested commit: e9208b8ba80205e7241207fb39062236fe4dcce6
+
+- Cleanup-readiness guard (`check_p8_cleanup_readiness.py`): PASS
+  * production_write_boundary: postgres-only
+  * legacy_json_mode: read-only
+  * p8_05_cleanup_allowed: false
+- Final cleanup gate (`check_p8_final_cleanup_gate.py --expect-blocked`): PASS (status: BLOCKED, cleanup_allowed: false)
+  * release_identifier: null
+  * observation_window_completed: false
+  * production_json_writes_zero: null
+  * supervisor_cleanup_gate_accepted: false
+  * 7 blockers verified active
+- Stability gate contract (`docs/development/P8-05-FINAL-CLEANUP-GATE/stability-gate.json`): Verified initialized BLOCKED with zero fabricated operational evidence
+- Cleanup manifest (`docs/development/P8-05-FINAL-CLEANUP-GATE/cleanup-manifest.json`): Verified separation of runtime removal candidates from retained migration/archive tooling
+- Destructive cleanup attempted: NO
+- Legacy JSON source files / routes / PostgreSQL data modified: NO
+- P8-05 state: ACTIVE / BLOCKED_PENDING_STABILITY
+
