@@ -291,7 +291,7 @@ semantic score
 
 ## Phase 8 — Cutover và cleanup
 
-> **Status:** ACTIVE. P8-01 and P8-02 are ACCEPTED. P8-03 implementation was merged to `main` via PR #7 (`d094b2977abc6e56fcebff222120ee7d276ceb40`); local Docker acceptance evidence on `main` is pending. P8-04/P8-05 remain closed.
+> **Status:** ACTIVE. P8-01, P8-02 and P8-03 are ACCEPTED. P8-03 local Docker evidence is committed in `4af13876c891a9edf27318862643b4187a7c24aa` (tested `014cf9f082d498af567f7b4047bcb4a13600f7ed`). P8-04 rollback rehearsal + cleanup readiness is next. P8-05 remains closed.
 
 ### Tasks
 
