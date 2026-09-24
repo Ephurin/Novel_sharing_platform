@@ -291,7 +291,7 @@ semantic score
 
 ## Phase 8 — Cutover và cleanup
 
-> **Status:** ACTIVE. P8-01, P8-02 and P8-03 are ACCEPTED. P8-04 implementation is merged to `main` via PR #8 (`50fe44621bc9a7251055e3acb07cd49509839f72`) after green rollback/P7/P8 CI; local Docker acceptance evidence on `main` is pending. P8-05 remains closed.
+> **Status:** ACTIVE. P8-01 through P8-04 are ACCEPTED. P8-04 corrected local rollback evidence is committed in `b5fe119e591dcec5ec5e769860d23e6b40531410` (tested `10e7cc591d717433891fcb244bea606714400736`). P8-05 final cleanup gate is next; destructive removal remains blocked until the post-release stability gate is explicitly accepted.
 
 ### Tasks
 
@@ -300,7 +300,7 @@ semantic score
 - [x] Chuyển frontend sang API mới.
 - [x] Route legacy thêm deprecation header.
 - [x] Chuyển JSON repository read-only.
-- [ ] Diễn tập rollback/cutover recovery.
+- [x] Diễn tập rollback/cutover recovery.
 - [ ] Sau một release ổn định mới xóa direct JSON write paths.
 
 ### Exit criteria
