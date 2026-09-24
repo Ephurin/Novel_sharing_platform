@@ -291,7 +291,7 @@ semantic score
 
 ## Phase 8 — Cutover và cleanup
 
-> **Status:** ACTIVE. P8-01 through P8-04 are ACCEPTED. P8-04 corrected local rollback evidence is committed in `b5fe119e591dcec5ec5e769860d23e6b40531410` (tested `10e7cc591d717433891fcb244bea606714400736`). P8-05 final cleanup gate is next; destructive removal remains blocked until the post-release stability gate is explicitly accepted.
+> **Status:** ACTIVE. P8-01 through P8-04 are ACCEPTED. P8-05 final cleanup gate is ACTIVE on `astra/p8-05-final-cleanup-gate`. Destructive runtime removal remains blocked until real post-release stability evidence and explicit Supervisor cleanup-gate acceptance.
 
 ### Tasks
 
