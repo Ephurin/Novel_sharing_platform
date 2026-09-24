@@ -1,8 +1,9 @@
 # P8-02 — Frontend/API Canonical Cutover Report
 
-**Status:** COMPLETED — awaiting owner acceptance  
+**Status:** ACCEPTED — 2026-09-24  
 **Branch:** `astra/p8-02-frontend-api-cutover`  
-**PR:** #6  
+**Merged PR:** #6  
+**Merge commit:** `12a0dc57186472c72c5318d8f3bde5185d33f307`  
 **Validated HEAD:** `2a052bdd548aeb219591310d5b7272aba78a7fc6`  
 **GitHub Actions:** run `35946930023` — PASS
 
@@ -86,4 +87,4 @@ No P8-03 JSON read-only/deprecation behavior, P8-04 rollback rehearsal, or P8-05
 
 ## Review conclusion
 
-All P8-02 implementation and executed evidence gates are satisfied. The slice is ready for owner acceptance and merge. P8-03 must remain closed until that acceptance.
+All P8-02 implementation and executed evidence gates are satisfied. P8-02 was accepted and squash-merged to `main` on 2026-09-24. P8-03 remains closed until explicitly opened by the owner.
