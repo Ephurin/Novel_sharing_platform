@@ -1,7 +1,9 @@
 # P8-05 — Final Cleanup Gate
 
-**Status:** ACTIVE — DESTRUCTIVE CLEANUP BLOCKED  
-**Branch:** `astra/p8-05-final-cleanup-gate`
+**Status:** MERGED — DESTRUCTIVE CLEANUP BLOCKED  
+**PR:** #9  
+**Merge commit:** `160f2f4a1ac879dce528854cb49e6899a8d192c2`  
+**Execution branch:** `main`
 
 ## Goal
 
@@ -81,3 +83,21 @@ Only after the post-release stability gate is explicitly accepted should a follo
 4. retain offline migration/archive tooling unless separately approved;
 5. run full P7/P8/PostgreSQL/Compose regression;
 6. verify no user/prod data is deleted.
+
+
+## Merge verification
+
+Pre-merge CI on implementation head `166c3cc183bc65ce0c26504c5019b1abbeffc211`:
+
+- P8 Cutover and Migration run #76: SUCCESS;
+- final-cleanup-gate: SUCCESS;
+- gate blocked-state assertion: SUCCESS;
+- synthetic gate open/blocked state transition test: SUCCESS;
+- cleanup manifest safety contract: SUCCESS;
+- rollback rehearsal: SUCCESS;
+- PostgreSQL integration: SUCCESS;
+- frontend/API cutover: SUCCESS;
+- root Compose cutover smoke: SUCCESS;
+- P7 Semantic Memory Foundation run #84: SUCCESS.
+
+This validates the gate mechanism. It does **not** supply post-release stability evidence and does not authorize destructive cleanup.
