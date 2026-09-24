@@ -136,11 +136,11 @@ Browser / mobile
 
 ```text
 P8-03  ACCEPTED
-P8-04  implementation MERGED; local rollback verification ACTIVE on main
-P8-05  destructive legacy removal — deferred until post-release stability gate
+P8-04  ACCEPTED
+P8-05  FINAL CLEANUP GATE ACTIVE; destructive removal BLOCKED
 ```
 
-**Current active slice: P8-04 local verification on `main`.**
+**Current active slice: P8-05 final cleanup gate.**
 
 ---
 
@@ -217,3 +217,101 @@ This closes the independent local verification gate for accepted P8-01/P8-02.
 P8-05 final cleanup gate may now open.
 
 Important: opening P8-05 does **not** itself authorize destructive removal. The post-release stability gate still requires explicit Supervisor acceptance before deleting legacy write paths, JSON data, routes or adapters.
+
+
+---
+
+# 7. ACTIVE TASK — P8-05 FINAL CLEANUP GATE
+
+**Development branch:** `astra/p8-05-final-cleanup-gate`  
+**Destructive cleanup:** BLOCKED
+
+## Goal
+
+Prepare a machine-checkable final cleanup gate and an exact dependency manifest. Do not delete legacy runtime code or data until the post-release stability gate is explicitly accepted by the Supervisor.
+
+## Current implementation
+
+- `scripts/check_p8_final_cleanup_gate.py`
+  - `--expect-blocked`: CI passes only while cleanup remains blocked;
+  - `--require-open`: future destructive cleanup may proceed only when every stability condition is satisfied.
+- `docs/development/P8-05-FINAL-CLEANUP-GATE/stability-gate.json`
+  - intentionally initialized BLOCKED;
+  - no fabricated release/stability evidence.
+- `docs/development/P8-05-FINAL-CLEANUP-GATE/cleanup-manifest.json`
+  - separates production runtime removal candidates from migration/archive/test tooling that must be retained by default.
+- `.github/workflows/p8-cutover.yml`
+  - P8-05 branch trigger;
+  - asserts cleanup-readiness still green;
+  - asserts P8-05 destructive gate still blocked;
+  - validates manifest safety contract.
+- report:
+  `docs/development/P8-05-FINAL-CLEANUP-GATE-report.md`
+- runbook:
+  `docs/development/P8-05-FINAL-CLEANUP-GATE-runbook.md`
+
+## Runtime candidates after gate opens
+
+- `/v1/ai/kb/confirm`
+- `/v1/ai/sync-story`
+- `/v1/ai/suggest-next`
+- `/v1/enhanced/process-interactions`
+- route-only schemas/imports
+- `get_story_kb` if runtime dependency count becomes zero
+- `app.state.story_kb` after all runtime dependencies are removed
+
+## Retain by default
+
+Do not remove merely because they contain legacy JSON support:
+
+- `core/story_kb_manager.py`
+- `infrastructure/json_narrative_repository.py`
+- `infrastructure/json_postgres_cutover.py`
+- `application/migrate_json_to_postgres.py`
+
+They remain useful for archive reads, repository contracts, migration replay and recovery and are not production canonical writers under P8-03.
+
+## Stability gate required before destructive cleanup
+
+Real operational evidence must establish:
+
+- concrete release identifier;
+- completed observation window;
+- production JSON writes remained zero;
+- rollback path retained;
+- error budget status `within_budget`;
+- zero open rollback incidents;
+- non-empty evidence references;
+- explicit Supervisor cleanup-gate acceptance.
+
+ChatGPT/Gemini must **never** set `supervisor_cleanup_gate_accepted=true` by inference.
+
+## Current expected verification
+
+Before the stability gate is accepted:
+
+```bash
+python scripts/check_p8_cleanup_readiness.py
+python scripts/check_p8_final_cleanup_gate.py --expect-blocked
+```
+
+Expected:
+
+```text
+cleanup readiness: PASS
+final cleanup gate: BLOCKED
+cleanup_allowed: false
+```
+
+That BLOCKED result is correct and is not a failure.
+
+## Development workflow
+
+1. GitHub P7/P8 regression CI must stay green.
+2. Final-cleanup-gate CI must prove destructive cleanup remains blocked.
+3. Merge this gate-preparation implementation to `main`.
+4. Gemini/Antigravity may locally verify the gate/manifest on `main`.
+5. Wait for real post-release stability evidence.
+6. Only after explicit Supervisor final cleanup acceptance may destructive runtime removal begin.
+
+Do not remove JSON files, routes, adapters, backups or PostgreSQL data in this preparation slice.
