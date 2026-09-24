@@ -1,6 +1,6 @@
 # P8-03 — Legacy Deprecation + JSON Read-Only Production Mode
 
-**Status:** MERGED — local verification pending  
+**Status:** ACCEPTED — 2026-09-24  
 **PR:** #7  
 **Merge commit:** `d094b2977abc6e56fcebff222120ee7d276ceb40`  
 **Execution branch:** `main`
@@ -63,4 +63,4 @@ Evidence belongs under:
 docs/development/P8-03-LEGACY-JSON-READONLY/
 ```
 
-Implementation is merged, but do not mark P8-03 accepted until local Docker evidence from `main` is committed and reviewed by Supervisor.
+Local Docker verification was committed on `main` in `4af13876c891a9edf27318862643b4187a7c24aa`, testing commit `014cf9f082d498af567f7b4047bcb4a13600f7ed`. Supervisor ACCEPTED P8-03 on 2026-09-24.
