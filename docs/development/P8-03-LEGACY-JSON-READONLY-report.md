@@ -17,7 +17,7 @@ direct JSON writer -> fail closed
 ## Implementation
 
 - `Settings` now exposes `APP_ENV` and `JSON_REPOSITORY_MODE`.
-- production defaults `JSON_REPOSITORY_MODE=read-only`.
+- production requires `NARRATIVE_REPOSITORY=postgres` and defaults `JSON_REPOSITORY_MODE=read-only`.
 - production explicitly rejects `JSON_REPOSITORY_MODE=read-write`.
 - `StoryKBManager` supports `read_only=True` and rejects both normal and atomic saves before touching disk.
 - production composition creates the legacy StoryKB manager in read-only mode.
@@ -46,7 +46,7 @@ Gemini local Docker verification must prove:
 
 1. new P8-03 unit/settings tests pass;
 2. full AI-service regression remains green;
-3. production settings reject JSON read-write mode;
+3. production settings require PostgreSQL and reject JSON read-write mode;
 4. a read-only JSON manager can read an existing snapshot but cannot change its SHA-256;
 5. `/v1/ai/kb/confirm` returns 409 + `LEGACY_JSON_READ_ONLY` + deprecation/successor headers in production-style read-only runtime;
 6. production Compose still uses `NARRATIVE_REPOSITORY=postgres`;
