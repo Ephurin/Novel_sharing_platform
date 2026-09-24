@@ -1,0 +1,14 @@
+{
+  "version": "p8-05-v1",
+  "status": "BLOCKED_PENDING_POST_RELEASE_STABILITY",
+  "release_identifier": null,
+  "observation_window_started_at": null,
+  "observation_window_ended_at": null,
+  "observation_window_completed": false,
+  "production_json_writes_zero": null,
+  "rollback_path_retained": true,
+  "error_budget_status": "unknown",
+  "open_rollback_incidents": null,
+  "supervisor_cleanup_gate_accepted": false,
+  "evidence": []
+}
