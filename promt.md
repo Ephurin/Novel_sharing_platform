@@ -221,9 +221,12 @@ Important: opening P8-05 does **not** itself authorize destructive removal. The 
 
 ---
 
-# 7. ACTIVE TASK — P8-05 FINAL CLEANUP GATE
+# 7. ACTIVE TASK — P8-05 POST-RELEASE STABILITY GATE
 
-**Development branch:** `astra/p8-05-final-cleanup-gate`  
+**Gate-preparation status:** MERGED  
+**PR:** #9  
+**Merge commit:** `160f2f4a1ac879dce528854cb49e6899a8d192c2`  
+**Execution branch:** `main`  
 **Destructive cleanup:** BLOCKED
 
 ## Goal
@@ -305,13 +308,59 @@ cleanup_allowed: false
 
 That BLOCKED result is correct and is not a failure.
 
-## Development workflow
+## Gate-preparation verification — COMPLETE
 
-1. GitHub P7/P8 regression CI must stay green.
-2. Final-cleanup-gate CI must prove destructive cleanup remains blocked.
-3. Merge this gate-preparation implementation to `main`.
-4. Gemini/Antigravity may locally verify the gate/manifest on `main`.
-5. Wait for real post-release stability evidence.
-6. Only after explicit Supervisor final cleanup acceptance may destructive runtime removal begin.
+Implementation head `166c3cc183bc65ce0c26504c5019b1abbeffc211` passed:
 
-Do not remove JSON files, routes, adapters, backups or PostgreSQL data in this preparation slice.
+- P8 Cutover and Migration run #76: SUCCESS;
+- final-cleanup-gate: SUCCESS;
+- blocked-state assertion: SUCCESS;
+- synthetic OPEN/BLOCKED state transition test: SUCCESS;
+- cleanup manifest safety contract: SUCCESS;
+- rollback rehearsal: SUCCESS;
+- PostgreSQL integration: SUCCESS;
+- frontend/API cutover: SUCCESS;
+- root Compose cutover smoke: SUCCESS;
+- P7 Semantic Memory Foundation run #84: SUCCESS.
+
+## Gemini / Antigravity responsibility on main
+
+Gemini may verify the **gate preparation only**:
+
+```bash
+python scripts/check_p8_cleanup_readiness.py
+python scripts/check_p8_final_cleanup_gate.py --expect-blocked
+```
+
+Also inspect:
+
+```text
+docs/development/P8-05-FINAL-CLEANUP-GATE/stability-gate.json
+docs/development/P8-05-FINAL-CLEANUP-GATE/cleanup-manifest.json
+```
+
+Expected result is:
+
+```text
+cleanup readiness = PASS
+final cleanup gate = BLOCKED
+cleanup_allowed = false
+```
+
+Do not fabricate a release identifier, observation window, error-budget result or operational evidence. Do not set `supervisor_cleanup_gate_accepted=true`.
+
+A local PASS only verifies that the **gate works**. It does not ACCEPT P8-05 destructive cleanup.
+
+## Blocking external condition
+
+Destructive removal cannot begin until real post-release evidence is available and the Supervisor explicitly accepts the final cleanup gate.
+
+Until then:
+
+- do not remove JSON files;
+- do not remove legacy runtime routes;
+- do not remove adapters/tooling;
+- do not delete rollback backups;
+- do not drop/truncate PostgreSQL data.
+
+P8-05 remains ACTIVE / BLOCKED_PENDING_STABILITY.
