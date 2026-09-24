@@ -1,6 +1,6 @@
 # P8-04 — Rollback Rehearsal + Cleanup Readiness
 
-**Status:** MERGED — local verification pending  
+**Status:** ACCEPTED — 2026-09-24  
 **PR:** #8  
 **Merge commit:** `50fe44621bc9a7251055e3acb07cd49509839f72`  
 **Execution branch:** `main`
@@ -54,4 +54,4 @@ docs/development/P8-04-ROLLBACK-CLEANUP-READINESS/
   compose-smoke.txt
 ```
 
-P8-04 is not accepted until Supervisor reviews local evidence.
+Corrected local evidence was committed in `b5fe119e591dcec5ec5e769860d23e6b40531410`, testing `10e7cc591d717433891fcb244bea606714400736`. Astra reviewed the rerun against source and Supervisor ACCEPTED P8-04 on 2026-09-24.
