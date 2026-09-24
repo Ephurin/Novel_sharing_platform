@@ -1,0 +1,54 @@
+{
+  "version": "p8-05-v1",
+  "destructive_cleanup_authorized": false,
+  "production_runtime_removal_candidates": [
+    {
+      "path": "ai-service/api/routes.py",
+      "symbols": ["/v1/ai/kb/confirm", "/v1/ai/sync-story", "/v1/ai/suggest-next"],
+      "action_after_gate": "remove legacy route handlers and route-only schemas/imports",
+      "reason": "deprecated compatibility surface; canonical successors exist"
+    },
+    {
+      "path": "ai-service/api/interactions.py",
+      "symbols": ["/v1/enhanced/process-interactions"],
+      "action_after_gate": "remove fail-closed legacy direct-write endpoint and dead route-only code",
+      "reason": "direct canonical write path has been disabled since Phase 6.5"
+    },
+    {
+      "path": "ai-service/api/deps.py",
+      "symbols": ["get_story_kb"],
+      "action_after_gate": "remove only if no remaining runtime route depends on StoryKBManager",
+      "reason": "runtime legacy JSON dependency"
+    },
+    {
+      "path": "ai-service/main.py",
+      "symbols": ["app.state.story_kb"],
+      "action_after_gate": "remove runtime StoryKBManager composition after route dependency reaches zero",
+      "reason": "production canonical repository is PostgreSQL"
+    }
+  ],
+  "retain_offline_migration_and_test_tooling": [
+    {
+      "path": "ai-service/core/story_kb_manager.py",
+      "reason": "legacy archive reader and migration/test fixture support; not a production canonical writer"
+    },
+    {
+      "path": "ai-service/infrastructure/json_narrative_repository.py",
+      "reason": "repository contract and offline migration compatibility"
+    },
+    {
+      "path": "ai-service/infrastructure/json_postgres_cutover.py",
+      "reason": "one-way JSON to PostgreSQL migration/recovery tooling"
+    },
+    {
+      "path": "ai-service/application/migrate_json_to_postgres.py",
+      "reason": "operator migration CLI; source JSON remains immutable"
+    }
+  ],
+  "never_automatic": [
+    "delete legacy JSON source files",
+    "drop or truncate PostgreSQL user data",
+    "remove rollback backups",
+    "set supervisor_cleanup_gate_accepted=true"
+  ]
+}
