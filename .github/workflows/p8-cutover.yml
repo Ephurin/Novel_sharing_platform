@@ -6,6 +6,7 @@ on:
       - astra/p8-cutover
       - astra/p8-02-frontend-api-cutover
       - astra/p8-03-legacy-json-readonly
+      - astra/p8-04-rollback-cleanup-readiness
   pull_request:
     paths:
       - "ai-service/**"
@@ -13,6 +14,7 @@ on:
       - "web/**"
       - "mobile/**"
       - "scripts/check_p8_frontend_api_cutover.py"
+      - "scripts/check_p8_cleanup_readiness.py"
       - "docker-compose.yml"
       - ".github/workflows/p8-cutover.yml"
 
@@ -261,3 +263,147 @@ jobs:
       - name: Shutdown
         if: always()
         run: docker compose down -v
+
+
+  rollback-rehearsal:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: p8_rehearsal
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p8_rehearsal"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      SOURCE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_rehearsal
+      RESTORE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_restore_verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ai-service/requirements.txt
+      - name: Install AI-service dependencies
+        working-directory: ai-service
+        run: pip install -r requirements.txt pytest httpx
+      - name: Enforce cleanup readiness boundary
+        run: python scripts/check_p8_cleanup_readiness.py
+      - name: Prepare source database and seed canonical cutover fixture
+        working-directory: ai-service
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_rehearsal
+          NARRATIVE_REPOSITORY: postgres
+          APP_ENV: test
+        run: |
+          set -euo pipefail
+          python -m alembic upgrade head
+          mkdir -p /tmp/p8-rollback-json
+          cat > /tmp/p8-rollback-json/11111111-2222-3333-4444-555555555555.json <<'JSON'
+          {
+            "story_id": "11111111-2222-3333-4444-555555555555",
+            "metadata": {"brain_version": "3", "status": "active"},
+            "entities": {
+              "elena": {
+                "name": "Elena",
+                "entity_type": "character",
+                "status": "Alive",
+                "location": "Observatory",
+                "mentions": 4,
+                "is_locked": true
+              }
+            }
+          }
+          JSON
+          python -m application.migrate_json_to_postgres             --json-storage /tmp/p8-rollback-json             --story-id 11111111-2222-3333-4444-555555555555             --apply             --output /tmp/p8-rehearsal-seed.json
+      - name: Capture source schema/version/snapshot
+        working-directory: ai-service
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_rehearsal
+          NARRATIVE_REPOSITORY: postgres
+          APP_ENV: test
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from core.settings import Settings
+          from core.story_kb_manager import StoryKBManager
+          from infrastructure.repository_factory import build_narrative_repository
+          repo = build_narrative_repository(Settings.from_env(), StoryKBManager("/tmp/p8-unused"))
+          data = repo.export_snapshot("11111111-2222-3333-4444-555555555555")
+          with open("/tmp/source-snapshot.json", "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, sort_keys=True, indent=2)
+          engine = getattr(repo, "engine", None)
+          if engine is not None:
+              engine.dispose()
+          PY
+          psql postgresql://postgres:postgres@localhost:5432/p8_rehearsal -Atc             "SELECT version_num FROM alembic_version ORDER BY version_num" > /tmp/source-alembic.txt
+          psql postgresql://postgres:postgres@localhost:5432/p8_rehearsal -Atc             "SELECT extname || ':' || extversion FROM pg_extension WHERE extname='vector'" > /tmp/source-vector.txt
+      - name: Backup source database
+        run: |
+          set -euo pipefail
+          pg_dump             --format=custom             --no-owner             --no-acl             --dbname=postgresql://postgres:postgres@localhost:5432/p8_rehearsal             --file=/tmp/p8-rehearsal.dump
+          test -s /tmp/p8-rehearsal.dump
+          sha256sum /tmp/p8-rehearsal.dump > /tmp/p8-rehearsal.dump.sha256
+      - name: Restore into isolated verification database
+        run: |
+          set -euo pipefail
+          psql postgresql://postgres:postgres@localhost:5432/postgres -v ON_ERROR_STOP=1             -c "CREATE DATABASE p8_restore_verify"
+          pg_restore             --exit-on-error             --no-owner             --no-acl             --dbname=postgresql://postgres:postgres@localhost:5432/p8_restore_verify             /tmp/p8-rehearsal.dump
+      - name: Verify restored migration state and canonical parity
+        working-directory: ai-service
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_restore_verify
+          NARRATIVE_REPOSITORY: postgres
+          APP_ENV: test
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from core.settings import Settings
+          from core.story_kb_manager import StoryKBManager
+          from infrastructure.repository_factory import build_narrative_repository
+          repo = build_narrative_repository(Settings.from_env(), StoryKBManager("/tmp/p8-unused-restore"))
+          restored = repo.export_snapshot("11111111-2222-3333-4444-555555555555")
+          with open("/tmp/source-snapshot.json", encoding="utf-8") as f:
+              source = json.load(f)
+          assert restored == source, "canonical snapshot changed after backup/restore"
+          engine = getattr(repo, "engine", None)
+          if engine is not None:
+              engine.dispose()
+          print("canonical restore parity: PASS")
+          PY
+          psql postgresql://postgres:postgres@localhost:5432/p8_restore_verify -Atc             "SELECT version_num FROM alembic_version ORDER BY version_num" > /tmp/restore-alembic.txt
+          psql postgresql://postgres:postgres@localhost:5432/p8_restore_verify -Atc             "SELECT extname || ':' || extversion FROM pg_extension WHERE extname='vector'" > /tmp/restore-vector.txt
+          diff -u /tmp/source-alembic.txt /tmp/restore-alembic.txt
+          diff -u /tmp/source-vector.txt /tmp/restore-vector.txt
+      - name: Prove source database was not mutated by rehearsal restore
+        working-directory: ai-service
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_rehearsal
+          NARRATIVE_REPOSITORY: postgres
+          APP_ENV: test
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from core.settings import Settings
+          from core.story_kb_manager import StoryKBManager
+          from infrastructure.repository_factory import build_narrative_repository
+          repo = build_narrative_repository(Settings.from_env(), StoryKBManager("/tmp/p8-unused-final"))
+          current = repo.export_snapshot("11111111-2222-3333-4444-555555555555")
+          with open("/tmp/source-snapshot.json", encoding="utf-8") as f:
+              before = json.load(f)
+          assert current == before, "source database changed during restore rehearsal"
+          engine = getattr(repo, "engine", None)
+          if engine is not None:
+              engine.dispose()
+          print("source database unchanged: PASS")
+          PY
