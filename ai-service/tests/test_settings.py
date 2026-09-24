@@ -57,6 +57,15 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.app_env, "production")
         self.assertEqual(settings.json_repository_mode, "read-only")
 
+    def test_production_requires_postgres_repository(self) -> None:
+        with patch.dict(
+            os.environ,
+            {"APP_ENV": "production", "NARRATIVE_REPOSITORY": "json"},
+            clear=True,
+        ):
+            with self.assertRaisesRegex(ValueError, "NARRATIVE_REPOSITORY"):
+                Settings.from_env()
+
     def test_production_rejects_json_read_write_mode(self) -> None:
         with patch.dict(
             os.environ,
