@@ -1407,10 +1407,11 @@ P8-03 must not begin until P8-02 is accepted.
 
 ### Handoff — P8-02-FRONTEND-API-CANONICAL-CUTOVER
 
-Status: Completed, awaiting owner acceptance
+Status: ACCEPTED — merged to `main` on 2026-09-24
 
 - Branch: `astra/p8-02-frontend-api-cutover`
-- PR: #6
+- Merged PR: #6
+- Merge commit: `12a0dc57186472c72c5318d8f3bde5185d33f307`
 - Validated implementation HEAD: `2a052bdd548aeb219591310d5b7272aba78a7fc6`
 - GitHub Actions: PASS — run 35946930023
 - Browser AI calls: shared Platform `apiClient` + `/ai/*` gateway paths
@@ -1432,6 +1433,6 @@ Status: Completed, awaiting owner acceptance
 - P8-03 JSON deprecation/read-only changes: NONE
 - Report: `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER-report.md`
 - Evidence: `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER/`
-- Remaining blocker: owner ACCEPT / merge only
+- Remaining blocker: none
 
-Do not start P8-03 until P8-02 is accepted.
+P8-02 is accepted. P8-03 is the next planned slice but is **NOT ACTIVE** until explicitly opened by the owner.
