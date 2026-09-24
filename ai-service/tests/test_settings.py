@@ -16,6 +16,8 @@ class SettingsTests(unittest.TestCase):
         self.assertIn("http://localhost:5173", settings.cors_origins)
         self.assertEqual(settings.llm_timeout_seconds, 30)
         self.assertEqual(settings.narrative_repository, "json")
+        self.assertEqual(settings.app_env, "development")
+        self.assertEqual(settings.json_repository_mode, "read-write")
 
     def test_environment_values_are_parsed(self) -> None:
         environment = {
@@ -43,6 +45,31 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.pipeline_version, "entity-v2")
         self.assertEqual(settings.entity_prompt_version, "entity-prompt-v3")
         self.assertEqual(settings.narrative_repository, "postgres")
+
+    def test_production_forces_json_read_only_mode(self) -> None:
+        with patch.dict(
+            os.environ,
+            {"APP_ENV": "production", "NARRATIVE_REPOSITORY": "postgres", "DATABASE_URL": "postgresql+psycopg://localhost/test"},
+            clear=True,
+        ):
+            settings = Settings.from_env()
+
+        self.assertEqual(settings.app_env, "production")
+        self.assertEqual(settings.json_repository_mode, "read-only")
+
+    def test_production_rejects_json_read_write_mode(self) -> None:
+        with patch.dict(
+            os.environ,
+            {
+                "APP_ENV": "production",
+                "NARRATIVE_REPOSITORY": "postgres",
+                "DATABASE_URL": "postgresql+psycopg://localhost/test",
+                "JSON_REPOSITORY_MODE": "read-write",
+            },
+            clear=True,
+        ):
+            with self.assertRaisesRegex(ValueError, "JSON_REPOSITORY_MODE"):
+                Settings.from_env()
 
     def test_invalid_provider_is_rejected(self) -> None:
         with patch.dict(os.environ, {"LLM_PROVIDER": "unknown"}, clear=True):
