@@ -1,9 +1,10 @@
 # P8-02 — Frontend/API Canonical Cutover Report
 
-**Status:** IMPLEMENTED — awaiting executed CI / Compose evidence  
+**Status:** COMPLETED — awaiting owner acceptance  
 **Branch:** `astra/p8-02-frontend-api-cutover`  
-**Draft PR:** #6  
-**Current reviewed HEAD:** `f33565b659d4f8322d8f6adccb43e9951b3c8272`
+**PR:** #6  
+**Validated HEAD:** `2a052bdd548aeb219591310d5b7272aba78a7fc6`  
+**GitHub Actions:** run `35946930023` — PASS
 
 ## Goal
 
@@ -20,61 +21,69 @@ P8-02 does not change Story Brain storage and does not deprecate JSON writes.
 
 ## Static architecture audit
 
-Reviewed on the P8-02 branch:
+- Web AI Copilot and manuscript import use shared Platform `apiClient` with relative `/ai/*` paths.
+- Mobile uses only `EXPO_PUBLIC_API_BASE_URL`.
+- `web/.env.example` exposes only `VITE_API_BASE_URL`; legacy direct AI-service browser envs were removed.
+- nginx proxies `/api/v1` to Node backend.
+- Backend alone owns `AI_SERVICE_URL` and `PLATFORM_SERVICE_TOKEN`.
 
-- `web/src/features/ai-copilot/ai-copilot-api.ts` uses shared `apiClient` and relative `/ai/*` gateway paths.
-- `web/src/features/manuscript-import/manuscript-import-api.ts` uses shared `apiClient` and relative `/ai/*` gateway paths.
-- `mobile/src/api/api-client.ts` uses only `EXPO_PUBLIC_API_BASE_URL` with the Platform API default.
-- `web/.env.example` exposes only `VITE_API_BASE_URL`; legacy `VITE_AI_SERVICE_BASE_URL` and `VITE_AI_TENANT_ID` were removed.
-- `web/nginx.conf` proxies `/api/v1` to `backend:4000`.
-- root Compose builds web with `VITE_API_BASE_URL=/api/v1`; backend alone owns `AI_SERVICE_URL` and `PLATFORM_SERVICE_TOKEN`.
+## Enforcement
 
-## Enforcement added
+`scripts/check_p8_frontend_api_cutover.py` fails closed on browser/mobile source or public env examples containing direct FastAPI port 8000 references, direct AI-service public env variables, browser tenant overrides, service tokens, direct canonical Story Brain/writing FastAPI paths, or `/internal/v1/*`.
 
-`scripts/check_p8_frontend_api_cutover.py` now scans browser/mobile application source plus public env examples and fails closed on:
+Executed CI result:
 
-- direct localhost/loopback FastAPI port 8000 URLs;
-- `VITE_AI_SERVICE_BASE_URL`;
-- `VITE_AI_TENANT_ID`;
-- mobile/public AI service base or service-token variables;
-- `PLATFORM_SERVICE_TOKEN` in browser/mobile source;
-- direct `/v1/story-brains`;
-- direct `/v1/writing/generations`;
-- direct `/internal/v1/*`.
+```text
+P8-02 frontend/API cutover guard: PASS [p8-02-v1]
+58 files scanned
+```
 
-Backend/server-to-server source is intentionally excluded from this source guard.
+## CI evidence
 
-## CI verification added
+Run: `35946930023`
 
-The P8 workflow now includes the P8-02 branch and web/backend/mobile changes. The `frontend-api-cutover` job is configured to run:
+### frontend-api-cutover — PASS
 
-1. deterministic source boundary guard;
-2. web `npm ci && npm run build`;
-3. built-asset scan for direct FastAPI references;
-4. backend `npm ci && npm run typecheck && npm test`;
-5. mobile `npm ci && npm run typecheck`.
+- source guard: PASS;
+- web production build: PASS;
+- built asset forbidden-reference scan: PASS;
+- backend typecheck: PASS;
+- backend deterministic tests: 20/20 PASS;
+- mobile typecheck: PASS.
 
-The root Compose job additionally verifies:
+The backend deterministic suite excludes tests explicitly named `*.live.test.ts` and `*.postgres.test.ts`; live integration behavior is covered separately by PostgreSQL and root Compose jobs.
 
-- nginx `/api/v1/ai/*` reaches an authentication boundary and returns 401 without user credentials;
-- deployed web assets do not contain direct FastAPI host/port/public env/direct canonical routes;
-- existing P8-01/P7 production health, pgvector and direct service-auth probes remain in place.
+### AI-service regression — PASS
 
-## Evidence state
+```text
+176 passed, 2 skipped, 34 deselected
+```
 
-No executed workflow result is claimed in this report yet. GitHub connector had not returned a PR workflow run for the reviewed HEAD at the time of this update.
+### PostgreSQL integration — PASS
 
-Required before Astra acceptance:
+```text
+34 passed, 178 deselected
+```
 
-- P8 workflow run ID + successful job results;
-- web build/typecheck evidence;
-- backend gateway regression evidence;
-- mobile typecheck evidence;
-- static guard executed PASS;
-- root Compose nginx gateway probe PASS;
-- deployed asset scan PASS;
-- existing P8-01/P7 production path PASS.
+PostgreSQL 16 + pgvector remains active; invalid vector dimension rejection is still exercised.
+
+### Root Compose cutover smoke — PASS
+
+Validated:
+
+- PostgreSQL, MongoDB and AI service healthy;
+- web served by nginx;
+- committed legacy StoryKB dry-run inventory remains 6/6 ready;
+- P8-01 dry-run/apply/idempotent reapply remains green;
+- nginx `/api/v1/ai/*` unauthenticated request reaches the Node auth boundary and returns 401;
+- deployed web assets contain no forbidden direct FastAPI reference;
+- pgvector extension exists;
+- direct protected FastAPI service-auth boundary remains missing=401 / invalid=403 / valid=200.
 
 ## Scope exclusions preserved
 
 No P8-03 JSON read-only/deprecation behavior, P8-04 rollback rehearsal, or P8-05 destructive cleanup is included.
+
+## Review conclusion
+
+All P8-02 implementation and executed evidence gates are satisfied. The slice is ready for owner acceptance and merge. P8-03 must remain closed until that acceptance.
