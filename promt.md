@@ -135,20 +135,38 @@ P8-04  rollback rehearsal + cleanup readiness
 P8-05  destructive legacy removal — deferred until post-release stability gate
 ```
 
-**P8-03 is NOT ACTIVE yet.**
+**P8-03 is ACTIVE.**
 
 ---
 
-# 4. SUPERVISOR NOTE — LOCAL PHASE 8 VERIFICATION
+# 4. PHASE 8 LOCAL VERIFICATION — VERIFIED PASS
 
-Supervisor đã chỉ đạo tiếp tục sang P8-03.
+Gemini đã push local Docker verification lên `main` tại commit `efb5fd310b70845efa54614146136759d87dcd38`.
 
-GitHub hiện **không có** block kết quả Gemini hoặc bộ `P8-LOCAL-FULL-VERIFICATION` đã commit; latest `main` chỉ có task yêu cầu verification. Vì vậy:
+Tested commit: `9a49acb9990f82195f3185f9b05a7ed258bcba61`.
 
-- không được cite local Gemini run như GitHub evidence;
-- không được tự fabricate PASS;
-- nếu Supervisor/Gemini push evidence sau, review và attach vào acceptance record;
-- việc mở P8-03 là theo chỉ đạo trực tiếp của Supervisor, không phải do ChatGPT tự suy diễn acceptance evidence.
+Verified evidence:
+
+- static cutover guard: PASS — 58 files, 0 violations;
+- web build/assets: PASS;
+- backend deterministic/gateway tests: PASS — 20/20;
+- mobile typecheck: PASS;
+- AI-service regression: PASS — 176 passed, 2 skipped, 34 deselected;
+- PostgreSQL + pgvector: PASS — 34 passed, 178 deselected, pgvector 0.8.6;
+- P8-01 migration/parity replay: PASS;
+- P8-02 gateway cutover replay: PASS;
+- root Compose: PASS — isolated `p8_verification` project;
+- source JSON unchanged;
+- user/prod data modified: NO.
+
+Evidence:
+
+```text
+docs/development/P8-LOCAL-FULL-VERIFICATION-report.md
+docs/development/P8-LOCAL-FULL-VERIFICATION/
+```
+
+This closes the independent local verification gate for accepted P8-01/P8-02.
 
 ---
 

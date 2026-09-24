@@ -1,0 +1,38 @@
+=== P8-02 GATEWAY CUTOVER REPLAY ===
+Timestamp: 2026-09-24T10:15:57+07:00
+Commit SHA: 9a49acb9990f82195f3185f9b05a7ed258bcba61
+
+End-to-End Client Boundary Traversal:
+Client -> Web Nginx (:8080) -> Node Backend (:4000) -> FastAPI AI Service (:8000)
+
+1. Unauthenticated Gateway Request:
+   - Target: http://localhost:8080/api/v1/ai/story-brains/81b923d7-5507-48ea-9a84-5303fd1de5f4/context-preview
+   - Headers: None
+   - Result: HTTP 401 Unauthorized
+   - Response: {"success":false,"data":null,"error":{"code":"AUTH_002","message":"Missing access token"},"meta":{}}
+   - Verified: Request touches Node auth boundary via Nginx proxy and fails closed without forwarding to FastAPI.
+
+2. Authorized Novel Author Request:
+   - Login: reader03@example.com (Author of novel 81b923d7-5507-48ea-9a84-5303fd1de5f4) via POST http://localhost:8080/api/v1/auth/login
+   - Auth token acquired: JWT bearer token
+   - Target: GET http://localhost:8080/api/v1/ai/story-brains/81b923d7-5507-48ea-9a84-5303fd1de5f4/context-preview
+   - Headers: Authorization: Bearer <user_access_token>
+   - Result: HTTP 200 OK
+   - Response: {"success":true,"data":{"brain_version":1,"token_budget":{"packing_version":"context-budget-v1"...}}}
+   - Verified: Node AI gateway authenticates user, verifies author ownership, derives canonical chapter cutoffs, injects internal PLATFORM_SERVICE_TOKEN, and proxies to FastAPI AI service.
+
+3. Cross-Author Access Enforcement:
+   - Login: reader04@example.com (Role READER, not author of novel 81b923d7-5507-48ea-9a84-5303fd1de5f4)
+   - Target: GET http://localhost:8080/api/v1/ai/story-brains/81b923d7-5507-48ea-9a84-5303fd1de5f4/context-preview
+   - Headers: Authorization: Bearer <reader04_access_token>
+   - Result: HTTP 403 Forbidden
+   - Verified: Node AI gateway strictly blocks non-authors from reading private Story Brain context.
+
+4. Client Knowledge Boundary Isolation:
+   - Client requires zero knowledge of:
+     * FastAPI port 8000 (proxied via /api/v1/ai/*)
+     * PLATFORM_SERVICE_TOKEN (held exclusively in backend environment)
+     * Tenant service header (injected by backend)
+     * Direct FastAPI routes (only canonical platform API endpoints called)
+
+Status: PASS

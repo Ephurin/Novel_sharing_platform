@@ -1,0 +1,38 @@
+=== AI SERVICE NON-POSTGRESQL REGRESSION ===
+Timestamp: 2026-09-24T09:54:44+07:00
+Commit SHA: 9a49acb9990f82195f3185f9b05a7ed258bcba61
+
+Commands:
+cd ai-service
+pip install -r requirements.txt pytest httpx
+pytest -q
+
+Exit code: 0
+
+Output:
+........................................................................ [ 40%]
+........................................................................ [ 80%]
+.......ss.........................                                       [100%]
+============================== warnings summary ===============================
+main.py:150
+  C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\ai-service\main.py:150: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+    @app.on_event("startup")
+main.py:155
+  C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\ai-service\main.py:155: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+    @app.on_event("shutdown")
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+176 passed, 2 skipped, 34 deselected, 4 warnings in 6.92s
+
+Summary:
+- Total passed: 176
+- Skipped: 2
+- Deselected: 34 (postgres integration tests deselected in default unit test run)
+- Warnings: 4 (FastAPI lifespan deprecation warnings from upstream library)
+- Failed: 0
+Status: PASS

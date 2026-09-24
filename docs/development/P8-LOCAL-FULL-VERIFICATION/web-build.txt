@@ -1,0 +1,24 @@
+=== WEB PRODUCTION BUILD AND ASSET SCAN ===
+Timestamp: 2026-09-24T09:53:07+07:00
+Commit SHA: 9a49acb9990f82195f3185f9b05a7ed258bcba61
+
+Commands:
+1) cd web
+   npm ci
+   npm run build
+Exit code: 0
+Build output:
+dist/index.html                   0.42 kB │ gzip:   0.28 kB
+dist/assets/index-BiX0OAsX.css  204.02 kB │ gzip:  30.03 kB
+dist/assets/index-Y1LCKa0z.js   754.77 kB │ gzip: 229.67 kB
+built in 11.86s
+
+2) Scan web/dist for forbidden direct AI references:
+Regex: '127\.0\.0\.1:8000|localhost:8000|VITE_AI_SERVICE_BASE_URL|VITE_AI_TENANT_ID|/v1/story-brains|/v1/writing/generations|/internal/v1/'
+Exit code: 0
+Output:
+Scan passed: no forbidden references in web/dist
+
+Summary:
+Web production build succeeded. Built assets do not expose FastAPI, direct story-brain paths, or service credentials.
+Status: PASS

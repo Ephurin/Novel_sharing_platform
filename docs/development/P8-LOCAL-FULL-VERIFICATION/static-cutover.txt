@@ -1,0 +1,23 @@
+=== STATIC / CLIENT CUTOVER VERIFICATION ===
+Timestamp: 2026-09-24T09:47:24+07:00
+Commit SHA: 9a49acb9990f82195f3185f9b05a7ed258bcba61
+
+Command:
+python scripts/check_p8_frontend_api_cutover.py
+
+Exit code: 0
+
+Output:
+P8-02 frontend/API cutover guard: PASS [p8-02-v1] (58 files scanned; browser/mobile boundary is Node-gateway-only)
+
+Summary:
+- 58 files scanned across web/src, mobile/src, web/.env.example, mobile/.env.example
+- 0 violations found
+- Direct FastAPI :8000 references: NONE
+- VITE_AI_SERVICE_BASE_URL: NONE
+- VITE_AI_TENANT_ID: NONE
+- Public service token / PLATFORM_SERVICE_TOKEN: NONE
+- Direct /v1/story-brains: NONE
+- Direct /v1/writing/generations: NONE
+- Direct /internal/v1/*: NONE
+Status: PASS

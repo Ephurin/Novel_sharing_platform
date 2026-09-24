@@ -20,6 +20,8 @@ coverage/
 .env
 .env.*
 !.env.example
+key.txt
+**/key.txt
 
 # Django local artifacts
 db.sqlite3
@@ -74,5 +76,3 @@ celerybeat-schedule
 *.local
 *.tsbuildinfo
 .expo/
-
-key.txt
