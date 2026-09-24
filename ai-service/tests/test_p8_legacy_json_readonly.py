@@ -6,7 +6,11 @@ import unittest
 from pathlib import Path
 
 from core.exceptions import KBWriteError
+from fastapi.testclient import TestClient
+
+from api.deps import get_settings
 from core.story_kb_manager import StoryKB, StoryKBManager
+from main import app
 
 
 class LegacyJsonReadOnlyTests(unittest.TestCase):
@@ -38,6 +42,34 @@ class LegacyJsonReadOnlyTests(unittest.TestCase):
                 manager.save_narrative_kb("story-2", StoryKB(story_id="story-2"))
 
             self.assertFalse((Path(temp_dir) / "story-2.json").exists())
+
+    def test_legacy_kb_confirm_fails_closed_with_deprecation_headers(self) -> None:
+        class TestSettings:
+            service_auth_disabled = True
+
+        original_manager = app.state.story_kb
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                app.state.story_kb = StoryKBManager(Path(temp_dir), read_only=True)
+                app.dependency_overrides[get_settings] = lambda: TestSettings()
+                client = TestClient(app)
+
+                response = client.post(
+                    "/v1/ai/kb/confirm",
+                    json={"story_id": "story-3", "approved_candidates": []},
+                )
+
+                self.assertEqual(response.status_code, 409)
+                self.assertEqual(
+                    response.json()["detail"]["code"],
+                    "LEGACY_JSON_READ_ONLY",
+                )
+                self.assertEqual(response.headers["deprecation"], "true")
+                self.assertIn("successor-version", response.headers["link"])
+                self.assertFalse((Path(temp_dir) / "story-3.json").exists())
+        finally:
+            app.state.story_kb = original_manager
+            app.dependency_overrides.pop(get_settings, None)
 
 
 if __name__ == "__main__":
