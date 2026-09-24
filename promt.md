@@ -319,3 +319,181 @@ Tested commit: 9478be96a09b829e305f9ea6fb6e5d18d837933a
 - Evidence: docs/development/P8-04-ROLLBACK-CLEANUP-READINESS/
 - Remaining blocker: none
 
+---
+
+# 7. ASTRA REVIEW — P8-04 LOCAL EVIDENCE INVALID, RERUN REQUIRED
+
+**Reviewed evidence commit:** `7ed01d071ee412d7efad3ee16c1abe32f8275f2a`  
+**Evidence claimed tested commit:** `9478be96a09b829e305f9ea6fb6e5d18d837933a`  
+**Review status:** INVALID EVIDENCE / RERUN REQUIRED  
+**P8-04 acceptance:** BLOCKED  
+**P8-05:** CLOSED
+
+The P8-04 implementation and pre-merge GitHub CI remain GREEN. The problem is the local evidence committed by Gemini, which contains claims that do not match the tested repository.
+
+Do **not** edit the implementation to make it match the incorrect evidence. Re-run verification against the actual repository contract and replace the invalid evidence with real command output.
+
+## Invalid evidence findings
+
+1. `canonical-parity.txt` records both canonical snapshot hashes as:
+
+   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+
+   This is SHA-256 of empty content. It is not valid proof for the seeded non-empty Story Brain. Capture the actual serialized snapshot or prove deep equality directly using the real repository API.
+
+2. Evidence references `StoryBrainPostgresRepository.export_canonical_snapshot()`.
+
+   This class/method does not exist in the tested repo.
+
+   Source of truth:
+   - repository class: `PostgresNarrativeRepository`
+   - snapshot method: `export_snapshot(story_id)`
+
+3. Evidence claims `story_memory_items.embedding = vector(1536)` and an HNSW index.
+
+   This contradicts the frozen Phase 7 contract.
+
+   Source of truth:
+   - physical embedding storage: `narrative.memory_embeddings.embedding`
+   - dimension: `VECTOR(768)`
+   - embedding version: `gemini-embedding-2-768-v1`
+   - accepted MVP has **no HNSW/IVFFlat index**
+
+4. Evidence references tables such as:
+
+   - `story_characters`
+   - `story_world_items`
+   - `story_timeline_events`
+   - `story_relationships`
+   - `story_memory_items`
+
+   Do not invent table names. Query the actual schema created by current Alembic migrations, or use `PostgresNarrativeRepository.export_snapshot()` for canonical parity.
+
+5. `regressions.txt` names a non-existent test file:
+
+   `tests/test_legacy_json_read_only.py`
+
+   Source of truth:
+
+   `tests/test_p8_legacy_json_readonly.py`
+
+6. Evidence uses pytest marker `postgres`.
+
+   Source of truth from `ai-service/pytest.ini`:
+
+   `postgres_integration`
+
+   The live PostgreSQL suite must be invoked with the real marker, e.g. equivalent to:
+
+   `pytest -o addopts= -q -m postgres_integration`
+
+7. Compose evidence records the wrong successor for legacy `/v1/ai/kb/confirm`.
+
+   Source of truth in `ai-service/api/routes.py`:
+
+   `</v1/revisions/{revision_id}/analyses>; rel="successor-version"`
+
+8. Some gateway evidence uses `/api/ai/...`.
+
+   Accepted P8-02 public boundary is:
+
+   `/api/v1/ai/*`
+
+## Rerun instructions
+
+Pull latest `main` first. Record the exact tested SHA.
+
+Use the existing P8-04 CI implementation as the behavioral source of truth, especially the `rollback-rehearsal` job in:
+
+`.github/workflows/p8-cutover.yml`
+
+Rerun locally with isolated Docker/PostgreSQL resources and regenerate the P8-04 evidence files from **actual command output**.
+
+Required proofs:
+
+1. `python scripts/check_p8_cleanup_readiness.py` exits 0.
+2. Source PostgreSQL is isolated and disposable.
+3. `alembic upgrade head` reaches actual current head.
+4. Seed the same synthetic P8 rollback fixture through the real migration/cutover path.
+5. Capture source canonical snapshot with `PostgresNarrativeRepository.export_snapshot(story_id)`.
+6. Capture actual source Alembic revision.
+7. Capture actual pgvector extension version.
+8. Verify actual embedding schema reports `vector(768)`; do not claim HNSW/IVFFlat.
+9. Create non-empty custom-format `pg_dump`; record its real SHA-256.
+10. Restore into a separate `p8_restore_verify` database.
+11. Capture restored snapshot with the same real `export_snapshot(story_id)`.
+12. Prove source snapshot == restored snapshot.
+13. Prove source Alembic revision == restored revision.
+14. Prove source pgvector version == restored version.
+15. Re-read source snapshot after restore and prove source is unchanged.
+16. Run real targeted P8-03 tests:
+    - `tests/test_p8_legacy_json_readonly.py`
+    - `tests/test_settings.py`
+17. Run full non-PostgreSQL AI-service regression.
+18. Run live PostgreSQL suite using marker `postgres_integration`.
+19. Re-run P8-01/P8-02/P8-03 regression gates.
+20. Run root Compose smoke using the accepted `/api/v1/ai/*` gateway boundary.
+21. Verify legacy `/v1/ai/kb/confirm` returns 409 `LEGACY_JSON_READ_ONLY`, `Deprecation: true`, and the real revision-analysis successor header.
+22. Prove user/prod volumes and source JSON were not modified.
+
+## Evidence replacement policy
+
+Replace/update the files under:
+
+```text
+docs/development/P8-04-ROLLBACK-CLEANUP-READINESS/
+  environment.txt
+  cleanup-readiness.txt
+  backup.txt
+  restore.txt
+  canonical-parity.txt
+  migration-vector-parity.txt
+  source-unchanged.txt
+  regressions.txt
+  compose-smoke.txt
+```
+
+Each file must contain:
+
+- exact command;
+- actual output or concise verbatim result;
+- exit code;
+- timestamp;
+- tested commit SHA;
+- no secrets.
+
+Do not fabricate object names, table names, vector dimensions, indexes, routes, test files, markers or hashes.
+
+## Corrected handoff format
+
+Append a new block after rerun:
+
+```markdown
+### Gemini Verification — P8-04 RERUN
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <actual latest-main sha>
+
+- Cleanup-readiness guard: <actual result>
+- Backup rehearsal: <actual result + real dump SHA-256>
+- Restore rehearsal: <actual result>
+- Canonical snapshot parity via PostgresNarrativeRepository.export_snapshot: <actual result>
+- Alembic parity: <actual revision/result>
+- pgvector parity: <actual version/result>
+- VECTOR(768) schema check: <actual result>
+- HNSW/IVFFlat present: NO
+- Source database unchanged: <actual result>
+- Targeted P8-03 tests: <actual result>
+- Full AI-service regression: <actual result>
+- PostgreSQL marker postgres_integration: <actual result>
+- P8-01/P8-02/P8-03 regressions: <actual result>
+- Root Compose /api/v1/ai boundary: <actual result>
+- kb/confirm 409 + revision-analysis successor: <actual result>
+- User/prod data modified: NO
+- Evidence: docs/development/P8-04-ROLLBACK-CLEANUP-READINESS/
+- Remaining blocker: none | <exact blocker>
+```
+
+Until this rerun is reviewed, the previous `Status: PASS` block from commit `7ed01d0...` is **not valid acceptance evidence**.
+
+Do not open P8-05.
