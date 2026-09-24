@@ -80,6 +80,8 @@ class Settings:
         repository = (os.getenv("NARRATIVE_REPOSITORY", "json") or "json").strip().lower()
         if repository not in {"json", "postgres"}:
             raise ValueError("NARRATIVE_REPOSITORY must be one of: json, postgres")
+        if app_env == "production" and repository != "postgres":
+            raise ValueError("NARRATIVE_REPOSITORY must be postgres when APP_ENV=production")
 
         default_json_mode = "read-only" if app_env == "production" else "read-write"
         json_repository_mode = (
