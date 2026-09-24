@@ -291,7 +291,7 @@ semantic score
 
 ## Phase 8 — Cutover và cleanup
 
-> **Status:** ACTIVE. P8-01 through P8-04 are ACCEPTED. P8-05 final cleanup gate is ACTIVE on `astra/p8-05-final-cleanup-gate`. Destructive runtime removal remains blocked until real post-release stability evidence and explicit Supervisor cleanup-gate acceptance.
+> **Status:** ACTIVE. P8-01 through P8-04 are ACCEPTED. P8-05 final cleanup gate preparation is merged to `main` via PR #9 (`160f2f4a1ac879dce528854cb49e6899a8d192c2`) after green P7/P8 CI. Destructive runtime removal remains BLOCKED until real post-release stability evidence and explicit Supervisor cleanup-gate acceptance.
 
 ### Tasks
 
