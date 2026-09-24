@@ -291,7 +291,7 @@ semantic score
 
 ## Phase 8 — Cutover và cleanup
 
-> **Status:** ACTIVE. P8-01 was ACCEPTED on 2026-09-23 via PR #5 (`d639979f59b7867ee4863e886afb6065214b4f7d`). P8-02 frontend/API canonical cutover was ACCEPTED on 2026-09-24 via PR #6 (`12a0dc57186472c72c5318d8f3bde5185d33f307`). Legacy deprecation/read-only mode, rollback rehearsal and final destructive cleanup remain separate slices.
+> **Status:** ACTIVE. P8-01 and P8-02 are ACCEPTED. P8-03 legacy deprecation + JSON read-only production mode is ACTIVE on `astra/p8-03-legacy-json-readonly`; local Docker acceptance evidence is pending. P8-04/P8-05 remain closed.
 
 ### Tasks
 

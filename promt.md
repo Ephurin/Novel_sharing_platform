@@ -135,287 +135,151 @@ P8-04  rollback rehearsal + cleanup readiness
 P8-05  destructive legacy removal — deferred until post-release stability gate
 ```
 
-**P8-03 is NOT ACTIVE yet.**
+**P8-03 is ACTIVE.**
 
 ---
 
-# 4. ACTIVE TASK — GEMINI LOCAL DOCKER FULL PHASE 8 VERIFICATION
+# 4. PHASE 8 LOCAL VERIFICATION — VERIFIED PASS
 
-## Purpose
+Gemini đã push local Docker verification lên `main` tại commit `efb5fd310b70845efa54614146136759d87dcd38`.
 
-GitHub Actions đã pass cho P8-01/P8-02, nhưng Supervisor yêu cầu một vòng xác nhận độc lập trên máy local có Docker trước khi mở P8-03.
+Tested commit: `9a49acb9990f82195f3185f9b05a7ed258bcba61`.
 
-Gemini phải chạy **toàn bộ verification hiện có của Phase 8 trên `main`**, sử dụng Docker/local runtime thật.
+Verified evidence:
 
-Không sửa code trước khi có failure tái hiện được.
+- static cutover guard: PASS — 58 files, 0 violations;
+- web build/assets: PASS;
+- backend deterministic/gateway tests: PASS — 20/20;
+- mobile typecheck: PASS;
+- AI-service regression: PASS — 176 passed, 2 skipped, 34 deselected;
+- PostgreSQL + pgvector: PASS — 34 passed, 178 deselected, pgvector 0.8.6;
+- P8-01 migration/parity replay: PASS;
+- P8-02 gateway cutover replay: PASS;
+- root Compose: PASS — isolated `p8_verification` project;
+- source JSON unchanged;
+- user/prod data modified: NO.
 
-## 4.1 Preflight
-
-1. Checkout/pull `main`.
-2. Ghi lại:
-   - commit SHA;
-   - Docker version;
-   - Docker Compose version;
-   - Python version;
-   - Node/npm version.
-3. Xác nhận không có secret/key bị staged hoặc chuẩn bị commit.
-4. Đọc:
-   - `.github/workflows/p8-cutover.yml`
-   - `docs/development/P8-01-JSON-POSTGRES-MIGRATION-PARITY-report.md`
-   - `docs/development/P8-02-FRONTEND-API-CANONICAL-CUTOVER-report.md`
-
-Local verification phải bám sát workflow CI hiện tại, nhưng chạy bằng Docker/local machine thật.
-
-## 4.2 Static/client cutover verification
-
-Chạy:
-
-```bash
-python scripts/check_p8_frontend_api_cutover.py
-```
-
-Phải PASS và không phát hiện:
-
-- browser/mobile direct FastAPI :8000;
-- `VITE_AI_SERVICE_BASE_URL`;
-- `VITE_AI_TENANT_ID`;
-- public service token;
-- direct `/v1/story-brains`;
-- direct `/v1/writing/generations`;
-- direct `/internal/v1/*`.
-
-## 4.3 Web / backend / mobile deterministic verification
-
-### Web
-
-```bash
-cd web
-npm ci
-npm run build
-cd ..
-```
-
-Sau build, scan `web/dist` để bảo đảm không có direct FastAPI/public-AI references như P8 workflow.
-
-### Backend
-
-Chạy typecheck + deterministic tests theo contract trong `.github/workflows/p8-cutover.yml`.
-
-Không gọi các file `*.live.test.ts` / `*.postgres.test.ts` là deterministic evidence.
-
-Phải bao gồm Node AI Gateway tests.
-
-### Mobile
-
-```bash
-cd mobile
-npm ci
-npm run typecheck
-cd ..
-```
-
-## 4.4 AI-service regression
-
-Trong `ai-service/`:
-
-```bash
-pip install -r requirements.txt pytest httpx
-pytest -q
-```
-
-Ghi số passed/skipped/deselected thực tế.
-
-Không dùng kết quả CI cũ thay cho local result.
-
-## 4.5 Live PostgreSQL + pgvector integration
-
-Khởi động PostgreSQL 16 + pgvector thật hoặc dùng Compose/service tương đương local.
-
-Chạy PostgreSQL integration suite:
-
-```bash
-cd ai-service
-pytest -o addopts= -q -m postgres_integration
-cd ..
-```
-
-Phải xác nhận tối thiểu:
-
-- pgvector extension tồn tại;
-- `VECTOR(768)` behavior còn đúng;
-- wrong dimension bị reject;
-- semantic temporal/version/stale isolation regressions vẫn pass;
-- P8 migration/parity tests vẫn pass.
-
-## 4.6 Root Docker Compose full smoke
-
-Dùng root `docker-compose.yml`.
-
-Trước khi chạy, **không xóa volume/dữ liệu user hiện có**. Nếu cần môi trường sạch để test, dùng project name/volume test riêng.
-
-Khởi động production-path stack:
-
-```text
-postgres
-mongodb
-ai-service
-backend
-web
-```
-
-Dùng test-safe environment, ví dụ fake LLM/embedding theo workflow; không cần real external model key cho smoke.
-
-Phải verify:
-
-1. PostgreSQL healthy.
-2. MongoDB healthy.
-3. AI service healthy.
-4. Backend health OK.
-5. Web/nginx serve được.
-6. pgvector extension tồn tại.
-7. Browser path qua nginx:
-   `/api/v1/ai/*`
-   chạm Node auth boundary và unauthenticated request trả 401.
-8. Built/deployed web assets không chứa direct FastAPI/public-AI reference.
-9. Direct FastAPI protected route:
-   - missing service credential -> 401;
-   - invalid credential -> 403;
-   - valid test credential -> 200.
-
-## 4.7 P8-01 migration/parity local replay
-
-Dùng fixture/test data, **không apply committed/user JSON thật vào production DB**.
-
-Phải replay:
-
-1. committed legacy StoryKB inventory dry-run;
-2. tất cả committed inventory được phân loại đúng;
-3. synthetic/scoped JSON dry-run -> safe/ready;
-4. explicit apply vào target test sạch;
-5. canonical parity = true;
-6. source JSON SHA-256 trước/sau không đổi;
-7. apply lần hai idempotent;
-8. unrelated tenant/novel rows không bị thay đổi;
-9. conflicting non-empty target bị từ chối;
-10. không truncate/drop schema/table/volume.
-
-## 4.8 P8-02 local cutover replay
-
-Phải xác nhận lại end-to-end:
-
-```text
-web/nginx
- -> /api/v1
- -> Node backend
- -> /api/v1/ai/*
- -> service-authenticated FastAPI
-```
-
-Và xác nhận browser/mobile không cần biết:
-
-- FastAPI port 8000;
-- service token;
-- tenant service header;
-- direct Story Brain FastAPI route.
-
-## 4.9 Evidence Gemini phải ghi
-
-Tạo/update:
+Evidence:
 
 ```text
 docs/development/P8-LOCAL-FULL-VERIFICATION-report.md
 docs/development/P8-LOCAL-FULL-VERIFICATION/
-  environment.txt
-  static-cutover.txt
-  web-build.txt
-  backend-tests.txt
-  mobile-typecheck.txt
-  ai-service-regression.txt
-  postgres-integration.txt
-  p8-01-migration-parity.txt
-  p8-02-gateway-cutover.txt
-  compose-smoke.txt
 ```
 
-Mỗi evidence file phải ghi:
+This closes the independent local verification gate for accepted P8-01/P8-02.
 
-- command thực sự đã chạy;
-- exit code;
-- kết quả/tổng test;
-- lỗi/warning quan trọng;
-- timestamp;
-- commit SHA được test.
+---
 
-Không paste secret.
+# 5. ACTIVE TASK — P8-03 LEGACY DEPRECATION + JSON READ-ONLY PRODUCTION MODE
 
-## 4.10 Failure protocol
+**Branch:** `astra/p8-03-legacy-json-readonly`
 
-Nếu bất kỳ bước nào fail:
+## Goal
 
-1. **dừng tuyên bố PASS**;
-2. lưu exact command + relevant log;
-3. xác định failure là:
-   - environment/setup;
-   - deterministic regression;
-   - PostgreSQL/pgvector integration;
-   - Compose/runtime;
-   - P8-01 parity;
-   - P8-02 gateway boundary;
-4. không tự sửa rộng;
-5. báo lại ChatGPT/Astra với file/log cụ thể để sửa;
-6. sau fix phải rerun gate bị fail và các regression liên quan.
+```text
+production canonical writes -> PostgreSQL
+legacy JSON -> readable archive / migration source
+legacy writer APIs -> deprecated
+direct JSON writes -> fail closed
+```
 
-## 4.11 Handoff Gemini phải append vào cuối file này
+P8-03 không xóa JSON, không xóa adapter, không làm rollback rehearsal và không làm P8-05 destructive cleanup.
 
-Sau khi chạy xong, chỉ append block ngắn:
+## Implementation currently prepared by ChatGPT/Astra
+
+- production `APP_ENV=production` bắt buộc `NARRATIVE_REPOSITORY=postgres` và JSON mode mặc định `read-only`;
+- production reject explicit `JSON_REPOSITORY_MODE=read-write`;
+- `StoryKBManager(read_only=True)` chặn disk save trước khi mutate file;
+- production composition tạo legacy manager read-only;
+- `/v1/ai/kb/confirm` deprecated + fail closed HTTP 409 `LEGACY_JSON_READ_ONLY`;
+- `/v1/ai/sync-story` deprecated;
+- `/v1/ai/suggest-next` giữ successor Writing Generation;
+- `/v1/enhanced/process-interactions` vẫn 403 direct-write-disabled và có deprecation metadata;
+- `.env.example` khuyến nghị PostgreSQL + read-only JSON;
+- dev/test JSON fixtures vẫn writable để migration/repository tests hoạt động.
+
+Report:
+
+```text
+docs/development/P8-03-LEGACY-JSON-READONLY-report.md
+docs/development/P8-03-LEGACY-JSON-READONLY/
+```
+
+## Gemini responsibility — local Docker verification
+
+Gemini **không phát triển feature** cho slice này trừ khi Supervisor/ChatGPT giao fix cụ thể.
+
+Trên branch P8-03, chạy và ghi evidence thật:
+
+1. P8-03 targeted tests:
+   - `tests/test_p8_legacy_json_readonly.py`
+   - `tests/test_settings.py`
+2. full AI-service regression;
+3. live PostgreSQL + pgvector integration;
+4. P8-01 migration/parity regression;
+5. P8-02 gateway/frontend cutover regression;
+6. root Docker Compose production path.
+
+Phải prove:
+
+- production setting bắt buộc PostgreSQL và không cho JSON read-write;
+- legacy JSON existing snapshot đọc được;
+- write attempt không đổi source SHA-256;
+- `/v1/ai/kb/confirm` read-only trả 409 + deprecation + successor headers;
+- root Compose vẫn `NARRATIVE_REPOSITORY=postgres`;
+- migration tooling vẫn đọc/replay fixture JSON được;
+- không user/prod JSON nào bị sửa;
+- PostgreSQL/pgvector/P7 regressions vẫn green.
+
+Evidence cần tạo/update:
+
+```text
+docs/development/P8-03-LEGACY-JSON-READONLY/
+  environment.txt
+  targeted-tests.txt
+  ai-service-regression.txt
+  postgres-integration.txt
+  p8-01-regression.txt
+  p8-02-regression.txt
+  compose-smoke.txt
+  json-source-hash.txt
+```
+
+Mỗi file ghi exact command, exit code, test totals, timestamp, tested commit SHA. Không paste secret.
+
+## Failure protocol
+
+Nếu fail:
+
+- không tuyên bố PASS;
+- giữ exact command + relevant log;
+- không tự sửa rộng;
+- handoff failure cho ChatGPT/Astra;
+- sau fix rerun gate fail + regressions liên quan.
+
+## Gemini handoff format
+
+Append cuối file này:
 
 ```markdown
 ---
 
-### Gemini Local Verification — Phase 8
+### Gemini Verification — P8-03
 
 Status: PASS | PARTIAL | BLOCKED
 Tested commit: <sha>
-Environment: <short summary>
 
-- Static cutover guard: <result>
-- Web build/assets: <result>
-- Backend deterministic/gateway tests: <result>
-- Mobile typecheck: <result>
-- AI-service regression: <result>
-- PostgreSQL + pgvector integration: <result>
-- P8-01 migration/parity replay: <result>
-- P8-02 gateway cutover replay: <result>
-- Root Compose smoke: <result>
-- Source JSON unchanged: <result>
+- Targeted read-only/settings tests: <result>
+- Full AI-service regression: <result>
+- PostgreSQL + pgvector: <result>
+- P8-01 migration regression: <result>
+- P8-02 cutover regression: <result>
+- Root Compose: <result>
+- JSON source unchanged: <result>
 - User/prod data modified: NO
-- Report: docs/development/P8-LOCAL-FULL-VERIFICATION-report.md
-- Evidence: docs/development/P8-LOCAL-FULL-VERIFICATION/
+- Report: docs/development/P8-03-LEGACY-JSON-READONLY-report.md
+- Evidence: docs/development/P8-03-LEGACY-JSON-READONLY/
 - Remaining blocker: none | <exact blocker>
 ```
 
-Do not open P8-03. Supervisor will decide the next step after reviewing this local evidence.
-
----
-
-### Gemini Local Verification — Phase 8
-
-Status: PASS
-Tested commit: 9a49acb9990f82195f3185f9b05a7ed258bcba61
-Environment: Windows (win32 x64), Docker 29.7.2, Docker Compose v5.5.1, Python 3.11.9, Node v24.19.0, npm 11.17.0
-
-- Static cutover guard: PASS (58 files scanned, 0 violations)
-- Web build/assets: PASS (build 11.86s, 0 forbidden direct AI references in web/dist)
-- Backend deterministic/gateway tests: PASS (20/20 tests passed, 0 failed)
-- Mobile typecheck: PASS (0 errors)
-- AI-service regression: PASS (176 passed, 2 skipped, 34 deselected)
-- PostgreSQL + pgvector integration: PASS (34 passed, 178 deselected, pgvector 0.8.6 confirmed)
-- P8-01 migration/parity replay: PASS (6/6 inventory ready, synthetic parity verified, idempotent reapply verified, conflicting target safely rejected)
-- P8-02 gateway cutover replay: PASS (unauthenticated 401, author 200 with packed context/budget, cross-author 403)
-- Root Compose smoke: PASS (all 5 services healthy, Nginx proxy verified, protected FastAPI 401/403/200 verified)
-- Source JSON unchanged: YES (ai-service/data clean in git)
-- User/prod data modified: NO (isolated project volumes used; user volumes preserved)
-- Report: docs/development/P8-LOCAL-FULL-VERIFICATION-report.md
-- Evidence: docs/development/P8-LOCAL-FULL-VERIFICATION/
-- Remaining blocker: none
-
+Do not open P8-04. Supervisor decides acceptance.

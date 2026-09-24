@@ -68,6 +68,15 @@ router = APIRouter(prefix="/v1/ai", tags=["ai"], dependencies=[Depends(require_s
 
 logger = logging.getLogger(__name__)
 
+LEGACY_REVISION_SUCCESSOR = '</v1/revisions/{revision_id}/analyses>; rel="successor-version"'
+LEGACY_WRITING_SUCCESSOR = '</v1/writing/generations>; rel="successor-version"'
+LEGACY_BOOTSTRAP_SUCCESSOR = '</v1/story-brains/bootstrap/from-manuscript>; rel="successor-version"'
+
+
+def _mark_deprecated(response: Response, successor: str) -> None:
+    response.headers["Deprecation"] = "true"
+    response.headers["Link"] = successor
+
 
 # ──────────────────────────────────────────────
 #  POST /extract-entities
@@ -139,7 +148,7 @@ def llm_generate(
 #  POST /suggest-next
 # ──────────────────────────────────────────────
 
-@router.post("/suggest-next", response_model=SuggestNextResponse)
+@router.post("/suggest-next", response_model=SuggestNextResponse, deprecated=True)
 def suggest_next(
     payload: SuggestNextRequest,
     response: Response,
@@ -148,16 +157,15 @@ def suggest_next(
     engine: ConsistencyEngine = Depends(get_consistency_engine),
     writing_service: WritingService = Depends(get_writing_service),
 ) -> SuggestNextResponse:
-    # Phase 6.5 deprecation contract
-    response.headers["Deprecation"] = "true"
-    response.headers["Link"] = '</v1/writing/generations>; rel="successor-version"'
+    # Phase 6.5/P8-03 deprecation contract
+    _mark_deprecated(response, LEGACY_WRITING_SUCCESSOR)
     if llm_service is None:
         raise HTTPException(
             status_code=503,
             detail="LLMService is not initialized",
             headers={
                 "Deprecation": "true",
-                "Link": '</v1/writing/generations>; rel="successor-version"',
+                "Link": LEGACY_WRITING_SUCCESSOR,
             },
         )
     started = time.perf_counter()
@@ -250,13 +258,15 @@ def suggest_next(
 #  POST /sync-story
 # ──────────────────────────────────────────────
 
-@router.post("/sync-story", response_model=SyncStoryResponse)
+@router.post("/sync-story", response_model=SyncStoryResponse, deprecated=True)
 def sync_story(
     payload: SyncStoryRequest,
+    response: Response,
     pipeline: EntityPipeline = Depends(get_entity_pipeline),
     llm_service=Depends(get_llm_service),
     narrative: NarrativeApplicationService = Depends(get_narrative_service),
 ) -> SyncStoryResponse:
+    _mark_deprecated(response, LEGACY_BOOTSTRAP_SUCCESSOR)
     started = time.perf_counter()
 
     try:
@@ -335,12 +345,30 @@ def analyze_chapter(
 #  POST /kb/confirm
 # ──────────────────────────────────────────────
 
-@router.post("/kb/confirm", response_model=ConfirmKBResponse)
+@router.post("/kb/confirm", response_model=ConfirmKBResponse, deprecated=True)
 def confirm_kb(
     payload: ConfirmKBRequest,
+    response: Response,
     kb: StoryKBManager = Depends(get_story_kb),
     llm_service=Depends(get_llm_service),
 ) -> ConfirmKBResponse:
+    _mark_deprecated(response, LEGACY_REVISION_SUCCESSOR)
+    if kb.read_only:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "LEGACY_JSON_READ_ONLY",
+                "message": (
+                    "Legacy JSON write path is disabled in production; "
+                    "use revision analysis and proposal review APIs"
+                ),
+            },
+            headers={
+                "Deprecation": "true",
+                "Link": LEGACY_REVISION_SUCCESSOR,
+            },
+        )
+
     started = time.perf_counter()
 
     db_updates = []

@@ -79,7 +79,9 @@ app.state.llm_client = LLMClient(
 )
 app.state.consistency_checker = ConsistencyChecker(low_confidence_threshold=0.60)
 app.state.consistency_engine = ConsistencyEngine()
-app.state.story_kb = StoryKBManager()
+app.state.story_kb = StoryKBManager(
+    read_only=settings.json_repository_mode == "read-only"
+)
 app.state.narrative_repository = build_narrative_repository(settings, app.state.story_kb)
 app.state.semantic_runtime = build_semantic_runtime(settings)
 app.state.semantic_retriever = app.state.semantic_runtime.retriever

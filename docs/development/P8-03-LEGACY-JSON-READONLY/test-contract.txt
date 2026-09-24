@@ -1,0 +1,17 @@
+P8-03 local verification contract
+
+Status: PENDING GEMINI EXECUTION
+
+Required:
+- Settings production JSON read-only tests
+- StoryKBManager read-only hash-preservation tests
+- legacy kb/confirm HTTP 409 + deprecation contract
+- full AI-service regression
+- PostgreSQL integration regression
+- P8-01 migration/parity regression
+- P8-02 gateway/Compose regression
+- root Compose with NARRATIVE_REPOSITORY=postgres
+- prove no committed/user JSON changed
+
+Record exact commands, exit codes, test totals, tested commit SHA and timestamps.
+Do not paste secrets.

@@ -79,11 +79,20 @@ class StoryKB(BaseModel):
 class StoryKBManager:
     """Manages file-based JSON Knowledge Base for a given story."""
     
-    def __init__(self, storage_dir: str | Path = "data"):
+    def __init__(self, storage_dir: str | Path = "data", *, read_only: bool = False):
         # Default storage relative to the ai-service root
         base_dir = Path(__file__).resolve().parent.parent
         self.storage_dir = base_dir / Path(storage_dir)
         self.storage_dir.mkdir(parents=True, exist_ok=True)
+        self.read_only = bool(read_only)
+
+    def _assert_writable(self, story_id: str) -> None:
+        if self.read_only:
+            from core.exceptions import KBWriteError
+            raise KBWriteError(
+                story_id,
+                "legacy JSON storage is read-only; use PostgreSQL Story Brain APIs",
+            )
 
     def _get_file_path(self, story_id: str) -> Path:
         safe_id = "".join(c for c in story_id if c.isalnum() or c in ('-', '_'))
@@ -106,6 +115,7 @@ class StoryKBManager:
 
     def save_narrative_kb(self, story_id: str, kb: StoryKB) -> None:
         """Atomic replacement with explicit errors for the canonical proposal workflow."""
+        self._assert_writable(story_id)
         import os
         import tempfile
         destination = self._get_file_path(story_id)
@@ -132,6 +142,7 @@ class StoryKBManager:
                 os.unlink(temporary)
 
     def save_kb(self, story_id: str, kb: StoryKB) -> None:
+        self._assert_writable(story_id)
         file_path = self._get_file_path(story_id)
         kb.metadata["updated_at"] = datetime.now(timezone.utc).isoformat()
         try:

@@ -5,6 +5,7 @@ on:
     branches:
       - astra/p8-cutover
       - astra/p8-02-frontend-api-cutover
+      - astra/p8-03-legacy-json-readonly
   pull_request:
     paths:
       - "ai-service/**"
