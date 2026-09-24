@@ -420,6 +420,28 @@ jobs:
         run: python scripts/check_p8_cleanup_readiness.py
       - name: Assert destructive P8-05 cleanup is still blocked
         run: python scripts/check_p8_final_cleanup_gate.py --expect-blocked
+      - name: Test final cleanup gate state transitions
+        run: |
+          set -euo pipefail
+          cat > /tmp/p8-open-gate.json <<'JSON'
+          {
+            "release_identifier": "synthetic-ci-release",
+            "observation_window_started_at": "2026-01-01T00:00:00Z",
+            "observation_window_ended_at": "2026-01-02T00:00:00Z",
+            "observation_window_completed": true,
+            "production_json_writes_zero": true,
+            "rollback_path_retained": true,
+            "error_budget_status": "within_budget",
+            "open_rollback_incidents": 0,
+            "supervisor_cleanup_gate_accepted": true,
+            "evidence": ["synthetic-ci-only"]
+          }
+          JSON
+          python scripts/check_p8_final_cleanup_gate.py --gate /tmp/p8-open-gate.json --require-open
+          if python scripts/check_p8_final_cleanup_gate.py --gate /tmp/p8-open-gate.json --expect-blocked; then
+            echo "Open synthetic gate incorrectly passed --expect-blocked" >&2
+            exit 1
+          fi
       - name: Validate cleanup manifest safety contract
         run: |
           python - <<'PY'
