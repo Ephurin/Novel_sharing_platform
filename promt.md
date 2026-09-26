@@ -223,60 +223,112 @@ reproducible case
 
 Then ChatGPT/Astra reviews; Supervisor decides whether to open an implementation slice.
 
-## Compact handoff format
+## EVAL-01 attempt 1 review
 
-Append after EVAL-01:
+Attempt-1 evidence remains preserved for audit:
 
-```markdown
-### Astra Review — EVAL-01 ATTEMPT 1
-
-Status: **PARTIAL / RERUN REQUIRED**
-
-Reviewed evidence:
-- attempt evidence: `0d7fa3e40db9bfa06218c11931d26e40b2d8665a`
-- handoff: `67cf385e841d8bc9360358957977834d7308e61f`
+- evidence commit: `0d7fa3e40db9bfa06218c11931d26e40b2d8665a`
+- handoff commit: `67cf385e841d8bc9360358957977834d7308e61f`
 - review: [ASTRA-REVIEW.md](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/ASTRA-REVIEW.md)
 
-Valid observations from attempt 1:
-- live PostgreSQL/pgvector path executed;
-- live Gemini query embedding calls executed;
-- temporal SQL cutoff observed;
-- no future/stale rows observed in inspected results;
-- live generation calls executed;
-- P8-05 remained BLOCKED.
+Status:
 
-Invalid claims requiring rerun:
-- 21-core aggregate was built from the wrong query membership;
-- challenge did not use its required 232-memory audit corpus;
-- normalized `event_participants` was not seeded for hybrid signals;
-- generation quality was hard-coded 5/5;
-- context packing used placeholder semantic content;
-- materialization counters used wrong result keys;
-- latency summary copied wrong numbers;
-- token/cost was not measured;
-- raw ingestion/extraction was incorrectly marked PASS.
+```text
+EVAL-01 attempt 1 = PARTIAL / INVALID AGGREGATE
+architecture defect = none demonstrated
+P8-05 destructive cleanup = BLOCKED
+```
 
-Corrected harness is the only allowed rerun path after merge:
+Do not reuse the attempt-1 aggregate metrics or 5/5 generation rubric as accepted evidence.
+
+## Corrected harness — MERGED
+
+- PR: #10
+- merge commit: `15f43f10b74ddf70e6c098de901036e757bef5bc`
+- Evaluation Pilot Harness CI: SUCCESS
+- fixture contract guard: PASS
+
+Guarded contract:
+
+```text
+40 frozen retrieval queries
+21 core-gold          -> canonical_216
+19 challenge          -> audit_232
+10 Vietnamese         -> canonical_216
+duplicate rq IDs      -> split-qualified case_id
+generation quality    -> REVIEW_REQUIRED
+token/cost unavailable -> not_measured
+```
+
+## Gemini / Antigravity — rerun now
+
+On latest `main`:
 
 ```bash
+git switch main
+git pull origin main
+
+python scripts/check_p8_cleanup_readiness.py
+python scripts/check_p8_final_cleanup_gate.py --expect-blocked
 python scripts/check_eval01_fixture_contract.py
 python scripts/run_eval_01.py
 ```
 
-Expected split contract:
+Requirements:
 
-```text
-core_gold              21 queries / canonical_216
-challenge              19 queries / audit_232
-vietnamese_diagnostic  10 queries / canonical_216
+- all three guards must pass before interpreting evaluation results;
+- use one fixed local Gemini key slot for the measured run;
+- replace the EVAL-01 evidence files with corrected runner output;
+- do not edit gold labels/source corpus;
+- do not change embedding model, hybrid weights, or architecture;
+- do not self-score generation quality;
+- do not claim raw ingestion/extraction PASS;
+- commit corrected evidence to `main`.
+
+## Compact rerun handoff format
+
+Append after the corrected run:
+
+```markdown
+### Gemini Verification — EVAL-01 CORRECTED RERUN
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+
+- Fixture contract: PASS
+- P8-05 cleanup gate: BLOCKED
+- Core-gold corpus: 216 memories / 21 queries
+- Challenge corpus: 232 memories / 19 queries
+- Vietnamese diagnostic: 216 memories / 10 queries
+- Materialization canonical: <generated/reused/fresh coverage>
+- Materialization challenge: <generated/reused/fresh coverage>
+- Core semantic @10: Recall=<...>, MRR=<...>, nDCG=<...>
+- Core hybrid-v1 @10: Recall=<...>, MRR=<...>, nDCG=<...>
+- Challenge diagnostic: <metrics/result>
+- Vietnamese diagnostic: <metrics/result>
+- Future leakage: <0 or exact failures>
+- Stale/wrong-version: <0 or exact failures>
+- Hybrid signals exercised: <count/result>
+- Context packing: <determinism + relevant-memory retention>
+- Protected canonical packing: not_measured | <real evidence>
+- Generation execution: <success count>
+- Generation quality: REVIEW_REQUIRED | <separate reviewed result>
+- Latency: <artifact-derived p50/p95>
+- Token/cost: not_measured | <measured result>
+- Dominant failure category: <category>
+- Confirmed production architecture defect: none | <exact defect>
+- Architecture change proposed: NO | <proposal>
+- Evidence: docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/
+- Remaining blocker: none | <exact blocker>
 ```
 
-Generation quality must remain `REVIEW_REQUIRED` unless a separate evaluator/reviewer actually scores the preserved outputs.
+## References / history
 
-Until corrected evidence is reviewed:
+- [Detailed Evaluation / Pilot Runbook](docs/development/EVALUATION-PILOT-RUNBOOK.md)
+- [EVAL-01 Astra review](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/ASTRA-REVIEW.md)
+- [Frozen dataset report](.data/Frozen_v1/dataset_report.md)
+- [Previous Phase 0–8 handoff archive](docs/development/archive/P0-P8-HANDOFF-through-2026-09-26.md)
+- [Implementation roadmap](ai-service/docs/IMPLEMENTATION_PLAN.md)
 
-```text
-EVAL-01 = PARTIAL / RERUN REQUIRED
-architecture defect = none demonstrated
-P8-05 destructive cleanup = BLOCKED
-```
+Roles remain: Supervisor = final ACCEPT; ChatGPT/Astra = developer/architect/reviewer; Gemini/Antigravity = local execution/measurement worker.
