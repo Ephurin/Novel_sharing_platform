@@ -323,6 +323,38 @@ Evidence commit: <sha>
 - Remaining blocker: none | <exact blocker>
 ```
 
+### Gemini Verification — EVAL-01 CORRECTED RERUN
+
+Status: PASS
+Tested commit: 8bae8276633ec9a9dae56d6f314907b9d12ee16d
+Evidence commit: 1cdee3869911ee26989ea1c2a8657ea2e4a6a578
+
+- Fixture contract: PASS
+- P8-05 cleanup gate: BLOCKED
+- Core-gold corpus: 216 memories / 21 queries
+- Challenge corpus: 232 memories / 19 queries
+- Vietnamese diagnostic: 216 memories / 10 queries
+- Materialization canonical: 0 generated / 216 reused / 216 fresh coverage (100%)
+- Materialization challenge: 232 generated / 0 reused / 232 fresh coverage (100%)
+- Core semantic @10: Recall=0.6747, MRR=0.9024, nDCG=0.7097
+- Core hybrid-v1 @10: Recall=0.7390, MRR=0.9063, nDCG=0.7310
+- Challenge diagnostic: semantic @10: Recall=0.7614, MRR=0.8596, nDCG=0.6595; hybrid-v1 @10: Recall=0.7461, MRR=0.8584, nDCG=0.6677
+- Vietnamese diagnostic: semantic @10: Recall=0.6702, MRR=0.8500, nDCG=0.6572; hybrid-v1 @10: Recall=0.7599, MRR=0.8643, nDCG=0.7166
+- Future leakage: 0
+- Stale/wrong-version: 0
+- Hybrid signals exercised: 39 evaluated cases exposed entity/relationship signals after participant-table backfill
+- Context packing: deterministic (6/6 cases match hash), relevant-memory retention=1.0
+- Protected canonical packing: not_measured (locked canonical entity/state/rule package not reconstructed by this harness)
+- Generation execution: 4/4 SUCCESS
+- Generation quality: REVIEW_REQUIRED (not self-scored; preserved in generation-cases.json for Astra/Supervisor review)
+- Latency: query_embedding p50=1478.29ms (p95=2618.07ms); sql_retrieval p50=62.75ms (p95=69.34ms); generation p50=1397.84ms (p95=2280.37ms)
+- Token/cost: not_measured (LLMClient returns text only and does not expose provider usage/cost metadata)
+- Dominant failure category: none demonstrated in retrieval/runtime (INGESTION_EXTRACTION & GENERATION_QUALITY require separate evaluation)
+- Confirmed production architecture defect: none
+- Architecture change proposed: NO
+- Evidence: docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/
+- Remaining blocker: none (P8-05 destructive cleanup remains BLOCKED pending release stability)
+
 ## References / history
 
 - [Detailed Evaluation / Pilot Runbook](docs/development/EVALUATION-PILOT-RUNBOOK.md)
