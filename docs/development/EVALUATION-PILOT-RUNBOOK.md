@@ -130,20 +130,25 @@ nDCG    = 0.721033
 
 These numbers are regression/calibration references, **not** unbiased held-out quality claims.
 
-### Whole-story working corpus
+### Frozen whole-story consolidation
 
-Current source:
+The Batch_7 extraction has already been consolidated and frozen as `aethelgard-retrieval-eval-v1.0.0`.
 
-`.data/Batch_7/dataset_report.md`
+Source of truth:
 
-State after chapter-by-chapter extraction:
+`.data/Frozen_v1/dataset_report.md`
 
-- all 61 Aethelgard chapters processed;
-- working retrieval set expanded to 40 queries;
-- includes long-range setup/payoff, object lifecycle, relationship supersession, ambiguity, and future-leak traps;
-- next required corpus task is cross-story consolidation before freezing the next evaluation version.
+Policies:
 
-Do not call the 40-query working set a frozen benchmark until consolidation/audit produces an explicit versioned freeze.
+- full source/audit memories: **232**;
+- canonical benchmark memories: **216**;
+- total frozen retrieval queries: **40**;
+- primary core-gold split: **21** queries using the 216 canonical corpus;
+- challenge split: **19** queries using the full 232-memory audit corpus because some positives are intentionally inferred/uncertain;
+- Vietnamese diagnostic: **10** translated core-derived queries using the 216 canonical corpus;
+- Batch_7 remains the historical working source snapshot, not the active benchmark contract.
+
+Do not mix these split/corpus policies in one aggregate.
 
 ## 8.5 First active experiment — EVAL-01 Aethelgard runtime baseline
 
@@ -169,23 +174,27 @@ Never substitute A for B.
 5. Run the accepted runtime stack with PostgreSQL + pgvector.
 6. Materialize/rebuild semantic memory only through accepted production tooling.
 7. Record actual memory counts by memory type and embedding version.
-8. Run retrieval queries with chapter cutoffs.
-9. Compare at minimum:
+8. Run retrieval queries with chapter cutoffs using source-defined split membership. Never infer split from numeric query IDs.
+9. Enforce corpus policy:
+   - core-gold -> canonical 216;
+   - challenge -> audit 232;
+   - Vietnamese diagnostic -> canonical 216.
+10. Compare at minimum:
    - recent-only reference where available;
    - semantic-only;
    - accepted `hybrid-v1`.
-10. Record retrieval metrics where gold labels support them:
+11. Record retrieval metrics where gold labels support them:
     - Recall@5/@10/@20;
     - MRR@5/@10/@20;
     - nDCG@5/@10/@20;
     - hit rate;
     - candidate counts;
     - latency p50/p95 when available.
-11. Run explicit future-information leakage audit:
+12. Run explicit future-information leakage audit:
     - future candidates before cutoff filter: diagnostic only if observable;
     - future candidates surviving final retrieval: MUST be 0;
     - stale/wrong-version candidates surviving final retrieval: MUST be 0.
-12. Evaluate long-range categories separately:
+13. Evaluate long-range categories separately:
     - old-but-important memory;
     - setup -> payoff;
     - relationship evolution/supersession;
@@ -194,22 +203,22 @@ Never substitute A for B.
     - low lexical overlap;
     - multi-memory reasoning;
     - future-leak trap.
-13. Evaluate context packing:
+14. Evaluate context packing using real retrieved memory content:
     - selected artifact IDs;
     - dedup behavior;
     - token-budget usage;
     - protected canonical artifact truncation count;
     - deterministic repeatability/context hash;
     - relevant-memory retention.
-14. Run a bounded generation pilot only after retrieval/context evidence is preserved.
-15. For generation runs, preserve:
+15. Run a bounded generation pilot only after retrieval/context evidence is preserved.
+16. For generation runs, preserve:
     - prompt/context hash;
     - generation model/version;
     - temperature/settings;
     - retrieved memory IDs;
     - output;
     - latency/tokens/cost if available.
-16. Score generation with an explicit rubric, separating:
+17. The harness must not self-score generation. Preserve outputs with `REVIEW_REQUIRED`; a separate reviewer/evaluator may later score:
     - canonical factual consistency;
     - character/state consistency;
     - relationship consistency;
@@ -217,8 +226,9 @@ Never substitute A for B.
     - unsupported fact introduction;
     - context adherence;
     - continuity across long-range dependencies.
-17. Do not use a single opaque LLM-judge score as the only evidence. Preserve per-criterion findings and representative failures.
-18. Classify every important failure before proposing a fix.
+18. Do not use a single opaque LLM-judge score as the only evidence. Preserve per-criterion findings and representative failures.
+19. If the full locked canonical entity/state/rule package is not reconstructed, protected-artifact truncation must be `not_measured`, not zero.
+20. Classify every important failure before proposing a fix.
 
 ## 8.6 Failure taxonomy
 

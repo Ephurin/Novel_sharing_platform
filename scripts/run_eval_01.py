@@ -57,6 +57,7 @@ EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
 # Fixed test IDs
 TENANT_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 STORY_ID = "aethelgard-soul-mortal-blade-61ch"
+CHALLENGE_STORY_ID = "aethelgard-soul-mortal-blade-61ch-eval01-challenge"
 NOVEL_ID = PostgresSemanticMemoryRepository._novel_id(STORY_ID)
 
 
@@ -205,8 +206,241 @@ def seed_canonical_story(factory, memories_data: list[dict[str, Any]], entities_
                 )
                 session.add(ev_rec)
 
+        # 6. Event participants. HybridRanker signals read the normalized
+        # event_participants table, not EventRecord.participants JSON.
+        session.flush()
+        existing_participants = {
+            (row.event_id, row.entity_id, row.participant_role)
+            for row in session.query(EventParticipantRecord)
+            .join(EventRecord, EventParticipantRecord.event_id == EventRecord.id)
+            .filter(EventRecord.story_brain_id == brain_id)
+            .all()
+        }
+        for mem in memories_data:
+            event_uuid = stable_uuid("event", mem["memory_id"])
+            for source_entity_id in mem.get("entities", []):
+                entity_uuid = stable_uuid("entity", source_entity_id)
+                participant_key = (event_uuid, entity_uuid, "actor")
+                if participant_key in existing_participants:
+                    continue
+                if session.get(EntityRecord, entity_uuid) is None:
+                    continue
+                session.add(
+                    EventParticipantRecord(
+                        event_id=event_uuid,
+                        entity_id=entity_uuid,
+                        participant_role="actor",
+                    )
+                )
+                existing_participants.add(participant_key)
+
         return brain_id
 
+
+
+def scoped_stable_uuid(story_id: str, kind: str, value: str) -> uuid.UUID:
+    return stable_uuid(kind, f"{story_id}:{value}")
+
+
+def seed_scoped_story(
+    factory,
+    story_id: str,
+    memories_data: list[dict[str, Any]],
+    entities_data: dict[str, Any],
+) -> uuid.UUID:
+    """Seed an isolated evaluation story without global primary-key collisions."""
+    novel_id = PostgresSemanticMemoryRepository._novel_id(story_id)
+    with session_scope(factory) as session:
+        brain = (
+            session.query(StoryBrainRecord)
+            .filter_by(tenant_id=TENANT_ID, novel_id=novel_id)
+            .first()
+        )
+        if brain is None:
+            brain = StoryBrainRecord(
+                id=scoped_stable_uuid(story_id, "story_brain", story_id),
+                tenant_id=TENANT_ID,
+                novel_id=novel_id,
+                status="ready",
+                brain_version=1,
+                schema_version=1,
+            )
+            session.add(brain)
+            session.flush()
+        brain_id = brain.id
+
+        existing_revs = {
+            r.chapter_number
+            for r in session.query(RevisionProvenanceRecord)
+            .filter_by(story_brain_id=brain_id)
+            .all()
+        }
+        for chapter_number in range(1, 62):
+            if chapter_number in existing_revs:
+                continue
+            session.add(
+                RevisionProvenanceRecord(
+                    id=scoped_stable_uuid(
+                        story_id, "rev_prov", f"ch-{chapter_number}"
+                    ),
+                    story_brain_id=brain_id,
+                    tenant_id=TENANT_ID,
+                    novel_id=novel_id,
+                    chapter_id=scoped_stable_uuid(
+                        story_id, "chapter", f"ch-{chapter_number}"
+                    ),
+                    revision_id=scoped_stable_uuid(
+                        story_id, "revision", f"ch-{chapter_number}"
+                    ),
+                    chapter_number=chapter_number,
+                )
+            )
+
+        entity_uuid_by_source_id: dict[str, uuid.UUID] = {}
+        for entity in entities_data.get("entities", []):
+            source_id = str(entity["entity_id"])
+            entity_uuid = scoped_stable_uuid(story_id, "entity", source_id)
+            entity_uuid_by_source_id[source_id] = entity_uuid
+            if session.get(EntityRecord, entity_uuid) is None:
+                record = EntityRecord(
+                    id=entity_uuid,
+                    story_brain_id=brain_id,
+                    tenant_id=TENANT_ID,
+                    novel_id=novel_id,
+                    entity_type=entity.get("entity_type", "character"),
+                    canonical_name=entity["canonical_name"],
+                    normalized_name=entity["canonical_name"].casefold(),
+                    description=entity.get("notes", ""),
+                    static_attributes={
+                        "first_chapter": entity.get("first_chapter", 1),
+                        "aliases": entity.get("aliases", []),
+                    },
+                    confirmation_status="confirmed",
+                )
+                session.add(record)
+                session.flush()
+            for alias in entity.get("aliases", []):
+                normalized = alias.casefold()
+                alias_id = scoped_stable_uuid(
+                    story_id, "alias", f"{source_id}:{normalized}"
+                )
+                if session.get(EntityAliasRecord, alias_id) is None:
+                    session.add(
+                        EntityAliasRecord(
+                            id=alias_id,
+                            entity_id=entity_uuid,
+                            alias=alias,
+                            normalized_alias=normalized,
+                            source_type="canonical",
+                            confirmation_status="confirmed",
+                        )
+                    )
+
+        name_by_source_id = {
+            str(entity["entity_id"]): entity["canonical_name"]
+            for entity in entities_data.get("entities", [])
+        }
+        for relationship in entities_data.get("relationships", []):
+            relationship_id = scoped_stable_uuid(
+                story_id,
+                "relationship",
+                str(relationship["relationship_id"]),
+            )
+            if session.get(RelationshipRecord, relationship_id) is not None:
+                continue
+            subject_source = str(relationship.get("a"))
+            object_source = str(relationship.get("b"))
+            session.add(
+                RelationshipRecord(
+                    id=relationship_id,
+                    story_brain_id=brain_id,
+                    tenant_id=TENANT_ID,
+                    novel_id=novel_id,
+                    subject_name=name_by_source_id.get(
+                        subject_source, subject_source
+                    ),
+                    object_name=name_by_source_id.get(
+                        object_source, object_source
+                    ),
+                    relation_type=relationship.get(
+                        "relationship_type", "associated"
+                    ),
+                    source_type="canonical",
+                    relation_metadata={
+                        "first_chapter": relationship.get("first_chapter", 1),
+                        "relationship_id": relationship.get("relationship_id"),
+                        "status": relationship.get("status", "audit"),
+                    },
+                )
+            )
+
+        existing_event_orders = {
+            event.narrative_order
+            for event in session.query(EventRecord)
+            .filter_by(story_brain_id=brain_id)
+            .all()
+        }
+        for index, memory in enumerate(memories_data, start=1):
+            memory_id = str(memory["memory_id"])
+            event_uuid = scoped_stable_uuid(
+                story_id, "event", memory_id
+            )
+            if index not in existing_event_orders:
+                session.add(
+                    EventRecord(
+                        id=event_uuid,
+                        story_brain_id=brain_id,
+                        tenant_id=TENANT_ID,
+                        novel_id=novel_id,
+                        narrative_order=index,
+                        event_type=memory.get("memory_type", "event_summary"),
+                        summary=memory["content"],
+                        participants=memory.get("entities", []),
+                        chapter_number=int(memory.get("chapter_number", 1)),
+                        event_metadata={
+                            "memory_id": memory_id,
+                            "importance_score": float(
+                                memory.get("importance", 0.5)
+                            ),
+                            "chapter_title": memory.get("chapter_title", ""),
+                            "tags": memory.get("tags", []),
+                            "status": memory.get("status", "audit"),
+                        },
+                        confirmation_status="confirmed",
+                    )
+                )
+        session.flush()
+
+        existing_participants = {
+            (row.event_id, row.entity_id, row.participant_role)
+            for row in session.query(EventParticipantRecord)
+            .join(EventRecord, EventParticipantRecord.event_id == EventRecord.id)
+            .filter(EventRecord.story_brain_id == brain_id)
+            .all()
+        }
+        for memory in memories_data:
+            event_uuid = scoped_stable_uuid(
+                story_id, "event", str(memory["memory_id"])
+            )
+            for source_entity_id in memory.get("entities", []):
+                entity_uuid = entity_uuid_by_source_id.get(
+                    str(source_entity_id)
+                )
+                if entity_uuid is None:
+                    continue
+                key = (event_uuid, entity_uuid, "actor")
+                if key in existing_participants:
+                    continue
+                session.add(
+                    EventParticipantRecord(
+                        event_id=event_uuid,
+                        entity_id=entity_uuid,
+                        participant_role="actor",
+                    )
+                )
+                existing_participants.add(key)
+
+        return brain_id
 
 def run_evaluation():
     print("=" * 70)
@@ -223,210 +457,381 @@ def run_evaluation():
     memories_payload = json.loads(memories_path.read_text(encoding="utf-8"))
     memories = memories_payload["memories"]
 
+    challenge_memories_path = ROOT / ".data" / "Frozen_v1" / "memory_chunks.json"
+    challenge_memories_payload = json.loads(
+        challenge_memories_path.read_text(encoding="utf-8")
+    )
+    challenge_memories = challenge_memories_payload["memories"]
+
+    if len(memories) != 216 or len(challenge_memories) != 232:
+        raise RuntimeError(
+            f"Frozen corpus contract changed: canonical={len(memories)} audit={len(challenge_memories)}"
+        )
+
     entities_path = ROOT / ".data" / "Batch_7" / "entities.json"
     entities_payload = json.loads(entities_path.read_text(encoding="utf-8"))
 
-    # 2. Seed database
-    print(f"\n[1/7] Seeding PostgreSQL database (story: {STORY_ID}, {len(memories)} canonical memories)...")
+    # 2. Seed databases
+    print(
+        f"\n[1/7] Seeding primary canonical story ({len(memories)} memories) "
+        f"and challenge audit story ({len(challenge_memories)} memories)..."
+    )
     t0_seed = time.perf_counter()
     seed_canonical_story(factory, memories, entities_payload)
+    seed_scoped_story(
+        factory,
+        CHALLENGE_STORY_ID,
+        challenge_memories,
+        entities_payload,
+    )
     print(f"      Seeding completed in {time.perf_counter() - t0_seed:.2f}s")
 
     # 3. Materialize Semantic Memory using accepted tooling
-    print("\n[2/7] Materializing semantic memory chunks and generating live embeddings...")
+    print("\n[2/7] Materializing semantic memory for both frozen corpus policies...")
     embedding_provider = GeminiEmbeddingProvider(api_key=api_key)
     repo = PostgresSemanticMemoryRepository(factory, tenant_id=TENANT_ID)
-    materializer = SemanticMemoryMaterializationService(repo, embedding_provider)
-
-    t0_mat = time.perf_counter()
-    mat_result = materializer.materialize_event_memories(STORY_ID)
-    elapsed_mat = time.perf_counter() - t0_mat
-
-    coverage = repo.embedding_coverage(STORY_ID, embedding_provider.version)
-    print(f"      Materialization result: {mat_result}")
-    print(f"      Coverage: {coverage}")
-    print(f"      Elapsed: {elapsed_mat:.2f}s")
-
-    # Record materialization.txt
-    mat_txt = (
-        f"EVAL-01 AETHELGARD RUNTIME BASELINE — MATERIALIZATION\n"
-        f"Evaluated At: {datetime.now(timezone.utc).isoformat()}\n"
-        f"Story ID: {STORY_ID}\n"
-        f"Tenant ID: {TENANT_ID}\n"
-        f"Total event memory sources listed: {len(memories)}\n"
-        f"Memory chunks persisted: {mat_result.get('chunks', len(memories))}\n"
-        f"Embeddings requested/stored: {mat_result.get('embedded', 0)}\n"
-        f"Embeddings reused: {mat_result.get('reused', 0)}\n"
-        f"Total chunks in database: {coverage['total_chunks']}\n"
-        f"Fresh embeddings matching content hash: {coverage['current']}\n"
-        f"Stale embeddings: {coverage['stale']}\n"
-        f"Missing embeddings: {coverage['missing']}\n"
-        f"Embedding Model: {embedding_provider.model}\n"
-        f"Embedding Version: {embedding_provider.version}\n"
-        f"Embedding Dimension: {embedding_provider.dimension}\n"
-        f"Materialization Elapsed Time: {elapsed_mat:.2f}s\n"
-        f"Status: SUCCESS\n"
+    materializer = SemanticMemoryMaterializationService(
+        repo, embedding_provider
     )
-    (EVIDENCE_DIR / "materialization.txt").write_text(mat_txt, encoding="utf-8")
+
+    materialization_results: dict[str, dict[str, Any]] = {}
+    for corpus_name, story_id, corpus_memories in (
+        ("canonical_core", STORY_ID, memories),
+        ("challenge_audit", CHALLENGE_STORY_ID, challenge_memories),
+    ):
+        started = time.perf_counter()
+        result = materializer.materialize_event_memories(story_id)
+        elapsed = time.perf_counter() - started
+        coverage = repo.embedding_coverage(
+            story_id, embedding_provider.version
+        )
+        materialization_results[corpus_name] = {
+            "story_id": story_id,
+            "source_count": len(corpus_memories),
+            "memory_chunk_count": result.get("memory_chunk_count", 0),
+            "embedded_count": result.get("embedded_count", 0),
+            "reused_embedding_count": result.get(
+                "reused_embedding_count", 0
+            ),
+            "fresh_embedding_count": result.get(
+                "fresh_embedding_count", coverage.get("current", 0)
+            ),
+            "stale_embedding_count": result.get(
+                "stale_embedding_count", coverage.get("stale", 0)
+            ),
+            "missing_embedding_count": result.get(
+                "missing_embedding_count", coverage.get("missing", 0)
+            ),
+            "elapsed_seconds": elapsed,
+        }
+
+    mat_lines = [
+        "EVAL-01 AETHELGARD RUNTIME BASELINE — MATERIALIZATION",
+        f"Evaluated At: {datetime.now(timezone.utc).isoformat()}",
+        f"Embedding Model: {embedding_provider.model}",
+        f"Embedding Version: {embedding_provider.version}",
+        f"Embedding Dimension: {embedding_provider.dimension}",
+        "",
+    ]
+    for corpus_name, result in materialization_results.items():
+        mat_lines.extend(
+            [
+                f"[{corpus_name}]",
+                f"Story ID: {result['story_id']}",
+                f"Source memories: {result['source_count']}",
+                f"Memory chunks persisted: {result['memory_chunk_count']}",
+                f"Embeddings generated/stored this run: {result['embedded_count']}",
+                f"Embeddings reused this run: {result['reused_embedding_count']}",
+                f"Fresh embeddings after run: {result['fresh_embedding_count']}",
+                f"Stale embeddings: {result['stale_embedding_count']}",
+                f"Missing embeddings: {result['missing_embedding_count']}",
+                f"Elapsed seconds: {result['elapsed_seconds']:.2f}",
+                "",
+            ]
+        )
+    (EVIDENCE_DIR / "materialization.txt").write_text(
+        "\n".join(mat_lines),
+        encoding="utf-8",
+    )
 
     # 4. Retrieval Evaluation
-    print("\n[3/7] Running retrieval evaluation across core-gold, vietnamese, and working queries...")
-    core_queries_path = ROOT / ".data" / "Frozen_v1" / "core_gold_queries.json"
-    core_queries_payload = json.loads(core_queries_path.read_text(encoding="utf-8"))
-    core_queries = core_queries_payload["queries"]
+    print("\n[3/7] Running source-defined retrieval splits...")
 
-    vn_queries_path = ROOT / ".data" / "Frozen_v1" / "vietnamese_diagnostic_queries.json"
-    vn_queries = json.loads(vn_queries_path.read_text(encoding="utf-8"))["queries"] if vn_queries_path.exists() else []
+    all_frozen_payload = json.loads(
+        (ROOT / ".data" / "Frozen_v1" / "retrieval_queries.json").read_text(encoding="utf-8")
+    )
+    all_frozen_queries = all_frozen_payload["queries"]
+    core_queries = [q for q in all_frozen_queries if q.get("split") == "core_gold"]
+    challenge_queries = [q for q in all_frozen_queries if q.get("split") == "challenge"]
+    vn_queries = json.loads(
+        (ROOT / ".data" / "Frozen_v1" / "vietnamese_diagnostic_queries.json").read_text(encoding="utf-8")
+    )["queries"]
 
-    all_queries = core_queries + vn_queries
+    if len(all_frozen_queries) != 40 or len(core_queries) != 21 or len(challenge_queries) != 19 or len(vn_queries) != 10:
+        raise RuntimeError(
+            "Frozen query split contract changed: "
+            f"all={len(all_frozen_queries)} core={len(core_queries)} "
+            f"challenge={len(challenge_queries)} vi={len(vn_queries)}"
+        )
+
     hybrid_ranker = HybridRanker()
+    memory_by_id_core = {m["memory_id"]: m for m in memories}
+    memory_by_id_challenge = {
+        m["memory_id"]: m for m in challenge_memories
+    }
+
+    def resolver_maps(
+        story_id: str,
+        corpus_memories: list[dict[str, Any]],
+        *,
+        scoped: bool,
+    ) -> tuple[dict[str, str], dict[int, str]]:
+        event_map = {
+            str(
+                scoped_stable_uuid(story_id, "event", m["memory_id"])
+                if scoped
+                else stable_uuid("event", m["memory_id"])
+            ): m["memory_id"]
+            for m in corpus_memories
+        }
+        order_map = {
+            idx: m["memory_id"]
+            for idx, m in enumerate(corpus_memories, start=1)
+        }
+        return event_map, order_map
 
     retrieval_raw: list[dict[str, Any]] = []
-    semantic_per_query: list[dict[str, Any]] = []
-    hybrid_per_query: list[dict[str, Any]] = []
-    recent_per_query: list[dict[str, Any]] = []
-
+    split_results: dict[str, dict[str, Any]] = {}
     future_leak_violations: list[dict[str, Any]] = []
     stale_version_violations: list[dict[str, Any]] = []
-
-    embed_latencies: list[float] = []
+    query_embedding_latencies: list[float] = []
     sql_latencies: list[float] = []
     hybrid_latencies: list[float] = []
 
-    mem_id_by_event_id = {str(stable_uuid("event", m["memory_id"])): m["memory_id"] for m in memories}
-    mem_id_by_order = {idx: m["memory_id"] for idx, m in enumerate(memories, start=1)}
+    def evaluate_split(
+        split_name: str,
+        queries: list[dict[str, Any]],
+        *,
+        story_id: str,
+        corpus_name: str,
+        corpus_memories: list[dict[str, Any]],
+        scoped_ids: bool,
+    ) -> dict[str, Any]:
+        semantic_per_query: list[dict[str, Any]] = []
+        hybrid_per_query: list[dict[str, Any]] = []
+        recent_per_query: list[dict[str, Any]] = []
 
-    def resolve_memory_id(m) -> str:
-        if m.event_id and m.event_id in mem_id_by_event_id:
-            return mem_id_by_event_id[m.event_id]
-        if m.narrative_order and m.narrative_order in mem_id_by_order:
-            return mem_id_by_order[m.narrative_order]
-        return m.metadata.get("memory_id", m.memory_chunk_id)
-
-    for q in all_queries:
-        qid = q["query_id"]
-        qtext = q.get("query") or q.get("query_text")
-        q_cutoff = int(q.get("chapter_cutoff", 61))
-
-        # Query embedding
-        t0_qembed = time.perf_counter()
-        q_vec = embedding_provider.embed_query(qtext)
-        embed_latencies.append((time.perf_counter() - t0_qembed) * 1000)
-
-        # SQL vector search in PostgreSQL with chapter cutoff
-        t0_sql = time.perf_counter()
-        semantic_matches = repo.search_semantic_memories(
-            STORY_ID,
-            query_embedding=q_vec,
-            embedding_version=embedding_provider.version,
-            chapter_number=q_cutoff,
-            limit=20,
+        event_id_map, order_map = resolver_maps(
+            story_id,
+            corpus_memories,
+            scoped=scoped_ids,
         )
-        sql_latencies.append((time.perf_counter() - t0_sql) * 1000)
 
-        # Hybrid re-ranking
-        t0_hyb = time.perf_counter()
-        signals = repo.get_hybrid_ranking_signals(STORY_ID, query_text=qtext, chapter_number=q_cutoff)
-        hybrid_matches = hybrid_ranker.rank(semantic_matches, signals=signals, chapter_number=q_cutoff, limit=20)
-        hybrid_latencies.append((time.perf_counter() - t0_hyb) * 1000)
+        def resolve_memory_id(match) -> str:
+            if match.event_id and match.event_id in event_id_map:
+                return event_id_map[match.event_id]
+            if match.narrative_order and match.narrative_order in order_map:
+                return order_map[match.narrative_order]
+            return str(
+                match.metadata.get("memory_id", match.memory_chunk_id)
+            )
 
-        # Map back to canonical memory IDs
-        sem_ranked_ids = [resolve_memory_id(m) for m in semantic_matches]
-        hyb_ranked_ids = [resolve_memory_id(m) for m in hybrid_matches]
+        for q in queries:
+            qid = str(q["query_id"])
+            case_id = f"{split_name}:{qid}"
+            qtext = str(q.get("query") or q.get("query_text") or "")
+            q_cutoff = int(q["chapter_cutoff"])
 
-        # Recent baseline
-        rec_ranked_ids = recent_rank(memories, q_cutoff)[:20]
+            t0_qembed = time.perf_counter()
+            q_vec = embedding_provider.embed_query(qtext)
+            query_embedding_latencies.append((time.perf_counter() - t0_qembed) * 1000)
 
-        # Metrics
-        sem_eval = evaluate_ranked_ids(q, sem_ranked_ids)
-        hyb_eval = evaluate_ranked_ids(q, hyb_ranked_ids)
-        rec_eval = evaluate_ranked_ids(q, rec_ranked_ids)
+            t0_sql = time.perf_counter()
+            semantic_matches = repo.search_semantic_memories(
+                story_id,
+                query_embedding=q_vec,
+                embedding_version=embedding_provider.version,
+                chapter_number=q_cutoff,
+                limit=20,
+            )
+            sql_latencies.append((time.perf_counter() - t0_sql) * 1000)
 
-        semantic_per_query.append({"query_id": qid, "metrics": sem_eval})
-        hybrid_per_query.append({"query_id": qid, "metrics": hyb_eval})
-        recent_per_query.append({"query_id": qid, "metrics": rec_eval})
+            t0_hyb = time.perf_counter()
+            signals = repo.get_hybrid_ranking_signals(
+                story_id,
+                query_text=qtext,
+                chapter_number=q_cutoff,
+            )
+            hybrid_matches = hybrid_ranker.rank(
+                semantic_matches,
+                signals=signals,
+                chapter_number=q_cutoff,
+                limit=20,
+            )
+            hybrid_latencies.append((time.perf_counter() - t0_hyb) * 1000)
 
-        # Future leak check: NO match may have chapter_number > q_cutoff
-        for rank_idx, m in enumerate(hybrid_matches):
-            mem_id_resolved = resolve_memory_id(m)
-            if m.chapter_number > q_cutoff:
-                future_leak_violations.append({
-                    "query_id": qid,
-                    "query_cutoff": q_cutoff,
-                    "leaked_memory_id": mem_id_resolved,
-                    "memory_chapter": m.chapter_number,
-                    "rank": rank_idx + 1,
-                })
-            if m.embedding_version != "gemini-embedding-2-768-v1":
-                stale_version_violations.append({
-                    "query_id": qid,
-                    "memory_id": mem_id_resolved,
-                    "version": m.embedding_version,
-                })
+            sem_ranked_ids = [resolve_memory_id(m) for m in semantic_matches]
+            hyb_ranked_ids = [resolve_memory_id(m) for m in hybrid_matches]
+            rec_ranked_ids = recent_rank(corpus_memories, q_cutoff)[:20]
 
-        retrieval_raw.append({
-            "query_id": qid,
-            "query_text": qtext,
-            "chapter_cutoff": q_cutoff,
-            "category": q.get("category", "core"),
-            "semantic_top20": [
+            sem_eval = evaluate_ranked_ids(q, sem_ranked_ids)
+            hyb_eval = evaluate_ranked_ids(q, hyb_ranked_ids)
+            rec_eval = evaluate_ranked_ids(q, rec_ranked_ids)
+
+            semantic_per_query.append(
+                {"case_id": case_id, "query_id": qid, "metrics": sem_eval}
+            )
+            hybrid_per_query.append(
+                {"case_id": case_id, "query_id": qid, "metrics": hyb_eval}
+            )
+            recent_per_query.append(
+                {"case_id": case_id, "query_id": qid, "metrics": rec_eval}
+            )
+
+            for rank_idx, match in enumerate(hybrid_matches):
+                memory_id = resolve_memory_id(match)
+                if int(match.chapter_number or 0) > q_cutoff:
+                    future_leak_violations.append(
+                        {
+                            "case_id": case_id,
+                            "query_cutoff": q_cutoff,
+                            "leaked_memory_id": memory_id,
+                            "memory_chapter": match.chapter_number,
+                            "rank": rank_idx + 1,
+                        }
+                    )
+                if match.embedding_version != embedding_provider.version:
+                    stale_version_violations.append(
+                        {
+                            "case_id": case_id,
+                            "memory_id": memory_id,
+                            "version": match.embedding_version,
+                        }
+                    )
+
+            retrieval_raw.append(
                 {
-                    "rank": idx + 1,
-                    "memory_id": resolve_memory_id(m),
-                    "chapter_number": m.chapter_number,
-                    "cosine_distance": m.cosine_distance,
+                    "case_id": case_id,
+                    "split": split_name,
+                    "corpus": corpus_name,
+                    "story_id": story_id,
+                    "query_id": qid,
+                    "query_text": qtext,
+                    "query_type": q.get("query_type"),
+                    "chapter_cutoff": q_cutoff,
+                    "positive_memory_ids": list(q.get("positive_memory_ids", [])),
+                    "query_entity_ids": list(signals.query_entity_ids),
+                    "related_entity_ids": list(signals.related_entity_ids),
+                    "semantic_top20": [
+                        {
+                            "rank": idx + 1,
+                            "memory_id": resolve_memory_id(m),
+                            "chapter_number": m.chapter_number,
+                            "cosine_distance": m.cosine_distance,
+                        }
+                        for idx, m in enumerate(semantic_matches)
+                    ],
+                    "hybrid_top20": [
+                        {
+                            "rank": idx + 1,
+                            "memory_id": resolve_memory_id(m),
+                            "chapter_number": m.chapter_number,
+                            "cosine_distance": m.cosine_distance,
+                            "hybrid_score": m.hybrid_score,
+                            "entity_overlap_score": m.entity_overlap_score,
+                            "temporal_score": m.temporal_score,
+                            "relationship_score": m.relationship_score,
+                        }
+                        for idx, m in enumerate(hybrid_matches)
+                    ],
                 }
-                for idx, m in enumerate(semantic_matches)
-            ],
-            "hybrid_top20": [
-                {
-                    "rank": idx + 1,
-                    "memory_id": resolve_memory_id(m),
-                    "chapter_number": m.chapter_number,
-                    "cosine_distance": m.cosine_distance,
-                    "hybrid_score": m.hybrid_score,
-                }
-                for idx, m in enumerate(hybrid_matches)
-            ],
-        })
+            )
 
+        return {
+            "query_count": len(queries),
+            "recent": aggregate_metrics(recent_per_query),
+            "semantic": aggregate_metrics(semantic_per_query),
+            "hybrid_v1": aggregate_metrics(hybrid_per_query),
+            "per_query_hybrid": hybrid_per_query,
+        }
+
+    # Primary model-selection split: canonical 216-memory corpus.
+    split_results["core_gold"] = evaluate_split(
+        "core_gold",
+        core_queries,
+        story_id=STORY_ID,
+        corpus_name="canonical_216",
+        corpus_memories=memories,
+        scoped_ids=False,
+    )
+    # Challenge diagnostics intentionally use the full 232-memory audit corpus.
+    split_results["challenge"] = evaluate_split(
+        "challenge",
+        challenge_queries,
+        story_id=CHALLENGE_STORY_ID,
+        corpus_name="audit_232",
+        corpus_memories=challenge_memories,
+        scoped_ids=True,
+    )
+    # VI diagnostics derive from core-gold labels and use canonical 216 corpus.
+    split_results["vietnamese_diagnostic"] = evaluate_split(
+        "vietnamese_diagnostic",
+        vn_queries,
+        story_id=STORY_ID,
+        corpus_name="canonical_216",
+        corpus_memories=memories,
+        scoped_ids=False,
+    )
+
+    retrieval_metrics = {
+        "dataset_version": all_frozen_payload["dataset_version"],
+        "tested_commit": "RERUN_COMMIT_TO_BE_RECORDED_BY_GEMINI",
+        "evaluated_at": datetime.now(timezone.utc).isoformat(),
+        "corpus_policy": {
+            "core_gold": "canonical_216",
+            "challenge": "audit_232",
+            "vietnamese_diagnostic": "canonical_216",
+        },
+        "memory_counts": {
+            "canonical_216": len(memories),
+            "audit_232": len(challenge_memories),
+        },
+        "split_contract": {
+            "core_gold": 21,
+            "challenge": 19,
+            "vietnamese_diagnostic": 10,
+        },
+        "splits": split_results,
+    }
     (EVIDENCE_DIR / "retrieval-raw.json").write_text(
         json.dumps(retrieval_raw, indent=2, ensure_ascii=False), encoding="utf-8"
     )
-
-    # Compute aggregate metrics for core queries
-    sem_core_evals = [item for item in semantic_per_query if item["query_id"].startswith("rq-") and int(item["query_id"].replace("rq-", "")) <= 21]
-    hyb_core_evals = [item for item in hybrid_per_query if item["query_id"].startswith("rq-") and int(item["query_id"].replace("rq-", "")) <= 21]
-    rec_core_evals = [item for item in recent_per_query if item["query_id"].startswith("rq-") and int(item["query_id"].replace("rq-", "")) <= 21]
-
-    aggregate_sem = aggregate_metrics(sem_core_evals)
-    aggregate_hyb = aggregate_metrics(hyb_core_evals)
-    aggregate_rec = aggregate_metrics(rec_core_evals)
-
-    retrieval_metrics = {
-        "dataset_version": "aethelgard-retrieval-eval-v1.0.0",
-        "tested_commit": "46cbe567ad037df8aade777b060c60c12f221c5f",
-        "evaluated_at": datetime.now(timezone.utc).isoformat(),
-        "core_gold_queries_count": len(sem_core_evals),
-        "total_queries_evaluated": len(all_queries),
-        "recent_baseline_core": aggregate_rec,
-        "runtime_semantic_core": aggregate_sem,
-        "runtime_hybrid_v1_core": aggregate_hyb,
-        "per_query_hybrid": hybrid_per_query,
-    }
     (EVIDENCE_DIR / "retrieval-metrics.json").write_text(
         json.dumps(retrieval_metrics, indent=2, ensure_ascii=False), encoding="utf-8"
     )
 
-    print(f"      Core @10 Semantic Recall: {aggregate_sem['10']['recall_at_k']:.4f}, MRR: {aggregate_sem['10']['mrr_at_k']:.4f}, nDCG: {aggregate_sem['10']['ndcg_at_k']:.4f}")
-    print(f"      Core @10 Hybrid-v1 Recall: {aggregate_hyb['10']['recall_at_k']:.4f}, MRR: {aggregate_hyb['10']['mrr_at_k']:.4f}, nDCG: {aggregate_hyb['10']['ndcg_at_k']:.4f}")
+    aggregate_core = split_results["core_gold"]
+    print(
+        "      Core-gold @10 semantic: "
+        f"Recall={aggregate_core['semantic']['10']['recall_at_k']:.4f}, "
+        f"MRR={aggregate_core['semantic']['10']['mrr_at_k']:.4f}, "
+        f"nDCG={aggregate_core['semantic']['10']['ndcg_at_k']:.4f}"
+    )
+    print(
+        "      Core-gold @10 hybrid-v1: "
+        f"Recall={aggregate_core['hybrid_v1']['10']['recall_at_k']:.4f}, "
+        f"MRR={aggregate_core['hybrid_v1']['10']['mrr_at_k']:.4f}, "
+        f"nDCG={aggregate_core['hybrid_v1']['10']['ndcg_at_k']:.4f}"
+    )
 
     # 5. Future Leakage Audit
     print("\n[4/7] Performing Temporal Safety & Future Leak Audit...")
     future_audit = {
         "evaluated_at": datetime.now(timezone.utc).isoformat(),
-        "total_queries_audited": len(all_queries),
-        "total_candidates_inspected": len(all_queries) * 20,
+        "total_queries_audited": sum(item["query_count"] for item in split_results.values()),
+        "total_candidates_inspected": sum(
+            len(row["hybrid_top20"]) for row in retrieval_raw
+        ),
         "future_leak_violations_count": len(future_leak_violations),
         "future_leak_violations": future_leak_violations,
         "stale_wrong_version_count": len(stale_version_violations),
@@ -442,261 +847,375 @@ def run_evaluation():
     print(f"      Stale / wrong-version candidates surviving retrieval: {len(stale_version_violations)} (MUST be 0)")
 
     # 6. Context Packing Evaluation
-    print("\n[5/7] Evaluating Context Packing under token budget...")
+    print("\n[5/7] Evaluating Context Packing with real retrieved memory content...")
     packer = ContextBudgetPacker(default_budget=12_000)
-    context_cases = []
-
-    # Pick representative archetypes
-    test_archetypes = [
-        ("rq-0002", "setup_payoff", 5),
-        ("rq-0004", "old_but_important", 7),
-        ("rq-0007", "relationship_evolution", 18),
-        ("rq-0008", "important_object_lifecycle", 23),
-        ("rq-0010", "world_rules", 45),
-        ("rq-0021", "future_leak_trap", 10),
+    context_cases: list[dict[str, Any]] = []
+    representative_cases = [
+        ("core_gold", "rq-0002", "setup_payoff"),
+        ("core_gold", "rq-0004", "old_but_important"),
+        ("core_gold", "rq-0007", "relationship_evolution"),
+        ("core_gold", "rq-0010", "world_rules"),
+        ("challenge", "rq-0001", "future_leak_trap"),
+        ("challenge", "rq-0039", "relationship_supersession"),
     ]
 
-    for qid, archetype, cutoff in test_archetypes:
-        raw_case = next((item for item in retrieval_raw if item["query_id"] == qid), None)
-        selected_memories = raw_case["hybrid_top20"][:8] if raw_case else []
+    for split_name, qid, archetype in representative_cases:
+        raw_case = next(
+            (
+                row
+                for row in retrieval_raw
+                if row["split"] == split_name and row["query_id"] == qid
+            ),
+            None,
+        )
+        if raw_case is None:
+            continue
 
-        pkg = WritingContextPackage(
-            brain_version=1,
-            entities=(
-                {"entity_id": "char-001", "canonical_name": "Alan", "is_locked": True},
-                {"entity_id": "char-002", "canonical_name": "Elena", "is_locked": True},
-            ),
-            current_states=(
-                {"entity_id": "char-001", "state_key": "mana_core", "state_value": "broken"},
-            ),
-            world_rules=(
-                {"rule_id": "rule-001", "rule_text": "Mana core corruption causes Flash Surge.", "is_locked": True},
-            ),
-            author_constraints=("Maintain consistent grim tone.",),
-            recent_events=(
-                {"narrative_order": 1, "summary": "Alan prepares sword."},
-            ),
-            semantic_memories=tuple(
+        semantic_payload = []
+        source_memory_by_id = (
+            memory_by_id_challenge
+            if raw_case["corpus"] == "audit_232"
+            else memory_by_id_core
+        )
+        for match in raw_case["hybrid_top20"]:
+            memory = source_memory_by_id.get(match["memory_id"])
+            if memory is None:
+                continue
+            semantic_payload.append(
                 {
-                    "memory_id": m["memory_id"],
-                    "chapter_number": m["chapter_number"],
-                    "summary": f"Memory {m['memory_id']} details.",
-                    "importance_score": 0.8,
+                    "memory_chunk_id": memory["memory_id"],
+                    "chapter_number": int(memory["chapter_number"]),
+                    "content": memory["content"],
+                    "importance_score": float(memory.get("importance", 0.5)),
+                    "source_key": f"corpus:{memory['memory_id']}",
                 }
-                for m in selected_memories
-            ),
+            )
+
+        package = WritingContextPackage(
+            brain_version=1,
+            semantic_memories=tuple(semantic_payload),
+        )
+        packed1 = packer.pack(package, maximum=12_000)
+        packed2 = packer.pack(package, maximum=12_000)
+
+        prompt1 = packer.prompt_context(packed1)
+        prompt2 = packer.prompt_context(packed2)
+        hash1 = hashlib.sha256(
+            json.dumps(
+                prompt1,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        hash2 = hashlib.sha256(
+            json.dumps(
+                prompt2,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+
+        selected_ids = list(
+            packed1.context_summary.get("semantic_memory_ids", [])
+        )
+        positive_ids = set(raw_case.get("positive_memory_ids", []))
+        candidate_positive_ids = positive_ids & {
+            match["memory_id"] for match in raw_case["hybrid_top20"]
+        }
+        retained_positive_ids = candidate_positive_ids & set(selected_ids)
+        retention = (
+            len(retained_positive_ids) / len(candidate_positive_ids)
+            if candidate_positive_ids
+            else None
         )
 
-        packed1 = packer.pack(pkg, maximum=12_000)
-        packed2 = packer.pack(pkg, maximum=12_000)
-
-        h1 = hashlib.sha256(json.dumps(packer.prompt_context(packed1), sort_keys=True).encode("utf-8")).hexdigest()
-        h2 = hashlib.sha256(json.dumps(packer.prompt_context(packed2), sort_keys=True).encode("utf-8")).hexdigest()
-
-        tokens = packer.estimate_prompt_tokens(packed1)
-        context_cases.append({
-            "query_id": qid,
-            "archetype": archetype,
-            "chapter_cutoff": cutoff,
-            "tokens_estimated": tokens,
-            "within_budget": tokens <= 12_000,
-            "deterministic_context_hash": h1,
-            "hashes_match": h1 == h2,
-            "protected_artifacts_truncated": 0,
-            "selected_semantic_count": len(packed1.semantic_memories),
-            "selected_semantic_ids": [m["memory_id"] for m in packed1.semantic_memories],
-        })
+        context_cases.append(
+            {
+                "case_id": raw_case["case_id"],
+                "archetype": archetype,
+                "chapter_cutoff": raw_case["chapter_cutoff"],
+                "input_semantic_count": len(semantic_payload),
+                "selected_semantic_count": len(selected_ids),
+                "selected_semantic_ids": selected_ids,
+                "dropped_semantic_ids": list(
+                    packed1.context_summary.get(
+                        "dropped_semantic_memory_ids", []
+                    )
+                ),
+                "tokens_before": packed1.token_budget.get("estimated_before"),
+                "tokens_used": packed1.token_budget.get("used"),
+                "token_budget": packed1.token_budget.get("maximum"),
+                "within_budget": not bool(
+                    packed1.token_budget.get("budget_overflow")
+                ),
+                "deterministic_context_hash": hash1,
+                "hashes_match": hash1 == hash2,
+                "candidate_gold_count": len(candidate_positive_ids),
+                "retained_gold_count": len(retained_positive_ids),
+                "relevant_memory_retention": retention,
+                "protected_artifact_truncation": "not_measured",
+                "protected_artifact_reason": (
+                    "EVAL-01 harness seeds retrieval corpus artifacts but does "
+                    "not reconstruct the full locked canonical entity/state/rule package."
+                ),
+                "content_source": "real_frozen_corpus_memory_content",
+            }
+        )
 
     (EVIDENCE_DIR / "context-packing.json").write_text(
-        json.dumps(context_cases, indent=2, ensure_ascii=False), encoding="utf-8"
+        json.dumps(context_cases, indent=2, ensure_ascii=False),
+        encoding="utf-8",
     )
-    print(f"      Context packing verified on {len(context_cases)} archetypes; all deterministic (hashes match: {all(c['hashes_match'] for c in context_cases)}).")
+    print(
+        "      Context packing deterministic: "
+        f"{all(case['hashes_match'] for case in context_cases)}; "
+        "protected canonical truncation remains not_measured."
+    )
 
     # 7. Bounded Generation Pilot
-    print("\n[6/7] Running Bounded Generation Pilot via live LLMClient (gemini-3.5-flash-lite)...")
-    llm = LLMClient(provider="gemini", model="gemini-3.5-flash-lite", api_key=api_key)
-    gen_cases = []
-    gen_latencies = []
-
+    print("\n[6/7] Running bounded live generation pilot...")
+    llm = LLMClient(
+        provider="gemini",
+        model="gemini-3.5-flash-lite",
+        api_key=api_key,
+    )
+    generation_cases: list[dict[str, Any]] = []
+    generation_latencies: list[float] = []
     pilot_cases = [
-        {
-            "case_id": "gen-case-01",
-            "query_id": "rq-0002",
-            "archetype": "setup_payoff",
-            "chapter_cutoff": 5,
-            "instruction": "Tóm tắt tình trạng mana core của Alan và thanh kiếm gãy sau trận chiến với quái vật sương mù ở làng Oakhaven.",
-        },
-        {
-            "case_id": "gen-case-02",
-            "query_id": "rq-0007",
-            "archetype": "relationship_evolution",
-            "chapter_cutoff": 18,
-            "instruction": "Mô tả sự phối hợp chữa trị và chiến đấu giữa Elena và Alan khi đối mặt với Roland.",
-        },
-        {
-            "case_id": "gen-case-03",
-            "query_id": "rq-0010",
-            "archetype": "world_rules",
-            "chapter_cutoff": 45,
-            "instruction": "Giải thích quy luật của Flash Surge và hậu quả khi Alan tiếp tục sử dụng kiếm thuật cơ học mà không có mana core nguyên vẹn.",
-        },
-        {
-            "case_id": "gen-case-04",
-            "query_id": "rq-0021",
-            "archetype": "future_leak_trap",
-            "chapter_cutoff": 10,
-            "instruction": "Tình hình làng Oakhaven ở chương 10. Tuyệt đối không đề cập đến bất kỳ sự kiện nào sau chương 10.",
-        },
+        ("core_gold", "rq-0002", "setup_payoff"),
+        ("core_gold", "rq-0007", "relationship_evolution"),
+        ("core_gold", "rq-0010", "world_rules"),
+        ("challenge", "rq-0001", "future_leak_trap"),
     ]
 
-    for p in pilot_cases:
-        qid = p["query_id"]
-        cutoff = p["chapter_cutoff"]
-        raw_case = next((item for item in retrieval_raw if item["query_id"] == qid), None)
-        top_mem_ids = [m["memory_id"] for m in raw_case["hybrid_top20"][:5]] if raw_case else []
-        top_mem_contents = [m["content"] for m in memories if m["memory_id"] in top_mem_ids]
+    for split_name, qid, archetype in pilot_cases:
+        raw_case = next(
+            (
+                row
+                for row in retrieval_raw
+                if row["split"] == split_name and row["query_id"] == qid
+            ),
+            None,
+        )
+        if raw_case is None:
+            continue
 
-        context_str = "\n".join(f"- {c}" for c in top_mem_contents)
+        top_ids = [row["memory_id"] for row in raw_case["hybrid_top20"][:5]]
+        source_memory_by_id = (
+            memory_by_id_challenge
+            if raw_case["corpus"] == "audit_232"
+            else memory_by_id_core
+        )
+        top_memories = [
+            source_memory_by_id[memory_id]
+            for memory_id in top_ids
+            if memory_id in source_memory_by_id
+        ]
+        context_text = "\n".join(
+            f"- [{memory['memory_id']} / ch{memory['chapter_number']}] {memory['content']}"
+            for memory in top_memories
+        )
         prompt = (
-            f"BỐI CẢNH KÝ ỨC (Tối đa chương {cutoff}):\n"
-            f"{context_str}\n\n"
-            f"YÊU CẦU: {p['instruction']}\n"
-            f"Chỉ trả lời ngắn gọn 2-3 câu, bám sát sự thật bối cảnh trên."
+            f"CANONICAL MEMORY CONTEXT (cutoff chapter {raw_case['chapter_cutoff']}):\n"
+            f"{context_text or '[no retrieved memory]'}\n\n"
+            f"QUERY: {raw_case['query_text']}\n"
+            "Respond in 2-3 concise sentences using only supported context. "
+            "If the context is insufficient, say so rather than inventing facts."
+        )
+        prompt_hash = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+
+        started = time.perf_counter()
+        try:
+            output = llm.generate(
+                prompt=prompt,
+                temperature=0.2,
+                max_tokens=256,
+            ).strip()
+            latency_ms = (time.perf_counter() - started) * 1000
+            generation_latencies.append(latency_ms)
+            execution_status = "SUCCESS"
+        except Exception as exc:
+            output = f"GENERATION_FAILED: {type(exc).__name__}: {exc}"
+            latency_ms = (time.perf_counter() - started) * 1000
+            execution_status = "FAILED"
+
+        generation_cases.append(
+            {
+                "case_id": f"generation:{raw_case['case_id']}",
+                "retrieval_case_id": raw_case["case_id"],
+                "query_id": qid,
+                "split": split_name,
+                "archetype": archetype,
+                "chapter_cutoff": raw_case["chapter_cutoff"],
+                "model": "gemini-3.5-flash-lite",
+                "temperature": 0.2,
+                "prompt_hash": prompt_hash,
+                "retrieved_memory_ids": top_ids,
+                "output_text": output,
+                "latency_ms": latency_ms,
+                "execution_status": execution_status,
+                "quality_evaluation": {
+                    "status": "REVIEW_REQUIRED",
+                    "canonical_factual_consistency": "not_scored",
+                    "character_consistency": "not_scored",
+                    "relationship_consistency": "not_scored",
+                    "future_leakage_detected": "not_scored",
+                    "unsupported_facts_introduced": "not_scored",
+                    "context_adherence": "not_scored",
+                    "long_range_continuity": "not_scored",
+                    "reason": (
+                        "Harness must not self-award quality scores. "
+                        "Astra/Supervisor or a separately specified evaluator must review preserved output."
+                    ),
+                },
+            }
         )
 
-        prompt_hash = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
-        t0_gen = time.perf_counter()
-        try:
-            output_text = llm.generate(prompt=prompt, temperature=0.2, max_tokens=256)
-            lat = (time.perf_counter() - t0_gen) * 1000
-            gen_latencies.append(lat)
-            status = "SUCCESS"
-        except Exception as exc:
-            output_text = f"GENERATION_FAILED: {exc}"
-            lat = (time.perf_counter() - t0_gen) * 1000
-            status = "FAILED"
-
-        # Rubric scoring
-        # 1. factual consistency (1-5)
-        # 2. character consistency (1-5)
-        # 3. relationship consistency (1-5)
-        # 4. future leak (PASS / FAIL)
-        # 5. context adherence (1-5)
-        gen_cases.append({
-            "case_id": p["case_id"],
-            "query_id": qid,
-            "archetype": p["archetype"],
-            "chapter_cutoff": cutoff,
-            "model": "gemini-3.5-flash-lite",
-            "temperature": 0.2,
-            "prompt_hash": prompt_hash,
-            "retrieved_memory_ids": top_mem_ids,
-            "output_text": output_text.strip(),
-            "latency_ms": lat,
-            "status": status,
-            "rubric_evaluation": {
-                "canonical_factual_consistency": 5,
-                "character_consistency": 5,
-                "relationship_consistency": 5,
-                "future_leakage_detected": False,
-                "unsupported_facts_introduced": False,
-                "context_adherence": 5,
-                "long_range_continuity": 5,
-            },
-        })
-        print(f"      Case {p['case_id']} ({p['archetype']}) completed in {lat:.0f}ms.")
-
     (EVIDENCE_DIR / "generation-cases.json").write_text(
-        json.dumps(gen_cases, indent=2, ensure_ascii=False), encoding="utf-8"
+        json.dumps(generation_cases, indent=2, ensure_ascii=False),
+        encoding="utf-8",
     )
 
-    # 8. Latency and Cost
-    print("\n[7/7] Consolidating latency, cost, failure analysis, and summary...")
-    lat_cost = {
+    # 8. Latency, cost, failure analysis, and summary
+    print("\n[7/7] Consolidating artifact-derived evidence...")
+
+    import statistics
+
+    def latency_stats(values: list[float]) -> dict[str, Any]:
+        if not values:
+            return {"status": "not_measured", "reason": "no samples"}
+        ordered = sorted(values)
+        p95_index = min(len(ordered) - 1, math.ceil(len(ordered) * 0.95) - 1)
+        return {
+            "status": "measured",
+            "sample_count": len(values),
+            "p50": statistics.median(values),
+            "p95": ordered[p95_index],
+            "mean": statistics.fmean(values),
+        }
+
+    latency_cost = {
         "evaluated_at": datetime.now(timezone.utc).isoformat(),
-        "query_embedding_latency_ms": {
-            "p50": statistics.median(embed_latencies) if embed_latencies else 0,
-            "p95": sorted(embed_latencies)[int(len(embed_latencies) * 0.95)] if embed_latencies else 0,
-            "mean": sum(embed_latencies) / len(embed_latencies) if embed_latencies else 0,
-        },
-        "sql_retrieval_latency_ms": {
-            "p50": statistics.median(sql_latencies) if sql_latencies else 0,
-            "p95": sorted(sql_latencies)[int(len(sql_latencies) * 0.95)] if sql_latencies else 0,
-            "mean": sum(sql_latencies) / len(sql_latencies) if sql_latencies else 0,
-        },
-        "hybrid_rerank_latency_ms": {
-            "p50": statistics.median(hybrid_latencies) if hybrid_latencies else 0,
-            "p95": sorted(hybrid_latencies)[int(len(hybrid_latencies) * 0.95)] if hybrid_latencies else 0,
-            "mean": sum(hybrid_latencies) / len(hybrid_latencies) if hybrid_latencies else 0,
-        },
-        "generation_latency_ms": {
-            "p50": statistics.median(gen_latencies) if gen_latencies else 0,
-            "p95": sorted(gen_latencies)[int(len(gen_latencies) * 0.95)] if gen_latencies else 0,
-            "mean": sum(gen_latencies) / len(gen_latencies) if gen_latencies else 0,
-        },
+        "query_embedding_latency_ms": latency_stats(query_embedding_latencies),
+        "sql_retrieval_latency_ms": latency_stats(sql_latencies),
+        "hybrid_rerank_latency_ms": latency_stats(hybrid_latencies),
+        "generation_latency_ms": latency_stats(generation_latencies),
         "token_cost_profile": {
-            "embedding_calls_total": len(all_queries) + 14,
-            "generation_calls_total": len(pilot_cases),
-            "estimated_token_usage": "Under standard developer tier quota",
+            "status": "not_measured",
+            "reason": (
+                "LLMClient currently returns text only and does not expose provider usage/cost metadata."
+            ),
+            "query_embedding_calls": len(query_embedding_latencies),
+            "generation_calls": len(generation_cases),
         },
     }
     (EVIDENCE_DIR / "latency-cost.json").write_text(
-        json.dumps(lat_cost, indent=2, ensure_ascii=False), encoding="utf-8"
+        json.dumps(latency_cost, indent=2, ensure_ascii=False),
+        encoding="utf-8",
     )
 
-    # 9. Failure Analysis
-    failure_md = (
-        "# EVAL-01 Failure Analysis\n\n"
-        "## Summary\n"
-        "- Total Queries Evaluated: 31 (21 core-gold + 10 Vietnamese diagnostics)\n"
-        "- Future Leak Violations: 0 (PASS)\n"
-        "- Stale Version Violations: 0 (PASS)\n"
-        "- Context Packing Determinism Violations: 0 (PASS)\n\n"
-        "## Taxonomy Localization\n"
-        "| Layer | Status | Observations |\n"
-        "|---|---|---|\n"
-        "| CORPUS_GOLD | PASS | Immutable, 216 memories intact |\n"
-        "| INGESTION_EXTRACTION | PASS | Clean event extraction with chapter provenance |\n"
-        "| CANONICAL_DATA | PASS | Canonical events and entities confirmed |\n"
-        "| EMBEDDING | PASS | gemini-embedding-2 / 768 dims / L2 normalized |\n"
-        "| TEMPORAL_FILTER | PASS | Strict SQL WHERE chapter_number <= cutoff prevents all leakage |\n"
-        "| CANDIDATE_RETRIEVAL | PASS | Cosine distance ranking on PostgreSQL pgvector |\n"
-        "| HYBRID_SIGNAL | PASS | Entity overlap and 1-hop relationship signals cleanly resolved |\n"
-        "| HYBRID_WEIGHTING | PASS | Accepted hybrid-v1 improves Recall@10 from 0.6747 to 0.7186 |\n"
-        "| CONTEXT_PACKING | PASS | Deterministic hashes, 0 protected artifacts lost |\n"
-        "| GENERATION | PASS | Faithful draft generation adhering to retrieved memories |\n"
-        "| LATENCY_COST | PASS | SQL retrieval p50 < 10ms; embedding p50 ~600ms |\n\n"
-        "## Residual Weaknesses\n"
-        "- Queries with extremely low lexical overlap and complex abstract reasoning remain the hardest archetype.\n"
-        "- Hybrid weighting provides solid improvement on setup/payoff and entity-grounded queries without regressing temporal safety.\n"
+    hybrid_signal_cases = sum(
+        1
+        for row in retrieval_raw
+        if row["query_entity_ids"] or row["related_entity_ids"]
     )
-    (EVIDENCE_DIR / "failure-analysis.md").write_text(failure_md, encoding="utf-8")
+    generation_successes = sum(
+        1 for case in generation_cases if case["execution_status"] == "SUCCESS"
+    )
+    context_deterministic = all(case["hashes_match"] for case in context_cases)
+    temporal_pass = not future_leak_violations and not stale_version_violations
 
-    # 10. Summary
-    summary_md = (
-        "# EVAL-01 Aethelgard Runtime Baseline — Summary Report\n\n"
-        f"- **Tested Commit:** `46cbe567ad037df8aade777b060c60c12f221c5f`\n"
-        f"- **Evaluated At:** {datetime.now(timezone.utc).isoformat()}\n"
-        "- **Evaluation Mode:** Live Provider (`slot-1` / PostgreSQL 16 + pgvector 0.8.6)\n\n"
-        "## Core Metric Comparison (@10)\n\n"
-        "| Metric | Recent Baseline | Semantic-Only (PG) | Accepted Hybrid-v1 (PG) |\n"
-        "|---|---|---|---|\n"
-        f"| Recall@10 | {aggregate_rec['10']['recall_at_k']:.6f} | {aggregate_sem['10']['recall_at_k']:.6f} | {aggregate_hyb['10']['recall_at_k']:.6f} |\n"
-        f"| MRR@10 | {aggregate_rec['10']['mrr_at_k']:.6f} | {aggregate_sem['10']['mrr_at_k']:.6f} | {aggregate_hyb['10']['mrr_at_k']:.6f} |\n"
-        f"| nDCG@10 | {aggregate_rec['10']['ndcg_at_k']:.6f} | {aggregate_sem['10']['ndcg_at_k']:.6f} | {aggregate_hyb['10']['ndcg_at_k']:.6f} |\n"
-        f"| Hit Query Rate | {aggregate_rec['10']['hit_query_rate']:.4f} | {aggregate_sem['10']['hit_query_rate']:.4f} | {aggregate_hyb['10']['hit_query_rate']:.4f} |\n\n"
-        "## Answers to Mandatory Runbook Questions\n"
-        "1. **Does real runtime semantic retrieval reproduce the frozen benchmark?** Yes, exact parity with the ADR report.\n"
-        "2. **Does hybrid-v1 improve long-range retrieval without harming temporal safety?** Yes, Recall@10 rises from 0.6747 to 0.7186, future leakage = 0.\n"
-        "3. **Which query archetypes remain weakest?** Abstract low-lexical-overlap multi-hop queries.\n"
-        "4. **Does context packing preserve key memories under budget?** Yes, deterministic hash repeatability confirmed.\n"
-        "5. **Are any canonical/protected artifacts truncated?** 0 artifacts truncated.\n"
-        "6. **Does any future information leak?** 0 leaks observed across all queries.\n"
-        "7. **Latency/cost profile?** SQL retrieval p50 < 10ms; live generation p50 ~1.2s.\n"
-        "8. **Dominant bottleneck?** Data extraction nuances on long multi-chapter arcs.\n"
-        "9. **Proposed improvement?** None needed for baseline freeze; keep accepted hybrid-v1.\n"
-        "10. **Is a code/architecture change justified?** NO. Production stack performs as specified.\n"
+    failure_md = f"""# EVAL-01 Failure Analysis — Corrected Harness
+
+## Measured status
+
+| Layer | Status | Evidence |
+|---|---|---|
+| CORPUS_GOLD | PASS | Frozen v1 split contract: 21 core + 19 challenge; 10 VI diagnostic cases separate |
+| INGESTION_EXTRACTION | NOT_MEASURED | Harness seeds frozen canonical memories; raw 61-chapter extractor is not executed |
+| CANONICAL_DATA | PARTIAL | Frozen canonical corpus is immutable and seeded; full canonical extraction pipeline not evaluated |
+| EMBEDDING | PASS | Live Gemini query embeddings + repository embedding coverage |
+| TEMPORAL_FILTER | {'PASS' if temporal_pass else 'FAIL'} | Future/stale candidates surviving final retrieval: {len(future_leak_violations)}/{len(stale_version_violations)} |
+| CANDIDATE_RETRIEVAL | PASS | PostgreSQL pgvector exact cosine runtime measured |
+| HYBRID_SIGNAL | {'PASS' if hybrid_signal_cases else 'PARTIAL'} | {hybrid_signal_cases} evaluated cases exposed entity/relationship signals after participant-table backfill |
+| HYBRID_WEIGHTING | MEASURED | Reported separately for core/challenge/VI; no split mixing |
+| CONTEXT_PACKING | {'PARTIAL' if context_deterministic else 'FAIL'} | Real memory content + deterministic packing measured; protected canonical artifacts not reconstructed |
+| GENERATION | PARTIAL | Live execution {generation_successes}/{len(generation_cases)}; quality rubric requires independent review |
+| LATENCY_COST | PARTIAL | Latency measured; provider token/cost usage not exposed by current client |
+| EVALUATION_HARNESS | PASS | Source-defined split identities; duplicate query IDs namespaced by case_id |
+
+## Known limitations
+
+- Challenge metrics are diagnostic and must not be promoted to the primary core-gold claim.
+- Vietnamese diagnostics reuse source query IDs; case_id preserves split identity.
+- Generation quality is intentionally not self-scored.
+- Protected canonical entity/state/rule truncation remains not_measured in this runner.
+"""
+    (EVIDENCE_DIR / "failure-analysis.md").write_text(
+        failure_md,
+        encoding="utf-8",
     )
+
+    core = split_results["core_gold"]
+    challenge = split_results["challenge"]
+    vi = split_results["vietnamese_diagnostic"]
+    sem10 = core["semantic"]["10"]
+    hyb10 = core["hybrid_v1"]["10"]
+    rec10 = core["recent"]["10"]
+    embed_latency = latency_cost["query_embedding_latency_ms"]
+    sql_latency = latency_cost["sql_retrieval_latency_ms"]
+    gen_latency = latency_cost["generation_latency_ms"]
+
+    summary_md = f"""# EVAL-01 Aethelgard Runtime Baseline — Corrected Harness Summary
+
+- **Dataset:** `{all_frozen_payload['dataset_version']}`
+- **Primary corpus:** {len(memories)} frozen canonical memories for 21 core-gold queries
+- **Challenge corpus:** {len(challenge_memories)} frozen audit memories for 19 challenge queries
+- **Cross-lingual diagnostic:** 10 Vietnamese queries on the canonical corpus
+- **Evaluation mode:** live Gemini provider + PostgreSQL/pgvector
+- **Generation quality:** REVIEW_REQUIRED (not self-scored)
+
+## Primary core-gold runtime metrics @10
+
+| Metric | Recent | Semantic-only | hybrid-v1 |
+|---|---:|---:|---:|
+| Recall@10 | {rec10['recall_at_k']:.6f} | {sem10['recall_at_k']:.6f} | {hyb10['recall_at_k']:.6f} |
+| MRR@10 | {rec10['mrr_at_k']:.6f} | {sem10['mrr_at_k']:.6f} | {hyb10['mrr_at_k']:.6f} |
+| nDCG@10 | {rec10['ndcg_at_k']:.6f} | {sem10['ndcg_at_k']:.6f} | {hyb10['ndcg_at_k']:.6f} |
+| Hit query rate | {rec10['hit_query_rate']:.6f} | {sem10['hit_query_rate']:.6f} | {hyb10['hit_query_rate']:.6f} |
+
+Challenge and Vietnamese metrics are preserved in `retrieval-metrics.json` and are not mixed into the primary aggregate.
+
+## Safety
+
+- Future candidates surviving final retrieval: **{len(future_leak_violations)}**
+- Stale/wrong-version candidates surviving final retrieval: **{len(stale_version_violations)}**
+
+## Context
+
+- Deterministic packing cases: **{sum(1 for case in context_cases if case['hashes_match'])}/{len(context_cases)}**
+- Real corpus memory content used: **YES**
+- Protected canonical entity/state/rule truncation: **not_measured** (full locked package is not reconstructed by this harness)
+
+## Generation
+
+- Live execution successes: **{generation_successes}/{len(generation_cases)}**
+- Quality scores: **not_scored / independent review required**
+- No automatic 5/5 rubric is permitted.
+
+## Latency
+
+- Query embedding p50: **{embed_latency.get('p50', 'not_measured')} ms**
+- SQL retrieval p50: **{sql_latency.get('p50', 'not_measured')} ms**
+- Generation p50: **{gen_latency.get('p50', 'not_measured')} ms**
+- Tokens/cost: **not_measured** — current LLMClient does not expose usage metadata.
+
+## Interpretation
+
+This runner can establish runtime retrieval, temporal safety, hybrid behavior, deterministic semantic-memory packing, and live generation execution. It must not claim raw-ingestion quality, protected-artifact packing quality, generation quality, or token/cost quality without separate evidence.
+"""
     (EVIDENCE_DIR / "summary.md").write_text(summary_md, encoding="utf-8")
 
     print("\n" + "=" * 70)
@@ -705,5 +1224,4 @@ def run_evaluation():
 
 
 if __name__ == "__main__":
-    import statistics
     run_evaluation()
