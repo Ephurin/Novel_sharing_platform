@@ -57,6 +57,7 @@ EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
 # Fixed test IDs
 TENANT_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 STORY_ID = "aethelgard-soul-mortal-blade-61ch"
+CHALLENGE_STORY_ID = "aethelgard-soul-mortal-blade-61ch-eval01-challenge"
 NOVEL_ID = PostgresSemanticMemoryRepository._novel_id(STORY_ID)
 
 
@@ -236,6 +237,211 @@ def seed_canonical_story(factory, memories_data: list[dict[str, Any]], entities_
         return brain_id
 
 
+
+def scoped_stable_uuid(story_id: str, kind: str, value: str) -> uuid.UUID:
+    return stable_uuid(kind, f"{story_id}:{value}")
+
+
+def seed_scoped_story(
+    factory,
+    story_id: str,
+    memories_data: list[dict[str, Any]],
+    entities_data: dict[str, Any],
+) -> uuid.UUID:
+    """Seed an isolated evaluation story without global primary-key collisions."""
+    novel_id = PostgresSemanticMemoryRepository._novel_id(story_id)
+    with session_scope(factory) as session:
+        brain = (
+            session.query(StoryBrainRecord)
+            .filter_by(tenant_id=TENANT_ID, novel_id=novel_id)
+            .first()
+        )
+        if brain is None:
+            brain = StoryBrainRecord(
+                id=scoped_stable_uuid(story_id, "story_brain", story_id),
+                tenant_id=TENANT_ID,
+                novel_id=novel_id,
+                status="ready",
+                brain_version=1,
+                schema_version=1,
+            )
+            session.add(brain)
+            session.flush()
+        brain_id = brain.id
+
+        existing_revs = {
+            r.chapter_number
+            for r in session.query(RevisionProvenanceRecord)
+            .filter_by(story_brain_id=brain_id)
+            .all()
+        }
+        for chapter_number in range(1, 62):
+            if chapter_number in existing_revs:
+                continue
+            session.add(
+                RevisionProvenanceRecord(
+                    id=scoped_stable_uuid(
+                        story_id, "rev_prov", f"ch-{chapter_number}"
+                    ),
+                    story_brain_id=brain_id,
+                    tenant_id=TENANT_ID,
+                    novel_id=novel_id,
+                    chapter_id=scoped_stable_uuid(
+                        story_id, "chapter", f"ch-{chapter_number}"
+                    ),
+                    revision_id=scoped_stable_uuid(
+                        story_id, "revision", f"ch-{chapter_number}"
+                    ),
+                    chapter_number=chapter_number,
+                )
+            )
+
+        entity_uuid_by_source_id: dict[str, uuid.UUID] = {}
+        for entity in entities_data.get("entities", []):
+            source_id = str(entity["entity_id"])
+            entity_uuid = scoped_stable_uuid(story_id, "entity", source_id)
+            entity_uuid_by_source_id[source_id] = entity_uuid
+            if session.get(EntityRecord, entity_uuid) is None:
+                record = EntityRecord(
+                    id=entity_uuid,
+                    story_brain_id=brain_id,
+                    tenant_id=TENANT_ID,
+                    novel_id=novel_id,
+                    entity_type=entity.get("entity_type", "character"),
+                    canonical_name=entity["canonical_name"],
+                    normalized_name=entity["canonical_name"].casefold(),
+                    description=entity.get("notes", ""),
+                    static_attributes={
+                        "first_chapter": entity.get("first_chapter", 1),
+                        "aliases": entity.get("aliases", []),
+                    },
+                    confirmation_status="confirmed",
+                )
+                session.add(record)
+                session.flush()
+            for alias in entity.get("aliases", []):
+                normalized = alias.casefold()
+                alias_id = scoped_stable_uuid(
+                    story_id, "alias", f"{source_id}:{normalized}"
+                )
+                if session.get(EntityAliasRecord, alias_id) is None:
+                    session.add(
+                        EntityAliasRecord(
+                            id=alias_id,
+                            entity_id=entity_uuid,
+                            alias=alias,
+                            normalized_alias=normalized,
+                            source_type="canonical",
+                            confirmation_status="confirmed",
+                        )
+                    )
+
+        name_by_source_id = {
+            str(entity["entity_id"]): entity["canonical_name"]
+            for entity in entities_data.get("entities", [])
+        }
+        for relationship in entities_data.get("relationships", []):
+            relationship_id = scoped_stable_uuid(
+                story_id,
+                "relationship",
+                str(relationship["relationship_id"]),
+            )
+            if session.get(RelationshipRecord, relationship_id) is not None:
+                continue
+            subject_source = str(relationship.get("a"))
+            object_source = str(relationship.get("b"))
+            session.add(
+                RelationshipRecord(
+                    id=relationship_id,
+                    story_brain_id=brain_id,
+                    tenant_id=TENANT_ID,
+                    novel_id=novel_id,
+                    subject_name=name_by_source_id.get(
+                        subject_source, subject_source
+                    ),
+                    object_name=name_by_source_id.get(
+                        object_source, object_source
+                    ),
+                    relation_type=relationship.get(
+                        "relationship_type", "associated"
+                    ),
+                    source_type="canonical",
+                    relation_metadata={
+                        "first_chapter": relationship.get("first_chapter", 1),
+                        "relationship_id": relationship.get("relationship_id"),
+                        "status": relationship.get("status", "audit"),
+                    },
+                )
+            )
+
+        existing_event_orders = {
+            event.narrative_order
+            for event in session.query(EventRecord)
+            .filter_by(story_brain_id=brain_id)
+            .all()
+        }
+        for index, memory in enumerate(memories_data, start=1):
+            memory_id = str(memory["memory_id"])
+            event_uuid = scoped_stable_uuid(
+                story_id, "event", memory_id
+            )
+            if index not in existing_event_orders:
+                session.add(
+                    EventRecord(
+                        id=event_uuid,
+                        story_brain_id=brain_id,
+                        tenant_id=TENANT_ID,
+                        novel_id=novel_id,
+                        narrative_order=index,
+                        event_type=memory.get("memory_type", "event_summary"),
+                        summary=memory["content"],
+                        participants=memory.get("entities", []),
+                        chapter_number=int(memory.get("chapter_number", 1)),
+                        event_metadata={
+                            "memory_id": memory_id,
+                            "importance_score": float(
+                                memory.get("importance", 0.5)
+                            ),
+                            "chapter_title": memory.get("chapter_title", ""),
+                            "tags": memory.get("tags", []),
+                            "status": memory.get("status", "audit"),
+                        },
+                        confirmation_status="confirmed",
+                    )
+                )
+        session.flush()
+
+        existing_participants = {
+            (row.event_id, row.entity_id, row.participant_role)
+            for row in session.query(EventParticipantRecord)
+            .join(EventRecord, EventParticipantRecord.event_id == EventRecord.id)
+            .filter(EventRecord.story_brain_id == brain_id)
+            .all()
+        }
+        for memory in memories_data:
+            event_uuid = scoped_stable_uuid(
+                story_id, "event", str(memory["memory_id"])
+            )
+            for source_entity_id in memory.get("entities", []):
+                entity_uuid = entity_uuid_by_source_id.get(
+                    str(source_entity_id)
+                )
+                if entity_uuid is None:
+                    continue
+                key = (event_uuid, entity_uuid, "actor")
+                if key in existing_participants:
+                    continue
+                session.add(
+                    EventParticipantRecord(
+                        event_id=event_uuid,
+                        entity_id=entity_uuid,
+                        participant_role="actor",
+                    )
+                )
+                existing_participants.add(key)
+
+        return brain_id
+
 def run_evaluation():
     print("=" * 70)
     print("STARTING EVAL-01 AETHELGARD RUNTIME BASELINE")
@@ -251,51 +457,102 @@ def run_evaluation():
     memories_payload = json.loads(memories_path.read_text(encoding="utf-8"))
     memories = memories_payload["memories"]
 
+    challenge_memories_path = ROOT / ".data" / "Frozen_v1" / "memory_chunks.json"
+    challenge_memories_payload = json.loads(
+        challenge_memories_path.read_text(encoding="utf-8")
+    )
+    challenge_memories = challenge_memories_payload["memories"]
+
+    if len(memories) != 216 or len(challenge_memories) != 232:
+        raise RuntimeError(
+            f"Frozen corpus contract changed: canonical={len(memories)} audit={len(challenge_memories)}"
+        )
+
     entities_path = ROOT / ".data" / "Batch_7" / "entities.json"
     entities_payload = json.loads(entities_path.read_text(encoding="utf-8"))
 
-    # 2. Seed database
-    print(f"\n[1/7] Seeding PostgreSQL database (story: {STORY_ID}, {len(memories)} canonical memories)...")
+    # 2. Seed databases
+    print(
+        f"\n[1/7] Seeding primary canonical story ({len(memories)} memories) "
+        f"and challenge audit story ({len(challenge_memories)} memories)..."
+    )
     t0_seed = time.perf_counter()
     seed_canonical_story(factory, memories, entities_payload)
+    seed_scoped_story(
+        factory,
+        CHALLENGE_STORY_ID,
+        challenge_memories,
+        entities_payload,
+    )
     print(f"      Seeding completed in {time.perf_counter() - t0_seed:.2f}s")
 
     # 3. Materialize Semantic Memory using accepted tooling
-    print("\n[2/7] Materializing semantic memory chunks and generating live embeddings...")
+    print("\n[2/7] Materializing semantic memory for both frozen corpus policies...")
     embedding_provider = GeminiEmbeddingProvider(api_key=api_key)
     repo = PostgresSemanticMemoryRepository(factory, tenant_id=TENANT_ID)
-    materializer = SemanticMemoryMaterializationService(repo, embedding_provider)
-
-    t0_mat = time.perf_counter()
-    mat_result = materializer.materialize_event_memories(STORY_ID)
-    elapsed_mat = time.perf_counter() - t0_mat
-
-    coverage = repo.embedding_coverage(STORY_ID, embedding_provider.version)
-    print(f"      Materialization result: {mat_result}")
-    print(f"      Coverage: {coverage}")
-    print(f"      Elapsed: {elapsed_mat:.2f}s")
-
-    # Record materialization.txt
-    mat_txt = (
-        f"EVAL-01 AETHELGARD RUNTIME BASELINE — MATERIALIZATION\n"
-        f"Evaluated At: {datetime.now(timezone.utc).isoformat()}\n"
-        f"Story ID: {STORY_ID}\n"
-        f"Tenant ID: {TENANT_ID}\n"
-        f"Total event memory sources listed: {len(memories)}\n"
-        f"Memory chunks persisted: {mat_result.get('memory_chunk_count', 0)}\n"
-        f"Embeddings generated/stored this run: {mat_result.get('embedded_count', 0)}\n"
-        f"Embeddings reused this run: {mat_result.get('reused_embedding_count', 0)}\n"
-        f"Total chunks in database: {coverage['total_chunks']}\n"
-        f"Fresh embeddings matching content hash: {coverage['current']}\n"
-        f"Stale embeddings: {coverage['stale']}\n"
-        f"Missing embeddings: {coverage['missing']}\n"
-        f"Embedding Model: {embedding_provider.model}\n"
-        f"Embedding Version: {embedding_provider.version}\n"
-        f"Embedding Dimension: {embedding_provider.dimension}\n"
-        f"Materialization Elapsed Time: {elapsed_mat:.2f}s\n"
-        f"Status: SUCCESS\n"
+    materializer = SemanticMemoryMaterializationService(
+        repo, embedding_provider
     )
-    (EVIDENCE_DIR / "materialization.txt").write_text(mat_txt, encoding="utf-8")
+
+    materialization_results: dict[str, dict[str, Any]] = {}
+    for corpus_name, story_id, corpus_memories in (
+        ("canonical_core", STORY_ID, memories),
+        ("challenge_audit", CHALLENGE_STORY_ID, challenge_memories),
+    ):
+        started = time.perf_counter()
+        result = materializer.materialize_event_memories(story_id)
+        elapsed = time.perf_counter() - started
+        coverage = repo.embedding_coverage(
+            story_id, embedding_provider.version
+        )
+        materialization_results[corpus_name] = {
+            "story_id": story_id,
+            "source_count": len(corpus_memories),
+            "memory_chunk_count": result.get("memory_chunk_count", 0),
+            "embedded_count": result.get("embedded_count", 0),
+            "reused_embedding_count": result.get(
+                "reused_embedding_count", 0
+            ),
+            "fresh_embedding_count": result.get(
+                "fresh_embedding_count", coverage.get("current", 0)
+            ),
+            "stale_embedding_count": result.get(
+                "stale_embedding_count", coverage.get("stale", 0)
+            ),
+            "missing_embedding_count": result.get(
+                "missing_embedding_count", coverage.get("missing", 0)
+            ),
+            "elapsed_seconds": elapsed,
+        }
+
+    mat_lines = [
+        "EVAL-01 AETHELGARD RUNTIME BASELINE — MATERIALIZATION",
+        f"Evaluated At: {datetime.now(timezone.utc).isoformat()}",
+        f"Embedding Model: {embedding_provider.model}",
+        f"Embedding Version: {embedding_provider.version}",
+        f"Embedding Dimension: {embedding_provider.dimension}",
+        "",
+    ]
+    for corpus_name, result in materialization_results.items():
+        mat_lines.extend(
+            [
+                f"[{corpus_name}]",
+                f"Story ID: {result['story_id']}",
+                f"Source memories: {result['source_count']}",
+                f"Memory chunks persisted: {result['memory_chunk_count']}",
+                f"Embeddings generated/stored this run: {result['embedded_count']}",
+                f"Embeddings reused this run: {result['reused_embedding_count']}",
+                f"Fresh embeddings after run: {result['fresh_embedding_count']}",
+                f"Stale embeddings: {result['stale_embedding_count']}",
+                f"Missing embeddings: {result['missing_embedding_count']}",
+                f"Elapsed seconds: {result['elapsed_seconds']:.2f}",
+                "",
+            ]
+        )
+    (EVIDENCE_DIR / "materialization.txt").write_text(
+        "\n".join(mat_lines),
+        encoding="utf-8",
+    )
 
     # 4. Retrieval Evaluation
     print("\n[3/7] Running source-defined retrieval splits...")
@@ -318,20 +575,30 @@ def run_evaluation():
         )
 
     hybrid_ranker = HybridRanker()
-    mem_id_by_event_id = {
-        str(stable_uuid("event", m["memory_id"])): m["memory_id"] for m in memories
+    memory_by_id_core = {m["memory_id"]: m for m in memories}
+    memory_by_id_challenge = {
+        m["memory_id"]: m for m in challenge_memories
     }
-    mem_id_by_order = {
-        idx: m["memory_id"] for idx, m in enumerate(memories, start=1)
-    }
-    memory_by_id = {m["memory_id"]: m for m in memories}
 
-    def resolve_memory_id(match) -> str:
-        if match.event_id and match.event_id in mem_id_by_event_id:
-            return mem_id_by_event_id[match.event_id]
-        if match.narrative_order and match.narrative_order in mem_id_by_order:
-            return mem_id_by_order[match.narrative_order]
-        return str(match.metadata.get("memory_id", match.memory_chunk_id))
+    def resolver_maps(
+        story_id: str,
+        corpus_memories: list[dict[str, Any]],
+        *,
+        scoped: bool,
+    ) -> tuple[dict[str, str], dict[int, str]]:
+        event_map = {
+            str(
+                scoped_stable_uuid(story_id, "event", m["memory_id"])
+                if scoped
+                else stable_uuid("event", m["memory_id"])
+            ): m["memory_id"]
+            for m in corpus_memories
+        }
+        order_map = {
+            idx: m["memory_id"]
+            for idx, m in enumerate(corpus_memories, start=1)
+        }
+        return event_map, order_map
 
     retrieval_raw: list[dict[str, Any]] = []
     split_results: dict[str, dict[str, Any]] = {}
@@ -341,10 +608,33 @@ def run_evaluation():
     sql_latencies: list[float] = []
     hybrid_latencies: list[float] = []
 
-    def evaluate_split(split_name: str, queries: list[dict[str, Any]]) -> dict[str, Any]:
+    def evaluate_split(
+        split_name: str,
+        queries: list[dict[str, Any]],
+        *,
+        story_id: str,
+        corpus_name: str,
+        corpus_memories: list[dict[str, Any]],
+        scoped_ids: bool,
+    ) -> dict[str, Any]:
         semantic_per_query: list[dict[str, Any]] = []
         hybrid_per_query: list[dict[str, Any]] = []
         recent_per_query: list[dict[str, Any]] = []
+
+        event_id_map, order_map = resolver_maps(
+            story_id,
+            corpus_memories,
+            scoped=scoped_ids,
+        )
+
+        def resolve_memory_id(match) -> str:
+            if match.event_id and match.event_id in event_id_map:
+                return event_id_map[match.event_id]
+            if match.narrative_order and match.narrative_order in order_map:
+                return order_map[match.narrative_order]
+            return str(
+                match.metadata.get("memory_id", match.memory_chunk_id)
+            )
 
         for q in queries:
             qid = str(q["query_id"])
@@ -358,7 +648,7 @@ def run_evaluation():
 
             t0_sql = time.perf_counter()
             semantic_matches = repo.search_semantic_memories(
-                STORY_ID,
+                story_id,
                 query_embedding=q_vec,
                 embedding_version=embedding_provider.version,
                 chapter_number=q_cutoff,
@@ -368,7 +658,7 @@ def run_evaluation():
 
             t0_hyb = time.perf_counter()
             signals = repo.get_hybrid_ranking_signals(
-                STORY_ID,
+                story_id,
                 query_text=qtext,
                 chapter_number=q_cutoff,
             )
@@ -382,7 +672,7 @@ def run_evaluation():
 
             sem_ranked_ids = [resolve_memory_id(m) for m in semantic_matches]
             hyb_ranked_ids = [resolve_memory_id(m) for m in hybrid_matches]
-            rec_ranked_ids = recent_rank(memories, q_cutoff)[:20]
+            rec_ranked_ids = recent_rank(corpus_memories, q_cutoff)[:20]
 
             sem_eval = evaluate_ranked_ids(q, sem_ranked_ids)
             hyb_eval = evaluate_ranked_ids(q, hyb_ranked_ids)
@@ -423,6 +713,8 @@ def run_evaluation():
                 {
                     "case_id": case_id,
                     "split": split_name,
+                    "corpus": corpus_name,
+                    "story_id": story_id,
                     "query_id": qid,
                     "query_text": qtext,
                     "query_type": q.get("query_type"),
@@ -463,20 +755,47 @@ def run_evaluation():
             "per_query_hybrid": hybrid_per_query,
         }
 
-    # Primary model-selection split.
-    split_results["core_gold"] = evaluate_split("core_gold", core_queries)
-    # Secondary diagnostic split. Never merge this into the primary aggregate.
-    split_results["challenge"] = evaluate_split("challenge", challenge_queries)
-    # Cross-lingual diagnostic reuses source query IDs, so case_id carries the split.
+    # Primary model-selection split: canonical 216-memory corpus.
+    split_results["core_gold"] = evaluate_split(
+        "core_gold",
+        core_queries,
+        story_id=STORY_ID,
+        corpus_name="canonical_216",
+        corpus_memories=memories,
+        scoped_ids=False,
+    )
+    # Challenge diagnostics intentionally use the full 232-memory audit corpus.
+    split_results["challenge"] = evaluate_split(
+        "challenge",
+        challenge_queries,
+        story_id=CHALLENGE_STORY_ID,
+        corpus_name="audit_232",
+        corpus_memories=challenge_memories,
+        scoped_ids=True,
+    )
+    # VI diagnostics derive from core-gold labels and use canonical 216 corpus.
     split_results["vietnamese_diagnostic"] = evaluate_split(
-        "vietnamese_diagnostic", vn_queries
+        "vietnamese_diagnostic",
+        vn_queries,
+        story_id=STORY_ID,
+        corpus_name="canonical_216",
+        corpus_memories=memories,
+        scoped_ids=False,
     )
 
     retrieval_metrics = {
         "dataset_version": all_frozen_payload["dataset_version"],
         "tested_commit": "RERUN_COMMIT_TO_BE_RECORDED_BY_GEMINI",
         "evaluated_at": datetime.now(timezone.utc).isoformat(),
-        "memory_count": len(memories),
+        "corpus_policy": {
+            "core_gold": "canonical_216",
+            "challenge": "audit_232",
+            "vietnamese_diagnostic": "canonical_216",
+        },
+        "memory_counts": {
+            "canonical_216": len(memories),
+            "audit_232": len(challenge_memories),
+        },
         "split_contract": {
             "core_gold": 21,
             "challenge": 19,
@@ -553,8 +872,13 @@ def run_evaluation():
             continue
 
         semantic_payload = []
+        source_memory_by_id = (
+            memory_by_id_challenge
+            if raw_case["corpus"] == "audit_232"
+            else memory_by_id_core
+        )
         for match in raw_case["hybrid_top20"]:
-            memory = memory_by_id.get(match["memory_id"])
+            memory = source_memory_by_id.get(match["memory_id"])
             if memory is None:
                 continue
             semantic_payload.append(
@@ -679,10 +1003,15 @@ def run_evaluation():
             continue
 
         top_ids = [row["memory_id"] for row in raw_case["hybrid_top20"][:5]]
+        source_memory_by_id = (
+            memory_by_id_challenge
+            if raw_case["corpus"] == "audit_232"
+            else memory_by_id_core
+        )
         top_memories = [
-            memory_by_id[memory_id]
+            source_memory_by_id[memory_id]
             for memory_id in top_ids
-            if memory_id in memory_by_id
+            if memory_id in source_memory_by_id
         ]
         context_text = "\n".join(
             f"- [{memory['memory_id']} / ch{memory['chapter_number']}] {memory['content']}"
@@ -842,10 +1171,9 @@ def run_evaluation():
     summary_md = f"""# EVAL-01 Aethelgard Runtime Baseline — Corrected Harness Summary
 
 - **Dataset:** `{all_frozen_payload['dataset_version']}`
-- **Corpus:** {len(memories)} frozen canonical memories
-- **Primary split:** 21 core-gold queries
-- **Secondary split:** 19 challenge queries
-- **Cross-lingual diagnostic:** 10 Vietnamese queries
+- **Primary corpus:** {len(memories)} frozen canonical memories for 21 core-gold queries
+- **Challenge corpus:** {len(challenge_memories)} frozen audit memories for 19 challenge queries
+- **Cross-lingual diagnostic:** 10 Vietnamese queries on the canonical corpus
 - **Evaluation mode:** live Gemini provider + PostgreSQL/pgvector
 - **Generation quality:** REVIEW_REQUIRED (not self-scored)
 
