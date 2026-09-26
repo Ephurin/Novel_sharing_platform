@@ -1,12 +1,14 @@
 [
   {
-    "case_id": "gen-case-01",
+    "case_id": "generation:core_gold:rq-0002",
+    "retrieval_case_id": "core_gold:rq-0002",
     "query_id": "rq-0002",
+    "split": "core_gold",
     "archetype": "setup_payoff",
-    "chapter_cutoff": 5,
+    "chapter_cutoff": 21,
     "model": "gemini-3.5-flash-lite",
     "temperature": 0.2,
-    "prompt_hash": "095af41706a0329d4465aa6d21591aad93549c1fbb9c60206f4fcf41240ab150",
+    "prompt_hash": "be338e0583bb772af8e02c9bc1cc79594bca7cf59abd0be2213135a4c3889c86",
     "retrieved_memory_ids": [
       "mem-000068",
       "mem-000024",
@@ -14,27 +16,31 @@
       "mem-000069",
       "mem-000013"
     ],
-    "output_text": "Sau trận chiến với quái vật sương mù ở Oakhaven, lõi mana (mana core) của Alan đã cạn kiệt nghiêm trọng do phải quá tải mảng tháp cổ để mở không gian xé gió. Thanh kiếm của anh cũng bị gãy hoàn toàn trong quá trình phối hợp tấn công chính xác vào các khớp giáp và cổ của sinh vật.",
-    "latency_ms": 1262.2685000533238,
-    "status": "SUCCESS",
-    "rubric_evaluation": {
-      "canonical_factual_consistency": 5,
-      "character_consistency": 5,
-      "relationship_consistency": 5,
-      "future_leakage_detected": false,
-      "unsupported_facts_introduced": false,
-      "context_adherence": 5,
-      "long_range_continuity": 5
+    "output_text": "Elena uses a corrupted-root countermeasure prepared from the chapter-14 extraction site against Alistair. This preparation briefly degrades a vulnerable armor joint, creating an opening despite his overwhelming magical defenses.",
+    "latency_ms": 2280.3749999729916,
+    "execution_status": "SUCCESS",
+    "quality_evaluation": {
+      "status": "REVIEW_REQUIRED",
+      "canonical_factual_consistency": "not_scored",
+      "character_consistency": "not_scored",
+      "relationship_consistency": "not_scored",
+      "future_leakage_detected": "not_scored",
+      "unsupported_facts_introduced": "not_scored",
+      "context_adherence": "not_scored",
+      "long_range_continuity": "not_scored",
+      "reason": "Harness must not self-award quality scores. Astra/Supervisor or a separately specified evaluator must review preserved output."
     }
   },
   {
-    "case_id": "gen-case-02",
+    "case_id": "generation:core_gold:rq-0007",
+    "retrieval_case_id": "core_gold:rq-0007",
     "query_id": "rq-0007",
+    "split": "core_gold",
     "archetype": "relationship_evolution",
-    "chapter_cutoff": 18,
+    "chapter_cutoff": 28,
     "model": "gemini-3.5-flash-lite",
     "temperature": 0.2,
-    "prompt_hash": "96ab10cd092f2b5ef0e769e9af4a1466bacbda6dc7b72d5922ce4738b8c2e056",
+    "prompt_hash": "0717b49cfd54324b971627a2f065f3f4c937681b3d05bf95c87725495c98b9ff",
     "retrieved_memory_ids": [
       "mem-000094",
       "mem-000090",
@@ -42,27 +48,31 @@
       "mem-000093",
       "mem-000088"
     ],
-    "output_text": "Alan lao lên dùng thanh đoản kiếm Thần Tinh phá vỡ lớp phòng thủ quang-năng của Roland tại điểm yếu giáp trụ bằng tính chất triệt tiêu ma pháp. Ngay lập tức, Elena hỗ trợ xử lý vết thương và cung cấp các dung dịch hóa chất kháng ma lực để Alan duy trì áp lực chiến đấu.",
-    "latency_ms": 1330.0514000002295,
-    "status": "SUCCESS",
-    "rubric_evaluation": {
-      "canonical_factual_consistency": 5,
-      "character_consistency": 5,
-      "relationship_consistency": 5,
-      "future_leakage_detected": false,
-      "unsupported_facts_introduced": false,
-      "context_adherence": 5,
-      "long_range_continuity": 5
+    "output_text": "The combat effectiveness of the Thần Tinh sword is demonstrated during the resistance ambush in mine passage three against the Temple vanguard. When Alan strikes Garen through an exposed armor gap, contact with the blade causes Garen's quang-energy protection to fail.",
+    "latency_ms": 1375.9235000470653,
+    "execution_status": "SUCCESS",
+    "quality_evaluation": {
+      "status": "REVIEW_REQUIRED",
+      "canonical_factual_consistency": "not_scored",
+      "character_consistency": "not_scored",
+      "relationship_consistency": "not_scored",
+      "future_leakage_detected": "not_scored",
+      "unsupported_facts_introduced": "not_scored",
+      "context_adherence": "not_scored",
+      "long_range_continuity": "not_scored",
+      "reason": "Harness must not self-award quality scores. Astra/Supervisor or a separately specified evaluator must review preserved output."
     }
   },
   {
-    "case_id": "gen-case-03",
+    "case_id": "generation:core_gold:rq-0010",
+    "retrieval_case_id": "core_gold:rq-0010",
     "query_id": "rq-0010",
+    "split": "core_gold",
     "archetype": "world_rules",
-    "chapter_cutoff": 45,
+    "chapter_cutoff": 33,
     "model": "gemini-3.5-flash-lite",
     "temperature": 0.2,
-    "prompt_hash": "ee95e2efd1667583c065700e31be46112be578628f1c9196a363a09f8eb21125",
+    "prompt_hash": "1779f7d907c0ec26421b225b0ef48eeadb4771b77f9adf65b32b8ae9b72a2f85",
     "retrieved_memory_ids": [
       "mem-000114",
       "mem-000035",
@@ -70,39 +80,51 @@
       "mem-000106",
       "mem-000113"
     ],
-    "output_text": "Flash Surge là kỹ thuật bộc phát tốc độ cực hạn bằng cách ép cơ bắp và gân cốt hoạt động vượt giới hạn mà không cần mana. Tuy nhiên, việc Alan tiếp tục lạm dụng kiếm thuật cơ học này khi thiếu một lõi mana nguyên vẹn sẽ khiến cơ thể anh chịu áp lực phản chấn tàn khốc, dẫn đến tổn thương vi thể tích tụ và nguy cơ hủy hoại vĩnh viễn khả năng chiến đấu.",
-    "latency_ms": 1645.7046999130398,
-    "status": "SUCCESS",
-    "rubric_evaluation": {
-      "canonical_factual_consistency": 5,
-      "character_consistency": 5,
-      "relationship_consistency": 5,
-      "future_leakage_detected": false,
-      "unsupported_facts_introduced": false,
-      "context_adherence": 5,
-      "long_range_continuity": 5
+    "output_text": "Valora’s view changes after Oakhaven’s non-mana medicine and Thần Tinh combat successfully defeat Temple equipment during a joint victory. This leads her to recognize them as credible battlefield partners and commit Demon Thần Tinh resources and forge access to the anti-Temple alliance.",
+    "latency_ms": 1419.7605000808835,
+    "execution_status": "SUCCESS",
+    "quality_evaluation": {
+      "status": "REVIEW_REQUIRED",
+      "canonical_factual_consistency": "not_scored",
+      "character_consistency": "not_scored",
+      "relationship_consistency": "not_scored",
+      "future_leakage_detected": "not_scored",
+      "unsupported_facts_introduced": "not_scored",
+      "context_adherence": "not_scored",
+      "long_range_continuity": "not_scored",
+      "reason": "Harness must not self-award quality scores. Astra/Supervisor or a separately specified evaluator must review preserved output."
     }
   },
   {
-    "case_id": "gen-case-04",
-    "query_id": "rq-0021",
+    "case_id": "generation:challenge:rq-0001",
+    "retrieval_case_id": "challenge:rq-0001",
+    "query_id": "rq-0001",
+    "split": "challenge",
     "archetype": "future_leak_trap",
-    "chapter_cutoff": 10,
+    "chapter_cutoff": 19,
     "model": "gemini-3.5-flash-lite",
     "temperature": 0.2,
-    "prompt_hash": "bb49190db6563c421b788eac8fa452ea0e227935eb00248cc597ca50c7ea2e0d",
-    "retrieved_memory_ids": [],
-    "output_text": "Do bạn chưa cung cấp nội dung chi tiết của \"Bối cảnh ký ức\" (từ chương 1 đến chương 10), tôi chưa có dữ liệu cụ thể để mô tả. Vui lòng cung cấp thêm thông tin về bối cảnh để tôi có thể tóm tắt chính xác tình hình làng Oakhaven theo đúng yêu cầu.",
-    "latency_ms": 18502.855699975044,
-    "status": "SUCCESS",
-    "rubric_evaluation": {
-      "canonical_factual_consistency": 5,
-      "character_consistency": 5,
-      "relationship_consistency": 5,
-      "future_leakage_detected": false,
-      "unsupported_facts_introduced": false,
-      "context_adherence": 5,
-      "long_range_continuity": 5
+    "prompt_hash": "d5aa810bc74c46e56bcb2f260a561abd1e61af7ef682f25ed01492fb478eccc6",
+    "retrieved_memory_ids": [
+      "mem-000035",
+      "mem-000025",
+      "mem-000044",
+      "mem-000042",
+      "mem-000053"
+    ],
+    "output_text": "The suspicion that Alistair knowingly accepts sacrificing Oakhaven is supported by Roland's statement that Oakhaven’s grain will support Alistair’s northern mission. Additionally, Elena witnessed an extraction device—associated with Alistair's efforts—kill a tree, leading her to openly blame him for complicity in the system's destructive actions.",
+    "latency_ms": 1168.1669999379665,
+    "execution_status": "SUCCESS",
+    "quality_evaluation": {
+      "status": "REVIEW_REQUIRED",
+      "canonical_factual_consistency": "not_scored",
+      "character_consistency": "not_scored",
+      "relationship_consistency": "not_scored",
+      "future_leakage_detected": "not_scored",
+      "unsupported_facts_introduced": "not_scored",
+      "context_adherence": "not_scored",
+      "long_range_continuity": "not_scored",
+      "reason": "Harness must not self-award quality scores. Astra/Supervisor or a separately specified evaluator must review preserved output."
     }
   }
 ]

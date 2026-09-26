@@ -1,7 +1,7 @@
 {
-  "evaluated_at": "2026-09-26T16:33:09.980822+00:00",
-  "total_queries_audited": 31,
-  "total_candidates_inspected": 620,
+  "evaluated_at": "2026-09-26T17:02:19.530146+00:00",
+  "total_queries_audited": 50,
+  "total_candidates_inspected": 1000,
   "future_leak_violations_count": 0,
   "future_leak_violations": [],
   "stale_wrong_version_count": 0,
