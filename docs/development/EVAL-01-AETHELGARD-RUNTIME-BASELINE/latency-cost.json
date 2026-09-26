@@ -1,0 +1,28 @@
+{
+  "evaluated_at": "2026-09-26T16:33:32.725764+00:00",
+  "query_embedding_latency_ms": {
+    "p50": 915.5773000093177,
+    "p95": 1057.595199905336,
+    "mean": 959.0806161248756
+  },
+  "sql_retrieval_latency_ms": {
+    "p50": 62.8543000202626,
+    "p95": 125.7700000423938,
+    "mean": 67.58363226488713
+  },
+  "hybrid_rerank_latency_ms": {
+    "p50": 9.388600010424852,
+    "p95": 55.22219999693334,
+    "mean": 14.937345163836595
+  },
+  "generation_latency_ms": {
+    "p50": 1487.8780499566346,
+    "p95": 18502.855699975044,
+    "mean": 5685.220074985409
+  },
+  "token_cost_profile": {
+    "embedding_calls_total": 45,
+    "generation_calls_total": 4,
+    "estimated_token_usage": "Under standard developer tier quota"
+  }
+}

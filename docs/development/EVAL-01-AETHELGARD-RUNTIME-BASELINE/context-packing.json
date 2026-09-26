@@ -1,0 +1,110 @@
+[
+  {
+    "query_id": "rq-0002",
+    "archetype": "setup_payoff",
+    "chapter_cutoff": 5,
+    "tokens_estimated": 463,
+    "within_budget": true,
+    "deterministic_context_hash": "d3659af728077fd5a983a25125e0d22a886b6692477a1d7915c7ff1edc6b8326",
+    "hashes_match": true,
+    "protected_artifacts_truncated": 0,
+    "selected_semantic_count": 8,
+    "selected_semantic_ids": [
+      "mem-000068",
+      "mem-000024",
+      "mem-000038",
+      "mem-000069",
+      "mem-000013",
+      "mem-000035",
+      "mem-000048",
+      "mem-000066"
+    ]
+  },
+  {
+    "query_id": "rq-0004",
+    "archetype": "old_but_important",
+    "chapter_cutoff": 7,
+    "tokens_estimated": 463,
+    "within_budget": true,
+    "deterministic_context_hash": "146ea53bea43a8e287a8c6071cb476fb69e3483b8ebebdb4c25b547b8189c0cd",
+    "hashes_match": true,
+    "protected_artifacts_truncated": 0,
+    "selected_semantic_count": 8,
+    "selected_semantic_ids": [
+      "mem-000080",
+      "mem-000076",
+      "mem-000081",
+      "mem-000070",
+      "mem-000075",
+      "mem-000008",
+      "mem-000063",
+      "mem-000011"
+    ]
+  },
+  {
+    "query_id": "rq-0007",
+    "archetype": "relationship_evolution",
+    "chapter_cutoff": 18,
+    "tokens_estimated": 464,
+    "within_budget": true,
+    "deterministic_context_hash": "e3ad7d1b1c0332de345ece8a6b3dc9255ab992536dc3a05d18b04df0321181df",
+    "hashes_match": true,
+    "protected_artifacts_truncated": 0,
+    "selected_semantic_count": 8,
+    "selected_semantic_ids": [
+      "mem-000094",
+      "mem-000090",
+      "mem-000089",
+      "mem-000093",
+      "mem-000088",
+      "mem-000091",
+      "mem-000048",
+      "mem-000087"
+    ]
+  },
+  {
+    "query_id": "rq-0008",
+    "archetype": "important_object_lifecycle",
+    "chapter_cutoff": 23,
+    "tokens_estimated": 173,
+    "within_budget": true,
+    "deterministic_context_hash": "6e6e7c94dfee5d7c26593a9e61ab389646e17f7eb41eeb40246f55fed427a97d",
+    "hashes_match": true,
+    "protected_artifacts_truncated": 0,
+    "selected_semantic_count": 0,
+    "selected_semantic_ids": []
+  },
+  {
+    "query_id": "rq-0010",
+    "archetype": "world_rules",
+    "chapter_cutoff": 45,
+    "tokens_estimated": 464,
+    "within_budget": true,
+    "deterministic_context_hash": "abbe9c6ac883038ba74f5f26553e08e935eb60ffe8d20846ca6227ddf97725d0",
+    "hashes_match": true,
+    "protected_artifacts_truncated": 0,
+    "selected_semantic_count": 8,
+    "selected_semantic_ids": [
+      "mem-000114",
+      "mem-000035",
+      "mem-000108",
+      "mem-000106",
+      "mem-000113",
+      "mem-000104",
+      "mem-000042",
+      "mem-000116"
+    ]
+  },
+  {
+    "query_id": "rq-0021",
+    "archetype": "future_leak_trap",
+    "chapter_cutoff": 10,
+    "tokens_estimated": 173,
+    "within_budget": true,
+    "deterministic_context_hash": "6e6e7c94dfee5d7c26593a9e61ab389646e17f7eb41eeb40246f55fed427a97d",
+    "hashes_match": true,
+    "protected_artifacts_truncated": 0,
+    "selected_semantic_count": 0,
+    "selected_semantic_ids": []
+  }
+]

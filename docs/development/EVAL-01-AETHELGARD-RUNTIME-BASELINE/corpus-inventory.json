@@ -1,0 +1,87 @@
+{
+  "evaluated_at": "2026-09-26T23:18:00+07:00",
+  "tested_commit": "46cbe567ad037df8aade777b060c60c12f221c5f",
+  "branch": "main",
+  "corpora": {
+    "frozen_p7_benchmark": {
+      "corpus_id": "aethelgard-retrieval-eval-v1.0.0",
+      "status": "FROZEN",
+      "canonical_memories_count": 216,
+      "core_gold_queries_count": 21,
+      "vietnamese_diagnostics_count": 10,
+      "challenge_queries_count": 19,
+      "total_retrieval_queries_count": 40,
+      "artifacts": {
+        "memory_chunks_canonical": {
+          "path": ".data/Frozen_v1/memory_chunks_canonical.json",
+          "size_bytes": 213389,
+          "sha256": "659fae8d523c2336d25d173961fa28892d80be690189d172de67448dc6023764",
+          "item_count": 216
+        },
+        "core_gold_queries": {
+          "path": ".data/Frozen_v1/core_gold_queries.json",
+          "size_bytes": 36941,
+          "sha256": "b3bc90ffa66201c4723b88358d7be3fddcfd94a8416365b298d2198d3b2bd332",
+          "item_count": 21
+        },
+        "vietnamese_diagnostic_queries": {
+          "path": ".data/Frozen_v1/vietnamese_diagnostic_queries.json",
+          "size_bytes": 20285,
+          "sha256": "933cb72ce0f4512b061ade074d5588d9e0927f757321b602a7fd29a0bc0c3680",
+          "item_count": 10
+        },
+        "challenge_queries": {
+          "path": ".data/Frozen_v1/challenge_queries.json",
+          "size_bytes": 34207,
+          "sha256": "ccf03b03421ae95c55cc2e6b8ecb2729798fbff5789009161c1fc17b61ad40ba",
+          "item_count": 19
+        },
+        "all_retrieval_queries": {
+          "path": ".data/Frozen_v1/retrieval_queries.json",
+          "size_bytes": 70485,
+          "sha256": "d6d07a77fd1d4b58349e7d28ba01faf07671be9cdde0658f258f72c6a6e0a3e8",
+          "item_count": 40
+        }
+      }
+    },
+    "whole_story_working_corpus": {
+      "corpus_id": "aethelgard-whole-story-batch-7-working",
+      "status": "WORKING_NOT_FROZEN",
+      "chapters_processed": 61,
+      "memory_chunks_count": 232,
+      "working_retrieval_queries_count": 40,
+      "note": "Working corpus pending cross-story consolidation/audit before freezing next evaluation version.",
+      "artifacts": {
+        "memory_chunks": {
+          "path": ".data/Batch_7/memory_chunks.json",
+          "size_bytes": 229393,
+          "sha256": "1429342f61ba7367c3d702ced92868fdff17c43a83b3997523d6871ae21536a3",
+          "item_count": 232
+        },
+        "retrieval_queries": {
+          "path": ".data/Batch_7/retrieval_queries.json",
+          "size_bytes": 41140,
+          "sha256": "9721bd53e02d6f8a1a5edbbf4b9022b4908f9023035c34ed5eb20b2c69da0711",
+          "item_count": 40
+        },
+        "entities": {
+          "path": ".data/Batch_7/entities.json",
+          "size_bytes": 57253,
+          "sha256": "9a079aa31578d9f5970d106e0db0f4d16bba455f50a2f389bce8de7a0a6e2fb0"
+        },
+        "ambiguities": {
+          "path": ".data/Batch_7/ambiguities.json",
+          "size_bytes": 36229,
+          "sha256": "ea27dde4270a342ae7fa57e6e870d229d69df43918d18159865dae6b65d4ddf4"
+        },
+        "story_manifest": {
+          "path": ".data/Batch_7/story_manifest.json",
+          "size_bytes": 16227,
+          "sha256": "1d5e92c70fd55d9dc020e1d07272e4a03c621e9978a0d28e1439b33336d58629"
+        }
+      }
+    }
+  },
+  "gold_labels_mutated": false,
+  "source_novel_mutated": false
+}

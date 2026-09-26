@@ -1,0 +1,49 @@
+{
+  "experiment_id": "EVAL-01",
+  "name": "Aethelgard Runtime Baseline",
+  "evaluated_at": "2026-09-26T23:25:00+07:00",
+  "commit_sha": "46cbe567ad037df8aade777b060c60c12f221c5f",
+  "run_mode": "live_provider",
+  "preflight": {
+    "selected_key_slot": "slot-1",
+    "credential_present": true,
+    "credential_value_logged": false,
+    "embedding_provider": "gemini",
+    "llm_provider": "gemini"
+  },
+  "runtime_settings": {
+    "app_env": "production",
+    "narrative_repository": "postgres",
+    "json_repository_mode": "read-only",
+    "database_url_host": "localhost:5433",
+    "database_name": "novel_platform",
+    "database_schema": "narrative",
+    "database_engine": "PostgreSQL 16.15 / pgvector 0.8.6",
+    "embedding_provider": "gemini",
+    "embedding_model": "gemini-embedding-2",
+    "embedding_version": "gemini-embedding-2-768-v1",
+    "embedding_dimension": 768,
+    "normalization": "l2",
+    "metric": "cosine",
+    "semantic_retrieval_enabled": true,
+    "semantic_retrieval_limit": 8,
+    "hybrid_ranking_version": "hybrid-v1",
+    "hybrid_weights": {
+      "semantic": 0.75,
+      "entity_overlap": 0.03,
+      "temporal": 0.08,
+      "importance": 0.10,
+      "relationship": 0.04
+    },
+    "temporal_half_life_chapters": 12.0,
+    "context_packing_version": "context-budget-v1",
+    "default_context_token_budget": 12000,
+    "generation_provider": "gemini",
+    "generation_model": "gemini-3.5-flash-lite",
+    "generation_temperature": 0.2
+  },
+  "gates": {
+    "p8_05_cleanup_gate": "BLOCKED",
+    "supervisor_cleanup_gate_accepted": false
+  }
+}

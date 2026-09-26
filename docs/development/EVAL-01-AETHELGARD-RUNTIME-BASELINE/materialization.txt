@@ -1,0 +1,17 @@
+EVAL-01 AETHELGARD RUNTIME BASELINE — MATERIALIZATION
+Evaluated At: 2026-09-26T16:32:37.674195+00:00
+Story ID: aethelgard-soul-mortal-blade-61ch
+Tenant ID: 00000000-0000-0000-0000-000000000001
+Total event memory sources listed: 216
+Memory chunks persisted: 216
+Embeddings requested/stored: 0
+Embeddings reused: 0
+Total chunks in database: 216
+Fresh embeddings matching content hash: 216
+Stale embeddings: 0
+Missing embeddings: 0
+Embedding Model: gemini-embedding-2
+Embedding Version: gemini-embedding-2-768-v1
+Embedding Dimension: 768
+Materialization Elapsed Time: 1.36s
+Status: SUCCESS

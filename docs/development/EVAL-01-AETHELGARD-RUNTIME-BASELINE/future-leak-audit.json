@@ -1,0 +1,12 @@
+{
+  "evaluated_at": "2026-09-26T16:33:09.980822+00:00",
+  "total_queries_audited": 31,
+  "total_candidates_inspected": 620,
+  "future_leak_violations_count": 0,
+  "future_leak_violations": [],
+  "stale_wrong_version_count": 0,
+  "stale_wrong_version_violations": [],
+  "temporal_cutoff_mechanism": "SQL WHERE EventRecord.chapter_number <= chapter_number before ORDER BY cosine_distance",
+  "temporal_safety_pass": true,
+  "status": "PASS"
+}

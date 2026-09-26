@@ -1,0 +1,26 @@
+EVAL-01 AETHELGARD RUNTIME BASELINE — ENVIRONMENT
+Evaluated At: 2026-09-26T23:25:00+07:00
+Repository: Ephurin/Novel_sharing_platform
+Branch: main
+Tested Commit: 46cbe567ad037df8aade777b060c60c12f221c5f
+
+Operating System: Windows 11 (build 10.0.26100)
+Python Version: 3.12.9
+Docker Desktop: v2.40.2-desktop.1
+Database Engine: PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2)
+Vector Extension: pgvector 0.8.6
+Database Port: 5433 (dedicated container pgvector-eval, image pgvector/pgvector:pg16)
+Database URL: postgresql+psycopg://postgres:postgres@localhost:5433/novel_platform
+Database Schema: narrative (Alembic migrations 0001 -> 0007 applied)
+
+Embedding Model: gemini-embedding-2
+Embedding Dimension: 768
+Embedding Normalization: L2
+Distance Metric: Cosine (<=>)
+Embedding Version: gemini-embedding-2-768-v1
+Credential Slot: slot-1 (mapped to GEMINI_API_KEY from .env.eval.local)
+
+Generation Model: gemini-3.5-flash-lite
+LLM Provider: gemini
+LLM Timeout: 30s
+Temperature: 0.2
