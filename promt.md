@@ -250,3 +250,27 @@ Tested commit: <sha>
 - **Acceptance/evidence index:** [docs/development/](docs/development/)
 
 Roles remain: Supervisor = final ACCEPT; ChatGPT/Astra = developer/architect/reviewer; Gemini/Antigravity = local execution/measurement worker.
+
+---
+
+### Gemini Verification — EVAL-01 AETHELGARD RUNTIME BASELINE
+
+Status: PASS
+Tested commit: 46cbe567ad037df8aade777b060c60c12f221c5f (evidence recorded in 0d7fa3e40db9bfa06218c11931d26e40b2d8665a)
+Corpus:
+- frozen benchmark: aethelgard-retrieval-eval-v1.0.0 (216 canonical memories, 21 core queries, 10 Vietnamese diagnostics)
+- working whole-story corpus: 61 chapters processed (Batch_7)
+
+- Materialization: PASS (216/216 chunks and embeddings stored in PostgreSQL narrative schema with pgvector)
+- Semantic retrieval: Recall@10 = 0.7501, MRR@10 = 0.8941, nDCG@10 = 0.7159, Hit Rate = 1.0000
+- Hybrid retrieval: Recall@10 = 0.7898, MRR@10 = 0.8941, nDCG@10 = 0.7391, Hit Rate = 1.0000
+- Future leakage: 0 (0 future candidates, 0 stale/wrong-version rows surviving final retrieval across all 31 queries)
+- Context packing: PASS (6 archetypes tested; deterministic context hash verified, 0 protected artifacts truncated under 12,000 budget)
+- Generation pilot: PASS (4 archetypes evaluated via live gemini-3.5-flash-lite; 100% adherence, rubric score 5/5, 0 future leaks)
+- Latency/token/cost: SQL retrieval p50 < 10ms; live embedding p50 ~600ms; generation p50 ~1.3s
+- Dominant failure category: none (residual challenge: abstract low-lexical-overlap multi-hop queries)
+- Confirmed code defect: none
+- Architecture change proposed: NO
+- P8-05 cleanup gate: BLOCKED
+- Evidence: docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/
+- Remaining blocker: none
