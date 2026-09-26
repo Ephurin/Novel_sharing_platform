@@ -62,6 +62,71 @@ Work on latest `main`. Measure first; do not silently fix architecture.
 11. Classify failures before proposing fixes.
 12. Commit evidence/results to `main`; do not open a coding phase automatically.
 
+
+## Local Gemini API credentials for EVAL-01
+
+Real runtime embedding/materialization and the bounded Gemini generation pilot require a live Gemini credential.
+
+**Do not put API keys in `promt.md`, tracked docs, evidence, shell history captures, or commits.**
+
+Use a local ignored file:
+
+```text
+.env.eval.local
+```
+
+The repository `.gitignore` already ignores `.env.*`.
+
+Recommended local-only layout:
+
+```env
+GEMINI_API_KEY_SLOT_1=<secret>
+GEMINI_API_KEY_SLOT_2=<secret>
+GEMINI_API_KEY_SLOT_3=<secret>
+GEMINI_API_KEY_SLOT_4=<secret>
+```
+
+Rules:
+
+- all four values stay local and untracked;
+- never print or copy key values into evidence;
+- identify credentials only as `slot-1` .. `slot-4`;
+- use **one fixed key slot per measured run** so latency/quota evidence remains interpretable;
+- map the selected slot to the runtime variable `GEMINI_API_KEY` before starting the process/Compose stack;
+- do not cycle through keys to bypass provider rate limits or quotas;
+- on provider-directed throttling, honor backoff and record the throttle as runtime evidence;
+- switch slots only for a new explicitly recorded run or when the selected credential is invalid/unavailable for a reason unrelated to bypassing quota;
+- record the selected slot ID in `runtime-config.json`, never the secret.
+
+For a live retrieval/materialization run, runtime must resolve to:
+
+```text
+EMBEDDING_PROVIDER=gemini
+GEMINI_API_KEY=<selected local slot value>
+embedding model/version = gemini-embedding-2 / gemini-embedding-2-768-v1
+```
+
+For a live generation pilot, additionally set explicitly:
+
+```text
+LLM_PROVIDER=gemini
+LLM_MODEL=<explicit model under evaluation>
+```
+
+Do not rely on Compose defaults for live evaluation: root Compose defaults may use fake/no provider. Evidence must state whether each run was `live_provider`, `fake`, or `offline_proxy`.
+
+Before running, Gemini should perform a secret-safe preflight:
+
+```text
+selected_key_slot = slot-N
+credential_present = true
+credential_value_logged = false
+embedding_provider = gemini
+llm_provider = gemini | not_enabled_yet
+```
+
+If no valid live credential is available, mark the affected measurement `BLOCKED` or `not_measured`; do not silently substitute fake-provider results for live EVAL-01 evidence.
+
 Evidence directory:
 
 ```text
