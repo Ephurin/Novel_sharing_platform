@@ -14,6 +14,7 @@ from sqlalchemy.orm import sessionmaker
 
 from application.semantic_memory_service import SemanticMemoryMaterializationService
 from application.writing_service import WritingService
+from domain.embeddings import l2_normalize
 from domain.models import NarrativeEvent, SemanticMemoryEmbedding
 from infrastructure.embedding_providers import DeterministicFakeEmbeddingProvider
 from infrastructure.orm_models import (
@@ -221,8 +222,9 @@ def test_event_provenance_metadata_survives_to_writing_payload(session_factory) 
 
     matches = semantic.search_semantic_memories(
         novel_id,
-        query_embedding=provider.embed_query(
-            "later repeated forging scene"
+        query_embedding=l2_normalize(
+            provider.embed_query("later repeated forging scene"),
+            expected_dimension=provider.dimension,
         ),
         embedding_version=provider.version,
         chapter_number=32,
