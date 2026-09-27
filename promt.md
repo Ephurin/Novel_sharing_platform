@@ -476,6 +476,44 @@ After merge, Gemini performs local verification and commits evidence under:
 docs/development/EVAL-01C-PROVENANCE-PROPAGATION/
 ```
 
+## EVAL-01D harness — MERGED
+
+- PR: #14
+- merge commit: `3fdaca001585f1b6cdd567b8eb8e20517040145e`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- prompt isolation: **PASS on 5/5 cases**
+
+CI dry-run confirmed for every case:
+
+```text
+only_new_provenance_fields_differ = true
+same_selected_memory_ids           = true
+same_dropped_memory_ids            = true
+same_system_prompt                 = true
+```
+
+Observed estimated context overhead for post-provenance:
+
+```text
+rq-0011   +800 tokens
+rq-0023   +795 tokens
+rq-0025   +792 tokens
+rq-0036   +786 tokens
+rq-0010   +800 tokens
+```
+
+No live provider call occurred in CI.
+
+Current state:
+
+```text
+EVAL-01D harness         MERGED
+CI isolation contract    PASS
+live Gemini A/B          PENDING
+blind Astra review       PENDING
+condition reveal         PENDING
+```
+
 ## NOW — EVAL-01D Provenance-Aware Generation A/B
 
 EVAL-01C-PROV remains technically VERIFIED; Supervisor ACCEPT is still separate.
