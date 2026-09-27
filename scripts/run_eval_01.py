@@ -604,6 +604,7 @@ def run_evaluation():
     split_results: dict[str, dict[str, Any]] = {}
     future_leak_violations: list[dict[str, Any]] = []
     stale_version_violations: list[dict[str, Any]] = []
+    prohibited_label_hits: list[dict[str, Any]] = []
     query_embedding_latencies: list[float] = []
     sql_latencies: list[float] = []
     hybrid_latencies: list[float] = []
@@ -673,6 +674,30 @@ def run_evaluation():
             sem_ranked_ids = [resolve_memory_id(m) for m in semantic_matches]
             hyb_ranked_ids = [resolve_memory_id(m) for m in hybrid_matches]
             rec_ranked_ids = recent_rank(corpus_memories, q_cutoff)[:20]
+
+            prohibited_ids = {
+                str(label["memory_id"])
+                for label in q.get("labels", [])
+                if int(label.get("grade", 0)) < 0
+            }
+            for stage, ranked_ids in (
+                ("semantic_top20", sem_ranked_ids),
+                ("hybrid_top20", hyb_ranked_ids),
+            ):
+                for rank_index, memory_id in enumerate(ranked_ids, start=1):
+                    if memory_id in prohibited_ids:
+                        prohibited_label_hits.append(
+                            {
+                                "case_id": case_id,
+                                "split": split_name,
+                                "query_id": qid,
+                                "stage": stage,
+                                "rank": rank_index,
+                                "memory_id": memory_id,
+                                "chapter_cutoff": q_cutoff,
+                                "reason": "gold_label_grade_-1_prohibited_future_or_invalid",
+                            }
+                        )
 
             sem_eval = evaluate_ranked_ids(q, sem_ranked_ids)
             hyb_eval = evaluate_ranked_ids(q, hyb_ranked_ids)
@@ -836,15 +861,38 @@ def run_evaluation():
         "future_leak_violations": future_leak_violations,
         "stale_wrong_version_count": len(stale_version_violations),
         "stale_wrong_version_violations": stale_version_violations,
+        "prohibited_label_hits_count": len(prohibited_label_hits),
+        "prohibited_label_hits": prohibited_label_hits,
         "temporal_cutoff_mechanism": "SQL WHERE EventRecord.chapter_number <= chapter_number before ORDER BY cosine_distance",
-        "temporal_safety_pass": len(future_leak_violations) == 0 and len(stale_version_violations) == 0,
-        "status": "PASS" if (len(future_leak_violations) == 0 and len(stale_version_violations) == 0) else "FAIL",
+        "prohibited_label_policy": (
+            "Grade -1 is query-conditioned. Future grade -1 items are blocked by chapter cutoff; "
+            "same/past replay negatives are ranking-contract diagnostics and must not be treated "
+            "as globally invalid memories."
+        ),
+        "temporal_safety_pass": (
+            len(future_leak_violations) == 0
+            and len(stale_version_violations) == 0
+        ),
+        "prohibited_label_contract_pass": len(prohibited_label_hits) == 0,
+        "status": (
+            "PASS"
+            if (
+                len(future_leak_violations) == 0
+                and len(stale_version_violations) == 0
+                and len(prohibited_label_hits) == 0
+            )
+            else "FAIL_RETRIEVAL_CONTRACT"
+        ),
     }
     (EVIDENCE_DIR / "future-leak-audit.json").write_text(
         json.dumps(future_audit, indent=2, ensure_ascii=False), encoding="utf-8"
     )
     print(f"      Future leakage violations surviving final retrieval: {len(future_leak_violations)} (MUST be 0)")
     print(f"      Stale / wrong-version candidates surviving retrieval: {len(stale_version_violations)} (MUST be 0)")
+    print(
+        "      Query-conditioned grade -1 hits in semantic/hybrid top20: "
+        f"{len(prohibited_label_hits)} (retrieval-contract diagnostic)"
+    )
 
     # 6. Context Packing Evaluation
     print("\n[5/7] Evaluating Context Packing with real retrieved memory content...")
@@ -1126,6 +1174,7 @@ def run_evaluation():
     )
     context_deterministic = all(case["hashes_match"] for case in context_cases)
     temporal_pass = not future_leak_violations and not stale_version_violations
+    prohibited_contract_pass = not prohibited_label_hits
 
     failure_md = f"""# EVAL-01 Failure Analysis — Corrected Harness
 
@@ -1138,8 +1187,8 @@ def run_evaluation():
 | CANONICAL_DATA | PARTIAL | Frozen canonical corpus is immutable and seeded; full canonical extraction pipeline not evaluated |
 | EMBEDDING | PASS | Live Gemini query embeddings + repository embedding coverage |
 | TEMPORAL_FILTER | {'PASS' if temporal_pass else 'FAIL'} | Future/stale candidates surviving final retrieval: {len(future_leak_violations)}/{len(stale_version_violations)} |
+| HYBRID_SIGNAL | {'PARTIAL' if not prohibited_contract_pass else ('PASS' if hybrid_signal_cases else 'PARTIAL')} | Query-conditioned grade -1 top20 hits: {len(prohibited_label_hits)}; hybrid signal cases: {hybrid_signal_cases} |
 | CANDIDATE_RETRIEVAL | PASS | PostgreSQL pgvector exact cosine runtime measured |
-| HYBRID_SIGNAL | {'PASS' if hybrid_signal_cases else 'PARTIAL'} | {hybrid_signal_cases} evaluated cases exposed entity/relationship signals after participant-table backfill |
 | HYBRID_WEIGHTING | MEASURED | Reported separately for core/challenge/VI; no split mixing |
 | CONTEXT_PACKING | {'PARTIAL' if context_deterministic else 'FAIL'} | Real memory content + deterministic packing measured; protected canonical artifacts not reconstructed |
 | GENERATION | PARTIAL | Live execution {generation_successes}/{len(generation_cases)}; quality rubric requires independent review |
@@ -1192,6 +1241,8 @@ Challenge and Vietnamese metrics are preserved in `retrieval-metrics.json` and a
 
 - Future candidates surviving final retrieval: **{len(future_leak_violations)}**
 - Stale/wrong-version candidates surviving final retrieval: **{len(stale_version_violations)}**
+- Query-conditioned grade -1 hits in semantic/hybrid top20: **{len(prohibited_label_hits)}**
+- Retrieval prohibited-label contract: **{'PASS' if not prohibited_label_hits else 'FAIL'}**
 
 ## Context
 
@@ -1214,7 +1265,7 @@ Challenge and Vietnamese metrics are preserved in `retrieval-metrics.json` and a
 
 ## Interpretation
 
-This runner can establish runtime retrieval, temporal safety, hybrid behavior, deterministic semantic-memory packing, and live generation execution. It must not claim raw-ingestion quality, protected-artifact packing quality, generation quality, or token/cost quality without separate evidence.
+This runner can establish runtime retrieval, chapter-cutoff/version safety, hybrid behavior, query-conditioned prohibited-label diagnostics, deterministic semantic-memory packing, and live generation execution. It must not claim raw-ingestion quality, protected-artifact packing quality, generation quality, or token/cost quality without separate evidence.
 """
     (EVIDENCE_DIR / "summary.md").write_text(summary_md, encoding="utf-8")
 

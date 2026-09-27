@@ -5,9 +5,9 @@
 > Current mode: **evidence-first real-novel evaluation**  
 > Do not start a new coding/architecture phase automatically.
 
-## NOW — EVAL-01 Aethelgard Runtime Baseline
+## NOW — EVAL-01B Replay / Temporal-Intent Diagnostic
 
-Goal: measure the accepted production stack end-to-end on a real novel **before changing architecture**.
+Goal: localize the replay/temporal-intent contract exposed by EVAL-01 **before changing production retrieval**.
 
 ```text
 real workload
@@ -223,46 +223,65 @@ reproducible case
 
 Then ChatGPT/Astra reviews; Supervisor decides whether to open an implementation slice.
 
-## EVAL-01 attempt 1 review
+## EVAL-01 corrected rerun — Astra review
 
-Attempt-1 evidence remains preserved for audit:
+Reviewed:
 
-- evidence commit: `0d7fa3e40db9bfa06218c11931d26e40b2d8665a`
-- handoff commit: `67cf385e841d8bc9360358957977834d7308e61f`
-- review: [ASTRA-REVIEW.md](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/ASTRA-REVIEW.md)
+- tested commit: `8bae8276633ec9a9dae56d6f314907b9d12ee16d`
+- evidence commit: `1cdee38c5dd7fe3a865123b93a670177b6fd8129`
+- Gemini handoff: `ef21ba0cdb5de004054f37b2bccd9a387536f561`
+- detailed review: [ASTRA-CORRECTED-RERUN-REVIEW.md](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/ASTRA-CORRECTED-RERUN-REVIEW.md)
 
-Status:
-
-```text
-EVAL-01 attempt 1 = PARTIAL / INVALID AGGREGATE
-architecture defect = none demonstrated
-P8-05 destructive cleanup = BLOCKED
-```
-
-Do not reuse the attempt-1 aggregate metrics or 5/5 generation rubric as accepted evidence.
-
-## Corrected harness — MERGED
-
-- PR: #10
-- merge commit: `15f43f10b74ddf70e6c098de901036e757bef5bc`
-- Evaluation Pilot Harness CI: SUCCESS
-- fixture contract guard: PASS
-
-Guarded contract:
+Validated:
 
 ```text
-40 frozen retrieval queries
-21 core-gold          -> canonical_216
-19 challenge          -> audit_232
-10 Vietnamese         -> canonical_216
-duplicate rq IDs      -> split-qualified case_id
-generation quality    -> REVIEW_REQUIRED
-token/cost unavailable -> not_measured
+semantic runtime reproduction       PASS
+core hybrid aggregate              PASS / improved
+Vietnamese diagnostic              PASS / improved
+challenge diagnostic               MIXED
+future chapter leakage             0
+stale/wrong embedding              0
+context determinism                PASS
+generation execution               4/4
+generation quality                 3 clean / 1 temporal-causal error
+context budget-pressure quality    NOT_MEASURED
+raw ingestion/extraction           NOT_MEASURED
 ```
 
-## Gemini / Antigravity — rerun now
+EVAL-01 remains **PARTIAL**, not accepted.
 
-On latest `main`:
+### Key follow-up finding
+
+Grade `-1` labels are query-conditioned:
+
+- genuine future grade -1 memories are correctly blocked by chapter cutoff;
+- some same/past replay memories still appear in semantic/hybrid top-20;
+- the same memory can be positive for one query and prohibited for another.
+
+Examples:
+
+- `mem-000164`: grade -1 for `rq-0023`, grade +3 for `rq-0025`;
+- `mem-000110`: replayed sword forging ranks #1 for `rq-0011`;
+- `mem-000172`: later cavalry-burial replay ranks #1 for `rq-0025`.
+
+Therefore **do not globally delete/filter a memory merely because it is grade -1 in another query**.
+
+The open question is product semantics:
+
+```text
+A. canonical answer context suppresses replay/hard-negative memories
+or
+B. replay memories may be surfaced, but must carry provenance/ambiguity
+   so reasoning can explicitly reject them
+```
+
+No production change is authorized until EVAL-01B resolves this.
+
+## Gemini / Antigravity — EVAL-01B immediate task
+
+EVAL-01B is offline and **does not require an API key**.
+
+On latest `main` after the EVAL-01B harness merge:
 
 ```bash
 git switch main
@@ -271,96 +290,77 @@ git pull origin main
 python scripts/check_p8_cleanup_readiness.py
 python scripts/check_p8_final_cleanup_gate.py --expect-blocked
 python scripts/check_eval01_fixture_contract.py
-python scripts/run_eval_01.py
+
+python scripts/run_eval_01b_replay_diagnostic.py
 ```
 
-Requirements:
+Expected evidence:
 
-- all three guards must pass before interpreting evaluation results;
-- use one fixed local Gemini key slot for the measured run;
-- replace the EVAL-01 evidence files with corrected runner output;
-- do not edit gold labels/source corpus;
-- do not change embedding model, hybrid weights, or architecture;
-- do not self-score generation quality;
-- do not claim raw ingestion/extraction PASS;
-- commit corrected evidence to `main`.
-
-## Compact rerun handoff format
-
-Append after the corrected run:
-
-```markdown
-### Gemini Verification — EVAL-01 CORRECTED RERUN
-
-Status: PASS | PARTIAL | BLOCKED
-Tested commit: <sha>
-Evidence commit: <sha>
-
-- Fixture contract: PASS
-- P8-05 cleanup gate: BLOCKED
-- Core-gold corpus: 216 memories / 21 queries
-- Challenge corpus: 232 memories / 19 queries
-- Vietnamese diagnostic: 216 memories / 10 queries
-- Materialization canonical: <generated/reused/fresh coverage>
-- Materialization challenge: <generated/reused/fresh coverage>
-- Core semantic @10: Recall=<...>, MRR=<...>, nDCG=<...>
-- Core hybrid-v1 @10: Recall=<...>, MRR=<...>, nDCG=<...>
-- Challenge diagnostic: <metrics/result>
-- Vietnamese diagnostic: <metrics/result>
-- Future leakage: <0 or exact failures>
-- Stale/wrong-version: <0 or exact failures>
-- Hybrid signals exercised: <count/result>
-- Context packing: <determinism + relevant-memory retention>
-- Protected canonical packing: not_measured | <real evidence>
-- Generation execution: <success count>
-- Generation quality: REVIEW_REQUIRED | <separate reviewed result>
-- Latency: <artifact-derived p50/p95>
-- Token/cost: not_measured | <measured result>
-- Dominant failure category: <category>
-- Confirmed production architecture defect: none | <exact defect>
-- Architecture change proposed: NO | <proposal>
-- Evidence: docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/
-- Remaining blocker: none | <exact blocker>
+```text
+docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/
+  diagnostic.json
+  summary.md
 ```
 
-### Gemini Verification — EVAL-01 CORRECTED RERUN
+Gemini must report:
 
-Status: PASS
-Tested commit: 8bae8276633ec9a9dae56d6f314907b9d12ee16d
-Evidence commit: 1cdee3869911ee26989ea1c2a8657ea2e4a6a578
+1. number of queries with grade -1 labels;
+2. genuine future grade -1 count;
+3. same/past query-conditioned grade -1 count;
+4. semantic and hybrid top-20 grade -1 hits;
+5. pairwise failures where a prohibited replay outranks the best positive;
+6. memories that are positive in one query and prohibited in another;
+7. whether a global memory-level filter is safe;
+8. examples where recency temporal score favors the wrong replay;
+9. whether retrieved/context artifacts retain enough structured provenance to distinguish replay/ambiguous evidence;
+10. a recommendation for the **next experiment**, not a production patch.
 
-- Fixture contract: PASS
-- P8-05 cleanup gate: BLOCKED
-- Core-gold corpus: 216 memories / 21 queries
-- Challenge corpus: 232 memories / 19 queries
-- Vietnamese diagnostic: 216 memories / 10 queries
-- Materialization canonical: 0 generated / 216 reused / 216 fresh coverage (100%)
-- Materialization challenge: 232 generated / 0 reused / 232 fresh coverage (100%)
-- Core semantic @10: Recall=0.6747, MRR=0.9024, nDCG=0.7097
-- Core hybrid-v1 @10: Recall=0.7390, MRR=0.9063, nDCG=0.7310
-- Challenge diagnostic: semantic @10: Recall=0.7614, MRR=0.8596, nDCG=0.6595; hybrid-v1 @10: Recall=0.7461, MRR=0.8584, nDCG=0.6677
-- Vietnamese diagnostic: semantic @10: Recall=0.6702, MRR=0.8500, nDCG=0.6572; hybrid-v1 @10: Recall=0.7599, MRR=0.8643, nDCG=0.7166
-- Future leakage: 0
-- Stale/wrong-version: 0
-- Hybrid signals exercised: 39 evaluated cases exposed entity/relationship signals after participant-table backfill
-- Context packing: deterministic (6/6 cases match hash), relevant-memory retention=1.0
-- Protected canonical packing: not_measured (locked canonical entity/state/rule package not reconstructed by this harness)
-- Generation execution: 4/4 SUCCESS
-- Generation quality: REVIEW_REQUIRED (not self-scored; preserved in generation-cases.json for Astra/Supervisor review)
-- Latency: query_embedding p50=1478.29ms (p95=2618.07ms); sql_retrieval p50=62.75ms (p95=69.34ms); generation p50=1397.84ms (p95=2280.37ms)
-- Token/cost: not_measured (LLMClient returns text only and does not expose provider usage/cost metadata)
-- Dominant failure category: none demonstrated in retrieval/runtime (INGESTION_EXTRACTION & GENERATION_QUALITY require separate evaluation)
-- Confirmed production architecture defect: none
-- Architecture change proposed: NO
-- Evidence: docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/
-- Remaining blocker: none (P8-05 destructive cleanup remains BLOCKED pending release stability)
+Do not:
 
-## References / history
+- mutate frozen gold labels;
+- retune hybrid weights;
+- change embedding model/version;
+- add ANN;
+- delete replay memories from source/audit data;
+- modify production retrieval;
+- claim a production defect before localization is complete.
 
-- [Detailed Evaluation / Pilot Runbook](docs/development/EVALUATION-PILOT-RUNBOOK.md)
-- [EVAL-01 Astra review](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/ASTRA-REVIEW.md)
+## EVAL-01B acceptance question
+
+The experiment should end with a concrete contract proposal:
+
+```text
+For user-facing generation context, should replay/ambiguous memories be:
+
+1. suppressed from canonical answer context;
+2. retained in a separately annotated contradiction/provenance lane;
+3. handled by another evidence-backed policy.
+```
+
+The proposal must explain behavior for:
+
+- origin / first-occurrence queries;
+- lifecycle queries;
+- contradiction/ambiguity queries;
+- future-leak queries.
+
+ChatGPT/Astra reviews the evidence. Supervisor decides whether an implementation slice is justified.
+
+## P8-05 remains parallel and blocked
+
+```text
+Evaluation / Pilot          = ACTIVE
+P8-05 destructive cleanup   = BLOCKED_PENDING_STABILITY
+```
+
+Do not alter the cleanup gate while running EVAL-01B.
+
+## References
+
+- [EVAL-01 corrected rerun review](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/ASTRA-CORRECTED-RERUN-REVIEW.md)
+- [EVAL-01 evidence](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/)
 - [Frozen dataset report](.data/Frozen_v1/dataset_report.md)
-- [Previous Phase 0–8 handoff archive](docs/development/archive/P0-P8-HANDOFF-through-2026-09-26.md)
-- [Implementation roadmap](ai-service/docs/IMPLEMENTATION_PLAN.md)
+- [Detailed Evaluation / Pilot Runbook](docs/development/EVALUATION-PILOT-RUNBOOK.md)
+- [Previous Phase 0–8 archive](docs/development/archive/P0-P8-HANDOFF-through-2026-09-26.md)
 
 Roles remain: Supervisor = final ACCEPT; ChatGPT/Astra = developer/architect/reviewer; Gemini/Antigravity = local execution/measurement worker.
