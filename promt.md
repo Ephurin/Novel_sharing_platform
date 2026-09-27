@@ -629,6 +629,24 @@ quality = REVIEW_REQUIRED
 P8-05 = BLOCKED
 ```
 
+### Gemini Verification — EVAL-01D PROVENANCE-AWARE GENERATION A/B
+
+Status: PASS
+Tested commit: 03af3d749a21d15c7e148cbcc487053e1f37958b
+Evidence commit: e06fedee71cf5ee7da2d9a60e0a58eecddfef42c
+
+- Prompt isolation: PASS (5/5 cases: only_new_provenance_fields_differ=true, same_selected_memory_ids=true, same_dropped_memory_ids=true, same_system_prompt=true)
+- Fixed key slot label: slot-1
+- Model: gemini-3.5-flash-lite (temperature=0.0)
+- Successful calls: 30 / 30
+- Provider backoff events: 0
+- Latency by condition:
+  - pre_provenance: mean=1913.89ms, p50=1897.66ms, max=2473.71ms (sample_count=15)
+  - post_provenance: mean=1776.02ms, p50=1747.32ms, max=2181.87ms (sample_count=15)
+- Quality: REVIEW_REQUIRED (blind review-blind.json and review-rubric.md preserved; condition-key.json untouched)
+- P8-05 cleanup gate: BLOCKED
+- Evidence: docs/development/EVAL-01D-PROVENANCE-GENERATION-AB/
+
 Gemini must not declare A or B the winner.
 
 Astra reviews the blind outputs first, commits the blind review, and only then reveals the condition mapping.
