@@ -362,143 +362,94 @@ Evidence: docs/development/EVAL-01C-DUAL-LANE-TEMPORAL-INTENT/ (diagnostic.json,
   8. Justified next step: **Provenance propagation only** (from `EventRecord.event_metadata` through to `MemoryChunkRecord` / `WritingContextPackage`). Do NOT change production ranking weights or implement intent-conditioned reranking.
 
 
-## EVAL-01C-PROV implementation — MERGED
+## EVAL-01C-PROV — VERIFIED, AWAITING SUPERVISOR DECISION
+
+Implementation:
 
 - PR: #13
 - merge commit: `ce51efef225d7a45ef89e6b54c66a74f07fe4eb2`
-- CI: **PASS**
-  - full AI-service regression
-  - live PostgreSQL + pgvector integration
-  - root Compose smoke
-  - P8 PostgreSQL/cutover/rollback/Compose
-  - P8 cleanup gate remains BLOCKED
 
-Implemented scope only:
+Correct verification references:
 
 ```text
-EventRecord fields/event_metadata
-  -> EventMemorySource.metadata
+tested commit:
+96cbf963d2e1b83d08a074f29ae8b42dc53db707
+
+original evidence commit:
+94177a67f9920e04b4997cebfa892c135a0d1afa
+
+Gemini handoff commit:
+c7e3267e90014146d8fd86a94ef7a6060d5c8b46
+
+Astra final review commit:
+a5fac15860675c5b12f20029f334cea2c72fbb15
+```
+
+Evidence:
+
+- [verification summary](docs/development/EVAL-01C-PROVENANCE-PROPAGATION/summary.md)
+- [provenance smoke](docs/development/EVAL-01C-PROVENANCE-PROPAGATION/provenance-smoke.json)
+- [test log](docs/development/EVAL-01C-PROVENANCE-PROPAGATION/tests.txt)
+- [environment](docs/development/EVAL-01C-PROVENANCE-PROPAGATION/environment.txt)
+- [Astra final review](docs/development/EVAL-01C-PROVENANCE-PROPAGATION/ASTRA-FINAL-REVIEW.md)
+
+Verified result:
+
+```text
+GitHub CI                          PASS
+local PostgreSQL + pgvector       PASS
+integration suite                 6/6 PASS
+
+tags propagation                  PASS
+review_status propagation         PASS
+status propagation                PASS
+chapter_title propagation         PASS
+memory_id propagation             PASS
+importance_score propagation      PASS
+supersedes_id propagation         PASS
+source_type propagation           PASS
+confirmation_status propagation   PASS
+
+unallowlisted metadata            ABSENT
+metadata-only embedding update    REUSED (0 embedded / 1 reused)
+hybrid ranking                    UNCHANGED
+temporal cutoff                   UNCHANGED
+schema migration                  NONE
+P8-05 cleanup                     BLOCKED
+```
+
+Scope remains narrow:
+
+```text
+EventRecord
+  -> EventMemorySource
   -> MemoryChunkRecord.memory_metadata
   -> SemanticMemoryMatch.metadata
-  -> WritingService._semantic_match_payload()
+  -> WritingService payload
 ```
 
-Allowlisted provenance:
+No ranking/filter/model/embedding/cutoff/schema change was introduced.
+
+Current gate:
 
 ```text
-event_type
-chapter_number
-source_type
-confirmation_status
-importance_score
-memory_id
-chapter_title
-tags
-status
-review_status
-supersedes_id
+EVAL-01C-PROV implementation      MERGED
+CI verification                   PASS
+Gemini local verification         PASS
+Astra final review                VERIFIED
+Supervisor ACCEPT                 PENDING
 ```
 
-No ranking/filter/embedding/cutoff/schema change.
+Do not open another production implementation slice automatically.
 
-Current state:
+After Supervisor decision, return to Evaluation / Pilot. Remaining experiment questions include:
 
-```text
-implementation merged            YES
-CI verification                  PASS
-Gemini local verification        PENDING
-Supervisor acceptance            PENDING
-```
+- provenance-aware prompt/lane presentation;
+- full context packing under token pressure;
+- broader generation quality;
+- raw 61-chapter ingestion/extraction quality.
 
-## Gemini / Antigravity — provenance local verification
-
-Pull latest `main` and verify the merged implementation locally.
-
-```bash
-git switch main
-git pull origin main
-
-python scripts/check_p8_cleanup_readiness.py
-python scripts/check_p8_final_cleanup_gate.py --expect-blocked
-python scripts/check_eval01_fixture_contract.py
-```
-
-Then run the AI-service provenance-focused tests against disposable PostgreSQL/pgvector and a production-like Compose path.
-
-At minimum verify:
-
-```text
-tags survive EventRecord -> WritingService payload
-review_status survives
-status survives
-source_type survives
-confirmation_status survives
-unallowlisted metadata is absent
-existing embedding can be reused when only metadata changes
-semantic/hybrid ranking contract is unchanged
-future cutoff remains unchanged
-P8-05 cleanup gate remains BLOCKED
-```
-
-Evidence directory:
-
-```text
-docs/development/EVAL-01C-PROVENANCE-PROPAGATION/
-  environment.txt
-  tests.txt
-  provenance-smoke.json
-  summary.md
-```
-
-Gemini must commit evidence only. Do not alter production code, weights, embedding contract, frozen gold, or cleanup state.
-
-Handoff format:
-
-```markdown
-### Gemini Verification — EVAL-01C PROVENANCE PROPAGATION
-
-Status: PASS | PARTIAL | BLOCKED
-Tested commit: <sha>
-Evidence commit: <sha>
-
-- P8 cleanup readiness: <result>
-- P8-05 cleanup gate: BLOCKED
-- PostgreSQL/pgvector test: <result>
-- Compose smoke: <result>
-- tags propagation: <result>
-- review_status propagation: <result>
-- status propagation: <result>
-- source_type propagation: <result>
-- confirmation_status propagation: <result>
-- unallowlisted metadata: ABSENT | <failure>
-- embedding reuse on metadata-only change: <result>
-- ranking contract: UNCHANGED | <failure>
-- temporal cutoff: UNCHANGED | <failure>
-- Evidence: docs/development/EVAL-01C-PROVENANCE-PROPAGATION/
-- Remaining blocker: none | <exact blocker>
-```
-
-### Gemini Verification — EVAL-01C PROVENANCE PROPAGATION
-
-Status: PASS
-Tested commit: 96cbf962d3cb7cb740d7c2a41d063717fc8cf552
-Evidence commit: 94177a644265ad71d0537aa2468307dbb34ba85a
-
-- P8 cleanup readiness: PASS
-- P8-05 cleanup gate: BLOCKED
-- PostgreSQL/pgvector test: PASS (6/6 passed in test_semantic_memory_postgres_integration.py)
-- Compose smoke: PASS
-- tags propagation: PASS
-- review_status propagation: PASS
-- status propagation: PASS
-- source_type propagation: PASS
-- confirmation_status propagation: PASS
-- unallowlisted metadata: ABSENT
-- embedding reuse on metadata-only change: PASS (embedded_count=0, reused_embedding_count=1)
-- ranking contract: UNCHANGED
-- temporal cutoff: UNCHANGED
-- Evidence: docs/development/EVAL-01C-PROVENANCE-PROPAGATION/
-- Remaining blocker: none
+These are experiment questions, not implied defects.
 
 ## Astra review — EVAL-01C
 
