@@ -2,137 +2,187 @@
 
 - **Experiment ID:** `EVAL-01B`
 - **Dataset Version:** `aethelgard-retrieval-eval-v1.0.0`
-- **Execution Mode:** Offline diagnostic using frozen corpus labels and corrected EVAL-01 retrieval artifacts (`docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/retrieval-raw.json`)
-- **Evaluated Commit:** `44261764bb76de5daa9452e6c9e0d52cbfec961a` (PR #11 merge)
-- **Artifacts:**
-  - Diagnostic JSON: [`diagnostic.json`](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/diagnostic.json)
-  - Summary Markdown: [`summary.md`](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/summary.md)
+- **Execution Mode:** offline diagnostic over frozen labels + corrected EVAL-01 retrieval artifacts
+- **Evaluated Commit:** `44261764bb76de5daa9452e6c9e0d52cbfec961a`
+- **Machine evidence:** [diagnostic.json](diagnostic.json)
 
----
+## Machine-derived baseline
 
-## 1. Diagnostic Baseline Metrics
+| Metric | Value |
+|---|---:|
+| Queries containing grade -1 labels | 12 |
+| Genuine future grade -1 labels | 20 |
+| Same/past query-conditioned grade -1 labels | 5 |
+| Semantic top-20 grade -1 hits | 5 |
+| Hybrid top-20 grade -1 hits | 5 |
+| Semantic pairwise failures | 3 |
+| Hybrid pairwise failures | 3 |
+| Cross-query dual-role memories | 12 |
+| Global memory-level filter safe | **false** |
 
-| Diagnostic Metric | Count / Value | Description |
-|---|---:|---|
-| `queries_with_grade_minus_one` | **12** | Queries in frozen corpus containing at least one grade -1 label |
-| `future_grade_minus_one_labels` | **20** | Prohibited labels where `chapter_number > chapter_cutoff` (future leakage) |
-| `same_or_past_query_conditioned_labels` | **5** | Prohibited labels where `chapter_number <= chapter_cutoff` (narrative replay/echo) |
-| `semantic_grade_minus_one_top20_hits` | **5** | Top-20 appearances of prohibited labels under semantic-only retrieval |
-| `hybrid_grade_minus_one_top20_hits` | **5** | Top-20 appearances of prohibited labels under hybrid-v1 retrieval |
-| `semantic_pairwise_failures` | **3** | Queries where a prohibited replay outranks the best positive in semantic top-20 |
-| `hybrid_pairwise_failures` | **3** | Queries where a prohibited replay outranks the best positive in hybrid top-20 |
-| `cross_query_dual_role_memories` | **12** | Memories that are grade > 0 in one query but grade -1 in another |
-| `global_filter_safe` | **false** | Global deletion/filtering of grade -1 memories is prohibited |
+The 12 queries with grade -1 labels are:
 
----
+```text
+challenge:rq-0001
+challenge:rq-0009
+core_gold:rq-0011
+challenge:rq-0013
+challenge:rq-0021
+core_gold:rq-0022
+challenge:rq-0023
+challenge:rq-0025
+challenge:rq-0026
+challenge:rq-0033
+core_gold:rq-0036
+core_gold:rq-0040
+```
 
-## 2. Answers to the 10 Required Evaluation Inquiries
+## Future safety
 
-### Q1. Number of queries with grade -1 labels
-- **12 queries** across the frozen retrieval query set (out of 40 total queries):
-  - `challenge:rq-0001`, `challenge:rq-0004`, `challenge:rq-0006`, `challenge:rq-0007`, `challenge:rq-0008`, `challenge:rq-0009`, `challenge:rq-0026`, `challenge:rq-0033` (future cutoff boundaries)
-  - `core_gold:rq-0011`, `core_gold:rq-0036` (narrative supersession / replay)
-  - `challenge:rq-0023`, `challenge:rq-0025` (temporal replay hard negatives)
+The 20 genuine future labels all have `memory.chapter_number > query.chapter_cutoff`.
 
-### Q2. Genuine future grade -1 count
-- **20 labels** represent genuine future events (`chapter_number > cutoff`).
-- **Audit status:** In the runtime retrieval pipeline, **0 of these 20 survive** into candidate retrieval because the SQL cutoff clause (`WHERE EventRecord.chapter_number <= chapter_cutoff`) is an absolute structural boundary. Future safety is 100% maintained.
+**0/20 survive retrieval.** The SQL chapter cutoff therefore remains effective for the tested cases.
 
-### Q3. Same/past query-conditioned grade -1 count
-- **5 labels** represent narrative replays or superseded claims at or before the query cutoff (`chapter_number <= cutoff`):
-  1. `core_gold:rq-0011` $\rightarrow$ `mem-000110` (ch 32, cutoff 32): Replayed sword forging.
-  2. `core_gold:rq-0036` $\rightarrow$ `mem-000110` (ch 32, cutoff 61): Replayed sword forging for an object history query.
-  3. `challenge:rq-0023` $\rightarrow$ `mem-000155` (ch 42, cutoff 45): Replayed pillar destruction.
-  4. `challenge:rq-0023` $\rightarrow$ `mem-000164` (ch 45, cutoff 45): Replayed pillar destruction.
-  5. `challenge:rq-0025` $\rightarrow$ `mem-000172` (ch 47, cutoff 49): Replayed cavalry burial.
+Do not conflate these future labels with the five same/past replay labels.
 
-### Q4. Semantic and hybrid top-20 grade -1 hits
-- **Semantic Top-20:** 5 hits across 3 queries:
-  - `core_gold:rq-0011`: `mem-000110` (rank 1)
-  - `core_gold:rq-0036`: `mem-000110` (rank 7)
-  - `challenge:rq-0023`: `mem-000155` (rank 4), `mem-000164` (rank 7)
-  - `challenge:rq-0025`: `mem-000172` (rank 1)
-- **Hybrid-v1 Top-20:** 5 hits across 3 queries:
-  - `core_gold:rq-0011`: `mem-000110` (rank 1)
-  - `core_gold:rq-0036`: `mem-000110` (rank 8)
-  - `challenge:rq-0023`: `mem-000155` (rank 4), `mem-000164` (rank 6)
-  - `challenge:rq-0025`: `mem-000172` (rank 1)
+## Same/past query-conditioned replay labels
 
-### Q5. Pairwise failures where a prohibited replay outranks the best positive
-Both semantic and hybrid pipelines experience the exact same 3 pairwise inversion failures:
-1. **`core_gold:rq-0011`** (Temporal supersession / origin query):
-   - Prohibited replay `mem-000110` ranks **#1** (semantic & hybrid).
-   - Best positive `mem-000080` (actual origin forging in ch 24) ranks **#2** (semantic & hybrid).
-2. **`challenge:rq-0023`** (Temporal replay hard negative):
-   - Prohibited replay `mem-000155` (ch 42) ranks **#4** in both semantic & hybrid.
-   - Best positive (first pillar destruction in ch 40) ranks **#6** in semantic, **#7** in hybrid.
-3. **`challenge:rq-0025`** (Temporal replay hard negative):
-   - Prohibited replay `mem-000172` (ch 47 cavalry burial echo) ranks **#1** in both semantic & hybrid.
-   - Best positive `mem-000164` (first cavalry burial in ch 45) ranks **#3** in both semantic & hybrid.
+The five same/past grade -1 labels are:
 
-### Q6. Memories that are positive in one query and prohibited in another
-**12 distinct memories** serve dual roles depending on the query context:
-- `mem-000064`: Positive in `rq-0021`, `rq-0026`, `rq-0032`, `rq-0033`; Prohibited in `rq-0001`.
-- `mem-000067`: Positive in `rq-0003`, `rq-0026`, `rq-0032`, `rq-0033`; Prohibited in `rq-0001`.
-- `mem-000070`: Positive in `rq-0004`, `rq-0026`, `rq-0032`, `rq-0033`; Prohibited in `rq-0001`.
-- `mem-000071`: Positive in `rq-0004`, `rq-0026`, `rq-0032`, `rq-0033`; Prohibited in `rq-0001`.
-- `mem-000080`: Positive in `rq-0011`, `rq-0014`, `rq-0036`; Prohibited in `rq-0004`.
-- `mem-000081`: Positive in `rq-0011`, `rq-0014`, `rq-0036`; Prohibited in `rq-0004`.
-- `mem-000094`: Positive in `rq-0007`, `rq-0010`, `rq-0014`, `rq-0036`; Prohibited in `rq-0006`.
-- `mem-000105`: Positive in `rq-0010`, `rq-0013`, `rq-0019`, `rq-0022`; Prohibited in `rq-0009`.
-- `mem-000106`: Positive in `rq-0010`, `rq-0014`, `rq-0019`, `rq-0022`; Prohibited in `rq-0009`.
-- `mem-000110`: Positive in `rq-0010`, `rq-0014`; Prohibited in `rq-0011`, `rq-0036`.
-- `mem-000164`: Positive in `rq-0025` (grade +3); Prohibited in `rq-0023` (grade -1).
-- `mem-000193` & `mem-000194`: Positive in `rq-0032`, `rq-0033`; Prohibited in `rq-0026`.
+1. `core_gold:rq-0011 -> mem-000110` — replayed sword forging, ch32/cutoff32.
+2. `core_gold:rq-0036 -> mem-000110` — same replay in a lifecycle query, ch32/cutoff61.
+3. `challenge:rq-0023 -> mem-000155` — later Pillar No. 2 replay, ch42/cutoff45.
+4. `challenge:rq-0023 -> mem-000164` — another Pillar No. 2 replay, ch45/cutoff45.
+5. `challenge:rq-0025 -> mem-000172` — later cavalry-burial replay, ch47/cutoff49.
 
-### Q7. Whether a global memory-level filter is safe
-- **Result: `FALSE` (Unsafe).**
-- Grade -1 is strictly a **query-conditioned relevance label**, not an intrinsic property of the chunk. Deleting or globally filtering any of these memories would destroy recall for the queries in which they are valid ground truth.
+These produce five semantic and five hybrid top-20 hits.
 
-### Q8. Examples where recency temporal score favors the wrong replay
-The production `HybridRanker` computes recency score as:
-$$\text{recency\_score} = \exp\left(-\ln(2) \cdot \frac{\text{cutoff\_chapter} - \text{memory\_chapter}}{\text{half\_life}}\right)$$
-Because narrative replays and echoes occur in *later* chapters closer to `chapter_cutoff`, the distance $(\text{cutoff} - \text{mem\_chapter})$ is smaller, actively amplifying the replay over the true origin:
-1. **`core_gold:rq-0011` (Cutoff ch 32):** Query asks for the initial forging of the Thần Tinh sword.
-   - Original event `mem-000080` (ch 24): $\Delta = 8$ chapters $\rightarrow \text{recency} \approx 0.63$.
-   - Replay event `mem-000110` (ch 32): $\Delta = 0$ chapters $\rightarrow \text{recency} = 1.00$.
-   - The temporal recency bonus boosts the replay echo directly into rank #1.
-2. **`challenge:rq-0025` (Cutoff ch 49):** Query asks for the first on-page burial of Roland's cavalry.
-   - First burial `mem-000164` (ch 45): $\Delta = 4$ chapters $\rightarrow \text{recency} \approx 0.79$.
-   - Repeated burial echo `mem-000172` (ch 47): $\Delta = 2$ chapters $\rightarrow \text{recency} \approx 0.89$.
-   - The temporal component reinforces the later echo, placing it at rank #1 over the origin.
-3. **`challenge:rq-0023` (Cutoff ch 45):** Query asks for the first on-page destruction of the numbered pillar.
-   - Original destruction in ch 40 has $\Delta = 5$, whereas echoes in ch 42 (`mem-000155`, $\Delta=3$) and ch 45 (`mem-000164`, $\Delta=0$) receive higher temporal weights.
+## Pairwise failures
 
-### Q9. Whether retrieved/context artifacts retain enough structured provenance to distinguish replay/ambiguous evidence
-- **Result: `NO`.**
-- In [`WritingContextPackage.semantic_memories`](file:///c:/Users/Laptop/OneDrive/Documents/testproject/ai-service/application/context_budget.py), items are serialized as a flat list:
-  ```json
-  {
-    "memory_chunk_id": "mem-000110",
-    "chapter_number": 32,
-    "content": "...",
-    "importance_score": 0.5,
-    "source_key": "corpus:mem-000110"
-  }
-  ```
-- The context package strips out narrative tags (`narrative_echo`, `temporal_reset`), ambiguity flags (`review_status: ambiguous`), and entity/event lifecycle provenance. Downstream LLMs have no structural signal to discern whether a chunk represents a foundational event, an on-page flashback, or an unverified rumor.
+Three queries have a replay/hard-negative ranked above the best positive under both semantic and hybrid retrieval.
 
-### Q10. Recommendation for next experiment (Not a production patch)
-In response to the EVAL-01B acceptance question:
+### core_gold:rq-0011
 
-> *For user-facing generation context, should replay/ambiguous memories be:  
-> 1. suppressed from canonical answer context;  
-> 2. retained in a separately annotated contradiction/provenance lane;  
-> 3. handled by another evidence-backed policy.*
+Query asks for the origin of Alan's Thần Tinh sword and the later replay that must not replace it.
 
-**Recommended Next Step: Open EVAL-01C Diagnostic Slice (Dual-Lane Context & Intent-Conditioned Ranking):**
+- best positive: `mem-000089`, chapter 27, rank **#2**;
+- replay: `mem-000110`, chapter 32, rank **#1**.
 
-1. **Retain in a Separately Annotated Lane (Option 2):**
-   - For user-facing generation, do not blindly delete replay/ambiguous memories.
-   - Enrich `WritingContextPackage` with an explicit `narrative_status` or `evidence_lane` (`primary_evidence` vs `narrative_echo_or_variant`), populated from memory tags and extraction provenance.
-2. **Intent-Conditioned Temporal Ranking for Origin Queries:**
-   - Detect query temporal intent (`first_occurrence` / `origin` vs `latest_status` / `lifecycle_history`).
-   - For `first_occurrence` queries, invert or neutralize the recency half-life penalty on early chapters, preventing narrative echoes from dominating rank #1 solely due to chapter proximity.
-3. **Zero Production Changes in EVAL-01B:**
-   - Maintain the frozen gold labels, database schema, hybrid weights, and retrieval code strictly intact until an implementation slice is approved by Astra/Supervisor.
+The accepted HybridRanker temporal term is:
+
+```text
+temporal_score = 1 / (1 + age / 12)
+age = cutoff_chapter - memory_chapter
+```
+
+So at cutoff 32:
+
+- `mem-000089`: age=5 -> temporal ~= **0.706**;
+- `mem-000110`: age=0 -> temporal = **1.0**.
+
+The current recency term therefore favors the later replay for this origin query.
+
+### challenge:rq-0023
+
+Query asks for the first on-page destruction of Pressure Pillar No. 2.
+
+- positive anchor: `mem-000149`, chapter 40;
+- replay: `mem-000155`, chapter 42;
+- replay: `mem-000164`, chapter 45.
+
+Semantic: best replay #4 vs positive #6.  
+Hybrid: best replay #4 vs positive #7.
+
+At cutoff 45 the recency scores are approximately:
+
+```text
+ch40 -> 0.706
+ch42 -> 0.800
+ch45 -> 1.000
+```
+
+### challenge:rq-0025
+
+Query asks for the first on-page burial of Roland's three-thousand heavy cavalry.
+
+- positive anchor: `mem-000164`, chapter 45, rank **#3**;
+- replay: `mem-000172`, chapter 47, rank **#1**.
+
+At cutoff 49:
+
+```text
+ch45 -> 0.750
+ch47 -> 0.857
+```
+
+Again the recency component favors the later replay.
+
+## Grade -1 is not a global memory property
+
+The machine artifact finds 12 memories that are positive in one query and grade -1 in another:
+
+```text
+mem-000064
+mem-000067
+mem-000105
+mem-000106
+mem-000162
+mem-000164
+mem-000193
+mem-000194
+mem-000226
+mem-000228
+mem-000229
+mem-000231
+```
+
+Therefore a global delete/filter policy is unsafe.
+
+A concrete example is `mem-000164`:
+
+- grade -1 for `rq-0023`;
+- grade +3 for `rq-0025`.
+
+## Provenance survivability
+
+The EVAL-01 runner's context payload does not include replay/ambiguity fields.
+
+The production path is more nuanced:
+
+- `WritingService._semantic_match_payload()` does pass `match.metadata` downstream;
+- however `PostgresSemanticMemoryRepository.list_event_memory_sources()` currently reduces event metadata to `event_type`, `chapter_number`, `source_type`, and `importance_score` before materialization;
+- source tags such as `narrative_echo`, `temporal_reset`, and source `review_status` therefore do **not** survive into semantic-memory metadata in the current materialization path.
+
+So the gap is not that `WritingContextPackage` inherently strips all metadata. The loss occurs earlier in semantic-memory materialization/source projection.
+
+This is a finding to test in EVAL-01C, not yet an authorized production patch.
+
+## Contract question
+
+The evidence supports rejecting global suppression. The remaining product-contract question is whether user-facing context should:
+
+1. suppress replay/ambiguous evidence only for specific intents;
+2. retain it in a separately annotated provenance/contradiction lane;
+3. use another evidence-backed policy.
+
+EVAL-01B does not authorize a production answer.
+
+## Next experiment — EVAL-01C
+
+EVAL-01C should remain offline and compare candidate policies against the same frozen evidence:
+
+- current `hybrid-v1` baseline;
+- first-occurrence intent with the temporal recency term neutralized;
+- first-occurrence intent with an older-evidence preference;
+- dual-lane provenance annotation without globally deleting memories.
+
+Required measurements:
+
+- pairwise replay-vs-positive failures;
+- core/challenge Recall/MRR/nDCG deltas;
+- collateral regressions outside replay queries;
+- number of positive memories assigned to a provenance/variant lane;
+- number of replay/ambiguous memories that would remain distinguishable downstream;
+- metadata/token overhead of adding lane/provenance annotations.
+
+No production retrieval, schema, embedding model, or accepted hybrid weights should change during EVAL-01C.

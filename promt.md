@@ -3,288 +3,60 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Do not start a new coding/architecture phase automatically.
+> Active experiment: **EVAL-01C — Dual-Lane Context & Intent-Conditioned Ranking**  
+> Do not change production architecture until the diagnostic is reviewed.
 
-## NOW — EVAL-01B Replay / Temporal-Intent Diagnostic
+## Current verified baseline
 
-Goal: localize the replay/temporal-intent contract exposed by EVAL-01 **before changing production retrieval**.
-
-```text
-real workload
-→ materialization
-→ retrieval
-→ context packing
-→ bounded generation
-→ failure localization
-→ only then consider code changes
-```
-
-### Frozen corpus contract
-
-The Batch_7 working extraction has already been consolidated into:
-
-`aethelgard-retrieval-eval-v1.0.0`
-
-Use the source-defined policies exactly:
-
-- **core-gold:** 21 queries against **216 canonical memories**;
-- **challenge:** 19 queries against the **232-memory audit corpus**;
-- **Vietnamese diagnostic:** 10 translated diagnostic queries against the **216 canonical memories**;
-- source query IDs may overlap between core and VI, so every runtime record must use a split-qualified `case_id`.
-
-Do not aggregate by numeric `rq-*` ID ranges.
-
-Sources:
-
-- [Frozen dataset report](.data/Frozen_v1/dataset_report.md)
-- [P7 embedding benchmark](docs/development/P7-01-EMBEDDING-BENCHMARK-ADR-report.md)
-- [P7 hybrid ranker](docs/development/P7-04-HYBRID-RANKER-report.md)
-- [Detailed Evaluation / Pilot Runbook](docs/development/EVALUATION-PILOT-RUNBOOK.md)
-
-## Gemini / Antigravity — immediate task
-
-Work on latest `main`. Measure first; do not silently fix architecture.
-
-1. Verify P8-05 is still blocked:
-   ```bash
-   python scripts/check_p8_cleanup_readiness.py
-   python scripts/check_p8_final_cleanup_gate.py --expect-blocked
-   ```
-2. Run `python scripts/check_eval01_fixture_contract.py` and require PASS.
-3. Inventory exact frozen artifacts; do not mutate source novel/gold labels.
-4. Run production-like PostgreSQL + pgvector path.
-5. Materialize/rebuild both corpus policies through accepted tooling:
-   - canonical 216 for core + VI;
-   - audit 232 for challenge.
-6. Measure semantic-only and accepted `hybrid-v1` retrieval with chapter cutoffs, keeping all splits separate.
-7. Record Recall/MRR/nDCG/hit-rate/candidate counts + p50/p95 latency where measurable.
-8. Audit temporal safety:
-   - future rows surviving final retrieval = **0**
-   - stale/wrong-version rows surviving final retrieval = **0**
-9. Evaluate long-range cases: setup/payoff, old-but-important memory, relationships, object lifecycle, world rules, low lexical overlap, multi-memory reasoning, future-leak traps.
-10. Evaluate context packing using real retrieved memory content: selected IDs, dedup, token budget, protected-artifact truncation, deterministic context hash.
-11. Only after retrieval/context evidence is preserved, run a bounded generation pilot. Preserve output but do not self-award quality scores.
-12. Classify failures before proposing fixes.
-13. Commit evidence/results to `main`; do not open a coding phase automatically.
-
-
-## Local Gemini API credentials for EVAL-01
-
-Real runtime embedding/materialization and the bounded Gemini generation pilot require a live Gemini credential.
-
-**Do not put API keys in `promt.md`, tracked docs, evidence, shell history captures, or commits.**
-
-Use a local ignored file:
+Frozen corpus: `aethelgard-retrieval-eval-v1.0.0`
 
 ```text
-.env.eval.local
+core-gold              21 queries -> canonical 216 memories
+challenge              19 queries -> audit 232 memories
+Vietnamese diagnostic  10 queries -> canonical 216 memories
 ```
 
-The repository `.gitignore` already ignores `.env.*`.
-
-Recommended local-only layout:
-
-```env
-GEMINI_API_KEY_SLOT_1=<secret>
-GEMINI_API_KEY_SLOT_2=<secret>
-GEMINI_API_KEY_SLOT_3=<secret>
-GEMINI_API_KEY_SLOT_4=<secret>
-```
-
-Rules:
-
-- all four values stay local and untracked;
-- never print or copy key values into evidence;
-- identify credentials only as `slot-1` .. `slot-4`;
-- use **one fixed key slot per measured run** so latency/quota evidence remains interpretable;
-- map the selected slot to the runtime variable `GEMINI_API_KEY` before starting the process/Compose stack;
-- do not cycle through keys to bypass provider rate limits or quotas;
-- on provider-directed throttling, honor backoff and record the throttle as runtime evidence;
-- switch slots only for a new explicitly recorded run or when the selected credential is invalid/unavailable for a reason unrelated to bypassing quota;
-- record the selected slot ID in `runtime-config.json`, never the secret.
-
-For a live retrieval/materialization run, runtime must resolve to:
+EVAL-01 corrected runtime:
 
 ```text
-EMBEDDING_PROVIDER=gemini
-GEMINI_API_KEY=<selected local slot value>
-embedding model/version = gemini-embedding-2 / gemini-embedding-2-768-v1
+core semantic @10
+Recall  0.674717
+MRR     0.902381
+nDCG    0.709746
+
+core hybrid-v1 @10
+Recall  0.738964
+MRR     0.906349
+nDCG    0.731047
+
+future chapter leakage       0
+stale/wrong embedding        0
+generation execution         4/4
+generation manual review     3 clean / 1 temporal-causal error
+context budget-pressure      NOT_MEASURED
+raw ingestion/extraction     NOT_MEASURED
 ```
 
-For a live generation pilot, additionally set explicitly:
+Detailed review:
+[ASTRA corrected EVAL-01 review](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/ASTRA-CORRECTED-RERUN-REVIEW.md)
 
-```text
-LLM_PROVIDER=gemini
-LLM_MODEL=<explicit model under evaluation>
-```
+## EVAL-01B — accepted diagnostic findings, not production changes
 
-Do not rely on Compose defaults for live evaluation: root Compose defaults may use fake/no provider. Evidence must state whether each run was `live_provider`, `fake`, or `offline_proxy`.
+Machine evidence:
+[diagnostic.json](docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/diagnostic.json)
 
-Before running, Gemini should perform a secret-safe preflight:
+Corrected summary:
+[summary.md](docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/summary.md)
 
-```text
-selected_key_slot = slot-N
-credential_present = true
-credential_value_logged = false
-embedding_provider = gemini
-llm_provider = gemini | not_enabled_yet
-```
+Evidence commit:
 
-If no valid live credential is available, mark the affected measurement `BLOCKED` or `not_measured`; do not silently substitute fake-provider results for live EVAL-01 evidence.
+`014fb1d22a749b45838e8cda3f67f287ae3e74c2`
 
-Evidence directory:
+Gemini handoff commit:
 
-```text
-docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/
-  environment.txt
-  corpus-inventory.json
-  runtime-config.json
-  materialization.txt
-  retrieval-raw.json
-  retrieval-metrics.json
-  future-leak-audit.json
-  context-packing.json
-  generation-cases.json
-  failure-analysis.md
-  latency-cost.json
-  summary.md
-```
+`ed6aa76d6120023fb0fef38b19d9f268f0ed394b`
 
-If something cannot be measured, write `not_measured` + reason. Never fabricate zero/PASS.
-
-## Frozen contract — do not drift during EVAL-01
-
-- Browser/mobile → Platform API `/api/v1` → Node AI Gateway `/api/v1/ai/*` → service-authenticated FastAPI.
-- Production narrative repository = PostgreSQL.
-- Semantic memory = derived/rebuildable, not canonical truth.
-- Embedding = `gemini-embedding-2`, 768 dims, explicit L2, cosine `<=>`, version `gemini-embedding-2-768-v1`.
-- Temporal cutoff runs before semantic ranking.
-- `hybrid-v1` remains deterministic:
-  ```text
-  0.75 semantic_rank_score
-  + 0.03 entity_overlap
-  + 0.08 temporal_relevance
-  + 0.10 importance
-  + 0.04 relationship_relevance
-  ```
-- Context packing remains deterministic; protected canonical artifacts are not silently truncated.
-- No ANN/HNSW/IVFFlat or specialized vector DB in accepted MVP.
-- Do not retune weights on the same calibration set and call it generalization.
-
-## Failure taxonomy
-
-Use the first layer where behavior diverges:
-
-```text
-CORPUS_GOLD
-INGESTION_EXTRACTION
-CANONICAL_DATA
-EMBEDDING
-TEMPORAL_FILTER
-CANDIDATE_RETRIEVAL
-HYBRID_SIGNAL
-HYBRID_WEIGHTING
-CONTEXT_PACKING
-GENERATION
-EVALUATION_HARNESS
-LATENCY_COST
-UNKNOWN
-```
-
-A bad generation is not evidence that the embedding is bad until retrieval + packed context are traced.
-
-## P8-05 runs in parallel — still BLOCKED
-
-```text
-Evaluation / Pilot          = ACTIVE
-P8-05 destructive cleanup = BLOCKED_PENDING_STABILITY
-```
-
-Do not delete JSON, legacy routes/adapters, rollback backups, or PostgreSQL data. Do not fabricate release/stability evidence. Never set `supervisor_cleanup_gate_accepted=true` by inference.
-
-Gate docs:
-
-- [P8-05 report](docs/development/P8-05-FINAL-CLEANUP-GATE-report.md)
-- [P8-05 runbook](docs/development/P8-05-FINAL-CLEANUP-GATE-runbook.md)
-- [stability gate](docs/development/P8-05-FINAL-CLEANUP-GATE/stability-gate.json)
-- [cleanup manifest](docs/development/P8-05-FINAL-CLEANUP-GATE/cleanup-manifest.json)
-
-## Change control
-
-Before any architecture/code change, preserve:
-
-```text
-reproducible case
-+ evidence
-+ localized failure layer
-+ expected measurable improvement
-+ regression risks
-```
-
-Then ChatGPT/Astra reviews; Supervisor decides whether to open an implementation slice.
-
-## EVAL-01 corrected rerun — Astra review
-
-Reviewed:
-
-- tested commit: `8bae8276633ec9a9dae56d6f314907b9d12ee16d`
-- evidence commit: `1cdee38c5dd7fe3a865123b93a670177b6fd8129`
-- Gemini handoff: `ef21ba0cdb5de004054f37b2bccd9a387536f561`
-- detailed review: [ASTRA-CORRECTED-RERUN-REVIEW.md](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/ASTRA-CORRECTED-RERUN-REVIEW.md)
-
-Validated:
-
-```text
-semantic runtime reproduction       PASS
-core hybrid aggregate              PASS / improved
-Vietnamese diagnostic              PASS / improved
-challenge diagnostic               MIXED
-future chapter leakage             0
-stale/wrong embedding              0
-context determinism                PASS
-generation execution               4/4
-generation quality                 3 clean / 1 temporal-causal error
-context budget-pressure quality    NOT_MEASURED
-raw ingestion/extraction           NOT_MEASURED
-```
-
-EVAL-01 remains **PARTIAL**, not accepted.
-
-### Key follow-up finding
-
-Grade `-1` labels are query-conditioned:
-
-- genuine future grade -1 memories are correctly blocked by chapter cutoff;
-- some same/past replay memories still appear in semantic/hybrid top-20;
-- the same memory can be positive for one query and prohibited for another.
-
-Examples:
-
-- `mem-000164`: grade -1 for `rq-0023`, grade +3 for `rq-0025`;
-- `mem-000110`: replayed sword forging ranks #1 for `rq-0011`;
-- `mem-000172`: later cavalry-burial replay ranks #1 for `rq-0025`.
-
-Therefore **do not globally delete/filter a memory merely because it is grade -1 in another query**.
-
-The open question is product semantics:
-
-```text
-A. canonical answer context suppresses replay/hard-negative memories
-or
-B. replay memories may be surfaced, but must carry provenance/ambiguity
-   so reasoning can explicitly reject them
-```
-
-No production change is authorized until EVAL-01B resolves this.
-
-## EVAL-01B harness — MERGED
-
-- PR: #11
-- merge commit: `44261764bb76de5daa9452e6c9e0d52cbfec961a`
-- Evaluation Pilot Harness CI run: SUCCESS
-- offline diagnostic execution: SUCCESS
-
-CI diagnostic baseline:
+Machine-derived EVAL-01B result:
 
 ```text
 queries_with_grade_minus_one           12
@@ -298,19 +70,177 @@ cross_query_dual_role_memories         12
 global_filter_safe                  false
 ```
 
-Pairwise failures currently include:
+Three pairwise failures:
 
-- `core_gold:rq-0011` — replay rank 1 vs best positive rank 2;
-- `challenge:rq-0023` — replay rank 4 vs best positive rank 7 in hybrid;
-- `challenge:rq-0025` — replay rank 1 vs best positive rank 3.
+```text
+core_gold:rq-0011
+  replay mem-000110 ch32      #1
+  origin mem-000089 ch27      #2
 
-These are diagnostic findings, not authorization to change production.
+challenge:rq-0023
+  replay mem-000155 ch42      #4 hybrid
+  origin mem-000149 ch40      #7 hybrid
 
-## Gemini / Antigravity — EVAL-01B immediate task
+challenge:rq-0025
+  replay mem-000172 ch47      #1
+  first burial mem-000164 ch45 #3
+```
 
-EVAL-01B is offline and **does not require an API key**.
+Important interpretation:
 
-On latest `main` after the EVAL-01B harness merge:
+- grade `-1` is query-conditioned, not a global memory-invalid flag;
+- a memory can be positive for one query and prohibited for another;
+- therefore global deletion/filtering is unsafe;
+- future-cutoff safety itself is working correctly.
+
+Current HybridRanker temporal term is:
+
+```text
+age = cutoff_chapter - memory_chapter
+temporal_score = 1 / (1 + age / 12)
+```
+
+For first/origin queries this recency preference can favor a later replay.
+
+## Provenance finding — corrected layer localization
+
+Do not say that `WritingContextPackage` inherently strips all semantic metadata.
+
+Actual path:
+
+```text
+EventRecord.event_metadata
+  -> PostgresSemanticMemoryRepository.list_event_memory_sources()
+  -> EventMemorySource.metadata
+  -> SemanticMemoryMaterializationService
+  -> MemoryChunkRecord.memory_metadata
+  -> SemanticMemoryMatch.metadata
+  -> WritingService._semantic_match_payload()
+```
+
+`WritingService` does pass `match.metadata`.
+
+However, `list_event_memory_sources()` currently projects only:
+
+```text
+event_type
+chapter_number
+source_type
+importance_score
+```
+
+Source tags/review status such as:
+
+```text
+narrative_echo
+temporal_reset
+do_not_use_as_clean_ground_truth
+review_status=ambiguous
+```
+
+do not currently survive semantic-memory materialization.
+
+This is an EVAL finding, **not yet authorization to patch production**.
+
+# NOW — EVAL-01C
+
+Goal: compare candidate contracts offline before deciding whether a production implementation slice is justified.
+
+Harness:
+
+`scripts/run_eval_01c_dual_lane_intent.py`
+
+EVAL-01C compares three ranking policies over the **same preserved semantic top-20 candidates**:
+
+```text
+1. baseline
+   current accepted hybrid-v1
+
+2. neutral_first_occurrence
+   first-occurrence queries only:
+   remove the temporal-recency contribution
+
+3. inverse_first_occurrence
+   first-occurrence queries only:
+   diagnostic inverse-recency temporal contribution
+```
+
+Accepted production weights remain unchanged. Policies 2–3 are **offline simulations only**.
+
+Deterministic intent classifier for this diagnostic:
+
+```text
+temporal_supersession
+temporal_replay_hard_negative
+  -> first_occurrence
+
+lifecycle/history_temporal
+  -> lifecycle_history
+
+ambiguity/contradiction
+  -> contradiction
+
+future_leakage*
+  -> future_cutoff
+
+everything else
+  -> generic
+```
+
+This classifier is diagnostic scaffolding, not an approved production query classifier.
+
+## Dual-lane simulation
+
+No memory is deleted.
+
+Each retrieved memory is annotated offline as:
+
+```text
+primary_evidence
+or
+provenance_variant
+```
+
+Variant lane includes evidence with ambiguous/non-high-confidence/noncanonical or replay/conflict/attributed provenance markers.
+
+Measure:
+
+- how many top-10 memories enter the variant lane;
+- how many **positive** memories also enter it;
+- whether same/past replay negatives become distinguishable;
+- whether any replay negative remains in the primary lane;
+- how many queries have their best positive in the variant lane;
+- estimated token overhead of carrying lane/status/review-status/tags.
+
+A positive memory in the variant lane is **not a failure**. The point is to retain it with provenance rather than globally suppress it.
+
+## Required EVAL-01C measurements
+
+For baseline / neutral / inverse policies:
+
+- core Recall@10 / MRR@10 / nDCG@10;
+- challenge Recall@10 / MRR@10 / nDCG@10;
+- first-occurrence subset metrics;
+- replay-vs-positive pairwise failure count;
+- per-query nDCG improvements/regressions;
+- non-target query changes;
+- exact three known replay cases.
+
+Harness must also verify that recomputed baseline ordering matches preserved runtime hybrid ordering.
+
+Expected:
+
+```text
+baseline_recompute.raw_order_mismatch_count = 0
+```
+
+If not zero, stop interpretation and report harness mismatch.
+
+## Gemini / Antigravity — after EVAL-01C harness is merged
+
+EVAL-01C is offline and **does not require an API key**.
+
+Run on latest `main`:
 
 ```bash
 git switch main
@@ -319,112 +249,89 @@ git pull origin main
 python scripts/check_p8_cleanup_readiness.py
 python scripts/check_p8_final_cleanup_gate.py --expect-blocked
 python scripts/check_eval01_fixture_contract.py
-
-python scripts/run_eval_01b_replay_diagnostic.py
+python scripts/run_eval_01b_replay_diagnostic.py --stdout-only
+python scripts/run_eval_01c_dual_lane_intent.py
 ```
 
-Expected evidence:
+Evidence directory:
 
 ```text
-docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/
+docs/development/EVAL-01C-DUAL-LANE-TEMPORAL-INTENT/
   diagnostic.json
   summary.md
 ```
 
-Gemini must report:
+Gemini must commit only evidence/handoff. Do not modify the harness or production code during the run.
 
-1. number of queries with grade -1 labels;
-2. genuine future grade -1 count;
-3. same/past query-conditioned grade -1 count;
-4. semantic and hybrid top-20 grade -1 hits;
-5. pairwise failures where a prohibited replay outranks the best positive;
-6. memories that are positive in one query and prohibited in another;
-7. whether a global memory-level filter is safe;
-8. examples where recency temporal score favors the wrong replay;
-9. whether retrieved/context artifacts retain enough structured provenance to distinguish replay/ambiguous evidence;
-10. a recommendation for the **next experiment**, not a production patch.
+## EVAL-01C decision questions
 
-Do not:
+The report must let Astra/Supervisor answer:
 
-- mutate frozen gold labels;
-- retune hybrid weights;
-- change embedding model/version;
-- add ANN;
-- delete replay memories from source/audit data;
-- modify production retrieval;
-- claim a production defect before localization is complete.
+1. Does removing recency for first-occurrence intent reduce the 3 replay inversions?
+2. Does inverse recency reduce them further?
+3. Which policy causes fewer metric regressions?
+4. Are non-target queries unchanged?
+5. Can provenance lane annotation distinguish replay/ambiguous evidence without deleting valid dual-role memories?
+6. How many valid positives are themselves provenance variants?
+7. What is the estimated context-token overhead?
+8. Is the next justified change:
+   - provenance propagation only;
+   - intent-conditioned ranking only;
+   - both;
+   - neither?
 
-## EVAL-01B acceptance question
+Do **not** convert the experiment winner directly into production code.
 
-The experiment should end with a concrete contract proposal:
+## Frozen production contract — do not drift
 
-```text
-For user-facing generation context, should replay/ambiguous memories be:
+- embedding: `gemini-embedding-2`, 768 dimensions, explicit L2;
+- embedding version: `gemini-embedding-2-768-v1`;
+- cosine: `<=>`;
+- temporal chapter cutoff before semantic ranking;
+- hybrid-v1 weights:
+  ```text
+  0.75 semantic
+  + 0.03 entity_overlap
+  + 0.08 temporal
+  + 0.10 importance
+  + 0.04 relationship
+  ```
+- no ANN/HNSW/IVFFlat;
+- semantic memory remains derived/rebuildable;
+- no frozen-gold mutation;
+- no automatic architecture changes.
 
-1. suppressed from canonical answer context;
-2. retained in a separately annotated contradiction/provenance lane;
-3. handled by another evidence-backed policy.
-```
-
-The proposal must explain behavior for:
-
-- origin / first-occurrence queries;
-- lifecycle queries;
-- contradiction/ambiguity queries;
-- future-leak queries.
-
-ChatGPT/Astra reviews the evidence. Supervisor decides whether an implementation slice is justified.
-
-### Gemini Verification & Handoff — EVAL-01B REPLAY / TEMPORAL-INTENT DIAGNOSTIC
-
-Status: COMPLETE (Offline Diagnostic)
-Tested commit: c631e95cf016f1b7018558c913bce2872bcfd2c4
-Evidence commit: 014fb1d261e49ba9c87890ca91ec87c10dff9fd4
-Evidence: docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/ (diagnostic.json, summary.md)
-
-- Preflight guards:
-  - P8 cleanup readiness: PASS
-  - P8-05 cleanup gate: BLOCKED
-  - EVAL-01 fixture contract: PASS
-- Query & Label Distribution:
-  - Total queries with grade -1 labels: 12
-  - Genuine future grade -1 labels: 20 (0 survived into retrieval due to SQL chapter cutoff)
-  - Same/past query-conditioned grade -1 labels: 5
-- Retrieval Impact:
-  - Semantic top-20 grade -1 hits: 5
-  - Hybrid-v1 top-20 grade -1 hits: 5
-  - Pairwise failures (prohibited replay > best positive): 3 in semantic, 3 in hybrid (`core_gold:rq-0011`, `challenge:rq-0023`, `challenge:rq-0025`)
-- Cross-Query Dual-Role:
-  - 12 memories act as positive in one query and prohibited (grade -1) in another
-  - Global memory-level filter safe: FALSE (strictly query-conditioned)
-- Recency Temporal Bias:
-  - Recency half-life score actively amplifies later echoes over earlier origin events (e.g. `core_gold:rq-0011` ch 32 echo recency=1.00 vs ch 24 origin recency=0.63 -> ranks echo #1)
-- Context Artifact Provenance:
-  - `WritingContextPackage.semantic_memories` currently strips narrative tags and ambiguity flags; downstream LLM cannot distinguish primary facts from echoes
-- Contract Proposal (Answering Acceptance Question):
-  - Retain replay/ambiguous memories in a separately annotated contradiction/provenance lane (Option 2) rather than globally suppressing them
-  - Origin / first-occurrence queries: neutralize/invert recency half-life penalty on early chapters
-  - Lifecycle queries: retain all occurrences chronologically
-  - Contradiction/ambiguity queries: present competing versions explicitly in the contradiction lane
-  - Future-leak queries: maintain strict SQL chapter cutoff (already 100% effective)
-- Proposed Next Slice: EVAL-01C Diagnostic (Dual-lane context & Intent-conditioned ranking proposal). Zero production retrieval changes until approved.
-
-
-## P8-05 remains parallel and blocked
+## P8-05 remains blocked
 
 ```text
 Evaluation / Pilot          = ACTIVE
 P8-05 destructive cleanup   = BLOCKED_PENDING_STABILITY
 ```
 
-Do not alter the cleanup gate while running EVAL-01B.
+Never set `supervisor_cleanup_gate_accepted=true` by inference.
+
+## Roles
+
+```text
+Astra / ChatGPT
+  design harness
+  review evidence
+  prepare implementation proposal only if justified
+
+Gemini / Antigravity
+  execute merged harness on main
+  commit evidence
+  do not broaden scope
+
+Supervisor
+  final decision / ACCEPT
+```
 
 ## References
 
-- [EVAL-01 corrected rerun review](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/ASTRA-CORRECTED-RERUN-REVIEW.md)
-- [EVAL-01 evidence](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/)
-- [Frozen dataset report](.data/Frozen_v1/dataset_report.md)
-- [Detailed Evaluation / Pilot Runbook](docs/development/EVALUATION-PILOT-RUNBOOK.md)
-- [Previous Phase 0–8 archive](docs/development/archive/P0-P8-HANDOFF-through-2026-09-26.md)
-
-Roles remain: Supervisor = final ACCEPT; ChatGPT/Astra = developer/architect/reviewer; Gemini/Antigravity = local execution/measurement worker.
+- [EVAL-01C script](scripts/run_eval_01c_dual_lane_intent.py)
+- [EVAL-01B diagnostic](docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/diagnostic.json)
+- [EVAL-01B corrected summary](docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/summary.md)
+- [EVAL-01 runtime evidence](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/)
+- [Evaluation / Pilot Runbook](docs/development/EVALUATION-PILOT-RUNBOOK.md)
+- [Phase 0–8 archive](docs/development/archive/P0-P8-HANDOFF-through-2026-09-26.md)
