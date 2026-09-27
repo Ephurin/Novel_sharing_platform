@@ -134,3 +134,35 @@ P8-05 cleanup gate                 BLOCKED
 ```
 
 Supervisor acceptance remains separate from implementation merge and test success.
+
+
+## Merge / CI status
+
+Implementation PR: #13  
+Merge commit: `ce51efef225d7a45ef89e6b54c66a74f07fe4eb2`
+
+PR verification:
+
+```text
+Evaluation Pilot Harness          PASS
+P7 unit/full regression           PASS
+P7 live PostgreSQL + pgvector     PASS
+P7 root Compose smoke             PASS
+P8 unit                           PASS
+P8 PostgreSQL integration         PASS
+P8 rollback rehearsal             PASS
+P8 root Compose cutover smoke     PASS
+P8 frontend/API cutover           PASS
+P8 final cleanup gate             PASS / still BLOCKED
+```
+
+One initial integration-test failure was test-only: the fake query embedding was not L2-normalized. The test was corrected to use the same normalization contract required by production retrieval; the full rerun then passed.
+
+Current state:
+
+```text
+implementation = MERGED
+CI verification = PASS
+Gemini local verification = PENDING
+Supervisor acceptance = PENDING
+```
