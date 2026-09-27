@@ -362,6 +362,122 @@ Evidence: docs/development/EVAL-01C-DUAL-LANE-TEMPORAL-INTENT/ (diagnostic.json,
   8. Justified next step: **Provenance propagation only** (from `EventRecord.event_metadata` through to `MemoryChunkRecord` / `WritingContextPackage`). Do NOT change production ranking weights or implement intent-conditioned reranking.
 
 
+## EVAL-01C-PROV implementation — MERGED
+
+- PR: #13
+- merge commit: `ce51efef225d7a45ef89e6b54c66a74f07fe4eb2`
+- CI: **PASS**
+  - full AI-service regression
+  - live PostgreSQL + pgvector integration
+  - root Compose smoke
+  - P8 PostgreSQL/cutover/rollback/Compose
+  - P8 cleanup gate remains BLOCKED
+
+Implemented scope only:
+
+```text
+EventRecord fields/event_metadata
+  -> EventMemorySource.metadata
+  -> MemoryChunkRecord.memory_metadata
+  -> SemanticMemoryMatch.metadata
+  -> WritingService._semantic_match_payload()
+```
+
+Allowlisted provenance:
+
+```text
+event_type
+chapter_number
+source_type
+confirmation_status
+importance_score
+memory_id
+chapter_title
+tags
+status
+review_status
+supersedes_id
+```
+
+No ranking/filter/embedding/cutoff/schema change.
+
+Current state:
+
+```text
+implementation merged            YES
+CI verification                  PASS
+Gemini local verification        PENDING
+Supervisor acceptance            PENDING
+```
+
+## Gemini / Antigravity — provenance local verification
+
+Pull latest `main` and verify the merged implementation locally.
+
+```bash
+git switch main
+git pull origin main
+
+python scripts/check_p8_cleanup_readiness.py
+python scripts/check_p8_final_cleanup_gate.py --expect-blocked
+python scripts/check_eval01_fixture_contract.py
+```
+
+Then run the AI-service provenance-focused tests against disposable PostgreSQL/pgvector and a production-like Compose path.
+
+At minimum verify:
+
+```text
+tags survive EventRecord -> WritingService payload
+review_status survives
+status survives
+source_type survives
+confirmation_status survives
+unallowlisted metadata is absent
+existing embedding can be reused when only metadata changes
+semantic/hybrid ranking contract is unchanged
+future cutoff remains unchanged
+P8-05 cleanup gate remains BLOCKED
+```
+
+Evidence directory:
+
+```text
+docs/development/EVAL-01C-PROVENANCE-PROPAGATION/
+  environment.txt
+  tests.txt
+  provenance-smoke.json
+  summary.md
+```
+
+Gemini must commit evidence only. Do not alter production code, weights, embedding contract, frozen gold, or cleanup state.
+
+Handoff format:
+
+```markdown
+### Gemini Verification — EVAL-01C PROVENANCE PROPAGATION
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+
+- P8 cleanup readiness: <result>
+- P8-05 cleanup gate: BLOCKED
+- PostgreSQL/pgvector test: <result>
+- Compose smoke: <result>
+- tags propagation: <result>
+- review_status propagation: <result>
+- status propagation: <result>
+- source_type propagation: <result>
+- confirmation_status propagation: <result>
+- unallowlisted metadata: ABSENT | <failure>
+- embedding reuse on metadata-only change: <result>
+- ranking contract: UNCHANGED | <failure>
+- temporal cutoff: UNCHANGED | <failure>
+- Evidence: docs/development/EVAL-01C-PROVENANCE-PROPAGATION/
+- Remaining blocker: none | <exact blocker>
+```
+
 ## Astra review — EVAL-01C
 
 Verdict:
