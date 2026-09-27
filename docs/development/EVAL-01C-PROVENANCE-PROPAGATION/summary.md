@@ -2,13 +2,14 @@
 
 - **Implementation Slice:** `EVAL-01C-PROV` (PR #13)
 - **Merge Commit:** `ce51efef225d7a45ef89e6b54c66a74f07fe4eb2`
-- **Tested Commit:** `96cbf962d3cb7cb740d7c2a41d063717fc8cf552`
+- **Tested Commit:** `96cbf963d2e1b83d08a074f29ae8b42dc53db707`
 - **Evaluation Mode:** Live PostgreSQL 16 + pgvector 0.8.6 verification on disposable database `novel_platform_test`
+- **Original Evidence Commit:** `94177a67f9920e04b4997cebfa892c135a0d1afa`
 - **Evidence Files:**
-  - Environment: [`environment.txt`](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/EVAL-01C-PROVENANCE-PROPAGATION/environment.txt)
-  - Test Log: [`tests.txt`](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/EVAL-01C-PROVENANCE-PROPAGATION/tests.txt)
-  - Smoke Verification: [`provenance-smoke.json`](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/EVAL-01C-PROVENANCE-PROPAGATION/provenance-smoke.json)
-  - Summary: [`summary.md`](file:///c:/Users/Laptop/OneDrive/Documents/testproject/docs/development/EVAL-01C-PROVENANCE-PROPAGATION/summary.md)
+  - Environment: [`environment.txt`](environment.txt)
+  - Test Log: [`tests.txt`](tests.txt)
+  - Smoke Verification: [`provenance-smoke.json`](provenance-smoke.json)
+  - Summary: [`summary.md`](summary.md)
 
 ---
 
