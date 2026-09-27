@@ -1,0 +1,63 @@
+{
+  "evaluated_at": "2026-09-27T05:08:37.203079+00:00",
+  "database_url": "postgresql+psycopg://postgres:postgres@localhost:5433/novel_platform_test",
+  "tenant_id": "9aed0e48-aa5a-4a00-a43d-ab15ce2d166b",
+  "novel_id": "2de88892-4457-4812-bf20-c3e6fe6fd556",
+  "event_id": "64954c4b-ca18-4474-951f-c5c50c561b81",
+  "checks": {
+    "tags_propagation": "PASS",
+    "review_status_propagation": "PASS",
+    "status_propagation": "PASS",
+    "chapter_title_propagation": "PASS",
+    "memory_id_propagation": "PASS",
+    "importance_score_propagation": "PASS",
+    "supersedes_id_propagation": "PASS",
+    "source_type_propagation": "PASS",
+    "confirmation_status_propagation": "PASS",
+    "unallowlisted_metadata_absent": "PASS",
+    "embedding_reuse_on_metadata_only_change": "PASS",
+    "temporal_cutoff_invariance": "PASS",
+    "hybrid_ranking_invariance": "PASS"
+  },
+  "payload_metadata_captured": {
+    "tags": [
+      "narrative_echo",
+      "temporal_reset",
+      "updated_provenance_marker"
+    ],
+    "status": "canonical",
+    "memory_id": "mem-prov-smoke-001",
+    "event_type": "forging",
+    "source_type": "legacy",
+    "chapter_title": "Echoed Sword Forging",
+    "review_status": "needs_human_review",
+    "supersedes_id": "mem-origin-000",
+    "chapter_number": 32,
+    "importance_score": 0.85,
+    "confirmation_status": "confirmed"
+  },
+  "materialization_stats_run1": {
+    "embedding_version": "fake-embedding-768-v1",
+    "source_count": 1,
+    "memory_chunk_count": 1,
+    "removed_chunk_count": 0,
+    "embedded_count": 1,
+    "reused_embedding_count": 0,
+    "fresh_embedding_count": 1,
+    "stale_embedding_count": 0,
+    "missing_embedding_count": 0
+  },
+  "materialization_stats_run2_metadata_update": {
+    "embedding_version": "fake-embedding-768-v1",
+    "source_count": 1,
+    "memory_chunk_count": 1,
+    "removed_chunk_count": 0,
+    "embedded_count": 0,
+    "reused_embedding_count": 1,
+    "fresh_embedding_count": 1,
+    "stale_embedding_count": 0,
+    "missing_embedding_count": 0
+  },
+  "hybrid_score": 0.9149999999999999,
+  "overall_status": "PASS"
+}

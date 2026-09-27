@@ -1,0 +1,37 @@
+EVAL-01C-PROV PROVENANCE PROPAGATION — ENVIRONMENT
+Evaluated At: 2026-09-27T12:09:00+07:00
+Repository: Ephurin/Novel_sharing_platform
+Branch: main
+Merged Implementation PR: #13
+Merge Commit: ce51efef225d7a45ef89e6b54c66a74f07fe4eb2
+Tested Commit: 96cbf962d3cb7cb740d7c2a41d063717fc8cf552
+
+Operating System: Windows 11 (build 10.0.26100)
+Python Version: 3.12.10
+Docker Container: pgvector-eval (image pgvector/pgvector:pg16)
+Database Host/Port: localhost:5433
+Database Engine: PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2)
+Vector Extension: pgvector 0.8.6
+Test Database: novel_platform_test
+Database Schema: narrative (Alembic migrations 0001 -> 0007 applied to head)
+
+Allowlisted Provenance Fields:
+- event_type
+- chapter_number
+- source_type
+- confirmation_status
+- importance_score
+- memory_id
+- chapter_title
+- tags
+- status
+- review_status
+- supersedes_id
+
+Production Ranking Invariants:
+- hybrid-v1 weights: semantic=0.75, entity_overlap=0.03, temporal=0.08, importance=0.10, relationship=0.04
+- temporal half life: 12.0
+- temporal cutoff: SQL WHERE EventRecord.chapter_number <= cutoff before vector ordering
+- embedding dimension: 768 L2-normalized
+- ANN/HNSW/IVFFlat: None (exact cosine <=> index-free per accepted MVP)
+- P8-05 cleanup gate: BLOCKED

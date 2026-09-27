@@ -1,0 +1,16 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Laptop\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Laptop\OneDrive\Documents\testproject\ai-service
+configfile: pytest.ini
+plugins: anyio-4.13.0
+collecting ... collected 6 items
+
+ai-service\tests\test_semantic_memory_postgres_integration.py::test_pgvector_extension_schema_and_dimension_are_live PASSED [ 16%]
+ai-service\tests\test_semantic_memory_postgres_integration.py::test_event_sources_filter_unconfirmed_and_superseded_rows PASSED [ 33%]
+ai-service\tests\test_semantic_memory_postgres_integration.py::test_event_provenance_metadata_survives_to_writing_payload PASSED [ 50%]
+ai-service\tests\test_semantic_memory_postgres_integration.py::test_materialization_keeps_parallel_versions_and_tenant_isolation PASSED [ 66%]
+ai-service\tests\test_semantic_memory_postgres_integration.py::test_wrong_dimension_rejected_and_exact_cosine_ordering_works PASSED [ 83%]
+ai-service\tests\test_semantic_memory_postgres_integration.py::test_migration_downgrade_reupgrade_preserves_canonical_data PASSED [100%]
+
+============================== 6 passed in 1.48s ==============================
