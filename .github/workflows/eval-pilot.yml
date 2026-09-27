@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/run_eval_01.py"
       - "scripts/check_eval01_fixture_contract.py"
+      - "scripts/run_eval_01b_replay_diagnostic.py"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
       - "promt.md"
@@ -16,6 +17,7 @@ on:
     paths:
       - "scripts/run_eval_01.py"
       - "scripts/check_eval01_fixture_contract.py"
+      - "scripts/run_eval_01b_replay_diagnostic.py"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
       - "promt.md"
@@ -33,5 +35,8 @@ jobs:
         run: |
           python -m py_compile scripts/run_eval_01.py
           python -m py_compile scripts/check_eval01_fixture_contract.py
+          python -m py_compile scripts/run_eval_01b_replay_diagnostic.py
       - name: Validate frozen corpus and harness contract
         run: python scripts/check_eval01_fixture_contract.py
+      - name: Run offline replay temporal-intent diagnostic
+        run: python scripts/run_eval_01b_replay_diagnostic.py --stdout-only
