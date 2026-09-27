@@ -1,0 +1,20 @@
+{
+  "status": "measured",
+  "by_condition": {
+    "pre_provenance": {
+      "sample_count": 15,
+      "mean_ms": 1913.8938000037645,
+      "p50_ms": 1897.6619000313804,
+      "max_ms": 2473.707600031048
+    },
+    "post_provenance": {
+      "sample_count": 15,
+      "mean_ms": 1776.019926656348,
+      "p50_ms": 1747.3225999856368,
+      "max_ms": 2181.8742000032216
+    }
+  },
+  "backoff_events": 0,
+  "provider_token_usage": "not_measured",
+  "provider_cost": "not_measured"
+}

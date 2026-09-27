@@ -1,0 +1,23 @@
+{
+  "experiment_id": "EVAL-01D",
+  "name": "Provenance-Aware Generation A/B",
+  "live_provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.0,
+  "max_tokens": 512,
+  "fixed_key_slot": "slot-1",
+  "key_rotation": false,
+  "repeats": 3,
+  "case_ids": [
+    "core_gold:rq-0011",
+    "challenge:rq-0023",
+    "challenge:rq-0025",
+    "core_gold:rq-0036",
+    "core_gold:rq-0010"
+  ],
+  "production_prompt_renderer": "core.llm_service.LLMService.generate_writing_draft",
+  "provider_call_path": "core.llm_client.LLMClient exact-model REST",
+  "fallback_model": null,
+  "token_cost_status": "not_measured",
+  "quality_scoring": "REVIEW_REQUIRED"
+}
