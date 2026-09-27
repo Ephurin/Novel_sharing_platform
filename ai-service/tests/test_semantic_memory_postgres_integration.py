@@ -13,6 +13,8 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import sessionmaker
 
 from application.semantic_memory_service import SemanticMemoryMaterializationService
+from application.writing_service import WritingService
+from domain.embeddings import l2_normalize
 from domain.models import NarrativeEvent, SemanticMemoryEmbedding
 from infrastructure.embedding_providers import DeterministicFakeEmbeddingProvider
 from infrastructure.orm_models import (
@@ -169,6 +171,74 @@ def test_event_sources_filter_unconfirmed_and_superseded_rows(session_factory) -
 
     sources = semantic.list_event_memory_sources(novel_id)
     assert [source.summary for source in sources] == ["Corrected active event"]
+
+
+def test_event_provenance_metadata_survives_to_writing_payload(session_factory) -> None:
+    _, narrative, semantic = _repos(session_factory)
+    novel_id = str(uuid.uuid4())
+    metadata = {
+        "tags": ["narrative_echo", "temporal_reset"],
+        "status": "canonical",
+        "review_status": "ambiguous",
+        "chapter_title": "Echoed forging",
+        "memory_id": "mem-provenance-1",
+        "importance_score": 0.9,
+        "unrelated_large_field": {"must_not": "leak_into_semantic_metadata"},
+    }
+    narrative.append_event(
+        novel_id,
+        NarrativeEvent(
+            event_id=str(uuid.uuid4()),
+            event_type="forging",
+            summary="A later scene repeats the language of the original forging.",
+            chapter=32,
+            metadata=metadata,
+        ),
+    )
+
+    sources = semantic.list_event_memory_sources(novel_id)
+    assert len(sources) == 1
+    source = sources[0]
+    assert source.metadata["tags"] == ["narrative_echo", "temporal_reset"]
+    assert source.metadata["status"] == "canonical"
+    assert source.metadata["review_status"] == "ambiguous"
+    assert source.metadata["chapter_title"] == "Echoed forging"
+    assert source.metadata["memory_id"] == "mem-provenance-1"
+    assert source.metadata["confirmation_status"] == "confirmed"
+    assert source.metadata["importance_score"] == pytest.approx(0.9)
+    assert "unrelated_large_field" not in source.metadata
+
+    provider = DeterministicFakeEmbeddingProvider()
+    result = SemanticMemoryMaterializationService(
+        semantic, provider
+    ).materialize_event_memories(novel_id)
+    assert result["memory_chunk_count"] == 1
+
+    chunk = semantic.list_memory_chunks(novel_id)[0]
+    assert chunk.metadata["tags"] == ["narrative_echo", "temporal_reset"]
+    assert chunk.metadata["review_status"] == "ambiguous"
+    assert chunk.metadata["status"] == "canonical"
+    assert chunk.metadata["memory_id"] == "mem-provenance-1"
+
+    matches = semantic.search_semantic_memories(
+        novel_id,
+        query_embedding=l2_normalize(
+            provider.embed_query("later repeated forging scene"),
+            expected_dimension=provider.dimension,
+        ),
+        embedding_version=provider.version,
+        chapter_number=32,
+        limit=10,
+    )
+    assert len(matches) == 1
+    match = matches[0]
+    assert match.metadata["tags"] == ["narrative_echo", "temporal_reset"]
+    assert match.metadata["review_status"] == "ambiguous"
+
+    payload = WritingService._semantic_match_payload(match)
+    assert payload["metadata"]["tags"] == ["narrative_echo", "temporal_reset"]
+    assert payload["metadata"]["review_status"] == "ambiguous"
+    assert payload["metadata"]["status"] == "canonical"
 
 
 def test_materialization_keeps_parallel_versions_and_tenant_isolation(session_factory) -> None:

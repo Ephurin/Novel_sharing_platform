@@ -201,6 +201,7 @@ def seed_canonical_story(factory, memories_data: list[dict[str, Any]], entities_
                         "chapter_title": mem.get("chapter_title", ""),
                         "tags": mem.get("tags", []),
                         "status": mem.get("status", "canonical"),
+                        "review_status": mem.get("review_status"),
                     },
                     confirmation_status="confirmed",
                 )
@@ -405,6 +406,7 @@ def seed_scoped_story(
                             "chapter_title": memory.get("chapter_title", ""),
                             "tags": memory.get("tags", []),
                             "status": memory.get("status", "audit"),
+                            "review_status": memory.get("review_status"),
                         },
                         confirmation_status="confirmed",
                     )

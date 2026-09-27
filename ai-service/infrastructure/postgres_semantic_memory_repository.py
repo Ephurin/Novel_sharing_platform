@@ -110,6 +110,32 @@ class PostgresSemanticMemoryRepository:
                 if chapter_uuid is None and evidence.get("chapter_id"):
                     chapter_uuid = self._stable_uuid("chapter", str(evidence["chapter_id"]))
 
+                source_metadata: dict[str, Any] = {
+                    "event_type": event.event_type,
+                    "chapter_number": int(event.chapter_number),
+                    "source_type": event.source_type,
+                    "confirmation_status": event.confirmation_status,
+                    "importance_score": float(
+                        event_metadata.get(
+                            "importance_score",
+                            event_metadata.get("importance", 0.5),
+                        )
+                    ),
+                }
+                # Preserve compact provenance needed by downstream context
+                # reasoning. These fields are descriptive annotations only;
+                # they do not change materialization eligibility or ranking.
+                for key in (
+                    "memory_id",
+                    "chapter_title",
+                    "tags",
+                    "status",
+                    "review_status",
+                    "supersedes_id",
+                ):
+                    if key in event_metadata:
+                        source_metadata[key] = event_metadata[key]
+
                 sources.append(
                     EventMemorySource(
                         event_id=str(event.id),
@@ -122,17 +148,7 @@ class PostgresSemanticMemoryRepository:
                         chapter_id=str(chapter_uuid) if chapter_uuid else None,
                         revision_id=str(revision_uuid) if revision_uuid else None,
                         entity_ids=tuple(sorted(participant_ids.get(event.id, []))),
-                        metadata={
-                            "event_type": event.event_type,
-                            "chapter_number": int(event.chapter_number),
-                            "source_type": event.source_type,
-                            "importance_score": float(
-                                event_metadata.get(
-                                    "importance_score",
-                                    event_metadata.get("importance", 0.5),
-                                )
-                            ),
-                        },
+                        metadata=source_metadata,
                     )
                 )
             return sources
