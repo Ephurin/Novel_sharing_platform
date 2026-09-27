@@ -142,6 +142,62 @@ do not currently survive semantic-memory materialization.
 
 This is an EVAL finding, **not yet authorization to patch production**.
 
+## EVAL-01C harness — MERGED
+
+- PR: #12
+- merge commit: `caac0f881bc5e9fb075839898f85c4dc69cbc8b9`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- baseline recompute order mismatches: **0**
+
+CI preview:
+
+```text
+policy                      core R@10   core nDCG   challenge R@10   challenge nDCG   pairwise failures
+baseline                    0.738964    0.731047    0.746115         0.667668         3
+neutral_first_occurrence    0.738964    0.730166    0.746115         0.668872         3
+inverse_first_occurrence    0.729441    0.726604    0.746115         0.668872         3
+```
+
+First-occurrence pairwise results:
+
+```text
+core_gold:rq-0011
+  baseline  positive #2 / replay #1
+  neutral   positive #2 / replay #1
+  inverse   positive #2 / replay #1
+
+challenge:rq-0023
+  baseline  positive #7 / replay #4
+  neutral   positive #6 / replay #4
+  inverse   positive #6 / replay #5
+
+challenge:rq-0025
+  baseline  positive #3 / replay #1
+  neutral   positive #3 / replay #1
+  inverse   positive #3 / replay #1
+```
+
+Preliminary interpretation:
+
+- temporal recency alone is **not** the root cause of the 3 inversions;
+- neutral/inverse recency do not remove any pairwise failure;
+- inverse recency damages core Recall/nDCG;
+- do not implement either temporal policy from this preview.
+
+Dual-lane preview:
+
+```text
+top10 memories inspected                    400
+provenance_variant                           83
+positive memories in variant lane            26
+same/past grade -1 in variant lane            5
+same/past grade -1 left in primary lane       0
+queries whose best positive is variant       11
+mean annotation overhead            ~538 tokens/query
+```
+
+This supports **retain + annotate**, not suppression. Official evidence must still be generated from merged `main` by Gemini.
+
 # NOW — EVAL-01C
 
 Goal: compare candidate contracts offline before deciding whether a production implementation slice is justified.
