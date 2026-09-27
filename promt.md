@@ -338,6 +338,30 @@ The report must let Astra/Supervisor answer:
 
 Do **not** convert the experiment winner directly into production code.
 
+### Gemini Verification & Handoff — EVAL-01C DUAL-LANE & INTENT DIAGNOSTIC
+
+Status: COMPLETE (Offline Diagnostic)
+Tested commit: e31afe720e53a2909f1dc8bc8f9b98687baea246
+Evidence commit: 4f7b5f0d3aa1dfab40149020fbbad9e89ee65b79
+Evidence: docs/development/EVAL-01C-DUAL-LANE-TEMPORAL-INTENT/ (diagnostic.json, summary.md)
+
+- Preflight guards:
+  - P8 cleanup readiness: PASS
+  - P8-05 cleanup gate: BLOCKED
+  - EVAL-01 fixture contract: PASS
+- Baseline Recompute Integrity:
+  - `raw_order_mismatch_count`: 0 (exact match with preserved EVAL-01 runtime hybrid rankings)
+- Decision Question Answers:
+  1. Recency removal on first-occurrence intent: NO, does not resolve any of the 3 inversions (`rq-0011`: #2 vs #1, `rq-0023`: #6 vs #4, `rq-0025`: #3 vs #1). Total pairwise failures remain 3.
+  2. Inverse recency: NO, pairwise failures still remain 3/3 (`rq-0011`: #2 vs #1, `rq-0023`: #6 vs #5, `rq-0025`: #3 vs #1).
+  3. Metric regressions: Neutral first-occurrence preserves Core R@10 (0.738964) with trivial nDCG delta (0.731047 -> 0.730166). Inverse recency actively damages Core Recall (0.738964 -> 0.729441) and nDCG (0.731047 -> 0.726604).
+  4. Non-target queries: UNCHANGED across all policies (intent classifier strictly isolates first_occurrence).
+  5. Provenance lane annotation: YES, segregates 100% (5/5) same/past grade -1 replay hits into `provenance_variant`. Exactly 0 replay negatives remain in `primary_evidence`.
+  6. Positive memories in variant lane: 26 positive memories (and 11 queries' best positives) are provenance variants. Global suppression/filtering of the variant lane is confirmed unsafe.
+  7. Token overhead: Mean ~538 estimated tokens/query (max 560), well within the 12k budget.
+  8. Justified next step: **Provenance propagation only** (from `EventRecord.event_metadata` through to `MemoryChunkRecord` / `WritingContextPackage`). Do NOT change production ranking weights or implement intent-conditioned reranking.
+
+
 ## Frozen production contract — do not drift
 
 - embedding: `gemini-embedding-2`, 768 dimensions, explicit L2;
