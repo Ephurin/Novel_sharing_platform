@@ -3,14 +3,12 @@
 **Reviewed tested commit:** `8bae8276633ec9a9dae56d6f314907b9d12ee16d`  
 **Evidence commit:** `1cdee38c5dd7fe3a865123b93a670177b6fd8129`  
 **Gemini handoff:** `ef21ba0cdb5de004054f37b2bccd9a387536f561`  
-**Review status:** PARTIAL — SAFETY/PROVENANCE GAP FOUND  
+**Review status:** PARTIAL — QUERY-CONDITIONED REPLAY CONTRACT GAP  
 **Production architecture change authorized:** NO
 
-## What is validated
+## Validated runtime results
 
-### Retrieval/runtime baseline
-
-The corrected run successfully separated the frozen corpus policies:
+The corrected run preserves the frozen split/corpus policies:
 
 - core-gold: 21 queries / 216 canonical memories;
 - challenge: 19 queries / 232 audit memories;
@@ -24,149 +22,176 @@ Primary core-gold @10:
 | MRR | 0.328571 | 0.902381 | 0.906349 |
 | nDCG | 0.316010 | 0.709746 | 0.731047 |
 
-The live semantic runtime reproduces the accepted P7 semantic baseline. On core-gold, hybrid-v1 improves Recall/MRR/nDCG overall.
+The live semantic runtime reproduces the accepted P7 semantic baseline. Hybrid-v1 improves the aggregate core-gold metrics and materially improves the Vietnamese diagnostic.
 
-Vietnamese diagnostics also improve materially under hybrid-v1.
+Challenge behavior is mixed: hybrid-v1 raises aggregate nDCG but slightly lowers Recall/MRR, with clear regressions on `rq-0021` and `rq-0039`.
 
-Challenge diagnostics are mixed: hybrid-v1 improves nDCG overall but lowers Recall/MRR slightly, with notable regressions on `rq-0021` and `rq-0039`.
-
-### Materialization
+Materialization is also valid:
 
 - canonical 216: 216 reused / 216 fresh / 0 stale / 0 missing;
 - challenge 232: 232 generated this run / 232 fresh / 0 stale / 0 missing.
 
-### Basic temporal/version safety
+## Temporal/version safety
 
-- chapter-after-cutoff survivors: 0;
-- stale/wrong-version survivors: 0.
+The actual safety checks pass:
 
-These two checks are valid but incomplete by themselves.
+- chapter-after-cutoff survivors: **0**;
+- stale/wrong-version survivors: **0**.
 
-## Critical finding — grade -1 prohibited memories survive retrieval
+This means no observed future-chapter leak and no stale embedding leak in the corrected run.
 
-Frozen v1 defines grade `-1` as `prohibited_future_or_invalid` regression traps.
+## Query-conditioned grade -1 finding
 
-The frozen dataset report states these items must not survive temporal/provenance filtering.
+Frozen v1 also contains query labels with grade `-1` = `prohibited_future_or_invalid`.
 
-Astra independently compared the corrected `retrieval-raw.json` against the frozen labels and found **10 stage-level violations across 4 query cases**:
+Astra compared `retrieval-raw.json` against those labels and found **10 stage-level grade -1 hits across 4 query cases**:
 
-| Case | Stage | Rank | Prohibited memory | Reason |
+| Case | Stage | Rank | Memory | Interpretation |
 |---|---|---:|---|---|
-| core_gold:rq-0011 | semantic | 1 | mem-000110 | replayed “first forging” chronology reset |
-| core_gold:rq-0011 | hybrid | 1 | mem-000110 | same replay remains rank 1 |
-| core_gold:rq-0036 | semantic | 7 | mem-000110 | replayed sword-origin scene |
-| core_gold:rq-0036 | hybrid | 8 | mem-000110 | replay remains in final candidates |
-| challenge:rq-0023 | semantic | 4 | mem-000155 | later replay of Pillar No. 2 destruction |
-| challenge:rq-0023 | semantic | 7 | mem-000164 | third replay of same destruction |
+| core_gold:rq-0011 | semantic | 1 | mem-000110 | replayed “first forging” |
+| core_gold:rq-0011 | hybrid | 1 | mem-000110 | replay remains rank 1 |
+| core_gold:rq-0036 | semantic | 7 | mem-000110 | replayed sword origin |
+| core_gold:rq-0036 | hybrid | 8 | mem-000110 | replay remains |
+| challenge:rq-0023 | semantic | 4 | mem-000155 | later Pillar No. 2 replay |
+| challenge:rq-0023 | semantic | 7 | mem-000164 | third Pillar No. 2 replay |
 | challenge:rq-0023 | hybrid | 4 | mem-000155 | replay remains |
 | challenge:rq-0023 | hybrid | 6 | mem-000164 | replay remains |
-| challenge:rq-0025 | semantic | 1 | mem-000172 | replay of cavalry burial |
+| challenge:rq-0025 | semantic | 1 | mem-000172 | later cavalry-burial replay |
 | challenge:rq-0025 | hybrid | 1 | mem-000172 | replay remains rank 1 |
 
-This is not future-chapter leakage: these memories are at or before the query cutoff. It is a **provenance/validity leak**.
+These are **not future-chapter leaks**. Every listed memory is at or before the query cutoff.
 
-The prior `future-leak-audit.json` reported PASS because the harness only checked:
+They are query-conditioned replay/hard-negative ranking failures.
 
-- chapter > cutoff;
-- stale/wrong embedding version.
+### Why a global filter is invalid
 
-It did not inspect grade -1 prohibited labels.
+The same memory can be positive for one query and prohibited for another.
 
-### Localization
+Examples:
 
-The current evidence does **not yet prove** whether the correct fix belongs in:
+- `mem-000164` is grade `-1` for `rq-0023`, but grade `+3` for `rq-0025`;
+- `mem-000149` is a positive anchor for `rq-0023` while also carrying `do_not_use_as_clean_ground_truth` source tags.
 
-1. benchmark seeding/canonicalization;
-2. canonical Story Brain confirmation/provenance state;
-3. semantic materialization eligibility;
-4. retrieval-time provenance filtering.
+Therefore neither `do_not_use_as_clean_ground_truth` nor grade `-1` can be interpreted as a global DB-level “delete/filter this memory” flag.
 
-Therefore no production architecture change is authorized yet.
+The contract is query-specific.
 
-Primary failure category:
+### Benchmark-contract ambiguity
 
-`EVALUATION_HARNESS` — missing prohibited-label audit.
+Some benchmark queries explicitly ask to identify the replay that should not replace the canonical event:
 
-Secondary suspected category requiring a focused experiment:
+- `rq-0011`: asks which later “first forging” scene should not replace the true origin;
+- `rq-0023`: asks which later matches are narrative-replay hard negatives;
+- `rq-0025`: asks which later Hẻm Vực matches are chronology-replay negatives.
 
-`CANONICAL_DATA / TEMPORAL_FILTER(PROVENANCE)`.
+For such wording, surfacing a replay memory may be useful to a reasoning model **if the context identifies it as replay/ambiguous**.
+
+At the same time, the retrieval labels mark those replay memories grade `-1`.
+
+So the frozen benchmark currently conflates two possible product contracts:
+
+1. **answer-context contract** — exclude replay/hard-negative memories from canonical answer context;
+2. **diagnostic reasoning contract** — retrieve the replay but preserve provenance so the model can explicitly reject it.
+
+That ambiguity must be resolved before changing production retrieval.
+
+## Hybrid temporal-signal weakness
+
+Even without changing the benchmark semantics, the rankings reveal a real limitation.
+
+For `core_gold:rq-0011`:
+
+- true origin `mem-000089` is chapter 27;
+- replay `mem-000110` is chapter 32;
+- semantic ranks replay #1 and origin #2;
+- hybrid also ranks replay #1;
+- hybrid temporal score gives the newer replay `1.0`, while the true origin receives ~`0.706`.
+
+For “origin / first occurrence” intent, simple recency relevance points in the wrong direction.
+
+Similarly:
+
+- `challenge:rq-0023` asks for the first Pillar No. 2 destruction, but later replay memories rank above the true first event;
+- `challenge:rq-0025` asks for the first burial, but the later replay ranks #1 while the earlier positive anchor ranks #3.
+
+This is evidence of a **query-intent temporal reasoning gap**, not a chapter-cutoff safety failure.
+
+Potential future category:
+
+`HYBRID_SIGNAL / TEMPORAL_INTENT`
+
+No weight tuning is authorized yet.
 
 ## Manual generation review
 
-The corrected harness properly preserved four outputs without self-scoring. Astra reviewed them against the exact query and retrieved memories.
+The corrected harness preserved four outputs without self-scoring. Astra reviewed each against the exact query and retrieved memories.
 
 ### generation:core_gold:rq-0002 — PASS
 
-The answer identifies the corrupted-root countermeasure prepared from the earlier extraction site and its brief effect on Alistair's vulnerable armor joint.
+The answer correctly identifies the corrupted-root countermeasure and its brief effect on Alistair's vulnerable armor joint.
 
 - factual consistency: PASS;
 - context adherence: PASS;
-- future leakage: none observed;
+- future leakage: none;
 - unsupported facts: none material.
 
 ### generation:core_gold:rq-0007 — PASS
 
-The answer uses the chapter-28 combat observation against Garen to demonstrate that the Thần Tinh anti-mana property is experimentally confirmed rather than merely asserted at the forge.
+The answer correctly uses the chapter-28 Garen fight as observed confirmation of the Thần Tinh anti-mana property.
 
 - factual consistency: PASS;
 - context adherence: PASS;
-- future leakage: none observed;
+- future leakage: none;
 - unsupported facts: none material.
 
 ### generation:core_gold:rq-0010 — PARTIAL
 
-The answer correctly identifies the joint victory and Valora's recognition of Oakhaven's battlefield value, but it says the victory “leads her to ... commit Demon Thần Tinh resources and forge access.”
+The answer correctly identifies the joint victory and Valora's recognition of Oakhaven's battlefield value, but it says that victory “leads her to ... commit Demon Thần Tinh resources and forge access.”
 
-The retrieved evidence shows the resource/forge commitment occurs in chapter 31, while the joint victory and explicit post-battle belief revision occur in chapter 33.
+The evidence shows:
 
-This is a small but real **causal/temporal inversion**.
+- resource/forge commitment: chapter 31;
+- joint victory and explicit belief revision: chapter 33.
 
-- factual entities/events: mostly supported;
-- relationship consistency: mostly supported;
-- temporal reasoning: FAIL/PARTIAL;
-- unsupported causal inference: YES;
-- future leakage: none observed.
+This is a real causal/temporal inversion.
 
 Failure category: `GENERATION`.
 
-### generation:challenge:rq-0001 — PASS WITH ATTRIBUTION CAVEAT
+### generation:challenge:rq-0001 — PASS
 
-The answer correctly presents the evidence as support for suspicion: Roland's statement, the destructive extraction device, and Elena's accusation.
+The answer preserves the distinction between evidence supporting suspicion and independently verified intent.
 
-It does not upgrade Alistair's intent into independently verified fact.
-
-- factual consistency: PASS;
-- attribution handling: PASS;
-- future leakage: none observed;
-- unsupported facts: none material.
+It correctly uses Roland's statement and Elena's observed/attributed evidence without promoting Alistair's intent to established fact.
 
 ### Generation pilot result
 
 ```text
 clean cases: 3/4
-partial temporal/causal error: 1/4
-future leakage observed in outputs: 0
+partial causal/temporal error: 1/4
+future leakage in generated outputs: 0
 ```
 
-The four-case pilot is too small to characterize overall generation quality, but it is sufficient to demonstrate at least one reproducible temporal-reasoning weakness.
+The sample is too small for a broad quality claim, but it demonstrates at least one reproducible temporal-reasoning weakness.
 
 ## Context-packing review
 
-The corrected runner now uses real frozen-memory content and shows deterministic hashes for 6/6 cases.
+The corrected runner uses real frozen-memory content and produces deterministic hashes for 6/6 cases.
 
-However, the measured inputs use only approximately **1,971–2,248 estimated tokens** against a **12,000-token budget**. No semantic item is dropped.
+However, each measured input is only about **1,971–2,248 estimated tokens** against a **12,000-token budget**.
 
-Therefore EVAL-01 establishes:
+No semantic item is dropped.
+
+Therefore the run establishes:
 
 - deterministic packing: PASS;
 - real-memory payload path: PASS;
 - no-drop behavior under light load: PASS.
 
-It does **not** establish:
+It does not establish:
 
 - prioritization under token pressure;
-- retention when relevant and irrelevant artifacts compete;
-- protected canonical entity/state/rule behavior.
+- relevant-memory retention when candidates compete for budget;
+- protected locked entity/state/rule behavior.
 
 Those remain `not_measured`.
 
@@ -184,36 +209,44 @@ Provider token/cost usage remains `not_measured`.
 ## EVAL-01 verdict
 
 ```text
-runtime semantic reproduction       = PASS
-core hybrid aggregate improvement   = PASS
-Vietnamese hybrid diagnostic        = PASS
-challenge hybrid behavior           = MIXED
-chapter-cutoff future leakage       = PASS (0)
-embedding-version freshness         = PASS (0 stale/wrong)
-prohibited provenance/invalid leak  = FAIL
-context determinism                 = PASS
-context budget-pressure quality     = NOT_MEASURED
-generation execution                = PASS
-generation quality pilot            = PARTIAL (3 clean / 1 temporal-causal error)
-raw ingestion/extraction            = NOT_MEASURED
-production architecture defect      = NOT YET LOCALIZED
+runtime semantic reproduction        = PASS
+core hybrid aggregate improvement    = PASS
+Vietnamese hybrid diagnostic         = PASS
+challenge hybrid behavior            = MIXED
+chapter-cutoff future leakage        = PASS (0)
+embedding-version freshness          = PASS (0 stale/wrong)
+query-conditioned replay negatives   = PARTIAL / CONTRACT GAP
+context determinism                  = PASS
+context budget-pressure quality      = NOT_MEASURED
+generation execution                 = PASS
+generation quality pilot             = PARTIAL (3 clean / 1 temporal-causal error)
+raw ingestion/extraction             = NOT_MEASURED
+production architecture defect       = NOT YET DEMONSTRATED
 ```
 
 Overall:
 
-**EVAL-01 = PARTIAL — follow-up provenance experiment required before acceptance.**
+**EVAL-01 = PARTIAL — follow-up replay/temporal-intent experiment required before acceptance.**
 
 P8-05 destructive cleanup remains BLOCKED.
 
-## Required next step
+## Required next step — EVAL-01B
 
 Do not tune hybrid weights or change the embedding model.
 
-Run a focused follow-up that answers:
+Run a focused **Replay / Temporal-Intent Diagnostic** that separates:
 
-1. Why are replay/invalid grade -1 memories entering a production-like confirmed/materialized set?
-2. At which canonical/provenance layer should they become ineligible?
-3. Can the system exclude them without deleting source/audit history?
-4. Does exclusion preserve the accepted core retrieval gains and temporal safety?
+1. genuine future information that must be filtered;
+2. query-conditioned replay negatives;
+3. replay memories that may need to be surfaced with explicit provenance for contradiction/replay reasoning.
 
-Only after this localization should an implementation slice be proposed.
+EVAL-01B should measure:
+
+- positive-vs-replay pairwise rank for origin/first-occurrence queries;
+- whether recency temporal score promotes the wrong replay;
+- whether replay provenance survives into semantic memory/context;
+- answer quality under two offline policies:
+  - suppress replay from canonical answer context;
+  - retain replay but annotate it as ambiguous/replay evidence.
+
+No production implementation slice should open until that experiment identifies the intended product contract and measurable target.
