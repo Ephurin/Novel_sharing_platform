@@ -86,7 +86,7 @@ def main() -> int:
         '"REVIEW_REQUIRED"',
         '"not_scored"',
         '"protected_artifact_truncation": "not_measured"',
-        '"prohibited_memory_violations_count"',
+        '"prohibited_label_hits_count"',
         '"gold_label_grade_-1_prohibited_future_or_invalid"',
         '"audit_232"',
         '"canonical_216"',
