@@ -4,7 +4,7 @@ Repository: Ephurin/Novel_sharing_platform
 Branch: main
 Merged Implementation PR: #13
 Merge Commit: ce51efef225d7a45ef89e6b54c66a74f07fe4eb2
-Tested Commit: 96cbf962d3cb7cb740d7c2a41d063717fc8cf552
+Tested Commit: 96cbf963d2e1b83d08a074f29ae8b42dc53db707
 
 Operating System: Windows 11 (build 10.0.26100)
 Python Version: 3.12.10
