@@ -375,6 +375,41 @@ The proposal must explain behavior for:
 
 ChatGPT/Astra reviews the evidence. Supervisor decides whether an implementation slice is justified.
 
+### Gemini Verification & Handoff — EVAL-01B REPLAY / TEMPORAL-INTENT DIAGNOSTIC
+
+Status: COMPLETE (Offline Diagnostic)
+Tested commit: c631e95cf016f1b7018558c913bce2872bcfd2c4
+Evidence commit: 014fb1d261e49ba9c87890ca91ec87c10dff9fd4
+Evidence: docs/development/EVAL-01B-REPLAY-TEMPORAL-INTENT/ (diagnostic.json, summary.md)
+
+- Preflight guards:
+  - P8 cleanup readiness: PASS
+  - P8-05 cleanup gate: BLOCKED
+  - EVAL-01 fixture contract: PASS
+- Query & Label Distribution:
+  - Total queries with grade -1 labels: 12
+  - Genuine future grade -1 labels: 20 (0 survived into retrieval due to SQL chapter cutoff)
+  - Same/past query-conditioned grade -1 labels: 5
+- Retrieval Impact:
+  - Semantic top-20 grade -1 hits: 5
+  - Hybrid-v1 top-20 grade -1 hits: 5
+  - Pairwise failures (prohibited replay > best positive): 3 in semantic, 3 in hybrid (`core_gold:rq-0011`, `challenge:rq-0023`, `challenge:rq-0025`)
+- Cross-Query Dual-Role:
+  - 12 memories act as positive in one query and prohibited (grade -1) in another
+  - Global memory-level filter safe: FALSE (strictly query-conditioned)
+- Recency Temporal Bias:
+  - Recency half-life score actively amplifies later echoes over earlier origin events (e.g. `core_gold:rq-0011` ch 32 echo recency=1.00 vs ch 24 origin recency=0.63 -> ranks echo #1)
+- Context Artifact Provenance:
+  - `WritingContextPackage.semantic_memories` currently strips narrative tags and ambiguity flags; downstream LLM cannot distinguish primary facts from echoes
+- Contract Proposal (Answering Acceptance Question):
+  - Retain replay/ambiguous memories in a separately annotated contradiction/provenance lane (Option 2) rather than globally suppressing them
+  - Origin / first-occurrence queries: neutralize/invert recency half-life penalty on early chapters
+  - Lifecycle queries: retain all occurrences chronologically
+  - Contradiction/ambiguity queries: present competing versions explicitly in the contradiction lane
+  - Future-leak queries: maintain strict SQL chapter cutoff (already 100% effective)
+- Proposed Next Slice: EVAL-01C Diagnostic (Dual-lane context & Intent-conditioned ranking proposal). Zero production retrieval changes until approved.
+
+
 ## P8-05 remains parallel and blocked
 
 ```text
