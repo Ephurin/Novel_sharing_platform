@@ -277,6 +277,35 @@ B. replay memories may be surfaced, but must carry provenance/ambiguity
 
 No production change is authorized until EVAL-01B resolves this.
 
+## EVAL-01B harness — MERGED
+
+- PR: #11
+- merge commit: `44261764bb76de5daa9452e6c9e0d52cbfec961a`
+- Evaluation Pilot Harness CI run: SUCCESS
+- offline diagnostic execution: SUCCESS
+
+CI diagnostic baseline:
+
+```text
+queries_with_grade_minus_one           12
+future_grade_minus_one_labels          20
+same_or_past_query_conditioned_labels   5
+semantic_grade_minus_one_top20_hits     5
+hybrid_grade_minus_one_top20_hits       5
+semantic_pairwise_failures              3
+hybrid_pairwise_failures                3
+cross_query_dual_role_memories         12
+global_filter_safe                  false
+```
+
+Pairwise failures currently include:
+
+- `core_gold:rq-0011` — replay rank 1 vs best positive rank 2;
+- `challenge:rq-0023` — replay rank 4 vs best positive rank 7 in hybrid;
+- `challenge:rq-0025` — replay rank 1 vs best positive rank 3.
+
+These are diagnostic findings, not authorization to change production.
+
 ## Gemini / Antigravity — EVAL-01B immediate task
 
 EVAL-01B is offline and **does not require an API key**.
