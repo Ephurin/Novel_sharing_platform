@@ -1,0 +1,1417 @@
+{
+  "experiment_id": "EVAL-01B",
+  "name": "Replay / Temporal-Intent Diagnostic",
+  "dataset_version": "aethelgard-retrieval-eval-v1.0.0",
+  "retrieval_source": "docs\\development\\EVAL-01-AETHELGARD-RUNTIME-BASELINE\\retrieval-raw.json",
+  "mode": "offline_existing_runtime_artifacts",
+  "summary": {
+    "queries_with_grade_minus_one": 12,
+    "future_grade_minus_one_labels": 20,
+    "same_or_past_query_conditioned_labels": 5,
+    "semantic_grade_minus_one_top20_hits": 5,
+    "hybrid_grade_minus_one_top20_hits": 5,
+    "semantic_pairwise_failures": 3,
+    "hybrid_pairwise_failures": 3,
+    "cross_query_dual_role_memories": 12
+  },
+  "interpretation_contract": {
+    "global_filter_safe": false,
+    "note": "A memory used positively in one query and prohibited in another cannot be treated as globally invalid solely from grade -1 labels."
+  },
+  "semantic_pairwise_failures": [
+    {
+      "case_id": "core_gold:rq-0011",
+      "query_type": "temporal_supersession",
+      "best_positive_rank": 2,
+      "best_prohibited_rank": 1
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "query_type": "temporal_replay_hard_negative",
+      "best_positive_rank": 6,
+      "best_prohibited_rank": 4
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "query_type": "temporal_replay_hard_negative",
+      "best_positive_rank": 3,
+      "best_prohibited_rank": 1
+    }
+  ],
+  "hybrid_pairwise_failures": [
+    {
+      "case_id": "core_gold:rq-0011",
+      "query_type": "temporal_supersession",
+      "best_positive_rank": 2,
+      "best_prohibited_rank": 1
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "query_type": "temporal_replay_hard_negative",
+      "best_positive_rank": 7,
+      "best_prohibited_rank": 4
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "query_type": "temporal_replay_hard_negative",
+      "best_positive_rank": 3,
+      "best_prohibited_rank": 1
+    }
+  ],
+  "grade_minus_one_stage_hits": [
+    {
+      "case_id": "core_gold:rq-0011",
+      "split": "core_gold",
+      "query_id": "rq-0011",
+      "query_type": "temporal_supersession",
+      "stage": "semantic_top20",
+      "rank": 1,
+      "memory_id": "mem-000110",
+      "chapter_cutoff": 32,
+      "memory_chapter": 32
+    },
+    {
+      "case_id": "core_gold:rq-0011",
+      "split": "core_gold",
+      "query_id": "rq-0011",
+      "query_type": "temporal_supersession",
+      "stage": "hybrid_top20",
+      "rank": 1,
+      "memory_id": "mem-000110",
+      "chapter_cutoff": 32,
+      "memory_chapter": 32
+    },
+    {
+      "case_id": "core_gold:rq-0036",
+      "split": "core_gold",
+      "query_id": "rq-0036",
+      "query_type": "important_object_history_temporal",
+      "stage": "semantic_top20",
+      "rank": 7,
+      "memory_id": "mem-000110",
+      "chapter_cutoff": 61,
+      "memory_chapter": 32
+    },
+    {
+      "case_id": "core_gold:rq-0036",
+      "split": "core_gold",
+      "query_id": "rq-0036",
+      "query_type": "important_object_history_temporal",
+      "stage": "hybrid_top20",
+      "rank": 8,
+      "memory_id": "mem-000110",
+      "chapter_cutoff": 61,
+      "memory_chapter": 32
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "split": "challenge",
+      "query_id": "rq-0023",
+      "query_type": "temporal_replay_hard_negative",
+      "stage": "semantic_top20",
+      "rank": 4,
+      "memory_id": "mem-000155",
+      "chapter_cutoff": 45,
+      "memory_chapter": 42
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "split": "challenge",
+      "query_id": "rq-0023",
+      "query_type": "temporal_replay_hard_negative",
+      "stage": "semantic_top20",
+      "rank": 7,
+      "memory_id": "mem-000164",
+      "chapter_cutoff": 45,
+      "memory_chapter": 45
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "split": "challenge",
+      "query_id": "rq-0023",
+      "query_type": "temporal_replay_hard_negative",
+      "stage": "hybrid_top20",
+      "rank": 4,
+      "memory_id": "mem-000155",
+      "chapter_cutoff": 45,
+      "memory_chapter": 42
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "split": "challenge",
+      "query_id": "rq-0023",
+      "query_type": "temporal_replay_hard_negative",
+      "stage": "hybrid_top20",
+      "rank": 6,
+      "memory_id": "mem-000164",
+      "chapter_cutoff": 45,
+      "memory_chapter": 45
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "split": "challenge",
+      "query_id": "rq-0025",
+      "query_type": "temporal_replay_hard_negative",
+      "stage": "semantic_top20",
+      "rank": 1,
+      "memory_id": "mem-000172",
+      "chapter_cutoff": 49,
+      "memory_chapter": 47
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "split": "challenge",
+      "query_id": "rq-0025",
+      "query_type": "temporal_replay_hard_negative",
+      "stage": "hybrid_top20",
+      "rank": 1,
+      "memory_id": "mem-000172",
+      "chapter_cutoff": 49,
+      "memory_chapter": 47
+    }
+  ],
+  "cross_query_dual_role_memories": [
+    {
+      "memory_id": "mem-000064",
+      "positive_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0021",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0026",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0032",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0033",
+          "grade": 2,
+          "label": "relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0001",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 20,
+        "review_status": "high_confidence",
+        "tags": [
+          "direct_confirmation",
+          "temporal_supersession",
+          "future_leakage_anchor"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000067",
+      "positive_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0003",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0026",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0032",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0033",
+          "grade": 2,
+          "label": "relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0001",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 21,
+        "review_status": "high_confidence",
+        "tags": [
+          "attributed_claim",
+          "direct_dialogue",
+          "motivation",
+          "future_leakage_anchor"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000105",
+      "positive_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0010",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0013",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0019",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "split": "core_gold",
+          "query_id": "rq-0022",
+          "grade": 2,
+          "label": "relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0009",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 31,
+        "review_status": "high_confidence",
+        "tags": [
+          "setup_payoff",
+          "safe_passage",
+          "entity_overlap"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000106",
+      "positive_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0010",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "split": "core_gold",
+          "query_id": "rq-0014",
+          "grade": 1,
+          "label": "acceptable_context"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0019",
+          "grade": 2,
+          "label": "relevant"
+        },
+        {
+          "split": "core_gold",
+          "query_id": "rq-0022",
+          "grade": 2,
+          "label": "relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0009",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 31,
+        "review_status": "high_confidence",
+        "tags": [
+          "relationship_history",
+          "alliance",
+          "promise_or_commitment",
+          "hybrid_retrieval"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000162",
+      "positive_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0031",
+          "grade": 2,
+          "label": "relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0022",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 44,
+        "review_status": "high_confidence",
+        "tags": [
+          "relationship_history",
+          "medical_trust",
+          "setup_payoff"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000164",
+      "positive_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0025",
+          "grade": 3,
+          "label": "highly_relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0023",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 45,
+        "review_status": "ambiguous",
+        "tags": [
+          "narrative_echo",
+          "temporal_reset",
+          "do_not_use_as_clean_ground_truth"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000193",
+      "positive_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0032",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0033",
+          "grade": 2,
+          "label": "relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0026",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 54,
+        "review_status": "high_confidence",
+        "tags": [
+          "temporal_supersession",
+          "long_range_dependency",
+          "canonical_revelation"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000194",
+      "positive_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0032",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "split": "challenge",
+          "query_id": "rq-0033",
+          "grade": 3,
+          "label": "highly_relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "challenge",
+          "query_id": "rq-0026",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 54,
+        "review_status": "high_confidence",
+        "tags": [
+          "character_motivation",
+          "temporal_supersession",
+          "canonical_revelation"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000226",
+      "positive_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0037",
+          "grade": 2,
+          "label": "relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0040",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 61,
+        "review_status": "high_confidence",
+        "tags": [
+          "reconstruction",
+          "arc_resolution",
+          "community_state"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000228",
+      "positive_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0038",
+          "grade": 3,
+          "label": "highly_relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0040",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 61,
+        "review_status": "high_confidence",
+        "tags": [
+          "setup_payoff_candidate",
+          "provenance_guard",
+          "seeds"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000229",
+      "positive_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0036",
+          "grade": 3,
+          "label": "highly_relevant"
+        },
+        {
+          "split": "core_gold",
+          "query_id": "rq-0037",
+          "grade": 3,
+          "label": "highly_relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0040",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 61,
+        "review_status": "high_confidence",
+        "tags": [
+          "important_object",
+          "object_final_state",
+          "setup_payoff",
+          "Gregor"
+        ]
+      }
+    },
+    {
+      "memory_id": "mem-000231",
+      "positive_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0037",
+          "grade": 2,
+          "label": "relevant"
+        }
+      ],
+      "prohibited_uses": [
+        {
+          "split": "core_gold",
+          "query_id": "rq-0040",
+          "grade": -1,
+          "label": "prohibited_future_or_invalid"
+        }
+      ],
+      "source": {
+        "chapter_number": 61,
+        "review_status": "high_confidence",
+        "tags": [
+          "final_state",
+          "arc_resolution",
+          "story_ending"
+        ]
+      }
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "core_gold:rq-0011",
+      "query": "Which memory should anchor the origin of Alan’s Thần Tinh sword, and which later “first forging” scene should not replace that origin?",
+      "query_type": "temporal_supersession",
+      "review_status": "high_confidence",
+      "reason": "The sword is forged in chapter 27 and demonstrably used in chapters 28–29. Chapter 32 repeats a “first forging” and is an explicit narrative replay that a ranker should not promote as the canonical origin.",
+      "chapter_cutoff": 32,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000110",
+          "memory_chapter": 32,
+          "classification": "same_or_past_query_conditioned",
+          "status": "canonical",
+          "review_status": "ambiguous",
+          "tags": [
+            "narrative_echo",
+            "temporal_reset",
+            "important_object",
+            "do_not_use_as_clean_ground_truth"
+          ],
+          "positive_in_other_queries": []
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 2,
+          "best_prohibited_rank": 1,
+          "prohibited_hit_ranks": [
+            1
+          ],
+          "prohibited_outranks_best_positive": true
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 2,
+          "best_prohibited_rank": 1,
+          "prohibited_hit_ranks": [
+            1
+          ],
+          "prohibited_outranks_best_positive": true
+        }
+      }
+    },
+    {
+      "case_id": "core_gold:rq-0022",
+      "query": "What earlier actions explain why Demon troops are willing to rely on Elena’s non-mana medicine by the Hẻm Vực campaign?",
+      "query_type": "setup_payoff_relationship",
+      "review_status": "high_confidence",
+      "reason": "Trust is built through Korgan’s rescue, negotiated exchange, civilian treatment and later troop-level respect; chapter 44 provides an even stronger but future example that must not leak at cutoff 43.",
+      "chapter_cutoff": 43,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000162",
+          "memory_chapter": 44,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "relationship_history",
+            "medical_trust",
+            "setup_payoff"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "challenge",
+              "query_id": "rq-0031",
+              "grade": 2,
+              "label": "relevant"
+            }
+          ]
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        }
+      }
+    },
+    {
+      "case_id": "core_gold:rq-0036",
+      "query": "Trace the canonical lifecycle of Alan’s personal Thần Tinh sword from its origin to its final state, excluding the replayed “first forging” scene.",
+      "query_type": "important_object_history_temporal",
+      "review_status": "high_confidence",
+      "reason": "Correct retrieval must start from chapter 27, follow the sword through anti-mana combat and the final duel, note that chapter 60 does not melt the personal sword, and end with retirement at Gregor’s memorial. Chapter 32 is a chronology replay.",
+      "chapter_cutoff": 61,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000110",
+          "memory_chapter": 32,
+          "classification": "same_or_past_query_conditioned",
+          "status": "canonical",
+          "review_status": "ambiguous",
+          "tags": [
+            "narrative_echo",
+            "temporal_reset",
+            "important_object",
+            "do_not_use_as_clean_ground_truth"
+          ],
+          "positive_in_other_queries": []
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": 7,
+          "prohibited_hit_ranks": [
+            7
+          ],
+          "prohibited_outranks_best_positive": false
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": 8,
+          "prohibited_hit_ranks": [
+            8
+          ],
+          "prohibited_outranks_best_positive": false
+        }
+      }
+    },
+    {
+      "case_id": "core_gold:rq-0040",
+      "query": "At the first natural dawn after Alistair falls, has Oakhaven already been rebuilt, or is rebuilding still only a return goal?",
+      "query_type": "future_leakage_location_state",
+      "review_status": "high_confidence",
+      "reason": "At cutoff 59 the characters only decide to return. All direct evidence of ecological recovery and reconstruction in Oakhaven comes from chapter 61 and must be excluded.",
+      "chapter_cutoff": 59,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000225",
+          "memory_chapter": 61,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "location_history",
+            "ecological_recovery",
+            "payoff"
+          ],
+          "positive_in_other_queries": []
+        },
+        {
+          "memory_id": "mem-000226",
+          "memory_chapter": 61,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "reconstruction",
+            "arc_resolution",
+            "community_state"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "core_gold",
+              "query_id": "rq-0037",
+              "grade": 2,
+              "label": "relevant"
+            }
+          ]
+        },
+        {
+          "memory_id": "mem-000227",
+          "memory_chapter": 61,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "important_object",
+            "knowledge_memory",
+            "postwar_recovery"
+          ],
+          "positive_in_other_queries": []
+        },
+        {
+          "memory_id": "mem-000228",
+          "memory_chapter": 61,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "setup_payoff_candidate",
+            "provenance_guard",
+            "seeds"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "core_gold",
+              "query_id": "rq-0038",
+              "grade": 3,
+              "label": "highly_relevant"
+            }
+          ]
+        },
+        {
+          "memory_id": "mem-000229",
+          "memory_chapter": 61,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "important_object",
+            "object_final_state",
+            "setup_payoff",
+            "Gregor"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "core_gold",
+              "query_id": "rq-0036",
+              "grade": 3,
+              "label": "highly_relevant"
+            },
+            {
+              "split": "core_gold",
+              "query_id": "rq-0037",
+              "grade": 3,
+              "label": "highly_relevant"
+            }
+          ]
+        },
+        {
+          "memory_id": "mem-000230",
+          "memory_chapter": 61,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "relationship_history",
+            "ending_state",
+            "rebuilding"
+          ],
+          "positive_in_other_queries": []
+        },
+        {
+          "memory_id": "mem-000231",
+          "memory_chapter": 61,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "final_state",
+            "arc_resolution",
+            "story_ending"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "core_gold",
+              "query_id": "rq-0037",
+              "grade": 2,
+              "label": "relevant"
+            }
+          ]
+        },
+        {
+          "memory_id": "mem-000232",
+          "memory_chapter": 61,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "needs_human_review",
+          "tags": [
+            "temporal_anchor",
+            "timeline",
+            "needs_human_review"
+          ],
+          "positive_in_other_queries": []
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 4,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 3,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0001",
+      "query": "At this point in the story, what evidence supports the suspicion that Alistair knowingly accepts sacrificing Oakhaven for a larger system?",
+      "query_type": "future_leakage_trap",
+      "review_status": "high_confidence",
+      "reason": "Before chapter 20, the evidence is indirect or attributed. Chapters 20–21 provide much stronger direct confirmation, so retrieving them would be a future-information leak.",
+      "chapter_cutoff": 19,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000064",
+          "memory_chapter": 20,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "direct_confirmation",
+            "temporal_supersession",
+            "future_leakage_anchor"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "challenge",
+              "query_id": "rq-0021",
+              "grade": 2,
+              "label": "relevant"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0026",
+              "grade": 3,
+              "label": "highly_relevant"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0032",
+              "grade": 1,
+              "label": "acceptable_context"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0033",
+              "grade": 2,
+              "label": "relevant"
+            }
+          ]
+        },
+        {
+          "memory_id": "mem-000067",
+          "memory_chapter": 21,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "attributed_claim",
+            "direct_dialogue",
+            "motivation",
+            "future_leakage_anchor"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "core_gold",
+              "query_id": "rq-0003",
+              "grade": 3,
+              "label": "highly_relevant"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0026",
+              "grade": 3,
+              "label": "highly_relevant"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0032",
+              "grade": 1,
+              "label": "acceptable_context"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0033",
+              "grade": 2,
+              "label": "relevant"
+            }
+          ]
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0009",
+      "query": "How do Alan and Elena obtain a credible way to approach Valora’s forces without being treated as Temple spies?",
+      "query_type": "future_leakage_trap",
+      "review_status": "high_confidence",
+      "reason": "At cutoff 30, the answer is only the rescue, intelligence, and recognition token. Chapter 31 provides the much cleaner proof that Gargas accepts the token and Valora accepts the alliance, but that is future information.",
+      "chapter_cutoff": 30,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000105",
+          "memory_chapter": 31,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "setup_payoff",
+            "safe_passage",
+            "entity_overlap"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "core_gold",
+              "query_id": "rq-0010",
+              "grade": 2,
+              "label": "relevant"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0013",
+              "grade": 3,
+              "label": "highly_relevant"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0019",
+              "grade": 1,
+              "label": "acceptable_context"
+            },
+            {
+              "split": "core_gold",
+              "query_id": "rq-0022",
+              "grade": 2,
+              "label": "relevant"
+            }
+          ]
+        },
+        {
+          "memory_id": "mem-000106",
+          "memory_chapter": 31,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "relationship_history",
+            "alliance",
+            "promise_or_commitment",
+            "hybrid_retrieval"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "core_gold",
+              "query_id": "rq-0010",
+              "grade": 3,
+              "label": "highly_relevant"
+            },
+            {
+              "split": "core_gold",
+              "query_id": "rq-0014",
+              "grade": 1,
+              "label": "acceptable_context"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0019",
+              "grade": 2,
+              "label": "relevant"
+            },
+            {
+              "split": "core_gold",
+              "query_id": "rq-0022",
+              "grade": 2,
+              "label": "relevant"
+            }
+          ]
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0013",
+      "query": "Why is Korgan still strategically important several chapters after Elena saves him?",
+      "query_type": "old_but_important",
+      "review_status": "high_confidence",
+      "reason": "Korgan himself is mostly absent, but his token and intelligence open the Valora/tomb route and continue shaping the operation. Chapter 36 adds a new claim about Korgan’s gate trap that is future information at this cutoff.",
+      "chapter_cutoff": 35,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000132",
+          "memory_chapter": 36,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "needs_human_review",
+          "tags": [
+            "attributed_claim",
+            "old_character_relevance",
+            "future_leak_candidate"
+          ],
+          "positive_in_other_queries": []
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0021",
+      "query": "By the end of chapter 41, has the story directly shown natural stars beyond the artificial sky, or is that still only an inferred/claimed reality?",
+      "query_type": "future_leakage_trap",
+      "review_status": "high_confidence",
+      "reason": "Natural stars are directly shown only in later chapters. The earlier cutoff has claims about the artificial sky but no on-page visual confirmation, so later revelations are high-similarity future leaks.",
+      "chapter_cutoff": 41,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000156",
+          "memory_chapter": 42,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "needs_human_review",
+          "tags": [
+            "secret_or_revelation",
+            "setup_payoff",
+            "future_leakage_target",
+            "narrative_echo_risk"
+          ],
+          "positive_in_other_queries": []
+        },
+        {
+          "memory_id": "mem-000165",
+          "memory_chapter": 45,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "ambiguous",
+          "tags": [
+            "narrative_echo",
+            "secret_or_revelation",
+            "temporal_reset"
+          ],
+          "positive_in_other_queries": []
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 2,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 2,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "query": "Which memory should establish the first on-page destruction of Pressure Pillar No. 2, and which later matches are narrative-replay hard negatives?",
+      "query_type": "temporal_replay_hard_negative",
+      "review_status": "needs_human_review",
+      "reason": "The same numbered pillar is destroyed three times. For “first on-page destruction,” chapter 40 is temporally first; chapters 42 and 45 are later semantic matches that should be treated as replay negatives for this specific query.",
+      "chapter_cutoff": 45,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000155",
+          "memory_chapter": 42,
+          "classification": "same_or_past_query_conditioned",
+          "status": "canonical",
+          "review_status": "ambiguous",
+          "tags": [
+            "narrative_echo",
+            "temporal_reset",
+            "do_not_use_as_clean_ground_truth"
+          ],
+          "positive_in_other_queries": []
+        },
+        {
+          "memory_id": "mem-000164",
+          "memory_chapter": 45,
+          "classification": "same_or_past_query_conditioned",
+          "status": "canonical",
+          "review_status": "ambiguous",
+          "tags": [
+            "narrative_echo",
+            "temporal_reset",
+            "do_not_use_as_clean_ground_truth"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "challenge",
+              "query_id": "rq-0025",
+              "grade": 3,
+              "label": "highly_relevant"
+            }
+          ]
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 6,
+          "best_prohibited_rank": 4,
+          "prohibited_hit_ranks": [
+            4,
+            7
+          ],
+          "prohibited_outranks_best_positive": true
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 7,
+          "best_prohibited_rank": 4,
+          "prohibited_hit_ranks": [
+            4,
+            6
+          ],
+          "prohibited_outranks_best_positive": true
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "query": "Which memory should establish the first on-page burial of Roland’s three-thousand heavy cavalry, and which later Hẻm Vực matches should be treated as chronology-replay negatives?",
+      "query_type": "temporal_replay_hard_negative",
+      "review_status": "needs_human_review",
+      "reason": "Chapter 45 is the earliest on-page burial in this sequence. Chapter 47 repeats the same three-thousand-cavalry burial, while chapters 48–49 revive the force; semantic similarity alone should not override chronology.",
+      "chapter_cutoff": 49,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000172",
+          "memory_chapter": 47,
+          "classification": "same_or_past_query_conditioned",
+          "status": "canonical",
+          "review_status": "ambiguous",
+          "tags": [
+            "narrative_echo",
+            "temporal_reset",
+            "do_not_use_as_clean_ground_truth"
+          ],
+          "positive_in_other_queries": []
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 3,
+          "best_prohibited_rank": 1,
+          "prohibited_hit_ranks": [
+            1
+          ],
+          "prohibited_outranks_best_positive": true
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 3,
+          "best_prohibited_rank": 1,
+          "prohibited_hit_ranks": [
+            1
+          ],
+          "prohibited_outranks_best_positive": true
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0026",
+      "query": "By the end of chapter 53, what is actually supported about why Alistair accepts sacrifice, without leaking the narrator explanation that appears later?",
+      "query_type": "future_leakage_character_motivation",
+      "review_status": "high_confidence",
+      "reason": "Before chapter 54, Alistair directly supports sacrifice/maintenance but the deeper false-sky/utilitarian backstory is not yet narrator-confirmed. Chapter 54 memories explain the motive better but are future information at cutoff 53.",
+      "chapter_cutoff": 53,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000193",
+          "memory_chapter": 54,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "temporal_supersession",
+            "long_range_dependency",
+            "canonical_revelation"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "challenge",
+              "query_id": "rq-0032",
+              "grade": 3,
+              "label": "highly_relevant"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0033",
+              "grade": 2,
+              "label": "relevant"
+            }
+          ]
+        },
+        {
+          "memory_id": "mem-000194",
+          "memory_chapter": 54,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "character_motivation",
+            "temporal_supersession",
+            "canonical_revelation"
+          ],
+          "positive_in_other_queries": [
+            {
+              "split": "challenge",
+              "query_id": "rq-0032",
+              "grade": 3,
+              "label": "highly_relevant"
+            },
+            {
+              "split": "challenge",
+              "query_id": "rq-0033",
+              "grade": 3,
+              "label": "highly_relevant"
+            }
+          ]
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0033",
+      "query": "Before the coalition reaches Alistair at the Origin Altar, what is the strongest source-supported explanation for why he accepts mass sacrifice, and what later statement must not leak into this cutoff?",
+      "query_type": "future_leakage_character_motivation",
+      "review_status": "high_confidence",
+      "reason": "At cutoff 57, narrator-supported extreme utilitarian preservation is valid; Alistair’s chapter-58 direct cage-destruction threat is future information and must not overwrite the earlier state.",
+      "chapter_cutoff": 57,
+      "prohibited_labels": [
+        {
+          "memory_id": "mem-000209",
+          "memory_chapter": 58,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "direct_admission",
+            "source_status_supersession",
+            "false_sky"
+          ],
+          "positive_in_other_queries": []
+        },
+        {
+          "memory_id": "mem-000210",
+          "memory_chapter": 58,
+          "classification": "future_by_cutoff",
+          "status": "canonical",
+          "review_status": "high_confidence",
+          "tags": [
+            "motivation_shift",
+            "temporal_supersession",
+            "direct_statement"
+          ],
+          "positive_in_other_queries": []
+        }
+      ],
+      "stages": {
+        "semantic_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        },
+        "hybrid_top20": {
+          "best_positive_rank": 1,
+          "best_prohibited_rank": null,
+          "prohibited_hit_ranks": [],
+          "prohibited_outranks_best_positive": false
+        }
+      }
+    }
+  ]
+}
