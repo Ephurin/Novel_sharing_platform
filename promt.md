@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01C — Dual-Lane Context & Intent-Conditioned Ranking**  
+> Active implementation slice: **EVAL-01C-PROV — Provenance Propagation**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -341,8 +341,8 @@ Do **not** convert the experiment winner directly into production code.
 ### Gemini Verification & Handoff — EVAL-01C DUAL-LANE & INTENT DIAGNOSTIC
 
 Status: COMPLETE (Offline Diagnostic)
-Tested commit: e31afe720e53a2909f1dc8bc8f9b98687baea246
-Evidence commit: 4f7b5f0d3aa1dfab40149020fbbad9e89ee65b79
+Tested commit: e31afe72a237adcd5683ee7cab234f4a78514d77
+Evidence commit: 4f7b5f0a1bf52aafbcd4cee986fe179675acf966
 Evidence: docs/development/EVAL-01C-DUAL-LANE-TEMPORAL-INTENT/ (diagnostic.json, summary.md)
 
 - Preflight guards:
@@ -358,9 +358,34 @@ Evidence: docs/development/EVAL-01C-DUAL-LANE-TEMPORAL-INTENT/ (diagnostic.json,
   4. Non-target queries: UNCHANGED across all policies (intent classifier strictly isolates first_occurrence).
   5. Provenance lane annotation: YES, segregates 100% (5/5) same/past grade -1 replay hits into `provenance_variant`. Exactly 0 replay negatives remain in `primary_evidence`.
   6. Positive memories in variant lane: 26 positive memories (and 11 queries' best positives) are provenance variants. Global suppression/filtering of the variant lane is confirmed unsafe.
-  7. Token overhead: Mean ~538 estimated tokens/query (max 560), well within the 12k budget.
+  7. Token overhead: Mean ~538 estimated tokens/query (max 580). This annotation-only overhead appears modest relative to 12k, but full context budget-pressure behavior remains NOT_MEASURED.
   8. Justified next step: **Provenance propagation only** (from `EventRecord.event_metadata` through to `MemoryChunkRecord` / `WritingContextPackage`). Do NOT change production ranking weights or implement intent-conditioned reranking.
 
+
+## Astra review — EVAL-01C
+
+Verdict:
+
+```text
+intent-conditioned temporal reranking   NOT JUSTIFIED
+inverse/neutral temporal policy          REJECTED
+global variant suppression/filtering     REJECTED
+provenance propagation                   JUSTIFIED AS NARROW IMPLEMENTATION
+dual-lane prompt presentation            NOT YET IMPLEMENTED
+full context budget pressure             NOT_MEASURED
+```
+
+Implementation contract:
+
+[EVAL-01C provenance propagation](docs/development/EVAL-01C-PROVENANCE-PROPAGATION-implementation.md)
+
+The implementation slice may preserve provenance metadata only. It must not alter ranking, candidate filtering, embedding, temporal cutoff, or cleanup state.
+
+After merge, Gemini performs local verification and commits evidence under:
+
+```text
+docs/development/EVAL-01C-PROVENANCE-PROPAGATION/
+```
 
 ## Frozen production contract — do not drift
 
