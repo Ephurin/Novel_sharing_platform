@@ -7,6 +7,7 @@ on:
       - "scripts/check_eval01_fixture_contract.py"
       - "scripts/run_eval_01b_replay_diagnostic.py"
       - "scripts/run_eval_01c_dual_lane_intent.py"
+      - "scripts/run_eval_01d_provenance_ab.py"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
       - "promt.md"
@@ -20,6 +21,7 @@ on:
       - "scripts/check_eval01_fixture_contract.py"
       - "scripts/run_eval_01b_replay_diagnostic.py"
       - "scripts/run_eval_01c_dual_lane_intent.py"
+      - "scripts/run_eval_01d_provenance_ab.py"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
       - "promt.md"
@@ -39,9 +41,12 @@ jobs:
           python -m py_compile scripts/check_eval01_fixture_contract.py
           python -m py_compile scripts/run_eval_01b_replay_diagnostic.py
           python -m py_compile scripts/run_eval_01c_dual_lane_intent.py
+          python -m py_compile scripts/run_eval_01d_provenance_ab.py
       - name: Validate frozen corpus and harness contract
         run: python scripts/check_eval01_fixture_contract.py
       - name: Run offline replay temporal-intent diagnostic
         run: python scripts/run_eval_01b_replay_diagnostic.py --stdout-only
       - name: Run offline dual-lane intent diagnostic
         run: python scripts/run_eval_01c_dual_lane_intent.py --stdout-only
+      - name: Validate provenance generation A/B isolation
+        run: python scripts/run_eval_01d_provenance_ab.py --dry-run --stdout-only

@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active implementation slice: **EVAL-01C-PROV — Provenance Propagation**  
+> Active experiment: **EVAL-01D — Provenance-Aware Generation A/B**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -475,6 +475,125 @@ After merge, Gemini performs local verification and commits evidence under:
 ```text
 docs/development/EVAL-01C-PROVENANCE-PROPAGATION/
 ```
+
+## NOW — EVAL-01D Provenance-Aware Generation A/B
+
+EVAL-01C-PROV remains technically VERIFIED; Supervisor ACCEPT is still separate.
+
+EVAL-01D asks a different question:
+
+```text
+provenance metadata reaches the LLM prompt       VERIFIED
+does the LLM use it to improve replay handling?  NOT YET MEASURED
+```
+
+Runbook:
+
+[docs/development/EVAL-01D-PROVENANCE-GENERATION-AB-runbook.md](docs/development/EVAL-01D-PROVENANCE-GENERATION-AB-runbook.md)
+
+Harness:
+
+`scripts/run_eval_01d_provenance_ab.py`
+
+Controlled cases:
+
+```text
+core_gold:rq-0011      sword origin vs replay
+challenge:rq-0023      first Pillar No. 2 destruction
+challenge:rq-0025      first cavalry burial
+core_gold:rq-0036      sword lifecycle + replay exclusion
+core_gold:rq-0010      negative control for unrelated causal error
+```
+
+A/B isolation:
+
+```text
+same query
+same cutoff
+same top-10 candidate IDs/order/content
+same component scores
+same ContextBudgetPacker
+same production LLM prompt renderer
+same model / temperature / constraints
+
+A = pre-EVAL-01C metadata projection
+B = A + compact provenance metadata
+```
+
+Default live run:
+
+```text
+model            gemini-3.5-flash-lite
+temperature      0.0
+repeats          3 per condition/case
+live calls       30
+key policy       one fixed slot for entire run
+fallback model   NONE
+quality scoring  REVIEW_REQUIRED
+```
+
+CI only runs:
+
+```bash
+python scripts/run_eval_01d_provenance_ab.py --dry-run --stdout-only
+```
+
+CI dry-run must prove prompt isolation before the harness is merged.
+
+### Gemini / Antigravity — after harness merge
+
+Use latest `main`.
+
+Do not open `condition-key.json` or score outputs.
+
+Run:
+
+```bash
+git switch main
+git pull origin main
+
+python scripts/check_p8_cleanup_readiness.py
+python scripts/check_p8_final_cleanup_gate.py --expect-blocked
+python scripts/check_eval01_fixture_contract.py
+python scripts/run_eval_01d_provenance_ab.py --dry-run --stdout-only
+python scripts/run_eval_01d_provenance_ab.py --key-slot 1
+```
+
+If another fixed slot is intentionally chosen, set it once for the whole run. Never rotate keys during measurement.
+
+Commit evidence only:
+
+```text
+docs/development/EVAL-01D-PROVENANCE-GENERATION-AB/
+  runtime-config.json
+  prompt-diff-audit.json
+  raw-generations.json
+  review-blind.json
+  condition-key.json
+  review-rubric.md
+  latency-cost.json
+  summary.md
+```
+
+Handoff must report execution only:
+
+```text
+Status: PASS | PARTIAL | BLOCKED
+tested commit
+evidence commit
+prompt isolation PASS/FAIL
+fixed key slot label
+model
+successful calls / 30
+provider backoff events
+latency by condition
+quality = REVIEW_REQUIRED
+P8-05 = BLOCKED
+```
+
+Gemini must not declare A or B the winner.
+
+Astra reviews the blind outputs first, commits the blind review, and only then reveals the condition mapping.
 
 ## Frozen production contract — do not drift
 
