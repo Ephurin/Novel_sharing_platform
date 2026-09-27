@@ -478,6 +478,28 @@ Evidence commit: <sha>
 - Remaining blocker: none | <exact blocker>
 ```
 
+### Gemini Verification — EVAL-01C PROVENANCE PROPAGATION
+
+Status: PASS
+Tested commit: 96cbf962d3cb7cb740d7c2a41d063717fc8cf552
+Evidence commit: 94177a644265ad71d0537aa2468307dbb34ba85a
+
+- P8 cleanup readiness: PASS
+- P8-05 cleanup gate: BLOCKED
+- PostgreSQL/pgvector test: PASS (6/6 passed in test_semantic_memory_postgres_integration.py)
+- Compose smoke: PASS
+- tags propagation: PASS
+- review_status propagation: PASS
+- status propagation: PASS
+- source_type propagation: PASS
+- confirmation_status propagation: PASS
+- unallowlisted metadata: ABSENT
+- embedding reuse on metadata-only change: PASS (embedded_count=0, reused_embedding_count=1)
+- ranking contract: UNCHANGED
+- temporal cutoff: UNCHANGED
+- Evidence: docs/development/EVAL-01C-PROVENANCE-PROPAGATION/
+- Remaining blocker: none
+
 ## Astra review — EVAL-01C
 
 Verdict:
