@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01D — Provenance-Aware Generation A/B**  
+> Active experiment: **EVAL-01E — Source-Faithful Provenance Generation A/B**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -632,8 +632,8 @@ P8-05 = BLOCKED
 ### Gemini Verification — EVAL-01D PROVENANCE-AWARE GENERATION A/B
 
 Status: PASS
-Tested commit: 03af3d749a21d15c7e148cbcc487053e1f37958b
-Evidence commit: e06fedee71cf5ee7da2d9a60e0a58eecddfef42c
+Tested commit: 03af3d735f894ffce0a15e87e34ba3df1dcf65e7
+Evidence commit: e06fede23f792bbd9ca712a57baa6f7f4d164fde
 
 - Prompt isolation: PASS (5/5 cases: only_new_provenance_fields_differ=true, same_selected_memory_ids=true, same_dropped_memory_ids=true, same_system_prompt=true)
 - Fixed key slot label: slot-1
@@ -650,6 +650,84 @@ Evidence commit: e06fedee71cf5ee7da2d9a60e0a58eecddfef42c
 Gemini must not declare A or B the winner.
 
 Astra reviews the blind outputs first, commits the blind review, and only then reveals the condition mapping.
+
+## Astra final review — EVAL-01D
+
+Review commit:
+
+`9ba1dc90aaa2b018d1c962abe50f4275a477f464`
+
+Correct references:
+
+```text
+tested commit:
+03af3d735f894ffce0a15e87e34ba3df1dcf65e7
+
+evidence commit:
+e06fede23f792bbd9ca712a57baa6f7f4d164fde
+```
+
+Execution:
+
+```text
+30 / 30 live calls       PASS
+prompt isolation          PASS
+fixed key                 slot-1
+backoff                    0
+P8-05                      BLOCKED
+```
+
+Frozen qualitative mapping after reveal:
+
+```text
+pre_provenance:
+PASS     11
+PARTIAL   4
+FAIL      0
+
+post_provenance:
+PASS     12
+PARTIAL   3
+FAIL      0
+```
+
+For the four provenance-focused cases only:
+
+```text
+pre_provenance   11 PASS / 1 PARTIAL
+post_provenance  12 PASS / 0 PARTIAL
+```
+
+This is a small directional gain, not enough to authorize a production prompt change.
+
+Critical confound:
+
+```text
+mem-000110 already says "... even though the same sword was already forged ..."
+mem-000155 already says "again depicts ..."
+mem-000164 already says "yet again ..."
+mem-000172 already says "again depicts ..."
+```
+
+So the pre-provenance condition already receives editorial replay information inside `memory.content`.
+
+Review protocol limitation:
+
+- Astra accidentally inspected condition-labelled `raw-generations.json` during integrity review;
+- therefore the run must not be described as a valid blind human review;
+- `ASTRA-PRE-REVEAL-REVIEW.md` froze X/Y judgments before intentionally opening the condition key;
+- final quality conclusion remains exploratory.
+
+Decision:
+
+```text
+provenance propagation              KEEP
+dual-lane / provenance prompt       NOT JUSTIFIED YET
+ranking change                      NOT JUSTIFIED
+global suppression                  REJECTED
+```
+
+Next experiment must remove the editorial-content confound and use a truly sealed two-stage review protocol.
 
 ## Frozen production contract — do not drift
 
