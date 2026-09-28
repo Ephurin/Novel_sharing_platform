@@ -1,0 +1,55 @@
+{
+  "version": "eval01e-neutral-view-v1",
+  "source_dataset": "aethelgard-retrieval-eval-v1.0.0",
+  "policy": [
+    "Derived experimental view only; .data/Frozen_v1 is never modified.",
+    "Preserve local event facts and speaker attribution.",
+    "Remove editorial cross-memory judgments that directly label replay/conflict/canonical status.",
+    "Condition B may receive compact provenance metadata; condition A may not."
+  ],
+  "cases": {
+    "core_gold:rq-0011": {
+      "prompt": "For a continuity note, state the established origin of Alan's personal Than Tinh sword based only on the supplied Story Brain evidence.",
+      "rubric_role": "origin_without_query_leak"
+    },
+    "challenge:rq-0023": {
+      "prompt": "Summarize the on-page destruction history of auxiliary Pressure Pillar No. 2 through chapter 45. Preserve chronology and do not silently merge conflicting scenes.",
+      "rubric_role": "repeated_event_history"
+    },
+    "challenge:rq-0025": {
+      "prompt": "Summarize what happens to Roland's three-thousand heavy cavalry through chapter 49. Preserve chronology when the supplied memories disagree.",
+      "rubric_role": "repeated_force_state"
+    },
+    "challenge:rq-0020": {
+      "prompt": "What does the supplied Story Brain actually establish about responsibility for the old Hem Vuc / Tro Tan battle? Separate established facts from character claims.",
+      "rubric_role": "conflicting_attributed_history"
+    },
+    "challenge:rq-0032": {
+      "prompt": "By chapter 55, summarize what is established about Alistair's discovery and motive. Distinguish earlier reported interpretations from later established evidence.",
+      "rubric_role": "source_status_supersession"
+    },
+    "core_gold:rq-0038": {
+      "prompt": "Is it established that the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache? Answer only from supplied evidence.",
+      "rubric_role": "physical_identity_provenance"
+    },
+    "core_gold:rq-0010": {
+      "prompt": "Summarize how Valora's trust in the Oakhaven group develops by chapter 33, preserving event order.",
+      "rubric_role": "negative_control_causal_history"
+    }
+  },
+  "content_overrides": {
+    "mem-000110": "Chapter 32 depicts Bram, Alan, and Elena forging what it calls the first Than Tinh short sword at the ancient-tomb forge.",
+    "mem-000144": "Chapter 38 states that twelve auxiliary Pressure Pillars collapse in a chain reaction after the western lens is destroyed.",
+    "mem-000147": "Valora reports that eight auxiliary Pressure Pillars still remain and that damage to the western siphoning system has weakened Solaria's barrier.",
+    "mem-000155": "Chapter 42 depicts a coordinated assault that destroys auxiliary Pressure Pillar No. 2 with Than Tinh charges after Valora's diversion.",
+    "mem-000164": "Chapter 45 destroys Pressure Pillar No. 2; the charges trigger a landslide said to bury Roland's three-thousand-strong heavy cavalry and open the route toward Hem Vuc Tro Tan.",
+    "mem-000172": "Chapter 47 depicts Roland's three-thousand heavy cavalry entering a narrow valley, being buried by a Than Tinh-triggered rock collapse, while Roland escapes with a remnant.",
+    "mem-000161": "Gargas accuses humans of abandoning Demon cavalry in the old Hem Vuc battle; Garrick says Varian died covering the Demon withdrawal.",
+    "mem-000053": "Alan says Varian once told him that Alistair saw a void or truth beyond the artificial sky after defeating the Demon King and chose a destructive path aimed at breaking the enclosure or becoming divine.",
+    "mem-000193": "Alistair and Varian killed the Demon King about twenty years earlier; Alistair then discovered the artificial sky and the ecological collapse underlying Solaria's survival system.",
+    "mem-000194": "Alistair accepts sacrificing borderlands and the slums to prolong human survival and the Solaria system rather than acting from simple desire for personal power.",
+    "mem-000228": "Elena plants new red-maple seeds in soil Alan has tilled and waters them with clean stream water.",
+    "mem-000232": "Chapter 61 dates Roland's burning of Oakhaven and Gregor's death to roughly two years before the return.",
+    "mem-000042": "After seeing the extraction device kill a tree, Elena shifts from questioning Alistair to openly blaming him for complicity."
+  }
+}
