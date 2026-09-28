@@ -729,6 +729,80 @@ global suppression                  REJECTED
 
 Next experiment must remove the editorial-content confound and use a truly sealed two-stage review protocol.
 
+## EVAL-01E harness — MERGED
+
+- PR: #15
+- merge commit: `c0cbc09b11f18e9f96e998ae0bcdc8a69f29835e`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- workflow run: `36390701491`
+- dry-run isolation: **PASS 7/7**
+- frozen files mutated: **false**
+- neutral fixture version: `eval01e-neutral-view-v1`
+- neutral fixture SHA256: `76e4642bdf2ef2fe576aa09dfa71a7f6e0727d92bcc3dd4de564f190aa5dd982`
+
+Dry-run:
+
+```text
+cases               7
+repeats             3
+planned live calls  42
+model               gemini-3.5-flash-lite
+temperature         0.0
+A/B isolation       PASS
+```
+
+For every case:
+
+```text
+only_new_provenance_fields_differ = true
+same_selected_memory_ids           = true
+same_dropped_memory_ids            = true
+same_system_prompt                 = true
+```
+
+Observed post-provenance context overhead:
+
+```text
+rq-0011   +801 estimated tokens
+rq-0023   +795
+rq-0025   +792
+rq-0020   +811
+rq-0032   +836
+rq-0038   +763
+rq-0010   +800
+```
+
+Reviewer-safe capture contract verified statically:
+
+```text
+capture may commit:
+  runtime-config.json
+  reviewer-blind.json
+  review-rubric.md
+  neutralization-audit.json
+  sealed-state.json
+  summary.md
+
+capture does NOT commit:
+  condition-key.json
+  raw-generations.json
+  prompt-diff-audit.json
+
+private state:
+  .eval-private/eval01e-private.json
+  gitignored
+```
+
+Current state:
+
+```text
+EVAL-01E harness       MERGED
+CI dry-run             PASS
+live capture           PENDING
+Astra blind review     PENDING
+reveal                 BLOCKED until blind review commit
+```
+
 ## NOW — EVAL-01E Sealed Provenance Generation A/B
 
 Purpose:
