@@ -729,6 +729,115 @@ global suppression                  REJECTED
 
 Next experiment must remove the editorial-content confound and use a truly sealed two-stage review protocol.
 
+## NOW — EVAL-01E Sealed Provenance Generation A/B
+
+Purpose:
+
+```text
+EVAL-01D showed only a small directional gain
+but replay judgments were already embedded in memory.content.
+
+EVAL-01E removes that editorial-content confound
+and repairs the blind-review protocol.
+```
+
+Harness:
+
+`scripts/run_eval_01e_sealed_provenance_ab.py`
+
+Neutral derived fixture:
+
+`benchmarks/eval01e_neutral_context.json`
+
+Runbook:
+
+[docs/development/EVAL-01E-SEALED-PROVENANCE-AB-runbook.md](docs/development/EVAL-01E-SEALED-PROVENANCE-AB-runbook.md)
+
+Cases:
+
+```text
+rq-0011 origin
+rq-0023 repeated Pillar destruction
+rq-0025 repeated cavalry state
+rq-0020 conflicting attributed history
+rq-0032 source-status supersession
+rq-0038 physical-identity provenance
+rq-0010 negative control
+```
+
+Default live design:
+
+```text
+model            gemini-3.5-flash-lite
+temperature      0.0
+repeats          3
+cases            7
+conditions       2
+live calls       42
+fixed key slot   one slot for whole run
+fallback         NONE
+```
+
+Protocol:
+
+```text
+CI:
+  --stage dry-run only
+
+Gemini capture:
+  live calls
+  commit reviewer-safe X/Y only
+  keep mapping/raw labels in .eval-private/
+  publish SHA256 commitment
+
+Astra:
+  review only reviewer-blind.json + rubric
+  commit blind review
+
+Gemini reveal:
+  zero provider calls
+  verify commitment hash
+  commit condition key + raw audit
+
+Astra:
+  reveal/aggregate
+  decide next experiment
+```
+
+Until Astra blind review is committed:
+
+- do not run `--stage reveal`;
+- do not commit `.eval-private/`;
+- do not expose condition mapping;
+- do not declare A/B winner.
+
+Gemini capture command after harness merge:
+
+```bash
+git switch main
+git pull origin main
+
+python scripts/check_p8_cleanup_readiness.py
+python scripts/check_p8_final_cleanup_gate.py --expect-blocked
+python scripts/check_eval01_fixture_contract.py
+python scripts/run_eval_01e_sealed_provenance_ab.py --stage dry-run
+python scripts/run_eval_01e_sealed_provenance_ab.py --stage capture --key-slot 1
+```
+
+Evidence to commit after capture:
+
+```text
+docs/development/EVAL-01E-SEALED-PROVENANCE-AB/
+  runtime-config.json
+  reviewer-blind.json
+  review-rubric.md
+  neutralization-audit.json
+  sealed-state.json
+  summary.md
+```
+
+Do not commit reveal artifacts yet.
+
 ## Frozen production contract — do not drift
 
 - embedding: `gemini-embedding-2`, 768 dimensions, explicit L2;
