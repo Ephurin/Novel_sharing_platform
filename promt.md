@@ -885,6 +885,80 @@ Until Astra blind review is committed:
 - do not expose condition mapping;
 - do not declare A/B winner.
 
+### New machine / local setup for Gemini
+
+The repo was freshly synchronized on a new machine.
+
+Local Gemini secret source remains:
+
+`key.txt`
+
+Do not print or commit it.
+
+Harness expects:
+
+`.env.eval.local`
+
+with fixed-slot names:
+
+```text
+GEMINI_API_KEY_SLOT_1=<secret>
+GEMINI_API_KEY_SLOT_2=<secret>
+GEMINI_API_KEY_SLOT_3=<secret>
+GEMINI_API_KEY_SLOT_4=<secret>
+```
+
+Full safe bootstrap instructions:
+
+[New-machine bootstrap in EVAL-01E runbook](docs/development/EVAL-01E-SEALED-PROVENANCE-AB-runbook.md#new-machine-bootstrap)
+
+Required local setup on Windows PowerShell:
+
+```powershell
+git switch main
+git pull origin main
+
+py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r .\ai-service\requirements.txt
+
+git check-ignore -q key.txt
+if ($LASTEXITCODE -ne 0) { throw "key.txt is not ignored" }
+
+git check-ignore -q .env.eval.local
+if ($LASTEXITCODE -ne 0) { throw ".env.eval.local is not ignored" }
+```
+
+Then create `.env.eval.local` **locally from `key.txt` without echoing key values** using the safe bootstrap snippet in the runbook.
+
+Rules:
+
+- never `cat`, `type`, `Get-Content`, echo, screenshot, log, or commit secret values;
+- if `key.txt` contains one bare key, map it to slot 1;
+- if it contains multiple bare keys, map them sequentially to slots 1..N;
+- if it already contains `GEMINI_API_KEY_SLOT_N=value`, preserve those slot numbers;
+- if only `GEMINI_API_KEY=value` exists, map it to slot 1;
+- verify only file existence and slot numbers, never secret content;
+- `git status --short` must not show `key.txt` or `.env.eval.local`.
+
+For EVAL-01E capture choose one fixed slot before starting. Default:
+
+`--key-slot 1`
+
+Do not rotate keys during the 42-call run. If the chosen slot cannot finish after same-key backoff, stop and report PARTIAL/BLOCKED. A retry on another slot must rerun the full experiment from a clean capture state.
+
+Use the venv Python for preflight and capture:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01e_sealed_provenance_ab.py --stage dry-run
+.\.venv\Scripts\python.exe scripts/run_eval_01e_sealed_provenance_ab.py --stage capture --key-slot 1
+```
+
+If `.venv` already exists and dependencies import correctly, reuse it.
+
 Gemini capture command after harness merge:
 
 ```bash
