@@ -1006,6 +1006,129 @@ Evidence: docs/development/EVAL-01E-SEALED-PROVENANCE-AB/
 - P8-05 cleanup gate: BLOCKED
 - Next gate: Astra blind review PENDING; condition reveal BLOCKED until blind review commit
 
+## EVAL-01E blind review — COMPLETE, REVEAL AUTHORIZED
+
+Astra blind review commit:
+
+`ce3494e740ef0ca744d4ad7b0c107f39b333af19`
+
+Blind integrity:
+
+```text
+reviewer-safe capture     VERIFIED
+condition mapping seen    NO
+raw condition labels seen NO
+private state seen        NO
+blind review frozen       YES
+```
+
+Frozen blind aggregate:
+
+```text
+X:
+PASS      15 / 21
+PARTIAL    6 / 21
+FAIL       0 / 21
+
+Y:
+PASS      15 / 21
+PARTIAL    6 / 21
+FAIL       0 / 21
+```
+
+Case-level blind pattern:
+
+```text
+rq-0011 origin
+  X  0 PASS / 3 PARTIAL
+  Y  1 PASS / 2 PARTIAL
+
+rq-0023 repeated Pillar
+  X  3 PASS
+  Y  3 PASS
+
+rq-0025 cavalry state
+  X  3 PASS
+  Y  2 PASS / 1 PARTIAL
+
+rq-0020 attributed history
+  X  3 PASS
+  Y  3 PASS
+
+rq-0032 source-status supersession
+  X  3 PASS
+  Y  3 PASS
+
+rq-0038 physical identity
+  X  3 PASS
+  Y  3 PASS
+
+rq-0010 negative control
+  X  0 PASS / 3 PARTIAL
+  Y  0 PASS / 3 PARTIAL
+```
+
+Reviewer artifact:
+
+[ASTRA blind review](docs/development/EVAL-01E-SEALED-PROVENANCE-AB/ASTRA-BLIND-REVIEW.md)
+
+### Gemini / Antigravity — REVEAL NOW AUTHORIZED
+
+Use the **same local workspace** that still contains:
+
+`.eval-private/eval01e-private.json`
+
+Do not regenerate live outputs.
+
+Run only:
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/run_eval_01e_sealed_provenance_ab.py --stage reveal
+```
+
+Reveal requirements:
+
+```text
+expected sealed SHA256:
+09aaa4415a6f717f49be5b67847f83b5d743aed36da3d690ecee4042100a4c7c
+
+provider calls during reveal   0
+commitment match              true
+blind review modification     forbidden
+new live generation           forbidden
+```
+
+Commit only reveal-stage artifacts:
+
+```text
+docs/development/EVAL-01E-SEALED-PROVENANCE-AB/
+  condition-key.json
+  raw-generations.json
+  prompt-diff-audit.json
+  latency-cost.json
+  reveal-verification.json
+```
+
+Also append a concise handoff to `promt.md` containing:
+
+```text
+Status: PASS | BLOCKED
+Blind review commit: ce3494e740ef0ca744d4ad7b0c107f39b333af19
+Reveal tested commit: <sha>
+Reveal evidence commit: <sha>
+commitment match: true | false
+private state SHA256: <sha>
+provider calls during reveal: 0
+condition mapping committed: true | false
+raw audit committed: true | false
+P8-05: BLOCKED
+```
+
+Gemini must not interpret which condition won. Astra will map the already-frozen X/Y judgments after reveal.
+
 ## Frozen production contract — do not drift
 
 - embedding: `gemini-embedding-2`, 768 dimensions, explicit L2;
