@@ -798,7 +798,7 @@ Current state:
 ```text
 EVAL-01E harness       MERGED
 CI dry-run             PASS
-live capture           PENDING
+live capture           COMPLETE (42/42 live calls, slot-1)
 Astra blind review     PENDING
 reveal                 BLOCKED until blind review commit
 ```
@@ -911,6 +911,26 @@ docs/development/EVAL-01E-SEALED-PROVENANCE-AB/
 ```
 
 Do not commit reveal artifacts yet.
+
+### Gemini Verification — EVAL-01E SEALED PROVENANCE GENERATION A/B
+
+Status: PASS
+Tested commit: bb41fd2fbfc354e051f36e91d54fc61fb4e91192
+Evidence: docs/development/EVAL-01E-SEALED-PROVENANCE-AB/
+
+- Preflight guards:
+  - P8 cleanup readiness: PASS
+  - P8-05 cleanup gate: BLOCKED
+  - EVAL-01 fixture contract: PASS
+- Prompt isolation: PASS (7/7 cases: only_new_provenance_fields_differ=true, same_selected_memory_ids=true, same_dropped_memory_ids=true, same_system_prompt=true)
+- Fixed key slot label: slot-1
+- Model: gemini-3.5-flash-lite (temperature=0.0)
+- Successful calls: 42 / 42
+- Provider backoff events: 0
+- Sealed state SHA256: 09aaa4415a6f717f49be5b67847f83b5d743aed36da3d690ecee4042100a4c7c
+- Quality scoring: BLIND_REVIEW_REQUIRED (reviewer-blind.json and review-rubric.md committed; condition mapping sealed in gitignored .eval-private/eval01e-private.json)
+- P8-05 cleanup gate: BLOCKED
+- Next gate: Astra blind review PENDING; condition reveal BLOCKED until blind review commit
 
 ## Frozen production contract — do not drift
 

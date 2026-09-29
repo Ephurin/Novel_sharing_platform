@@ -1,0 +1,10 @@
+{
+  "experiment_id": "EVAL-01E",
+  "private_state_sha256": "09aaa4415a6f717f49be5b67847f83b5d743aed36da3d690ecee4042100a4c7c",
+  "private_state_version": "eval01e-private-v1",
+  "expected_calls": 42,
+  "successful_calls": 42,
+  "condition_mapping_committed": false,
+  "raw_condition_labels_committed": false,
+  "note": "Keep .eval-private/eval01e-private.json local until Astra commits blind review."
+}

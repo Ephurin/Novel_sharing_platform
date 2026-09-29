@@ -1,0 +1,127 @@
+{
+  "fixture_version": "eval01e-neutral-view-v1",
+  "fixture_sha256": "76e4642bdf2ef2fe576aa09dfa71a7f6e0727d92bcc3dd4de564f190aa5dd982",
+  "frozen_files_mutated": false,
+  "override_count_in_selected_top10": 17,
+  "rows": [
+    {
+      "case_id": "core_gold:rq-0011",
+      "memory_id": "mem-000110",
+      "chapter_number": 32,
+      "original_content_sha256": "a17fe344acfa52d285fc961fffd3950df71de4a7176259d9643c395fc819f03f",
+      "neutral_content_sha256": "4f1e4d9f01a6111ae727411d282331411eb26f33a47898dcee55b8ef57e2a1b2"
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "memory_id": "mem-000144",
+      "chapter_number": 38,
+      "original_content_sha256": "ec147e4812eb927ee949224d55e07f5b7eef1408c814a26c2972a3d28bb8bd41",
+      "neutral_content_sha256": "4f2ba1904917915d43e7414709254e5f74ad48e92ab30c4b20ab6cf147411647"
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "memory_id": "mem-000155",
+      "chapter_number": 42,
+      "original_content_sha256": "67376ecdbdb4e6daaa7f030120aca98fce853129389355526dc8ad20c9ac2d64",
+      "neutral_content_sha256": "9ee671d732be859ba8855bd55c3cb92d4c688ff8319ec92e494e124a60ae7550"
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "memory_id": "mem-000164",
+      "chapter_number": 45,
+      "original_content_sha256": "42e98f9cd4a5a71b7a0fd4520dd738e65d9db7155180a88e4c3a4cee58269078",
+      "neutral_content_sha256": "25b8273892fd158f21828aabc346e450fcb9866f5946f0954b0bd1980b4a77df"
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "memory_id": "mem-000147",
+      "chapter_number": 39,
+      "original_content_sha256": "858aa58ef036c9275e0be3e990f6c109b4a712a1f53348d3d14b1053af448c08",
+      "neutral_content_sha256": "12df0fb8dd1761a067655703b6657cc0fc6dc4e91f4430e36af376d51d983c47"
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "memory_id": "mem-000172",
+      "chapter_number": 47,
+      "original_content_sha256": "f0fcf619b58ce08cc5a6342cadd7118d655be41b7b2ef6b8769cda0bf1c34f3c",
+      "neutral_content_sha256": "97712a624af9c6227a611d0731269839de10b738bdc98d5c473c5acef9ede089"
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "memory_id": "mem-000164",
+      "chapter_number": 45,
+      "original_content_sha256": "42e98f9cd4a5a71b7a0fd4520dd738e65d9db7155180a88e4c3a4cee58269078",
+      "neutral_content_sha256": "25b8273892fd158f21828aabc346e450fcb9866f5946f0954b0bd1980b4a77df"
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "memory_id": "mem-000161",
+      "chapter_number": 44,
+      "original_content_sha256": "5731b175bc84c644aeefbcb731cf8a792ae34e6ebb6ef2b2a412fd03f55cf17f",
+      "neutral_content_sha256": "65002c615138f9c1b3e025eb9083a7d46c00cb2861c1f5a50c907e92033ec4e6"
+    },
+    {
+      "case_id": "challenge:rq-0020",
+      "memory_id": "mem-000161",
+      "chapter_number": 44,
+      "original_content_sha256": "5731b175bc84c644aeefbcb731cf8a792ae34e6ebb6ef2b2a412fd03f55cf17f",
+      "neutral_content_sha256": "65002c615138f9c1b3e025eb9083a7d46c00cb2861c1f5a50c907e92033ec4e6"
+    },
+    {
+      "case_id": "challenge:rq-0020",
+      "memory_id": "mem-000164",
+      "chapter_number": 45,
+      "original_content_sha256": "42e98f9cd4a5a71b7a0fd4520dd738e65d9db7155180a88e4c3a4cee58269078",
+      "neutral_content_sha256": "25b8273892fd158f21828aabc346e450fcb9866f5946f0954b0bd1980b4a77df"
+    },
+    {
+      "case_id": "challenge:rq-0032",
+      "memory_id": "mem-000053",
+      "chapter_number": 17,
+      "original_content_sha256": "c5dafeff84ab71b32eed3f9c366d9fdd469dbd0506ee916021eb98f80c28b4a8",
+      "neutral_content_sha256": "88e08a380aa85f24d23cb1ec95523d86f52ff78bd812c51984232eab73b0caf9"
+    },
+    {
+      "case_id": "challenge:rq-0032",
+      "memory_id": "mem-000193",
+      "chapter_number": 54,
+      "original_content_sha256": "f614d67ce239642196cdc2389603705df4acc2110bf042ebc02fa3b4251b30b5",
+      "neutral_content_sha256": "56a56d937bb665deb3e299175cefa1c30825453ec5a6a785ec749604dfd6fadb"
+    },
+    {
+      "case_id": "challenge:rq-0032",
+      "memory_id": "mem-000147",
+      "chapter_number": 39,
+      "original_content_sha256": "858aa58ef036c9275e0be3e990f6c109b4a712a1f53348d3d14b1053af448c08",
+      "neutral_content_sha256": "12df0fb8dd1761a067655703b6657cc0fc6dc4e91f4430e36af376d51d983c47"
+    },
+    {
+      "case_id": "challenge:rq-0032",
+      "memory_id": "mem-000194",
+      "chapter_number": 54,
+      "original_content_sha256": "c02d9d64e202c9f513fbe746549fc4f9d7990b9f311763eeb387d27fce569b24",
+      "neutral_content_sha256": "690d474e2a5499db9242d6ba55acf7f9bcd6b374dfd304340092400dd6d016aa"
+    },
+    {
+      "case_id": "core_gold:rq-0038",
+      "memory_id": "mem-000228",
+      "chapter_number": 61,
+      "original_content_sha256": "c42898ec7feb7cea1d964bb40a1596a39ef769a85ac5754a8ba4f2322746884b",
+      "neutral_content_sha256": "7a44560fda86189352832a7571397a0f5e21ba821bf365b436db6a2838565f6f"
+    },
+    {
+      "case_id": "core_gold:rq-0038",
+      "memory_id": "mem-000232",
+      "chapter_number": 61,
+      "original_content_sha256": "ae100ba40720795e0c6c9b71a916e6000318191d521e8a1c3ac14901d5bc6148",
+      "neutral_content_sha256": "83051dd5d9a902ec6c8a1d985fcc3011f4d353a32e7c036445272bea1657dbf4"
+    },
+    {
+      "case_id": "core_gold:rq-0010",
+      "memory_id": "mem-000042",
+      "chapter_number": 14,
+      "original_content_sha256": "17931c9314c6904eaebf3e4261a89101ba911f3f600e0dc9bd69d4a64e48f1bf",
+      "neutral_content_sha256": "312aa6457c300badf5262d46f7b66dda7f566748d4ded42c572aa5bee2245552"
+    }
+  ]
+}
