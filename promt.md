@@ -2147,7 +2147,7 @@ Current state:
 ```text
 EVAL-01I harness        MERGED
 CI diagnostic           PASS
-official main evidence  PENDING GEMINI
+official main evidence  COMPLETE (0763077)
 production budget       UNCHANGED
 production scoping      UNCHANGED
 ```
@@ -2200,6 +2200,39 @@ P8-05: BLOCKED
 ```
 
 Gemini must not alter production budget or entity scoping. Astra reviews official evidence first.
+
+### Gemini Verification — EVAL-01I CONTEXT BUDGET SCALING
+
+Status: PASS
+Tested commit: 1fb48d5e563d8a0e407ec138388c6ced01e1b316
+Evidence commit: 0763077e70bbfaa9db05c2b9d808d6f47aceefe7
+Provider calls: 0
+
+- P8 cleanup readiness: PASS
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: PASS
+- Contract failures: 0
+
+baseline minimum evidence-complete budget: 20000
+baseline minimum all-input-fit budget: 20000
+scoped minimum evidence-complete budget: 12000
+scoped minimum all-input-fit budget: 12000
+
+12k / 16k / 20k / 24k / 32k:
+  baseline:
+    12k: 11941.86 tokens (headroom 58.14), semantic 4.71/8, recent 1.00/20, pos_ret=0.571, crit_ret=0.667 (0/7 complete)
+    16k: 15543.57 tokens (headroom 456.43), semantic 8.00/8, recent 16.00/20, pos_ret=1.000, crit_ret=1.000 (4/7 complete)
+    20k: 16239.57 tokens (headroom 3760.43), semantic 8.00/8, recent 20.00/20, pos_ret=1.000, crit_ret=1.000 (7/7 complete)
+    24k: 16239.57 tokens (headroom 7760.43), semantic 8.00/8, recent 20.00/20, pos_ret=1.000, crit_ret=1.000 (7/7 complete)
+    32k: 16239.57 tokens (headroom 15760.43), semantic 8.00/8, recent 20.00/20, pos_ret=1.000, crit_ret=1.000 (7/7 complete)
+  retrieval-scoped:
+    12k: 8862.29 tokens (headroom 3137.71), semantic 8.00/8, recent 20.00/20, pos_ret=1.000, crit_ret=1.000 (7/7 complete)
+    16k: 8862.29 tokens (headroom 7137.71), semantic 8.00/8, recent 20.00/20, pos_ret=1.000, crit_ret=1.000 (7/7 complete)
+    20k: 8862.29 tokens (headroom 11137.71), semantic 8.00/8, recent 20.00/20, pos_ret=1.000, crit_ret=1.000 (7/7 complete)
+    24k: 8862.29 tokens (headroom 15137.71), semantic 8.00/8, recent 20.00/20, pos_ret=1.000, crit_ret=1.000 (7/7 complete)
+    32k: 8862.29 tokens (headroom 23137.71), semantic 8.00/8, recent 20.00/20, pos_ret=1.000, crit_ret=1.000 (7/7 complete)
+
+P8-05: BLOCKED
 
 ## NOW — EVAL-01I Context Budget Scaling
 
