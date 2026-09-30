@@ -1,0 +1,3880 @@
+{
+  "experiment_id": "EVAL-01I",
+  "mode": "offline",
+  "provider_calls": 0,
+  "production_context_packer_modified": false,
+  "production_scope_modified": false,
+  "semantic_limit": 8,
+  "recent_limit": 20,
+  "provenance_representation": "compact_provenance",
+  "budgets": [
+    12000,
+    16000,
+    20000,
+    24000,
+    32000
+  ],
+  "policies": [
+    "baseline_full_entities",
+    "retrieval_scoped_entities"
+  ],
+  "budget_semantics": "Application-level Story Brain budget only; does not include the outer system prompt, user instruction, selected manuscript text, or response tokens.",
+  "aggregate": {
+    "12000": {
+      "baseline_full_entities": {
+        "mean_tokens_used": 11941.857142857143,
+        "mean_headroom_tokens": 58.142857142857146,
+        "mean_selected_entities": 69.57142857142857,
+        "mean_selected_rules": 8.285714285714286,
+        "mean_selected_recent": 1.0,
+        "mean_selected_semantic": 4.714285714285714,
+        "mean_positive_retention": 0.5714285714285714,
+        "mean_critical_retention": 0.6666666666666666,
+        "cases_evidence_complete": 0,
+        "cases_all_input_artifacts_retained": 0,
+        "cases_all_semantic_retained": 2,
+        "cases_all_recent_retained": 0,
+        "cases_all_rules_retained": 5
+      },
+      "retrieval_scoped_entities": {
+        "mean_tokens_used": 8862.285714285714,
+        "mean_headroom_tokens": 3137.714285714286,
+        "mean_selected_entities": 15.714285714285714,
+        "mean_selected_rules": 10.571428571428571,
+        "mean_selected_recent": 20.0,
+        "mean_selected_semantic": 8.0,
+        "mean_positive_retention": 1.0,
+        "mean_critical_retention": 1.0,
+        "cases_evidence_complete": 7,
+        "cases_all_input_artifacts_retained": 7,
+        "cases_all_semantic_retained": 7,
+        "cases_all_recent_retained": 7,
+        "cases_all_rules_retained": 7
+      }
+    },
+    "16000": {
+      "baseline_full_entities": {
+        "mean_tokens_used": 15543.57142857143,
+        "mean_headroom_tokens": 456.42857142857144,
+        "mean_selected_entities": 69.57142857142857,
+        "mean_selected_rules": 10.571428571428571,
+        "mean_selected_recent": 16.0,
+        "mean_selected_semantic": 8.0,
+        "mean_positive_retention": 1.0,
+        "mean_critical_retention": 1.0,
+        "cases_evidence_complete": 4,
+        "cases_all_input_artifacts_retained": 4,
+        "cases_all_semantic_retained": 7,
+        "cases_all_recent_retained": 4,
+        "cases_all_rules_retained": 7
+      },
+      "retrieval_scoped_entities": {
+        "mean_tokens_used": 8862.285714285714,
+        "mean_headroom_tokens": 7137.714285714285,
+        "mean_selected_entities": 15.714285714285714,
+        "mean_selected_rules": 10.571428571428571,
+        "mean_selected_recent": 20.0,
+        "mean_selected_semantic": 8.0,
+        "mean_positive_retention": 1.0,
+        "mean_critical_retention": 1.0,
+        "cases_evidence_complete": 7,
+        "cases_all_input_artifacts_retained": 7,
+        "cases_all_semantic_retained": 7,
+        "cases_all_recent_retained": 7,
+        "cases_all_rules_retained": 7
+      }
+    },
+    "20000": {
+      "baseline_full_entities": {
+        "mean_tokens_used": 16239.57142857143,
+        "mean_headroom_tokens": 3760.4285714285716,
+        "mean_selected_entities": 69.57142857142857,
+        "mean_selected_rules": 10.571428571428571,
+        "mean_selected_recent": 20.0,
+        "mean_selected_semantic": 8.0,
+        "mean_positive_retention": 1.0,
+        "mean_critical_retention": 1.0,
+        "cases_evidence_complete": 7,
+        "cases_all_input_artifacts_retained": 7,
+        "cases_all_semantic_retained": 7,
+        "cases_all_recent_retained": 7,
+        "cases_all_rules_retained": 7
+      },
+      "retrieval_scoped_entities": {
+        "mean_tokens_used": 8862.285714285714,
+        "mean_headroom_tokens": 11137.714285714286,
+        "mean_selected_entities": 15.714285714285714,
+        "mean_selected_rules": 10.571428571428571,
+        "mean_selected_recent": 20.0,
+        "mean_selected_semantic": 8.0,
+        "mean_positive_retention": 1.0,
+        "mean_critical_retention": 1.0,
+        "cases_evidence_complete": 7,
+        "cases_all_input_artifacts_retained": 7,
+        "cases_all_semantic_retained": 7,
+        "cases_all_recent_retained": 7,
+        "cases_all_rules_retained": 7
+      }
+    },
+    "24000": {
+      "baseline_full_entities": {
+        "mean_tokens_used": 16239.57142857143,
+        "mean_headroom_tokens": 7760.428571428572,
+        "mean_selected_entities": 69.57142857142857,
+        "mean_selected_rules": 10.571428571428571,
+        "mean_selected_recent": 20.0,
+        "mean_selected_semantic": 8.0,
+        "mean_positive_retention": 1.0,
+        "mean_critical_retention": 1.0,
+        "cases_evidence_complete": 7,
+        "cases_all_input_artifacts_retained": 7,
+        "cases_all_semantic_retained": 7,
+        "cases_all_recent_retained": 7,
+        "cases_all_rules_retained": 7
+      },
+      "retrieval_scoped_entities": {
+        "mean_tokens_used": 8862.285714285714,
+        "mean_headroom_tokens": 15137.714285714286,
+        "mean_selected_entities": 15.714285714285714,
+        "mean_selected_rules": 10.571428571428571,
+        "mean_selected_recent": 20.0,
+        "mean_selected_semantic": 8.0,
+        "mean_positive_retention": 1.0,
+        "mean_critical_retention": 1.0,
+        "cases_evidence_complete": 7,
+        "cases_all_input_artifacts_retained": 7,
+        "cases_all_semantic_retained": 7,
+        "cases_all_recent_retained": 7,
+        "cases_all_rules_retained": 7
+      }
+    },
+    "32000": {
+      "baseline_full_entities": {
+        "mean_tokens_used": 16239.57142857143,
+        "mean_headroom_tokens": 15760.42857142857,
+        "mean_selected_entities": 69.57142857142857,
+        "mean_selected_rules": 10.571428571428571,
+        "mean_selected_recent": 20.0,
+        "mean_selected_semantic": 8.0,
+        "mean_positive_retention": 1.0,
+        "mean_critical_retention": 1.0,
+        "cases_evidence_complete": 7,
+        "cases_all_input_artifacts_retained": 7,
+        "cases_all_semantic_retained": 7,
+        "cases_all_recent_retained": 7,
+        "cases_all_rules_retained": 7
+      },
+      "retrieval_scoped_entities": {
+        "mean_tokens_used": 8862.285714285714,
+        "mean_headroom_tokens": 23137.714285714286,
+        "mean_selected_entities": 15.714285714285714,
+        "mean_selected_rules": 10.571428571428571,
+        "mean_selected_recent": 20.0,
+        "mean_selected_semantic": 8.0,
+        "mean_positive_retention": 1.0,
+        "mean_critical_retention": 1.0,
+        "cases_evidence_complete": 7,
+        "cases_all_input_artifacts_retained": 7,
+        "cases_all_semantic_retained": 7,
+        "cases_all_recent_retained": 7,
+        "cases_all_rules_retained": 7
+      }
+    }
+  },
+  "global_thresholds": {
+    "baseline_full_entities": {
+      "minimum_budget_evidence_complete_all_cases": 20000,
+      "minimum_budget_all_input_artifacts_retained_all_cases": 20000,
+      "minimum_budget_all_semantic_retained_all_cases": 16000,
+      "minimum_budget_all_recent_retained_all_cases": 20000,
+      "minimum_budget_all_rules_retained_all_cases": 16000
+    },
+    "retrieval_scoped_entities": {
+      "minimum_budget_evidence_complete_all_cases": 12000,
+      "minimum_budget_all_input_artifacts_retained_all_cases": 12000,
+      "minimum_budget_all_semantic_retained_all_cases": 12000,
+      "minimum_budget_all_recent_retained_all_cases": 12000,
+      "minimum_budget_all_rules_retained_all_cases": 12000
+    }
+  },
+  "cases": [
+    {
+      "case_id": "core_gold:rq-0011",
+      "chapter_cutoff": 32,
+      "retrieval_scope_entity_count": 16,
+      "policies": {
+        "baseline_full_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 14707,
+              "tokens_used": 11868,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 3,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 132,
+              "all_semantic_retained": true,
+              "all_recent_retained": false,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 14707,
+              "tokens_used": 14707,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 1293,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 14707,
+              "tokens_used": 14707,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 5293,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 14707,
+              "tokens_used": 14707,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 9293,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 14707,
+              "tokens_used": 14707,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 17293,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 16000,
+          "minimum_budget_all_input_artifacts_retained": 16000,
+          "minimum_budget_all_semantic_retained": 12000,
+          "minimum_budget_all_recent_retained": 16000,
+          "minimum_budget_all_rules_retained": 12000
+        },
+        "retrieval_scoped_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 8331,
+              "tokens_used": 8331,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 3669,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 8331,
+              "tokens_used": 8331,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 7669,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 8331,
+              "tokens_used": 8331,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 11669,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 8331,
+              "tokens_used": 8331,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 15669,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 8331,
+              "tokens_used": 8331,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 23669,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 12000,
+          "minimum_budget_all_input_artifacts_retained": 12000,
+          "minimum_budget_all_semantic_retained": 12000,
+          "minimum_budget_all_recent_retained": 12000,
+          "minimum_budget_all_rules_retained": 12000
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "chapter_cutoff": 45,
+      "retrieval_scope_entity_count": 12,
+      "policies": {
+        "baseline_full_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 15691,
+              "tokens_used": 11999,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 1,
+                "semantic": 6
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 0,
+                "positive_retention": 0.0,
+                "all_positive_retained": false,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 2,
+                "critical_retention": 0.6666666666666666,
+                "all_critical_retained": false
+              },
+              "headroom_tokens": 1,
+              "all_semantic_retained": false,
+              "all_recent_retained": false,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 15691,
+              "tokens_used": 15691,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 309,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 15691,
+              "tokens_used": 15691,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 4309,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 15691,
+              "tokens_used": 15691,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 8309,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 15691,
+              "tokens_used": 15691,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 16309,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 16000,
+          "minimum_budget_all_input_artifacts_retained": 16000,
+          "minimum_budget_all_semantic_retained": 16000,
+          "minimum_budget_all_recent_retained": 16000,
+          "minimum_budget_all_rules_retained": 12000
+        },
+        "retrieval_scoped_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 8120,
+              "tokens_used": 8120,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 3880,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 8120,
+              "tokens_used": 8120,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 7880,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 8120,
+              "tokens_used": 8120,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 11880,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 8120,
+              "tokens_used": 8120,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 15880,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 8120,
+              "tokens_used": 8120,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 12,
+                "retained_count": 12,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 23880,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 12000,
+          "minimum_budget_all_input_artifacts_retained": 12000,
+          "minimum_budget_all_semantic_retained": 12000,
+          "minimum_budget_all_recent_retained": 12000,
+          "minimum_budget_all_rules_retained": 12000
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "chapter_cutoff": 49,
+      "retrieval_scope_entity_count": 18,
+      "policies": {
+        "baseline_full_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 16132,
+              "tokens_used": 11976,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 0,
+                "semantic": 5
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 24,
+              "all_semantic_retained": false,
+              "all_recent_retained": false,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 16132,
+              "tokens_used": 15968,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 19,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 32,
+              "all_semantic_retained": true,
+              "all_recent_retained": false,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 16132,
+              "tokens_used": 16132,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 3868,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 16132,
+              "tokens_used": 16132,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 7868,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 16132,
+              "tokens_used": 16132,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 15868,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 20000,
+          "minimum_budget_all_input_artifacts_retained": 20000,
+          "minimum_budget_all_semantic_retained": 16000,
+          "minimum_budget_all_recent_retained": 20000,
+          "minimum_budget_all_rules_retained": 12000
+        },
+        "retrieval_scoped_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 9305,
+              "tokens_used": 9305,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 2695,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 9305,
+              "tokens_used": 9305,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 6695,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 9305,
+              "tokens_used": 9305,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 10695,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 9305,
+              "tokens_used": 9305,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 14695,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 9305,
+              "tokens_used": 9305,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 18,
+                "retained_count": 18,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 1,
+                "retained_positive_count": 1,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 22695,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 12000,
+          "minimum_budget_all_input_artifacts_retained": 12000,
+          "minimum_budget_all_semantic_retained": 12000,
+          "minimum_budget_all_recent_retained": 12000,
+          "minimum_budget_all_rules_retained": 12000
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0020",
+      "chapter_cutoff": 45,
+      "retrieval_scope_entity_count": 16,
+      "policies": {
+        "baseline_full_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 15753,
+              "tokens_used": 11881,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 0,
+                "semantic": 6
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 119,
+              "all_semantic_retained": false,
+              "all_recent_retained": false,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 15753,
+              "tokens_used": 15753,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 247,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 15753,
+              "tokens_used": 15753,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 4247,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 15753,
+              "tokens_used": 15753,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 8247,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 15753,
+              "tokens_used": 15753,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 68,
+                "states": 68,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 16247,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 16000,
+          "minimum_budget_all_input_artifacts_retained": 16000,
+          "minimum_budget_all_semantic_retained": 16000,
+          "minimum_budget_all_recent_retained": 16000,
+          "minimum_budget_all_rules_retained": 12000
+        },
+        "retrieval_scoped_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 8584,
+              "tokens_used": 8584,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 3416,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 8584,
+              "tokens_used": 8584,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 7416,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 8584,
+              "tokens_used": 8584,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 11416,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 8584,
+              "tokens_used": 8584,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 15416,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 8584,
+              "tokens_used": 8584,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 2,
+                "retained_positive_count": 2,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 2,
+                "retained_critical_count": 2,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 23416,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 12000,
+          "minimum_budget_all_input_artifacts_retained": 12000,
+          "minimum_budget_all_semantic_retained": 12000,
+          "minimum_budget_all_recent_retained": 12000,
+          "minimum_budget_all_rules_retained": 12000
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0032",
+      "chapter_cutoff": 55,
+      "retrieval_scope_entity_count": 15,
+      "policies": {
+        "baseline_full_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 17859,
+              "tokens_used": 11997,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 10,
+                "recent": 0,
+                "semantic": 0
+              },
+              "input_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 0,
+                "positive_retention": 0.0,
+                "all_positive_retained": false,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 0,
+                "critical_retention": 0.0,
+                "all_critical_retained": false
+              },
+              "headroom_tokens": 3,
+              "all_semantic_retained": false,
+              "all_recent_retained": false,
+              "all_rules_retained": false,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 17859,
+              "tokens_used": 15981,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 14,
+                "recent": 9,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 19,
+              "all_semantic_retained": true,
+              "all_recent_retained": false,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 17859,
+              "tokens_used": 17859,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 2141,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 17859,
+              "tokens_used": 17859,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 6141,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 17859,
+              "tokens_used": 17859,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 77,
+                "states": 77,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 14141,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 20000,
+          "minimum_budget_all_input_artifacts_retained": 20000,
+          "minimum_budget_all_semantic_retained": 16000,
+          "minimum_budget_all_recent_retained": 20000,
+          "minimum_budget_all_rules_retained": 16000
+        },
+        "retrieval_scoped_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 9303,
+              "tokens_used": 9303,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 2697,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 9303,
+              "tokens_used": 9303,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 6697,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 9303,
+              "tokens_used": 9303,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 10697,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 9303,
+              "tokens_used": 9303,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 14697,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 9303,
+              "tokens_used": 9303,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 15,
+                "retained_count": 15,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 3,
+                "retained_positive_count": 3,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 3,
+                "retained_critical_count": 3,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 22697,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 12000,
+          "minimum_budget_all_input_artifacts_retained": 12000,
+          "minimum_budget_all_semantic_retained": 12000,
+          "minimum_budget_all_recent_retained": 12000,
+          "minimum_budget_all_rules_retained": 12000
+        }
+      }
+    },
+    {
+      "case_id": "core_gold:rq-0038",
+      "chapter_cutoff": 61,
+      "retrieval_scope_entity_count": 16,
+      "policies": {
+        "baseline_full_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 18827,
+              "tokens_used": 11972,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 6,
+                "recent": 0,
+                "semantic": 0
+              },
+              "input_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 0,
+                "positive_retention": 0.0,
+                "all_positive_retained": false,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 0,
+                "critical_retention": 0.0,
+                "all_critical_retained": false
+              },
+              "headroom_tokens": 28,
+              "all_semantic_retained": false,
+              "all_recent_retained": false,
+              "all_rules_retained": false,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 18827,
+              "tokens_used": 15997,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 18,
+                "recent": 4,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 3,
+              "all_semantic_retained": true,
+              "all_recent_retained": false,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 18827,
+              "tokens_used": 18827,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 1173,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 18827,
+              "tokens_used": 18827,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 5173,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 18827,
+              "tokens_used": 18827,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 80,
+                "states": 80,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 13173,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 20000,
+          "minimum_budget_all_input_artifacts_retained": 20000,
+          "minimum_budget_all_semantic_retained": 16000,
+          "minimum_budget_all_recent_retained": 20000,
+          "minimum_budget_all_rules_retained": 16000
+        },
+        "retrieval_scoped_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 9905,
+              "tokens_used": 9905,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 2095,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 9905,
+              "tokens_used": 9905,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 6095,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 9905,
+              "tokens_used": 9905,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 10095,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 9905,
+              "tokens_used": 9905,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 14095,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 9905,
+              "tokens_used": 9905,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 16,
+                "retained_count": 16,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 22095,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 12000,
+          "minimum_budget_all_input_artifacts_retained": 12000,
+          "minimum_budget_all_semantic_retained": 12000,
+          "minimum_budget_all_recent_retained": 12000,
+          "minimum_budget_all_rules_retained": 12000
+        }
+      }
+    },
+    {
+      "case_id": "core_gold:rq-0010",
+      "chapter_cutoff": 33,
+      "retrieval_scope_entity_count": 17,
+      "policies": {
+        "baseline_full_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 14708,
+              "tokens_used": 11900,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 3,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 100,
+              "all_semantic_retained": true,
+              "all_recent_retained": false,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": false,
+              "evidence_complete": false
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 14708,
+              "tokens_used": 14708,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 1292,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 14708,
+              "tokens_used": 14708,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 5292,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 14708,
+              "tokens_used": 14708,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 9292,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 14708,
+              "tokens_used": 14708,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 63,
+                "states": 63,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 17292,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 16000,
+          "minimum_budget_all_input_artifacts_retained": 16000,
+          "minimum_budget_all_semantic_retained": 12000,
+          "minimum_budget_all_recent_retained": 16000,
+          "minimum_budget_all_rules_retained": 12000
+        },
+        "retrieval_scoped_entities": {
+          "budgets": {
+            "12000": {
+              "budget": 12000,
+              "estimated_before": 8488,
+              "tokens_used": 8488,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 3512,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "16000": {
+              "budget": 16000,
+              "estimated_before": 8488,
+              "tokens_used": 8488,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 7512,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "20000": {
+              "budget": 20000,
+              "estimated_before": 8488,
+              "tokens_used": 8488,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 11512,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "24000": {
+              "budget": 24000,
+              "estimated_before": 8488,
+              "tokens_used": 8488,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 15512,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            },
+            "32000": {
+              "budget": 32000,
+              "estimated_before": 8488,
+              "tokens_used": 8488,
+              "deterministic": true,
+              "protected_overflow": false,
+              "selected_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "scope": {
+                "required_count": 17,
+                "retained_count": 17,
+                "coverage": 1.0,
+                "all_required_retained": true
+              },
+              "protected": {
+                "locked_entities_retained": true,
+                "locked_rules_retained": true,
+                "constraints_retained": true
+              },
+              "semantic": {
+                "candidate_positive_count": 4,
+                "retained_positive_count": 4,
+                "positive_retention": 1.0,
+                "all_positive_retained": true,
+                "candidate_critical_count": 4,
+                "retained_critical_count": 4,
+                "critical_retention": 1.0,
+                "all_critical_retained": true
+              },
+              "headroom_tokens": 23512,
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "all_entities_retained": true,
+              "all_states_retained": true,
+              "all_input_artifacts_retained": true,
+              "evidence_complete": true
+            }
+          },
+          "minimum_budget_evidence_complete": 12000,
+          "minimum_budget_all_input_artifacts_retained": 12000,
+          "minimum_budget_all_semantic_retained": 12000,
+          "minimum_budget_all_recent_retained": 12000,
+          "minimum_budget_all_rules_retained": 12000
+        }
+      }
+    }
+  ],
+  "contract_failures": [],
+  "contract_pass": true,
+  "interpretation_status": "REVIEW_REQUIRED"
+}
