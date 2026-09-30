@@ -1427,6 +1427,142 @@ production compact prompt                    NOT AUTHORIZED
 full-system 12k pressure                     NOT_MEASURED
 ```
 
+## EVAL-01G harness — MERGED
+
+- PR: #17
+- merge commit: `a1759b3e33031248abaa746aee7b71377ce96b40`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- workflow run: `36677371273`
+- provider calls in CI: **0**
+- contract failures: **0**
+
+CI 12k preview:
+
+```text
+pre_provenance
+  mean estimated before pack      18310.14
+  mean tokens used                11972.29
+  mean selected entities             69.57
+  mean selected world rules           8.29
+  mean selected recent events          0.29
+  mean selected semantic memories      6.43
+  mean positive retention             0.690
+  mean critical retention             0.690
+  cases all positives retained        4 / 7
+  cases all critical retained         4 / 7
+
+full_provenance
+  mean estimated before pack      19896.29
+  mean tokens used                11952.71
+  mean selected entities             69.57
+  mean selected world rules           8.29
+  mean selected recent events          0.14
+  mean selected semantic memories      4.57
+  mean positive retention             0.519
+  mean critical retention             0.595
+  cases all positives retained        2 / 7
+  cases all critical retained         3 / 7
+
+compact_provenance
+  mean estimated before pack      19035.71
+  mean tokens used                11973.71
+  mean selected entities             69.57
+  mean selected world rules           8.29
+  mean selected recent events          0.29
+  mean selected semantic memories      5.43
+  mean positive retention             0.519
+  mean critical retention             0.643
+  cases all positives retained        2 / 7
+  cases all critical retained         3 / 7
+```
+
+Contract checks:
+
+```text
+deterministic packing                     PASS
+locked entities retained                  PASS
+locked entity states retained             PASS
+locked rules retained                     PASS
+author constraints retained               PASS
+protected overflow                        false
+compact semantic count >= full @12k       PASS
+compact positive retention >= full @12k   PASS
+compact critical retention >= full @12k   PASS
+```
+
+Important preliminary signal — do not convert directly into production code:
+
+```text
+ContextBudgetPacker priority appears to spend most of the 12k package on
+entity/state bundles and world rules before semantic/recent evidence.
+
+At 12k in this production-shaped fixture:
+  ~70 entity bundles survive on average
+  semantic memories fall to ~4.6-6.4 / 20
+  recent events are almost completely starved
+```
+
+This may be a larger context-selection bottleneck than provenance verbosity itself.
+
+However the fixture is still source-grounded production-shaped, not a literal live PostgreSQL context snapshot. Astra must review official main evidence before authorizing a packer policy experiment.
+
+Current state:
+
+```text
+EVAL-01G harness        MERGED
+CI contract             PASS
+official main evidence  PENDING GEMINI
+production change       NOT AUTHORIZED
+```
+
+### Gemini / Antigravity — run official EVAL-01G evidence now
+
+Use latest `main`. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01g_full_context_pressure.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01G-FULL-CONTEXT-PRESSURE/
+  diagnostic.json
+  summary.md
+```
+
+Then append:
+
+```text
+### Gemini Verification — EVAL-01G FULL CONTEXT PRESSURE
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+
+- P8 cleanup readiness: <result>
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: <result>
+- Provider calls: 0
+- Fixture claim: source-grounded production-shaped
+- Contract failures: <count>
+- 12k pre aggregate: <summary>
+- 12k full aggregate: <summary>
+- 12k compact aggregate: <summary>
+- Protected overflow: <result>
+- Cases all positives retained by condition: <summary>
+- Cases all critical retained by condition: <summary>
+- Evidence: docs/development/EVAL-01G-FULL-CONTEXT-PRESSURE/
+```
+
+Gemini must not modify packer priority or start a live generation run. Astra reviews official evidence first.
+
 ## NOW — EVAL-01G Full 12k Context Pressure Reconstruction
 
 Goal:
