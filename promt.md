@@ -3625,13 +3625,14 @@ After reveal, Astra/Supervisor must separately judge:
 P8-05 remains BLOCKED.
 
 
-## EVAL-01M harness — PR OPEN
+## EVAL-01M harness — MERGED / LIVE CAPTURE PENDING
 
 - PR: #23
-- branch: `astra/eval-01m-sealed-live-adaptive-context`
+- merge commit: `3ac07099e401676798c0c9f27346bc96dc18de1b`
+- Evaluation Pilot Harness workflow: `36691882656` — **SUCCESS**
 - production changes: **none**
-- CI behavior: dry-run only, provider calls = 0
-- live capture: blocked until PR is reviewed/merged and dry-run contract is green
+- CI dry-run provider calls: `0`
+- live capture: **AUTHORIZED ON LATEST MAIN** using one fixed local Gemini key slot
 
 Hardening added before merge:
 
@@ -3658,4 +3659,91 @@ control protected overflow       false
 candidate protected overflow     false
 ```
 
-Do not run capture from the PR branch. After CI review and merge, Gemini/Antigravity runs capture from latest `main` with one fixed key slot.
+CI verified:
+
+```text
+row_count                              12
+planned_live_calls                     72
+normal_rows                             7
+stress_resilience_rows                  5
+candidate branches:
+  broad_20k                             7
+  scoped_20k                            3
+  scoped_24k                            2
+routing_uses_gold                   false
+query_gold_used_for_package_locking false
+evaluation_entity_locks_removed      true
+same system prompt                   true
+same pre-policy source package       true
+control protected overflow          false
+candidate protected overflow        false
+```
+
+### Gemini / Antigravity — RUN EVAL-01M CAPTURE NOW
+
+Use latest `main`. Keep the same local workspace through capture → blind review → reveal because the sealed private state is intentionally gitignored.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01m_sealed_live_adaptive_context.py --stage dry-run
+.\.venv\Scripts\python.exe scripts/run_eval_01m_sealed_live_adaptive_context.py --stage capture --key-slot 1
+```
+
+Fixed-key rule:
+
+```text
+one slot for all 72 calls
+no rotation during capture
+fallback model = none
+if same-key retry/backoff cannot complete:
+  stop PARTIAL/BLOCKED
+  do not continue with another key
+```
+
+Public capture evidence to commit:
+
+```text
+docs/development/EVAL-01M-SEALED-LIVE-ADAPTIVE-CONTEXT/
+  runtime-config.json
+  reviewer-blind.json
+  review-rubric.md
+  capture-contract.json
+  sealed-state.json
+  summary.md
+```
+
+Keep private / do NOT commit before Astra blind review:
+
+```text
+.eval-private/eval01m-private.json
+condition-key.json
+raw-generations.json
+prompt-diff-audit.json
+latency-cost.json
+reveal-verification.json
+```
+
+Append execution-only handoff. Do not identify X/Y or declare a winner.
+
+After Gemini commits capture evidence:
+
+```text
+Astra blind review
+  -> commit ASTRA-BLIND-REVIEW.md
+  -> authorize reveal
+
+Gemini reveal
+  -> zero provider calls
+  -> verify sealed SHA256
+  -> publish mapping/raw audit
+
+Astra final interpretation
+  -> decide whether a narrow production implementation proposal is justified
+```
+
+P8-05 remains BLOCKED.
