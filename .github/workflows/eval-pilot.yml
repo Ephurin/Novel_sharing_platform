@@ -12,6 +12,7 @@ on:
       - "scripts/run_eval_01f_compact_provenance_budget.py"
       - "scripts/run_eval_01g_full_context_pressure.py"
       - "scripts/run_eval_01h_prod8_context_scope.py"
+      - "scripts/run_eval_01i_context_budget_scaling.py"
       - "benchmarks/eval01e_neutral_context.json"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
@@ -31,6 +32,7 @@ on:
       - "scripts/run_eval_01f_compact_provenance_budget.py"
       - "scripts/run_eval_01g_full_context_pressure.py"
       - "scripts/run_eval_01h_prod8_context_scope.py"
+      - "scripts/run_eval_01i_context_budget_scaling.py"
       - "benchmarks/eval01e_neutral_context.json"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
@@ -56,6 +58,7 @@ jobs:
           python -m py_compile scripts/run_eval_01f_compact_provenance_budget.py
           python -m py_compile scripts/run_eval_01g_full_context_pressure.py
           python -m py_compile scripts/run_eval_01h_prod8_context_scope.py
+          python -m py_compile scripts/run_eval_01i_context_budget_scaling.py
       - name: Validate frozen corpus and harness contract
         run: python scripts/check_eval01_fixture_contract.py
       - name: Run offline replay temporal-intent diagnostic
@@ -72,3 +75,5 @@ jobs:
         run: python scripts/run_eval_01g_full_context_pressure.py --stdout-only
       - name: Validate production-limit context scope diagnostic
         run: python scripts/run_eval_01h_prod8_context_scope.py --stdout-only
+      - name: Validate context budget scaling diagnostic
+        run: python scripts/run_eval_01i_context_budget_scaling.py --stdout-only
