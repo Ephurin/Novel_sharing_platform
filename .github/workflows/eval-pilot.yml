@@ -18,6 +18,7 @@ on:
       - "scripts/run_eval_01l_secondary_scoped_frontier.py"
       - "scripts/run_eval_01m_sealed_live_adaptive_context.py"
       - "scripts/run_eval_01n_relevance_density.py"
+      - "scripts/run_eval_01o_sealed_live_relevance_density.py"
       - "benchmarks/eval01e_neutral_context.json"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
@@ -43,6 +44,7 @@ on:
       - "scripts/run_eval_01l_secondary_scoped_frontier.py"
       - "scripts/run_eval_01m_sealed_live_adaptive_context.py"
       - "scripts/run_eval_01n_relevance_density.py"
+      - "scripts/run_eval_01o_sealed_live_relevance_density.py"
       - "benchmarks/eval01e_neutral_context.json"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
@@ -100,3 +102,5 @@ jobs:
         run: python scripts/run_eval_01m_sealed_live_adaptive_context.py --stage dry-run
       - name: Validate relevance density diagnostic
         run: python scripts/run_eval_01n_relevance_density.py --stdout-only
+      - name: Validate sealed live relevance density dry-run
+        run: python scripts/run_eval_01o_sealed_live_relevance_density.py --stage dry-run
