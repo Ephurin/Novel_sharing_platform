@@ -59,7 +59,7 @@ SCOPED
 >24k        -> unresolved
 ```
 
-Gold labels never participate in routing.
+Gold labels never participate in routing. EVAL-01G..L's critical-memory-derived experimental entity locks are also stripped before EVAL-01M packing so query gold cannot influence live package priority/order. Source-derived world-rule locks remain.
 
 ## Held constant
 
@@ -69,6 +69,7 @@ For every A/B row:
 same case query
 same chapter cutoff
 same source-derived base package
+same de-golded entity lock policy
 same semantic top-8 order
 same recent limit=20
 same compact provenance
@@ -197,6 +198,8 @@ scoped stress rows                   5
 total rows                          12
 planned live calls                  72
 routing uses gold                false
+query gold used for locking      false
+evaluation entity locks removed  true
 same system prompt                true
 same source-package identity      true
 control protected overflow       false
