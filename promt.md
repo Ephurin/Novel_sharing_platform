@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01I — Context Budget Scaling**  
+> Active experiment: **EVAL-01J — Adaptive Story Brain Budget / Scale Stress**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -2346,6 +2346,136 @@ P8-05: BLOCKED
 ```
 
 Do not change production budget or scoping until Astra reviews official EVAL-01I evidence.
+
+## EVAL-01I final interpretation
+
+Astra final review:
+
+`docs/development/EVAL-01I-CONTEXT-BUDGET-SCALING/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`5a0dd928a3610e5b67d58765d7ff4c8c863ed167`
+
+Verdict:
+
+```text
+broad @12k                 too small
+broad @16k                 semantic/rules complete, recent partial
+broad @20k                 complete in current fixture
+retrieval-scoped @12k      complete and ~7.4k tokens smaller
+production change          not authorized
+```
+
+Remaining scalability question:
+
+```text
+20k is sufficient for this 61-chapter fixture,
+but not proven as a permanent ceiling for larger novels.
+```
+
+## NOW — EVAL-01J Adaptive Story Brain Budget / Scale Stress
+
+Candidate policy:
+
+```text
+broad estimate <=20k
+  -> broad@20k
+
+20k < broad estimate <=24k
+  -> broad@24k
+
+broad estimate >24k
+  -> retrieval-scoped@12k
+```
+
+Harness:
+
+`scripts/run_eval_01j_adaptive_budget_scale.py`
+
+Runbook:
+
+[docs/development/EVAL-01J-ADAPTIVE-BUDGET-SCALE-runbook.md](docs/development/EVAL-01J-ADAPTIVE-BUDGET-SCALE-runbook.md)
+
+Stress:
+
+```text
+1x source-grounded entity/state load
+2x structural entity/state load
+4x structural entity/state load
+```
+
+Synthetic additions are deterministic noncanonical stress clones of only non-locked, non-retrieval-scope entity/state bundles.
+
+They do not enter:
+
+```text
+semantic evidence
+recent events
+query scope
+gold labels
+```
+
+This experiment tests **entity/state breadth growth only**, not arbitrary story growth.
+
+Held constant:
+
+```text
+semantic limit       8
+recent limit        20
+compact provenance
+ContextBudgetPacker  unchanged
+same seven cases
+```
+
+PASS requires every adaptive trace to retain all semantic/recent/rules/protected/query-scope evidence with no protected overflow.
+
+### Gemini / Antigravity — after harness merge
+
+Run latest main. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01j_adaptive_budget_scale.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01J-ADAPTIVE-BUDGET-SCALE/
+  diagnostic.json
+  summary.md
+```
+
+Handoff:
+
+```text
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+Provider calls: 0
+
+branch counts:
+  1x: <summary>
+  2x: <summary>
+  4x: <summary>
+
+evidence complete:
+  1x: <n>/7
+  2x: <n>/7
+  4x: <n>/7
+
+protected overflow: <count>
+contract failures: <count>
+P8-05: BLOCKED
+```
+
+Do not alter production budget/scoping/adaptive behavior until Astra reviews official evidence.
 
 ## Frozen production contract — do not drift
 
