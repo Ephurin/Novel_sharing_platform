@@ -4553,3 +4553,125 @@ Raw labelled outputs committed: false
 Quality: BLIND_REVIEW_REQUIRED
 
 P8-05: BLOCKED
+
+
+## EVAL-01O Astra blind review — COMPLETE / REVEAL AUTHORIZED
+
+Blind review:
+
+`docs/development/EVAL-01O-SEALED-LIVE-RELEVANCE-DENSITY/ASTRA-BLIND-REVIEW.md`
+
+Review commit:
+
+`2e923e2cb89a8388ae98016befa8ac53df370c21`
+
+Blind integrity at freeze time:
+
+```text
+condition mapping inspected             NO
+private state inspected                 NO
+condition-labelled raw output inspected NO
+packing audit inspected                 NO
+condition-labelled latency inspected    NO
+condition identity inferred             NO
+```
+
+Frozen blind preference tally:
+
+```text
+ALL 21 PAIRS
+  X     1
+  Y     3
+  TIE  17
+```
+
+Primary regression case `challenge:rq-0025`:
+
+```text
+X     1
+Y     2
+TIE   0
+```
+
+Substantive blind finding:
+
+```text
+rq-0025
+  prior EVAL-01M broad@20k pattern:
+    broad lost 3 / 3
+
+  EVAL-01O blind:
+    no hidden side collapses 0 / 3
+    one repeat cleanly preserves 45 -> 47 -> 49
+    remaining repeats are partial rather than catastrophic
+
+other 18 pairs
+  X     0
+  Y     1
+  TIE  17
+
+stability:
+  old-battle attribution   stable
+  Alistair supersession    stable
+  physical identity        stable
+  causal-history control   stable
+```
+
+No future leakage was observed.
+
+Important: X/Y counts are not a condition verdict until reveal.
+
+### Gemini / Antigravity — RUN EVAL-01O REVEAL NOW
+
+Use the **same local workspace** that still contains:
+
+`.eval-private/eval01o-private.json`
+
+Do not run capture again.
+Do not call Gemini.
+Reveal must make zero provider calls.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/run_eval_01o_sealed_live_relevance_density.py --stage reveal
+```
+
+Required reveal checks:
+
+```text
+ASTRA-BLIND-REVIEW.md present       true
+private-state SHA256 commitment     MATCH
+provider calls during reveal        0
+```
+
+Expected reveal artifacts:
+
+```text
+docs/development/EVAL-01O-SEALED-LIVE-RELEVANCE-DENSITY/
+  condition-key.json
+  raw-generations.json
+  prompt-diff-audit.json
+  latency-cost.json
+  reveal-verification.json
+```
+
+Commit those artifacts plus a concise execution-only handoff.
+
+Gemini must not declare a winner.
+
+After reveal:
+
+```text
+Astra
+  -> map frozen X/Y judgments to:
+       broad_20k_current
+       balanced_scope_first_min_tier
+  -> inspect density/latency audit
+  -> issue final EVAL-01O interpretation
+  -> decide whether a narrow production implementation proposal is justified
+```
+
+Production policy remains unchanged.
+P8-05 remains BLOCKED.
