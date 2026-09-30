@@ -1221,7 +1221,7 @@ Current state:
 ```text
 EVAL-01F harness          MERGED
 CI offline diagnostic     PASS
-official main evidence    PENDING GEMINI
+official main evidence    COMPLETE (df39431)
 live provider calls       NOT AUTHORIZED / NOT NEEDED
 ```
 
@@ -1275,6 +1275,25 @@ Evidence commit: <sha>
 ```
 
 Gemini must not start a live three-condition generation run. Astra reviews EVAL-01F evidence first.
+
+### Gemini Verification — EVAL-01F COMPACT PROVENANCE BUDGET
+
+Status: PASS
+Tested commit: 7514027abc1f4e92ffcb3c3684750b27a26ea5ea
+Evidence commit: df39431df8d5d9f8b28d91dc606b8b35247d82dd
+
+- P8 cleanup readiness: PASS
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: PASS
+- Provider calls: 0
+- Mean full overhead: 799.71 estimated tokens
+- Mean compact overhead: 370.29 estimated tokens
+- Compact overhead reduction: 53.70%
+- Reduction target >=50%: PASS
+- Compact dominance failures vs full: 0
+- Positive-retention frontiers: rq-0011: 3000 compact vs 3500 full; rq-0032: 2750 compact vs 3500 full; rq-0010: 4000 compact vs 4500 full; remaining 4 cases retain all positives down to 2000
+- Critical-retention frontiers: 6/7 cases retain all critical memories down to 2000 in all conditions; rq-0010: 4000 compact vs 4500 full
+- Evidence: docs/development/EVAL-01F-COMPACT-PROVENANCE-BUDGET/
 
 ## NOW — EVAL-01F Compact Provenance + Residual Semantic Budget
 
