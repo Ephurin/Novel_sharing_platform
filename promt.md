@@ -2035,6 +2035,172 @@ Competing explanation still open:
 12k Story Brain budget itself may simply be too conservative.
 ```
 
+## EVAL-01I harness — MERGED
+
+- PR: #19
+- merge commit: `34a41fac2a7316d43a4abc2a7f340044940ca847`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- workflow run: `36680373234`
+- provider calls in CI: **0**
+- contract failures: **0**
+
+Global thresholds from CI:
+
+```text
+baseline_full_entities
+  minimum budget all semantic retained     16000
+  minimum budget all rules retained        16000
+  minimum budget evidence complete         20000
+  minimum budget all recent retained       20000
+  minimum budget all input artifacts fit   20000
+
+retrieval_scoped_entities
+  minimum budget all semantic retained     12000
+  minimum budget all rules retained        12000
+  minimum budget evidence complete         12000
+  minimum budget all recent retained       12000
+  minimum budget all input artifacts fit   12000
+```
+
+12k:
+
+```text
+baseline
+  mean tokens used       11941.86
+  mean headroom             58.14
+  semantic                  4.71 / 8
+  recent                    1.00 / 20
+  evidence-complete cases   0 / 7
+
+retrieval-scoped
+  mean tokens used        8862.29
+  mean headroom           3137.71
+  semantic                  8 / 8
+  recent                   20 / 20
+  evidence-complete cases   7 / 7
+```
+
+16k:
+
+```text
+baseline
+  semantic                  8 / 8
+  recent                   16 / 20 mean
+  evidence-complete cases   4 / 7
+  all rules retained        7 / 7
+  mean tokens used       15543.57
+  mean headroom            456.43
+
+retrieval-scoped
+  full input still fits
+  mean tokens used        8862.29
+```
+
+20k:
+
+```text
+baseline
+  semantic                  8 / 8
+  recent                   20 / 20
+  all rules                 retained
+  all input artifacts       retained
+  evidence-complete cases   7 / 7
+  mean tokens used       16239.57
+  mean headroom           3760.43
+
+retrieval-scoped
+  same complete package as 12k
+  mean tokens used        8862.29
+```
+
+24k / 32k do not add more Story Brain artifacts in this fixture:
+
+```text
+baseline plateau tokens used     16239.57
+scoped plateau tokens used        8862.29
+```
+
+Preliminary interpretation:
+
+```text
+12k is indeed conservative for broad full-entity context.
+
+Raising Story Brain budget to 20k:
+  removes the measured retention failure
+  without changing selection/scoping policy.
+
+Retrieval scoping:
+  achieves the same measured evidence completeness at 12k
+  using ~7.4k fewer estimated Story Brain tokens on average.
+
+16k:
+  sufficient for semantic + rules,
+  not sufficient for all recent events in every case.
+```
+
+Do not choose between "baseline@20k" and "scoped@12k" from offline retention alone.
+
+The next decision must consider generation quality, latency, provider input-token usage/cost, and outer-prompt/manuscript headroom.
+
+Current state:
+
+```text
+EVAL-01I harness        MERGED
+CI diagnostic           PASS
+official main evidence  PENDING GEMINI
+production budget       UNCHANGED
+production scoping      UNCHANGED
+```
+
+### Gemini / Antigravity — run official EVAL-01I evidence now
+
+Use latest `main`. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01i_context_budget_scaling.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01I-CONTEXT-BUDGET-SCALING/
+  diagnostic.json
+  summary.md
+```
+
+Then append:
+
+```text
+### Gemini Verification — EVAL-01I CONTEXT BUDGET SCALING
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+Provider calls: 0
+
+baseline minimum evidence-complete budget: <value>
+baseline minimum all-input-fit budget: <value>
+scoped minimum evidence-complete budget: <value>
+scoped minimum all-input-fit budget: <value>
+
+12k / 16k / 20k / 24k / 32k:
+  tokens used
+  headroom
+  semantic retained
+  recent retained
+  positive/critical retention
+
+P8-05: BLOCKED
+```
+
+Gemini must not alter production budget or entity scoping. Astra reviews official evidence first.
+
 ## NOW — EVAL-01I Context Budget Scaling
 
 Goal:
