@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01G — Full 12k Context Pressure Reconstruction**  
+> Active experiment: **EVAL-01H — Production-Limit Context Scope Diagnostic**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -1704,6 +1704,141 @@ Evidence commit: <sha>
 ```
 
 Do not start live generation until Astra reviews EVAL-01G.
+
+## EVAL-01G final interpretation
+
+Astra final review:
+
+`docs/development/EVAL-01G-FULL-CONTEXT-PRESSURE/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`75ed5d6104900c3d055c4cb11ac6076feb2f79a5`
+
+Critical correction:
+
+```text
+EVAL-01G semantic input   top-20 stress
+production default        top-8
+
+SemanticRetrieverService.default_limit = 8
+Writing generation does not override semantic_limit
+```
+
+Therefore:
+
+```text
+full-package pressure                  VERIFIED AS STRESS
+production default semantic starvation NOT YET PROVEN
+entity/state input breadth             PLAUSIBLE BOTTLENECK
+packer algorithm defect                NOT YET PROVEN
+```
+
+Do not use EVAL-01G alone to justify a production packer rewrite.
+
+## NOW — EVAL-01H Production-Limit Context Scope Diagnostic
+
+Goal:
+
+```text
+use production-shaped semantic limit=8 / recent limit=20
+keep ContextBudgetPacker unchanged
+change only entity/current-state input breadth
+```
+
+Harness:
+
+`scripts/run_eval_01h_prod8_context_scope.py`
+
+Runbook:
+
+[docs/development/EVAL-01H-PROD8-CONTEXT-SCOPE-runbook.md](docs/development/EVAL-01H-PROD8-CONTEXT-SCOPE-runbook.md)
+
+Policies:
+
+```text
+baseline_prod8
+  full entity/state input
+
+retrieval_scoped_entities
+  protected
+  + query-named entities
+  + entities in semantic top-8
+
+balanced_scoped_entities
+  retrieval-scoped
+  + participants from newest 5 recent events
+```
+
+Held constant:
+
+```text
+semantic limit       8
+recent limit        20
+provenance           compact
+world rules          unchanged
+author constraints   unchanged
+ContextBudgetPacker  unchanged
+budgets              12k / 10k / 8k
+```
+
+No positive/critical gold labels are used to build the query scope.
+
+PASS contract for both scoped policies at all tested budgets:
+
+```text
+deterministic                    PASS
+required scope retained          PASS
+protected artifacts retained     PASS
+protected overflow               false
+positive retention             >= baseline
+critical retention             >= baseline
+recent retention               >= baseline
+world-rule retention           >= baseline
+```
+
+### Gemini / Antigravity — after harness merge
+
+Run latest main. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01h_prod8_context_scope.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01H-PROD8-CONTEXT-SCOPE/
+  diagnostic.json
+  summary.md
+```
+
+Handoff:
+
+```text
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+
+- Provider calls: 0
+- semantic limit: 8
+- recent limit: 20
+- contract failures: <count>
+- baseline 12k aggregate: <summary>
+- retrieval-scoped 12k aggregate: <summary>
+- balanced-scoped 12k aggregate: <summary>
+- 10k/8k sensitivity: <summary>
+- protected overflow: <result>
+- P8-05: BLOCKED
+```
+
+Do not change production packer/repository scoping until Astra review.
 
 ## Frozen production contract — do not drift
 
