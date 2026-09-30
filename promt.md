@@ -1832,7 +1832,7 @@ Current state:
 ```text
 EVAL-01H harness        MERGED
 CI contract             PASS
-official main evidence  PENDING GEMINI
+official main evidence  COMPLETE (66dffab)
 production change       NOT AUTHORIZED
 ```
 
@@ -1883,6 +1883,26 @@ Evidence commit: <sha>
 ```
 
 Gemini must not modify ContextBudgetPacker or repository scoping. Astra reviews official evidence first.
+
+### Gemini Verification — EVAL-01H PRODUCTION-LIMIT CONTEXT SCOPE
+
+Status: PASS
+Tested commit: 2c8b4df65ecd6cd26051008d13f419f696c6b34e
+Evidence commit: 66dffab6d5d72cd4001edc77663f9f3d29e66da8
+
+- P8 cleanup readiness: PASS
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: PASS
+- Provider calls: 0
+- semantic limit: 8
+- recent limit: 20
+- contract failures: 0 (deterministic packing PASS, required scope retained PASS, protected artifacts retained PASS)
+- baseline 12k aggregate: 69.57 entities, 8.29 rules, 1.00 recent, 4.71 semantic; pos_ret=0.571 (4/7 cases), crit_ret=0.667 (4/7 cases); zero_semantic=2, zero_recent=4
+- retrieval-scoped 12k aggregate: 15.71 entities, 10.57 rules, 20.00 recent, 8.00 semantic; pos_ret=1.000 (7/7 cases), crit_ret=1.000 (7/7 cases); zero_semantic=0, zero_recent=0; scope_cov=1.000
+- balanced-scoped 12k aggregate: 21.57 entities, 10.57 rules, 20.00 recent, 8.00 semantic; pos_ret=1.000 (7/7 cases), crit_ret=1.000 (7/7 cases); zero_semantic=0, zero_recent=0; scope_cov=1.000
+- 10k/8k sensitivity: baseline collapses to 0.57 semantic @10k and 0.0 semantic @8k (0% retention); both scoped policies maintain 8.0/8 semantic and 1.00 pos/crit retention down to 8k
+- protected overflow: false (0 occurrences across all 63 traces)
+- Evidence: docs/development/EVAL-01H-PROD8-CONTEXT-SCOPE/
 
 ## NOW — EVAL-01H Production-Limit Context Scope Diagnostic
 
