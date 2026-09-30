@@ -4381,3 +4381,150 @@ Exact provider token usage/cost remains unavailable unless the client exposes it
 
 Production changes: NONE.
 P8-05 remains BLOCKED.
+
+
+## EVAL-01O harness — MERGED / LIVE CAPTURE AUTHORIZED
+
+- PR: #25
+- merge commit: `ac937b3d12f38d6ae3d5b63995ec10321e9b90eb`
+- Evaluation Pilot Harness run: `36699131357` — **SUCCESS**
+- CI provider calls: `0`
+- production changes: **none**
+
+CI dry-run contract:
+
+```text
+row_count                         7
+planned_live_calls              42
+routing_uses_gold            false
+query_gold_used_for_scope    false
+exact semantic IDs            true
+exact recent IDs              true
+exact rule IDs                true
+same system prompt            true
+candidate entities subset     true
+candidate tier distribution:
+  12k                           7
+```
+
+Density delta:
+
+```text
+mean broad@20k Story Brain     16,242
+mean balanced scope-first       9,638
+mean reduction                 40.66%
+```
+
+Known regression case `challenge:rq-0025`:
+
+```text
+broad@20k
+  Story Brain used    16,135
+  entities                68
+
+balanced scope-first@12k
+  Story Brain used     9,593
+  entities                20
+  reduction            40.55%
+```
+
+### Gemini / Antigravity — RUN EVAL-01O CAPTURE NOW
+
+Use latest `main`.
+
+Keep the same local workspace through capture → Astra blind review → reveal because the sealed private state is gitignored.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01o_sealed_live_relevance_density.py --stage dry-run
+.\.venv\Scripts\python.exe scripts/run_eval_01o_sealed_live_relevance_density.py --stage capture --key-slot 1
+```
+
+Fixed-key contract:
+
+```text
+one key slot for all 42 calls
+no key rotation
+fallback model = none
+if capture cannot complete on that slot:
+  stop PARTIAL/BLOCKED
+  do not continue with another slot
+```
+
+Public capture evidence to commit:
+
+```text
+docs/development/EVAL-01O-SEALED-LIVE-RELEVANCE-DENSITY/
+  runtime-config.json
+  reviewer-blind.json
+  review-rubric.md
+  capture-contract.json
+  sealed-state.json
+  summary.md
+```
+
+Keep private until Astra blind review:
+
+```text
+.eval-private/eval01o-private.json
+condition-key.json
+raw-generations.json
+prompt-diff-audit.json
+latency-cost.json
+reveal-verification.json
+```
+
+Gemini handoff after capture:
+
+```text
+### Gemini Verification — EVAL-01O SEALED LIVE RELEVANCE DENSITY
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+
+Model: gemini-3.5-flash-lite
+Fixed key slot: <slot>
+Successful calls: <n>/42
+Backoff events: <n>
+Sealed state SHA256: <sha>
+
+Dry-run:
+  rows: 7
+  exact semantic IDs: true
+  exact recent IDs: true
+  exact rule IDs: true
+  candidate tier 12k: 7/7
+
+Condition mapping committed: false
+Raw labelled outputs committed: false
+Quality: BLIND_REVIEW_REQUIRED
+
+P8-05: BLOCKED
+```
+
+Gemini must not identify X/Y or declare a winner.
+
+After capture commit:
+
+```text
+Astra blind review
+  -> freeze all 21 X/Y judgments
+  -> primary focus rq-0025
+  -> commit ASTRA-BLIND-REVIEW.md
+
+Gemini reveal
+  -> zero provider calls
+  -> verify sealed SHA256
+
+Astra final interpretation
+  -> decide whether relevance-density routing is ready for a narrow production proposal
+```
+
+Production policy remains unchanged.
+P8-05 remains BLOCKED.
