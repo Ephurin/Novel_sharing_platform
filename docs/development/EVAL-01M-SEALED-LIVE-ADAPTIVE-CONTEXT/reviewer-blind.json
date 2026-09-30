@@ -1,0 +1,722 @@
+[
+  {
+    "row_id": "core_gold:rq-0011|source_1x",
+    "case_id": "core_gold:rq-0011",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "task_prompt": "For a continuity note, state the established origin of Alan's personal Than Tinh sword based only on the supplied Story Brain evidence.",
+    "chapter_cutoff": 32,
+    "rubric_role": "origin_without_query_leak",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence, Alan's personal Thần Tinh sword was forged collaboratively by Bram, Alan, Elena, and Brand using anti-mana ore, mechanical heat/pressure, and Elena's purification treatment. However, the evidence presents conflicting or ambiguous details regarding its precise origin and creation, noting in one entry that it was forged at the ancient-tomb forge in chapter 32, while another memory establishes its creation in chapter 27. Therefore, its established origin remains tied to these collaborative efforts while preserving the chronological uncertainty between the recorded chapters."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence, Alan's personal Thần Tinh sword was forged collaboratively by Bram, Alan, Elena, and Brand at the fourth forge level in chapter 27 using anti-mana ore, mechanical heat/pressure, and Elena’s purification treatment. Although a later ambiguous scene in chapter 32 also depicts the sword being forged, the established origin remains tied to the collaborative effort in chapter 27. The weapon functions by being naturally resistant to mana, allowing it to strip magical defenses upon contact with an armor gap."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0011|source_1x",
+    "case_id": "core_gold:rq-0011",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "task_prompt": "For a continuity note, state the established origin of Alan's personal Than Tinh sword based only on the supplied Story Brain evidence.",
+    "chapter_cutoff": 32,
+    "rubric_role": "origin_without_query_leak",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence, Alan's personal Thần Tinh sword was forged collaboratively by Bram, Alan, Elena, and Brand at the fourth forge level in chapter 27. It was created from anti-mana ore using mechanical heat, pressure, and Elena's purification treatment. While a conflicting memory chunk in chapter 32 describes a forge scene, the established origin remains the collaborative forging in chapter 27."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence, Alan's personal Thần Tinh sword was forged collaboratively by Bram, Alan, Elena, and Brand using anti-mana ore, mechanical heat/pressure, and Elena's purification treatment. However, subsequent memory records present conflicting accounts, with chapter 27 identifying it as the first Thần Tinh short sword created at the dwarf forge, while chapter 32 ambiguously states that a Than Tinh short sword was forged at the ancient-tomb forge. Because the provenance and metadata for these entries differ, the exact origin remains unresolved between these two contexts."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0011|source_1x",
+    "case_id": "core_gold:rq-0011",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "task_prompt": "For a continuity note, state the established origin of Alan's personal Than Tinh sword based only on the supplied Story Brain evidence.",
+    "chapter_cutoff": 32,
+    "rubric_role": "origin_without_query_leak",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence, the origin of Alan's personal Thần Tinh sword is established in chapter 27. It was collaboratively forged for Alan by Bram, Alan, Elena, and Brand using anti-mana ore, mechanical heat/pressure, and Elena’s purification treatment. Later source-status entries introduce ambiguous or conflicting narrative references, but the foundational origin relies on this collaborative forging."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence, Alan's personal Thần Tinh sword was collaboratively forged in chapter 27 by Bram, Alan, Elena, and Brand using anti-mana ore, mechanical heat/pressure, and Elena's purification treatment. Chapter 32 alternatively mentions the sword being forged at the ancient-tomb forge by Bram, Alan, and Elena, presenting an ambiguous narrative echo and temporal reset. Consequently, the established origin carries unresolved chronological uncertainty between these conflicting source memories."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0023|source_1x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "task_prompt": "Summarize the on-page destruction history of auxiliary Pressure Pillar No. 2 through chapter 45. Preserve chronology and do not silently merge conflicting scenes.",
+    "chapter_cutoff": 45,
+    "rubric_role": "repeated_event_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "In chapter 39, the alliance identifies auxiliary Pressure Pillar No. 2 and its copper links as the next sabotage objective. Later, chapter 42 depicts a coordinated assault that destroys auxiliary Pressure Pillar No. 2 using Than Tinh charges after Valora's diversion, though this memory carries ambiguous review status and temporal-reset tags. Finally, chapter 45 also states that Pressure Pillar No. 2 is destroyed, with its charges triggering a landslide that buries Roland's heavy cavalry and opens the route toward Hẻm Vực Tro Tàn."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The destruction history of auxiliary Pressure Pillar No. 2 exhibits multiple conflicting accounts across the supplied chapters up to chapter 45. Chapter 39 identifies it as an upcoming sabotage objective, while chapter 40 states that Alan, Elena, Brand, and Korgan disabled it by fouling its lens and breaking its copper links. Later, chapter 42 depicts a coordinated assault using Than Tinh charges after Valora's diversion, and chapter 45 similarly attributes its destruction to charges that triggered a massive landslide. These conflicting narrative versions must be preserved chronologically without silently merging them."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0023|source_1x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "task_prompt": "Summarize the on-page destruction history of auxiliary Pressure Pillar No. 2 through chapter 45. Preserve chronology and do not silently merge conflicting scenes.",
+    "chapter_cutoff": 45,
+    "rubric_role": "repeated_event_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The alliance first identifies auxiliary Pressure Pillar No. 2 and its copper links as a sabotage target in chapter 39. Later, chapter 42 depicts a coordinated assault destroying it with Than Tinh charges following Valora's diversion, carrying ambiguous provenance status. Finally, chapter 45 records another destruction of Pressure Pillar No. 2 using charges that trigger a landslide to bury Roland's heavy cavalry and open the route toward Hem Vuc Tro Tan."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The destruction history of auxiliary Pressure Pillar No. 2 exhibits multiple conflicting accounts up through chapter 45. Chapter 38 notes a chain-reaction collapse of twelve auxiliary pillars, while chapter 40 states that Alan, Elena, Brand, and Korgan explicitly disabled Pillar No. 2. Later, chapter 42 and chapter 45 describe separate coordinated assaults using Than Tinh charges that destroy the pillar and trigger landslides. Because these scenes present conflicting narrative-reset events, the chronology is preserved without silently merging them."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0023|source_1x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "task_prompt": "Summarize the on-page destruction history of auxiliary Pressure Pillar No. 2 through chapter 45. Preserve chronology and do not silently merge conflicting scenes.",
+    "chapter_cutoff": 45,
+    "rubric_role": "repeated_event_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The destruction history of auxiliary Pressure Pillar No. 2 contains conflicting accounts across the chapters leading up to chapter 45. Chapter 39 first identifies the pillar and its copper links as a target, while chapter 40 states that Alan, Elena, Brand, and Korgan successfully disabled it by fouling its lens and breaking its links. However, subsequent chapters present alternative destruction scenes, including a coordinated assault with Thần Tinh charges in chapter 42 and a landslide-triggering demolition in chapter 45. These conflicting narrative versions are preserved without silent merging."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Auxiliary Pressure Pillar No. 2 is targeted for sabotage by the alliance in chapter 39 following the western action. Later, conflicting on-page accounts describe its destruction: chapter 42 depicts a coordinated assault using Than Tinh charges after Valora's diversion, while chapter 38 mentions a chain reaction where twelve auxiliary pillars collapse after the western lens is destroyed, and chapter 45 states that its destruction by charges triggers a landslide burying Roland's heavy cavalry and opening the route toward Hẻm Vực Tro Tàn. These conflicting scenes carry ambiguous review status and temporal resets, so they are preserved chronologically without a silent merger."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0023|combined_4x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "task_prompt": "Summarize the on-page destruction history of auxiliary Pressure Pillar No. 2 through chapter 45. Preserve chronology and do not silently merge conflicting scenes.",
+    "chapter_cutoff": 45,
+    "rubric_role": "repeated_event_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied story brain through chapter 45, the on-page destruction history of auxiliary Pressure Pillar No. 2 contains conflicting accounts. Chapter 40 states that Alan, Elena, Brand, and Korgan disabled the pillar by fouling its lens, killing guards, and breaking its copper links. However, chapter 42 and chapter 45 present alternative accounts where the pillar is destroyed using Than Tinh charges, with chapter 45 additionally noting that the resulting landslide buries Roland's cavalry. These conflicting scenes are preserved without a single clean ground-truth consensus."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Auxiliary Pressure Pillar No. 2 was disabled at the Northwest Wind Pass in chapter 34. The destruction involved breaking its siphoning and energy-link hardware, specifically through chemical lens disruption and severing the copper transmission junction, which caused its runes and energy flow to fail."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0023|combined_4x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "task_prompt": "Summarize the on-page destruction history of auxiliary Pressure Pillar No. 2 through chapter 45. Preserve chronology and do not silently merge conflicting scenes.",
+    "chapter_cutoff": 45,
+    "rubric_role": "repeated_event_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The destruction history of auxiliary Pressure Pillar No. 2 exhibits conflicting narrative accounts across the supplied memories up to chapter 45. In chapter 39, the alliance identifies it as a future sabotage objective, while chapter 40 depicts Alan, Elena, Brand, and Korgan successfully disabling it by fouling its lens and breaking its links. Subsequently, chapter 42 presents a coordinated assault destroying the pillar using Thần Tinh charges following Valora's diversion. Finally, chapter 45 again recounts the destruction of Pressure Pillar No. 2 via charges that trigger a landslide against Roland's cavalry, reflecting unresolved temporal and narrative overlaps."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Auxiliary Pressure Pillar No. 2 was disabled at the Northwest Wind Pass in chapter 34 by breaking its siphoning and energy-link hardware, which involved chemical lens disruption and severing the copper transmission junction to cause its runes and energy flow to fail. By chapter 45, the broader state of the structure is recorded with ambiguous review status and temporal-reset narrative markers. No additional on-page destruction history for this pillar is established in the supplied context prior to chapter 45."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0023|combined_4x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "task_prompt": "Summarize the on-page destruction history of auxiliary Pressure Pillar No. 2 through chapter 45. Preserve chronology and do not silently merge conflicting scenes.",
+    "chapter_cutoff": 45,
+    "rubric_role": "repeated_event_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Auxiliary Pressure Pillar No. 2 was disabled at the Northwest Wind Pass in chapter 34 by breaking its siphoning and energy-link hardware, specifically through chemical lens disruption and severing the copper transmission junction. As established in the narrative evidence through chapter 45, this sabotage caused its runes and energy flow to fail. No other on-page destruction events for this specific auxiliary pillar are recorded in the supplied story context prior to chapter 45."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The destruction history of auxiliary Pressure Pillar No. 2 exhibits conflicting narrative accounts across the supplied memories up to chapter 45. In chapter 39, the alliance identifies it as a planned sabotage target, while chapter 40 depicts Alan, Elena, Brand, and Korgan successfully disabling it by fouling its lens and breaking its copper links. However, chapter 42 alternatively attributes its destruction to a coordinated assault using Than Tinh charges, and chapter 45 describes it being destroyed with charges that trigger a landslide against Roland's forces. Because provenance metadata marks these entries as ambiguous narrative echoes, these conflicting scenes cannot be cleanly merged into a single chronological sequence."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0025|source_1x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "task_prompt": "Summarize what happens to Roland's three-thousand heavy cavalry through chapter 49. Preserve chronology when the supplied memories disagree.",
+    "chapter_cutoff": 49,
+    "rubric_role": "repeated_force_state",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, the state of Roland's three-thousand heavy cavalry remains chronologically conflicting and uncertain. Memories report that the force was buried by a rock collapse triggered by Thần Tinh during the destruction of Pressure Pillar No. 2 or subsequent events in chapters 45 and 47, while a conflicting memory in chapter 49 states they are backing two solar artillery systems at the eastern Hẻm Vực exit. Because provenance metadata marks these entries as ambiguous or temporal resets, the exact status of the cavalry remains unresolved."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, Roland's three thousand heavy cavalry are deployed at the eastern Hẻm Vực exit backing two solar artillery systems. Earlier in the narrative arc, conflicting accounts place their fate differently, noting that they were either buried by a Thần Tinh-triggered rock collapse or escaped with a remnant following pressure pillar destruction. The supplied memories preserve this chronological and force-state uncertainty without resolving whether the entire unit perished in the collapses or survived to make a final defensive stand."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0025|source_1x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "task_prompt": "Summarize what happens to Roland's three-thousand heavy cavalry through chapter 49. Preserve chronology when the supplied memories disagree.",
+    "chapter_cutoff": 49,
+    "rubric_role": "repeated_force_state",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, Roland's three thousand heavy cavalry are documented in conflicting accounts. Earlier reports state they were buried by a Thần Tinh-triggered rock collapse during the destruction of Pressure Pillar No. 2 or in a narrow valley, with Roland escaping with a remnant. However, chapter 49 also presents them defending the eastern Hẻm Vực exit alongside two solar artillery systems before the artillery position is destroyed."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, the state of Roland's three thousand heavy cavalry remains chronologically contradictory and unresolved across the supplied memories. Chapters 45 and 47 state that the cavalry was buried by a Thần Tinh-triggered rock collapse or landslide during infrastructure sabotage, with Roland escaping only with a remnant. However, chapter 49 presents a conflicting account where three thousand heavy cavalry are actively backing two solar artillery systems at the eastern Hẻm Vực exit. Because provenance metadata marks these memory records as ambiguous with force state conflicts and temporal resets, the conflicting fates of the cavalry are preserved without inventing a reconciliation."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0025|source_1x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "task_prompt": "Summarize what happens to Roland's three-thousand heavy cavalry through chapter 49. Preserve chronology when the supplied memories disagree.",
+    "chapter_cutoff": 49,
+    "rubric_role": "repeated_force_state",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, the state of Roland's three thousand heavy cavalry remains chronologically conflicting and uncertain based on the supplied records. Memory records indicate that pressure pillar charges and rock collapses buried Roland's three-thousand-strong heavy cavalry in chapters 45 and 47, leaving only a remnant to escape. However, a subsequent memory from chapter 49 presents Roland's force defending the eastern Hẻm Vực exit alongside two solar artillery systems with all three thousand heavy cavalry intact. Because the supplied provenance metadata is marked with force state conflicts and temporal resets, both fates remain un-reconciled."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, conflicting accounts exist regarding Roland's three thousand heavy cavalry: memories note them being buried by a Thần Tinh-triggered rock collapse during the destruction of Pressure Pillar No. 2 (or in Chapter 47), while later records present them defending the eastern Hẻm Vực exit alongside two solar artillery systems before the artillery position is destroyed by a Thần Tinh charge."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0025|combined_4x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "task_prompt": "Summarize what happens to Roland's three-thousand heavy cavalry through chapter 49. Preserve chronology when the supplied memories disagree.",
+    "chapter_cutoff": 49,
+    "rubric_role": "repeated_force_state",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied narrative records conflicting accounts regarding Roland's three thousand heavy cavalry through chapter 49. Chapter 45 states they were buried by a landslide triggered during the destruction of Pressure Pillar No. 2, while chapter 47 reports they entered a narrow valley and were buried by a Thần Tinh-triggered rock collapse with Roland escaping. Conversely, chapter 49 presents them actively backing two solar artillery systems at the eastern Hẻm Vực exit before the artillery position is destroyed."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, Roland's three-thousand heavy cavalry force encounters tactical conflict involving terrain traps and infrastructure sabotage. The supplied memories contain conflicting force states and unresolved uncertainty regarding the exact fate or disposition of these troops, so their status remains open and unharmonized."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0025|combined_4x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "task_prompt": "Summarize what happens to Roland's three-thousand heavy cavalry through chapter 49. Preserve chronology when the supplied memories disagree.",
+    "chapter_cutoff": 49,
+    "rubric_role": "repeated_force_state",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied narrative records conflicting accounts regarding Roland's three thousand heavy cavalry through chapter 49. In chapter 45, the destruction of Pressure Pillar No. 2 triggers a landslide said to bury the cavalry. Conversely, chapter 47 states they enter a narrow valley and are buried by a Than Tinh-triggered rock collapse while Roland escapes with a remnant. However, chapter 49 also presents them defending the eastern Hẻm Vực exit alongside two solar artillery systems before the route is declared open."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, the state of Roland's three-thousand heavy cavalry remains unresolved and subject to conflicting force-state memories. The supplied story brain does not establish a definitive final outcome for these troops prior to chapter 49, preserving narrative uncertainty regarding their movements and losses."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0025|combined_4x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "task_prompt": "Summarize what happens to Roland's three-thousand heavy cavalry through chapter 49. Preserve chronology when the supplied memories disagree.",
+    "chapter_cutoff": 49,
+    "rubric_role": "repeated_force_state",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, the narrative memories regarding Roland's three-thousand heavy cavalry present conflicting accounts. In chapter 45, the cavalry is reportedly buried by a landslide triggered by pressure pillar destruction, while chapter 47 states they were buried by a Thần Tinh-triggered rock collapse in a narrow valley with Roland escaping. However, chapter 49 depicts them actively defending the eastern Hẻm Vực exit alongside two solar artillery systems before the route is opened by a Thần Tinh charge."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Through chapter 49, Roland's three-thousand heavy cavalry force encounters tactical disruptions involving terrain, mud, and narrow environments rather than direct frontal engagements. The narrative memories present conflicting force states and unresolved uncertainties regarding their operational readiness and ultimate fate. Consequently, the supplied evidence does not establish a single definitive outcome for Roland's entire cavalry unit."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0020|source_1x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "task_prompt": "What does the supplied Story Brain actually establish about responsibility for the old Hem Vuc / Tro Tan battle? Separate established facts from character claims.",
+    "chapter_cutoff": 45,
+    "rubric_role": "conflicting_attributed_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied Story Brain establishes that responsibility for the old Hem Vuc / Tro Tan battle remains a matter of conflicting character claims rather than a definitively proven fact. Gargas accuses humans of abandoning Demon cavalry during the engagement, whereas Garrick counters that Varian died while covering the Demon withdrawal. Additionally, Garrick blames a Demon retreat for abandoning Varian and Oakhaven fighters twenty years earlier, while Valora counters this claim by asserting that Kaelen was the traitorous commander and stating that she killed him afterward."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied Story Brain establishes no verified, objective ground-truth facts regarding direct responsibility for the old Hem Vuc / Tro Tan battle, presenting instead conflicting character claims and unverified attributions. Specifically, Gargas accuses humans of abandoning Demon cavalry during the engagement, whereas Garrick counters that Varian died covering the Demon withdrawal. In a separate exchange, Garrick blames a Demon retreat for abandoning Varian and Oakhaven fighters twenty years prior, while Valora counters that Kaelen was the traitorous commander and asserts that she killed him afterward. These competing narratives remain unresolved in the source material and should be treated strictly as subjective character assertions rather than established historical facts."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0020|source_1x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "task_prompt": "What does the supplied Story Brain actually establish about responsibility for the old Hem Vuc / Tro Tan battle? Separate established facts from character claims.",
+    "chapter_cutoff": 45,
+    "rubric_role": "conflicting_attributed_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied Story Brain establishes that responsibility for the old Hem Vuc battle is a matter of conflicting character claims rather than a settled factual record. Gargas accuses humans of abandoning Demon cavalry during the conflict, while Garrick counters that Varian died specifically to cover the Demon withdrawal. Furthermore, Garrick blames a Demon retreat for abandoning Varian and Oakhaven fighters twenty years prior, whereas Valora contends that Kaelen was the actual traitorous commander whom she later killed."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied Story Brain establishes no single, verified ground-truth fact regarding responsibility for the old Hem Vuc / Tro Tan battle, presenting only conflicting character claims and unverified attributions. Specifically, Gargas accuses humans of abandoning Demon cavalry during the conflict, whereas Garrick counters that Varian died covering the Demon withdrawal. In a separate exchange, Garrick blames a Demon retreat for abandoning Varian and Oakhaven fighters twenty years prior, while Valora counters that Kaelen was the traitorous commander and asserts that she killed him afterward. These competing narratives remain unresolved in the text without external confirmation."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0020|source_1x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "task_prompt": "What does the supplied Story Brain actually establish about responsibility for the old Hem Vuc / Tro Tan battle? Separate established facts from character claims.",
+    "chapter_cutoff": 45,
+    "rubric_role": "conflicting_attributed_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied Story Brain establishes that responsibility for the old Hem Vuc battle is a matter of conflicting character claims rather than a single verified fact. Gargas accuses humans of abandoning Demon cavalry during the conflict, while Garrick counters that Varian died covering the Demon withdrawal. Furthermore, Garrick blames a Demon retreat for abandoning Varian and Oakhaven fighters twenty years earlier, whereas Valora counters that Kaelen was the traitorous commander and asserts that she killed him afterward."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain, the historical responsibility for the old Hem Vuc / Tro Tan battle remains an unsettled matter composed entirely of conflicting character claims rather than established objective facts. Gargas accuses humans of abandoning Demon cavalry during the engagement. In contrast, Garrick asserts that Varian died specifically to cover the Demon withdrawal, while in a separate exchange, Valora counters that Kaelen was the actual traitorous commander whom she claims to have killed afterward. The narrative context supplies no verified ground-truth record to resolve these contradictory accusations."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0020|combined_4x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "task_prompt": "What does the supplied Story Brain actually establish about responsibility for the old Hem Vuc / Tro Tan battle? Separate established facts from character claims.",
+    "chapter_cutoff": 45,
+    "rubric_role": "conflicting_attributed_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied Story Brain establishes no objective historical facts regarding responsibility for the old Hem Vuc / Tro Tan battle. Instead, it only records conflicting character claims and grievances. Gargas accuses humans of abandoning Demon cavalry during the old battle, whereas Garrick asserts that Varian died covering the Demon withdrawal. Additionally, Garrick blames a Demon retreat for abandoning Varian and Oakhaven fighters twenty years earlier, while Valora counters that Kaelen was the traitorous commander."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain up to chapter 45, the record establishes Hẻm Vực Tro Tàn (Ash Canyon) as a location linked to ambiguous secrets, narrative echoes, and temporal resets rather than a cleanly proven historical event. The context contains no definitive ground-truth evidence establishing who or what was directly responsible for the old Hem Vuc / Tro Tan battle. Any specific attributions of blame remain unverified character claims or ambiguous memory fragments that must be preserved as unresolved uncertainty."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0020|combined_4x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "task_prompt": "What does the supplied Story Brain actually establish about responsibility for the old Hem Vuc / Tro Tan battle? Separate established facts from character claims.",
+    "chapter_cutoff": 45,
+    "rubric_role": "conflicting_attributed_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence up to chapter 45, the narrative establishes that Hẻm Vực Tro Tàn (Ash Ravine) and related structures like the Pressure Pillars and the Starlight detonation triggers are associated with ambiguous or conflicting accounts rather than a clean ground truth. The text includes conflicting narrative echoes and temporal resets (such as memory IDs mem-000164 and mem-000165) involving characters like Alan, Elena, and Roland. Therefore, definitive responsibility or direct causality for the old Ash Ravine battle remains unresolved within the provided context, and any specific attributions of blame should be treated as character claims or unverified echoes rather than established facts."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied Story Brain establishes no verified, objective facts regarding absolute responsibility for the old Hem Vuc / Tro Tan battle. Instead, it only presents conflicting character claims: Gargas accuses humans of abandoning Demon cavalry, Garrick asserts that Varian died covering the Demon withdrawal and blames a Demon retreat for abandoning fighters, and Valora counters that Kaelen was the traitorous commander whom she subsequently killed. Therefore, individual attributions remain contradictory character grievances rather than established ground-truth history."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0020|combined_4x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "task_prompt": "What does the supplied Story Brain actually establish about responsibility for the old Hem Vuc / Tro Tan battle? Separate established facts from character claims.",
+    "chapter_cutoff": 45,
+    "rubric_role": "conflicting_attributed_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain up to chapter 45, the record establishes no verified, uncontradicted ground-truth facts regarding direct responsibility for the old Hem Vuc / Tro Tan battle. The available metadata for mentions of Hẻm Vực Tro Tàn and related events is marked with ambiguous status and temporal reset tags, meaning any attribution of blame remains merely character claim or unconfirmed narrative echo rather than established fact."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "The supplied Story Brain establishes no objective, undisputed ground-truth facts regarding overall responsibility for the old Hem Vuc / Tro Tan battle. Instead, the narrative presents conflicting character claims and grievances: Gargas accuses humans of abandoning Demon cavalry during the engagement, whereas Garrick counters that a Demon retreat caused the abandonment of Varian and Oakhaven fighters, and Valora further alleges that Kaelen was a traitorous commander whom she subsequently killed. Therefore, actual responsibility remains unresolved and is known only through these contradictory character accounts."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0032|source_1x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "task_prompt": "By chapter 55, summarize what is established about Alistair's discovery and motive. Distinguish earlier reported interpretations from later established evidence.",
+    "chapter_cutoff": 55,
+    "rubric_role": "source_status_supersession",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 55, the supplied story evidence establishes that Alistair is part of the final assault group alongside Alan, Elena, and Valora at the Dai Tế Khởi Nguyên and Đại Thánh Đường Solaria. However, the context does not provide specific details regarding Alistair's initial discovery or underlying motive prior to chapter 55. Therefore, no earlier reported interpretations can be distinguished from later established evidence concerning his discovery and motive without inventing unverified facts."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 55, established canonical evidence reveals that Alistair's motive is to preserve human survival and prolong the Solaria system by accepting the sacrifice of borderlands and slums. Earlier reported interpretations suggested he sought personal divinity or wished to break the artificial sky enclosure after discovering an ecological collapse beyond it. Later established canonical evidence confirms these actions stem from maintaining the enclosure's underlying survival mechanisms rather than a simple quest for personal power."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0032|source_1x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "task_prompt": "By chapter 55, summarize what is established about Alistair's discovery and motive. Distinguish earlier reported interpretations from later established evidence.",
+    "chapter_cutoff": 55,
+    "rubric_role": "source_status_supersession",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 55, the supplied story evidence does not establish Alistair's discovery or motive. Earlier reported interpretations and later established evidence regarding Alistair cannot be distinguished because no context or provenance metadata for Alistair's discovery or motive is present in the story brain."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 55, established evidence shows that Alistair discovered an artificial sky and underlying ecological collapse after defeating the Demon King twenty years ago, motivating him to prolong human survival and the Solaria system by sacrificing borderlands and slums rather than seeking personal power. Earlier reported interpretations claimed Alistair saw a void or truth beyond the artificial sky and chose a destructive path to break the enclosure or become divine, while other preliminary reports positioned him as leading northern missions supported by Oakhaven's grain."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0032|source_1x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "task_prompt": "By chapter 55, summarize what is established about Alistair's discovery and motive. Distinguish earlier reported interpretations from later established evidence.",
+    "chapter_cutoff": 55,
+    "rubric_role": "source_status_supersession",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 55, Alistair's discovery and motive remain anchored to the arc progression and final assault contexts established in the story brain. Earlier reported interpretations suggested various external motivations, but later established evidence aligns with the ongoing events up to chapter 55 without inventing further provenance. The narrative preserves this trajectory while maintaining the exact scope provided by the canonical entries."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 55, established evidence shows that after defeating the Demon King twenty years ago, Alistair discovered an artificial sky and underlying ecological collapse that threatens Solaria's survival system. Consequently, his motive is to prolong human survival by sacrificing borderlands and slums rather than seeking personal power. Earlier reported interpretations suggested he pursued a destructive path aimed simply at breaking the enclosure or becoming divine, but canonical evidence reveals his actions serve systemic preservation."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0032|combined_4x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "task_prompt": "By chapter 55, summarize what is established about Alistair's discovery and motive. Distinguish earlier reported interpretations from later established evidence.",
+    "chapter_cutoff": 55,
+    "rubric_role": "source_status_supersession",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 55, Alistair's discovery and motive remain anchored to the arc progression and final assault leading up to Solaria and the Origin Altar. Earlier reports and interpretations regarding his findings are superseded or contextualized by the later established evidence surrounding the final operations and strategic objectives. The supplied story brain does not contain further explicit details to separate initial hypotheses from confirmed facts beyond his active involvement in the final assault."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Earlier reported interpretations claimed Alistair discovered a void beyond the artificial sky after defeating the Demon King and chose a destructive path to break the enclosure or attain divinity. However, later established evidence up to chapter 55 clarifies that Alistair and Varian uncovered an underlying ecological collapse threatening Solaria's survival system, leading Alistair to accept sacrificing borderlands and slums to prolong human survival."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0032|combined_4x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "task_prompt": "By chapter 55, summarize what is established about Alistair's discovery and motive. Distinguish earlier reported interpretations from later established evidence.",
+    "chapter_cutoff": 55,
+    "rubric_role": "source_status_supersession",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 55, Alistair's discovery and motive remain tied to the narrative's arc progression and final assault, as outlined in the provided story brain. Earlier reported interpretations are distinguished from later established evidence based strictly on the stored source status and confirmation states up to chapter 55. Without additional provenance metadata or explicit descriptive text in the context, no further causal details or personal motivations regarding Alistair's discovery can be assumed or invented."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Earlier reported interpretations claimed Alistair sought personal divine power or sought to break the artificial sky out of malice after defeating the Demon King. However, established evidence by chapter 54 reveals that Alistair and Varian discovered an underlying ecological collapse and the artificial sky system twenty years ago. Consequently, Alistair's motive is established as prolonging human survival and maintaining the Solaria system, even if it requires sacrificing the borderlands and slums."
+      }
+    }
+  },
+  {
+    "row_id": "challenge:rq-0032|combined_4x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "task_prompt": "By chapter 55, summarize what is established about Alistair's discovery and motive. Distinguish earlier reported interpretations from later established evidence.",
+    "chapter_cutoff": 55,
+    "rubric_role": "source_status_supersession",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Earlier reported interpretations claimed Alistair sought personal divine power after witnessing a void beyond the artificial sky. However, later established canonical evidence reveals that his discovery concerned an ecological collapse underlying Solaria's survival system, and his motive was actually to prolong human survival by accepting harsh systemic sacrifices. This development clarifies that his actions stem from systematic preservation rather than simple malice."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 55, the supplied story evidence establishes Alistair's presence and participation in the arc's final assault, but the provided context contains no provenance metadata, review status, or explicit source details regarding Alistair's specific discovery and motive. Consequently, earlier reported interpretations cannot be distinguished from later established evidence because no such prior claims or subsequent records are present in the brain. The narrative data preserves complete uncertainty about Alistair's underlying reasons without inventing missing physical identity or causality."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0038|source_1x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "task_prompt": "Is it established that the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache? Answer only from supplied evidence.",
+    "chapter_cutoff": 61,
+    "rubric_role": "physical_identity_provenance",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The context tracks the Oakhaven reserve seeds under item-005 in chapter 18, but does not provide provenance, status, or identity confirmation linking them to post-war red-maple plantings. Therefore, any identity or causal connection between the two must remain unestablished."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied story evidence, it is not established that the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The text records that Oakhaven carried reserve seeds underground during the evacuation, and later notes that Elena plants new red-maple seeds upon returning, but it never explicitly connects the two caches into a single physical identity."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0038|source_1x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "task_prompt": "Is it established that the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache? Answer only from supplied evidence.",
+    "chapter_cutoff": 61,
+    "rubric_role": "physical_identity_provenance",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The context records the existence of the Oakhaven reserve seeds under item-005 at chapter 18, but does not provide provenance metadata or a physical identity link to any post-war red-maple seeds. Therefore, any connection between the two caches remains unverified."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied story evidence, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The text mentions that Oakhaven carried its remaining medical supplies and reserve seeds underground during the evacuation, and later notes that Elena plants new red-maple seeds in soil tilled by Alan. However, the supplied brain does not explicitly state whether the planted red-maple seeds are identical to the reserve seeds evacuated earlier."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0038|source_1x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "task_prompt": "Is it established that the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache? Answer only from supplied evidence.",
+    "chapter_cutoff": 61,
+    "rubric_role": "physical_identity_provenance",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence up to chapter 61, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The context notes the existence of the Oakhaven reserve seeds under item-005, but contains no provenance or physical identity link confirming they are identical to any post-war red-maple seeds."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied story evidence up to chapter 61, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The text mentions that Oakhaven carried reserve seeds underground during the evacuation, and later notes that Elena plants new red-maple seeds upon returning to Oakhaven, but it never explicitly confirms or denies their physical identity."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0038|combined_4x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "task_prompt": "Is it established that the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache? Answer only from supplied evidence.",
+    "chapter_cutoff": 61,
+    "rubric_role": "physical_identity_provenance",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence up to chapter 61, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The context tracks the Oakhaven reserve seeds under entity item-005 with high confidence, but does not provide provenance metadata linking their physical identity to post-war red-maple planting. Therefore, any direct identity between the two seed caches remains unverified."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied story evidence up to chapter 61, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The text notes that Oakhaven carried reserve seeds underground during the civilian evacuation in chapter 17, and later mentions that survivors departed Solaria with seeds and agricultural tools and that Elena plants new red-maple seeds upon returning to Oakhaven in chapter 61. However, the supplied evidence does not explicitly track the physical identity of the seeds across this timeline or confirm whether they are the exact same cache."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0038|combined_4x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "task_prompt": "Is it established that the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache? Answer only from supplied evidence.",
+    "chapter_cutoff": 61,
+    "rubric_role": "physical_identity_provenance",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied story evidence, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The text records that Oakhaven carried reserve seeds underground during the chapter 17 evacuation, and later mentions Elena planting new red-maple seeds in chapter 61, but it leaves their exact physical continuity unstated. Therefore, preserving narrative uncertainty, the supplied evidence does not confirm identity or causality between the two seed collections."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "It is not established in the supplied Story Brain whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The context records the Oakhaven seed reserve under item-005 with high confidence, but it does not track their physical transition into the post-war red-maple plantings. Therefore, any identity between the two seed caches cannot be verified from the given evidence."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0038|combined_4x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "task_prompt": "Is it established that the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache? Answer only from supplied evidence.",
+    "chapter_cutoff": 61,
+    "rubric_role": "physical_identity_provenance",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied story evidence, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. Chapter 17 states that Oakhaven carried reserve seeds underground during the final evacuation, while Chapter 61 notes that Elena plants new red-maple seeds upon returning. Because the context does not explicitly link or track the physical identity of these two seed groups across the timeline, their exact relationship remains unverified. Therefore, any direct identity between the evacuated cache and the planted seeds cannot be confirmed from the text alone."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "Based on the supplied Story Brain evidence up to chapter 61, it is not established whether the reserve seeds evacuated from Oakhaven and the red-maple seeds planted after the war are the same physical seed cache. The context tracks the Oakhaven reserve seeds under item-005 with a high-confidence relationship memory from chapter 18, but does not explicitly confirm their physical identity or equivalence with any post-war red-maple seeds. Therefore, any direct link between the two caches remains unverified by the supplied text."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0010|source_1x",
+    "case_id": "core_gold:rq-0010",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "task_prompt": "Summarize how Valora's trust in the Oakhaven group develops by chapter 33, preserving event order.",
+    "chapter_cutoff": 33,
+    "rubric_role": "negative_control_causal_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 31, Valora establishes a reciprocal alliance with Oakhaven, committing Demon Thần Tinh resources and forge access after accepting Elena and Alan's proposal. By chapter 33, after a joint battlefield victory at the northwestern dry marsh, Valora openly revises her view of the group, recognizing the effectiveness of their non-mana medicine and Thần Tinh combat. This transforms their agreement into an operational battlefield partnership where they further coordinate strategies against Temple infrastructure."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 31, Valora accepts Elena's proposal for a reciprocal human-demon alliance, committing her faction's Thần Tinh ore and forge access to the anti-Temple effort. Following this agreement, Valora's demon cavalry and Oakhaven fighters execute a successful joint ambush at the northwestern dry marsh by chapter 33. Through this battlefield payoff, Valora openly revises her view of Oakhaven, recognizing that their non-mana medicine and Thần Tinh combat can defeat Temple equipment and solidifying their relationship into an operational partnership."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0010|source_1x",
+    "case_id": "core_gold:rq-0010",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "task_prompt": "Summarize how Valora's trust in the Oakhaven group develops by chapter 33, preserving event order.",
+    "chapter_cutoff": 33,
+    "rubric_role": "negative_control_causal_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 31, Valora accepts Elena's proposal for an explicit, reciprocal alliance where Oakhaven contributes anti-quang medicine and combat knowledge while her faction supplies Thần Tinh ore and forge access. This progresses further by chapter 33, after Oakhaven fighters and Valora's Demon cavalry execute a successful joint ambush at the northwestern dry marsh. Consequently, Valora openly revises her view of Oakhaven, recognizing their non-mana medicine and Thần Tinh combat capabilities can defeat Temple equipment and solidifying their relationship into an operational battlefield partnership."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 31, Valora establishes a reciprocal alliance with Oakhaven after accepting Elena's proposal of combining anti-quang medicine with Demon resources. Following a joint victory at the northwestern dry marsh in chapter 33, Valora openly revises her view of the group, recognizing that Oakhaven's non-mana medicine and Thần Tinh combat capabilities can effectively defeat Temple equipment. Consequently, the alliance evolves into an operational battlefield partnership, with Valora further agreeing to supply raw Thần Tinh ore for nullification charges against auxiliary Pressure Pillars."
+      }
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0010|source_1x",
+    "case_id": "core_gold:rq-0010",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "task_prompt": "Summarize how Valora's trust in the Oakhaven group develops by chapter 33, preserving event order.",
+    "chapter_cutoff": 33,
+    "rubric_role": "negative_control_causal_history",
+    "outputs": {
+      "X": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 31, Valora accepts Elena's proposal for a reciprocal human-demon alliance, committing her faction's Thần Tinh ore and forge access to the anti-Temple effort. Following this agreement, Oakhaven fighters and Valora's Demon cavalry execute a successful joint ambush at the northwestern dry marsh in chapter 33. Consequently, Valora openly revises her view of Oakhaven by chapter 33, transforming the alliance into an operational battlefield partnership based on the proven effectiveness of their non-mana medicine and Thần Tinh combat."
+      },
+      "Y": {
+        "execution_status": "SUCCESS",
+        "draft_text": "By chapter 31, Valora establishes a reciprocal alliance with Oakhaven after accepting Elena's proposal, committing Demon Thần Tinh resources and forge access to the anti-Temple effort. By chapter 33, following a coordinated joint battle at the northwestern dry marsh, Valora openly revises her view of Oakhaven. She recognizes that their non-mana medicine and Thần Tinh combat can effectively defeat Temple equipment, transforming the alliance into an operational battlefield partnership. Consequently, Valora agrees to supply raw ore so Elena can combine corrupted-root chemistry with powdered Thần Tinh for nullification charges against auxiliary Pressure Pillars."
+      }
+    }
+  }
+]

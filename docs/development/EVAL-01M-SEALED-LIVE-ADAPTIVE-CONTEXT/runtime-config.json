@@ -1,0 +1,21 @@
+{
+  "experiment_id": "EVAL-01M",
+  "stage": "capture",
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0.0,
+  "max_tokens": 512,
+  "fixed_key_slot": "slot-1",
+  "key_rotation": false,
+  "repeats": 3,
+  "row_count": 12,
+  "normal_rows": 7,
+  "stress_resilience_rows": 5,
+  "expected_calls": 72,
+  "successful_calls": 72,
+  "provider_backoff_events": 0,
+  "quality_scoring": "BLIND_REVIEW_REQUIRED",
+  "condition_mapping_committed": false,
+  "raw_condition_labels_committed": false,
+  "provider_token_usage": "not_exposed_by_current_client",
+  "provider_cost": "not_measured"
+}

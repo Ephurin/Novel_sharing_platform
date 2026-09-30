@@ -1,0 +1,19 @@
+{
+  "experiment_id": "EVAL-01M",
+  "routing_uses_gold": false,
+  "query_gold_used_for_package_locking": false,
+  "evaluation_entity_locks_removed": true,
+  "source_derived_world_rule_locks_retained": true,
+  "normal_rows": 7,
+  "stress_resilience_rows": 5,
+  "total_rows": 12,
+  "candidate_branch_counts": {
+    "broad_20k": 7,
+    "scoped_20k": 3,
+    "scoped_24k": 2
+  },
+  "all_same_system_prompt": true,
+  "all_same_source_package_hash": true,
+  "all_control_protected_overflow_false": true,
+  "all_candidate_protected_overflow_false": true
+}
