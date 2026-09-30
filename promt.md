@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01M — Sealed Live Adaptive Context Validation**  
+> Active experiment: **EVAL-01N — Relevance Density / Scope-First Diagnostic**  
 > EVAL-01L is closed. Do not change production architecture until EVAL-01M live evidence is blind-reviewed and revealed.
 
 ## Current verified baseline
@@ -3899,3 +3899,167 @@ provider calls during reveal: 0
 condition mapping committed: true
 raw audit committed: true
 P8-05: BLOCKED
+
+
+## EVAL-01M final interpretation — CLOSED
+
+Astra final review:
+
+`docs/development/EVAL-01M-SEALED-LIVE-ADAPTIVE-CONTEXT/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`a73f37ad668c5317ee7ee7785ef1fe52266b62e6`
+
+Verdict:
+
+```text
+SUPPORTED_FOR_IMPLEMENTATION_PROPOSAL
+```
+
+This does **not** authorize production rollout.
+
+Mapped blind result:
+
+```text
+NORMAL
+  adaptive_eval01l       9
+  fixed_broad_12k        3
+  tie                    9
+
+STRESS_RESILIENCE
+  adaptive_eval01l      12
+  fixed_broad_12k        0
+  tie                    3
+```
+
+Key interpretation:
+
+```text
+fixed universal 12k             REJECT AS GENERAL POLICY
+always-on large context         NOT JUSTIFIED
+adaptive budget + scoping       SUPPORTED
+relevance-density control       REQUIRED BEFORE ROLLOUT
+```
+
+Confirmed regression:
+
+```text
+challenge:rq-0025 NORMAL
+  adaptive 0
+  control  3
+
+adaptive retained:
+  semantic 8/8
+  recent 20/20
+
+control retained:
+  semantic 5/8
+  recent 0/20
+```
+
+This establishes a new failure mode:
+
+```text
+more retained evidence
+  !=
+better generation precision
+
+context dilution / attention competition is now a measured risk
+```
+
+Latency evidence:
+
+```text
+NORMAL
+  fixed mean       1839 ms
+  adaptive mean    1834 ms
+
+STRESS_RESILIENCE
+  fixed mean       1883 ms
+  adaptive mean    1930 ms
+```
+
+Exact provider token usage/cost remains unavailable from the current client.
+
+# NOW — EVAL-01N Relevance Density / Scope-First Diagnostic
+
+Goal:
+
+```text
+test whether scoping entity/current-state breadth earlier
+can preserve all evidence while reducing distracting context
+relative to current broad@20k NORMAL routing
+```
+
+Offline only.
+
+Provider calls:
+
+`0`
+
+Production changes:
+
+`NONE`
+
+Primary hypothesis:
+
+```text
+if broad package >12k:
+  scope entity/state breadth first
+  then choose the minimum scoped tier that fits
+
+rather than:
+  broad <=20k -> broad@20k
+```
+
+Candidate scope inputs must be source-derived only:
+
+```text
+query-named entities
++ entities appearing in semantic top-8
++ optional recent-participant expansion
+```
+
+No gold labels may influence scope/routing.
+
+EVAL-01N should compare at least:
+
+```text
+A current EVAL-01L NORMAL route
+  broad@20k
+
+B retrieval-scoped density candidate
+  scoped package
+  minimum fitting tier from 12k/16k/20k/24k
+
+C balanced-scoped density candidate
+  retrieval scope
+  + participants from newest recent-event window
+  minimum fitting tier from 12k/16k/20k/24k
+```
+
+Primary success checks:
+
+```text
+all 7 source_1x cases
+semantic 8/8 retained
+recent 20/20 retained
+all source-derived world rules retained
+required entity scope retained
+protected overflow = 0
+deterministic packing
+estimated context materially lower than broad@20k
+```
+
+Special diagnostic case:
+
+`challenge:rq-0025`
+
+The experiment must report whether a scope-first package preserves the same evidence lanes while reducing entity/state breadth and total estimated prompt size for this known live regression.
+
+Do not modify ContextBudgetPacker.
+
+Do not alter production policy.
+
+P8-05 remains BLOCKED.
