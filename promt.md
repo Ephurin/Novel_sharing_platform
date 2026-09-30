@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01N — Relevance Density / Scope-First Diagnostic**  
+> Active experiment: **EVAL-01O — Sealed Live Relevance-Density Micro-Validation**  
 > EVAL-01L is closed. Do not change production architecture until EVAL-01M live evidence is blind-reviewed and revealed.
 
 ## Current verified baseline
@@ -4241,3 +4241,143 @@ Known regression rq-0025:
   balanced used/entities/reduction: 9593 / 20 / 40.55%
 
 P8-05: BLOCKED
+
+
+## EVAL-01N final interpretation — CLOSED
+
+Astra final review:
+
+`docs/development/EVAL-01N-RELEVANCE-DENSITY/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`bc7c3703badc046a8050b9b56c86f63a4879d06f`
+
+Verdict:
+
+```text
+SUPPORTED_FOR_LIVE_MICRO_VALIDATION
+```
+
+Selected live candidate:
+
+`balanced_scope_first_min_tier`
+
+Reason:
+
+```text
+retrieval-only
+  densest package
+  mean reduction ~45.55%
+  but semantic retrieval alone may omit useful recent participant state
+
+balanced scope-first
+  mean reduction ~40.66%
+  preserves newest-five recent participant state
+  still fits all 7 source_1x cases at 12k
+  safer quality candidate
+```
+
+Production policy remains unchanged.
+
+# NOW — EVAL-01O Sealed Live Relevance-Density Micro-Validation
+
+Question:
+
+```text
+Does balanced scope-first relevance density
+repair the NORMAL rq-0025 broad@20k regression
+without regressing the other source-grounded cases?
+```
+
+Conditions:
+
+```text
+CONTROL
+  broad_20k_current
+
+CANDIDATE
+  balanced_scope_first_min_tier
+  scope =
+    query-named entities
+    + semantic-top8 entities
+    + participants from newest five recent events
+  then minimum full-fit tier from 12k/16k/20k/24k
+```
+
+Live set:
+
+```text
+all 7 source_1x cases
+3 repeats
+2 conditions
+42 provider calls
+```
+
+This is intentionally NORMAL-only. EVAL-01M already established stress-resilience value for adaptive scoping; EVAL-01O isolates the newly measured relevance-density question.
+
+Hard isolation requirements:
+
+```text
+same query
+same chapter cutoff
+same source-derived base package
+same model
+same temperature
+same prompt renderer
+same task instruction
+same author constraints
+
+semantic IDs     EXACTLY IDENTICAL between conditions
+recent event IDs EXACTLY IDENTICAL between conditions
+world-rule IDs   EXACTLY IDENTICAL between conditions
+
+only entity/current-state breadth and resulting minimum budget may differ
+```
+
+Gold-derived experimental entity locks remain removed.
+
+Gold labels must not influence scope, tier choice, X/Y mapping, or call order.
+
+Default capture:
+
+```text
+model            gemini-3.5-flash-lite
+temperature      0.0
+repeats          3
+rows             7
+planned calls    42
+fixed key slot   one slot for full capture
+fallback         none
+quality          SEALED BLIND REVIEW
+```
+
+Primary success gate after reveal:
+
+```text
+rq-0025
+  balanced candidate must improve or at minimum remove
+  the prior consistent 0-3 regression versus broad@20k
+
+other cases
+  no systematic new regression pattern
+
+negative/stability cases
+  ambiguity/identity/causal boundaries preserved
+```
+
+Secondary evidence:
+
+```text
+Story Brain estimated size
+entity/state counts
+prompt character proxy
+latency
+backoff events
+selected tier
+```
+
+Exact provider token usage/cost remains unavailable unless the client exposes it.
+
+Production changes: NONE.
+P8-05 remains BLOCKED.
