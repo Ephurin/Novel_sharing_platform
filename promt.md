@@ -2478,7 +2478,7 @@ Current state:
 ```text
 EVAL-01J harness        MERGED
 CI adaptive contract    PASS
-official main evidence  PENDING GEMINI
+official main evidence  COMPLETE (ae8a089)
 production policy       UNCHANGED
 ```
 
@@ -2541,6 +2541,43 @@ P8-05: BLOCKED
 ```
 
 Gemini must not alter production budget/scoping/adaptive behavior. Astra reviews official evidence first.
+
+### Gemini Verification — EVAL-01J ADAPTIVE BUDGET SCALE
+
+Status: PASS
+Tested commit: 58100e69bcaa6e6590590ea642df4fe904ba3cca
+Evidence commit: ae8a089dc0342b86bc3b262a4ea8d2bb1680e506
+Provider calls: 0
+
+- P8 cleanup readiness: PASS
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: PASS
+- Contract failures: 0
+
+branch counts:
+  broad@20k: 7
+  broad@24k: 5
+  scoped@12k: 9
+
+1x:
+  broad estimate: 16239.57
+  branch distribution: broad@20k=7, broad@24k=0, scoped@12k=0
+  evidence complete: 7/7
+  protected overflow: 0
+
+2x:
+  broad estimate: 24047.71
+  branch distribution: broad@20k=0, broad@24k=5, scoped@12k=2
+  evidence complete: 7/7
+  protected overflow: 0
+
+4x:
+  broad estimate: 39664.00
+  branch distribution: broad@20k=0, broad@24k=0, scoped@12k=7
+  evidence complete: 7/7
+  protected overflow: 0
+
+P8-05: BLOCKED
 
 ## NOW — EVAL-01J Adaptive Story Brain Budget / Scale Stress
 
