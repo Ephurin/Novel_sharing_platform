@@ -1,0 +1,156 @@
+[
+  {
+    "case_id": "core_gold:rq-0011",
+    "only_new_provenance_fields_differ": true,
+    "same_selected_memory_ids": true,
+    "same_dropped_memory_ids": true,
+    "same_system_prompt": true,
+    "pre_tokens_used": 1995,
+    "post_tokens_used": 2796,
+    "token_overhead": 801,
+    "selected_memory_ids": [
+      "mem-000110",
+      "mem-000089",
+      "mem-000099",
+      "mem-000093",
+      "mem-000094",
+      "mem-000097",
+      "mem-000005",
+      "mem-000091",
+      "mem-000090",
+      "mem-000085"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0023",
+    "only_new_provenance_fields_differ": true,
+    "same_selected_memory_ids": true,
+    "same_dropped_memory_ids": true,
+    "same_system_prompt": true,
+    "pre_tokens_used": 1959,
+    "post_tokens_used": 2754,
+    "token_overhead": 795,
+    "selected_memory_ids": [
+      "mem-000148",
+      "mem-000144",
+      "mem-000117",
+      "mem-000155",
+      "mem-000118",
+      "mem-000164",
+      "mem-000149",
+      "mem-000143",
+      "mem-000147",
+      "mem-000120"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0025",
+    "only_new_provenance_fields_differ": true,
+    "same_selected_memory_ids": true,
+    "same_dropped_memory_ids": true,
+    "same_system_prompt": true,
+    "pre_tokens_used": 2018,
+    "post_tokens_used": 2810,
+    "token_overhead": 792,
+    "selected_memory_ids": [
+      "mem-000172",
+      "mem-000176",
+      "mem-000164",
+      "mem-000047",
+      "mem-000161",
+      "mem-000142",
+      "mem-000093",
+      "mem-000054",
+      "mem-000160",
+      "mem-000120"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0020",
+    "only_new_provenance_fields_differ": true,
+    "same_selected_memory_ids": true,
+    "same_dropped_memory_ids": true,
+    "same_system_prompt": true,
+    "pre_tokens_used": 1999,
+    "post_tokens_used": 2810,
+    "token_overhead": 811,
+    "selected_memory_ids": [
+      "mem-000161",
+      "mem-000151",
+      "mem-000093",
+      "mem-000157",
+      "mem-000160",
+      "mem-000164",
+      "mem-000154",
+      "mem-000166",
+      "mem-000035",
+      "mem-000099"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0032",
+    "only_new_provenance_fields_differ": true,
+    "same_selected_memory_ids": true,
+    "same_dropped_memory_ids": true,
+    "same_system_prompt": true,
+    "pre_tokens_used": 2037,
+    "post_tokens_used": 2873,
+    "token_overhead": 836,
+    "selected_memory_ids": [
+      "mem-000053",
+      "mem-000195",
+      "mem-000035",
+      "mem-000193",
+      "mem-000147",
+      "mem-000194",
+      "mem-000201",
+      "mem-000046",
+      "mem-000004",
+      "mem-000190"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0038",
+    "only_new_provenance_fields_differ": true,
+    "same_selected_memory_ids": true,
+    "same_dropped_memory_ids": true,
+    "same_system_prompt": true,
+    "pre_tokens_used": 1998,
+    "post_tokens_used": 2761,
+    "token_overhead": 763,
+    "selected_memory_ids": [
+      "mem-000228",
+      "mem-000225",
+      "mem-000219",
+      "mem-000231",
+      "mem-000224",
+      "mem-000051",
+      "mem-000226",
+      "mem-000232",
+      "mem-000227",
+      "mem-000036"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0010",
+    "only_new_provenance_fields_differ": true,
+    "same_selected_memory_ids": true,
+    "same_dropped_memory_ids": true,
+    "same_system_prompt": true,
+    "pre_tokens_used": 2071,
+    "post_tokens_used": 2871,
+    "token_overhead": 800,
+    "selected_memory_ids": [
+      "mem-000114",
+      "mem-000035",
+      "mem-000108",
+      "mem-000106",
+      "mem-000113",
+      "mem-000104",
+      "mem-000116",
+      "mem-000042",
+      "mem-000105",
+      "mem-000083"
+    ]
+  }
+]

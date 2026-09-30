@@ -1,0 +1,8 @@
+{
+  "experiment_id": "EVAL-01E",
+  "commitment_match": true,
+  "private_state_sha256": "09aaa4415a6f717f49be5b67847f83b5d743aed36da3d690ecee4042100a4c7c",
+  "condition_mapping_committed": true,
+  "raw_condition_labels_committed": true,
+  "provider_calls_during_reveal": 0
+}

@@ -1,0 +1,254 @@
+[
+  {
+    "case_id": "core_gold:rq-0011",
+    "repeat": 1,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0011",
+    "repeat": 2,
+    "mapping": {
+      "X": "pre_provenance",
+      "Y": "post_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0011",
+    "repeat": 3,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0023",
+    "repeat": 1,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0023",
+    "repeat": 2,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0023",
+    "repeat": 3,
+    "mapping": {
+      "X": "pre_provenance",
+      "Y": "post_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0025",
+    "repeat": 1,
+    "mapping": {
+      "X": "pre_provenance",
+      "Y": "post_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0025",
+    "repeat": 2,
+    "mapping": {
+      "X": "pre_provenance",
+      "Y": "post_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0025",
+    "repeat": 3,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0020",
+    "repeat": 1,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0020",
+    "repeat": 2,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0020",
+    "repeat": 3,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0032",
+    "repeat": 1,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0032",
+    "repeat": 2,
+    "mapping": {
+      "X": "pre_provenance",
+      "Y": "post_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "challenge:rq-0032",
+    "repeat": 3,
+    "mapping": {
+      "X": "pre_provenance",
+      "Y": "post_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0038",
+    "repeat": 1,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0038",
+    "repeat": 2,
+    "mapping": {
+      "X": "pre_provenance",
+      "Y": "post_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0038",
+    "repeat": 3,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0010",
+    "repeat": 1,
+    "mapping": {
+      "X": "pre_provenance",
+      "Y": "post_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0010",
+    "repeat": 2,
+    "mapping": {
+      "X": "post_provenance",
+      "Y": "pre_provenance"
+    },
+    "call_order": [
+      "post_provenance",
+      "pre_provenance"
+    ]
+  },
+  {
+    "case_id": "core_gold:rq-0010",
+    "repeat": 3,
+    "mapping": {
+      "X": "pre_provenance",
+      "Y": "post_provenance"
+    },
+    "call_order": [
+      "pre_provenance",
+      "post_provenance"
+    ]
+  }
+]
