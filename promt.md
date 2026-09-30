@@ -2374,6 +2374,174 @@ Remaining scalability question:
 but not proven as a permanent ceiling for larger novels.
 ```
 
+## EVAL-01J harness — MERGED
+
+- PR: #20
+- merge commit: `659b022297b8e16b82249e6d8a441713983847de`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- workflow run: `36681998602`
+- provider calls in CI: **0**
+- contract failures: **0**
+
+Adaptive branch coverage across all 21 case×scale traces:
+
+```text
+broad@20k             7
+broad@24k             5
+retrieval-scoped@12k  9
+```
+
+1× source-grounded load:
+
+```text
+mean broad estimated before   16239.57
+mean broad entities              69.57
+
+branches:
+  broad@20k             7 / 7
+  broad@24k             0 / 7
+  scoped@12k            0 / 7
+
+evidence complete       7 / 7
+protected overflow      0
+semantic retained       8 / 8
+recent retained        20 / 20
+```
+
+2× entity/state breadth stress:
+
+```text
+mean broad estimated before   24047.71
+mean broad entities             123.43
+mean synthetic entities          53.86
+
+branches:
+  broad@20k             0 / 7
+  broad@24k             5 / 7
+  scoped@12k            2 / 7
+
+evidence complete       7 / 7
+protected overflow      0
+semantic retained       8 / 8
+recent retained        20 / 20
+```
+
+4× entity/state breadth stress:
+
+```text
+mean broad estimated before   39664.00
+mean broad entities             231.14
+mean synthetic entities         161.57
+
+branches:
+  broad@20k             0 / 7
+  broad@24k             0 / 7
+  scoped@12k            7 / 7
+
+evidence complete       7 / 7
+protected overflow      0
+semantic retained       8 / 8
+recent retained        20 / 20
+```
+
+Candidate adaptive policy exercised by CI:
+
+```text
+broad estimate <=20k
+  -> broad@20k
+
+20k < broad estimate <=24k
+  -> broad@24k
+
+broad estimate >24k
+  -> retrieval-scoped@12k
+```
+
+Important interpretation boundary:
+
+```text
+This stress test scales entity/state breadth only.
+
+It does NOT scale:
+  chapters
+  semantic memory count
+  recent-event count
+  world-rule count
+  relationship complexity
+  plot complexity
+```
+
+Synthetic clones are noncanonical structural load only and never enter retrieval evidence, query scope, or gold labels.
+
+Current state:
+
+```text
+EVAL-01J harness        MERGED
+CI adaptive contract    PASS
+official main evidence  PENDING GEMINI
+production policy       UNCHANGED
+```
+
+### Gemini / Antigravity — run official EVAL-01J evidence now
+
+Use latest `main`. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01j_adaptive_budget_scale.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01J-ADAPTIVE-BUDGET-SCALE/
+  diagnostic.json
+  summary.md
+```
+
+Then append:
+
+```text
+### Gemini Verification — EVAL-01J ADAPTIVE BUDGET SCALE
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+Provider calls: 0
+
+branch counts:
+  broad@20k: <n>
+  broad@24k: <n>
+  scoped@12k: <n>
+
+1x:
+  broad estimate
+  branch distribution
+  evidence complete
+  protected overflow
+
+2x:
+  broad estimate
+  branch distribution
+  evidence complete
+  protected overflow
+
+4x:
+  broad estimate
+  branch distribution
+  evidence complete
+  protected overflow
+
+P8-05: BLOCKED
+```
+
+Gemini must not alter production budget/scoping/adaptive behavior. Astra reviews official evidence first.
+
 ## NOW — EVAL-01J Adaptive Story Brain Budget / Scale Stress
 
 Candidate policy:
