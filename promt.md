@@ -4063,3 +4063,146 @@ Do not modify ContextBudgetPacker.
 Do not alter production policy.
 
 P8-05 remains BLOCKED.
+
+
+## EVAL-01N harness — MERGED / OFFICIAL EVIDENCE PENDING
+
+- PR: #24
+- merge commit: `9fb738f1ff1215d42fe9ccd4726fa923112a0274`
+- Evaluation Pilot Harness run: `36697226838` — **SUCCESS**
+- provider calls in CI: `0`
+- contract failures: `0`
+
+CI preview:
+
+```text
+broad_20k_current
+  mean Story Brain used        16,242
+  mean entities                69.57
+
+retrieval_scope_min_tier
+  resolved                     7 / 7
+  selected tier                12k for all 7
+  mean Story Brain used         8,826
+  mean entities                15.43
+  mean token reduction         45.55%
+
+balanced_scope_min_tier
+  resolved                     7 / 7
+  selected tier                12k for all 7
+  mean Story Brain used         9,638
+  mean entities                21.29
+  mean token reduction         40.66%
+```
+
+Both scope-first candidates preserved across all seven source_1x cases:
+
+```text
+semantic                       8 / 8
+recent                        20 / 20
+all source-derived rules       retained
+required entity scope          retained
+full scoped input              fit
+protected overflow             0
+deterministic                  true
+```
+
+Known live regression case `challenge:rq-0025`:
+
+```text
+current broad@20k
+  used          16,135
+  entities          68
+  semantic         8/8
+  recent         20/20
+
+retrieval scope-first
+  tier            12k
+  used           9,308
+  entities          18
+  semantic         8/8
+  recent         20/20
+  reduction       42.31%
+
+balanced scope-first
+  tier            12k
+  used           9,593
+  entities          20
+  semantic         8/8
+  recent         20/20
+  reduction       40.55%
+```
+
+Provisional interpretation:
+
+```text
+scope-first hypothesis             STRONGLY SUPPORTED OFFLINE
+retrieval-scope candidate          DENSER THAN BALANCED
+production policy                  UNCHANGED
+live confirmation                  STILL REQUIRED
+```
+
+### Gemini / Antigravity — run official EVAL-01N evidence now
+
+Use latest `main`. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01n_relevance_density.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01N-RELEVANCE-DENSITY/
+  diagnostic.json
+  summary.md
+```
+
+Append execution-only handoff:
+
+```text
+### Gemini Verification — EVAL-01N RELEVANCE DENSITY
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+Provider calls: 0
+
+Contract: PASS | FAIL
+Failures: <n>
+
+Broad@20k:
+  mean tokens used
+  mean entities
+
+Retrieval scope-first:
+  resolved cases
+  budget distribution
+  mean tokens used
+  mean entities
+  mean reduction %
+
+Balanced scope-first:
+  resolved cases
+  budget distribution
+  mean tokens used
+  mean entities
+  mean reduction %
+
+Known regression rq-0025:
+  broad used/entities
+  retrieval used/entities/reduction
+  balanced used/entities/reduction
+
+P8-05: BLOCKED
+```
+
+Gemini must not change production budget, routing, scope behavior, or ContextBudgetPacker.
+
+Astra reviews official evidence before any live follow-up.
