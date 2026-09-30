@@ -4206,3 +4206,38 @@ P8-05: BLOCKED
 Gemini must not change production budget, routing, scope behavior, or ContextBudgetPacker.
 
 Astra reviews official evidence before any live follow-up.
+
+### Gemini Verification — EVAL-01N RELEVANCE DENSITY
+
+Status: PASS
+Tested commit: adaacaa528351c2353ac5a28d2c0605461971f85
+Evidence commit: 2949187dc475326772fcb857854b7b659e082b76
+Provider calls: 0
+
+Contract: PASS
+Failures: 0
+
+Broad@20k:
+  mean tokens used: 16242.43
+  mean entities: 69.57
+
+Retrieval scope-first:
+  resolved cases: 7 / 7
+  budget distribution: 12k: 7, 16k: 0, 20k: 0, 24k: 0
+  mean tokens used: 8825.71
+  mean entities: 15.43
+  mean reduction %: 45.55%
+
+Balanced scope-first:
+  resolved cases: 7 / 7
+  budget distribution: 12k: 7, 16k: 0, 20k: 0, 24k: 0
+  mean tokens used: 9637.86
+  mean entities: 21.29
+  mean reduction %: 40.66%
+
+Known regression rq-0025:
+  broad used/entities: 16135 / 68
+  retrieval used/entities/reduction: 9308 / 18 / 42.31%
+  balanced used/entities/reduction: 9593 / 20 / 40.55%
+
+P8-05: BLOCKED
