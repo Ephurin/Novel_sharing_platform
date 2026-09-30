@@ -30,6 +30,7 @@ import os
 import secrets
 import sys
 import time
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -61,6 +62,54 @@ EXPECTED_NORMAL_ROWS = 7
 EXPECTED_SCOPED_STRESS_ROWS = 5
 
 CASE_IDS = eval01g.CASE_IDS
+
+
+def strip_evaluation_entity_locks(package: Any) -> Any:
+    """Remove EVAL-01G critical/gold-derived entity lock scaffolding.
+
+    EVAL-01G..L used critical-memory-derived entity locks to test protected
+    packing invariants. EVAL-01M is a live production-policy validation, so
+    those query-gold-derived locks and their lock-priority ordering must not
+    influence either condition. Source-derived world-rule locks are retained.
+    """
+
+    entities = []
+    for row in package.entities:
+        clone = dict(row)
+        clone["is_locked"] = False
+        entities.append(clone)
+    entities.sort(
+        key=lambda row: (
+            str(row.get("name") or ""),
+            str(row.get("entity_id") or ""),
+        )
+    )
+    ordered_ids = [
+        str(row.get("entity_id"))
+        for row in entities
+        if row.get("entity_id")
+    ]
+    state_map = {
+        str(row.get("entity_id")): row
+        for row in package.current_states
+        if row.get("entity_id")
+    }
+    states = tuple(
+        state_map[entity_id]
+        for entity_id in ordered_ids
+        if entity_id in state_map
+    )
+    return replace(
+        package,
+        entities=tuple(entities),
+        current_states=states,
+        context_summary={
+            **dict(package.context_summary),
+            "eval01m_entity_lock_policy": [
+                "critical_gold_entity_locks_removed"
+            ],
+        },
+    )
 
 
 def load_json(path: Path) -> Any:
@@ -345,6 +394,7 @@ def build_rows(
             canonical_map=canonical_map,
             audit_map=audit_map,
         )
+        base_package = strip_evaluation_entity_locks(base_package)
 
         locked_ids = {
             str(row.get("entity_id"))
@@ -463,6 +513,9 @@ def build_rows(
                 "same_temperature": True,
                 "same_system_prompt": same_system_prompt,
                 "routing_uses_gold": False,
+                "query_gold_used_for_package_locking": False,
+                "evaluation_entity_locks_removed": True,
+                "source_derived_world_rule_locks_retained": True,
                 "control": {
                     "policy": CONTROL,
                     "budget": control_prompt["budget"],
@@ -531,6 +584,9 @@ def build_rows(
     public_contract = {
         "experiment_id": "EVAL-01M",
         "routing_uses_gold": False,
+        "query_gold_used_for_package_locking": False,
+        "evaluation_entity_locks_removed": True,
+        "source_derived_world_rule_locks_retained": True,
         "normal_rows": normal_count,
         "stress_resilience_rows": stress_count,
         "total_rows": len(rows),
