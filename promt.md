@@ -3886,3 +3886,16 @@ Astra
 production policy remains unchanged until that final interpretation
 P8-05 remains BLOCKED
 ```
+
+### Gemini Verification — EVAL-01M SEALED LIVE ADAPTIVE REVEAL
+
+Status: PASS
+Blind review commit: 07141f468d53957ecf0aab6fc17b1fb84bf1b132
+Reveal tested commit: f60ecb5d30a1a2c04b252e440b9ea77755d70eca
+Reveal evidence commit: 9c324a37896977ddb887a98604884c60adf3ff3e
+commitment match: true
+private state SHA256: 2edc2eb3585da1c1358bedf49d1371e48be5f54e0450148a9036364f87c4c296
+provider calls during reveal: 0
+condition mapping committed: true
+raw audit committed: true
+P8-05: BLOCKED
