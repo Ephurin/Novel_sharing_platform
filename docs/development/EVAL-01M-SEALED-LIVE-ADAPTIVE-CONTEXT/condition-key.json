@@ -1,0 +1,542 @@
+[
+  {
+    "row_id": "core_gold:rq-0011|source_1x",
+    "case_id": "core_gold:rq-0011",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0011|source_1x",
+    "case_id": "core_gold:rq-0011",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0011|source_1x",
+    "case_id": "core_gold:rq-0011",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0023|source_1x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0023|source_1x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0023|source_1x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0023|combined_4x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0023|combined_4x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0023|combined_4x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0025|source_1x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0025|source_1x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0025|source_1x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0025|combined_4x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0025|combined_4x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0025|combined_4x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0020|source_1x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0020|source_1x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0020|source_1x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0020|combined_4x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0020|combined_4x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0020|combined_4x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0032|source_1x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0032|source_1x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0032|source_1x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0032|combined_4x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0032|combined_4x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0032|combined_4x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0038|source_1x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0038|source_1x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0038|source_1x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0038|combined_4x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 1,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0038|combined_4x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 2,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0038|combined_4x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "repeat": 3,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0010|source_1x",
+    "case_id": "core_gold:rq-0010",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 1,
+    "mapping": {
+      "X": "adaptive_eval01l",
+      "Y": "fixed_broad_12k"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0010|source_1x",
+    "case_id": "core_gold:rq-0010",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 2,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "fixed_broad_12k",
+      "adaptive_eval01l"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0010|source_1x",
+    "case_id": "core_gold:rq-0010",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "repeat": 3,
+    "mapping": {
+      "X": "fixed_broad_12k",
+      "Y": "adaptive_eval01l"
+    },
+    "call_order": [
+      "adaptive_eval01l",
+      "fixed_broad_12k"
+    ]
+  }
+]

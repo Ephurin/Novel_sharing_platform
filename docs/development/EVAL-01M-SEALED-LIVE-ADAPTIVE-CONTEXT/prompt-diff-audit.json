@@ -1,0 +1,1073 @@
+[
+  {
+    "row_id": "core_gold:rq-0011|source_1x",
+    "case_id": "core_gold:rq-0011",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "c21e6ac3fe37ba4e6828309c7663e6990c5e58322ea9fa65b4a1bdff8cde6f3c",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 14710,
+      "tokens_used": 11871,
+      "selected_counts": {
+        "entities": 63,
+        "states": 63,
+        "rules": 6,
+        "recent": 3,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 17,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000110",
+        "mem-000089",
+        "mem-000099",
+        "mem-000093",
+        "mem-000094",
+        "mem-000097",
+        "mem-000005",
+        "mem-000091"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "722898b081ec090108d59b6dddcc2ae3ad466375c3b85063f17cb37ff9b8b506",
+      "prompt_hash": "96d74bea9faa3785a09cddffab5f127a131b24270ec572c57728281fbb08c290",
+      "prompt_chars": 36281
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "broad_20k",
+      "budget": 20000,
+      "broad_estimated": 14710,
+      "scoped_estimated": 8334,
+      "estimated_before": 14710,
+      "tokens_used": 14710,
+      "selected_counts": {
+        "entities": 63,
+        "states": 63,
+        "rules": 6,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000110",
+        "mem-000089",
+        "mem-000099",
+        "mem-000093",
+        "mem-000094",
+        "mem-000097",
+        "mem-000005",
+        "mem-000091"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "bf80c3e2bf09115cee1682a2039ee98c37ff4197f7e10e1aff7b49a842a6beb2",
+      "prompt_hash": "ab7935c07abbdf51b6d6133036dc80f6b82f39894cb80f873f9aa9ec8a9b8252",
+      "prompt_chars": 44768
+    }
+  },
+  {
+    "row_id": "challenge:rq-0023|source_1x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "61ce0dfe1fd82f81c4592de1cd3f5d8bd4a9671277cb2785b520cb2434591e2d",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 15693,
+      "tokens_used": 11864,
+      "selected_counts": {
+        "entities": 68,
+        "states": 68,
+        "rules": 9,
+        "recent": 0,
+        "semantic": 6
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 20,
+        "semantic": 2
+      },
+      "selected_memory_ids": [
+        "mem-000148",
+        "mem-000144",
+        "mem-000117",
+        "mem-000155",
+        "mem-000118",
+        "mem-000164"
+      ],
+      "dropped_memory_ids": [
+        "mem-000149",
+        "mem-000143"
+      ],
+      "context_hash": "eab5b00301b420b896d1f71a5418e8958aeb880bc3b1db51aaab7e9cc4d79141",
+      "prompt_hash": "41e18152629ab8161659bdab9fa8ce929f21ec5cf0e531c2fee337c406164ae1",
+      "prompt_chars": 36254
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "broad_20k",
+      "budget": 20000,
+      "broad_estimated": 15693,
+      "scoped_estimated": 8123,
+      "estimated_before": 15693,
+      "tokens_used": 15693,
+      "selected_counts": {
+        "entities": 68,
+        "states": 68,
+        "rules": 9,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000148",
+        "mem-000144",
+        "mem-000117",
+        "mem-000155",
+        "mem-000118",
+        "mem-000164",
+        "mem-000149",
+        "mem-000143"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "853bfb1624c427356ad59c683a542adf7b3379b4bd0e1c5d1e421b1fea092d24",
+      "prompt_hash": "c4d8988b0a2884dd08f56f3ed864f76465aaf4fe3ec3aa7c2da071d1f3974761",
+      "prompt_chars": 47698
+    }
+  },
+  {
+    "row_id": "challenge:rq-0023|combined_4x",
+    "case_id": "challenge:rq-0023",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "efa33b044b2ff6d43148b11b59a3b1ed02ef388471e6c2e6e4dbe5b897249b60",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 24304,
+      "tokens_used": 11998,
+      "selected_counts": {
+        "entities": 68,
+        "states": 68,
+        "rules": 20,
+        "recent": 0,
+        "semantic": 0
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 16,
+        "recent": 20,
+        "semantic": 8
+      },
+      "selected_memory_ids": [],
+      "dropped_memory_ids": [
+        "mem-000148",
+        "mem-000144",
+        "mem-000117",
+        "mem-000155",
+        "mem-000118",
+        "mem-000164",
+        "mem-000149",
+        "mem-000143"
+      ],
+      "context_hash": "8135b316bf4b0f2242f0ff941fac26fe411eefae80d53b41ef85a709b712942c",
+      "prompt_hash": "65e6d4e3752ad99333a1912851916f27b8dac7a2a786d96f3bd6dc023082f526",
+      "prompt_chars": 36644
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "scoped_20k",
+      "budget": 20000,
+      "broad_estimated": 24304,
+      "scoped_estimated": 16734,
+      "estimated_before": 16734,
+      "tokens_used": 16734,
+      "selected_counts": {
+        "entities": 12,
+        "states": 12,
+        "rules": 36,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000148",
+        "mem-000144",
+        "mem-000117",
+        "mem-000155",
+        "mem-000118",
+        "mem-000164",
+        "mem-000149",
+        "mem-000143"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "a0d31ee759c3d1b2f9a7b27559f759c71b5361f686f2e23ea66550ce505aae8a",
+      "prompt_hash": "e4b48b948c65b6f2957642b261742ca5af957b77dc1f3231d8131c1cfd4aba1c",
+      "prompt_chars": 51151
+    }
+  },
+  {
+    "row_id": "challenge:rq-0025|source_1x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "e7c1b0f87ecdb971705e1c359eca90d6f86fcf288cfaeb8c6bfaf4a51950c70a",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 16135,
+      "tokens_used": 11979,
+      "selected_counts": {
+        "entities": 68,
+        "states": 68,
+        "rules": 12,
+        "recent": 0,
+        "semantic": 5
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 20,
+        "semantic": 3
+      },
+      "selected_memory_ids": [
+        "mem-000172",
+        "mem-000176",
+        "mem-000164",
+        "mem-000047",
+        "mem-000161"
+      ],
+      "dropped_memory_ids": [
+        "mem-000142",
+        "mem-000093",
+        "mem-000054"
+      ],
+      "context_hash": "8a333e559d4e134b472249e270b1213ed66da29025bf27a3adc86e2303ab4387",
+      "prompt_hash": "13e782e8165eaceb956077aac6b49ae0985f16f0d1146e14f2c8e70cc771080f",
+      "prompt_chars": 36561
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "broad_20k",
+      "budget": 20000,
+      "broad_estimated": 16135,
+      "scoped_estimated": 9308,
+      "estimated_before": 16135,
+      "tokens_used": 16135,
+      "selected_counts": {
+        "entities": 68,
+        "states": 68,
+        "rules": 12,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000172",
+        "mem-000176",
+        "mem-000164",
+        "mem-000047",
+        "mem-000161",
+        "mem-000142",
+        "mem-000093",
+        "mem-000054"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "8cef61daad980c26869034f54f2a03a825fb9fe2f9bc5fecb6ee2efca2749c70",
+      "prompt_hash": "0dc1140ef5260d16df037a7e82a319d368e5032b8cbcab8ba27792f2be391f6f",
+      "prompt_chars": 48977
+    }
+  },
+  {
+    "row_id": "challenge:rq-0025|combined_4x",
+    "case_id": "challenge:rq-0025",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "599ddfa195fe127d3d1fc54eba2fb3e32c20dd526cf22cb4e80281fffbf53c13",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 26091,
+      "tokens_used": 11919,
+      "selected_counts": {
+        "entities": 68,
+        "states": 68,
+        "rules": 20,
+        "recent": 0,
+        "semantic": 0
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 28,
+        "recent": 20,
+        "semantic": 8
+      },
+      "selected_memory_ids": [],
+      "dropped_memory_ids": [
+        "mem-000172",
+        "mem-000176",
+        "mem-000164",
+        "mem-000047",
+        "mem-000161",
+        "mem-000142",
+        "mem-000093",
+        "mem-000054"
+      ],
+      "context_hash": "b2bac727ef8b6be60121c3812ef5786409b9a020365db4d29d60ed45ad6d5a77",
+      "prompt_hash": "f9e58419cdca2778f3a47172b009b991afc5d1dd38c7a83b7ec69668c9486335",
+      "prompt_chars": 36376
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "scoped_20k",
+      "budget": 20000,
+      "broad_estimated": 26091,
+      "scoped_estimated": 19264,
+      "estimated_before": 19264,
+      "tokens_used": 19264,
+      "selected_counts": {
+        "entities": 18,
+        "states": 18,
+        "rules": 48,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000172",
+        "mem-000176",
+        "mem-000164",
+        "mem-000047",
+        "mem-000161",
+        "mem-000142",
+        "mem-000093",
+        "mem-000054"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "269d1d5637598cfe75a238bc9bd481864ea0f42060f327382681eee5ac2dd9cd",
+      "prompt_hash": "361f98889951845db8e488dce8eb6e8932ae0697412d9bbd0538472953c0fd37",
+      "prompt_chars": 58594
+    }
+  },
+  {
+    "row_id": "challenge:rq-0020|source_1x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "c57e052828aede30f77ec1fcde7c8cfd40c17a9a8429e36350493e04730d48fd",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 15755,
+      "tokens_used": 11883,
+      "selected_counts": {
+        "entities": 68,
+        "states": 68,
+        "rules": 9,
+        "recent": 0,
+        "semantic": 6
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 20,
+        "semantic": 2
+      },
+      "selected_memory_ids": [
+        "mem-000161",
+        "mem-000151",
+        "mem-000093",
+        "mem-000157",
+        "mem-000160",
+        "mem-000164"
+      ],
+      "dropped_memory_ids": [
+        "mem-000154",
+        "mem-000166"
+      ],
+      "context_hash": "6791f0ad5f2f3fd6b94f228f04817a0a6125029753d50960b7ca052d73c68b07",
+      "prompt_hash": "ea7efeb4b35c62db323c72bf20a4fd6e4500c19cc8ec24e4299d0fdcb9fc7cb7",
+      "prompt_chars": 36291
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "broad_20k",
+      "budget": 20000,
+      "broad_estimated": 15755,
+      "scoped_estimated": 8586,
+      "estimated_before": 15755,
+      "tokens_used": 15755,
+      "selected_counts": {
+        "entities": 68,
+        "states": 68,
+        "rules": 9,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000161",
+        "mem-000151",
+        "mem-000093",
+        "mem-000157",
+        "mem-000160",
+        "mem-000164",
+        "mem-000154",
+        "mem-000166"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "96998af5ddb8b1cd78573d1cfb6b55978984baf878f544e72d865a3ee84250d9",
+      "prompt_hash": "bf8537fed77c8ff49c6e35d43e2c7bcf638d169a2f6db27d24f1bf37d998a05a",
+      "prompt_chars": 47869
+    }
+  },
+  {
+    "row_id": "challenge:rq-0020|combined_4x",
+    "case_id": "challenge:rq-0020",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "4ea21775d1509f0c8499c2ed32d90bf3bb2a5177a30217a1e546846ec4b93537",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 24523,
+      "tokens_used": 11998,
+      "selected_counts": {
+        "entities": 68,
+        "states": 68,
+        "rules": 20,
+        "recent": 0,
+        "semantic": 0
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 16,
+        "recent": 20,
+        "semantic": 8
+      },
+      "selected_memory_ids": [],
+      "dropped_memory_ids": [
+        "mem-000161",
+        "mem-000151",
+        "mem-000093",
+        "mem-000157",
+        "mem-000160",
+        "mem-000164",
+        "mem-000154",
+        "mem-000166"
+      ],
+      "context_hash": "8135b316bf4b0f2242f0ff941fac26fe411eefae80d53b41ef85a709b712942c",
+      "prompt_hash": "57a80c904c87d90f31b1813e5887ce45ed47fae01eafac2a7a36f7dacb051e21",
+      "prompt_chars": 36644
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "scoped_20k",
+      "budget": 20000,
+      "broad_estimated": 24523,
+      "scoped_estimated": 17354,
+      "estimated_before": 17354,
+      "tokens_used": 17354,
+      "selected_counts": {
+        "entities": 16,
+        "states": 16,
+        "rules": 36,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000161",
+        "mem-000151",
+        "mem-000093",
+        "mem-000157",
+        "mem-000160",
+        "mem-000164",
+        "mem-000154",
+        "mem-000166"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "827736aca8e4417277ad940d07aef2ffdd737a3df8b62004ec47e9bf83317404",
+      "prompt_hash": "0768b1f3d5ba2d8a09819d1a8fb9936af03304459c20ac90092ae708c591477d",
+      "prompt_chars": 52962
+    }
+  },
+  {
+    "row_id": "challenge:rq-0032|source_1x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "9c8ac8baf9b221a423f66572f4730f0591a9b8b38bf661c75c4db919f3a4b5b3",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 17861,
+      "tokens_used": 11999,
+      "selected_counts": {
+        "entities": 77,
+        "states": 77,
+        "rules": 10,
+        "recent": 0,
+        "semantic": 0
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 4,
+        "recent": 20,
+        "semantic": 8
+      },
+      "selected_memory_ids": [],
+      "dropped_memory_ids": [
+        "mem-000053",
+        "mem-000195",
+        "mem-000035",
+        "mem-000193",
+        "mem-000147",
+        "mem-000194",
+        "mem-000201",
+        "mem-000046"
+      ],
+      "context_hash": "58d7a1119adf84c660cd39577c64056a3063d39560d94f47877589e6ea77d4b2",
+      "prompt_hash": "cfe410989b9752b462b0f8e94f111fc0ada10774643c48f986d208114f6f8784",
+      "prompt_chars": 36541
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "broad_20k",
+      "budget": 20000,
+      "broad_estimated": 17861,
+      "scoped_estimated": 9305,
+      "estimated_before": 17861,
+      "tokens_used": 17861,
+      "selected_counts": {
+        "entities": 77,
+        "states": 77,
+        "rules": 14,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000053",
+        "mem-000195",
+        "mem-000035",
+        "mem-000193",
+        "mem-000147",
+        "mem-000194",
+        "mem-000201",
+        "mem-000046"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "96a74c508efe5263e1f41b60c68e157f5c593b5ac75e9fd023224215e5e82c8f",
+      "prompt_hash": "b9ef8f41cf7dd8719e06a36478391eacc67d8720c4824b15f6274cab3d271475",
+      "prompt_chars": 54039
+    }
+  },
+  {
+    "row_id": "challenge:rq-0032|combined_4x",
+    "case_id": "challenge:rq-0032",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "ed06c18a1b9b49c9920c77923bebffaf741043e0b80bdc7f8fb8d4475961f093",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 28636,
+      "tokens_used": 11999,
+      "selected_counts": {
+        "entities": 77,
+        "states": 77,
+        "rules": 10,
+        "recent": 0,
+        "semantic": 0
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 46,
+        "recent": 20,
+        "semantic": 8
+      },
+      "selected_memory_ids": [],
+      "dropped_memory_ids": [
+        "mem-000053",
+        "mem-000195",
+        "mem-000035",
+        "mem-000193",
+        "mem-000147",
+        "mem-000194",
+        "mem-000201",
+        "mem-000046"
+      ],
+      "context_hash": "58d7a1119adf84c660cd39577c64056a3063d39560d94f47877589e6ea77d4b2",
+      "prompt_hash": "cfe410989b9752b462b0f8e94f111fc0ada10774643c48f986d208114f6f8784",
+      "prompt_chars": 36541
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "scoped_24k",
+      "budget": 24000,
+      "broad_estimated": 28636,
+      "scoped_estimated": 20080,
+      "estimated_before": 20080,
+      "tokens_used": 20080,
+      "selected_counts": {
+        "entities": 15,
+        "states": 15,
+        "rules": 56,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000053",
+        "mem-000195",
+        "mem-000035",
+        "mem-000193",
+        "mem-000147",
+        "mem-000194",
+        "mem-000201",
+        "mem-000046"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "cd846fea7814d7ff57283ea8825404596449ada4c1ad5d2107115dc74df1a19e",
+      "prompt_hash": "75d6442b1f041d676a3fa6d3e6e50a6f51e4d63678534b8901402694585e936f",
+      "prompt_chars": 61007
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0038|source_1x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "485dc306f1d77ab560ea3bddd7a43071eec7402c4014543da4bbb86e4e85c8de",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 18830,
+      "tokens_used": 11975,
+      "selected_counts": {
+        "entities": 80,
+        "states": 80,
+        "rules": 6,
+        "recent": 0,
+        "semantic": 0
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 12,
+        "recent": 20,
+        "semantic": 8
+      },
+      "selected_memory_ids": [],
+      "dropped_memory_ids": [
+        "mem-000228",
+        "mem-000225",
+        "mem-000219",
+        "mem-000231",
+        "mem-000224",
+        "mem-000051",
+        "mem-000226",
+        "mem-000232"
+      ],
+      "context_hash": "d2c6ede98dcff11f071f145779289554d413e0fdb4d6000e8eeb449890c3009c",
+      "prompt_hash": "bef94ec67481a9558182ec1b297a87aa752dc038af32f1827f92940eca6ebd81",
+      "prompt_chars": 36437
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "broad_20k",
+      "budget": 20000,
+      "broad_estimated": 18830,
+      "scoped_estimated": 9908,
+      "estimated_before": 18830,
+      "tokens_used": 18830,
+      "selected_counts": {
+        "entities": 80,
+        "states": 80,
+        "rules": 18,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000228",
+        "mem-000225",
+        "mem-000219",
+        "mem-000231",
+        "mem-000224",
+        "mem-000051",
+        "mem-000226",
+        "mem-000232"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "16bdd2970fa7e53af871eaeb59441548f2766bccfad9611c6624f51cf338c6a1",
+      "prompt_hash": "2b2ae309dba100a6e8e6e6f757bcda8daef5b9411c92416d00a2d33fdedbb695",
+      "prompt_chars": 56892
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0038|combined_4x",
+    "case_id": "core_gold:rq-0038",
+    "scenario": "combined_4x",
+    "stratum": "STRESS_RESILIENCE",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "18273484267c30b1364f7e151d5534f9a219c8f1f0e720e7954560c71c43d9d1",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 31534,
+      "tokens_used": 11975,
+      "selected_counts": {
+        "entities": 80,
+        "states": 80,
+        "rules": 6,
+        "recent": 0,
+        "semantic": 0
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 66,
+        "recent": 20,
+        "semantic": 8
+      },
+      "selected_memory_ids": [],
+      "dropped_memory_ids": [
+        "mem-000228",
+        "mem-000225",
+        "mem-000219",
+        "mem-000231",
+        "mem-000224",
+        "mem-000051",
+        "mem-000226",
+        "mem-000232"
+      ],
+      "context_hash": "d2c6ede98dcff11f071f145779289554d413e0fdb4d6000e8eeb449890c3009c",
+      "prompt_hash": "bef94ec67481a9558182ec1b297a87aa752dc038af32f1827f92940eca6ebd81",
+      "prompt_chars": 36437
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "scoped_24k",
+      "budget": 24000,
+      "broad_estimated": 31534,
+      "scoped_estimated": 22612,
+      "estimated_before": 22612,
+      "tokens_used": 22612,
+      "selected_counts": {
+        "entities": 16,
+        "states": 16,
+        "rules": 72,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000228",
+        "mem-000225",
+        "mem-000219",
+        "mem-000231",
+        "mem-000224",
+        "mem-000051",
+        "mem-000226",
+        "mem-000232"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "4393ca0707e93fe4fb291773f32bc2e5ac5c1e5d8982118befb06219188e34a6",
+      "prompt_hash": "2c9e5b1a84073086de13a96f4c3c74842ef16355db8993c43e69489e730aca1e",
+      "prompt_chars": 68569
+    }
+  },
+  {
+    "row_id": "core_gold:rq-0010|source_1x",
+    "case_id": "core_gold:rq-0010",
+    "scenario": "source_1x",
+    "stratum": "NORMAL",
+    "same_prepolicy_source_package": true,
+    "prepolicy_source_package_hash": "14868232b6161e8bc12e5e13d10f9838ad1b6ee8319722cc096c6b37f81b4e67",
+    "same_query": true,
+    "same_chapter_cutoff": true,
+    "same_compact_provenance": true,
+    "same_semantic_top8_order_before_packing": true,
+    "same_recent_limit_20_before_packing": true,
+    "same_model": true,
+    "same_temperature": true,
+    "same_system_prompt": true,
+    "routing_uses_gold": false,
+    "query_gold_used_for_package_locking": false,
+    "evaluation_entity_locks_removed": true,
+    "source_derived_world_rule_locks_retained": true,
+    "control": {
+      "policy": "fixed_broad_12k",
+      "budget": 12000,
+      "estimated_before": 14713,
+      "tokens_used": 11904,
+      "selected_counts": {
+        "entities": 63,
+        "states": 63,
+        "rules": 6,
+        "recent": 3,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 17,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000114",
+        "mem-000035",
+        "mem-000108",
+        "mem-000106",
+        "mem-000113",
+        "mem-000104",
+        "mem-000116",
+        "mem-000042"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "86fe1b5cbf6917d39306d40b640b1ef1b6f380e2453b88fe1967d06d1ec4b9e0",
+      "prompt_hash": "df0640d2ca966a62183d5726d0193b28460b1537b850fa0f68e7d749b6a53e11",
+      "prompt_chars": 36340
+    },
+    "candidate": {
+      "policy": "adaptive_eval01l",
+      "branch": "broad_20k",
+      "budget": 20000,
+      "broad_estimated": 14713,
+      "scoped_estimated": 8216,
+      "estimated_before": 14713,
+      "tokens_used": 14713,
+      "selected_counts": {
+        "entities": 63,
+        "states": 63,
+        "rules": 6,
+        "recent": 20,
+        "semantic": 8
+      },
+      "dropped_counts": {
+        "entities": 0,
+        "rules": 0,
+        "recent": 0,
+        "semantic": 0
+      },
+      "selected_memory_ids": [
+        "mem-000114",
+        "mem-000035",
+        "mem-000108",
+        "mem-000106",
+        "mem-000113",
+        "mem-000104",
+        "mem-000116",
+        "mem-000042"
+      ],
+      "dropped_memory_ids": [],
+      "context_hash": "4af685c31841fffa97237df5c0077a226cc651b831283cd47b4f7a660347d1f3",
+      "prompt_hash": "50d4f6a6e7787481ec487c6b6f0b99ddaaa1f8ee77ff7baaebde487cbe630778",
+      "prompt_chars": 44733
+    }
+  }
+]

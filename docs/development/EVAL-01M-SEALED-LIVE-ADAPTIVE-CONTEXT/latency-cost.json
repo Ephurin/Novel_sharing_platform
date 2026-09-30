@@ -1,0 +1,37 @@
+{
+  "status": "measured",
+  "by_stratum_condition": {
+    "NORMAL": {
+      "fixed_broad_12k": {
+        "sample_count": 21,
+        "mean_ms": 1839.326609523899,
+        "p50_ms": 1789.4460999996227,
+        "max_ms": 2190.7037000019045
+      },
+      "adaptive_eval01l": {
+        "sample_count": 21,
+        "mean_ms": 1833.717814285635,
+        "p50_ms": 1766.8397999987064,
+        "max_ms": 2215.966699997807
+      }
+    },
+    "STRESS_RESILIENCE": {
+      "fixed_broad_12k": {
+        "sample_count": 15,
+        "mean_ms": 1883.4174000000833,
+        "p50_ms": 1846.2913000003027,
+        "max_ms": 2450.0568000003113
+      },
+      "adaptive_eval01l": {
+        "sample_count": 15,
+        "mean_ms": 1929.7108066666017,
+        "p50_ms": 1855.3498000001127,
+        "max_ms": 2373.6549999994168
+      }
+    }
+  },
+  "backoff_events": 0,
+  "story_brain_estimate_and_prompt_chars": "available in raw-generations.json",
+  "provider_token_usage": "not_exposed_by_current_client",
+  "provider_cost": "not_measured"
+}
