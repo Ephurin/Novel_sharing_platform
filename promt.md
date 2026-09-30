@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01H — Production-Limit Context Scope Diagnostic**  
+> Active experiment: **EVAL-01I — Context Budget Scaling**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -2007,6 +2007,146 @@ Evidence commit: <sha>
 ```
 
 Do not change production packer/repository scoping until Astra review.
+
+## EVAL-01H final interpretation
+
+Astra final review:
+
+`docs/development/EVAL-01H-PROD8-CONTEXT-SCOPE/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`edd6cc6d2bfe4ac7c6fcb23c68c228eab4a17abe`
+
+Verdict:
+
+```text
+entity/state breadth bottleneck       STRONGLY SUPPORTED
+production-shaped starvation          VERIFIED IN FIXTURE
+ContextBudgetPacker rewrite           NOT JUSTIFIED
+retrieval-scoped input                BEST CURRENT SCOPING CANDIDATE
+balanced scope                        DROP FROM NEXT TEST
+production scoping                    NOT AUTHORIZED
+```
+
+Competing explanation still open:
+
+```text
+12k Story Brain budget itself may simply be too conservative.
+```
+
+## NOW — EVAL-01I Context Budget Scaling
+
+Goal:
+
+```text
+measure whether increasing the Story Brain budget alone
+eliminates evidence loss under the current broad entity/state input
+```
+
+Harness:
+
+`scripts/run_eval_01i_context_budget_scaling.py`
+
+Runbook:
+
+[docs/development/EVAL-01I-CONTEXT-BUDGET-SCALING-runbook.md](docs/development/EVAL-01I-CONTEXT-BUDGET-SCALING-runbook.md)
+
+Policies:
+
+```text
+baseline_full_entities
+retrieval_scoped_entities
+```
+
+Held constant:
+
+```text
+semantic limit       8
+recent limit        20
+compact provenance
+ContextBudgetPacker  unchanged
+same seven cases
+```
+
+Story Brain application budgets:
+
+```text
+12000
+16000
+20000
+24000
+32000
+```
+
+Measure global minimum budget across all 7 cases for:
+
+```text
+all semantic retained
+all recent retained
+all world rules retained
+all positive/critical evidence retained
+
+and separately:
+
+all input artifacts retained
+```
+
+Also record mean tokens used and unused Story Brain headroom.
+
+Important boundary:
+
+```text
+these budgets cover Story Brain only;
+outer prompt + manuscript selection + output tokens are outside this number.
+```
+
+### Gemini / Antigravity — after harness merge
+
+Run latest main. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01i_context_budget_scaling.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01I-CONTEXT-BUDGET-SCALING/
+  diagnostic.json
+  summary.md
+```
+
+Handoff:
+
+```text
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+Provider calls: 0
+
+baseline minimum evidence-complete budget: <value>
+baseline minimum all-input-fit budget: <value>
+scoped minimum evidence-complete budget: <value>
+scoped minimum all-input-fit budget: <value>
+
+12k/16k/20k/24k/32k aggregate:
+  tokens used
+  headroom
+  semantic retained
+  recent retained
+  positive/critical retention
+
+P8-05: BLOCKED
+```
+
+Do not change production budget or scoping until Astra reviews official EVAL-01I evidence.
 
 ## Frozen production contract — do not drift
 
