@@ -234,7 +234,8 @@ Private local state:
 
 The private state contains:
 
-- X/Y condition mapping;
+- random blind/order salts generated at capture time;
+- X/Y condition mapping derived from those private salts;
 - labelled raw generations;
 - prompt/context hashes;
 - detailed packing audit;
@@ -270,6 +271,7 @@ review-rubric.md
 
 Do not inspect:
 
+- private blind/order salts;
 - private state;
 - condition mapping;
 - prompt hashes;
