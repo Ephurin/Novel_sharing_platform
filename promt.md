@@ -3623,3 +3623,39 @@ After reveal, Astra/Supervisor must separately judge:
 ```
 
 P8-05 remains BLOCKED.
+
+
+## EVAL-01M harness — PR OPEN
+
+- PR: #23
+- branch: `astra/eval-01m-sealed-live-adaptive-context`
+- production changes: **none**
+- CI behavior: dry-run only, provider calls = 0
+- live capture: blocked until PR is reviewed/merged and dry-run contract is green
+
+Hardening added before merge:
+
+```text
+public deterministic X/Y mapping        REMOVED
+private random blind salt               ENABLED
+private random call-order salt          ENABLED
+query-gold-derived entity locks         REMOVED
+gold influence on adaptive routing      NONE
+source-derived world-rule locks         RETAINED
+```
+
+Expected dry-run contract:
+
+```text
+normal rows                         7
+scoped combined_4x stress rows      5
+total rows                         12
+planned live calls                 72
+provider calls in CI                0
+routing uses gold                false
+query gold used for locking      false
+control protected overflow       false
+candidate protected overflow     false
+```
+
+Do not run capture from the PR branch. After CI review and merge, Gemini/Antigravity runs capture from latest `main` with one fixed key slot.
