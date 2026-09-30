@@ -2798,7 +2798,7 @@ Current state:
 EVAL-01K harness        MERGED
 CI integrity            PASS
 adaptive policy         FAIL @ combined_4x
-official main evidence  PENDING GEMINI
+official main evidence  COMPLETE (a224d24)
 production policy       UNCHANGED
 ```
 
@@ -2853,6 +2853,76 @@ P8-05: BLOCKED
 ```
 
 Gemini must not alter production budget/scoping/adaptive behavior. Astra reviews official evidence first.
+
+### Gemini Verification — EVAL-01K MULTILANE GROWTH STRESS
+
+Status: PASS
+Tested commit: 3a94fc2a289a83aa2ce70e78214dfa61da6c3750
+Evidence commit: a224d2457589114d95a1b3417322689cf563113a
+Provider calls: 0
+
+- P8 cleanup readiness: PASS
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: PASS
+- Integrity failures: 0
+
+Integrity: PASS
+Adaptive policy: FAIL (clean failure frontier at combined_4x, 5 failures)
+Adaptive failures: 5
+
+Per scenario:
+  source_1x:
+    broad mean estimate: 16239.57
+    scoped mean estimate: 8862.29
+    branch distribution: broad@20k=7, broad@24k=0, scoped@12k=0
+    core evidence complete: 7/7
+    all-rule-load retained: 7/7
+    synthetic rule retention: 1.000
+    semantic retained: 8.00/8
+    recent retained: 20.00/20
+    protected overflow: 0
+  rules_2x:
+    broad mean estimate: 17687.29
+    scoped mean estimate: 10310.00
+    branch distribution: broad@20k=6, broad@24k=1, scoped@12k=0
+    core evidence complete: 7/7
+    all-rule-load retained: 7/7
+    synthetic rule retention: 1.000
+    semantic retained: 8.00/8
+    recent retained: 20.00/20
+    protected overflow: 0
+  evidence_payload_2x:
+    broad mean estimate: 17931.43
+    scoped mean estimate: 10554.29
+    branch distribution: broad@20k=6, broad@24k=1, scoped@12k=0
+    core evidence complete: 7/7
+    all-rule-load retained: 7/7
+    synthetic rule retention: 1.000
+    semantic retained: 8.00/8
+    recent retained: 20.00/20
+    protected overflow: 0
+  combined_2x:
+    broad mean estimate: 19379.29
+    scoped mean estimate: 12002.00
+    branch distribution: broad@20k=5, broad@24k=2, scoped@12k=0
+    core evidence complete: 7/7
+    all-rule-load retained: 7/7
+    synthetic rule retention: 1.000
+    semantic retained: 8.00/8
+    recent retained: 20.00/20
+    protected overflow: 0
+  combined_4x:
+    broad mean estimate: 25658.43
+    scoped mean estimate: 18281.14
+    branch distribution: broad@20k=0, broad@24k=2, scoped@12k=5
+    core evidence complete: 2/7 (2 broad@24k pass, 5 scoped@12k fail)
+    all-rule-load retained: 6/7
+    synthetic rule retention: 0.997
+    semantic retained: 6.29/8
+    recent retained: 7.57/20
+    protected overflow: 0
+
+P8-05: BLOCKED
 
 ## NOW — EVAL-01K Multi-Lane Growth Stress
 
