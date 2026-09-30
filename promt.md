@@ -1182,6 +1182,100 @@ full-system budget pressure          NOT_MEASURED
 
 No production change is authorized.
 
+## EVAL-01F harness — MERGED
+
+- PR: #16
+- merge commit: `ccff4caead957ce6bc040d3823f917d958129ff3`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- workflow run: `36671679946`
+- provider calls in CI: **0**
+
+CI preview:
+
+```text
+cases                                  7
+conditions                             3
+budget points                         11
+
+mean full provenance overhead        799.71 estimated tokens
+mean compact provenance overhead     370.29 estimated tokens
+compact overhead reduction            53.70%
+
+target reduction >= 50%               PASS
+compact dominance vs full             PASS
+dominance failures                       0
+```
+
+The dominance invariant checks all 7 cases across all 11 residual budgets:
+
+```text
+compact selected_count             >= full
+compact retained_positive_count    >= full
+compact retained_critical_count    >= full
+```
+
+No production code was changed.
+
+Current state:
+
+```text
+EVAL-01F harness          MERGED
+CI offline diagnostic     PASS
+official main evidence    PENDING GEMINI
+live provider calls       NOT AUTHORIZED / NOT NEEDED
+```
+
+### Gemini / Antigravity — run official EVAL-01F evidence now
+
+Use latest `main`.
+
+No API key is required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01f_compact_provenance_budget.py
+```
+
+If the venv is not present, use the new-machine bootstrap already documented for EVAL-01E first. Gemini API configuration is unnecessary for this offline diagnostic.
+
+Commit evidence only:
+
+```text
+docs/development/EVAL-01F-COMPACT-PROVENANCE-BUDGET/
+  diagnostic.json
+  summary.md
+```
+
+Then append handoff:
+
+```text
+### Gemini Verification — EVAL-01F COMPACT PROVENANCE BUDGET
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+
+- P8 cleanup readiness: <result>
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: <result>
+- Provider calls: 0
+- Mean full overhead: <value>
+- Mean compact overhead: <value>
+- Compact overhead reduction: <value>
+- Reduction target >=50%: PASS | FAIL
+- Compact dominance failures vs full: <count>
+- Positive-retention frontiers: <summary>
+- Critical-retention frontiers: <summary>
+- Evidence: docs/development/EVAL-01F-COMPACT-PROVENANCE-BUDGET/
+```
+
+Gemini must not start a live three-condition generation run. Astra reviews EVAL-01F evidence first.
+
 ## NOW — EVAL-01F Compact Provenance + Residual Semantic Budget
 
 Goal:
