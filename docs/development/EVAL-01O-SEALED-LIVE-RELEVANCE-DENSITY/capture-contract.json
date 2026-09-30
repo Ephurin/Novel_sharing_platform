@@ -1,0 +1,26 @@
+{
+  "experiment_id": "EVAL-01O",
+  "provider_calls_dry_run": 0,
+  "row_count": 7,
+  "routing_uses_gold": false,
+  "query_gold_used_for_scope": false,
+  "all_exact_semantic_ids": true,
+  "all_exact_recent_ids": true,
+  "all_exact_rule_ids": true,
+  "all_same_system_prompt": true,
+  "all_candidate_entities_subset": true,
+  "candidate_budget_distribution": {
+    "12000": 7
+  },
+  "mean_control_tokens": 16242.42857142857,
+  "mean_candidate_tokens": 9637.857142857143,
+  "mean_token_reduction_pct": 0.4065656603995265,
+  "known_regression_case": {
+    "case_id": "challenge:rq-0025",
+    "control_tokens": 16135,
+    "candidate_tokens": 9593,
+    "control_entities": 68,
+    "candidate_entities": 20,
+    "token_reduction_pct": 0.4054539820266501
+  }
+}

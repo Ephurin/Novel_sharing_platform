@@ -1,0 +1,9 @@
+{
+  "experiment_id": "EVAL-01O",
+  "private_state_sha256": "e6a5e847a5a80b63f785125d46886a63c303877f69d02547ba8a24bc772e986b",
+  "private_state_version": "eval01o-private-v1",
+  "expected_calls": 42,
+  "successful_calls": 42,
+  "condition_mapping_committed": false,
+  "raw_condition_labels_committed": false
+}
