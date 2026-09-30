@@ -3773,3 +3773,116 @@ Model: gemini-3.5-flash-lite (temperature=0.0)
 - Next step: Astra blind review PENDING; reveal BLOCKED until blind review commit
 
 P8-05: BLOCKED
+
+
+## EVAL-01M Astra blind review — COMPLETE / REVEAL AUTHORIZED
+
+Blind review:
+
+`docs/development/EVAL-01M-SEALED-LIVE-ADAPTIVE-CONTEXT/ASTRA-BLIND-REVIEW.md`
+
+Review commit:
+
+`07141f468d53957ecf0aab6fc17b1fb84bf1b132`
+
+Blind integrity at freeze time:
+
+```text
+condition mapping inspected             NO
+private state inspected                 NO
+condition-labelled raw output inspected NO
+packing audit inspected                 NO
+condition-labelled latency inspected    NO
+condition identity inferred             NO
+```
+
+Frozen blind preference counts:
+
+```text
+NORMAL
+  X    5
+  Y    7
+  TIE  9
+
+STRESS_RESILIENCE
+  X    7
+  Y    5
+  TIE  3
+
+ALL 36 PAIRS
+  X   12
+  Y   12
+  TIE 12
+```
+
+Important: these counts are not a condition verdict because X/Y is randomized per row/repeat.
+
+Substantive blind finding:
+
+```text
+NORMAL
+  mostly ties/modest differences
+  strongest discrimination in chronology/source-status cases
+
+STRESS_RESILIENCE
+  large evidence-retention failures appear in one side of many pairs
+  missing evidence includes:
+    Pillar No.2 40/42/45 history
+    cavalry 45/47/49 history
+    Alistair discovery/motive
+    concrete old-battle competing claims
+  severe failure alternates between X and Y under sealed assignment
+  seed physical-identity negative control remains stable
+```
+
+### Gemini / Antigravity — RUN REVEAL NOW
+
+Use the **same local workspace** that still contains:
+
+`.eval-private/eval01m-private.json`
+
+Do not run capture again.
+Do not call Gemini.
+Reveal must use zero provider calls.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/run_eval_01m_sealed_live_adaptive_context.py --stage reveal
+```
+
+Reveal must verify:
+
+```text
+ASTRA-BLIND-REVIEW.md present       true
+private-state SHA256 commitment     MATCH
+provider calls during reveal        0
+```
+
+Expected reveal artifacts:
+
+```text
+docs/development/EVAL-01M-SEALED-LIVE-ADAPTIVE-CONTEXT/
+  condition-key.json
+  raw-generations.json
+  prompt-diff-audit.json
+  latency-cost.json
+  reveal-verification.json
+```
+
+Commit those reveal artifacts plus a concise handoff.
+
+Gemini must report execution/integrity only and must **not** declare control/candidate winner.
+
+After reveal commit:
+
+```text
+Astra
+  -> map frozen blind X/Y scores to actual conditions
+  -> inspect prompt/packing/latency audit
+  -> issue final EVAL-01M interpretation
+
+production policy remains unchanged until that final interpretation
+P8-05 remains BLOCKED
+```
