@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01E — Source-Faithful Provenance Generation A/B**  
+> Active experiment: **EVAL-01F — Compact Provenance + Residual Semantic Budget**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -1141,6 +1141,157 @@ provider calls during reveal: 0
 condition mapping committed: true
 raw audit committed: true
 P8-05: BLOCKED
+
+## EVAL-01E final interpretation
+
+Astra final review:
+
+`docs/development/EVAL-01E-SEALED-PROVENANCE-AB/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`7a7e5557571255284b34f0d28ec9fa5eb0229c0a`
+
+Mapped blind result:
+
+```text
+pre_provenance:
+PASS      14 / 21
+PARTIAL    7 / 21
+FAIL       0
+
+post_provenance:
+PASS      16 / 21
+PARTIAL    5 / 21
+FAIL       0
+
+post improvements  2
+post regressions   0
+ties              19
+```
+
+Interpretation:
+
+```text
+provenance propagation               KEEP
+generation value                     SUPPORTED, SMALL/DIRECTIONAL
+verbose provenance prompt policy     NOT JUSTIFIED YET
+ranking change                       NOT JUSTIFIED
+full-system budget pressure          NOT_MEASURED
+```
+
+No production change is authorized.
+
+## NOW — EVAL-01F Compact Provenance + Residual Semantic Budget
+
+Goal:
+
+```text
+preserve useful provenance signals
+while reducing ~800-token top-10 overhead
+and measure evidence-drop frontier under semantic budget pressure
+```
+
+Harness:
+
+`scripts/run_eval_01f_compact_provenance_budget.py`
+
+Runbook:
+
+[docs/development/EVAL-01F-COMPACT-PROVENANCE-BUDGET-runbook.md](docs/development/EVAL-01F-COMPACT-PROVENANCE-BUDGET-runbook.md)
+
+Conditions:
+
+```text
+pre_provenance
+full_provenance
+compact_provenance
+```
+
+Compact form:
+
+```text
+pre metadata
++ provenance="status=...|review=...|tags=...|supersedes=..."
+```
+
+Redundant prompt fields intentionally omitted from compact representation:
+
+```text
+confirmation_status
+memory_id        # already memory_chunk_id
+chapter_title
+```
+
+Offline only:
+
+```text
+provider calls       0
+API key required     NO
+frozen mutation      NO
+production change    NO
+```
+
+Pressure sweep:
+
+```text
+12000, 6000, 5000, 4500, 4000, 3500,
+3000, 2750, 2500, 2250, 2000
+```
+
+Reduced budgets model residual semantic-memory budget after higher-priority canonical context. They are **not** a full-system context reconstruction.
+
+Decision checks:
+
+```text
+mean compact provenance overhead reduction >= 50%
+
+at each same residual budget:
+  compact selected_count          >= full
+  compact positive retention      >= full
+  compact critical retention      >= full
+```
+
+### Gemini / Antigravity — after EVAL-01F harness merge
+
+Run on latest `main`:
+
+```bash
+git switch main
+git pull origin main
+
+python scripts/check_p8_cleanup_readiness.py
+python scripts/check_p8_final_cleanup_gate.py --expect-blocked
+python scripts/check_eval01_fixture_contract.py
+python scripts/run_eval_01f_compact_provenance_budget.py
+```
+
+No Gemini API key is needed.
+
+Commit evidence only:
+
+```text
+docs/development/EVAL-01F-COMPACT-PROVENANCE-BUDGET/
+  diagnostic.json
+  summary.md
+```
+
+Handoff should report:
+
+```text
+Status: PASS | PARTIAL | BLOCKED
+tested commit
+evidence commit
+mean full overhead
+mean compact overhead
+compact overhead reduction
+dominance failures vs full
+positive-retention frontiers
+critical-retention frontiers
+P8-05: BLOCKED
+```
+
+Do not start a live three-condition generation experiment until Astra reviews EVAL-01F.
 
 ## Frozen production contract — do not drift
 
