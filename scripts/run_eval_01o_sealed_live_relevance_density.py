@@ -94,14 +94,44 @@ def artifact_ids(rows: Any, keys: tuple[str, ...]) -> list[str]:
 
 
 def full_fit(package: Any, budget: int) -> tuple[bool, Any]:
+    """Return whether every input artifact survives packing.
+
+    ContextBudgetPacker intentionally reorders locked/unlocked world rules and
+    restores recent events to canonical chronological order. Full-fit therefore
+    means artifact identity/count preservation, not byte-for-byte tuple order.
+    Prompt-level isolation is checked separately after both conditions are
+    packed, where semantic/recent/rule ID order must match exactly.
+    """
+
     packer = ContextBudgetPacker()
     packed = packer.pack(package, maximum=budget)
+
+    input_entities = set(artifact_ids(package.entities, ("entity_id", "id", "name")))
+    packed_entities = set(artifact_ids(packed.entities, ("entity_id", "id", "name")))
+    input_states = artifact_ids(package.current_states, ("entity_id", "id", "name"))
+    packed_states = artifact_ids(packed.current_states, ("entity_id", "id", "name"))
+    input_rules = set(artifact_ids(package.world_rules, ("id", "fact_id", "fact_key")))
+    packed_rules = set(artifact_ids(packed.world_rules, ("id", "fact_id", "fact_key")))
+    input_recent = set(artifact_ids(package.recent_events, ("event_id",)))
+    packed_recent = set(artifact_ids(packed.recent_events, ("event_id",)))
+    input_semantic = set(
+        artifact_ids(package.semantic_memories, ("memory_chunk_id", "source_key", "event_id"))
+    )
+    packed_semantic = set(
+        artifact_ids(packed.semantic_memories, ("memory_chunk_id", "source_key", "event_id"))
+    )
+
     fit = (
-        list(packed.entities) == list(package.entities)
-        and list(packed.current_states) == list(package.current_states)
-        and list(packed.world_rules) == list(package.world_rules)
-        and list(packed.recent_events) == list(package.recent_events)
-        and list(packed.semantic_memories) == list(package.semantic_memories)
+        input_entities == packed_entities
+        and len(packed.entities) == len(package.entities)
+        and set(input_states) == set(packed_states)
+        and len(packed.current_states) == len(package.current_states)
+        and input_rules == packed_rules
+        and len(packed.world_rules) == len(package.world_rules)
+        and input_recent == packed_recent
+        and len(packed.recent_events) == len(package.recent_events)
+        and input_semantic == packed_semantic
+        and len(packed.semantic_memories) == len(package.semantic_memories)
         and list(packed.author_constraints) == list(package.author_constraints)
         and not bool(packed.token_budget.get("protected_overflow"))
         and int(packed.token_budget.get("dropped_artifact_count") or 0) == 0
