@@ -4528,3 +4528,28 @@ Astra final interpretation
 
 Production policy remains unchanged.
 P8-05 remains BLOCKED.
+
+### Gemini Verification — EVAL-01O SEALED LIVE RELEVANCE DENSITY
+
+Status: PASS
+Tested commit: 8e931a4cb994a38362b328cf0e6655e3333d29d0
+Evidence commit: 1d639381f4d58e2b183a94c4be9507d609ca4266
+
+Model: gemini-3.5-flash-lite
+Fixed key slot: slot-1
+Successful calls: 42/42
+Backoff events: 0
+Sealed state SHA256: e6a5e847a5a80b63f785125d46886a63c303877f69d02547ba8a24bc772e986b
+
+Dry-run:
+  rows: 7
+  exact semantic IDs: true
+  exact recent IDs: true
+  exact rule IDs: true
+  candidate tier 12k: 7/7
+
+Condition mapping committed: false
+Raw labelled outputs committed: false
+Quality: BLIND_REVIEW_REQUIRED
+
+P8-05: BLOCKED
