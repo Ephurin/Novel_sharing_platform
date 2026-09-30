@@ -2709,6 +2709,151 @@ entity scoping cannot remove pressure caused by
 large world-rule or evidence payloads themselves.
 ```
 
+## EVAL-01K harness — MERGED
+
+- PR: #21
+- merge commit: `9519fc30532ad0d64f6e0ec3cd1ebd1edaff34ce`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- workflow run: `36685818264`
+- provider calls in CI: **0**
+- harness integrity failures: **0**
+- adaptive policy failures: **5**
+
+Important distinction:
+
+```text
+harness integrity          PASS
+adaptive policy            FAIL under combined_4x
+```
+
+This is an intended diagnostic result, not a CI failure.
+
+Scenario results:
+
+```text
+source_1x
+  mean broad estimate      16239.57
+  mean scoped estimate      8862.29
+  core evidence complete    7 / 7
+  all rule load retained    7 / 7
+
+rules_2x
+  mean broad estimate      17687.29
+  mean scoped estimate     10310.00
+  core evidence complete    7 / 7
+  all rule load retained    7 / 7
+
+evidence_payload_2x
+  mean broad estimate      17931.43
+  mean scoped estimate     10554.29
+  core evidence complete    7 / 7
+  all rule load retained    7 / 7
+
+combined_2x
+  mean broad estimate      19379.29
+  mean scoped estimate     12002.00
+  core evidence complete    7 / 7
+  all rule load retained    7 / 7
+
+combined_4x
+  mean broad estimate      25658.43
+  mean scoped estimate     18281.14
+  branches:
+    broad@24k              2 / 7
+    scoped@12k             5 / 7
+
+  core evidence complete    2 / 7
+  semantic retained         6.29 / 8 mean
+  recent retained           7.57 / 20 mean
+  protected overflow        0
+```
+
+Clean failure frontier:
+
+```text
+all scenarios <= combined_2x             PASS 7/7
+combined_4x broad@24k traces             PASS 2/2
+combined_4x scoped@12k traces            FAIL 5/5
+```
+
+Interpretation:
+
+```text
+>24k -> scoped@12k works when pressure is mostly entity/state breadth.
+
+It is NOT sufficient when the pressure remains inside
+world-rule + semantic/recent payloads themselves.
+
+At combined_4x the scoped package itself averages ~18.3k,
+so entity scoping alone cannot make a fixed 12k fallback safe.
+```
+
+This means the next candidate must be a **second-stage adaptive scoped budget**, not a larger broad ceiling.
+
+Do not change production policy yet.
+
+Current state:
+
+```text
+EVAL-01K harness        MERGED
+CI integrity            PASS
+adaptive policy         FAIL @ combined_4x
+official main evidence  PENDING GEMINI
+production policy       UNCHANGED
+```
+
+### Gemini / Antigravity — run official EVAL-01K evidence now
+
+Use latest `main`. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01k_multilane_growth_stress.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01K-MULTILANE-GROWTH-STRESS/
+  diagnostic.json
+  summary.md
+```
+
+Then append:
+
+```text
+### Gemini Verification — EVAL-01K MULTILANE GROWTH STRESS
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+Provider calls: 0
+
+Integrity: PASS | FAIL
+Adaptive policy: PASS | FAIL
+Adaptive failures: <n>
+
+Per scenario:
+  broad mean estimate
+  scoped mean estimate
+  branch distribution
+  core evidence complete
+  all-rule-load retained
+  synthetic rule retention
+  semantic retained
+  recent retained
+  protected overflow
+
+P8-05: BLOCKED
+```
+
+Gemini must not alter production budget/scoping/adaptive behavior. Astra reviews official evidence first.
+
 ## NOW — EVAL-01K Multi-Lane Growth Stress
 
 Goal:
