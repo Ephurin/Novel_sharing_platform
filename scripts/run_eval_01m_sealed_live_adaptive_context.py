@@ -27,6 +27,7 @@ import argparse
 import hashlib
 import json
 import os
+import secrets
 import sys
 import time
 from pathlib import Path
@@ -209,18 +210,28 @@ def adaptive_choice(
     return branch, budget, stressed_scoped, broad_estimated, scoped_estimated
 
 
-def blind_mapping(row_id: str, repeat: int) -> dict[str, str]:
+def blind_mapping(
+    row_id: str,
+    repeat: int,
+    *,
+    private_salt: str,
+) -> dict[str, str]:
     digest = hashlib.sha256(
-        f"eval01m:blind:{row_id}:{repeat}".encode("utf-8")
+        f"eval01m:blind:{private_salt}:{row_id}:{repeat}".encode("utf-8")
     ).digest()
     if digest[0] % 2 == 0:
         return {"X": CONTROL, "Y": CANDIDATE}
     return {"X": CANDIDATE, "Y": CONTROL}
 
 
-def call_order(row_id: str, repeat: int) -> list[str]:
+def call_order(
+    row_id: str,
+    repeat: int,
+    *,
+    private_salt: str,
+) -> list[str]:
     digest = hashlib.sha256(
-        f"eval01m:order:{row_id}:{repeat}".encode("utf-8")
+        f"eval01m:order:{private_salt}:{row_id}:{repeat}".encode("utf-8")
     ).digest()
     if digest[0] % 2 == 0:
         return [CONTROL, CANDIDATE]
@@ -441,8 +452,8 @@ def build_rows(
                 "case_id": case_id,
                 "scenario": scenario_name,
                 "stratum": stratum,
-                "same_source_package_hash": True,
-                "source_package_hash": source_package_hash,
+                "same_prepolicy_source_package": True,
+                "prepolicy_source_package_hash": source_package_hash,
                 "same_query": True,
                 "same_chapter_cutoff": True,
                 "same_compact_provenance": True,
@@ -528,7 +539,7 @@ def build_rows(
             item["same_system_prompt"] for item in audits
         ),
         "all_same_source_package_hash": all(
-            item["same_source_package_hash"] for item in audits
+            item["same_prepolicy_source_package"] for item in audits
         ),
         "all_control_protected_overflow_false": all(
             not row["prompts"][CONTROL]["protected_overflow"]
@@ -614,12 +625,22 @@ def capture(args: argparse.Namespace) -> int:
     reviewer_rows: list[dict[str, Any]] = []
     condition_key: list[dict[str, Any]] = []
     backoff_events = 0
+    blind_salt = secrets.token_hex(32)
+    order_salt = secrets.token_hex(32)
 
     for row in rows:
         row_id = row["row_id"]
         for repeat in range(1, args.repeats + 1):
-            mapping = blind_mapping(row_id, repeat)
-            order = call_order(row_id, repeat)
+            mapping = blind_mapping(
+                row_id,
+                repeat,
+                private_salt=blind_salt,
+            )
+            order = call_order(
+                row_id,
+                repeat,
+                private_salt=order_salt,
+            )
             outputs: dict[str, dict[str, Any]] = {}
 
             for condition in order:
@@ -727,6 +748,8 @@ def capture(args: argparse.Namespace) -> int:
             "inter_call_seconds": args.inter_call_seconds,
             "provider_backoff_events": backoff_events,
         },
+        "blind_salt": blind_salt,
+        "order_salt": order_salt,
         "condition_key": condition_key,
         "raw_generations": raw_records,
         "prompt_diff_audit": contract["detailed_audit"],
