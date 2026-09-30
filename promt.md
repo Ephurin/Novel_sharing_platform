@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01K — Multi-Lane Growth Stress**  
+> Active experiment: **EVAL-01L — Secondary Scoped Budget Frontier**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -3034,6 +3034,153 @@ P8-05: BLOCKED
 ```
 
 Do not alter production policy until Astra review.
+
+## EVAL-01K final interpretation
+
+Astra final review:
+
+`docs/development/EVAL-01K-MULTILANE-GROWTH-STRESS/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`240bc60bc131561af6c496afe313fbabecf9261a`
+
+Verdict:
+
+```text
+broad@20k                         KEEP
+broad@24k                         KEEP AS TOLERANCE
+>24k -> retrieval scope           KEEP
+fixed scoped@12k                  REJECT UNDER MULTI-LANE PRESSURE
+secondary scoped tiers            JUSTIFIED
+```
+
+Measured combined_4x failure curve:
+
+```text
+scoped ~16-17k
+  semantic survives
+  recent drops first
+
+scoped ~19k
+  optional semantic starts dropping
+
+scoped ~20k
+  positive/critical evidence starts dropping
+
+scoped ~22.6k
+  semantic + recent can collapse
+```
+
+## NOW — EVAL-01L Secondary Scoped Budget Frontier
+
+This is the final planned offline budget architecture diagnostic.
+
+Harness:
+
+`scripts/run_eval_01l_secondary_scoped_frontier.py`
+
+Runbook:
+
+[docs/development/EVAL-01L-SECONDARY-SCOPED-FRONTIER-runbook.md](docs/development/EVAL-01L-SECONDARY-SCOPED-FRONTIER-runbook.md)
+
+Scoped sweep:
+
+```text
+12k
+16k
+20k
+24k
+```
+
+Candidate two-stage policy:
+
+```text
+BROAD
+
+<=20k       broad@20k
+20k..24k    broad@24k
+>24k        retrieval scope
+
+
+SCOPED
+
+<=12k       scoped@12k
+12k..16k    scoped@16k
+16k..20k    scoped@20k
+20k..24k    scoped@24k
+>24k        unresolved
+```
+
+Routing is based only on estimated package size.
+
+Positive/critical labels are evaluation-only.
+
+PASS requires:
+
+```text
+integrity                       PASS
+unresolved scoped >24k         0
+final-policy failures          0
+core evidence complete         all 35 case×scenario traces
+protected overflow             0
+```
+
+If PASS, move next to **EVAL-01M sealed live generation validation**. Do not open another offline budget experiment unless EVAL-01L reveals a new unresolved frontier.
+
+### Gemini / Antigravity — after harness merge
+
+Run latest main. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01l_secondary_scoped_frontier.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01L-SECONDARY-SCOPED-FRONTIER/
+  diagnostic.json
+  summary.md
+```
+
+Handoff:
+
+```text
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+Provider calls: 0
+
+Integrity: PASS | FAIL
+Final policy: PASS | FAIL
+Unresolved scoped >24k: <n>
+
+Global scoped frontier by scenario:
+  source_1x
+  rules_2x
+  evidence_payload_2x
+  combined_2x
+  combined_4x
+
+Final branch counts:
+  broad@20k
+  broad@24k
+  scoped@12k
+  scoped@16k
+  scoped@20k
+  scoped@24k
+
+P8-05: BLOCKED
+```
+
+Do not alter production policy. Astra reviews official evidence first.
 
 ## Frozen production contract — do not drift
 
