@@ -1736,6 +1736,154 @@ packer algorithm defect                NOT YET PROVEN
 
 Do not use EVAL-01G alone to justify a production packer rewrite.
 
+## EVAL-01H harness — MERGED
+
+- PR: #18
+- merge commit: `9dc2f92935a134c9e8f300d7cd853a1ffd3ff792`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- workflow run: `36678524242`
+- provider calls in CI: **0**
+- contract failures: **0**
+
+Production-shaped defaults used:
+
+```text
+semantic limit   8
+recent limit    20
+provenance       compact
+packer           unchanged
+budget           12000 primary
+```
+
+CI 12k preview:
+
+```text
+baseline_prod8
+  mean input entities       69.57
+  mean selected entities    69.57
+  mean selected rules        8.29
+  mean selected recent       1.00 / 20
+  mean selected semantic     4.71 / 8
+  positive retention         0.571
+  critical retention         0.667
+  all positives retained     4 / 7 cases
+  all critical retained      4 / 7 cases
+  zero-semantic cases        2 / 7
+  zero-recent cases          4 / 7
+
+retrieval_scoped_entities
+  mean input entities       15.71
+  mean selected entities    15.71
+  mean selected rules       10.57
+  mean selected recent      20.00 / 20
+  mean selected semantic     8.00 / 8
+  positive retention         1.000
+  critical retention         1.000
+  all positives retained     7 / 7
+  all critical retained      7 / 7
+  zero-semantic cases        0
+  zero-recent cases          0
+  scope coverage             1.000
+
+balanced_scoped_entities
+  mean input entities       21.57
+  mean selected entities    21.57
+  mean selected rules       10.57
+  mean selected recent      20.00 / 20
+  mean selected semantic     8.00 / 8
+  positive retention         1.000
+  critical retention         1.000
+  all positives retained     7 / 7
+  all critical retained      7 / 7
+  zero-semantic cases        0
+  zero-recent cases          0
+  scope coverage             1.000
+```
+
+Contract held across 12k / 10k / 8k:
+
+```text
+deterministic packing                 PASS
+required scope retained               PASS
+protected artifacts retained          PASS
+protected overflow                    false
+positive retention                  >= baseline
+critical retention                  >= baseline
+recent retention                    >= baseline
+world-rule retention                >= baseline
+```
+
+Preliminary interpretation:
+
+```text
+EVAL-01G top-20 stress finding        CORRECTED
+production-limit starvation           STILL OBSERVED
+entity/state breadth                  STRONG BOTTLENECK CANDIDATE
+packer scheduler rewrite              NOT YET REQUIRED
+input scoping                         STRONGER / NARROWER NEXT CANDIDATE
+```
+
+The scoped policies recover evidence without changing ContextBudgetPacker.
+
+Do not productionize from CI preview alone.
+
+Current state:
+
+```text
+EVAL-01H harness        MERGED
+CI contract             PASS
+official main evidence  PENDING GEMINI
+production change       NOT AUTHORIZED
+```
+
+### Gemini / Antigravity — run official EVAL-01H evidence now
+
+Use latest `main`. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01h_prod8_context_scope.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01H-PROD8-CONTEXT-SCOPE/
+  diagnostic.json
+  summary.md
+```
+
+Then append:
+
+```text
+### Gemini Verification — EVAL-01H PRODUCTION-LIMIT CONTEXT SCOPE
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+
+- P8 cleanup readiness: <result>
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: <result>
+- Provider calls: 0
+- semantic limit: 8
+- recent limit: 20
+- contract failures: <count>
+- baseline 12k aggregate: <summary>
+- retrieval-scoped 12k aggregate: <summary>
+- balanced-scoped 12k aggregate: <summary>
+- 10k/8k sensitivity: <summary>
+- protected overflow: <result>
+- Evidence: docs/development/EVAL-01H-PROD8-CONTEXT-SCOPE/
+```
+
+Gemini must not modify ContextBudgetPacker or repository scoping. Astra reviews official evidence first.
+
 ## NOW — EVAL-01H Production-Limit Context Scope Diagnostic
 
 Goal:
