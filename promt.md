@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01J — Adaptive Story Brain Budget / Scale Stress**  
+> Active experiment: **EVAL-01K — Multi-Lane Growth Stress**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -2681,6 +2681,144 @@ P8-05: BLOCKED
 ```
 
 Do not alter production budget/scoping/adaptive behavior until Astra reviews official evidence.
+
+## EVAL-01J final interpretation
+
+Astra final review:
+
+`docs/development/EVAL-01J-ADAPTIVE-BUDGET-SCALE/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`363f6a46d57f78c30b2f953577ef0702361d9ac2`
+
+Verdict:
+
+```text
+20k normal broad tier                SUPPORTED
+24k broad tolerance tier             SUPPORTED, TIGHT
+>24k scoped@12k fallback             SUPPORTED FOR ENTITY/STATE GROWTH
+adaptive concept                     STRONGLY PROMISING
+production policy                    NOT AUTHORIZED
+```
+
+Remaining risk:
+
+```text
+entity scoping cannot remove pressure caused by
+large world-rule or evidence payloads themselves.
+```
+
+## NOW — EVAL-01K Multi-Lane Growth Stress
+
+Goal:
+
+```text
+stress rule count + selected semantic payload size
++ selected recent-event payload size
+while keeping the EVAL-01J adaptive policy unchanged
+```
+
+Harness:
+
+`scripts/run_eval_01k_multilane_growth_stress.py`
+
+Runbook:
+
+[docs/development/EVAL-01K-MULTILANE-GROWTH-STRESS-runbook.md](docs/development/EVAL-01K-MULTILANE-GROWTH-STRESS-runbook.md)
+
+Scenarios:
+
+```text
+source_1x
+rules_2x
+evidence_payload_2x
+combined_2x
+combined_4x
+```
+
+Production counts remain:
+
+```text
+semantic candidates in prompt = 8
+recent events in prompt       = 20
+```
+
+Stress contract:
+
+```text
+rules:
+  deterministic noncanonical unlocked clones
+
+semantic/recent payload:
+  repeat existing source-derived payload only
+  no new facts/candidates
+```
+
+Adaptive policy unchanged:
+
+```text
+<=20k       broad@20k
+20k..24k    broad@24k
+>24k        retrieval-scoped@12k
+```
+
+Important:
+
+```text
+adaptive-policy failure is a valid finding.
+Do NOT increase scoped budget inside EVAL-01K to make it pass.
+```
+
+CI integrity requires only determinism/protected/scope invariants.
+
+### Gemini / Antigravity — after harness merge
+
+Run latest main. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01k_multilane_growth_stress.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01K-MULTILANE-GROWTH-STRESS/
+  diagnostic.json
+  summary.md
+```
+
+Handoff:
+
+```text
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+Provider calls: 0
+
+Integrity: PASS | FAIL
+Adaptive policy: PASS | FAIL
+Adaptive failures: <n>
+
+Per scenario:
+  broad mean estimate
+  scoped mean estimate
+  branch distribution
+  core evidence complete
+  all-rule-load retained
+  synthetic rule retention
+  protected overflow
+
+P8-05: BLOCKED
+```
+
+Do not alter production policy until Astra review.
 
 ## Frozen production contract — do not drift
 
