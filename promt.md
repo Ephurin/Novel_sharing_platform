@@ -3,7 +3,7 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01F — Compact Provenance + Residual Semantic Budget**  
+> Active experiment: **EVAL-01G — Full 12k Context Pressure Reconstruction**  
 > Do not change production architecture until the diagnostic is reviewed.
 
 ## Current verified baseline
@@ -1405,6 +1405,149 @@ P8-05: BLOCKED
 ```
 
 Do not start a live three-condition generation experiment until Astra reviews EVAL-01F.
+
+## EVAL-01F final interpretation
+
+Astra final review:
+
+`docs/development/EVAL-01F-COMPACT-PROVENANCE-BUDGET/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`503bef319630fade0f0dad156bceb92298853e25`
+
+Verdict:
+
+```text
+compact provenance overhead reduction      53.70% PASS
+compact dominance failures                     0
+full verbose provenance next-live candidate  DROP
+compact provenance next candidate            KEEP
+production compact prompt                    NOT AUTHORIZED
+full-system 12k pressure                     NOT_MEASURED
+```
+
+## NOW — EVAL-01G Full 12k Context Pressure Reconstruction
+
+Goal:
+
+```text
+reconstruct a source-grounded production-shaped WritingContextPackage
+and let all ContextBudgetPacker layers compete inside the actual 12k budget
+```
+
+Harness:
+
+`scripts/run_eval_01g_full_context_pressure.py`
+
+Runbook:
+
+[docs/development/EVAL-01G-FULL-CONTEXT-PRESSURE-runbook.md](docs/development/EVAL-01G-FULL-CONTEXT-PRESSURE-runbook.md)
+
+Fixture layers:
+
+```text
+entities          <- .data/Batch_7/entities.json
+current states    <- latest canonical Frozen_v1 memory pointer per entity
+world rules       <- canonical memories tagged world_rule
+recent events     <- canonical event_summary memories near cutoff
+semantic memories <- preserved EVAL-01 top-20 + EVAL-01E neutral view
+author constraints<- evaluation constraints
+```
+
+Important claim boundary:
+
+```text
+source-grounded + production-shaped
+NOT a literal PostgreSQL runtime snapshot
+```
+
+Experimental stress policies:
+
+```text
+locked entities:
+  entities referenced by case-specific critical memories
+
+locked world rules:
+  high_confidence + importance >= 0.95
+```
+
+These lock markers are packer-test policy, not story facts.
+
+Conditions:
+
+```text
+pre_provenance
+full_provenance
+compact_provenance
+```
+
+Budgets:
+
+```text
+12000 primary
+10000 sensitivity
+8000  sensitivity
+```
+
+PASS contract:
+
+```text
+deterministic packing                     PASS
+locked entities retained                  PASS
+locked entity states retained             PASS
+locked rules retained                     PASS
+author constraints retained               PASS
+protected overflow                        false
+
+at 12k:
+compact semantic count          >= full
+compact positive retention      >= full
+compact critical retention      >= full
+```
+
+### Gemini / Antigravity — after harness merge
+
+Run latest main. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01g_full_context_pressure.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01G-FULL-CONTEXT-PRESSURE/
+  diagnostic.json
+  summary.md
+```
+
+Handoff:
+
+```text
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+
+- Provider calls: 0
+- Fixture claim: source-grounded production-shaped
+- Contract failures: <count>
+- 12k pre aggregate: <summary>
+- 12k full aggregate: <summary>
+- 12k compact aggregate: <summary>
+- Protected overflow: <result>
+- Cases all positives retained by condition
+- Cases all critical retained by condition
+- P8-05: BLOCKED
+```
+
+Do not start live generation until Astra reviews EVAL-01G.
 
 ## Frozen production contract — do not drift
 
