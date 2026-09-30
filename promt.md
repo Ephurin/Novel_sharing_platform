@@ -3,8 +3,8 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01L — Secondary Scoped Budget Frontier**  
-> Do not change production architecture until the diagnostic is reviewed.
+> Active experiment: **EVAL-01M — Sealed Live Adaptive Context Validation**  
+> EVAL-01L is closed. Do not change production architecture until EVAL-01M live evidence is blind-reviewed and revealed.
 
 ## Current verified baseline
 
@@ -3453,3 +3453,173 @@ Supervisor
 - [EVAL-01 runtime evidence](docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/)
 - [Evaluation / Pilot Runbook](docs/development/EVALUATION-PILOT-RUNBOOK.md)
 - [Phase 0–8 archive](docs/development/archive/P0-P8-HANDOFF-through-2026-09-26.md)
+
+
+## EVAL-01L final interpretation — CLOSED
+
+Astra final review:
+
+`docs/development/EVAL-01L-SECONDARY-SCOPED-FRONTIER/ASTRA-FINAL-REVIEW.md`
+
+Review commit:
+
+`9070808b4188ecd74c2c0c3c50293dc7199594c2`
+
+Verdict:
+
+```text
+official evidence                    VERIFIED
+integrity failures                   0
+final-policy failures                0
+unresolved scoped >24k               0
+offline budget frontier              CLOSED
+production policy                    UNCHANGED
+```
+
+Supported offline candidate:
+
+```text
+BROAD
+<=20k       -> broad@20k
+20k..24k    -> broad@24k
+>24k        -> retrieval scope
+
+SCOPED
+<=12k       -> scoped@12k
+12k..16k    -> scoped@16k
+16k..20k    -> scoped@20k
+20k..24k    -> scoped@24k
+>24k        -> unresolved / compression required
+```
+
+Important caveats:
+
+- application estimator, not exact provider tokenizer;
+- Story Brain only, not the whole outer prompt/output budget;
+- source-grounded production-shaped Aethelgard fixture, not proof over every future novel;
+- `scoped@12k` and `scoped@16k` pass independent sweeps but had zero natural final-route hits in the 35 current traces;
+- `scoped>24k` remains an explicit unresolved state rather than an automatically enlarged ceiling.
+
+No additional offline budget-frontier experiment is planned.
+
+# NOW — EVAL-01M Sealed Live Adaptive Context Validation
+
+Goal:
+
+```text
+test whether the EVAL-01L offline-supported adaptive context policy
+improves actual Gemini generation quality versus the current fixed broad@12k behavior
+```
+
+This is an **evaluation harness only**. Production budget/scoping remains unchanged.
+
+Primary conditions:
+
+```text
+CONTROL
+  fixed broad entity/state package
+  ContextBudgetPacker maximum = 12000
+
+CANDIDATE
+  EVAL-01L two-stage routing:
+    broad <=20k      -> broad@20k
+    broad <=24k      -> broad@24k
+    broad >24k       -> retrieval-scoped
+    scoped <=12k     -> scoped@12k
+    scoped <=16k     -> scoped@16k
+    scoped <=20k     -> scoped@20k
+    scoped <=24k     -> scoped@24k
+    scoped >24k      -> unresolved
+```
+
+Routing must use estimated package size only. Gold positive/critical labels are review/evaluation data and must never influence routing.
+
+Held constant:
+
+```text
+same case query
+same chapter cutoff
+same source-grounded base package
+same semantic top-8 order
+same recent-event limit=20
+same compact provenance
+same model
+same temperature
+same production prompt renderer
+same task instruction
+same author constraints
+same output max_tokens
+```
+
+Two live strata:
+
+```text
+NORMAL
+  source_1x
+  all 7 fixed EVAL-01E cases
+
+STRESS_RESILIENCE
+  combined_4x
+  include only case/scenario rows where the candidate route actually enters
+  scoped@20k or scoped@24k
+  selection is based on package-size routing only, never gold labels
+```
+
+The stress stratum is structural resilience evidence only. It must be reported separately from normal source-grounded quality and must not be pooled into a single “winner” rate.
+
+Default live contract:
+
+```text
+model            gemini-3.5-flash-lite
+temperature      0.0
+repeats          3
+expected cases   7 normal + 5 scoped-stress = 12 case/scenario rows
+expected calls   12 * 2 * 3 = 72
+key policy       one fixed slot for the whole capture
+fallback model   NONE
+quality scoring  BLIND_REVIEW_REQUIRED
+```
+
+Sealed protocol:
+
+```text
+dry-run
+  -> prove deterministic routing/packing and prompt contract
+capture
+  -> live X/Y outputs
+  -> condition mapping/raw labelled outputs remain in .eval-private/
+  -> public SHA256 commitment
+blind Astra review
+  -> freeze X/Y judgments
+reveal
+  -> zero provider calls
+  -> verify commitment
+  -> publish mapping/raw audit
+final Astra interpretation
+```
+
+Reviewer dimensions:
+
+- canonical/source-status correctness;
+- chronology/causality;
+- ambiguity handling;
+- future leakage;
+- unsupported claims;
+- completeness.
+
+Latency, backoff count, estimated Story Brain size, selected artifact counts, and full prompt size proxy must be recorded separately from blind quality.
+
+Decision rule:
+
+```text
+A production implementation slice is NOT automatic.
+
+After reveal, Astra/Supervisor must separately judge:
+1. normal source-grounded quality effect;
+2. stress-resilience quality effect;
+3. latency/input-size cost;
+4. regressions;
+5. whether evidence is strong enough to justify production adaptive routing.
+```
+
+P8-05 remains BLOCKED.
