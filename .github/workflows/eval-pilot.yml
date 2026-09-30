@@ -15,6 +15,7 @@ on:
       - "scripts/run_eval_01i_context_budget_scaling.py"
       - "scripts/run_eval_01j_adaptive_budget_scale.py"
       - "scripts/run_eval_01k_multilane_growth_stress.py"
+      - "scripts/run_eval_01l_secondary_scoped_frontier.py"
       - "benchmarks/eval01e_neutral_context.json"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
@@ -37,6 +38,7 @@ on:
       - "scripts/run_eval_01i_context_budget_scaling.py"
       - "scripts/run_eval_01j_adaptive_budget_scale.py"
       - "scripts/run_eval_01k_multilane_growth_stress.py"
+      - "scripts/run_eval_01l_secondary_scoped_frontier.py"
       - "benchmarks/eval01e_neutral_context.json"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
@@ -65,6 +67,7 @@ jobs:
           python -m py_compile scripts/run_eval_01i_context_budget_scaling.py
           python -m py_compile scripts/run_eval_01j_adaptive_budget_scale.py
           python -m py_compile scripts/run_eval_01k_multilane_growth_stress.py
+          python -m py_compile scripts/run_eval_01l_secondary_scoped_frontier.py
       - name: Validate frozen corpus and harness contract
         run: python scripts/check_eval01_fixture_contract.py
       - name: Run offline replay temporal-intent diagnostic
@@ -87,3 +90,5 @@ jobs:
         run: python scripts/run_eval_01j_adaptive_budget_scale.py --stdout-only
       - name: Validate multi-lane growth stress
         run: python scripts/run_eval_01k_multilane_growth_stress.py --stdout-only
+      - name: Validate secondary scoped budget frontier
+        run: python scripts/run_eval_01l_secondary_scoped_frontier.py --stdout-only
