@@ -1511,7 +1511,7 @@ Current state:
 ```text
 EVAL-01G harness        MERGED
 CI contract             PASS
-official main evidence  PENDING GEMINI
+official main evidence  COMPLETE (d49bf0d)
 production change       NOT AUTHORIZED
 ```
 
@@ -1562,6 +1562,26 @@ Evidence commit: <sha>
 ```
 
 Gemini must not modify packer priority or start a live generation run. Astra reviews official evidence first.
+
+### Gemini Verification — EVAL-01G FULL CONTEXT PRESSURE
+
+Status: PASS
+Tested commit: 41155020f0c249f6c20d44fa59b97fbd9ae722c8
+Evidence commit: d49bf0da77f654e2adfdb82844b63541091cd36f
+
+- P8 cleanup readiness: PASS
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: PASS
+- Provider calls: 0
+- Fixture claim: source-grounded production-shaped
+- Contract failures: 0 (deterministic packing PASS, locked entities/rules retained PASS, constraints retained PASS)
+- 12k pre aggregate: 11972.29 tokens used, 69.57 entities, 8.29 rules, 0.29 recent events, 6.43 semantic memories, pos_ret=0.690, crit_ret=0.690
+- 12k full aggregate: 11952.71 tokens used, 69.57 entities, 8.29 rules, 0.14 recent events, 4.57 semantic memories, pos_ret=0.519, crit_ret=0.595
+- 12k compact aggregate: 11973.71 tokens used, 69.57 entities, 8.29 rules, 0.29 recent events, 5.43 semantic memories, pos_ret=0.519, crit_ret=0.643
+- Protected overflow: false (0 occurrences across all conditions and budgets)
+- Cases all positives retained by condition: pre=4/7, full=2/7, compact=2/7
+- Cases all critical retained by condition: pre=4/7, full=3/7, compact=3/7
+- Evidence: docs/development/EVAL-01G-FULL-CONTEXT-PRESSURE/
 
 ## NOW — EVAL-01G Full 12k Context Pressure Reconstruction
 
