@@ -3625,7 +3625,7 @@ After reveal, Astra/Supervisor must separately judge:
 P8-05 remains BLOCKED.
 
 
-## EVAL-01M harness — MERGED / LIVE CAPTURE PENDING
+## EVAL-01M harness — MERGED / LIVE CAPTURE COMPLETE
 
 - PR: #23
 - merge commit: `3ac07099e401676798c0c9f27346bc96dc18de1b`
@@ -3747,3 +3747,29 @@ Astra final interpretation
 ```
 
 P8-05 remains BLOCKED.
+
+### Gemini Verification — EVAL-01M SEALED LIVE ADAPTIVE CONTEXT
+
+Status: PASS
+Tested commit: dbaa74ec93183c750b97035464961430543e1baa
+Evidence commit: e202a190598d97d109f96bdd189f5e39aa63762e
+Fixed key slot: slot-1
+Model: gemini-3.5-flash-lite (temperature=0.0)
+
+- Preflight guards:
+  - P8 cleanup readiness: PASS
+  - P8-05 cleanup gate: BLOCKED
+  - EVAL-01 fixture contract: PASS
+- Stage dry-run: PASS (12 rows, 72 planned live calls, 0 provider calls)
+- Stage capture: PASS
+  - Successful calls: 72 / 72
+  - Provider backoff events: 0
+  - Sealed state SHA256: 2edc2eb3585da1c1358bedf49d1371e48be5f54e0450148a9036364f87c4c296
+  - Quality scoring: BLIND_REVIEW_REQUIRED (reviewer-blind.json committed; mapping/raw outputs sealed in gitignored .eval-private/eval01m-private.json)
+- Strata:
+  - NORMAL: 7 rows (source_1x) × 2 conditions × 3 repeats = 42 calls
+  - STRESS_RESILIENCE: 5 rows (combined_4x) × 2 conditions × 3 repeats = 30 calls
+- Evidence: docs/development/EVAL-01M-SEALED-LIVE-ADAPTIVE-CONTEXT/
+- Next step: Astra blind review PENDING; reveal BLOCKED until blind review commit
+
+P8-05: BLOCKED
