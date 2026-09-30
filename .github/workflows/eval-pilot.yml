@@ -9,6 +9,7 @@ on:
       - "scripts/run_eval_01c_dual_lane_intent.py"
       - "scripts/run_eval_01d_provenance_ab.py"
       - "scripts/run_eval_01e_sealed_provenance_ab.py"
+      - "scripts/run_eval_01f_compact_provenance_budget.py"
       - "benchmarks/eval01e_neutral_context.json"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
@@ -25,6 +26,7 @@ on:
       - "scripts/run_eval_01c_dual_lane_intent.py"
       - "scripts/run_eval_01d_provenance_ab.py"
       - "scripts/run_eval_01e_sealed_provenance_ab.py"
+      - "scripts/run_eval_01f_compact_provenance_budget.py"
       - "benchmarks/eval01e_neutral_context.json"
       - ".data/Frozen_v1/**"
       - "docs/development/EVALUATION-PILOT-RUNBOOK.md"
@@ -47,6 +49,7 @@ jobs:
           python -m py_compile scripts/run_eval_01c_dual_lane_intent.py
           python -m py_compile scripts/run_eval_01d_provenance_ab.py
           python -m py_compile scripts/run_eval_01e_sealed_provenance_ab.py
+          python -m py_compile scripts/run_eval_01f_compact_provenance_budget.py
       - name: Validate frozen corpus and harness contract
         run: python scripts/check_eval01_fixture_contract.py
       - name: Run offline replay temporal-intent diagnostic
@@ -57,3 +60,5 @@ jobs:
         run: python scripts/run_eval_01d_provenance_ab.py --dry-run --stdout-only
       - name: Validate sealed provenance A/B protocol
         run: python scripts/run_eval_01e_sealed_provenance_ab.py --stage dry-run
+      - name: Validate compact provenance budget diagnostic
+        run: python scripts/run_eval_01f_compact_provenance_budget.py --stdout-only
