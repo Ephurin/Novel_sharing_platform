@@ -1,0 +1,2289 @@
+{
+  "experiment_id": "EVAL-01N",
+  "mode": "offline",
+  "provider_calls": 0,
+  "production_code_modified": false,
+  "context_packer_modified": false,
+  "routing_uses_gold": false,
+  "query_gold_used_for_scope": false,
+  "broad_budget": 20000,
+  "scoped_budget_tiers": [
+    12000,
+    16000,
+    20000,
+    24000
+  ],
+  "policies": [
+    "broad_20k_current",
+    "retrieval_scope_min_tier",
+    "balanced_scope_min_tier"
+  ],
+  "aggregate": {
+    "retrieval_scope_min_tier": {
+      "resolved_cases": 7,
+      "mean_tokens_used": 8825.714285714286,
+      "mean_entity_count": 15.428571428571429,
+      "mean_token_reduction_vs_broad": 7416.714285714285,
+      "mean_token_reduction_pct_vs_broad": 0.4554868697166293,
+      "budget_distribution": {
+        "12000": 7,
+        "16000": 0,
+        "20000": 0,
+        "24000": 0
+      }
+    },
+    "balanced_scope_min_tier": {
+      "resolved_cases": 7,
+      "mean_tokens_used": 9637.857142857143,
+      "mean_entity_count": 21.285714285714285,
+      "mean_token_reduction_vs_broad": 6604.571428571428,
+      "mean_token_reduction_pct_vs_broad": 0.4065656603995265,
+      "budget_distribution": {
+        "12000": 7,
+        "16000": 0,
+        "20000": 0,
+        "24000": 0
+      }
+    },
+    "broad_20k_current": {
+      "mean_tokens_used": 16242.42857142857,
+      "mean_entity_count": 69.57142857142857
+    }
+  },
+  "known_live_regression_case": {
+    "case_id": "challenge:rq-0025",
+    "chapter_cutoff": 49,
+    "routing_uses_gold": false,
+    "query_gold_used_for_scope": false,
+    "query_named_entity_ids": [
+      "char-010"
+    ],
+    "semantic_top8_entity_ids": [
+      "char-001",
+      "char-002",
+      "char-009",
+      "char-010",
+      "char-011",
+      "char-014",
+      "char-016",
+      "char-017",
+      "char-019",
+      "char-020",
+      "char-021",
+      "item-008",
+      "item-013",
+      "loc-009",
+      "loc-010",
+      "loc-017",
+      "org-001",
+      "structure-001"
+    ],
+    "retrieval_scope_ids": [
+      "char-001",
+      "char-002",
+      "char-009",
+      "char-010",
+      "char-011",
+      "char-014",
+      "char-016",
+      "char-017",
+      "char-019",
+      "char-020",
+      "char-021",
+      "item-008",
+      "item-013",
+      "loc-009",
+      "loc-010",
+      "loc-017",
+      "org-001",
+      "structure-001"
+    ],
+    "newest5_recent_participant_ids": [
+      "char-001",
+      "char-002",
+      "char-011",
+      "char-016",
+      "char-020",
+      "item-008",
+      "item-013",
+      "loc-017",
+      "org-004",
+      "structure-001",
+      "structure-004"
+    ],
+    "balanced_scope_ids": [
+      "char-001",
+      "char-002",
+      "char-009",
+      "char-010",
+      "char-011",
+      "char-014",
+      "char-016",
+      "char-017",
+      "char-019",
+      "char-020",
+      "char-021",
+      "item-008",
+      "item-013",
+      "loc-009",
+      "loc-010",
+      "loc-017",
+      "org-001",
+      "org-004",
+      "structure-001",
+      "structure-004"
+    ],
+    "policies": {
+      "broad_20k_current": {
+        "budget": 20000,
+        "estimated_before": 16135,
+        "tokens_used": 16135,
+        "deterministic": true,
+        "protected_overflow": false,
+        "full_input_fit": true,
+        "selected_counts": {
+          "entities": 68,
+          "states": 68,
+          "rules": 12,
+          "recent": 20,
+          "semantic": 8
+        },
+        "input_counts": {
+          "entities": 68,
+          "states": 68,
+          "rules": 12,
+          "recent": 20,
+          "semantic": 8
+        },
+        "all_semantic_retained": true,
+        "all_recent_retained": true,
+        "all_rules_retained": true,
+        "required_scope_count": 18,
+        "required_scope_retained": 18,
+        "all_required_scope_retained": true,
+        "dropped_counts": {
+          "entities": 0,
+          "rules": 0,
+          "recent": 0,
+          "semantic": 0
+        }
+      },
+      "retrieval_scope_min_tier": {
+        "status": "FIT",
+        "selected_budget": 12000,
+        "selected": {
+          "budget": 12000,
+          "estimated_before": 9308,
+          "tokens_used": 9308,
+          "deterministic": true,
+          "protected_overflow": false,
+          "full_input_fit": true,
+          "selected_counts": {
+            "entities": 18,
+            "states": 18,
+            "rules": 12,
+            "recent": 20,
+            "semantic": 8
+          },
+          "input_counts": {
+            "entities": 18,
+            "states": 18,
+            "rules": 12,
+            "recent": 20,
+            "semantic": 8
+          },
+          "all_semantic_retained": true,
+          "all_recent_retained": true,
+          "all_rules_retained": true,
+          "required_scope_count": 18,
+          "required_scope_retained": 18,
+          "all_required_scope_retained": true,
+          "dropped_counts": {
+            "entities": 0,
+            "rules": 0,
+            "recent": 0,
+            "semantic": 0
+          },
+          "token_reduction_vs_broad": 6827,
+          "token_reduction_pct_vs_broad": 0.42311744654477845,
+          "entity_reduction_vs_broad": 50
+        },
+        "attempts": [
+          {
+            "budget": 12000,
+            "estimated_before": 9308,
+            "tokens_used": 9308,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 18,
+              "states": 18,
+              "rules": 12,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 18,
+              "states": 18,
+              "rules": 12,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 18,
+            "required_scope_retained": 18,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 6827,
+            "token_reduction_pct_vs_broad": 0.42311744654477845,
+            "entity_reduction_vs_broad": 50
+          }
+        ]
+      },
+      "balanced_scope_min_tier": {
+        "status": "FIT",
+        "selected_budget": 12000,
+        "selected": {
+          "budget": 12000,
+          "estimated_before": 9593,
+          "tokens_used": 9593,
+          "deterministic": true,
+          "protected_overflow": false,
+          "full_input_fit": true,
+          "selected_counts": {
+            "entities": 20,
+            "states": 20,
+            "rules": 12,
+            "recent": 20,
+            "semantic": 8
+          },
+          "input_counts": {
+            "entities": 20,
+            "states": 20,
+            "rules": 12,
+            "recent": 20,
+            "semantic": 8
+          },
+          "all_semantic_retained": true,
+          "all_recent_retained": true,
+          "all_rules_retained": true,
+          "required_scope_count": 20,
+          "required_scope_retained": 20,
+          "all_required_scope_retained": true,
+          "dropped_counts": {
+            "entities": 0,
+            "rules": 0,
+            "recent": 0,
+            "semantic": 0
+          },
+          "token_reduction_vs_broad": 6542,
+          "token_reduction_pct_vs_broad": 0.4054539820266501,
+          "entity_reduction_vs_broad": 48
+        },
+        "attempts": [
+          {
+            "budget": 12000,
+            "estimated_before": 9593,
+            "tokens_used": 9593,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 20,
+              "states": 20,
+              "rules": 12,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 20,
+              "states": 20,
+              "rules": 12,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 20,
+            "required_scope_retained": 20,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 6542,
+            "token_reduction_pct_vs_broad": 0.4054539820266501,
+            "entity_reduction_vs_broad": 48
+          }
+        ]
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "core_gold:rq-0011",
+      "chapter_cutoff": 32,
+      "routing_uses_gold": false,
+      "query_gold_used_for_scope": false,
+      "query_named_entity_ids": [
+        "char-001"
+      ],
+      "semantic_top8_entity_ids": [
+        "char-001",
+        "char-002",
+        "char-005",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-017",
+        "item-008",
+        "item-009",
+        "item-011",
+        "loc-005",
+        "loc-015",
+        "loc-018",
+        "org-001",
+        "org-003",
+        "state-001"
+      ],
+      "retrieval_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-005",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-017",
+        "item-008",
+        "item-009",
+        "item-011",
+        "loc-005",
+        "loc-015",
+        "loc-018",
+        "org-001",
+        "org-003",
+        "state-001"
+      ],
+      "newest5_recent_participant_ids": [
+        "char-001",
+        "char-002",
+        "char-005",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-018",
+        "char-019",
+        "char-020",
+        "item-010",
+        "loc-015",
+        "loc-018",
+        "org-001",
+        "org-003",
+        "structure-001"
+      ],
+      "balanced_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-005",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-017",
+        "char-018",
+        "char-019",
+        "char-020",
+        "item-008",
+        "item-009",
+        "item-010",
+        "item-011",
+        "loc-005",
+        "loc-015",
+        "loc-018",
+        "org-001",
+        "org-003",
+        "state-001",
+        "structure-001"
+      ],
+      "policies": {
+        "broad_20k_current": {
+          "budget": 20000,
+          "estimated_before": 14710,
+          "tokens_used": 14710,
+          "deterministic": true,
+          "protected_overflow": false,
+          "full_input_fit": true,
+          "selected_counts": {
+            "entities": 63,
+            "states": 63,
+            "rules": 6,
+            "recent": 20,
+            "semantic": 8
+          },
+          "input_counts": {
+            "entities": 63,
+            "states": 63,
+            "rules": 6,
+            "recent": 20,
+            "semantic": 8
+          },
+          "all_semantic_retained": true,
+          "all_recent_retained": true,
+          "all_rules_retained": true,
+          "required_scope_count": 16,
+          "required_scope_retained": 16,
+          "all_required_scope_retained": true,
+          "dropped_counts": {
+            "entities": 0,
+            "rules": 0,
+            "recent": 0,
+            "semantic": 0
+          }
+        },
+        "retrieval_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 8334,
+            "tokens_used": 8334,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 16,
+              "states": 16,
+              "rules": 6,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 16,
+              "states": 16,
+              "rules": 6,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 16,
+            "required_scope_retained": 16,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 6376,
+            "token_reduction_pct_vs_broad": 0.4334466349422162,
+            "entity_reduction_vs_broad": 47
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 8334,
+              "tokens_used": 8334,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 16,
+              "required_scope_retained": 16,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 6376,
+              "token_reduction_pct_vs_broad": 0.4334466349422162,
+              "entity_reduction_vs_broad": 47
+            }
+          ]
+        },
+        "balanced_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 9020,
+            "tokens_used": 9020,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 21,
+              "states": 21,
+              "rules": 6,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 21,
+              "states": 21,
+              "rules": 6,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 21,
+            "required_scope_retained": 21,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 5690,
+            "token_reduction_pct_vs_broad": 0.3868116927260367,
+            "entity_reduction_vs_broad": 42
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 9020,
+              "tokens_used": 9020,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 21,
+                "states": 21,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 21,
+                "states": 21,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 21,
+              "required_scope_retained": 21,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 5690,
+              "token_reduction_pct_vs_broad": 0.3868116927260367,
+              "entity_reduction_vs_broad": 42
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0023",
+      "chapter_cutoff": 45,
+      "routing_uses_gold": false,
+      "query_gold_used_for_scope": false,
+      "query_named_entity_ids": [],
+      "semantic_top8_entity_ids": [
+        "char-001",
+        "char-002",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-018",
+        "char-019",
+        "item-008",
+        "item-013",
+        "loc-020",
+        "org-001",
+        "structure-001"
+      ],
+      "retrieval_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-018",
+        "char-019",
+        "item-008",
+        "item-013",
+        "loc-020",
+        "org-001",
+        "structure-001"
+      ],
+      "newest5_recent_participant_ids": [
+        "char-001",
+        "char-002",
+        "char-005",
+        "char-010",
+        "char-011",
+        "char-019",
+        "item-008",
+        "loc-017",
+        "loc-018",
+        "org-001",
+        "org-004",
+        "org-005"
+      ],
+      "balanced_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-005",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-018",
+        "char-019",
+        "item-008",
+        "item-013",
+        "loc-017",
+        "loc-018",
+        "loc-020",
+        "org-001",
+        "org-004",
+        "org-005",
+        "structure-001"
+      ],
+      "policies": {
+        "broad_20k_current": {
+          "budget": 20000,
+          "estimated_before": 15693,
+          "tokens_used": 15693,
+          "deterministic": true,
+          "protected_overflow": false,
+          "full_input_fit": true,
+          "selected_counts": {
+            "entities": 68,
+            "states": 68,
+            "rules": 9,
+            "recent": 20,
+            "semantic": 8
+          },
+          "input_counts": {
+            "entities": 68,
+            "states": 68,
+            "rules": 9,
+            "recent": 20,
+            "semantic": 8
+          },
+          "all_semantic_retained": true,
+          "all_recent_retained": true,
+          "all_rules_retained": true,
+          "required_scope_count": 12,
+          "required_scope_retained": 12,
+          "all_required_scope_retained": true,
+          "dropped_counts": {
+            "entities": 0,
+            "rules": 0,
+            "recent": 0,
+            "semantic": 0
+          }
+        },
+        "retrieval_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 8123,
+            "tokens_used": 8123,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 12,
+              "states": 12,
+              "rules": 9,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 12,
+              "states": 12,
+              "rules": 9,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 12,
+            "required_scope_retained": 12,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 7570,
+            "token_reduction_pct_vs_broad": 0.4823806792837571,
+            "entity_reduction_vs_broad": 56
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 8123,
+              "tokens_used": 8123,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 12,
+                "states": 12,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 12,
+              "required_scope_retained": 12,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 7570,
+              "token_reduction_pct_vs_broad": 0.4823806792837571,
+              "entity_reduction_vs_broad": 56
+            }
+          ]
+        },
+        "balanced_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 8795,
+            "tokens_used": 8795,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 17,
+              "states": 17,
+              "rules": 9,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 17,
+              "states": 17,
+              "rules": 9,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 17,
+            "required_scope_retained": 17,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 6898,
+            "token_reduction_pct_vs_broad": 0.43955903906200217,
+            "entity_reduction_vs_broad": 51
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 8795,
+              "tokens_used": 8795,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 17,
+                "states": 17,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 17,
+              "required_scope_retained": 17,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 6898,
+              "token_reduction_pct_vs_broad": 0.43955903906200217,
+              "entity_reduction_vs_broad": 51
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0025",
+      "chapter_cutoff": 49,
+      "routing_uses_gold": false,
+      "query_gold_used_for_scope": false,
+      "query_named_entity_ids": [
+        "char-010"
+      ],
+      "semantic_top8_entity_ids": [
+        "char-001",
+        "char-002",
+        "char-009",
+        "char-010",
+        "char-011",
+        "char-014",
+        "char-016",
+        "char-017",
+        "char-019",
+        "char-020",
+        "char-021",
+        "item-008",
+        "item-013",
+        "loc-009",
+        "loc-010",
+        "loc-017",
+        "org-001",
+        "structure-001"
+      ],
+      "retrieval_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-009",
+        "char-010",
+        "char-011",
+        "char-014",
+        "char-016",
+        "char-017",
+        "char-019",
+        "char-020",
+        "char-021",
+        "item-008",
+        "item-013",
+        "loc-009",
+        "loc-010",
+        "loc-017",
+        "org-001",
+        "structure-001"
+      ],
+      "newest5_recent_participant_ids": [
+        "char-001",
+        "char-002",
+        "char-011",
+        "char-016",
+        "char-020",
+        "item-008",
+        "item-013",
+        "loc-017",
+        "org-004",
+        "structure-001",
+        "structure-004"
+      ],
+      "balanced_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-009",
+        "char-010",
+        "char-011",
+        "char-014",
+        "char-016",
+        "char-017",
+        "char-019",
+        "char-020",
+        "char-021",
+        "item-008",
+        "item-013",
+        "loc-009",
+        "loc-010",
+        "loc-017",
+        "org-001",
+        "org-004",
+        "structure-001",
+        "structure-004"
+      ],
+      "policies": {
+        "broad_20k_current": {
+          "budget": 20000,
+          "estimated_before": 16135,
+          "tokens_used": 16135,
+          "deterministic": true,
+          "protected_overflow": false,
+          "full_input_fit": true,
+          "selected_counts": {
+            "entities": 68,
+            "states": 68,
+            "rules": 12,
+            "recent": 20,
+            "semantic": 8
+          },
+          "input_counts": {
+            "entities": 68,
+            "states": 68,
+            "rules": 12,
+            "recent": 20,
+            "semantic": 8
+          },
+          "all_semantic_retained": true,
+          "all_recent_retained": true,
+          "all_rules_retained": true,
+          "required_scope_count": 18,
+          "required_scope_retained": 18,
+          "all_required_scope_retained": true,
+          "dropped_counts": {
+            "entities": 0,
+            "rules": 0,
+            "recent": 0,
+            "semantic": 0
+          }
+        },
+        "retrieval_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 9308,
+            "tokens_used": 9308,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 18,
+              "states": 18,
+              "rules": 12,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 18,
+              "states": 18,
+              "rules": 12,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 18,
+            "required_scope_retained": 18,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 6827,
+            "token_reduction_pct_vs_broad": 0.42311744654477845,
+            "entity_reduction_vs_broad": 50
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 9308,
+              "tokens_used": 9308,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 18,
+                "states": 18,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 18,
+              "required_scope_retained": 18,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 6827,
+              "token_reduction_pct_vs_broad": 0.42311744654477845,
+              "entity_reduction_vs_broad": 50
+            }
+          ]
+        },
+        "balanced_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 9593,
+            "tokens_used": 9593,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 20,
+              "states": 20,
+              "rules": 12,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 20,
+              "states": 20,
+              "rules": 12,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 20,
+            "required_scope_retained": 20,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 6542,
+            "token_reduction_pct_vs_broad": 0.4054539820266501,
+            "entity_reduction_vs_broad": 48
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 9593,
+              "tokens_used": 9593,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 20,
+                "states": 20,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 20,
+                "states": 20,
+                "rules": 12,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 20,
+              "required_scope_retained": 20,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 6542,
+              "token_reduction_pct_vs_broad": 0.4054539820266501,
+              "entity_reduction_vs_broad": 48
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0020",
+      "chapter_cutoff": 45,
+      "routing_uses_gold": false,
+      "query_gold_used_for_scope": false,
+      "query_named_entity_ids": [],
+      "semantic_top8_entity_ids": [
+        "char-001",
+        "char-002",
+        "char-009",
+        "char-010",
+        "char-011",
+        "char-017",
+        "char-019",
+        "char-020",
+        "char-021",
+        "char-022",
+        "item-008",
+        "item-013",
+        "loc-005",
+        "loc-017",
+        "org-001",
+        "structure-001"
+      ],
+      "retrieval_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-009",
+        "char-010",
+        "char-011",
+        "char-017",
+        "char-019",
+        "char-020",
+        "char-021",
+        "char-022",
+        "item-008",
+        "item-013",
+        "loc-005",
+        "loc-017",
+        "org-001",
+        "structure-001"
+      ],
+      "newest5_recent_participant_ids": [
+        "char-001",
+        "char-002",
+        "char-005",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-018",
+        "char-019",
+        "item-008",
+        "item-013",
+        "loc-017",
+        "loc-018",
+        "org-001",
+        "org-004",
+        "structure-001"
+      ],
+      "balanced_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-005",
+        "char-009",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-017",
+        "char-018",
+        "char-019",
+        "char-020",
+        "char-021",
+        "char-022",
+        "item-008",
+        "item-013",
+        "loc-005",
+        "loc-017",
+        "loc-018",
+        "org-001",
+        "org-004",
+        "structure-001"
+      ],
+      "policies": {
+        "broad_20k_current": {
+          "budget": 20000,
+          "estimated_before": 15755,
+          "tokens_used": 15755,
+          "deterministic": true,
+          "protected_overflow": false,
+          "full_input_fit": true,
+          "selected_counts": {
+            "entities": 68,
+            "states": 68,
+            "rules": 9,
+            "recent": 20,
+            "semantic": 8
+          },
+          "input_counts": {
+            "entities": 68,
+            "states": 68,
+            "rules": 9,
+            "recent": 20,
+            "semantic": 8
+          },
+          "all_semantic_retained": true,
+          "all_recent_retained": true,
+          "all_rules_retained": true,
+          "required_scope_count": 16,
+          "required_scope_retained": 16,
+          "all_required_scope_retained": true,
+          "dropped_counts": {
+            "entities": 0,
+            "rules": 0,
+            "recent": 0,
+            "semantic": 0
+          }
+        },
+        "retrieval_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 8586,
+            "tokens_used": 8586,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 16,
+              "states": 16,
+              "rules": 9,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 16,
+              "states": 16,
+              "rules": 9,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 16,
+            "required_scope_retained": 16,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 7169,
+            "token_reduction_pct_vs_broad": 0.45503014915899714,
+            "entity_reduction_vs_broad": 52
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 8586,
+              "tokens_used": 8586,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 16,
+              "required_scope_retained": 16,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 7169,
+              "token_reduction_pct_vs_broad": 0.45503014915899714,
+              "entity_reduction_vs_broad": 52
+            }
+          ]
+        },
+        "balanced_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 9235,
+            "tokens_used": 9235,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 21,
+              "states": 21,
+              "rules": 9,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 21,
+              "states": 21,
+              "rules": 9,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 21,
+            "required_scope_retained": 21,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 6520,
+            "token_reduction_pct_vs_broad": 0.41383687718184703,
+            "entity_reduction_vs_broad": 47
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 9235,
+              "tokens_used": 9235,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 21,
+                "states": 21,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 21,
+                "states": 21,
+                "rules": 9,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 21,
+              "required_scope_retained": 21,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 6520,
+              "token_reduction_pct_vs_broad": 0.41383687718184703,
+              "entity_reduction_vs_broad": 47
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "challenge:rq-0032",
+      "chapter_cutoff": 55,
+      "routing_uses_gold": false,
+      "query_gold_used_for_scope": false,
+      "query_named_entity_ids": [
+        "char-003",
+        "char-009"
+      ],
+      "semantic_top8_entity_ids": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "char-009",
+        "char-010",
+        "char-013",
+        "char-019",
+        "item-007",
+        "loc-001",
+        "loc-005",
+        "loc-026",
+        "loc-027",
+        "org-001",
+        "structure-001",
+        "structure-002"
+      ],
+      "retrieval_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "char-009",
+        "char-010",
+        "char-013",
+        "char-019",
+        "item-007",
+        "loc-001",
+        "loc-005",
+        "loc-026",
+        "loc-027",
+        "org-001",
+        "structure-001",
+        "structure-002"
+      ],
+      "newest5_recent_participant_ids": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "char-010",
+        "char-011",
+        "char-014",
+        "char-016",
+        "char-019",
+        "char-023",
+        "item-013",
+        "loc-023",
+        "loc-024",
+        "loc-025",
+        "loc-027",
+        "org-006",
+        "structure-001"
+      ],
+      "balanced_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "char-009",
+        "char-010",
+        "char-011",
+        "char-013",
+        "char-014",
+        "char-016",
+        "char-019",
+        "char-023",
+        "item-007",
+        "item-013",
+        "loc-001",
+        "loc-005",
+        "loc-023",
+        "loc-024",
+        "loc-025",
+        "loc-026",
+        "loc-027",
+        "org-001",
+        "org-006",
+        "structure-001",
+        "structure-002"
+      ],
+      "policies": {
+        "broad_20k_current": {
+          "budget": 20000,
+          "estimated_before": 17861,
+          "tokens_used": 17861,
+          "deterministic": true,
+          "protected_overflow": false,
+          "full_input_fit": true,
+          "selected_counts": {
+            "entities": 77,
+            "states": 77,
+            "rules": 14,
+            "recent": 20,
+            "semantic": 8
+          },
+          "input_counts": {
+            "entities": 77,
+            "states": 77,
+            "rules": 14,
+            "recent": 20,
+            "semantic": 8
+          },
+          "all_semantic_retained": true,
+          "all_recent_retained": true,
+          "all_rules_retained": true,
+          "required_scope_count": 15,
+          "required_scope_retained": 15,
+          "all_required_scope_retained": true,
+          "dropped_counts": {
+            "entities": 0,
+            "rules": 0,
+            "recent": 0,
+            "semantic": 0
+          }
+        },
+        "retrieval_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 9305,
+            "tokens_used": 9305,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 15,
+              "states": 15,
+              "rules": 14,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 15,
+              "states": 15,
+              "rules": 14,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 15,
+            "required_scope_retained": 15,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 8556,
+            "token_reduction_pct_vs_broad": 0.47903252897374166,
+            "entity_reduction_vs_broad": 62
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 9305,
+              "tokens_used": 9305,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 15,
+              "required_scope_retained": 15,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 8556,
+              "token_reduction_pct_vs_broad": 0.47903252897374166,
+              "entity_reduction_vs_broad": 62
+            }
+          ]
+        },
+        "balanced_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 10591,
+            "tokens_used": 10591,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 24,
+              "states": 24,
+              "rules": 14,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 24,
+              "states": 24,
+              "rules": 14,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 24,
+            "required_scope_retained": 24,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 7270,
+            "token_reduction_pct_vs_broad": 0.40703208107048877,
+            "entity_reduction_vs_broad": 53
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 10591,
+              "tokens_used": 10591,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 24,
+                "states": 24,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 24,
+                "states": 24,
+                "rules": 14,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 24,
+              "required_scope_retained": 24,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 7270,
+              "token_reduction_pct_vs_broad": 0.40703208107048877,
+              "entity_reduction_vs_broad": 53
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "core_gold:rq-0038",
+      "chapter_cutoff": 61,
+      "routing_uses_gold": false,
+      "query_gold_used_for_scope": false,
+      "query_named_entity_ids": [
+        "loc-001"
+      ],
+      "semantic_top8_entity_ids": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "char-005",
+        "char-006",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-021",
+        "char-023",
+        "item-005",
+        "loc-001",
+        "loc-005",
+        "loc-009",
+        "structure-002",
+        "structure-004"
+      ],
+      "retrieval_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-004",
+        "char-005",
+        "char-006",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-021",
+        "char-023",
+        "item-005",
+        "loc-001",
+        "loc-005",
+        "loc-009",
+        "structure-002",
+        "structure-004"
+      ],
+      "newest5_recent_participant_ids": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "char-011",
+        "char-016",
+        "char-019",
+        "char-020",
+        "item-007",
+        "item-008",
+        "item-013",
+        "loc-026",
+        "loc-027",
+        "org-004",
+        "structure-004",
+        "structure-006"
+      ],
+      "balanced_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "char-004",
+        "char-005",
+        "char-006",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-019",
+        "char-020",
+        "char-021",
+        "char-023",
+        "item-005",
+        "item-007",
+        "item-008",
+        "item-013",
+        "loc-001",
+        "loc-005",
+        "loc-009",
+        "loc-026",
+        "loc-027",
+        "org-004",
+        "structure-002",
+        "structure-004",
+        "structure-006"
+      ],
+      "policies": {
+        "broad_20k_current": {
+          "budget": 20000,
+          "estimated_before": 18830,
+          "tokens_used": 18830,
+          "deterministic": true,
+          "protected_overflow": false,
+          "full_input_fit": true,
+          "selected_counts": {
+            "entities": 80,
+            "states": 80,
+            "rules": 18,
+            "recent": 20,
+            "semantic": 8
+          },
+          "input_counts": {
+            "entities": 80,
+            "states": 80,
+            "rules": 18,
+            "recent": 20,
+            "semantic": 8
+          },
+          "all_semantic_retained": true,
+          "all_recent_retained": true,
+          "all_rules_retained": true,
+          "required_scope_count": 16,
+          "required_scope_retained": 16,
+          "all_required_scope_retained": true,
+          "dropped_counts": {
+            "entities": 0,
+            "rules": 0,
+            "recent": 0,
+            "semantic": 0
+          }
+        },
+        "retrieval_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 9908,
+            "tokens_used": 9908,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 16,
+              "states": 16,
+              "rules": 18,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 16,
+              "states": 16,
+              "rules": 18,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 16,
+            "required_scope_retained": 16,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 8922,
+            "token_reduction_pct_vs_broad": 0.47381837493361656,
+            "entity_reduction_vs_broad": 64
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 9908,
+              "tokens_used": 9908,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 16,
+                "states": 16,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 16,
+              "required_scope_retained": 16,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 8922,
+              "token_reduction_pct_vs_broad": 0.47381837493361656,
+              "entity_reduction_vs_broad": 64
+            }
+          ]
+        },
+        "balanced_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 11326,
+            "tokens_used": 11326,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 26,
+              "states": 26,
+              "rules": 18,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 26,
+              "states": 26,
+              "rules": 18,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 26,
+            "required_scope_retained": 26,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 7504,
+            "token_reduction_pct_vs_broad": 0.39851301115241633,
+            "entity_reduction_vs_broad": 54
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 11326,
+              "tokens_used": 11326,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 26,
+                "states": 26,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 26,
+                "states": 26,
+                "rules": 18,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 26,
+              "required_scope_retained": 26,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 7504,
+              "token_reduction_pct_vs_broad": 0.39851301115241633,
+              "entity_reduction_vs_broad": 54
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "core_gold:rq-0010",
+      "chapter_cutoff": 33,
+      "routing_uses_gold": false,
+      "query_gold_used_for_scope": false,
+      "query_named_entity_ids": [
+        "char-019",
+        "loc-001"
+      ],
+      "semantic_top8_entity_ids": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "char-010",
+        "char-011",
+        "char-018",
+        "char-019",
+        "item-008",
+        "item-011",
+        "loc-018",
+        "loc-019",
+        "org-001",
+        "org-005",
+        "structure-001"
+      ],
+      "retrieval_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "char-010",
+        "char-011",
+        "char-018",
+        "char-019",
+        "item-008",
+        "item-011",
+        "loc-001",
+        "loc-018",
+        "loc-019",
+        "org-001",
+        "org-005",
+        "structure-001"
+      ],
+      "newest5_recent_participant_ids": [
+        "char-001",
+        "char-002",
+        "char-005",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-017",
+        "char-019",
+        "item-008",
+        "item-009",
+        "loc-015",
+        "loc-018",
+        "org-001",
+        "structure-001"
+      ],
+      "balanced_scope_ids": [
+        "char-001",
+        "char-002",
+        "char-003",
+        "char-005",
+        "char-010",
+        "char-011",
+        "char-016",
+        "char-017",
+        "char-018",
+        "char-019",
+        "item-008",
+        "item-009",
+        "item-011",
+        "loc-001",
+        "loc-015",
+        "loc-018",
+        "loc-019",
+        "org-001",
+        "org-005",
+        "structure-001"
+      ],
+      "policies": {
+        "broad_20k_current": {
+          "budget": 20000,
+          "estimated_before": 14713,
+          "tokens_used": 14713,
+          "deterministic": true,
+          "protected_overflow": false,
+          "full_input_fit": true,
+          "selected_counts": {
+            "entities": 63,
+            "states": 63,
+            "rules": 6,
+            "recent": 20,
+            "semantic": 8
+          },
+          "input_counts": {
+            "entities": 63,
+            "states": 63,
+            "rules": 6,
+            "recent": 20,
+            "semantic": 8
+          },
+          "all_semantic_retained": true,
+          "all_recent_retained": true,
+          "all_rules_retained": true,
+          "required_scope_count": 15,
+          "required_scope_retained": 15,
+          "all_required_scope_retained": true,
+          "dropped_counts": {
+            "entities": 0,
+            "rules": 0,
+            "recent": 0,
+            "semantic": 0
+          }
+        },
+        "retrieval_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 8216,
+            "tokens_used": 8216,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 15,
+              "states": 15,
+              "rules": 6,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 15,
+              "states": 15,
+              "rules": 6,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 15,
+            "required_scope_retained": 15,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 6497,
+            "token_reduction_pct_vs_broad": 0.44158227417929724,
+            "entity_reduction_vs_broad": 48
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 8216,
+              "tokens_used": 8216,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 15,
+                "states": 15,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 15,
+              "required_scope_retained": 15,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 6497,
+              "token_reduction_pct_vs_broad": 0.44158227417929724,
+              "entity_reduction_vs_broad": 48
+            }
+          ]
+        },
+        "balanced_scope_min_tier": {
+          "status": "FIT",
+          "selected_budget": 12000,
+          "selected": {
+            "budget": 12000,
+            "estimated_before": 8905,
+            "tokens_used": 8905,
+            "deterministic": true,
+            "protected_overflow": false,
+            "full_input_fit": true,
+            "selected_counts": {
+              "entities": 20,
+              "states": 20,
+              "rules": 6,
+              "recent": 20,
+              "semantic": 8
+            },
+            "input_counts": {
+              "entities": 20,
+              "states": 20,
+              "rules": 6,
+              "recent": 20,
+              "semantic": 8
+            },
+            "all_semantic_retained": true,
+            "all_recent_retained": true,
+            "all_rules_retained": true,
+            "required_scope_count": 20,
+            "required_scope_retained": 20,
+            "all_required_scope_retained": true,
+            "dropped_counts": {
+              "entities": 0,
+              "rules": 0,
+              "recent": 0,
+              "semantic": 0
+            },
+            "token_reduction_vs_broad": 5808,
+            "token_reduction_pct_vs_broad": 0.3947529395772446,
+            "entity_reduction_vs_broad": 43
+          },
+          "attempts": [
+            {
+              "budget": 12000,
+              "estimated_before": 8905,
+              "tokens_used": 8905,
+              "deterministic": true,
+              "protected_overflow": false,
+              "full_input_fit": true,
+              "selected_counts": {
+                "entities": 20,
+                "states": 20,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "input_counts": {
+                "entities": 20,
+                "states": 20,
+                "rules": 6,
+                "recent": 20,
+                "semantic": 8
+              },
+              "all_semantic_retained": true,
+              "all_recent_retained": true,
+              "all_rules_retained": true,
+              "required_scope_count": 20,
+              "required_scope_retained": 20,
+              "all_required_scope_retained": true,
+              "dropped_counts": {
+                "entities": 0,
+                "rules": 0,
+                "recent": 0,
+                "semantic": 0
+              },
+              "token_reduction_vs_broad": 5808,
+              "token_reduction_pct_vs_broad": 0.3947529395772446,
+              "entity_reduction_vs_broad": 43
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "contract_failures": [],
+  "contract_pass": true,
+  "interpretation_status": "REVIEW_REQUIRED"
+}
