@@ -3197,7 +3197,7 @@ Current state:
 ```text
 EVAL-01L harness        MERGED
 CI final policy         PASS
-official main evidence  PENDING GEMINI
+official main evidence  COMPLETE (b98c0a5)
 production policy       UNCHANGED
 ```
 
@@ -3256,6 +3256,39 @@ P8-05: BLOCKED
 ```
 
 Gemini must not alter production budget/scoping/adaptive behavior. Astra reviews official evidence first.
+
+### Gemini Verification — EVAL-01L SECONDARY SCOPED FRONTIER
+
+Status: PASS
+Tested commit: ac186d686e352276f416fb8f7f797c6d0b886a3d
+Evidence commit: b98c0a5e72b7a413f2192a3429db6c6f6a5b897b
+Provider calls: 0
+
+- P8 cleanup readiness: PASS
+- P8-05 cleanup gate: BLOCKED
+- EVAL-01 fixture contract: PASS
+- Integrity failures: 0
+
+Integrity: PASS
+Final policy: PASS
+Unresolved scoped >24k: 0
+
+Global scoped frontier:
+  source_1x: core complete @12k, full input fit @12k
+  rules_2x: core complete @16k, full input fit @16k (semantic complete @12k, recent @16k)
+  evidence_payload_2x: core complete @12k, full input fit @12k
+  combined_2x: core complete @16k, full input fit @16k (semantic complete @12k, recent @16k)
+  combined_4x: core complete @24k, full input fit @24k (semantic complete @16k, recent @24k)
+
+Final branch counts:
+  broad@20k: 24
+  broad@24k: 6
+  scoped@12k: 0
+  scoped@16k: 0
+  scoped@20k: 3
+  scoped@24k: 2
+
+P8-05: BLOCKED
 
 ## NOW — EVAL-01L Secondary Scoped Budget Frontier
 
