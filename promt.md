@@ -799,8 +799,8 @@ Current state:
 EVAL-01E harness       MERGED
 CI dry-run             PASS
 live capture           COMPLETE (42/42 live calls, slot-1)
-Astra blind review     PENDING
-reveal                 BLOCKED until blind review commit
+Astra blind review     COMPLETE (ce3494e)
+reveal                 COMPLETE (628297a)
 ```
 
 ## NOW — EVAL-01E Sealed Provenance Generation A/B
@@ -1128,6 +1128,19 @@ P8-05: BLOCKED
 ```
 
 Gemini must not interpret which condition won. Astra will map the already-frozen X/Y judgments after reveal.
+
+### Gemini Verification — EVAL-01E SEALED PROVENANCE REVEAL
+
+Status: PASS
+Blind review commit: ce3494e740ef0ca744d4ad7b0c107f39b333af19
+Reveal tested commit: 9e3e5b29de4e378718f74ba207c344cd202b8199
+Reveal evidence commit: 628297af288f8b3beb22cff29b1498b780610ffb
+commitment match: true
+private state SHA256: 09aaa4415a6f717f49be5b67847f83b5d743aed36da3d690ecee4042100a4c7c
+provider calls during reveal: 0
+condition mapping committed: true
+raw audit committed: true
+P8-05: BLOCKED
 
 ## Frozen production contract — do not drift
 
