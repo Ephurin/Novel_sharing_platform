@@ -92,3 +92,5 @@ jobs:
         run: python scripts/run_eval_01k_multilane_growth_stress.py --stdout-only
       - name: Validate secondary scoped budget frontier
         run: python scripts/run_eval_01l_secondary_scoped_frontier.py --stdout-only
+      - name: Validate sealed live adaptive context dry-run
+        run: python scripts/run_eval_01m_sealed_live_adaptive_context.py --stage dry-run
