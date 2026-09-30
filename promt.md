@@ -3072,6 +3072,191 @@ scoped ~22.6k
   semantic + recent can collapse
 ```
 
+## EVAL-01L harness — MERGED
+
+- PR: #22
+- merge commit: `57b4fd15d97f13b0bf98cc8284f97bb10d785184`
+- Evaluation Pilot Harness CI: **SUCCESS**
+- workflow run: `36686951748`
+- provider calls in CI: **0**
+- integrity failures: **0**
+- final-policy failures: **0**
+- unresolved scoped >24k: **0**
+
+Global scoped frontier:
+
+```text
+source_1x
+  core evidence complete   12k
+  full input fit           12k
+
+rules_2x
+  core evidence complete   16k
+  full input fit           16k
+  semantic complete        12k
+  recent complete          16k
+
+evidence_payload_2x
+  core evidence complete   12k
+  full input fit           12k
+
+combined_2x
+  core evidence complete   16k
+  full input fit           16k
+  semantic complete        12k
+  recent complete          16k
+
+combined_4x
+  core evidence complete   24k
+  full input fit           24k
+  semantic complete        16k
+  recent complete          24k
+  original rules           12k
+  all stress-rule load     16k
+```
+
+Final two-stage policy exercised across all 35 case×scenario traces:
+
+```text
+broad@20k             24
+broad@24k              6
+scoped@12k             0
+scoped@16k             0
+scoped@20k             3
+scoped@24k             2
+unresolved >24k        0
+```
+
+Combined_4x final routing:
+
+```text
+2 / 7 -> broad@24k
+3 / 7 -> scoped@20k
+2 / 7 -> scoped@24k
+
+core evidence complete  7 / 7
+full input fit          7 / 7
+semantic retained       8 / 8
+recent retained        20 / 20
+```
+
+Candidate offline architecture now closes cleanly:
+
+```text
+BROAD
+
+broad <=20k
+  -> broad@20k
+
+20k < broad <=24k
+  -> broad@24k
+
+broad >24k
+  -> retrieval scope
+
+
+SCOPED
+
+scoped <=12k
+  -> scoped@12k
+
+12k < scoped <=16k
+  -> scoped@16k
+
+16k < scoped <=20k
+  -> scoped@20k
+
+20k < scoped <=24k
+  -> scoped@24k
+
+scoped >24k
+  -> unresolved / compression required
+```
+
+Important:
+
+```text
+routing uses estimated package size only
+gold labels are evaluation-only
+ContextBudgetPacker unchanged
+production policy unchanged
+```
+
+This is the **last planned offline budget architecture experiment**.
+
+If official EVAL-01L evidence matches CI, next step is:
+
+```text
+EVAL-01M — sealed live generation validation
+```
+
+No additional offline budget experiment should be opened unless official evidence or live validation reveals a new failure.
+
+Current state:
+
+```text
+EVAL-01L harness        MERGED
+CI final policy         PASS
+official main evidence  PENDING GEMINI
+production policy       UNCHANGED
+```
+
+### Gemini / Antigravity — run official EVAL-01L evidence now
+
+Use latest `main`. No API key required.
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/check_eval01_fixture_contract.py
+.\.venv\Scripts\python.exe scripts/run_eval_01l_secondary_scoped_frontier.py
+```
+
+Commit only:
+
+```text
+docs/development/EVAL-01L-SECONDARY-SCOPED-FRONTIER/
+  diagnostic.json
+  summary.md
+```
+
+Then append:
+
+```text
+### Gemini Verification — EVAL-01L SECONDARY SCOPED FRONTIER
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+Provider calls: 0
+
+Integrity: PASS | FAIL
+Final policy: PASS | FAIL
+Unresolved scoped >24k: <n>
+
+Global scoped frontier:
+  source_1x
+  rules_2x
+  evidence_payload_2x
+  combined_2x
+  combined_4x
+
+Final branch counts:
+  broad@20k
+  broad@24k
+  scoped@12k
+  scoped@16k
+  scoped@20k
+  scoped@24k
+
+P8-05: BLOCKED
+```
+
+Gemini must not alter production budget/scoping/adaptive behavior. Astra reviews official evidence first.
+
 ## NOW — EVAL-01L Secondary Scoped Budget Frontier
 
 This is the final planned offline budget architecture diagnostic.
