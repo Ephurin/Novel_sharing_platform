@@ -7,7 +7,7 @@ EVAL-01 evidence sequence             CLOSED
 ARCH-CTX-RD-01 proposal               APPROVED
 CTX-RD-01 implementation              MERGED
 Fake-provider PostgreSQL smoke        PASS / REVIEWED
-Real-provider staging                 REQUIRED / NOT YET RUN
+Real-provider staging                 PARTIAL / EVIDENCE REPAIR REQUIRED
 Production default                    legacy-v1
 Balanced-scope-v1 default             NOT AUTHORIZED
 P8-05 destructive cleanup             BLOCKED_PENDING_STABILITY
@@ -129,3 +129,48 @@ Production default changed: NO
 P8-05: BLOCKED
 ```
 
+
+
+## Astra review — CTX-RD-01 real-provider staging
+
+Official review:
+`docs/development/CTX-RD-01-REAL-PROVIDER-STAGING/ASTRA-REVIEW.md`
+
+Review commit: `16772bc2c1e10c0558947f48a3ed0f0a9475e1cf`
+
+Verdict: `PARTIAL — REAL PROVIDER PATH OBSERVED; ACTIVATION BLOCKED PENDING EVIDENCE/LINEAGE REPAIR`.
+
+Real-provider evidence commit: `2a54cfb27eb24cfcb77de4a1b38e9b0c980307a1`.
+
+Evidence observations:
+
+```text
+Gemini embedding document/query adapter calls     3 / 2
+Gemini LLM generation wrapper calls                1
+requested/effective generation model               3.8-flash / 3.7-flash
+balanced standalone preview                        25 -> 4 entities / 12k
+deterministic stress tier                           16k
+production default                                 legacy-v1
+P8-05                                              BLOCKED
+```
+
+Do not interpret the validator's PASS as independently verifying provider HTTP history, source-to-packed ID preservation, generation context hash, or clean commit reproducibility.
+
+### BLOCKERS
+
+1. Tested SHA `9e0f1e8...` is inconsistent with the effective 3.7 model: production `LLMService` was modified in evidence commit `2a54cfb...` to add that candidate and to silently model-fallback on 503/high-demand. The declared tested SHA did not include that fallback model.
+2. The harness copies already-packed preview IDs into both `*_input_ids` and `*_retained_ids`, so equality is tautological. Drops/overflow and stress PASS fields are written as constants rather than read from actual routing evidence.
+3. The recorded generation `context_hash` is computed from a separate preview with a different semantic query. It is not compared against `job.context_hash` or the generation job's own routing/tier.
+4. The 1 LLM provider-call count measures one `_call_gemini` invocation, not individual model attempts. Actual model/attempt history must be reported precisely. No CI run was attached to the unreviewed production LLM change at evidence-commit time.
+
+### NEXT — Gemini / Antigravity targeted repair
+
+Use a new implementation branch from current `main`, not another direct-to-main production edit.
+
+- Restore the prior production model fallback behavior for this gate, or submit any broader model-fallback policy as a **separate** explicitly reviewed change. For the staging run, request the actual available model directly (e.g. 3.7 if that is the intended model), and disable local/cross-provider fallbacks.
+- Fix `scripts/run_ctx_rd_01_real_provider_staging.py` to fail on a dirty working tree, capture unscoped source lane IDs and final packed lane IDs independently, derive drop/overflow/stress checks from actual returned data, and store `job.context_hash` and `job.context_summary` for the generation call.
+- Record per-model request attempts separately from successful service-level invocations; do not expose credentials.
+- Add tests for the harness/evidence invariants; run GitHub CI on the committed PR and merge only after review.
+- Rerun **one targeted real-provider smoke** on a clean, exact committed SHA with isolated disposable staging DB. Do not reopen EVAL or run a new blind A/B. Commit corrected evidence and append an execution-only handoff here.
+
+Production default remains `legacy-v1`; balanced-v1 default activation is NOT AUTHORIZED. P8-05 remains BLOCKED.
