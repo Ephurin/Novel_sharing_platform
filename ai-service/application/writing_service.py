@@ -139,7 +139,12 @@ class WritingService:
                 ),
                 explicit_character_name=character_name,
             )
-            return self._context_budget_router.route(scope)
+            # Conservative fail-open to the existing legacy packer when
+            # identity resolution unexpectedly yields an empty relevance
+            # scope for a package that actually contains canonical entities.
+            # EVAL-01 validated non-empty balanced scopes; do not extrapolate.
+            if not package.entities or scope.entity_count_after > 0:
+                return self._context_budget_router.route(scope)
 
         return self._context_packer.pack(
             package,
