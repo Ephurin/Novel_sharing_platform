@@ -35,6 +35,7 @@ from application.writing_service import WritingService
 from application.ports import ContentHashMismatchError, RevisionNotFoundError
 from application.revision_analysis_service import RevisionAnalysisService
 from domain.errors import (
+    ContextRoutingUnresolvedError,
     IdempotencyConflictError,
     BaselineReviewRequiredError,
     BootstrapLimitExceededError,
@@ -481,6 +482,15 @@ def preview_writing_context(
             character_name=character_name,
             token_budget=token_budget,
         )
+    except ContextRoutingUnresolvedError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "CONTEXT_SCOPE_EXCEEDS_MAX_TIER",
+                "message": str(exc),
+                "details": dict(exc.details),
+            },
+        ) from exc
     except Exception as exc:
         raise HTTPException(status_code=404, detail={"code": "STORY_BRAIN_NOT_FOUND", "message": str(exc)}) from exc
 
