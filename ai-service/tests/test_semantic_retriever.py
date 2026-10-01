@@ -6,11 +6,13 @@ from dataclasses import dataclass
 
 import pytest
 
+from application.hybrid_ranker import HybridRanker
 from application.semantic_retriever import SemanticRetrieverService
 from application.writing_service import WritingService
 from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
 from tests.harness.fake_llm import FakeDeterministicLLMService
 from domain.models import (
+    HybridRankingSignals,
     SemanticMemoryMatch,
     SemanticRetrievalResult,
     WritingContextPackage,
@@ -23,9 +25,18 @@ from infrastructure.embedding_providers import (
 
 
 class CapturingRepository:
-    def __init__(self, *, matches=(), fail: Exception | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        matches=(),
+        fail: Exception | None = None,
+        signals: HybridRankingSignals | None = None,
+        signal_error: Exception | None = None,
+    ) -> None:
         self.matches = list(matches)
         self.fail = fail
+        self.signals = signals or HybridRankingSignals()
+        self.signal_error = signal_error
         self.query_embedding: tuple[float, ...] | None = None
         self.embedding_version: str | None = None
         self.chapter_number: int | None = None
@@ -46,6 +57,17 @@ class CapturingRepository:
         self.embedding_version = embedding_version
         self.chapter_number = chapter_number
         return self.matches[:limit]
+
+    def get_hybrid_ranking_signals(
+        self,
+        story_id: str,
+        *,
+        query_text: str,
+        chapter_number: int,
+    ) -> HybridRankingSignals:
+        if self.signal_error is not None:
+            raise self.signal_error
+        return self.signals
 
 
 class AxisProvider:
@@ -173,6 +195,59 @@ def test_repository_failure_falls_back_without_raising() -> None:
     assert result.status == "fallback"
     assert result.matches == ()
     assert result.fallback_reason == "RuntimeError"
+
+
+
+
+def test_hybrid_retriever_exposes_resolved_query_entity_signals() -> None:
+    repo = CapturingRepository(
+        matches=[_match()],
+        signals=HybridRankingSignals(
+            query_entity_ids=("entity-q",),
+            related_entity_ids=("entity-r",),
+        ),
+    )
+    service = SemanticRetrieverService(
+        repo,
+        AxisProvider(),
+        hybrid_ranker=HybridRanker(),
+    )
+
+    result = service.retrieve(
+        "story-1",
+        query_text="query entity",
+        chapter_number=10,
+    )
+
+    assert result.status == "ok"
+    assert result.ranking_version == "hybrid-v1"
+    assert result.query_entity_ids == ("entity-q",)
+    assert result.related_entity_ids == ("entity-r",)
+    assert result.hybrid_signals_resolved is True
+
+
+def test_hybrid_signal_failure_never_marks_balanced_signal_contract_resolved() -> None:
+    repo = CapturingRepository(
+        matches=[_match()],
+        signal_error=RuntimeError("signal lookup failed"),
+    )
+    service = SemanticRetrieverService(
+        repo,
+        AxisProvider(),
+        hybrid_ranker=HybridRanker(),
+    )
+
+    result = service.retrieve(
+        "story-1",
+        query_text="query",
+        chapter_number=10,
+    )
+
+    assert result.status == "ok"
+    assert result.ranking_version == "semantic-only-fallback-v1"
+    assert result.hybrid_signals_resolved is False
+    assert result.query_entity_ids == ()
+    assert result.fallback_reason == "hybrid:RuntimeError"
 
 
 def test_embedding_version_mismatch_is_rejected_at_composition_boundary() -> None:
