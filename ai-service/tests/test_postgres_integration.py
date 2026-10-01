@@ -257,6 +257,50 @@ def test_acceptance_rebuild_and_correction_history(repo, session_factory):
     assert state_corrected["entities"][tieu_viem_id]["health"] == 85
 
 
+
+def test_recent_scope_participants_exclude_superseded_event_entities(repo):
+    novel_id = str(uuid.uuid4())
+    repo.upsert_entity(novel_id, {"name": "Original Actor", "type": "PER"})
+    repo.upsert_entity(novel_id, {"name": "Replacement Actor", "type": "PER"})
+
+    original = make_event_proposal_group(
+        novel_id,
+        "Original Actor",
+        health_val=70,
+        brain_version=1,
+    )
+    repo.save_proposals(novel_id, original)
+    repo.accept_proposal_group(
+        novel_id,
+        [p.proposal_id for p in original],
+        expected_brain_version=1,
+    )
+
+    replacement = make_event_proposal_group(
+        novel_id,
+        "Replacement Actor",
+        health_val=90,
+        supersedes=original[0].proposal_id,
+        brain_version=2,
+    )
+    repo.save_proposals(novel_id, replacement)
+    repo.accept_proposal_group(
+        novel_id,
+        [p.proposal_id for p in replacement],
+        expected_brain_version=2,
+    )
+
+    ids = {item.name: item.entity_id for item in repo.list_entities(novel_id)}
+    context = repo.get_structured_context(novel_id, chapter_number=1)
+    scoped_ids = set(context.context_summary["recent_scope_participant_entity_ids"])
+
+    assert ids["Replacement Actor"] in scoped_ids
+    assert ids["Original Actor"] not in scoped_ids
+    assert [event["summary"] for event in context.recent_events] == [
+        "Replacement Actor was engaged in battle"
+    ]
+
+
 # =========================================================================
 # 3. Atomic Transaction Rollback on Projection Error
 # =========================================================================
