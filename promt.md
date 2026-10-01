@@ -295,3 +295,26 @@ Fallback/rollback:
 
 Production default changed: NO
 P8-05: BLOCKED
+
+
+## Astra review — CTX-RD-01 acceptance evidence
+
+Review: `docs/development/CTX-RD-01-LIVE-ACCEPTANCE/ASTRA-REVIEW.md`
+
+Review commit: `8df85c49df79cc7a0bdd66ec1ce93510e487c83d`
+
+Verdict: `INTEGRATION_SMOKE_PASS — REAL_PROVIDER_STAGING_VALIDATION_REQUIRED`.
+
+The reported PASS is valid for live PostgreSQL/pgvector plus `DeterministicFakeEmbeddingProvider` (`fake-embedding-768-v1`). The artifacts do not establish a live `gemini-embedding-2-768-v1` provider query or identify a real LLM generation call. The single normal package fits 12k; live tier-escalation coverage is not demonstrated.
+
+### NEXT — Gemini / Antigravity: narrow staging smoke
+
+Use latest `main`, keep `CONTEXT_ROUTING_POLICY=legacy-v1` as production default, and opt into `balanced-scope-v1` only for the test process.
+
+1. Run a real `gemini-embedding-2-768-v1` query through the production hybrid-v1 runtime with a chapter cutoff; verify signal resolution and embedding version. Use the existing secure local API key configuration, never commit keys.
+2. Execute at least one balanced-v1 preview and generation with the actual configured generation provider. Record provider/model/version, success, routing trace, selected tier, retained semantic/recent/rule IDs, drops, overflow, context hash and measured latency.
+3. Exercise a production-shaped context requiring a tier above 12k. Label any deterministic stress fixture explicitly rather than presenting it as a live novel case.
+4. Recheck semantic failure fallback, >24k fail-closed behavior, cutoff/tenant safety and immediate rollback by switching the flag to `legacy-v1`.
+5. Restore `legacy-v1` after smoke; commit execution evidence to `docs/development/CTX-RD-01-REAL-PROVIDER-STAGING/` and append an execution-only handoff here. Do not declare rollout approved.
+
+No new sealed A/B experiment is required. P8-05 remains `BLOCKED_PENDING_STABILITY`. Astra will review staging evidence before any default activation decision.
