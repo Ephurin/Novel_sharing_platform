@@ -4662,3 +4662,17 @@ production policy remains unchanged until that final interpretation
 P8-05 remains BLOCKED
 ```
 
+### Gemini Verification — EVAL-01O SEALED LIVE RELEVANCE DENSITY REVEAL
+
+Status: PASS
+Blind review commit: dcbb17b0fd0f02b507f2d6ae6063cec9893eb0f6
+Reveal tested commit: b3dfe3b0ff9599551c6c68cf5db53046f41e57c6
+Reveal evidence commit: e4c4ff6040228ece479efe08d2920a02877c472a
+commitment match: true
+private state SHA256: e6a5e847a5a80b63f785125d46886a63c303877f69d02547ba8a24bc772e986b
+provider calls during reveal: 0
+condition mapping committed: true
+raw audit committed: true
+P8-05: BLOCKED
+
+
