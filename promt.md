@@ -3,8 +3,8 @@
 > Repo: `Ephurin/Novel_sharing_platform`  
 > Source of truth: latest `main`  
 > Current mode: **evidence-first real-novel evaluation**  
-> Active experiment: **EVAL-01O — Sealed Live Relevance-Density Micro-Validation**  
-> EVAL-01L is closed. Do not change production architecture until EVAL-01M live evidence is blind-reviewed and revealed.
+> Active experiment: **EVAL-01O is closed (SUPPORTED_FOR_NARROW_RELEVANCE_DENSITY_PROPOSAL)**  
+> Production architecture remains unchanged. P8-05 remains BLOCKED.
 
 ## Current verified baseline
 
@@ -4676,3 +4676,50 @@ raw audit committed: true
 P8-05: BLOCKED
 
 
+## EVAL-01O Astra final review — COMPLETE
+
+Review:
+
+`docs/development/EVAL-01O-SEALED-LIVE-RELEVANCE-DENSITY/ASTRA-FINAL-REVIEW.md`
+
+Verdict:
+
+**SUPPORTED_FOR_NARROW_RELEVANCE_DENSITY_PROPOSAL**
+
+Review commit:
+
+`69f339df4e6972ec3550e57f90ca8baf1e8cc1b4`
+
+Summary:
+
+```text
+Mapped blind results:
+  balanced_scope_first_min_tier    3
+  broad_20k_current                4
+  tie                             14
+  total                           21
+
+Primary gate: challenge:rq-0025 (cavalry force state)
+  candidate 2 / control 1 / tie 0
+  Prior broad@20k collapse is repaired under higher relevance density.
+
+Negative controls & supersession:
+  rq-0010 (trust causal history): 3/3 clean ties
+  rq-0038 (seed identity boundary): 3/3 clean ties
+  rq-0032 (Alistair supersession): 3/3 clean ties
+
+Efficiency & context density:
+  prompt character reduction: 39.2%
+  entity reduction: 69.4% (from 69.6 to 21.3)
+  candidate tier: 100% (7/7) rows fit into 12k
+  semantic/recent/rule retention: 100% exact match
+  median latency delta: -8.3% (-171.6 ms at p50)
+```
+
+Production boundary:
+
+```text
+Production code remains unchanged.
+P8-05 remains BLOCKED.
+Relevance-density routing is ready for a narrow architectural proposal.
+```
