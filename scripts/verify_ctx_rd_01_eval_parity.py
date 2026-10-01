@@ -132,12 +132,21 @@ def main() -> int:
         )
         expected_entity_ids = ids(expected_balanced.entities, ("entity_id", "id", "name"))
         actual_entity_ids = ids(production_scope.package.entities, ("entity_id", "id", "name"))
+        # ContextBudgetPacker intentionally canonicalizes locked rules before
+        # unlocked rules. EVAL-01O compared conditions after packing, not
+        # packed output against raw input tuple order. Compare production output
+        # with the EVAL balanced package after the same packer semantics.
+        expected_packed = ContextBudgetPacker().pack(expected_balanced, maximum=12_000)
+        expected_rule_out = ids(
+            expected_packed.world_rules,
+            ("id", "fact_id", "fact_key"),
+        )
 
         checks = {
             "tier_12k": packed.token_budget.get("routing_selected_tier") == 12_000,
             "semantic_exact": semantic_out == semantic_input and len(semantic_out) == 8,
             "recent_exact": recent_out == recent_input and len(recent_out) == 20,
-            "rules_exact": rule_out == rule_input,
+            "rules_exact": rule_out == expected_rule_out and len(rule_out) == len(rule_input),
             "entities_match_eval_balanced": actual_entity_ids == expected_entity_ids,
             "no_drop": int(packed.token_budget.get("dropped_artifact_count") or 0) == 0,
             "no_protected_overflow": not bool(packed.token_budget.get("protected_overflow")),
