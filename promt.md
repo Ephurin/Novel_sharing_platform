@@ -4675,3 +4675,79 @@ Astra
 
 Production policy remains unchanged.
 P8-05 remains BLOCKED.
+
+
+## EVAL protocol continuity — original capture machine available again
+
+User has returned to the original machine used for EVAL-01O capture.
+
+Keep the existing sealed workflow unchanged through the end of the EVAL phase:
+
+```text
+private sealed state        local-only
+blind review                before reveal
+reveal                      zero provider calls
+production policy           unchanged until explicit Astra final review
+P8-05                       blocked
+```
+
+### Immediate action — complete EVAL-01O reveal now
+
+On the original capture workspace, first verify:
+
+```powershell
+Test-Path .eval-private/eval01o-private.json
+```
+
+Expected:
+
+```text
+True
+```
+
+Then run:
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/run_eval_01o_sealed_live_relevance_density.py --stage reveal
+```
+
+Reveal requirements:
+
+```text
+private-state SHA256
+  e6a5e847a5a80b63f785125d46886a63c303877f69d02547ba8a24bc772e986b
+
+commitment match               true
+ASTRA-BLIND-REVIEW present     true
+provider calls                 0
+```
+
+Commit:
+
+```text
+docs/development/EVAL-01O-SEALED-LIVE-RELEVANCE-DENSITY/
+  condition-key.json
+  raw-generations.json
+  prompt-diff-audit.json
+  latency-cost.json
+  reveal-verification.json
+```
+
+Append an execution-only EVAL-01O reveal handoff to this file.
+
+Do not interpret the winner.
+
+After that commit, Astra continues automatically with:
+
+```text
+EVAL-01O final interpretation
+  -> map frozen blind results
+  -> close O
+
+then continue the remaining EVAL phase gates
+using the same capture -> blind -> reveal discipline whenever live validation is needed
+until the EVAL phase is formally closed.
+```
