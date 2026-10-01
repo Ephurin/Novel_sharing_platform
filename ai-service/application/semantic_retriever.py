@@ -94,6 +94,7 @@ class SemanticRetrieverService:
                     ranking_version="semantic-only-v1",
                 )
 
+            signals = None
             try:
                 signals = self._repository.get_hybrid_ranking_signals(
                     story_id,
@@ -111,6 +112,9 @@ class SemanticRetrieverService:
                     status="ok",
                     embedding_version=self.embedding_version,
                     ranking_version=self._hybrid_ranker.ranking_version,
+                    query_entity_ids=tuple(signals.query_entity_ids),
+                    related_entity_ids=tuple(signals.related_entity_ids),
+                    hybrid_signals_resolved=True,
                 )
             except Exception as hybrid_exc:
                 reason = type(hybrid_exc).__name__
@@ -125,6 +129,13 @@ class SemanticRetrieverService:
                     embedding_version=self.embedding_version,
                     ranking_version="semantic-only-fallback-v1",
                     fallback_reason=f"hybrid:{reason}",
+                    query_entity_ids=(
+                        tuple(signals.query_entity_ids) if signals is not None else ()
+                    ),
+                    related_entity_ids=(
+                        tuple(signals.related_entity_ids) if signals is not None else ()
+                    ),
+                    hybrid_signals_resolved=signals is not None,
                 )
         except Exception as exc:
             reason = type(exc).__name__
