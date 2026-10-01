@@ -45,3 +45,17 @@ class ValidationFailedError(NarrativeRepositoryError):
 class WritingGenerationNotFoundError(NarrativeRepositoryError):
     pass
 
+
+
+class ContextRoutingUnresolvedError(NarrativeRepositoryError):
+    def __init__(self, *, estimated_tokens: int, max_tier: int, policy: str):
+        super().__init__(
+            f"Scoped context requires about {estimated_tokens} tokens, above maximum tier {max_tier}"
+        )
+        self.details = {
+            "estimated_tokens": int(estimated_tokens),
+            "max_tier": int(max_tier),
+            "policy": str(policy),
+            "routing_status": "unresolved",
+            "routing_reason": "scoped_package_exceeds_max_tier",
+        }
