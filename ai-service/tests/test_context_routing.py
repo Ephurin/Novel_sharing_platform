@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+
 import pytest
 
 from application.context_budget import ContextBudgetPacker
@@ -11,6 +13,7 @@ from domain.errors import ContextRoutingUnresolvedError
 from domain.models import (
     SemanticMemoryMatch,
     SemanticRetrievalResult,
+    StoryBrain,
     WritingContextPackage,
 )
 
@@ -254,3 +257,82 @@ def test_writing_service_empty_resolved_scope_conservatively_uses_legacy() -> No
 
     assert [row["entity_id"] for row in routed.entities] == ["e1", "noise"]
     assert "context_routing_version" not in routed.context_summary
+
+
+class _GenerationRepo(_Repo):
+    def __init__(self, package: WritingContextPackage):
+        super().__init__(package)
+        self.jobs = {}
+        self.brain = StoryBrain(
+            story_id="story",
+            metadata={"brain_version": "1"},
+        )
+
+    def get_story_brain(self, story_id: str):
+        return self.brain
+
+    def create_writing_job(self, job):
+        self.jobs[job.job_id] = job
+        return job
+
+    def get_writing_job(self, job_id: str):
+        return self.jobs[job_id]
+
+    def save_writing_job(self, job):
+        self.jobs[job.job_id] = job
+        return job
+
+
+class _MustNotCallLLM:
+    def __init__(self):
+        self.called = False
+
+    def generate_writing_draft(self, **kwargs):
+        self.called = True
+        raise AssertionError("LLM must not be called for unresolved context routing")
+
+
+def test_generation_fails_closed_before_llm_when_scoped_context_exceeds_24k() -> None:
+    huge = WritingContextPackage(
+        brain_version=1,
+        entities=(_entity("e1", pad="x" * 80_000),),
+        current_states=(_state("e1"),),
+        recent_events=({"event_id": "ev-1"},),
+        world_rules=({"id": "rule-1"},),
+        context_summary={
+            "recent_scope_participant_entity_ids": ["e1"],
+            "recent_scope_participant_identity": ["normalized-event-participants-v1"],
+        },
+    )
+    repo = _GenerationRepo(huge)
+    llm = _MustNotCallLLM()
+    service = WritingService(
+        repo,
+        llm_service=llm,
+        semantic_retriever=_Retriever(_hybrid_result()),
+        context_routing_policy="balanced-scope-v1",
+    )
+    source_text = "Current chapter."
+    content_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()
+
+    job = service.start_generation(
+        tenant_id="tenant",
+        novel_id="story",
+        chapter_id="chapter",
+        revision_id="ephemeral:test",
+        content_hash=content_hash,
+        operation="continue",
+        selection={"start": 0, "end": 0, "cursor": 0},
+        instruction="Continue from the supplied evidence.",
+        expected_brain_version=1,
+        chapter_number=5,
+        process_inline=True,
+        source_text=source_text,
+    )
+
+    assert job.status == "failed"
+    assert job.stage == "failed"
+    assert job.error["code"] == "CONTEXT_SCOPE_EXCEEDS_MAX_TIER"
+    assert job.error["details"]["routing_status"] == "unresolved"
+    assert job.error["details"]["max_tier"] == 24_000
+    assert llm.called is False
