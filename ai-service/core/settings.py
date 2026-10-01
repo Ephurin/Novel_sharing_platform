@@ -54,6 +54,7 @@ class Settings:
     embedding_provider: str
     active_embedding_version: str
     semantic_retrieval_limit: int
+    context_routing_policy: str = "legacy-v1"
     service_auth_disabled: bool = False
 
     @classmethod
@@ -105,6 +106,14 @@ class Settings:
             "none": "gemini-embedding-2-768-v1",
         }[embedding_provider]
 
+        context_routing_policy = (
+            os.getenv("CONTEXT_ROUTING_POLICY", "legacy-v1") or "legacy-v1"
+        ).strip().lower()
+        if context_routing_policy not in {"legacy-v1", "balanced-scope-v1"}:
+            raise ValueError(
+                "CONTEXT_ROUTING_POLICY must be one of: legacy-v1, balanced-scope-v1"
+            )
+
         return cls(
             app_env=app_env,
             service_name=(os.getenv("SERVICE_NAME", "AI Service - Story Platform") or "").strip(),
@@ -145,5 +154,6 @@ class Settings:
                 or default_embedding_version
             ).strip(),
             semantic_retrieval_limit=_env_int("SEMANTIC_RETRIEVAL_LIMIT", 8),
+            context_routing_policy=context_routing_policy,
             service_auth_disabled=_env_bool("SERVICE_AUTH_DISABLED", False),
         )

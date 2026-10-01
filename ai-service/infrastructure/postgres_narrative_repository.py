@@ -1624,6 +1624,38 @@ class PostgresNarrativeRepository:
             active_events = [ev for ev in candidate_events if str(ev.id) not in replacements]
             events_for_output = active_events[-limit_recent_events:]
 
+            # Routing-only canonical identity for the newest five recent events.
+            # Keep this outside prompt payload: raw EventRecord.participants may
+            # contain names, while EventParticipantRecord stores canonical IDs.
+            recent_scope_events = events_for_output[-5:]
+            recent_scope_participant_entity_ids: list[str] = []
+            if recent_scope_events:
+                event_order = {
+                    event.id: index for index, event in enumerate(recent_scope_events)
+                }
+                participant_rows = session.execute(
+                    select(
+                        EventParticipantRecord.event_id,
+                        EventParticipantRecord.entity_id,
+                    ).where(
+                        EventParticipantRecord.event_id.in_(
+                            [event.id for event in recent_scope_events]
+                        )
+                    )
+                ).all()
+                seen_participants: set[str] = set()
+                for event_id, entity_id in sorted(
+                    participant_rows,
+                    key=lambda row: (
+                        event_order.get(row[0], len(event_order)),
+                        str(row[1]),
+                    ),
+                ):
+                    value = str(entity_id)
+                    if value not in seen_participants:
+                        seen_participants.add(value)
+                        recent_scope_participant_entity_ids.append(value)
+
             # 2. Entity state resolution (as-of chapter cutoff if chapter_number specified)
             state_by_entity: dict[str, dict[str, Any]] = {}
             if chapter_number is not None:
@@ -1836,6 +1868,10 @@ class PostgresNarrativeRepository:
                 "event_ids": [ev["event_id"] for ev in events_out],
                 "fact_ids": [r["id"] for r in rules_out],
                 "cutoff_chapter": chapter_number,
+                "recent_scope_participant_entity_ids": recent_scope_participant_entity_ids,
+                "recent_scope_participant_identity": [
+                    "normalized-event-participants-v1"
+                ],
             }
             return WritingContextPackage(
                 brain_version=brain_version,

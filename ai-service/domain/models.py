@@ -280,3 +280,6 @@ class SemanticRetrievalResult:
     embedding_version: str = ""
     ranking_version: str = "semantic-only-v1"
     fallback_reason: str | None = None
+    query_entity_ids: tuple[str, ...] = ()
+    related_entity_ids: tuple[str, ...] = ()
+    hybrid_signals_resolved: bool = False

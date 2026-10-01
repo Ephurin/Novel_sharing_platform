@@ -4,12 +4,17 @@ import hashlib
 import logging
 import re
 import uuid
+from dataclasses import replace
 from typing import Any
 
 import json
 from application.context_budget import ContextBudgetPacker
+from application.context_routing import ContextBudgetRouter
+from application.context_scope import BalancedRelevanceScopeBuilder
+from application.hybrid_ranker import HYBRID_RANKING_VERSION
 from application.ports import ContentHashMismatchError, RevisionContentProvider
 from domain.errors import (
+    ContextRoutingUnresolvedError,
     IdempotencyConflictError,
     NarrativeRepositoryError,
     OptimisticLockError,
@@ -38,12 +43,24 @@ class WritingService:
         revision_provider: RevisionContentProvider | None = None,
         semantic_retriever: Any | None = None,
         context_packer: ContextBudgetPacker | None = None,
+        context_scope_builder: BalancedRelevanceScopeBuilder | None = None,
+        context_budget_router: ContextBudgetRouter | None = None,
+        context_routing_policy: str = "legacy-v1",
     ) -> None:
+        if context_routing_policy not in {"legacy-v1", "balanced-scope-v1"}:
+            raise ValueError(f"Unsupported context routing policy: {context_routing_policy}")
         self._repository = repository
         self._llm_service = llm_service
         self._revision_provider = revision_provider
         self._semantic_retriever = semantic_retriever
         self._context_packer = context_packer or ContextBudgetPacker()
+        self._context_scope_builder = (
+            context_scope_builder or BalancedRelevanceScopeBuilder()
+        )
+        self._context_budget_router = (
+            context_budget_router or ContextBudgetRouter(self._context_packer)
+        )
+        self._context_routing_policy = context_routing_policy
 
     def preview_context(
         self,
@@ -67,8 +84,9 @@ class WritingService:
             enforce_token_budget=False,
         )
 
+        retrieval_result = None
         if self._semantic_retriever is not None and semantic_query and semantic_query.strip():
-            result = self._semantic_retriever.retrieve(
+            retrieval_result = self._semantic_retriever.retrieve(
                 story_id,
                 query_text=semantic_query,
                 chapter_number=chapter_number,
@@ -76,17 +94,23 @@ class WritingService:
                 tenant_id=tenant_id,
             )
             semantic_memories = tuple(
-                self._semantic_match_payload(match) for match in result.matches
+                self._semantic_match_payload(match) for match in retrieval_result.matches
             )
             context_summary = dict(package.context_summary)
-            context_summary["semantic_retrieval_status"] = [result.status]
-            context_summary["semantic_embedding_version"] = [result.embedding_version]
-            context_summary["semantic_ranking_version"] = [result.ranking_version]
+            context_summary["semantic_retrieval_status"] = [retrieval_result.status]
+            context_summary["semantic_embedding_version"] = [
+                retrieval_result.embedding_version
+            ]
+            context_summary["semantic_ranking_version"] = [
+                retrieval_result.ranking_version
+            ]
             context_summary["semantic_memory_ids"] = [
                 item["memory_chunk_id"] for item in semantic_memories
             ]
-            if result.fallback_reason:
-                context_summary["semantic_fallback_reason"] = [result.fallback_reason]
+            if retrieval_result.fallback_reason:
+                context_summary["semantic_fallback_reason"] = [
+                    retrieval_result.fallback_reason
+                ]
             package = WritingContextPackage(
                 brain_version=package.brain_version,
                 entities=package.entities,
@@ -99,10 +123,68 @@ class WritingService:
                 context_summary=context_summary,
             )
 
+        if self._balanced_scope_eligible(
+            package=package,
+            retrieval_result=retrieval_result,
+            chapter_number=chapter_number,
+            limit_recent_events=limit_recent_events,
+            token_budget=token_budget,
+            semantic_limit=semantic_limit,
+        ):
+            scope = self._context_scope_builder.scope(
+                package,
+                query_entity_ids=retrieval_result.query_entity_ids,
+                recent_participant_entity_ids=package.context_summary.get(
+                    "recent_scope_participant_entity_ids", []
+                ),
+                explicit_character_name=character_name,
+            )
+            # Conservative fail-open to the existing legacy packer when
+            # identity resolution unexpectedly yields an empty relevance
+            # scope for a package that actually contains canonical entities.
+            # EVAL-01 validated non-empty balanced scopes; do not extrapolate.
+            if not package.entities or scope.entity_count_after > 0:
+                return self._context_budget_router.route(scope)
+
         return self._context_packer.pack(
             package,
             maximum=token_budget,
         )
+
+    def _balanced_scope_eligible(
+        self,
+        *,
+        package: WritingContextPackage,
+        retrieval_result: Any | None,
+        chapter_number: int | None,
+        limit_recent_events: int,
+        token_budget: int | None,
+        semantic_limit: int | None,
+    ) -> bool:
+        if self._context_routing_policy != "balanced-scope-v1":
+            return False
+        if retrieval_result is None:
+            return False
+        if chapter_number is None or token_budget is not None:
+            return False
+        if limit_recent_events != 20:
+            return False
+        effective_semantic_limit = (
+            semantic_limit
+            if semantic_limit is not None
+            else getattr(self._semantic_retriever, "default_limit", None)
+        )
+        if effective_semantic_limit != 8:
+            return False
+        if retrieval_result.status != "ok":
+            return False
+        if retrieval_result.ranking_version != HYBRID_RANKING_VERSION:
+            return False
+        if not bool(retrieval_result.hybrid_signals_resolved):
+            return False
+        return package.context_summary.get(
+            "recent_scope_participant_identity"
+        ) == ["normalized-event-participants-v1"]
 
     def start_generation(
         self,
@@ -324,12 +406,26 @@ class WritingService:
             instruction=job.instruction,
             selected_text=selected_text,
         )
-        context_package = self.preview_context(
-            tenant_id=job.tenant_id,
-            story_id=job.novel_id,
-            chapter_number=job.chapter_number,
-            semantic_query=semantic_query,
-        )
+        try:
+            context_package = self.preview_context(
+                tenant_id=job.tenant_id,
+                story_id=job.novel_id,
+                chapter_number=job.chapter_number,
+                semantic_query=semantic_query,
+            )
+        except ContextRoutingUnresolvedError as exc:
+            failed_job = replace(
+                job,
+                status="failed",
+                stage="failed",
+                validation_status="failed",
+                error={
+                    "code": "CONTEXT_SCOPE_EXCEEDS_MAX_TIER",
+                    "message": str(exc),
+                    "details": dict(exc.details),
+                },
+            )
+            return self._repository.save_writing_job(failed_job)
         prompt_context = self._context_packer.prompt_context(context_package)
         context_hash = hashlib.sha256(
             json.dumps(

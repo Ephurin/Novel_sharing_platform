@@ -27,8 +27,10 @@ jobs:
           cache: pip
           cache-dependency-path: ai-service/requirements.txt
       - run: pip install -r requirements.txt pytest httpx
-      - name: Semantic-memory, retrieval, hybrid and context-budget unit tests
-        run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py tests/test_hybrid_ranker.py tests/test_context_budget.py
+      - name: Semantic-memory, retrieval, hybrid and context-routing unit tests
+        run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py tests/test_hybrid_ranker.py tests/test_context_budget.py tests/test_context_scope.py tests/test_context_routing.py tests/test_settings.py
+      - name: CTX-RD-01 production/EVAL parity
+        run: python ../scripts/verify_ctx_rd_01_eval_parity.py
       - name: Hybrid retrieval proxy regression
         run: pytest -q tests/test_p7_hybrid_benchmark.py
       - name: Hybrid retrieval proxy metrics
@@ -85,6 +87,8 @@ jobs:
       - run: pip install -r requirements.txt pytest httpx
       - name: Live PostgreSQL + pgvector integration
         run: pytest -o addopts= -q -m postgres_integration tests/test_semantic_memory_postgres_integration.py tests/test_semantic_retriever_postgres_integration.py
+      - name: Relevance-scope PostgreSQL cutoff and supersede integration
+        run: pytest -o addopts= -q -m postgres_integration tests/test_postgres_integration.py::test_chapter_25_event_and_state_isolation_from_chapter_5 tests/test_postgres_integration.py::test_recent_scope_participants_exclude_superseded_event_entities
 
   root-compose-smoke:
     runs-on: ubuntu-latest
@@ -115,7 +119,7 @@ jobs:
       - name: Verify semantic retriever and context packer composition
         run: |
           set -euo pipefail
-          docker compose exec -T ai-service python -c "import main; r=main.app.state.semantic_retriever; w=main.app.state.writing_service; assert r is not None; assert r._hybrid_ranker is not None; assert r._hybrid_ranker.ranking_version == 'hybrid-v1'; assert main.app.state.semantic_materializer is not None; assert w._context_packer is not None; assert w._context_packer.default_budget == 12000"
+          docker compose exec -T ai-service python -c "import main; r=main.app.state.semantic_retriever; w=main.app.state.writing_service; assert r is not None; assert r._hybrid_ranker is not None; assert r._hybrid_ranker.ranking_version == 'hybrid-v1'; assert main.app.state.semantic_materializer is not None; assert w._context_packer is not None; assert w._context_packer.default_budget == 12000; assert w._context_scope_builder is not None; assert w._context_budget_router is not None; assert main.settings.context_routing_policy == 'legacy-v1'; assert w._context_routing_policy == 'legacy-v1'"
           code="$(curl -sS -o /tmp/semantic-rebuild.json -w '%{http_code}' -X POST \
             -H 'Authorization: Bearer test-token' \
             -H 'X-Tenant-Id: 00000000-0000-0000-0000-000000000001' \

@@ -18,6 +18,7 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.narrative_repository, "json")
         self.assertEqual(settings.app_env, "development")
         self.assertEqual(settings.json_repository_mode, "read-write")
+        self.assertEqual(settings.context_routing_policy, "legacy-v1")
 
     def test_environment_values_are_parsed(self) -> None:
         environment = {
@@ -30,6 +31,7 @@ class SettingsTests(unittest.TestCase):
             "ENTITY_PROMPT_VERSION": "entity-prompt-v3",
             "NARRATIVE_REPOSITORY": "postgres",
             "DATABASE_URL": "postgresql+psycopg://localhost/test",
+            "CONTEXT_ROUTING_POLICY": "balanced-scope-v1",
         }
 
         with patch.dict(os.environ, environment, clear=True):
@@ -45,6 +47,7 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.pipeline_version, "entity-v2")
         self.assertEqual(settings.entity_prompt_version, "entity-prompt-v3")
         self.assertEqual(settings.narrative_repository, "postgres")
+        self.assertEqual(settings.context_routing_policy, "balanced-scope-v1")
 
     def test_production_forces_json_read_only_mode(self) -> None:
         with patch.dict(
@@ -78,6 +81,16 @@ class SettingsTests(unittest.TestCase):
             clear=True,
         ):
             with self.assertRaisesRegex(ValueError, "JSON_REPOSITORY_MODE"):
+                Settings.from_env()
+
+
+    def test_invalid_context_routing_policy_is_rejected(self) -> None:
+        with patch.dict(
+            os.environ,
+            {"CONTEXT_ROUTING_POLICY": "experimental-unbounded"},
+            clear=True,
+        ):
+            with self.assertRaisesRegex(ValueError, "CONTEXT_ROUTING_POLICY"):
                 Settings.from_env()
 
     def test_invalid_provider_is_rejected(self) -> None:
