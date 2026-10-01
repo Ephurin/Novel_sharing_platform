@@ -656,6 +656,9 @@ def test_chapter_25_event_and_state_isolation_from_chapter_5(repo):
     assert ch5_health != 65, (
         f"Temporal leakage: State transition health=65 appeared in Chapter 5: {tieu_viem_ch5_state}"
     )
+    assert ent_id not in ctx_ch5.context_summary[
+        "recent_scope_participant_entity_ids"
+    ], "Future event participant must not leak into relevance scope before cutoff"
 
     # Query structured context at chapter 25: Future chapter 25 event and resulting state MUST appear!
     ctx_ch25 = repo.get_structured_context(novel_id, chapter_number=25)
@@ -669,6 +672,12 @@ def test_chapter_25_event_and_state_isolation_from_chapter_5(repo):
     assert ch25_health == 65, (
         f"Missing state: State transition health=65 not reflected in Chapter 25: {tieu_viem_ch25_state}"
     )
+    assert ent_id in ctx_ch25.context_summary[
+        "recent_scope_participant_entity_ids"
+    ], "Canonical event participant ID must feed the relevance scope after cutoff"
+    assert ctx_ch25.context_summary["recent_scope_participant_identity"] == [
+        "normalized-event-participants-v1"
+    ]
 
 
 # =========================================================================
