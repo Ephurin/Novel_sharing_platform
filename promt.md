@@ -104,3 +104,28 @@ P8-05: BLOCKED
 ```
 
 Astra reviews committed staging evidence before any staged-default activation decision. No additional sealed EVAL A/B is required unless real implementation behavior diverges from evaluated behavior.
+
+### Executed Gemini Staging Verification Report
+
+```text
+Gemini Verification — CTX-RD-01 REAL-PROVIDER STAGING
+Status: PASS
+Tested commit: 9e0f1e88a9a10b924ab0c4636268de84e9faf270
+Evidence commit: 2a54cfb27eb24cfcb77de4a1b38e9b0c980307a1
+Embedding provider/model/version: GeminiEmbeddingProvider / gemini-embedding-2 / gemini-embedding-2-768-v1
+Document/query provider calls: 3/2
+Actual generation provider/model: gemini / models/gemini-3.7-flash (requested: gemini-3.8-flash)
+LLM provider calls: 1
+Local fallback disabled: true
+Balanced scope/tier: 12000/12000
+Semantic/recent/rules retained: 8/8, 20/20, 4/4
+Protected overflow: false
+Dropped artifacts: 0
+Tier above 12k tested: 16000 / production_shaped_deterministic
+Future/superseded/cross-tenant leakage: 0/0/0
+Fallback/rollback: PASS
+Validator: PASS
+Production default changed: NO
+P8-05: BLOCKED
+```
+
