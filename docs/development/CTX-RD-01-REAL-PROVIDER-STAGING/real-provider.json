@@ -1,0 +1,119 @@
+{
+  "tested_commit": "9e0f1e88a9a10b924ab0c4636268de84e9faf270",
+  "embedding": {
+    "provider": "GeminiEmbeddingProvider",
+    "model": "gemini-embedding-2",
+    "version": "gemini-embedding-2-768-v1",
+    "document_version": "gemini-embedding-2-768-v1",
+    "query_version": "gemini-embedding-2-768-v1",
+    "indexed_versions": [
+      "gemini-embedding-2-768-v1"
+    ],
+    "dimension": 768,
+    "query_l2_normalized": true,
+    "documents_l2_normalized": true,
+    "document_provider_calls": 3,
+    "query_provider_calls": 2
+  },
+  "retrieval": {
+    "status": "ok",
+    "ranking_version": "hybrid-v1",
+    "hybrid_signals_resolved": true,
+    "chapter_cutoff": 35
+  },
+  "generation": {
+    "provider": "gemini",
+    "requested_model": "gemini-3.8-flash",
+    "effective_model": "models/gemini-3.7-flash",
+    "actual_provider_response": true,
+    "provider_calls": 1,
+    "status": "completed",
+    "nonempty_output": true,
+    "context_hash": "529215bdbee2fe7297675c088b49439e5c48391ec476ebc2e92d8ca0ecf34924"
+  },
+  "routing": {
+    "policy": "balanced-scope-v1",
+    "status": "routed",
+    "selected_tier": 12000,
+    "entities_before": 25,
+    "entities_after": 4,
+    "semantic_input_ids": [
+      "762f1af6-6acb-5e97-a2be-8642787a1496",
+      "e1f27e90-2e47-5dc1-8690-245d20e7ade7",
+      "dd826708-ae22-5a1c-93ef-051a269b9330",
+      "cafa1003-3755-5950-9def-d8f785612f10",
+      "1929bfee-efcf-5b85-bf49-41b45caae701",
+      "eb59b087-f57b-5fb4-ba5a-0181265ca96e",
+      "c011d153-36cd-5baa-9694-4c3d6c13ef3b",
+      "08326522-c700-5170-a665-3f18c16e5489"
+    ],
+    "semantic_retained_ids": [
+      "762f1af6-6acb-5e97-a2be-8642787a1496",
+      "e1f27e90-2e47-5dc1-8690-245d20e7ade7",
+      "dd826708-ae22-5a1c-93ef-051a269b9330",
+      "cafa1003-3755-5950-9def-d8f785612f10",
+      "1929bfee-efcf-5b85-bf49-41b45caae701",
+      "eb59b087-f57b-5fb4-ba5a-0181265ca96e",
+      "c011d153-36cd-5baa-9694-4c3d6c13ef3b",
+      "08326522-c700-5170-a665-3f18c16e5489"
+    ],
+    "recent_input_ids": [
+      "3e4afd60-b41c-5d66-9222-b94483880457",
+      "959b4b6b-8897-5ebf-8bfe-c0d8b2e4d420",
+      "c96e5798-5806-5b47-b575-214ffcdf9c44",
+      "6be2e9b7-21a3-53bd-8d22-e99c911bc761",
+      "fa2d83b5-32aa-5841-b205-b21b10ca4c81",
+      "e40acae9-e02f-5ac6-960a-101643ef56dd",
+      "9186d777-24c5-538e-838c-3e080e5da283",
+      "bc169078-da49-5f74-ba20-77b3ec4d44f9",
+      "e103ef58-243f-5be0-b69d-199c49ef0271",
+      "7097beb2-018c-54ce-a078-96c83093ba5d",
+      "fdf90be2-bfd3-555d-b21c-5e6ab4ed8100",
+      "834438a4-45af-5265-8dd3-90017b780ca5",
+      "87e55f42-103e-5752-9db9-4e75f46717f0",
+      "0126354a-d57f-5293-9a26-792d4fb037f6",
+      "aa323226-9d28-590e-acef-b82bb862643a",
+      "21acca07-59ab-519d-9b4c-042174398135",
+      "da3b1c86-de43-5147-95fa-f40c815f64d6",
+      "8161152d-b0b2-5e6d-9c4b-f21c95c5f911",
+      "b0e9b99e-ee88-5a34-b4cb-9c30afa9e755",
+      "06e73be5-b5e2-5bfc-bea9-9116ce55a7c5"
+    ],
+    "recent_retained_ids": [
+      "3e4afd60-b41c-5d66-9222-b94483880457",
+      "959b4b6b-8897-5ebf-8bfe-c0d8b2e4d420",
+      "c96e5798-5806-5b47-b575-214ffcdf9c44",
+      "6be2e9b7-21a3-53bd-8d22-e99c911bc761",
+      "fa2d83b5-32aa-5841-b205-b21b10ca4c81",
+      "e40acae9-e02f-5ac6-960a-101643ef56dd",
+      "9186d777-24c5-538e-838c-3e080e5da283",
+      "bc169078-da49-5f74-ba20-77b3ec4d44f9",
+      "e103ef58-243f-5be0-b69d-199c49ef0271",
+      "7097beb2-018c-54ce-a078-96c83093ba5d",
+      "fdf90be2-bfd3-555d-b21c-5e6ab4ed8100",
+      "834438a4-45af-5265-8dd3-90017b780ca5",
+      "87e55f42-103e-5752-9db9-4e75f46717f0",
+      "0126354a-d57f-5293-9a26-792d4fb037f6",
+      "aa323226-9d28-590e-acef-b82bb862643a",
+      "21acca07-59ab-519d-9b4c-042174398135",
+      "da3b1c86-de43-5147-95fa-f40c815f64d6",
+      "8161152d-b0b2-5e6d-9c4b-f21c95c5f911",
+      "b0e9b99e-ee88-5a34-b4cb-9c30afa9e755",
+      "06e73be5-b5e2-5bfc-bea9-9116ce55a7c5"
+    ],
+    "rules_input_ids": [
+      "b4c426e5-aec7-5dcf-9879-5964c946f4dd",
+      "f46e3e5c-07e5-5ef2-a0b0-51fa7ecc678b",
+      "8437a749-6d3d-5d46-ac64-60901ef24cc6",
+      "eb0180be-ad85-5f0d-8341-3e1da483ab16"
+    ],
+    "rules_retained_ids": [
+      "b4c426e5-aec7-5dcf-9879-5964c946f4dd",
+      "f46e3e5c-07e5-5ef2-a0b0-51fa7ecc678b",
+      "8437a749-6d3d-5d46-ac64-60901ef24cc6",
+      "eb0180be-ad85-5f0d-8341-3e1da483ab16"
+    ],
+    "protected_overflow": false,
+    "dropped_artifacts": 0
+  }
+}

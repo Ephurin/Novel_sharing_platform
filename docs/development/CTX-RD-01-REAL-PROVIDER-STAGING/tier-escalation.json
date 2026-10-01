@@ -1,0 +1,14 @@
+{
+  "tested_commit": "9e0f1e88a9a10b924ab0c4636268de84e9faf270",
+  "cases": [
+    {
+      "fixture_origin": "production_shaped_deterministic",
+      "selected_tier": 16000,
+      "semantic_exact": true,
+      "recent_exact": true,
+      "rules_exact": true,
+      "dropped_artifacts": 0,
+      "protected_overflow": false
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "tested_commit": "9e0f1e88a9a10b924ab0c4636268de84e9faf270",
+  "future_participant_leakage": 0,
+  "superseded_participant_leakage": 0,
+  "cross_tenant_leakage": 0,
+  "semantic_failure_legacy_fallback": true,
+  "over_24k_fails_closed": true,
+  "rollback_to_legacy": true,
+  "p8_05_blocked": true
+}

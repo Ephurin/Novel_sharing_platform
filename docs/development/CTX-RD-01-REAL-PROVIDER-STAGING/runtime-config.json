@@ -1,0 +1,8 @@
+{
+  "tested_commit": "9e0f1e88a9a10b924ab0c4636268de84e9faf270",
+  "isolated_staging_database": true,
+  "pgvector_live": true,
+  "production_default": "legacy-v1",
+  "default_changed": false,
+  "llm_local_fallback_enabled": false
+}

@@ -242,7 +242,13 @@ class LLMService:
                 last_error = exc
                 message = str(exc).lower()
                 # Retry other model aliases when configured model is deprecated or unavailable.
-                if "not found" in message or "not supported" in message:
+                if (
+                    "not found" in message
+                    or "not supported" in message
+                    or "unavailable" in message
+                    or "high demand" in message
+                    or "503" in message
+                ):
                     continue
                 raise LLMServiceError(f"Gemini request failed: {exc}") from exc
 
@@ -251,6 +257,9 @@ class LLMService:
     def _gemini_model_candidates(self) -> list[str]:
         candidates = [
             self.model,
+            "models/gemini-3.8-flash",
+            "models/gemini-3.7-flash",
+            "models/gemini-2.5-flash",
             "models/gemini-1.5-flash",
             "models/gemini-1.5-flash-latest",
             "models/gemini-1.5-pro",
