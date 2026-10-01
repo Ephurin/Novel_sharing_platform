@@ -263,3 +263,35 @@ P8-05: BLOCKED
 Do not switch the production/default policy after smoke.
 
 Astra reviews the acceptance evidence before any default activation decision.
+
+### Gemini Verification — CTX-RD-01 LIVE ACCEPTANCE
+
+Status: PASS
+Tested commit: 7c95d6189d0b9a525718fbc35b906acf9cc50676
+Evidence commit: 4d073497c61f5d8a7477c7d7c189ae4a055f090c
+
+Legacy-v1:
+  smoke: PASS
+
+Balanced-scope-v1:
+  smoke: PASS
+  routing status: routed
+  selected tier: 12000
+  entity before/after: 25/5
+  semantic retained: 8/8
+  recent retained: 20/20
+  rules retained: 4/4
+  protected overflow: false
+  dropped artifacts: 0
+
+Temporal safety:
+  future participant leakage: 0
+  superseded participant leakage: 0
+  tenant isolation: PASS
+
+Fallback/rollback:
+  semantic/hybrid failure -> legacy: PASS
+  flag rollback -> legacy: PASS
+
+Production default changed: NO
+P8-05: BLOCKED
