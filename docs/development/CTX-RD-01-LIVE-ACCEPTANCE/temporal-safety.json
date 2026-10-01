@@ -1,0 +1,6 @@
+{
+  "future_participant_leakage": 0,
+  "superseded_participant_leakage": 0,
+  "cross_tenant_leakage": 0,
+  "tenant_isolation": "PASS"
+}

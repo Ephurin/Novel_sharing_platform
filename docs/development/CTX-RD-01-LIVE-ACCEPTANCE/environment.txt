@@ -1,0 +1,9 @@
+CTX-RD-01 LIVE ACCEPTANCE ENVIRONMENT
+Timestamp: 2026-10-01T09:12:38.781279+00:00
+Tested commit: 7c95d6189d0b9a525718fbc35b906acf9cc50676
+Python version: 3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]
+Database URL: postgresql+psycopg://postgres:postgres@localhost:5432/ephurin
+PostgreSQL: PostgreSQL 16 (pgvector/pgvector:pg16)
+Docker Compose Service: novel_sharing_platform-postgres-1, novel_sharing_platform-ai-service-1
+Active Embedding Version: fake-embedding-768-v1 (DeterministicFakeEmbeddingProvider)
+Active Ranking Version: hybrid-v1

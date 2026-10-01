@@ -1,0 +1,19 @@
+{
+  "tested_commit": "7c95d6189d0b9a525718fbc35b906acf9cc50676",
+  "database_url": "postgresql+psycopg://postgres:postgres@localhost:5432/ephurin",
+  "embedding_provider": "DeterministicFakeEmbeddingProvider",
+  "embedding_version": "fake-embedding-768-v1",
+  "ranking_version": "hybrid-v1",
+  "context_routing_default": "legacy-v1",
+  "context_routing_candidate": "balanced-scope-v1",
+  "available_tiers": [
+    12000,
+    16000,
+    20000,
+    24000
+  ],
+  "recent_events_limit": 20,
+  "semantic_limit": 8,
+  "p8_cleanup_readiness": "PASS",
+  "p8_05_cleanup_gate": "BLOCKED"
+}

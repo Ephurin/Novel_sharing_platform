@@ -1,0 +1,14 @@
+{
+  "service_started": true,
+  "preview_success": true,
+  "entity_count": 25,
+  "states_count": 25,
+  "rules_count": 4,
+  "semantic_count": 8,
+  "recent_count": 20,
+  "routing_trace_absent": true,
+  "budget_applied": true,
+  "generation_status": "completed",
+  "generation_has_output": true,
+  "latency_ms": 120.52
+}

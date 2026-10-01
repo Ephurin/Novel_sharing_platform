@@ -1,0 +1,5 @@
+{
+  "semantic_unavailable_fallback_to_legacy": "PASS",
+  "scope_overflow_fails_closed_no_silent_truncation": "PASS",
+  "flag_rollback_immediate_no_migration": "PASS"
+}

@@ -1,0 +1,70 @@
+{
+  "tested_commit": "7c95d6189d0b9a525718fbc35b906acf9cc50676",
+  "routing_status": "routed",
+  "selected_tier": 12000,
+  "entity_count_before": 25,
+  "entity_count_after": 5,
+  "states_count_after": 5,
+  "semantic_retained_count": 8,
+  "recent_retained_count": 20,
+  "rules_retained_count": 4,
+  "protected_overflow": false,
+  "dropped_artifacts": 0,
+  "story_brain_estimated_size": 5251,
+  "scope_entity_ids": [
+    "b86f0366-6059-58e5-95aa-bdc41173ecde",
+    "8cb96d39-21b3-51f0-8eeb-640089ec0ede",
+    "fe0fc9b3-3e0c-543f-8bb8-0de03eef88dd",
+    "dcc89a9e-91fc-561c-bbc7-c0fa94ded3e8",
+    "1d53a626-5287-522d-ad10-9807ec9006b9"
+  ],
+  "semantic_entity_ids": [
+    "dcc89a9e-91fc-561c-bbc7-c0fa94ded3e8",
+    "b86f0366-6059-58e5-95aa-bdc41173ecde",
+    "fe0fc9b3-3e0c-543f-8bb8-0de03eef88dd"
+  ],
+  "recent_participant_ids": [
+    "1d53a626-5287-522d-ad10-9807ec9006b9",
+    "b86f0366-6059-58e5-95aa-bdc41173ecde",
+    "dcc89a9e-91fc-561c-bbc7-c0fa94ded3e8",
+    "fe0fc9b3-3e0c-543f-8bb8-0de03eef88dd"
+  ],
+  "retained_semantic_ids": [
+    "d825a40f-07bb-5d90-9701-c766ca9864fc",
+    "5eec4a83-0c57-537b-9a3c-47c11212d611",
+    "535e44f6-3789-57c1-90d2-00c873f05819",
+    "3ea8bf13-364e-5c4d-be3d-22f37cf66480",
+    "7ed079ae-2f92-5078-9cda-b6f3fda439ba",
+    "28762e3a-6965-5bf7-a8ca-4a7c8756725f",
+    "7dce23d0-b3c8-50ba-ac2a-7e25d5f124f9",
+    "53b4d9fd-67f8-5770-9e33-51adfd74c957"
+  ],
+  "retained_rule_ids": [
+    "34f66d7d-082f-5c4e-9a98-b8eb919f5c7f",
+    "295f35c6-0bb4-5953-a375-14d16dfc5cff",
+    "5d4c0b5d-7f9a-5c30-a533-b37ecd3305c7",
+    "a1890089-a935-5111-b2a4-a3c585ed6054"
+  ],
+  "context_hash": "209d48a5dfe9d6456a67741f13bdccc3cc91cef03d0319f622feab9c94c12daa",
+  "generation_success": true,
+  "latency_ms": 76.68,
+  "checks": {
+    "semantic_retrieval_status_ok": true,
+    "ranking_version_hybrid": true,
+    "hybrid_signals_resolved": true,
+    "chapter_cutoff": 35,
+    "semantic_limit": 8,
+    "semantic_retained_exact": true,
+    "recent_limit": 20,
+    "recent_retained_exact": true,
+    "rules_retained_exact": true,
+    "recent_participant_identity": true,
+    "routing_version": true,
+    "routing_status": true,
+    "selected_tier": true,
+    "protected_overflow_false": true,
+    "dropped_artifacts_zero": true,
+    "scope_filtered_distractors": true,
+    "generation_completed": true
+  }
+}
