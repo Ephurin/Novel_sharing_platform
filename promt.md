@@ -1,73 +1,265 @@
 # Active Project Handoff
 
-Current state:
+## Current state
 
 ```text
-EVAL-01 / Evaluation-Pilot evidence sequence   CLOSED
-Next work                                      NARROW ARCHITECTURE PROPOSAL
-Production behavior                            UNCHANGED
-P8-05 destructive cleanup                     BLOCKED_PENDING_STABILITY
+EVAL-01 / Evaluation-Pilot                 CLOSED
+ARCH-CTX-RD-01 proposal                    APPROVED
+CTX-RD-01 implementation                   MERGED
+Production default                         legacy-v1
+Balanced routing activation                NOT YET AUTHORIZED
+Next gate                                  LOCAL LIVE ACCEPTANCE SMOKE
+P8-05 destructive cleanup                  BLOCKED_PENDING_STABILITY
 ```
 
-Canonical closure:
+Canonical evaluation closure:
+
 `docs/development/EVAL-01-FINAL-CLOSURE.md`
 
-Closure commit:
-`4bfb70875e8bfe70d86dfb29a7fe77a9d56115b5`
+Canonical architecture proposal:
 
-Canonical EVAL-01O lineage:
+`docs/development/ARCH-CTX-RD-01-RELEVANCE-DENSITY-PROPOSAL.md`
 
-```text
-blind review commit    2e923e2cb89a8388ae98016befa8ac53df370c21
-reveal evidence        e4c4ff6040228ece479efe08d2920a02877c472a
-corrected final review da275f8f49bef50d81f8e873b3651cbfaff68d4e
-```
+Astra architecture review:
 
-Canonical EVAL-01O result:
+`docs/development/ARCH-CTX-RD-01-ASTRA-REVIEW.md`
 
-```text
-balanced scope-first  2
-broad@20k             2
-tie                   17
+Implementation review:
 
-rq-0025:
-  candidate 2
-  control   1
-```
+`docs/development/CTX-RD-01-IMPLEMENTATION-REVIEW.md`
 
-Interpretation:
-- no general benchmark-quality winner;
-- targeted context-dilution regression repaired;
-- no systematic regression elsewhere;
-- balanced scope-first is supported for a narrow architecture proposal.
+Implementation merge:
 
-Efficiency:
+`739b5f8cceb549fb96e97bbc3565621f9f036031`
+
+Implementation review commit:
+
+`bf6d92af50d0b2451b1da9afc05cfaa13d0dbf06`
+
+## Implemented policy
+
+Feature flag:
 
 ```text
-Story Brain estimate  -40.66%
-prompt chars          -39.22%
-entity/state breadth  -69.40%
-candidate 12k fit      7/7
-semantic/recent/rules  exact match
+CONTEXT_ROUTING_POLICY=legacy-v1
+CONTEXT_ROUTING_POLICY=balanced-scope-v1
 ```
 
-Next proposal:
+Default remains:
+
+`legacy-v1`
+
+Balanced-v1:
 
 ```text
-balanced relevance scope
--> minimum full-fit tier 12k/16k/20k/24k
--> explicit unresolved state above scoped 24k
+required entity scope =
+  locked entities
+  + hybrid-resolved query entities
+  + semantic top-8 entity IDs
+  + normalized participants from newest 5 recent events
+
+then choose minimum full-fit tier:
+  12k / 16k / 20k / 24k
 ```
 
-Do not change production code until that proposal is reviewed.
+If no tier full-fits:
 
-Frozen production contract remains unchanged:
-- gemini-embedding-2, 768d, explicit L2;
-- version gemini-embedding-2-768-v1;
-- pgvector cosine;
-- temporal cutoff before ranking;
-- hybrid-v1 weights 0.75/0.03/0.08/0.10/0.04;
-- no ANN;
-- semantic memory is derived/rebuildable.
+```text
+CONTEXT_SCOPE_EXCEEDS_MAX_TIER
+```
 
-P8-05 remains blocked.
+No silent truncation and no automatic >24k growth.
+
+## CI status
+
+Validated implementation tree:
+
+`a403012bb37a98ae8eb99ee0291865e659c23c67`
+
+P7 workflow:
+
+`36808950154` — PASS
+
+Passed:
+
+```text
+context-routing unit tests
+production/EVAL parity
+hybrid regression
+benchmark invariants
+Phase 6 temporal/writing regressions
+full non-Postgres regression
+live PostgreSQL + pgvector integration
+cutoff/supersede scope integration
+production-path Compose smoke
+```
+
+Parity:
+
+```text
+source_1x cases       7/7
+candidate tier        12k 7/7
+semantic              exact 8/8
+recent                exact 20/20
+rules                 exact under canonical packer semantics
+drops                 0
+protected overflow    0
+```
+
+## NEXT — Gemini / Antigravity local live acceptance smoke
+
+Use latest `main`.
+
+Do not change the default environment permanently.
+
+Run both policies explicitly.
+
+### 1. Baseline readiness
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
+.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+```
+
+### 2. Start production-path PostgreSQL + pgvector stack
+
+Use the same Docker/Compose environment already accepted by P7/P8.
+
+Verify health before testing routing.
+
+### 3. Legacy smoke
+
+Set:
+
+```text
+CONTEXT_ROUTING_POLICY=legacy-v1
+```
+
+Verify:
+
+- service starts;
+- existing bounded context preview/generation path works;
+- routing trace is absent or legacy-compatible;
+- no behavior regression.
+
+### 4. Balanced-v1 smoke
+
+Set explicitly:
+
+```text
+CONTEXT_ROUTING_POLICY=balanced-scope-v1
+```
+
+Use production PostgreSQL repository + semantic/hybrid runtime.
+
+Verify at minimum:
+
+```text
+semantic retrieval status          ok
+ranking version                    hybrid-v1
+hybrid signals resolved            true
+chapter cutoff                     present
+semantic limit                     8
+recent limit                       20
+recent participant identity        normalized-event-participants-v1
+routing version                    balanced-scope-v1
+routing status                     routed
+selected tier                      one of 12k/16k/20k/24k
+protected overflow                 false
+dropped artifacts                  0 on accepted route
+```
+
+Capture:
+
+- exact tested commit;
+- scope query entity IDs;
+- semantic entity IDs;
+- recent participant IDs;
+- entity/state before and after;
+- Story Brain estimated size;
+- selected tier;
+- semantic/recent/rule IDs retained;
+- context hash;
+- request/generation success;
+- latency if available.
+
+### 5. Temporal safety
+
+Verify recent participant scope does not include:
+
+- future events beyond chapter cutoff;
+- superseded events excluded by canonical event resolution;
+- cross-tenant identities.
+
+### 6. Fallback / rollback
+
+Verify at least:
+
+```text
+semantic/hybrid unavailable
+  -> legacy-compatible path
+
+CONTEXT_ROUTING_POLICY=legacy-v1
+  -> immediate rollback without migration/rebuild
+```
+
+### 7. Acceptance evidence
+
+Write under:
+
+`docs/development/CTX-RD-01-LIVE-ACCEPTANCE/`
+
+Suggested files:
+
+```text
+environment.txt
+runtime-config.json
+legacy-smoke.json
+balanced-smoke.json
+temporal-safety.json
+fallback-rollback.json
+summary.md
+```
+
+Append:
+
+```text
+### Gemini Verification — CTX-RD-01 LIVE ACCEPTANCE
+
+Status: PASS | PARTIAL | BLOCKED
+Tested commit: <sha>
+Evidence commit: <sha>
+
+Legacy-v1:
+  smoke: PASS | FAIL
+
+Balanced-scope-v1:
+  smoke: PASS | FAIL
+  routing status: <status>
+  selected tier: <tier>
+  entity before/after: <n>/<n>
+  semantic retained: <n>/<n>
+  recent retained: <n>/<n>
+  rules retained: <n>/<n>
+  protected overflow: false
+  dropped artifacts: 0
+
+Temporal safety:
+  future participant leakage: 0
+  superseded participant leakage: 0
+  tenant isolation: PASS
+
+Fallback/rollback:
+  semantic/hybrid failure -> legacy: PASS | FAIL
+  flag rollback -> legacy: PASS | FAIL
+
+Production default changed: NO
+P8-05: BLOCKED
+```
+
+Do not switch the production/default policy after smoke.
+
+Astra reviews the acceptance evidence before any default activation decision.
