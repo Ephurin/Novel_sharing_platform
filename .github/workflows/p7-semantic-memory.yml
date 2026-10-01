@@ -10,6 +10,8 @@ on:
   pull_request:
     paths:
       - "ai-service/**"
+      - "scripts/verify_ctx_rd_01_real_provider_evidence.py"
+      - "docs/development/CTX-RD-01-REAL-PROVIDER-STAGING-runbook.md"
       - "docker-compose.yml"
       - ".github/workflows/p7-semantic-memory.yml"
 
@@ -31,6 +33,8 @@ jobs:
         run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py tests/test_hybrid_ranker.py tests/test_context_budget.py tests/test_context_scope.py tests/test_context_routing.py tests/test_settings.py
       - name: CTX-RD-01 production/EVAL parity
         run: python ../scripts/verify_ctx_rd_01_eval_parity.py
+      - name: CTX-RD-01 real-provider evidence contract self-test
+        run: python ../scripts/verify_ctx_rd_01_real_provider_evidence.py --self-test
       - name: Hybrid retrieval proxy regression
         run: pytest -q tests/test_p7_hybrid_benchmark.py
       - name: Hybrid retrieval proxy metrics
