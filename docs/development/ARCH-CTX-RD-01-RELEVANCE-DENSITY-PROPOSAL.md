@@ -409,6 +409,9 @@ docker-compose.yml
 ai-service/docker-compose.yml
   feature flag
 
+ai-service/main.py
+  construct/inject scope builder and budget router from typed settings
+
 existing tests / composition tests
   dependency wiring and rollback coverage
 ```
