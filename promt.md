@@ -1,320 +1,106 @@
-# Active Project Handoff
+# Active Project Handoff — CTX-RD-01
 
-## Current state
-
-```text
-EVAL-01 / Evaluation-Pilot                 CLOSED
-ARCH-CTX-RD-01 proposal                    APPROVED
-CTX-RD-01 implementation                   MERGED
-Production default                         legacy-v1
-Balanced routing activation                NOT YET AUTHORIZED
-Next gate                                  LOCAL LIVE ACCEPTANCE SMOKE
-P8-05 destructive cleanup                  BLOCKED_PENDING_STABILITY
-```
-
-Canonical evaluation closure:
-
-`docs/development/EVAL-01-FINAL-CLOSURE.md`
-
-Canonical architecture proposal:
-
-`docs/development/ARCH-CTX-RD-01-RELEVANCE-DENSITY-PROPOSAL.md`
-
-Astra architecture review:
-
-`docs/development/ARCH-CTX-RD-01-ASTRA-REVIEW.md`
-
-Implementation review:
-
-`docs/development/CTX-RD-01-IMPLEMENTATION-REVIEW.md`
-
-Implementation merge:
-
-`739b5f8cceb549fb96e97bbc3565621f9f036031`
-
-Implementation review commit:
-
-`bf6d92af50d0b2451b1da9afc05cfaa13d0dbf06`
-
-## Implemented policy
-
-Feature flag:
+## Canonical project state
 
 ```text
-CONTEXT_ROUTING_POLICY=legacy-v1
-CONTEXT_ROUTING_POLICY=balanced-scope-v1
+EVAL-01 evidence sequence             CLOSED
+ARCH-CTX-RD-01 proposal               APPROVED
+CTX-RD-01 implementation              MERGED
+Fake-provider PostgreSQL smoke        PASS / REVIEWED
+Real-provider staging                 REQUIRED / NOT YET RUN
+Production default                    legacy-v1
+Balanced-scope-v1 default             NOT AUTHORIZED
+P8-05 destructive cleanup             BLOCKED_PENDING_STABILITY
 ```
 
-Default remains:
+Source-of-truth documents:
 
-`legacy-v1`
+- `docs/development/EVAL-01-FINAL-CLOSURE.md`
+- `docs/development/ARCH-CTX-RD-01-RELEVANCE-DENSITY-PROPOSAL.md`
+- `docs/development/ARCH-CTX-RD-01-ASTRA-REVIEW.md`
+- `docs/development/CTX-RD-01-IMPLEMENTATION-REVIEW.md`
+- `docs/development/CTX-RD-01-LIVE-ACCEPTANCE/ASTRA-REVIEW.md`
 
-Balanced-v1:
+Implementation merge: `739b5f8cceb549fb96e97bbc3565621f9f036031`
+
+Prior live smoke evidence: `4d073497c61f5d8a7477c7d7c189ae4a055f090c`.
+
+The prior smoke used PostgreSQL/pgvector with `DeterministicFakeEmbeddingProvider` and did not prove actual generation-provider calls. It is an integration PASS, not real-provider staging completion.
+
+## Real-provider staging — gate prepared
+
+Staging-runbook and CI gate merged via PR #28:
+
+`c724b110d84286cdbc7468f70137f0809c35027a`
+
+Runbook:
+
+`docs/development/CTX-RD-01-REAL-PROVIDER-STAGING-runbook.md`
+
+Validator:
+
+`scripts/verify_ctx_rd_01_real_provider_evidence.py`
+
+CI self-test: PASS. Unit/non-Postgres regression: PASS. PostgreSQL/pgvector integration: PASS. Full Compose job was still in progress when this handoff was written; do not report it as completed unless its run `36845566108` has finished successfully.
+
+## NEXT — Gemini / Antigravity on original machine
+
+Work from latest `main`. Follow the runbook in order. Use an **isolated disposable staging DB** and the existing securely configured local keys.
+
+Mandatory boundaries:
+
+1. Query **and document** embeddings must both be genuine `gemini-embedding-2-768-v1`, 768d, explicit L2. Do not mix the earlier fake embedding corpus with a Gemini query.
+2. Use the production `SemanticRetrieverService` + hybrid-v1 + `WritingService.preview_context()` with chapter cutoff.
+3. Run one `balanced-scope-v1` generation with a **real LLM provider response**. Set `LLM_LOCAL_FALLBACK=false`; record requested and effective models and count actual provider calls.
+4. Prove semantic/recent/rule ID retention, no drop, no protected overflow and final context hash.
+5. Exercise a production-shaped package that selects a tier **above 12k**, with source labelled accurately.
+6. Recheck temporal safety, >24k fail-closed, semantic failure fallback and immediate rollback.
+7. Restore `legacy-v1` at the end. Never change production default as part of this smoke.
+
+Write:
 
 ```text
-required entity scope =
-  locked entities
-  + hybrid-resolved query entities
-  + semantic top-8 entity IDs
-  + normalized participants from newest 5 recent events
-
-then choose minimum full-fit tier:
-  12k / 16k / 20k / 24k
+docs/development/CTX-RD-01-REAL-PROVIDER-STAGING/
+  runtime-config.json
+  real-provider.json
+  tier-escalation.json
+  safety-rollback.json
+  summary.md
 ```
 
-If no tier full-fits:
-
-```text
-CONTEXT_SCOPE_EXCEEDS_MAX_TIER
-```
-
-No silent truncation and no automatic >24k growth.
-
-## CI status
-
-Validated implementation tree:
-
-`a403012bb37a98ae8eb99ee0291865e659c23c67`
-
-P7 workflow:
-
-`36808950154` — PASS
-
-Passed:
-
-```text
-context-routing unit tests
-production/EVAL parity
-hybrid regression
-benchmark invariants
-Phase 6 temporal/writing regressions
-full non-Postgres regression
-live PostgreSQL + pgvector integration
-cutoff/supersede scope integration
-production-path Compose smoke
-```
-
-Parity:
-
-```text
-source_1x cases       7/7
-candidate tier        12k 7/7
-semantic              exact 8/8
-recent                exact 20/20
-rules                 exact under canonical packer semantics
-drops                 0
-protected overflow    0
-```
-
-## NEXT — Gemini / Antigravity local live acceptance smoke
-
-Use latest `main`.
-
-Do not change the default environment permanently.
-
-Run both policies explicitly.
-
-### 1. Baseline readiness
+Before committing evidence:
 
 ```powershell
-git switch main
-git pull origin main
-
-.\.venv\Scripts\python.exe scripts/check_p8_cleanup_readiness.py
-.\.venv\Scripts\python.exe scripts/check_p8_final_cleanup_gate.py --expect-blocked
+.\.venv\Scripts\python.exe scripts/verify_ctx_rd_01_real_provider_evidence.py --self-test
+.\.venv\Scripts\python.exe scripts/verify_ctx_rd_01_real_provider_evidence.py --evidence-dir docs/development/CTX-RD-01-REAL-PROVIDER-STAGING
 ```
 
-### 2. Start production-path PostgreSQL + pgvector stack
+Do not commit API keys, credentials, unredacted auth logs or unnecessary manuscript text.
 
-Use the same Docker/Compose environment already accepted by P7/P8.
+If real embedding/model/quota is unavailable, mark `PARTIAL` or `BLOCKED`, not PASS. The validator checks evidence consistency, not independent truth of reported API calls.
 
-Verify health before testing routing.
-
-### 3. Legacy smoke
-
-Set:
+### Required execution-only Gemini report
 
 ```text
-CONTEXT_ROUTING_POLICY=legacy-v1
-```
-
-Verify:
-
-- service starts;
-- existing bounded context preview/generation path works;
-- routing trace is absent or legacy-compatible;
-- no behavior regression.
-
-### 4. Balanced-v1 smoke
-
-Set explicitly:
-
-```text
-CONTEXT_ROUTING_POLICY=balanced-scope-v1
-```
-
-Use production PostgreSQL repository + semantic/hybrid runtime.
-
-Verify at minimum:
-
-```text
-semantic retrieval status          ok
-ranking version                    hybrid-v1
-hybrid signals resolved            true
-chapter cutoff                     present
-semantic limit                     8
-recent limit                       20
-recent participant identity        normalized-event-participants-v1
-routing version                    balanced-scope-v1
-routing status                     routed
-selected tier                      one of 12k/16k/20k/24k
-protected overflow                 false
-dropped artifacts                  0 on accepted route
-```
-
-Capture:
-
-- exact tested commit;
-- scope query entity IDs;
-- semantic entity IDs;
-- recent participant IDs;
-- entity/state before and after;
-- Story Brain estimated size;
-- selected tier;
-- semantic/recent/rule IDs retained;
-- context hash;
-- request/generation success;
-- latency if available.
-
-### 5. Temporal safety
-
-Verify recent participant scope does not include:
-
-- future events beyond chapter cutoff;
-- superseded events excluded by canonical event resolution;
-- cross-tenant identities.
-
-### 6. Fallback / rollback
-
-Verify at least:
-
-```text
-semantic/hybrid unavailable
-  -> legacy-compatible path
-
-CONTEXT_ROUTING_POLICY=legacy-v1
-  -> immediate rollback without migration/rebuild
-```
-
-### 7. Acceptance evidence
-
-Write under:
-
-`docs/development/CTX-RD-01-LIVE-ACCEPTANCE/`
-
-Suggested files:
-
-```text
-environment.txt
-runtime-config.json
-legacy-smoke.json
-balanced-smoke.json
-temporal-safety.json
-fallback-rollback.json
-summary.md
-```
-
-Append:
-
-```text
-### Gemini Verification — CTX-RD-01 LIVE ACCEPTANCE
-
+Gemini Verification — CTX-RD-01 REAL-PROVIDER STAGING
 Status: PASS | PARTIAL | BLOCKED
 Tested commit: <sha>
 Evidence commit: <sha>
-
-Legacy-v1:
-  smoke: PASS | FAIL
-
-Balanced-scope-v1:
-  smoke: PASS | FAIL
-  routing status: <status>
-  selected tier: <tier>
-  entity before/after: <n>/<n>
-  semantic retained: <n>/<n>
-  recent retained: <n>/<n>
-  rules retained: <n>/<n>
-  protected overflow: false
-  dropped artifacts: 0
-
-Temporal safety:
-  future participant leakage: 0
-  superseded participant leakage: 0
-  tenant isolation: PASS
-
-Fallback/rollback:
-  semantic/hybrid failure -> legacy: PASS | FAIL
-  flag rollback -> legacy: PASS | FAIL
-
+Embedding provider/model/version: <actual>
+Document/query provider calls: <n>/<n>
+Actual generation provider/model: <actual>
+LLM provider calls: <n>
+Local fallback disabled: true
+Balanced scope/tier: <n>/<tier>
+Semantic/recent/rules retained: <input>/<output>
+Protected overflow: false
+Dropped artifacts: 0
+Tier above 12k tested: <tier/source>
+Future/superseded/cross-tenant leakage: 0/0/0
+Fallback/rollback: PASS | FAIL
+Validator: PASS | FAIL
 Production default changed: NO
 P8-05: BLOCKED
 ```
 
-Do not switch the production/default policy after smoke.
-
-Astra reviews the acceptance evidence before any default activation decision.
-
-### Gemini Verification — CTX-RD-01 LIVE ACCEPTANCE
-
-Status: PASS
-Tested commit: 7c95d6189d0b9a525718fbc35b906acf9cc50676
-Evidence commit: 4d073497c61f5d8a7477c7d7c189ae4a055f090c
-
-Legacy-v1:
-  smoke: PASS
-
-Balanced-scope-v1:
-  smoke: PASS
-  routing status: routed
-  selected tier: 12000
-  entity before/after: 25/5
-  semantic retained: 8/8
-  recent retained: 20/20
-  rules retained: 4/4
-  protected overflow: false
-  dropped artifacts: 0
-
-Temporal safety:
-  future participant leakage: 0
-  superseded participant leakage: 0
-  tenant isolation: PASS
-
-Fallback/rollback:
-  semantic/hybrid failure -> legacy: PASS
-  flag rollback -> legacy: PASS
-
-Production default changed: NO
-P8-05: BLOCKED
-
-
-## Astra review — CTX-RD-01 acceptance evidence
-
-Review: `docs/development/CTX-RD-01-LIVE-ACCEPTANCE/ASTRA-REVIEW.md`
-
-Review commit: `8df85c49df79cc7a0bdd66ec1ce93510e487c83d`
-
-Verdict: `INTEGRATION_SMOKE_PASS — REAL_PROVIDER_STAGING_VALIDATION_REQUIRED`.
-
-The reported PASS is valid for live PostgreSQL/pgvector plus `DeterministicFakeEmbeddingProvider` (`fake-embedding-768-v1`). The artifacts do not establish a live `gemini-embedding-2-768-v1` provider query or identify a real LLM generation call. The single normal package fits 12k; live tier-escalation coverage is not demonstrated.
-
-### NEXT — Gemini / Antigravity: narrow staging smoke
-
-Use latest `main`, keep `CONTEXT_ROUTING_POLICY=legacy-v1` as production default, and opt into `balanced-scope-v1` only for the test process.
-
-1. Run a real `gemini-embedding-2-768-v1` query through the production hybrid-v1 runtime with a chapter cutoff; verify signal resolution and embedding version. Use the existing secure local API key configuration, never commit keys.
-2. Execute at least one balanced-v1 preview and generation with the actual configured generation provider. Record provider/model/version, success, routing trace, selected tier, retained semantic/recent/rule IDs, drops, overflow, context hash and measured latency.
-3. Exercise a production-shaped context requiring a tier above 12k. Label any deterministic stress fixture explicitly rather than presenting it as a live novel case.
-4. Recheck semantic failure fallback, >24k fail-closed behavior, cutoff/tenant safety and immediate rollback by switching the flag to `legacy-v1`.
-5. Restore `legacy-v1` after smoke; commit execution evidence to `docs/development/CTX-RD-01-REAL-PROVIDER-STAGING/` and append an execution-only handoff here. Do not declare rollout approved.
-
-No new sealed A/B experiment is required. P8-05 remains `BLOCKED_PENDING_STABILITY`. Astra will review staging evidence before any default activation decision.
+Astra reviews committed staging evidence before any staged-default activation decision. No additional sealed EVAL A/B is required unless real implementation behavior diverges from evaluated behavior.
