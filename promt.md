@@ -41,7 +41,7 @@ Validator:
 
 `scripts/verify_ctx_rd_01_real_provider_evidence.py`
 
-CI self-test: PASS. Unit/non-Postgres regression: PASS. PostgreSQL/pgvector integration: PASS. Full Compose job was still in progress when this handoff was written; do not report it as completed unless its run `36845566108` has finished successfully.
+CI run `36845566108`: SUCCESS — evidence-validator self-test, unit/non-Postgres regressions, PostgreSQL/pgvector integration, and full production-path Compose smoke all PASS. CI performs no real external-model calls.
 
 ## NEXT — Gemini / Antigravity on original machine
 
