@@ -1,0 +1,275 @@
+[
+  {
+    "row_id": "core_gold:rq-0011",
+    "case_id": "core_gold:rq-0011",
+    "repeat": 1,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0011",
+    "case_id": "core_gold:rq-0011",
+    "repeat": 2,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0011",
+    "case_id": "core_gold:rq-0011",
+    "repeat": 3,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0023",
+    "case_id": "challenge:rq-0023",
+    "repeat": 1,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0023",
+    "case_id": "challenge:rq-0023",
+    "repeat": 2,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0023",
+    "case_id": "challenge:rq-0023",
+    "repeat": 3,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0025",
+    "case_id": "challenge:rq-0025",
+    "repeat": 1,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0025",
+    "case_id": "challenge:rq-0025",
+    "repeat": 2,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0025",
+    "case_id": "challenge:rq-0025",
+    "repeat": 3,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0020",
+    "case_id": "challenge:rq-0020",
+    "repeat": 1,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0020",
+    "case_id": "challenge:rq-0020",
+    "repeat": 2,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0020",
+    "case_id": "challenge:rq-0020",
+    "repeat": 3,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0032",
+    "case_id": "challenge:rq-0032",
+    "repeat": 1,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0032",
+    "case_id": "challenge:rq-0032",
+    "repeat": 2,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "challenge:rq-0032",
+    "case_id": "challenge:rq-0032",
+    "repeat": 3,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0038",
+    "case_id": "core_gold:rq-0038",
+    "repeat": 1,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0038",
+    "case_id": "core_gold:rq-0038",
+    "repeat": 2,
+    "mapping": {
+      "X": "balanced_scope_first_min_tier",
+      "Y": "broad_20k_current"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0038",
+    "case_id": "core_gold:rq-0038",
+    "repeat": 3,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0010",
+    "case_id": "core_gold:rq-0010",
+    "repeat": 1,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0010",
+    "case_id": "core_gold:rq-0010",
+    "repeat": 2,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "broad_20k_current",
+      "balanced_scope_first_min_tier"
+    ]
+  },
+  {
+    "row_id": "core_gold:rq-0010",
+    "case_id": "core_gold:rq-0010",
+    "repeat": 3,
+    "mapping": {
+      "X": "broad_20k_current",
+      "Y": "balanced_scope_first_min_tier"
+    },
+    "call_order": [
+      "balanced_scope_first_min_tier",
+      "broad_20k_current"
+    ]
+  }
+]

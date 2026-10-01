@@ -1,0 +1,20 @@
+{
+  "status": "measured",
+  "by_condition": {
+    "broad_20k_current": {
+      "sample_count": 21,
+      "mean_ms": 2195.2640142856885,
+      "p50_ms": 2066.9041000001016,
+      "max_ms": 3463.866900001449
+    },
+    "balanced_scope_first_min_tier": {
+      "sample_count": 21,
+      "mean_ms": 2772.280647618096,
+      "p50_ms": 1895.2988000019104,
+      "max_ms": 20032.7956000001
+    }
+  },
+  "backoff_events": 0,
+  "provider_token_usage": "not_exposed_by_current_client",
+  "provider_cost": "not_measured"
+}
