@@ -78,9 +78,22 @@ def main() -> int:
             audit_map=audit_map,
         )
         base_package = eval01m.strip_evaluation_entity_locks(base_package)
+        # EVAL stores semantic entity links in the frozen memory corpus,
+        # while production WritingService._semantic_match_payload exposes them
+        # directly as entity_ids. Enrich the fixture to the real production
+        # payload shape before exercising the production scope builder.
+        production_semantic = []
+        for payload in base_package.semantic_memories[:8]:
+            memory = memory_map[str(payload["memory_chunk_id"])]
+            enriched = dict(payload)
+            enriched["entity_ids"] = [
+                str(value) for value in memory.get("entities", [])
+            ]
+            production_semantic.append(enriched)
+
         production_shaped = replace(
             base_package,
-            semantic_memories=tuple(base_package.semantic_memories[:8]),
+            semantic_memories=tuple(production_semantic),
             recent_events=tuple(base_package.recent_events[-20:]),
         )
 
