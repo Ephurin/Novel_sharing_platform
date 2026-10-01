@@ -252,6 +252,7 @@ Balanced-v1 activates only when all are true:
 ```text
 CONTEXT_ROUTING_POLICY == balanced-scope-v1
 semantic retrieval status == ok
+semantic ranking version == hybrid-v1
 hybrid_signals_resolved == true
 chapter cutoff is present
 semantic limit is default 8
@@ -318,33 +319,35 @@ Context hash semantics do not change.
 
 ## 12. Observability contract
 
-Add deterministic `context_summary` / `token_budget` trace fields:
+Add deterministic operational traces without changing existing field types.
+
+`context_summary` remains `dict[str, list[str]]`; store only string/list trace values there:
 
 ```text
 context_routing_version
 context_routing_status
 context_routing_reason
 context_scope_policy
-context_budget_tier
-
-scope_entity_count_before
-scope_entity_count_after
-scope_state_count_before
-scope_state_count_after
-
 scope_query_entity_ids
 scope_semantic_entity_ids
 scope_recent_participant_entity_ids
 scope_locked_entity_ids
-
 semantic_retrieval_status
 semantic_ranking_version
-
 dropped_entity_ids
 dropped_event_ids
 dropped_fact_ids
 dropped_semantic_memory_ids
+```
 
+Numeric routing/packing measurements belong in `token_budget`:
+
+```text
+routing_selected_tier
+scope_entity_count_before
+scope_entity_count_after
+scope_state_count_before
+scope_state_count_after
 protected_overflow
 budget_overflow
 ```
@@ -432,24 +435,25 @@ Fallback/regression:
 
 12. semantic provider failure -> legacy-v1;
 13. hybrid signal failure -> legacy-v1;
-14. semantic disabled -> legacy-v1;
-15. missing chapter cutoff -> legacy-v1;
-16. explicit `token_budget` -> legacy compatibility path;
-17. non-default semantic/recent limits -> legacy-v1;
-18. feature flag legacy-v1 is byte-for-byte behavior-compatible with current packing tests.
+14. semantic-only ranking fallback -> legacy-v1;
+15. semantic disabled -> legacy-v1;
+16. missing chapter cutoff -> legacy-v1;
+17. explicit `token_budget` -> legacy compatibility path;
+18. non-default semantic/recent limits -> legacy-v1;
+19. feature flag legacy-v1 is byte-for-byte behavior-compatible with current packing tests.
 
 PostgreSQL integration:
 
-19. recent scope IDs come from normalized `event_participants`;
-20. future event participants do not enter scope before cutoff;
-21. superseded event participants do not enter the newest-five scope window;
-22. tenant isolation remains intact.
+20. recent scope IDs come from normalized `event_participants`;
+21. future event participants do not enter scope before cutoff;
+22. superseded event participants do not enter the newest-five scope window;
+23. tenant isolation remains intact.
 
 Evaluation regression fixtures:
 
-23. source_1x 7/7 preserve exact semantic/recent/rule IDs;
-24. source_1x 7/7 full-fit candidate at 12k;
-25. multilane stress still escalates tiers rather than assuming universal 12k.
+24. source_1x 7/7 preserve exact semantic/recent/rule IDs;
+25. source_1x 7/7 full-fit candidate at 12k;
+26. multilane stress still escalates tiers rather than assuming universal 12k.
 
 ## 16. Acceptance gate
 
