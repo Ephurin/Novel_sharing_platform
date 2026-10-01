@@ -54,7 +54,7 @@ class Settings:
     embedding_provider: str
     active_embedding_version: str
     semantic_retrieval_limit: int
-    context_routing_policy: str
+    context_routing_policy: str = "legacy-v1"
     service_auth_disabled: bool = False
 
     @classmethod
