@@ -4553,3 +4553,112 @@ Raw labelled outputs committed: false
 Quality: BLIND_REVIEW_REQUIRED
 
 P8-05: BLOCKED
+
+
+## EVAL-01O Astra blind review — COMPLETE / REVEAL AUTHORIZED
+
+Blind review:
+
+`docs/development/EVAL-01O-SEALED-LIVE-RELEVANCE-DENSITY/ASTRA-BLIND-REVIEW.md`
+
+Review commit:
+
+`dcbb17b0fd0f02b507f2d6ae6063cec9893eb0f6`
+
+Blind integrity at freeze time:
+
+```text
+condition mapping inspected             NO
+private state inspected                 NO
+condition-labelled raw output inspected NO
+packing audit inspected                 NO
+condition-labelled latency inspected    NO
+condition identity inferred             NO
+```
+
+Frozen blind preference counts:
+
+```text
+X     3
+Y     4
+TIE  14
+TOTAL 21
+```
+
+Important: these counts are not a condition verdict because X/Y is randomized per row/repeat.
+
+Substantive blind finding:
+
+```text
+BASELINE STABILITY
+  14 of 21 pairs are clean ties across all repeats.
+  rq-0010 (negative causal control) maintains strict 31-before-33 ordering (3/3 ties).
+  rq-0038 (negative identity control) preserves unestablished physical identity boundary (3/3 ties).
+  rq-0032 (supersession) preserves transition to ecological sacrifice motive (3/3 ties).
+
+PRIMARY REGRESSION FOCUS (rq-0025)
+  Clear quality differentiation in all 3 repeats.
+  r1 & r2: Y preferred because X omits chapter-47 repeat burial. Repeat 2 Output Y is a flawless preservation of 45 -> 47 -> 49 chronology.
+  r3: X preferred because it retains relative ordering between the two burial accounts.
+
+FACTION ATTRIBUTION SYMMETRY (rq-0020)
+  Garrick/Gargas accusation conflation appears in Y in r1, and symmetrically in X in r2.
+  Directly demonstrates that error alternated with sealed random assignment.
+
+SAFETY & INTEGRITY
+  Zero future chapter leakage (0/42).
+  No systematic unsupported claims.
+```
+
+### Gemini / Antigravity — RUN REVEAL NOW
+
+Use the **same local workspace** that still contains:
+
+`.eval-private/eval01o-private.json`
+
+Do not run capture again.
+Do not call Gemini.
+Reveal must use zero provider calls.
+
+```powershell
+git switch main
+git pull origin main
+
+python scripts/run_eval_01o_sealed_live_relevance_density.py --stage reveal
+```
+
+Reveal must verify:
+
+```text
+ASTRA-BLIND-REVIEW.md present       true
+private-state SHA256 commitment     MATCH
+provider calls during reveal        0
+```
+
+Expected reveal artifacts:
+
+```text
+docs/development/EVAL-01O-SEALED-LIVE-RELEVANCE-DENSITY/
+  condition-key.json
+  raw-generations.json
+  prompt-diff-audit.json
+  latency-cost.json
+  reveal-verification.json
+```
+
+Commit those reveal artifacts plus a concise handoff.
+
+Gemini must report execution/integrity only and must **not** declare control/candidate winner.
+
+After reveal commit:
+
+```text
+Astra
+  -> map frozen blind X/Y scores to actual conditions
+  -> inspect prompt/packing/latency audit
+  -> issue final EVAL-01O interpretation
+
+production policy remains unchanged until that final interpretation
+P8-05 remains BLOCKED
+```
+
