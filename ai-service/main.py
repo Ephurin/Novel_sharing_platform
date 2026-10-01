@@ -10,6 +10,9 @@ from api.deps import require_service_token
 from api.routes import router, suggest_next
 from api.interactions import router as interaction_router
 from api.narrative_routes import router as narrative_router, internal_router as internal_narrative_router
+from application.context_budget import ContextBudgetPacker
+from application.context_routing import ContextBudgetRouter
+from application.context_scope import BalancedRelevanceScopeBuilder
 from application.narrative_service import NarrativeApplicationService
 from application.revision_analysis_service import RevisionAnalysisService
 from application.bootstrap_service import ManuscriptBootstrapService
@@ -86,6 +89,9 @@ app.state.narrative_repository = build_narrative_repository(settings, app.state.
 app.state.semantic_runtime = build_semantic_runtime(settings)
 app.state.semantic_retriever = app.state.semantic_runtime.retriever
 app.state.semantic_materializer = app.state.semantic_runtime.materializer
+app.state.context_packer = ContextBudgetPacker()
+app.state.context_scope_builder = BalancedRelevanceScopeBuilder()
+app.state.context_budget_router = ContextBudgetRouter(app.state.context_packer)
 app.state.narrative_service = NarrativeApplicationService(app.state.narrative_repository)
 app.state.candidate_processor = CandidateProcessor()
 app.state.span_expander = SpanExpander()
@@ -137,6 +143,10 @@ app.state.writing_service = WritingService(
     app.state.llm_service,
     app.state.revision_content_provider,
     app.state.semantic_retriever,
+    context_packer=app.state.context_packer,
+    context_scope_builder=app.state.context_scope_builder,
+    context_budget_router=app.state.context_budget_router,
+    context_routing_policy=settings.context_routing_policy,
 )
 
 
