@@ -4563,7 +4563,11 @@ Blind review:
 
 Review commit:
 
+<<<<<<< HEAD
 `dcbb17b0fd0f02b507f2d6ae6063cec9893eb0f6`
+=======
+`2e923e2cb89a8388ae98016befa8ac53df370c21`
+>>>>>>> 02cb04cc2b5f92c86d7378168dc3cf99e9b0f4e1
 
 Blind integrity at freeze time:
 
@@ -4576,6 +4580,7 @@ condition-labelled latency inspected    NO
 condition identity inferred             NO
 ```
 
+<<<<<<< HEAD
 Frozen blind preference counts:
 
 ```text
@@ -4586,10 +4591,29 @@ TOTAL 21
 ```
 
 Important: these counts are not a condition verdict because X/Y is randomized per row/repeat.
+=======
+Frozen blind preference tally:
+
+```text
+ALL 21 PAIRS
+  X     1
+  Y     3
+  TIE  17
+```
+
+Primary regression case `challenge:rq-0025`:
+
+```text
+X     1
+Y     2
+TIE   0
+```
+>>>>>>> 02cb04cc2b5f92c86d7378168dc3cf99e9b0f4e1
 
 Substantive blind finding:
 
 ```text
+<<<<<<< HEAD
 BASELINE STABILITY
   14 of 21 pairs are clean ties across all repeats.
   rq-0010 (negative causal control) maintains strict 31-before-33 ordering (3/3 ties).
@@ -4611,6 +4635,34 @@ SAFETY & INTEGRITY
 ```
 
 ### Gemini / Antigravity — RUN REVEAL NOW
+=======
+rq-0025
+  prior EVAL-01M broad@20k pattern:
+    broad lost 3 / 3
+
+  EVAL-01O blind:
+    no hidden side collapses 0 / 3
+    one repeat cleanly preserves 45 -> 47 -> 49
+    remaining repeats are partial rather than catastrophic
+
+other 18 pairs
+  X     0
+  Y     1
+  TIE  17
+
+stability:
+  old-battle attribution   stable
+  Alistair supersession    stable
+  physical identity        stable
+  causal-history control   stable
+```
+
+No future leakage was observed.
+
+Important: X/Y counts are not a condition verdict until reveal.
+
+### Gemini / Antigravity — RUN EVAL-01O REVEAL NOW
+>>>>>>> 02cb04cc2b5f92c86d7378168dc3cf99e9b0f4e1
 
 Use the **same local workspace** that still contains:
 
@@ -4618,16 +4670,27 @@ Use the **same local workspace** that still contains:
 
 Do not run capture again.
 Do not call Gemini.
+<<<<<<< HEAD
 Reveal must use zero provider calls.
+=======
+Reveal must make zero provider calls.
+>>>>>>> 02cb04cc2b5f92c86d7378168dc3cf99e9b0f4e1
 
 ```powershell
 git switch main
 git pull origin main
 
+<<<<<<< HEAD
 python scripts/run_eval_01o_sealed_live_relevance_density.py --stage reveal
 ```
 
 Reveal must verify:
+=======
+.\.venv\Scripts\python.exe scripts/run_eval_01o_sealed_live_relevance_density.py --stage reveal
+```
+
+Required reveal checks:
+>>>>>>> 02cb04cc2b5f92c86d7378168dc3cf99e9b0f4e1
 
 ```text
 ASTRA-BLIND-REVIEW.md present       true
@@ -4646,6 +4709,7 @@ docs/development/EVAL-01O-SEALED-LIVE-RELEVANCE-DENSITY/
   reveal-verification.json
 ```
 
+<<<<<<< HEAD
 Commit those reveal artifacts plus a concise handoff.
 
 Gemini must report execution/integrity only and must **not** declare control/candidate winner.
@@ -4722,4 +4786,99 @@ Production boundary:
 Production code remains unchanged.
 P8-05 remains BLOCKED.
 Relevance-density routing is ready for a narrow architectural proposal.
+=======
+Commit those artifacts plus a concise execution-only handoff.
+
+Gemini must not declare a winner.
+
+After reveal:
+
+```text
+Astra
+  -> map frozen X/Y judgments to:
+       broad_20k_current
+       balanced_scope_first_min_tier
+  -> inspect density/latency audit
+  -> issue final EVAL-01O interpretation
+  -> decide whether a narrow production implementation proposal is justified
+```
+
+Production policy remains unchanged.
+P8-05 remains BLOCKED.
+
+
+## EVAL protocol continuity — original capture machine available again
+
+User has returned to the original machine used for EVAL-01O capture.
+
+Keep the existing sealed workflow unchanged through the end of the EVAL phase:
+
+```text
+private sealed state        local-only
+blind review                before reveal
+reveal                      zero provider calls
+production policy           unchanged until explicit Astra final review
+P8-05                       blocked
+```
+
+### Immediate action — complete EVAL-01O reveal now
+
+On the original capture workspace, first verify:
+
+```powershell
+Test-Path .eval-private/eval01o-private.json
+```
+
+Expected:
+
+```text
+True
+```
+
+Then run:
+
+```powershell
+git switch main
+git pull origin main
+
+.\.venv\Scripts\python.exe scripts/run_eval_01o_sealed_live_relevance_density.py --stage reveal
+```
+
+Reveal requirements:
+
+```text
+private-state SHA256
+  e6a5e847a5a80b63f785125d46886a63c303877f69d02547ba8a24bc772e986b
+
+commitment match               true
+ASTRA-BLIND-REVIEW present     true
+provider calls                 0
+```
+
+Commit:
+
+```text
+docs/development/EVAL-01O-SEALED-LIVE-RELEVANCE-DENSITY/
+  condition-key.json
+  raw-generations.json
+  prompt-diff-audit.json
+  latency-cost.json
+  reveal-verification.json
+```
+
+Append an execution-only EVAL-01O reveal handoff to this file.
+
+Do not interpret the winner.
+
+After that commit, Astra continues automatically with:
+
+```text
+EVAL-01O final interpretation
+  -> map frozen blind results
+  -> close O
+
+then continue the remaining EVAL phase gates
+using the same capture -> blind -> reveal discipline whenever live validation is needed
+until the EVAL phase is formally closed.
+>>>>>>> 02cb04cc2b5f92c86d7378168dc3cf99e9b0f4e1
 ```
