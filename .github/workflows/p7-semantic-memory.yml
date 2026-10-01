@@ -29,6 +29,8 @@ jobs:
       - run: pip install -r requirements.txt pytest httpx
       - name: Semantic-memory, retrieval, hybrid and context-routing unit tests
         run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py tests/test_hybrid_ranker.py tests/test_context_budget.py tests/test_context_scope.py tests/test_context_routing.py tests/test_settings.py
+      - name: CTX-RD-01 production/EVAL parity
+        run: python ../scripts/verify_ctx_rd_01_eval_parity.py
       - name: Hybrid retrieval proxy regression
         run: pytest -q tests/test_p7_hybrid_benchmark.py
       - name: Hybrid retrieval proxy metrics
