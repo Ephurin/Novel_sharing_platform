@@ -11,7 +11,7 @@ Opt-in demo/staging balanced-v1            AUTHORIZED
 Global production default switch          NOT AUTHORIZED
 Production default                        legacy-v1
 P8-05 destructive cleanup                 BLOCKED_PENDING_STABILITY
-NEXT                                       SOURCE-GROUNDED CANARY / EVIDENCE CORRECTION
+NEXT                                       FROZEN-SOURCE REPLAY REMEDIATION / CLEAN CI
 ```
 
 Canonical evaluation closure: `docs/development/EVAL-01-FINAL-CLOSURE.md`.
@@ -109,4 +109,48 @@ real-source canary  PENDING
 balanced default    NOT AUTHORIZED
 production default  legacy-v1
 P8-05               BLOCKED_PENDING_STABILITY
+```
+
+
+## LATEST ASTRA REVIEW — FROZEN-SOURCE CANARY BRANCH AUDIT
+
+Review: `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-REAL-SOURCE-REVIEW.md`.
+
+Review commit: `85f0fb127aaaaf17dc05141c60d76ba3dcf54c1c`.
+
+Source-grounded evidence is on `astra/ctx-rd-01-opt-in-canary` commit `0a401c12f87bbd40849641bd9a00a9d991db7569`, not merged into `main`. Four commits ahead of prior main at review. No PR/CI for this latest runner/evidence revision at review time.
+
+**Verdict:** `SOURCE-GROUNDED REPLAY FUNCTIONAL PASS / ACCEPTANCE PARTIAL — REPRODUCIBILITY AND CHECKLIST REPAIR REQUIRED`.
+
+The new runner reads the existing Frozen_v1 corpus and EVAL-01G source package builder, but feeds prebuilt packages and preselected retrieval matches through adapters. It **does not use real PostgreSQL vector retrieval or Gemini embedding calls on this source-derived replay**. Real Gemini generation on source-derived prompt context was observed.
+
+```text
+core_gold:rq-0011     12k / 63 -> 21 entities / 8 semantic / 20 recent / 6 rules
+challenge:rq-0025    12k / 68 -> 20 entities / 8 semantic / 20 recent / 12 rules
+both                 0 drops / no protected overflow / preview-job hash match
+model attempts       8 total: 2 successful, 6 failed 429/503
+rq-0011 checklist    chronology_causality = PARTIAL
+rq-0025 checklist    45/47 mentioned; full 45/47/49 chain not required by checker
+```
+
+Rules are identity/count preserved; packer may reorder, so do not claim raw tuple-order exactness. Summary's aggregate checklist PASS is inaccurate because rq-0011 contains PARTIAL; current validator permits PARTIAL while returning PASS.
+
+### NEXT — Gemini / Antigravity focused repair
+
+Continue on a dedicated PR branch from the latest `main` (cherry-pick only needed changes from the existing canary branch). Do not silently merge outdated `promt.md` or old synthetic evidence.
+
+1. Correct checklist aggregation: mandatory PARTIAL -> overall PARTIAL. Check rq-0025's actual 45 -> 47 -> incompatible 49 history with explicit source-grounded expectations; replace hardcoded `unsupported_claim: NONE`, `future_leakage: NONE` and `must_avoid_verified: YES` with real checks or `NOT_ASSESSED`.
+2. Distinguish `frozen_source_replay_with_retrieval_adapter` from `real_provider_pgvector_retrieval`. Do not count preconstructed `SemanticMemoryMatch`/declared embedding-version fields as fresh provider-backed vector calls.
+3. Commit code/test fixes **before** running the smoke. Require a clean Git working tree and exact tested SHA. Run GitHub CI via PR for the committed runner/validator. Rerun only the one/two focused cases required and commit results separately with exact parent SHA; do not alter old raw measurements.
+4. Fix remaining report labels: deterministic pressure selected 20k despite historical `tier16k` name. Keep true measured tier and per-attempt failure counts.
+5. If a full provider+pgvector test on genuine source-derived memories is necessary to close the full canary gate, explicitly load source-derived memories into isolated staging with genuine model-version-matched document/query vectors and accepted cutoff. Otherwise report the frozen-source result narrowly as replay and retain PARTIAL for the full end-to-end gate.
+
+Do not start another sealed EVAL A/B. Do not change `legacy-v1` as default or P8-05 status.
+
+```text
+frozen-source replay            FUNCTIONAL PASS / REVIEW PARTIAL
+source-grounded full E2E        NOT DEMONSTRATED
+global balanced default        NOT AUTHORIZED
+production default             legacy-v1
+P8-05                          BLOCKED_PENDING_STABILITY
 ```
