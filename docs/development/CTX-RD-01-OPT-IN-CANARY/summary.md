@@ -2,7 +2,7 @@
 
 ## Result: FROZEN-SOURCE REPLAY FUNCTIONAL PASS / ACCEPTANCE REVIEW PARTIAL
 
-- **Tested Commit**: `5d3d5a29ac5b8dcb0b405af3f332701d09eca331` (synthetic) / `818046aedbff1feb9a4c33fb32090e7d9bc18330` (replay)
+- **Tested Commit**: `5d3d5a29ac5b8dcb0b405af3f332701d09eca331` (synthetic) / `2dabf3e4d921ccbc6538720bb8997d0bf585357a` (frozen-source replay)
 - **Evidence Timestamp**: `2026-10-02T03:35:36.028914+00:00`
 - **Canary Environment**: `isolated_demo_staging`
 - **Database**: PostgreSQL 16 + pgvector (Isolated Staging DB)
