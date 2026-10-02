@@ -499,11 +499,15 @@ def main() -> int:
         )
 
         # Preview triggers live SemanticRetrieverService.retrieve -> real pgvector query!
+        gen_query = WritingService._build_semantic_query(
+            instruction=prompt,
+            selected_text=source_text,
+        )
         preview = svc.preview_context(
             tenant_id=tenant_id,
             story_id=novel_id,
             chapter_number=cutoff,
-            semantic_query=prompt,
+            semantic_query=gen_query,
             semantic_limit=8,
             limit_recent_events=20,
         )
