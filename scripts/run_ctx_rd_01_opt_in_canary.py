@@ -87,7 +87,7 @@ DATABASE_URL = os.getenv(
 )
 
 
-def load_local_gemini_key() -> str:
+def load_local_gemini_keys() -> list[str]:
     key_file = ROOT / "key.txt"
     if not key_file.exists():
         raise SystemExit("BLOCKED: key.txt not found in repository root")
@@ -96,14 +96,21 @@ def load_local_gemini_key() -> str:
         for l in key_file.read_text(encoding="utf-8-sig").splitlines()
         if l.strip() and not l.lstrip().startswith("#")
     ]
+    keys: list[str] = []
     for line in lines:
         if "=" in line:
             name, val = line.split("=", 1)
             if name.strip() in ("GEMINI_API_KEY", "GOOGLE_API_KEY") and val.strip():
-                return val.strip()
+                keys.append(val.strip())
         elif len(line) > 20:
-            return line
-    raise SystemExit("BLOCKED: No valid Gemini API key found in key.txt")
+            keys.append(line)
+    if not keys:
+        raise SystemExit("BLOCKED: No valid Gemini API key found in key.txt")
+    return keys
+
+
+def load_local_gemini_key() -> str:
+    return load_local_gemini_keys()[0]
 
 
 class InstrumentedGeminiEmbeddingProvider(GeminiEmbeddingProvider):
@@ -137,7 +144,12 @@ class InstrumentedGeminiEmbeddingProvider(GeminiEmbeddingProvider):
 class InstrumentedRealGeminiLLMService(LLMService):
     """Wraps LLMService to count service calls and track per-model attempts without credential exposure."""
 
-    def __init__(self, api_key: str, model: str = "gemini-3.8-flash") -> None:
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "gemini-3.8-flash",
+        api_keys: list[str] | None = None,
+    ) -> None:
         super().__init__(
             provider="gemini",
             model=model,
@@ -148,6 +160,8 @@ class InstrumentedRealGeminiLLMService(LLMService):
         )
         self.actual_provider_calls = 0
         self.model_attempts: list[dict[str, Any]] = []
+        self.api_keys = api_keys or ([api_key] if api_key else [])
+        self.current_key_idx = 0
 
     def _call_gemini(self, system_prompt: str, user_prompt: str) -> str:
         self.actual_provider_calls += 1
@@ -156,12 +170,12 @@ class InstrumentedRealGeminiLLMService(LLMService):
         except Exception as exc:
             raise LLMServiceError("google-genai is not installed") from exc
 
-        client = genai.Client(api_key=self.api_key)
         last_error: Exception | None = None
         merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
 
         for model_name in self._gemini_model_candidates():
-            for retry_idx in range(4):
+            for retry_idx in range(6):
+                client = genai.Client(api_key=self.api_key)
                 attempt_info: dict[str, Any] = {
                     "model": model_name,
                     "status": "pending",
@@ -191,15 +205,27 @@ class InstrumentedRealGeminiLLMService(LLMService):
                     attempt_info["status"] = "failed"
                     attempt_info["error_type"] = type(exc).__name__
                     sanitized_msg = str(exc)
-                    if self.api_key:
-                        sanitized_msg = sanitized_msg.replace(self.api_key, "[REDACTED_API_KEY]")
+                    for k in self.api_keys:
+                        if k and len(k) > 6:
+                            sanitized_msg = sanitized_msg.replace(k, "[REDACTED_API_KEY]")
                     attempt_info["error_snippet"] = sanitized_msg[:120]
 
-                    if "503" in message or "unavailable" in message or "high demand" in message or "429" in message:
+                    if "429" in message or "resource_exhausted" in message:
+                        if len(self.api_keys) > 1:
+                            self.current_key_idx = (self.current_key_idx + 1) % len(self.api_keys)
+                            self.api_key = self.api_keys[self.current_key_idx]
+                            time.sleep(1)
+                            continue
+                        time.sleep(3 * (retry_idx + 1))
+                        continue
+
+                    if "503" in message or "unavailable" in message or "high demand" in message:
                         time.sleep(2 * (retry_idx + 1))
                         continue
+
                     if "not found" in message or "not supported" in message:
                         break
+
                     raise LLMServiceError(f"Gemini request failed: {sanitized_msg}") from exc
 
         raise LLMServiceError(f"Gemini generation failed: {last_error}") from last_error
@@ -768,8 +794,9 @@ def main() -> int:
     print("Baseline readiness & P8-05 cleanup gate: PASS")
 
     # 2. Key configuration
-    api_key = load_local_gemini_key()
-    print("Gemini API key loaded securely from key.txt")
+    api_keys = load_local_gemini_keys()
+    api_key = api_keys[0]
+    print(f"Loaded {len(api_keys)} Gemini API keys securely from key.txt")
 
     # 3. Database connection
     engine = create_engine(DATABASE_URL)
@@ -805,7 +832,7 @@ def main() -> int:
     )
 
     os.environ["LLM_LOCAL_FALLBACK"] = "false"
-    llm_service = InstrumentedRealGeminiLLMService(api_key=api_key, model="gemini-3.8-flash")
+    llm_service = InstrumentedRealGeminiLLMService(api_key=api_key, model="gemini-3.8-flash", api_keys=api_keys)
     scope_builder = BalancedRelevanceScopeBuilder()
     packer = ContextBudgetPacker()
     router = ContextBudgetRouter(packer)
