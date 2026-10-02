@@ -161,60 +161,54 @@ class InstrumentedRealGeminiLLMService(LLMService):
         merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
 
         for model_name in self._gemini_model_candidates():
-            attempt_info: dict[str, Any] = {
-                "model": model_name,
-                "status": "pending",
-                "call_index": self.actual_provider_calls,
-            }
-            self.model_attempts.append(attempt_info)
-            try:
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=merged_prompt,
-                    config={
-                        "temperature": self.temperature,
-                        "max_output_tokens": self.max_tokens,
-                    },
-                )
-                text = self._extract_gemini_text(response)
-                if text:
-                    self.model = model_name
-                    attempt_info["status"] = "success"
-                    return text
+            for retry_idx in range(4):
+                attempt_info: dict[str, Any] = {
+                    "model": model_name,
+                    "status": "pending",
+                    "call_index": self.actual_provider_calls,
+                }
+                self.model_attempts.append(attempt_info)
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=merged_prompt,
+                        config={
+                            "temperature": self.temperature,
+                            "max_output_tokens": self.max_tokens,
+                        },
+                    )
+                    text = self._extract_gemini_text(response)
+                    if text:
+                        self.model = model_name
+                        attempt_info["status"] = "success"
+                        return text
 
-                last_error = RuntimeError("Gemini returned empty response")
-                attempt_info["status"] = "empty_response"
-            except Exception as exc:
-                last_error = exc
-                message = str(exc).lower()
-                attempt_info["status"] = "failed"
-                attempt_info["error_type"] = type(exc).__name__
-                sanitized_msg = str(exc)
-                if self.api_key:
-                    sanitized_msg = sanitized_msg.replace(self.api_key, "[REDACTED_API_KEY]")
-                if (
-                    "not found" in message
-                    or "not supported" in message
-                    or "503" in message
-                    or "unavailable" in message
-                    or "high demand" in message
-                    or "resource_exhausted" in message
-                    or "429" in message
-                ):
-                    time.sleep(1)
-                    continue
-                raise LLMServiceError(f"Gemini request failed: {sanitized_msg}") from exc
+                    last_error = RuntimeError("Gemini returned empty response")
+                    attempt_info["status"] = "empty_response"
+                except Exception as exc:
+                    last_error = exc
+                    message = str(exc).lower()
+                    attempt_info["status"] = "failed"
+                    attempt_info["error_type"] = type(exc).__name__
+                    sanitized_msg = str(exc)
+                    if self.api_key:
+                        sanitized_msg = sanitized_msg.replace(self.api_key, "[REDACTED_API_KEY]")
+                    attempt_info["error_snippet"] = sanitized_msg[:120]
+
+                    if "503" in message or "unavailable" in message or "high demand" in message or "429" in message:
+                        time.sleep(2 * (retry_idx + 1))
+                        continue
+                    if "not found" in message or "not supported" in message:
+                        break
+                    raise LLMServiceError(f"Gemini request failed: {sanitized_msg}") from exc
 
         raise LLMServiceError(f"Gemini generation failed: {last_error}") from last_error
 
     def _gemini_model_candidates(self) -> list[str]:
         raw_candidates = [
             self.model,
-            "models/gemini-2.0-flash",
-            "models/gemini-2.5-flash",
-            "models/gemini-1.5-flash",
-            "models/gemini-1.5-flash-latest",
-            "models/gemini-1.5-pro",
+            "models/gemini-3.8-flash",
+            "gemini-3.8-flash",
         ]
         seen: set[str] = set()
         result: list[str] = []
