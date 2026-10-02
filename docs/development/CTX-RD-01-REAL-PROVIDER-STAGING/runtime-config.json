@@ -1,5 +1,5 @@
 {
-  "tested_commit": "9e0f1e88a9a10b924ab0c4636268de84e9faf270",
+  "tested_commit": "019d39222ce0b0d26e130ba57c0fedf92eac453e",
   "isolated_staging_database": true,
   "pgvector_live": true,
   "production_default": "legacy-v1",

@@ -2,8 +2,8 @@
 
 ## Result: PASS
 
-- **Tested Commit**: `9e0f1e88a9a10b924ab0c4636268de84e9faf270`
-- **Evidence Timestamp**: `2026-10-01T10:20:14.231148+00:00`
+- **Tested Commit**: `019d39222ce0b0d26e130ba57c0fedf92eac453e`
+- **Evidence Timestamp**: `2026-10-02T02:37:54.761222+00:00`
 - **Database**: PostgreSQL 16 + pgvector (Isolated Staging DB)
 - **Production Default Policy**: `legacy-v1` (UNCHANGED)
 - **Balanced Routing Default Activation**: NOT AUTHORIZED
@@ -15,8 +15,8 @@
 - **Version**: `gemini-embedding-2-768-v1`
 - **Dimension**: `768` (explicit L2 normalized)
 - **Indexed Versions**: `["gemini-embedding-2-768-v1"]` (zero fake embedding mixture)
-- **Document Provider Calls**: `3`
-- **Query Provider Calls**: `2`
+- **Document Provider Calls**: `3` (items: `36`)
+- **Query Provider Calls**: `3` (items: `3`)
 
 ### 2. Real Retrieval & Balanced Routing
 - **Status**: `ok`
@@ -30,16 +30,17 @@
 - **World Rules Retained**: `4 / 4`
 - **Protected Overflow**: `false`
 - **Dropped Artifacts**: `0`
-- **Context Hash**: `529215bdbee2fe7297675c088b49439e5c48391ec476ebc2e92d8ca0ecf34924`
+- **Context Hash**: `bd0bf01ffdf85c3ac686cedde474c301385534e277bbeba719d6dbed6e212301` (preview match: `true`)
 
 ### 3. Real Generation Provider
 - **Provider**: `gemini`
 - **Requested Model**: `gemini-3.8-flash`
-- **Effective Model**: `models/gemini-3.7-flash`
+- **Effective Model**: `models/gemini-3.8-flash`
+- **Model Attempts**: `1` (models/gemini-3.8-flash)
 - **LLM Local Fallback Enabled**: `false`
 - **Actual Provider Response**: `true` (status: `completed`)
 - **Provider Calls**: `1`
-- **Latency**: `12606.59 ms`
+- **Latency**: `16271.61 ms`
 
 ### 4. Tier Escalation Stress Testing
 - **Fixture Origin**: `production_shaped_deterministic`
