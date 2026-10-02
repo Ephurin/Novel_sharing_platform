@@ -73,6 +73,30 @@ import run_eval_01m_sealed_live_adaptive_context as eval01m
 
 OUTPUT_PATH = ROOT / "docs" / "development" / "CTX-RD-01-OPT-IN-CANARY" / "full-source-e2e.json"
 
+def build_run_attestation(
+    *, dry_run: bool, document_calls: int, query_calls: int,
+    successful_model_attempts: int,
+) -> dict[str, str]:
+    """Pure guardrail: fake mode can never claim a live source-provider result."""
+    if dry_run:
+        return {
+            "mode": "offline_fake",
+            "methodology": "dry_run_fake_pgvector_contract",
+            "source_grounded_live_vector_query": "NOT_DEMONSTRATED",
+            "canary_gate_verdict": "DRY_RUN_ONLY",
+        }
+    if document_calls <= 0 or query_calls <= 0:
+        raise RuntimeError("BLOCKED: live E2E must record genuine document AND query provider calls")
+    if successful_model_attempts <= 0:
+        raise RuntimeError("BLOCKED: live E2E must record a successful real generation attempt")
+    return {
+        "mode": "live",
+        "methodology": "real_provider_pgvector_semantic_with_fixture_structured_context",
+        "source_grounded_live_vector_query": "DEMONSTRATED",
+        "canary_gate_verdict": "MIXED_PROVENANCE_PROVIDER_PATH_OBSERVED",
+    }
+
+
 
 def check_clean_working_tree() -> str:
     """Ensure working tree is clean before running, excluding only generated evidence output."""
@@ -169,6 +193,10 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true", help="Perform offline execution with mock embeddings/drafts")
     parser.add_argument("--skip-clean-check", action="store_true", help="Skip clean git working tree assertion")
     args = parser.parse_args()
+    if args.skip_clean_check and not args.dry_run:
+        parser.error("--skip-clean-check is permitted only for non-acceptance --dry-run")
+    if not args.dry_run:
+        os.environ["LLM_LOCAL_FALLBACK"] = "false"
 
     commit = get_git_head() if (args.dry_run or args.skip_clean_check) else check_clean_working_tree()
     print(f"[*] Running Full-Source E2E Canary on commit: {commit}")
@@ -503,6 +531,21 @@ def main() -> int:
             instruction=prompt,
             selected_text=source_text,
         )
+        # Independent, production retriever result BEFORE WritingService/packer.
+        raw_result = retriever_svc.retrieve(
+            story_id=novel_id,
+            query_text=gen_query,
+            chapter_number=cutoff,
+            limit=8,
+            tenant_id=tenant_id,
+        )
+        if raw_result.status != "ok" or raw_result.ranking_version != "hybrid-v1":
+            raise RuntimeError("BLOCKED: live semantic retrieval did not return resolved hybrid-v1 results")
+        raw_retrieved_ids = [
+            str(m.metadata.get("memory_id") or m.source_key or m.memory_chunk_id)
+            for m in raw_result.matches
+        ]
+
         preview = svc.preview_context(
             tenant_id=tenant_id,
             story_id=novel_id,
@@ -516,7 +559,9 @@ def main() -> int:
             str(m.get("metadata", {}).get("memory_id") or m.get("source_key") or m["memory_chunk_id"])
             for m in preview.semantic_memories
         ]
-        overlap_with_baseline = set(live_retrieved_ids) & set(baseline_retrieved_ids)
+        if live_retrieved_ids != raw_retrieved_ids:
+            raise RuntimeError("BLOCKED: raw semantic IDs differ from independently packed preview IDs")
+        overlap_with_baseline = set(raw_retrieved_ids) & set(baseline_retrieved_ids)
         print(f"Live pgvector retrieved IDs: {live_retrieved_ids}")
         print(f"Baseline comparison: {len(overlap_with_baseline)}/{len(baseline_retrieved_ids)} shared IDs with baseline")
 
@@ -550,9 +595,9 @@ def main() -> int:
             draft_output = job.draft or ""
         else:
             latency_ms = 0.0
-            job_status = "completed"
-            job_hash = preview_hash
-            draft_output = "DRY RUN DRAFT"
+            job_status = "not_run"
+            job_hash = None
+            draft_output = ""
 
         attempts_after = len(getattr(llm_service, "model_attempts", []))
         case_attempts = getattr(llm_service, "model_attempts", [])[attempts_before:attempts_after]
@@ -579,10 +624,11 @@ def main() -> int:
             "entities_after": entities_after,
             "entity_input_ids": [str(e.get("entity_id") or e.get("id")) for e in prod_pkg.entities],
             "entity_retained_ids": [str(e.get("entity_id") or e.get("id")) for e in preview.entities],
-            "retrieved_semantic_ids": live_retrieved_ids,
+            "retrieved_semantic_ids": raw_retrieved_ids,
             "baseline_semantic_ids": baseline_retrieved_ids,
             "overlap_with_baseline_count": len(overlap_with_baseline),
-            "semantic_retained_ids": [str(m.get("metadata", {}).get("memory_id") or m.get("source_key") or m["memory_chunk_id"]) for m in preview.semantic_memories],
+            "semantic_retained_ids": live_retrieved_ids,
+            "raw_to_packed_semantic_ids_match": raw_retrieved_ids == live_retrieved_ids,
             "recent_input_ids": [str(r["event_id"]) for r in recent_events],
             "recent_retained_ids": [str(r["event_id"]) for r in preview.recent_events],
             "rules_input_ids": [str(r.get("id") or r.get("fact_id")) for r in prod_pkg.world_rules],
@@ -595,13 +641,13 @@ def main() -> int:
             "latency_ms": latency_ms,
             "prompt": prompt,
             "generation": {
-                "provider": "gemini",
-                "requested_model": "gemini-3.8-flash",
-                "effective_model": "models/gemini-3.8-flash",
+                "provider": "fake" if args.dry_run else "gemini",
+                "requested_model": "NOT_RUN" if args.dry_run else "gemini-3.8-flash",
+                "effective_model": "NOT_RUN" if args.dry_run else "models/gemini-3.8-flash",
                 "actual_provider_response": not args.dry_run,
                 "status": job_status,
                 "nonempty_output": len(draft_output) > 0,
-                "model_attempts": case_attempts if case_attempts else [{"model": "models/gemini-3.8-flash", "status": "success", "call_index": 1}],
+                "model_attempts": case_attempts,
                 "draft_snippet": draft_output[:400] + ("..." if len(draft_output) > 400 else ""),
             },
             "checklist": checklist,
@@ -622,27 +668,35 @@ def main() -> int:
     )
     checklist_verdict = "PARTIAL" if any_partial else "PASS"
 
+    document_calls = int(getattr(embed_provider, "document_provider_calls", 0))
+    query_calls = int(getattr(embed_provider, "query_provider_calls", 0))
+    attestation = build_run_attestation(
+        dry_run=args.dry_run,
+        document_calls=document_calls,
+        query_calls=query_calls,
+        successful_model_attempts=successful_attempts,
+    )
+
     evidence_doc = {
         "tested_commit": commit,
+        **attestation,
+        "structured_context_source": "eval01g_fixture_via_repo_adapter",
         "environment": "isolated_demo_staging",
         "database": "postgresql+psycopg://localhost:5432/ephurin",
-        "methodology": "real_provider_pgvector_retrieval_and_generation",
-        "source_grounded_live_vector_query": "DEMONSTRATED",
         "pgvector_live": True,
         "embedding": {
-            "provider": "GeminiEmbeddingProvider",
+            "provider": "DeterministicFakeEmbeddingProvider" if args.dry_run else "GeminiEmbeddingProvider",
             "model": embed_provider.model,
             "version": embed_provider.version,
             "dimension": 768,
             "l2_normalized": True,
-            "document_calls": getattr(embed_provider, "document_calls", 0),
-            "query_calls": getattr(embed_provider, "query_calls", 0),
+            "document_calls": document_calls,
+            "query_calls": query_calls,
         },
         "policy": "balanced-scope-v1",
         "production_default": "legacy-v1",
         "default_changed": False,
         "p8_05_blocked": True,
-        "canary_gate_verdict": "FULL_SOURCE_E2E_DEMONSTRATED",
         "summary": {
             "total_cases_run": len(recorded_cases),
             "all_hash_matched": all(c["context_hash_match"] for c in recorded_cases),
