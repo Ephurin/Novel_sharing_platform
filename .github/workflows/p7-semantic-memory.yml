@@ -40,6 +40,11 @@ jobs:
           python ../scripts/verify_ctx_rd_01_opt_in_canary_evidence.py --self-test
           python ../scripts/verify_ctx_rd_01_opt_in_canary_evidence.py --evidence-dir ../docs/development/CTX-RD-01-OPT-IN-CANARY
           python -m py_compile ../scripts/run_ctx_rd_01_real_source_canary.py
+      - name: CTX-RD-01 E2E guardrails (no DB or provider required)
+        run: |
+          pytest -q tests/test_ctx_rd_full_source_e2e.py
+          python ../scripts/verify_ctx_rd_01_full_source_e2e_evidence.py --self-test
+          python -m py_compile ../scripts/run_ctx_rd_01_full_source_e2e.py
       - name: Hybrid retrieval proxy regression
         run: pytest -q tests/test_p7_hybrid_benchmark.py
       - name: Hybrid retrieval proxy metrics
