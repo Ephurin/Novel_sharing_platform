@@ -135,14 +135,14 @@ class InstrumentedGeminiEmbeddingProvider(GeminiEmbeddingProvider):
 
 
 class InstrumentedRealGeminiLLMService(LLMService):
-    """LLMService that makes genuine Gemini API calls, disables local fallback, and logs attempts without leaking keys."""
+    """Wraps LLMService to count service calls and track per-model attempts without credential exposure."""
 
     def __init__(self, api_key: str, model: str = "gemini-3.8-flash") -> None:
         super().__init__(
             provider="gemini",
             model=model,
             api_key=api_key,
-            fallback_provider="",
+            fallback_provider="",  # Explicitly disable cross-provider fallback
             temperature=0.7,
             max_tokens=2048,
         )
@@ -150,25 +150,55 @@ class InstrumentedRealGeminiLLMService(LLMService):
         self.model_attempts: list[dict[str, Any]] = []
 
     def _call_gemini(self, system_prompt: str, user_prompt: str) -> str:
-        attempt_record: dict[str, Any] = {
-            "model": self.model if self.model.startswith("models/") else f"models/{self.model}",
-            "status": "pending",
-            "call_index": self.actual_provider_calls + 1,
-        }
-        self.model_attempts.append(attempt_record)
+        self.actual_provider_calls += 1
         try:
-            res = super()._call_gemini(system_prompt, user_prompt)
-            self.actual_provider_calls += 1
-            attempt_record["status"] = "success"
-            return res
+            from google import genai
         except Exception as exc:
-            msg = str(exc)
-            api_key = getattr(self, "api_key", "")
-            if api_key and len(api_key) > 6:
-                msg = msg.replace(api_key, "[REDACTED_API_KEY]")
-            attempt_record["status"] = "failed"
-            attempt_record["error_snippet"] = msg[:120]
-            raise LLMServiceError(f"Gemini API invocation failed: {msg}") from None
+            raise LLMServiceError("google-genai is not installed") from exc
+
+        client = genai.Client(api_key=self.api_key)
+        last_error: Exception | None = None
+        merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
+
+        for model_name in self._gemini_model_candidates():
+            attempt_info: dict[str, Any] = {
+                "model": model_name,
+                "status": "pending",
+                "call_index": self.actual_provider_calls,
+            }
+            self.model_attempts.append(attempt_info)
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=merged_prompt,
+                    config={
+                        "temperature": self.temperature,
+                        "max_output_tokens": self.max_tokens,
+                    },
+                )
+                text = self._extract_gemini_text(response)
+                if text:
+                    self.model = model_name
+                    attempt_info["status"] = "success"
+                    return text
+
+                last_error = RuntimeError("Gemini returned empty response")
+                attempt_info["status"] = "empty_response"
+            except Exception as exc:
+                last_error = exc
+                message = str(exc).lower()
+                attempt_info["status"] = "failed"
+                attempt_info["error_type"] = type(exc).__name__
+                sanitized_msg = str(exc)
+                if self.api_key:
+                    sanitized_msg = sanitized_msg.replace(self.api_key, "[REDACTED_API_KEY]")
+                attempt_info["error_snippet"] = sanitized_msg[:120]
+
+                if "not found" in message or "not supported" in message:
+                    continue
+                raise LLMServiceError(f"Gemini request failed: {sanitized_msg}") from exc
+
+        raise LLMServiceError(f"Gemini generation failed: {last_error}") from last_error
 
 
 def get_git_commit() -> str:
@@ -663,8 +693,10 @@ def run_case(
 
     print(f"[{case_name}] Job Status: {job.status}, Effective Model: {writing_service._llm_service.model}, Latency: {gen_latency_ms:.2f}ms")
     print(f"[{case_name}] Job Context Hash: {job.context_hash}")
+    if job.error:
+        print(f"[{case_name}] Job Error: {job.error}")
 
-    assert job.status == "completed", f"Job failed: {job.error_message}"
+    assert job.status == "completed", f"Job failed: {job.error}"
     assert bool(job.draft), "Job draft empty"
     # When testing with real repository, verify hash equivalence
     job_hash = job.context_hash or preview_hash
