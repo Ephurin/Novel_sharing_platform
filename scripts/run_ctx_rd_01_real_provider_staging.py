@@ -98,17 +98,20 @@ def load_local_gemini_key() -> str:
 
 
 class InstrumentedGeminiEmbeddingProvider(GeminiEmbeddingProvider):
-    """Wraps GeminiEmbeddingProvider to track call counts and verify L2 normalization."""
+    """Wraps GeminiEmbeddingProvider to track call counts, items embedded, and verify L2 normalization."""
 
     def __init__(self, api_key: str) -> None:
         super().__init__(api_key=api_key)
         self.document_provider_calls = 0
         self.query_provider_calls = 0
+        self.document_items_count = 0
+        self.query_items_count = 0
         self.last_query_l2_norm = 0.0
         self.last_doc_l2_norm = 0.0
 
     def embed_documents(self, texts: tuple[str, ...] | list[str]) -> tuple[tuple[float, ...], ...]:
         self.document_provider_calls += 1
+        self.document_items_count += len(texts)
         vectors = super().embed_documents(texts)
         if vectors:
             v = vectors[0]
@@ -118,6 +121,7 @@ class InstrumentedGeminiEmbeddingProvider(GeminiEmbeddingProvider):
 
     def embed_document(self, text: str) -> tuple[float, ...]:
         self.document_provider_calls += 1
+        self.document_items_count += 1
         vec = super().embed_document(text)
         norm = math.sqrt(sum(x * x for x in vec))
         self.last_doc_l2_norm = norm
@@ -125,6 +129,7 @@ class InstrumentedGeminiEmbeddingProvider(GeminiEmbeddingProvider):
 
     def embed_query(self, text: str) -> tuple[float, ...]:
         self.query_provider_calls += 1
+        self.query_items_count += 1
         vec = super().embed_query(text)
         norm = math.sqrt(sum(x * x for x in vec))
         self.last_query_l2_norm = norm
@@ -132,20 +137,68 @@ class InstrumentedGeminiEmbeddingProvider(GeminiEmbeddingProvider):
 
 
 class InstrumentedRealGeminiLLMService(LLMService):
-    """Wraps LLMService to count actual external provider calls."""
+    """Wraps LLMService to count service calls and track per-model attempts without credential exposure."""
 
     def __init__(self, api_key: str, model: str = "gemini-3.8-flash") -> None:
         super().__init__(
             provider="gemini",
             model=model,
             api_key=api_key,
-            fallback_provider="",  # No cross-provider fallback
+            fallback_provider="",  # Explicitly disable cross-provider fallback
         )
         self.actual_provider_calls = 0
+        self.model_attempts: list[dict[str, Any]] = []
 
     def _call_gemini(self, system_prompt: str, user_prompt: str) -> str:
         self.actual_provider_calls += 1
-        return super()._call_gemini(system_prompt, user_prompt)
+        try:
+            from google import genai
+        except Exception as exc:
+            raise LLMServiceError("google-genai is not installed") from exc
+
+        client = genai.Client(api_key=self.api_key)
+        last_error: Exception | None = None
+        merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
+
+        for model_name in self._gemini_model_candidates():
+            attempt_info: dict[str, Any] = {
+                "model": model_name,
+                "status": "pending",
+                "call_index": self.actual_provider_calls,
+            }
+            self.model_attempts.append(attempt_info)
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=merged_prompt,
+                    config={
+                        "temperature": self.temperature,
+                        "max_output_tokens": self.max_tokens,
+                    },
+                )
+                text = self._extract_gemini_text(response)
+                if text:
+                    self.model = model_name
+                    attempt_info["status"] = "success"
+                    return text
+
+                last_error = RuntimeError("Gemini returned empty response")
+                attempt_info["status"] = "empty_response"
+            except Exception as exc:
+                last_error = exc
+                message = str(exc).lower()
+                attempt_info["status"] = "failed"
+                attempt_info["error_type"] = type(exc).__name__
+                sanitized_msg = str(exc)
+                if self.api_key:
+                    sanitized_msg = sanitized_msg.replace(self.api_key, "[REDACTED]")
+                attempt_info["error_snippet"] = sanitized_msg[:120]
+
+                if "not found" in message or "not supported" in message:
+                    continue
+                raise LLMServiceError(f"Gemini request failed: {sanitized_msg}") from exc
+
+        raise LLMServiceError(f"Gemini generation failed: {last_error}") from last_error
 
 
 def get_git_commit() -> str:
@@ -157,6 +210,28 @@ def get_git_commit() -> str:
         check=True,
     )
     return result.stdout.strip()
+
+
+def check_clean_working_tree() -> str:
+    """Preflight check: fail if git working tree has uncommitted modifications."""
+    res = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    lines = [
+        line.strip()
+        for line in res.stdout.splitlines()
+        if line.strip() and not any(p in line for p in ("CTX-RD-01-REAL-PROVIDER-STAGING", "promt.md"))
+    ]
+    if lines:
+        raise RuntimeError(
+            "BLOCKED: Working tree is dirty. Clean working tree is required for reproducible staging.\n"
+            + "\n".join(lines)
+        )
+    return get_git_commit()
 
 
 def check_baseline_guards() -> None:
@@ -531,7 +606,7 @@ def setup_tenant_isolation_data(session_factory, tenant_b: str, novel_b: str) ->
 
 
 def main() -> int:
-    tested_commit = get_git_commit()
+    tested_commit = check_clean_working_tree()
     print(f"=== CTX-RD-01 REAL-PROVIDER STAGING ===")
     print(f"Tested commit: {tested_commit}")
 
@@ -597,12 +672,49 @@ def main() -> int:
 
     # 8. Real retrieval + balanced preview
     print("\n--- Running Real Retrieval + Balanced Preview ---")
+    source_text = "Elena giơ cao thanh đoản kiếm vừa rèn."
+    instruction = "Tiếp tục mô tả cảnh Elena cầm đoản kiếm chống lại ma thuật."
+    gen_query = WritingService._build_semantic_query(
+        instruction=instruction,
+        selected_text=source_text,
+    )
+
+    # Capture unscoped source evidence lanes directly before packing:
+    # 1. Unscoped structured package from narrative repository
+    raw_package = narrative_repo.get_structured_context(
+        story_id=novel_id,
+        chapter_number=35,
+        character_name=None,
+        limit_recent_events=20,
+        token_budget=None,
+        enforce_token_budget=False,
+    )
+    # 2. Unscoped semantic memories from genuine semantic retrieval
+    retrieval_result = retriever_service.retrieve(
+        novel_id,
+        query_text=gen_query,
+        chapter_number=35,
+        limit=8,
+        tenant_id=tenant_id,
+    )
+    unscoped_semantic = tuple(
+        writing_svc_balanced._semantic_match_payload(match) for match in retrieval_result.matches
+    )
+    unscoped_semantic_ids = [ContextBudgetPacker._semantic_id(m) for m in unscoped_semantic]
+    unscoped_recent_ids = [ContextBudgetPacker._event_id(e) for e in raw_package.recent_events]
+    unscoped_canonical_rules = [
+        r for r in raw_package.world_rules if bool(r.get("is_locked"))
+    ] + [
+        r for r in raw_package.world_rules if not bool(r.get("is_locked"))
+    ]
+    unscoped_rules_ids = [ContextBudgetPacker._rule_id(r) for r in unscoped_canonical_rules]
+
+    # Run balanced preview with identical generation inputs
     preview = writing_svc_balanced.preview_context(
         tenant_id=tenant_id,
         story_id=novel_id,
         chapter_number=35,
-        character_name="Elena",
-        semantic_query="Elena forging anti-mana blade",
+        semantic_query=gen_query,
         semantic_limit=8,
         limit_recent_events=20,
     )
@@ -610,31 +722,41 @@ def main() -> int:
     routing_status = preview.context_summary.get("context_routing_status", ["unknown"])[0]
     selected_tier = preview.token_budget.get("routing_selected_tier", 12000)
 
-    entities_before = preview.token_budget.get("scope_entity_count_before", 25)
+    entities_before = preview.token_budget.get("scope_entity_count_before", len(raw_package.entities))
     entities_after = preview.token_budget.get("scope_entity_count_after", len(preview.entities))
 
-    semantic_input_ids = [str(m.get("id") or m.get("memory_chunk_id")) for m in preview.semantic_memories]
-    semantic_retained_ids = list(semantic_input_ids)
-    recent_input_ids = [str(e.get("id") or e.get("event_id")) for e in preview.recent_events]
-    recent_retained_ids = list(recent_input_ids)
-    rules_input_ids = [str(r.get("id") or r.get("rule_id") or r.get("fact_key")) for r in preview.world_rules]
-    rules_retained_ids = list(rules_input_ids)
+    # Capture retained IDs from final packed context independently
+    retained_semantic_ids = [ContextBudgetPacker._semantic_id(m) for m in preview.semantic_memories]
+    retained_recent_ids = [ContextBudgetPacker._event_id(e) for e in preview.recent_events]
+    retained_rules_ids = [ContextBudgetPacker._rule_id(r) for r in preview.world_rules]
 
-    context_hash = compute_context_hash(preview, packer)
+    preview_context_hash = compute_context_hash(preview, packer)
+
+    dropped_artifacts = int(preview.token_budget.get("dropped_artifact_count", 0))
+    protected_overflow = bool(preview.token_budget.get("protected_overflow", False))
 
     print(f"Routing Status: {routing_status}")
     print(f"Selected Tier: {selected_tier}")
     print(f"Entities: {entities_before} -> {entities_after}")
-    print(f"Retained semantic: {len(semantic_retained_ids)}, recent: {len(recent_retained_ids)}, rules: {len(rules_retained_ids)}")
-    print(f"Context hash: {context_hash}")
+    print(f"Unscoped vs Retained semantic: {len(unscoped_semantic_ids)} -> {len(retained_semantic_ids)}")
+    print(f"Unscoped vs Retained recent: {len(unscoped_recent_ids)} -> {len(retained_recent_ids)}")
+    print(f"Unscoped vs Retained rules: {len(unscoped_rules_ids)} -> {len(retained_rules_ids)}")
+    print(f"Preview Context hash: {preview_context_hash}")
+
+    assert routing_status == "routed"
+    assert selected_tier in (12000, 16000, 20000, 24000)
+    assert unscoped_semantic_ids == retained_semantic_ids, f"Semantic IDs mismatch: {unscoped_semantic_ids} != {retained_semantic_ids}"
+    assert unscoped_recent_ids == retained_recent_ids, f"Recent IDs mismatch: {unscoped_recent_ids} != {retained_recent_ids}"
+    assert unscoped_rules_ids == retained_rules_ids, f"Rules IDs mismatch: {unscoped_rules_ids} != {retained_rules_ids}"
+    assert dropped_artifacts == 0
+    assert protected_overflow is False
 
     # 9. Real generation
     print("\n--- Running Real Generation with Gemini ---")
-    gen_start = time.perf_counter()
-    source_text = "Elena giơ cao thanh đoản kiếm vừa rèn."
     content_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()
     chapter_id = str(uuid.uuid4())
     revision_id = f"ephemeral:{uuid.uuid4()}"
+    gen_start = time.perf_counter()
     job = writing_svc_balanced.start_generation(
         tenant_id=tenant_id,
         novel_id=novel_id,
@@ -644,7 +766,7 @@ def main() -> int:
         operation="continue",
         source_text=source_text,
         selection={"start": 0, "end": len(source_text), "cursor": len(source_text)},
-        instruction="Tiếp tục mô tả cảnh Elena cầm đoản kiếm chống lại ma thuật.",
+        instruction=instruction,
         chapter_number=35,
         actor_id=actor_id,
         idempotency_key=f"real-gen-{uuid.uuid4()}",
@@ -652,14 +774,24 @@ def main() -> int:
     gen_latency_ms = (time.perf_counter() - gen_start) * 1000
 
     print(f"Generation Job Status: {job.status}")
+    print(f"Requested Model: gemini-3.8-flash")
     print(f"Effective Model: {llm_service.model}")
     print(f"Provider calls: {llm_service.actual_provider_calls}")
+    print(f"Model attempts: {llm_service.model_attempts}")
+    print(f"Job Context Hash: {job.context_hash}")
     safe_preview = job.draft[:120].encode("ascii", errors="replace").decode("ascii") if job.draft else "(none)"
     print(f"Output preview: {safe_preview}")
 
     assert job.status == "completed", f"Job failed: {job.error_message}"
     assert bool(job.draft), "Job draft output is empty"
     assert llm_service.actual_provider_calls > 0, "No real LLM provider calls made"
+    assert job.context_hash is not None, "Job context hash missing"
+    assert job.context_hash == preview_context_hash, f"Context hash mismatch: job={job.context_hash} != preview={preview_context_hash}"
+
+    gen_routing_status = job.context_summary.get("context_routing_status", ["unknown"])[0]
+    gen_routing_version = job.context_summary.get("context_routing_version", ["unknown"])[0]
+    assert gen_routing_status == "routed"
+    assert gen_routing_version == "balanced-scope-v1"
 
     # 10. Tier escalation stress testing
     print("\n--- Running Tier Escalation Stress Testing ---")
@@ -699,7 +831,45 @@ def main() -> int:
     stress_routed = router.route(stress_scope)
     stress_tier = stress_routed.token_budget["routing_selected_tier"]
     print(f"Stress test selected tier: {stress_tier}")
+
+    stress_unscoped_semantic_ids = [
+        ContextBudgetPacker._semantic_id(m) for m in stress_package.semantic_memories
+    ]
+    stress_retained_semantic_ids = [
+        ContextBudgetPacker._semantic_id(m) for m in stress_routed.semantic_memories
+    ]
+    stress_semantic_exact = bool(stress_unscoped_semantic_ids == stress_retained_semantic_ids)
+
+    stress_unscoped_recent_ids = [
+        ContextBudgetPacker._event_id(e) for e in stress_package.recent_events
+    ]
+    stress_retained_recent_ids = [
+        ContextBudgetPacker._event_id(e) for e in stress_routed.recent_events
+    ]
+    stress_recent_exact = bool(stress_unscoped_recent_ids == stress_retained_recent_ids)
+
+    stress_canonical_rules = [
+        r for r in stress_package.world_rules if bool(r.get("is_locked"))
+    ] + [
+        r for r in stress_package.world_rules if not bool(r.get("is_locked"))
+    ]
+    stress_unscoped_rules_ids = [
+        ContextBudgetPacker._rule_id(r) for r in stress_canonical_rules
+    ]
+    stress_retained_rules_ids = [
+        ContextBudgetPacker._rule_id(r) for r in stress_routed.world_rules
+    ]
+    stress_rules_exact = bool(stress_unscoped_rules_ids == stress_retained_rules_ids)
+
+    stress_protected_overflow = bool(stress_routed.token_budget.get("protected_overflow", False))
+    stress_dropped_artifacts = int(stress_routed.token_budget.get("dropped_artifact_count", 0))
+
     assert stress_tier > 12000, f"Expected tier > 12000, got: {stress_tier}"
+    assert stress_semantic_exact is True, "Stress semantic IDs not exact"
+    assert stress_recent_exact is True, "Stress recent IDs not exact"
+    assert stress_rules_exact is True, "Stress rules IDs not exact"
+    assert stress_protected_overflow is False, "Stress protected overflow occurred"
+    assert stress_dropped_artifacts == 0, f"Stress artifacts dropped: {stress_dropped_artifacts}"
 
     # 11. Safety & Rollback Verification
     print("\n--- Running Safety & Rollback Verification ---")
@@ -829,6 +999,8 @@ def main() -> int:
             "documents_l2_normalized": True,
             "document_provider_calls": embed_provider.document_provider_calls,
             "query_provider_calls": embed_provider.query_provider_calls,
+            "document_items_count": embed_provider.document_items_count,
+            "query_items_count": embed_provider.query_items_count,
         },
         "retrieval": {
             "status": "ok",
@@ -844,7 +1016,15 @@ def main() -> int:
             "provider_calls": llm_service.actual_provider_calls,
             "status": "completed",
             "nonempty_output": True,
-            "context_hash": context_hash,
+            "context_hash": job.context_hash,
+            "job_context_hash": job.context_hash,
+            "preview_context_hash": preview_context_hash,
+            "context_hash_match": bool(job.context_hash == preview_context_hash),
+            "generation_routing_status": gen_routing_status,
+            "generation_routing_version": gen_routing_version,
+            "generation_selected_tier": selected_tier,
+            "model_attempts": llm_service.model_attempts,
+            "attempted_models_count": len(llm_service.model_attempts),
         },
         "routing": {
             "policy": "balanced-scope-v1",
@@ -852,14 +1032,14 @@ def main() -> int:
             "selected_tier": selected_tier,
             "entities_before": entities_before,
             "entities_after": entities_after,
-            "semantic_input_ids": semantic_input_ids,
-            "semantic_retained_ids": semantic_retained_ids,
-            "recent_input_ids": recent_input_ids,
-            "recent_retained_ids": recent_retained_ids,
-            "rules_input_ids": rules_input_ids,
-            "rules_retained_ids": rules_retained_ids,
-            "protected_overflow": False,
-            "dropped_artifacts": 0,
+            "semantic_input_ids": unscoped_semantic_ids,
+            "semantic_retained_ids": retained_semantic_ids,
+            "recent_input_ids": unscoped_recent_ids,
+            "recent_retained_ids": retained_recent_ids,
+            "rules_input_ids": unscoped_rules_ids,
+            "rules_retained_ids": retained_rules_ids,
+            "protected_overflow": protected_overflow,
+            "dropped_artifacts": dropped_artifacts,
         },
     }
 
@@ -869,11 +1049,11 @@ def main() -> int:
             {
                 "fixture_origin": "production_shaped_deterministic",
                 "selected_tier": stress_tier,
-                "semantic_exact": True,
-                "recent_exact": True,
-                "rules_exact": True,
-                "dropped_artifacts": 0,
-                "protected_overflow": False,
+                "semantic_exact": stress_semantic_exact,
+                "recent_exact": stress_recent_exact,
+                "rules_exact": stress_rules_exact,
+                "dropped_artifacts": stress_dropped_artifacts,
+                "protected_overflow": stress_protected_overflow,
             }
         ],
     }
@@ -906,8 +1086,8 @@ def main() -> int:
 - **Version**: `gemini-embedding-2-768-v1`
 - **Dimension**: `768` (explicit L2 normalized)
 - **Indexed Versions**: `["gemini-embedding-2-768-v1"]` (zero fake embedding mixture)
-- **Document Provider Calls**: `{embed_provider.document_provider_calls}`
-- **Query Provider Calls**: `{embed_provider.query_provider_calls}`
+- **Document Provider Calls**: `{embed_provider.document_provider_calls}` (items: `{embed_provider.document_items_count}`)
+- **Query Provider Calls**: `{embed_provider.query_provider_calls}` (items: `{embed_provider.query_items_count}`)
 
 ### 2. Real Retrieval & Balanced Routing
 - **Status**: `ok`
@@ -916,17 +1096,18 @@ def main() -> int:
 - **Policy**: `balanced-scope-v1` (status: `routed`)
 - **Selected Tier**: `{selected_tier}`
 - **Entities Scoped**: `{entities_before}` -> `{entities_after}` (distractors pruned)
-- **Semantic Retained**: `{len(semantic_retained_ids)} / 8`
-- **Recent Events Retained**: `{len(recent_retained_ids)} / 20`
-- **World Rules Retained**: `{len(rules_retained_ids)} / 4`
-- **Protected Overflow**: `false`
-- **Dropped Artifacts**: `0`
-- **Context Hash**: `{context_hash}`
+- **Semantic Retained**: `{len(retained_semantic_ids)} / {len(unscoped_semantic_ids)}`
+- **Recent Events Retained**: `{len(retained_recent_ids)} / {len(unscoped_recent_ids)}`
+- **World Rules Retained**: `{len(retained_rules_ids)} / {len(unscoped_rules_ids)}`
+- **Protected Overflow**: `{str(protected_overflow).lower()}`
+- **Dropped Artifacts**: `{dropped_artifacts}`
+- **Context Hash**: `{job.context_hash}` (preview match: `true`)
 
 ### 3. Real Generation Provider
 - **Provider**: `gemini`
 - **Requested Model**: `gemini-3.8-flash`
 - **Effective Model**: `{llm_service.model}`
+- **Model Attempts**: `{len(llm_service.model_attempts)}` ({", ".join(a.get("model", "") for a in llm_service.model_attempts)})
 - **LLM Local Fallback Enabled**: `false`
 - **Actual Provider Response**: `true` (status: `completed`)
 - **Provider Calls**: `{llm_service.actual_provider_calls}`
@@ -935,11 +1116,11 @@ def main() -> int:
 ### 4. Tier Escalation Stress Testing
 - **Fixture Origin**: `production_shaped_deterministic`
 - **Selected Tier**: `{stress_tier}` (escalated above 12000)
-- **Semantic Exact**: `true`
-- **Recent Exact**: `true`
-- **Rules Exact**: `true`
-- **Protected Overflow**: `false`
-- **Dropped Artifacts**: `0`
+- **Semantic Exact**: `{str(stress_semantic_exact).lower()}`
+- **Recent Exact**: `{str(stress_recent_exact).lower()}`
+- **Rules Exact**: `{str(stress_rules_exact).lower()}`
+- **Protected Overflow**: `{str(stress_protected_overflow).lower()}`
+- **Dropped Artifacts**: `{stress_dropped_artifacts}`
 
 ### 5. Safety, Isolation & Rollback
 - **Future Participant Leakage**: `{future_leakage}` (PASS)

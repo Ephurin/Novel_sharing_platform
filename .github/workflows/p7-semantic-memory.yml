@@ -10,7 +10,7 @@ on:
   pull_request:
     paths:
       - "ai-service/**"
-      - "scripts/verify_ctx_rd_01_real_provider_evidence.py"
+      - "scripts/**"
       - "docs/development/CTX-RD-01-REAL-PROVIDER-STAGING-runbook.md"
       - "docker-compose.yml"
       - ".github/workflows/p7-semantic-memory.yml"
@@ -30,7 +30,7 @@ jobs:
           cache-dependency-path: ai-service/requirements.txt
       - run: pip install -r requirements.txt pytest httpx
       - name: Semantic-memory, retrieval, hybrid and context-routing unit tests
-        run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py tests/test_hybrid_ranker.py tests/test_context_budget.py tests/test_context_scope.py tests/test_context_routing.py tests/test_settings.py
+        run: pytest -q tests/test_semantic_memory_service.py tests/test_semantic_retriever.py tests/test_hybrid_ranker.py tests/test_context_budget.py tests/test_context_scope.py tests/test_context_routing.py tests/test_settings.py tests/test_ctx_rd_staging_harness.py
       - name: CTX-RD-01 production/EVAL parity
         run: python ../scripts/verify_ctx_rd_01_eval_parity.py
       - name: CTX-RD-01 real-provider evidence contract self-test
