@@ -1048,8 +1048,12 @@ def main() -> int:
     )
     stress_semantic_matches = tuple(
         SemanticMemoryMatch(
-            memory_id=f"sem-{i:03d}",
+            memory_chunk_id=f"sem-{i:03d}",
+            story_brain_id=str(uuid.uuid4()),
+            tenant_id=tenant_id,
             novel_id=novel_id,
+            source_key=f"ev-sem-{i:03d}",
+            memory_type="event",
             content=f"Bản ghi ký ức ngữ nghĩa về thanh kiếm kháng ma {i}. " * 25,
             content_hash=hashlib.sha256(f"sem-{i}".encode("utf-8")).hexdigest(),
             embedding_version="gemini-embedding-2-768-v1",
