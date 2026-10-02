@@ -400,7 +400,7 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
                 story_brain_id=brain_id,
                 tenant_id=tenant_uuid,
                 novel_id=novel_uuid,
-                narrative_order=15 * 1024,
+                narrative_order=15 * 1024 + 512,
                 event_type="recon",
                 summary="Chapter 15 superseded draft reconnaissance event with distractor entity.",
                 participants=["Superseded Character"],
