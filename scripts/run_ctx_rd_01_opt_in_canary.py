@@ -234,7 +234,7 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
     tenant_uuid = uuid.UUID(tenant_id)
     novel_uuid = uuid.UUID(novel_id)
 
-    narrative_repo = PostgresNarrativeRepository(session_factory, tenant_id=tenant_id)
+    narrative_repo = PostgresNarrativeRepository(session_factory, tenant_id=tenant_id, actor_id=actor_id)
     semantic_repo = PostgresSemanticMemoryRepository(session_factory, tenant_id=tenant_id)
     embed_provider = InstrumentedGeminiEmbeddingProvider(api_key=api_key)
 
