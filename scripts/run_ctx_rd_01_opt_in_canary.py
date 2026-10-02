@@ -390,14 +390,12 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
                 summary = f"Chương {ch}: Elena và Bram nghiên cứu luyện kim và chế tác đoản kiếm kháng ma Than Tinh tại lò rèn cổ mộ."
                 peids = ["char-02", "char-03"]
                 ev_meta = {"importance_score": 0.95 - (ch * 0.01), "tags": ["canonical_lore"]}
-            elif 9 <= ch <= 15:
+            elif 9 <= ch <= 16:
                 summary = f"Chương {ch}: Roland thành lập, huấn luyện và kiểm duyệt biên chế 3000 kỵ binh thiết giáp tại thung lũng."
                 peids = ["char-04", "char-11"]
-                ev_meta = {"importance_score": 0.95 - ((ch - 9) * 0.01), "tags": ["cavalry_origin", "rq0025"]}
-            elif ch == 16:
-                summary = f"Chương {ch}: Trinh sát chiến thuật biên giới với Roland và Elena."
-                peids = ["char-02", "char-04"]
-                ev_meta = {"importance_score": 0.6, "tags": ["canonical_history"], "supersedes_id": str(ev_sup_uuid)}
+                ev_meta = {"importance_score": 0.99 - ((ch - 9) * 0.01), "tags": ["cavalry_origin", "rq0025"]}
+                if ch == 16:
+                    ev_meta["supersedes_id"] = str(ev_sup_uuid)
             elif ch == 27:
                 summary = "Chương 27: Alan tiếp nhận và sử dụng kiếm hộ thân trong trận chiến tiền đồn."
                 peids = ["char-01", "char-02"]
@@ -409,19 +407,19 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
             elif ch == 40:
                 summary = "Chương 40: Trụ Áp Lực Phụ số 2 bị phá hủy lần đầu tiên trên trang truyện."
                 peids = ["char-04", "char-05"]
-                ev_meta = {"importance_score": 0.9, "tags": ["first_occurrence"]}
+                ev_meta = {"importance_score": 0.6, "tags": ["first_occurrence"]}
             elif ch == 45:
                 summary = "Chương 45: Phá hủy Trụ số 2; khối thuốc nổ gây sạt lở chôn vùi đoàn kỵ binh 3000 quân của Roland và mở đường vào Hẻm Vực Tro Tàn."
                 peids = ["char-04", "char-11", "char-12"]
-                ev_meta = {"importance_score": 0.95, "tags": ["burial_first_occurrence", "rq0025"]}
+                ev_meta = {"importance_score": 0.6, "tags": ["burial_first_occurrence", "rq0025"]}
             elif ch == 47:
                 summary = "Chương 47: Đoàn kỵ binh ba ngàn quân của Roland tiến vào khe hẹp, bị đá lở do Than Tinh chôn vùi trong khi Roland thoát cùng tàn quân."
                 peids = ["char-04", "char-11"]
-                ev_meta = {"importance_score": 0.9, "tags": ["burial_replay", "rq0025"]}
+                ev_meta = {"importance_score": 0.6, "tags": ["burial_replay", "rq0025"]}
             elif ch == 49:
                 summary = "Chương 49: Roland và tàn quân kỵ binh sống sót tập hợp tại thung lũng sương mù chuẩn bị phản công."
                 peids = ["char-04", "char-11"]
-                ev_meta = {"importance_score": 0.85, "tags": ["continuation", "rq0025"]}
+                ev_meta = {"importance_score": 0.6, "tags": ["continuation", "rq0025"]}
             else:
                 summary = f"Chương {ch}: Hoạt động phòng thủ và tuần tra biên giới của Valora và đội trinh sát."
                 peids = ["char-05"]
@@ -819,8 +817,8 @@ def main() -> int:
     ch35_ch_id = str(uuid.uuid4())
     ch35_rev_id = str(uuid.uuid4())
 
-    ch49_text = "Đoàn kỵ binh ba ngàn quân của Roland trong ký ức và thực tế tại khe núi."
-    ch49_inst = "Tiếp tục mô tả nguồn gốc lịch sử thành lập và biên chế 3000 kỵ binh thiết giáp của Roland cùng thực trạng tàn quân."
+    ch49_text = "Biên chế ban đầu của 3000 kỵ binh thiết giáp dưới quyền Roland."
+    ch49_inst = "Tiếp tục mô tả nguồn gốc thành lập và kiểm duyệt biên chế 3000 kỵ binh thiết giáp tại thung lũng."
     ch49_hash = hashlib.sha256(ch49_text.encode("utf-8")).hexdigest()
     ch49_ch_id = str(uuid.uuid4())
     ch49_rev_id = str(uuid.uuid4())
