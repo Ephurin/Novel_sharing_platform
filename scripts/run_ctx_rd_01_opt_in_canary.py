@@ -1058,7 +1058,6 @@ def main() -> int:
             content_hash=hashlib.sha256(f"sem-{i}".encode("utf-8")).hexdigest(),
             embedding_version="gemini-embedding-2-768-v1",
             cosine_distance=0.05,
-            ranking_version="hybrid-v1",
             hybrid_score=0.95 - (i * 0.01),
             semantic_score=0.95 - (i * 0.01),
             chapter_number=i,
