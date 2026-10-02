@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -15,6 +13,7 @@ sys.path.insert(0, str(AI_SERVICE))
 from run_ctx_rd_01_full_source_e2e import (
     evaluate_rq0011_checklist,
     evaluate_rq0025_checklist,
+    build_run_attestation,
 )
 
 
@@ -41,22 +40,31 @@ class TestFullSourceE2EContract(unittest.TestCase):
         self.assertEqual(res["ambiguity_handling"], "PASS")
         self.assertTrue(res["chain_45_47_49_verified"])
 
-    def test_dry_run_contract_execution(self) -> None:
-        cmd = [sys.executable, str(SCRIPTS / "run_ctx_rd_01_full_source_e2e.py"), "--dry-run"]
-        proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
-        self.assertEqual(proc.returncode, 0, f"Dry-run failed: {proc.stderr}\n{proc.stdout}")
+    def test_fake_dry_run_never_claims_real_e2e(self) -> None:
+        record = build_run_attestation(
+            dry_run=True, document_calls=999, query_calls=999, successful_model_attempts=999,
+        )
+        self.assertEqual(record["mode"], "offline_fake")
+        self.assertEqual(record["canary_gate_verdict"], "DRY_RUN_ONLY")
+        self.assertEqual(record["source_grounded_live_vector_query"], "NOT_DEMONSTRATED")
 
-        evidence_path = ROOT / "docs" / "development" / "CTX-RD-01-OPT-IN-CANARY" / "full-source-e2e.json"
-        self.assertTrue(evidence_path.exists())
+    def test_live_e2e_rejects_missing_provider_calls(self) -> None:
+        for d, q, s in ((0, 4, 1), (11, 0, 1), (11, 4, 0)):
+            with self.subTest(document_calls=d, query_calls=q, success=s):
+                with self.assertRaisesRegex(RuntimeError, "BLOCKED"):
+                    build_run_attestation(
+                        dry_run=False, document_calls=d,
+                        query_calls=q, successful_model_attempts=s,
+                    )
 
-        data = json.loads(evidence_path.read_text(encoding="utf-8"))
-        self.assertEqual(data["canary_gate_verdict"], "FULL_SOURCE_E2E_DEMONSTRATED")
-        self.assertEqual(data["production_default"], "legacy-v1")
-        self.assertFalse(data["default_changed"])
-        self.assertTrue(data["p8_05_blocked"])
-        self.assertTrue(data["summary"]["all_hash_matched"])
-        self.assertTrue(data["summary"]["all_zero_dropped"])
-        self.assertTrue(data["summary"]["all_protected_overflow_false"])
+    def test_real_provider_claim_is_explicitly_mixed_provenance(self) -> None:
+        record = build_run_attestation(
+            dry_run=False, document_calls=11,
+            query_calls=6, successful_model_attempts=2,
+        )
+        self.assertEqual(record["mode"], "live")
+        self.assertEqual(record["source_grounded_live_vector_query"], "DEMONSTRATED")
+        self.assertEqual(record["canary_gate_verdict"], "MIXED_PROVENANCE_PROVIDER_PATH_OBSERVED")
 
 
 if __name__ == "__main__":
