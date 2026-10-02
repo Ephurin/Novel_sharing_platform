@@ -115,14 +115,55 @@ def load_local_gemini_key() -> str:
 
 
 class InstrumentedGeminiEmbeddingProvider(GeminiEmbeddingProvider):
-    """Wraps GeminiEmbeddingProvider to track call counts, items embedded, and verify L2 normalization."""
+    """Wraps GeminiEmbeddingProvider to track call counts, items embedded, verify L2 normalization, and rotate keys upon quota/rate limits."""
 
-    def __init__(self, api_key: str) -> None:
+    def __init__(self, api_key: str, api_keys: list[str] | None = None) -> None:
         super().__init__(api_key=api_key)
+        self.api_keys = api_keys or ([api_key] if api_key else [])
+        self.current_key_idx = 0
         self.document_provider_calls = 0
         self.query_provider_calls = 0
         self.document_items_count = 0
         self.query_items_count = 0
+
+    def _rotate_key(self) -> None:
+        if len(self.api_keys) > 1:
+            self.current_key_idx = (self.current_key_idx + 1) % len(self.api_keys)
+            self._api_key = self.api_keys[self.current_key_idx]
+            self._client = None
+            print(f"[EmbeddingProvider] Rotated to API key index {self.current_key_idx}")
+
+    def _embed_many(
+        self,
+        texts: tuple[str, ...],
+        prefix: str,
+        *,
+        kind: str,
+        retry_rate_limits: bool,
+    ) -> tuple[tuple[float, ...], ...]:
+        last_error = None
+        max_attempts = max(8, len(self.api_keys) * 4)
+        for attempt in range(max_attempts):
+            try:
+                return super()._embed_many(
+                    texts,
+                    prefix,
+                    kind=kind,
+                    retry_rate_limits=False,
+                )
+            except Exception as exc:
+                last_error = exc
+                cause_str = str(getattr(exc, "__cause__", ""))
+                err_str = (str(exc) + " " + cause_str).lower()
+                if "429" in err_str or "resource_exhausted" in err_str or "quota" in err_str:
+                    self._rotate_key()
+                    time.sleep(2 * (attempt % 3 + 1))
+                    continue
+                if "503" in err_str or "unavailable" in err_str or "high demand" in err_str:
+                    time.sleep(3)
+                    continue
+                raise
+        raise last_error
 
     def embed_documents(self, texts: tuple[str, ...] | list[str]) -> tuple[tuple[float, ...], ...]:
         self.document_provider_calls += 1
@@ -140,6 +181,7 @@ class InstrumentedGeminiEmbeddingProvider(GeminiEmbeddingProvider):
         norm = math.sqrt(sum(x * x for x in vec))
         assert abs(norm - 1.0) < 1e-4, f"Query embedding vector not L2 normalized: {norm}"
         return vec
+
 
 
 class InstrumentedRealGeminiLLMService(LLMService):
@@ -355,7 +397,7 @@ def compute_context_hash(package: WritingContextPackage, packer: ContextBudgetPa
     ).hexdigest()
 
 
-def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
+def setup_canary_dataset(session_factory, api_key: str, api_keys: list[str] | None = None) -> dict[str, Any]:
     """Sets up an isolated, rich Aethelgard real-novel dataset covering chapters 1-49."""
     tenant_id = str(uuid.uuid4())
     novel_id = str(uuid.uuid4())
@@ -365,7 +407,7 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
 
     narrative_repo = PostgresNarrativeRepository(session_factory, tenant_id=tenant_id, actor_id=actor_id)
     semantic_repo = PostgresSemanticMemoryRepository(session_factory, tenant_id=tenant_id)
-    embed_provider = InstrumentedGeminiEmbeddingProvider(api_key=api_key)
+    embed_provider = InstrumentedGeminiEmbeddingProvider(api_key=api_key, api_keys=api_keys)
 
     with session_scope(session_factory) as session:
         brain_id = uuid.uuid4()
@@ -843,7 +885,7 @@ def main() -> int:
 
     # 4. Set up dataset
     print("\n--- Setting up Canary Dataset ---")
-    data = setup_canary_dataset(session_factory, api_key)
+    data = setup_canary_dataset(session_factory, api_key, api_keys=api_keys)
     tenant_id = data["tenant_id"]
     novel_id = data["novel_id"]
     actor_id = data["actor_id"]
