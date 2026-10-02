@@ -1,204 +1,71 @@
 # Active Project Handoff — CTX-RD-01
 
-## Canonical project state
+## Current status (latest Astra review takes precedence over historical handoffs)
 
 ```text
-EVAL-01 evidence sequence             CLOSED
-ARCH-CTX-RD-01 proposal               APPROVED
-CTX-RD-01 implementation              MERGED
-Fake-provider PostgreSQL smoke        PASS / REVIEWED
-Real-provider staging                 PARTIAL / EVIDENCE REPAIR REQUIRED
-Production default                    legacy-v1
-Balanced-scope-v1 default             NOT AUTHORIZED
-P8-05 destructive cleanup             BLOCKED_PENDING_STABILITY
+EVAL-01 evidence sequence                 CLOSED
+ARCH-CTX-RD-01 proposal                   APPROVED
+CTX-RD-01 implementation                  MERGED
+Real-provider staging remediation         CLOSED / ACCEPTED
+Opt-in demo/staging balanced-v1            AUTHORIZED
+Global production default switch          NOT AUTHORIZED
+Production default                        legacy-v1
+P8-05 destructive cleanup                 BLOCKED_PENDING_STABILITY
+NEXT                                       BOUNDED OPT-IN CANARY
 ```
 
-Source-of-truth documents:
+Canonical evaluation closure: `docs/development/EVAL-01-FINAL-CLOSURE.md`.
 
-- `docs/development/EVAL-01-FINAL-CLOSURE.md`
+Architecture proposal/review:
 - `docs/development/ARCH-CTX-RD-01-RELEVANCE-DENSITY-PROPOSAL.md`
 - `docs/development/ARCH-CTX-RD-01-ASTRA-REVIEW.md`
-- `docs/development/CTX-RD-01-IMPLEMENTATION-REVIEW.md`
-- `docs/development/CTX-RD-01-LIVE-ACCEPTANCE/ASTRA-REVIEW.md`
 
-Implementation merge: `739b5f8cceb549fb96e97bbc3565621f9f036031`
+Implementation: PR #27 / merge `739b5f8cceb549fb96e97bbc3565621f9f036031`.
 
-Prior live smoke evidence: `4d073497c61f5d8a7477c7d7c189ae4a055f090c`.
+Real-provider staging evidence (corrected): `docs/development/CTX-RD-01-REAL-PROVIDER-STAGING/`.
+- Tested code SHA: `019d39222ce0b0d26e130ba57c0fedf92eac453e`.
+- Evidence SHA: `d2b50be731590b531a17ae2708af2f389667d5af`.
+- Repair PR #29 merged at `6f4d034bbf3c5857e34a6299f8ea9d736c829ff0`.
+- Final Astra review: `docs/development/CTX-RD-01-REAL-PROVIDER-STAGING/ASTRA-REMEDIATION-FINAL-REVIEW.md`.
+- Final review commit: `79431abfd3f63fed8c8b92b0bb3f04469d936089`.
 
-The prior smoke used PostgreSQL/pgvector with `DeterministicFakeEmbeddingProvider` and did not prove actual generation-provider calls. It is an integration PASS, not real-provider staging completion.
+CI for PR #29: all SUCCESS.
+- Evaluation Pilot Harness `36957124427`.
+- P7 Semantic Memory Foundation `36957124446`.
+- P8 Cutover and Migration `36957124460`.
 
-## Real-provider staging — gate prepared
-
-Staging-runbook and CI gate merged via PR #28:
-
-`c724b110d84286cdbc7468f70137f0809c35027a`
-
-Runbook:
-
-`docs/development/CTX-RD-01-REAL-PROVIDER-STAGING-runbook.md`
-
-Validator:
-
-`scripts/verify_ctx_rd_01_real_provider_evidence.py`
-
-CI run `36845566108`: SUCCESS — evidence-validator self-test, unit/non-Postgres regressions, PostgreSQL/pgvector integration, and full production-path Compose smoke all PASS. CI performs no real external-model calls.
-
-## NEXT — Gemini / Antigravity on original machine
-
-Work from latest `main`. Follow the runbook in order. Use an **isolated disposable staging DB** and the existing securely configured local keys.
-
-Mandatory boundaries:
-
-1. Query **and document** embeddings must both be genuine `gemini-embedding-2-768-v1`, 768d, explicit L2. Do not mix the earlier fake embedding corpus with a Gemini query.
-2. Use the production `SemanticRetrieverService` + hybrid-v1 + `WritingService.preview_context()` with chapter cutoff.
-3. Run one `balanced-scope-v1` generation with a **real LLM provider response**. Set `LLM_LOCAL_FALLBACK=false`; record requested and effective models and count actual provider calls.
-4. Prove semantic/recent/rule ID retention, no drop, no protected overflow and final context hash.
-5. Exercise a production-shaped package that selects a tier **above 12k**, with source labelled accurately.
-6. Recheck temporal safety, >24k fail-closed, semantic failure fallback and immediate rollback.
-7. Restore `legacy-v1` at the end. Never change production default as part of this smoke.
-
-Write:
-
+Staging results:
 ```text
-docs/development/CTX-RD-01-REAL-PROVIDER-STAGING/
-  runtime-config.json
-  real-provider.json
-  tier-escalation.json
-  safety-rollback.json
-  summary.md
+embedding version               gemini-embedding-2-768-v1 / 768d / explicit L2
+document calls/items            3 / 36
+query calls/items               3 / 3
+generation requested/effective  gemini-3.8-flash / models/gemini-3.8-flash
+generation attempts             1 / success
+balanced context scope          25 -> 4 entities
+selected tier                   12k
+semantic/recent/rules           8/8, 20/20, 4/4 exact
+drops / protected overflow      0 / false
+generation job context hash     equals same-input preview hash
+deterministic stress tier       16k
+fallback / rollback             PASS
 ```
 
-Before committing evidence:
+This is a successful **functional provider-path smoke**. It is not a general generation-quality or latency benchmark. Do not reopen EVAL unless new implementation behavior diverges.
 
-```powershell
-.\.venv\Scripts\python.exe scripts/verify_ctx_rd_01_real_provider_evidence.py --self-test
-.\.venv\Scripts\python.exe scripts/verify_ctx_rd_01_real_provider_evidence.py --evidence-dir docs/development/CTX-RD-01-REAL-PROVIDER-STAGING
-```
+## NEXT — Gemini / Antigravity: bounded opt-in canary
 
-Do not commit API keys, credentials, unredacted auth logs or unnecessary manuscript text.
+Use latest `main` and an isolated demo/staging environment. Keep `CONTEXT_ROUTING_POLICY=legacy-v1` in production, and opt in to `balanced-scope-v1` only in the designated canary process/config. Keep existing API keys local; do not commit keys or unnecessary manuscript text.
 
-If real embedding/model/quota is unavailable, mark `PARTIAL` or `BLOCKED`, not PASS. The validator checks evidence consistency, not independent truth of reported API calls.
+1. Run representative real-novel generation requests using accepted PostgreSQL+pgvector, hybrid-v1 and genuine `gemini-embedding-2-768-v1` document/query vectors. Reuse pre-existing data without destructive rematerialization; isolate or back up any writable test database.
+2. Cover a normal context, a repeated/conflicting-history or source-status request (prefer the known rq-0025 archetype where possible), and a pressured request expected to escalate above 12k if real data supports one. Clearly label deterministic stress separately if no real pressured request is available; do not fabricate real-novel coverage.
+3. Capture actual *generation-job* routing summary and context hash, tier, before/after entity/state counts, independently checked semantic/recent/rule IDs, drop/overflow traces, provider model/attempts, request success and validation status. Compare with existing `legacy-v1` reference or safe opt-in legacy control where feasible.
+4. Verify chapter cutoff, supersession and tenant isolation in applicable lanes, as well as semantic-unavailable fallback and flag rollback. On unexpected information loss, leakage, routing failure, or material generation regression, switch the canary back to `legacy-v1` and record the failure.
+5. Keep the current global default unchanged. Do not change ContextBudgetPacker, embedding model, hybrid weights or P8-05 status during the canary.
 
-### Required execution-only Gemini report
+Save execution evidence and a concise pass/partial/fail summary under:
 
-```text
-Gemini Verification — CTX-RD-01 REAL-PROVIDER STAGING
-Status: PASS | PARTIAL | BLOCKED
-Tested commit: <sha>
-Evidence commit: <sha>
-Embedding provider/model/version: <actual>
-Document/query provider calls: <n>/<n>
-Actual generation provider/model: <actual>
-LLM provider calls: <n>
-Local fallback disabled: true
-Balanced scope/tier: <n>/<tier>
-Semantic/recent/rules retained: <input>/<output>
-Protected overflow: false
-Dropped artifacts: 0
-Tier above 12k tested: <tier/source>
-Future/superseded/cross-tenant leakage: 0/0/0
-Fallback/rollback: PASS | FAIL
-Validator: PASS | FAIL
-Production default changed: NO
-P8-05: BLOCKED
-```
+`docs/development/CTX-RD-01-OPT-IN-CANARY/`
 
-Astra reviews committed staging evidence before any staged-default activation decision. No additional sealed EVAL A/B is required unless real implementation behavior diverges from evaluated behavior.
+Record the tested Git SHA, environment, real-versus-deterministic fixture provenance, actual model/provider used, observed failures, and whether the default remains `legacy-v1`. Append an execution-only canary report here. Astra will review it before any proposal to switch the global default.
 
-### Executed Gemini Staging Verification Report
-
-```text
-Gemini Verification — CTX-RD-01 REAL-PROVIDER STAGING
-Status: PASS
-Tested commit: 9e0f1e88a9a10b924ab0c4636268de84e9faf270
-Evidence commit: 2a54cfb27eb24cfcb77de4a1b38e9b0c980307a1
-Embedding provider/model/version: GeminiEmbeddingProvider / gemini-embedding-2 / gemini-embedding-2-768-v1
-Document/query provider calls: 3/2
-Actual generation provider/model: gemini / models/gemini-3.7-flash (requested: gemini-3.8-flash)
-LLM provider calls: 1
-Local fallback disabled: true
-Balanced scope/tier: 12000/12000
-Semantic/recent/rules retained: 8/8, 20/20, 4/4
-Protected overflow: false
-Dropped artifacts: 0
-Tier above 12k tested: 16000 / production_shaped_deterministic
-Future/superseded/cross-tenant leakage: 0/0/0
-Fallback/rollback: PASS
-Validator: PASS
-Production default changed: NO
-P8-05: BLOCKED
-```
-
-
-
-## Astra review — CTX-RD-01 real-provider staging
-
-Official review:
-`docs/development/CTX-RD-01-REAL-PROVIDER-STAGING/ASTRA-REVIEW.md`
-
-Review commit: `16772bc2c1e10c0558947f48a3ed0f0a9475e1cf`
-
-Verdict: `PARTIAL — REAL PROVIDER PATH OBSERVED; ACTIVATION BLOCKED PENDING EVIDENCE/LINEAGE REPAIR`.
-
-Real-provider evidence commit: `2a54cfb27eb24cfcb77de4a1b38e9b0c980307a1`.
-
-Evidence observations:
-
-```text
-Gemini embedding document/query adapter calls     3 / 2
-Gemini LLM generation wrapper calls                1
-requested/effective generation model               3.8-flash / 3.7-flash
-balanced standalone preview                        25 -> 4 entities / 12k
-deterministic stress tier                           16k
-production default                                 legacy-v1
-P8-05                                              BLOCKED
-```
-
-Do not interpret the validator's PASS as independently verifying provider HTTP history, source-to-packed ID preservation, generation context hash, or clean commit reproducibility.
-
-### BLOCKERS
-
-1. Tested SHA `9e0f1e8...` is inconsistent with the effective 3.7 model: production `LLMService` was modified in evidence commit `2a54cfb...` to add that candidate and to silently model-fallback on 503/high-demand. The declared tested SHA did not include that fallback model.
-2. The harness copies already-packed preview IDs into both `*_input_ids` and `*_retained_ids`, so equality is tautological. Drops/overflow and stress PASS fields are written as constants rather than read from actual routing evidence.
-3. The recorded generation `context_hash` is computed from a separate preview with a different semantic query. It is not compared against `job.context_hash` or the generation job's own routing/tier.
-4. The 1 LLM provider-call count measures one `_call_gemini` invocation, not individual model attempts. Actual model/attempt history must be reported precisely. No CI run was attached to the unreviewed production LLM change at evidence-commit time.
-
-### NEXT — Gemini / Antigravity targeted repair
-
-Use a new implementation branch from current `main`, not another direct-to-main production edit.
-
-- Restore the prior production model fallback behavior for this gate, or submit any broader model-fallback policy as a **separate** explicitly reviewed change. For the staging run, request the actual available model directly (e.g. 3.7 if that is the intended model), and disable local/cross-provider fallbacks.
-- Fix `scripts/run_ctx_rd_01_real_provider_staging.py` to fail on a dirty working tree, capture unscoped source lane IDs and final packed lane IDs independently, derive drop/overflow/stress checks from actual returned data, and store `job.context_hash` and `job.context_summary` for the generation call.
-- Record per-model request attempts separately from successful service-level invocations; do not expose credentials.
-- Add tests for the harness/evidence invariants; run GitHub CI on the committed PR and merge only after review.
-- Rerun **one targeted real-provider smoke** on a clean, exact committed SHA with isolated disposable staging DB. Do not reopen EVAL or run a new blind A/B. Commit corrected evidence and append an execution-only handoff here.
-
-Production default remains `legacy-v1`; balanced-v1 default activation is NOT AUTHORIZED. P8-05 remains BLOCKED.
-
-## Remediation Verification — CTX-RD-01 REAL-PROVIDER STAGING
-
-```text
-Gemini Verification — CTX-RD-01 REAL-PROVIDER STAGING
-Status: PASS
-Tested commit: 019d39222ce0b0d26e130ba57c0fedf92eac453e
-Evidence commit: d2b50be731590b531a17ae2708af2f389667d5af
-Embedding provider/model/version: GeminiEmbeddingProvider / gemini-embedding-2 / gemini-embedding-2-768-v1
-Document/query provider calls: 3/3 (items: 36/3)
-Actual generation provider/model: gemini / models/gemini-3.8-flash
-LLM provider calls: 1 (attempts: 1, models/gemini-3.8-flash)
-Local fallback disabled: true
-Balanced scope/tier: 12000/12000
-Semantic/recent/rules retained: 8/8, 20/20, 4/4
-Protected overflow: false
-Dropped artifacts: 0
-Tier above 12k tested: 16000 / production_shaped_deterministic
-Future/superseded/cross-tenant leakage: 0/0/0
-Fallback/rollback: PASS
-Validator: PASS
-Context hash match (job == preview): true (bd0bf01ffdf85c3ac686cedde474c301385534e277bbeba719d6dbed6e212301)
-Clean tree preflight: PASS (019d39222ce0b0d26e130ba57c0fedf92eac453e)
-Production default changed: NO (legacy-v1)
-Balanced default activation: NOT AUTHORIZED
-P8-05: BLOCKED
-```
-
+No new blind A/B experiment is required merely to run this acceptance canary.
