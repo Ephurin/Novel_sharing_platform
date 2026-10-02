@@ -134,6 +134,76 @@ class TestStagingHarnessInvariants(unittest.TestCase):
         hash_diff = compute_context_hash(pkg_different, packer)
         self.assertNotEqual(hash1, hash_diff)
 
+    def test_writing_service_preview_and_generation_hash_equivalence(self) -> None:
+        """Verify that WritingService preview_context and start_generation produce identical context_hash with revision provider."""
+        from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
+        from infrastructure.revision_content_provider import InMemoryRevisionContentProvider
+        from application.ports import RevisionContent
+        from core.fake_llm import FakeDeterministicLLMService
+        from domain.models import StoryBrain
+
+        repo = InMemoryNarrativeRepository()
+        tenant_id = "00000000-0000-0000-0000-000000000001"
+        novel_id = "10000000-0000-0000-0000-000000000001"
+        chapter_id = "chapter-35"
+        revision_id = "rev-35"
+        source_text = "Elena giơ cao thanh đoản kiếm vừa rèn."
+        instruction = "Tiếp tục mô tả cảnh Elena cầm đoản kiếm chống lại ma thuật."
+        content_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()
+
+        # Seed brain
+        repo._brains[novel_id] = StoryBrain(
+            story_id=novel_id,
+            metadata={"brain_version": "1"},
+        )
+
+        rev_provider = InMemoryRevisionContentProvider([
+            RevisionContent(
+                revision_id=revision_id,
+                novel_id=novel_id,
+                chapter_id=chapter_id,
+                content=source_text,
+                content_hash=content_hash,
+                chapter_number=35,
+            )
+        ])
+
+        packer = ContextBudgetPacker()
+        service = WritingService(
+            repository=repo,
+            llm_service=FakeDeterministicLLMService(),
+            context_packer=packer,
+            revision_provider=rev_provider,
+        )
+
+        gen_query = WritingService._build_semantic_query(
+            instruction=instruction,
+            selected_text=source_text,
+        )
+        preview = service.preview_context(
+            tenant_id=tenant_id,
+            story_id=novel_id,
+            chapter_number=35,
+            semantic_query=gen_query,
+        )
+        preview_hash = compute_context_hash(preview, packer)
+
+        job = service.start_generation(
+            tenant_id=tenant_id,
+            novel_id=novel_id,
+            chapter_id=chapter_id,
+            revision_id=revision_id,
+            content_hash=content_hash,
+            operation="continue",
+            source_text=source_text,
+            selection={"start": 0, "end": len(source_text), "cursor": len(source_text)},
+            instruction=instruction,
+            chapter_number=35,
+        )
+
+        self.assertTrue(job.context_hash)
+        self.assertEqual(job.context_hash, preview_hash)
+
     def test_instrumented_llm_service_attempt_tracking_and_redaction(self) -> None:
         """Verify that InstrumentedRealGeminiLLMService records attempts and redacts API keys."""
         fake_api_key = "AIzaSySecretApiKey123456789"

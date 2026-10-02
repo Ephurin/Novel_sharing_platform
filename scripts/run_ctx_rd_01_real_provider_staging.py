@@ -53,6 +53,8 @@ from domain.models import (
     WritingContextPackage,
     WritingGenerationJob,
 )
+from application.ports import RevisionContent
+from infrastructure.revision_content_provider import InMemoryRevisionContentProvider
 from infrastructure.database import session_scope
 from infrastructure.embedding_providers import GeminiEmbeddingProvider
 from infrastructure.orm_models import (
@@ -656,7 +658,24 @@ def main() -> int:
     os.environ["LLM_LOCAL_FALLBACK"] = "false"
     llm_service = InstrumentedRealGeminiLLMService(api_key=api_key, model="gemini-3.8-flash")
 
-    # 7. WritingService with balanced-scope-v1
+    # 7. WritingService with balanced-scope-v1 and revision provider
+    source_text = "Elena giơ cao thanh đoản kiếm vừa rèn."
+    instruction = "Tiếp tục mô tả cảnh Elena cầm đoản kiếm chống lại ma thuật."
+    content_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()
+    chapter_id = str(uuid.uuid4())
+    revision_id = str(uuid.uuid4())
+
+    rev_provider = InMemoryRevisionContentProvider([
+        RevisionContent(
+            revision_id=revision_id,
+            novel_id=novel_id,
+            chapter_id=chapter_id,
+            content=source_text,
+            content_hash=content_hash,
+            chapter_number=35,
+        )
+    ])
+
     scope_builder = BalancedRelevanceScopeBuilder()
     packer = ContextBudgetPacker()
     router = ContextBudgetRouter(packer)
@@ -668,12 +687,11 @@ def main() -> int:
         context_routing_policy="balanced-scope-v1",
         context_scope_builder=scope_builder,
         context_budget_router=router,
+        revision_provider=rev_provider,
     )
 
     # 8. Real retrieval + balanced preview
     print("\n--- Running Real Retrieval + Balanced Preview ---")
-    source_text = "Elena giơ cao thanh đoản kiếm vừa rèn."
-    instruction = "Tiếp tục mô tả cảnh Elena cầm đoản kiếm chống lại ma thuật."
     gen_query = WritingService._build_semantic_query(
         instruction=instruction,
         selected_text=source_text,
@@ -753,9 +771,6 @@ def main() -> int:
 
     # 9. Real generation
     print("\n--- Running Real Generation with Gemini ---")
-    content_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()
-    chapter_id = str(uuid.uuid4())
-    revision_id = f"ephemeral:{uuid.uuid4()}"
     gen_start = time.perf_counter()
     job = writing_svc_balanced.start_generation(
         tenant_id=tenant_id,
