@@ -69,3 +69,56 @@ Save execution evidence and a concise pass/partial/fail summary under:
 Record the tested Git SHA, environment, real-versus-deterministic fixture provenance, actual model/provider used, observed failures, and whether the default remains `legacy-v1`. Append an execution-only canary report here. Astra will review it before any proposal to switch the global default.
 
 No new blind A/B experiment is required merely to run this acceptance canary.
+
+---
+
+## Canary Execution Report — Bounded Opt-In Canary for `balanced-scope-v1`
+
+- **Execution Date**: 2026-10-02
+- **Result**: **PASS** (100% contract compliance, zero verification errors)
+- **Tested Code Commit**: `5d3d5a29ac5b8dcb0b405af3f332701d09eca331`
+- **Canary Environment**: `isolated_demo_staging` (PostgreSQL 16 + pgvector)
+- **Production Default Policy**: `legacy-v1` (**UNCHANGED**)
+- **Global Default Switch**: **NOT AUTHORIZED**
+- **Canary Opt-In Policy**: `balanced-scope-v1` (explicit opt-in canary only)
+- **Local LLM Fallback**: Disabled (`LLM_LOCAL_FALLBACK=false`)
+- **P8-05 Destructive Cleanup Gate**: `BLOCKED_PENDING_STABILITY` (**UNCHANGED**)
+- **Evidence Directory**: `docs/development/CTX-RD-01-OPT-IN-CANARY/`
+
+### 1. Genuine Provider & Embedding Verification
+
+- **Embedding Provider**: `GeminiEmbeddingProvider` (`gemini-embedding-2`)
+- **Version**: `gemini-embedding-2-768-v1`
+- **Vector Dimension & L2**: `768`, explicit L2 normalization verified on all document and query vectors (`abs(norm - 1.0) < 1e-4`)
+- **Calls & Items**: 4 document batch calls (52 memory chunks embedded), 9 query calls
+- **Generation Provider**: `gemini` (`gemini-3.8-flash` -> `models/gemini-3.8-flash`)
+- **Provider Calls Recorded**: 3 completed generation jobs (zero local fallback)
+
+### 2. Canary Generation Results
+
+| Case Name | Fixture Origin | Cutoff | Selected Tier | Entities (Before -> After) | Semantic Retained | Recent Retained | Rules Retained | Context Hash Parity | Job Status |
+|---|---|---|---|---|---|---|---|---|---|
+| `normal_scene_ch35` | `real_novel_aethelgard` | Ch 35 | 12000 | 25 -> 4 | 8/8 (100%) | 20/20 (100%) | 4/4 (100%) | `preview == job` (`46b8dc...51d`) | `completed` |
+| `repeated_history_rq0025_ch49` | `real_novel_aethelgard_rq0025` | Ch 49 | 12000 | 25 -> 6 | 8/8 (100%) | 20/20 (100%) | 4/4 (100%) | `preview == job` (`6439c1...bed`) | `completed` |
+| `pressured_context_tier16k` | `production_shaped_deterministic_pressure` | Ch 35 | 20000 | 5 -> 5 | 8/8 (100%) | 20/20 (100%) | 4/4 (100%) | `preview == job` (`407b93...1bf`) | `completed` |
+
+- **Artifacts Dropped**: 0 across all cases
+- **Protected Overflow**: False across all cases
+- **Context Hash Match**: 100% byte-for-byte equivalence between standalone preview and `WritingService.start_generation`
+
+### 3. Control Comparison (`legacy-v1`)
+
+- Under `legacy-v1`, context routing headers (`context_routing_version`, `context_routing_status`) are omitted.
+- Unscoped entity packages under `legacy-v1` pack all 25 entities into the context budget without relevance pruning.
+- Under `balanced-scope-v1`, relevance density is maximized (`25 -> 4` for Ch 35, `25 -> 6` for Ch 49) while preserving 100% of semantic memories, recent events, and world rules.
+
+### 4. Safety, Temporal Isolation & Rollback Verification
+
+- **Future Participant Leakage**: `0` (asserted zero events > chapter cutoff)
+- **Superseded Participant Leakage**: `0` (asserted zero superseded records)
+- **Cross-Tenant Leakage**: `0` (asserted zero foreign tenant records)
+- **Over-24k Fails Closed**: `PASS` (`ContextRoutingUnresolvedError` raised)
+- **Semantic Failure Legacy Fallback**: `PASS` (graceful fail-open to legacy context package)
+- **Immediate Rollback to `legacy-v1`**: `PASS` (`legacy-v1` executes cleanly without routing trace headers)
+- **Offline Evidence Validator**: `PASS` (`scripts/verify_ctx_rd_01_opt_in_canary_evidence.py` verified 0 errors)
+

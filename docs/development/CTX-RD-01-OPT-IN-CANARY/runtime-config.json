@@ -1,0 +1,11 @@
+{
+  "tested_commit": "5d3d5a29ac5b8dcb0b405af3f332701d09eca331",
+  "canary_environment": "isolated_demo_staging",
+  "isolated_staging_database": true,
+  "pgvector_live": true,
+  "production_default": "legacy-v1",
+  "default_changed": false,
+  "canary_opt_in_policy": "balanced-scope-v1",
+  "llm_local_fallback_enabled": false,
+  "p8_05_blocked": true
+}

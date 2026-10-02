@@ -1,0 +1,459 @@
+{
+  "tested_commit": "5d3d5a29ac5b8dcb0b405af3f332701d09eca331",
+  "embedding": {
+    "provider": "GeminiEmbeddingProvider",
+    "model": "gemini-embedding-2",
+    "version": "gemini-embedding-2-768-v1",
+    "dimension": 768,
+    "query_l2_normalized": true,
+    "documents_l2_normalized": true,
+    "document_provider_calls": 4,
+    "query_provider_calls": 9,
+    "document_items_count": 52,
+    "query_items_count": 9
+  },
+  "cases": [
+    {
+      "name": "normal_scene_ch35",
+      "fixture_origin": "real_novel_aethelgard",
+      "chapter_cutoff": 35,
+      "routing_status": "routed",
+      "routing_version": "balanced-scope-v1",
+      "selected_tier": 12000,
+      "entities_before": 25,
+      "entities_after": 4,
+      "semantic_input_ids": [
+        "aafa9dea-2d0c-55cb-b8a5-a6c6f8ad587c",
+        "47b33ddc-3630-52cc-8eaf-fae62060e72d",
+        "475e7602-73fd-57e0-9fcf-11f2f7f3fea6",
+        "ffcc3d66-2dc7-5bda-a7b8-949e7ea51782",
+        "f475108e-0d59-5095-bb34-b9712158173e",
+        "5ef91634-221c-5f43-a1af-3610f998ad2b",
+        "211e6ab4-882a-59a8-a6af-a2c0009b070d",
+        "9ff0ada9-d1c7-5d50-a5dc-4bcffa91d98d"
+      ],
+      "semantic_retained_ids": [
+        "aafa9dea-2d0c-55cb-b8a5-a6c6f8ad587c",
+        "47b33ddc-3630-52cc-8eaf-fae62060e72d",
+        "475e7602-73fd-57e0-9fcf-11f2f7f3fea6",
+        "ffcc3d66-2dc7-5bda-a7b8-949e7ea51782",
+        "f475108e-0d59-5095-bb34-b9712158173e",
+        "5ef91634-221c-5f43-a1af-3610f998ad2b",
+        "211e6ab4-882a-59a8-a6af-a2c0009b070d",
+        "9ff0ada9-d1c7-5d50-a5dc-4bcffa91d98d"
+      ],
+      "recent_input_ids": [
+        "11dcb88c-dc45-52d7-a0ea-52ace21ea06a",
+        "26ebdb39-fc75-51ac-8574-ca3d40639eba",
+        "af775bcc-22b3-520d-9fe1-2032dca64e3c",
+        "d51be4fa-3bd1-5b2e-84da-df79ed995416",
+        "b7888d23-92f8-5b41-b24a-297823af1f26",
+        "2531a1be-7a57-5bc6-8af3-16eac488cb62",
+        "e87818ae-9838-5bba-b51f-c5d3e12e07b7",
+        "3a48f9cd-8ece-5925-9070-f5475d2f3d1e",
+        "2973bb56-1bbc-510a-a687-348410d70d2f",
+        "2dff04f6-7663-5841-b771-2f9b489ac164",
+        "e700393a-1914-53bd-bbe5-3c698ea881d6",
+        "40bfff9d-fa78-5773-8254-f8afd0d1706c",
+        "8e72cd2f-1b0d-546d-8990-3fad18322261",
+        "8044a7ab-9401-5747-b18b-20f47a87f7a6",
+        "f12d80c3-051a-5c5b-a8e2-f4ce6652efad",
+        "15530606-82a6-57d3-81dc-4eda7febf3cd",
+        "439ab950-b1fa-538e-88ed-02a2eb8e558c",
+        "d66dc9e8-1475-52f2-9052-797abaa2a63f",
+        "aac3fc5c-149e-552a-b8a9-f7f7140d10ab",
+        "168c0be5-806c-5a63-ae18-1287a44828ec"
+      ],
+      "recent_retained_ids": [
+        "11dcb88c-dc45-52d7-a0ea-52ace21ea06a",
+        "26ebdb39-fc75-51ac-8574-ca3d40639eba",
+        "af775bcc-22b3-520d-9fe1-2032dca64e3c",
+        "d51be4fa-3bd1-5b2e-84da-df79ed995416",
+        "b7888d23-92f8-5b41-b24a-297823af1f26",
+        "2531a1be-7a57-5bc6-8af3-16eac488cb62",
+        "e87818ae-9838-5bba-b51f-c5d3e12e07b7",
+        "3a48f9cd-8ece-5925-9070-f5475d2f3d1e",
+        "2973bb56-1bbc-510a-a687-348410d70d2f",
+        "2dff04f6-7663-5841-b771-2f9b489ac164",
+        "e700393a-1914-53bd-bbe5-3c698ea881d6",
+        "40bfff9d-fa78-5773-8254-f8afd0d1706c",
+        "8e72cd2f-1b0d-546d-8990-3fad18322261",
+        "8044a7ab-9401-5747-b18b-20f47a87f7a6",
+        "f12d80c3-051a-5c5b-a8e2-f4ce6652efad",
+        "15530606-82a6-57d3-81dc-4eda7febf3cd",
+        "439ab950-b1fa-538e-88ed-02a2eb8e558c",
+        "d66dc9e8-1475-52f2-9052-797abaa2a63f",
+        "aac3fc5c-149e-552a-b8a9-f7f7140d10ab",
+        "168c0be5-806c-5a63-ae18-1287a44828ec"
+      ],
+      "rules_input_ids": [
+        "50591664-8271-58c6-b4d5-9d8780b00da1",
+        "257bd28b-1c21-5588-b9ad-797e9bb12abb",
+        "7636fd2f-0abc-5cb5-98a5-bde4baa74fc0",
+        "2c3b5c2e-e037-5ee7-af26-66bd6b12c0e7"
+      ],
+      "rules_retained_ids": [
+        "50591664-8271-58c6-b4d5-9d8780b00da1",
+        "257bd28b-1c21-5588-b9ad-797e9bb12abb",
+        "7636fd2f-0abc-5cb5-98a5-bde4baa74fc0",
+        "2c3b5c2e-e037-5ee7-af26-66bd6b12c0e7"
+      ],
+      "dropped_artifacts": 0,
+      "protected_overflow": false,
+      "preview_context_hash": "46b8dc2c52c84fc9d5ec68faa417242fcf67e388eeb3bec1c7f9cc833eebb51d",
+      "job_context_hash": "46b8dc2c52c84fc9d5ec68faa417242fcf67e388eeb3bec1c7f9cc833eebb51d",
+      "context_hash_match": true,
+      "latency_ms": 25580.6,
+      "generation": {
+        "provider": "gemini",
+        "requested_model": "gemini-3.8-flash",
+        "effective_model": "models/gemini-3.8-flash",
+        "actual_provider_response": true,
+        "status": "completed",
+        "nonempty_output": true,
+        "model_attempts": [
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 1,
+            "error_type": "ClientError",
+            "error_snippet": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 1,
+            "error_type": "ServerError",
+            "error_snippet": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 1,
+            "error_type": "ClientError",
+            "error_snippet": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "success",
+            "call_index": 1
+          }
+        ]
+      },
+      "control_comparison_legacy": {
+        "policy": "legacy-v1",
+        "entities_packed": 25,
+        "routing_headers_present": false
+      }
+    },
+    {
+      "name": "repeated_history_rq0025_ch49",
+      "fixture_origin": "real_novel_aethelgard_rq0025",
+      "chapter_cutoff": 49,
+      "routing_status": "routed",
+      "routing_version": "balanced-scope-v1",
+      "selected_tier": 12000,
+      "entities_before": 25,
+      "entities_after": 6,
+      "semantic_input_ids": [
+        "ee20e908-5135-59d1-aad2-446861581284",
+        "36886337-9119-56fb-be8b-f4ac3f4fbf7d",
+        "16793b73-53ec-550b-8f56-b24d16a6164c",
+        "64744a10-91ba-5c6e-b969-242ea2176613",
+        "8717ffb8-431f-5682-befd-27c8eb3c2e6b",
+        "6bb0f4dd-f3da-557b-b9f1-f663ee2adc57",
+        "33800956-a898-5669-91d4-79610b8c003f",
+        "694e9e27-3767-5d75-aaa7-f9008afd9ed8"
+      ],
+      "semantic_retained_ids": [
+        "ee20e908-5135-59d1-aad2-446861581284",
+        "36886337-9119-56fb-be8b-f4ac3f4fbf7d",
+        "16793b73-53ec-550b-8f56-b24d16a6164c",
+        "64744a10-91ba-5c6e-b969-242ea2176613",
+        "8717ffb8-431f-5682-befd-27c8eb3c2e6b",
+        "6bb0f4dd-f3da-557b-b9f1-f663ee2adc57",
+        "33800956-a898-5669-91d4-79610b8c003f",
+        "694e9e27-3767-5d75-aaa7-f9008afd9ed8"
+      ],
+      "recent_input_ids": [
+        "f12d80c3-051a-5c5b-a8e2-f4ce6652efad",
+        "15530606-82a6-57d3-81dc-4eda7febf3cd",
+        "439ab950-b1fa-538e-88ed-02a2eb8e558c",
+        "d66dc9e8-1475-52f2-9052-797abaa2a63f",
+        "aac3fc5c-149e-552a-b8a9-f7f7140d10ab",
+        "168c0be5-806c-5a63-ae18-1287a44828ec",
+        "a1577b7b-2f37-527c-adf7-da70c7f2522f",
+        "314a018d-ad11-5a16-a64b-87abd13888e8",
+        "b7fbaccc-7c25-53e5-9032-0163fa8417df",
+        "fe6c5580-87bc-5f15-b11a-bef5e491a90e",
+        "cdd7c3bf-b37a-5e07-abfd-182a73f4e297",
+        "addb3c39-e336-5436-a387-bdf8ed286831",
+        "ee2ec816-44ed-5b1d-aafd-e9dbf6ffaae1",
+        "5a5dcdc5-1f13-59ca-82ed-c88008cf9573",
+        "eef7fce5-b301-5a46-98c2-59aae9831090",
+        "4ee349a2-d144-53e7-b942-9b89d0d94423",
+        "fd5a03eb-28a2-51ce-82fa-89a1aa5cfcc5",
+        "7074dfc4-89d1-5622-b134-e6fedb222c99",
+        "18734fb6-59d5-5e41-9911-17e32184b371",
+        "f67772f2-4b2f-5f4d-9ff0-0330ff7fb326"
+      ],
+      "recent_retained_ids": [
+        "f12d80c3-051a-5c5b-a8e2-f4ce6652efad",
+        "15530606-82a6-57d3-81dc-4eda7febf3cd",
+        "439ab950-b1fa-538e-88ed-02a2eb8e558c",
+        "d66dc9e8-1475-52f2-9052-797abaa2a63f",
+        "aac3fc5c-149e-552a-b8a9-f7f7140d10ab",
+        "168c0be5-806c-5a63-ae18-1287a44828ec",
+        "a1577b7b-2f37-527c-adf7-da70c7f2522f",
+        "314a018d-ad11-5a16-a64b-87abd13888e8",
+        "b7fbaccc-7c25-53e5-9032-0163fa8417df",
+        "fe6c5580-87bc-5f15-b11a-bef5e491a90e",
+        "cdd7c3bf-b37a-5e07-abfd-182a73f4e297",
+        "addb3c39-e336-5436-a387-bdf8ed286831",
+        "ee2ec816-44ed-5b1d-aafd-e9dbf6ffaae1",
+        "5a5dcdc5-1f13-59ca-82ed-c88008cf9573",
+        "eef7fce5-b301-5a46-98c2-59aae9831090",
+        "4ee349a2-d144-53e7-b942-9b89d0d94423",
+        "fd5a03eb-28a2-51ce-82fa-89a1aa5cfcc5",
+        "7074dfc4-89d1-5622-b134-e6fedb222c99",
+        "18734fb6-59d5-5e41-9911-17e32184b371",
+        "f67772f2-4b2f-5f4d-9ff0-0330ff7fb326"
+      ],
+      "rules_input_ids": [
+        "50591664-8271-58c6-b4d5-9d8780b00da1",
+        "257bd28b-1c21-5588-b9ad-797e9bb12abb",
+        "7636fd2f-0abc-5cb5-98a5-bde4baa74fc0",
+        "2c3b5c2e-e037-5ee7-af26-66bd6b12c0e7"
+      ],
+      "rules_retained_ids": [
+        "50591664-8271-58c6-b4d5-9d8780b00da1",
+        "257bd28b-1c21-5588-b9ad-797e9bb12abb",
+        "7636fd2f-0abc-5cb5-98a5-bde4baa74fc0",
+        "2c3b5c2e-e037-5ee7-af26-66bd6b12c0e7"
+      ],
+      "dropped_artifacts": 0,
+      "protected_overflow": false,
+      "preview_context_hash": "6439c142613c491da30e2dd3cbb997c7081c4dd5975bd7eaaf901bcad95bfbed",
+      "job_context_hash": "6439c142613c491da30e2dd3cbb997c7081c4dd5975bd7eaaf901bcad95bfbed",
+      "context_hash_match": true,
+      "latency_ms": 37048.3,
+      "generation": {
+        "provider": "gemini",
+        "requested_model": "gemini-3.8-flash",
+        "effective_model": "models/gemini-3.8-flash",
+        "actual_provider_response": true,
+        "status": "completed",
+        "nonempty_output": true,
+        "model_attempts": [
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 1,
+            "error_type": "ClientError",
+            "error_snippet": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 1,
+            "error_type": "ServerError",
+            "error_snippet": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 1,
+            "error_type": "ClientError",
+            "error_snippet": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "success",
+            "call_index": 1
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 2,
+            "error_type": "ServerError",
+            "error_snippet": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 2,
+            "error_type": "ServerError",
+            "error_snippet": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "success",
+            "call_index": 2
+          }
+        ]
+      },
+      "control_comparison_legacy": {
+        "policy": "legacy-v1",
+        "entities_packed": 25,
+        "routing_headers_present": false
+      }
+    },
+    {
+      "name": "pressured_context_tier16k",
+      "fixture_origin": "production_shaped_deterministic_pressure",
+      "chapter_cutoff": 35,
+      "routing_status": "routed",
+      "routing_version": "balanced-scope-v1",
+      "selected_tier": 20000,
+      "entities_before": 5,
+      "entities_after": 5,
+      "semantic_input_ids": [
+        "sem-000",
+        "sem-001",
+        "sem-002",
+        "sem-003",
+        "sem-004",
+        "sem-005",
+        "sem-006",
+        "sem-007"
+      ],
+      "semantic_retained_ids": [
+        "sem-000",
+        "sem-001",
+        "sem-002",
+        "sem-003",
+        "sem-004",
+        "sem-005",
+        "sem-006",
+        "sem-007"
+      ],
+      "recent_input_ids": [
+        "ev-000",
+        "ev-001",
+        "ev-002",
+        "ev-003",
+        "ev-004",
+        "ev-005",
+        "ev-006",
+        "ev-007",
+        "ev-008",
+        "ev-009",
+        "ev-010",
+        "ev-011",
+        "ev-012",
+        "ev-013",
+        "ev-014",
+        "ev-015",
+        "ev-016",
+        "ev-017",
+        "ev-018",
+        "ev-019"
+      ],
+      "recent_retained_ids": [
+        "ev-000",
+        "ev-001",
+        "ev-002",
+        "ev-003",
+        "ev-004",
+        "ev-005",
+        "ev-006",
+        "ev-007",
+        "ev-008",
+        "ev-009",
+        "ev-010",
+        "ev-011",
+        "ev-012",
+        "ev-013",
+        "ev-014",
+        "ev-015",
+        "ev-016",
+        "ev-017",
+        "ev-018",
+        "ev-019"
+      ],
+      "rules_input_ids": [
+        "rul-000",
+        "rul-001",
+        "rul-002",
+        "rul-003"
+      ],
+      "rules_retained_ids": [
+        "rul-000",
+        "rul-001",
+        "rul-002",
+        "rul-003"
+      ],
+      "dropped_artifacts": 0,
+      "protected_overflow": false,
+      "preview_context_hash": "407b937bb63e00bca27124de77f271d1d7cea28e7a046087258c1369021e1dbf",
+      "job_context_hash": "407b937bb63e00bca27124de77f271d1d7cea28e7a046087258c1369021e1dbf",
+      "context_hash_match": true,
+      "latency_ms": 9148.92,
+      "generation": {
+        "provider": "gemini",
+        "requested_model": "gemini-3.8-flash",
+        "effective_model": "models/gemini-3.8-flash",
+        "actual_provider_response": true,
+        "status": "completed",
+        "nonempty_output": true,
+        "model_attempts": [
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 1,
+            "error_type": "ClientError",
+            "error_snippet": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 1,
+            "error_type": "ServerError",
+            "error_snippet": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 1,
+            "error_type": "ClientError",
+            "error_snippet": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "success",
+            "call_index": 1
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 2,
+            "error_type": "ServerError",
+            "error_snippet": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "failed",
+            "call_index": 2,
+            "error_type": "ServerError",
+            "error_snippet": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand "
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "success",
+            "call_index": 2
+          },
+          {
+            "model": "models/gemini-3.8-flash",
+            "status": "success",
+            "call_index": 3
+          }
+        ]
+      },
+      "control_comparison_legacy": {
+        "policy": "legacy-v1",
+        "entities_packed": 5,
+        "routing_headers_present": false
+      }
+    }
+  ]
+}
