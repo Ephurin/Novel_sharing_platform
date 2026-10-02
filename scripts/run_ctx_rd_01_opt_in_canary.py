@@ -199,7 +199,7 @@ def check_clean_working_tree() -> str:
 
 
 def check_baseline_guards() -> None:
-    settings = Settings()
+    settings = Settings.from_env()
     if settings.context_routing_policy != "legacy-v1":
         raise SystemExit(
             f"BLOCKED: Production default is '{settings.context_routing_policy}', expected 'legacy-v1'"
