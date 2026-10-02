@@ -57,6 +57,7 @@ from core.settings import Settings
 from domain.errors import ContextRoutingUnresolvedError
 from domain.embeddings import l2_normalize
 from domain.models import (
+    SemanticMemoryMatch,
     SemanticRetrievalResult,
     WritingContextPackage,
     WritingGenerationJob,
@@ -244,6 +245,59 @@ class InstrumentedRealGeminiLLMService(LLMService):
                 seen.add(val)
                 result.append(val)
         return result
+
+
+class PressureNarrativeRepositoryAdapter:
+    """Delegates to narrative repository, but provides deterministic pressure package for structured context."""
+
+    def __init__(self, delegate: PostgresNarrativeRepository, package: WritingContextPackage) -> None:
+        self._delegate = delegate
+        self._package = package
+
+    def get_structured_context(
+        self,
+        story_id: str,
+        chapter_number: int | None = None,
+        character_name: str | None = None,
+        limit_recent_events: int = 20,
+        token_budget: int | None = None,
+        enforce_token_budget: bool = True,
+    ) -> WritingContextPackage:
+        return self._package
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._delegate, name)
+
+
+class PressureSemanticRetrieverAdapter:
+    """Provides deterministic semantic retrieval results for pressure tier escalation."""
+
+    def __init__(self, delegate: SemanticRetrieverService, matches: tuple[SemanticMemoryMatch, ...]) -> None:
+        self._delegate = delegate
+        self._matches = matches
+        self.default_limit = 8
+
+    def retrieve(
+        self,
+        story_id: str,
+        query_text: str | None = None,
+        chapter_number: int | None = None,
+        limit: int | None = None,
+        tenant_id: str | None = None,
+    ) -> SemanticRetrievalResult:
+        return SemanticRetrievalResult(
+            matches=self._matches,
+            status="ok",
+            embedding_version="gemini-embedding-2-768-v1",
+            ranking_version=HYBRID_RANKING_VERSION,
+            fallback_reason=None,
+            query_entity_ids=(),
+            related_entity_ids=(),
+            hybrid_signals_resolved=True,
+        )
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._delegate, name)
 
 
 def get_git_commit() -> str:
@@ -607,8 +661,8 @@ def run_case(
     fixture_origin: str,
     writing_service: WritingService,
     control_service: WritingService,
-    retriever_service: SemanticRetrieverService,
-    narrative_repo: PostgresNarrativeRepository,
+    retriever_service: Any,
+    narrative_repo: Any,
     packer: ContextBudgetPacker,
     tenant_id: str,
     novel_id: str,
@@ -619,7 +673,6 @@ def run_case(
     rev_provider: InMemoryRevisionContentProvider,
     chapter_id: str,
     revision_id: str,
-    custom_package: WritingContextPackage | None = None,
 ) -> dict[str, Any]:
     print(f"\n--- Running Canary Case: {case_name} (Cutoff: {chapter_number}) ---")
     gen_query = WritingService._build_semantic_query(
@@ -627,68 +680,50 @@ def run_case(
         selected_text=source_text,
     )
 
-    if custom_package is None:
-        raw_package = narrative_repo.get_structured_context(
-            story_id=novel_id,
-            chapter_number=chapter_number,
-            character_name=None,
-            limit_recent_events=20,
-            token_budget=None,
-            enforce_token_budget=False,
-        )
-        retrieval_result = retriever_service.retrieve(
-            novel_id,
-            query_text=gen_query,
-            chapter_number=chapter_number,
-            limit=8,
-            tenant_id=tenant_id,
-        )
-        unscoped_semantic = tuple(
-            writing_service._semantic_match_payload(m) for m in retrieval_result.matches
-        )
-        unscoped_canonical_rules = [
-            r for r in raw_package.world_rules if bool(r.get("is_locked"))
-        ] + [
-            r for r in raw_package.world_rules if not bool(r.get("is_locked"))
-        ]
-        unscoped_semantic_ids = [ContextBudgetPacker._semantic_id(m) for m in unscoped_semantic]
-        unscoped_recent_ids = [ContextBudgetPacker._event_id(e) for e in raw_package.recent_events]
-        unscoped_rules_ids = [ContextBudgetPacker._rule_id(r) for r in unscoped_canonical_rules]
+    raw_package = narrative_repo.get_structured_context(
+        story_id=novel_id,
+        chapter_number=chapter_number,
+        character_name=None,
+        limit_recent_events=20,
+        token_budget=None,
+        enforce_token_budget=False,
+    )
+    retrieval_result = retriever_service.retrieve(
+        novel_id,
+        query_text=gen_query,
+        chapter_number=chapter_number,
+        limit=8,
+        tenant_id=tenant_id,
+    )
+    unscoped_semantic = tuple(
+        writing_service._semantic_match_payload(m) for m in retrieval_result.matches
+    )
+    unscoped_canonical_rules = [
+        r for r in raw_package.world_rules if bool(r.get("is_locked"))
+    ] + [
+        r for r in raw_package.world_rules if not bool(r.get("is_locked"))
+    ]
+    unscoped_semantic_ids = [ContextBudgetPacker._semantic_id(m) for m in unscoped_semantic]
+    unscoped_recent_ids = [ContextBudgetPacker._event_id(e) for e in raw_package.recent_events]
+    unscoped_rules_ids = [ContextBudgetPacker._rule_id(r) for r in unscoped_canonical_rules]
 
-        preview = writing_service.preview_context(
-            tenant_id=tenant_id,
-            story_id=novel_id,
-            chapter_number=chapter_number,
-            semantic_query=gen_query,
-            semantic_limit=8,
-            limit_recent_events=20,
-        )
-        # Control comparison with legacy-v1
-        control_preview = control_service.preview_context(
-            tenant_id=tenant_id,
-            story_id=novel_id,
-            chapter_number=chapter_number,
-            semantic_query=gen_query,
-            semantic_limit=8,
-            limit_recent_events=20,
-        )
-    else:
-        # Pressure custom package
-        raw_package = custom_package
-        unscoped_semantic_ids = [ContextBudgetPacker._semantic_id(m) for m in custom_package.semantic_memories]
-        unscoped_recent_ids = [ContextBudgetPacker._event_id(e) for e in custom_package.recent_events]
-        stress_rules = [r for r in custom_package.world_rules if bool(r.get("is_locked"))] + [
-            r for r in custom_package.world_rules if not bool(r.get("is_locked"))
-        ]
-        unscoped_rules_ids = [ContextBudgetPacker._rule_id(r) for r in stress_rules]
-
-        scope = writing_service._context_scope_builder.scope(
-            custom_package,
-            query_entity_ids=(),
-            recent_participant_entity_ids=(),
-        )
-        preview = writing_service._context_budget_router.route(scope)
-        control_preview = packer.pack(custom_package, maximum=12000)
+    preview = writing_service.preview_context(
+        tenant_id=tenant_id,
+        story_id=novel_id,
+        chapter_number=chapter_number,
+        semantic_query=gen_query,
+        semantic_limit=8,
+        limit_recent_events=20,
+    )
+    # Control comparison with legacy-v1
+    control_preview = control_service.preview_context(
+        tenant_id=tenant_id,
+        story_id=novel_id,
+        chapter_number=chapter_number,
+        semantic_query=gen_query,
+        semantic_limit=8,
+        limit_recent_events=20,
+    )
 
     routing_status = preview.context_summary.get("context_routing_status", ["unknown"])[0]
     routing_version = preview.context_summary.get("context_routing_version", ["unknown"])[0]
@@ -947,39 +982,73 @@ def main() -> int:
     cases_evidence.append(case2)
 
     # Case 3: Pressured context tier escalation
-    large_lore = " " + "Chi tiết lịch sử cổ xưa về mỏ quặng kháng ma pháp và cuộc chiến cổ đại. " * 350
+    # Case 3: Pressured context tier escalation
     stress_entities = [
         {"entity_id": f"ent-{i:03d}", "name": f"Heroic Order {i:03d}", "is_locked": True, "description": "Tactical order history lore " * 10}
         for i in range(5)
     ]
     stress_events = [
-        {"event_id": f"ev-{i:03d}", "summary": f"Trận chiến lớn chương {i} tại chiến trường. " * 18, "chapter_number": i}
+        {"event_id": f"ev-{i:03d}", "summary": f"Trận chiến lớn chương {i} tại chiến trường biên giới. " * 18, "chapter_number": i}
         for i in range(20)
-    ]
-    stress_semantic = [
-        {"memory_chunk_id": f"sem-{i:03d}", "content": f"Bản ghi ký ức ngữ nghĩa về thanh kiếm kháng ma {i}. " * 25, "score": 0.9}
-        for i in range(8)
     ]
     stress_rules = [
         {"fact_key": f"rul-{i:03d}", "rule": f"Quy tắc thế giới số {i}: Ma thuật bị triệt tiêu khi chạm quặng kháng ma. " * 10, "is_locked": True}
         for i in range(4)
     ]
-    pressure_package = WritingContextPackage(
+    pressure_package_base = WritingContextPackage(
         brain_version=1,
         entities=tuple(stress_entities),
         current_states=(),
         recent_events=tuple(stress_events),
-        semantic_memories=tuple(stress_semantic),
+        semantic_memories=(),
         world_rules=tuple(stress_rules),
+        context_summary={"recent_scope_participant_identity": ["normalized-event-participants-v1"]},
+    )
+    stress_semantic_matches = tuple(
+        SemanticMemoryMatch(
+            memory_id=f"sem-{i:03d}",
+            novel_id=novel_id,
+            content=f"Bản ghi ký ức ngữ nghĩa về thanh kiếm kháng ma {i}. " * 25,
+            content_hash=hashlib.sha256(f"sem-{i}".encode("utf-8")).hexdigest(),
+            embedding_version="gemini-embedding-2-768-v1",
+            cosine_distance=0.05,
+            ranking_version="hybrid-v1",
+            hybrid_score=0.95 - (i * 0.01),
+            semantic_score=0.95 - (i * 0.01),
+            chapter_number=i,
+            narrative_order=i * 1024,
+            event_id=f"ev-sem-{i:03d}",
+        )
+        for i in range(8)
+    )
+
+    pressure_repo = PressureNarrativeRepositoryAdapter(narrative_repo, pressure_package_base)
+    pressure_retriever = PressureSemanticRetrieverAdapter(retriever_service, stress_semantic_matches)
+
+    writing_svc_pressure_balanced = WritingService(
+        repository=pressure_repo,
+        llm_service=llm_service,
+        semantic_retriever=pressure_retriever,
+        context_routing_policy="balanced-scope-v1",
+        context_scope_builder=scope_builder,
+        context_budget_router=router,
+        revision_provider=rev_provider,
+    )
+    writing_svc_pressure_control = WritingService(
+        repository=pressure_repo,
+        llm_service=llm_service,
+        semantic_retriever=pressure_retriever,
+        context_routing_policy="legacy-v1",
+        revision_provider=rev_provider,
     )
 
     case3 = run_case(
         case_name="pressured_context_tier16k",
         fixture_origin="production_shaped_deterministic_pressure",
-        writing_service=writing_svc_balanced,
-        control_service=writing_svc_legacy_control,
-        retriever_service=retriever_service,
-        narrative_repo=narrative_repo,
+        writing_service=writing_svc_pressure_balanced,
+        control_service=writing_svc_pressure_control,
+        retriever_service=pressure_retriever,
+        narrative_repo=pressure_repo,
         packer=packer,
         tenant_id=tenant_id,
         novel_id=novel_id,
@@ -990,7 +1059,6 @@ def main() -> int:
         rev_provider=rev_provider,
         chapter_id=press_ch_id,
         revision_id=press_rev_id,
-        custom_package=pressure_package,
     )
     cases_evidence.append(case3)
 
