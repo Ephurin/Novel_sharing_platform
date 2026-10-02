@@ -1,6 +1,6 @@
 # CTX-RD-01 — Bounded Opt-In Canary Verification Report
 
-## Result: TECHNICAL_CANARY_PASS_ON_SOURCE_INSPIRED_FIXTURES
+## Result: TECHNICAL_CANARY_PASS (SYNTHETIC & REAL-SOURCE GROUNDED)
 
 - **Tested Commit**: `5d3d5a29ac5b8dcb0b405af3f332701d09eca331`
 - **Evidence Timestamp**: `2026-10-02T03:35:36.028914+00:00`
@@ -63,3 +63,39 @@
 - **Immediate Rollback to legacy-v1**: `PASS` (legacy-v1 executes cleanly without routing trace headers)
 - **Production Default Policy**: `legacy-v1` (UNCHANGED)
 - **P8-05 Destructive Cleanup Gate**: `BLOCKED_PENDING_STABILITY` (UNCHANGED)
+
+---
+
+## 6. Source-Grounded Canary Execution (`real-source-canary.json`)
+
+To address Astra's review, two truly source-grounded canary cases were executed against isolated staging PostgreSQL + pgvector using the frozen source-derived corpus (`.data/Frozen_v1/memory_chunks_canonical.json`, `.data/Frozen_v1/retrieval_queries.json`, `.data/Batch_7/entities.json`, `docs/development/EVAL-01-AETHELGARD-RUNTIME-BASELINE/retrieval-raw.json`) through genuine `WritingService.start_generation` with real `gemini-3.8-flash`:
+
+| Case Name | Query ID | Role | Origin | Cutoff | Selected Tier | Entities (Before -> After) | Semantic Retained | Recent Retained | Rules Retained | Context Hash Match | Latency (ms) | Checklist Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `source_grounded_normal_rq0011` | `core_gold:rq-0011` | NORMAL | `source_grounded_canonical_aethelgard` | Ch 32 | 12000 | 63 -> 21 | 8/8 (100%) | 20/20 (100%) | 6/6 (100%) | `True` (`5bb32e...a14`) | 50855.1 | PASS |
+| `source_grounded_chronology_rq0025` | `challenge:rq-0025` | CHALLENGE | `source_grounded_canonical_rq0025` | Ch 49 | 12000 | 68 -> 20 | 8/8 (100%) | 20/20 (100%) | 12/12 (100%) | `True` (`c552b5...5da`) | 12138.6 | PASS |
+
+### Source-Grounded Chronology / Correctness Checklist
+
+1. **`core_gold:rq-0011` (Alan Than Tinh Sword Origin, Cutoff 32)**:
+   - **Canonical source status correctness**: PASS. Identifies Chapter 27 as the initial canonical forging origin (Bram, Alan, Elena, Brand at Frostspine forge).
+   - **Chronology / causality**: PASS. Maintains distinction without overwriting Chapter 27 with Chapter 32.
+   - **Ambiguity handling**: PASS. Avoids conflating Chapter 27 and 32 into a single event.
+   - **Future leakage**: NONE (0 events > Ch 32).
+   - **Unsupported claim**: NONE.
+   - **Legacy control delta**: Legacy packs all 63 unpruned entities; `balanced-scope-v1` prunes to 21 active entities while retaining 100% of semantic, recent, and rule lanes.
+
+2. **`challenge:rq-0025` (Roland 3,000 Cavalry Chronology, Cutoff 49)**:
+   - **Canonical source status correctness**: PASS. Surfaces Roland's 3,000 heavy cavalry forces explicitly.
+   - **Chronology / causality**: PASS. Identifies Chapter 45 as the earliest burial/landslide event and surfaces Chapter 47's incompatible continuation/re-burial.
+   - **Ambiguity handling**: PASS. Explicitly notes the contradiction in sequence rather than silently collapsing them into a false linear timeline.
+   - **Future leakage**: NONE (0 events > Ch 49).
+   - **Unsupported claim**: NONE.
+   - **Legacy control delta**: Legacy packs all 68 unpruned entities; `balanced-scope-v1` prunes to 20 active entities while retaining 100% of semantic, recent, and rule lanes.
+
+### Provider Model Attempts (Real-Source Canary)
+- **Total attempts across real-source jobs**: `8`
+- **Successful calls**: `2`
+- **Failed transient provider calls (429/503 handled via backoff & rotation)**: `6`
+- **Zero local fallback**: Asserted `LLM_LOCAL_FALLBACK=false`.
+

@@ -123,6 +123,86 @@ def validate(canary: dict, safety: dict, config: dict) -> list[str]:
     return errors
 
 
+def validate_real_source(real_source: dict) -> list[str]:
+    errors: list[str] = []
+
+    def require(ok: bool, code: str) -> None:
+        if not ok:
+            errors.append(code)
+
+    commit = real_source.get("tested_commit")
+    require(isinstance(commit, str) and bool(re.fullmatch(r"[0-9a-f]{40}", commit)), "invalid_real_source_commit")
+    require(real_source.get("environment") == "isolated_demo_staging", "real_source_env_invalid")
+    require(real_source.get("policy") == "balanced-scope-v1", "real_source_policy_invalid")
+    require(real_source.get("production_default") == "legacy-v1", "real_source_default_not_legacy")
+    require(real_source.get("default_changed") is False, "real_source_default_changed")
+    require(real_source.get("p8_05_blocked") is True, "real_source_p8_05_not_blocked")
+
+    cases = real_source.get("cases") or []
+    require(isinstance(cases, list) and len(cases) >= 2, "insufficient_real_source_cases")
+
+    rq0011_found = False
+    rq0025_found = False
+
+    for idx, c in enumerate(cases):
+        prefix = f"real_case_{idx}_"
+        qid = c.get("query_id")
+        if qid == "core_gold:rq-0011":
+            rq0011_found = True
+        elif qid == "challenge:rq-0025":
+            rq0025_found = True
+
+        origin = c.get("fixture_origin")
+        require(
+            origin in {"source_grounded_canonical_aethelgard", "source_grounded_canonical_rq0025"},
+            f"{prefix}invalid_real_source_origin",
+        )
+        tier = c.get("selected_tier")
+        require(tier in TIERS, f"{prefix}invalid_tier")
+        require(c.get("routing_status") == "routed", f"{prefix}routing_not_routed")
+        require(c.get("routing_version") == "balanced-scope-v1", f"{prefix}routing_version_mismatch")
+
+        for lane in ("semantic", "recent"):
+            orig = c.get(f"{lane}_input_ids")
+            kept = c.get(f"{lane}_retained_ids")
+            require(isinstance(orig, list) and isinstance(kept, list) and orig == kept, f"{prefix}{lane}_ids_not_preserved")
+
+        orig_rules = c.get("rules_input_ids")
+        kept_rules = c.get("rules_retained_ids")
+        require(
+            isinstance(orig_rules, list)
+            and isinstance(kept_rules, list)
+            and set(orig_rules) == set(kept_rules)
+            and len(orig_rules) == len(kept_rules),
+            f"{prefix}rules_ids_not_preserved",
+        )
+
+        require(c.get("dropped_artifacts") == 0, f"{prefix}dropped_artifacts_nonzero")
+        require(c.get("protected_overflow") is False, f"{prefix}protected_overflow_true")
+
+        job_hash = c.get("job_context_hash")
+        preview_hash = c.get("preview_context_hash")
+        require(isinstance(job_hash, str) and bool(re.fullmatch(r"[0-9a-f]{64}", job_hash)), f"{prefix}invalid_job_hash")
+        require(job_hash == preview_hash, f"{prefix}context_hash_mismatch")
+        require(c.get("context_hash_match") is True, f"{prefix}context_hash_match_not_true")
+
+        gen = c.get("generation") or {}
+        require(gen.get("provider") == "gemini", f"{prefix}generation_provider_not_gemini")
+        require(gen.get("status") == "completed", f"{prefix}generation_not_completed")
+        require(gen.get("nonempty_output") is True, f"{prefix}generation_output_empty")
+        require(isinstance(gen.get("model_attempts"), list) and len(gen["model_attempts"]) > 0, f"{prefix}no_model_attempts")
+
+        chk = c.get("checklist") or {}
+        require(chk.get("canonical_source_status_correctness") in {"PASS", "PARTIAL"}, f"{prefix}checklist_status_failed")
+        require(chk.get("chronology_causality") in {"PASS", "PARTIAL"}, f"{prefix}checklist_chronology_failed")
+        require(chk.get("future_leakage") == "NONE", f"{prefix}future_leakage_detected")
+
+    require(rq0011_found, "missing_rq0011_real_source_case")
+    require(rq0025_found, "missing_rq0025_real_source_case")
+
+    return errors
+
+
 def build_valid_fixture(commit: str = "a" * 40) -> tuple[dict, dict, dict]:
     cfg = {
         "tested_commit": commit,
@@ -270,6 +350,79 @@ def self_test() -> None:
     safety_mut["future_participant_leakage"] = 1
     assert "future_participant_leakage" in validate(canary, safety_mut, cfg)
 
+    # Test validate_real_source
+    commit = canary["tested_commit"]
+    real_source_fixture = {
+        "tested_commit": commit,
+        "environment": "isolated_demo_staging",
+        "policy": "balanced-scope-v1",
+        "production_default": "legacy-v1",
+        "default_changed": False,
+        "p8_05_blocked": True,
+        "cases": [
+            {
+                "query_id": "core_gold:rq-0011",
+                "fixture_origin": "source_grounded_canonical_aethelgard",
+                "selected_tier": 12000,
+                "routing_status": "routed",
+                "routing_version": "balanced-scope-v1",
+                "semantic_input_ids": ["s1"],
+                "semantic_retained_ids": ["s1"],
+                "recent_input_ids": ["e1"],
+                "recent_retained_ids": ["e1"],
+                "rules_input_ids": ["r1"],
+                "rules_retained_ids": ["r1"],
+                "dropped_artifacts": 0,
+                "protected_overflow": False,
+                "job_context_hash": "a" * 64,
+                "preview_context_hash": "a" * 64,
+                "context_hash_match": True,
+                "generation": {
+                    "provider": "gemini",
+                    "status": "completed",
+                    "nonempty_output": True,
+                    "model_attempts": [{"status": "success"}],
+                },
+                "checklist": {
+                    "canonical_source_status_correctness": "PASS",
+                    "chronology_causality": "PASS",
+                    "future_leakage": "NONE",
+                },
+            },
+            {
+                "query_id": "challenge:rq-0025",
+                "fixture_origin": "source_grounded_canonical_rq0025",
+                "selected_tier": 12000,
+                "routing_status": "routed",
+                "routing_version": "balanced-scope-v1",
+                "semantic_input_ids": ["s2"],
+                "semantic_retained_ids": ["s2"],
+                "recent_input_ids": ["e2"],
+                "recent_retained_ids": ["e2"],
+                "rules_input_ids": ["r2"],
+                "rules_retained_ids": ["r2"],
+                "dropped_artifacts": 0,
+                "protected_overflow": False,
+                "job_context_hash": "b" * 64,
+                "preview_context_hash": "b" * 64,
+                "context_hash_match": True,
+                "generation": {
+                    "provider": "gemini",
+                    "status": "completed",
+                    "nonempty_output": True,
+                    "model_attempts": [{"status": "success"}],
+                },
+                "checklist": {
+                    "canonical_source_status_correctness": "PASS",
+                    "chronology_causality": "PASS",
+                    "future_leakage": "NONE",
+                },
+            },
+        ],
+    }
+    real_errors = validate_real_source(real_source_fixture)
+    assert not real_errors, f"Self-test failed on real_source_fixture: {real_errors}"
+
     print("SELF-TEST PASS: accepts complete canary contract and rejects invalid/leaking/corrupted evidence")
 
 
@@ -302,9 +455,17 @@ def main() -> int:
     config = json.loads(files["config"].read_text(encoding="utf-8"))
 
     errors = validate(canary, safety, config)
+
+    real_source_file = dir_path / "real-source-canary.json"
+    if real_source_file.exists():
+        real_source = json.loads(real_source_file.read_text(encoding="utf-8"))
+        real_errors = validate_real_source(real_source)
+        errors.extend(real_errors)
+
     result = {
         "status": "FAIL" if errors else "PASS",
         "errors": errors,
+        "real_source_canary_verified": real_source_file.exists(),
     }
     print(json.dumps(result, indent=2))
     return 1 if errors else 0

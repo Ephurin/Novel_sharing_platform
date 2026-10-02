@@ -158,7 +158,7 @@ Status:
 
 ```text
 synthetic canary    functional PASS
-real-source canary  PENDING
+real-source canary  functional PASS
 balanced default    NOT AUTHORIZED
 production default  legacy-v1
 P8-05               BLOCKED_PENDING_STABILITY
