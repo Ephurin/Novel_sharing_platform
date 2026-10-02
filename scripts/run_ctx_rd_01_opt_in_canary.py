@@ -205,12 +205,12 @@ def check_baseline_guards() -> None:
             f"BLOCKED: Production default is '{settings.context_routing_policy}', expected 'legacy-v1'"
         )
 
-    cleanup_summary = ROOT / "docs" / "development" / "P8-05-FINAL-CLEANUP-GATE" / "summary.md"
-    if not cleanup_summary.exists():
-        raise SystemExit("BLOCKED: P8-05 summary.md not found")
-    content = cleanup_summary.read_text(encoding="utf-8")
-    if "BLOCKED_PENDING_STABILITY" not in content:
-        raise SystemExit("BLOCKED: P8-05 status is not BLOCKED_PENDING_STABILITY")
+    cleanup_gate_file = ROOT / "docs" / "development" / "P8-05-FINAL-CLEANUP-GATE" / "stability-gate.json"
+    if not cleanup_gate_file.exists():
+        raise SystemExit("BLOCKED: P8-05 stability-gate.json not found")
+    data = json.loads(cleanup_gate_file.read_text(encoding="utf-8"))
+    if not str(data.get("status", "")).startswith("BLOCKED"):
+        raise SystemExit(f"BLOCKED: P8-05 status is {data.get('status')}, expected BLOCKED_*")
 
 
 def compute_context_hash(package: WritingContextPackage, packer: ContextBudgetPacker) -> str:
