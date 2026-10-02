@@ -192,13 +192,38 @@ class InstrumentedRealGeminiLLMService(LLMService):
                 sanitized_msg = str(exc)
                 if self.api_key:
                     sanitized_msg = sanitized_msg.replace(self.api_key, "[REDACTED_API_KEY]")
-                attempt_info["error_snippet"] = sanitized_msg[:120]
-
-                if "not found" in message or "not supported" in message:
+                if (
+                    "not found" in message
+                    or "not supported" in message
+                    or "503" in message
+                    or "unavailable" in message
+                    or "high demand" in message
+                    or "resource_exhausted" in message
+                    or "429" in message
+                ):
+                    time.sleep(1)
                     continue
                 raise LLMServiceError(f"Gemini request failed: {sanitized_msg}") from exc
 
         raise LLMServiceError(f"Gemini generation failed: {last_error}") from last_error
+
+    def _gemini_model_candidates(self) -> list[str]:
+        raw_candidates = [
+            self.model,
+            "models/gemini-2.0-flash",
+            "models/gemini-2.5-flash",
+            "models/gemini-1.5-flash",
+            "models/gemini-1.5-flash-latest",
+            "models/gemini-1.5-pro",
+        ]
+        seen: set[str] = set()
+        result: list[str] = []
+        for item in raw_candidates:
+            val = (item or "").strip()
+            if val and val not in seen:
+                seen.add(val)
+                result.append(val)
+        return result
 
 
 def get_git_commit() -> str:
