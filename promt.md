@@ -174,3 +174,31 @@ Use a new implementation branch from current `main`, not another direct-to-main 
 - Rerun **one targeted real-provider smoke** on a clean, exact committed SHA with isolated disposable staging DB. Do not reopen EVAL or run a new blind A/B. Commit corrected evidence and append an execution-only handoff here.
 
 Production default remains `legacy-v1`; balanced-v1 default activation is NOT AUTHORIZED. P8-05 remains BLOCKED.
+
+## Remediation Verification — CTX-RD-01 REAL-PROVIDER STAGING
+
+```text
+Gemini Verification — CTX-RD-01 REAL-PROVIDER STAGING
+Status: PASS
+Tested commit: 019d39222ce0b0d26e130ba57c0fedf92eac453e
+Evidence commit: d2b50be731590b531a17ae2708af2f389667d5af
+Embedding provider/model/version: GeminiEmbeddingProvider / gemini-embedding-2 / gemini-embedding-2-768-v1
+Document/query provider calls: 3/3 (items: 36/3)
+Actual generation provider/model: gemini / models/gemini-3.8-flash
+LLM provider calls: 1 (attempts: 1, models/gemini-3.8-flash)
+Local fallback disabled: true
+Balanced scope/tier: 12000/12000
+Semantic/recent/rules retained: 8/8, 20/20, 4/4
+Protected overflow: false
+Dropped artifacts: 0
+Tier above 12k tested: 16000 / production_shaped_deterministic
+Future/superseded/cross-tenant leakage: 0/0/0
+Fallback/rollback: PASS
+Validator: PASS
+Context hash match (job == preview): true (bd0bf01ffdf85c3ac686cedde474c301385534e277bbeba719d6dbed6e212301)
+Clean tree preflight: PASS (019d39222ce0b0d26e130ba57c0fedf92eac453e)
+Production default changed: NO (legacy-v1)
+Balanced default activation: NOT AUTHORIZED
+P8-05: BLOCKED
+```
+
