@@ -65,8 +65,17 @@ def validate(canary: dict, safety: dict, config: dict) -> list[str]:
             normal_found = True
 
         origin = c.get("fixture_origin")
+        VALID_ORIGINS = {
+            "source_inspired_synthetic_aethelgard",
+            "source_inspired_synthetic_rq0025",
+            "source_grounded_canonical_aethelgard",
+            "source_grounded_canonical_rq0025",
+            "production_shaped_deterministic_pressure",
+            "real_novel_aethelgard",
+            "real_novel_aethelgard_rq0025",
+        }
         require(
-            origin in {"real_novel_aethelgard", "real_novel_aethelgard_rq0025", "production_shaped_deterministic_pressure"},
+            origin in VALID_ORIGINS,
             f"{prefix}unlabeled_origin",
         )
 
@@ -129,7 +138,7 @@ def build_valid_fixture(commit: str = "a" * 40) -> tuple[dict, dict, dict]:
     cases = [
         {
             "name": "normal_scene_ch35",
-            "fixture_origin": "real_novel_aethelgard",
+            "fixture_origin": "source_inspired_synthetic_aethelgard",
             "selected_tier": 12000,
             "routing_status": "routed",
             "routing_version": "balanced-scope-v1",
@@ -156,7 +165,7 @@ def build_valid_fixture(commit: str = "a" * 40) -> tuple[dict, dict, dict]:
         },
         {
             "name": "repeated_history_rq0025_ch49",
-            "fixture_origin": "real_novel_aethelgard_rq0025",
+            "fixture_origin": "source_inspired_synthetic_rq0025",
             "selected_tier": 12000,
             "routing_status": "routed",
             "routing_version": "balanced-scope-v1",
@@ -182,9 +191,9 @@ def build_valid_fixture(commit: str = "a" * 40) -> tuple[dict, dict, dict]:
             },
         },
         {
-            "name": "pressured_context_tier16k",
+            "name": "pressured_context_tier_escalation",
             "fixture_origin": "production_shaped_deterministic_pressure",
-            "selected_tier": 16000,
+            "selected_tier": 20000,
             "routing_status": "routed",
             "routing_version": "balanced-scope-v1",
             "semantic_input_ids": ["s1"],

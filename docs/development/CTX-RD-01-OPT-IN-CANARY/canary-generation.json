@@ -15,7 +15,7 @@
   "cases": [
     {
       "name": "normal_scene_ch35",
-      "fixture_origin": "real_novel_aethelgard",
+      "fixture_origin": "source_inspired_synthetic_aethelgard",
       "chapter_cutoff": 35,
       "routing_status": "routed",
       "routing_version": "balanced-scope-v1",
@@ -148,7 +148,7 @@
     },
     {
       "name": "repeated_history_rq0025_ch49",
-      "fixture_origin": "real_novel_aethelgard_rq0025",
+      "fixture_origin": "source_inspired_synthetic_rq0025",
       "chapter_cutoff": 49,
       "routing_status": "routed",
       "routing_version": "balanced-scope-v1",
@@ -299,7 +299,7 @@
       }
     },
     {
-      "name": "pressured_context_tier16k",
+      "name": "pressured_context_tier_escalation",
       "fixture_origin": "production_shaped_deterministic_pressure",
       "chapter_cutoff": 35,
       "routing_status": "routed",
