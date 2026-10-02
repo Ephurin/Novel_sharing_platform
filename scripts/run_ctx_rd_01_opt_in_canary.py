@@ -330,6 +330,7 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
         # Covers chapters 1 to 49
         event_uuid_map: dict[str, uuid.UUID] = {}
         ev_sup_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, f"{novel_id}:ev-superseded-15")
+        pending_participants: list[tuple[uuid.UUID, uuid.UUID, str]] = []
 
         for ch in range(1, 50):
             ev_id = f"ev-hist-{ch:02d}"
@@ -390,13 +391,7 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
                 )
             )
             for peid in peids:
-                session.add(
-                    EventParticipantRecord(
-                        event_id=ev_uuid,
-                        entity_id=entity_uuid_map[peid],
-                        participant_role="participant",
-                    )
-                )
+                pending_participants.append((ev_uuid, entity_uuid_map[peid], "participant"))
 
         # Superseded event in Chapter 15
         session.add(
@@ -415,13 +410,7 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
                 confirmation_status="confirmed",
             )
         )
-        session.add(
-            EventParticipantRecord(
-                event_id=ev_sup_uuid,
-                entity_id=entity_uuid_map["distractor-01"],
-                participant_role="distractor",
-            )
-        )
+        pending_participants.append((ev_sup_uuid, entity_uuid_map["distractor-01"], "distractor"))
 
         # Future events (chapters 50 to 52)
         for fch in (50, 51, 52):
@@ -442,6 +431,17 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
                     confirmation_status="confirmed",
                 )
             )
+        session.flush()
+
+        for ev_u, ent_u, role in pending_participants:
+            session.add(
+                EventParticipantRecord(
+                    event_id=ev_u,
+                    entity_id=ent_u,
+                    participant_role=role,
+                )
+            )
+        session.flush()
 
     # Materialize Genuine Gemini Semantic Memories
     print("Materializing Genuine Gemini semantic embeddings...")
