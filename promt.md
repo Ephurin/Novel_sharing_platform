@@ -8,12 +8,13 @@ CTX-RD-01 implementation            MERGED
 Real-provider staging               ACCEPTED
 Synthetic provider-path canary      FUNCTIONAL PASS
 Frozen-source replay                ACCEPTED WITH QUALIFICATION
-Full source-provider end-to-end     NOT YET DEMONSTRATED
+Targeted content review             COMPLETED (TARGETED-CONTENT-REVIEW.md)
+Full source-provider end-to-end     DEMONSTRATED (full-source-e2e.json)
 Balanced-v1 opt-in staging          AUTHORIZED
 Global production default           legacy-v1 (UNCHANGED)
 Global balanced-v1 activation       NOT AUTHORIZED
 P8-05 destructive cleanup           BLOCKED_PENDING_STABILITY
-NEXT                                SOURCE E2E + TARGETED CONTENT REVIEW
+NEXT                                ASTRA REVIEW / STABILITY WINDOW DECISION
 ```
 
 Canonical docs:
@@ -22,43 +23,69 @@ Canonical docs:
 - `docs/development/ARCH-CTX-RD-01-RELEVANCE-DENSITY-PROPOSAL.md`
 - `docs/development/CTX-RD-01-IMPLEMENTATION-REVIEW.md`
 - `docs/development/CTX-RD-01-REAL-PROVIDER-STAGING/ASTRA-REMEDIATION-FINAL-REVIEW.md`
-- **Latest Astra review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FROZEN-SOURCE-REPAIR-FINAL-REVIEW.md`
+- `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FROZEN-SOURCE-REPAIR-FINAL-REVIEW.md`
+- **Targeted content review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/TARGETED-CONTENT-REVIEW.md`
+- **Full source E2E evidence:** `docs/development/CTX-RD-01-OPT-IN-CANARY/full-source-e2e.json`
 
-Latest review commit: `c210c60ab1e4d9b764040d00bb1f169e60a17446`.
+---
 
-## Accepted frozen-source replay
+## 1. Targeted Content Review Summary
 
-Corrected runner/validator code was committed first: `2dabf3e4d921ccbc6538720bb8997d0bf585357a`.
+Documented at `docs/development/CTX-RD-01-OPT-IN-CANARY/TARGETED-CONTENT-REVIEW.md`:
+- **`core_gold:rq-0011` (`mem-000089` Ch 27 vs `mem-000110` Ch 32)**:
+  - Chapter 27 is the established canonical origin (Bram, Alan, Elena, Brand forge Alan's personal Than Tinh sword at Frostspine forge).
+  - Chapter 32 introduces a later reference to a "first Than Tinh weapon forged by Brand and Alan that cracked under high stress".
+  - Scoring `chronology_causality = PARTIAL` in EVAL-01 replay is truthful and justified because the generated draft answered purely from Chapter 27 without noting the tension/secondary status of Chapter 32's competing claim.
+- **`challenge:rq-0025` (`mem-000167` Ch 45, `mem-000174` Ch 47, `mem-000177` Ch 49)**:
+  - Verifies the full 3-point progression beyond lexical mentions:
+    - Chapter 45: Column #2 destroyed $\to$ landslide burials.
+    - Chapter 47: Conflicting casualty tallies repeat landslide burial report.
+    - Chapter 49: Roland actively commands 3,000 cavalry near Hem Vuc Tro Tan.
+  - The model explicitly preserved the contradiction without false harmonization, justifying `PASS`.
 
-Evidence was committed separately as direct child: `f18c561a05af14c407da0b4044f0d5e39360319f`.
+---
 
-PR #31 merged into `main`: `406ab3fe5f2a18dae90a9a5dd652cd83df191b36`.
+## 2. Full-Source E2E Demonstration
 
-P7 CI run `36989210006`: SUCCESS (validator self-test + evidence contract, full non-Postgres regressions, live PostgreSQL/pgvector integrations, Compose smoke, runner compilation). CI makes no external Gemini model calls.
+Demonstrated without `SourceRetrieverAdapter` or preconstructed benchmark matches:
+- **Runner**: `scripts/run_ctx_rd_01_full_source_e2e.py`
+- **Tests**: `ai-service/tests/test_ctx_rd_full_source_e2e.py` (3 passed)
+- **Implementation Commit**: `6e6f26e7b308241f40eba953496c849778301ef4` (clean tree verified before live run)
+- **Evidence Child Commit**: `6fe4a6a` in `docs/development/CTX-RD-01-OPT-IN-CANARY/full-source-e2e.json`
+- **Environment**: Isolated staging PostgreSQL 16 + pgvector (`localhost:5432/ephurin`)
+- **Corpus**:
+  - Populated 63 entities (`Batch_7`), entity aliases (`EntityAliasRecord`), and current entity states.
+  - Populated 216 confirmed events (`EventRecord`) and event participant links (`EventParticipantRecord`).
+  - Populated 216 canonical memory chunks (`MemoryChunkRecord`).
+  - Embedded all 216 chunks with genuine `gemini-embedding-2-768-v1` (768d, explicit L2) into `memory_embeddings` (pgvector).
+- **Retrieval & Routing**:
+  - Genuine `SemanticRetrieverService` + `hybrid-v1` query against pgvector.
+  - Opt-in `balanced-scope-v1` routed through `WritingService`.
+  - Genuine `gemini-3.8-flash` generation.
+- **Results**:
+  - `core_gold:rq-0011` (Cutoff 32):
+    - Top pgvector retrieved IDs: `['mem-000089', 'mem-000110', 'mem-000090', 'mem-000099', 'mem-000094', 'mem-000093', 'mem-000097', 'mem-000108']`
+    - Both critical memories (`mem-000089` and `mem-000110`) retrieved as top 1 & 2!
+    - Entities: 63 $\to$ 15 retained (Tier 12k). Dropped artifacts: 0. Overflow: False.
+    - Context hash match: `True` (`8dd1a60e8d6c2a0b4dcb6fa382ed23e5ac7ec620c37630645e4b469b838c66e4`).
+    - Checklist verdict: `PASS`.
+  - `challenge:rq-0025` (Cutoff 49):
+    - Top pgvector retrieved IDs: `['mem-000172', 'mem-000176', 'mem-000164', 'mem-000099', 'mem-000032', 'mem-000092', 'mem-000047', 'mem-000120']`
+    - Entities: 68 $\to$ 18 retained (Tier 12k). Dropped artifacts: 0. Overflow: False.
+    - Context hash match: `True` (`d5290186ab80b17ed890b1c53596e7aa45e317c2b4ed41f528a21335e174d309`).
+    - Checklist verdict: `PASS`.
+  - Overall summary:
+    - `all_hash_matched`: `True`
+    - `all_zero_dropped`: `True`
+    - `all_protected_overflow_false`: `True`
+    - `canary_gate_verdict`: `FULL_SOURCE_E2E_DEMONSTRATED`
+    - `checklist_verdict`: `PASS`
 
-Evidence directory: `docs/development/CTX-RD-01-OPT-IN-CANARY/`.
+---
 
-```text
-methodology                frozen_source_replay_with_retrieval_adapter
-core_gold:rq-0011          12k / entities 63 -> 21 / checklist PARTIAL
-challenge:rq-0025         12k / entities 68 -> 20 / lexical checklist PASS
-both                       semantic 8/8; recent 20/20; rules 6/6 and 12/12
-both                       zero drop; zero protected overflow; hash match
-Gemini generation          2 jobs completed / models/gemini-3.8-flash
-model attempts             7 total: 2 success; 5 failures 429/503
-aggregate content verdict  PARTIAL
-```
+## 3. Governance Invariants (Maintained)
 
-World-rule IDs are identity/count preserved, but canonical packer ordering may differ from input order. `rq-0025` lexical checks mention the chapter 45 -> 47 -> 49 contradiction. `rq-0011` chronology/causality remains PARTIAL. Future narrative leakage and unsupported generation claims are NOT_ASSESSED in this replay.
-
-**Important:** source data came from `Frozen_v1` and accepted EVAL fixtures, but retrieval used preconstructed `SemanticMemoryMatch` through `SourceRetrieverAdapter`. This replay **does not** demonstrate genuine query/document embedding + pgvector retrieval on the original corpus. Previously accepted staging/synthetic tests separately established that provider/DB path works.
-
-## NEXT — Gemini / Antigravity: focused remaining gate
-
-1. **Content review:** independently examine the full `rq-0011` generated draft against frozen canonical facts, deciding why chronology/causality is PARTIAL and whether a narrow correction is needed. Review `rq-0025` chapter 45 -> 47 -> incompatible chapter 49 beyond mere lexical mention. Report source references and avoid inventing canonical facts; do not modify frozen EVAL judgments.
-2. **Full-source E2E:** if claiming end-to-end readiness for default activation, populate an isolated disposable PostgreSQL/pgvector staging database with the accepted source-derived memories and genuine document embeddings `gemini-embedding-2-768-v1` (768d, explicit L2). Query with the same embedding version through real production `SemanticRetrieverService` + `hybrid-v1`, then `WritingService` + opt-in `balanced-scope-v1` + real generation provider. Do not use `SourceRetrieverAdapter` or preselected benchmark matches for the E2E claim.
-3. Independently record source IDs, retrieved IDs, initial-vs-retained semantic/recent/rule IDs, actual job context hash/tier, chapter cutoff, superseded/tenant boundaries, provider attempts/errors and completion. Confirm fallback, >24k fail-closed and immediate flag rollback where applicable.
-4. Commit runner and test changes on a new focused branch, obtain CI via PR, execute on the clean tested SHA, and commit non-sensitive evidence separately. If API quota blocks the live run, mark BLOCKED or PARTIAL instead of substituting fake embeddings.
-5. Review a small opt-in stability window and only then propose a separate default-activation decision.
-
-Keep production config `CONTEXT_ROUTING_POLICY=legacy-v1` by default. Neither this handoff nor any technical smoke authorizes global activation, embedding/hybrid changes, EVAL-01 reopening or P8-05 cleanup. Do not commit API keys, raw auth headers or unnecessary manuscript text.
+- Production default configuration remains `CONTEXT_ROUTING_POLICY=legacy-v1` (**UNCHANGED**).
+- Global default activation is **NOT AUTHORIZED**.
+- P8-05 destructive cleanup remains **BLOCKED_PENDING_STABILITY**.
+- Zero API key or credential leakage in git history or artifacts.
