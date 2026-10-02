@@ -11,7 +11,7 @@ Opt-in demo/staging balanced-v1            AUTHORIZED
 Global production default switch          NOT AUTHORIZED
 Production default                        legacy-v1
 P8-05 destructive cleanup                 BLOCKED_PENDING_STABILITY
-NEXT                                       BOUNDED OPT-IN CANARY
+NEXT                                       SOURCE-GROUNDED CANARY / EVIDENCE CORRECTION
 ```
 
 Canonical evaluation closure: `docs/development/EVAL-01-FINAL-CLOSURE.md`.
@@ -75,7 +75,7 @@ No new blind A/B experiment is required merely to run this acceptance canary.
 ## Canary Execution Report — Bounded Opt-In Canary for `balanced-scope-v1`
 
 - **Execution Date**: 2026-10-02
-- **Result**: **PASS** (100% contract compliance, zero verification errors)
+- **Result**: **PASS** (functional contract compliance on synthetic fixtures)
 - **Tested Code Commit**: `5d3d5a29ac5b8dcb0b405af3f332701d09eca331`
 - **Canary Environment**: `isolated_demo_staging` (PostgreSQL 16 + pgvector)
 - **Production Default Policy**: `legacy-v1` (**UNCHANGED**)
@@ -98,8 +98,8 @@ No new blind A/B experiment is required merely to run this acceptance canary.
 
 | Case Name | Fixture Origin | Cutoff | Selected Tier | Entities (Before -> After) | Semantic Retained | Recent Retained | Rules Retained | Context Hash Parity | Job Status |
 |---|---|---|---|---|---|---|---|---|---|
-| `normal_scene_ch35` | `real_novel_aethelgard` | Ch 35 | 12000 | 25 -> 4 | 8/8 (100%) | 20/20 (100%) | 4/4 (100%) | `preview == job` (`46b8dc...51d`) | `completed` |
-| `repeated_history_rq0025_ch49` | `real_novel_aethelgard_rq0025` | Ch 49 | 12000 | 25 -> 6 | 8/8 (100%) | 20/20 (100%) | 4/4 (100%) | `preview == job` (`6439c1...bed`) | `completed` |
+| `normal_scene_ch35` | `source_inspired_synthetic_aethelgard` | Ch 35 | 12000 | 25 -> 4 | 8/8 (100%) | 20/20 (100%) | 4/4 (100%) | `preview == job` (`46b8dc...51d`) | `completed` |
+| `repeated_history_rq0025_ch49` | `source_inspired_synthetic_rq0025` | Ch 49 | 12000 | 25 -> 6 | 8/8 (100%) | 20/20 (100%) | 4/4 (100%) | `preview == job` (`6439c1...bed`) | `completed` |
 | `pressured_context_tier16k` | `production_shaped_deterministic_pressure` | Ch 35 | 20000 | 5 -> 5 | 8/8 (100%) | 20/20 (100%) | 4/4 (100%) | `preview == job` (`407b93...1bf`) | `completed` |
 
 - **Artifacts Dropped**: 0 across all cases
@@ -121,4 +121,46 @@ No new blind A/B experiment is required merely to run this acceptance canary.
 - **Semantic Failure Legacy Fallback**: `PASS` (graceful fail-open to legacy context package)
 - **Immediate Rollback to `legacy-v1`**: `PASS` (`legacy-v1` executes cleanly without routing trace headers)
 - **Offline Evidence Validator**: `PASS` (`scripts/verify_ctx_rd_01_opt_in_canary_evidence.py` verified 0 errors)
+
+---
+
+## LATEST ASTRA REVIEW — CTX-RD-01 OPT-IN CANARY (2026-10-02)
+
+Canonical review: `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-REVIEW.md`.
+
+Review commit: `3d33491170ff183d434b9eccf631bf550dc56c54`.
+
+Evidence currently exists **only on** branch `astra/ctx-rd-01-opt-in-canary`, commit `53a5177cd00760a338db2094cef678a2548a2918`, and is NOT yet merged into `main`. PR #30 merged the harness/code at `5c037242b93d359f072ec06b7d31ff28d983feb7` and passed P7/P8 CI.
+
+**Verdict:** `TECHNICAL_CANARY_PASS_ON_SOURCE_INSPIRED_FIXTURES — REAL_SOURCE_CANARY_PENDING`.
+
+Actual metrics from JSON:
+
+```text
+normal ch35           12k / entities 25 -> 4
+rq-0025-style ch49    12k / entities 25 -> 6
+deterministic pressure 20k / entities 5 -> 5
+all cases             semantic 8/8, recent 20/20, rules 4/4, zero drops/overflow
+generation            3 jobs completed using gemini-3.8-flash
+model attempts        8 total: 3 success / 5 errors (429/503)
+```
+
+Correction required: normal and rq-0025 fixtures were **manually assembled** from Aethelgard-inspired descriptions; no original novel/Frozen_v1 records were loaded. Do not label them `real_novel_aethelgard`. The rq-0025-style prompt asks about cavalry origin, not the source-grounded chapter 45 -> 47 -> 49 chronology regression. The case called `tier16k` actually selected 20k, and summary ch49 says 25 -> 5 while JSON says 25 -> 6. Fix labels/reporting without rewriting measurements; report 8 attempts as 3 successes plus 5 failed attempts.
+
+### Gemini / Antigravity next action
+
+1. Correct evidence provenance labels and the summary on the existing canary branch; amend validator to distinguish source-inspired synthetic from source-grounded cases. Preserve measured JSON output values.
+2. Reuse the existing frozen source-derived corpus (`.data/Frozen_v1/memory_chunks_canonical.json`, `.data/Frozen_v1/retrieval_queries.json`, `.data/Batch_7/entities.json`) and the EVAL-01O source_1x package builder to run **one or two** truly source-grounded canary cases through production routing in isolated staging, including actual rq-0025 chronology and ideally a NORMAL case.
+3. Record source IDs/provenance, original-vs-retained lane IDs, actual job hash/tier, actual model/attempt deltas and a small chronology/source-status correctness checklist. Reuse valid materialized embeddings where possible. If real-source execution is unavailable, report PARTIAL rather than fabricating source provenance.
+4. Open a PR for harness and evidence changes; run CI on the code before merging. Do not change production default or P8-05. Another sealed EVAL A/B is unnecessary.
+
+Status:
+
+```text
+synthetic canary    functional PASS
+real-source canary  PENDING
+balanced default    NOT AUTHORIZED
+production default  legacy-v1
+P8-05               BLOCKED_PENDING_STABILITY
+```
 
