@@ -446,12 +446,10 @@ def setup_canary_dataset(session_factory, api_key: str) -> dict[str, Any]:
     # Materialize Genuine Gemini Semantic Memories
     print("Materializing Genuine Gemini semantic embeddings...")
     mat_service = SemanticMemoryMaterializationService(
-        session_factory=session_factory,
+        repository=semantic_repo,
         embedding_provider=embed_provider,
-        embedding_version="gemini-embedding-2-768-v1",
-        batch_size=16,
     )
-    mat_result = mat_service.materialize_novel_memories(novel_uuid)
+    mat_result = mat_service.materialize_event_memories(str(novel_id))
     print(f"Materialized genuine Gemini memories: {mat_result}")
 
     return {
