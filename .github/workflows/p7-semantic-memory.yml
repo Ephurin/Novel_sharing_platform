@@ -35,6 +35,11 @@ jobs:
         run: python ../scripts/verify_ctx_rd_01_eval_parity.py
       - name: CTX-RD-01 real-provider evidence contract self-test
         run: python ../scripts/verify_ctx_rd_01_real_provider_evidence.py --self-test
+      - name: CTX-RD-01 opt-in canary evidence contract and frozen-source runner syntax
+        run: |
+          python ../scripts/verify_ctx_rd_01_opt_in_canary_evidence.py --self-test
+          python ../scripts/verify_ctx_rd_01_opt_in_canary_evidence.py --evidence-dir ../docs/development/CTX-RD-01-OPT-IN-CANARY
+          python -m py_compile ../scripts/run_ctx_rd_01_real_source_canary.py
       - name: Hybrid retrieval proxy regression
         run: pytest -q tests/test_p7_hybrid_benchmark.py
       - name: Hybrid retrieval proxy metrics
