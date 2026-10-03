@@ -305,70 +305,56 @@ Do not reopen EVAL-01O, retune hybrid/packer/embedding contracts, change product
 ## EXECUTION REPORT — Unadapted Narrative Context E2E Canary (2026-10-03)
 
 **Branch:** `astra/ctx-rd-01-unadapted-narrative-e2e`  
-**Base commit:** `ff1c17f61008a471f5c80535b499873a51cdda6b` (`origin/main`)  
-**Tested code SHA:** `dae7bcb9c7a19fe4ae5b90315397006a44562a2b`  
-**Evidence commit:** `27e774eb055df2dfb1a37c94b7c61fef1bcfe488`  
+**Base commit:** `fb1eb240dfa7dfc377b031ae13b430affb275599` (`origin/main`)  
+**Tested code SHA:** `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a`  
+**Evidence commit:** `3645ddaba0f295e8486940c6600554d6fc487e41`  
 **Live Evidence File:** `docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e.json`  
 **Validator:** `scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py` -> `{"status": "PASS", "errors": []}`  
 **Gate Verdict:** `UNADAPTED_NARRATIVE_E2E_DEMONSTRATED`
 
-### 1. Resolution of Blockers (Round 2 Remediation)
+### 1. Resolution of Blockers (Round 3 Remediation)
 
-#### Blocker A — Prompt-Lane Attribution & Deduplication Vocabulary
-- Replaced misattribution of prompt lanes with authoritative provenance vocabulary:
-  - Canonical ambiguous cavalry memories:
-    - `mem-000164` (Chapter 45, `narrative_echo`, `temporal_reset`, `do_not_use_as_clean_ground_truth`): `retrieval_origin="semantic"`, rank 3, `prompt_retained_lanes=["recent"]`, `actual_preserved_lane="recent"`, `dedup_reason="overlap_with_recent"`.
-    - `mem-000172` (Chapter 47, `narrative_echo`, `temporal_reset`, `do_not_use_as_clean_ground_truth`): `retrieval_origin="semantic"`, rank 1, `prompt_retained_lanes=["recent"]`, `actual_preserved_lane="recent"`, `dedup_reason="overlap_with_recent"`.
-    - `mem-000176` (Chapter 49, `force_state_conflict`, `temporal_reset`, `do_not_use_as_clean_ground_truth`): `retrieval_origin="semantic"`, rank 2, `prompt_retained_lanes=["recent"]`, `actual_preserved_lane="recent"`, `dedup_reason="overlap_with_recent"`.
-    - All three were retrieved in raw semantic top 3, but because they also belong to the newest 20 recent events, `ContextBudgetPacker` promoted them to `recent_events` and deduplicated them from `preview.semantic_memories` (`dedup_reason="overlap_with_recent"`).
-  - Genuine world rules:
-    - `mem-000167`, `mem-000174`, `mem-000177`: `retrieval_origin="world_rule"`, `in_semantic_top8=False`, `prompt_retained_lanes=["world_rule", "recent"]`, `actual_preserved_lane="world_rule"`, `dedup_reason=None`.
-- Fixed Round 1 SHA handoff typo: verified previous evidence commit was `27e774e7016492752e2026eea6015b28a6abbf18` (not `27e774eb...`).
+#### Blocker A — Unambiguous Source Status & Runner-Derived Materialization
+- Implemented `derive_memory_source_and_ambiguity_status` and `build_event_record_from_memory` in [run_ctx_rd_01_unadapted_narrative_e2e.py](file:///c:/Users/Laptop/OneDrive/Documents/testproject/scripts/run_ctx_rd_01_unadapted_narrative_e2e.py).
+- Completely eliminated the bug where `source_status` defaulted to `"canonical"` for ambiguous memories whose `status` field was unset.
+- Authoritatively separated storage confirmation from prompt narrative semantics:
+  - `confirmation_status="confirmed"` at the storage layer represents that the source report itself is confirmed authorial manuscript material (satisfying PostgreSQL query filters).
+  - `source_status="ambiguous"`, `review_status="ambiguous"`, `is_ambiguous=True`, `is_ambiguous_ground_truth=True`, `report_semantics="confirmed_source_report"` within `event_metadata` and `memory_metadata` explicitly flags that the underlying event is an unresolved narrative contradiction. Incompatible claims are NEVER presented as undisputed canonical facts.
+- Traced `mem-000164` (Ch45), `mem-000172` (Ch47), and `mem-000176` (Ch49) with `source_status="ambiguous"`, `retrieval_origin="semantic"`, `prompt_retained_lanes=["recent"]`, `actual_preserved_lane="recent"`, `dedup_reason="overlap_with_recent"`.
+- Traced `mem-000167`, `mem-000174`, `mem-000177` with `source_status="canonical"`, `retrieval_origin="world_rule"`, `actual_preserved_lane="world_rule"`.
 
-#### Blocker B — Source-Faithful Event Materialization, Ambiguity Preservation & Integration Tests
-- Eliminated dual event creation. Each canonical memory is materialized as a single source-faithful `EventRecord` with explicit `review_status` ("ambiguous" vs "high_confidence") and `is_ambiguous_ground_truth=True`.
-- Patched `PostgresNarrativeRepository.get_structured_context()` to enforce `first_chapter <= chapter_number` cutoff on `EntityRecord` (via `static_attributes["first_chapter"]` and attribute). Entities appearing after the cutoff chapter are excluded from context.
-- Verified via 6 real PostgreSQL integration tests in `ai-service/tests/test_unadapted_narrative_postgres_integration.py` (6/6 PASSED, fail-closed DB check enabled):
-  - `test_entity_chapter_cutoff_and_future_leakage_prevention`
-  - `test_as_of_state_projection_across_cutoff`
-  - `test_event_supersession_and_temporal_cutoff`
-  - `test_cross_tenant_isolation`
-  - `test_normalized_latest_five_recent_event_participants`
-  - `test_ambiguous_source_status_preservation_in_recent_events_and_prompt` (NEW: proves ambiguous review status and tags are preserved in `recent_events` and prompt context, avoiding flattening into undisputed canonical facts).
-- Database reachability guard in integration test suite fails-closed with `pytest.fail` when `CI` or `REQUIRE_POSTGRES=1` is set.
+#### Blocker B — Runner-Derived PostgreSQL & Prompt Preservation Integration Test
+- Rewrote `test_ambiguous_source_status_preservation_in_recent_events_and_prompt` in [test_unadapted_narrative_postgres_integration.py](file:///c:/Users/Laptop/OneDrive/Documents/testproject/ai-service/tests/test_unadapted_narrative_postgres_integration.py) to be strictly runner-derived:
+  - Seeds Ch45, Ch47, Ch49 using the exact `build_event_record_from_memory` and `derive_memory_source_and_ambiguity_status` mapping functions.
+  - Verifies that `PostgresNarrativeRepository.get_structured_context(..., chapter_number=49)` preserves `source_status="ambiguous"` and `is_ambiguous=True`.
+  - Runs production `WritingService.preview_context(...)` with `balanced-scope-v1` and serializes through `ContextBudgetPacker.prompt_context(preview)`.
+  - Strictly asserts that inside the packed prompt payload given to the LLM (`prompt_payload["recent_events"]`), all three conflicting reports preserve `source_status="ambiguous"`, `is_ambiguous=True`, and are NOT marked `"canonical"`.
+- Entire PostgreSQL suite (6/6 tests) passing in 1.47s against live PostgreSQL 16 on port 5433 with fail-closed reachability check.
 
-#### Blocker C — Fail-Closed Runtime Measurements & Subset Enforcements
-- Removed all `.get(key, default)` fallbacks:
-  - `selected_tier`: 12000 (read strictly from `preview.token_budget["routing_selected_tier"]`)
-  - `dropped_artifacts`: 0 (read strictly from `preview.token_budget["dropped_artifact_count"]`)
-  - `protected_overflow`: False (read strictly from `preview.token_budget["protected_overflow"]`)
-  - `budget_overflow`: False (read strictly from `preview.token_budget["budget_overflow"]`)
-  - `tokens_used`: measured 9890 (`core_gold:rq-0011`) and measured 11208 (`challenge:rq-0025`), asserting `0 < tokens_used <= selected_tier`.
-- Context hash parity: `preview_context_hash == job_context_hash` verified for both cases.
-- Fail-closed subset relationship validation enforced:
-  - `retained_entity_ids ⊆ raw_entity_ids`
-  - `retained_state_entity_ids ⊆ raw_state_entity_ids`
-  - `retained_state_entity_ids ⊆ retained_entity_ids`
-  - `raw_semantic_ids == retained_semantic_ids + deduplicated_semantic_source_keys`
-- Validator self-test includes 10 negative rejection assertions, all passing.
+#### Blocker C — Fail-Closed Validator with Strict Lane-Retained Agreement
+- Updated [verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py](file:///c:/Users/Laptop/OneDrive/Documents/testproject/scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py):
+  - Strictly checks `t_item["source_status"] == "ambiguous"` and `t_item["source_status"] != "canonical"` for ambiguous memories.
+  - Enforces fail-closed agreement between declared `actual_preserved_lane` and the case's retained ID arrays (`retained_recent_ids`, `retained_semantic_ids`, `retained_rule_ids`).
+  - Added 2 new negative rejection assertions in `self_test()` (12 total negative tests):
+    1. Falsely claimed canonical `source_status` on ambiguous memory -> rejected (`case_1_mem-000164_source_status_falsely_claimed_canonical`).
+    2. Lane-retained ID mismatch where `actual_preserved_lane="recent"` but ID missing from `retained_recent_ids` -> rejected (`case_1_mem-000164_not_in_retained_recent_ids`).
+- All 12 negative self-test assertions and positive contract pass cleanly.
 
-#### Blocker D — Manuscript Privacy & Grounded Claims
-- Deleted and removed `unadapted-drafts.json`. Zero full draft text in repository.
-- Evidence manifest records only `draft_sha256`, character count, and safe snippet (<385 characters).
-- Validator rejects any evidence containing `full_draft`.
-- Automated checklist reports lexical/structural criteria without making unverified manuscript-level claims.
+#### Blocker D — Manuscript Privacy
+- Zero full draft text in repository. Evidence records only `draft_sha256`, character count, and safe snippet (<385 characters).
+- Offline validator strictly rejects any evidence containing `full_draft`.
 
 ### 2. Live Provider Execution Summary
 
-- **Tested Code Commit:** `9c0496492a9266a39738240c113c78104d0c451a`
-- **Evidence Commit:** `f0db7e6414749f993d04d1efc60953a99e74659b`
+- **Tested Code Commit:** `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a`
+- **Evidence Commit:** `3645ddaba0f295e8486940c6600554d6fc487e41`
 - **Branch:** `astra/ctx-rd-01-unadapted-narrative-e2e` (pushed to origin)
 - **Embedding Provider:** `GeminiEmbeddingProvider` (`gemini-embedding-2-768-v1`, 768d, L2 normalized, 11 document batches + 6 query calls with API key rotation).
 - **LLM Service:** `RealGeminiLLMService` (`gemini-3.8-flash`, `LLM_LOCAL_FALLBACK=false`).
 - **Database:** PostgreSQL 16 + pgvector on staging port 5433 (`postgresql+psycopg://localhost:5433/ephurin` with credentials redacted).
 - **Cases:**
-  1. `core_gold:rq-0011` (Cutoff Ch 32): 63 raw entities -> 19 retained (12k tier, 9890 tokens), hash match `True`, latency 5811ms, draft status `completed`.
-  2. `challenge:rq-0025` (Cutoff Ch 49): 68 raw entities -> 20 retained (12k tier, 11208 tokens), hash match `True`, latency 7611ms, draft status `completed`.
+  1. `core_gold:rq-0011` (Cutoff Ch 32): 63 raw entities -> 19 retained (12k tier, 9890 tokens), hash match `True`, latency 88727ms (handled API retry), draft status `completed`.
+  2. `challenge:rq-0025` (Cutoff Ch 49): 68 raw entities -> 20 retained (12k tier, 11208 tokens), hash match `True`, latency 33492ms, draft status `completed`.
 
 ### 3. Current Canonical State
 
@@ -378,9 +364,9 @@ CTX-RD-01 implementation                 MERGED
 Real-provider staging                    ACCEPTED
 Live source pgvector semantic path       ACCEPTED (MIXED-PROVENANCE / QUALIFIED)
 Corrected live source-provider evidence  ACCEPTED WITH QUALIFICATION (tested ece0738)
-Unadapted production narrative E2E       DEMONSTRATED & VALIDATED (tested 9c04964, evidence f0db7e6)
-Offline evidence validator               PASS (0 errors, 10 negative self-test assertions)
-PostgreSQL integration test suite        6/6 PASS (fail-closed CI reachability guard)
+Unadapted production narrative E2E       DEMONSTRATED & VALIDATED (tested e9e7def, evidence 3645dda)
+Offline evidence validator               PASS (0 errors, 12 negative self-test assertions)
+PostgreSQL integration test suite        6/6 PASS (runner-derived, fail-closed CI reachability guard)
 Unit test suite                          7/7 PASS
 Production default                       legacy-v1 (UNCHANGED)
 Global balanced-v1 activation            NOT AUTHORIZED
