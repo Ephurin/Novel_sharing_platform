@@ -3,7 +3,7 @@
 
 Executes a bounded opt-in canary for balanced-scope-v1 on isolated staging DB using:
 - Genuine Gemini embeddings: gemini-embedding-2 @ 768d, explicit L2 normalization.
-- Genuine Gemini generation: gemini-3.8-flash (with local fallback disabled).
+- Genuine Gemini generation: gemini-3.5-flash-lite by default or gemini-3.1-flash-lite via CTX_RD_GENERATION_MODEL (with local fallback disabled).
 - Real-novel Aethelgard cases:
   1. Normal context (Ch 35) -> 12k tier.
   2. Repeated/conflicting-history rq-0025 archetype (Ch 49, Roland cavalry) -> 12k tier.
@@ -78,6 +78,18 @@ from infrastructure.orm_models import (
 from infrastructure.postgres_narrative_repository import PostgresNarrativeRepository
 from infrastructure.postgres_semantic_memory_repository import PostgresSemanticMemoryRepository
 from infrastructure.revision_content_provider import InMemoryRevisionContentProvider
+
+DEFAULT_CANARY_GENERATION_MODEL = "gemini-3.5-flash-lite"
+ALLOWED_CANARY_GENERATION_MODELS = ("gemini-3.5-flash-lite", "gemini-3.1-flash-lite")
+
+
+def resolve_canary_generation_model(value: str | None = None) -> str:
+    """Select a supported Flash-Lite model; never silently spend 3.8 Flash quota."""
+    name = (value if value is not None else os.getenv("CTX_RD_GENERATION_MODEL", DEFAULT_CANARY_GENERATION_MODEL)).strip()
+    if name not in ALLOWED_CANARY_GENERATION_MODELS:
+        raise ValueError(f"Unsupported canary generation model {name!r}; choose one of {ALLOWED_CANARY_GENERATION_MODELS}")
+    return name
+
 
 EVIDENCE_DIR = ROOT / "docs" / "development" / "CTX-RD-01-OPT-IN-CANARY"
 EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
@@ -190,7 +202,7 @@ class InstrumentedRealGeminiLLMService(LLMService):
     def __init__(
         self,
         api_key: str,
-        model: str = "gemini-3.8-flash",
+        model: str = DEFAULT_CANARY_GENERATION_MODEL,
         api_keys: list[str] | None = None,
     ) -> None:
         super().__init__(
@@ -201,6 +213,7 @@ class InstrumentedRealGeminiLLMService(LLMService):
             temperature=0.7,
             max_tokens=2048,
         )
+        self.requested_model = model
         self.actual_provider_calls = 0
         self.model_attempts: list[dict[str, Any]] = []
         self.api_keys = api_keys or ([api_key] if api_key else [])
@@ -274,11 +287,11 @@ class InstrumentedRealGeminiLLMService(LLMService):
         raise LLMServiceError(f"Gemini generation failed: {last_error}") from last_error
 
     def _gemini_model_candidates(self) -> list[str]:
-        raw_candidates = [
-            self.model,
-            "models/gemini-3.8-flash",
-            "gemini-3.8-flash",
-        ]
+        # Never silently fall back from Flash-Lite to quota-constrained 3.8 Flash.
+        if self.requested_model in ALLOWED_CANARY_GENERATION_MODELS:
+            return [self.requested_model]
+        raw_candidates = [self.model]
+
         seen: set[str] = set()
         result: list[str] = []
         for item in raw_candidates:
@@ -845,7 +858,7 @@ def run_case(
         "latency_ms": round(gen_latency_ms, 2),
         "generation": {
             "provider": "gemini",
-            "requested_model": "gemini-3.8-flash",
+            "requested_model": writing_service._llm_service.requested_model,
             "effective_model": writing_service._llm_service.model,
             "actual_provider_response": True,
             "status": job.status,
@@ -909,7 +922,7 @@ def main() -> int:
     )
 
     os.environ["LLM_LOCAL_FALLBACK"] = "false"
-    llm_service = InstrumentedRealGeminiLLMService(api_key=api_key, model="gemini-3.8-flash", api_keys=api_keys)
+    llm_service = InstrumentedRealGeminiLLMService(api_key=api_key, model=resolve_canary_generation_model(), api_keys=api_keys)
     scope_builder = BalancedRelevanceScopeBuilder()
     packer = ContextBudgetPacker()
     router = ContextBudgetRouter(packer)
@@ -1282,7 +1295,7 @@ def main() -> int:
 ## 3. Real Generation Provider Execution
 
 - **Provider**: `gemini`
-- **Requested Model**: `gemini-3.8-flash`
+- **Requested Model**: `{llm_service.requested_model}`
 - **Effective Model**: `{llm_service.model}`
 - **Provider Calls Recorded**: `{llm_service.actual_provider_calls}`
 - **Local Fallback Enabled**: `false` (zero fallback permitted)
