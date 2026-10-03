@@ -1544,12 +1544,29 @@ class PostgresNarrativeRepository:
             )
             brain_version = brain.brain_version if brain else 1
 
-            entities = session.scalars(
+            raw_entities = session.scalars(
                 select(EntityRecord).where(
                     EntityRecord.confirmation_status == "confirmed",
                     *self._scope(EntityRecord, novel_id),
                 )
             ).all()
+
+            def _is_entity_allowed(e: EntityRecord) -> bool:
+                if chapter_number is None:
+                    return True
+                if hasattr(e, "first_chapter") and e.first_chapter is not None and e.first_chapter > chapter_number:
+                    return False
+                if isinstance(e.static_attributes, dict):
+                    e_ch = e.static_attributes.get("first_chapter")
+                    if e_ch is not None:
+                        try:
+                            if int(e_ch) > chapter_number:
+                                return False
+                        except (ValueError, TypeError):
+                            pass
+                return True
+
+            entities = [e for e in raw_entities if _is_entity_allowed(e)]
 
             # If chapter_number is specified, build map of revision_id -> chapter_number from BootstrapJobRecord
             revision_chapters: dict[uuid.UUID, int] = {}

@@ -22,6 +22,31 @@ No broad EVAL-01 rerun, hybrid/packer retuning, default switch or destructive P8
 
 ---
 
+## ACTIVE MODEL-SWITCH DIRECTIVE — FLASH-LITE FOR FUTURE CTX-RD CANARY RUNS
+
+**User decision:** preserve scarce `gemini-3.8-flash` daily quota (reported 20 RPD) by using **`gemini-3.5-flash-lite` as the default generation model** for the opt-in and unadapted canary runners, with **`gemini-3.1-flash-lite` as a manually selectable alternative**. Official API model IDs: exactly those two stable strings; do not use the shut-down `gemini-3.1-flash-lite-preview`. Model selection is limited to the canary scripts; it does not change the deployed production generation model or the `legacy-v1` context-routing default.
+
+**Code updated on this branch:** `scripts/run_ctx_rd_01_opt_in_canary.py` selects `CTX_RD_GENERATION_MODEL` (default 3.5 Flash-Lite) and its shared `InstrumentedRealGeminiLLMService` no longer silently falls back to 3.8 when a Flash-Lite model is requested. `scripts/run_ctx_rd_01_unadapted_narrative_e2e.py` accepts `--generation-model` (which overrides the environment variable), passes the resolved Lite model to the actual LLM, and writes the requested/effective model into fresh evidence. Unit tests in `ai-service/tests/test_ctx_rd_unadapted_narrative_e2e.py` cover the default, explicit 3.1 selection and rejection of 3.8/fallback.
+
+```powershell
+# Default: gemini-3.5-flash-lite; run on a clean, committed SHA with a disposable database
+.\.venv\Scripts\python.exe scripts/run_ctx_rd_01_unadapted_narrative_e2e.py
+
+# Alternative when specifically needed:
+.\.venv\Scripts\python.exe scripts/run_ctx_rd_01_unadapted_narrative_e2e.py --generation-model gemini-3.1-flash-lite
+
+# Validate the new sanitized artifact:
+.\.venv\Scripts\python.exe scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py --evidence docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e.json
+```
+
+**Evidence separation is mandatory:** the existing unadapted JSON is historic `gemini-3.8-flash` evidence, tested on `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a` and committed in direct child `3645dda04d5bfdb624a781dacbd3776f418d3977`. The SHA typo in earlier execution reporting was corrected here. Do not relabel that run as Flash-Lite, claim new Lite successes from unit CI, or overwrite its measured retry/latency/content results. A *new* Lite live run requires a clean code SHA, model-specific real-provider attempt logs and separately committed sanitized evidence. Avoid repeated full embedding when version-matched persisted vectors are safely reusable. Keep 3.8 historical evidence, do not spend scarce 3.8 RPD through hidden fallback.
+
+**Separate outstanding Round 4 reporting issue:** historic `rq-0011.checklist.chronology_causality=PARTIAL` despite a global `checklist_verdict=PASS`; any aggregate content verdict must be PARTIAL until the source-based review resolves it. Historic live 3.8 also had 8/10 failed model attempts (503); stability remains NOT ACCEPTED. Fix summary/validator reporting without manufacturing a new passing draft; PR #33 stays under review until the reporting correction and new CI are complete.
+
+`CONTEXT_ROUTING_POLICY=legacy-v1` remains the production default, balanced scope opt-in only; global activation NOT AUTHORIZED; P8-05 `BLOCKED_PENDING_STABILITY`.
+
+---
+
 
 ## LATEST ASTRA REVIEW — ROUND 3 / PR #33 (2026-10-03)
 
@@ -322,3 +347,91 @@ P8-05                              BLOCKED_PENDING_STABILITY
 ```
 
 Do not reopen EVAL-01O, retune hybrid/packer/embedding contracts, change production default or perform destructive P8-05 cleanup.
+
+---
+
+## EXECUTION REPORT — Unadapted Narrative Context E2E Canary (2026-10-03)
+
+**Branch:** `astra/ctx-rd-01-unadapted-narrative-e2e`  
+**Base commit:** `fb1eb240dfa7dfc377b031ae13b430affb275599` (`origin/main`)  
+**Tested code SHA:** `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a`  
+**Evidence commit:** `3645dda04d5bfdb624a781dacbd3776f418d3977`  
+**Live Evidence File:** `docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e.json`  
+**Validator:** `scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py` -> `{"status": "PASS", "errors": []}`  
+**Gate Verdict:** `UNADAPTED_NARRATIVE_E2E_DEMONSTRATED`
+
+### 1. Resolution of Blockers (Round 3 Remediation)
+
+#### Blocker A — Unambiguous Source Status & Runner-Derived Materialization
+- Implemented `derive_memory_source_and_ambiguity_status` and `build_event_record_from_memory` in [run_ctx_rd_01_unadapted_narrative_e2e.py](file:///c:/Users/Laptop/OneDrive/Documents/testproject/scripts/run_ctx_rd_01_unadapted_narrative_e2e.py).
+- Completely eliminated the bug where `source_status` defaulted to `"canonical"` for ambiguous memories whose `status` field was unset.
+- Authoritatively separated storage confirmation from prompt narrative semantics:
+  - `confirmation_status="confirmed"` at the storage layer represents that the source report itself is confirmed authorial manuscript material (satisfying PostgreSQL query filters).
+  - `source_status="ambiguous"`, `review_status="ambiguous"`, `is_ambiguous=True`, `is_ambiguous_ground_truth=True`, `report_semantics="confirmed_source_report"` within `event_metadata` and `memory_metadata` explicitly flags that the underlying event is an unresolved narrative contradiction. Incompatible claims are NEVER presented as undisputed canonical facts.
+- Traced `mem-000164` (Ch45), `mem-000172` (Ch47), and `mem-000176` (Ch49) with `source_status="ambiguous"`, `retrieval_origin="semantic"`, `prompt_retained_lanes=["recent"]`, `actual_preserved_lane="recent"`, `dedup_reason="overlap_with_recent"`.
+- Traced `mem-000167`, `mem-000174`, `mem-000177` with `source_status="canonical"`, `retrieval_origin="world_rule"`, `actual_preserved_lane="world_rule"`.
+
+#### Blocker B — Runner-Derived PostgreSQL & Prompt Preservation Integration Test
+- Rewrote `test_ambiguous_source_status_preservation_in_recent_events_and_prompt` in [test_unadapted_narrative_postgres_integration.py](file:///c:/Users/Laptop/OneDrive/Documents/testproject/ai-service/tests/test_unadapted_narrative_postgres_integration.py) to be strictly runner-derived:
+  - Seeds Ch45, Ch47, Ch49 using the exact `build_event_record_from_memory` and `derive_memory_source_and_ambiguity_status` mapping functions.
+  - Verifies that `PostgresNarrativeRepository.get_structured_context(..., chapter_number=49)` preserves `source_status="ambiguous"` and `is_ambiguous=True`.
+  - Runs production `WritingService.preview_context(...)` with `balanced-scope-v1` and serializes through `ContextBudgetPacker.prompt_context(preview)`.
+  - Strictly asserts that inside the packed prompt payload given to the LLM (`prompt_payload["recent_events"]`), all three conflicting reports preserve `source_status="ambiguous"`, `is_ambiguous=True`, and are NOT marked `"canonical"`.
+- Entire PostgreSQL suite (6/6 tests) passing in 1.47s against live PostgreSQL 16 on port 5433 with fail-closed reachability check.
+
+#### Blocker C — Fail-Closed Validator with Strict Lane-Retained Agreement
+- Updated [verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py](file:///c:/Users/Laptop/OneDrive/Documents/testproject/scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py):
+  - Strictly checks `t_item["source_status"] == "ambiguous"` and `t_item["source_status"] != "canonical"` for ambiguous memories.
+  - Enforces fail-closed agreement between declared `actual_preserved_lane` and the case's retained ID arrays (`retained_recent_ids`, `retained_semantic_ids`, `retained_rule_ids`).
+  - Added 6 new negative rejection assertions in `self_test()` across Rounds 3 and 4 (16 total negative tests):
+    1. Falsely claimed canonical `source_status` on ambiguous memory -> rejected (`case_1_mem-000164_source_status_falsely_claimed_canonical`).
+    2. Lane-retained ID mismatch where `actual_preserved_lane="recent"` but ID missing from `retained_recent_ids` -> rejected (`case_1_mem-000164_not_in_retained_recent_ids`).
+    3. `checklist_verdict` overclaiming `PASS` when any criterion is `PARTIAL` -> rejected (`summary_checklist_verdict_overclaims_pass`).
+    4. `automated_content_check` overclaiming `PASS` when any criterion is `PARTIAL` -> rejected (`summary_automated_content_check_overclaims_pass`).
+    5. `provider_stability` falsely claimed `ACCEPTED` despite failed attempts -> rejected (`summary_provider_stability_overclaims_accepted`).
+    6. `technical_execution` not `PASS` -> rejected (`summary_technical_execution_not_pass`).
+- All 16 negative self-test assertions and positive contract pass cleanly.
+
+#### Blocker D — Manuscript Privacy
+- Zero full draft text in repository. Evidence records only `draft_sha256`, character count, and safe snippet (<385 characters).
+- Offline validator strictly rejects any evidence containing `full_draft`.
+
+### 2. Live Provider Execution Summary
+
+- **Tested Code Commit:** `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a`
+- **Evidence Commit:** `3645dda04d5bfdb624a781dacbd3776f418d3977`
+- **Branch:** `astra/ctx-rd-01-unadapted-narrative-e2e` (pushed to origin)
+- **Embedding Provider:** `GeminiEmbeddingProvider` (`gemini-embedding-2-768-v1`, 768d, L2 normalized, 11 document batches + 6 query calls with API key rotation).
+- **LLM Service:** `RealGeminiLLMService` (`gemini-3.8-flash`, `LLM_LOCAL_FALLBACK=false`).
+- **Database:** PostgreSQL 16 + pgvector on staging port 5433 (`postgresql+psycopg://localhost:5433/ephurin` with credentials redacted).
+- **Cases:**
+  1. `core_gold:rq-0011` (Cutoff Ch 32): 63 raw entities -> 19 retained (12k tier, 10496 tokens), hash match `True`, latency 88727ms (handled API retry), draft status `completed`, checklist: `canonical_source_status_correctness="PASS"`, `chronology_causality="PARTIAL"`.
+  2. `challenge:rq-0025` (Cutoff Ch 49): 68 raw entities -> 20 retained (12k tier, 11863 tokens), hash match `True`, latency 33492ms, draft status `completed`, checklist: `canonical_source_status_correctness="PASS"`, `chronology_causality="PASS"`.
+
+- **Structured Summary & Acceptance Distinctions (Astra Round 4 Review Contract):**
+  - **`technical_execution`**: `PASS` (genuine unadapted `PostgresNarrativeRepository`, real Gemini document/query embeddings, pgvector hybrid retrieval, zero drops/overflow, matching preview/job context hashes, and completed LLM generations).
+  - **`automated_content_check`**: `PARTIAL` (`core_gold:rq-0011` evaluated `chronology_causality="PARTIAL"`).
+  - **`checklist_verdict`**: `PARTIAL` (aligned with automated content check; never overclaiming aggregate PASS).
+  - **`independent_full_draft_review`**: `NOT_ASSESSED` (complete generated drafts have not been independently compared against Frozen_v1).
+  - **`provider_stability`**: `NOT_ACCEPTED` (10 model attempts: 2 successes and 8 failures from Gemini 503 ServerError; requires bounded opt-in stability canary before considering any default change).
+
+### 3. Current Canonical State
+
+```text
+EVAL-01                                  CLOSED
+CTX-RD-01 implementation                 MERGED
+Real-provider staging                    ACCEPTED
+Live source pgvector semantic path       ACCEPTED (MIXED-PROVENANCE / QUALIFIED)
+Corrected live source-provider evidence  ACCEPTED WITH QUALIFICATION (tested ece0738)
+Unadapted production technical E2E       DEMONSTRATED & VALIDATED (QUALIFIED; tested e9e7def, evidence 3645dda)
+Automated content check                  PARTIAL (rq-0011 chronology_causality PARTIAL)
+Independent full draft review            NOT_ASSESSED
+Provider stability                       NOT_ACCEPTED (8/10 503 ServerError attempts)
+Offline evidence validator               PASS (0 errors, 16 negative self-test assertions)
+PostgreSQL integration test suite        6/6 PASS (runner-derived, fail-closed CI reachability guard)
+Unit test suite                          12/12 PASS
+Production default                       legacy-v1 (UNCHANGED)
+Global balanced-v1 activation            NOT AUTHORIZED
+P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
+```
+
