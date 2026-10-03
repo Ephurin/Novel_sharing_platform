@@ -1,5 +1,27 @@
 # Active Project Handoff — CTX-RD-01
 
+## LATEST ASTRA REVIEW — ROUND 4, PR #33 (2026-10-03)
+
+**Read first:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-UNADAPTED-E2E-ROUND4-REVIEW.md` (review commit `0147553332f90dc78fa7cfc0fd7cff42007bd678`). PR: https://github.com/Ephurin/Novel_sharing_platform/pull/33. This latest section supersedes previously open Round 3 source-status objections **for the tested narrow path**; it does not override previous real measurements or production safeguards.
+
+**Decision:** `SOURCE-STATUS/PROMPT PROPAGATION REPAIR ACCEPTED; UNADAPTED TECHNICAL E2E DEMONSTRATED WITH QUALIFICATION. PR MERGE ON HOLD FOR REPORTING INTEGRITY. CONTENT AND STABILITY NOT ACCEPTED.`
+
+- New runner/test commit `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a` was the exact live-tested code. Actual evidence **direct child** is `3645dda04d5bfdb624a781dacbd3776f418d3977`; branch handoff head `b20900378a229583458aa2b89c6b3ce9c6a88790`. The branch incorrectly lists nonexistent `3645ddaba0f295e8486940c6600554d6fc487e41`; correct that textual SHA without changing raw measurements.
+- PR #33 updated CI: P7 `37136379648`, P8 `37136379640`, and Evaluation Pilot `37136379629`: all SUCCESS. Dedicated unadapted PostgreSQL integration and unit/validator steps PASS. CI does not call real Gemini.
+- Actual source materialization now shares `derive_memory_source_and_ambiguity_status` and `build_event_record_from_memory` with the runner-derived PostgreSQL test. For Ch45/47/49 `mem-000164/172/176`, metadata correctly labels `source_status=ambiguous`, `is_ambiguous_ground_truth=true`, and `report_semantics=confirmed_source_report`; the last two flags survive actual `PostgresNarrativeRepository → WritingService.preview_context → ContextBudgetPacker.prompt_context`. `confirmation_status=confirmed` refers to confirmation of the source report, **not** conclusive truth of the narrated event. The three memories were retrieved by semantic ranks 3/1/2 and retained in the prompt's *recent-event* lane after semantic/recent dedup.
+- Latest live manifest shows Ch32 12k/10,496 tokens, 63→19 entities; Ch49 12k/11,863 tokens, 68→20 entities; both context hashes equal, all 20 recent and 6/12 world rules retained, measured drops 0, no overflow. Two jobs eventually completed, but **10 model attempts: 2 success, 8 failures (503)**; recorded latencies ~88.7s and ~33.5s. This is an observed provider stability concern, not a stability PASS.
+
+### REQUIRED IMMEDIATE CORRECTIONS — Gemini / Antigravity
+
+1. Fix branch `promt.md` evidence SHA: actual `3645dda04d5bfdb624a781dacbd3776f418d3977` is a direct child of `e9e7def3...`. The SHA reported in the branch handoff does not exist.
+2. Fix **aggregate content-report overclaim**: in the actual evidence, `rq-0011.checklist.chronology_causality="PARTIAL"`, yet `summary.checklist_verdict="PASS"` and handoff says all criteria PASS because the runner summarizes only `canonical_source_status_correctness`. Distinguish technical E2E success from automated-content PARTIAL and independent full-draft audit NOT_ASSESSED. Do not rewrite measured case values or fabricate a new passing draft. Update the runner's summary/validator regression tests for future runs, and issue a versioned erratum for this evidence if keeping its original tested SHA; code/report-only changes do not require unnecessary re-embedding.
+3. Keep full new drafts in controlled local artifacts for independent Frozen_v1 content review. Future-information leakage and unsupported claims remain `NOT_ASSESSED`, even when lexical checks PASS. The current brief snippets cannot establish manuscript-level correctness.
+4. Once reporting is corrected, rerun PR CI if code/tests changed and request Astra merge review. Then plan a **bounded opt-in provider stability canary** that records each retry, 429/503, latency and recovery. Do not enable global default until stability and content review are independently accepted.
+
+No broad EVAL-01 rerun, hybrid/packer retuning, default switch or destructive P8-05. Production `legacy-v1` remains unchanged; `balanced-scope-v1` is authorized only for designated opt-in staging.
+
+---
+
 ## ACTIVE MODEL-SWITCH DIRECTIVE — FLASH-LITE FOR FUTURE CTX-RD CANARY RUNS
 
 **User decision:** preserve scarce `gemini-3.8-flash` daily quota (reported 20 RPD) by using **`gemini-3.5-flash-lite` as the default generation model** for the opt-in and unadapted canary runners, with **`gemini-3.1-flash-lite` as a manually selectable alternative**. Official API model IDs: exactly those two stable strings; do not use the shut-down `gemini-3.1-flash-lite-preview`. Model selection is limited to the canary scripts; it does not change the deployed production generation model or the `legacy-v1` context-routing default.
