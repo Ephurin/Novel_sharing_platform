@@ -17,9 +17,29 @@ from run_ctx_rd_01_unadapted_narrative_e2e import (
     sanitize_database_endpoint,
 )
 from verify_ctx_rd_01_unadapted_narrative_e2e_evidence import validate, EXPECTED_VERSION
+from run_ctx_rd_01_opt_in_canary import (
+    DEFAULT_CANARY_GENERATION_MODEL,
+    InstrumentedRealGeminiLLMService,
+    resolve_canary_generation_model,
+)
 
 
 class TestUnadaptedNarrativeE2EContract(unittest.TestCase):
+    def test_default_generation_model_is_35_flash_lite(self) -> None:
+        self.assertEqual(DEFAULT_CANARY_GENERATION_MODEL, "gemini-3.5-flash-lite")
+        self.assertEqual(resolve_canary_generation_model(DEFAULT_CANARY_GENERATION_MODEL), "gemini-3.5-flash-lite")
+
+    def test_31_flash_lite_can_be_selected(self) -> None:
+        self.assertEqual(resolve_canary_generation_model("gemini-3.1-flash-lite"), "gemini-3.1-flash-lite")
+
+    def test_38_flash_is_rejected_and_never_silent_fallback(self) -> None:
+        with self.assertRaises(ValueError):
+            resolve_canary_generation_model("gemini-3.8-flash")
+        for model in ("gemini-3.5-flash-lite", "gemini-3.1-flash-lite"):
+            service = InstrumentedRealGeminiLLMService(api_key="DUMMY_KEY", model=model)
+            self.assertEqual(service._gemini_model_candidates(), [model])
+            self.assertNotIn("gemini-3.8-flash", service._gemini_model_candidates())
+
     def test_sanitize_database_endpoint_redacts_credentials(self) -> None:
         raw_url = "postgresql+psycopg://myuser:secretpassword@localhost:5433/ephurin_staging"
         sanitized = sanitize_database_endpoint(raw_url)
