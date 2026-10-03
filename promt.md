@@ -312,56 +312,63 @@ Do not reopen EVAL-01O, retune hybrid/packer/embedding contracts, change product
 **Validator:** `scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py` -> `{"status": "PASS", "errors": []}`  
 **Gate Verdict:** `UNADAPTED_NARRATIVE_E2E_DEMONSTRATED`
 
-### 1. Resolution of Blockers
+### 1. Resolution of Blockers (Round 2 Remediation)
 
-#### Blocker A — Source ID Erratum & Provenance Correction
-- Replaced misattributed world-rule IDs (`mem-000167`, `mem-000174`, `mem-000177`) with the authoritative canonical ambiguous cavalry memories:
-  - `mem-000164` (Chapter 45, `narrative_echo`, `temporal_reset`, `do_not_use_as_clean_ground_truth`)
-  - `mem-000172` (Chapter 47, `narrative_echo`, `temporal_reset`, `do_not_use_as_clean_ground_truth`)
-  - `mem-000176` (Chapter 49, `force_state_conflict`, `temporal_reset`, `do_not_use_as_clean_ground_truth`)
-- **Observed Live pgvector Semantic Retrieval (`challenge:rq-0025`):**
-  - Rank 1: `mem-000172`
-  - Rank 2: `mem-000176`
-  - Rank 3: `mem-000164`
-  All three canonical chronology memories were retrieved in the semantic top 3.
-- Provenance separation verified: `mem-000167`, `mem-000174`, `mem-000177` are persisted genuinely as world rules in `FactRecord` (`world_rule` lane) and are NOT in the semantic top 8.
+#### Blocker A — Prompt-Lane Attribution & Deduplication Vocabulary
+- Replaced misattribution of prompt lanes with authoritative provenance vocabulary:
+  - Canonical ambiguous cavalry memories:
+    - `mem-000164` (Chapter 45, `narrative_echo`, `temporal_reset`, `do_not_use_as_clean_ground_truth`): `retrieval_origin="semantic"`, rank 3, `prompt_retained_lanes=["recent"]`, `actual_preserved_lane="recent"`, `dedup_reason="overlap_with_recent"`.
+    - `mem-000172` (Chapter 47, `narrative_echo`, `temporal_reset`, `do_not_use_as_clean_ground_truth`): `retrieval_origin="semantic"`, rank 1, `prompt_retained_lanes=["recent"]`, `actual_preserved_lane="recent"`, `dedup_reason="overlap_with_recent"`.
+    - `mem-000176` (Chapter 49, `force_state_conflict`, `temporal_reset`, `do_not_use_as_clean_ground_truth`): `retrieval_origin="semantic"`, rank 2, `prompt_retained_lanes=["recent"]`, `actual_preserved_lane="recent"`, `dedup_reason="overlap_with_recent"`.
+    - All three were retrieved in raw semantic top 3, but because they also belong to the newest 20 recent events, `ContextBudgetPacker` promoted them to `recent_events` and deduplicated them from `preview.semantic_memories` (`dedup_reason="overlap_with_recent"`).
+  - Genuine world rules:
+    - `mem-000167`, `mem-000174`, `mem-000177`: `retrieval_origin="world_rule"`, `in_semantic_top8=False`, `prompt_retained_lanes=["world_rule", "recent"]`, `actual_preserved_lane="world_rule"`, `dedup_reason=None`.
+- Fixed Round 1 SHA handoff typo: verified previous evidence commit was `27e774e7016492752e2026eea6015b28a6abbf18` (not `27e774eb...`).
 
-#### Blocker B — Source-Faithful Event Materialization & Future Entity Cutoff
+#### Blocker B — Source-Faithful Event Materialization, Ambiguity Preservation & Integration Tests
 - Eliminated dual event creation. Each canonical memory is materialized as a single source-faithful `EventRecord` with explicit `review_status` ("ambiguous" vs "high_confidence") and `is_ambiguous_ground_truth=True`.
-- Patched `PostgresNarrativeRepository.get_structured_context()` to enforce `first_chapter <= chapter_number` cutoff on `EntityRecord` (via `static_attributes["first_chapter"]` and attribute). Entities appearing after the cutoff chapter (e.g. Ch61 in Batch_7) are excluded from context.
-- Verified via 5 real PostgreSQL integration tests in `ai-service/tests/test_unadapted_narrative_postgres_integration.py` (5/5 PASSED):
+- Patched `PostgresNarrativeRepository.get_structured_context()` to enforce `first_chapter <= chapter_number` cutoff on `EntityRecord` (via `static_attributes["first_chapter"]` and attribute). Entities appearing after the cutoff chapter are excluded from context.
+- Verified via 6 real PostgreSQL integration tests in `ai-service/tests/test_unadapted_narrative_postgres_integration.py` (6/6 PASSED, fail-closed DB check enabled):
   - `test_entity_chapter_cutoff_and_future_leakage_prevention`
   - `test_as_of_state_projection_across_cutoff`
   - `test_event_supersession_and_temporal_cutoff`
   - `test_cross_tenant_isolation`
   - `test_normalized_latest_five_recent_event_participants`
-- Added to CI workflow in `.github/workflows/p7-semantic-memory.yml`.
+  - `test_ambiguous_source_status_preservation_in_recent_events_and_prompt` (NEW: proves ambiguous review status and tags are preserved in `recent_events` and prompt context, avoiding flattening into undisputed canonical facts).
+- Database reachability guard in integration test suite fails-closed with `pytest.fail` when `CI` or `REQUIRE_POSTGRES=1` is set.
 
-#### Blocker C — Measured Runtime Metrics & Deduplication
-- ZERO hardcoding:
-  - `selected_tier`: 12000 (read from `preview.token_budget["routing_selected_tier"]`)
-  - `dropped_artifacts`: 0 (read from `preview.token_budget["dropped_artifact_count"]`)
-  - `protected_overflow`: False (read from `preview.token_budget["protected_overflow"]`)
-  - `budget_overflow`: False (read from `preview.token_budget["budget_overflow"]`)
-  - `tokens_used`: measured 9890 (`core_gold:rq-0011`) and measured 11116 (`challenge:rq-0025`)
+#### Blocker C — Fail-Closed Runtime Measurements & Subset Enforcements
+- Removed all `.get(key, default)` fallbacks:
+  - `selected_tier`: 12000 (read strictly from `preview.token_budget["routing_selected_tier"]`)
+  - `dropped_artifacts`: 0 (read strictly from `preview.token_budget["dropped_artifact_count"]`)
+  - `protected_overflow`: False (read strictly from `preview.token_budget["protected_overflow"]`)
+  - `budget_overflow`: False (read strictly from `preview.token_budget["budget_overflow"]`)
+  - `tokens_used`: measured 9890 (`core_gold:rq-0011`) and measured 11208 (`challenge:rq-0025`), asserting `0 < tokens_used <= selected_tier`.
 - Context hash parity: `preview_context_hash == job_context_hash` verified for both cases.
-- Captured independent pre-pack vs post-pack arrays for all lanes (entities, current states, recent events, world rules, semantic memories).
-- Packer deduplication accounted for: semantic matches overlapping with the 20 recent events are deduplicated from `preview.semantic_memories` and promoted to `recent_events` without loss (`dropped_artifact_count == 0`).
+- Fail-closed subset relationship validation enforced:
+  - `retained_entity_ids ⊆ raw_entity_ids`
+  - `retained_state_entity_ids ⊆ raw_state_entity_ids`
+  - `retained_state_entity_ids ⊆ retained_entity_ids`
+  - `raw_semantic_ids == retained_semantic_ids + deduplicated_semantic_source_keys`
+- Validator self-test includes 10 negative rejection assertions, all passing.
 
 #### Blocker D — Manuscript Privacy & Grounded Claims
-- Deleted and removed `unadapted-drafts.json`. No full draft files committed.
-- Evidence manifest records only `draft_sha256`, character count, and safe snippet (<380 characters).
+- Deleted and removed `unadapted-drafts.json`. Zero full draft text in repository.
+- Evidence manifest records only `draft_sha256`, character count, and safe snippet (<385 characters).
 - Validator rejects any evidence containing `full_draft`.
-- Automated checklist reports lexical/structural criteria without making unverified manuscript-level claims. `future_leakage` and `unsupported_claim` remain marked `NOT_ASSESSED`.
+- Automated checklist reports lexical/structural criteria without making unverified manuscript-level claims.
 
 ### 2. Live Provider Execution Summary
 
+- **Tested Code Commit:** `9c0496492a9266a39738240c113c78104d0c451a`
+- **Evidence Commit:** `f0db7e6414749f993d04d1efc60953a99e74659b`
+- **Branch:** `astra/ctx-rd-01-unadapted-narrative-e2e` (pushed to origin)
 - **Embedding Provider:** `GeminiEmbeddingProvider` (`gemini-embedding-2-768-v1`, 768d, L2 normalized, 11 document batches + 6 query calls with API key rotation).
 - **LLM Service:** `RealGeminiLLMService` (`gemini-3.8-flash`, `LLM_LOCAL_FALLBACK=false`).
 - **Database:** PostgreSQL 16 + pgvector on staging port 5433 (`postgresql+psycopg://localhost:5433/ephurin` with credentials redacted).
 - **Cases:**
-  1. `core_gold:rq-0011` (Cutoff Ch 32): 63 raw entities -> 19 retained (12k tier, 9890 tokens), hash match `True`, latency 8697ms, draft status `completed`.
-  2. `challenge:rq-0025` (Cutoff Ch 49): 68 raw entities -> 20 retained (12k tier, 11116 tokens), hash match `True`, latency 29679ms, draft status `completed`.
+  1. `core_gold:rq-0011` (Cutoff Ch 32): 63 raw entities -> 19 retained (12k tier, 9890 tokens), hash match `True`, latency 5811ms, draft status `completed`.
+  2. `challenge:rq-0025` (Cutoff Ch 49): 68 raw entities -> 20 retained (12k tier, 11208 tokens), hash match `True`, latency 7611ms, draft status `completed`.
 
 ### 3. Current Canonical State
 
@@ -371,9 +378,9 @@ CTX-RD-01 implementation                 MERGED
 Real-provider staging                    ACCEPTED
 Live source pgvector semantic path       ACCEPTED (MIXED-PROVENANCE / QUALIFIED)
 Corrected live source-provider evidence  ACCEPTED WITH QUALIFICATION (tested ece0738)
-Unadapted production narrative E2E       DEMONSTRATED & VALIDATED (tested dae7bcb, evidence 27e774e)
-Offline evidence validator               PASS (0 errors)
-PostgreSQL integration test suite        5/5 PASS
+Unadapted production narrative E2E       DEMONSTRATED & VALIDATED (tested 9c04964, evidence f0db7e6)
+Offline evidence validator               PASS (0 errors, 10 negative self-test assertions)
+PostgreSQL integration test suite        6/6 PASS (fail-closed CI reachability guard)
 Unit test suite                          7/7 PASS
 Production default                       legacy-v1 (UNCHANGED)
 Global balanced-v1 activation            NOT AUTHORIZED
