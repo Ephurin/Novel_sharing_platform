@@ -1,5 +1,33 @@
 # Active Project Handoff — CTX-RD-01
 
+## ACTIVE EXECUTION DIRECTIVE — ASTRA APPROVED UNADAPTED NARRATIVE E2E
+
+**Decision:** PROCEED with implementation on a dedicated branch `astra/ctx-rd-01-unadapted-narrative-e2e` from the latest `main`. This directive supersedes *planning-only* language in older sections below; it does not supersede accepted evidence or governance restrictions. Gemini / Antigravity should implement the runner, validator and tests; commit code before any new live execution.
+
+**Acceptance target:** prove a genuinely unadapted production path for source-derived data:
+
+`PostgresNarrativeRepository.get_structured_context() + Gemini document/query embeddings + PostgreSQL/pgvector + SemanticRetrieverService/hybrid-v1 -> WritingService (opt-in balanced-scope-v1) -> ContextBudgetPacker -> real Gemini generation`.
+
+### Non-negotiable implementation requirements
+
+1. **No narrative context adapter or injected package.** Both `preview_context()` and `start_generation()` must use the active `PostgresNarrativeRepository` directly. Never replace it with `RepoAdapter`, `eval01g.build_package()`, or another preassembled EVAL context path. Frozen_v1, Batch_7 and EVAL fixtures may provide *source records* for controlled materialization and independent expected-result comparison; they must not supply the actual retrieval/packing result.
+2. **Persist each source domain according to its semantics.** Materialize `EntityRecord`, aliases, current states, `EventRecord`, normalized `EventParticipantRecord`, and relevant confirmed `FactRecord` world rules with accurate source/cutoff/locked/supersession metadata, alongside `MemoryChunkRecord` and version-matched `MemoryEmbeddingRecord` (768d, explicit L2). **Do not turn every important narrative memory or event into a world rule** to force retention. If the frozen corpus lacks enough support to create a world rule or state, mark that domain `MISSING / NOT_ASSESSED`, do not invent canonical facts or silently substitute fixture-supplied rules. Preserve exact source IDs in audit metadata so DB UUIDs map back to source provenance.
+3. **Independent per-lane checks.** Capture actual raw semantic IDs before packing, independently retrieved structured entity/state/event/rule IDs from PostgreSQL, and each ID after packing. Record drop/overflow, selected tier, *actual generation-job* context hash, chapter cutoff, supersession and cross-tenant isolation. Verify normalized participants of the latest five eligible recent events. For `challenge:rq-0025`, explicitly trace `mem-000167` (Ch45), `mem-000174` (Ch47), `mem-000177` (Ch49) by semantic/recent/rule lane. A fact missing from semantic top 8 is **not** semantic recall; correct prose cannot repair false retrieval claims.
+4. **Evidence integrity and privacy.** Add `scripts/run_ctx_rd_01_unadapted_narrative_e2e.py`, a separately testable manifest validator `scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py`, and focused unit/postgres-integration tests. Live evidence must reject fake/dry-run PASS, zero genuine provider calls, incorrect tested-SHA lineage, and copied raw/packed ID checks. Export the *actual runtime database host/port/database* with credentials redacted (never hardcode `5432` or include a password). Record per-model attempt successes and 429/503 failures separately from wrapper/adapter call counts.
+5. **Full-draft content audit without unnecessary manuscript publication.** Preserve the complete newly generated drafts in separately controlled local/CI artifacts rather than embedding them by default in the JSON committed to GitHub. The sanitized manifest should contain draft ID/path, SHA-256 and limited snippets. A source-grounded review (proposed `UNADAPTED-NARRATIVE-CONTENT-REVIEW.md`) must examine the *new* complete output against Frozen_v1: `rq-0011` Ch27 vs Ch32 and `rq-0025` Ch45 -> Ch47 -> contradictory Ch49. Distinguish automated lexical checks from independent source-fact review; mark future leakage / unsupported claims `NOT_ASSESSED` unless actually reviewed.
+
+### Execution and evidence sequence
+
+1. Branch from up-to-date `main`; implement runner, validator and regression tests without modifying production defaults, hybrid weights, embedding contracts or packer behavior. Add CI coverage for unit and PostgreSQL integration. Commit implementation first.
+2. Open a focused PR and obtain passing GitHub Actions CI. If changes are merged before the live run, use the **actual clean merged code SHA** as the new tested SHA. Do not claim a commit was tested if it lacks the executed runner or contains uncommitted changes.
+3. Use only an isolated/disposable PostgreSQL+pgvector staging database with accepted migrations and existing local Gemini keys. Reuse valid existing model-version-matched materialized embeddings when possible rather than re-embedding all 216 chunks needlessly. Run one or two targeted real-source cases; do not silently substitute fake embeddings or EVAL result adapters if quota/DB is unavailable.
+4. Commit sanitized **execution evidence separately** with its correct tested SHA and clear fixture/source provenance; retain previous evidence unchanged. Append an execution-only report to this `promt.md` for Astra's independent review. Any unmet requirement must be `PARTIAL` or `BLOCKED`, never an invented PASS.
+5. After technical acceptance, complete a small bounded opt-in stability/availability window before proposing any global default change. No sealed EVAL A/B rerun is required merely to finish this gate.
+
+**Governance remains unchanged:** production `CONTEXT_ROUTING_POLICY=legacy-v1`; opt-in `balanced-scope-v1` only in designated staging; global activation NOT AUTHORIZED; P8-05 `BLOCKED_PENDING_STABILITY`; no credentials, full private manuscripts or unnecessary draft text in GitHub.
+
+---
+
 ## Current canonical state
 
 ```text
