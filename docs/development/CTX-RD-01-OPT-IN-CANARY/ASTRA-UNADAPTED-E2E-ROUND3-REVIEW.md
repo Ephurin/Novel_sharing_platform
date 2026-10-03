@@ -69,3 +69,13 @@ P8-05                                        BLOCKED_PENDING_STABILITY
 ```
 
 Do not reopen EVAL-01, retune hybrid/packer/embedding contracts, globally enable balanced scope or unblock P8-05 for this narrow repair.
+
+## CI addendum — completed after the initial review
+
+PR #33 GitHub Actions finished successfully on head `c18e4c078c4742b140bfed0445f092455b971398`:
+
+- P7 Semantic Memory Foundation: run `37122744546` — **SUCCESS**, including unit, dedicated unadapted validator and PostgreSQL/pgvector integration (with the new dedicated PostgreSQL integration step), and Compose smoke.
+- P8 Cutover and Migration: run `37122744719` — **SUCCESS**, including unit, PostgreSQL integration, frontend, rollback rehearsal, cleanup gate and Compose smoke.
+- Evaluation Pilot Harness: run `37122744590` — **SUCCESS**.
+
+A review comment has been posted on PR #33 requiring the source-status/materialization-to-prompt repair. The all-green CI removes the CI blocker for the **currently tested code** but does not resolve the semantic gap in the test or approve merging as-is. After the focused fix, rerun CI and a narrowly scoped live provider test if the generated prompt changes. Neither these CI runs nor the two local Gemini completions establish bounded provider stability or independent full-draft quality.
