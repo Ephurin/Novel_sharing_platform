@@ -238,9 +238,36 @@ def validate(evidence: dict) -> list[str]:
                             prefix + f"{mem_id}_actual_preserved_lane_must_be_recent",
                         )
                         require(
+                            t_item.get("source_status") == "ambiguous",
+                            prefix + f"{mem_id}_source_status_not_ambiguous",
+                        )
+                        require(
+                            t_item.get("source_status") != "canonical",
+                            prefix + f"{mem_id}_source_status_falsely_claimed_canonical",
+                        )
+                        require(
+                            t_item.get("review_status") == "ambiguous",
+                            prefix + f"{mem_id}_review_status_not_ambiguous",
+                        )
+                        require(
+                            t_item.get("is_ambiguous") is True,
+                            prefix + f"{mem_id}_is_ambiguous_flag_missing_or_false",
+                        )
+                        require(
                             t_item.get("is_ambiguous_ground_truth") is True,
                             prefix + f"{mem_id}_ambiguity_flag_missing",
                         )
+                        # Fail-closed agreement between declared actual_preserved_lane and case retained IDs
+                        if t_item.get("actual_preserved_lane") == "recent":
+                            require(
+                                mem_id in (case.get("retained_recent_ids") or []),
+                                prefix + f"{mem_id}_not_in_retained_recent_ids",
+                            )
+                        elif t_item.get("actual_preserved_lane") == "semantic":
+                            require(
+                                mem_id in (case.get("retained_semantic_ids") or []),
+                                prefix + f"{mem_id}_not_in_retained_semantic_ids",
+                            )
 
                     # Distinct world-rule memories must have retrieval_origin="world_rule" (NOT semantic top 8)
                     rule_ids = ("mem-000167", "mem-000174", "mem-000177")
@@ -266,6 +293,11 @@ def validate(evidence: dict) -> list[str]:
                             t_item.get("in_persisted_world_rules") is True,
                             prefix + f"{mem_id}_not_persisted_in_world_rules",
                         )
+                        if t_item.get("actual_preserved_lane") == "world_rule":
+                            require(
+                                mem_id in (case.get("retained_rule_ids") or []),
+                                prefix + f"{mem_id}_not_in_retained_rule_ids",
+                            )
 
 
     summary = evidence.get("summary") or {}
@@ -322,54 +354,85 @@ def self_test() -> None:
         **case_11,
         "query_id": "challenge:rq-0025",
         "tokens_used": 11208,
+        "raw_recent_ids": ["mem-000164", "mem-000172", "mem-000176", "ev-1", "ev-2"],
+        "retained_recent_ids": ["mem-000164", "mem-000172", "mem-000176", "ev-2", "ev-1"],
+        "raw_rule_ids": ["mem-000167", "mem-000174", "mem-000177"],
+        "retained_rule_ids": ["mem-000167", "mem-000174", "mem-000177"],
         "per_lane_provenance_trace": {
             "mem-000164": {
+                "source_status": "ambiguous",
+                "review_status": "ambiguous",
+                "tags": ["narrative_echo", "temporal_reset", "do_not_use_as_clean_ground_truth"],
                 "retrieval_origin": "semantic",
                 "in_semantic_top8": True,
                 "semantic_rank": 3,
                 "dedup_reason": "overlap_with_recent",
                 "prompt_retained_lanes": ["recent"],
                 "actual_preserved_lane": "recent",
+                "is_ambiguous": True,
                 "is_ambiguous_ground_truth": True,
             },
             "mem-000172": {
+                "source_status": "ambiguous",
+                "review_status": "ambiguous",
+                "tags": ["narrative_echo", "temporal_reset", "do_not_use_as_clean_ground_truth"],
                 "retrieval_origin": "semantic",
                 "in_semantic_top8": True,
                 "semantic_rank": 1,
                 "dedup_reason": "overlap_with_recent",
                 "prompt_retained_lanes": ["recent"],
                 "actual_preserved_lane": "recent",
+                "is_ambiguous": True,
                 "is_ambiguous_ground_truth": True,
             },
             "mem-000176": {
+                "source_status": "ambiguous",
+                "review_status": "ambiguous",
+                "tags": ["force_state_conflict", "temporal_reset", "do_not_use_as_clean_ground_truth"],
                 "retrieval_origin": "semantic",
                 "in_semantic_top8": True,
                 "semantic_rank": 2,
                 "dedup_reason": "overlap_with_recent",
                 "prompt_retained_lanes": ["recent"],
                 "actual_preserved_lane": "recent",
+                "is_ambiguous": True,
                 "is_ambiguous_ground_truth": True,
             },
             "mem-000167": {
+                "source_status": "high_confidence",
+                "review_status": "high_confidence",
+                "tags": ["location_history", "world_rule"],
                 "retrieval_origin": "world_rule",
                 "in_semantic_top8": False,
                 "prompt_retained_lanes": ["world_rule"],
                 "actual_preserved_lane": "world_rule",
                 "in_persisted_world_rules": True,
+                "is_ambiguous": False,
+                "is_ambiguous_ground_truth": False,
             },
             "mem-000174": {
+                "source_status": "high_confidence",
+                "review_status": "high_confidence",
+                "tags": ["world_rule", "direct_evidence", "long_range_dependency"],
                 "retrieval_origin": "world_rule",
                 "in_semantic_top8": False,
                 "prompt_retained_lanes": ["world_rule"],
                 "actual_preserved_lane": "world_rule",
                 "in_persisted_world_rules": True,
+                "is_ambiguous": False,
+                "is_ambiguous_ground_truth": False,
             },
             "mem-000177": {
+                "source_status": "high_confidence",
+                "review_status": "high_confidence",
+                "tags": ["world_rule", "setup_payoff"],
                 "retrieval_origin": "world_rule",
                 "in_semantic_top8": False,
                 "prompt_retained_lanes": ["world_rule"],
                 "actual_preserved_lane": "world_rule",
                 "in_persisted_world_rules": True,
+                "is_ambiguous": False,
+                "is_ambiguous_ground_truth": False,
             },
         },
     }
@@ -488,6 +551,38 @@ def self_test() -> None:
         "cases": [{**case_11, "retained_recent_ids": ["ev-999"]}, case_25],
     }
     assert "case_0_raw_vs_retained_recent_mismatch" in validate(recent_mismatch)
+
+    # 11. Ambiguous memory falsely claimed canonical source_status
+    ambig_falsely_canonical = {
+        **ev,
+        "cases": [
+            case_11,
+            {
+                **case_25,
+                "per_lane_provenance_trace": {
+                    **case_25["per_lane_provenance_trace"],
+                    "mem-000164": {
+                        **case_25["per_lane_provenance_trace"]["mem-000164"],
+                        "source_status": "canonical",
+                    },
+                },
+            },
+        ],
+    }
+    assert "case_1_mem-000164_source_status_falsely_claimed_canonical" in validate(ambig_falsely_canonical)
+
+    # 12. Actual preserved lane recent but memory ID not in retained_recent_ids
+    lane_id_mismatch = {
+        **ev,
+        "cases": [
+            case_11,
+            {
+                **case_25,
+                "retained_recent_ids": ["ev-1", "ev-2"],
+            },
+        ],
+    }
+    assert "case_1_mem-000164_not_in_retained_recent_ids" in validate(lane_id_mismatch)
 
     print("SELF-TEST PASS: unadapted narrative validator correctly enforces strict contract")
 

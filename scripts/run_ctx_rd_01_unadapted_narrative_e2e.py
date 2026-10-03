@@ -206,6 +206,83 @@ def evaluate_rq0025_checklist(draft: str) -> dict[str, Any]:
     }
 
 
+def derive_memory_source_and_ambiguity_status(mem: dict[str, Any]) -> dict[str, Any]:
+    """Derive unambiguous source status, review status, and ambiguity flags from frozen memory metadata.
+
+    Differentiates confirmed authorial manuscript report from underlying event ambiguity:
+    - confirmation_status='confirmed' represents that the source report itself is confirmed authorial manuscript material.
+    - source_status='ambiguous' explicitly flags that the underlying event claim is an unresolved narrative contradiction.
+    Never defaults an ambiguous memory to 'canonical'.
+    """
+    r_status = str(mem.get("review_status") or "high_confidence")
+    tags = list(mem.get("tags") or [])
+    is_ambiguous = (
+        r_status == "ambiguous"
+        or bool(mem.get("is_ambiguous"))
+        or bool(mem.get("is_ambiguous_ground_truth"))
+        or "do_not_use_as_clean_ground_truth" in tags
+        or "narrative_echo" in tags
+        or "temporal_reset" in tags
+        or "force_state_conflict" in tags
+    )
+    if is_ambiguous:
+        source_status = "ambiguous"
+    else:
+        source_status = str(mem.get("source_status") or mem.get("status") or r_status or "canonical")
+
+    return {
+        "source_status": source_status,
+        "review_status": r_status,
+        "tags": tags,
+        "is_ambiguous": is_ambiguous,
+        "is_ambiguous_ground_truth": is_ambiguous,
+        "report_semantics": "confirmed_source_report",
+    }
+
+
+def build_event_record_from_memory(
+    brain_id: uuid.UUID,
+    tenant_id: uuid.UUID,
+    novel_id: uuid.UUID,
+    mem: dict[str, Any],
+    narrative_order: int,
+    entity_name_map: dict[str, str] | None = None,
+) -> EventRecord:
+    """Build a single source-faithful EventRecord from memory dict using unambiguous status derivation."""
+    mid = str(mem["memory_id"])
+    ev_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, f"{novel_id}:event:{mid}")
+    content = str(mem["content"]).strip()
+    ch_num = int(mem.get("chapter_number") or 1)
+    m_type = str(mem.get("memory_type") or "event_summary")
+    status_info = derive_memory_source_and_ambiguity_status(mem)
+    ename_map = entity_name_map or {}
+
+    return EventRecord(
+        id=ev_uuid,
+        story_brain_id=brain_id,
+        tenant_id=tenant_id,
+        novel_id=novel_id,
+        narrative_order=narrative_order,
+        event_type=m_type,
+        summary=content,
+        participants=[ename_map.get(e, e) for e in mem.get("entities", [])],
+        event_metadata={
+            "memory_id": mid,
+            "chapter_number": ch_num,
+            "source_status": status_info["source_status"],
+            "review_status": status_info["review_status"],
+            "tags": status_info["tags"],
+            "is_ambiguous": status_info["is_ambiguous"],
+            "is_ambiguous_ground_truth": status_info["is_ambiguous_ground_truth"],
+            "report_semantics": status_info["report_semantics"],
+            "source_evidence": mem.get("source_evidence", {}),
+        },
+        chapter_number=ch_num,
+        source_type="author",
+        confirmation_status="confirmed",
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Perform offline execution with mock embeddings/drafts")
@@ -343,45 +420,15 @@ def main() -> int:
 
         # 2. Populate single source-faithful EventRecord per canonical memory + EventParticipant links
         print(f"[*] Populating {len(canonical_memories)} events and canonical memory chunks...")
-        chunks_payload = []
         for idx, mem in enumerate(canonical_memories):
-            mid = str(mem["memory_id"])
-            ev_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, f"{novel_id}:event:{mid}")
-            content = str(mem["content"]).strip()
             ch_num = int(mem.get("chapter_number") or 1)
-            m_type = str(mem.get("memory_type") or "event_summary")
-            r_status = str(mem.get("review_status") or "high_confidence")
-            tags = list(mem.get("tags") or [])
-            is_ambiguous = (
-                r_status == "ambiguous"
-                or "do_not_use_as_clean_ground_truth" in tags
-                or "narrative_echo" in tags
-                or "temporal_reset" in tags
-                or "force_state_conflict" in tags
-            )
-
-            # Single source-faithful narrative event (also satisfies pgvector join & temporal cutoff)
-            event_record = EventRecord(
-                id=ev_uuid,
-                story_brain_id=brain_id,
+            event_record = build_event_record_from_memory(
+                brain_id=brain_id,
                 tenant_id=tenant_uuid,
                 novel_id=novel_uuid,
+                mem=mem,
                 narrative_order=ch_num * 1000 + idx,
-                event_type=m_type,
-                summary=content,
-                participants=[entity_name_map.get(e, e) for e in mem.get("entities", [])],
-                event_metadata={
-                    "memory_id": mid,
-                    "chapter_number": ch_num,
-                    "source_status": str(mem.get("status") or "canonical"),
-                    "review_status": r_status,
-                    "tags": tags,
-                    "is_ambiguous": is_ambiguous,
-                    "source_evidence": mem.get("source_evidence", {}),
-                },
-                chapter_number=ch_num,
-                source_type="author",
-                confirmation_status="confirmed",
+                entity_name_map=entity_name_map,
             )
             session.add(event_record)
         session.flush()
@@ -394,16 +441,7 @@ def main() -> int:
             content = str(mem["content"]).strip()
             ch_num = int(mem.get("chapter_number") or 1)
             c_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
-            m_type = str(mem.get("memory_type") or "event_summary")
-            r_status = str(mem.get("review_status") or "high_confidence")
-            tags = list(mem.get("tags") or [])
-            is_ambiguous = (
-                r_status == "ambiguous"
-                or "do_not_use_as_clean_ground_truth" in tags
-                or "narrative_echo" in tags
-                or "temporal_reset" in tags
-                or "force_state_conflict" in tags
-            )
+            status_info = derive_memory_source_and_ambiguity_status(mem)
 
             # Normalized participant records for event
             for eid in mem.get("entities", []):
@@ -437,10 +475,12 @@ def main() -> int:
                 memory_metadata={
                     "memory_id": mid,
                     "chapter_number": ch_num,
-                    "source_status": str(mem.get("status") or "canonical"),
-                    "review_status": r_status,
-                    "tags": tags,
-                    "is_ambiguous": is_ambiguous,
+                    "source_status": status_info["source_status"],
+                    "review_status": status_info["review_status"],
+                    "tags": status_info["tags"],
+                    "is_ambiguous": status_info["is_ambiguous"],
+                    "is_ambiguous_ground_truth": status_info["is_ambiguous_ground_truth"],
+                    "report_semantics": status_info["report_semantics"],
                     "source_evidence": mem.get("source_evidence", {}),
                 },
             )
@@ -789,10 +829,12 @@ def main() -> int:
                 if crit_id in retained_rule_ids:
                     prompt_lanes.append("world_rule")
 
+                status_info = derive_memory_source_and_ambiguity_status(canonical_map[crit_id])
                 lane_trace[crit_id] = {
                     "source_chapter": canonical_map[crit_id]["chapter_number"],
-                    "source_status": canonical_map[crit_id].get("review_status"),
-                    "tags": canonical_map[crit_id].get("tags", []),
+                    "source_status": status_info["source_status"],
+                    "review_status": status_info["review_status"],
+                    "tags": status_info["tags"],
                     "retrieval_origin": "semantic",
                     "in_semantic_top8": in_raw_semantic,
                     "semantic_rank": semantic_rank,
@@ -801,7 +843,8 @@ def main() -> int:
                     "prompt_retained_lanes": prompt_lanes,
                     "actual_preserved_lane": "recent" if in_retained_recent else ("semantic" if in_retained_semantic else "not_retained"),
                     "dedup_reason": "overlap_with_recent" if is_deduped_from_semantic else None,
-                    "is_ambiguous_ground_truth": True,
+                    "is_ambiguous": status_info["is_ambiguous"],
+                    "is_ambiguous_ground_truth": status_info["is_ambiguous_ground_truth"],
                 }
             # Distinct world rule memories historically confused with cavalry
             rule_ids = ("mem-000167", "mem-000174", "mem-000177")
@@ -820,10 +863,12 @@ def main() -> int:
                 if in_retained_semantic:
                     prompt_lanes.append("semantic")
 
+                status_info = derive_memory_source_and_ambiguity_status(canonical_map[r_id])
                 lane_trace[r_id] = {
                     "source_chapter": canonical_map[r_id]["chapter_number"],
-                    "source_status": canonical_map[r_id].get("review_status"),
-                    "tags": canonical_map[r_id].get("tags", []),
+                    "source_status": status_info["source_status"],
+                    "review_status": status_info["review_status"],
+                    "tags": status_info["tags"],
                     "retrieval_origin": "world_rule",
                     "in_semantic_top8": in_raw_semantic,
                     "semantic_rank": None,
@@ -832,7 +877,8 @@ def main() -> int:
                     "prompt_retained_lanes": prompt_lanes,
                     "actual_preserved_lane": "world_rule" if in_retained_rules else "not_retained",
                     "dedup_reason": None,
-                    "is_ambiguous_ground_truth": False,
+                    "is_ambiguous": status_info["is_ambiguous"],
+                    "is_ambiguous_ground_truth": status_info["is_ambiguous_ground_truth"],
                 }
             print(f"rq-0025 Per-lane provenance trace: {lane_trace}")
 

@@ -9,14 +9,24 @@ Validates on real PostgreSQL + pgvector:
 """
 from __future__ import annotations
 
+import json
 import os
+import sys
 import uuid
+from pathlib import Path
 from typing import Any
 
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+ROOT = Path(__file__).resolve().parents[2]
+SCRIPTS = ROOT / "scripts"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+
+from application.context_budget import ContextBudgetPacker
+from application.writing_service import WritingService
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
     CurrentEntityStateRecord,
@@ -28,6 +38,10 @@ from infrastructure.orm_models import (
     StoryBrainRecord,
 )
 from infrastructure.postgres_narrative_repository import PostgresNarrativeRepository
+from run_ctx_rd_01_unadapted_narrative_e2e import (
+    build_event_record_from_memory,
+    derive_memory_source_and_ambiguity_status,
+)
 
 pytestmark = pytest.mark.postgres_integration
 
@@ -507,11 +521,60 @@ def test_normalized_latest_five_recent_event_participants(pg_session_factory: An
 
 
 def test_ambiguous_source_status_preservation_in_recent_events_and_prompt(pg_session_factory: Any) -> None:
-    """Ambiguous/conflicting source reports (e.g. Ch45, 47, 49) must preserve review_status and ambiguity metadata."""
+    """Ambiguous/conflicting source reports (Ch45, 47, 49) must preserve review_status and ambiguity metadata.
+
+    Runner-derived test: uses the exact build_event_record_from_memory and derive_memory_source_and_ambiguity_status
+    materialization functions from run_ctx_rd_01_unadapted_narrative_e2e.py to ensure that:
+    1. PostgresNarrativeRepository.get_structured_context preserves source_status='ambiguous' and is_ambiguous=True.
+    2. ContextBudgetPacker.prompt_context(WritingService.preview_context(...)) preserves those ambiguity flags in
+       prompt recent_events, strictly asserting that incompatible reports are NEVER presented as undisputed 'canonical' truths.
+    3. Deduplicated recent memories retain their full source/ambiguity metadata without flattening.
+    """
     tenant_id = uuid.uuid4()
     novel_id = uuid.uuid4()
     actor_id = uuid.uuid4()
     brain_id = uuid.uuid4()
+
+    # Load authentic frozen memories from corpus
+    corpus_file = ROOT / ".data" / "Frozen_v1" / "memory_chunks_canonical.json"
+    if corpus_file.exists():
+        raw_mems = json.loads(corpus_file.read_text(encoding="utf-8"))["memories"]
+        mem_by_id = {str(m["memory_id"]): m for m in raw_mems}
+        cavalry_mems = [
+            mem_by_id["mem-000164"],
+            mem_by_id["mem-000172"],
+            mem_by_id["mem-000176"],
+        ]
+    else:
+        cavalry_mems = [
+            {
+                "memory_id": "mem-000164",
+                "chapter_number": 45,
+                "content": "Landslide at Dragon's Tooth Canyon buries Roland's three-thousand heavy cavalry.",
+                "memory_type": "event_summary",
+                "review_status": "ambiguous",
+                "tags": ["narrative_echo", "temporal_reset", "do_not_use_as_clean_ground_truth"],
+                "entities": ["ent-roland"],
+            },
+            {
+                "memory_id": "mem-000172",
+                "chapter_number": 47,
+                "content": "Repeated report of 3000 cavalry buried under avalanche.",
+                "memory_type": "event_summary",
+                "review_status": "ambiguous",
+                "tags": ["narrative_echo", "temporal_reset", "do_not_use_as_clean_ground_truth"],
+                "entities": ["ent-roland"],
+            },
+            {
+                "memory_id": "mem-000176",
+                "chapter_number": 49,
+                "content": "Roland's 3000 cavalry arrives intact with two solar artillery systems.",
+                "memory_type": "event_summary",
+                "review_status": "ambiguous",
+                "tags": ["force_state_conflict", "temporal_reset", "do_not_use_as_clean_ground_truth"],
+                "entities": ["ent-roland"],
+            },
+        ]
 
     with session_scope(pg_session_factory) as session:
         session.add(
@@ -526,50 +589,92 @@ def test_ambiguous_source_status_preservation_in_recent_events_and_prompt(pg_ses
         )
         session.flush()
 
-        # Seed 3 contradictory cavalry reports
-        reports = [
-            ("mem-000164", 45, "Cavalry buried under landslide at Dragon's Tooth Canyon", True),
-            ("mem-000172", 47, "Repeated report of 3000 cavalry buried under avalanche", True),
-            ("mem-000176", 49, "Roland's 3000 cavalry arrives intact with two solar artillery systems", True),
-        ]
-        for mid, ch, summary, is_ambig in reports:
-            session.add(
-                EventRecord(
-                    id=uuid.uuid4(),
-                    story_brain_id=brain_id,
-                    tenant_id=tenant_id,
-                    novel_id=novel_id,
-                    narrative_order=ch * 1000,
-                    event_type="event_summary",
-                    summary=summary,
-                    chapter_number=ch,
-                    event_metadata={
-                        "memory_id": mid,
-                        "chapter_number": ch,
-                        "source_status": "ambiguous",
-                        "review_status": "ambiguous",
-                        "tags": ["narrative_echo", "temporal_reset", "do_not_use_as_clean_ground_truth"],
-                        "is_ambiguous": is_ambig,
-                        "is_ambiguous_ground_truth": is_ambig,
-                    },
-                    source_type="author",
-                    confirmation_status="confirmed",
-                )
+        # Seed Roland entity
+        roland_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, f"{novel_id}:entity:ent-roland")
+        session.add(
+            EntityRecord(
+                id=roland_uuid,
+                story_brain_id=brain_id,
+                tenant_id=tenant_id,
+                novel_id=novel_id,
+                entity_type="character",
+                canonical_name="Roland",
+                normalized_name="roland",
+                description="Commander of the heavy cavalry",
+                static_attributes={"status": "active", "source_entity_id": "ent-roland", "first_chapter": 1},
+                source_type="author",
+                confirmation_status="confirmed",
+                confidence=1.0,
+                is_locked=True,
             )
+        )
+        session.flush()
+
+        # Seed reports using EXACT runner factory function
+        entity_name_map = {"ent-roland": "Roland"}
+        for idx, mem in enumerate(cavalry_mems):
+            ch = int(mem.get("chapter_number") or 1)
+            event_rec = build_event_record_from_memory(
+                brain_id=brain_id,
+                tenant_id=tenant_id,
+                novel_id=novel_id,
+                mem=mem,
+                narrative_order=ch * 1000 + idx,
+                entity_name_map=entity_name_map,
+            )
+            session.add(event_rec)
+        session.flush()
 
     repo = PostgresNarrativeRepository(pg_session_factory, tenant_id=tenant_id, actor_id=actor_id)
-    pkg = repo.get_structured_context(story_id=str(novel_id), chapter_number=49)
 
-    # In recent_events, all three reports must be preserved with ambiguous review_status intact
-    mem_ids_in_recent = {
+    # 1. Repository-level structured context verification
+    pkg = repo.get_structured_context(story_id=str(novel_id), chapter_number=49)
+    recent_by_mid = {
         (ev.get("metadata") or {}).get("memory_id"): ev
         for ev in pkg.recent_events
     }
-    for mid, ch, summary, is_ambig in reports:
-        assert mid in mem_ids_in_recent, f"{mid} must be present in recent_events"
-        ev_item = mem_ids_in_recent[mid]
-        meta = ev_item.get("metadata") or {}
-        assert meta.get("review_status") == "ambiguous", f"{mid} review_status must be ambiguous"
-        assert meta.get("is_ambiguous") is True, f"{mid} is_ambiguous flag must be True"
+    for mem in cavalry_mems:
+        mid = mem["memory_id"]
+        assert mid in recent_by_mid, f"{mid} must be present in structured recent_events"
+        ev = recent_by_mid[mid]
+        meta = ev.get("metadata") or {}
+        # Strict assertion: ambiguous reports MUST NOT be flattened to canonical
+        assert meta.get("source_status") == "ambiguous", f"{mid} source_status must be 'ambiguous'"
+        assert meta.get("source_status") != "canonical", f"{mid} source_status must NOT be 'canonical'"
+        assert meta.get("review_status") == "ambiguous", f"{mid} review_status must be 'ambiguous'"
+        assert meta.get("is_ambiguous") is True, f"{mid} is_ambiguous must be True"
+        assert meta.get("is_ambiguous_ground_truth") is True, f"{mid} is_ambiguous_ground_truth must be True"
+        assert meta.get("report_semantics") == "confirmed_source_report"
+        # Confirmation status at storage level represents confirmed source report
+        assert ev.get("confirmation_status") in ("confirmed", None)
+
+    # 2. WritingService preview and packed prompt context verification
+    svc = WritingService(
+        repository=repo,
+        llm_service=object(),
+        context_routing_policy="balanced-scope-v1",
+    )
+    preview = svc.preview_context(
+        tenant_id=str(tenant_id),
+        story_id=str(novel_id),
+        chapter_number=49,
+    )
+    packer = ContextBudgetPacker()
+    prompt_payload = packer.prompt_context(preview)
+
+    prompt_recent_by_mid = {
+        (ev.get("metadata") or {}).get("memory_id"): ev
+        for ev in prompt_payload.get("recent_events", [])
+    }
+    for mem in cavalry_mems:
+        mid = mem["memory_id"]
+        assert mid in prompt_recent_by_mid, f"{mid} must be retained in prompt recent_events"
+        ev = prompt_recent_by_mid[mid]
+        meta = ev.get("metadata") or {}
+        # In the actual prompt given to the LLM, the conflicting claims must be marked ambiguous
+        assert meta.get("source_status") == "ambiguous", f"Prompt event {mid} source_status must be 'ambiguous'"
+        assert meta.get("source_status") != "canonical", f"Prompt event {mid} source_status must NOT be 'canonical'"
+        assert meta.get("is_ambiguous") is True, f"Prompt event {mid} is_ambiguous must be True"
         assert meta.get("is_ambiguous_ground_truth") is True
+        assert meta.get("report_semantics") == "confirmed_source_report"
 
