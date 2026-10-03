@@ -21,6 +21,10 @@
   "production_default": "legacy-v1",
   "default_changed": false,
   "p8_05_blocked": true,
+  "erratum_v1": {
+    "recorded_at": "2026-10-04T00:30:00Z",
+    "description": "Corrected summary distinctions per Astra PR #33 Round 4 review: technical_execution remains PASS (all pgvector/repository/prompt contracts satisfied); automated_content_check and checklist_verdict corrected from PASS to PARTIAL due to case 0 (rq-0011) chronology_causality=PARTIAL; independent_full_draft_review recorded as NOT_ASSESSED; provider_stability recorded as NOT_ACCEPTED due to 8/10 503 ServerError model failures. Tested commit e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a and all raw case measurements/hashes are preserved unchanged."
+  },
   "summary": {
     "total_cases_run": 2,
     "all_hash_matched": true,
@@ -29,7 +33,11 @@
     "total_model_attempts": 10,
     "successful_model_attempts": 2,
     "failed_model_attempts": 8,
-    "checklist_verdict": "PASS"
+    "technical_execution": "PASS",
+    "automated_content_check": "PARTIAL",
+    "independent_full_draft_review": "NOT_ASSESSED",
+    "provider_stability": "NOT_ACCEPTED",
+    "checklist_verdict": "PARTIAL"
   },
   "cases": [
     {
