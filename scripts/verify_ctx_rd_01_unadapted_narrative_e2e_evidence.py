@@ -311,6 +311,63 @@ def validate(evidence: dict) -> list[str]:
         and summary.get("failed_model_attempts") == sum(a.get("status") != "success" for a in attempts),
         "summary_model_attempts_mismatch",
     )
+    require(
+        summary.get("technical_execution") == "PASS",
+        "summary_technical_execution_not_pass",
+    )
+    require(
+        summary.get("automated_content_check") in ("PASS", "PARTIAL", "FAIL"),
+        "summary_automated_content_check_missing_or_invalid",
+    )
+    require(
+        summary.get("independent_full_draft_review") == "NOT_ASSESSED",
+        "summary_independent_full_draft_review_must_be_not_assessed",
+    )
+    require(
+        summary.get("provider_stability") in ("NOT_ACCEPTED", "ACCEPTED", "INSUFFICIENT"),
+        "summary_provider_stability_missing_or_invalid",
+    )
+
+    # Fail closed on content check overclaims: if any checklist criterion in any case is PARTIAL,
+    # automated_content_check and checklist_verdict MUST be PARTIAL.
+    has_partial_criterion = False
+    if isinstance(cases, list):
+        for c in cases:
+            if isinstance(c, dict):
+                cl = c.get("checklist") or {}
+                for k in (
+                    "canonical_source_status_correctness",
+                    "chronology_causality",
+                    "ambiguity_handling",
+                    "completeness",
+                ):
+                    if cl.get(k) == "PARTIAL":
+                        has_partial_criterion = True
+                        break
+
+    if has_partial_criterion:
+        require(
+            summary.get("automated_content_check") == "PARTIAL",
+            "summary_automated_content_check_overclaims_pass",
+        )
+        require(
+            summary.get("checklist_verdict") == "PARTIAL",
+            "summary_checklist_verdict_overclaims_pass",
+        )
+    else:
+        require(
+            summary.get("checklist_verdict") == summary.get("automated_content_check"),
+            "summary_checklist_verdict_mismatch",
+        )
+
+    # Fail closed on stability overclaims: if model attempts had any failures (e.g. 503),
+    # provider_stability must NOT be ACCEPTED.
+    failed_attempts_count = summary.get("failed_model_attempts", 0)
+    if failed_attempts_count > 0:
+        require(
+            summary.get("provider_stability") == "NOT_ACCEPTED",
+            "summary_provider_stability_overclaims_accepted",
+        )
     return errors
 
 
@@ -348,6 +405,14 @@ def self_test() -> None:
             "draft_length": 500,
             "draft_snippet": "Snippet preview text within safe length",
             "model_attempts": [{"status": "success"}],
+        },
+        "checklist": {
+            "canonical_source_status_correctness": "PASS",
+            "chronology_causality": "PASS",
+            "ambiguity_handling": "PASS",
+            "future_leakage": "NOT_ASSESSED",
+            "unsupported_claim": "NOT_ASSESSED",
+            "completeness": "PASS",
         },
     }
     case_25 = {
@@ -462,6 +527,11 @@ def self_test() -> None:
             "total_model_attempts": 2,
             "successful_model_attempts": 2,
             "failed_model_attempts": 0,
+            "technical_execution": "PASS",
+            "automated_content_check": "PASS",
+            "independent_full_draft_review": "NOT_ASSESSED",
+            "provider_stability": "INSUFFICIENT",
+            "checklist_verdict": "PASS",
         },
     }
 
@@ -583,6 +653,84 @@ def self_test() -> None:
         ],
     }
     assert "case_1_mem-000164_not_in_retained_recent_ids" in validate(lane_id_mismatch)
+
+    # 13. Checklist verdict overclaims PASS when a criterion is PARTIAL
+    checklist_overclaim = {
+        **ev,
+        "cases": [
+            {
+                **case_11,
+                "checklist": {
+                    **case_11["checklist"],
+                    "chronology_causality": "PARTIAL",
+                },
+            },
+            case_25,
+        ],
+        "summary": {
+            **ev["summary"],
+            "automated_content_check": "PARTIAL",
+            "checklist_verdict": "PASS",
+        },
+    }
+    assert "summary_checklist_verdict_overclaims_pass" in validate(checklist_overclaim)
+
+    # 14. Automated content check overclaims PASS when a criterion is PARTIAL
+    content_overclaim = {
+        **ev,
+        "cases": [
+            {
+                **case_11,
+                "checklist": {
+                    **case_11["checklist"],
+                    "chronology_causality": "PARTIAL",
+                },
+            },
+            case_25,
+        ],
+        "summary": {
+            **ev["summary"],
+            "automated_content_check": "PASS",
+            "checklist_verdict": "PARTIAL",
+        },
+    }
+    assert "summary_automated_content_check_overclaims_pass" in validate(content_overclaim)
+
+    # 15. Stability falsely claimed ACCEPTED despite failed attempts
+    stability_falsely_accepted = {
+        **ev,
+        "cases": [
+            {
+                **case_11,
+                "generation": {
+                    **case_11["generation"],
+                    "model_attempts": [
+                        {"status": "failure", "error": "503 ServerError"},
+                        {"status": "success"},
+                    ],
+                },
+            },
+            case_25,
+        ],
+        "summary": {
+            **ev["summary"],
+            "total_model_attempts": 3,
+            "successful_model_attempts": 2,
+            "failed_model_attempts": 1,
+            "provider_stability": "ACCEPTED",
+        },
+    }
+    assert "summary_provider_stability_overclaims_accepted" in validate(stability_falsely_accepted)
+
+    # 16. Technical execution not PASS
+    tech_not_pass = {
+        **ev,
+        "summary": {
+            **ev["summary"],
+            "technical_execution": "FAIL",
+        },
+    }
+    assert "summary_technical_execution_not_pass" in validate(tech_not_pass)
 
     print("SELF-TEST PASS: unadapted narrative validator correctly enforces strict contract")
 

@@ -118,6 +118,78 @@ def build_unadapted_run_attestation(
     }
 
 
+def build_unadapted_summary(
+    recorded_cases: list[dict[str, Any]],
+    total_model_attempts: int,
+    successful_model_attempts: int,
+    failed_model_attempts: int,
+) -> dict[str, Any]:
+    """Build structured summary distinguishing technical execution, automated content check, full draft audit, and provider stability.
+
+    Adheres strictly to Astra Round 4 guidance:
+    1. technical_execution: PASS if all hash matches, drops == 0, no overflow, pgvector/repository contracts and actual LLM response succeeded.
+    2. automated_content_check: PARTIAL if any required checklist criterion (such as chronology_causality) is PARTIAL.
+    3. independent_full_draft_review: NOT_ASSESSED unless complete drafts are independently audited against Frozen_v1.
+    4. provider_stability: NOT_ACCEPTED if model attempts encountered provider failures (e.g. 503 ServerError) or sample is narrow.
+    5. checklist_verdict: matches automated_content_check (never overclaiming aggregate PASS when any criterion is PARTIAL).
+    """
+    all_hash_matched = all(bool(c.get("context_hash_match")) for c in recorded_cases) if recorded_cases else False
+    all_zero_dropped = all(c.get("dropped_artifacts") == 0 for c in recorded_cases) if recorded_cases else False
+    all_protected_overflow_false = all(not c.get("protected_overflow", True) for c in recorded_cases) if recorded_cases else False
+    all_budget_overflow_false = all(not c.get("budget_overflow", True) for c in recorded_cases) if recorded_cases else False
+    all_semantic_matched = all(c.get("raw_to_packed_semantic_ids_match") is True for c in recorded_cases) if recorded_cases else False
+    all_responses_real = all(
+        c.get("generation", {}).get("actual_provider_response") is True
+        for c in recorded_cases
+    ) if recorded_cases else False
+
+    technical_execution_pass = (
+        bool(recorded_cases)
+        and all_hash_matched
+        and all_zero_dropped
+        and all_protected_overflow_false
+        and all_budget_overflow_false
+        and all_semantic_matched
+        and all_responses_real
+        and successful_model_attempts == len(recorded_cases)
+    )
+
+    has_partial_content = any(
+        any(
+            c.get("checklist", {}).get(k) == "PARTIAL"
+            for k in (
+                "canonical_source_status_correctness",
+                "chronology_causality",
+                "ambiguity_handling",
+                "completeness",
+            )
+        )
+        for c in recorded_cases
+    )
+    automated_content_check = "PARTIAL" if has_partial_content else "PASS"
+
+    provider_stability = (
+        "NOT_ACCEPTED"
+        if (failed_model_attempts > 0 or total_model_attempts == 0)
+        else "INSUFFICIENT"
+    )
+
+    return {
+        "total_cases_run": len(recorded_cases),
+        "all_hash_matched": all_hash_matched,
+        "all_zero_dropped": all_zero_dropped,
+        "all_protected_overflow_false": all_protected_overflow_false,
+        "total_model_attempts": total_model_attempts,
+        "successful_model_attempts": successful_model_attempts,
+        "failed_model_attempts": failed_model_attempts,
+        "technical_execution": "PASS" if technical_execution_pass else "FAIL",
+        "automated_content_check": automated_content_check,
+        "independent_full_draft_review": "NOT_ASSESSED",
+        "provider_stability": provider_stability,
+        "checklist_verdict": automated_content_check,
+    }
+
+
 def check_clean_working_tree() -> str:
     """Ensure working tree is clean before running, excluding generated evidence artifact."""
     res = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, text=True, check=True)
@@ -982,16 +1054,12 @@ def main() -> int:
         "production_default": "legacy-v1",
         "default_changed": False,
         "p8_05_blocked": True,
-        "summary": {
-            "total_cases_run": len(recorded_cases),
-            "all_hash_matched": all(c["context_hash_match"] for c in recorded_cases),
-            "all_zero_dropped": all(c["dropped_artifacts"] == 0 for c in recorded_cases),
-            "all_protected_overflow_false": all(not c["protected_overflow"] for c in recorded_cases),
-            "total_model_attempts": total_model_attempts,
-            "successful_model_attempts": successful_model_attempts,
-            "failed_model_attempts": failed_model_attempts,
-            "checklist_verdict": "PASS" if all(c["checklist"].get("canonical_source_status_correctness") == "PASS" for c in recorded_cases) else "PARTIAL",
-        },
+        "summary": build_unadapted_summary(
+            recorded_cases=recorded_cases,
+            total_model_attempts=total_model_attempts,
+            successful_model_attempts=successful_model_attempts,
+            failed_model_attempts=failed_model_attempts,
+        ),
         "cases": recorded_cases,
     }
 

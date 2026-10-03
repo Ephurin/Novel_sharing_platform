@@ -12,6 +12,7 @@ sys.path.insert(0, str(AI_SERVICE))
 
 from run_ctx_rd_01_unadapted_narrative_e2e import (
     build_unadapted_run_attestation,
+    build_unadapted_summary,
     evaluate_rq0011_checklist,
     evaluate_rq0025_checklist,
     sanitize_database_endpoint,
@@ -99,6 +100,78 @@ class TestUnadaptedNarrativeE2EContract(unittest.TestCase):
         self.assertEqual(record["mode"], "live")
         self.assertEqual(record["structured_context_source"], "postgres_narrative_repository_unadapted")
         self.assertEqual(record["canary_gate_verdict"], "UNADAPTED_NARRATIVE_E2E_DEMONSTRATED")
+
+    def test_summary_distinguishes_technical_content_draft_and_stability(self) -> None:
+        cases = [
+            {
+                "context_hash_match": True,
+                "dropped_artifacts": 0,
+                "protected_overflow": False,
+                "budget_overflow": False,
+                "raw_to_packed_semantic_ids_match": True,
+                "generation": {"actual_provider_response": True},
+                "checklist": {
+                    "canonical_source_status_correctness": "PASS",
+                    "chronology_causality": "PARTIAL",
+                    "ambiguity_handling": "PASS",
+                    "completeness": "PASS",
+                },
+            },
+            {
+                "context_hash_match": True,
+                "dropped_artifacts": 0,
+                "protected_overflow": False,
+                "budget_overflow": False,
+                "raw_to_packed_semantic_ids_match": True,
+                "generation": {"actual_provider_response": True},
+                "checklist": {
+                    "canonical_source_status_correctness": "PASS",
+                    "chronology_causality": "PASS",
+                    "ambiguity_handling": "PASS",
+                    "completeness": "PASS",
+                },
+            },
+        ]
+        summary = build_unadapted_summary(
+            recorded_cases=cases,
+            total_model_attempts=10,
+            successful_model_attempts=2,
+            failed_model_attempts=8,
+        )
+        self.assertEqual(summary["technical_execution"], "PASS")
+        self.assertEqual(summary["automated_content_check"], "PARTIAL")
+        self.assertEqual(summary["checklist_verdict"], "PARTIAL")
+        self.assertEqual(summary["independent_full_draft_review"], "NOT_ASSESSED")
+        self.assertEqual(summary["provider_stability"], "NOT_ACCEPTED")
+
+    def test_summary_all_pass_content_check(self) -> None:
+        cases = [
+            {
+                "context_hash_match": True,
+                "dropped_artifacts": 0,
+                "protected_overflow": False,
+                "budget_overflow": False,
+                "raw_to_packed_semantic_ids_match": True,
+                "generation": {"actual_provider_response": True},
+                "checklist": {
+                    "canonical_source_status_correctness": "PASS",
+                    "chronology_causality": "PASS",
+                    "ambiguity_handling": "PASS",
+                    "completeness": "PASS",
+                },
+            },
+        ]
+        summary = build_unadapted_summary(
+            recorded_cases=cases,
+            total_model_attempts=1,
+            successful_model_attempts=1,
+            failed_model_attempts=0,
+        )
+        self.assertEqual(summary["technical_execution"], "PASS")
+        self.assertEqual(summary["automated_content_check"], "PASS")
+        self.assertEqual(summary["checklist_verdict"], "PASS")
+        self.assertEqual(summary["independent_full_draft_review"], "NOT_ASSESSED")
+        self.assertEqual(summary["provider_stability"], "INSUFFICIENT")
 
 
 if __name__ == "__main__":
