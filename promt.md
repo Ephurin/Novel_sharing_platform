@@ -1,5 +1,50 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT CANONICAL HANDOFF — PR #33 MERGED / TECHNICAL E2E ACCEPTED WITH QUALIFICATION (2026-10-04)
+
+**Authoritative review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FINAL-TECHNICAL-ACCEPTANCE.md` (review commit `3b14c257bfcb5aa2b063b03f728f40bfa7b7802d`).
+**PR #33:** MERGED into `main`, merge commit `30b0b0e816bdbab147b9d8ba954a831561ba3ec4`, reviewed head `47d404072ec69196695b49b49e3c8d3c801ee49c`.
+**Verdict:** `UNADAPTED_PRODUCTION_NARRATIVE_TECHNICAL_E2E_ACCEPTED_WITH_QUALIFICATION`. Earlier Round 4 **PR merge HOLD and reporting-integrity tasks have been resolved**; old review paragraphs remain as historical records, not active work orders.
+
+**Correct historical live lineage:** tested code `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a` → direct-child source-manifest commit `3645dda04d5bfdb624a781dacbd3776f418d3977` → later explicit summary-only `erratum_v1` commit `06fa4d8fa0b30cd215cdaf2f85fd09e685af83ad`. The old SHA `3645ddaba0f295e8486940c6600554d6fc487e41` was a transcription error. Do not relabel the historical 3.8 run as Flash-Lite or alter its measured per-case data.
+
+**Latest CI on PR head:** P7 `37141776894`, P8 `37141776919`, Evaluation Pilot `37141776874`, all SUCCESS. P7 includes actual dedicated PostgreSQL unadapted integration, tests and validator. CI itself has no Gemini API calls.
+
+**Actual historical Gemini-3.8 Flash E2E evidence:**
+- Real production `PostgresNarrativeRepository.get_structured_context()` and Gemini embedding/pgvector/hybrid retrieval; opt-in `balanced-scope-v1` packing; genuine provider generation.
+- Ch32: 63→19 entities, tier 12k, used 10,496 tokens; Ch49: 68→20, tier 12k, used 11,863 tokens. All 20/20 recent events, 6/6 or 12/12 world rules retained, zero measured drop/overflow, preview/job hashes equal.
+- Correct Ch45/47/49 memories `mem-000164/172/176` found in raw semantic ranks 3/1/2, deduplicated to the final recent-event prompt lane with `source_status=ambiguous` preserved end-to-end (not incorrectly elevated into canonical facts).
+- Two completed real `gemini-3.8-flash` jobs required **10 attempts: 2 successes / 8 failures (503)**. Recorded latencies ~88.7s and ~33.5s. This does NOT establish provider stability.
+- Amended manifest summary: `technical_execution=PASS`, `automated_content_check=PARTIAL` (rq-0011 `chronology_causality=PARTIAL`), `checklist_verdict=PARTIAL`, `independent_full_draft_review=NOT_ASSESSED`, `provider_stability=NOT_ACCEPTED`. The correction is explicitly versioned in `erratum_v1` and leaves raw case results unchanged.
+
+**Model policy for NEXT canary runs:** `gemini-3.5-flash-lite` is the default **generation** model; `gemini-3.1-flash-lite` is an explicitly selectable alternative via `CTX_RD_GENERATION_MODEL` or runner `--generation-model`. The canary's `InstrumentedRealGeminiLLMService` cannot silently fall back from Flash-Lite to quota-limited `gemini-3.8-flash`. The embedding model remains `gemini-embedding-2`, contract `gemini-embedding-2-768-v1`, 768d L2. These changes are MERGED/UNIT-TESTED; **no real Flash-Lite generation run is yet demonstrated**. Deployed production LLM configuration is NOT modified by the canary-only selection change.
+
+### NEXT — GEMINI / ANTIGRAVITY
+
+1. **Run one small genuine Flash-Lite smoke** on disposable staging PostgreSQL+pgvector with a clean, committed latest `main` SHA and existing local key.txt. Prefer `gemini-3.5-flash-lite`; if necessary explicitly choose `gemini-3.1-flash-lite`. The no-fallback guard must prevent accidental 3.8 quota consumption. Preserve current `unadapted-narrative-e2e.json` as a historically measured **3.8** run; write the new Lite result to a distinct, sanitized model-specific artifact (or separately versioned file) with a correct tested SHA, real requested/effective names, positive provider attempt counters, 429/503 traces and independent raw/retained source ID checks. If the current runner always writes the legacy output name, adjust it and add a regression test **before** the clean live run. Do not fake success if a Lite model is unavailable or quota-blocked; report BLOCKED with the actual error and do not revert silently to 3.8. Reuse version-matched stored embeddings if possible.
+2. Perform an **independent Frozen_v1 full-draft review** of the actual new generated text; start with `rq-0011` Ch27 vs Ch32 chronology currently marked PARTIAL, then `rq-0025` Ch45/47/49 conflicting reports. Keep complete drafts in controlled artifacts; commit only minimal snippets, hashes and defensible conclusions. Do not label future leakage/unsupported claims PASS until actually audited.
+3. Plan a **bounded opt-in Flash-Lite availability/stability check**, measuring provider attempt success/failure (including 429 and 503), retries, model identity, recovery and latency. Distinguish a short functional smoke PASS from population reliability or production readiness.
+4. Provide a new execution-only update in this `promt.md` with links, clean tested SHA and sanitized evidence; Astra will review independently before any new gate closes.
+
+```text
+EVAL-01                                      CLOSED
+CTX-RD-01 implementation + PR #33            MERGED
+unadapted production technical E2E           ACCEPTED WITH QUALIFICATION (HISTORICAL 3.8)
+Flash-Lite canary selection                  MERGED / UNIT + CI PASS
+real Flash-Lite generation smoke             REQUIRED
+automated content check                      PARTIAL (rq-0011 chronology)
+independent complete-draft audit             NOT_ASSESSED
+provider stability                           NOT_ACCEPTED
+production CONTEXT_ROUTING_POLICY            legacy-v1 (UNCHANGED)
+global balanced-v1 activation                NOT AUTHORIZED
+P8-05 destructive cleanup                    BLOCKED_PENDING_STABILITY
+```
+
+No broad EVAL-01 rerun, no hybrid/embedding/packer retuning, no global default switch and no destructive P8-05 cleanup.
+
+---
+
+
 ## LATEST ASTRA REVIEW — ROUND 4, PR #33 (2026-10-03)
 
 **Read first:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-UNADAPTED-E2E-ROUND4-REVIEW.md` (review commit `0147553332f90dc78fa7cfc0fd7cff42007bd678`). PR: https://github.com/Ephurin/Novel_sharing_platform/pull/33. This latest section supersedes previously open Round 3 source-status objections **for the tested narrow path**; it does not override previous real measurements or production safeguards.
