@@ -1,5 +1,40 @@
 # Active Project Handoff — CTX-RD-01
 
+## LATEST ASTRA REVIEW — ROUND 3 / PR #33 (2026-10-03)
+
+**Canonical review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-UNADAPTED-E2E-ROUND3-REVIEW.md` (CI addendum commit `dd508e44d48752013fa30a9ad67e1bc9cf321310`). **PR:** https://github.com/Ephurin/Novel_sharing_platform/pull/33. Astra posted review feedback directly on the PR.
+
+**Latest verdict:** `UNADAPTED TECHNICAL PATH DEMONSTRATED (QUALIFIED); FINAL ACCEPTANCE PARTIAL — SOURCE-STATUS/PROMPT GUARDRAIL PENDING`.
+
+**All PR #33 GitHub Actions have PASS** on reviewed branch head `c18e4c078c4742b140bfed0445f092455b971398`: P7 run `37122744546` (unit, source-validator, PostgreSQL/pgvector tests, Compose); P8 run `37122744719` (unit, PostgreSQL, frontend, rollback, cleanup gate, Compose); Evaluation Pilot Harness run `37122744590` (contract). These are genuine CI checks; external Gemini provider execution remains separately evidenced by local live run.
+
+**Exact live lineage:** runner tested SHA `9c0496492a9266a39738240c113c78104d0c451a` -> direct-child evidence `f0db7e696dade7f50043e791e3db8e07344973c8` -> branch execution handoff `c18e4c078c4742b140bfed0445f092455b971398`. Live evidence: 216 genuine document chunks, 11 document-adapter calls, 6 query-adapter calls, two successful Gemini generation attempts; 12k tier / 9,890 and 11,208 used tokens; 63→19 and 68→20 entities; zero measured drops and overflow; 20/20 recent events; 6/6 and 12/12 world rules; matched preview/job hashes.
+
+**Correct Ch45/47/49 provenance:** `mem-000164` / `mem-000172` / `mem-000176` are raw semantic ranks 3/1/2. Their **final prompt-retained lane is recent**, after semantic/recent overlap deduplication. They are tagged ambiguous/conflicting reports and must not be promoted to settled canonical events. Separate `mem-000167/174/177` are genuine world-rule records unrelated to the cavalry chronology.
+
+### ONE REMAINING TECHNICAL ACCEPTANCE BLOCKER — Gemini / Antigravity
+
+The actual runner seeds `EventRecord.event_metadata.source_status = mem.get("status") or "canonical"` and `confirmation_status="confirmed"`, even when the source has `review_status="ambiguous"`, `do_not_use_as_clean_ground_truth` and `is_ambiguous=True`. If `status` is absent, an ambiguous **report** is mislabeled `source_status="canonical"`. The new `test_ambiguous_source_status_preservation_in_recent_events_and_prompt` artificially seeds `source_status="ambiguous"` and `is_ambiguous_ground_truth=True`, which the actual runner does **not** seed; it then checks the repository metadata, not the final `ContextBudgetPacker.prompt_context(WritingService.preview_context(...))` sent to the LLM.
+
+**Fix precisely this discrepancy:** share the same source-faithful materialization mapping between live runner and integration test, preserve report-vs-underlying-event semantics with consistently named ambiguity metadata, and assert correct Ch45/47/49 source status/tags in the actual final prompt after semantic-to-recent deduplication. Add a negative test for accidentally defaulting ambiguous records to canonical. Keep conflicting reports accessible; do not drop them or disguise them as undisputed events.
+
+Commit the focused repair to PR #33 and rerun P7/P8 CI. Because source-status metadata may alter the generated prompt, run one or two focused real-provider smoke cases from a clean, exact new tested SHA and commit sanitized evidence separately with correct parent lineage. If quota blocks it, record BLOCKED instead of rebranding the old run. Do not merge PR #33 until this repair and new CI are reviewed. Avoid re-embedding all 216 chunks unnecessarily if valid version-matched embeddings can be reused.
+
+After technical acceptance, a **separate** full-draft source audit and bounded opt-in provider stability check remain before considering any default rollout.
+
+```text
+unadapted production E2E path       OBSERVED / QUALIFIED
+PR #33 CI                          P7, P8, PILOT PASS
+source-status into final LLM prompt REPAIR REQUIRED
+technical acceptance               PARTIAL
+production default                 legacy-v1 (UNCHANGED)
+global balanced activation         NOT AUTHORIZED
+P8-05                               BLOCKED_PENDING_STABILITY
+```
+
+---
+
+
 ## LATEST ASTRA REVIEW — UNADAPTED E2E REMEDIATION ROUND 2 (2026-10-03)
 
 **Read first:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-UNADAPTED-E2E-REMEDIATION-ROUND2-REVIEW.md`.
