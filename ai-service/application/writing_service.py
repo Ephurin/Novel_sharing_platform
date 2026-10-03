@@ -610,6 +610,7 @@ class WritingService:
     def _semantic_match_payload(match: Any) -> dict[str, Any]:
         return {
             "memory_chunk_id": match.memory_chunk_id,
+            "source_key": getattr(match, "source_key", None) or match.metadata.get("memory_id"),
             "memory_type": match.memory_type,
             "content": match.content,
             "content_hash": match.content_hash,

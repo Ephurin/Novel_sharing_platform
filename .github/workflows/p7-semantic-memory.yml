@@ -45,6 +45,11 @@ jobs:
           pytest -q tests/test_ctx_rd_full_source_e2e.py
           python ../scripts/verify_ctx_rd_01_full_source_e2e_evidence.py --self-test
           python -m py_compile ../scripts/run_ctx_rd_01_full_source_e2e.py
+      - name: CTX-RD-01 unadapted narrative E2E guardrails (no DB or provider required)
+        run: |
+          pytest -q tests/test_ctx_rd_unadapted_narrative_e2e.py
+          python ../scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py --self-test
+          python -m py_compile ../scripts/run_ctx_rd_01_unadapted_narrative_e2e.py
       - name: Hybrid retrieval proxy regression
         run: pytest -q tests/test_p7_hybrid_benchmark.py
       - name: Hybrid retrieval proxy metrics
@@ -103,6 +108,8 @@ jobs:
         run: pytest -o addopts= -q -m postgres_integration tests/test_semantic_memory_postgres_integration.py tests/test_semantic_retriever_postgres_integration.py
       - name: Relevance-scope PostgreSQL cutoff and supersede integration
         run: pytest -o addopts= -q -m postgres_integration tests/test_postgres_integration.py::test_chapter_25_event_and_state_isolation_from_chapter_5 tests/test_postgres_integration.py::test_recent_scope_participants_exclude_superseded_event_entities
+      - name: Unadapted narrative PostgreSQL cutoff, supersession, and isolation integration
+        run: pytest -o addopts= -q -m postgres_integration tests/test_unadapted_narrative_postgres_integration.py
 
   root-compose-smoke:
     runs-on: ubuntu-latest
