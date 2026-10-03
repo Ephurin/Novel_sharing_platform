@@ -90,14 +90,22 @@ def validate(evidence: dict) -> list[str]:
                 errors.append(prefix + "not_object")
                 continue
 
-            # Measured routing and budget metrics
+            # Measured routing and budget metrics (fail-closed, no missing defaults)
             require(
                 case.get("routing_status") == "routed" and case.get("routing_version") == "balanced-scope-v1",
                 prefix + "routing_invalid",
             )
-            require(case.get("selected_tier") in (12000, 16000, 20000, 24000), prefix + "tier_invalid")
+            tier = case.get("selected_tier")
+            require(isinstance(tier, int) and tier in (12000, 16000, 20000, 24000), prefix + "tier_invalid")
+            tokens_used = case.get("tokens_used")
             require(
-                case.get("dropped_artifacts") == 0 and case.get("protected_overflow") is False,
+                isinstance(tokens_used, int) and isinstance(tier, int) and 0 < tokens_used <= tier,
+                prefix + "tokens_used_invalid_or_overflow",
+            )
+            require(
+                case.get("dropped_artifacts") == 0
+                and case.get("protected_overflow") is False
+                and case.get("budget_overflow") is False,
                 prefix + "loss_or_overflow",
             )
 
@@ -134,13 +142,22 @@ def validate(evidence: dict) -> list[str]:
                 prefix + "raw_vs_retained_rules_mismatch",
             )
 
-            # Entity and state presence
+            # Entity and state presence and subset consistency
             raw_ent = case.get("raw_entity_ids")
             ret_ent = case.get("retained_entity_ids")
             require(
                 isinstance(raw_ent, list) and bool(raw_ent)
-                and isinstance(ret_ent, list) and bool(ret_ent),
-                prefix + "entities_missing_or_empty",
+                and isinstance(ret_ent, list) and bool(ret_ent)
+                and set(ret_ent).issubset(set(raw_ent)),
+                prefix + "entities_missing_empty_or_not_subset",
+            )
+
+            raw_state = case.get("raw_state_entity_ids")
+            ret_state = case.get("retained_state_entity_ids")
+            require(
+                isinstance(raw_state, list) and isinstance(ret_state, list)
+                and set(ret_state).issubset(set(ret_ent)),
+                prefix + "states_not_aligned_with_retained_entities",
             )
 
             # Hash match
@@ -192,34 +209,54 @@ def validate(evidence: dict) -> list[str]:
                 trace = case.get("per_lane_provenance_trace")
                 require(isinstance(trace, dict), prefix + "provenance_trace_missing")
                 if isinstance(trace, dict):
-                    # Authoritative cavalry memories MUST be in semantic top 8 (ranks 1-8)
+                    # Authoritative cavalry memories MUST have raw retrieval_origin="semantic" in top 8 (ranks 1-8)
                     cavalry_ids = ("mem-000164", "mem-000172", "mem-000176")
                     for mem_id in cavalry_ids:
                         t_item = trace.get(mem_id, {})
                         require(
-                            t_item.get("in_semantic_top8") is True,
-                            prefix + f"{mem_id}_must_be_in_semantic_top8",
+                            t_item.get("retrieval_origin") == "semantic",
+                            prefix + f"{mem_id}_retrieval_origin_not_semantic",
                         )
                         require(
-                            t_item.get("actual_preserved_lane") == "semantic",
-                            prefix + f"{mem_id}_must_be_preserved_in_semantic_lane",
+                            t_item.get("in_semantic_top8") is True,
+                            prefix + f"{mem_id}_must_be_in_semantic_top8",
                         )
                         require(
                             isinstance(t_item.get("semantic_rank"), int) and 1 <= t_item.get("semantic_rank") <= 8,
                             prefix + f"{mem_id}_invalid_semantic_rank",
                         )
                         require(
+                            t_item.get("dedup_reason") == "overlap_with_recent",
+                            prefix + f"{mem_id}_dedup_reason_missing",
+                        )
+                        require(
+                            "recent" in (t_item.get("prompt_retained_lanes") or []),
+                            prefix + f"{mem_id}_must_be_retained_in_recent_lane",
+                        )
+                        require(
+                            t_item.get("actual_preserved_lane") == "recent",
+                            prefix + f"{mem_id}_actual_preserved_lane_must_be_recent",
+                        )
+                        require(
                             t_item.get("is_ambiguous_ground_truth") is True,
                             prefix + f"{mem_id}_ambiguity_flag_missing",
                         )
 
-                    # Distinct world-rule memories must be in world-rule lane (NOT semantic top 8)
+                    # Distinct world-rule memories must have retrieval_origin="world_rule" (NOT semantic top 8)
                     rule_ids = ("mem-000167", "mem-000174", "mem-000177")
                     for mem_id in rule_ids:
                         t_item = trace.get(mem_id, {})
                         require(
                             t_item.get("in_semantic_top8") is False,
                             prefix + f"{mem_id}_falsely_claimed_in_semantic_top8",
+                        )
+                        require(
+                            t_item.get("retrieval_origin") == "world_rule",
+                            prefix + f"{mem_id}_retrieval_origin_not_world_rule",
+                        )
+                        require(
+                            "world_rule" in (t_item.get("prompt_retained_lanes") or []),
+                            prefix + f"{mem_id}_not_retained_in_world_rule_lane",
                         )
                         require(
                             t_item.get("actual_preserved_lane") == "world_rule",
@@ -229,6 +266,7 @@ def validate(evidence: dict) -> list[str]:
                             t_item.get("in_persisted_world_rules") is True,
                             prefix + f"{mem_id}_not_persisted_in_world_rules",
                         )
+
 
     summary = evidence.get("summary") or {}
     require(
@@ -250,8 +288,10 @@ def self_test() -> None:
         "routing_status": "routed",
         "routing_version": "balanced-scope-v1",
         "selected_tier": 12000,
+        "tokens_used": 9890,
         "raw_semantic_ids": ["mem-000089", "mem-000110"],
         "retained_semantic_ids": ["mem-000089", "mem-000110"],
+        "deduplicated_semantic_source_keys": [],
         "raw_to_packed_semantic_ids_match": True,
         "raw_recent_ids": ["ev-1", "ev-2"],
         "retained_recent_ids": ["ev-2", "ev-1"],
@@ -263,6 +303,7 @@ def self_test() -> None:
         "retained_state_entity_ids": ["ent-1"],
         "dropped_artifacts": 0,
         "protected_overflow": False,
+        "budget_overflow": False,
         "job_context_hash": "a" * 64,
         "preview_context_hash": "a" * 64,
         "context_hash_match": True,
@@ -280,37 +321,53 @@ def self_test() -> None:
     case_25 = {
         **case_11,
         "query_id": "challenge:rq-0025",
+        "tokens_used": 11208,
         "per_lane_provenance_trace": {
             "mem-000164": {
+                "retrieval_origin": "semantic",
                 "in_semantic_top8": True,
                 "semantic_rank": 3,
-                "actual_preserved_lane": "semantic",
+                "dedup_reason": "overlap_with_recent",
+                "prompt_retained_lanes": ["recent"],
+                "actual_preserved_lane": "recent",
                 "is_ambiguous_ground_truth": True,
             },
             "mem-000172": {
+                "retrieval_origin": "semantic",
                 "in_semantic_top8": True,
                 "semantic_rank": 1,
-                "actual_preserved_lane": "semantic",
+                "dedup_reason": "overlap_with_recent",
+                "prompt_retained_lanes": ["recent"],
+                "actual_preserved_lane": "recent",
                 "is_ambiguous_ground_truth": True,
             },
             "mem-000176": {
+                "retrieval_origin": "semantic",
                 "in_semantic_top8": True,
                 "semantic_rank": 2,
-                "actual_preserved_lane": "semantic",
+                "dedup_reason": "overlap_with_recent",
+                "prompt_retained_lanes": ["recent"],
+                "actual_preserved_lane": "recent",
                 "is_ambiguous_ground_truth": True,
             },
             "mem-000167": {
+                "retrieval_origin": "world_rule",
                 "in_semantic_top8": False,
+                "prompt_retained_lanes": ["world_rule"],
                 "actual_preserved_lane": "world_rule",
                 "in_persisted_world_rules": True,
             },
             "mem-000174": {
+                "retrieval_origin": "world_rule",
                 "in_semantic_top8": False,
+                "prompt_retained_lanes": ["world_rule"],
                 "actual_preserved_lane": "world_rule",
                 "in_persisted_world_rules": True,
             },
             "mem-000177": {
+                "retrieval_origin": "world_rule",
                 "in_semantic_top8": False,
+                "prompt_retained_lanes": ["world_rule"],
                 "actual_preserved_lane": "world_rule",
                 "in_persisted_world_rules": True,
             },
@@ -362,7 +419,29 @@ def self_test() -> None:
         "cases": [{**case_11, "full_draft": "Confidential draft text"}, case_25],
     })
 
-    # 5. Cavalry provenance: mem-000164 must be in semantic lane, not world_rule
+    # 5. Fail-closed: missing tokens_used or overflow tokens
+    assert "case_0_tokens_used_invalid_or_overflow" in validate({
+        **ev,
+        "cases": [{**case_11, "tokens_used": 15000}, case_25],
+    })
+    assert "case_0_tokens_used_invalid_or_overflow" in validate({
+        **ev,
+        "cases": [{**case_11, "tokens_used": 0}, case_25],
+    })
+
+    # 6. Fail-closed: entity subset leak
+    assert "case_0_entities_missing_empty_or_not_subset" in validate({
+        **ev,
+        "cases": [{**case_11, "retained_entity_ids": ["ent-999"]}, case_25],
+    })
+
+    # 7. Fail-closed: state alignment leak
+    assert "case_0_states_not_aligned_with_retained_entities" in validate({
+        **ev,
+        "cases": [{**case_11, "retained_state_entity_ids": ["ent-999"]}, case_25],
+    })
+
+    # 8. Cavalry provenance: mem-000164 must be in semantic top 8 and retained in recent
     cavalry_mismapped = {
         **ev,
         "cases": [
@@ -372,6 +451,7 @@ def self_test() -> None:
                 "per_lane_provenance_trace": {
                     **case_25["per_lane_provenance_trace"],
                     "mem-000164": {
+                        "retrieval_origin": "semantic",
                         "in_semantic_top8": False,
                         "actual_preserved_lane": "world_rule",
                         "is_ambiguous_ground_truth": True,
@@ -382,7 +462,7 @@ def self_test() -> None:
     }
     assert "case_1_mem-000164_must_be_in_semantic_top8" in validate(cavalry_mismapped)
 
-    # 6. World-rule provenance: mem-000167 must not be falsely claimed in semantic top 8
+    # 9. World-rule provenance: mem-000167 must not be falsely claimed in semantic top 8
     rule_mismapped = {
         **ev,
         "cases": [
@@ -392,6 +472,7 @@ def self_test() -> None:
                 "per_lane_provenance_trace": {
                     **case_25["per_lane_provenance_trace"],
                     "mem-000167": {
+                        "retrieval_origin": "semantic",
                         "in_semantic_top8": True,
                         "actual_preserved_lane": "semantic",
                     },
@@ -401,7 +482,7 @@ def self_test() -> None:
     }
     assert "case_1_mem-000167_falsely_claimed_in_semantic_top8" in validate(rule_mismapped)
 
-    # 7. Recent events mismatch rejection
+    # 10. Recent events mismatch rejection
     recent_mismatch = {
         **ev,
         "cases": [{**case_11, "retained_recent_ids": ["ev-999"]}, case_25],
@@ -409,6 +490,7 @@ def self_test() -> None:
     assert "case_0_raw_vs_retained_recent_mismatch" in validate(recent_mismatch)
 
     print("SELF-TEST PASS: unadapted narrative validator correctly enforces strict contract")
+
 
 
 def main() -> int:

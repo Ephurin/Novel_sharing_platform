@@ -34,6 +34,8 @@ pytestmark = pytest.mark.postgres_integration
 
 def get_postgres_url() -> str:
     url = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL") or "postgresql+psycopg://postgres:postgres@localhost:5433/ephurin"
+    if url.startswith("postgresql://"):
+        url = "postgresql+psycopg://" + url[len("postgresql://"):]
     if not url.startswith("postgresql"):
         raise pytest.UsageError("A valid PostgreSQL URL is required for postgres_integration tests.")
     return url
@@ -47,6 +49,8 @@ def pg_session_factory():
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
     except Exception as exc:
+        if os.getenv("CI") or os.getenv("REQUIRE_POSTGRES") == "1":
+            pytest.fail(f"PostgreSQL required but not reachable at {url}: {exc}")
         pytest.skip(f"PostgreSQL not reachable at {url}: {exc}")
     return sessionmaker(bind=engine)
 
@@ -500,3 +504,72 @@ def test_normalized_latest_five_recent_event_participants(pg_session_factory: An
     recent_participant_ids = pkg.context_summary.get("recent_scope_participant_entity_ids", [])
     assert str(ent1_id) in recent_participant_ids
     assert str(ent2_id) in recent_participant_ids
+
+
+def test_ambiguous_source_status_preservation_in_recent_events_and_prompt(pg_session_factory: Any) -> None:
+    """Ambiguous/conflicting source reports (e.g. Ch45, 47, 49) must preserve review_status and ambiguity metadata."""
+    tenant_id = uuid.uuid4()
+    novel_id = uuid.uuid4()
+    actor_id = uuid.uuid4()
+    brain_id = uuid.uuid4()
+
+    with session_scope(pg_session_factory) as session:
+        session.add(
+            StoryBrainRecord(
+                id=brain_id,
+                tenant_id=tenant_id,
+                novel_id=novel_id,
+                status="active",
+                brain_version=1,
+                schema_version=1,
+            )
+        )
+        session.flush()
+
+        # Seed 3 contradictory cavalry reports
+        reports = [
+            ("mem-000164", 45, "Cavalry buried under landslide at Dragon's Tooth Canyon", True),
+            ("mem-000172", 47, "Repeated report of 3000 cavalry buried under avalanche", True),
+            ("mem-000176", 49, "Roland's 3000 cavalry arrives intact with two solar artillery systems", True),
+        ]
+        for mid, ch, summary, is_ambig in reports:
+            session.add(
+                EventRecord(
+                    id=uuid.uuid4(),
+                    story_brain_id=brain_id,
+                    tenant_id=tenant_id,
+                    novel_id=novel_id,
+                    narrative_order=ch * 1000,
+                    event_type="event_summary",
+                    summary=summary,
+                    chapter_number=ch,
+                    event_metadata={
+                        "memory_id": mid,
+                        "chapter_number": ch,
+                        "source_status": "ambiguous",
+                        "review_status": "ambiguous",
+                        "tags": ["narrative_echo", "temporal_reset", "do_not_use_as_clean_ground_truth"],
+                        "is_ambiguous": is_ambig,
+                        "is_ambiguous_ground_truth": is_ambig,
+                    },
+                    source_type="author",
+                    confirmation_status="confirmed",
+                )
+            )
+
+    repo = PostgresNarrativeRepository(pg_session_factory, tenant_id=tenant_id, actor_id=actor_id)
+    pkg = repo.get_structured_context(story_id=str(novel_id), chapter_number=49)
+
+    # In recent_events, all three reports must be preserved with ambiguous review_status intact
+    mem_ids_in_recent = {
+        (ev.get("metadata") or {}).get("memory_id"): ev
+        for ev in pkg.recent_events
+    }
+    for mid, ch, summary, is_ambig in reports:
+        assert mid in mem_ids_in_recent, f"{mid} must be present in recent_events"
+        ev_item = mem_ids_in_recent[mid]
+        meta = ev_item.get("metadata") or {}
+        assert meta.get("review_status") == "ambiguous", f"{mid} review_status must be ambiguous"
+        assert meta.get("is_ambiguous") is True, f"{mid} is_ambiguous flag must be True"
+        assert meta.get("is_ambiguous_ground_truth") is True
+

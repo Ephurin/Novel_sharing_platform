@@ -644,18 +644,34 @@ def main() -> int:
                 f"BLOCKED: raw semantic IDs {raw_semantic_source_keys} minus deduped {deduped_source_keys} != packed preview IDs {packed_semantic_ids}"
             )
 
-        # MEASURED budget metrics from preview.token_budget (ZERO hardcoding)
-        budget_info = dict(preview.token_budget)
-        selected_tier = int(budget_info["routing_selected_tier"])
-        dropped_artifacts = int(budget_info.get("dropped_artifact_count", 0))
-        protected_overflow = bool(budget_info.get("protected_overflow", False))
-        budget_overflow = bool(budget_info.get("budget_overflow", False))
-        tokens_used = int(budget_info.get("used", 0))
+        # MEASURED budget metrics from preview.token_budget (FAIL-CLOSED, ZERO hardcoding)
+        budget_info = preview.token_budget
+        if not isinstance(budget_info, dict):
+            raise RuntimeError("BLOCKED: preview.token_budget must be a dictionary")
+        for key in ("routing_selected_tier", "dropped_artifact_count", "protected_overflow", "budget_overflow", "used"):
+            if key not in budget_info:
+                raise RuntimeError(f"BLOCKED: {key} missing from token_budget")
 
-        # Measured routing fields from preview.context_summary
-        summary_info = dict(preview.context_summary)
-        routing_status = str(summary_info.get("context_routing_status", ["routed"])[0])
-        routing_version = str(summary_info.get("context_routing_version", ["balanced-scope-v1"])[0])
+        selected_tier = int(budget_info["routing_selected_tier"])
+        dropped_artifacts = int(budget_info["dropped_artifact_count"])
+        protected_overflow = bool(budget_info["protected_overflow"])
+        budget_overflow = bool(budget_info["budget_overflow"])
+        tokens_used = int(budget_info["used"])
+        if not (0 < tokens_used <= selected_tier):
+            raise RuntimeError(f"BLOCKED: tokens_used {tokens_used} must satisfy 0 < tokens_used <= {selected_tier}")
+
+        # Measured routing fields from preview.context_summary (FAIL-CLOSED)
+        summary_info = preview.context_summary
+        if not isinstance(summary_info, dict):
+            raise RuntimeError("BLOCKED: preview.context_summary must be a dictionary")
+        if "context_routing_status" not in summary_info or not summary_info["context_routing_status"]:
+            raise RuntimeError("BLOCKED: context_routing_status missing from context_summary")
+        if "context_routing_version" not in summary_info or not summary_info["context_routing_version"]:
+            raise RuntimeError("BLOCKED: context_routing_version missing from context_summary")
+
+        routing_status = str(summary_info["context_routing_status"][0])
+        routing_version = str(summary_info["context_routing_version"][0])
+
 
         # Independent raw vs retained arrays for all lanes
         raw_recent_ids = [
@@ -672,15 +688,15 @@ def main() -> int:
             for r in preview.world_rules
         ]
         raw_entity_ids = [
-            str((e.get("static_attributes") or {}).get("source_entity_id") or e.get("name") or e.get("canonical_name"))
+            str(e.get("entity_id") or e.get("id"))
             for e in raw_structured_pkg.entities
         ]
         retained_entity_ids = [
-            str((e.get("static_attributes") or {}).get("source_entity_id") or e.get("name") or e.get("canonical_name"))
+            str(e.get("entity_id") or e.get("id"))
             for e in preview.entities
         ]
-        raw_state_entity_ids = sorted(str(s.get("entity_id")) for s in (raw_structured_pkg.current_states or ()))
-        retained_state_entity_ids = sorted(str(s.get("entity_id")) for s in (preview.current_states or ()))
+        raw_state_entity_ids = sorted(str(s.get("entity_id") or s.get("id")) for s in (raw_structured_pkg.current_states or ()))
+        retained_state_entity_ids = sorted(str(s.get("entity_id") or s.get("id")) for s in (preview.current_states or ()))
 
         print(f"Packed preview semantic IDs: {packed_semantic_ids}")
         print(f"Entities: {raw_entities_count} raw -> {len(preview.entities)} retained (Tier: {selected_tier})")
@@ -758,35 +774,64 @@ def main() -> int:
         if cid == "challenge:rq-0025":
             cavalry_ids = ("mem-000164", "mem-000172", "mem-000176")
             for crit_id in cavalry_ids:
-                in_semantic = crit_id in raw_semantic_source_keys
-                rank = (raw_semantic_source_keys.index(crit_id) + 1) if in_semantic else None
+                in_raw_semantic = crit_id in raw_semantic_source_keys
+                semantic_rank = (raw_semantic_source_keys.index(crit_id) + 1) if in_raw_semantic else None
                 in_rules = crit_id in raw_rule_source_keys
-                in_recent = crit_id in raw_recent_ids
+                in_retained_recent = crit_id in retained_recent_ids
+                in_retained_semantic = crit_id in packed_semantic_ids
+                is_deduped_from_semantic = crit_id in deduped_source_keys
+
+                prompt_lanes = []
+                if in_retained_recent:
+                    prompt_lanes.append("recent")
+                if in_retained_semantic:
+                    prompt_lanes.append("semantic")
+                if crit_id in retained_rule_ids:
+                    prompt_lanes.append("world_rule")
+
                 lane_trace[crit_id] = {
                     "source_chapter": canonical_map[crit_id]["chapter_number"],
                     "source_status": canonical_map[crit_id].get("review_status"),
                     "tags": canonical_map[crit_id].get("tags", []),
-                    "in_semantic_top8": in_semantic,
-                    "semantic_rank": rank,
+                    "retrieval_origin": "semantic",
+                    "in_semantic_top8": in_raw_semantic,
+                    "semantic_rank": semantic_rank,
                     "in_persisted_world_rules": in_rules,
-                    "in_recent_events": in_recent,
-                    "actual_preserved_lane": "semantic" if in_semantic else ("world_rule" if in_rules else ("recent" if in_recent else "not_retained")),
+                    "in_recent_events": in_retained_recent,
+                    "prompt_retained_lanes": prompt_lanes,
+                    "actual_preserved_lane": "recent" if in_retained_recent else ("semantic" if in_retained_semantic else "not_retained"),
+                    "dedup_reason": "overlap_with_recent" if is_deduped_from_semantic else None,
                     "is_ambiguous_ground_truth": True,
                 }
             # Distinct world rule memories historically confused with cavalry
             rule_ids = ("mem-000167", "mem-000174", "mem-000177")
             for r_id in rule_ids:
-                in_semantic = r_id in raw_semantic_source_keys
+                in_raw_semantic = r_id in raw_semantic_source_keys
                 in_rules = r_id in raw_rule_source_keys
-                in_recent = r_id in raw_recent_ids
+                in_retained_rules = r_id in retained_rule_ids
+                in_retained_recent = r_id in retained_recent_ids
+                in_retained_semantic = r_id in packed_semantic_ids
+
+                prompt_lanes = []
+                if in_retained_rules:
+                    prompt_lanes.append("world_rule")
+                if in_retained_recent:
+                    prompt_lanes.append("recent")
+                if in_retained_semantic:
+                    prompt_lanes.append("semantic")
+
                 lane_trace[r_id] = {
                     "source_chapter": canonical_map[r_id]["chapter_number"],
                     "source_status": canonical_map[r_id].get("review_status"),
                     "tags": canonical_map[r_id].get("tags", []),
-                    "in_semantic_top8": in_semantic,
+                    "retrieval_origin": "world_rule",
+                    "in_semantic_top8": in_raw_semantic,
+                    "semantic_rank": None,
                     "in_persisted_world_rules": in_rules,
-                    "in_recent_events": in_recent,
-                    "actual_preserved_lane": "world_rule" if in_rules else ("semantic" if in_semantic else ("recent" if in_recent else "not_retained")),
+                    "in_recent_events": in_retained_recent,
+                    "prompt_retained_lanes": prompt_lanes,
+                    "actual_preserved_lane": "world_rule" if in_retained_rules else "not_retained",
+                    "dedup_reason": None,
                     "is_ambiguous_ground_truth": False,
                 }
             print(f"rq-0025 Per-lane provenance trace: {lane_trace}")
