@@ -13,7 +13,7 @@ Executes genuine unadapted narrative context retrieval and genuine Gemini genera
 5. Measures runtime fields from preview.token_budget (routing_selected_tier, dropped_artifact_count, protected_overflow).
 6. Preserves independent raw vs retained ID arrays for recent, rules, entities, and states.
 7. Traces rq-0025 cavalry memories (mem-000164, 172, 176) in semantic lane and world rules in world-rule lane.
-8. Generates writing draft with genuine Gemini-3.8-flash (zero local fallback).
+8. Generates writing draft with genuine Gemini-3.5 Flash-Lite by default (or 3.1 Flash-Lite), zero local fallback.
 9. Privacy-preserving: records draft SHA-256 and snippets only, no full drafts committed in repository.
 """
 from __future__ import annotations
@@ -72,6 +72,8 @@ from run_ctx_rd_01_opt_in_canary import (
     InstrumentedRealGeminiLLMService,
     compute_context_hash,
     load_local_gemini_keys,
+    resolve_canary_generation_model,
+    ALLOWED_CANARY_GENERATION_MODELS,
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+psycopg://postgres:postgres@localhost:5433/ephurin"
@@ -286,9 +288,11 @@ def build_event_record_from_memory(
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Perform offline execution with mock embeddings/drafts")
+    parser.add_argument("--generation-model", choices=ALLOWED_CANARY_GENERATION_MODELS, help="Flash-Lite model; overrides CTX_RD_GENERATION_MODEL (default: gemini-3.5-flash-lite)")
     parser.add_argument("--skip-clean-check", action="store_true", help="Skip clean git working tree assertion")
     parser.add_argument("--reuse-embeddings", action="store_true", help="Reuse existing version-matched embeddings in database")
     args = parser.parse_args()
+    generation_model = resolve_canary_generation_model(args.generation_model)
     if args.skip_clean_check and not args.dry_run:
         parser.error("--skip-clean-check is permitted only for non-acceptance --dry-run")
     if not args.dry_run:
@@ -330,7 +334,7 @@ def main() -> int:
     api_keys = load_local_gemini_keys() if not args.dry_run else ["DUMMY_KEY"]
     if not args.dry_run:
         embed_provider = InstrumentedGeminiEmbeddingProvider(api_key=api_keys[0], api_keys=api_keys)
-        llm_service = InstrumentedRealGeminiLLMService(api_key=api_keys[0], model="gemini-3.8-flash", api_keys=api_keys)
+        llm_service = InstrumentedRealGeminiLLMService(api_key=api_keys[0], model=generation_model, api_keys=api_keys)
     else:
         embed_provider = DeterministicFakeEmbeddingProvider()
         from core.fake_llm import FakeDeterministicLLMService
@@ -928,7 +932,7 @@ def main() -> int:
             "prompt": prompt,
             "generation": {
                 "provider": "gemini" if not args.dry_run else "offline_fake",
-                "requested_model": "gemini-3.8-flash",
+                "requested_model": generation_model,
                 "effective_model": getattr(llm_service, "model", "mock-gemini"),
                 "actual_provider_response": not args.dry_run,
                 "status": job_status,
