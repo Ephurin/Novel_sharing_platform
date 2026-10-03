@@ -7,16 +7,16 @@ EVAL-01                                  CLOSED
 CTX-RD-01 implementation                 MERGED
 Real-provider staging                    ACCEPTED
 Frozen-source replay                     ACCEPTED WITH QUALIFICATION
-Live source pgvector semantic path       DEMONSTRATED (MIXED_PROVENANCE_PROVIDER_PATH_OBSERVED)
+Live source pgvector semantic path       ACCEPTED (MIXED-PROVENANCE / QUALIFIED)
 E2E evidence guardrails                  MERGED / CI PASS
-Corrected live source-provider evidence  CAPTURED (tested ece0738, evidence f8f8b57)
+Corrected live source-provider evidence  ACCEPTED WITH QUALIFICATION (tested ece0738, evidence f8f8b57)
 Offline evidence validator               PASS (0 errors)
 Unadapted production narrative E2E       NOT YET DEMONSTRATED
 Opt-in balanced-v1 staging               AUTHORIZED
 Production default                       legacy-v1 (UNCHANGED)
 Global balanced-v1 activation            NOT AUTHORIZED
 P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
-NEXT                                     ASTRA REVIEW / UNADAPTED NARRATIVE E2E PLANNING
+NEXT                                     UNADAPTED NARRATIVE E2E + OPT-IN STABILITY
 ```
 
 ## Latest Astra decision — guardrail repair accepted
@@ -138,3 +138,38 @@ Do not reopen sealed EVAL-01O, alter ContextBudgetPacker/embedding/hybrid contra
 - P8-05 destructive cleanup remains **BLOCKED_PENDING_STABILITY**.
 - No API keys, credentials, or confidential manuscript text committed.
 
+
+
+## LATEST ASTRA REVIEW — Guarded Live Mixed-Provenance Evidence
+
+**Canonical review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-GUARDED-LIVE-ACCEPTANCE-REVIEW.md`.
+
+Review commit: `8164b656f5371a0217f6657f3b8411fd1c758b35`.
+
+**Decision:** `MIXED_PROVENANCE_PROVIDER_PATH_ACCEPTED_WITH_QUALIFICATION`. The new live evidence is on `main`, tested code `ece073840545bd3b27fb4dc7c509735b85a4d39d`, direct-child evidence commit `f8f8b578f49361f6594cb3e98d58e4d2673b8cfa`, and execution handoff `5439910050c5c4d68266877cf7cbf9e3407a67e1`.
+
+The run captured 11 genuine Gemini **document-adapter** calls (216 frozen source chunks), 6 query-adapter calls, real pgvector + hybrid-v1 raw matches, exact raw-to-packed semantic ID retention, two real Gemini generations (five model attempts: two successes, three 503 failures), zero packer drops or protected overflow, and generation-job hash parity. Both selected 12k.
+
+`rq-0011` retrieves `mem-000089` (Ch27) and `mem-000110` (Ch32) at ranks 1/2. For `rq-0025`, `mem-000167/174/177` **do not appear** in semantic top 8; the preassembled **world-rule lane** preserves them. Do not claim semantic recall of those three pivotal facts.
+
+**Outstanding qualification:** The report cites database port `5433`, but the manifest writes `5432` because the runner hardcodes the `database` field instead of recording the actual (redacted) `DATABASE_URL`. Preserve historical evidence; repair exporter in the next harness revision. Adapter counts are not audited HTTP-attempt counts. Two jobs do not prove provider reliability. Automated checklist PASS is not a manual source-fact audit of new full E2E drafts; `future_leakage` and `unsupported_claim` remain `NOT_ASSESSED`.
+
+### NEXT — Gemini / Antigravity: unadapted narrative-context E2E
+
+Build a narrowly scoped integration using real `PostgresNarrativeRepository.get_structured_context()` over persisted Frozen_v1/Batch_7-derived entities, current states, event/participant records and world rules/facts, **without** `eval01g_fixture_via_repo_adapter`. Keep genuine semantic retriever/pgvector and opt-in `balanced-scope-v1`. Ensure chapter cutoff, supersession, normalized participants, source identities and tenant isolation. Do not conflate missing source-derived FactRecords with correctly populated world rules: measure and report those lanes independently.
+
+Add focused unit/postgres-integration tests and fix database endpoint export by reading the runtime connection settings with credentials redacted. Commit runner/tests before the live run, open a PR and obtain CI, then run one or two targeted real-source cases on a clean exact SHA using isolated disposable staging. Save sanitized evidence in a new artifact or separate child commit and append execution-only reporting here. Do not change or silently rewrite accepted previous JSON measurements.
+
+Review the **new full generated drafts**, not merely the 400-character snippets, against Frozen_v1 for `rq-0011` (Ch27 vs Ch32) and `rq-0025` (Ch45/47/49) if claiming content acceptance. Follow with a small, bounded opt-in stability/availability window; report model attempts and 503/429 failures. If this is blocked by source fact materialization or provider quota, report `PARTIAL/BLOCKED` rather than substituting a fixture or synthetic PASS.
+
+```text
+mixed-provenance provider path      ACCEPTED WITH QUALIFICATION
+unadapted production narrative E2E NOT YET DEMONSTRATED
+new-draft independent source review PENDING
+bounded stability canary           PENDING
+global default                     legacy-v1 (UNCHANGED)
+balanced default activation        NOT AUTHORIZED
+P8-05                              BLOCKED_PENDING_STABILITY
+```
+
+Do not reopen EVAL-01O, retune hybrid/packer/embedding contracts, change production default or perform destructive P8-05 cleanup.
