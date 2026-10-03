@@ -383,10 +383,14 @@ Do not reopen EVAL-01O, retune hybrid/packer/embedding contracts, change product
 - Updated [verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py](file:///c:/Users/Laptop/OneDrive/Documents/testproject/scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py):
   - Strictly checks `t_item["source_status"] == "ambiguous"` and `t_item["source_status"] != "canonical"` for ambiguous memories.
   - Enforces fail-closed agreement between declared `actual_preserved_lane` and the case's retained ID arrays (`retained_recent_ids`, `retained_semantic_ids`, `retained_rule_ids`).
-  - Added 2 new negative rejection assertions in `self_test()` (12 total negative tests):
+  - Added 6 new negative rejection assertions in `self_test()` across Rounds 3 and 4 (16 total negative tests):
     1. Falsely claimed canonical `source_status` on ambiguous memory -> rejected (`case_1_mem-000164_source_status_falsely_claimed_canonical`).
     2. Lane-retained ID mismatch where `actual_preserved_lane="recent"` but ID missing from `retained_recent_ids` -> rejected (`case_1_mem-000164_not_in_retained_recent_ids`).
-- All 12 negative self-test assertions and positive contract pass cleanly.
+    3. `checklist_verdict` overclaiming `PASS` when any criterion is `PARTIAL` -> rejected (`summary_checklist_verdict_overclaims_pass`).
+    4. `automated_content_check` overclaiming `PASS` when any criterion is `PARTIAL` -> rejected (`summary_automated_content_check_overclaims_pass`).
+    5. `provider_stability` falsely claimed `ACCEPTED` despite failed attempts -> rejected (`summary_provider_stability_overclaims_accepted`).
+    6. `technical_execution` not `PASS` -> rejected (`summary_technical_execution_not_pass`).
+- All 16 negative self-test assertions and positive contract pass cleanly.
 
 #### Blocker D — Manuscript Privacy
 - Zero full draft text in repository. Evidence records only `draft_sha256`, character count, and safe snippet (<385 characters).
@@ -401,8 +405,15 @@ Do not reopen EVAL-01O, retune hybrid/packer/embedding contracts, change product
 - **LLM Service:** `RealGeminiLLMService` (`gemini-3.8-flash`, `LLM_LOCAL_FALLBACK=false`).
 - **Database:** PostgreSQL 16 + pgvector on staging port 5433 (`postgresql+psycopg://localhost:5433/ephurin` with credentials redacted).
 - **Cases:**
-  1. `core_gold:rq-0011` (Cutoff Ch 32): 63 raw entities -> 19 retained (12k tier, 9890 tokens), hash match `True`, latency 88727ms (handled API retry), draft status `completed`.
-  2. `challenge:rq-0025` (Cutoff Ch 49): 68 raw entities -> 20 retained (12k tier, 11208 tokens), hash match `True`, latency 33492ms, draft status `completed`.
+  1. `core_gold:rq-0011` (Cutoff Ch 32): 63 raw entities -> 19 retained (12k tier, 10496 tokens), hash match `True`, latency 88727ms (handled API retry), draft status `completed`, checklist: `canonical_source_status_correctness="PASS"`, `chronology_causality="PARTIAL"`.
+  2. `challenge:rq-0025` (Cutoff Ch 49): 68 raw entities -> 20 retained (12k tier, 11863 tokens), hash match `True`, latency 33492ms, draft status `completed`, checklist: `canonical_source_status_correctness="PASS"`, `chronology_causality="PASS"`.
+
+- **Structured Summary & Acceptance Distinctions (Astra Round 4 Review Contract):**
+  - **`technical_execution`**: `PASS` (genuine unadapted `PostgresNarrativeRepository`, real Gemini document/query embeddings, pgvector hybrid retrieval, zero drops/overflow, matching preview/job context hashes, and completed LLM generations).
+  - **`automated_content_check`**: `PARTIAL` (`core_gold:rq-0011` evaluated `chronology_causality="PARTIAL"`).
+  - **`checklist_verdict`**: `PARTIAL` (aligned with automated content check; never overclaiming aggregate PASS).
+  - **`independent_full_draft_review`**: `NOT_ASSESSED` (complete generated drafts have not been independently compared against Frozen_v1).
+  - **`provider_stability`**: `NOT_ACCEPTED` (10 model attempts: 2 successes and 8 failures from Gemini 503 ServerError; requires bounded opt-in stability canary before considering any default change).
 
 ### 3. Current Canonical State
 
@@ -412,10 +423,13 @@ CTX-RD-01 implementation                 MERGED
 Real-provider staging                    ACCEPTED
 Live source pgvector semantic path       ACCEPTED (MIXED-PROVENANCE / QUALIFIED)
 Corrected live source-provider evidence  ACCEPTED WITH QUALIFICATION (tested ece0738)
-Unadapted production narrative E2E       DEMONSTRATED & VALIDATED (tested e9e7def, evidence 3645dda)
-Offline evidence validator               PASS (0 errors, 12 negative self-test assertions)
+Unadapted production technical E2E       DEMONSTRATED & VALIDATED (QUALIFIED; tested e9e7def, evidence 3645dda)
+Automated content check                  PARTIAL (rq-0011 chronology_causality PARTIAL)
+Independent full draft review            NOT_ASSESSED
+Provider stability                       NOT_ACCEPTED (8/10 503 ServerError attempts)
+Offline evidence validator               PASS (0 errors, 16 negative self-test assertions)
 PostgreSQL integration test suite        6/6 PASS (runner-derived, fail-closed CI reachability guard)
-Unit test suite                          7/7 PASS
+Unit test suite                          12/12 PASS
 Production default                       legacy-v1 (UNCHANGED)
 Global balanced-v1 activation            NOT AUTHORIZED
 P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
