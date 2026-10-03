@@ -1,5 +1,31 @@
 # Active Project Handoff — CTX-RD-01
 
+## ACTIVE MODEL-SWITCH DIRECTIVE — FLASH-LITE FOR FUTURE CTX-RD CANARY RUNS
+
+**User decision:** preserve scarce `gemini-3.8-flash` daily quota (reported 20 RPD) by using **`gemini-3.5-flash-lite` as the default generation model** for the opt-in and unadapted canary runners, with **`gemini-3.1-flash-lite` as a manually selectable alternative**. Official API model IDs: exactly those two stable strings; do not use the shut-down `gemini-3.1-flash-lite-preview`. Model selection is limited to the canary scripts; it does not change the deployed production generation model or the `legacy-v1` context-routing default.
+
+**Code updated on this branch:** `scripts/run_ctx_rd_01_opt_in_canary.py` selects `CTX_RD_GENERATION_MODEL` (default 3.5 Flash-Lite) and its shared `InstrumentedRealGeminiLLMService` no longer silently falls back to 3.8 when a Flash-Lite model is requested. `scripts/run_ctx_rd_01_unadapted_narrative_e2e.py` accepts `--generation-model` (which overrides the environment variable), passes the resolved Lite model to the actual LLM, and writes the requested/effective model into fresh evidence. Unit tests in `ai-service/tests/test_ctx_rd_unadapted_narrative_e2e.py` cover the default, explicit 3.1 selection and rejection of 3.8/fallback.
+
+```powershell
+# Default: gemini-3.5-flash-lite; run on a clean, committed SHA with a disposable database
+.\.venv\Scripts\python.exe scripts/run_ctx_rd_01_unadapted_narrative_e2e.py
+
+# Alternative when specifically needed:
+.\.venv\Scripts\python.exe scripts/run_ctx_rd_01_unadapted_narrative_e2e.py --generation-model gemini-3.1-flash-lite
+
+# Validate the new sanitized artifact:
+.\.venv\Scripts\python.exe scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py --evidence docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e.json
+```
+
+**Evidence separation is mandatory:** the existing unadapted JSON is historic `gemini-3.8-flash` evidence, tested on `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a` and committed in direct child `3645dda04d5bfdb624a781dacbd3776f418d3977`. The SHA typo in earlier execution reporting was corrected here. Do not relabel that run as Flash-Lite, claim new Lite successes from unit CI, or overwrite its measured retry/latency/content results. A *new* Lite live run requires a clean code SHA, model-specific real-provider attempt logs and separately committed sanitized evidence. Avoid repeated full embedding when version-matched persisted vectors are safely reusable. Keep 3.8 historical evidence, do not spend scarce 3.8 RPD through hidden fallback.
+
+**Separate outstanding Round 4 reporting issue:** historic `rq-0011.checklist.chronology_causality=PARTIAL` despite a global `checklist_verdict=PASS`; any aggregate content verdict must be PARTIAL until the source-based review resolves it. Historic live 3.8 also had 8/10 failed model attempts (503); stability remains NOT ACCEPTED. Fix summary/validator reporting without manufacturing a new passing draft; PR #33 stays under review until the reporting correction and new CI are complete.
+
+`CONTEXT_ROUTING_POLICY=legacy-v1` remains the production default, balanced scope opt-in only; global activation NOT AUTHORIZED; P8-05 `BLOCKED_PENDING_STABILITY`.
+
+---
+
+
 ## LATEST ASTRA REVIEW — ROUND 3 / PR #33 (2026-10-03)
 
 **Canonical review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-UNADAPTED-E2E-ROUND3-REVIEW.md` (CI addendum commit `dd508e44d48752013fa30a9ad67e1bc9cf321310`). **PR:** https://github.com/Ephurin/Novel_sharing_platform/pull/33. Astra posted review feedback directly on the PR.
@@ -307,7 +333,7 @@ Do not reopen EVAL-01O, retune hybrid/packer/embedding contracts, change product
 **Branch:** `astra/ctx-rd-01-unadapted-narrative-e2e`  
 **Base commit:** `fb1eb240dfa7dfc377b031ae13b430affb275599` (`origin/main`)  
 **Tested code SHA:** `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a`  
-**Evidence commit:** `3645ddaba0f295e8486940c6600554d6fc487e41`  
+**Evidence commit:** `3645dda04d5bfdb624a781dacbd3776f418d3977`  
 **Live Evidence File:** `docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e.json`  
 **Validator:** `scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py` -> `{"status": "PASS", "errors": []}`  
 **Gate Verdict:** `UNADAPTED_NARRATIVE_E2E_DEMONSTRATED`
@@ -347,7 +373,7 @@ Do not reopen EVAL-01O, retune hybrid/packer/embedding contracts, change product
 ### 2. Live Provider Execution Summary
 
 - **Tested Code Commit:** `e9e7def3fcc826a1b543b9c3a0af8c89add9ff3a`
-- **Evidence Commit:** `3645ddaba0f295e8486940c6600554d6fc487e41`
+- **Evidence Commit:** `3645dda04d5bfdb624a781dacbd3776f418d3977`
 - **Branch:** `astra/ctx-rd-01-unadapted-narrative-e2e` (pushed to origin)
 - **Embedding Provider:** `GeminiEmbeddingProvider` (`gemini-embedding-2-768-v1`, 768d, L2 normalized, 11 document batches + 6 query calls with API key rotation).
 - **LLM Service:** `RealGeminiLLMService` (`gemini-3.8-flash`, `LLM_LOCAL_FALLBACK=false`).
