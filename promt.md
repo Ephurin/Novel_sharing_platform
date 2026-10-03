@@ -1,5 +1,33 @@
 # Active Project Handoff — CTX-RD-01
 
+## LATEST ASTRA REVIEW — UNADAPTED E2E REMEDIATION ROUND 2 (2026-10-03)
+
+**Read first:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-UNADAPTED-E2E-REMEDIATION-ROUND2-REVIEW.md`.
+
+Review commit: `423931212ed73460091d78ecb3dc90ee14f30bde`.
+Branch `astra/ctx-rd-01-unadapted-narrative-e2e` head reviewed: `31d8ba49166c746f53120325f0d8bcddf7b368a2`.
+
+**Verdict:** `UNADAPTED_FUNCTIONAL_SMOKE_OBSERVED — TECHNICAL_ACCEPTANCE_PARTIAL; PR CI AND SOURCE-STATUS / DEDUP EVIDENCE PENDING`. This latest decision supersedes prior *blocking observations that have actually been repaired*, not the earlier raw historical evidence or global-activation restrictions.
+
+Correct lineage: implementation `de43c54f57c72c79841be913a985c60689edcfcd` -> tested runner `dae7bcb9c7a19fe4ae5b90315397006a44562a2b` -> **actual evidence commit `27e774e7016492752e2026eea6015b28a6abbf18`** -> execution handoff `31d8ba49166c746f53120325f0d8bcddf7b368a2`. The evidence SHA `27e774eb055df2dfb1a37c94b7c61fef1bcfe488` in the branch report is **incorrect/nonexistent**; correct it before final PR/handoff. Code/evidence parent SHA relationship is otherwise valid.
+
+**Observed new evidence:** genuine unadapted `PostgresNarrativeRepository.get_structured_context()` with direct production `WritingService`, real Gemini 768d embedding/pgvector/hybrid retrieval and two successful Gemini generation jobs. Reported 11 document-adapter calls, 6 query-adapter calls, four model attempts (2 success, 2 failure 503); Ch32 63 -> 19 entities, 9,890 used tokens @12k; Ch49 68 -> 20, 11,208 @12k; 20/20 recent, 6/6 and 12/12 rules, matching preview/job hashes. The runner now reads runtime tier/token/drop/overflow instead of hardcoding, but some missing-value defaults still prevent fail-closed acceptance.
+
+**Correct source IDs:** Ch45 `mem-000164`, Ch47 `mem-000172`, Ch49 `mem-000176`, all tagged ambiguous/contradictory. All three are **retrieved** as raw semantic ranks 3/1/2, respectively. **Prompt-placement distinction:** because these three also appear in recent events, they are deduplicated out of the *final semantic lane* and retained in the *recent-event lane*. The current manifest and validator misleadingly call their `actual_preserved_lane` semantic. The separate Ch46/48/49 `mem-000167/174/177` are genuine but unrelated world-rule-tagged memories.
+
+### REQUIRED NEXT — Gemini / Antigravity targeted repair
+
+1. **Fix per-lane vocabulary/validator:** capture `retrieval_origin=semantic` with raw rank independently from `prompt_retained_lanes` and `dedup_reason=overlap_with_recent`. Require the Ch45/47/49 memories to have raw semantic retrieval evidence and actual recent-lane content/ambiguity preservation; never claim they occupy final `preview.semantic_memories` after dedup. Verify raw eight = final semantic plus correctly identified overlapping recent memories.
+2. **Verify source-status semantics end-to-end.** One EventRecord per memory is an improvement and event/chunk metadata now records `review_status`/`is_ambiguous`, but all rows are still `confirmation_status=confirmed`. Prove that production context and generation treat Ch45/47/49 as conflicting *source reports*, not all as undisputed historical facts, or explicitly separate a confirmed report from a confirmed underlying event without losing retrieval. Add an actual PostgreSQL/preview assertion.
+3. **Fail closed on missing measurements.** Remove fallback defaults for `dropped_artifact_count`, `protected_overflow`, `budget_overflow`, routing status/version and any required token metric. Validator should require real measured `0 < tokens_used <= selected_tier`, raw-to-retained identity and state/entity alignment, and source-status/dedup trace consistency. Add negative tests. Validate first-chapter and as-of state boundaries, supersession, tenant isolation, and normalized latest-five participant IDs through actual PostgreSQL integration. Do not silently report SUCCESS if integration tests SKIP for missing DB.
+4. **Correct handoff SHA and protect full drafts.** Branch now commits sanitized manifest only, without full-draft files at branch head; full drafts should remain locally/controlled separately. Do not call lexical checklist PASS a full independent content-quality audit. Keep future leakage and unsupported narrative claims `NOT_ASSESSED` until full drafts are reviewed.
+5. Open a focused PR and obtain P7/P8 CI before merge. If the changes affect the executed path or assertions, run a minimal targeted live smoke on the new clean tested SHA, then commit evidence as a separate child. Preserve original evidence/measurements; quota failure must be reported BLOCKED/PARTIAL, not fake PASS.
+
+No broad EVAL-01 retest, hybrid retuning, premature global activation or P8-05 cleanup. `CONTEXT_ROUTING_POLICY=legacy-v1` remains the production default; `balanced-scope-v1` stays opt-in staging only. A bounded stability canary follows **after** technical acceptance.
+
+---
+
+
 ## LATEST ASTRA REVIEW — UNADAPTED E2E: REPAIR REQUIRED (2026-10-03)
 
 **Authoritative review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-UNADAPTED-NARRATIVE-E2E-REVIEW.md`. Review commit: `fb4346f4b99d0bc93142ab30e4e17ff182b5b2a7`.
