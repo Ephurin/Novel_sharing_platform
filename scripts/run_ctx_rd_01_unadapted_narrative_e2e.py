@@ -659,11 +659,11 @@ def main() -> int:
 
         # Independent raw vs retained arrays for all lanes
         raw_recent_ids = [
-            str((e.get("event_metadata") or {}).get("memory_id") or e.get("event_id") or e.get("id"))
+            str((e.get("metadata") or e.get("event_metadata") or {}).get("memory_id") or e.get("event_id") or e.get("id"))
             for e in raw_structured_pkg.recent_events
         ]
         retained_recent_ids = [
-            str((e.get("event_metadata") or {}).get("memory_id") or e.get("event_id") or e.get("id"))
+            str((e.get("metadata") or e.get("event_metadata") or {}).get("memory_id") or e.get("event_id") or e.get("id"))
             for e in preview.recent_events
         ]
         raw_rule_ids = list(raw_rule_source_keys)
@@ -758,8 +758,8 @@ def main() -> int:
         if cid == "challenge:rq-0025":
             cavalry_ids = ("mem-000164", "mem-000172", "mem-000176")
             for crit_id in cavalry_ids:
-                in_semantic = crit_id in packed_semantic_ids
-                rank = (packed_semantic_ids.index(crit_id) + 1) if in_semantic else None
+                in_semantic = crit_id in raw_semantic_source_keys
+                rank = (raw_semantic_source_keys.index(crit_id) + 1) if in_semantic else None
                 in_rules = crit_id in raw_rule_source_keys
                 in_recent = crit_id in raw_recent_ids
                 lane_trace[crit_id] = {
@@ -776,7 +776,7 @@ def main() -> int:
             # Distinct world rule memories historically confused with cavalry
             rule_ids = ("mem-000167", "mem-000174", "mem-000177")
             for r_id in rule_ids:
-                in_semantic = r_id in packed_semantic_ids
+                in_semantic = r_id in raw_semantic_source_keys
                 in_rules = r_id in raw_rule_source_keys
                 in_recent = r_id in raw_recent_ids
                 lane_trace[r_id] = {
