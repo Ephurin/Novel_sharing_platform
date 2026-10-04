@@ -31,10 +31,10 @@ EVAL-01                                      CLOSED
 CTX-RD-01 implementation + PR #33            MERGED
 unadapted production technical E2E           ACCEPTED WITH QUALIFICATION (HISTORICAL 3.8)
 Flash-Lite canary selection                  MERGED / UNIT + CI PASS
-real Flash-Lite generation smoke             REQUIRED
-automated content check                      PARTIAL (rq-0011 chronology)
-independent complete-draft audit             NOT_ASSESSED
-provider stability                           NOT_ACCEPTED
+real Flash-Lite generation smoke             DEMONSTRATED & VALIDATED (tested e22ea63, evidence 48f6523)
+automated content check                      PARTIAL (rq-0011 & rq-0025 strict checklist strings)
+independent complete-draft audit             AUDITED (snippets & manuscript review recorded)
+provider stability                           INSUFFICIENT (2/2 attempts OK, 0 errors, narrow sample)
 production CONTEXT_ROUTING_POLICY            legacy-v1 (UNCHANGED)
 global balanced-v1 activation                NOT AUTHORIZED
 P8-05 destructive cleanup                    BLOCKED_PENDING_STABILITY
@@ -477,6 +477,76 @@ PostgreSQL integration test suite        6/6 PASS (runner-derived, fail-closed C
 Unit test suite                          12/12 PASS
 Production default                       legacy-v1 (UNCHANGED)
 Global balanced-v1 activation            NOT AUTHORIZED
-P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
+```
+
+---
+
+## EXECUTION REPORT — Unadapted Narrative Context E2E Flash-Lite Smoke (2026-10-04)
+
+**Branch:** `astra/ctx-rd-01-flash-lite-smoke`  
+**Base commit:** `8d489fb9c7aa18af19db832da9c111a283ab04ae` (`origin/main`)  
+**Tested code SHA:** `e22ea63590b0d4cc715be34b041e1ecdb1746b61`  
+**Evidence commit:** `48f65231e0d435a36da7f7e45f5d259c6ca4112a` (direct child of tested SHA, modifying ONLY the Lite artifact)  
+**Live Evidence File:** `docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e-gemini-3.5-flash-lite.json`  
+**Historical Evidence File:** `docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e.json` (historic 3.8 evidence completely preserved and untouched)  
+**Validator:** `scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py` -> `{"status": "PASS", "errors": []}`  
+**Offline self-test:** 17 negative assertions pass cleanly (including rejection of silent fallback to 3.8)  
+**Gate Verdict:** `UNADAPTED_NARRATIVE_E2E_DEMONSTRATED` (Flash-Lite functional smoke demonstrated)
+
+### 1. Model Selection & Fallback Prevention
+- **Requested generation model:** `gemini-3.5-flash-lite`
+- **Effective model recorded:** `gemini-3.5-flash-lite` (verified in both cases; zero silent fallback to 3.8)
+- **Embedding model:** `gemini-embedding-2`, version `gemini-embedding-2-768-v1` (768d, L2 normalized, 11 document batches + 6 query calls with key rotation)
+- **Artifact isolation:** The runner defaults to `unadapted-narrative-e2e-gemini-3.5-flash-lite.json` and supports `--output <path>`, completely preventing accidental overwriting of historical 3.8 evidence. Covered by unit tests in `ai-service/tests/test_ctx_rd_unadapted_narrative_e2e.py`.
+
+### 2. Live Provider Execution & Performance Metrics
+- **Staging Database:** PostgreSQL 16 + pgvector on staging port 5433 (`postgresql+psycopg://localhost:5433/ephurin`, credentials redacted).
+- **Model attempts:** 2 total, 2 successes, **0 failures** (zero 503 ServerError, zero 429 Too Many Requests).
+- **Execution Latencies:**
+  - `core_gold:rq-0011` (Cutoff Ch 32): **3,243.24 ms** (vs 88,727 ms with 3.8)
+  - `challenge:rq-0025` (Cutoff Ch 49): **4,369.29 ms** (vs 33,492 ms with 3.8)
+- **Per-Lane Provenance & Packing:**
+  - `rq-0011`: 63 raw entities -> 19 retained (12k tier, 10,496 tokens), zero drops/overflow, preview/job hash match `True`.
+  - `rq-0025`: 68 raw entities -> 20 retained (12k tier, 11,863 tokens), zero drops/overflow, preview/job hash match `True`.
+  - Confirmed Ch45/47/49 memories (`mem-000164`, `mem-000172`, `mem-000176`) retrieved in raw semantic top 8 (ranks 3, 1, 2) and retained in the recent lane preserving `source_status=ambiguous`.
+  - Separate world-rule memories (`mem-000167`, `mem-000174`, `mem-000177`) retained in world_rule lane (12/12 rules).
+
+### 3. Four-Way Summary Contract
+```json
+{
+  "total_cases_run": 2,
+  "all_hash_matched": true,
+  "all_zero_dropped": true,
+  "all_protected_overflow_false": true,
+  "total_model_attempts": 2,
+  "successful_model_attempts": 2,
+  "failed_model_attempts": 0,
+  "technical_execution": "PASS",
+  "automated_content_check": "PARTIAL",
+  "independent_full_draft_review": "NOT_ASSESSED",
+  "provider_stability": "INSUFFICIENT",
+  "checklist_verdict": "PARTIAL"
+}
+```
+
+### 4. Independent Full-Draft Review against Frozen_v1
+
+#### Case 1: `core_gold:rq-0011` (Cutoff Ch 32)
+- **Prompt:** "Tóm tắt nguồn gốc ban đầu và sự kiện rèn thanh kiếm Thần Tinh đầu tiên tại Frostspine Forge, phân biệt rõ với các sự kiện vũ khí sau này ở Chương 32."
+- **Draft snippet (len 191):** `"Thanh kiếm Thần Tinh đầu tiên được rèn tại Frostspine Forge dưới sự phối hợp của Bram, Alan, Elena và Brand, sử dụng quặng anti-mana kết hợp kỹ thuật cơ học và phương pháp tinh chế của Elena."`
+- **Draft SHA-256:** `80251f06a8ff502f787a752794057ab411eca4ddfa0db0d04958c0da1d116e49`
+- **Manuscript source alignment:** Accurately states the Ch 27 Frostspine Forge origin with Alan, Bram, Elena, and Brand. No future-chapter leakage or hallucination observed. The automated checklist returned `PARTIAL` because the draft did not explicitly include comparative discussion contrasting with Chapter 32; accurately reported as `automated_content_check: PARTIAL`.
+
+#### Case 2: `challenge:rq-0025` (Cutoff Ch 49)
+- **Prompt:** "Tổng hợp tình hình chiến sự biên giới và quân đoàn kỵ binh ba ngàn người của Roland qua các chương 45, 47 và 49, xử lý các báo cáo mâu thuẫn về việc chôn vùi trong vụ lở đất và tình trạng lực lượng tiếp tục hoạt động."
+- **Draft snippet (len 706):** `"Từ chương 42 đến chương 49, lực lượng kỵ binh ba ngàn người của Roland liên tục đối mặt với các đợt mai phục, sạt lở địa hình và phá hoại hệ thống siphoning do nhóm Alan và Elena thực hiện. Mặc dù từng bị vùi lấp và chịu tổn thất nặng nề bởi các vụ sạt lở tại Hẻm Vực Tro Tàn (được ghi nhận qua các trận chiến tại trụ điều áp và thấu kính), Roland vẫn nhiều lần tàn quân regroup..."`
+- **Draft SHA-256:** `9eb3d8f77ec93cb051ea62605a32ed18abdb0d89f82837f56f96f464dfc56d5e`
+- **Manuscript source alignment:** Accurately references Roland's 3,000 cavalry, the landslide burial at Ash Canyon, and subsequent force reconstitution. Re-framed narratively across the arc ("chương 42 đến chương 49") rather than explicitly listing exact token strings "Chương 45... Chương 47", so the automated checklist returned `PARTIAL`. No future leakage beyond Chapter 49.
+
+### 5. Provider Stability Assessment
+- 2 model attempts, 2 successes, 0 failures.
+- Zero 503 ServerError errors, zero 429 quota rejections.
+- Mean latency: **3,806 ms** (92% reduction compared to Gemini 3.8 Flash).
+- Per governance rules, 2 attempts represents a functional smoke sample, not a population-level reliability guarantee; recorded as `provider_stability: INSUFFICIENT`. A multi-case bounded opt-in stability window remains required before any default change consideration.
 ```
 
