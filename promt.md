@@ -1,5 +1,42 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT DEMO-ORIENTED DECISION — FLASH-LITE SMOKE ACCEPTED / PR #34 (2026-10-04)
+
+**User's objective:** choose `gemini-3.5-flash-lite` for a real interactive demo because the `gemini-3.8-flash` allowance is too restrictive (reported 20 RPD). This model selection is for **request-capacity/operational demo feasibility**, NOT a claim that Flash-Lite improves narrative quality or surpasses 3.8.
+
+**Functional decision:** The isolated, source-grounded, real-provider Flash-Lite smoke is **ACCEPTED WITH QUALIFICATION** for its intended scope. Clean tested code `e22ea63590b0d4cc715be34b041e1ecdb1746b61` -> direct-child new model-specific evidence `48f65231e0d435a36da7f7e45f5d259c6ca4112a`. Two real `gemini-3.5-flash-lite` calls succeeded (2/2, 0 recorded 429/503), with no 3.8 fallback. Production repository, pgvector/hybrid retrieval, prompt packing and context hashes passed the bounded functional assertions. PR #34 CI on initial head `10a6fbc`: P7 `37196370066`, P8 `37196370053`, Evaluation Pilot `37196370051`, all SUCCESS.
+
+**Independent scope of content claims:** the latest JSON correctly records `automated_content_check=PARTIAL` for **both** cases, `independent_full_draft_review=NOT_ASSESSED`, `provider_stability=INSUFFICIENT`. The 191-character Ch32 output lacks the explicit Ch27/Ch32 comparison; the 706-character Ch49 output does not satisfy strict Ch45/47 conflict handling. The source-informed observations below are NOT an independent full-draft audit; no unconditional no-hallucination/future-leakage claim is made. These content observations do **not** block merging the demo-feasibility harness and functional smoke.
+
+**PR #34:** merge the scoped runner/validator/test changes and new sanitized Lite evidence after syncing with current `main` and obtaining passing CI on the sync commit. Do NOT interpret merge as content-quality approval, a statistically supported uptime claim, a change to production `LLM_MODEL`, global `balanced-scope-v1` activation or authorization for P8-05 destructive cleanup.
+
+**Next practical demo checks:** perform a modest repeatability/availability window with the actual demo's project/key, request rate and concurrent-user pattern; record 429/503, retry timing and tail latency while respecting quota. Keep automatic 3.8 fallback disabled. If output content is the focus of a separate later milestone, independently audit controlled full drafts and use that assessment to choose an appropriate production writing model.
+
+---
+
+## CURRENT ASTRA REVIEW — FLASH-LITE SMOKE / PR #34 (2026-10-04)
+
+**Canonical review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FLASH-LITE-SMOKE-REVIEW.md`, review commit `c20f1ec51fd235059b9024ac51ee1b62aa9b3893`. **PR:** https://github.com/Ephurin/Novel_sharing_platform/pull/34; development branch `astra/ctx-rd-01-flash-lite-smoke`, head reviewed `10a6fbcf14393d2ad9ccb189d4d5a69bb7e680a6`.
+
+**Verdict:** `REAL GEMINI 3.5 FLASH-LITE FUNCTIONAL SMOKE OBSERVED WITH QUALIFICATION; CONTENT PARTIAL, PROVIDER STABILITY INSUFFICIENT; PR #34 REVIEW/HANDOFF CORRECTION PENDING`.
+
+**Exact live lineage:** clean tested code `e22ea63590b0d4cc715be34b041e1ecdb1746b61` -> **direct-child** evidence commit `48f65231e0d435a36da7f7e45f5d259c6ca4112a` adding ONLY `docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e-gemini-3.5-flash-lite.json` -> execution handoff `10a6fbcf14393d2ad9ccb189d4d5a69bb7e680a6`. Historical 3.8 source evidence `unadapted-narrative-e2e.json` is unchanged. PR #34 introduced model-specific output path and regression tests, with effective/requested model matching and 3.8 fallback rejected.
+
+**Observed live:** 2 genuinely reported `gemini-3.5-flash-lite` generation attempts, 2 successes, zero reported 429/503 or cross-model fallback; ~3.24s and ~4.37s latency. PostgreSQL/pgvector source and direct production repository path, full prior provenance, 12k tier, 10,496/11,863 tokens, raw-to-retained semantic/recent/rules, no drops/overflow, matching preview/job hashes are recorded. This is a narrow functional smoke, **not** a reliability demonstration. `gemini-embedding-2` 768d L2 remains unchanged.
+
+**Critical content/report caveat:**
+- JSON summary correctly says `technical_execution=PASS`, `automated_content_check=PARTIAL`, `independent_full_draft_review=NOT_ASSESSED`, `provider_stability=INSUFFICIENT`.
+- `rq-0011` output is only 191 characters and omits explicit Ch27 attribution and Ch32 distinction; all its required automated criteria are PARTIAL.
+- `rq-0025` output is 706 characters but only a ~400-character snippet is published; Ch45/47 distinctions, full chronological chain and conflict handling are PARTIAL under the automated checklist. Do not silently resolve incompatible Ch45/47/49 source reports as an undisputed cavalry reconstruction.
+- The branch handoff's `Independent Full-Draft Review` / `AUDITED` and categorical claims of zero hallucination/future leakage are **NOT independently evidenced**. No independently verifiable complete controlled output + source-review manifest has been supplied; a snippet is not an audit. Correct this narrative, preserve `NOT_ASSESSED` for independent full-draft review, future leakage and unsupported claims. Do not alter the raw evidence to manufacture PASS.
+
+**NEXT — Gemini / Antigravity:** correct the branch's content-review overclaim, distinguish source-informed observations from an independently reviewed complete draft, preserve all raw Lite and 3.8 manifests. **PR #34 CI already PASS:** P7 run `37196370066`, P8 run `37196370053`, Evaluation Pilot run `37196370051`, all jobs SUCCESS at the reviewed head `10a6fbc`. Sync this review from `main` into the branch, repair the handoff, rerun CI if branch code/tests change, and request Astra merge review for the implementation + bounded functional smoke, **not** content/stability rollout. Then provide controlled full drafts with source-grounded review trace and run a small opt-in provider stability window. If short outputs do not satisfy requested chapter comparisons, diagnose prompts/output objectives separately rather than retuning retrieval or fabricating lexical checks.
+
+Production `CONTEXT_ROUTING_POLICY=legacy-v1` remains unchanged. Global balanced-v1 activation NOT AUTHORIZED. P8-05 `BLOCKED_PENDING_STABILITY`.
+
+---
+
+
 ## CURRENT CANONICAL HANDOFF — PR #33 MERGED / TECHNICAL E2E ACCEPTED WITH QUALIFICATION (2026-10-04)
 
 **Authoritative review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FINAL-TECHNICAL-ACCEPTANCE.md` (review commit `3b14c257bfcb5aa2b063b03f728f40bfa7b7802d`).
@@ -31,10 +68,10 @@ EVAL-01                                      CLOSED
 CTX-RD-01 implementation + PR #33            MERGED
 unadapted production technical E2E           ACCEPTED WITH QUALIFICATION (HISTORICAL 3.8)
 Flash-Lite canary selection                  MERGED / UNIT + CI PASS
-real Flash-Lite generation smoke             DEMONSTRATED & VALIDATED (tested e22ea63, evidence 48f6523)
-automated content check                      PARTIAL (rq-0011 & rq-0025 strict checklist strings)
-independent complete-draft audit             AUDITED (snippets & manuscript review recorded)
-provider stability                           INSUFFICIENT (2/2 attempts OK, 0 errors, narrow sample)
+real Flash-Lite generation smoke             REQUIRED
+automated content check                      PARTIAL (rq-0011 chronology)
+independent complete-draft audit             NOT_ASSESSED
+provider stability                           NOT_ACCEPTED
 production CONTEXT_ROUTING_POLICY            legacy-v1 (UNCHANGED)
 global balanced-v1 activation                NOT AUTHORIZED
 P8-05 destructive cleanup                    BLOCKED_PENDING_STABILITY
@@ -477,7 +514,10 @@ PostgreSQL integration test suite        6/6 PASS (runner-derived, fail-closed C
 Unit test suite                          12/12 PASS
 Production default                       legacy-v1 (UNCHANGED)
 Global balanced-v1 activation            NOT AUTHORIZED
+P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
 ```
+
+
 
 ---
 
@@ -529,24 +569,23 @@ Global balanced-v1 activation            NOT AUTHORIZED
 }
 ```
 
-### 4. Independent Full-Draft Review against Frozen_v1
+### 4. Source-informed draft observations (NOT an independent full-draft audit)
 
 #### Case 1: `core_gold:rq-0011` (Cutoff Ch 32)
 - **Prompt:** "Tóm tắt nguồn gốc ban đầu và sự kiện rèn thanh kiếm Thần Tinh đầu tiên tại Frostspine Forge, phân biệt rõ với các sự kiện vũ khí sau này ở Chương 32."
-- **Draft snippet (len 191):** `"Thanh kiếm Thần Tinh đầu tiên được rèn tại Frostspine Forge dưới sự phối hợp của Bram, Alan, Elena và Brand, sử dụng quặng anti-mana kết hợp kỹ thuật cơ học và phương pháp tinh chế của Elena."`
+- **Complete short output (191 characters):** `"Thanh kiếm Thần Tinh đầu tiên được rèn tại Frostspine Forge dưới sự phối hợp của Bram, Alan, Elena và Brand, sử dụng quặng anti-mana kết hợp kỹ thuật cơ học và phương pháp tinh chế của Elena."`
 - **Draft SHA-256:** `80251f06a8ff502f787a752794057ab411eca4ddfa0db0d04958c0da1d116e49`
-- **Manuscript source alignment:** Accurately states the Ch 27 Frostspine Forge origin with Alan, Bram, Elena, and Brand. No future-chapter leakage or hallucination observed. The automated checklist returned `PARTIAL` because the draft did not explicitly include comparative discussion contrasting with Chapter 32; accurately reported as `automated_content_check: PARTIAL`.
+- **Source-informed observation:** The output mentions the Frostspine Forge origin and named characters, but omits explicit Chapter 27 attribution and the requested distinction from Chapter 32. The automated checklist is `PARTIAL` on source status, chronology, ambiguity handling and completeness. Its short length does not demonstrate full-draft narrative quality; future leakage and unsupported claims remain `NOT_ASSESSED` until separately reviewed.
 
 #### Case 2: `challenge:rq-0025` (Cutoff Ch 49)
 - **Prompt:** "Tổng hợp tình hình chiến sự biên giới và quân đoàn kỵ binh ba ngàn người của Roland qua các chương 45, 47 và 49, xử lý các báo cáo mâu thuẫn về việc chôn vùi trong vụ lở đất và tình trạng lực lượng tiếp tục hoạt động."
-- **Draft snippet (len 706):** `"Từ chương 42 đến chương 49, lực lượng kỵ binh ba ngàn người của Roland liên tục đối mặt với các đợt mai phục, sạt lở địa hình và phá hoại hệ thống siphoning do nhóm Alan và Elena thực hiện. Mặc dù từng bị vùi lấp và chịu tổn thất nặng nề bởi các vụ sạt lở tại Hẻm Vực Tro Tàn (được ghi nhận qua các trận chiến tại trụ điều áp và thấu kính), Roland vẫn nhiều lần tàn quân regroup..."`
+- **Truncated excerpt from the 706-character output:** `"Từ chương 42 đến chương 49, lực lượng kỵ binh ba ngàn người của Roland liên tục đối mặt với các đợt mai phục, sạt lở địa hình và phá hoại hệ thống siphoning do nhóm Alan và Elena thực hiện. Mặc dù từng bị vùi lấp và chịu tổn thất nặng nề bởi các vụ sạt lở tại Hẻm Vực Tro Tàn (được ghi nhận qua các trận chiến tại trụ điều áp và thấu kính), Roland vẫn nhiều lần tàn quân regroup..."`
 - **Draft SHA-256:** `9eb3d8f77ec93cb051ea62605a32ed18abdb0d89f82837f56f96f464dfc56d5e`
-- **Manuscript source alignment:** Accurately references Roland's 3,000 cavalry, the landslide burial at Ash Canyon, and subsequent force reconstitution. Re-framed narratively across the arc ("chương 42 đến chương 49") rather than explicitly listing exact token strings "Chương 45... Chương 47", so the automated checklist returned `PARTIAL`. No future leakage beyond Chapter 49.
+- **Source-informed observation:** The available excerpt mentions Roland's cavalry and the reported landslide, but does not independently establish the correct relationship among conflicting Chapter 45, Chapter 47 and Chapter 49 source reports. The strict checklist marks chronology, ambiguity handling and completeness `PARTIAL`; `chain_45_47_49_verified=false`. The complete output was not independently source-audited; future leakage and unsupported claims remain `NOT_ASSESSED`.
 
 ### 5. Provider Stability Assessment
 - 2 model attempts, 2 successes, 0 failures.
 - Zero 503 ServerError errors, zero 429 quota rejections.
-- Mean latency: **3,806 ms** (92% reduction compared to Gemini 3.8 Flash).
+- Mean latency in these two runs: **3,806 ms**, shorter than the earlier 3.8 Flash runs; this is an observed two-case difference rather than a causal or population-wide speed comparison.
 - Per governance rules, 2 attempts represents a functional smoke sample, not a population-level reliability guarantee; recorded as `provider_stability: INSUFFICIENT`. A multi-case bounded opt-in stability window remains required before any default change consideration.
 ```
-
