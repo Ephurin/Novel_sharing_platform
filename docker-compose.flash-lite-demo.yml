@@ -1,0 +1,20 @@
+# Opt-in ONLY for the real interactive demo; never affects the base Compose defaults.
+# Start with: docker compose --env-file .env.demo -f docker-compose.yml -f docker-compose.flash-lite-demo.yml up -d --build
+services:
+  ai-service:
+    environment:
+      LLM_ENABLED: "true"
+      LLM_PROVIDER: gemini
+      LLM_MODEL: ${DEMO_LLM_MODEL:-gemini-3.5-flash-lite}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?Set GEMINI_API_KEY in your untracked .env.demo file}
+      LLM_BASE_URL: ""
+      LLM_FALLBACK_PROVIDER: ""
+      LLM_LOCAL_FALLBACK: "false"
+      CONTEXT_ROUTING_POLICY: legacy-v1
+
+  backend:
+    environment:
+      # Backend AI Copilot uses an OpenAI-compatible /models + /chat/completions API.
+      AI_LLM_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
+      AI_LLM_API_KEY: ${GEMINI_API_KEY:?Set GEMINI_API_KEY in your untracked .env.demo file}
+      AI_LLM_MODEL: ${DEMO_LLM_MODEL:-gemini-3.5-flash-lite}
