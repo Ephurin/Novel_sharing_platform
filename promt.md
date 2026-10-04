@@ -1,5 +1,35 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT EXECUTION DIRECTIVE — REAL DEMO FLASH-LITE, BOTH GENERATION PATHS (2026-10-04)
+
+**Authoritative closure/handoff:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FLASH-LITE-DEMO-ENABLEMENT-CLOSURE.md` (commit `b22e6df01f2f4db152dedd92715fdab3a4e3649a`); runbook `docs/Deployment/flash-lite-demo.md`.
+
+**User's model decision is about demo request quota, NOT higher literary quality.** The restrictive reported 20 RPD on `gemini-3.8-flash` makes it unsuitable for the practical interactive demo. Prefer `gemini-3.5-flash-lite`, manually choose `gemini-3.1-flash-lite` only if necessary. Do not silently fall back to 3.8. Content review and production reliability are separately scoped tasks and did not block either of the following merges.
+
+**PR #34 MERGED** `b30775befd0060db84fcf86efd0aac03ac2c0487`: genuine source-grounded Flash-Lite two-case generation smoke, isolated model-specific artifact and no-3.8 fallback validation. Clean code `e22ea63590b0d4cc715be34b041e1ecdb1746b61` → direct-child evidence `48f65231e0d435a36da7f7e45f5d259c6ca4112a` (`unadapted-narrative-e2e-gemini-3.5-flash-lite.json`). Both `gemini-3.5-flash-lite` attempts succeeded, zero logged 429/503 and ~3.24/4.37s observed latency. PR #34 CI P7 `37197026960`, P8 `37197027098`, Pilot `37197026973`: all SUCCESS.
+
+**PR #35 MERGED** `cff881f1da4272f0bf0ed43f8c8e32350066fadb`: opt-in `docker-compose.flash-lite-demo.yml` routes **both** the Python AI-writing service and the Node AI Copilot backend to the same `DEMO_LLM_MODEL` (default `gemini-3.5-flash-lite`), with required `GEMINI_API_KEY` in local untracked `.env.demo`. The backend uses Google's OpenAI-compatible endpoint; the AI-service uses Gemini directly. Python fake/local fallback is disabled for the demo. Base production Compose defaults remain unchanged. PR #35 P7 run `37197428749` PASS (unit, pgvector and Compose smoke); demo model wiring for both 3.5 and opt-in 3.1 passed a dummy-key configuration test **without real API calls**.
+
+**NEXT — Gemini / Antigravity: run one local application-level demo smoke, not another broad benchmark.** Using the current clean `main` and disposable demo DB, follow `docs/Deployment/flash-lite-demo.md`: create ignored `.env.demo` from the provided template, enter a valid local Gemini key without logging or committing it, validate/start Compose using the demo override, verify the effective model on **both** services, and complete **one actual authenticated AI Copilot suggestion + one AI-writing generation through the real application**. Record model identity, success/failure, 429/503, retries and latency in sanitized evidence. If possible, add a small quota-conscious repeatability check that matches the expected demo traffic, not an unbounded provider stress test. If actual local Docker/API access is unavailable, report `NOT_EXECUTED/BLOCKED` rather than claiming the CI static check proves a live demo.
+
+**Separate known limits:** Lite `automated_content_check=PARTIAL` for both archived cases; `independent_full_draft_review=NOT_ASSESSED`; provider stability `INSUFFICIENT` because only two model attempts were recorded. Do not claim increased fiction quality, hallucination-free output, or population-level availability from this demo-oriented model switch.
+
+```text
+PR #34 / PR #35 demo-enablement code     MERGED
+Flash-Lite isolated live canary          OBSERVED / QUALIFIED (2/2)
+Both real demo service configurations    WIRED / CI CONFIG PASS
+Actual two-service UI/API demo smoke     REQUIRED (LOCAL)
+Automated narrative content check       PARTIAL, separate from demo gate
+Independent full-draft source audit     NOT_ASSESSED, separate gate
+Provider population stability           INSUFFICIENT
+Production context default              legacy-v1 (UNCHANGED)
+Global balanced-scope activation        NOT AUTHORIZED
+P8-05 destructive cleanup               BLOCKED_PENDING_STABILITY
+```
+
+---
+
+
 ## CURRENT DEMO-ORIENTED DECISION — FLASH-LITE SMOKE ACCEPTED / PR #34 (2026-10-04)
 
 **User's objective:** choose `gemini-3.5-flash-lite` for a real interactive demo because the `gemini-3.8-flash` allowance is too restrictive (reported 20 RPD). This model selection is for **request-capacity/operational demo feasibility**, NOT a claim that Flash-Lite improves narrative quality or surpasses 3.8.
