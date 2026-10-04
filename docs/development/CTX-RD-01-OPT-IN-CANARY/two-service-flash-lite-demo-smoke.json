@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0.0",
+  "metadata": {
+    "test_name": "two_service_flash_lite_demo_smoke",
+    "execution_timestamp": "2026-10-04T12:07:20Z",
+    "tested_code_commit": "c3dd37c7ef6bcaa76922ac810cb2a15b92770619",
+    "environment": {
+      "mode": "live_demo_compose",
+      "compose_files": [
+        "docker-compose.yml",
+        "docker-compose.flash-lite-demo.yml"
+      ],
+      "env_file": ".env.demo (untracked, credentials redacted)",
+      "target_database": "ephurin (disposable docker-compose PostgreSQL 16 + pgvector & MongoDB 7)",
+      "database_url_redacted": "postgresql://postgres:***@localhost:5432/ephurin"
+    },
+    "governance": {
+      "policy": "legacy-v1",
+      "production_default": "legacy-v1",
+      "default_changed": false,
+      "global_balanced_activation": false,
+      "p8_05_blocked": true,
+      "manuscript_text_committed": false
+    }
+  },
+  "service_configurations": {
+    "ai_service": {
+      "llm_provider": "gemini",
+      "configured_model": "gemini-3.5-flash-lite",
+      "effective_model": "models/gemini-3.5-flash-lite",
+      "llm_local_fallback": false,
+      "context_routing_policy": "legacy-v1",
+      "endpoint_health": {
+        "url": "http://localhost:8000/health",
+        "status": 200,
+        "ready": true
+      }
+    },
+    "backend_copilot": {
+      "provider": "openai-compatible",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "configured_model": "gemini-3.5-flash-lite",
+      "endpoint_health": {
+        "url": "http://localhost:4000/api/v1/ai/health",
+        "status": 200,
+        "ready": true,
+        "message": "LLM provider is reachable and configured model is available"
+      }
+    }
+  },
+  "runs": {
+    "backend_copilot_suggestions": [
+      {
+        "iteration": 1,
+        "endpoint": "POST /api/v1/ai/copilot/suggestions",
+        "http_status": 200,
+        "requested_model": "gemini-3.5-flash-lite",
+        "effective_model": "gemini-3.5-flash-lite",
+        "latency_ms": 2418.73,
+        "output_character_count": 888,
+        "error_429": false,
+        "error_503": false,
+        "error": null
+      },
+      {
+        "iteration": 2,
+        "endpoint": "POST /api/v1/ai/copilot/suggestions",
+        "http_status": 200,
+        "requested_model": "gemini-3.5-flash-lite",
+        "effective_model": "gemini-3.5-flash-lite",
+        "latency_ms": 2501.97,
+        "output_character_count": 993,
+        "error_429": false,
+        "error_503": false,
+        "error": null
+      }
+    ],
+    "ai_service_writing_generations": [
+      {
+        "iteration": 1,
+        "endpoint": "POST /api/v1/ai/writing/generations -> GET /api/v1/ai/jobs/:id",
+        "job_id": "6d32bd99-064a-58da-94b3-5cda4b826b0b",
+        "job_status": "completed",
+        "requested_model": "gemini-3.5-flash-lite",
+        "effective_model": "gemini-3.5-flash-lite",
+        "latency_ms": 2095.56,
+        "patch_character_count": 535,
+        "error_429": false,
+        "error_503": false,
+        "error": null
+      },
+      {
+        "iteration": 2,
+        "endpoint": "POST /api/v1/ai/writing/generations -> GET /api/v1/ai/jobs/:id",
+        "job_id": "4256aefc-fb6b-59bd-b9eb-ab221e7549a6",
+        "job_status": "completed",
+        "requested_model": "gemini-3.5-flash-lite",
+        "effective_model": "gemini-3.5-flash-lite",
+        "latency_ms": 2091.06,
+        "patch_character_count": 516,
+        "error_429": false,
+        "error_503": false,
+        "error": null
+      }
+    ]
+  },
+  "summary": {
+    "total_attempts": 4,
+    "successful_attempts": 4,
+    "failed_attempts": 0,
+    "http_503_count": 0,
+    "http_429_count": 0,
+    "silent_fallback_to_3_8": false,
+    "mean_latency_ms": 2276.83,
+    "technical_execution": "PASS",
+    "provider_stability": "DEMO_SMOKE_OBSERVED"
+  }
+}
