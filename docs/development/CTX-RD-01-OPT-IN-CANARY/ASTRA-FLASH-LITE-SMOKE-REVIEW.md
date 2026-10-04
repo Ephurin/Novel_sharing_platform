@@ -63,3 +63,13 @@ Before merge:
 4. Follow with a bounded, low-cost opt-in Flash-Lite stability window tracking retries, 429/503, success/latency. Keep 3.8 out of automatic fallback.
 
 **Governance unchanged:** production `CONTEXT_ROUTING_POLICY=legacy-v1`, balanced routing opt-in staging only, global activation NOT AUTHORIZED, P8-05 destructive cleanup `BLOCKED_PENDING_STABILITY`. No broad EVAL-01 reopen or core hybrid/packer/embedding retuning.
+
+## CI addendum — PR #34 workflows completed
+
+All GitHub Actions checks for PR #34 reviewed head `10a6fbcf14393d2ad9ccb189d4d5a69bb7e680a6` have completed successfully:
+
+- P7 Semantic Memory Foundation: [run 37196370066](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/37196370066), unit, pgvector-integration and root-compose-smoke jobs all SUCCESS.
+- P8 Cutover and Migration: [run 37196370053](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/37196370053), all six jobs SUCCESS: unit, PostgreSQL integration, rollback rehearsal, frontend cutover, cleanup gate and Compose smoke.
+- Evaluation Pilot Harness: [run 37196370051](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/37196370051), harness-contract SUCCESS.
+
+The CI gate is therefore **PASS on the current tested PR head**. External Gemini API calls are not exercised by CI; the two reported Lite completions come from local live evidence. The remaining **merge HOLD** concerns the branch handoff's unsupported independent-full-draft / zero-leakage assertions and syncing the main review into the branch; it is not an outstanding CI failure. The automated content quality and provider-stability gates remain open regardless of a technical PR merge.
