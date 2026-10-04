@@ -205,7 +205,8 @@ export function WritingAssistantPanel({
           cursor: codePointEnd
         },
         instruction,
-        expectedBrainVersion: brainVer ?? 1
+        expectedBrainVersion: brainVer ?? 1,
+        idempotencyKey: (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'ui-' + Date.now())
       });
 
       setJob(initiatedJob);
