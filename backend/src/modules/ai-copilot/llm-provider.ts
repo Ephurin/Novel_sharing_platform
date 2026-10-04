@@ -80,14 +80,18 @@ export async function checkLlmProviderHealth() {
 
     const payload = (await response.json()) as ModelsResponse;
     const models = payload.data?.map((model) => model.id).filter((model): model is string => Boolean(model)) ?? [];
+    const isModelAvailable =
+      models.includes(env.AI_LLM_MODEL) ||
+      models.includes(`models/${env.AI_LLM_MODEL}`) ||
+      models.some((id) => id.replace(/^models\//, '') === env.AI_LLM_MODEL.replace(/^models\//, ''));
 
     return {
-      ready: models.includes(env.AI_LLM_MODEL),
+      ready: isModelAvailable,
       provider: 'openai-compatible',
       baseUrl: env.AI_LLM_BASE_URL,
       configuredModel: env.AI_LLM_MODEL,
       models,
-      message: models.includes(env.AI_LLM_MODEL)
+      message: isModelAvailable
         ? 'LLM provider is reachable and configured model is available'
         : 'LLM provider is reachable but configured model is not listed'
     };
