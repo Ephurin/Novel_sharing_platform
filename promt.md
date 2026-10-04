@@ -1,5 +1,19 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT DEMO-ORIENTED DECISION — FLASH-LITE SMOKE ACCEPTED / PR #34 (2026-10-04)
+
+**User's objective:** choose `gemini-3.5-flash-lite` for a real interactive demo because the `gemini-3.8-flash` allowance is too restrictive (reported 20 RPD). This model selection is for **request-capacity/operational demo feasibility**, NOT a claim that Flash-Lite improves narrative quality or surpasses 3.8.
+
+**Functional decision:** The isolated, source-grounded, real-provider Flash-Lite smoke is **ACCEPTED WITH QUALIFICATION** for its intended scope. Clean tested code `e22ea63590b0d4cc715be34b041e1ecdb1746b61` -> direct-child new model-specific evidence `48f65231e0d435a36da7f7e45f5d259c6ca4112a`. Two real `gemini-3.5-flash-lite` calls succeeded (2/2, 0 recorded 429/503), with no 3.8 fallback. Production repository, pgvector/hybrid retrieval, prompt packing and context hashes passed the bounded functional assertions. PR #34 CI on initial head `10a6fbc`: P7 `37196370066`, P8 `37196370053`, Evaluation Pilot `37196370051`, all SUCCESS.
+
+**Independent scope of content claims:** the latest JSON correctly records `automated_content_check=PARTIAL` for **both** cases, `independent_full_draft_review=NOT_ASSESSED`, `provider_stability=INSUFFICIENT`. The 191-character Ch32 output lacks the explicit Ch27/Ch32 comparison; the 706-character Ch49 output does not satisfy strict Ch45/47 conflict handling. The source-informed observations below are NOT an independent full-draft audit; no unconditional no-hallucination/future-leakage claim is made. These content observations do **not** block merging the demo-feasibility harness and functional smoke.
+
+**PR #34:** merge the scoped runner/validator/test changes and new sanitized Lite evidence after syncing with current `main` and obtaining passing CI on the sync commit. Do NOT interpret merge as content-quality approval, a statistically supported uptime claim, a change to production `LLM_MODEL`, global `balanced-scope-v1` activation or authorization for P8-05 destructive cleanup.
+
+**Next practical demo checks:** perform a modest repeatability/availability window with the actual demo's project/key, request rate and concurrent-user pattern; record 429/503, retry timing and tail latency while respecting quota. Keep automatic 3.8 fallback disabled. If output content is the focus of a separate later milestone, independently audit controlled full drafts and use that assessment to choose an appropriate production writing model.
+
+---
+
 ## CURRENT ASTRA REVIEW — FLASH-LITE SMOKE / PR #34 (2026-10-04)
 
 **Canonical review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FLASH-LITE-SMOKE-REVIEW.md`, review commit `c20f1ec51fd235059b9024ac51ee1b62aa9b3893`. **PR:** https://github.com/Ephurin/Novel_sharing_platform/pull/34; development branch `astra/ctx-rd-01-flash-lite-smoke`, head reviewed `10a6fbcf14393d2ad9ccb189d4d5a69bb7e680a6`.
@@ -503,3 +517,75 @@ Global balanced-v1 activation            NOT AUTHORIZED
 P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
 ```
 
+
+
+---
+
+## EXECUTION REPORT — Unadapted Narrative Context E2E Flash-Lite Smoke (2026-10-04)
+
+**Branch:** `astra/ctx-rd-01-flash-lite-smoke`  
+**Base commit:** `8d489fb9c7aa18af19db832da9c111a283ab04ae` (`origin/main`)  
+**Tested code SHA:** `e22ea63590b0d4cc715be34b041e1ecdb1746b61`  
+**Evidence commit:** `48f65231e0d435a36da7f7e45f5d259c6ca4112a` (direct child of tested SHA, modifying ONLY the Lite artifact)  
+**Live Evidence File:** `docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e-gemini-3.5-flash-lite.json`  
+**Historical Evidence File:** `docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e.json` (historic 3.8 evidence completely preserved and untouched)  
+**Validator:** `scripts/verify_ctx_rd_01_unadapted_narrative_e2e_evidence.py` -> `{"status": "PASS", "errors": []}`  
+**Offline self-test:** 17 negative assertions pass cleanly (including rejection of silent fallback to 3.8)  
+**Gate Verdict:** `UNADAPTED_NARRATIVE_E2E_DEMONSTRATED` (Flash-Lite functional smoke demonstrated)
+
+### 1. Model Selection & Fallback Prevention
+- **Requested generation model:** `gemini-3.5-flash-lite`
+- **Effective model recorded:** `gemini-3.5-flash-lite` (verified in both cases; zero silent fallback to 3.8)
+- **Embedding model:** `gemini-embedding-2`, version `gemini-embedding-2-768-v1` (768d, L2 normalized, 11 document batches + 6 query calls with key rotation)
+- **Artifact isolation:** The runner defaults to `unadapted-narrative-e2e-gemini-3.5-flash-lite.json` and supports `--output <path>`, completely preventing accidental overwriting of historical 3.8 evidence. Covered by unit tests in `ai-service/tests/test_ctx_rd_unadapted_narrative_e2e.py`.
+
+### 2. Live Provider Execution & Performance Metrics
+- **Staging Database:** PostgreSQL 16 + pgvector on staging port 5433 (`postgresql+psycopg://localhost:5433/ephurin`, credentials redacted).
+- **Model attempts:** 2 total, 2 successes, **0 failures** (zero 503 ServerError, zero 429 Too Many Requests).
+- **Execution Latencies:**
+  - `core_gold:rq-0011` (Cutoff Ch 32): **3,243.24 ms** (vs 88,727 ms with 3.8)
+  - `challenge:rq-0025` (Cutoff Ch 49): **4,369.29 ms** (vs 33,492 ms with 3.8)
+- **Per-Lane Provenance & Packing:**
+  - `rq-0011`: 63 raw entities -> 19 retained (12k tier, 10,496 tokens), zero drops/overflow, preview/job hash match `True`.
+  - `rq-0025`: 68 raw entities -> 20 retained (12k tier, 11,863 tokens), zero drops/overflow, preview/job hash match `True`.
+  - Confirmed Ch45/47/49 memories (`mem-000164`, `mem-000172`, `mem-000176`) retrieved in raw semantic top 8 (ranks 3, 1, 2) and retained in the recent lane preserving `source_status=ambiguous`.
+  - Separate world-rule memories (`mem-000167`, `mem-000174`, `mem-000177`) retained in world_rule lane (12/12 rules).
+
+### 3. Four-Way Summary Contract
+```json
+{
+  "total_cases_run": 2,
+  "all_hash_matched": true,
+  "all_zero_dropped": true,
+  "all_protected_overflow_false": true,
+  "total_model_attempts": 2,
+  "successful_model_attempts": 2,
+  "failed_model_attempts": 0,
+  "technical_execution": "PASS",
+  "automated_content_check": "PARTIAL",
+  "independent_full_draft_review": "NOT_ASSESSED",
+  "provider_stability": "INSUFFICIENT",
+  "checklist_verdict": "PARTIAL"
+}
+```
+
+### 4. Source-informed draft observations (NOT an independent full-draft audit)
+
+#### Case 1: `core_gold:rq-0011` (Cutoff Ch 32)
+- **Prompt:** "Tóm tắt nguồn gốc ban đầu và sự kiện rèn thanh kiếm Thần Tinh đầu tiên tại Frostspine Forge, phân biệt rõ với các sự kiện vũ khí sau này ở Chương 32."
+- **Complete short output (191 characters):** `"Thanh kiếm Thần Tinh đầu tiên được rèn tại Frostspine Forge dưới sự phối hợp của Bram, Alan, Elena và Brand, sử dụng quặng anti-mana kết hợp kỹ thuật cơ học và phương pháp tinh chế của Elena."`
+- **Draft SHA-256:** `80251f06a8ff502f787a752794057ab411eca4ddfa0db0d04958c0da1d116e49`
+- **Source-informed observation:** The output mentions the Frostspine Forge origin and named characters, but omits explicit Chapter 27 attribution and the requested distinction from Chapter 32. The automated checklist is `PARTIAL` on source status, chronology, ambiguity handling and completeness. Its short length does not demonstrate full-draft narrative quality; future leakage and unsupported claims remain `NOT_ASSESSED` until separately reviewed.
+
+#### Case 2: `challenge:rq-0025` (Cutoff Ch 49)
+- **Prompt:** "Tổng hợp tình hình chiến sự biên giới và quân đoàn kỵ binh ba ngàn người của Roland qua các chương 45, 47 và 49, xử lý các báo cáo mâu thuẫn về việc chôn vùi trong vụ lở đất và tình trạng lực lượng tiếp tục hoạt động."
+- **Truncated excerpt from the 706-character output:** `"Từ chương 42 đến chương 49, lực lượng kỵ binh ba ngàn người của Roland liên tục đối mặt với các đợt mai phục, sạt lở địa hình và phá hoại hệ thống siphoning do nhóm Alan và Elena thực hiện. Mặc dù từng bị vùi lấp và chịu tổn thất nặng nề bởi các vụ sạt lở tại Hẻm Vực Tro Tàn (được ghi nhận qua các trận chiến tại trụ điều áp và thấu kính), Roland vẫn nhiều lần tàn quân regroup..."`
+- **Draft SHA-256:** `9eb3d8f77ec93cb051ea62605a32ed18abdb0d89f82837f56f96f464dfc56d5e`
+- **Source-informed observation:** The available excerpt mentions Roland's cavalry and the reported landslide, but does not independently establish the correct relationship among conflicting Chapter 45, Chapter 47 and Chapter 49 source reports. The strict checklist marks chronology, ambiguity handling and completeness `PARTIAL`; `chain_45_47_49_verified=false`. The complete output was not independently source-audited; future leakage and unsupported claims remain `NOT_ASSESSED`.
+
+### 5. Provider Stability Assessment
+- 2 model attempts, 2 successes, 0 failures.
+- Zero 503 ServerError errors, zero 429 quota rejections.
+- Mean latency in these two runs: **3,806 ms**, shorter than the earlier 3.8 Flash runs; this is an observed two-case difference rather than a causal or population-wide speed comparison.
+- Per governance rules, 2 attempts represents a functional smoke sample, not a population-level reliability guarantee; recorded as `provider_stability: INSUFFICIENT`. A multi-case bounded opt-in stability window remains required before any default change consideration.
+```

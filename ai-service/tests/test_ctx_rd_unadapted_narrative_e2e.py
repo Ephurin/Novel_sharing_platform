@@ -15,6 +15,7 @@ from run_ctx_rd_01_unadapted_narrative_e2e import (
     build_unadapted_summary,
     evaluate_rq0011_checklist,
     evaluate_rq0025_checklist,
+    resolve_evidence_output_path,
     sanitize_database_endpoint,
 )
 from verify_ctx_rd_01_unadapted_narrative_e2e_evidence import validate, EXPECTED_VERSION
@@ -172,6 +173,177 @@ class TestUnadaptedNarrativeE2EContract(unittest.TestCase):
         self.assertEqual(summary["checklist_verdict"], "PASS")
         self.assertEqual(summary["independent_full_draft_review"], "NOT_ASSESSED")
         self.assertEqual(summary["provider_stability"], "INSUFFICIENT")
+
+    def test_resolve_evidence_output_path_preserves_38_and_isolates_lite(self) -> None:
+        path_38 = resolve_evidence_output_path(None, "gemini-3.8-flash")
+        self.assertEqual(path_38.name, "unadapted-narrative-e2e.json")
+
+        path_35 = resolve_evidence_output_path(None, "gemini-3.5-flash-lite")
+        self.assertEqual(path_35.name, "unadapted-narrative-e2e-gemini-3.5-flash-lite.json")
+
+        path_31 = resolve_evidence_output_path(None, "gemini-3.1-flash-lite")
+        self.assertEqual(path_31.name, "unadapted-narrative-e2e-gemini-3.1-flash-lite.json")
+
+        custom = resolve_evidence_output_path(Path("custom_dir/custom-evidence.json"), "gemini-3.5-flash-lite")
+        self.assertEqual(custom.name, "custom-evidence.json")
+
+    def test_validator_rejects_effective_model_fallback_to_38(self) -> None:
+        case = {
+            "query_id": "core_gold:rq-0011",
+            "routing_status": "routed",
+            "routing_version": "balanced-scope-v1",
+            "selected_tier": 12000,
+            "tokens_used": 1000,
+            "dropped_artifacts": 0,
+            "protected_overflow": False,
+            "budget_overflow": False,
+            "raw_semantic_ids": ["mem-1"],
+            "retained_semantic_ids": ["mem-1"],
+            "raw_to_packed_semantic_ids_match": True,
+            "raw_recent_ids": ["ev-1"],
+            "retained_recent_ids": ["ev-1"],
+            "raw_rule_ids": ["rule-1"],
+            "retained_rule_ids": ["rule-1"],
+            "raw_entity_ids": ["ent-1"],
+            "retained_entity_ids": ["ent-1"],
+            "raw_state_entity_ids": ["ent-1"],
+            "retained_state_entity_ids": ["ent-1"],
+            "job_context_hash": "a" * 64,
+            "preview_context_hash": "a" * 64,
+            "context_hash_match": True,
+            "generation": {
+                "provider": "gemini",
+                "requested_model": "gemini-3.5-flash-lite",
+                "effective_model": "gemini-3.8-flash",
+                "actual_provider_response": True,
+                "status": "completed",
+                "nonempty_output": True,
+                "draft_sha256": "b" * 64,
+                "draft_length": 100,
+                "draft_snippet": "Snippet",
+                "model_attempts": [{"status": "success"}],
+            },
+            "checklist": {
+                "canonical_source_status_correctness": "PASS",
+                "chronology_causality": "PASS",
+                "ambiguity_handling": "PASS",
+                "completeness": "PASS",
+            },
+        }
+        case25 = {
+            **case,
+            "query_id": "challenge:rq-0025",
+            "raw_recent_ids": ["mem-000164", "mem-000172", "mem-000176", "ev-1"],
+            "retained_recent_ids": ["mem-000164", "mem-000172", "mem-000176", "ev-1"],
+            "raw_rule_ids": ["mem-000167", "mem-000174", "mem-000177"],
+            "retained_rule_ids": ["mem-000167", "mem-000174", "mem-000177"],
+            "per_lane_provenance_trace": {
+                "mem-000164": {
+                    "source_status": "ambiguous",
+                    "review_status": "ambiguous",
+                    "retrieval_origin": "semantic",
+                    "in_semantic_top8": True,
+                    "semantic_rank": 3,
+                    "dedup_reason": "overlap_with_recent",
+                    "prompt_retained_lanes": ["recent"],
+                    "actual_preserved_lane": "recent",
+                    "is_ambiguous": True,
+                    "is_ambiguous_ground_truth": True,
+                },
+                "mem-000172": {
+                    "source_status": "ambiguous",
+                    "review_status": "ambiguous",
+                    "retrieval_origin": "semantic",
+                    "in_semantic_top8": True,
+                    "semantic_rank": 1,
+                    "dedup_reason": "overlap_with_recent",
+                    "prompt_retained_lanes": ["recent"],
+                    "actual_preserved_lane": "recent",
+                    "is_ambiguous": True,
+                    "is_ambiguous_ground_truth": True,
+                },
+                "mem-000176": {
+                    "source_status": "ambiguous",
+                    "review_status": "ambiguous",
+                    "retrieval_origin": "semantic",
+                    "in_semantic_top8": True,
+                    "semantic_rank": 2,
+                    "dedup_reason": "overlap_with_recent",
+                    "prompt_retained_lanes": ["recent"],
+                    "actual_preserved_lane": "recent",
+                    "is_ambiguous": True,
+                    "is_ambiguous_ground_truth": True,
+                },
+                "mem-000167": {
+                    "source_status": "high_confidence",
+                    "review_status": "high_confidence",
+                    "retrieval_origin": "world_rule",
+                    "in_semantic_top8": False,
+                    "prompt_retained_lanes": ["world_rule"],
+                    "actual_preserved_lane": "world_rule",
+                    "in_persisted_world_rules": True,
+                    "is_ambiguous": False,
+                    "is_ambiguous_ground_truth": False,
+                },
+                "mem-000174": {
+                    "source_status": "high_confidence",
+                    "review_status": "high_confidence",
+                    "retrieval_origin": "world_rule",
+                    "in_semantic_top8": False,
+                    "prompt_retained_lanes": ["world_rule"],
+                    "actual_preserved_lane": "world_rule",
+                    "in_persisted_world_rules": True,
+                    "is_ambiguous": False,
+                    "is_ambiguous_ground_truth": False,
+                },
+                "mem-000177": {
+                    "source_status": "high_confidence",
+                    "review_status": "high_confidence",
+                    "retrieval_origin": "world_rule",
+                    "in_semantic_top8": False,
+                    "prompt_retained_lanes": ["world_rule"],
+                    "actual_preserved_lane": "world_rule",
+                    "in_persisted_world_rules": True,
+                    "is_ambiguous": False,
+                    "is_ambiguous_ground_truth": False,
+                },
+            },
+        }
+        ev = {
+            "tested_commit": "c" * 40,
+            "mode": "live",
+            "methodology": "unadapted_postgres_narrative_repository_and_pgvector_semantic",
+            "structured_context_source": "postgres_narrative_repository_unadapted",
+            "source_grounded_live_vector_query": "DEMONSTRATED",
+            "canary_gate_verdict": "UNADAPTED_NARRATIVE_E2E_DEMONSTRATED",
+            "database": "postgresql+psycopg://localhost:5433/ephurin",
+            "pgvector_live": True,
+            "production_default": "legacy-v1",
+            "default_changed": False,
+            "p8_05_blocked": True,
+            "embedding": {
+                "provider": "GeminiEmbeddingProvider",
+                "version": EXPECTED_VERSION,
+                "dimension": 768,
+                "l2_normalized": True,
+                "document_calls": 11,
+                "query_calls": 6,
+            },
+            "cases": [case, case25],
+            "summary": {
+                "total_cases_run": 2,
+                "total_model_attempts": 2,
+                "successful_model_attempts": 2,
+                "failed_model_attempts": 0,
+                "technical_execution": "PASS",
+                "automated_content_check": "PASS",
+                "independent_full_draft_review": "NOT_ASSESSED",
+                "provider_stability": "INSUFFICIENT",
+                "checklist_verdict": "PASS",
+            },
+        }
+        errors = validate(ev)
+        self.assertIn("case_0_effective_model_silently_fell_back_to_38", errors)
 
 
 if __name__ == "__main__":
