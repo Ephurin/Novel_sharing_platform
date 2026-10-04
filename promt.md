@@ -1,5 +1,28 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT ASTRA REVIEW — FLASH-LITE SMOKE / PR #34 (2026-10-04)
+
+**Canonical review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FLASH-LITE-SMOKE-REVIEW.md`, review commit `c20f1ec51fd235059b9024ac51ee1b62aa9b3893`. **PR:** https://github.com/Ephurin/Novel_sharing_platform/pull/34; development branch `astra/ctx-rd-01-flash-lite-smoke`, head reviewed `10a6fbcf14393d2ad9ccb189d4d5a69bb7e680a6`.
+
+**Verdict:** `REAL GEMINI 3.5 FLASH-LITE FUNCTIONAL SMOKE OBSERVED WITH QUALIFICATION; CONTENT PARTIAL, PROVIDER STABILITY INSUFFICIENT; PR #34 REVIEW/HANDOFF CORRECTION PENDING`.
+
+**Exact live lineage:** clean tested code `e22ea63590b0d4cc715be34b041e1ecdb1746b61` -> **direct-child** evidence commit `48f65231e0d435a36da7f7e45f5d259c6ca4112a` adding ONLY `docs/development/CTX-RD-01-OPT-IN-CANARY/unadapted-narrative-e2e-gemini-3.5-flash-lite.json` -> execution handoff `10a6fbcf14393d2ad9ccb189d4d5a69bb7e680a6`. Historical 3.8 source evidence `unadapted-narrative-e2e.json` is unchanged. PR #34 introduced model-specific output path and regression tests, with effective/requested model matching and 3.8 fallback rejected.
+
+**Observed live:** 2 genuinely reported `gemini-3.5-flash-lite` generation attempts, 2 successes, zero reported 429/503 or cross-model fallback; ~3.24s and ~4.37s latency. PostgreSQL/pgvector source and direct production repository path, full prior provenance, 12k tier, 10,496/11,863 tokens, raw-to-retained semantic/recent/rules, no drops/overflow, matching preview/job hashes are recorded. This is a narrow functional smoke, **not** a reliability demonstration. `gemini-embedding-2` 768d L2 remains unchanged.
+
+**Critical content/report caveat:**
+- JSON summary correctly says `technical_execution=PASS`, `automated_content_check=PARTIAL`, `independent_full_draft_review=NOT_ASSESSED`, `provider_stability=INSUFFICIENT`.
+- `rq-0011` output is only 191 characters and omits explicit Ch27 attribution and Ch32 distinction; all its required automated criteria are PARTIAL.
+- `rq-0025` output is 706 characters but only a ~400-character snippet is published; Ch45/47 distinctions, full chronological chain and conflict handling are PARTIAL under the automated checklist. Do not silently resolve incompatible Ch45/47/49 source reports as an undisputed cavalry reconstruction.
+- The branch handoff's `Independent Full-Draft Review` / `AUDITED` and categorical claims of zero hallucination/future leakage are **NOT independently evidenced**. No independently verifiable complete controlled output + source-review manifest has been supplied; a snippet is not an audit. Correct this narrative, preserve `NOT_ASSESSED` for independent full-draft review, future leakage and unsupported claims. Do not alter the raw evidence to manufacture PASS.
+
+**NEXT — Gemini / Antigravity:** correct the branch's content-review overclaim, distinguish source-informed observations from an independently reviewed complete draft, preserve all raw Lite and 3.8 manifests; obtain green P7/P8/Evaluation CI on PR #34 and request Astra merge review for the implementation + bounded functional smoke, **not** content/stability rollout. Then provide controlled full drafts with source-grounded review trace and run a small opt-in provider stability window. If short outputs do not satisfy requested chapter comparisons, diagnose prompts/output objectives separately rather than retuning retrieval or fabricating lexical checks.
+
+Production `CONTEXT_ROUTING_POLICY=legacy-v1` remains unchanged. Global balanced-v1 activation NOT AUTHORIZED. P8-05 `BLOCKED_PENDING_STABILITY`.
+
+---
+
+
 ## CURRENT CANONICAL HANDOFF — PR #33 MERGED / TECHNICAL E2E ACCEPTED WITH QUALIFICATION (2026-10-04)
 
 **Authoritative review:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FINAL-TECHNICAL-ACCEPTANCE.md` (review commit `3b14c257bfcb5aa2b063b03f728f40bfa7b7802d`).
