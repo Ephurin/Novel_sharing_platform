@@ -624,6 +624,9 @@ P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
 
 ## EXECUTION REPORT — Two-Service Real Demo Flash-Lite Smoke (2026-10-04)
 
+**Evidence scope:** This is an authenticated two-service **application API** smoke (2 backend Copilot calls and 2 AI-writing job completions); the report contains no browser click-through or real multi-user demo trace. Effective model identities and retries are recorded by the application/runner; upstream request/billing traces were not independently captured. It does not constitute a browser-UI acceptance test or an uptime/RPD capacity certification.
+
+
 **Branch:** `astra/ctx-rd-01-flash-lite-demo-smoke`  
 **Base commit:** `dbc8f998219c8fd5e29ab4a690cdf194100bc1c9` (`origin/main`)  
 **Tested code SHA:** `c3dd37c7ef6bcaa76922ac810cb2a15b92770619` (fixes Google `/models` prefix handling in backend health check, unit test PASS 3/3)  
@@ -633,7 +636,7 @@ P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
 
 ### 1. Configuration & Endpoint Readiness Attestation
 - **AI Service (`ai-service:8000`):**
-  - Verified runtime: `main.settings.llm_provider == 'gemini'`, `main.settings.llm_model == 'gemini-3.5-flash-lite'`, `main.settings.llm_local_fallback == False`, `main.settings.context_routing_policy == 'legacy-v1'`.
+  - Runtime model/routing: `main.settings.llm_provider == 'gemini'`, `main.settings.llm_model == 'gemini-3.5-flash-lite'` and `main.settings.context_routing_policy == 'legacy-v1'`. **Erratum:** `main.settings.llm_local_fallback` does not exist in `Settings`; the demo Compose profile sets `LLM_LOCAL_FALLBACK=false`, and the actual `LLMService._local_fallback_enabled()` reads that environment variable. The evidence records local fallback as disabled, but does not provide a separate serialized runtime assertion of that private method.
   - Health endpoint `GET http://localhost:8000/health`: HTTP 200 `{"status": "ok"}`.
   - Active LLM runtime: `models/gemini-3.5-flash-lite` via official Google Gemini SDK.
 - **Backend AI Copilot (`backend:4000`):**
@@ -666,7 +669,7 @@ P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
 
 - **Zero silent fallback:** Both services strictly invoked `gemini-3.5-flash-lite`; zero requests were routed to quota-constrained `gemini-3.8-flash`.
 - **Mean Generation Latency:** ~2.28 seconds across all 4 generations.
-- **Repeatability:** 100% success rate across both iterations for both services under demo traffic conditions.
+- **Limited repeatability:** 4/4 successes within a small, serialized demo-like API smoke. This is not a measured multi-user request/concurrency test or a sustained provider reliability estimate.
 - **Privacy & Security:** Untracked `.env.demo` and local keys preserved securely; zero API keys and zero confidential manuscripts committed.
 - **Governance Invariants:** Production default remains `CONTEXT_ROUTING_POLICY=legacy-v1`; global `balanced-scope-v1` activation is NOT AUTHORIZED; P8-05 destructive cleanup remains `BLOCKED_PENDING_STABILITY`.
 
