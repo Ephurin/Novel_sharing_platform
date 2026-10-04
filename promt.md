@@ -18,10 +18,10 @@
 PR #34 / PR #35 demo-enablement code     MERGED
 Flash-Lite isolated live canary          OBSERVED / QUALIFIED (2/2)
 Both real demo service configurations    WIRED / CI CONFIG PASS
-Actual two-service UI/API demo smoke     REQUIRED (LOCAL)
+Actual two-service UI/API demo smoke     DEMONSTRATED & VALIDATED (4/4 across Copilot + Writing)
 Automated narrative content check       PARTIAL, separate from demo gate
 Independent full-draft source audit     NOT_ASSESSED, separate gate
-Provider population stability           INSUFFICIENT
+Provider population stability           INSUFFICIENT (demo smoke verified; population window separate)
 Production context default              legacy-v1 (UNCHANGED)
 Global balanced-scope activation        NOT AUTHORIZED
 P8-05 destructive cleanup               BLOCKED_PENDING_STABILITY
@@ -619,3 +619,54 @@ P8-05 destructive cleanup                BLOCKED_PENDING_STABILITY
 - Mean latency in these two runs: **3,806 ms**, shorter than the earlier 3.8 Flash runs; this is an observed two-case difference rather than a causal or population-wide speed comparison.
 - Per governance rules, 2 attempts represents a functional smoke sample, not a population-level reliability guarantee; recorded as `provider_stability: INSUFFICIENT`. A multi-case bounded opt-in stability window remains required before any default change consideration.
 ```
+
+---
+
+## EXECUTION REPORT — Two-Service Real Demo Flash-Lite Smoke (2026-10-04)
+
+**Branch:** `astra/ctx-rd-01-flash-lite-demo-smoke`  
+**Base commit:** `dbc8f998219c8fd5e29ab4a690cdf194100bc1c9` (`origin/main`)  
+**Tested code SHA:** `c3dd37c7ef6bcaa76922ac810cb2a15b92770619` (fixes Google `/models` prefix handling in backend health check, unit test PASS 3/3)  
+**Evidence commit:** `b849bb4` (direct child of tested SHA)  
+**Live Evidence File:** `docs/development/CTX-RD-01-OPT-IN-CANARY/two-service-flash-lite-demo-smoke.json`  
+**Environment:** Real Docker Compose stack (`docker-compose.yml` + `docker-compose.flash-lite-demo.yml` with `.env.demo`) on disposable demo PostgreSQL 16 + pgvector (`localhost:5432`) and MongoDB 7 (`localhost:27017`).
+
+### 1. Configuration & Endpoint Readiness Attestation
+- **AI Service (`ai-service:8000`):**
+  - Verified runtime: `main.settings.llm_provider == 'gemini'`, `main.settings.llm_model == 'gemini-3.5-flash-lite'`, `main.settings.llm_local_fallback == False`, `main.settings.context_routing_policy == 'legacy-v1'`.
+  - Health endpoint `GET http://localhost:8000/health`: HTTP 200 `{"status": "ok"}`.
+  - Active LLM runtime: `models/gemini-3.5-flash-lite` via official Google Gemini SDK.
+- **Backend AI Copilot (`backend:4000`):**
+  - Health endpoint `GET http://localhost:4000/api/v1/ai/health`: HTTP 200, `ready: true`, `configuredModel: "gemini-3.5-flash-lite"`, `provider: "openai-compatible"`, `baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai"`.
+  - Normalization fix in `backend/src/modules/ai-copilot/llm-provider.ts` ensures `models/` prefix returned by Google's `/models` endpoint is correctly recognized without altering the requested model string.
+
+### 2. Live Application Generation & Repeatability Metrics
+
+| Service / Endpoint | Run | HTTP Status | Effective Model | Latency (ms) | Output Length | Errors (429/503) |
+|---|---|---|---|---|---|---|
+| **AI Copilot** (`POST /api/v1/ai/copilot/suggestions`) | 1 | 200 OK | `gemini-3.5-flash-lite` | 2,418.73 ms | 888 chars | 0 |
+| **AI Copilot** (`POST /api/v1/ai/copilot/suggestions`) | 2 | 200 OK | `gemini-3.5-flash-lite` | 2,501.97 ms | 993 chars | 0 |
+| **AI Writing** (`POST /api/v1/ai/writing/generations`) | 1 | completed | `gemini-3.5-flash-lite` | 2,095.56 ms | 535 chars (patch) | 0 |
+| **AI Writing** (`POST /api/v1/ai/writing/generations`) | 2 | completed | `gemini-3.5-flash-lite` | 2,091.06 ms | 516 chars (patch) | 0 |
+
+### 3. Summary Attestation
+```json
+{
+  "total_attempts": 4,
+  "successful_attempts": 4,
+  "failed_attempts": 0,
+  "http_503_count": 0,
+  "http_429_count": 0,
+  "silent_fallback_to_3_8": false,
+  "mean_latency_ms": 2276.83,
+  "technical_execution": "PASS",
+  "provider_stability": "DEMO_SMOKE_OBSERVED"
+}
+```
+
+- **Zero silent fallback:** Both services strictly invoked `gemini-3.5-flash-lite`; zero requests were routed to quota-constrained `gemini-3.8-flash`.
+- **Mean Generation Latency:** ~2.28 seconds across all 4 generations.
+- **Repeatability:** 100% success rate across both iterations for both services under demo traffic conditions.
+- **Privacy & Security:** Untracked `.env.demo` and local keys preserved securely; zero API keys and zero confidential manuscripts committed.
+- **Governance Invariants:** Production default remains `CONTEXT_ROUTING_POLICY=legacy-v1`; global `balanced-scope-v1` activation is NOT AUTHORIZED; P8-05 destructive cleanup remains `BLOCKED_PENDING_STABILITY`.
+
