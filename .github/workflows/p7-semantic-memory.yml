@@ -13,6 +13,7 @@ on:
       - "scripts/**"
       - "docs/development/CTX-RD-01-REAL-PROVIDER-STAGING-runbook.md"
       - "docker-compose.yml"
+      - "docker-compose.flash-lite-demo.yml"
       - ".github/workflows/p7-semantic-memory.yml"
 
 jobs:
@@ -117,6 +118,36 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate Compose
         run: docker compose config
+      - name: Validate opt-in real-demo Flash-Lite routing (no provider calls)
+        env:
+          GEMINI_API_KEY: ci-dummy-key-not-a-secret
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+
+          command = [
+              "docker", "compose",
+              "-f", "docker-compose.yml",
+              "-f", "docker-compose.flash-lite-demo.yml",
+              "config", "--format", "json",
+          ]
+          for requested_model in ("gemini-3.5-flash-lite", "gemini-3.1-flash-lite"):
+              env = {**os.environ, "DEMO_LLM_MODEL": requested_model}
+              config = json.loads(subprocess.check_output(command, text=True, env=env))
+              ai = config["services"]["ai-service"]["environment"]
+              backend = config["services"]["backend"]["environment"]
+              assert ai["LLM_PROVIDER"] == "gemini"
+              assert str(ai["LLM_ENABLED"]).lower() == "true"
+              assert ai["LLM_MODEL"] == requested_model
+              assert str(ai["LLM_LOCAL_FALLBACK"]).lower() == "false"
+              assert ai["CONTEXT_ROUTING_POLICY"] == "legacy-v1"
+              assert backend["AI_LLM_MODEL"] == requested_model
+              assert backend["AI_LLM_BASE_URL"] == "https://generativelanguage.googleapis.com/v1beta/openai"
+              assert ai["GEMINI_API_KEY"] == backend["AI_LLM_API_KEY"] == env["GEMINI_API_KEY"]
+          print("Demo profile model selection, provider and legacy routing verified")
+          PY
       - name: Start production-path services
         env:
           LLM_PROVIDER: fake
