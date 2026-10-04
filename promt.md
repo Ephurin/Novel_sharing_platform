@@ -1,5 +1,46 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT CANONICAL STATUS — TWO-SERVICE FLASH-LITE DEMO API VERIFIED / PR #36 MERGED (2026-10-04)
+
+**Read:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-TWO-SERVICE-FLASH-LITE-DEMO-API-ACCEPTANCE.md` (review commit `b7b1b6f408a0b39136119970160587c35faf1ec5`); API evidence `docs/development/CTX-RD-01-OPT-IN-CANARY/two-service-flash-lite-demo-smoke.json`; demo runbook `docs/Deployment/flash-lite-demo.md`.
+
+**PR #36 merged:** https://github.com/Ephurin/Novel_sharing_platform/pull/36, merge SHA `10f9bd7b07329fff70d3bcda52a8e41ccc95f8b4`. The code change `c3dd37c7ef6bcaa76922ac810cb2a15b92770619` fixes backend model-health recognition of Google's `models/` prefix and adds three Node unit tests; direct-child evidence commit `b849bb434bebb61683e7f85d8005a3b3dc3ba782`, original execution handoff `01fb6fd64a0f7b022ee7eec1ff3a36bd773f0a49`, and erratum `83cb395bad29b2b55a12866edd7cb66b8cd9607f`.
+
+**Verdict:** `TWO_SERVICE_FLASH_LITE_DEMO_API_SMOKE_ACCEPTED_WITH_QUALIFICATION`. The user's reason for selecting Flash-Lite is to preserve enough request quota for an interactive demo, **not** a promise of better literary quality. The local Compose demonstration reports both real routes calling `gemini-3.5-flash-lite`:
+- Backend `POST /api/v1/ai/copilot/suggestions`: 2/2 HTTP 200; ~2.42/2.50s; nonempty text.
+- AI Writing `POST /api/v1/ai/writing/generations` and corresponding job GET: 2/2 completed; ~2.10/2.09s; nonempty patches.
+- Overall 4/4 attempts successful, zero recorded 429/503 and no 3.8 fallback; mean ~2.28s. These are **app-recorded** values, not independently collected provider-billing logs or statistical uptime certification. PostgreSQL 16/pgvector + MongoDB 7 were running in a disposable local demo stack; `CONTEXT_ROUTING_POLICY=legacy-v1`.
+
+**CI:** P8 run `37204034219` all six jobs PASS, including backend typecheck/tests and Compose/PostgreSQL; Evaluation Pilot run `37204034258` PASS. P7 was not retriggered by backend-only code changes; last relevant P7 from PR #35 run `37197428749` PASS. No CI workflow makes real external Gemini requests.
+
+**Errata/precise scope:** The app report previously cited nonexistent `main.settings.llm_local_fallback`. Correctly, `docker-compose.flash-lite-demo.yml` sets the `LLM_LOCAL_FALLBACK=false` environment variable, and `LLMService._local_fallback_enabled()` interprets it; the local evidence records fallback disabled without independently logging that runtime method. The four real generations are **authenticated application-API smoke**, NOT proof that the author IDE browser UI or a multi-user concurrent demonstration has been manually exercised. Upstream Google HTTP/billing traces have not been independently reviewed.
+
+### NEXT — GEMINI / ANTIGRAVITY: DEMO-LEVEL UI AND BOUNDED QUOTA CHECK
+
+1. On disposable demo data with the **already-merged** `main` and ignored local `.env.demo`, perform a **single actual browser/UI walkthrough**: log in, open Author IDE, submit an AI Copilot suggestion and an AI-writing generation, confirm that the UI renders the returned suggestion/patch, and test a representative provider-error message. Avoid exposing API keys or private manuscripts; do not treat API 200 alone as UI acceptance. If the user only needs an API demo, mark browser UI `OUT_OF_SCOPE` explicitly instead of overstating coverage.
+2. For planned interactive attendees, run a **small quota-conscious, bounded** rehearsal that matches expected requests/concurrency. Log 429/503, timeouts, retries, per-service tail latency and any fallback; confirm no call to quota-constrained `gemini-3.8-flash`. Do not stress test beyond provider limits. Four successful attempts demonstrate a functioning path, not assured remaining RPD or sustained availability.
+3. Write an execution-only, sanitized status on `promt.md` with exact tested SHA, environment and evidence. If local browser or actual provider access is unavailable, report `NOT_EXECUTED/BLOCKED` honestly. Do not reopen EVAL-01, re-embed all 216 chunks, retune hybrid retrieval or change production model/routing by default.
+
+**Separate quality gates:** archived Lite narrative tests are `automated_content_check=PARTIAL` and `independent_full_draft_review=NOT_ASSESSED`; population-level provider stability is `INSUFFICIENT`. They do not block the demo API implementation but cannot be marked PASS from a four-call smoke.
+
+```text
+PR #33 / #34 / #35 / #36         MERGED
+Flash-Lite isolated canary      OBSERVED / QUALIFIED
+Two-service authenticated API   OBSERVED / QUALIFIED (4/4)
+P8 + Evaluation Pilot CI        PASS
+Actual browser Author IDE demo  NOT YET EVIDENCED
+Demo quota/concurrency rehearsal PENDING
+Content quality                 PARTIAL (SEPARATE GATE)
+Independent complete-draft audit NOT_ASSESSED
+Population provider stability   INSUFFICIENT
+Production context routing      legacy-v1 (UNCHANGED)
+Global balanced activation      NOT AUTHORIZED
+P8-05 destructive cleanup       BLOCKED_PENDING_STABILITY
+```
+
+---
+
+
 ## CURRENT EXECUTION DIRECTIVE — REAL DEMO FLASH-LITE, BOTH GENERATION PATHS (2026-10-04)
 
 **Authoritative closure/handoff:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-FLASH-LITE-DEMO-ENABLEMENT-CLOSURE.md` (commit `b22e6df01f2f4db152dedd92715fdab3a4e3649a`); runbook `docs/Deployment/flash-lite-demo.md`.
