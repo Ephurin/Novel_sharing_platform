@@ -83,6 +83,25 @@ EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_PATH = EVIDENCE_DIR / "unadapted-narrative-e2e.json"
 
 
+def resolve_evidence_output_path(
+    output_arg: str | Path | None = None,
+    generation_model: str = "gemini-3.5-flash-lite",
+) -> Path:
+    """Resolve destination path for canary evidence manifest.
+
+    Preserves historic 3.8 evidence at unadapted-narrative-e2e.json while isolating
+    model-specific artifacts for Flash-Lite canary runs unless an explicit path is provided.
+    """
+    if output_arg:
+        path = Path(output_arg)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+    if generation_model == "gemini-3.8-flash":
+        return EVIDENCE_DIR / "unadapted-narrative-e2e.json"
+    slug = generation_model.replace("models/", "").replace("/", "_")
+    return EVIDENCE_DIR / f"unadapted-narrative-e2e-{slug}.json"
+
+
 def sanitize_database_endpoint(url: str) -> str:
     """Sanitize database URL to strip credentials while preserving protocol, host, port, and db."""
     parts = urllib.parse.urlsplit(url)
@@ -190,14 +209,18 @@ def build_unadapted_summary(
     }
 
 
-def check_clean_working_tree() -> str:
+def check_clean_working_tree(output_path: Path | None = None) -> str:
     """Ensure working tree is clean before running, excluding generated evidence artifact."""
     res = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, text=True, check=True)
     lines = [line.strip() for line in res.stdout.splitlines() if line.strip()]
     dirty = []
+    ignored_names = {"unadapted-narrative-e2e.json"}
+    if output_path:
+        ignored_names.add(output_path.name)
     for line in lines:
         path = line[3:].replace("\\", "/")
-        if path.endswith("unadapted-narrative-e2e.json"):
+        file_name = Path(path).name
+        if file_name in ignored_names or ("unadapted-narrative-e2e" in file_name and file_name.endswith(".json")):
             continue
         dirty.append(line)
     if dirty:
@@ -361,19 +384,23 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Perform offline execution with mock embeddings/drafts")
     parser.add_argument("--generation-model", choices=ALLOWED_CANARY_GENERATION_MODELS, help="Flash-Lite model; overrides CTX_RD_GENERATION_MODEL (default: gemini-3.5-flash-lite)")
+    parser.add_argument("--output", type=Path, help="Explicit output path for evidence manifest (defaults to model-specific artifact to preserve historic 3.8 evidence)")
     parser.add_argument("--skip-clean-check", action="store_true", help="Skip clean git working tree assertion")
     parser.add_argument("--reuse-embeddings", action="store_true", help="Reuse existing version-matched embeddings in database")
     args = parser.parse_args()
     generation_model = resolve_canary_generation_model(args.generation_model)
+    output_path = resolve_evidence_output_path(args.output, generation_model)
     if args.skip_clean_check and not args.dry_run:
         parser.error("--skip-clean-check is permitted only for non-acceptance --dry-run")
     if not args.dry_run:
         os.environ["LLM_LOCAL_FALLBACK"] = "false"
 
-    commit = get_git_head() if (args.dry_run or args.skip_clean_check) else check_clean_working_tree()
+    commit = get_git_head() if (args.dry_run or args.skip_clean_check) else check_clean_working_tree(output_path)
     sanitized_db_url = sanitize_database_endpoint(DATABASE_URL)
     print(f"[*] Running Unadapted Full-Source E2E Canary on commit: {commit}")
     print(f"[*] Staging Database URL (sanitized): {sanitized_db_url}")
+    print(f"[*] Generation Model: {generation_model}")
+    print(f"[*] Evidence Output Path: {output_path}")
 
     # Load frozen source corpus
     print("[*] Loading frozen source corpus...")
@@ -1063,8 +1090,8 @@ def main() -> int:
         "cases": recorded_cases,
     }
 
-    OUTPUT_PATH.write_text(json.dumps(evidence_doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(f"\n[+] Unadapted narrative E2E evidence written to: {OUTPUT_PATH}")
+    output_path.write_text(json.dumps(evidence_doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"\n[+] Unadapted narrative E2E evidence written to: {output_path}")
 
     return 0
 

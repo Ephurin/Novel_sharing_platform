@@ -179,6 +179,24 @@ def validate(evidence: dict) -> list[str]:
                 prefix + "generation_not_real_and_complete",
             )
 
+            # Model consistency checks: prevent silent fallback to 3.8 when Flash-Lite is requested
+            req_model = gen.get("requested_model")
+            eff_model = gen.get("effective_model")
+            if req_model:
+                require(
+                    req_model in ("gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.8-flash"),
+                    prefix + "requested_model_invalid",
+                )
+                if req_model != "gemini-3.8-flash":
+                    require(
+                        eff_model != "gemini-3.8-flash",
+                        prefix + "effective_model_silently_fell_back_to_38",
+                    )
+                    require(
+                        eff_model == req_model,
+                        prefix + "effective_model_mismatch",
+                    )
+
             # Privacy checks on case level
             require("full_draft" not in gen and "full_draft" not in case, prefix + "full_draft_leaked")
             d_sha = gen.get("draft_sha256")
@@ -731,6 +749,23 @@ def self_test() -> None:
         },
     }
     assert "summary_technical_execution_not_pass" in validate(tech_not_pass)
+
+    # 17. Rejection of silent fallback to 3.8 when Flash-Lite is requested
+    lite_fallback_38 = {
+        **ev,
+        "cases": [
+            {
+                **case_11,
+                "generation": {
+                    **case_11["generation"],
+                    "requested_model": "gemini-3.5-flash-lite",
+                    "effective_model": "gemini-3.8-flash",
+                },
+            },
+            case_25,
+        ],
+    }
+    assert "case_0_effective_model_silently_fell_back_to_38" in validate(lite_fallback_38)
 
     print("SELF-TEST PASS: unadapted narrative validator correctly enforces strict contract")
 
