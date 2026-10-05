@@ -73,7 +73,7 @@ LLM_LOCAL_FALLBACK=false           # supplied by demo Compose
 ```
 
 4. Do not enable semantic retrieval just for the defense unless the chosen demo story already has compatible persisted embeddings. The defense path must not depend on a last-minute re-embedding job.
-5. After UI refactor is complete, update `final_demo_commit` in the manifest and do not move the demo machine to another commit after the final rehearsal unless a blocker is fixed.
+5. Before UI freeze, the manifest must keep `final_demo_commit=TO_BE_PINNED_AFTER_UI_REFACTOR_AND_MANUAL_SANITY`. After UI refactor is complete, replace that placeholder with the exact final commit and do not move the demo machine to another commit after the final rehearsal unless a blocker is fixed.
 
 ## Start the defense stack
 
