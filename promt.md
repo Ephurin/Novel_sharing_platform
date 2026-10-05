@@ -1,30 +1,36 @@
 # Active Project Handoff — CTX-RD-01
 
-## CURRENT EXECUTION GATE — GRADUATION DEFENSE PACKAGING / UI FREEZE DEFERRED (2026-10-05)
+## CURRENT CANONICAL STATUS — PR #38 MERGED / DEFENSE PACKAGE LOCKED PRE-UI-FREEZE (2026-10-05)
 
-The demo API/provider work through PR #37 is already closed with qualification. The current task is **defense packaging that does not depend on the unfinished UI refactor**.
+**PR #38 merged:** https://github.com/Ephurin/Novel_sharing_platform/pull/38, merge SHA `0c0e37c2e70d494b4e4e78797b6b381835d64076`. The graduation-defense package is now canonical on `main`; it is no longer branch-only work.
 
-**New canonical artifacts on branch `astra/defense-demo-packaging`:**
+**Canonical defense artifacts on `main`:**
 - `docs/Deployment/defense-demo-manifest.json` — machine-readable locked demo configuration/data contract.
-- `docs/Deployment/defense-demo-runbook.md` — startup, T-15 preflight, presentation path and recovery ladder.
-- `docs/Deployment/flash-lite-demo.md` remains the provider-specific reference and now points to the defense package.
+- `docs/Deployment/defense-demo-runbook.md` — startup, T-15 preflight, deterministic seed selection, presentation path and recovery ladder.
+- `docs/Deployment/flash-lite-demo.md` — provider-specific Flash-Lite configuration reference.
+- `scripts/check_defense_demo_manifest.py` + `.github/workflows/defense-demo-contract.yml` — drift guard for the locked defense model/routing/seed contract.
+
+**PR #38 CI:** Defense Demo Contract run `37281496292` **PASS**; Evaluation Pilot run `37281496297` **PASS**; P7 Semantic Memory run `37281496242` **PASS** with `unit`, `pgvector-integration`, and `root-compose-smoke` all successful.
 
 **Locked now:** `gemini-3.5-flash-lite`, demo Compose overlay, no automatic 3.8 fallback, `legacy-v1` routing, deterministic Docker seed, AUTHOR fixture `reader03`, Ashenhold novel `81b923d7-5507-48ea-9a84-5303fd1de5f4`, and primary free chapter `c660bede-0493-4a46-97f2-6d01c8ddd3db`.
 
-**Deliberately NOT locked yet:** final UI commit. The team is still refactoring UI, so `final_demo_commit` stays `TO_BE_PINNED_AFTER_UI_REFACTOR_AND_MANUAL_SANITY`.
+**Deliberately NOT locked yet:** the final UI commit. The team is still refactoring UI, so `final_demo_commit` remains `TO_BE_PINNED_AFTER_UI_REFACTOR_AND_MANUAL_SANITY`.
 
 ### NEXT — GEMINI / ANTIGRAVITY
 
-1. Review the defense manifest/runbook for consistency with the actual Compose and deterministic seed; do not create a parallel demo dataset.
-2. Do not perform browser/UI acceptance until the UI refactor is declared ready by the team.
-3. Do not reopen EVAL-01, re-embed the corpus, retune hybrid retrieval, activate `balanced-scope-v1`, or unblock P8-05.
-4. After the UI refactor is merged, the remaining sequence is: pin exact final commit → one manual UI sanity pass → one full defense rehearsal → freeze the demo machine.
+Do not perform browser/UI acceptance until the team declares the UI refactor ready. Do not reopen EVAL-01, re-embed the corpus, retune hybrid retrieval, activate `balanced-scope-v1`, or unblock P8-05. The remaining defense sequence is now strictly:
+
+1. UI refactor is merged by the team.
+2. Pin the exact final demo commit in `defense-demo-manifest.json`.
+3. Run one manual browser sanity pass on that exact commit.
+4. Run one complete defense rehearsal using the canonical runbook.
+5. Freeze the demo machine/config after the successful rehearsal.
 
 ```text
 Backend/API/provider integration   CLOSED / QUALIFIED
-Defense runtime configuration     LOCKED
+Defense runtime configuration     LOCKED / CI GUARDED
 Defense demo data                 LOCKED TO EXISTING SEED
-Defense runbook/recovery           PACKAGED
+Defense runbook/recovery           MERGED / CANONICAL
 Final UI commit                    DEFERRED UNTIL UI REFACTOR
 Manual UI sanity                   PENDING LATE GATE
 Full defense rehearsal             PENDING FINAL GATE
