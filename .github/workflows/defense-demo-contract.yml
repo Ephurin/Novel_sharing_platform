@@ -1,0 +1,40 @@
+name: Defense Demo Contract
+
+on:
+  pull_request:
+    paths:
+      - "docs/Deployment/defense-demo-manifest.json"
+      - "docs/Deployment/defense-demo-runbook.md"
+      - "docs/Deployment/flash-lite-demo.env.example"
+      - "docs/Deployment/flash-lite-demo.md"
+      - "docker-compose.yml"
+      - "docker-compose.flash-lite-demo.yml"
+      - "backend/src/scripts/seed-sample-stories.ts"
+      - "scripts/check_defense_demo_manifest.py"
+      - ".github/workflows/defense-demo-contract.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/Deployment/defense-demo-manifest.json"
+      - "docs/Deployment/defense-demo-runbook.md"
+      - "docs/Deployment/flash-lite-demo.env.example"
+      - "docs/Deployment/flash-lite-demo.md"
+      - "docker-compose.yml"
+      - "docker-compose.flash-lite-demo.yml"
+      - "backend/src/scripts/seed-sample-stories.ts"
+      - "scripts/check_defense_demo_manifest.py"
+      - ".github/workflows/defense-demo-contract.yml"
+
+jobs:
+  validate-defense-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile defense demo validator
+        run: python -m py_compile scripts/check_defense_demo_manifest.py
+      - name: Validate frozen defense runtime and seed contract
+        run: python scripts/check_defense_demo_manifest.py
