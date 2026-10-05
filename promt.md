@@ -1,5 +1,48 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT CANONICAL STATUS — PR #37 MERGED / DEMO API READINESS CLOSED WITH QUALIFICATION (2026-10-05)
+
+**PR #37 merged:** https://github.com/Ephurin/Novel_sharing_platform/pull/37, merge SHA `5821c4746c24fc66e80afd1527e8ac4073933825`. The merged UI fix `24d844cce110c4cb2e91d33a2c9cd8d2e9af073b` makes every Author IDE AI-writing generation request supply a fresh `idempotencyKey`, preventing repeated UI generations from colliding on the PostgreSQL tenant/idempotency uniqueness constraint.
+
+**CI on PR #37:** P8 Cutover run `37279532185` **PASS** — all six jobs succeeded (`frontend-api-cutover`, `unit`, `postgres-integration`, `root-compose-cutover-smoke`, `rollback-rehearsal`, `final-cleanup-gate`). Evaluation Pilot run `37279532163` **PASS**. The merged source is present on `main`; the development branch has been deleted after merge.
+
+**Demo provider re-verification (2026-10-05):** on the real Flash-Lite demo Compose profile, three authenticated Copilot calls completed at ~2.05s / 2.21s / 2.80s and one AI-writing generation completed at ~2.10s. The bounded serialized rehearsal recorded zero 429, zero 503, and no fallback to `gemini-3.8-flash`. Treat this as practical small-demo feasibility, **not** concurrent-load certification or population reliability.
+
+**Browser/UI system acceptance:** automated browser walkthrough is `OUT_OF_SCOPE_AUTOMATED` for this closure because the Playwright driver could not initialize (external driver download 404). Do **not** report browser E2E/System Test as PASS. The frontend production build and P8 frontend/API boundary passed in CI, and the real application API/provider paths were demonstrated separately. A manual browser sanity pass may still be performed before a public demo if desired, but it is not an open automated gate.
+
+**Verdict:** `DEMO_API_READINESS_ACCEPTED_WITH_QUALIFICATION`. The demo-oriented Flash-Lite migration/integration work through PR #37 is closed. Do not reopen PR #36 browser/quota tasks as pending work. Separate quality/reliability gates remain separate:
+- narrative content quality: `PARTIAL`;
+- independent complete-draft audit: `NOT_ASSESSED`;
+- population provider stability: `INSUFFICIENT`;
+- production `CONTEXT_ROUTING_POLICY`: `legacy-v1` unchanged;
+- global `balanced-scope-v1` activation: **NOT AUTHORIZED**;
+- destructive P8-05 cleanup: `BLOCKED_PENDING_STABILITY`.
+
+### NEXT — GEMINI / ANTIGRAVITY
+
+Do not rerun the closed demo API/browser-automation work unless a regression appears. If continuing technical validation, choose a **separate explicit gate** (for example manual pre-demo UI sanity, content-quality/full-draft audit, or a deliberately bounded provider-stability study) and record it as a new scope. Do not present serialized API rehearsal as concurrency testing, and do not change production routing/model defaults by implication.
+
+```text
+PR #33 / #34 / #35 / #36 / #37   MERGED
+Flash-Lite provider path          OBSERVED / QUALIFIED
+Two-service authenticated API     OBSERVED / QUALIFIED
+2026-10-05 serialized rehearsal   PASS / QUALIFIED
+P8 CI (6/6)                       PASS
+Evaluation Pilot                  PASS
+Author IDE idempotency fix        MERGED / CI PASS
+Automated browser UI E2E          OUT_OF_SCOPE_AUTOMATED
+Concurrent-load capacity          NOT ASSESSED
+Content quality                   PARTIAL (SEPARATE GATE)
+Independent complete-draft audit  NOT_ASSESSED
+Population provider stability     INSUFFICIENT
+Production context routing        legacy-v1 (UNCHANGED)
+Global balanced activation        NOT AUTHORIZED
+P8-05 destructive cleanup         BLOCKED_PENDING_STABILITY
+```
+
+---
+
+
 ## CURRENT CANONICAL STATUS — TWO-SERVICE FLASH-LITE DEMO API VERIFIED / PR #36 MERGED (2026-10-04)
 
 **Read:** `docs/development/CTX-RD-01-OPT-IN-CANARY/ASTRA-TWO-SERVICE-FLASH-LITE-DEMO-API-ACCEPTANCE.md` (review commit `b7b1b6f408a0b39136119970160587c35faf1ec5`); API evidence `docs/development/CTX-RD-01-OPT-IN-CANARY/two-service-flash-lite-demo-smoke.json`; demo runbook `docs/Deployment/flash-lite-demo.md`.
@@ -29,7 +72,7 @@ Flash-Lite isolated canary      OBSERVED / QUALIFIED
 Two-service authenticated API   OBSERVED / QUALIFIED (4/4)
 P8 + Evaluation Pilot CI        PASS
 Actual browser Author IDE demo  OUT_OF_SCOPE_AUTOMATED (Tool Playwright 404; manual/direct UI ready; API 100%)
-Demo quota/concurrency rehearsal REHEARSED_QUALIFIED (Real app 2-service live verification confirmed)
+Demo quota/serialized rehearsal REHEARSED_QUALIFIED (real app 2-service live verification; concurrency not assessed)
 Content quality                 PARTIAL (SEPARATE GATE)
 Independent complete-draft audit NOT_ASSESSED
 Population provider stability   INSUFFICIENT
