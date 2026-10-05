@@ -1,5 +1,7 @@
 # Real-demo Flash-Lite configuration
 
+> Graduation-defense packaging: use this provider configuration together with `docs/Deployment/defense-demo-manifest.json` and `docs/Deployment/defense-demo-runbook.md`. The defense runbook is the operational source of truth for startup, seeded data, preflight and recovery; this file remains the provider-specific reference.
+
 ## Why this exists
 
 The real interactive demo must not accidentally consume the restrictive `gemini-3.8-flash` daily request allowance. This opt-in Compose override selects **`gemini-3.5-flash-lite`** for both generation entry points: the Python AI-writing service and the Node.js AI Copilot. It is a **quota/capacity choice, not a writing-quality claim**. The alternate `gemini-3.1-flash-lite` is available explicitly using `DEMO_LLM_MODEL`. The base production Compose and `CONTEXT_ROUTING_POLICY=legacy-v1` remain unchanged.

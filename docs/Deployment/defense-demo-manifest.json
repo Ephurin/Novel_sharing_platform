@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "graduation_defense_demo",
+  "status": "PRE_UI_FREEZE",
+  "baseline": {
+    "minimum_verified_main_commit": "c6fdf5edf627dbc022cafb607ca3e04a599869fe",
+    "final_demo_commit": "TO_BE_PINNED_AFTER_UI_REFACTOR_AND_MANUAL_SANITY",
+    "ui_freeze_pending": true
+  },
+  "locked_runtime": {
+    "compose_files": [
+      "docker-compose.yml",
+      "docker-compose.flash-lite-demo.yml"
+    ],
+    "env_file": ".env.demo",
+    "generation_model": "gemini-3.5-flash-lite",
+    "alternate_model_manual_only": "gemini-3.1-flash-lite",
+    "forbidden_automatic_fallback_model": "gemini-3.8-flash",
+    "context_routing_policy": "legacy-v1",
+    "python_local_fallback": false,
+    "run_migrations": true,
+    "run_demo_seed": true
+  },
+  "demo_identity": {
+    "author": {
+      "username": "reader03",
+      "email": "reader03@example.com",
+      "password": "StrongPassword123!",
+      "role": "AUTHOR",
+      "credential_classification": "committed_nonproduction_demo_fixture"
+    }
+  },
+  "demo_story": {
+    "title": "Ashenhold - Sample Story",
+    "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+    "primary_chapter": {
+      "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "position": 1,
+      "expected_access": "free"
+    },
+    "seed_source": "backend/src/scripts/seed-sample-stories.ts",
+    "seed_command": "npm run db:seed:demo"
+  },
+  "service_endpoints": {
+    "web": "http://localhost:8080",
+    "web_backend_health": "http://localhost:8080/api/v1/health",
+    "backend_health": "http://localhost:4000/api/v1/health",
+    "ai_service_health": "http://localhost:8000/health"
+  },
+  "demo_ai_paths": [
+    "Backend AI Copilot suggestion",
+    "AI-writing generation job"
+  ],
+  "acceptance_boundaries": {
+    "browser_automation_required": false,
+    "manual_ui_sanity_required_after_ui_refactor": true,
+    "concurrent_load_certification_required": false,
+    "population_provider_reliability_required": false,
+    "content_quality_full_audit_required": false,
+    "destructive_p8_05_cleanup_allowed": false
+  },
+  "final_freeze_requirements": [
+    "Pin final_demo_commit after UI refactor is merged.",
+    "Run one manual browser sanity pass on the exact final_demo_commit.",
+    "Run one full defense rehearsal using this manifest and the exact final_demo_commit.",
+    "Do not change model, routing policy, seed IDs or fallback behavior after the final rehearsal unless a blocking defect is found."
+  ]
+}

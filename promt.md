@@ -1,5 +1,38 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT EXECUTION GATE — GRADUATION DEFENSE PACKAGING / UI FREEZE DEFERRED (2026-10-05)
+
+The demo API/provider work through PR #37 is already closed with qualification. The current task is **defense packaging that does not depend on the unfinished UI refactor**.
+
+**New canonical artifacts on branch `astra/defense-demo-packaging`:**
+- `docs/Deployment/defense-demo-manifest.json` — machine-readable locked demo configuration/data contract.
+- `docs/Deployment/defense-demo-runbook.md` — startup, T-15 preflight, presentation path and recovery ladder.
+- `docs/Deployment/flash-lite-demo.md` remains the provider-specific reference and now points to the defense package.
+
+**Locked now:** `gemini-3.5-flash-lite`, demo Compose overlay, no automatic 3.8 fallback, `legacy-v1` routing, deterministic Docker seed, AUTHOR fixture `reader03`, Ashenhold novel `81b923d7-5507-48ea-9a84-5303fd1de5f4`, and primary free chapter `c660bede-0493-4a46-97f2-6d01c8ddd3db`.
+
+**Deliberately NOT locked yet:** final UI commit. The team is still refactoring UI, so `final_demo_commit` stays `TO_BE_PINNED_AFTER_UI_REFACTOR_AND_MANUAL_SANITY`.
+
+### NEXT — GEMINI / ANTIGRAVITY
+
+1. Review the defense manifest/runbook for consistency with the actual Compose and deterministic seed; do not create a parallel demo dataset.
+2. Do not perform browser/UI acceptance until the UI refactor is declared ready by the team.
+3. Do not reopen EVAL-01, re-embed the corpus, retune hybrid retrieval, activate `balanced-scope-v1`, or unblock P8-05.
+4. After the UI refactor is merged, the remaining sequence is: pin exact final commit → one manual UI sanity pass → one full defense rehearsal → freeze the demo machine.
+
+```text
+Backend/API/provider integration   CLOSED / QUALIFIED
+Defense runtime configuration     LOCKED
+Defense demo data                 LOCKED TO EXISTING SEED
+Defense runbook/recovery           PACKAGED
+Final UI commit                    DEFERRED UNTIL UI REFACTOR
+Manual UI sanity                   PENDING LATE GATE
+Full defense rehearsal             PENDING FINAL GATE
+```
+
+---
+
+
 ## CURRENT CANONICAL STATUS — PR #37 MERGED / DEMO API READINESS CLOSED WITH QUALIFICATION (2026-10-05)
 
 **PR #37 merged:** https://github.com/Ephurin/Novel_sharing_platform/pull/37, merge SHA `5821c4746c24fc66e80afd1527e8ac4073933825`. The merged UI fix `24d844cce110c4cb2e91d33a2c9cd8d2e9af073b` makes every Author IDE AI-writing generation request supply a fresh `idempotencyKey`, preventing repeated UI generations from colliding on the PostgreSQL tenant/idempotency uniqueness constraint.
