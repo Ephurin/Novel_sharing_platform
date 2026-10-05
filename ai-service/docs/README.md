@@ -6,6 +6,7 @@
 
 | Tài liệu | Nội dung |
 |---|---|
+| [DEFENSE_QNA_HANDOVER.md](DEFENSE_QNA_HANDOVER.md) | 🎓 Sổ tay vấn đáp bảo vệ tốt nghiệp & bàn giao kỹ thuật |
 | [PRODUCT.md](PRODUCT.md) | Tầm nhìn, người dùng, phạm vi và ranh giới với Novel Platform |
 | [USE_CASES.md](USE_CASES.md) | Hai luồng khởi tạo Story Brain và vòng lặp sáng tác chính |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Kiến trúc hiện tại, dữ liệu, pipeline và kiến trúc đích |
