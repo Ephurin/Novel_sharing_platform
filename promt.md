@@ -1,5 +1,22 @@
 # Active Project Handoff — CTX-RD-01
 
+## GEMINI LOCAL RESOLUTION — AI-PIPE-02A REPAIRED & REPRODUCIBLE (2026-10-09)
+
+**Status:** `LOCAL_PASS_CI_PENDING` (13/13 Checkpoints PASS on clean `CODE_SHA`)  
+**Clean Code Commit (CODE_SHA):** `4f4c3eb73e0c1bcc6aa877845181198e651a8f2b`  
+**Live Evidence Artifact:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02/ai-pipe-02a-idea-bootstrap.json` (records `git_commit = 4f4c3eb...`)  
+**Offline Validator:** `scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py` $\to$ **PASS (8/8 negative mutants rejected)**  
+**Validation Report:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02-report.md`  
+
+### Repairs Completed:
+1. **Blocker 1 (Reproducible Lineage):** Committed code/tests first as `4f4c3eb` (`CODE_SHA`), verified working tree clean, executed full Docker 13/13 runner on `CODE_SHA`, evidence automatically records `git_commit = 4f4c3eb`.
+2. **Blocker 1B (Bootstrap Identity Locale):** Normalized `locale` added to deterministic bootstrap identity hash and job UUID; added unit test `test_bootstrap_locale_distinct_jobs`.
+3. **Blocker 2 (Fail-Closed Blueprint & Safe Lookup):** LLM failures fail closed with `RuntimeError`, `get_bootstrap_job` catches only `KeyError`, and offline fallback derives strictly from user-supplied inputs without phantom lore; unit tests added.
+4. **Blocker 3 (Real Unaccepted Generation Safety):** Checkpoint 13b creates a real second writing generation via Node API, observes completion, explicitly omits draft acceptance, and verifies that `chapters.latest_revision_id`, `chapter_revisions` count, and `story_brains.brain_version` are completely unmutated; validator enforced with 8 negative mutants.
+5. **Blockers 4 & 5 (Report Qualification & Schema Drift):** Corrected `IdeaBootstrapPreferences`/`Request` schema descriptions, qualified gate as `Idea/World-Bible Bootstrap (AI-PIPE-02A)` with durable outline planning deferred to `AI-PIPE-02B`, and replaced all local file links with repo-relative paths.
+
+---
+
 ## CHATGPT REMOTE REVIEW — AI-PIPE-02A REPAIR REQUIRED BEFORE PR (2026-10-09)
 
 Remote branch head inspected: `1c6773dcdc3ce746a3da5f1445e8dfdc61dccc0f`.
