@@ -1,5 +1,150 @@
 # Active Project Handoff — CTX-RD-01
 
+## CHATGPT REMOTE REVIEW — AI-PIPE-02A REPAIR REQUIRED BEFORE PR (2026-10-09)
+
+Remote branch head inspected: `1c6773dcdc3ce746a3da5f1445e8dfdc61dccc0f`.
+
+Do **not** open/expect PR or CI yet. The implementation is promising and the local 13/13 run is useful, but remote review found four blockers that must be repaired locally by Gemini before ChatGPT opens the PR.
+
+### BLOCKER 1 — evidence lineage is not reproducible
+
+The current evidence records:
+
+```text
+git_commit = 40f8fb8a5d2b39b94d5520375ffdda6f059434f4
+```
+
+but the P2 implementation was committed afterward as:
+
+```text
+1c6773dcdc3ce746a3da5f1445e8dfdc61dccc0f
+```
+
+So the 13/13 run was executed on a working tree containing uncommitted P2 code. Keep the current evidence as preliminary evidence, but do not use it as the final reproducibility artifact.
+
+Required repair sequence:
+
+```text
+1. fix the code/report issues below
+2. commit code/tests first -> CODE_SHA
+3. verify working tree is clean
+4. run the complete local Docker AI-PIPE-02A test on CODE_SHA
+5. evidence must record git_commit = CODE_SHA
+6. run the offline validator against that new evidence
+7. commit evidence/report/handoff as a direct child of CODE_SHA
+8. push and stop at LOCAL_PASS_CI_PENDING
+```
+
+Do not rewrite `git_commit` manually. It must be emitted by the runner from the checked-out clean code commit.
+
+### BLOCKER 2 — production blueprint fallback must not invent unrelated lore
+
+`ManuscriptBootstrapService._generate_blueprint()` currently swallows LLM/parsing failures and falls through to hard-coded fantasy content such as:
+
+```text
+Năng lượng ma thuật luôn tuân theo luật bảo toàn.
+Nhân vật chính
+Khởi đầu chi địa
+```
+
+This is not acceptable as a generic production fallback because it may create review proposals unrelated to the author's idea.
+
+Required behavior:
+- if a configured real provider fails or returns invalid structured output, fail closed with an explicit bootstrap/provider error rather than silently inventing unrelated lore;
+- if an explicit no-provider/test/offline path needs a fallback, derive it only from user-supplied `idea`, `outline`, preferences, and author constraints; do not add unrelated world facts/entities;
+- preserve `waiting_review` / author-control semantics;
+- add focused tests for provider failure / invalid JSON / no-provider fallback as appropriate.
+
+Also replace broad exception swallowing in idempotency lookup:
+
+```python
+try:
+    existing_job = self._repository.get_bootstrap_job(job_id)
+    ...
+except Exception:
+    pass
+```
+
+`get_bootstrap_job()` uses `KeyError` for the normal not-found case. Catch only the expected not-found condition; database/repository errors must propagate instead of being hidden.
+
+### BLOCKER 3 — checkpoint 13 does not actually prove unaccepted-generation safety
+
+The current runner claims:
+
+```text
+unaccepted generation leaves canonical revision untouched
+```
+
+but checkpoint 13b only creates a random string:
+
+```python
+unused_gen_id = f"unused-gen-{uuid.uuid4()}"
+```
+
+and verifies that no database row exists for a generation that was never created. That is not a real author-control test.
+
+Required executable proof:
+
+```text
+capture canonical latest_revision_id and brain_version
+ -> create a SECOND real writing generation through Node API
+ -> wait until completed
+ -> DO NOT call accept-draft
+ -> verify chapter latest_revision_id is unchanged
+ -> verify no chapter_revisions row exists for that generation id
+ -> verify Story Brain/canonical state does not advance because of that unaccepted generation
+```
+
+Record in evidence at least:
+- `unaccepted_generation_id`;
+- `latest_revision_before` and `latest_revision_after`;
+- `unaccepted_generation_revision_count = 0`;
+- brain version before/after (or equivalent canonical-state proof).
+
+Update the evidence validator so these fields are mandatory and fail closed when mutated.
+
+### BLOCKER 4 — report/code drift
+
+`AI-CORE-PIPELINE-VALIDATION-02-report.md` currently says:
+
+```text
+IdeaBootstrapPreferences: genre, tone, target_audience, core_conflict
+IdeaBootstrapRequest: ... idempotency_key
+start_from_idea(... idempotency_key)
+```
+
+but committed code currently exposes:
+
+```text
+IdeaBootstrapPreferences: genre, tone, target_length
+IdeaBootstrapRequest: novel_id, idea, outline, locale, preferences, author_constraints
+start_from_idea(... author_constraints)
+```
+
+Correct the report to match the actual contract. The deterministic content-derived job UUID already provides repeatability; do not invent a request field merely to make the report match.
+
+### Acceptance after repair
+
+Gemini completion boundary remains:
+
+```text
+corrected code
++ focused tests
++ clean committed CODE_SHA
++ full local Docker 13/13 rerun on CODE_SHA
++ stronger checkpoint 13 author-control proof
++ validator negative tests
++ corrected report/evidence
++ pushed branch
+= LOCAL_PASS_CI_PENDING
+```
+
+Then stop. ChatGPT will inspect the pushed head, create the PR, run remote CI, and merge only after the GitHub gates pass.
+
+Do not begin AI-PIPE-03 yet.
+
+---
+
 ## CURRENT CANONICAL STATUS — PR #39 MERGED / AI-PIPE-01A CI CLOSED (2026-10-09)
 
 **PR #39 merged:** `AI-PIPE-01A: close P1 production persistence loop`
