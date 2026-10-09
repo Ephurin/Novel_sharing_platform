@@ -9,6 +9,29 @@
 
 ---
 
+## ChatGPT Remote Review Qualification
+
+**Remote review status:** `REPAIR_REQUIRED_BEFORE_PR`
+
+The local 13/13 execution is preserved as preliminary evidence, but it is **not yet the final reproducible acceptance artifact**.
+
+Remote review identified these required repairs before PR/CI:
+
+- evidence was emitted while P2 implementation was still uncommitted: evidence records base SHA `40f8fb8...`, while implementation first appears in `1c6773d...`;
+- deterministic bootstrap identity omits `locale`;
+- broad `except Exception` hides repository failures during existing-job lookup;
+- configured-provider/JSON failure can silently fall back to unrelated hard-coded fantasy lore;
+- checkpoint 13 does not create a real unaccepted generation, so its author-control claim is not yet proven;
+- report schema text does not exactly match committed request/preferences fields;
+- current gate demonstrates Idea/Premise -> reviewable World Bible -> Story Brain -> P1 reuse, but does not prove durable outline-plan persistence/adherence;
+- local `file:///c:/...` report links are not portable repository evidence.
+
+The exact repair contract is maintained at the top of branch `promt.md`.
+
+After code repairs, Gemini must create a clean committed code SHA, rerun the full Docker gate on that exact clean SHA, emit evidence referencing that SHA, validate it, then commit evidence/report as a child commit and stop at `LOCAL_PASS_CI_PENDING`.
+
+---
+
 ## 1. Executive Summary
 
 Gate **AI-PIPE-02A** implements and validates the **Idea/Outline $\to$ Canonical Story Brain (P2 Adapter)** pipeline. It proves that a new story starting from a pure idea, premise, or outline can be bootstrapped into a canonical Story Brain, reviewed and activated by the author, associated with its first canonical chapter and revision, and seamlessly enter the existing P1 assisted-writing closed loop without introducing a second writing architecture or ad-hoc memory store.
