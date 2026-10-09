@@ -26,31 +26,31 @@ Canonical acceptance state:
 AI-PIPE-01A P1 backend closed loop        CI_PASS / MERGED
 AI-PIPE-01B P1 browser/UI                 PENDING_UI_REFACTOR
 AI-PIPE-02A Idea/World-Bible bootstrap    CI_PASS / MERGED
-AI-PIPE-02B Durable outline planning      NEXT LOCAL TASK
+AI-PIPE-02B Durable outline planning      LOCAL_PASS_CI_PENDING
 AI-PIPE-03 Autonomous full-auto loop      BLOCKED UNTIL P2 ARCHITECTURE IS CLOSED
 ```
 
-AI-PIPE-02A proves:
+## AI-PIPE-02B LOCAL COMPLETION — 16/16 CHECKPOINTS PASS (2026-10-09)
 
+Gemini/Antigravity has reached the required completion boundary:
 ```text
-IDEA / PREMISE
- -> REVIEWABLE WORLD BIBLE
- -> CANONICAL STORY BRAIN
- -> FIRST CANONICAL CHAPTER/REVISION
- -> EXISTING P1 WRITING LOOP
+code + local tests + clean CODE_SHA + 16/16 evidence + validator + child commit + pushed branch
+= LOCAL_PASS_CI_PENDING
 ```
 
-It deliberately does **not** claim durable outline-plan persistence or plan-guided multi-chapter steering.
+- **Branch:** `astra/ai-pipe-02b-outline-planning`
+- **Code SHA (`CODE_SHA`):** `14fc0096b6e52b28e31b44161429e0ac55f03e76`
+- **Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B/ai-pipe-02b-outline-planning.json`
+- **Validation Report:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B-report.md`
+- **Offline Validator:** `scripts/verify_ai_pipe_02b_outline_planning_evidence.py` (0 errors, 10/10 mutants pass)
+- **Checkpoints Verified:** 16/16 PASS
+- **Core Invariant:** `FUTURE PLAN != HISTORICAL CANON` strictly verified:
+  - Outline plans & objectives persisted in dedicated `narrative.story_plans` & `narrative.story_plan_objectives`.
+  - Checkpoint 08 machine-checkable assertion confirms zero future beats in `narrative.events` or `narrative.facts`.
+  - Author control preserves unaccepted generations without mutating canon or plan state.
+  - Plan updates create version 2, superseding version 1 while keeping canon intact.
 
-The older AI-PIPE-02A `LOCAL_PASS_CI_PENDING` and `NEXT LOCAL TASK` sections lower in this file are historical and superseded by this section.
-
-Do not reopen AI-PIPE-02A unless a regression appears.
-
----
-
-## NEXT LOCAL IMPLEMENTATION GATE — AI-PIPE-02B DURABLE OUTLINE PLANNING WITHOUT FUTURE-CANON LEAKAGE (2026-10-09)
-
-Gemini/Antigravity owns the next local implementation gate. ChatGPT owns remote PR/CI/merge after Gemini stops at `LOCAL_PASS_CI_PENDING`.
+ChatGPT now owns remote PR opening, CI monitoring, and merging into main.
 
 ### Objective
 

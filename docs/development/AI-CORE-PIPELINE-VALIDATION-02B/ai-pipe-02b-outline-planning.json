@@ -1,0 +1,212 @@
+{
+  "gate": "AI-PIPE-02B",
+  "pipeline": "P2",
+  "verdict": "P2_OUTLINE_PLANNING_PASS",
+  "timestamp": "2026-10-09T17:15:30.418291+00:00",
+  "git_commit": "14fc0096b6e52b28e31b44161429e0ac55f03e76",
+  "git_branch": "astra/ai-pipe-02b-outline-planning",
+  "environment": {
+    "backend_url": "http://localhost:4000/api/v1",
+    "ai_service_url": "http://localhost:8000",
+    "database_backend": "postgresql-16+pgvector",
+    "llm_provider": "fake-deterministic"
+  },
+  "summary": {
+    "total_checkpoints": 16,
+    "passed": 16,
+    "failed": 0
+  },
+  "checkpoints": [
+    {
+      "checkpoint": 1,
+      "name": "Application-Facing Outline/Plan Request",
+      "status": "PASS",
+      "summary": "Created Story Plan draft 8a2e1b40-7e3f-4e09-918d-0b6d2a45c110 with 3 objectives via Node API",
+      "details": {
+        "plan_id": "8a2e1b40-7e3f-4e09-918d-0b6d2a45c110",
+        "novel_id": "4b6f12c8-8a03-49d5-b3e1-7e81fa9901d2",
+        "plan_version": 1,
+        "status": "draft",
+        "total_objectives": 3
+      }
+    },
+    {
+      "checkpoint": 2,
+      "name": "Deterministic Repeat / Idempotency Semantics",
+      "status": "PASS",
+      "summary": "Repeated plan request returned identical plan_id 8a2e1b40-7e3f-4e09-918d-0b6d2a45c110 without duplicate insertion",
+      "details": {
+        "plan_id_1": "8a2e1b40-7e3f-4e09-918d-0b6d2a45c110",
+        "plan_id_2": "8a2e1b40-7e3f-4e09-918d-0b6d2a45c110",
+        "plan_version": 1
+      }
+    },
+    {
+      "checkpoint": 3,
+      "name": "Durable PostgreSQL Persistence via Repository Layer",
+      "status": "PASS",
+      "summary": "Verified narrative.story_plans and narrative.story_plan_objectives persisted durably in PostgreSQL",
+      "details": {
+        "table": "narrative.story_plans",
+        "plan_id": "8a2e1b40-7e3f-4e09-918d-0b6d2a45c110",
+        "db_status": "draft",
+        "objectives_count_in_db": 3
+      }
+    },
+    {
+      "checkpoint": 4,
+      "name": "Explicit Plan Version & Lifecycle State",
+      "status": "PASS",
+      "summary": "Plan 8a2e1b40-7e3f-4e09-918d-0b6d2a45c110 is explicit version 1 in 'draft' lifecycle state",
+      "details": {
+        "plan_version": 1,
+        "status": "draft"
+      }
+    },
+    {
+      "checkpoint": 5,
+      "name": "Author Review/Activation Semantics",
+      "status": "PASS",
+      "summary": "Author explicitly activated plan 8a2e1b40-7e3f-4e09-918d-0b6d2a45c110; status reached 'active'",
+      "details": {
+        "plan_id": "8a2e1b40-7e3f-4e09-918d-0b6d2a45c110",
+        "status": "active"
+      }
+    },
+    {
+      "checkpoint": 6,
+      "name": "Deterministic Current Objective Selection",
+      "status": "PASS",
+      "summary": "Chapter 1 deterministically selected Objective #1 (Tỉnh dậy trên cồn cát)",
+      "details": {
+        "selected_objective_id": "2d1f4b88-10a5-48b2-9cb7-7a5f6b89c001",
+        "order_index": 1,
+        "target_chapter": 1,
+        "title": "Tỉnh dậy trên cồn cát"
+      }
+    },
+    {
+      "checkpoint": 7,
+      "name": "Context Preview Carries Plan Version & Objective Provenance",
+      "status": "PASS",
+      "summary": "Context preview carries plan version 1 and objective provenance separately from canon",
+      "details": {
+        "plan_id": "8a2e1b40-7e3f-4e09-918d-0b6d2a45c110",
+        "plan_version": 1,
+        "active_objective_id": "2d1f4b88-10a5-48b2-9cb7-7a5f6b89c001",
+        "context_summary_plan_id": [
+          "8a2e1b40-7e3f-4e09-918d-0b6d2a45c110"
+        ]
+      }
+    },
+    {
+      "checkpoint": 8,
+      "name": "Future-Information Leakage Guard (Machine-Checkable Assertion)",
+      "status": "PASS",
+      "summary": "Verified FUTURE PLAN != HISTORICAL CANON: future objectives 2 and 3 are 100% absent from events and facts",
+      "details": {
+        "future_events_in_db": 0,
+        "future_facts_in_db": 0,
+        "in_recent_events": false,
+        "in_world_rules": false,
+        "assertion": "PASSED (No future-canon leakage)"
+      }
+    },
+    {
+      "checkpoint": 9,
+      "name": "Standard P1 Generation Reuse",
+      "status": "PASS",
+      "summary": "P1 writing generation 910a3c77-4df8-4d5a-8bfe-3d854e12e3a1 completed successfully using active plan context",
+      "details": {
+        "generation_job_id": "910a3c77-4df8-4d5a-8bfe-3d854e12e3a1",
+        "status": "completed",
+        "validation_status": "passed",
+        "patch": {
+          "start": 128,
+          "end": 128,
+          "replacement": "Gió sa mạc thổi cát vàng bay mù mịt. Nhân vật chính nheo mắt nhìn về phía xa, phát hiện dấu vết của một ốc đảo nhỏ."
+        }
+      }
+    },
+    {
+      "checkpoint": 10,
+      "name": "Unaccepted Generation Safety (Author Control)",
+      "status": "PASS",
+      "summary": "Unaccepted generation f3819b22-4a01-44dc-9081-6b22ee01cf90 left canonical revisions and plan progress untouched",
+      "details": {
+        "unaccepted_generation_id": "f3819b22-4a01-44dc-9081-6b22ee01cf90",
+        "latest_revision_unmutated": true,
+        "unaccepted_revision_rows": 0,
+        "objective_status_unmutated": "pending"
+      }
+    },
+    {
+      "checkpoint": 11,
+      "name": "Accepted Generation Persists via acceptDraft() & Outbox",
+      "status": "PASS",
+      "summary": "Accepted revision 7d891b2c-63e1-45f8-8bb0-91c2f48109d4 with source_type=AI_DRAFT_ACCEPT and outbox event",
+      "details": {
+        "accepted_revision_id": "7d891b2c-63e1-45f8-8bb0-91c2f48109d4",
+        "source_type": "AI_DRAFT_ACCEPT",
+        "outbox_event_id": "c568912e-1901-4b77-8fa0-681b9e248100",
+        "outbox_event_type": "INCREMENTAL_ANALYSIS"
+      }
+    },
+    {
+      "checkpoint": 12,
+      "name": "Story Brain Memory Advances Only from Accepted Content",
+      "status": "PASS",
+      "summary": "Story Brain advanced version 2 -> 3 after accepted draft analysis",
+      "details": {
+        "brain_version_before": 2,
+        "brain_version_after": 3
+      }
+    },
+    {
+      "checkpoint": 13,
+      "name": "Explicit Plan Progress Update",
+      "status": "PASS",
+      "summary": "Objective #1 status explicitly advanced to 'completed' via Node API",
+      "details": {
+        "objective_id": "2d1f4b88-10a5-48b2-9cb7-7a5f6b89c001",
+        "new_status": "completed"
+      }
+    },
+    {
+      "checkpoint": 14,
+      "name": "Next Chapter / Scene Receives Next Objective",
+      "status": "PASS",
+      "summary": "Chapter 2 context preview received next Objective #2 (Tiến vào ốc đảo và chạm trán kỵ sĩ Roland)",
+      "details": {
+        "chapter_number": 2,
+        "objective_id": "2d1f4b88-10a5-48b2-9cb7-7a5f6b89c002",
+        "order_index": 2,
+        "title": "Tiến vào ốc đảo và chạm trán kỵ sĩ Roland"
+      }
+    },
+    {
+      "checkpoint": 15,
+      "name": "Plan Edit Creates Version 2 without Rewriting Historical Canon",
+      "status": "PASS",
+      "summary": "Plan edited to version 2; Plan 1 superseded, Plan 2 active, historical Story Brain intact",
+      "details": {
+        "plan_v1_status": "superseded",
+        "plan_v2_status": "active",
+        "plan_v2_version": 2,
+        "canonical_brain_version": 3
+      }
+    },
+    {
+      "checkpoint": 16,
+      "name": "Subsequent Context Observes Active Plan Version 2",
+      "status": "PASS",
+      "summary": "Context preview for Chapter 2 observes updated Plan Version 2 objective with canon intact",
+      "details": {
+        "observed_plan_id": "a984b2c1-39e2-4110-911a-88bc110f9220",
+        "observed_plan_version": 2,
+        "observed_objective_title": "Đột kích hang ổ hắc ám kỵ sĩ Roland",
+        "observed_brain_version": 3
+      }
+    }
+  ]
+}
