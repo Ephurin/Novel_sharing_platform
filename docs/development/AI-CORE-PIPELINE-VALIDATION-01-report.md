@@ -5,7 +5,75 @@
 **Base Commit SHA:** `528db04dd1121cbb8a34139c3cc7ae12d58ef712`  
 **Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-01/ai-pipe-01-closed-loop-evidence.json`  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py` $\to$ **PASS (0 errors, 7/7 negative self-tests pass)**  
-**Gate Verdict:** `P1_CLOSED_LOOP_PASS` (15/15 checkpoints verified)
+**Gate Verdict:** `P1_STRUCTURAL_CLOSED_LOOP_PASS / P1_PRODUCTION_CLOSED_LOOP_PENDING`
+
+---
+
+## 0. Evidence Scope Correction
+
+The first AI-PIPE-01 run is a valuable **structural closed-loop** test, but it is not yet a production-shaped system test.
+
+The preserved raw evidence file reports 15/15 logical checkpoints over:
+
+- `FakeDeterministicLLMService`;
+- `InMemoryNarrativeRepository`;
+- a mutable in-memory revision provider.
+
+Checkpoints 11-12 do **not** execute the real Node `acceptDraft()` service or write/query PostgreSQL. The harness applies the patch itself and constructs simulated revision/outbox records to verify contract shape. Therefore the raw evidence must not be interpreted as proof that a real `chapter_revisions` row or transactional outbox event was persisted.
+
+Correct acceptance split:
+
+```text
+P1 structural/in-memory closed loop                  PASS
+AI-service Story Brain feedback loop                 PASS
+Node gateway request-shape tests                     PASS (mock fetch)
+Real Node acceptDraft execution                      PENDING
+Real PostgreSQL chapter_revisions persistence        PENDING
+Real transactional outbox persistence/dispatch       PENDING
+Production-shaped API -> DB -> memory feedback loop  PENDING
+Browser/UI end-to-end                                PENDING_UI_REFACTOR
+P1 overall system acceptance                         NOT_YET_PASS
+```
+
+The raw evidence file is intentionally preserved unchanged as preliminary execution evidence. This report supersedes its top-level `P1_CLOSED_LOOP_PASS` label for acceptance purposes.
+
+### Next mandatory gate — AI-PIPE-01A Production Persistence Closure
+
+Before P1 can be called production/system PASS, execute a real disposable-stack test through:
+
+```text
+Node application API
+ -> AI service generation
+ -> Node acceptDraft()
+ -> PostgreSQL chapter_revisions
+ -> chapters.latest_revision_id
+ -> transactional outbox INCREMENTAL_ANALYSIS
+ -> outbox processor
+ -> AI revision analysis
+ -> Story Brain version/state update
+ -> second context preview/generation observes updated state
+```
+
+The test may use a deterministic/fake provider; the purpose is service orchestration and persistence, not literary quality or provider availability.
+
+### Mandatory late gate — AI-PIPE-01B Browser/UI System E2E
+
+After the team finishes UI refactor, execute one real browser flow:
+
+```text
+Login AUTHOR
+ -> import manuscript
+ -> review/activate Story Brain
+ -> open Author IDE
+ -> generate
+ -> preview/edit/reject or accept
+ -> accepted revision persists
+ -> refresh UI still shows canonical content
+ -> incremental Story Brain update
+ -> subsequent generation/context uses updated brain state
+```
+
+P1 overall system acceptance requires **both AI-PIPE-01A and AI-PIPE-01B**.
 
 ---
 
@@ -27,8 +95,8 @@ This audit executes the directive to validate the AI scope through **three core 
 | **P1** | 8. Generation Start | `POST /api/v1/ai/writing/generations` $\to$ `WritingService.start_generation` (brain version pinned) | `IMPLEMENTED_AND_TESTED` |
 | **P1** | 9. Generation Completion | `WritingService.process_generation` inline/polled $\to$ `status="completed"` | `IMPLEMENTED_AND_TESTED` |
 | **P1** | 10. Validations & Patch | Deterministic validators (`_validate_draft`) attach to job $\to$ `validation_status="passed"`, `patch` | `IMPLEMENTED_AND_TESTED` |
-| **P1** | 11. Accept Draft | `POST /api/v1/chapters/:id/revisions/accept-draft` $\to$ `acceptDraft` (verifies validations & brain freshness) | `IMPLEMENTED_AND_TESTED` |
-| **P1** | 12. Persistence | New `chapter_revisions` row (`source_type=AI_DRAFT_ACCEPT`, `source_generation_id`), `chapters.latest_revision_id` updated, transactional outbox `INCREMENTAL_ANALYSIS` | `IMPLEMENTED_AND_TESTED` |
+| **P1** | 11. Accept Draft | Production code exists in Node `acceptDraft`; current AI-PIPE-01 harness only emulates patch application | `IMPLEMENTED_NOT_SYSTEM_TESTED` |
+| **P1** | 12. Persistence | Production code writes PostgreSQL revision/latest pointer/outbox transactionally; current AI-PIPE-01 evidence uses simulated records | `IMPLEMENTED_NOT_SYSTEM_TESTED` |
 | **P1** | 13. Incremental Analysis | Outbox processor $\to$ `POST /v1/revisions/:id/analyses` $\to$ `RevisionAnalysisService.analyze` | `IMPLEMENTED_AND_TESTED` |
 | **P1** | 14. Brain Update | Incremental proposals accepted $\to$ `brain_version` advances (e.g. $v_1 \to v_2$) | `IMPLEMENTED_AND_TESTED` |
 | **P1** | 15. Memory Feedback | Next context preview/generation observes new brain version ($v_2 > v_1$) and updated context hash | `IMPLEMENTED_AND_TESTED` |
@@ -87,7 +155,7 @@ IMPORT
  -> NEXT GENERATION/CONTEXT OBSERVES UPDATED STATE (v3, context_hash updated)
 ```
 
-**Verdict:** `P1_CLOSED_LOOP_PASS`.
+**Verdict:** `P1_STRUCTURAL_CLOSED_LOOP_PASS`. Production persistence/system acceptance remains pending AI-PIPE-01A, and browser acceptance remains pending AI-PIPE-01B.
 
 ---
 
