@@ -1,5 +1,115 @@
 # Active Project Handoff — CTX-RD-01
 
+## EXECUTION RESPONSIBILITY SPLIT — GEMINI LOCAL / CHATGPT GITHUB (2026-10-09)
+
+Assume Gemini/Antigravity may **not** be able to execute GitHub Actions, create/inspect PR checks reliably, or perform operations outside the local development machine. Divide work accordingly.
+
+### GEMINI / ANTIGRAVITY — LOCAL IDE OWNER
+
+Gemini owns work that can be completed and evidenced on the local machine:
+
+- inspect and modify source code;
+- run local unit/integration/system tests;
+- run Docker / Docker Compose;
+- run PostgreSQL / pgvector / MongoDB locally;
+- execute local API/system test runners;
+- use local fake/deterministic LLMs;
+- perform bounded real Gemini provider calls when a local key is available and the gate explicitly requires them;
+- reproduce defects and implement the smallest fix;
+- update local report/evidence artifacts with exact commands, PASS/FAIL/NOT_EXECUTED, sanitized IDs/hashes;
+- commit and push changes to the designated working branch when Git access from the IDE is available.
+
+Gemini must **not** claim any of the following unless it actually has direct evidence:
+
+- GitHub Actions PASS;
+- PR check PASS;
+- PR mergeability;
+- PR merged status;
+- remote branch deletion;
+- GitHub-hosted CI reproduction.
+
+When GitHub-side work is required, Gemini should stop after local validation/push and leave a clear handoff containing:
+- branch name;
+- exact pushed HEAD SHA;
+- changed files;
+- local commands/tests and results;
+- known limitations;
+- the GitHub CI job(s) that should be run next.
+
+### CHATGPT — GITHUB / REMOTE ACCEPTANCE OWNER
+
+ChatGPT owns repository-side orchestration and independent acceptance:
+
+- inspect remote branch/head/compare status;
+- review Gemini's committed diff and evidence integrity;
+- detect overclaims or stale report wording;
+- create/update PRs;
+- inspect GitHub Actions runs/jobs/logs;
+- trigger or obtain CI through the normal PR workflow where available;
+- distinguish local PASS from CI PASS;
+- require reruns when evidence SHA does not identify the committed source under test;
+- review production hotfixes before merge;
+- merge only after the required remote gates are green;
+- update canonical `main/promt.md` after merge;
+- verify post-merge `main` and relevant workflows;
+- keep branch/PR cleanup status accurate.
+
+ChatGPT should not ask Gemini to "wait for CI" or "check GitHub Actions" as a mandatory completion step if Gemini cannot access them. Gemini's completion boundary is **local validated + pushed branch + handoff**; ChatGPT continues from there.
+
+### SHARED ACCEPTANCE LANGUAGE
+
+Use these labels consistently:
+
+```text
+LOCAL_PASS
+LOCAL_PASS_CI_PENDING
+CI_PASS
+MERGED
+NOT_EXECUTED
+BLOCKED
+PENDING_UI_REFACTOR
+```
+
+Never collapse `LOCAL_PASS` into `CI_PASS`.
+
+### CURRENT AI-PIPE-01A APPLICATION
+
+For the active branch `astra/ai-pipe-01-closed-loop-validation`:
+
+**Gemini responsibility**
+1. Finish local AI-PIPE-01A implementation/test.
+2. Ensure report wording matches the local evidence.
+3. Ensure evidence records the exact committed source lineage; if the test ran on an uncommitted working tree, rerun after committing or mark the lineage limitation explicitly.
+4. Push the completed branch and stop at `LOCAL_PASS_CI_PENDING`.
+5. Do not begin P2/P3 until ChatGPT closes the remote AI-PIPE-01A gate.
+
+**ChatGPT responsibility**
+1. Review the pushed AI-PIPE-01A diff/evidence.
+2. Create the PR.
+3. Run/inspect P8 and any relevant PostgreSQL/AI pipeline GitHub Actions.
+4. Investigate CI failures and return only code-local failures to Gemini for repair.
+5. Merge after remote gates pass.
+6. Record `AI-PIPE-01A = CI_PASS / MERGED` on `main`.
+7. Keep `AI-PIPE-01B Browser/UI System E2E = PENDING_UI_REFACTOR`.
+
+### FAILURE HANDOFF LOOP
+
+If GitHub CI finds a defect:
+
+```text
+ChatGPT reads CI failure
+ -> writes exact failure + relevant log evidence into handoff
+ -> Gemini fixes/retests locally
+ -> Gemini pushes new HEAD
+ -> ChatGPT rechecks CI
+ -> repeat until green
+```
+
+This is the default collaboration loop for the remainder of P1/P2/P3.
+
+---
+
+
 ## IDE HANDOFF — CONTINUE AI-PIPE-01A ON ACTIVE WORKING BRANCH (2026-10-09)
 
 The active implementation/testing work is **not on `main` yet**.
