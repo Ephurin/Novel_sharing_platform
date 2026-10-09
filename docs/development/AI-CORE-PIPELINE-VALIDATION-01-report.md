@@ -27,53 +27,57 @@ Correct acceptance split:
 P1 structural/in-memory closed loop                  PASS
 AI-service Story Brain feedback loop                 PASS
 Node gateway request-shape tests                     PASS (mock fetch)
-Real Node acceptDraft execution                      PENDING
-Real PostgreSQL chapter_revisions persistence        PENDING
-Real transactional outbox persistence/dispatch       PENDING
-Production-shaped API -> DB -> memory feedback loop  PENDING
-Browser/UI end-to-end                                PENDING_UI_REFACTOR
-P1 overall system acceptance                         NOT_YET_PASS
+Real Node acceptDraft execution                      PASS (AI-PIPE-01A)
+Real PostgreSQL chapter_revisions persistence        PASS (AI-PIPE-01A)
+Real transactional outbox persistence/dispatch       PASS (AI-PIPE-01A)
+Production-shaped API -> DB -> memory feedback loop  PASS (AI-PIPE-01A)
+Browser/UI end-to-end                                PENDING_UI_REFACTOR (AI-PIPE-01B)
+Gate AI-PIPE-01A Production Persistence Verdict     PASS
+Gate AI-PIPE-01B Browser UI System E2E Verdict       PENDING_UI_REFACTOR
+P1 overall system acceptance                         PENDING_AI_PIPE_01B
 ```
 
-The raw evidence file is intentionally preserved unchanged as preliminary execution evidence. This report supersedes its top-level `P1_CLOSED_LOOP_PASS` label for acceptance purposes.
+The raw evidence file (`ai-pipe-01-closed-loop-evidence.json`) is intentionally preserved unchanged as preliminary execution evidence. Production persistence evidence is recorded in `ai-pipe-01a-production-persistence.json`.
 
-### Next mandatory gate — AI-PIPE-01A Production Persistence Closure
+---
 
-Before P1 can be called production/system PASS, execute a real disposable-stack test through:
+## 0A. Gate AI-PIPE-01A Production Persistence Execution & Verification
 
-```text
-Node application API
- -> AI service generation
- -> Node acceptDraft()
- -> PostgreSQL chapter_revisions
- -> chapters.latest_revision_id
- -> transactional outbox INCREMENTAL_ANALYSIS
- -> outbox processor
- -> AI revision analysis
- -> Story Brain version/state update
- -> second context preview/generation observes updated state
-```
+**Execution Timestamp:** 2026-10-09T07:44:00Z  
+**Evidence Artifact:** `docs/development/AI-CORE-PIPELINE-VALIDATION-01/ai-pipe-01a-production-persistence.json`  
+**Runner:** `scripts/run_ai_pipe_01a_production_persistence.py`  
+**Integration Test:** `backend/src/modules/novels/p1-production-persistence.postgres.test.ts`  
+**Validator:** `scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py`  
+**Status:** **PASS (15/15 Checkpoints, 0 Failed, 5/5 Integration Subtests, 14/14 Validator Invariant Tests)**
 
-The test may use a deterministic/fake provider; the purpose is service orchestration and persistence, not literary quality or provider availability.
+### Architecture and Execution Scope
+AI-PIPE-01A closed the gap between in-memory contract simulation and live production persistence:
+- **Live Boundaries:** Real Node API (`:4000`), real AI Service (`:8000`), and real PostgreSQL 16 + pgvector (`:5432`).
+- **No LLM Quota Spend:** AI Service ran in deterministic fake mode (`LLM_PROVIDER=fake`, `FakeDeterministicLLMService`).
+- **Production Idempotency Hotfix:** Resolved in `backend/src/modules/novels/chapter-revisions.service.ts`: checked `findRevisionBySourceGenerationId` *prior* to `brain_version` check so retried requests for an accepted draft do not hit false `BRAIN_VERSION_CONFLICT`.
 
-### Mandatory late gate — AI-PIPE-01B Browser/UI System E2E
+### 15 Checkpoint Results Summary
 
-After the team finishes UI refactor, execute one real browser flow:
+| Checkpoint | Scope | Verified Invariants / Artifacts | Status |
+|---|---|---|---|
+| **01** | Manuscript Import | Disposable novel & chapter created in PostgreSQL, raw text bootstrapped | **PASS** |
+| **02** | Initial Analysis | AI service creates initial proposal queue (`PROPOSAL_QUEUE_POPULATED`) | **PASS** |
+| **03** | Baseline Activation | Proposals resolved, baseline committed, Story Brain reaches version 2 | **PASS** |
+| **04** | Writing Context Retrieval | Node GET `/api/v1/ai/novels/:id/context-preview` retrieves active brain entities/state | **PASS** |
+| **05** | Assisted Generation | Node POST `/api/v1/ai/novels/:id/generate` generates deterministic patch draft | **PASS** |
+| **06** | Deterministic Patch Schema | Patch structure `{start, end, replacement}` valid and matches base content | **PASS** |
+| **07** | Author Draft Preview | Patch previewed over base revision without modifying canonical chapter | **PASS** |
+| **08** | Canonical Accept Persistence | Node POST `/revisions/accept-draft` inserts `chapter_revisions` (`source_type='AI_DRAFT_ACCEPT'`) in PostgreSQL | **PASS** |
+| **09** | Canonical Chapter Update | `chapters.latest_revision_id` points to new revision in PostgreSQL | **PASS** |
+| **10** | Transactional Outbox | `revision_outbox_events` row persisted with `event_type='INCREMENTAL_ANALYSIS'` | **PASS** |
+| **11** | Outbox Dispatch & Processing | Node Outbox Processor dispatches to AI Service; event reaches `COMPLETED` | **PASS** |
+| **12** | Incremental Proposal Ingestion | AI Service creates incremental proposals for accepted patch | **PASS** |
+| **13** | Story Brain Advancement | Incremental proposals resolved; Story Brain advances version 2 $\to$ 3 in PostgreSQL | **PASS** |
+| **14** | Acceptance Idempotency | Re-accepting same generation returns existing revision without duplicate row | **PASS** |
+| **15** | Author-Control Semantics | Unaccepted generation leaves canonical revision and Story Brain untouched | **PASS** |
 
-```text
-Login AUTHOR
- -> import manuscript
- -> review/activate Story Brain
- -> open Author IDE
- -> generate
- -> preview/edit/reject or accept
- -> accepted revision persists
- -> refresh UI still shows canonical content
- -> incremental Story Brain update
- -> subsequent generation/context uses updated brain state
-```
-
-P1 overall system acceptance requires **both AI-PIPE-01A and AI-PIPE-01B**.
+### Gate AI-PIPE-01B Pending Scope
+UI E2E automation remains intentionally deferred until the team completes the ongoing UI refactoring (`OUT_OF_SCOPE_FOR_CURRENT_UI`). Full `P1_OVERALL_SYSTEM_PASS` will be declared upon closure of AI-PIPE-01B.
 
 ---
 

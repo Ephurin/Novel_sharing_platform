@@ -257,6 +257,19 @@ jobs:
           test "$missing" = "401"
           test "$invalid" = "403"
           test "$valid" = "200"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install AI-PIPE-01A validation dependencies
+        run: pip install httpx psycopg
+      - name: Run Gate AI-PIPE-01A Production Persistence Validation
+        run: python scripts/run_ai_pipe_01a_production_persistence.py
+      - name: Verify Gate AI-PIPE-01 & AI-PIPE-01A Evidence Schema and Invariants
+        run: python scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py
+      - name: Run Backend PostgreSQL Production Persistence Integration Suite
+        run: docker compose exec -T backend npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
+
       - name: Show service status
         if: always()
         run: docker compose ps

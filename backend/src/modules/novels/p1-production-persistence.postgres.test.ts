@@ -1,7 +1,8 @@
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
-import { getPostgresPool } from '../../core/database/postgres.js';
+import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
+import { disconnectMongo } from '../../core/database/mongo.js';
 import { acceptDraft } from './chapter-revisions.service.js';
 import { env } from '../../core/config/env.js';
 
@@ -106,13 +107,20 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
         } as any;
       }
 
+      if (urlStr.includes('/analyses')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ status: 'success' }),
+          text: async () => JSON.stringify({ status: 'success' }),
+        } as any;
+      }
+
       return originalFetch(url, init);
     }) as any;
   });
 
   after(async () => {
-    global.fetch = originalFetch;
-
     // Teardown fixture data from PostgreSQL
     if (novelId) {
       await pool.query('delete from novels where novel_id = $1', [novelId]);
@@ -120,6 +128,10 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
     if (userId) {
       await pool.query('delete from users where user_id = $1', [userId]);
     }
+
+    await disconnectPostgres();
+    await disconnectMongo();
+    global.fetch = originalFetch;
   });
 
   test('Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL', async () => {
