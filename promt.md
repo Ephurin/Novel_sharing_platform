@@ -123,6 +123,59 @@ start_from_idea(... author_constraints)
 
 Correct the report to match the actual contract. The deterministic content-derived job UUID already provides repeatability; do not invent a request field merely to make the report match.
 
+### BLOCKER 5 — qualify outline support; do not claim durable plan-aware writing yet
+
+`ai-service/docs/API_CONTRACTS.md` explicitly defines UC-01 as Story Blueprint / World Bible proposals and states:
+
+```text
+premise
+world_rule
+entity
+initial_state
+relationship
+open_question
+```
+
+and also says it does **not** create a planning object.
+
+The current implementation accepts `outline` and includes it in the LLM prompt/job identity, but the persisted proposal set currently materializes only:
+
+```text
+premise fact
+world-rule facts
+entities
+author constraints as world rules
+```
+
+The deterministic fake blueprint also does not make the supplied outline affect any persisted proposal beyond the request/job identity.
+
+Therefore this gate currently proves:
+
+```text
+IDEA/PREMISE -> REVIEWABLE WORLD BIBLE -> STORY BRAIN -> P1 WRITING LOOP
+```
+
+but it does **not yet prove**:
+
+```text
+OUTLINE -> DURABLE STORY PLAN -> SUBSEQUENT GENERATIONS FOLLOW THAT PLAN
+```
+
+Do not solve this by storing future outline beats as canonical historical facts/events, because that would create future-information leakage in narrative memory.
+
+For AI-PIPE-02A repair, do one of the following explicitly:
+
+1. **Preferred narrow closure:** qualify the report/gate as `Idea/World-Bible Bootstrap`, document durable outline-plan persistence as the next P2 gap (`AI-PIPE-02B`), and keep the architecture clean; or
+2. if an existing non-canonical planning/context model already exists in the repository, reuse it and add a focused test showing outline intent reaches later writing context without becoming historical canon.
+
+Do not invent a parallel memory store or silently encode future plot beats as established Story Brain facts.
+
+Also note that the accepted UC-01 contract lists `initial_state`, `relationship`, and `open_question`; the current implementation does not emit these. Either implement only if needed for the minimal World Bible acceptance, or record them honestly as not yet implemented. Do not claim full UC-01 parity.
+
+### Documentation portability
+
+Before final handoff, replace local `file:///c:/...` links in the report with repository-relative paths or plain code paths. They are not portable GitHub evidence links.
+
 ### Acceptance after repair
 
 Gemini completion boundary remains:
