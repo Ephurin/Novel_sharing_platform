@@ -37,6 +37,16 @@ Required repair sequence:
 
 Do not rewrite `git_commit` manually. It must be emitted by the runner from the checked-out clean code commit.
 
+### BLOCKER 1B — bootstrap identity omits locale
+
+`start_from_idea()` computes the deterministic bootstrap identity from tenant, novel, idea, outline, preferences and constraints, but currently omits `locale`.
+
+That means the same story input requested once as `vi-VN` and later as `en-US` can resolve to the same job ID and return stale localized output.
+
+Required repair:
+- include normalized `locale` in the identity used to derive the deterministic job UUID and analysis idempotency key;
+- add a focused test proving identical requests in the same locale reuse the same job, while a locale change produces a distinct job;
+- keep same-payload repeatability unchanged.
 ### BLOCKER 2 — production blueprint fallback must not invent unrelated lore
 
 `ManuscriptBootstrapService._generate_blueprint()` currently swallows LLM/parsing failures and falls through to hard-coded fantasy content such as:
