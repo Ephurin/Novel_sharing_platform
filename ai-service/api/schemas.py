@@ -95,6 +95,21 @@ class ManuscriptBootstrapRequest(BaseModel):
     options: BootstrapOptions = Field(default_factory=BootstrapOptions)
 
 
+class IdeaBootstrapPreferences(BaseModel):
+    genre: list[str] = Field(default_factory=list)
+    tone: str = "neutral"
+    target_length: str = "long_form"
+
+
+class IdeaBootstrapRequest(BaseModel):
+    novel_id: str = Field(min_length=1)
+    idea: str = Field(min_length=1)
+    outline: str | None = None
+    locale: str = "vi-VN"
+    preferences: IdeaBootstrapPreferences = Field(default_factory=IdeaBootstrapPreferences)
+    author_constraints: list[str] = Field(default_factory=list)
+
+
 class BaselineActivationRequest(BaseModel):
     job_id: str = Field(min_length=1)
 

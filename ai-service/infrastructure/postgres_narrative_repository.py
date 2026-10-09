@@ -1081,7 +1081,11 @@ class PostgresNarrativeRepository:
             if job is None or brain is None:
                 raise KeyError(job_id)
             brain.status = "active"
-            brain.baseline_revision_id = self._stable_uuid("revision", baseline_revision_id)
+            brain.baseline_revision_id = (
+                self._stable_uuid("revision", baseline_revision_id)
+                if baseline_revision_id
+                else None
+            )
             return {
                 "story_brain_id": str(brain.id),
                 "status": brain.status,

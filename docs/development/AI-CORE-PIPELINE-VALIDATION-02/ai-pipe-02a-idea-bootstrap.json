@@ -1,0 +1,172 @@
+{
+  "gate": "AI-PIPE-02A",
+  "pipeline": "P2",
+  "verdict": "P2_IDEA_BOOTSTRAP_PASS",
+  "timestamp": "2026-10-09T09:35:01.598008+00:00",
+  "git_commit": "40f8fb8a5d2b39b94d5520375ffdda6f059434f4",
+  "git_branch": "astra/ai-pipe-02-idea-bootstrap",
+  "environment": {
+    "backend_url": "http://localhost:4000/api/v1",
+    "ai_service_url": "http://localhost:8000",
+    "database_backend": "postgresql-16+pgvector",
+    "llm_provider": "fake-deterministic"
+  },
+  "summary": {
+    "total_checkpoints": 13,
+    "passed": 13,
+    "failed": 0
+  },
+  "checkpoints": [
+    {
+      "checkpoint": 1,
+      "name": "Idea Bootstrap Request via Node API",
+      "status": "PASS",
+      "summary": "Successfully queued idea bootstrap job 3274bbd6-0231-5495-88f4-7bfb84f94290",
+      "details": {
+        "novel_id": "3100c6ed-6bcb-46d2-8155-10fc1cdec321",
+        "job_id": "3274bbd6-0231-5495-88f4-7bfb84f94290",
+        "status": "waiting_review"
+      }
+    },
+    {
+      "checkpoint": 2,
+      "name": "Repeatable Bootstrap Idempotency",
+      "status": "PASS",
+      "summary": "Repeated bootstrap request returned same job_id 3274bbd6-0231-5495-88f4-7bfb84f94290",
+      "details": {
+        "job_id_1": "3274bbd6-0231-5495-88f4-7bfb84f94290",
+        "job_id_2": "3274bbd6-0231-5495-88f4-7bfb84f94290"
+      }
+    },
+    {
+      "checkpoint": 3,
+      "name": "Structured Initial Proposals / Blueprint Populated",
+      "status": "PASS",
+      "summary": "Found 7 proposals in review queue covering ['entity', 'fact']",
+      "details": {
+        "proposal_count": 7,
+        "proposal_types": [
+          "entity",
+          "fact"
+        ],
+        "premise_preview": "Một pháp sư mất trí nhớ điều tra cái chết của chính mình tại"
+      }
+    },
+    {
+      "checkpoint": 4,
+      "name": "Author Review & Proposal Acceptance",
+      "status": "PASS",
+      "summary": "Accepted 7 proposals; Story Brain advanced to version 2",
+      "details": {
+        "group_id": "a562c87c-8278-550c-a42e-b67070b46360",
+        "accepted_count": 7,
+        "brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 5,
+      "name": "Baseline Activation via Node API",
+      "status": "PASS",
+      "summary": "Story Brain status activated successfully (status=active)",
+      "details": {
+        "story_brain_id": "9512b001-7b56-4803-91dd-5b4fa8fb46d1",
+        "status": "active",
+        "baseline_revision_id": null,
+        "brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 6,
+      "name": "First Canonical Chapter & Revision Association",
+      "status": "PASS",
+      "summary": "Created chapter ff204545-8c2e-4f5e-a318-4c5c13117353 with canonical base revision 7b1b39b2-c5b4-46b0-94bd-b9a638f6fca6",
+      "details": {
+        "chapter_id": "ff204545-8c2e-4f5e-a318-4c5c13117353",
+        "revision_id": "7b1b39b2-c5b4-46b0-94bd-b9a638f6fca6",
+        "content_hash": "95dc1d65d62422977028895b56d56eae84b3d1c806593ccbf838bb19ab9afb2c"
+      }
+    },
+    {
+      "checkpoint": 7,
+      "name": "Direct PostgreSQL Schema Verification",
+      "status": "PASS",
+      "summary": "Verified narrative schema: 3 entities, 4 facts, brain_version=2",
+      "details": {
+        "pg_entities": 3,
+        "pg_facts": 4,
+        "brain_status": "active",
+        "brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 8,
+      "name": "Context Preview from Active Initial Story Brain",
+      "status": "PASS",
+      "summary": "Context preview returned brain_version=2 with 3 entities",
+      "details": {
+        "brain_version": 2,
+        "entity_count": 3,
+        "world_rules_count": 3
+      }
+    },
+    {
+      "checkpoint": 9,
+      "name": "Assisted AI Generation via Standard P1 Route",
+      "status": "PASS",
+      "summary": "Generated patch draft d3691ea5-2754-5a63-bb61-d8fbcba2d64b with status=completed, validation=passed",
+      "details": {
+        "generation_id": "d3691ea5-2754-5a63-bb61-d8fbcba2d64b",
+        "status": "completed",
+        "validation_status": "passed",
+        "patch": {
+          "start": 0,
+          "end": 0,
+          "replacement": "Tiêu Viêm thở dài một hơi, chậm rãi thu hồi Dị Hỏa, ánh mắt nhìn về phía chân trời xa xăm."
+        }
+      }
+    },
+    {
+      "checkpoint": 10,
+      "name": "Canonical Draft Acceptance & PostgreSQL Persistence",
+      "status": "PASS",
+      "summary": "Persisted revision d60096a1-5af2-429a-ac55-4ca10a9b786c with source_type=AI_DRAFT_ACCEPT in PostgreSQL",
+      "details": {
+        "revision_id": "d60096a1-5af2-429a-ac55-4ca10a9b786c",
+        "parent_revision_id": "7b1b39b2-c5b4-46b0-94bd-b9a638f6fca6",
+        "source_type": "AI_DRAFT_ACCEPT",
+        "source_generation_id": "d3691ea5-2754-5a63-bb61-d8fbcba2d64b",
+        "chapters_latest_revision_id": "d60096a1-5af2-429a-ac55-4ca10a9b786c"
+      }
+    },
+    {
+      "checkpoint": 11,
+      "name": "Transactional Outbox Dispatch & Incremental Story Brain Update",
+      "status": "PASS",
+      "summary": "Outbox event 2a119d05-e508-412b-a6e7-38b98d8916bf dispatched; Story Brain reached version 3",
+      "details": {
+        "outbox_event_id": "2a119d05-e508-412b-a6e7-38b98d8916bf",
+        "outbox_status": "COMPLETED",
+        "story_brain_version": 3
+      }
+    },
+    {
+      "checkpoint": 12,
+      "name": "Second Context Preview Observes Updated Brain State",
+      "status": "PASS",
+      "summary": "Context preview successfully observed updated brain_version=3",
+      "details": {
+        "brain_version": 3
+      }
+    },
+    {
+      "checkpoint": 13,
+      "name": "Acceptance Idempotency & Author-Control Semantics",
+      "status": "PASS",
+      "summary": "Retry acceptDraft returned existing revision with count=1; unaccepted draft left canon untouched",
+      "details": {
+        "accepted_revision_id": "d60096a1-5af2-429a-ac55-4ca10a9b786c",
+        "duplicate_row_count": 1
+      }
+    }
+  ]
+}

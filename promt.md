@@ -52,9 +52,13 @@ Do not reopen AI-PIPE-01A unless a regression appears.
 
 ---
 
-## NEXT LOCAL IMPLEMENTATION GATE — AI-PIPE-02A IDEA/OUTLINE -> CANONICAL STORY BRAIN (2026-10-09)
+## LOCAL GATE AI-PIPE-02A IDEA/OUTLINE -> CANONICAL STORY BRAIN — LOCAL_PASS_CI_PENDING (2026-10-09)
 
-The next local engineering task belongs to Gemini/Antigravity.
+**Status:** `LOCAL_PASS_CI_PENDING` (13/13 Checkpoints Passed)  
+**Branch:** `astra/ai-pipe-02-idea-bootstrap`  
+**Live Evidence:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02/ai-pipe-02a-idea-bootstrap.json`  
+**Validator:** `scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py` $\to$ **PASS (5/5 mutants rejected)**  
+**Report:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02-report.md`  
 
 ### Objective
 
@@ -197,7 +201,7 @@ ChatGPT will inspect the pushed branch, review evidence, create PR, run/inspect 
 ```text
 AI-PIPE-01A P1 backend closed loop      CI_PASS / MERGED
 AI-PIPE-01B P1 browser UI               PENDING_UI_REFACTOR
-AI-PIPE-02A idea/outline bootstrap       NEXT LOCAL TASK
+AI-PIPE-02A idea/outline bootstrap       LOCAL_PASS_CI_PENDING (13/13 PASS)
 AI-PIPE-03 autonomous full-auto loop     BLOCKED UNTIL P2 ARCHITECTURE IS CLOSED
 ```
 
