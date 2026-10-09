@@ -145,13 +145,107 @@ class IdeaBootstrapRouteTests(unittest.TestCase):
 
         self.assertEqual(job1, job2)
 
-    def test_bootstrap_from_idea_empty_idea_rejected(self) -> None:
-        payload = {
+    def test_bootstrap_locale_distinct_jobs(self) -> None:
+        payload_vi = {
             "novel_id": self.novel_id,
-            "idea": "   ",
+            "idea": "A detective solves their own murder.",
+            "locale": "vi-VN",
         }
-        resp = self.client.post("/v1/story-brains/bootstrap/from-idea", json=payload, headers=self.headers)
-        self.assertEqual(resp.status_code, 422)
+        payload_en = {
+            "novel_id": self.novel_id,
+            "idea": "A detective solves their own murder.",
+            "locale": "en-US",
+        }
+        # First request in vi-VN
+        resp_vi1 = self.client.post("/v1/story-brains/bootstrap/from-idea", json=payload_vi, headers=self.headers)
+        self.assertEqual(resp_vi1.status_code, 202)
+        job_vi1 = resp_vi1.json()["data"]["job_id"]
+
+        # Repeated request in vi-VN produces identical job_id
+        resp_vi2 = self.client.post("/v1/story-brains/bootstrap/from-idea", json=payload_vi, headers=self.headers)
+        self.assertEqual(resp_vi2.status_code, 202)
+        self.assertEqual(job_vi1, resp_vi2.json()["data"]["job_id"])
+
+        # Request in en-US produces distinct job_id
+        resp_en = self.client.post("/v1/story-brains/bootstrap/from-idea", json=payload_en, headers=self.headers)
+        self.assertEqual(resp_en.status_code, 202)
+        job_en = resp_en.json()["data"]["job_id"]
+        self.assertNotEqual(job_vi1, job_en)
+
+    def test_provider_failure_fails_closed(self) -> None:
+        class FailingLLM:
+            def _call_llm(self, **kwargs: object) -> str:
+                raise ConnectionError("LLM API endpoint unavailable")
+
+        failing_bootstrap = ManuscriptBootstrapService(
+            self.repository,
+            self.provider,
+            self.analysis,
+            llm_service=FailingLLM(),
+        )
+        with self.assertRaises(RuntimeError) as ctx:
+            failing_bootstrap.start_from_idea(
+                tenant_id=self.tenant_id,
+                novel_id="20000000-0000-0000-0000-000000000088",
+                idea="A warrior explores ancient ruins.",
+            )
+        self.assertIn("Provider failed to generate structured story blueprint", str(ctx.exception))
+
+    def test_provider_invalid_json_fails_closed(self) -> None:
+        class CorruptLLM:
+            def _call_llm(self, **kwargs: object) -> str:
+                return '{"corrupt": true}'  # Missing required premise
+
+        corrupt_bootstrap = ManuscriptBootstrapService(
+            self.repository,
+            self.provider,
+            self.analysis,
+            llm_service=CorruptLLM(),
+        )
+        with self.assertRaises(RuntimeError) as ctx:
+            corrupt_bootstrap.start_from_idea(
+                tenant_id=self.tenant_id,
+                novel_id="20000000-0000-0000-0000-000000000089",
+                idea="A warrior explores ancient ruins.",
+            )
+        self.assertIn("Provider failed to generate structured story blueprint", str(ctx.exception))
+
+    def test_no_provider_fallback_derives_only_from_user_inputs(self) -> None:
+        offline_bootstrap = ManuscriptBootstrapService(
+            self.repository,
+            self.provider,
+            self.analysis,
+            llm_service=None,  # Explicit no-provider path
+        )
+        test_novel_id = "20000000-0000-0000-0000-000000000090"
+        job = offline_bootstrap.start_from_idea(
+            tenant_id=self.tenant_id,
+            novel_id=test_novel_id,
+            idea="A realistic cyber-espionage thriller in Tokyo.",
+            preferences={"genre": ["cyberpunk", "thriller"], "tone": "gritty"},
+            author_constraints=["No magic allowed", "Hard sci-fi physics"],
+        )
+        self.assertEqual(job.status, "waiting_review")
+
+        # Fetch generated proposals from repository
+        queue = self.repository.list_proposals(test_novel_id)
+        self.assertEqual(len(queue), 5)  # 1 premise + 2 preferences rules + 2 author constraints
+
+        premise_prop = next(p for p in queue if p.payload.get("fact_type") == "premise")
+        self.assertEqual(premise_prop.payload["fact_value"], "A realistic cyber-espionage thriller in Tokyo.")
+
+        rule_values = [p.payload["fact_value"] for p in queue if p.payload.get("fact_type") == "world_rule"]
+        self.assertIn("Genre: cyberpunk, thriller", rule_values)
+        self.assertIn("Tone: gritty", rule_values)
+        self.assertIn("No magic allowed", rule_values)
+        self.assertIn("Hard sci-fi physics", rule_values)
+
+        # Assert no fantasy lore or phantom entities were invented
+        entity_props = [p for p in queue if p.proposal_type == "entity"]
+        self.assertEqual(len(entity_props), 0)
+        for r in rule_values:
+            self.assertNotIn("ma thuật", r.lower())
+            self.assertNotIn("bảo toàn", r.lower())
 
 
 if __name__ == "__main__":

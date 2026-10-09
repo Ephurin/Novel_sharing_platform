@@ -583,22 +583,83 @@ def run_pipeline(
         )
         assert cur.fetchone()[0] == 1, "Expected exactly 1 revision row in PostgreSQL"
 
-        # 13b: Unaccepted draft does not alter canonical revision
-        unused_gen_id = f"unused-gen-{uuid.uuid4()}"
+        # 13b: Create a second REAL writing generation and verify author-control safety when unaccepted
+        cur.execute("SELECT latest_revision_id FROM chapters WHERE chapter_id = %s", (first_chapter_id,))
+        latest_rev_before = str(cur.fetchone()[0])
+        cur.execute("SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
+        brain_ver_before = int(cur.fetchone()[0])
+
+        # Get latest accepted revision hash and content length
+        cur.execute("SELECT content_hash, content FROM chapter_revisions WHERE revision_id = %s", (accepted_rev_id,))
+        acc_hash, acc_content = cur.fetchone()
+
+        gen2_idempotency_key = f"gen-p2-unaccepted-{int(time.time())}-{uuid.uuid4()}"
+        gen2_payload = {
+            "novel_id": novel_id,
+            "chapter_id": first_chapter_id,
+            "revision_id": accepted_rev_id,
+            "content_hash": acc_hash,
+            "operation": "continue",
+            "instruction": "Kael dừng lại và lắng nghe tiếng gió rít qua khe đá, không tiếp tục bước đi.",
+            "expected_brain_version": brain_ver_before,
+            "selection": {"start": len(acc_content), "end": len(acc_content), "cursor": len(acc_content)},
+            "idempotency_key": gen2_idempotency_key,
+        }
+        gen2_res = httpx.post(gen_url, json=gen2_payload, headers=headers, timeout=15.0)
+        assert gen2_res.status_code == 202, f"Second generation start failed: {gen2_res.text}"
+        unaccepted_gen_id = gen2_res.json()["data"]["job_id"]
+
+        gen2_job_data: dict[str, Any] = {}
+        for _ in range(30):
+            j2_res = httpx.get(f"{backend_url}/ai/jobs/{unaccepted_gen_id}", headers=headers, timeout=10.0)
+            gen2_job_data = j2_res.json()["data"]
+            if gen2_job_data.get("status") in ("completed", "failed"):
+                break
+            time.sleep(1.0)
+
+        assert gen2_job_data.get("status") == "completed", f"Unaccepted generation failed: {gen2_job_data}"
+        assert gen2_job_data.get("validation_status") == "passed"
+
+        # Explicitly DO NOT call accept-draft
+        # Verify chapter latest_revision_id is completely unchanged
+        cur.execute("SELECT latest_revision_id FROM chapters WHERE chapter_id = %s", (first_chapter_id,))
+        latest_rev_after = str(cur.fetchone()[0])
+        assert latest_rev_after == latest_rev_before, (
+            f"Canonical latest_revision_id was mutated without acceptDraft: {latest_rev_after} != {latest_rev_before}"
+        )
+
+        # Verify no chapter_revisions row exists for unaccepted_gen_id
         cur.execute(
             """
             SELECT count(*) FROM chapter_revisions WHERE source_generation_id = %s
             """,
-            (unused_gen_id,),
+            (unaccepted_gen_id,),
         )
-        assert cur.fetchone()[0] == 0
+        unacc_rev_count = cur.fetchone()[0]
+        assert unacc_rev_count == 0, f"Expected 0 revision rows for unaccepted generation, found {unacc_rev_count}"
+
+        # Verify Story Brain version has NOT advanced
+        cur.execute("SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
+        brain_ver_after = int(cur.fetchone()[0])
+        assert brain_ver_after == brain_ver_before, (
+            f"Story Brain was mutated by unaccepted generation: {brain_ver_after} != {brain_ver_before}"
+        )
 
         record_cp(
             13,
             "Acceptance Idempotency & Author-Control Semantics",
             "PASS",
-            "Retry acceptDraft returned existing revision with count=1; unaccepted draft left canon untouched",
-            {"accepted_revision_id": accepted_rev_id, "duplicate_row_count": 1},
+            "Retry acceptDraft returned existing revision with count=1; real unaccepted generation left canon and Story Brain untouched",
+            {
+                "accepted_revision_id": accepted_rev_id,
+                "duplicate_row_count": 1,
+                "unaccepted_generation_id": unaccepted_gen_id,
+                "latest_revision_before": latest_rev_before,
+                "latest_revision_after": latest_rev_after,
+                "unaccepted_generation_revision_count": unacc_rev_count,
+                "brain_version_before": brain_ver_before,
+                "brain_version_after": brain_ver_after,
+            },
         )
 
     finally:

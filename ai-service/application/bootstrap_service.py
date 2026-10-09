@@ -98,10 +98,13 @@ class ManuscriptBootstrapService:
         preferences = preferences or {}
         author_constraints = list(author_constraints or [])
 
+        locale_norm = (locale or "vi-VN").strip().lower()
+
         identity = json.dumps(
             {
                 "tenant_id": tenant_id,
                 "novel_id": novel_id,
+                "locale": locale_norm,
                 "idea": idea.strip(),
                 "outline": (outline or "").strip(),
                 "preferences": preferences,
@@ -115,7 +118,7 @@ class ManuscriptBootstrapService:
             existing_job = self._repository.get_bootstrap_job(job_id)
             if existing_job:
                 return existing_job
-        except Exception:
+        except KeyError:
             pass
 
         brain = self._repository.get_story_brain(novel_id)
@@ -291,22 +294,25 @@ class ManuscriptBootstrapService:
             try:
                 raw = self._llm_service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
                 data = json.loads(raw)
-                if isinstance(data, dict) and "premise" in data:
+                if isinstance(data, dict) and "premise" in data and isinstance(data["premise"], str) and data["premise"].strip():
                     return data
-            except Exception:
-                pass
+                raise ValueError("LLM response did not contain valid non-empty 'premise' field")
+            except Exception as e:
+                raise RuntimeError(f"Provider failed to generate structured story blueprint: {e}") from e
 
-        genres = preferences.get("genre", ["fantasy"])
-        genre_str = ", ".join(genres) if isinstance(genres, list) else str(genres)
+        # Explicit no-provider / offline path: derive strictly from user-supplied inputs
+        world_rules: list[str] = []
+        if preferences.get("tone"):
+            world_rules.append(f"Tone: {preferences['tone']}")
+        if preferences.get("genre"):
+            g = preferences["genre"]
+            genre_str = ", ".join(g) if isinstance(g, list) else str(g)
+            world_rules.append(f"Genre: {genre_str}")
+
         return {
-            "premise": idea,
-            "world_rules": [
-                f"Quy tắc thế giới cơ bản ({genre_str}): Năng lượng ma thuật luôn tuân theo luật bảo toàn.",
-            ],
-            "entities": [
-                {"name": "Nhân vật chính", "entity_type": "character", "score": 9.5},
-                {"name": "Khởi đầu chi địa", "entity_type": "location", "score": 8.5},
-            ],
+            "premise": idea.strip(),
+            "world_rules": world_rules,
+            "entities": [],
             "author_constraints": author_constraints,
         }
 

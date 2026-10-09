@@ -131,9 +131,25 @@ def validate(evidence: dict[str, Any]) -> list[str]:
     cp12 = cp_map.get(12, {})
     require(cp12.get("details", {}).get("brain_version", 0) >= 3, "cp12_preview_brain_version_not_advanced")
 
-    # Checkpoint 13: Acceptance Idempotency
+    # Checkpoint 13: Acceptance Idempotency & Author Control
     cp13 = cp_map.get(13, {})
-    require(cp13.get("details", {}).get("duplicate_row_count") == 1, "cp13_duplicate_row_detected")
+    cp13_details = cp13.get("details", {})
+    require(cp13_details.get("duplicate_row_count") == 1, "cp13_duplicate_row_detected")
+    require(bool(cp13_details.get("unaccepted_generation_id")), "cp13_missing_unaccepted_generation_id")
+    require(
+        cp13_details.get("latest_revision_before") is not None
+        and cp13_details.get("latest_revision_before") == cp13_details.get("latest_revision_after"),
+        "cp13_latest_revision_mutated",
+    )
+    require(
+        cp13_details.get("unaccepted_generation_revision_count") == 0,
+        "cp13_unaccepted_generation_persisted",
+    )
+    require(
+        cp13_details.get("brain_version_before") is not None
+        and cp13_details.get("brain_version_before") == cp13_details.get("brain_version_after"),
+        "cp13_brain_version_mutated",
+    )
 
     return errors
 
@@ -215,7 +231,16 @@ def run_self_tests() -> None:
             {
                 "checkpoint": 13,
                 "status": "PASS",
-                "details": {"duplicate_row_count": 1},
+                "details": {
+                    "accepted_revision_id": "rev-2",
+                    "duplicate_row_count": 1,
+                    "unaccepted_generation_id": "gen-unacc-456",
+                    "latest_revision_before": "rev-2",
+                    "latest_revision_after": "rev-2",
+                    "unaccepted_generation_revision_count": 0,
+                    "brain_version_before": 3,
+                    "brain_version_after": 3,
+                },
             },
         ],
     }
@@ -249,7 +274,22 @@ def run_self_tests() -> None:
     m5["checkpoints"][8]["status"] = "FAIL"
     assert "checkpoint_9_not_passed" in validate(m5)
 
-    print("[SELF-TEST] All 5 mutants successfully rejected (Fail-closed verified).")
+    # Mutant 6: Unaccepted generation mutated canonical revision
+    m6 = copy.deepcopy(valid_fixture)
+    m6["checkpoints"][12]["details"]["latest_revision_after"] = "rev-mutated"
+    assert "cp13_latest_revision_mutated" in validate(m6)
+
+    # Mutant 7: Unaccepted generation persisted a chapter revision row
+    m7 = copy.deepcopy(valid_fixture)
+    m7["checkpoints"][12]["details"]["unaccepted_generation_revision_count"] = 1
+    assert "cp13_unaccepted_generation_persisted" in validate(m7)
+
+    # Mutant 8: Unaccepted generation mutated Story Brain version
+    m8 = copy.deepcopy(valid_fixture)
+    m8["checkpoints"][12]["details"]["brain_version_after"] = 4
+    assert "cp13_brain_version_mutated" in validate(m8)
+
+    print("[SELF-TEST] All 8 mutants successfully rejected (Fail-closed verified).")
 
 
 def main() -> None:
