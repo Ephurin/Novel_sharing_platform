@@ -1,5 +1,303 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT CANONICAL STATUS — AI-PIPE-02A CI PASS / PR #40 MERGED (2026-10-09)
+
+AI-PIPE-02A is now closed remotely.
+
+```text
+PR #40 merged SHA: 510351fa074ee360c580188e18fe3c4ee6813ae4
+accepted PR head:   7218f2a718755f6c555fc68c42b21d5cbbfcd047
+P8 run:             37958919258  PASS
+P7 run:             37958919259  PASS
+Evaluation Pilot:   37958919448  PASS
+```
+
+Within P8 `root-compose-cutover-smoke`, all AI-PIPE-02A remote gates passed:
+
+```text
+Run Gate AI-PIPE-02A Idea Bootstrap Validation              PASS
+Verify Gate AI-PIPE-02A Evidence Schema and Invariants      PASS
+Run AI-PIPE-02A Idea Bootstrap Route Unit Suite             PASS
+```
+
+Canonical acceptance state:
+
+```text
+AI-PIPE-01A P1 backend closed loop        CI_PASS / MERGED
+AI-PIPE-01B P1 browser/UI                 PENDING_UI_REFACTOR
+AI-PIPE-02A Idea/World-Bible bootstrap    CI_PASS / MERGED
+AI-PIPE-02B Durable outline planning      NEXT LOCAL TASK
+AI-PIPE-03 Autonomous full-auto loop      BLOCKED UNTIL P2 ARCHITECTURE IS CLOSED
+```
+
+AI-PIPE-02A proves:
+
+```text
+IDEA / PREMISE
+ -> REVIEWABLE WORLD BIBLE
+ -> CANONICAL STORY BRAIN
+ -> FIRST CANONICAL CHAPTER/REVISION
+ -> EXISTING P1 WRITING LOOP
+```
+
+It deliberately does **not** claim durable outline-plan persistence or plan-guided multi-chapter steering.
+
+The older AI-PIPE-02A `LOCAL_PASS_CI_PENDING` and `NEXT LOCAL TASK` sections lower in this file are historical and superseded by this section.
+
+Do not reopen AI-PIPE-02A unless a regression appears.
+
+---
+
+## NEXT LOCAL IMPLEMENTATION GATE — AI-PIPE-02B DURABLE OUTLINE PLANNING WITHOUT FUTURE-CANON LEAKAGE (2026-10-09)
+
+Gemini/Antigravity owns the next local implementation gate. ChatGPT owns remote PR/CI/merge after Gemini stops at `LOCAL_PASS_CI_PENDING`.
+
+### Objective
+
+Close the remaining P2 architecture gap:
+
+```text
+USER IDEA / WORLD BIBLE
+ + USER OUTLINE / FUTURE INTENT
+ -> VERSIONED, REVIEWABLE STORY PLAN
+ -> CURRENT CHAPTER / SCENE OBJECTIVE
+ -> P1 WRITING CONTEXT
+ -> ACCEPTED CANONICAL REVISION
+ -> STORY BRAIN MEMORY UPDATE
+ -> PLAN PROGRESS UPDATE
+ -> NEXT OBJECTIVE
+```
+
+The key invariant is:
+
+```text
+FUTURE PLAN != HISTORICAL CANON
+```
+
+Future beats/objectives must never be materialized into canonical historical events/facts merely to make them retrievable.
+
+### Active working branch
+
+Use:
+
+```text
+astra/ai-pipe-02b-outline-planning
+```
+
+Gemini completion boundary:
+
+```text
+code + local tests + local Docker/system evidence + pushed branch
+= LOCAL_PASS_CI_PENDING
+```
+
+Then stop. Do not create/wait for GitHub CI; ChatGPT owns remote acceptance.
+
+### Trace-first rule
+
+Before changing production code, inspect whether the repository already contains any reusable planning abstraction:
+
+- outline / story plan / plot plan / beat / arc / chapter objective / scene objective models;
+- plan-related PostgreSQL tables or migrations;
+- planner/context DTOs in the AI service;
+- prompt/context lanes that can carry non-canonical intent;
+- product/SRS/API contracts that mention story planning;
+- any UI model already being prepared by the team.
+
+Classify findings as:
+
+```text
+REUSABLE
+PARTIAL
+MISSING
+DOC_DRIFT
+```
+
+Do not invent a second architecture if a compatible planning model already exists.
+
+### Required architecture separation
+
+Maintain two distinct state classes:
+
+```text
+CANONICAL NARRATIVE MEMORY
+  facts / world rules / accepted entities / historical events / confirmed state
+
+PLANNING STATE
+  intended arcs / beats / chapter goals / unresolved author intent / future targets
+```
+
+Planning state must be durable and versioned, but not treated as historical truth.
+
+If a new persistence model is required, use the existing PostgreSQL/narrative repository architecture. Do not create an ad-hoc local JSON memory store.
+
+Preferred properties for any new plan model, adapted to existing conventions rather than copied mechanically:
+
+- tenant/novel ownership;
+- explicit plan version;
+- draft/active/superseded lifecycle;
+- ordered beats/objectives;
+- author provenance;
+- optional source outline text/hash;
+- edit/review semantics;
+- progress state separated from canon;
+- stable IDs suitable for evidence and context provenance.
+
+### Author-control semantics
+
+P2 remains assisted, not autonomous.
+
+Required lifecycle:
+
+```text
+outline / plan input
+ -> structured plan draft/proposals
+ -> Author review/edit
+ -> activate plan version
+ -> use current objective in writing
+ -> Author accepts/rejects generated draft
+ -> only accepted content updates canon
+ -> plan progress changes through an explicit production path
+```
+
+AI-generated plan content must not silently become active author intent.
+
+### Context integration
+
+The writing/context path must distinguish planning intent from canonical memory.
+
+Preferred conceptual packing:
+
+```text
+canonical_context
+planning_context
+current_objective
+```
+
+or an equivalent existing structure.
+
+Requirements:
+
+- current chapter/scene objective must reach the P1 writing generation path;
+- plan provenance/version must be observable in context preview or generation metadata;
+- future beats must not appear as confirmed historical events/facts;
+- semantic/hybrid retrieval must not accidentally rank future plan beats as past canon;
+- accepted chapter memory update must continue using the existing P1 outbox/incremental-analysis path.
+
+Do not globally change `CONTEXT_ROUTING_POLICY=legacy-v1` merely to implement this gate.
+
+### Minimal executable scenario
+
+Use deterministic/fake LLM first.
+
+Recommended bounded scenario:
+
+```text
+idea/world-bible already bootstrapped
+outline with 3 ordered objectives
+ -> create/review/activate plan v1
+ -> Chapter 1 context sees objective #1 as PLANNING state
+ -> generate through existing P1 WritingService
+ -> reject one draft and prove canon/plan progress unchanged
+ -> generate/accept another draft
+ -> accepted revision persists + Story Brain updates
+ -> explicitly advance/complete objective #1
+ -> Chapter 2 context sees objective #2
+ -> edit the remaining outline -> plan v2
+ -> next context observes plan v2 while historical Story Brain remains valid
+```
+
+The test must prove future objective #2/#3 was not stored as an already-happened historical event before it occurred.
+
+### Mandatory acceptance checkpoints
+
+At minimum verify:
+
+1. outline/plan request is accepted through an application-facing boundary;
+2. deterministic repeat/idempotency semantics;
+3. plan is durably persisted in PostgreSQL through the canonical repository layer;
+4. plan version and lifecycle are explicit;
+5. author review/edit/activation semantics work;
+6. current objective is selected deterministically;
+7. context preview/generation carries plan version + objective provenance separately from canon;
+8. future beats are absent from confirmed historical event/fact lanes;
+9. standard P1 generation is reused;
+10. rejected/unaccepted generation changes neither canon nor plan progress;
+11. accepted generation persists through existing `acceptDraft()` and outbox path;
+12. Story Brain memory advances only from accepted content;
+13. plan progress advances through an explicit path;
+14. next chapter/scene gets the next objective;
+15. plan edit creates/activates a new version without rewriting historical canon;
+16. subsequent context/generation observes the active new plan version.
+
+### Future-information leakage guard
+
+Add a machine-checkable assertion, not just a prose claim.
+
+For example, before objective #2 occurs:
+
+```text
+historical events/facts query -> must NOT contain objective #2 as completed/confirmed history
+planning context -> MAY contain objective #2 as future intent
+```
+
+Evidence must identify which lane/store supplied each value.
+
+### API / error behavior
+
+Reuse existing Node gateway authorization/ownership boundaries.
+
+If new AI-service mutations are added, preserve the existing request-id/idempotency conventions.
+
+While touching the idea/plan bootstrap path, note the existing minor error-taxonomy debt from AI-PIPE-02A: provider/malformed blueprint failures currently fail closed but are not yet cleanly mapped to the documented `MODEL_PROVIDER_ERROR` / `MALFORMED_MODEL_OUTPUT` taxonomy. Fix it only if the smallest 02B change naturally touches that boundary; do not expand scope solely for cosmetic parity.
+
+### Test environment
+
+Prefer:
+
+- PostgreSQL 16 + pgvector;
+- MongoDB where normal Compose requires it;
+- Node backend;
+- Python AI service;
+- `CONTEXT_ROUTING_POLICY=legacy-v1`;
+- fake/deterministic LLM for primary acceptance.
+
+No large real-provider run is needed for AI-PIPE-02B.
+
+### Evidence/report
+
+Create:
+
+```text
+docs/development/AI-CORE-PIPELINE-VALIDATION-02B-report.md
+docs/development/AI-CORE-PIPELINE-VALIDATION-02B/
+```
+
+Evidence must record:
+
+- exact clean CODE_SHA;
+- branch;
+- DB backend;
+- provider;
+- plan IDs and versions;
+- active objective IDs;
+- canonical Story Brain versions;
+- context plan provenance;
+- future-leakage negative assertion;
+- accepted/rejected generation IDs;
+- exact local commands;
+- PASS/FAIL/NOT_EXECUTED.
+
+Do not store JWTs, API keys, full private manuscripts, or full generated drafts.
+
+### Do not start P3 yet
+
+AI-PIPE-03 remains blocked until AI-PIPE-02B establishes a durable plan/progress substrate.
+
+P3 will later add the autonomous controller, decision policy, progress evaluator and intentional completion gate on top of this substrate; do not mix those concerns into P2.
+
+---
+
 ## CURRENT ACTIVE HANDOFF — AI-PIPE-02A LOCAL PASS / REMOTE CI NEXT (2026-10-09)
 
 AI-PIPE-02A has advanced beyond the older `NEXT LOCAL TASK` instructions lower in this file.
