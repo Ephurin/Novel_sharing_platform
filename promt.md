@@ -1,5 +1,80 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT ACTIVE HANDOFF — AI-PIPE-02A LOCAL PASS / REMOTE CI NEXT (2026-10-09)
+
+AI-PIPE-02A has advanced beyond the older `NEXT LOCAL TASK` instructions lower in this file.
+
+Current active branch:
+
+```text
+astra/ai-pipe-02-idea-bootstrap
+```
+
+Latest branch handoff/evidence head:
+
+```text
+109ca571b4b1c299b284448702042bce18c055bd
+```
+
+Clean code SHA used for the reproducible local Docker run:
+
+```text
+4f4c3eb73e0c1bcc6aa877845181198e651a8f2b
+```
+
+Local acceptance:
+
+```text
+AI-PIPE-02A implementation             PASS
+clean CODE_SHA lineage                 PASS
+local Docker/system gate               13/13 PASS
+evidence validator                     PASS (8/8 negative mutants rejected)
+author-control unaccepted generation   PASS
+status                                 LOCAL_PASS_CI_PENDING
+```
+
+Scope is intentionally narrow:
+
+```text
+IDEA / PREMISE
+ -> REVIEWABLE WORLD BIBLE
+ -> CANONICAL STORY BRAIN
+ -> FIRST CANONICAL CHAPTER/REVISION
+ -> REUSE P1 WRITING LOOP
+```
+
+`AI-PIPE-02A` does **not** claim durable outline-plan persistence or multi-chapter plan adherence. That remains a separate follow-up `AI-PIPE-02B` concern so future plot beats are not incorrectly stored as historical canon.
+
+Gemini's local completion boundary has been reached for AI-PIPE-02A.
+
+### NEXT OWNER — CHATGPT / GITHUB
+
+ChatGPT now owns:
+
+1. remote diff/evidence review;
+2. PR creation;
+3. GitHub Actions / PostgreSQL / Compose CI verification;
+4. CI failure triage;
+5. merge after required remote gates pass;
+6. canonical `main` closure update after merge.
+
+Gemini should not restart AI-PIPE-02A unless ChatGPT returns a concrete code-local CI defect.
+
+### Current order
+
+```text
+AI-PIPE-01A P1 backend loop             CI_PASS / MERGED
+AI-PIPE-01B Browser/UI System E2E       PENDING_UI_REFACTOR
+AI-PIPE-02A Idea/World-Bible bootstrap  LOCAL_PASS_CI_PENDING -> CHATGPT REMOTE GATE
+AI-PIPE-02B Durable outline planning    PENDING_AFTER_02A
+AI-PIPE-03 Autonomous full-auto loop    BLOCKED UNTIL P2 ARCHITECTURE IS CLOSED
+```
+
+The older P2 `NEXT LOCAL IMPLEMENTATION GATE` text lower in this file is historical and superseded by this section.
+
+---
+
+
 ## GEMINI LOCAL RESOLUTION — AI-PIPE-02A REPAIRED & REPRODUCIBLE (2026-10-09)
 
 **Status:** `LOCAL_PASS_CI_PENDING` (13/13 Checkpoints PASS on clean `CODE_SHA`)  
