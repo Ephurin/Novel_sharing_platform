@@ -14,6 +14,8 @@ from domain.models import (
     SemanticMemoryMatch,
     HybridRankingSignals,
     StoryBrain,
+    StoryPlan,
+    StoryPlanObjective,
     WritingContextPackage,
     WritingGenerationJob,
 )
@@ -155,6 +157,24 @@ class NarrativeRepository(Protocol):
         story_id: str,
         revision_id: str,
     ) -> dict[str, Any] | None: ...
+
+    def create_story_plan(self, plan: StoryPlan) -> StoryPlan: ...
+
+    def get_story_plan(self, plan_id: str) -> StoryPlan | None: ...
+
+    def get_active_story_plan(self, novel_id: str) -> StoryPlan | None: ...
+
+    def list_story_plans(self, novel_id: str) -> list[StoryPlan]: ...
+
+    def activate_story_plan(self, novel_id: str, plan_id: str) -> StoryPlan: ...
+
+    def update_objective_status(
+        self,
+        novel_id: str,
+        plan_id: str,
+        objective_id: str,
+        status: str,
+    ) -> StoryPlanObjective: ...
 
 
 

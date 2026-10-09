@@ -11,7 +11,7 @@ export class AIGatewayService {
   }
 
   async forwardRequest<T = any>(options: {
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     path: string;
     userId?: string;
     tenantId?: string;

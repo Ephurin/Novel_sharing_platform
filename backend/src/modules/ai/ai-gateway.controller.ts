@@ -397,3 +397,144 @@ export async function activateBaselineController(
     next(error);
   }
 }
+
+export async function createStoryPlanController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = req.auth!.userId;
+    const userRole = req.auth!.role;
+    const novelId = req.body?.novel_id;
+
+    if (!novelId) {
+      throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
+    }
+
+    await assertNovelOwnership(userId, userRole, String(novelId));
+
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: '/v1/story-plans',
+      body: req.body,
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    res.status(201).json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getActiveStoryPlanController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { novelId } = req.params;
+    const userId = req.auth!.userId;
+    const userRole = req.auth!.role;
+
+    await assertNovelOwnership(userId, userRole, String(novelId));
+
+    const data = await aiGatewayService.forwardRequest({
+      method: 'GET',
+      path: `/v1/story-plans/by-novel/${novelId}/active`,
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    res.json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getStoryPlanController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { planId } = req.params;
+    const userId = req.auth!.userId;
+
+    const data = await aiGatewayService.forwardRequest({
+      method: 'GET',
+      path: `/v1/story-plans/${planId}`,
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    res.json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function activateStoryPlanController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { planId } = req.params;
+    const userId = req.auth!.userId;
+    const userRole = req.auth!.role;
+    const novelId = req.body?.novel_id || req.query?.novel_id;
+
+    if (!novelId) {
+      throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
+    }
+
+    await assertNovelOwnership(userId, userRole, String(novelId));
+
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-plans/${planId}/activate`,
+      queryParams: { novel_id: String(novelId) },
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    res.json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateStoryPlanObjectiveController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { planId, objectiveId } = req.params;
+    const userId = req.auth!.userId;
+    const userRole = req.auth!.role;
+    const novelId = req.body?.novel_id || req.query?.novel_id;
+
+    if (!novelId) {
+      throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
+    }
+
+    await assertNovelOwnership(userId, userRole, String(novelId));
+
+    const data = await aiGatewayService.forwardRequest({
+      method: 'PATCH',
+      path: `/v1/story-plans/${planId}/objectives/${objectiveId}`,
+      queryParams: { novel_id: String(novelId) },
+      body: req.body,
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    res.json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+

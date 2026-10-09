@@ -145,6 +145,31 @@ class ValidationResult:
 
 
 @dataclass(frozen=True, slots=True)
+class StoryPlanObjective:
+    objective_id: str
+    order_index: int
+    title: str
+    description: str
+    target_chapter: int | None = None
+    objective_type: str = "chapter_goal"
+    status: str = "pending"
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class StoryPlan:
+    plan_id: str
+    novel_id: str
+    tenant_id: str
+    plan_version: int
+    status: str  # draft, active, superseded
+    objectives: tuple[StoryPlanObjective, ...]
+    source_outline: str | None = None
+    source_outline_hash: str = ""
+    created_by: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class WritingContextPackage:
     brain_version: int
     entities: tuple[dict[str, Any], ...] = ()
@@ -155,6 +180,8 @@ class WritingContextPackage:
     author_constraints: tuple[str, ...] = ()
     token_budget: dict[str, Any] = field(default_factory=dict)
     context_summary: dict[str, list[str]] = field(default_factory=dict)
+    planning_context: dict[str, Any] | None = None
+    current_objective: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True, slots=True)

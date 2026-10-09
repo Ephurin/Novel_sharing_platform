@@ -3,15 +3,20 @@ import { requireAuth, requireRoles } from '../../core/security/auth.middleware.j
 import {
   acceptProposalGroupController,
   activateBaselineController,
+  activateStoryPlanController,
+  createStoryPlanController,
   editAndAcceptProposalController,
+  getActiveStoryPlanController,
   getContextPreviewController,
   getJobStatusController,
   getReviewQueueController,
   getStoryBrainSummaryController,
+  getStoryPlanController,
   rejectProposalController,
   startIdeaBootstrapController,
   startManuscriptBootstrapController,
   startWritingGenerationController,
+  updateStoryPlanObjectiveController,
 } from './ai-gateway.controller.js';
 
 export const aiGatewayRoutes = Router();
@@ -73,8 +78,35 @@ aiGatewayRoutes.post(
   startWritingGenerationController
 );
 
+// Story Plans
+aiGatewayRoutes.post(
+  '/story-plans',
+  createStoryPlanController
+);
+
+aiGatewayRoutes.get(
+  '/story-plans/by-novel/:novelId/active',
+  getActiveStoryPlanController
+);
+
+aiGatewayRoutes.get(
+  '/story-plans/:planId',
+  getStoryPlanController
+);
+
+aiGatewayRoutes.post(
+  '/story-plans/:planId/activate',
+  activateStoryPlanController
+);
+
+aiGatewayRoutes.patch(
+  '/story-plans/:planId/objectives/:objectiveId',
+  updateStoryPlanObjectiveController
+);
+
 // Async Jobs
 aiGatewayRoutes.get(
   '/jobs/:jobId',
   getJobStatusController
 );
+

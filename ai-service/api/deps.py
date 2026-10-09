@@ -41,6 +41,10 @@ def get_narrative_service(request: Request) -> NarrativeApplicationService:
     return request.app.state.narrative_service
 
 
+def get_narrative_repository(request: Request):
+    return request.app.state.narrative_repository
+
+
 def get_revision_analysis_service(request: Request) -> RevisionAnalysisService:
     return request.app.state.revision_analysis_service
 

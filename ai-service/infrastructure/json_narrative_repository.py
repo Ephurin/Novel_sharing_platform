@@ -18,6 +18,8 @@ from domain.models import (
     NarrativeRelation,
     ProposalStatus,
     StoryBrain,
+    StoryPlan,
+    StoryPlanObjective,
     WritingContextPackage,
     WritingGenerationJob,
 )
@@ -29,6 +31,7 @@ class JsonNarrativeRepository:
         self._analysis_runs: dict[str, AnalysisRun] = {}
         self._bootstrap_jobs: dict[str, BootstrapJob] = {}
         self._writing_jobs: dict[str, WritingGenerationJob] = {}
+        self._story_plans: dict[str, StoryPlan] = {}
 
     def get_story_brain(self, story_id: str) -> StoryBrain:
         kb = self._manager.load_kb(story_id)
@@ -557,4 +560,73 @@ class JsonNarrativeRepository:
         revision_id: str,
     ) -> dict[str, Any] | None:
         return None
+
+    def create_story_plan(self, plan: StoryPlan) -> StoryPlan:
+        plan_id = plan.plan_id or str(uuid.uuid4())
+        for p in self._story_plans.values():
+            if p.novel_id == plan.novel_id and p.plan_version == plan.plan_version:
+                return p
+        saved = StoryPlan(
+            plan_id=plan_id,
+            novel_id=plan.novel_id,
+            tenant_id=plan.tenant_id,
+            plan_version=plan.plan_version,
+            status=plan.status,
+            objectives=plan.objectives,
+            source_outline=plan.source_outline,
+            source_outline_hash=plan.source_outline_hash,
+            created_by=plan.created_by,
+        )
+        self._story_plans[plan_id] = saved
+        return saved
+
+    def get_story_plan(self, plan_id: str) -> StoryPlan | None:
+        return self._story_plans.get(plan_id)
+
+    def get_active_story_plan(self, novel_id: str) -> StoryPlan | None:
+        active = [
+            p for p in self._story_plans.values()
+            if p.novel_id == novel_id and p.status == "active"
+        ]
+        if not active:
+            return None
+        return max(active, key=lambda p: p.plan_version)
+
+    def list_story_plans(self, novel_id: str) -> list[StoryPlan]:
+        plans = [p for p in self._story_plans.values() if p.novel_id == novel_id]
+        return sorted(plans, key=lambda p: p.plan_version)
+
+    def activate_story_plan(self, novel_id: str, plan_id: str) -> StoryPlan:
+        target = self._story_plans.get(plan_id)
+        if not target or target.novel_id != novel_id:
+            raise KeyError(f"StoryPlan {plan_id} not found for novel {novel_id}")
+        for pid, p in list(self._story_plans.items()):
+            if p.novel_id == novel_id and p.status == "active":
+                self._story_plans[pid] = replace(p, status="superseded")
+        activated = replace(target, status="active")
+        self._story_plans[plan_id] = activated
+        return activated
+
+    def update_objective_status(
+        self,
+        novel_id: str,
+        plan_id: str,
+        objective_id: str,
+        status: str,
+    ) -> StoryPlanObjective:
+        plan = self._story_plans.get(plan_id)
+        if not plan or plan.novel_id != novel_id:
+            raise KeyError(f"StoryPlan {plan_id} not found")
+        updated_objs = []
+        target_obj = None
+        for obj in plan.objectives:
+            if obj.objective_id == objective_id:
+                target_obj = replace(obj, status=status)
+                updated_objs.append(target_obj)
+            else:
+                updated_objs.append(obj)
+        if not target_obj:
+            raise KeyError(f"Objective {objective_id} not found in plan {plan_id}")
+        self._story_plans[plan_id] = replace(plan, objectives=tuple(updated_objs))
+        return target_obj
 

@@ -527,3 +527,53 @@ class WritingGenerationRecord(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
+
+class StoryPlanRecord(Base):
+    __tablename__ = "story_plans"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "novel_id", "plan_version", name="uq_story_plan_tenant_novel_version"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    plan_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="draft")
+    source_outline: Mapped[str | None] = mapped_column(Text)
+    source_outline_hash: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    created_by: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class StoryPlanObjectiveRecord(Base):
+    __tablename__ = "story_plan_objectives"
+    __table_args__ = (
+        UniqueConstraint("plan_id", "order_index", name="uq_story_plan_objective_order"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    plan_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey(f"{SCHEMA}.story_plans.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    order_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    target_chapter: Mapped[int | None] = mapped_column(Integer)
+    objective_type: Mapped[str] = mapped_column(String(30), nullable=False, default="chapter_goal")
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
+    objective_metadata: Mapped[dict[str, Any]] = mapped_column(
+        JSON_TYPE, nullable=False, default=dict, server_default=text("'{}'")
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+

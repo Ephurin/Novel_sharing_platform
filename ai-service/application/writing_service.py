@@ -121,6 +121,8 @@ class WritingService:
                 author_constraints=package.author_constraints,
                 token_budget=package.token_budget,
                 context_summary=context_summary,
+                planning_context=package.planning_context,
+                current_objective=package.current_objective,
             )
 
         if self._balanced_scope_eligible(

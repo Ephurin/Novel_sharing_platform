@@ -27,6 +27,8 @@ from domain.models import (
     NarrativeRelation,
     ProposalStatus,
     StoryBrain,
+    StoryPlan,
+    StoryPlanObjective,
     ValidationResult,
     WritingContextPackage,
     WritingGenerationJob,
@@ -38,6 +40,8 @@ from infrastructure.orm_models import (
     BootstrapJobRecord,
     EventParticipantRecord,
     StateTransitionRecord,
+    StoryPlanObjectiveRecord,
+    StoryPlanRecord,
     WritingGenerationRecord,
     AnalysisRunRecord,
     EntityAliasRecord,
@@ -1894,6 +1898,47 @@ class PostgresNarrativeRepository:
                     "normalized-event-participants-v1"
                 ],
             }
+
+            active_plan = self.get_active_story_plan(story_id)
+            planning_context = None
+            current_objective = None
+            if active_plan:
+                matching_obj = None
+                if chapter_number is not None:
+                    for obj in active_plan.objectives:
+                        if obj.target_chapter == chapter_number:
+                            matching_obj = obj
+                            break
+                if not matching_obj:
+                    for obj in active_plan.objectives:
+                        if obj.status in ("in_progress", "pending"):
+                            matching_obj = obj
+                            break
+
+                planning_context = {
+                    "plan_id": active_plan.plan_id,
+                    "plan_version": active_plan.plan_version,
+                    "status": active_plan.status,
+                    "source_outline_hash": active_plan.source_outline_hash,
+                    "total_objectives": len(active_plan.objectives),
+                    "active_objective_id": matching_obj.objective_id if matching_obj else None,
+                }
+                if matching_obj:
+                    current_objective = {
+                        "objective_id": matching_obj.objective_id,
+                        "order_index": matching_obj.order_index,
+                        "target_chapter": matching_obj.target_chapter,
+                        "objective_type": matching_obj.objective_type,
+                        "title": matching_obj.title,
+                        "description": matching_obj.description,
+                        "status": matching_obj.status,
+                    }
+                context_summary["plan_id"] = [active_plan.plan_id]
+                context_summary["plan_version"] = [str(active_plan.plan_version)]
+                if matching_obj:
+                    context_summary["active_objective_id"] = [matching_obj.objective_id]
+                    context_summary["active_objective_title"] = [matching_obj.title]
+
             return WritingContextPackage(
                 brain_version=brain_version,
                 entities=tuple(entities_out),
@@ -1903,5 +1948,201 @@ class PostgresNarrativeRepository:
                 author_constraints=(),
                 token_budget=budget_info,
                 context_summary=context_summary,
+                planning_context=planning_context,
+                current_objective=current_objective,
             )
+
+    def _to_story_plan(
+        self,
+        record: StoryPlanRecord,
+        obj_records: list[StoryPlanObjectiveRecord],
+    ) -> StoryPlan:
+        sorted_objs = sorted(obj_records, key=lambda x: x.order_index)
+        objectives = tuple(
+            StoryPlanObjective(
+                objective_id=str(o.id),
+                order_index=o.order_index,
+                title=o.title,
+                description=o.description,
+                target_chapter=o.target_chapter,
+                objective_type=o.objective_type,
+                status=o.status,
+                metadata=dict(o.objective_metadata or {}),
+            )
+            for o in sorted_objs
+        )
+        return StoryPlan(
+            plan_id=str(record.id),
+            novel_id=str(record.novel_id),
+            tenant_id=str(record.tenant_id),
+            plan_version=record.plan_version,
+            status=record.status,
+            objectives=objectives,
+            source_outline=record.source_outline,
+            source_outline_hash=record.source_outline_hash,
+            created_by=str(record.created_by) if record.created_by else None,
+        )
+
+    def create_story_plan(self, plan: StoryPlan) -> StoryPlan:
+        novel_id = self._novel_id(plan.novel_id)
+        plan_uuid = uuid.UUID(plan.plan_id) if plan.plan_id else uuid.uuid4()
+        with session_scope(self._session_factory) as session:
+            existing = session.scalar(
+                select(StoryPlanRecord).where(
+                    StoryPlanRecord.novel_id == novel_id,
+                    StoryPlanRecord.tenant_id == self._tenant_id,
+                    StoryPlanRecord.plan_version == plan.plan_version,
+                )
+            )
+            if existing:
+                objs = session.scalars(
+                    select(StoryPlanObjectiveRecord).where(StoryPlanObjectiveRecord.plan_id == existing.id)
+                ).all()
+                return self._to_story_plan(existing, list(objs))
+
+            record = StoryPlanRecord(
+                id=plan_uuid,
+                tenant_id=self._tenant_id,
+                novel_id=novel_id,
+                plan_version=plan.plan_version,
+                status=plan.status,
+                source_outline=plan.source_outline,
+                source_outline_hash=plan.source_outline_hash,
+                created_by=uuid.UUID(plan.created_by) if plan.created_by else None,
+            )
+            session.add(record)
+            session.flush()
+
+            saved_objs: list[StoryPlanObjectiveRecord] = []
+            for obj in plan.objectives:
+                obj_uuid = uuid.UUID(obj.objective_id) if obj.objective_id else uuid.uuid4()
+                obj_rec = StoryPlanObjectiveRecord(
+                    id=obj_uuid,
+                    plan_id=record.id,
+                    tenant_id=self._tenant_id,
+                    novel_id=novel_id,
+                    order_index=obj.order_index,
+                    target_chapter=obj.target_chapter,
+                    objective_type=obj.objective_type,
+                    title=obj.title,
+                    description=obj.description,
+                    status=obj.status,
+                    objective_metadata=dict(obj.metadata or {}),
+                )
+                session.add(obj_rec)
+                saved_objs.append(obj_rec)
+
+            session.flush()
+            return self._to_story_plan(record, saved_objs)
+
+    def get_story_plan(self, plan_id: str) -> StoryPlan | None:
+        p_uuid = uuid.UUID(plan_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(StoryPlanRecord).where(
+                    StoryPlanRecord.id == p_uuid,
+                    StoryPlanRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if not record:
+                return None
+            objs = session.scalars(
+                select(StoryPlanObjectiveRecord).where(StoryPlanObjectiveRecord.plan_id == record.id)
+            ).all()
+            return self._to_story_plan(record, list(objs))
+
+    def get_active_story_plan(self, novel_id: str) -> StoryPlan | None:
+        n_id = self._novel_id(novel_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(StoryPlanRecord).where(
+                    StoryPlanRecord.novel_id == n_id,
+                    StoryPlanRecord.tenant_id == self._tenant_id,
+                    StoryPlanRecord.status == "active",
+                ).order_by(StoryPlanRecord.plan_version.desc())
+            )
+            if not record:
+                return None
+            objs = session.scalars(
+                select(StoryPlanObjectiveRecord).where(StoryPlanObjectiveRecord.plan_id == record.id)
+            ).all()
+            return self._to_story_plan(record, list(objs))
+
+    def list_story_plans(self, novel_id: str) -> list[StoryPlan]:
+        n_id = self._novel_id(novel_id)
+        with session_scope(self._session_factory) as session:
+            records = session.scalars(
+                select(StoryPlanRecord).where(
+                    StoryPlanRecord.novel_id == n_id,
+                    StoryPlanRecord.tenant_id == self._tenant_id,
+                ).order_by(StoryPlanRecord.plan_version.asc())
+            ).all()
+            plans: list[StoryPlan] = []
+            for r in records:
+                objs = session.scalars(
+                    select(StoryPlanObjectiveRecord).where(StoryPlanObjectiveRecord.plan_id == r.id)
+                ).all()
+                plans.append(self._to_story_plan(r, list(objs)))
+            return plans
+
+    def activate_story_plan(self, novel_id: str, plan_id: str) -> StoryPlan:
+        n_id = self._novel_id(novel_id)
+        p_uuid = uuid.UUID(plan_id)
+        with session_scope(self._session_factory) as session:
+            session.execute(
+                update(StoryPlanRecord)
+                .where(
+                    StoryPlanRecord.novel_id == n_id,
+                    StoryPlanRecord.tenant_id == self._tenant_id,
+                    StoryPlanRecord.status == "active",
+                )
+                .values(status="superseded")
+            )
+            target = session.scalar(
+                select(StoryPlanRecord).where(
+                    StoryPlanRecord.id == p_uuid,
+                    StoryPlanRecord.novel_id == n_id,
+                    StoryPlanRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if not target:
+                raise KeyError(f"StoryPlan {plan_id} not found")
+            target.status = "active"
+            session.flush()
+            objs = session.scalars(
+                select(StoryPlanObjectiveRecord).where(StoryPlanObjectiveRecord.plan_id == target.id)
+            ).all()
+            return self._to_story_plan(target, list(objs))
+
+    def update_objective_status(
+        self,
+        novel_id: str,
+        plan_id: str,
+        objective_id: str,
+        status: str,
+    ) -> StoryPlanObjective:
+        o_uuid = uuid.UUID(objective_id)
+        p_uuid = uuid.UUID(plan_id)
+        with session_scope(self._session_factory) as session:
+            obj = session.scalar(
+                select(StoryPlanObjectiveRecord).where(
+                    StoryPlanObjectiveRecord.id == o_uuid,
+                    StoryPlanObjectiveRecord.plan_id == p_uuid,
+                )
+            )
+            if not obj:
+                raise KeyError(f"Objective {objective_id} not found")
+            obj.status = status
+            session.flush()
+            return StoryPlanObjective(
+                objective_id=str(obj.id),
+                order_index=obj.order_index,
+                title=obj.title,
+                description=obj.description,
+                target_chapter=obj.target_chapter,
+                objective_type=obj.objective_type,
+                status=obj.status,
+                metadata=dict(obj.objective_metadata or {}),
+            )
+
 
