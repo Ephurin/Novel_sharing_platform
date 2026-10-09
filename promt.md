@@ -110,6 +110,106 @@ This is the default collaboration loop for the remainder of P1/P2/P3.
 ---
 
 
+## IDE HANDOFF — CONTINUE AI-PIPE-01A ON ACTIVE WORKING BRANCH (2026-10-09)
+
+The active implementation/testing work is **not on `main` yet**.
+
+Continue from:
+
+```text
+branch: astra/ai-pipe-01-closed-loop-validation
+current branch head: d53f64f977b56846ab258f2b2482da3defb1686b
+base main: 528db04dd1121cbb8a34139c3cc7ae12d58ef712
+relationship at creation: active branch carried 3 work commits beyond base main; current main may show the branch behind by the IDE-handoff documentation commit itself
+```
+
+The active branch contains:
+- the preliminary AI-PIPE-01 structural closed-loop harness/evidence;
+- the corrected report that downgrades the result to `P1_STRUCTURAL_CLOSED_LOOP_PASS / P1_PRODUCTION_CLOSED_LOOP_PENDING`;
+- the next mandatory gate `AI-PIPE-01A — Production Persistence Closure`;
+- the mandatory late UI gate `AI-PIPE-01B — Browser/UI System E2E`.
+
+### Pull the active branch into a local IDE
+
+Before switching branches, preserve any local uncommitted work using your normal Git workflow. Do not use destructive reset commands just to obtain this branch.
+
+From the repository root:
+
+```powershell
+git fetch origin
+git switch main
+git pull --ff-only origin main
+```
+
+If the active branch does **not** exist locally yet:
+
+```powershell
+git switch --track origin/astra/ai-pipe-01-closed-loop-validation
+```
+
+If it already exists locally:
+
+```powershell
+git switch astra/ai-pipe-01-closed-loop-validation
+git pull --ff-only origin astra/ai-pipe-01-closed-loop-validation
+```
+
+Verify the checkout:
+
+```powershell
+git branch --show-current
+git rev-parse HEAD
+```
+
+Expected:
+
+```text
+astra/ai-pipe-01-closed-loop-validation
+d53f64f977b56846ab258f2b2482da3defb1686b
+```
+
+The branch may appear one commit behind current `main` because this IDE-handoff instruction itself was committed to `main` after the active branch was created. That documentation-only difference is not a reason to merge/rebase `main` into the active branch before continuing. If the remote active branch has advanced after this handoff was written, the branch name remains authoritative; pull its latest remote head and then read that branch's `promt.md` before continuing.
+
+### IDE / Gemini continuation rule
+
+After switching to the active branch:
+
+1. Read the **top of that branch's `promt.md` first**.
+2. Continue with `AI-PIPE-01A`, not P2/P3.
+3. Do not treat the preliminary in-memory 15/15 result as production persistence PASS.
+4. The next required proof is the real service/persistence path:
+
+```text
+Node application API
+ -> AI service generation
+ -> Node acceptDraft()
+ -> PostgreSQL chapter_revisions
+ -> latest_revision_id
+ -> real INCREMENTAL_ANALYSIS outbox
+ -> outbox processor
+ -> revision analysis
+ -> Story Brain update
+ -> second context/generation observes updated state
+```
+
+5. UI/browser validation remains mandatory as `AI-PIPE-01B`, but must wait until the team finishes UI refactor.
+6. Do not merge the active branch until AI-PIPE-01A has production-shaped evidence and CI is green.
+
+### Important branch discipline
+
+Do not implement AI-PIPE-01A directly on `main`.
+
+Use:
+
+```text
+astra/ai-pipe-01-closed-loop-validation
+```
+
+as the continuation branch unless a newer handoff on `main` explicitly supersedes it.
+
+---
+
+
 ## IMMEDIATE CORRECTION / NEXT GATE — AI-PIPE-01A PRODUCTION PERSISTENCE CLOSURE (2026-10-09)
 
 The preliminary AI-PIPE-01 execution on commit `bce516d03726ec5ec8d3a847e86575a7e3e7b84a` is **not** sufficient for overall `P1_CLOSED_LOOP_PASS`.
