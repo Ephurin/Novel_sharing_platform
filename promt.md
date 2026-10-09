@@ -10,7 +10,7 @@ Continue from:
 branch: astra/ai-pipe-01-closed-loop-validation
 current branch head: d53f64f977b56846ab258f2b2482da3defb1686b
 base main: 528db04dd1121cbb8a34139c3cc7ae12d58ef712
-relationship: active branch is 3 commits ahead of main, 0 behind
+relationship at creation: active branch carried 3 work commits beyond base main; current main may show the branch behind by the IDE-handoff documentation commit itself
 ```
 
 The active branch contains:
@@ -58,7 +58,7 @@ astra/ai-pipe-01-closed-loop-validation
 d53f64f977b56846ab258f2b2482da3defb1686b
 ```
 
-If the remote branch has advanced after this handoff was written, the branch name remains authoritative; pull the latest remote head and then read that branch's `promt.md` before continuing.
+The branch may appear one commit behind current `main` because this IDE-handoff instruction itself was committed to `main` after the active branch was created. That documentation-only difference is not a reason to merge/rebase `main` into the active branch before continuing. If the remote active branch has advanced after this handoff was written, the branch name remains authoritative; pull its latest remote head and then read that branch's `promt.md` before continuing.
 
 ### IDE / Gemini continuation rule
 
