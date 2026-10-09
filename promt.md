@@ -1,5 +1,466 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT EXECUTION DIRECTIVE — AI CORE PIPELINE SYSTEM VALIDATION (2026-10-09)
+
+The project AI scope is now organized around **three core authoring pipelines**, not around a flat list of independent AI features. Metadata/title/tag/style/consistency/context-proposal capabilities are supporting functions and must be evaluated by how they contribute to one or more of these three pipelines.
+
+### PRIMARY PIPELINES
+
+**P1 — Import existing novel -> build Story Brain -> AI-assisted continuation/editing**
+
+Target flow:
+
+```text
+Import existing manuscript
+  -> immutable chapter/revision inputs
+  -> extraction of entities/events/world rules/state
+  -> proposal/review stage where required
+  -> Story Brain activation
+  -> context preview/retrieval
+  -> AI Writing generation
+  -> consistency/validation checks
+  -> Author review/edit/accept
+  -> persisted revision
+  -> incremental analysis/outbox
+  -> Story Brain update
+  -> next generation sees the updated narrative state
+```
+
+This is the **highest-priority pipeline** and must be validated first because it is currently the most mature and best demonstrates the value of Story Brain + long-term narrative memory.
+
+**P2 — Start from scratch / initial idea / outline -> assisted writing**
+
+Target flow:
+
+```text
+Initial idea / premise / outline
+  -> initial structured story plan/context
+  -> initial Story Brain
+  -> first chapter/revision
+  -> context retrieval
+  -> AI-assisted generation
+  -> Author review/edit/accept
+  -> incremental Story Brain update
+  -> continue writing using the same assisted-writing loop as P1
+```
+
+P2 should reuse the same canonical Story Brain + Writing Loop used by P1 after bootstrap. Do **not** create a second parallel writing architecture merely for idea-first projects.
+
+**P3 — Start from scratch -> fully automatic novel generation until completion**
+
+Target flow:
+
+```text
+Initial idea
+  -> story plan / outline / target ending
+  -> initial Story Brain
+  -> chapter objective
+  -> generation
+  -> consistency / quality / progress evaluation
+  -> accept / revise / regenerate decision
+  -> persist revision
+  -> update Story Brain
+  -> update story progress
+  -> completion gate
+       -> continue next chapter
+       -> OR produce final ending and terminate
+```
+
+P3 is conceptually **P2 plus an autonomous controller** replacing the human review loop. The critical P3 problem is orchestration/progress/termination, not merely another LLM generation endpoint.
+
+### SCOPE RULES
+
+Do **not** reorganize the work into separate top-level projects for:
+- title suggestion;
+- tag suggestion;
+- genre classification;
+- style analysis;
+- consistency checking;
+- context proposals.
+
+These are supporting capabilities. They are only blockers when a core pipeline actually requires them.
+
+Examples:
+- title/tag/genre may assist P2/P3 bootstrap;
+- consistency checking is a gate inside P1/P2/P3;
+- context proposals are part of Story Brain update/review;
+- hybrid/semantic retrieval is context infrastructure;
+- revision/accept is the persistence/commit layer.
+
+Do not implement an isolated endpoint merely because an older SRS lists it unless it is required to close a gap in P1/P2/P3.
+
+### CURRENT TEST OBJECTIVE
+
+Perform a **three-pipeline traceability and system-validation pass**, beginning with P1.
+
+For every pipeline, trace the real implementation through:
+
+```text
+user/business step
+ -> frontend entry point if present
+ -> Node API route/controller
+ -> AI-service route/application service
+ -> database/repository writes
+ -> Story Brain/context state transition
+ -> next-step consumer
+ -> existing automated test/evidence
+```
+
+Every link must be classified as one of:
+
+```text
+IMPLEMENTED_AND_TESTED
+IMPLEMENTED_NOT_SYSTEM_TESTED
+PARTIAL
+MISSING
+DOC_DRIFT
+OUT_OF_SCOPE_FOR_CURRENT_UI
+```
+
+Do not infer a PASS just because individual components exist.
+
+---
+
+## TEST ORDER
+
+### GATE AI-PIPE-01 — P1 Import -> Story Brain -> Assisted Writing closed-loop test
+
+Test this first.
+
+The goal is **not** only to prove that one generation returns text. The goal is to prove that narrative state can travel through a complete closed loop and affect a subsequent writing action.
+
+Required logical checkpoints:
+
+1. Start with a disposable novel/manuscript fixture.
+2. Import/bootstrap the manuscript through the production-compatible path.
+3. Confirm immutable chapter/revision provenance exists.
+4. Confirm extraction produces real narrative structures/proposals:
+   - entities;
+   - events;
+   - applicable world rules/facts;
+   - state transitions where supported.
+5. Resolve/review the proposals required to activate the Story Brain.
+6. Confirm the Story Brain is active and has a concrete version.
+7. Request context preview for a target chapter and record:
+   - brain version;
+   - retrieved/packed context identifiers or safe hashes;
+   - chapter cutoff/provenance;
+   - routing policy.
+8. Start an AI Writing generation through the Node application API, not by bypassing the gateway.
+9. Poll the real writing job until terminal state.
+10. Confirm deterministic validation/consistency results are attached to the job.
+11. Accept the draft through the canonical accept-draft path.
+12. Verify persistence:
+   - a new `chapter_revisions` row exists;
+   - `source_type = AI_DRAFT_ACCEPT`;
+   - `source_generation_id` matches the generation job;
+   - chapter latest revision points to the new revision;
+   - an incremental-analysis outbox event exists.
+13. Allow/process the incremental analysis path.
+14. Confirm Story Brain/proposal state changes as expected after the accepted revision.
+15. Run a **second context preview or generation** and prove that it reads the updated narrative state rather than the pre-accept state.
+
+The decisive P1 acceptance condition is:
+
+```text
+IMPORT
+ -> STORY BRAIN
+ -> GENERATE
+ -> ACCEPT
+ -> PERSIST
+ -> INCREMENTAL MEMORY UPDATE
+ -> NEXT GENERATION/CONTEXT OBSERVES UPDATED STATE
+```
+
+A successful generation without the final feedback loop is **not** sufficient for `P1_CLOSED_LOOP_PASS`.
+
+### P1 provider policy
+
+Use deterministic/fake LLM first for structural system validation when possible. This test is primarily about orchestration, persistence and memory feedback.
+
+After the deterministic closed-loop test passes, perform at most a **small bounded real-provider smoke** on `gemini-3.5-flash-lite` only where needed to prove the real LLM seam. Do not spend quota repeatedly re-testing already proven infrastructure.
+
+Do not fall back automatically to `gemini-3.8-flash`.
+
+### P1 UI policy
+
+The team is still refactoring UI.
+
+Therefore:
+- do not block P1 backend/system validation on browser automation;
+- do not claim full browser E2E PASS;
+- use application APIs and database evidence now;
+- leave one final manual browser acceptance pass until the UI refactor is declared ready.
+
+---
+
+### GATE AI-PIPE-02 — P2 Idea/Outline -> Assisted Writing trace + executable test
+
+After P1 is closed, inspect whether a canonical bootstrap path exists for:
+
+```text
+idea/premise/outline
+ -> structured story plan
+ -> initial Story Brain
+ -> first revision/chapter
+ -> reuse P1 Writing Loop
+```
+
+First perform traceability. Do not immediately implement missing features.
+
+Required questions:
+
+1. Is there an application-facing endpoint/service that accepts an initial idea, premise or outline?
+2. Does it create canonical story structures or only free-form text?
+3. Can it initialize a valid Story Brain without importing a pre-existing manuscript?
+4. Can it create/associate the first canonical chapter/revision?
+5. Can the resulting project immediately enter the same context-preview/writing-generation/accept loop proven by P1?
+6. Are author edits preserved before the next generation?
+7. Does the subsequent Story Brain update use the same revision-analysis pipeline rather than a parallel ad-hoc memory store?
+
+If the bootstrap stage is missing, report the smallest missing adapter explicitly, for example:
+
+```text
+IDEA/OUTLINE -> CANONICAL STORY BRAIN BOOTSTRAP = MISSING
+P1 ASSISTED WRITING LOOP = REUSABLE
+```
+
+Do not build a second writing engine.
+
+If enough implementation already exists, create a minimal deterministic executable test:
+
+```text
+idea/outline
+ -> initial brain
+ -> chapter 1 generation
+ -> accept/edit
+ -> memory update
+ -> chapter 2 generation uses updated state
+```
+
+P2 acceptance requires that the project can enter the same canonical P1 loop after idea-first bootstrap.
+
+---
+
+### GATE AI-PIPE-03 — P3 Full-auto novel orchestration trace + bounded loop test
+
+Only begin after P1 is closed and P2 architecture is understood.
+
+Do **not** start by generating an entire novel with a real provider.
+
+First determine whether the repository contains a real autonomous orchestrator responsible for:
+
+- high-level story plan;
+- target ending/completion condition;
+- chapter objective selection;
+- generation;
+- validation/consistency decision;
+- automatic accept/revise/regenerate decision;
+- persistence;
+- Story Brain update;
+- story-progress measurement;
+- next-chapter scheduling;
+- termination.
+
+Explicitly distinguish:
+
+```text
+generation capability
+!=
+autonomous novel-writing pipeline
+```
+
+If only generation + memory components exist, report P3 as `PARTIAL`, not PASS.
+
+### Required P3 bounded test
+
+If an orchestrator exists, use a **small deterministic bounded scenario**, not a full 50-100 chapter novel.
+
+Recommended test:
+
+```text
+target: 3-5 short chapters
+known outline
+known ending condition
+deterministic/fake provider where possible
+```
+
+Verify each iteration records:
+
+- chapter/scene objective;
+- input Story Brain version;
+- generated revision/job;
+- validation result;
+- decision: accept/revise/regenerate;
+- persisted revision;
+- resulting Story Brain version/state;
+- progress state;
+- reason to continue or stop.
+
+The final iteration must prove a real **completion gate**:
+
+```text
+story goal satisfied
+ -> no new chapter scheduled
+ -> final state marked complete
+ -> loop terminates intentionally
+```
+
+A loop that merely stops because `max_iterations` was reached is **not** proof of narrative completion.
+
+If no valid completion/progress controller exists, identify that as the main P3 architectural gap rather than attempting to hide it with more generation calls.
+
+---
+
+## CONSISTENCY TESTING RULE
+
+Consistency is a cross-cutting capability, not a separate primary pipeline.
+
+Test it where it matters:
+
+- P1: imported canon must constrain continuation;
+- P2: accepted new chapters must remain consistent with the initial plan/brain;
+- P3: every autonomous iteration must pass a consistency/progress gate before advancing.
+
+The repository may have deterministic validation inside WritingService even if the older standalone `/ai/copilot/consistency-check` SRS endpoint is absent. Evaluate the **actual capability in the pipeline**, not only endpoint-name parity.
+
+Record any document mismatch as `DOC_DRIFT`.
+
+---
+
+## EDIT / ACCEPT SEMANTICS
+
+For assisted pipelines P1/P2, Author control is part of the acceptance contract.
+
+Verify:
+
+```text
+AI result
+ -> preview/review
+ -> accept OR reject/edit
+ -> only accepted content becomes canonical
+```
+
+At API/system level, verify accepted AI content becomes an immutable revision and that a rejected/unaccepted generation does not silently overwrite canonical chapter/context state.
+
+Where UI refactor prevents final browser verification, mark the UI portion `PENDING_LATE_GATE` while still testing persistence semantics below the UI.
+
+---
+
+## EVIDENCE REQUIREMENTS
+
+For each executed gate, record:
+
+- exact Git SHA;
+- branch;
+- Compose/environment profile;
+- provider (`fake` or `gemini-3.5-flash-lite`);
+- routing policy;
+- database backend;
+- exact commands/tests;
+- PASS/FAIL/NOT_EXECUTED per checkpoint;
+- sanitized IDs/hashes sufficient to prove lineage;
+- no API keys/JWTs/full private manuscripts.
+
+Do not store full generated drafts in evidence. Use:
+- hashes;
+- character counts;
+- short safe snippets only when needed.
+
+Separate:
+- structural/system correctness;
+- real-provider availability;
+- narrative/literary quality.
+
+Do not infer one from another.
+
+---
+
+## REPORTING FORMAT
+
+Create a new report, preferably:
+
+`docs/development/AI-CORE-PIPELINE-VALIDATION-01-report.md`
+
+Use a matrix similar to:
+
+```text
+Pipeline  Step                                  Status
+P1        Import manuscript                     ...
+P1        Extract / proposal                    ...
+P1        Activate Story Brain                  ...
+P1        Context retrieval                     ...
+P1        Writing generation                    ...
+P1        Consistency/validation                ...
+P1        Author accept persistence             ...
+P1        Incremental analysis                  ...
+P1        Memory feedback into next generation  ...
+
+P2        Idea/outline bootstrap                 ...
+P2        Initial Story Brain                    ...
+P2        Reuse P1 writing loop                  ...
+
+P3        Planner                               ...
+P3        Autonomous decision loop               ...
+P3        Progress evaluator                     ...
+P3        Completion gate                        ...
+```
+
+The report must clearly distinguish:
+- what was actually executed;
+- what was only code-inspected;
+- what is missing;
+- what is deferred because UI is still being refactored.
+
+---
+
+## IMPLEMENTATION POLICY AFTER AUDIT
+
+Do not fix every missing feature immediately.
+
+After traceability/test results:
+
+1. Close P1 blockers first.
+2. Then implement the **smallest bootstrap gap** required to make P2 enter the P1 loop.
+3. Then implement/fix only the orchestration/progress/termination gaps required by P3.
+4. Supporting title/tag/style features remain optional unless one of these pipelines demonstrably needs them for acceptance.
+
+Do not:
+- reopen EVAL-01 without a new retrieval question;
+- re-embed the whole corpus unnecessarily;
+- globally activate `balanced-scope-v1`;
+- perform P8-05 destructive cleanup;
+- redesign UI during this gate;
+- run large real-provider stress tests.
+
+### EXPECTED FIRST ACTION — GEMINI / ANTIGRAVITY
+
+Start with **AI-PIPE-01 P1 traceability + executable closed-loop system test**.
+
+Before modifying production code:
+1. map every P1 step to current files/routes/services/tables/tests;
+2. identify the smallest untested or broken link;
+3. create focused test tooling/evidence on a new branch;
+4. run deterministic closed-loop validation;
+5. only patch code where the test exposes a real blocker;
+6. obtain CI;
+7. append the execution result to this handoff.
+
+Do not begin P2/P3 implementation until the P1 closed loop is either `PASS` or has a precisely documented blocker.
+
+```text
+CURRENT PRIORITY
+1. P1 Import -> Story Brain -> Assisted Writing closed loop
+2. P2 Idea/Outline -> Assisted Writing
+3. P3 Idea -> Full Auto -> Intentional Completion
+
+UI final acceptance: DEFERRED until team UI refactor is ready
+Supporting AI features: subordinate to these three pipelines
+```
+
+---
+
+
 ## CURRENT CANONICAL STATUS — PR #38 MERGED / DEFENSE PACKAGE LOCKED PRE-UI-FREEZE (2026-10-05)
 
 **PR #38 merged:** https://github.com/Ephurin/Novel_sharing_platform/pull/38, merge SHA `0c0e37c2e70d494b4e4e78797b6b381835d64076`. The graduation-defense package is now canonical on `main`; it is no longer branch-only work.
