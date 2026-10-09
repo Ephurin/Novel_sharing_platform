@@ -1,5 +1,208 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT CANONICAL STATUS — PR #39 MERGED / AI-PIPE-01A CI CLOSED (2026-10-09)
+
+**PR #39 merged:** `AI-PIPE-01A: close P1 production persistence loop`
+Merged SHA: `a23f3175c290c9880fe8f004fddd7f05550eebb4`
+Accepted PR head: `98d333cb794679075c48a0ff8e83f79fc46dabb4`
+
+Remote acceptance:
+
+```text
+Evaluation Pilot Harness            37908555333  PASS
+P7 Semantic Memory Foundation       37908555334  PASS
+P8 Cutover and Migration            37908555339  PASS
+```
+
+Within P8 `root-compose-cutover-smoke`, all three AI-PIPE-01A gates passed:
+
+```text
+Run Gate AI-PIPE-01A Production Persistence Validation           PASS
+Verify AI-PIPE-01 / AI-PIPE-01A Evidence Schema and Invariants  PASS
+Run Backend PostgreSQL Production Persistence Integration Suite  PASS
+```
+
+The production-shaped P1 backend loop is therefore closed:
+
+```text
+Node API
+ -> AI Service
+ -> acceptDraft()
+ -> PostgreSQL chapter_revisions
+ -> chapters.latest_revision_id
+ -> transactional INCREMENTAL_ANALYSIS outbox
+ -> real outbox dispatch
+ -> revision analysis
+ -> Story Brain update
+ -> next context/generation observes updated state
+```
+
+Acceptance state:
+
+```text
+P1 structural/in-memory loop       CI-QUALIFIED / MERGED
+AI-PIPE-01A production persistence CI_PASS / MERGED
+AI-PIPE-01B Browser/UI System E2E  PENDING_UI_REFACTOR
+P1 overall system acceptance       PENDING_AI_PIPE_01B
+```
+
+The earlier AI-PIPE-01A pending/IDE instructions lower in this file are historical and are superseded by this section.
+
+Do not reopen AI-PIPE-01A unless a regression appears.
+
+---
+
+## NEXT LOCAL IMPLEMENTATION GATE — AI-PIPE-02A IDEA/OUTLINE -> CANONICAL STORY BRAIN (2026-10-09)
+
+The next local engineering task belongs to Gemini/Antigravity.
+
+### Objective
+
+Close the smallest missing P2 adapter:
+
+```text
+IDEA / PREMISE / OUTLINE
+ -> REVIEWABLE STRUCTURED STORY BOOTSTRAP
+ -> CANONICAL STORY BRAIN
+ -> FIRST CANONICAL CHAPTER/REVISION
+ -> REUSE THE EXISTING P1 ASSISTED-WRITING LOOP
+```
+
+P2 must not introduce a second writing architecture. Once bootstrap is complete, reuse the same P1 context preview, generation, validation, accept-draft, outbox and incremental Story Brain update path already closed by AI-PIPE-01A.
+
+### Gemini local branch
+
+Continue P2 work on:
+
+```text
+astra/ai-pipe-02-idea-bootstrap
+```
+
+Gemini owns local implementation/testing only and should stop at `LOCAL_PASS_CI_PENDING`. ChatGPT owns PR/CI/merge.
+
+### Trace-first rule
+
+Before changing production code, inspect and map:
+- `ai-service/docs/API_CONTRACTS.md` and P2/idea bootstrap references in product/use-case docs;
+- `ai-service/api/narrative_routes.py`;
+- `ManuscriptBootstrapService`, Story Brain/domain models and repository interfaces;
+- PostgreSQL narrative implementation;
+- Node AI gateway routes/controllers/services;
+- chapter creation/snapshot/revision services.
+
+Expected starting hypothesis:
+
+```text
+documented from-idea bootstrap contract  EXISTS IN DOCS
+application route/service                MISSING or PARTIAL
+canonical Story Brain persistence        REUSABLE
+P1 writing loop                          REUSABLE
+```
+
+Confirm the actual gap before coding. Do not implement from stale documentation alone.
+
+### Required bootstrap semantics
+
+Preserve Author control:
+
+```text
+idea / premise / outline
+ -> deterministic/LLM-assisted structured proposals or blueprint
+ -> reviewable bootstrap state
+ -> Author accepts/edits required initial proposals
+ -> activate initial Story Brain
+ -> create/associate first canonical chapter + immutable revision
+ -> enter normal P1 assisted-writing loop
+```
+
+Do not silently materialize unreviewed LLM output into canonical state unless the existing architecture explicitly authorizes that path. Do not create a P2-only JSON memory store.
+
+### Minimal API surface
+
+Prefer the smallest application-facing addition under the existing Story Brain bootstrap family. If the documented contract still fits the architecture, it may resemble `POST /v1/story-brains/bootstrap/from-idea` plus the corresponding Node `/api/v1/ai/...` gateway route. Route-name parity is secondary to preserving canonical review/activation semantics.
+
+Minimal input may include initial idea/premise, optional outline, optional working title/genre/tone only when useful, locale, and existing idempotency/request identity conventions.
+
+### Deterministic executable test
+
+Use fake/deterministic LLM first and prove:
+
+```text
+idea/outline
+ -> bootstrap state created
+ -> structured proposals/blueprint produced
+ -> review/accept
+ -> Story Brain active with concrete version
+ -> first canonical chapter/revision exists
+ -> context preview works
+ -> generation uses the existing P1 route
+ -> accept draft persists through existing P1 path
+ -> incremental analysis advances the same Story Brain
+ -> next context/generation observes updated state
+```
+
+The P2 bootstrap itself must be executed; manually seeding a Story Brain does not satisfy this gate.
+
+### Acceptance checkpoints
+
+At minimum verify:
+1. bootstrap request from idea/premise/outline;
+2. idempotent or safely repeatable bootstrap semantics;
+3. structured initial proposals/blueprint;
+4. review/accept path;
+5. active initial Story Brain;
+6. first canonical chapter/revision association;
+7. no parallel/ad-hoc memory store;
+8. context preview from the initial Story Brain;
+9. existing P1 generation starts without a special P2 writer;
+10. accepted draft uses existing `acceptDraft()` persistence;
+11. incremental analysis updates the same Story Brain;
+12. second context/generation observes the new version/state;
+13. unaccepted generation does not mutate canonical state.
+
+Prefer local Docker with real PostgreSQL/pgvector and MongoDB where required. Use fake/deterministic LLM for the primary system test. A bounded `gemini-3.5-flash-lite` smoke is optional after structural correctness passes.
+
+### UI policy
+
+Do not build or refactor final P2 UI in this gate. Final browser acceptance remains deferred until the team UI refactor is ready.
+
+### Evidence/report
+
+Create or extend:
+
+```text
+docs/development/AI-CORE-PIPELINE-VALIDATION-02-report.md
+docs/development/AI-CORE-PIPELINE-VALIDATION-02/
+```
+
+Record exact committed local HEAD tested, provider, DB backend, routing, commands, PASS/FAIL/NOT_EXECUTED, safe IDs/hashes, Story Brain versions, and proof the P1 loop was reused. Do not store secrets/JWTs/full private manuscripts.
+
+### Gemini completion boundary
+
+```text
+implementation complete
++ local tests PASS
++ local Docker/system test PASS where available
++ evidence/report corrected
++ committed/pushed branch
+= LOCAL_PASS_CI_PENDING
+```
+
+Then stop. Gemini does not create/wait on GitHub CI as part of completion.
+
+ChatGPT will inspect the pushed branch, review evidence, create PR, run/inspect CI, return exact failures only if code-local repair is needed, and merge after remote gates pass.
+
+### Current order
+
+```text
+AI-PIPE-01A P1 backend closed loop      CI_PASS / MERGED
+AI-PIPE-01B P1 browser UI               PENDING_UI_REFACTOR
+AI-PIPE-02A idea/outline bootstrap       NEXT LOCAL TASK
+AI-PIPE-03 autonomous full-auto loop     BLOCKED UNTIL P2 ARCHITECTURE IS CLOSED
+```
+
+---
+
 ## EXECUTION RESPONSIBILITY SPLIT — GEMINI LOCAL / CHATGPT GITHUB (2026-10-09)
 
 Assume Gemini/Antigravity may **not** be able to execute GitHub Actions, create/inspect PR checks reliably, or perform operations outside the local development machine. Divide work accordingly.
