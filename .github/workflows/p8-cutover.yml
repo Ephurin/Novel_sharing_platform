@@ -275,7 +275,7 @@ jobs:
       - name: Verify Gate AI-PIPE-02A Evidence Schema and Invariants
         run: python scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py
       - name: Run AI-PIPE-02A Idea Bootstrap Route Unit Suite
-        run: docker compose exec -T ai-service pytest tests/test_idea_bootstrap_routes.py -q
+        run: docker compose exec -T -e APP_ENV=test ai-service pytest tests/test_idea_bootstrap_routes.py -q
 
       - name: Show service status
         if: always()
