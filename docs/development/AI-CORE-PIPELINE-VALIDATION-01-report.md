@@ -5,7 +5,30 @@
 **Base Commit SHA:** `528db04dd1121cbb8a34139c3cc7ae12d58ef712`  
 **Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-01/ai-pipe-01-closed-loop-evidence.json`  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py` $\to$ **PASS (0 errors, 7/7 negative self-tests pass)**  
-**Gate Verdict:** `P1_STRUCTURAL_CLOSED_LOOP_PASS / P1_PRODUCTION_PERSISTENCE_LOCAL_PASS_CI_PENDING`
+**Gate Verdict:** `P1_STRUCTURAL_CLOSED_LOOP_PASS / P1_PRODUCTION_PERSISTENCE_CI_PASS / P1_OVERALL_PENDING_AI_PIPE_01B`
+
+---
+
+## Remote Acceptance Closure — PR #39
+
+- PR: `#39 — AI-PIPE-01A: close P1 production persistence loop`
+- merged SHA: `a23f3175c290c9880fe8f004fddd7f05550eebb4`
+- accepted PR head: `98d333cb794679075c48a0ff8e83f79fc46dabb4`
+- P8 Cutover and Migration run `37908555339`: **PASS**
+- P7 Semantic Memory Foundation run `37908555334`: **PASS**
+- Evaluation Pilot Harness run `37908555333`: **PASS**
+
+Within P8 `root-compose-cutover-smoke`, all three AI-PIPE-01A remote gates passed:
+
+```text
+Run Gate AI-PIPE-01A Production Persistence Validation           PASS
+Verify AI-PIPE-01 / AI-PIPE-01A Evidence Schema and Invariants  PASS
+Run Backend PostgreSQL Production Persistence Integration Suite  PASS
+```
+
+This upgrades AI-PIPE-01A from `LOCAL_PASS_CI_PENDING` to `CI_PASS / MERGED`.
+
+P1 is still **not** an overall system PASS because the mandatory browser/UI gate `AI-PIPE-01B` remains `PENDING_UI_REFACTOR`.
 
 ---
 
@@ -48,7 +71,7 @@ The raw evidence file (`ai-pipe-01-closed-loop-evidence.json`) is intentionally 
 **Runner:** `scripts/run_ai_pipe_01a_production_persistence.py`  
 **Integration Test:** `backend/src/modules/novels/p1-production-persistence.postgres.test.ts`  
 **Validator:** `scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py`  
-**Local Status:** **LOCAL_PASS_CI_PENDING** — 15/15 checkpoints, 0 failed, 5/5 integration subtests, 14/14 validator invariant tests locally. GitHub CI is the remote reproducibility gate.
+**Remote Status:** **CI_PASS / MERGED** — PR #39 merged as `a23f3175c290c9880fe8f004fddd7f05550eebb4`. P8 run `37908555339`, P7 run `37908555334`, and Evaluation Pilot run `37908555333` all completed successfully on PR head `98d333cb794679075c48a0ff8e83f79fc46dabb4`. In P8, the AI-PIPE-01A production runner, evidence validator, and backend PostgreSQL persistence integration suite all passed.
 
 ### Architecture and Execution Scope
 AI-PIPE-01A closed the gap between in-memory contract simulation and live production persistence:
@@ -99,8 +122,8 @@ This audit executes the directive to validate the AI scope through **three core 
 | **P1** | 8. Generation Start | `POST /api/v1/ai/writing/generations` $\to$ `WritingService.start_generation` (brain version pinned) | `IMPLEMENTED_AND_TESTED` |
 | **P1** | 9. Generation Completion | `WritingService.process_generation` inline/polled $\to$ `status="completed"` | `IMPLEMENTED_AND_TESTED` |
 | **P1** | 10. Validations & Patch | Deterministic validators (`_validate_draft`) attach to job $\to$ `validation_status="passed"`, `patch` | `IMPLEMENTED_AND_TESTED` |
-| **P1** | 11. Accept Draft | AI-PIPE-01A executes the real Node accept-draft path against live services/PostgreSQL; CI reproduction pending | `LOCAL_PASS_CI_PENDING` |
-| **P1** | 12. Persistence | AI-PIPE-01A verifies real PostgreSQL revision/latest pointer/outbox persistence; CI reproduction pending | `LOCAL_PASS_CI_PENDING` |
+| **P1** | 11. Accept Draft | AI-PIPE-01A executes the real Node accept-draft path against live services/PostgreSQL and is reproduced in GitHub CI | `IMPLEMENTED_AND_CI_TESTED` |
+| **P1** | 12. Persistence | AI-PIPE-01A verifies real PostgreSQL revision/latest pointer/outbox persistence and passes GitHub CI | `IMPLEMENTED_AND_CI_TESTED` |
 | **P1** | 13. Incremental Analysis | Outbox processor $\to$ `POST /v1/revisions/:id/analyses` $\to$ `RevisionAnalysisService.analyze` | `IMPLEMENTED_AND_TESTED` |
 | **P1** | 14. Brain Update | Incremental proposals accepted $\to$ `brain_version` advances (e.g. $v_1 \to v_2$) | `IMPLEMENTED_AND_TESTED` |
 | **P1** | 15. Memory Feedback | Next context preview/generation observes new brain version ($v_2 > v_1$) and updated context hash | `IMPLEMENTED_AND_TESTED` |
@@ -159,7 +182,7 @@ IMPORT
  -> NEXT GENERATION/CONTEXT OBSERVES UPDATED STATE (v3, context_hash updated)
 ```
 
-**Verdict:** `P1_STRUCTURAL_CLOSED_LOOP_PASS`. AI-PIPE-01A is `LOCAL_PASS_CI_PENDING`; browser acceptance remains pending AI-PIPE-01B.
+**Verdict:** `P1_STRUCTURAL_CLOSED_LOOP_PASS`; AI-PIPE-01A is `CI_PASS / MERGED`; browser acceptance remains pending AI-PIPE-01B.
 
 ---
 
