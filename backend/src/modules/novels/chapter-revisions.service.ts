@@ -173,6 +173,12 @@ export async function acceptDraft(
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
 
+  // 0. Idempotency fast-path: If this generation was already accepted, return existing revision immediately
+  const existingAccepted = await findRevisionBySourceGenerationId(undefined, chapterId, input.generationId);
+  if (existingAccepted) {
+    return { revision: existingAccepted, chapterId };
+  }
+
   // 1. Server-Side Trust Contract: fetch validated generation job from AI service
   const aiUrl = `${env.AI_SERVICE_URL}/internal/v1/writing/generations/${input.generationId}`;
   let generation: any;

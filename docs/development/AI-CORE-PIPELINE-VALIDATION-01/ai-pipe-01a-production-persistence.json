@@ -1,0 +1,214 @@
+{
+  "test_gate": "AI-PIPE-01A",
+  "pipeline": "P1",
+  "gate_verdict": "P1_PRODUCTION_PERSISTENCE_PASS",
+  "timestamp_utc": "2026-10-09T07:40:51.120817+00:00",
+  "tested_code_commit": "d53f64f977b56846ab258f2b2482da3defb1686b",
+  "branch": "astra/ai-pipe-01-closed-loop-validation",
+  "database_backend": "PostgreSQL 16 + pgvector",
+  "services": {
+    "backend": "http://localhost:4000/api/v1",
+    "ai_service": "http://localhost:8000",
+    "database": "PostgreSQL 16 (ephurin)"
+  },
+  "llm_provider": "fake (deterministic)",
+  "routing_policy": "legacy-v1",
+  "total_checkpoints": 15,
+  "checkpoints_passed": 15,
+  "checkpoints_failed": 0,
+  "checkpoints": [
+    {
+      "checkpoint": 1,
+      "name": "Manuscript Fixture Persistence",
+      "status": "PASS",
+      "summary": "Created disposable novel and two chapters with initial revisions in PostgreSQL",
+      "details": {
+        "novel_id": "4adc63c0-8c9f-4451-81d4-bbc67c30cbac",
+        "author_id": "51ca9a66-d798-4f6c-8518-11c085678e4f",
+        "chapter_1": {
+          "chapter_id": "39d9e946-3bd7-4d63-b38c-fd159b77741b",
+          "revision_id": "d1cd4511-2e7a-49f0-8e04-8c02b918cb47",
+          "content_hash": "7514dd01cd06644be386dc4759220d4a27bee50eb5499f9745d6b7c9eb45554f"
+        },
+        "chapter_2": {
+          "chapter_id": "fb469241-10b3-4aaf-832b-8f4f243d5b95",
+          "revision_id": "6bb4aa68-fea5-4f68-b2f7-2156fbb664cc",
+          "content_hash": "1e8a0ba99538a707bc5ccef6e0105e610c094a0ffa472ba6171cd6cd16c2e3ab"
+        },
+        "db_backend": "PostgreSQL"
+      }
+    },
+    {
+      "checkpoint": 2,
+      "name": "Manuscript Bootstrap Processing",
+      "status": "PASS",
+      "summary": "Bootstrap job executed through Node gateway and completed to waiting_review",
+      "details": {
+        "bootstrap_job_id": "9f8b5776-df1e-559d-8855-ec2770f59349",
+        "terminal_status": "waiting_review",
+        "stage": "review"
+      }
+    },
+    {
+      "checkpoint": 3,
+      "name": "Proposal Review Resolution",
+      "status": "PASS",
+      "summary": "Resolved 4 proposals across 1 groups via Node gateway",
+      "details": {
+        "total_proposals": 4,
+        "groups_accepted": 1,
+        "result_brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 4,
+      "name": "Story Brain Activation & Persistence",
+      "status": "PASS",
+      "summary": "Story Brain active in PostgreSQL narrative.story_brains with brain_version=2",
+      "details": {
+        "status": "active",
+        "brain_version": 2,
+        "baseline_revision_id": "d1cd4511-2e7a-49f0-8e04-8c02b918cb47"
+      }
+    },
+    {
+      "checkpoint": 5,
+      "name": "Context Preview Retrieval",
+      "status": "PASS",
+      "summary": "Context preview packed for Chapter 2 with brain_version=2",
+      "details": {
+        "brain_version": 2,
+        "entities_count": 2,
+        "entities": [
+          "Tháp Qua Nhĩ",
+          "Tiêu Viêm"
+        ],
+        "preview_hash": "4d6035a95c069ad58b646854517e03a2251ced4385109eb02bbd2971ae42aba1"
+      }
+    },
+    {
+      "checkpoint": 6,
+      "name": "AI Writing Generation Completion",
+      "status": "PASS",
+      "summary": "Writing generation completed with passed validation and valid patch",
+      "details": {
+        "generation_job_id": "00b61b2b-47bf-5cac-9887-4f274fa1c9ae",
+        "status": "completed",
+        "validation_status": "passed",
+        "patch_start": 0,
+        "patch_end": 0,
+        "replacement_length": 90
+      }
+    },
+    {
+      "checkpoint": 7,
+      "name": "Draft Acceptance Gateway Call",
+      "status": "PASS",
+      "summary": "Node acceptDraft route executed successfully, returned revisionId=4d8df361-72ef-4a57-ac9b-0ff3aa5575bb",
+      "details": {
+        "generation_id": "00b61b2b-47bf-5cac-9887-4f274fa1c9ae",
+        "accepted_revision_id": "4d8df361-72ef-4a57-ac9b-0ff3aa5575bb"
+      }
+    },
+    {
+      "checkpoint": 8,
+      "name": "PostgreSQL chapter_revisions Persistence",
+      "status": "PASS",
+      "summary": "Verified chapter_revisions has source_type=AI_DRAFT_ACCEPT, matching generation ID and parent",
+      "details": {
+        "revision_id": "4d8df361-72ef-4a57-ac9b-0ff3aa5575bb",
+        "source_type": "AI_DRAFT_ACCEPT",
+        "source_generation_id": "00b61b2b-47bf-5cac-9887-4f274fa1c9ae",
+        "parent_revision_id": "6bb4aa68-fea5-4f68-b2f7-2156fbb664cc",
+        "content_hash": "eb5000d15630e467163d32ad2f21d972ff467ea4ab2d1b57798c4da431bac77d",
+        "content_length": 257
+      }
+    },
+    {
+      "checkpoint": 9,
+      "name": "PostgreSQL chapters Pointer Update",
+      "status": "PASS",
+      "summary": "Verified chapters.latest_revision_id points to 4d8df361-72ef-4a57-ac9b-0ff3aa5575bb",
+      "details": {
+        "chapter_id": "fb469241-10b3-4aaf-832b-8f4f243d5b95",
+        "latest_revision_id": "4d8df361-72ef-4a57-ac9b-0ff3aa5575bb"
+      }
+    },
+    {
+      "checkpoint": 10,
+      "name": "PostgreSQL Transactional Outbox Event",
+      "status": "PASS",
+      "summary": "Verified revision_outbox_events row exists for revision 4d8df361-72ef-4a57-ac9b-0ff3aa5575bb",
+      "details": {
+        "event_id": "97c0072c-32d7-4992-8765-26df6b104e8f",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "initial_status": "PENDING"
+      }
+    },
+    {
+      "checkpoint": 11,
+      "name": "Outbox Processor Dispatch & Completion",
+      "status": "PASS",
+      "summary": "Observed real outbox processor dispatching event to AI Service (status=COMPLETED)",
+      "details": {
+        "event_id": "97c0072c-32d7-4992-8765-26df6b104e8f",
+        "status": "COMPLETED"
+      }
+    },
+    {
+      "checkpoint": 12,
+      "name": "Incremental Proposals & Story Brain Update",
+      "status": "PASS",
+      "summary": "Accepted 3 incremental proposals; Story Brain advanced to version 3",
+      "details": {
+        "proposals_count": 3,
+        "dependency_group_id": "98d2661c-114a-5514-a6d1-9db3b2917211",
+        "brain_version_before": 2,
+        "brain_version_after": 3
+      }
+    },
+    {
+      "checkpoint": 13,
+      "name": "Second Generation Feedback Observation",
+      "status": "PASS",
+      "summary": "Second preview and generation observe brain_version=3 and altered context hash",
+      "details": {
+        "brain_version_used": 3,
+        "preview_hashes_differ": true,
+        "preview_1_hash": "4d6035a95c069ad58b646854517e03a2251ced4385109eb02bbd2971ae42aba1",
+        "preview_2_hash": "a28989b9164d34d0736edd51db0c966996d0e5682b12967976f27f57f03559c6",
+        "second_generation_job_id": "b0677e6f-bb46-5b10-acef-a392ce170298"
+      }
+    },
+    {
+      "checkpoint": 14,
+      "name": "Accept-Draft Idempotency Invariant",
+      "status": "PASS",
+      "summary": "Re-accepting the same generation returned existing revision without duplicate row insertion",
+      "details": {
+        "generation_id": "00b61b2b-47bf-5cac-9887-4f274fa1c9ae",
+        "revision_id": "4d8df361-72ef-4a57-ac9b-0ff3aa5575bb",
+        "row_count_in_db": 1
+      }
+    },
+    {
+      "checkpoint": 15,
+      "name": "Author-Control Semantics",
+      "status": "PASS",
+      "summary": "Verified unaccepted draft left canonical chapter revision, DB rows, and Story Brain unchanged",
+      "details": {
+        "unaccepted_generation_id": "5784deea-88ef-5d45-8eaa-c8661d44b15a",
+        "canonical_revision_remains": "4d8df361-72ef-4a57-ac9b-0ff3aa5575bb",
+        "story_brain_version_remains": 3
+      }
+    }
+  ],
+  "summary": {
+    "two_service_boundary_verified": true,
+    "postgresql_persistence_verified": true,
+    "transactional_outbox_verified": true,
+    "story_brain_feedback_loop_verified": true,
+    "idempotency_verified": true,
+    "author_control_semantics_verified": true
+  }
+}
