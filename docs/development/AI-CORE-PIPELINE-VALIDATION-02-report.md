@@ -5,7 +5,32 @@
 **Base Commit SHA (CODE_SHA):** `4f4c3eb73e0c1bcc6aa877845181198e651a8f2b`  
 **Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02/ai-pipe-02a-idea-bootstrap.json`  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py` $\to$ **PASS (0 errors, 8/8 negative self-tests pass)**  
-**Gate Verdict:** `LOCAL_PASS_CI_PENDING (13/13 checkpoints passed on clean CODE_SHA)`
+**Gate Verdict:** `CI_PASS / MERGED` — local 13/13 reproduced by GitHub Actions and merged via PR #40
+
+---
+
+## Remote Acceptance Closure — PR #40
+
+- PR: `#40 — AI-PIPE-02A: add idea-to-Story-Brain bootstrap and P1 loop reuse`
+- merged SHA: `510351fa074ee360c580188e18fe3c4ee6813ae4`
+- accepted PR head: `7218f2a718755f6c555fc68c42b21d5cbbfcd047`
+- P8 Cutover and Migration run `37958919258`: **PASS**
+- P7 Semantic Memory Foundation run `37958919259`: **PASS**
+- Evaluation Pilot Harness run `37958919448`: **PASS**
+
+Within P8 `root-compose-cutover-smoke`, the AI-PIPE-02A remote gates all passed:
+
+```text
+Run Gate AI-PIPE-02A Idea Bootstrap Validation              PASS
+Verify Gate AI-PIPE-02A Evidence Schema and Invariants      PASS
+Run AI-PIPE-02A Idea Bootstrap Route Unit Suite             PASS
+```
+
+The first PR-head P8 run `37958543378` already showed the full AI-PIPE-02A system runner and validator passing. Its targeted route-unit step failed only because the test was invoked inside the production Compose container with `APP_ENV=production`, conflicting with the test's in-memory repository configuration. The CI-only fix changed that invocation to `APP_ENV=test`; the accepted head `7218f2a...` then passed the complete P8 suite. No production code change was required for that CI failure.
+
+This upgrades AI-PIPE-02A from `LOCAL_PASS_CI_PENDING` to `CI_PASS / MERGED`.
+
+Scope remains deliberately narrow: AI-PIPE-02A proves Idea/Premise -> Reviewable World Bible -> Canonical Story Brain -> First Chapter/Revision -> reuse of the P1 writing loop. Durable outline-plan persistence and plan-guided multi-chapter steering remain deferred to AI-PIPE-02B.
 
 ---
 
@@ -29,7 +54,7 @@ All 13 acceptance checkpoints executed against live Docker services (`backend:40
 |---|---|---|---|
 | **01** | Idea Bootstrap Request | Node API `POST /api/v1/ai/story-brains/bootstrap/from-idea` forwards to AI service; returns 202 with job ID in `waiting_review` | **PASS** |
 | **02** | Repeatable Bootstrap Idempotency | Identical bootstrap request (including normalized `locale`) returns existing job ID without duplicate job execution | **PASS** |
-| **03** | Structured Initial Proposals | Blueprint generated into 7 proposals covering `fact` (premise, world rules) and `entity` (protagonist, faction, location) | **PASS** |
+| **03** | Structured Initial Proposals | Blueprint generated into 7 proposals covering `fact` (premise, world rules) and `entity` proposals | **PASS** |
 | **04** | Author Review & Proposal Acceptance | Node API `POST /api/v1/ai/proposal-groups/:groupId/accept` accepts proposals; Story Brain advances to version 2 | **PASS** |
 | **05** | Baseline Activation | Node API `POST /api/v1/ai/story-brains/:novelId/baseline/activate` marks Story Brain active (safely handling empty revision bootstrap) | **PASS** |
 | **06** | First Canonical Chapter & Revision | Created Chapter 1 via Node API and created canonical base revision snapshot (`POST /api/v1/chapters/:id/revisions/snapshot`) | **PASS** |
@@ -47,8 +72,8 @@ All 13 acceptance checkpoints executed against live Docker services (`backend:40
 
 ### 3.1 AI Service (`ai-service`)
 - **Schemas (`ai-service/api/schemas.py`):**
-  - `IdeaBootstrapPreferences`: `genre: list[str] | None`, `tone: str | None`, `target_length: str | None`.
-  - `IdeaBootstrapRequest`: `novel_id: str`, `idea: str`, `outline: str | None`, `locale: str = "vi-VN"`, `preferences: IdeaBootstrapPreferences | None`, `author_constraints: list[str] | None`.
+  - `IdeaBootstrapPreferences`: `genre: list[str] = []`, `tone: str = "neutral"`, `target_length: str = "long_form"`.
+  - `IdeaBootstrapRequest`: `novel_id: str`, `idea: str`, `outline: str | None`, `locale: str = "vi-VN"`, `preferences: IdeaBootstrapPreferences = default`, `author_constraints: list[str] = []`.
 - **Deterministic Fake LLM (`ai-service/core/fake_llm.py`):**
   - Implemented `generate_story_blueprint` producing structured premise facts, world rules, and key entity proposals.
   - Added prompt branch routing `"story blueprint"` to deterministic blueprint generation.
@@ -103,6 +128,6 @@ All 13 acceptance checkpoints executed against live Docker services (`backend:40
 
 ## 5. Status & Handoff
 
-- **Current Status:** `LOCAL_PASS_CI_PENDING`
-- **Scope Boundary:** Gemini stops here. All local implementation, clean `CODE_SHA` lineage, live Docker 13/13 validation, robust author-control verification, and evidence reporting are complete.
-- **Handoff to ChatGPT:** Inspect branch `astra/ai-pipe-02-idea-bootstrap` at head, create PR, run remote CI, and merge once GitHub checks pass.
+- **Current Status:** `CI_PASS / MERGED`
+- **Remote Acceptance:** PR #40 merged as `510351fa074ee360c580188e18fe3c4ee6813ae4`; P8 `37958919258`, P7 `37958919259`, and Evaluation Pilot `37958919448` all passed on accepted head `7218f2a718755f6c555fc68c42b21d5cbbfcd047`.
+- **Scope Boundary:** AI-PIPE-02A is closed. Durable outline-plan persistence / multi-chapter steering is explicitly deferred to AI-PIPE-02B.
