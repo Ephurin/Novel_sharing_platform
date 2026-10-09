@@ -44,14 +44,24 @@ if hasattr(sys.stderr, "reconfigure"):
 
 
 def get_git_info() -> tuple[str, str]:
+    """Return reproducible source identity in both local and GitHub Actions checkouts."""
     try:
         sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     except Exception:
-        sha = "unknown"
-    try:
-        branch = subprocess.check_output(["git", "branch", "--show-current"], text=True).strip()
-    except Exception:
-        branch = "unknown"
+        sha = os.getenv("GITHUB_SHA", "unknown").strip() or "unknown"
+
+    # GitHub pull_request workflows check out a synthetic merge commit in detached HEAD,
+    # so `git branch --show-current` is legitimately empty there. Prefer the explicit
+    # source branch exposed by Actions, then fall back to the local branch name.
+    branch = (os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME") or "").strip()
+    if not branch:
+        try:
+            branch = subprocess.check_output(["git", "branch", "--show-current"], text=True).strip()
+        except Exception:
+            branch = ""
+    if not branch:
+        branch = "detached-head"
+
     return sha, branch
 
 
