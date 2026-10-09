@@ -175,6 +175,38 @@ export async function startManuscriptBootstrapController(
   }
 }
 
+export async function startIdeaBootstrapController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = req.auth!.userId;
+    const userRole = req.auth!.role;
+
+    if (!req.body.novel_id) {
+      throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
+    }
+    if (!req.body.idea || typeof req.body.idea !== 'string') {
+      throw new AppError(400, 'INVALID_REQUEST', 'idea is required');
+    }
+
+    await assertNovelOwnership(userId, userRole, req.body.novel_id);
+
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: '/v1/story-brains/bootstrap/from-idea',
+      body: req.body,
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    res.status(202).json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function getReviewQueueController(
   req: Request,
   res: Response,

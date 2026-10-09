@@ -137,6 +137,7 @@ app.state.bootstrap_service = ManuscriptBootstrapService(
     app.state.narrative_repository,
     app.state.revision_content_provider,
     app.state.revision_analysis_service,
+    llm_service=app.state.llm_service,
 )
 app.state.writing_service = WritingService(
     app.state.narrative_repository,

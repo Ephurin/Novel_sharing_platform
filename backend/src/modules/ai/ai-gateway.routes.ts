@@ -9,6 +9,7 @@ import {
   getReviewQueueController,
   getStoryBrainSummaryController,
   rejectProposalController,
+  startIdeaBootstrapController,
   startManuscriptBootstrapController,
   startWritingGenerationController,
 } from './ai-gateway.controller.js';
@@ -43,6 +44,11 @@ aiGatewayRoutes.post(
 aiGatewayRoutes.post(
   '/story-brains/bootstrap/from-manuscript',
   startManuscriptBootstrapController
+);
+
+aiGatewayRoutes.post(
+  '/story-brains/bootstrap/from-idea',
+  startIdeaBootstrapController
 );
 
 // Proposals

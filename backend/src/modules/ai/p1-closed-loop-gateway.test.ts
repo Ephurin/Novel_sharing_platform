@@ -146,4 +146,55 @@ describe('AI-PIPE-01 P1 Node Gateway & Acceptance Flow', () => {
     const updatedText = applyPatchToContent(originalText, patch);
     assert.equal(updatedText, 'Tiêu Viêm chậm rãi thở dài một hơi.');
   });
+
+  test('P2-Gateway: Forward bootstrap from idea with tenant & service authentication', async () => {
+    let capturedUrl = '';
+    let capturedHeaders: Record<string, string> = {};
+    let capturedBody: any = null;
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: any, init: any) => {
+      capturedUrl = String(url);
+      capturedHeaders = init?.headers || {};
+      capturedBody = JSON.parse(init?.body || '{}');
+      return new Response(
+        JSON.stringify({
+          data: {
+            job_id: 'idea-job-001',
+            status: 'waiting_review',
+            story_brain_id: capturedBody.novel_id,
+          },
+          meta: { schema_version: 1 },
+        }),
+        { status: 202, headers: { 'Content-Type': 'application/json' } }
+      );
+    }) as typeof fetch;
+
+    try {
+      const gateway = new AIGatewayService();
+      const res = await gateway.forwardRequest({
+        method: 'POST',
+        path: '/v1/story-brains/bootstrap/from-idea',
+        userId: 'author-123',
+        tenantId: '00000000-0000-0000-0000-000000000001',
+        requestId: 'req-idea-01',
+        body: {
+          novel_id: 'novel-001',
+          idea: 'Một pháp sư mất trí nhớ điều tra cái chết của chính mình.',
+          locale: 'vi-VN',
+          preferences: { genre: ['fantasy'] },
+          author_constraints: ['Không có du hành thời gian'],
+        },
+      });
+
+      assert.equal(res.job_id, 'idea-job-001');
+      assert.equal(res.status, 'waiting_review');
+      assert.equal(capturedHeaders['X-Tenant-Id'], '00000000-0000-0000-0000-000000000001');
+      assert.equal(capturedHeaders['X-User-Id'], 'author-123');
+      assert.match(capturedUrl, /\/v1\/story-brains\/bootstrap\/from-idea$/);
+      assert.equal(capturedBody.idea, 'Một pháp sư mất trí nhớ điều tra cái chết của chính mình.');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });

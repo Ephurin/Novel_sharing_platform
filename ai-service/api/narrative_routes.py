@@ -20,6 +20,7 @@ from api.schemas import (
     EventCorrectionRequest,
     BaselineActivationRequest,
     EntityMergeRequest,
+    IdeaBootstrapRequest,
     ManuscriptBootstrapRequest,
     ProposalDecisionRequest,
     ProposalEditAcceptRequest,
@@ -89,6 +90,35 @@ def bootstrap_from_manuscript(
         ) from exc
     if job.status not in {"waiting_review", "completed"}:
         background_tasks.add_task(service.process, job.job_id)
+    return {
+        "data": {
+            "job_id": job.job_id,
+            "story_brain_id": payload.novel_id,
+            "status": job.status,
+        },
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.post("/story-brains/bootstrap/from-idea", status_code=202)
+def bootstrap_from_idea(
+    payload: IdeaBootstrapRequest,
+    tenant_id: str = Header(..., alias="X-Tenant-Id"),
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    try:
+        job = service.start_from_idea(
+            tenant_id=tenant_id,
+            novel_id=payload.novel_id,
+            idea=payload.idea,
+            outline=payload.outline,
+            locale=payload.locale,
+            preferences=payload.preferences.model_dump(),
+            author_constraints=payload.author_constraints,
+        )
+    except ValueError as exc:
+        raise HTTPException(422, detail={"code": "INVALID_IDEA", "message": str(exc)}) from exc
     return {
         "data": {
             "job_id": job.job_id,

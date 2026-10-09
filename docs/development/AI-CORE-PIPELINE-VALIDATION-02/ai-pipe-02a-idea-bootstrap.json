@@ -1,0 +1,178 @@
+{
+  "gate": "AI-PIPE-02A",
+  "pipeline": "P2",
+  "verdict": "P2_IDEA_BOOTSTRAP_PASS",
+  "timestamp": "2026-10-09T10:08:23.948560+00:00",
+  "git_commit": "4f4c3eb73e0c1bcc6aa877845181198e651a8f2b",
+  "git_branch": "astra/ai-pipe-02-idea-bootstrap",
+  "environment": {
+    "backend_url": "http://localhost:4000/api/v1",
+    "ai_service_url": "http://localhost:8000",
+    "database_backend": "postgresql-16+pgvector",
+    "llm_provider": "fake-deterministic"
+  },
+  "summary": {
+    "total_checkpoints": 13,
+    "passed": 13,
+    "failed": 0
+  },
+  "checkpoints": [
+    {
+      "checkpoint": 1,
+      "name": "Idea Bootstrap Request via Node API",
+      "status": "PASS",
+      "summary": "Successfully queued idea bootstrap job 88ab5c7f-79cb-50c7-b4c0-ed8f97857bb8",
+      "details": {
+        "novel_id": "34f08078-b6b4-4da4-9a60-445771d6bfc3",
+        "job_id": "88ab5c7f-79cb-50c7-b4c0-ed8f97857bb8",
+        "status": "waiting_review"
+      }
+    },
+    {
+      "checkpoint": 2,
+      "name": "Repeatable Bootstrap Idempotency",
+      "status": "PASS",
+      "summary": "Repeated bootstrap request returned same job_id 88ab5c7f-79cb-50c7-b4c0-ed8f97857bb8",
+      "details": {
+        "job_id_1": "88ab5c7f-79cb-50c7-b4c0-ed8f97857bb8",
+        "job_id_2": "88ab5c7f-79cb-50c7-b4c0-ed8f97857bb8"
+      }
+    },
+    {
+      "checkpoint": 3,
+      "name": "Structured Initial Proposals / Blueprint Populated",
+      "status": "PASS",
+      "summary": "Found 7 proposals in review queue covering ['entity', 'fact']",
+      "details": {
+        "proposal_count": 7,
+        "proposal_types": [
+          "entity",
+          "fact"
+        ],
+        "premise_preview": "Một pháp sư mất trí nhớ điều tra cái chết của chính mình tại"
+      }
+    },
+    {
+      "checkpoint": 4,
+      "name": "Author Review & Proposal Acceptance",
+      "status": "PASS",
+      "summary": "Accepted 7 proposals; Story Brain advanced to version 2",
+      "details": {
+        "group_id": "f2e4629a-8f94-58f5-9644-ccf9a27300e0",
+        "accepted_count": 7,
+        "brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 5,
+      "name": "Baseline Activation via Node API",
+      "status": "PASS",
+      "summary": "Story Brain status activated successfully (status=active)",
+      "details": {
+        "story_brain_id": "b1d9b9e9-0e0c-4125-bd6f-0a06261e1838",
+        "status": "active",
+        "baseline_revision_id": null,
+        "brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 6,
+      "name": "First Canonical Chapter & Revision Association",
+      "status": "PASS",
+      "summary": "Created chapter 6877a884-84f2-4c23-927a-47c86c166f55 with canonical base revision 1816b77a-89c7-4b8a-9d2d-04d165f236f6",
+      "details": {
+        "chapter_id": "6877a884-84f2-4c23-927a-47c86c166f55",
+        "revision_id": "1816b77a-89c7-4b8a-9d2d-04d165f236f6",
+        "content_hash": "95dc1d65d62422977028895b56d56eae84b3d1c806593ccbf838bb19ab9afb2c"
+      }
+    },
+    {
+      "checkpoint": 7,
+      "name": "Direct PostgreSQL Schema Verification",
+      "status": "PASS",
+      "summary": "Verified narrative schema: 3 entities, 4 facts, brain_version=2",
+      "details": {
+        "pg_entities": 3,
+        "pg_facts": 4,
+        "brain_status": "active",
+        "brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 8,
+      "name": "Context Preview from Active Initial Story Brain",
+      "status": "PASS",
+      "summary": "Context preview returned brain_version=2 with 3 entities",
+      "details": {
+        "brain_version": 2,
+        "entity_count": 3,
+        "world_rules_count": 3
+      }
+    },
+    {
+      "checkpoint": 9,
+      "name": "Assisted AI Generation via Standard P1 Route",
+      "status": "PASS",
+      "summary": "Generated patch draft 3f42f975-4098-51ae-b02b-bca9fdbcfa1e with status=completed, validation=passed",
+      "details": {
+        "generation_id": "3f42f975-4098-51ae-b02b-bca9fdbcfa1e",
+        "status": "completed",
+        "validation_status": "passed",
+        "patch": {
+          "start": 0,
+          "end": 0,
+          "replacement": "Tiêu Viêm thở dài một hơi, chậm rãi thu hồi Dị Hỏa, ánh mắt nhìn về phía chân trời xa xăm."
+        }
+      }
+    },
+    {
+      "checkpoint": 10,
+      "name": "Canonical Draft Acceptance & PostgreSQL Persistence",
+      "status": "PASS",
+      "summary": "Persisted revision 9c55921c-2ef8-4353-a202-1ea6d0fe3934 with source_type=AI_DRAFT_ACCEPT in PostgreSQL",
+      "details": {
+        "revision_id": "9c55921c-2ef8-4353-a202-1ea6d0fe3934",
+        "parent_revision_id": "1816b77a-89c7-4b8a-9d2d-04d165f236f6",
+        "source_type": "AI_DRAFT_ACCEPT",
+        "source_generation_id": "3f42f975-4098-51ae-b02b-bca9fdbcfa1e",
+        "chapters_latest_revision_id": "9c55921c-2ef8-4353-a202-1ea6d0fe3934"
+      }
+    },
+    {
+      "checkpoint": 11,
+      "name": "Transactional Outbox Dispatch & Incremental Story Brain Update",
+      "status": "PASS",
+      "summary": "Outbox event 7f98e9fe-1dff-4f0c-87a5-adbd4380a540 dispatched; Story Brain reached version 3",
+      "details": {
+        "outbox_event_id": "7f98e9fe-1dff-4f0c-87a5-adbd4380a540",
+        "outbox_status": "COMPLETED",
+        "story_brain_version": 3
+      }
+    },
+    {
+      "checkpoint": 12,
+      "name": "Second Context Preview Observes Updated Brain State",
+      "status": "PASS",
+      "summary": "Context preview successfully observed updated brain_version=3",
+      "details": {
+        "brain_version": 3
+      }
+    },
+    {
+      "checkpoint": 13,
+      "name": "Acceptance Idempotency & Author-Control Semantics",
+      "status": "PASS",
+      "summary": "Retry acceptDraft returned existing revision with count=1; real unaccepted generation left canon and Story Brain untouched",
+      "details": {
+        "accepted_revision_id": "9c55921c-2ef8-4353-a202-1ea6d0fe3934",
+        "duplicate_row_count": 1,
+        "unaccepted_generation_id": "a056a873-f050-5314-9683-85160161a639",
+        "latest_revision_before": "9c55921c-2ef8-4353-a202-1ea6d0fe3934",
+        "latest_revision_after": "9c55921c-2ef8-4353-a202-1ea6d0fe3934",
+        "unaccepted_generation_revision_count": 0,
+        "brain_version_before": 3,
+        "brain_version_after": 3
+      }
+    }
+  ]
+}

@@ -270,6 +270,13 @@ jobs:
       - name: Run Backend PostgreSQL Production Persistence Integration Suite
         run: docker compose exec -T backend npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
 
+      - name: Run Gate AI-PIPE-02A Idea Bootstrap Validation
+        run: python scripts/run_ai_pipe_02a_idea_bootstrap.py
+      - name: Verify Gate AI-PIPE-02A Evidence Schema and Invariants
+        run: python scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py
+      - name: Run AI-PIPE-02A Idea Bootstrap Route Unit Suite
+        run: docker compose exec -T -e APP_ENV=test ai-service pytest tests/test_idea_bootstrap_routes.py -q
+
       - name: Show service status
         if: always()
         run: docker compose ps

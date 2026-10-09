@@ -74,6 +74,232 @@ The older P2 `NEXT LOCAL IMPLEMENTATION GATE` text lower in this file is histori
 
 ---
 
+
+## GEMINI LOCAL RESOLUTION — AI-PIPE-02A REPAIRED & REPRODUCIBLE (2026-10-09)
+
+**Status:** `LOCAL_PASS_CI_PENDING` (13/13 Checkpoints PASS on clean `CODE_SHA`)  
+**Clean Code Commit (CODE_SHA):** `4f4c3eb73e0c1bcc6aa877845181198e651a8f2b`  
+**Live Evidence Artifact:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02/ai-pipe-02a-idea-bootstrap.json` (records `git_commit = 4f4c3eb...`)  
+**Offline Validator:** `scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py` $\to$ **PASS (8/8 negative mutants rejected)**  
+**Validation Report:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02-report.md`  
+
+### Repairs Completed:
+1. **Blocker 1 (Reproducible Lineage):** Committed code/tests first as `4f4c3eb` (`CODE_SHA`), verified working tree clean, executed full Docker 13/13 runner on `CODE_SHA`, evidence automatically records `git_commit = 4f4c3eb`.
+2. **Blocker 1B (Bootstrap Identity Locale):** Normalized `locale` added to deterministic bootstrap identity hash and job UUID; added unit test `test_bootstrap_locale_distinct_jobs`.
+3. **Blocker 2 (Fail-Closed Blueprint & Safe Lookup):** LLM failures fail closed with `RuntimeError`, `get_bootstrap_job` catches only `KeyError`, and offline fallback derives strictly from user-supplied inputs without phantom lore; unit tests added.
+4. **Blocker 3 (Real Unaccepted Generation Safety):** Checkpoint 13b creates a real second writing generation via Node API, observes completion, explicitly omits draft acceptance, and verifies that `chapters.latest_revision_id`, `chapter_revisions` count, and `story_brains.brain_version` are completely unmutated; validator enforced with 8 negative mutants.
+5. **Blockers 4 & 5 (Report Qualification & Schema Drift):** Corrected `IdeaBootstrapPreferences`/`Request` schema descriptions, qualified gate as `Idea/World-Bible Bootstrap (AI-PIPE-02A)` with durable outline planning deferred to `AI-PIPE-02B`, and replaced all local file links with repo-relative paths.
+
+---
+
+## CHATGPT REMOTE REVIEW — AI-PIPE-02A REPAIR REQUIRED BEFORE PR (2026-10-09)
+
+Remote branch head inspected: `1c6773dcdc3ce746a3da5f1445e8dfdc61dccc0f`.
+
+Do **not** open/expect PR or CI yet. The implementation is promising and the local 13/13 run is useful, but remote review found four blockers that must be repaired locally by Gemini before ChatGPT opens the PR.
+
+### BLOCKER 1 — evidence lineage is not reproducible
+
+The current evidence records:
+
+```text
+git_commit = 40f8fb8a5d2b39b94d5520375ffdda6f059434f4
+```
+
+but the P2 implementation was committed afterward as:
+
+```text
+1c6773dcdc3ce746a3da5f1445e8dfdc61dccc0f
+```
+
+So the 13/13 run was executed on a working tree containing uncommitted P2 code. Keep the current evidence as preliminary evidence, but do not use it as the final reproducibility artifact.
+
+Required repair sequence:
+
+```text
+1. fix the code/report issues below
+2. commit code/tests first -> CODE_SHA
+3. verify working tree is clean
+4. run the complete local Docker AI-PIPE-02A test on CODE_SHA
+5. evidence must record git_commit = CODE_SHA
+6. run the offline validator against that new evidence
+7. commit evidence/report/handoff as a direct child of CODE_SHA
+8. push and stop at LOCAL_PASS_CI_PENDING
+```
+
+Do not rewrite `git_commit` manually. It must be emitted by the runner from the checked-out clean code commit.
+
+### BLOCKER 1B — bootstrap identity omits locale
+
+`start_from_idea()` computes the deterministic bootstrap identity from tenant, novel, idea, outline, preferences and constraints, but currently omits `locale`.
+
+That means the same story input requested once as `vi-VN` and later as `en-US` can resolve to the same job ID and return stale localized output.
+
+Required repair:
+- include normalized `locale` in the identity used to derive the deterministic job UUID and analysis idempotency key;
+- add a focused test proving identical requests in the same locale reuse the same job, while a locale change produces a distinct job;
+- keep same-payload repeatability unchanged.
+### BLOCKER 2 — production blueprint fallback must not invent unrelated lore
+
+`ManuscriptBootstrapService._generate_blueprint()` currently swallows LLM/parsing failures and falls through to hard-coded fantasy content such as:
+
+```text
+Năng lượng ma thuật luôn tuân theo luật bảo toàn.
+Nhân vật chính
+Khởi đầu chi địa
+```
+
+This is not acceptable as a generic production fallback because it may create review proposals unrelated to the author's idea.
+
+Required behavior:
+- if a configured real provider fails or returns invalid structured output, fail closed with an explicit bootstrap/provider error rather than silently inventing unrelated lore;
+- if an explicit no-provider/test/offline path needs a fallback, derive it only from user-supplied `idea`, `outline`, preferences, and author constraints; do not add unrelated world facts/entities;
+- preserve `waiting_review` / author-control semantics;
+- add focused tests for provider failure / invalid JSON / no-provider fallback as appropriate.
+
+Also replace broad exception swallowing in idempotency lookup:
+
+```python
+try:
+    existing_job = self._repository.get_bootstrap_job(job_id)
+    ...
+except Exception:
+    pass
+```
+
+`get_bootstrap_job()` uses `KeyError` for the normal not-found case. Catch only the expected not-found condition; database/repository errors must propagate instead of being hidden.
+
+### BLOCKER 3 — checkpoint 13 does not actually prove unaccepted-generation safety
+
+The current runner claims:
+
+```text
+unaccepted generation leaves canonical revision untouched
+```
+
+but checkpoint 13b only creates a random string:
+
+```python
+unused_gen_id = f"unused-gen-{uuid.uuid4()}"
+```
+
+and verifies that no database row exists for a generation that was never created. That is not a real author-control test.
+
+Required executable proof:
+
+```text
+capture canonical latest_revision_id and brain_version
+ -> create a SECOND real writing generation through Node API
+ -> wait until completed
+ -> DO NOT call accept-draft
+ -> verify chapter latest_revision_id is unchanged
+ -> verify no chapter_revisions row exists for that generation id
+ -> verify Story Brain/canonical state does not advance because of that unaccepted generation
+```
+
+Record in evidence at least:
+- `unaccepted_generation_id`;
+- `latest_revision_before` and `latest_revision_after`;
+- `unaccepted_generation_revision_count = 0`;
+- brain version before/after (or equivalent canonical-state proof).
+
+Update the evidence validator so these fields are mandatory and fail closed when mutated.
+
+### BLOCKER 4 — report/code drift
+
+`AI-CORE-PIPELINE-VALIDATION-02-report.md` currently says:
+
+```text
+IdeaBootstrapPreferences: genre, tone, target_audience, core_conflict
+IdeaBootstrapRequest: ... idempotency_key
+start_from_idea(... idempotency_key)
+```
+
+but committed code currently exposes:
+
+```text
+IdeaBootstrapPreferences: genre, tone, target_length
+IdeaBootstrapRequest: novel_id, idea, outline, locale, preferences, author_constraints
+start_from_idea(... author_constraints)
+```
+
+Correct the report to match the actual contract. The deterministic content-derived job UUID already provides repeatability; do not invent a request field merely to make the report match.
+
+### BLOCKER 5 — qualify outline support; do not claim durable plan-aware writing yet
+
+`ai-service/docs/API_CONTRACTS.md` explicitly defines UC-01 as Story Blueprint / World Bible proposals and states:
+
+```text
+premise
+world_rule
+entity
+initial_state
+relationship
+open_question
+```
+
+and also says it does **not** create a planning object.
+
+The current implementation accepts `outline` and includes it in the LLM prompt/job identity, but the persisted proposal set currently materializes only:
+
+```text
+premise fact
+world-rule facts
+entities
+author constraints as world rules
+```
+
+The deterministic fake blueprint also does not make the supplied outline affect any persisted proposal beyond the request/job identity.
+
+Therefore this gate currently proves:
+
+```text
+IDEA/PREMISE -> REVIEWABLE WORLD BIBLE -> STORY BRAIN -> P1 WRITING LOOP
+```
+
+but it does **not yet prove**:
+
+```text
+OUTLINE -> DURABLE STORY PLAN -> SUBSEQUENT GENERATIONS FOLLOW THAT PLAN
+```
+
+Do not solve this by storing future outline beats as canonical historical facts/events, because that would create future-information leakage in narrative memory.
+
+For AI-PIPE-02A repair, do one of the following explicitly:
+
+1. **Preferred narrow closure:** qualify the report/gate as `Idea/World-Bible Bootstrap`, document durable outline-plan persistence as the next P2 gap (`AI-PIPE-02B`), and keep the architecture clean; or
+2. if an existing non-canonical planning/context model already exists in the repository, reuse it and add a focused test showing outline intent reaches later writing context without becoming historical canon.
+
+Do not invent a parallel memory store or silently encode future plot beats as established Story Brain facts.
+
+Also note that the accepted UC-01 contract lists `initial_state`, `relationship`, and `open_question`; the current implementation does not emit these. Either implement only if needed for the minimal World Bible acceptance, or record them honestly as not yet implemented. Do not claim full UC-01 parity.
+
+### Documentation portability
+
+Before final handoff, replace local `file:///c:/...` links in the report with repository-relative paths or plain code paths. They are not portable GitHub evidence links.
+
+### Acceptance after repair
+
+Gemini completion boundary remains:
+
+```text
+corrected code
++ focused tests
++ clean committed CODE_SHA
++ full local Docker 13/13 rerun on CODE_SHA
++ stronger checkpoint 13 author-control proof
++ validator negative tests
++ corrected report/evidence
++ pushed branch
+= LOCAL_PASS_CI_PENDING
+```
+
+Then stop. ChatGPT will inspect the pushed head, create the PR, run remote CI, and merge only after the GitHub gates pass.
+
+Do not begin AI-PIPE-03 yet.
+
+---
+
 ## CURRENT CANONICAL STATUS — PR #39 MERGED / AI-PIPE-01A CI CLOSED (2026-10-09)
 
 **PR #39 merged:** `AI-PIPE-01A: close P1 production persistence loop`
@@ -126,9 +352,13 @@ Do not reopen AI-PIPE-01A unless a regression appears.
 
 ---
 
-## NEXT LOCAL IMPLEMENTATION GATE — AI-PIPE-02A IDEA/OUTLINE -> CANONICAL STORY BRAIN (2026-10-09)
+## LOCAL GATE AI-PIPE-02A IDEA/OUTLINE -> CANONICAL STORY BRAIN — LOCAL_PASS_CI_PENDING (2026-10-09)
 
-The next local engineering task belongs to Gemini/Antigravity.
+**Status:** `LOCAL_PASS_CI_PENDING` (13/13 Checkpoints Passed)  
+**Branch:** `astra/ai-pipe-02-idea-bootstrap`  
+**Live Evidence:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02/ai-pipe-02a-idea-bootstrap.json`  
+**Validator:** `scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py` $\to$ **PASS (5/5 mutants rejected)**  
+**Report:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02-report.md`  
 
 ### Objective
 
@@ -271,7 +501,7 @@ ChatGPT will inspect the pushed branch, review evidence, create PR, run/inspect 
 ```text
 AI-PIPE-01A P1 backend closed loop      CI_PASS / MERGED
 AI-PIPE-01B P1 browser UI               PENDING_UI_REFACTOR
-AI-PIPE-02A idea/outline bootstrap       NEXT LOCAL TASK
+AI-PIPE-02A idea/outline bootstrap       LOCAL_PASS_CI_PENDING (13/13 PASS)
 AI-PIPE-03 autonomous full-auto loop     BLOCKED UNTIL P2 ARCHITECTURE IS CLOSED
 ```
 

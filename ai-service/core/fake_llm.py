@@ -106,8 +106,61 @@ class FakeDeterministicLLMService:
                 entities.append({"phrase": "Tiêu Viêm", "entity": "PER", "score": 9.5})
             return json.dumps(entities)
 
+        # 4. Story Blueprint / Idea Bootstrap
+        if "story blueprint" in prompt_lower or "idea bootstrap" in prompt_lower or "blueprint" in prompt_lower:
+            logger.info("Fake LLM returning deterministic story blueprint")
+            return json.dumps(
+                {
+                    "premise": "Một pháp sư mất trí nhớ điều tra cái chết của chính mình.",
+                    "world_rules": [
+                        "Ma pháp tiêu hao sinh mệnh lực, cấm kỵ thuật sẽ bị nguyền rủa vĩnh viễn.",
+                        "Linh hồn không thể rời khỏi thể xác quá ba ngày mà không tiêu tán.",
+                    ],
+                    "entities": [
+                        {"name": "Arthur", "entity_type": "character", "score": 9.5},
+                        {"name": "Elena", "entity_type": "character", "score": 9.0},
+                        {"name": "Học Viện Tháp Cổ", "entity_type": "location", "score": 8.5},
+                    ],
+                    "author_constraints": [
+                        "Không có du hành thời gian",
+                    ],
+                }
+            )
+
         logger.warning("Unrecognized prompt in Fake LLM, returning empty object")
         return json.dumps({})
+
+    def generate_story_blueprint(
+        self,
+        *,
+        idea: str,
+        outline: str | None = None,
+        preferences: dict[str, Any] | None = None,
+        author_constraints: list[str] | None = None,
+    ) -> dict[str, Any]:
+        self.last_call = {
+            "operation": "generate_story_blueprint",
+            "idea": idea,
+            "outline": outline,
+            "preferences": preferences,
+            "author_constraints": author_constraints,
+        }
+        entities = [
+            {"name": "Arthur", "entity_type": "character", "score": 9.5},
+            {"name": "Elena", "entity_type": "character", "score": 9.0},
+            {"name": "Học Viện Tháp Cổ", "entity_type": "location", "score": 8.5},
+        ]
+        world_rules = [
+            "Ma pháp tiêu hao sinh mệnh lực, cấm kỵ thuật sẽ bị nguyền rủa vĩnh viễn.",
+            "Linh hồn không thể rời khỏi thể xác quá ba ngày mà không tiêu tán.",
+        ]
+        return {
+            "premise": idea,
+            "world_rules": world_rules,
+            "entities": entities,
+            "author_constraints": author_constraints or ["Không có du hành thời gian"],
+            "model_info": {"model": self.model, "provider": "fake"},
+        }
 
     def generate_writing_draft(
         self,
