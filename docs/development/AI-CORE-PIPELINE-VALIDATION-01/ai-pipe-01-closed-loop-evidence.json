@@ -1,0 +1,210 @@
+{
+  "test_gate": "AI-PIPE-01",
+  "pipeline": "P1",
+  "title": "P1 Import -> Story Brain -> Assisted Writing Closed-Loop System Test",
+  "timestamp": "2026-10-09T06:57:29Z",
+  "tested_code_commit": "528db04dd1121cbb8a34139c3cc7ae12d58ef712",
+  "branch": "astra/ai-pipe-01-closed-loop-validation",
+  "provider": "fake-deterministic",
+  "model": "fake-p4-model",
+  "routing_policy": "legacy-v1",
+  "repository_backend": "InMemoryNarrativeRepository",
+  "total_checkpoints": 15,
+  "checkpoints_passed": 15,
+  "checkpoints_failed": 0,
+  "gate_verdict": "P1_CLOSED_LOOP_PASS",
+  "execution_latency_ms": 5.44,
+  "checkpoints": [
+    {
+      "checkpoint": 1,
+      "name": "Start with disposable novel/manuscript fixture",
+      "status": "PASS",
+      "details": {
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "chapter_1": {
+          "chapter_id": "20000000-0000-0000-0000-000000000001",
+          "revision_id": "30000000-0000-0000-0000-000000000001",
+          "content_hash": "dfae628a02d6ee1404c9ef5539099f0d043178adfcce77dfd47152b8202b1a1d"
+        },
+        "chapter_2": {
+          "chapter_id": "20000000-0000-0000-0000-000000000002",
+          "revision_id": "30000000-0000-0000-0000-000000000002",
+          "content_hash": "7530e760aff8f8177dd27dc9a934ff1b9c6e21e1293656a643205dcbadad8eeb"
+        }
+      }
+    },
+    {
+      "checkpoint": 2,
+      "name": "Import/bootstrap manuscript through production-compatible path",
+      "status": "PASS",
+      "details": {
+        "job_id": "90cc0101-3a15-5982-a27e-28a1d9773b84",
+        "terminal_status": "waiting_review",
+        "stage": "review",
+        "progress_current": 2
+      }
+    },
+    {
+      "checkpoint": 3,
+      "name": "Confirm immutable chapter/revision provenance exists",
+      "status": "PASS",
+      "details": {
+        "ch1_provenance": {
+          "story_id": "10000000-0000-0000-0000-000000000001",
+          "revision_id": "30000000-0000-0000-0000-000000000001",
+          "chapter_number": 1
+        },
+        "ch2_provenance": {
+          "story_id": "10000000-0000-0000-0000-000000000001",
+          "revision_id": "30000000-0000-0000-0000-000000000002",
+          "chapter_number": 2
+        }
+      }
+    },
+    {
+      "checkpoint": 4,
+      "name": "Confirm extraction produces real narrative structures/proposals",
+      "status": "PASS",
+      "details": {
+        "total_proposals": 12,
+        "proposal_types": [
+          "entity",
+          "event",
+          "fact",
+          "state_transition"
+        ],
+        "world_rules_extracted": 1
+      }
+    },
+    {
+      "checkpoint": 5,
+      "name": "Resolve/review proposals required to activate Story Brain",
+      "status": "PASS",
+      "details": {
+        "queue_length": 12,
+        "accepted_groups_count": 2,
+        "resulting_brain_version": 3
+      }
+    },
+    {
+      "checkpoint": 6,
+      "name": "Confirm Story Brain is active and has concrete version",
+      "status": "PASS",
+      "details": {
+        "status": "active",
+        "baseline_version": 3,
+        "baseline_revision_id": "30000000-0000-0000-0000-000000000002",
+        "materialized_entities": [
+          "Tiêu Viêm",
+          "Hải Ba Đông",
+          "Tháp Qua Nhĩ",
+          "Mạc Gia"
+        ]
+      }
+    },
+    {
+      "checkpoint": 7,
+      "name": "Request context preview for target chapter and record baseline",
+      "status": "PASS",
+      "details": {
+        "chapter_cutoff": 2,
+        "brain_version": 3,
+        "context_hash_before": "c2a5efc1d686b91865b13f6b3c47f56e2f9c7d240ee68d19b8d5662c85b15311",
+        "entity_count": 4,
+        "world_rule_count": 1,
+        "routing_policy": "legacy-v1"
+      }
+    },
+    {
+      "checkpoint": 8,
+      "name": "Start AI Writing generation through application API",
+      "status": "PASS",
+      "details": {
+        "job_id": "c04dee56-0c15-5a87-9e83-181cdbfe0b77",
+        "operation": "continue",
+        "chapter_number": 2,
+        "expected_brain_version": 3
+      }
+    },
+    {
+      "checkpoint": 9,
+      "name": "Poll real writing job until terminal state",
+      "status": "PASS",
+      "details": {
+        "status": "completed",
+        "stage": "completed",
+        "brain_version_used": 3
+      }
+    },
+    {
+      "checkpoint": 10,
+      "name": "Confirm deterministic validation/consistency results attached",
+      "status": "PASS",
+      "details": {
+        "validation_status": "passed",
+        "validators_run": [
+          "patch_schema"
+        ],
+        "all_passed": true,
+        "patch_bounds": [
+          51,
+          51
+        ]
+      }
+    },
+    {
+      "checkpoint": 11,
+      "name": "Accept draft through canonical accept-draft path",
+      "status": "PASS",
+      "details": {
+        "base_revision_id": "30000000-0000-0000-0000-000000000002",
+        "new_revision_id": "6cbe29d2-8a63-4bec-aacb-c29e3e8fc369",
+        "new_content_length": 141,
+        "new_content_hash": "c36046a45bf10df658ad90bc3e4d685c5073d979bb29c6bd18e061d5662f3496"
+      }
+    },
+    {
+      "checkpoint": 12,
+      "name": "Verify persistence (revision row, AI_DRAFT_ACCEPT, outbox event)",
+      "status": "PASS",
+      "details": {
+        "source_type": "AI_DRAFT_ACCEPT",
+        "source_generation_id": "c04dee56-0c15-5a87-9e83-181cdbfe0b77",
+        "outbox_event_type": "INCREMENTAL_ANALYSIS"
+      }
+    },
+    {
+      "checkpoint": 13,
+      "name": "Allow/process incremental analysis path",
+      "status": "PASS",
+      "details": {
+        "analysis_run_id": "303d5721-81ef-55bc-95d9-d797fea20dbf",
+        "analysis_run_status": "pending",
+        "proposals_generated": 4
+      }
+    },
+    {
+      "checkpoint": 14,
+      "name": "Confirm Story Brain/proposal state changes after accepted revision",
+      "status": "PASS",
+      "details": {
+        "baseline_version": 3,
+        "updated_version": 4,
+        "version_advanced": true
+      }
+    },
+    {
+      "checkpoint": 15,
+      "name": "Run second context preview/generation and prove updated state observed",
+      "status": "PASS",
+      "details": {
+        "brain_version_before": 3,
+        "brain_version_after": 4,
+        "context_hash_before": "c2a5efc1d686b91865b13f6b3c47f56e2f9c7d240ee68d19b8d5662c85b15311",
+        "context_hash_after": "e89884e921c5db2affdd7230210728ebdad4f7bc7c01c7a1ecbafdfd9bebb3b9",
+        "hashes_differ": true,
+        "second_job_brain_version_used": 4
+      }
+    }
+  ]
+}
