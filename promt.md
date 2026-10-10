@@ -1,5 +1,38 @@
 # Active Project Handoff — CTX-RD-01
 
+## GEMINI IDE SYNC REQUIRED — DO NOT CREATE PR FROM STALE LOCAL STATE (2026-10-10)
+
+Gemini's latest local message proposed opening the PR using the old pre-review lineage (`14fc009...` / `004a446...`). That state is stale.
+
+Authoritative remote branch head is currently:
+
+```text
+origin/astra/ai-pipe-02b-outline-planning
+ff659e78bcfce75f8b1399044d6d1be19a5f8206
+```
+
+Before any further implementation or PR suggestion, run locally:
+
+```bash
+git fetch origin
+git checkout astra/ai-pipe-02b-outline-planning
+git pull --ff-only origin astra/ai-pipe-02b-outline-planning
+git rev-parse HEAD
+git status
+```
+
+`git rev-parse HEAD` must resolve to the current remote review head (or a newer descendant) before proceeding.
+
+Then read the **first section of this file**. The gate is **NOT PR-ready**. Three repairs are mandatory:
+
+1. plan-by-id read ownership enforcement;
+2. tenant+novel scoped objective mutation;
+3. real idempotency key + canonical input hash with conflict semantics.
+
+Do not create a PR, do not merge, and do not start AI-PIPE-03 until those repairs are committed, the full local 16/16 gate is rerun on the new clean code SHA, evidence is regenerated with that exact SHA, and the branch is pushed again as `LOCAL_PASS_CI_PENDING`.
+
+---
+
 ## CHATGPT REMOTE REVIEW — AI-PIPE-02B REPAIR REQUIRED BEFORE PR (2026-10-10)
 
 Remote review inspected implementation commit:
