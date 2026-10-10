@@ -1,5 +1,368 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT CANONICAL STATUS — AI-PIPE-02B CI PASS / PR #41 MERGED (2026-10-10)
+
+AI-PIPE-02B is now closed remotely.
+
+```text
+PR #41 merged SHA: 9977800dedad8beee01882a0d487202ec77680f7
+accepted PR head:   2886894b4d66ce7fc050442402bc80242cb30327
+P8 run:             38070054757  PASS
+P7 run:             38070054742  PASS
+Evaluation Pilot:   38070054767  PASS
+```
+
+Within P8 `root-compose-cutover-smoke`, all AI-PIPE-02B remote gates passed:
+
+```text
+Run Gate AI-PIPE-02B Outline Planning Validation              PASS
+Verify Gate AI-PIPE-02B Evidence Schema and Invariants        PASS
+Run AI-PIPE-02B Story Plan Route Unit Suite                   PASS
+```
+
+Canonical acceptance state:
+
+```text
+AI-PIPE-01A P1 backend closed loop        CI_PASS / MERGED
+AI-PIPE-01B P1 browser/UI                 PENDING_UI_REFACTOR
+AI-PIPE-02A Idea/World-Bible bootstrap    CI_PASS / MERGED
+AI-PIPE-02B Durable outline planning      CI_PASS / MERGED
+AI-PIPE-03A Autonomous bounded loop       NEXT LOCAL TASK
+```
+
+AI-PIPE-02B proves:
+
+```text
+FUTURE PLAN != HISTORICAL CANON
+
+versioned/reviewable Story Plan
+ -> current objective
+ -> existing P1 WritingService
+ -> acceptDraft + outbox
+ -> Story Brain update
+ -> explicit plan progress
+ -> next objective
+```
+
+Concurrent duplicate-key Story Plan idempotency races remain **NOT_ASSESSED** follow-up hardening. Serialized functional/system idempotency is accepted; do not silently upgrade this to a concurrency guarantee.
+
+The older AI-PIPE-02B `LOCAL_PASS_CI_PENDING`, repair-required and stale-sync sections lower in this file are historical and superseded by this section.
+
+Do not reopen AI-PIPE-02A/02B unless a regression appears.
+
+---
+
+## NEXT LOCAL IMPLEMENTATION GATE — AI-PIPE-03A BOUNDED AUTONOMOUS CONTROLLER (2026-10-10)
+
+Gemini/Antigravity owns the next local implementation gate. ChatGPT owns remote PR/CI/merge after Gemini stops at `LOCAL_PASS_CI_PENDING`.
+
+### Objective
+
+Implement the smallest production-shaped autonomous controller that can replace the Author's repetitive decisions while reusing the already-accepted P1/P2 architecture:
+
+```text
+ACTIVE STORY PLAN
+ -> select current objective
+ -> build normal P1 context
+ -> generate through existing WritingService
+ -> deterministic quality/consistency gate
+ -> accept or reject through existing production paths
+ -> accepted content updates canonical revision + outbox + Story Brain
+ -> explicit plan-progress update
+ -> progress evaluator
+ -> completion gate
+ -> continue OR stop intentionally
+```
+
+Do **not** create a second writer, second Story Brain, or P3-only narrative memory.
+
+### Active working branch
+
+Use:
+
+```text
+astra/ai-pipe-03-autonomous-loop
+```
+
+Gemini completion boundary:
+
+```text
+implementation + local tests + local Docker/system evidence + pushed branch
+= LOCAL_PASS_CI_PENDING
+```
+
+Then stop. ChatGPT owns PR, GitHub Actions, failure triage and merge.
+
+### Trace-first rule
+
+Before coding, inspect for existing reusable orchestration abstractions:
+
+- background jobs / workflow state / scheduler models;
+- generation job state machines;
+- plan lifecycle/progress APIs;
+- outbox/retry/idempotency patterns;
+- quality/validation result models;
+- any autonomous/planner/progress/completion contracts in docs;
+- any run/cancel/pause semantics already represented in backend or AI service.
+
+Classify each as:
+
+```text
+REUSABLE
+PARTIAL
+MISSING
+DOC_DRIFT
+```
+
+Prefer composition over a parallel orchestration subsystem.
+
+### Required state-machine semantics
+
+The autonomous loop must be **bounded, durable and resumable**.
+
+Conceptual lifecycle:
+
+```text
+queued
+ -> running
+ -> waiting_generation
+ -> evaluating
+ -> committing
+ -> advancing_plan
+ -> evaluating_completion
+ -> running | completed | stopped | failed
+```
+
+Names may differ if the repository already has an equivalent model.
+
+At minimum persist enough state to recover:
+
+- run ID;
+- tenant/novel ownership;
+- active Story Plan ID/version;
+- current objective ID;
+- current chapter/revision IDs;
+- iteration/step number;
+- last generation job ID;
+- last accepted revision ID;
+- Story Brain version observed/produced;
+- terminal status/reason;
+- request/idempotency identity.
+
+Do not store orchestration state only in process memory or ad-hoc JSON files.
+
+### Single-writer / concurrency boundary
+
+P3 introduces a stronger concurrency risk than P2 because a controller may retry automatically.
+
+For AI-PIPE-03A, enforce a clear serialized ownership invariant:
+
+```text
+at most one active autonomous run may mutate a novel at a time
+```
+
+Use an architecture-consistent database constraint/lock/claim mechanism if possible.
+
+Retries/resume must not create duplicate accepted revisions, duplicate plan-progress transitions or two simultaneous generations for the same step.
+
+The earlier Story Plan concurrent-idempotency caveat remains a follow-up unless the smallest correct single-writer implementation naturally closes it.
+
+### Quality / consistency gate
+
+Do not add a vague LLM-as-judge loop for primary acceptance.
+
+Primary gate should be deterministic and bounded, reusing existing generation validations where possible:
+
+- generation completed;
+- patch valid;
+- deterministic validation passed;
+- expected Story Brain version still current;
+- plan/objective provenance still active;
+- no stale base revision;
+- no empty/no-op draft;
+- optional existing consistency checks if already production-backed.
+
+If a generated draft fails the gate:
+
+```text
+reject / do not accept
+ -> canon unchanged
+ -> plan progress unchanged
+ -> bounded retry OR terminal failure according to policy
+```
+
+### Progress evaluator
+
+The controller must not infer completion merely because one generation succeeded.
+
+Use explicit plan state:
+
+```text
+accepted chapter/revision
+ + completed current objective
+ -> select next pending/in-progress objective
+```
+
+Progress evaluation must remain separate from historical Story Brain facts.
+
+### Completion gate
+
+The loop needs an intentional termination rule.
+
+Minimum accepted completion policy for this gate:
+
+```text
+complete when no eligible objectives remain
+OR an explicit active terminal/ending objective has been accepted and completed
+```
+
+Also require hard safety limits:
+
+- maximum iterations/steps per run;
+- maximum retries per objective/generation;
+- explicit stop/cancel state;
+- no infinite loop after repeated validation failure.
+
+Do not use token exhaustion, provider error, or arbitrary chapter count as a substitute for intentional story completion.
+
+### Author vs autonomous semantics
+
+P1/P2 remain Author-controlled and must not be broken.
+
+P3 is a separate opt-in orchestration mode. It may automatically call existing acceptance/progress APIs only while the autonomous run is explicitly active.
+
+Stopping/cancelling the autonomous run must return the novel to normal P1/P2 assisted-writing behavior without rewriting prior canon.
+
+### Provider policy
+
+Use fake/deterministic LLM for the primary executable gate.
+
+No real Gemini stress run is required.
+
+Do not switch global production routing or model defaults.
+
+Keep:
+
+```text
+CONTEXT_ROUTING_POLICY=legacy-v1
+```
+
+unless a separate accepted architecture change explicitly says otherwise.
+
+### Minimal executable scenario
+
+Use a disposable novel with an already-active World Bible and Story Plan containing three objectives.
+
+Recommended scenario:
+
+```text
+objective #1
+ -> autonomous generation
+ -> deterministic gate PASS
+ -> accept via existing acceptDraft
+ -> outbox completes
+ -> Story Brain advances
+ -> objective #1 completes
+
+objective #2
+ -> first generation intentionally fails deterministic gate
+ -> prove no canon/progress mutation
+ -> bounded retry
+ -> second generation PASS
+ -> accept + memory update
+ -> objective #2 completes
+
+objective #3 marked terminal/ending
+ -> generation PASS
+ -> accept + memory update
+ -> objective #3 completes
+ -> completion gate returns COMPLETED
+ -> controller performs no fourth generation
+```
+
+Then exercise resume/idempotency:
+
+```text
+replay/retry last controller command
+ -> no duplicate revision
+ -> no duplicate objective completion
+ -> no duplicate terminal transition
+```
+
+### Mandatory acceptance checkpoints
+
+At minimum verify:
+
+1. autonomous run can be created through an application-facing Node boundary;
+2. caller ownership/role is enforced;
+3. run state is durably persisted;
+4. only one active run may own a novel;
+5. active Story Plan/version is pinned or conflict-detected;
+6. current objective is selected deterministically;
+7. existing P1 context/generation path is reused;
+8. deterministic quality gate controls accept/reject;
+9. failed/rejected generation mutates neither canon nor plan progress;
+10. accepted generation persists through existing `acceptDraft()` path;
+11. transactional outbox completes and Story Brain advances;
+12. objective progress updates explicitly after accepted content;
+13. next iteration observes updated Story Brain + next objective;
+14. retry/resume is idempotent after an already committed step;
+15. maximum retry/iteration guard fails closed;
+16. stop/cancel prevents further generation and preserves canon;
+17. terminal/ending objective produces intentional `completed` state;
+18. completed run performs no extra generation afterward.
+
+### Crash/resume probe
+
+Do not only test a happy in-process loop.
+
+At least once, persist a run after an intermediate committed step, reconstruct/reload the controller service, resume by run ID, and prove it continues from persisted state rather than repeating the previous accepted mutation.
+
+### Evidence/report
+
+Create:
+
+```text
+docs/development/AI-CORE-PIPELINE-VALIDATION-03-report.md
+docs/development/AI-CORE-PIPELINE-VALIDATION-03/
+```
+
+Evidence must record:
+
+- exact clean CODE_SHA;
+- branch;
+- database/provider/routing;
+- run ID and lifecycle transitions;
+- Story Plan ID/version;
+- objective IDs/status transitions;
+- generation IDs;
+- accepted revision IDs;
+- Story Brain versions;
+- retry/resume proof;
+- single-writer proof;
+- stop/completion reason;
+- proof no generation occurs after terminal completion;
+- exact local commands;
+- PASS/FAIL/NOT_EXECUTED.
+
+Do not record secrets, JWTs, fixture passwords, full manuscripts or full generated drafts.
+
+### Scope exclusions
+
+Do not include in AI-PIPE-03A:
+
+- browser/UI acceptance;
+- real-provider reliability/stress testing;
+- automatic Story Plan regeneration from quality feedback;
+- multi-agent debate/swarm architecture;
+- global context-routing changes;
+- embedding/retrieval retuning;
+- P8-05 cleanup.
+
+AI-PIPE-01B Browser/UI remains a separate late gate after the team UI refactor is ready.
+
+---
+
 ## AI-PIPE-02B LOCAL COMPLETION — 16/16 CHECKPOINTS PASS ON CLEAN CODE_SHA (2026-10-10)
 
 **Status:** `LOCAL_PASS_CI_PENDING` (16/16 Checkpoints PASS on clean `NEW_CODE_SHA`)  
