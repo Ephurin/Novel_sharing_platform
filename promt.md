@@ -1,6 +1,38 @@
 # Active Project Handoff — CTX-RD-01
 
-## GEMINI IDE SYNC REQUIRED — DO NOT CREATE PR FROM STALE LOCAL STATE (2026-10-10)
+## AI-PIPE-02B LOCAL COMPLETION — 16/16 CHECKPOINTS PASS ON CLEAN CODE_SHA (2026-10-10)
+
+**Status:** `LOCAL_PASS_CI_PENDING` (16/16 Checkpoints PASS on clean `NEW_CODE_SHA`)  
+**Clean Code Commit (CODE_SHA):** `598f418db5f127aac48a025692668658028d7370`  
+**Live Evidence Artifact:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B/ai-pipe-02b-outline-planning.json` (records `git_commit = 598f418...`)  
+**Offline Validator:** `scripts/verify_ai_pipe_02b_outline_planning_evidence.py` $\to$ **PASS (0 errors, 10/10 negative mutants rejected)**  
+**Validation Report:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B-report.md`  
+
+### Repairs Completed:
+1. **Blocker 1 (GET story plan read ownership enforcement):**
+   - Node `getStoryPlanController` enforces `assertNovelOwnership(userId, userRole, data.novel_id)` before returning plan data.
+   - Non-owner users receive HTTP 403 `FORBIDDEN` without exposing outline body.
+   - Admin roles retain legitimate access per system contract.
+   - Verified via unit tests (`p1-closed-loop-gateway.test.ts`, `ai-gateway.test.ts`) and live Checkpoint 02 assertions against reader04 (403) and reader02 (200 admin).
+2. **Blocker 2 (Tenant & novel scoped objective mutation):**
+   - `PostgresNarrativeRepository.update_objective_status()` scopes lookup by `(id, plan_id, novel_id, tenant_id)`.
+   - Identical scoping applied to `InMemoryNarrativeRepository` and `JsonNarrativeRepository`.
+   - Negative test proves mismatched `novel_id` fails closed with HTTP 404, leaving objective status unchanged (`pending`).
+   - Verified in `test_story_plan_routes.py` and live Checkpoint 13.
+3. **Blocker 3 (True idempotency contract with canonical hashing):**
+   - `compute_plan_input_hash()` deterministically hashes `novel_id`, normalized `source_outline`, and ordered canonical objectives.
+   - `StoryPlanRecord` and domain model persist both `idempotency_key` and `input_hash`.
+   - Same key + same payload $\to$ returns existing plan (201).
+   - Same key + different payload $\to$ HTTP 409 `IDEMPOTENCY_CONFLICT`.
+   - Different key + modified plan $\to$ advances `plan_version = 2`.
+   - Verified in `test_story_plan_routes.py` and live Checkpoint 02.
+
+### Next Owner:
+ChatGPT now owns remote PR opening, CI oversight, and merging into `main`. Gemini stops at `LOCAL_PASS_CI_PENDING`.
+
+---
+
+## HISTORICAL REVIEW CONTEXT — REPAIRS RESOLVED ABOVE (2026-10-10)
 
 Gemini's latest local message proposed opening the PR using the old pre-review lineage (`14fc009...` / `004a446...`). That state is stale.
 

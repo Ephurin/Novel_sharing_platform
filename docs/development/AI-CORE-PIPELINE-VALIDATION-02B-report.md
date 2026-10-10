@@ -1,29 +1,37 @@
 # AI Core Pipeline System Validation Report — AI-PIPE-02B
 
-**Execution Timestamp:** 2026-10-09T17:15:30Z  
+**Execution Timestamp:** 2026-10-10T16:52:43Z  
 **Branch:** `astra/ai-pipe-02b-outline-planning`  
-**Base Commit SHA (CODE_SHA):** `14fc0096b6e52b28e31b44161429e0ac55f03e76`  
-**Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B/ai-pipe-02b-outline-planning.json`  
+**Base Commit SHA (CODE_SHA):** `598f418db5f127aac48a025692668658028d7370`  
+**Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B/ai-pipe-02b-outline-planning.json` (records `git_commit = 598f418...`)  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_02b_outline_planning_evidence.py` $\to$ **PASS (0 errors, 10/10 negative self-tests pass)**  
-**Gate Verdict:** `PRELIMINARY_LOCAL_PASS_16_OF_16 / REPAIR_REQUIRED_BEFORE_PR`
+**Gate Verdict:** `LOCAL_PASS_CI_PENDING` (16/16 Checkpoints PASS)
 
 ---
 
-## ChatGPT Remote Review Qualification
+## Remote Code Review Repairs Summary
 
-**Remote review status:** `REPAIR_REQUIRED_BEFORE_PR`
+All three blockers raised in ChatGPT remote review have been fully implemented, verified, and locked in commit `598f418db5f127aac48a025692668658028d7370`:
 
-The clean local 16/16 execution on `CODE_SHA=14fc0096b6e52b28e31b44161429e0ac55f03e76` remains valid preliminary evidence for planning persistence, context separation, future-canon leakage protection and P1 writing-loop reuse.
+1. **Blocker 1 (GET story plan read ownership enforcement):**
+   - Node `getStoryPlanController` now enforces `assertNovelOwnership(userId, userRole, data.novel_id)` before returning the plan body to the caller.
+   - Non-owner users receive HTTP 403 `FORBIDDEN` without exposing outline content or plan details.
+   - Admin roles retain legitimate access per the system ownership contract.
+   - Verified via unit test `P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)` in `p1-closed-loop-gateway.test.ts` and `ai-gateway.test.ts`, plus live Checkpoint 02 assertions against reader04 (403) and reader02 (200 admin).
 
-It is **not yet the final PR-ready acceptance artifact** because remote code review found three uncovered production-contract defects:
+2. **Blocker 2 (Tenant & novel scoped objective mutation):**
+   - `PostgresNarrativeRepository.update_objective_status()` now strictly scopes mutations by `(id, plan_id, novel_id, tenant_id)`.
+   - Matching semantics applied to `InMemoryNarrativeRepository` and `JsonNarrativeRepository`.
+   - Negative test proves that mismatched `novel_id` with valid plan and objective IDs fails closed (HTTP 404) and leaves the underlying database state untouched (`status` remains `pending`).
+   - Verified in `test_story_plan_routes.py` and live Checkpoint 13.
 
-1. Node `GET /story-plans/:planId` does not enforce novel ownership before returning a plan.
-2. PostgreSQL `update_objective_status()` does not scope its lookup by the supplied novel and tenant, allowing a mismatched novel ownership check to be decoupled from the mutated objective.
-3. `idempotency_key` is not persisted/hashed as a real idempotency contract; equality is currently inferred from outline hash + objective count, and conflicting reuse does not produce `IDEMPOTENCY_CONFLICT`.
-
-The exact repair contract is maintained at the top of branch `promt.md`.
-
-After repair, Gemini must commit code/tests first, rerun the complete local Docker AI-PIPE-02B gate on the new clean code SHA, regenerate evidence that records that exact SHA, rerun the fail-closed validator, then commit evidence/report as a child commit and stop at `LOCAL_PASS_CI_PENDING`.
+3. **Blocker 3 (True idempotency contract with canonical hashing):**
+   - `compute_plan_input_hash()` deterministically computes SHA-256 over canonical JSON of `novel_id`, normalized `source_outline`, and ordered canonical objectives (`order_index`, `title`, `description`, `target_chapter`, `objective_type`, metadata).
+   - `StoryPlanRecord` and domain model now persist both `idempotency_key` and `input_hash`.
+   - Same idempotency key + identical payload $\to$ returns existing plan (HTTP 201) without duplicate insertion.
+   - Same idempotency key + conflicting payload $\to$ HTTP 409 `IDEMPOTENCY_CONFLICT`.
+   - Different key + modified plan $\to$ creates new plan version (`plan_version = 2`).
+   - Verified in `test_story_plan_routes.py` and live Checkpoint 02.
 
 ---
 
@@ -52,7 +60,7 @@ All 16 acceptance checkpoints verified with status **PASS**:
 | Checkpoint | Scope | Verified Invariants / Artifacts | Status |
 |---|---|---|---|
 | **01** | Application-Facing Outline/Plan Request | Node API `POST /api/v1/ai/story-plans` accepts request and creates Story Plan draft with 3 objectives | **PASS** |
-| **02** | Deterministic Repeat / Idempotency Semantics | Repeated plan request with same idempotency key returns identical `plan_id` without duplicate insertion | **PASS** |
+| **02** | Deterministic Repeat / Idempotency Semantics | Repeated plan request returns identical `plan_id`; conflicting payload produces 409 `IDEMPOTENCY_CONFLICT`; non-owner plan read rejected with 403 `FORBIDDEN` | **PASS** |
 | **03** | Durable PostgreSQL Persistence via Repository Layer | Durably written to PostgreSQL in `narrative.story_plans` and `narrative.story_plan_objectives` | **PASS** |
 | **04** | Explicit Plan Version & Lifecycle State | Initial plan has explicit `plan_version = 1` and `status = 'draft'` | **PASS** |
 | **05** | Author Review / Activation Semantics | Author explicitly activates plan via Node API `POST /api/v1/ai/story-plans/:id/activate`; reaches `status = 'active'` | **PASS** |
@@ -63,7 +71,7 @@ All 16 acceptance checkpoints verified with status **PASS**:
 | **10** | Unaccepted Generation Safety (Author Control) | Unaccepted generation creates no revision rows, leaves `chapters.latest_revision_id` untouched, and leaves objective status `pending` | **PASS** |
 | **11** | Accepted Generation Persists via `acceptDraft()` & Outbox | Accepted draft persists revision with `source_type = 'AI_DRAFT_ACCEPT'` and enqueues `INCREMENTAL_ANALYSIS` outbox event | **PASS** |
 | **12** | Story Brain Memory Advances Only from Accepted Content | Incremental analysis of accepted draft advances Story Brain version from 2 to 3; outbox marked `COMPLETED` | **PASS** |
-| **13** | Explicit Plan Progress Update | Objective #1 status explicitly patched to `completed` via Node API `PATCH /api/v1/ai/story-plans/:id/objectives/:id` | **PASS** |
+| **13** | Explicit Plan Progress Update | Objective #1 status explicitly patched to `completed` via Node API; mismatched novel update rejected without mutating DB state | **PASS** |
 | **14** | Next Chapter / Scene Receives Next Objective | Context preview for Chapter 2 deterministically advances to next sequential Objective #2 | **PASS** |
 | **15** | Plan Edit Creates Version 2 without Rewriting Historical Canon | Plan edit creates Version 2; Plan 1 superseded, Plan 2 active, historical Story Brain canon version 3 intact | **PASS** |
 | **16** | Subsequent Context Observes Active Plan Version 2 | Context preview for Chapter 2 observes updated Plan Version 2 objective with canon intact | **PASS** |
@@ -78,15 +86,16 @@ All 16 acceptance checkpoints verified with status **PASS**:
 - Result: **0 errors, 16/16 checkpoints verified**.
 
 ### Route Unit Tests & Gateway Tests
-- `ai-service/tests/test_story_plan_routes.py`: 4/4 passed (lifecycle, idempotency, future leakage guard, objective updates).
+- `ai-service/tests/test_story_plan_routes.py`: 5/5 passed (lifecycle, idempotency match, idempotency 409 conflict, version advancement, mismatched novel scoping).
 - `ai-service/tests/test_narrative_repository_contract.py`: 27/27 passed across InMemory, Json, and Postgres repository implementations.
-- `backend/src/modules/ai/p1-closed-loop-gateway.test.ts`: 39/39 passed, including Story Plan gateway forwarding.
+- `backend`: 41/41 unit/integration tests passed, including Story Plan gateway forwarding, cross-author ownership guards, and transactional outbox.
 - TypeScript typecheck: `npm run typecheck` passed with 0 errors.
 
 ---
 
 ## 4. Lineage & Next Steps
 
-1. **Clean Code Commit (`CODE_SHA`):** `14fc0096b6e52b28e31b44161429e0ac55f03e76`
-2. **Child Evidence & Documentation Commit:** This commit records the live evidence JSON, this execution report, and updates `promt.md`.
-3. **Handoff Status:** `REPAIR_REQUIRED_BEFORE_PR`. ChatGPT remote review found authorization/scoping/idempotency blockers not covered by the original 16/16 run; rerun is required after repair.
+1. **Clean Code Commit (`CODE_SHA`):** `598f418db5f127aac48a025692668658028d7370`
+2. **Child Evidence & Documentation Commit:** This commit records the live evidence JSON, this updated execution report, and updates `promt.md`.
+3. **Handoff Status:** `LOCAL_PASS_CI_PENDING`. Full local gate passed on clean code SHA; branch pushed to remote.
+4. **Ownership:** ChatGPT owns remote PR opening, CI oversight, and final merge into `main`.
