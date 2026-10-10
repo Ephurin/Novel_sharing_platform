@@ -1,5 +1,158 @@
 # Active Project Handoff — CTX-RD-01
 
+## CHATGPT REMOTE REVIEW — AI-PIPE-02B REPAIR REQUIRED BEFORE PR (2026-10-10)
+
+Remote review inspected implementation commit:
+
+```text
+14fc0096b6e52b28e31b44161429e0ac55f03e76
+```
+
+and evidence/report child commit:
+
+```text
+004a4466d3786cfa793065b83e1073470a24f281
+```
+
+The local 16/16 system run, clean CODE_SHA lineage, future-canon leakage guard, planning-context separation and P8 CI wiring are all useful and remain valid preliminary evidence.
+
+However, **do not open/expect PR yet**. Remote code review found three production-contract blockers that the current 16/16 runner does not cover.
+
+### BLOCKER 1 — GET story plan lacks Node ownership enforcement
+
+`getStoryPlanController()` currently accepts only `planId` and forwards directly to:
+
+```text
+GET /v1/story-plans/:planId
+```
+
+without calling `assertNovelOwnership()`.
+
+Other Story Plan application-facing mutations/read-by-novel paths enforce novel ownership. The plan-by-id read must not become an authorization bypass for an authenticated AUTHOR who learns another plan UUID.
+
+Required repair:
+- enforce ownership before returning plan data;
+- use the smallest architecture-consistent approach: either require/resolve the associated `novel_id` and call `assertNovelOwnership()`, or fetch internally then verify ownership from the returned plan before responding;
+- do not expose the fetched plan body to the caller before ownership succeeds;
+- add a Node gateway test proving a non-owner cannot read another novel's plan by UUID;
+- preserve ADMIN behavior according to the existing `assertNovelOwnership` contract.
+
+### BLOCKER 2 — objective mutation query is not scoped by tenant + novel
+
+`PostgresNarrativeRepository.update_objective_status()` accepts `novel_id` but currently selects the objective using only:
+
+```text
+objective_id + plan_id
+```
+
+The Node gateway verifies ownership of the caller-supplied `novel_id`, so without repository scoping a caller who owns novel A but knows plan/objective UUIDs from novel B could supply A for the ownership check and still mutate B.
+
+Required repair:
+- derive the stable `novel_id` inside the repository method;
+- scope the update lookup by `objective_id`, `plan_id`, `tenant_id = self._tenant_id`, and `novel_id`;
+- apply equivalent isolation semantics to InMemory/JSON implementations if their contract can otherwise mutate a mismatched plan/novel;
+- add a focused negative test: mismatched `novel_id` + valid plan/objective IDs must fail and must leave objective state unchanged;
+- preserve the current happy path used by checkpoint 13.
+
+### BLOCKER 3 — Story Plan idempotency key is not a true idempotency contract
+
+`StoryPlanCreateRequest.idempotency_key` is currently used only as a boolean switch. The route returns an old plan when:
+
+```text
+source_outline_hash matches
++ objective count matches
+```
+
+but it does not persist/compare the actual idempotency key or a canonical request hash.
+
+This creates two incorrect behaviors:
+
+```text
+same outline + same objective count + different objective payload
+  -> may incorrectly return an existing plan
+
+same idempotency key + conflicting payload
+  -> does not produce IDEMPOTENCY_CONFLICT
+```
+
+Required repair should follow the already-established WritingService pattern:
+
+```text
+canonical request payload
+ -> deterministic input_hash
+ -> stable idempotency identity scoped by tenant
+ -> same key + same hash      => return existing plan
+ -> same key + different hash => HTTP 409 IDEMPOTENCY_CONFLICT
+```
+
+Canonical hashing must cover all semantics that can change the resulting plan, at minimum:
+- `novel_id`;
+- normalized `source_outline`;
+- ordered objectives including `order_index`, title, description, target chapter, objective type and metadata.
+
+Prefer the repository/domain model to persist enough identity/hash information for real PostgreSQL idempotency rather than inferring equality from outline hash/count. Since migration `0008_story_plans` is still unmerged, adjust the new planning schema cleanly rather than adding unnecessary legacy compatibility layers.
+
+Reuse `IdempotencyConflictError` and the existing HTTP error semantics where practical. Add tests for:
+
+```text
+same key + same payload       -> same plan, no duplicate
+same key + changed objective  -> 409 IDEMPOTENCY_CONFLICT
+different key + changed plan  -> new plan version
+```
+
+### What does NOT need redesign
+
+Remote review also confirmed these parts are structurally sound for this gate:
+
+```text
+planning state stored separately from facts/events
+planning_context is compact metadata
+current_objective carries only the selected objective
+future objectives are not copied into canonical lanes
+plan version/lifecycle exists
+accepted chapter content still uses P1 acceptDraft/outbox memory path
+```
+
+Do not redesign the planning architecture or reopen P1/P2A.
+
+### Required rerun / evidence lineage
+
+Because these repairs change production Story Plan behavior, the current `14fc009...` evidence becomes preliminary rather than final acceptance evidence.
+
+Required sequence:
+
+```text
+1. implement the three repairs
+2. add focused authorization/scoping/idempotency tests
+3. commit code/tests first -> NEW_CODE_SHA
+4. verify clean working tree
+5. rerun full local AI-PIPE-02B Docker/system gate on NEW_CODE_SHA
+6. rerun evidence validator
+7. evidence.git_commit must equal NEW_CODE_SHA
+8. commit updated evidence/report/promt as a child of NEW_CODE_SHA
+9. push branch
+10. stop at LOCAL_PASS_CI_PENDING
+```
+
+Do not manually rewrite the evidence SHA.
+
+### Completion language
+
+Until the rerun is complete, use:
+
+```text
+AI-PIPE-02B implementation              DONE
+preliminary local system run            PASS 16/16
+remote security/idempotency review      REPAIR_REQUIRED_BEFORE_PR
+final reproducible evidence             PENDING_REPAIR_RERUN
+PR                                      NOT_OPENED
+GitHub CI                               NOT_EXECUTED
+```
+
+Do not start AI-PIPE-03 yet.
+
+---
+
 ## CURRENT CANONICAL STATUS — AI-PIPE-02A CI PASS / PR #40 MERGED (2026-10-09)
 
 AI-PIPE-02A is now closed remotely.
