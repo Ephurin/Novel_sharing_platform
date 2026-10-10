@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
+import uuid
 from dataclasses import asdict
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
@@ -9,6 +11,7 @@ from fastapi.responses import StreamingResponse
 
 from api.deps import (
     get_bootstrap_service,
+    get_narrative_repository,
     get_narrative_service,
     get_revision_analysis_service,
     get_settings,
@@ -27,8 +30,11 @@ from api.schemas import (
     ProposalGroupAcceptRequest,
     ProposalRejectRequest,
     RevisionAnalysisRequest,
+    StoryPlanCreateRequest,
+    StoryPlanObjectiveUpdateRequest,
     WritingGenerationRequest,
 )
+from domain.models import StoryPlan, StoryPlanObjective
 from application.narrative_service import NarrativeApplicationService
 from application.semantic_memory_service import refresh_semantic_memory_safely
 from application.bootstrap_service import ManuscriptBootstrapService
@@ -125,6 +131,168 @@ def bootstrap_from_idea(
             "story_brain_id": payload.novel_id,
             "status": job.status,
         },
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+def compute_plan_input_hash(
+    novel_id: str,
+    source_outline: str | None,
+    objectives: list[Any] | tuple[Any, ...],
+) -> str:
+    canonical_objs = []
+    for obj in objectives:
+        canonical_objs.append({
+            "order_index": int(getattr(obj, "order_index", 0) if not isinstance(obj, dict) else obj.get("order_index", 0)),
+            "title": str(getattr(obj, "title", "") if not isinstance(obj, dict) else obj.get("title", "")).strip(),
+            "description": str(getattr(obj, "description", "") if not isinstance(obj, dict) else obj.get("description", "")).strip(),
+            "target_chapter": getattr(obj, "target_chapter", None) if not isinstance(obj, dict) else obj.get("target_chapter"),
+            "objective_type": str(getattr(obj, "objective_type", "chapter_goal") if not isinstance(obj, dict) else obj.get("objective_type", "chapter_goal")).strip(),
+            "metadata": dict(getattr(obj, "metadata", {}) or {} if not isinstance(obj, dict) else obj.get("metadata", {}) or {}),
+        })
+    canonical_objs.sort(key=lambda x: x["order_index"])
+    payload = {
+        "novel_id": str(novel_id).strip(),
+        "source_outline": (source_outline or "").strip(),
+        "objectives": canonical_objs,
+    }
+    raw = json.dumps(payload, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+@router.post("/story-plans", status_code=201)
+def create_story_plan(
+    payload: StoryPlanCreateRequest,
+    tenant_id: str = Header(..., alias="X-Tenant-Id"),
+    request_id: str = Header(..., alias="X-Request-Id"),
+    author_id: str | None = Header(None, alias="X-Author-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    source_outline = (payload.source_outline or "").strip()
+    outline_hash = hashlib.sha256(source_outline.encode("utf-8")).hexdigest() if source_outline else ""
+    input_hash = compute_plan_input_hash(payload.novel_id, source_outline, payload.objectives)
+
+    plan_id = str(uuid.uuid4())
+    objectives = tuple(
+        StoryPlanObjective(
+            objective_id=str(uuid.uuid4()),
+            order_index=obj.order_index,
+            title=obj.title,
+            description=obj.description,
+            target_chapter=obj.target_chapter,
+            objective_type=obj.objective_type,
+            status="pending",
+            metadata=dict(obj.metadata or {}),
+        )
+        for obj in payload.objectives
+    )
+    plan = StoryPlan(
+        plan_id=plan_id,
+        novel_id=payload.novel_id,
+        tenant_id=tenant_id,
+        plan_version=1,
+        status="draft",
+        objectives=objectives,
+        source_outline=source_outline,
+        source_outline_hash=outline_hash,
+        idempotency_key=payload.idempotency_key,
+        input_hash=input_hash,
+        created_by=author_id,
+    )
+    try:
+        created = repository.create_story_plan(plan)
+    except IdempotencyConflictError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "IDEMPOTENCY_CONFLICT", "message": str(exc)},
+        ) from exc
+
+    return {
+        "data": asdict(created),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.get("/story-plans/by-novel/{novel_id}/active")
+def get_active_story_plan(
+    novel_id: str,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    plan = repository.get_active_story_plan(novel_id)
+    if not plan:
+        raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": "No active story plan found"})
+    return {
+        "data": asdict(plan),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.get("/story-plans/by-novel/{novel_id}")
+def list_story_plans(
+    novel_id: str,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    plans = repository.list_story_plans(novel_id)
+    return {
+        "data": [asdict(p) for p in plans],
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.get("/story-plans/{plan_id}")
+def get_story_plan(
+    plan_id: str,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    plan = repository.get_story_plan(plan_id)
+    if not plan:
+        raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": f"StoryPlan {plan_id} not found"})
+    return {
+        "data": asdict(plan),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.post("/story-plans/{plan_id}/activate")
+def activate_story_plan(
+    plan_id: str,
+    novel_id: str = Query(..., description="Target novel id"),
+    request_id: str = Header(..., alias="X-Request-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    try:
+        plan = repository.activate_story_plan(novel_id, plan_id)
+    except KeyError as exc:
+        raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": str(exc)}) from exc
+    return {
+        "data": asdict(plan),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.patch("/story-plans/{plan_id}/objectives/{objective_id}")
+def update_story_plan_objective(
+    plan_id: str,
+    objective_id: str,
+    payload: StoryPlanObjectiveUpdateRequest,
+    novel_id: str = Query(..., description="Target novel id"),
+    request_id: str = Header(..., alias="X-Request-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    try:
+        obj = repository.update_objective_status(
+            novel_id=novel_id,
+            plan_id=plan_id,
+            objective_id=objective_id,
+            status=payload.status,
+        )
+    except KeyError as exc:
+        raise HTTPException(404, detail={"code": "OBJECTIVE_NOT_FOUND", "message": str(exc)}) from exc
+    return {
+        "data": asdict(obj),
         "meta": {"request_id": request_id, "schema_version": 1},
     }
 

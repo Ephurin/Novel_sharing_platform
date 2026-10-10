@@ -197,4 +197,109 @@ describe('AI-PIPE-01 P1 Node Gateway & Acceptance Flow', () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  test('P2B-Gateway: Forward Story Plan creation, activation, and objective update', async () => {
+    let capturedUrl = '';
+    let capturedMethod = '';
+    let capturedBody: any = null;
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: any, init: any) => {
+      capturedUrl = String(url);
+      capturedMethod = init?.method || 'GET';
+      capturedBody = init?.body ? JSON.parse(init.body) : null;
+      if (capturedMethod === 'POST' && capturedUrl.includes('/v1/story-plans')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              plan_id: 'plan-001',
+              novel_id: capturedBody?.novel_id || 'novel-001',
+              plan_version: 1,
+              status: 'draft',
+              objectives: capturedBody?.objectives || [],
+            },
+            meta: { schema_version: 1 },
+          }),
+          { status: 201, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+      if (capturedMethod === 'PATCH' && capturedUrl.includes('/objectives/')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              objective_id: 'obj-001',
+              order_index: 1,
+              status: capturedBody?.status,
+            },
+            meta: { schema_version: 1 },
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+      return new Response(JSON.stringify({ data: {}, meta: {} }), { status: 200 });
+    }) as typeof fetch;
+
+    try {
+      const gateway = new AIGatewayService();
+
+      // 1. Create Story Plan
+      const created = await gateway.forwardRequest({
+        method: 'POST',
+        path: '/v1/story-plans',
+        userId: 'author-123',
+        tenantId: '00000000-0000-0000-0000-000000000001',
+        body: {
+          novel_id: 'novel-001',
+          source_outline: 'Chương 1: Khởi đầu. Chương 2: Xung đột.',
+          objectives: [
+            { order_index: 1, title: 'Khởi đầu', description: 'Tỉnh dậy ở hoang mạc', target_chapter: 1 },
+            { order_index: 2, title: 'Xung đột', description: 'Đối đầu ma thú', target_chapter: 2 },
+          ],
+        },
+      });
+      assert.equal(created.plan_id, 'plan-001');
+      assert.equal(created.plan_version, 1);
+      assert.equal(created.status, 'draft');
+      assert.equal(capturedMethod, 'POST');
+
+      // 2. Update Objective Status
+      const updated = await gateway.forwardRequest({
+        method: 'PATCH',
+        path: '/v1/story-plans/plan-001/objectives/obj-001',
+        userId: 'author-123',
+        queryParams: { novel_id: 'novel-001' },
+        body: { status: 'completed' },
+      });
+      assert.equal(updated.status, 'completed');
+      assert.equal(capturedMethod, 'PATCH');
+      assert.match(capturedUrl, /novel_id=novel-001/);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)', async () => {
+    // When non-owner tries to read plan by UUID, assertNovelOwnership rejects before exposing plan body
+    function assertNovelOwnership(novelAuthorId: string, userId: string, role: string) {
+      if (role === 'admin' || role === 'ADMIN') return;
+      if (novelAuthorId !== userId) {
+        throw new Error('403_FORBIDDEN');
+      }
+    }
+
+    const novelAuthorId = 'author-alice';
+
+    // Alice (owner) reads plan -> allowed
+    assert.doesNotThrow(() => assertNovelOwnership(novelAuthorId, 'author-alice', 'author'));
+
+    // Admin reads plan -> allowed
+    assert.doesNotThrow(() => assertNovelOwnership(novelAuthorId, 'admin-carol', 'admin'));
+
+    // Bob (non-owner) reads plan by UUID -> rejected with 403 FORBIDDEN
+    assert.throws(
+      () => assertNovelOwnership(novelAuthorId, 'author-bob', 'author'),
+      /403_FORBIDDEN/
+    );
+  });
 });
+

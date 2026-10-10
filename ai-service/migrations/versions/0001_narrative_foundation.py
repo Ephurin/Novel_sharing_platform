@@ -35,5 +35,7 @@ def _tables():
         "revision_provenances",
         "memory_chunks",
         "memory_embeddings",
+        "story_plans",
+        "story_plan_objectives",
     }
     return [t for t in Base.metadata.sorted_tables if t.name not in excluded]

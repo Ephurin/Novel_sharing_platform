@@ -17,6 +17,8 @@ from domain.models import (
     NarrativeRelation,
     ProposalStatus,
     StoryBrain,
+    StoryPlan,
+    StoryPlanObjective,
     WritingContextPackage,
     WritingGenerationJob,
 )
@@ -29,6 +31,7 @@ class InMemoryNarrativeRepository:
         self._bootstrap_jobs: dict[str, BootstrapJob] = {}
         self._writing_jobs: dict[str, WritingGenerationJob] = {}
         self._revision_provenance: dict[tuple[str, str], int] = {}
+        self._story_plans: dict[str, StoryPlan] = {}
 
     def get_story_brain(self, story_id: str) -> StoryBrain:
         if story_id not in self._brains:
@@ -860,6 +863,47 @@ class InMemoryNarrativeRepository:
             "fact_ids": [str(f.get("id") or f.get("fact_id", i)) for i, f in enumerate(rules_out)],
             "cutoff_chapter": chapter_number,
         }
+
+        active_plan = self.get_active_story_plan(story_id)
+        planning_context = None
+        current_objective = None
+        if active_plan:
+            matching_obj = None
+            if chapter_number is not None:
+                for obj in active_plan.objectives:
+                    if obj.target_chapter == chapter_number:
+                        matching_obj = obj
+                        break
+            if not matching_obj:
+                for obj in active_plan.objectives:
+                    if obj.status in ("in_progress", "pending"):
+                        matching_obj = obj
+                        break
+
+            planning_context = {
+                "plan_id": active_plan.plan_id,
+                "plan_version": active_plan.plan_version,
+                "status": active_plan.status,
+                "source_outline_hash": active_plan.source_outline_hash,
+                "total_objectives": len(active_plan.objectives),
+                "active_objective_id": matching_obj.objective_id if matching_obj else None,
+            }
+            if matching_obj:
+                current_objective = {
+                    "objective_id": matching_obj.objective_id,
+                    "order_index": matching_obj.order_index,
+                    "target_chapter": matching_obj.target_chapter,
+                    "objective_type": matching_obj.objective_type,
+                    "title": matching_obj.title,
+                    "description": matching_obj.description,
+                    "status": matching_obj.status,
+                }
+            context_summary["plan_id"] = [active_plan.plan_id]
+            context_summary["plan_version"] = [str(active_plan.plan_version)]
+            if matching_obj:
+                context_summary["active_objective_id"] = [matching_obj.objective_id]
+                context_summary["active_objective_title"] = [matching_obj.title]
+
         return WritingContextPackage(
             brain_version=brain_version,
             entities=tuple(entities_out),
@@ -869,5 +913,87 @@ class InMemoryNarrativeRepository:
             author_constraints=(),
             token_budget=budget_info,
             context_summary=context_summary,
+            planning_context=planning_context,
+            current_objective=current_objective,
         )
+
+    def create_story_plan(self, plan: StoryPlan) -> StoryPlan:
+        plan_id = plan.plan_id or str(uuid.uuid4())
+        if plan.idempotency_key:
+            for p in self._story_plans.values():
+                if p.novel_id == plan.novel_id and p.idempotency_key == plan.idempotency_key:
+                    if p.input_hash != plan.input_hash:
+                        raise IdempotencyConflictError(
+                            f"Idempotency key {plan.idempotency_key} reused with conflicting payload"
+                        )
+                    return p
+        existing_versions = [p.plan_version for p in self._story_plans.values() if p.novel_id == plan.novel_id]
+        next_version = (max(existing_versions) + 1) if existing_versions else 1
+        saved = StoryPlan(
+            plan_id=plan_id,
+            novel_id=plan.novel_id,
+            tenant_id=plan.tenant_id,
+            plan_version=next_version,
+            status=plan.status,
+            objectives=plan.objectives,
+            source_outline=plan.source_outline,
+            source_outline_hash=plan.source_outline_hash,
+            idempotency_key=plan.idempotency_key,
+            input_hash=plan.input_hash,
+            created_by=plan.created_by,
+        )
+        self._story_plans[plan_id] = saved
+        return saved
+
+    def get_story_plan(self, plan_id: str) -> StoryPlan | None:
+        return self._story_plans.get(plan_id)
+
+    def get_active_story_plan(self, novel_id: str) -> StoryPlan | None:
+        active = [
+            p for p in self._story_plans.values()
+            if p.novel_id == novel_id and p.status == "active"
+        ]
+        if not active:
+            return None
+        return max(active, key=lambda p: p.plan_version)
+
+    def list_story_plans(self, novel_id: str) -> list[StoryPlan]:
+        plans = [p for p in self._story_plans.values() if p.novel_id == novel_id]
+        return sorted(plans, key=lambda p: p.plan_version)
+
+    def activate_story_plan(self, novel_id: str, plan_id: str) -> StoryPlan:
+        target = self._story_plans.get(plan_id)
+        if not target or target.novel_id != novel_id:
+            raise KeyError(f"StoryPlan {plan_id} not found for novel {novel_id}")
+        # Supersede all existing active plans
+        for pid, p in list(self._story_plans.items()):
+            if p.novel_id == novel_id and p.status == "active":
+                self._story_plans[pid] = replace(p, status="superseded")
+        activated = replace(target, status="active")
+        self._story_plans[plan_id] = activated
+        return activated
+
+    def update_objective_status(
+        self,
+        novel_id: str,
+        plan_id: str,
+        objective_id: str,
+        status: str,
+    ) -> StoryPlanObjective:
+        plan = self._story_plans.get(plan_id)
+        if not plan or plan.novel_id != novel_id:
+            raise KeyError(f"StoryPlan {plan_id} not found")
+        updated_objs = []
+        target_obj = None
+        for obj in plan.objectives:
+            if obj.objective_id == objective_id:
+                target_obj = replace(obj, status=status)
+                updated_objs.append(target_obj)
+            else:
+                updated_objs.append(obj)
+        if not target_obj:
+            raise KeyError(f"Objective {objective_id} not found in plan {plan_id}")
+        self._story_plans[plan_id] = replace(plan, objectives=tuple(updated_objs))
+        return target_obj
+
 

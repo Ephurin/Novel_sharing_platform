@@ -28,7 +28,7 @@ class ContextBudgetPacker:
     @staticmethod
     def prompt_context(package: WritingContextPackage) -> dict[str, Any]:
         """Return the exact Story Brain payload intended for the writing LLM."""
-        return {
+        payload: dict[str, Any] = {
             "brain_version": package.brain_version,
             "entities": list(package.entities),
             "current_states": list(package.current_states),
@@ -37,6 +37,11 @@ class ContextBudgetPacker:
             "recent_events": list(package.recent_events),
             "semantic_memories": list(package.semantic_memories),
         }
+        if package.planning_context is not None:
+            payload["planning_context"] = package.planning_context
+        if package.current_objective is not None:
+            payload["current_objective"] = package.current_objective
+        return payload
 
     @classmethod
     def estimate_prompt_tokens(cls, package: WritingContextPackage) -> int:
@@ -334,6 +339,8 @@ class ContextBudgetPacker:
             author_constraints=tuple(constraints),
             token_budget=source.token_budget,
             context_summary=source.context_summary,
+            planning_context=source.planning_context,
+            current_objective=source.current_objective,
         )
 
     @staticmethod

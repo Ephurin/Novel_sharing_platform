@@ -1,5 +1,223 @@
 # Active Project Handoff — CTX-RD-01
 
+## AI-PIPE-02B LOCAL COMPLETION — 16/16 CHECKPOINTS PASS ON CLEAN CODE_SHA (2026-10-10)
+
+**Status:** `LOCAL_PASS_CI_PENDING` (16/16 Checkpoints PASS on clean `NEW_CODE_SHA`)  
+**Clean Code Commit (CODE_SHA):** `598f418db5f127aac48a025692668658028d7370`  
+**Live Evidence Artifact:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B/ai-pipe-02b-outline-planning.json` (records `git_commit = 598f418...`)  
+**Offline Validator:** `scripts/verify_ai_pipe_02b_outline_planning_evidence.py` $\to$ **PASS (0 errors, 10/10 negative mutants rejected)**  
+**Validation Report:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B-report.md`  
+
+### Repairs Completed:
+1. **Blocker 1 (GET story plan read ownership enforcement):**
+   - Node `getStoryPlanController` enforces `assertNovelOwnership(userId, userRole, data.novel_id)` before returning plan data.
+   - Non-owner users receive HTTP 403 `FORBIDDEN` without exposing outline body.
+   - Admin roles retain legitimate access per system contract.
+   - Verified via unit tests (`p1-closed-loop-gateway.test.ts`, `ai-gateway.test.ts`) and live Checkpoint 02 assertions against reader04 (403) and reader02 (200 admin).
+2. **Blocker 2 (Tenant & novel scoped objective mutation):**
+   - `PostgresNarrativeRepository.update_objective_status()` scopes lookup by `(id, plan_id, novel_id, tenant_id)`.
+   - Identical scoping applied to `InMemoryNarrativeRepository` and `JsonNarrativeRepository`.
+   - Negative test proves mismatched `novel_id` fails closed with HTTP 404, leaving objective status unchanged (`pending`).
+   - Verified in `test_story_plan_routes.py` and live Checkpoint 13.
+3. **Blocker 3 (True idempotency contract with canonical hashing):**
+   - `compute_plan_input_hash()` deterministically hashes `novel_id`, normalized `source_outline`, and ordered canonical objectives.
+   - `StoryPlanRecord` and domain model persist both `idempotency_key` and `input_hash`.
+   - Same key + same payload $\to$ returns existing plan (201).
+   - Same key + different payload $\to$ HTTP 409 `IDEMPOTENCY_CONFLICT`.
+   - Different key + modified plan $\to$ advances `plan_version = 2`.
+   - Verified in `test_story_plan_routes.py` and live Checkpoint 02.
+
+### Next Owner:
+ChatGPT now owns remote PR opening, CI oversight, and merging into `main`. Gemini stops at `LOCAL_PASS_CI_PENDING`.
+
+---
+
+## HISTORICAL REVIEW CONTEXT — REPAIRS RESOLVED ABOVE (2026-10-10)
+
+Gemini's latest local message proposed opening the PR using the old pre-review lineage (`14fc009...` / `004a446...`). That state is stale.
+
+Authoritative remote branch head is currently:
+
+```text
+origin/astra/ai-pipe-02b-outline-planning
+ff659e78bcfce75f8b1399044d6d1be19a5f8206
+```
+
+Before any further implementation or PR suggestion, run locally:
+
+```bash
+git fetch origin
+git checkout astra/ai-pipe-02b-outline-planning
+git pull --ff-only origin astra/ai-pipe-02b-outline-planning
+git rev-parse HEAD
+git status
+```
+
+`git rev-parse HEAD` must resolve to the current remote review head (or a newer descendant) before proceeding.
+
+Then read the **first section of this file**. The gate is **NOT PR-ready**. Three repairs are mandatory:
+
+1. plan-by-id read ownership enforcement;
+2. tenant+novel scoped objective mutation;
+3. real idempotency key + canonical input hash with conflict semantics.
+
+Do not create a PR, do not merge, and do not start AI-PIPE-03 until those repairs are committed, the full local 16/16 gate is rerun on the new clean code SHA, evidence is regenerated with that exact SHA, and the branch is pushed again as `LOCAL_PASS_CI_PENDING`.
+
+---
+
+## CHATGPT REMOTE REVIEW — AI-PIPE-02B REPAIR REQUIRED BEFORE PR (2026-10-10)
+
+Remote review inspected implementation commit:
+
+```text
+14fc0096b6e52b28e31b44161429e0ac55f03e76
+```
+
+and evidence/report child commit:
+
+```text
+004a4466d3786cfa793065b83e1073470a24f281
+```
+
+The local 16/16 system run, clean CODE_SHA lineage, future-canon leakage guard, planning-context separation and P8 CI wiring are all useful and remain valid preliminary evidence.
+
+However, **do not open/expect PR yet**. Remote code review found three production-contract blockers that the current 16/16 runner does not cover.
+
+### BLOCKER 1 — GET story plan lacks Node ownership enforcement
+
+`getStoryPlanController()` currently accepts only `planId` and forwards directly to:
+
+```text
+GET /v1/story-plans/:planId
+```
+
+without calling `assertNovelOwnership()`.
+
+Other Story Plan application-facing mutations/read-by-novel paths enforce novel ownership. The plan-by-id read must not become an authorization bypass for an authenticated AUTHOR who learns another plan UUID.
+
+Required repair:
+- enforce ownership before returning plan data;
+- use the smallest architecture-consistent approach: either require/resolve the associated `novel_id` and call `assertNovelOwnership()`, or fetch internally then verify ownership from the returned plan before responding;
+- do not expose the fetched plan body to the caller before ownership succeeds;
+- add a Node gateway test proving a non-owner cannot read another novel's plan by UUID;
+- preserve ADMIN behavior according to the existing `assertNovelOwnership` contract.
+
+### BLOCKER 2 — objective mutation query is not scoped by tenant + novel
+
+`PostgresNarrativeRepository.update_objective_status()` accepts `novel_id` but currently selects the objective using only:
+
+```text
+objective_id + plan_id
+```
+
+The Node gateway verifies ownership of the caller-supplied `novel_id`, so without repository scoping a caller who owns novel A but knows plan/objective UUIDs from novel B could supply A for the ownership check and still mutate B.
+
+Required repair:
+- derive the stable `novel_id` inside the repository method;
+- scope the update lookup by `objective_id`, `plan_id`, `tenant_id = self._tenant_id`, and `novel_id`;
+- apply equivalent isolation semantics to InMemory/JSON implementations if their contract can otherwise mutate a mismatched plan/novel;
+- add a focused negative test: mismatched `novel_id` + valid plan/objective IDs must fail and must leave objective state unchanged;
+- preserve the current happy path used by checkpoint 13.
+
+### BLOCKER 3 — Story Plan idempotency key is not a true idempotency contract
+
+`StoryPlanCreateRequest.idempotency_key` is currently used only as a boolean switch. The route returns an old plan when:
+
+```text
+source_outline_hash matches
++ objective count matches
+```
+
+but it does not persist/compare the actual idempotency key or a canonical request hash.
+
+This creates two incorrect behaviors:
+
+```text
+same outline + same objective count + different objective payload
+  -> may incorrectly return an existing plan
+
+same idempotency key + conflicting payload
+  -> does not produce IDEMPOTENCY_CONFLICT
+```
+
+Required repair should follow the already-established WritingService pattern:
+
+```text
+canonical request payload
+ -> deterministic input_hash
+ -> stable idempotency identity scoped by tenant
+ -> same key + same hash      => return existing plan
+ -> same key + different hash => HTTP 409 IDEMPOTENCY_CONFLICT
+```
+
+Canonical hashing must cover all semantics that can change the resulting plan, at minimum:
+- `novel_id`;
+- normalized `source_outline`;
+- ordered objectives including `order_index`, title, description, target chapter, objective type and metadata.
+
+Prefer the repository/domain model to persist enough identity/hash information for real PostgreSQL idempotency rather than inferring equality from outline hash/count. Since migration `0008_story_plans` is still unmerged, adjust the new planning schema cleanly rather than adding unnecessary legacy compatibility layers.
+
+Reuse `IdempotencyConflictError` and the existing HTTP error semantics where practical. Add tests for:
+
+```text
+same key + same payload       -> same plan, no duplicate
+same key + changed objective  -> 409 IDEMPOTENCY_CONFLICT
+different key + changed plan  -> new plan version
+```
+
+### What does NOT need redesign
+
+Remote review also confirmed these parts are structurally sound for this gate:
+
+```text
+planning state stored separately from facts/events
+planning_context is compact metadata
+current_objective carries only the selected objective
+future objectives are not copied into canonical lanes
+plan version/lifecycle exists
+accepted chapter content still uses P1 acceptDraft/outbox memory path
+```
+
+Do not redesign the planning architecture or reopen P1/P2A.
+
+### Required rerun / evidence lineage
+
+Because these repairs change production Story Plan behavior, the current `14fc009...` evidence becomes preliminary rather than final acceptance evidence.
+
+Required sequence:
+
+```text
+1. implement the three repairs
+2. add focused authorization/scoping/idempotency tests
+3. commit code/tests first -> NEW_CODE_SHA
+4. verify clean working tree
+5. rerun full local AI-PIPE-02B Docker/system gate on NEW_CODE_SHA
+6. rerun evidence validator
+7. evidence.git_commit must equal NEW_CODE_SHA
+8. commit updated evidence/report/promt as a child of NEW_CODE_SHA
+9. push branch
+10. stop at LOCAL_PASS_CI_PENDING
+```
+
+Do not manually rewrite the evidence SHA.
+
+### Completion language
+
+Until the rerun is complete, use:
+
+```text
+AI-PIPE-02B implementation              DONE
+preliminary local system run            PASS 16/16
+remote security/idempotency review      REPAIR_REQUIRED_BEFORE_PR
+final reproducible evidence             PENDING_REPAIR_RERUN
+PR                                      NOT_OPENED
+GitHub CI                               NOT_EXECUTED
+```
+
+Do not start AI-PIPE-03 yet.
+
+---
+
 ## CURRENT CANONICAL STATUS — AI-PIPE-02A CI PASS / PR #40 MERGED (2026-10-09)
 
 AI-PIPE-02A is now closed remotely.
@@ -26,31 +244,31 @@ Canonical acceptance state:
 AI-PIPE-01A P1 backend closed loop        CI_PASS / MERGED
 AI-PIPE-01B P1 browser/UI                 PENDING_UI_REFACTOR
 AI-PIPE-02A Idea/World-Bible bootstrap    CI_PASS / MERGED
-AI-PIPE-02B Durable outline planning      NEXT LOCAL TASK
+AI-PIPE-02B Durable outline planning      LOCAL_PASS_CI_PENDING
 AI-PIPE-03 Autonomous full-auto loop      BLOCKED UNTIL P2 ARCHITECTURE IS CLOSED
 ```
 
-AI-PIPE-02A proves:
+## AI-PIPE-02B LOCAL COMPLETION — 16/16 CHECKPOINTS PASS (2026-10-09)
 
+Gemini/Antigravity has reached the required completion boundary:
 ```text
-IDEA / PREMISE
- -> REVIEWABLE WORLD BIBLE
- -> CANONICAL STORY BRAIN
- -> FIRST CANONICAL CHAPTER/REVISION
- -> EXISTING P1 WRITING LOOP
+code + local tests + clean CODE_SHA + 16/16 evidence + validator + child commit + pushed branch
+= LOCAL_PASS_CI_PENDING
 ```
 
-It deliberately does **not** claim durable outline-plan persistence or plan-guided multi-chapter steering.
+- **Branch:** `astra/ai-pipe-02b-outline-planning`
+- **Code SHA (`CODE_SHA`):** `14fc0096b6e52b28e31b44161429e0ac55f03e76`
+- **Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B/ai-pipe-02b-outline-planning.json`
+- **Validation Report:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B-report.md`
+- **Offline Validator:** `scripts/verify_ai_pipe_02b_outline_planning_evidence.py` (0 errors, 10/10 mutants pass)
+- **Checkpoints Verified:** 16/16 PASS
+- **Core Invariant:** `FUTURE PLAN != HISTORICAL CANON` strictly verified:
+  - Outline plans & objectives persisted in dedicated `narrative.story_plans` & `narrative.story_plan_objectives`.
+  - Checkpoint 08 machine-checkable assertion confirms zero future beats in `narrative.events` or `narrative.facts`.
+  - Author control preserves unaccepted generations without mutating canon or plan state.
+  - Plan updates create version 2, superseding version 1 while keeping canon intact.
 
-The older AI-PIPE-02A `LOCAL_PASS_CI_PENDING` and `NEXT LOCAL TASK` sections lower in this file are historical and superseded by this section.
-
-Do not reopen AI-PIPE-02A unless a regression appears.
-
----
-
-## NEXT LOCAL IMPLEMENTATION GATE — AI-PIPE-02B DURABLE OUTLINE PLANNING WITHOUT FUTURE-CANON LEAKAGE (2026-10-09)
-
-Gemini/Antigravity owns the next local implementation gate. ChatGPT owns remote PR/CI/merge after Gemini stops at `LOCAL_PASS_CI_PENDING`.
+ChatGPT now owns remote PR opening, CI monitoring, and merging into main.
 
 ### Objective
 

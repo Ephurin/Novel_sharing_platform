@@ -7,6 +7,7 @@ Tập trung toàn bộ request/response models tại đây để:
 - Tái sử dụng models giữa các router
 """
 
+from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 from core.candidate_processor import Candidate
@@ -108,6 +109,26 @@ class IdeaBootstrapRequest(BaseModel):
     locale: str = "vi-VN"
     preferences: IdeaBootstrapPreferences = Field(default_factory=IdeaBootstrapPreferences)
     author_constraints: list[str] = Field(default_factory=list)
+
+
+class StoryPlanObjectiveCreate(BaseModel):
+    order_index: int = Field(ge=1)
+    title: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    target_chapter: int | None = Field(default=None, ge=1)
+    objective_type: str = "chapter_goal"
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class StoryPlanCreateRequest(BaseModel):
+    novel_id: str = Field(min_length=1)
+    source_outline: str | None = None
+    objectives: list[StoryPlanObjectiveCreate] = Field(min_length=1)
+    idempotency_key: str | None = None
+
+
+class StoryPlanObjectiveUpdateRequest(BaseModel):
+    status: str = Field(pattern="^(pending|in_progress|completed|skipped)$")
 
 
 class BaselineActivationRequest(BaseModel):
