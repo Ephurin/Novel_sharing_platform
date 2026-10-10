@@ -1980,6 +1980,8 @@ class PostgresNarrativeRepository:
             objectives=objectives,
             source_outline=record.source_outline,
             source_outline_hash=record.source_outline_hash,
+            idempotency_key=record.idempotency_key,
+            input_hash=record.input_hash,
             created_by=str(record.created_by) if record.created_by else None,
         )
 
@@ -1987,27 +1989,44 @@ class PostgresNarrativeRepository:
         novel_id = self._novel_id(plan.novel_id)
         plan_uuid = uuid.UUID(plan.plan_id) if plan.plan_id else uuid.uuid4()
         with session_scope(self._session_factory) as session:
-            existing = session.scalar(
-                select(StoryPlanRecord).where(
+            if plan.idempotency_key:
+                existing = session.scalar(
+                    select(StoryPlanRecord).where(
+                        StoryPlanRecord.tenant_id == self._tenant_id,
+                        StoryPlanRecord.novel_id == novel_id,
+                        StoryPlanRecord.idempotency_key == plan.idempotency_key,
+                    )
+                )
+                if existing:
+                    if existing.input_hash != plan.input_hash:
+                        raise IdempotencyConflictError(
+                            f"Idempotency key {plan.idempotency_key} reused with conflicting payload"
+                        )
+                    objs = session.scalars(
+                        select(StoryPlanObjectiveRecord)
+                        .where(StoryPlanObjectiveRecord.plan_id == existing.id)
+                        .order_by(StoryPlanObjectiveRecord.order_index)
+                    ).all()
+                    return self._to_story_plan(existing, list(objs))
+
+            max_v = session.scalar(
+                select(func.max(StoryPlanRecord.plan_version)).where(
                     StoryPlanRecord.novel_id == novel_id,
                     StoryPlanRecord.tenant_id == self._tenant_id,
-                    StoryPlanRecord.plan_version == plan.plan_version,
                 )
             )
-            if existing:
-                objs = session.scalars(
-                    select(StoryPlanObjectiveRecord).where(StoryPlanObjectiveRecord.plan_id == existing.id)
-                ).all()
-                return self._to_story_plan(existing, list(objs))
+            next_version = (max_v or 0) + 1
 
             record = StoryPlanRecord(
                 id=plan_uuid,
                 tenant_id=self._tenant_id,
                 novel_id=novel_id,
-                plan_version=plan.plan_version,
+                plan_version=next_version,
                 status=plan.status,
                 source_outline=plan.source_outline,
                 source_outline_hash=plan.source_outline_hash,
+                idempotency_key=plan.idempotency_key,
+                input_hash=plan.input_hash,
                 created_by=uuid.UUID(plan.created_by) if plan.created_by else None,
             )
             session.add(record)
@@ -2123,15 +2142,28 @@ class PostgresNarrativeRepository:
     ) -> StoryPlanObjective:
         o_uuid = uuid.UUID(objective_id)
         p_uuid = uuid.UUID(plan_id)
+        n_id = self._novel_id(novel_id)
         with session_scope(self._session_factory) as session:
+            # Enforce that the plan exists and belongs to the specified novel & tenant
+            plan = session.scalar(
+                select(StoryPlanRecord).where(
+                    StoryPlanRecord.id == p_uuid,
+                    StoryPlanRecord.novel_id == n_id,
+                    StoryPlanRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if not plan:
+                raise KeyError(f"StoryPlan {plan_id} not found for novel {novel_id}")
             obj = session.scalar(
                 select(StoryPlanObjectiveRecord).where(
                     StoryPlanObjectiveRecord.id == o_uuid,
                     StoryPlanObjectiveRecord.plan_id == p_uuid,
+                    StoryPlanObjectiveRecord.novel_id == n_id,
+                    StoryPlanObjectiveRecord.tenant_id == self._tenant_id,
                 )
             )
             if not obj:
-                raise KeyError(f"Objective {objective_id} not found")
+                raise KeyError(f"Objective {objective_id} not found in plan {plan_id}")
             obj.status = status
             session.flush()
             return StoryPlanObjective(

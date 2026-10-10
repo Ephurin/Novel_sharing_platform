@@ -542,6 +542,8 @@ class StoryPlanRecord(Base):
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="draft")
     source_outline: Mapped[str | None] = mapped_column(Text)
     source_outline_hash: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    idempotency_key: Mapped[str | None] = mapped_column(String(128), index=True)
+    input_hash: Mapped[str] = mapped_column(String(64), nullable=False, default="")
     created_by: Mapped[uuid.UUID | None] = mapped_column(Uuid)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

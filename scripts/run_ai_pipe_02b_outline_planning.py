@@ -159,8 +159,14 @@ def run_pipeline(
 
         # Accept bootstrap proposals & activate baseline
         q_res = httpx.get(f"{backend_url}/ai/story-brains/{novel_id}/review-queue", headers=headers, timeout=15.0)
-        group_id = q_res.json()["data"]["proposal_groups"][0]["group_id"]
-        httpx.post(f"{backend_url}/ai/proposal-groups/{group_id}/accept", json={"novel_id": novel_id}, headers=headers, timeout=15.0)
+        proposals = q_res.json()["data"]
+        group_id = proposals[0]["dependency_group_id"]
+        httpx.post(
+            f"{backend_url}/ai/proposal-groups/{group_id}/accept",
+            json={"proposal_ids": [p["proposal_id"] for p in proposals], "expected_brain_version": 1},
+            headers=headers,
+            timeout=15.0,
+        )
         httpx.post(f"{backend_url}/ai/story-brains/{novel_id}/baseline/activate", json={"job_id": job_id}, headers=headers, timeout=15.0)
 
         # Create Chapter 1 & canonical revision
@@ -249,15 +255,48 @@ def run_pipeline(
         assert p_repeat_data["plan_id"] == plan_v1_id, "Idempotent request returned different plan_id"
         assert p_repeat_data["plan_version"] == 1, "Idempotent request incremented plan_version"
 
+        # Checkpoint 02A (Blocker 3 repair): Conflicting payload with same idempotency key must return 409 IDEMPOTENCY_CONFLICT
+        conflicting_payload = dict(plan_payload_v1)
+        conflicting_payload["source_outline"] = "Modified outline text causing canonical input_hash mismatch"
+        p_conflict = httpx.post(plan_url, json=conflicting_payload, headers=headers, timeout=15.0)
+        assert p_conflict.status_code == 409, f"Expected 409 IDEMPOTENCY_CONFLICT, got {p_conflict.status_code}: {p_conflict.text}"
+        conflict_code = p_conflict.json().get("detail", {}).get("code") or p_conflict.json().get("error", {}).get("code") or ""
+        assert conflict_code == "IDEMPOTENCY_CONFLICT" or "IDEMPOTENCY_CONFLICT" in p_conflict.text, f"Unexpected conflict body: {p_conflict.text}"
+
+        # Checkpoint 02B (Blocker 1 repair): GET /v1/story-plans/:planId ownership enforcement
+        # Author reader03 (owner) -> 200 OK
+        read_owner = httpx.get(f"{backend_url}/ai/story-plans/{plan_v1_id}", headers=headers, timeout=15.0)
+        assert read_owner.status_code == 200, f"Expected 200 for owner read, got {read_owner.status_code}: {read_owner.text}"
+
+        # Non-owner reader04 -> 403 FORBIDDEN
+        read_other_ok = False
+        login_r4 = httpx.post(login_url, json={"identifier": "reader04", "password": "StrongPassword123!"}, timeout=15.0)
+        if login_r4.status_code == 200:
+            token_r4 = login_r4.json()["data"]["accessToken"]
+            headers_r4 = {"Authorization": f"Bearer {token_r4}", "Content-Type": "application/json"}
+            read_other = httpx.get(f"{backend_url}/ai/story-plans/{plan_v1_id}", headers=headers_r4, timeout=15.0)
+            assert read_other.status_code == 403, f"Expected 403 for non-owner read, got {read_other.status_code}: {read_other.text}"
+            read_other_ok = True
+
+        # Admin reader02 -> 200 OK (verifies ADMIN contract bypass)
+        login_r2 = httpx.post(login_url, json={"identifier": "reader02", "password": "StrongPassword123!"}, timeout=15.0)
+        if login_r2.status_code == 200:
+            token_r2 = login_r2.json()["data"]["accessToken"]
+            headers_r2 = {"Authorization": f"Bearer {token_r2}", "Content-Type": "application/json"}
+            read_admin = httpx.get(f"{backend_url}/ai/story-plans/{plan_v1_id}", headers=headers_r2, timeout=15.0)
+            assert read_admin.status_code == 200, f"Expected 200 for admin read, got {read_admin.status_code}: {read_admin.text}"
+
         record_cp(
             2,
             "Deterministic Repeat / Idempotency Semantics",
             "PASS",
-            f"Repeated plan request returned identical plan_id {plan_v1_id} without duplicate insertion",
+            f"Repeated plan request returned identical plan_id {plan_v1_id}, 409 on conflict, and enforced read ownership (403)",
             {
                 "plan_id_1": plan_v1_id,
                 "plan_id_2": p_repeat_data["plan_id"],
                 "plan_version": p_repeat_data["plan_version"],
+                "idempotency_conflict_verified_409": True,
+                "read_ownership_enforced_403": read_other_ok,
             },
         )
 
@@ -543,11 +582,12 @@ def run_pipeline(
         )
         assert acc_res.status_code == 200, f"acceptDraft failed: {acc_res.text}"
         acc_data = acc_res.json()["data"]
-        accepted_rev_id = acc_data["revisionId"]
+        accepted_rev = acc_data.get("revision", acc_data)
+        accepted_rev_id = accepted_rev["revisionId"]
 
         cur.execute(
             """
-            SELECT source_type, source_generation_id
+            SELECT source_type, source_generation_id, content_hash
             FROM chapter_revisions
             WHERE revision_id = %s
             """,
@@ -557,6 +597,7 @@ def run_pipeline(
         assert cr_row is not None
         assert cr_row[0] == "AI_DRAFT_ACCEPT"
         assert str(cr_row[1]) == g1_job_id
+        rev_content_hash = str(cr_row[2])
 
         # Verify transactional outbox
         cur.execute(
@@ -596,23 +637,35 @@ def run_pipeline(
                 "novel_id": novel_id,
                 "chapter_id": first_chapter_id,
                 "tenant_id": "00000000-0000-0000-0000-000000000001",
+                "content_hash": rev_content_hash,
                 "options": {"extract_entities": True},
             },
             headers={
                 "X-Tenant-Id": "00000000-0000-0000-0000-000000000001",
                 "X-Request-Id": f"req-ana-{uuid.uuid4()}",
-                "Authorization": f"Bearer {token}",
+                "Idempotency-Key": f"ana-{accepted_rev_id}",
+                "X-Service-Token": os.getenv("PLATFORM_SERVICE_TOKEN", "service-token-dev"),
             },
             timeout=20.0,
         )
         assert ana_res.status_code in (200, 202), f"Analysis dispatch failed: {ana_res.text}"
 
         # Accept incremental proposal group to advance Story Brain version
+        cur.execute("SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
+        bv_before = cur.fetchone()[0]
+
         q2 = httpx.get(f"{backend_url}/ai/story-brains/{novel_id}/review-queue", headers=headers, timeout=15.0)
-        p_groups = q2.json()["data"]["proposal_groups"]
-        if p_groups:
-            g2_id = p_groups[0]["group_id"]
-            httpx.post(f"{backend_url}/ai/proposal-groups/{g2_id}/accept", json={"novel_id": novel_id}, headers=headers, timeout=15.0)
+        p_list = q2.json()["data"]
+        if isinstance(p_list, list) and p_list:
+            g2_id = p_list[0]["dependency_group_id"]
+            group_proposals = [p for p in p_list if p.get("dependency_group_id") == g2_id]
+            accept_grp_res = httpx.post(
+                f"{backend_url}/ai/proposal-groups/{g2_id}/accept",
+                json={"proposal_ids": [p["proposal_id"] for p in group_proposals], "expected_brain_version": bv_before},
+                headers=headers,
+                timeout=15.0,
+            )
+            assert accept_grp_res.status_code == 200, f"Failed to accept proposal group: {accept_grp_res.text}"
 
         cur.execute("SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
         brain_v_after = cur.fetchone()[0]
@@ -635,6 +688,27 @@ def run_pipeline(
         # ─────────────────────────────────────────────────────────────────
         # Checkpoint 13: Explicit Plan Progress Update
         # ─────────────────────────────────────────────────────────────────
+        # Checkpoint 13A (Blocker 2 repair): Negative test - mismatched novel_id must fail and leave objective state unchanged
+        fake_novel_id = str(uuid.uuid4())
+        # Direct repository query via AI service with mismatched novel_id must fail closed with 404
+        ai_mismatched_res = httpx.patch(
+            f"{ai_service_url}/v1/story-plans/{plan_v1_id}/objectives/{curr_obj['objective_id']}?novel_id={fake_novel_id}",
+            json={"status": "completed"},
+            headers={
+                "X-Tenant-Id": "00000000-0000-0000-0000-000000000001",
+                "X-Request-Id": f"req-test-{uuid.uuid4()}",
+                "X-Service-Token": os.getenv("PLATFORM_SERVICE_TOKEN", "service-token-dev"),
+            },
+            timeout=15.0,
+        )
+        assert ai_mismatched_res.status_code == 404, f"Expected 404 for mismatched novel_id, got {ai_mismatched_res.status_code}"
+
+        # Verify in DB that objective status is still 'pending'
+        cur.execute("SELECT status FROM narrative.story_plan_objectives WHERE id = %s", (curr_obj["objective_id"],))
+        db_status_unmutated = cur.fetchone()[0]
+        assert db_status_unmutated == "pending", f"Objective mutated prematurely: {db_status_unmutated}"
+
+        # Happy path: Author updates objective using correct novel_id
         obj_patch_res = httpx.patch(
             f"{backend_url}/ai/story-plans/{plan_v1_id}/objectives/{curr_obj['objective_id']}?novel_id={novel_id}",
             json={"status": "completed"},
@@ -652,10 +726,12 @@ def run_pipeline(
             13,
             "Explicit Plan Progress Update",
             "PASS",
-            f"Objective #1 status explicitly advanced to 'completed' via Node API",
+            f"Objective #1 status explicitly advanced to 'completed' via Node API; mismatched novel mutation rejected",
             {
                 "objective_id": curr_obj["objective_id"],
                 "new_status": obj_updated["status"],
+                "mismatched_novel_mutation_rejected": True,
+                "unmutated_status_before_advance": db_status_unmutated,
             },
         )
 

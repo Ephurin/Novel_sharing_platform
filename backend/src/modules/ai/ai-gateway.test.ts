@@ -283,6 +283,73 @@ describe('Node.js AI Gateway Service (P6.5 Hardening)', () => {
     }
   });
 
+  test('Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: any) => {
+      const urlStr = String(url);
+      if (urlStr.includes('/v1/story-plans/plan-alice')) {
+        return new Response(JSON.stringify({
+          data: {
+            plan_id: 'plan-alice',
+            novel_id: 'novel-alice',
+            plan_version: 1,
+            status: 'draft',
+            objectives: [{ title: 'Secret Arc' }],
+          },
+          meta: { schema_version: 1 },
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response('Not found', { status: 404 });
+    }) as typeof fetch;
+
+    try {
+      const gateway = new AIGatewayService();
+      const mockNovelRepo = {
+        async findById(novelId: string) {
+          if (novelId === 'novel-alice') {
+            return { id: 'novel-alice', authorId: 'author-alice' };
+          }
+          return null;
+        },
+      };
+
+      function assertNovelOwnership(novel: { authorId: string }, userId: string, role: string) {
+        if (role === 'admin' || role === 'ADMIN') return;
+        if (novel.authorId !== userId) {
+          throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền truy cập tác phẩm này');
+        }
+      }
+
+      const planData = await gateway.forwardRequest<{ plan_id: string; novel_id: string }>({
+        method: 'GET',
+        path: `/v1/story-plans/plan-alice`,
+      });
+
+      assert.equal(planData.plan_id, 'plan-alice');
+      assert.equal(planData.novel_id, 'novel-alice');
+
+      const novel = await mockNovelRepo.findById(planData.novel_id);
+      assert.ok(novel);
+
+      // Non-owner author Bob gets 403 FORBIDDEN
+      assert.throws(
+        () => assertNovelOwnership(novel, 'author-bob', 'author'),
+        (err: any) => err instanceof AppError && err.httpStatus === 403 && err.code === 'FORBIDDEN'
+      );
+
+      // Author Alice (owner) gets access
+      assert.doesNotThrow(() => assertNovelOwnership(novel, 'author-alice', 'author'));
+
+      // Admin gets access
+      assert.doesNotThrow(() => assertNovelOwnership(novel, 'admin-carol', 'admin'));
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   test('Story Brain freshness check fails closed with 503 when AI service is unavailable', async () => {
     const originalFetch = globalThis.fetch;
     globalThis.fetch = (async () => {

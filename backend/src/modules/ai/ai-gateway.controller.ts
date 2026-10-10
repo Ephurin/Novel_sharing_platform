@@ -57,6 +57,10 @@ export async function getContextPreviewController(
         throw new AppError(400, 'CHAPTER_MISMATCH', 'Chapter does not belong to specified story brain');
       }
       queryParams.chapter_number = chapter.chapterNumber;
+    } else if (req.query.chapter_number !== undefined) {
+      queryParams.chapter_number = Number(req.query.chapter_number);
+    } else if (req.query.chapterNumber !== undefined) {
+      queryParams.chapter_number = Number(req.query.chapterNumber);
     }
 
     if (req.query.character_name !== undefined) queryParams.character_name = String(req.query.character_name);
@@ -461,6 +465,7 @@ export async function getStoryPlanController(
   try {
     const { planId } = req.params;
     const userId = req.auth!.userId;
+    const userRole = req.auth!.role;
 
     const data = await aiGatewayService.forwardRequest({
       method: 'GET',
@@ -468,6 +473,10 @@ export async function getStoryPlanController(
       userId,
       requestId: req.header('x-request-id'),
     });
+
+    if (data?.novel_id) {
+      await assertNovelOwnership(userId, userRole, data.novel_id);
+    }
 
     res.json(successResponse(data));
   } catch (error) {

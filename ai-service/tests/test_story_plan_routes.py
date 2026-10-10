@@ -85,6 +85,52 @@ class StoryPlanRouteTests(unittest.TestCase):
         self.assertEqual(res_repeat.json()["data"]["plan_id"], plan_id)
         self.assertEqual(res_repeat.json()["data"]["plan_version"], 1)
 
+    def test_story_plan_idempotency_conflict_and_version_advance(self) -> None:
+        payload_base = {
+            "novel_id": self.novel_id,
+            "source_outline": "Khởi đầu ban đầu",
+            "idempotency_key": "idem-key-strict-1",
+            "objectives": [
+                {"order_index": 1, "title": "Mục tiêu gốc", "description": "Mô tả gốc", "target_chapter": 1},
+            ],
+        }
+        res1 = self.client.post("/v1/story-plans", json=payload_base, headers=self.headers)
+        self.assertEqual(res1.status_code, 201)
+        plan_id = res1.json()["data"]["plan_id"]
+        self.assertEqual(res1.json()["data"]["plan_version"], 1)
+
+        # Same key + same payload -> same plan
+        res_same = self.client.post("/v1/story-plans", json=payload_base, headers=self.headers)
+        self.assertEqual(res_same.status_code, 201)
+        self.assertEqual(res_same.json()["data"]["plan_id"], plan_id)
+
+        # Same key + conflicting payload -> 409 IDEMPOTENCY_CONFLICT
+        payload_conflict = {
+            "novel_id": self.novel_id,
+            "source_outline": "Khởi đầu bị sửa đổi",
+            "idempotency_key": "idem-key-strict-1",
+            "objectives": [
+                {"order_index": 1, "title": "Mục tiêu ĐÃ BỊ ĐỔI", "description": "Mô tả mới", "target_chapter": 1},
+            ],
+        }
+        res_conflict = self.client.post("/v1/story-plans", json=payload_conflict, headers=self.headers)
+        self.assertEqual(res_conflict.status_code, 409, res_conflict.text)
+        self.assertEqual(res_conflict.json()["detail"]["code"], "IDEMPOTENCY_CONFLICT")
+
+        # Different key + changed plan -> advances to plan_version = 2
+        payload_new_v = {
+            "novel_id": self.novel_id,
+            "source_outline": "Bản phác thảo phiên bản 2",
+            "idempotency_key": "idem-key-strict-2",
+            "objectives": [
+                {"order_index": 1, "title": "Mục tiêu v2", "description": "Mô tả v2", "target_chapter": 1},
+            ],
+        }
+        res_v2 = self.client.post("/v1/story-plans", json=payload_new_v, headers=self.headers)
+        self.assertEqual(res_v2.status_code, 201)
+        self.assertEqual(res_v2.json()["data"]["plan_version"], 2)
+        self.assertNotEqual(res_v2.json()["data"]["plan_id"], plan_id)
+
     def test_story_plan_activate_and_supersede_lifecycle(self) -> None:
         payload_v1 = {
             "novel_id": self.novel_id,
@@ -149,7 +195,20 @@ class StoryPlanRouteTests(unittest.TestCase):
         plan_id = plan["plan_id"]
         obj_id = plan["objectives"][0]["objective_id"]
 
-        # Update status to completed
+        # 1. Negative test: Mismatched novel_id fails and leaves objective state untouched
+        mismatched_novel_id = "99999999-9999-9999-9999-999999999999"
+        res_mismatch = self.client.patch(
+            f"/v1/story-plans/{plan_id}/objectives/{obj_id}?novel_id={mismatched_novel_id}",
+            json={"status": "completed"},
+            headers=self.headers,
+        )
+        self.assertEqual(res_mismatch.status_code, 404)
+
+        # Verify in plan that objective status is still pending
+        res_check = self.client.get(f"/v1/story-plans/{plan_id}", headers=self.headers)
+        self.assertEqual(res_check.json()["data"]["objectives"][0]["status"], "pending")
+
+        # 2. Positive test: Matching novel_id successfully updates status to completed
         res_patch = self.client.patch(
             f"/v1/story-plans/{plan_id}/objectives/{obj_id}?novel_id={self.novel_id}",
             json={"status": "completed"},

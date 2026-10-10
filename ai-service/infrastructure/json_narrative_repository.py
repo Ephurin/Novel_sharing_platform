@@ -563,18 +563,27 @@ class JsonNarrativeRepository:
 
     def create_story_plan(self, plan: StoryPlan) -> StoryPlan:
         plan_id = plan.plan_id or str(uuid.uuid4())
-        for p in self._story_plans.values():
-            if p.novel_id == plan.novel_id and p.plan_version == plan.plan_version:
-                return p
+        if plan.idempotency_key:
+            for p in self._story_plans.values():
+                if p.novel_id == plan.novel_id and p.idempotency_key == plan.idempotency_key:
+                    if p.input_hash != plan.input_hash:
+                        raise IdempotencyConflictError(
+                            f"Idempotency key {plan.idempotency_key} reused with conflicting payload"
+                        )
+                    return p
+        existing_versions = [p.plan_version for p in self._story_plans.values() if p.novel_id == plan.novel_id]
+        next_version = (max(existing_versions) + 1) if existing_versions else 1
         saved = StoryPlan(
             plan_id=plan_id,
             novel_id=plan.novel_id,
             tenant_id=plan.tenant_id,
-            plan_version=plan.plan_version,
+            plan_version=next_version,
             status=plan.status,
             objectives=plan.objectives,
             source_outline=plan.source_outline,
             source_outline_hash=plan.source_outline_hash,
+            idempotency_key=plan.idempotency_key,
+            input_hash=plan.input_hash,
             created_by=plan.created_by,
         )
         self._story_plans[plan_id] = saved

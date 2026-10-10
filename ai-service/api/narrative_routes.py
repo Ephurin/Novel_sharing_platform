@@ -135,6 +135,31 @@ def bootstrap_from_idea(
     }
 
 
+def compute_plan_input_hash(
+    novel_id: str,
+    source_outline: str | None,
+    objectives: list[Any] | tuple[Any, ...],
+) -> str:
+    canonical_objs = []
+    for obj in objectives:
+        canonical_objs.append({
+            "order_index": int(getattr(obj, "order_index", 0) if not isinstance(obj, dict) else obj.get("order_index", 0)),
+            "title": str(getattr(obj, "title", "") if not isinstance(obj, dict) else obj.get("title", "")).strip(),
+            "description": str(getattr(obj, "description", "") if not isinstance(obj, dict) else obj.get("description", "")).strip(),
+            "target_chapter": getattr(obj, "target_chapter", None) if not isinstance(obj, dict) else obj.get("target_chapter"),
+            "objective_type": str(getattr(obj, "objective_type", "chapter_goal") if not isinstance(obj, dict) else obj.get("objective_type", "chapter_goal")).strip(),
+            "metadata": dict(getattr(obj, "metadata", {}) or {} if not isinstance(obj, dict) else obj.get("metadata", {}) or {}),
+        })
+    canonical_objs.sort(key=lambda x: x["order_index"])
+    payload = {
+        "novel_id": str(novel_id).strip(),
+        "source_outline": (source_outline or "").strip(),
+        "objectives": canonical_objs,
+    }
+    raw = json.dumps(payload, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
 @router.post("/story-plans", status_code=201)
 def create_story_plan(
     payload: StoryPlanCreateRequest,
@@ -145,18 +170,8 @@ def create_story_plan(
 ):
     source_outline = (payload.source_outline or "").strip()
     outline_hash = hashlib.sha256(source_outline.encode("utf-8")).hexdigest() if source_outline else ""
+    input_hash = compute_plan_input_hash(payload.novel_id, source_outline, payload.objectives)
 
-    existing_plans = repository.list_story_plans(payload.novel_id)
-
-    if payload.idempotency_key:
-        for ep in existing_plans:
-            if ep.source_outline_hash == outline_hash and len(ep.objectives) == len(payload.objectives):
-                return {
-                    "data": asdict(ep),
-                    "meta": {"request_id": request_id, "schema_version": 1, "idempotent": True},
-                }
-
-    next_version = (max((p.plan_version for p in existing_plans), default=0) + 1)
     plan_id = str(uuid.uuid4())
     objectives = tuple(
         StoryPlanObjective(
@@ -175,14 +190,23 @@ def create_story_plan(
         plan_id=plan_id,
         novel_id=payload.novel_id,
         tenant_id=tenant_id,
-        plan_version=next_version,
+        plan_version=1,
         status="draft",
         objectives=objectives,
         source_outline=source_outline,
         source_outline_hash=outline_hash,
+        idempotency_key=payload.idempotency_key,
+        input_hash=input_hash,
         created_by=author_id,
     )
-    created = repository.create_story_plan(plan)
+    try:
+        created = repository.create_story_plan(plan)
+    except IdempotencyConflictError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "IDEMPOTENCY_CONFLICT", "message": str(exc)},
+        ) from exc
+
     return {
         "data": asdict(created),
         "meta": {"request_id": request_id, "schema_version": 1},

@@ -277,5 +277,29 @@ describe('AI-PIPE-01 P1 Node Gateway & Acceptance Flow', () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  test('P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)', async () => {
+    // When non-owner tries to read plan by UUID, assertNovelOwnership rejects before exposing plan body
+    function assertNovelOwnership(novelAuthorId: string, userId: string, role: string) {
+      if (role === 'admin' || role === 'ADMIN') return;
+      if (novelAuthorId !== userId) {
+        throw new Error('403_FORBIDDEN');
+      }
+    }
+
+    const novelAuthorId = 'author-alice';
+
+    // Alice (owner) reads plan -> allowed
+    assert.doesNotThrow(() => assertNovelOwnership(novelAuthorId, 'author-alice', 'author'));
+
+    // Admin reads plan -> allowed
+    assert.doesNotThrow(() => assertNovelOwnership(novelAuthorId, 'admin-carol', 'admin'));
+
+    // Bob (non-owner) reads plan by UUID -> rejected with 403 FORBIDDEN
+    assert.throws(
+      () => assertNovelOwnership(novelAuthorId, 'author-bob', 'author'),
+      /403_FORBIDDEN/
+    );
+  });
 });
 

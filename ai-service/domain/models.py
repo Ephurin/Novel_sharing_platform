@@ -166,6 +166,8 @@ class StoryPlan:
     objectives: tuple[StoryPlanObjective, ...]
     source_outline: str | None = None
     source_outline_hash: str = ""
+    idempotency_key: str | None = None
+    input_hash: str = ""
     created_by: str | None = None
 
 
