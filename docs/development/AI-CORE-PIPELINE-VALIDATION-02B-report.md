@@ -5,7 +5,34 @@
 **Base Commit SHA (CODE_SHA):** `598f418db5f127aac48a025692668658028d7370`  
 **Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B/ai-pipe-02b-outline-planning.json` (records `git_commit = 598f418...`)  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_02b_outline_planning_evidence.py` $\to$ **PASS (0 errors, 10/10 negative self-tests pass)**  
-**Gate Verdict:** `LOCAL_PASS_CI_PENDING` (16/16 Checkpoints PASS)
+**Gate Verdict:** `CI_PASS / MERGED` — local 16/16 reproduced by GitHub Actions and merged via PR #41
+
+---
+
+## Remote Acceptance Closure — PR #41
+
+- PR: `#41 — AI-PIPE-02B: durable outline planning without future-canon leakage`
+- merged SHA: `9977800dedad8beee01882a0d487202ec77680f7`
+- accepted PR head: `2886894b4d66ce7fc050442402bc80242cb30327`
+- P8 Cutover and Migration run `38070054757`: **PASS**
+- P7 Semantic Memory Foundation run `38070054742`: **PASS**
+- Evaluation Pilot Harness run `38070054767`: **PASS**
+
+Within P8 `root-compose-cutover-smoke`, all AI-PIPE-02B remote gates passed:
+
+```text
+Run Gate AI-PIPE-02B Outline Planning Validation              PASS
+Verify Gate AI-PIPE-02B Evidence Schema and Invariants        PASS
+Run AI-PIPE-02B Story Plan Route Unit Suite                   PASS
+```
+
+The first PR-head P8 run `38069807384` failed after checkpoints 01–11 of AI-PIPE-02B had already passed. The failure was a CI adapter mismatch: the host-side runner defaulted `PLATFORM_SERVICE_TOKEN` to `service-token-dev`, while the Compose services used their default `test-token`, causing the runner's direct incremental-analysis request to receive `SERVICE_AUTH_INVALID`. Production planning code was not implicated. Commit `2886894b4d66ce7fc050442402bc80242cb30327` aligned the runner step with the Compose token; the complete P8 suite then passed.
+
+This upgrades AI-PIPE-02B from `LOCAL_PASS_CI_PENDING` to `CI_PASS / MERGED`.
+
+### Acceptance qualification
+
+Current idempotency acceptance is serialized functional/system behavior. Concurrent duplicate-key races are **NOT_ASSESSED**. The planning table persists and indexes `idempotency_key`, but no dedicated database-level unique constraint was added for concurrent duplicate suppression. Treat this as follow-up hardening, not as part of the AI-PIPE-02B claim.
 
 ---
 
@@ -97,5 +124,5 @@ All 16 acceptance checkpoints verified with status **PASS**:
 
 1. **Clean Code Commit (`CODE_SHA`):** `598f418db5f127aac48a025692668658028d7370`
 2. **Child Evidence & Documentation Commit:** This commit records the live evidence JSON, this updated execution report, and updates `promt.md`.
-3. **Handoff Status:** `LOCAL_PASS_CI_PENDING`. Full local gate passed on clean code SHA; branch pushed to remote.
-4. **Ownership:** ChatGPT owns remote PR opening, CI oversight, and final merge into `main`.
+3. **Remote Status:** `CI_PASS / MERGED` via PR #41; accepted head `2886894b4d66ce7fc050442402bc80242cb30327` passed P8 `38070054757`, P7 `38070054742`, and Evaluation Pilot `38070054767`.
+4. **Scope Boundary:** Durable outline planning is closed. Concurrent duplicate-key idempotency behavior remains `NOT_ASSESSED` follow-up hardening.
