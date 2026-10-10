@@ -5,7 +5,25 @@
 **Base Commit SHA (CODE_SHA):** `14fc0096b6e52b28e31b44161429e0ac55f03e76`  
 **Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-02B/ai-pipe-02b-outline-planning.json`  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_02b_outline_planning_evidence.py` $\to$ **PASS (0 errors, 10/10 negative self-tests pass)**  
-**Gate Verdict:** `LOCAL_PASS_CI_PENDING` — Local 16/16 checkpoints verified, ready for remote PR and GitHub Actions CI.
+**Gate Verdict:** `PRELIMINARY_LOCAL_PASS_16_OF_16 / REPAIR_REQUIRED_BEFORE_PR`
+
+---
+
+## ChatGPT Remote Review Qualification
+
+**Remote review status:** `REPAIR_REQUIRED_BEFORE_PR`
+
+The clean local 16/16 execution on `CODE_SHA=14fc0096b6e52b28e31b44161429e0ac55f03e76` remains valid preliminary evidence for planning persistence, context separation, future-canon leakage protection and P1 writing-loop reuse.
+
+It is **not yet the final PR-ready acceptance artifact** because remote code review found three uncovered production-contract defects:
+
+1. Node `GET /story-plans/:planId` does not enforce novel ownership before returning a plan.
+2. PostgreSQL `update_objective_status()` does not scope its lookup by the supplied novel and tenant, allowing a mismatched novel ownership check to be decoupled from the mutated objective.
+3. `idempotency_key` is not persisted/hashed as a real idempotency contract; equality is currently inferred from outline hash + objective count, and conflicting reuse does not produce `IDEMPOTENCY_CONFLICT`.
+
+The exact repair contract is maintained at the top of branch `promt.md`.
+
+After repair, Gemini must commit code/tests first, rerun the complete local Docker AI-PIPE-02B gate on the new clean code SHA, regenerate evidence that records that exact SHA, rerun the fail-closed validator, then commit evidence/report as a child commit and stop at `LOCAL_PASS_CI_PENDING`.
 
 ---
 
@@ -71,4 +89,4 @@ All 16 acceptance checkpoints verified with status **PASS**:
 
 1. **Clean Code Commit (`CODE_SHA`):** `14fc0096b6e52b28e31b44161429e0ac55f03e76`
 2. **Child Evidence & Documentation Commit:** This commit records the live evidence JSON, this execution report, and updates `promt.md`.
-3. **Handoff Status:** `LOCAL_PASS_CI_PENDING` $\to$ Branch pushed to GitHub. ChatGPT will open the PR and monitor remote CI.
+3. **Handoff Status:** `REPAIR_REQUIRED_BEFORE_PR`. ChatGPT remote review found authorization/scoping/idempotency blockers not covered by the original 16/16 run; rerun is required after repair.
