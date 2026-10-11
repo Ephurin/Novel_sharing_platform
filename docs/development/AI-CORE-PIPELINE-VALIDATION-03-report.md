@@ -24,6 +24,48 @@ The migration portability regression identified during remote CI run 38147151096
 
 ---
 
+## Branch Push CI Qualification — Run 38149684796
+
+Migration portability repair commit:
+
+```text
+3aa8a0565df7f3837b69b45bef6185a76fa8d7f4
+```
+
+Evidence/report child:
+
+```text
+9b18988e1c9a90bd64f1a09cd4f2e7f0132883c2
+```
+
+GitHub P8 branch-push workflow `38149684796` completed **PASS** on that lineage.
+
+All P8 jobs were green:
+
+```text
+final-cleanup-gate           PASS
+unit                         PASS
+frontend-api-cutover         PASS
+postgres-integration         PASS
+root-compose-cutover-smoke   PASS
+rollback-rehearsal           PASS
+```
+
+Within `root-compose-cutover-smoke`:
+
+```text
+Run Gate AI-PIPE-03A Autonomous Controller Validation       PASS
+Verify Gate AI-PIPE-03A Evidence Schema and Invariants      PASS
+Run AI-PIPE-03A Autonomous Route Unit Suite                 PASS
+Run Backend AI-PIPE-03A Autonomous Controller Suite         PASS
+```
+
+The earlier P8 run `38147151096` failed only in the SQLite migration regression and is superseded by this green branch-push run.
+
+This establishes the branch as **PR-ready**. It does not itself constitute final PR acceptance; ChatGPT still owns PR-level P7/P8/Evaluation verification and merge.
+
+---
+
 ## 1. Resolution of Remote Review Blockers (ChatGPT Review 2026-10-11)
 
 All 6 blockers identified during remote review have been fully implemented, integrated, and verified against the live PostgreSQL-16+pgvector container stack:
@@ -96,7 +138,7 @@ All 18 checkpoints and the crash/resume probe verified with status **PASS**:
 ## 3. Evidence and Validation Integrity
 
 - **Evidence JSON:** `docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json`
-- **Recorded Git Commit:** `3e052ab45cbb23f9f3044ed985e3265cdd0ec00d`
+- **Recorded Git Commit:** `3aa8a0565df7f3837b69b45bef6185a76fa8d7f4`
 - **Offline Validator Output:**
   ```text
   [PASS] Evidence docs\development\AI-CORE-PIPELINE-VALIDATION-03\ai-pipe-03a-autonomous-controller.json is valid and meets all AI-PIPE-03A contracts.
@@ -110,9 +152,9 @@ All 18 checkpoints and the crash/resume probe verified with status **PASS**:
 ## 4. Completion Boundary
 
 - Local Gate: **PASS (18/18 checkpoints, crash probe verified, 13/13 negative mutants rejected)**.
-- Evidence Lineage: Cleanly stamped with `CODE_SHA=3e052ab45cbb23f9f3044ed985e3265cdd0ec00d`.
+- Evidence Lineage: Cleanly stamped with `CODE_SHA=3aa8a0565df7f3837b69b45bef6185a76fa8d7f4`.
 - Local controller gate: **PASS (18/18)**.
-- Remote AI-PIPE-03A Compose/system gates: **PASS** on P8 run `38147151096`.
-- Full workflow status: **FAIL** because migration `0009_autonomous_runs` is not SQLite-portable.
-- Gate Verdict: **`REMOTE_CI_BLOCKED_BY_MIGRATION_REGRESSION`**.
-- Branch is not PR/merge ready until a new clean code SHA repairs the migration and the full workflow is green.
+- Remote AI-PIPE-03A Compose/system gates: **PASS** on P8 run `38149684796`.
+- Full P8 workflow status on branch head `9b18988e1c9a90bd64f1a09cd4f2e7f0132883c2`: **PASS** (`final-cleanup-gate`, `unit`, `frontend-api-cutover`, `postgres-integration`, `root-compose-cutover-smoke`, and `rollback-rehearsal` all green).
+- Previous migration-regression run `38147151096` is historical and superseded by the green run above.
+- Gate Verdict: **`LOCAL_PASS_CI_PENDING`** — branch push CI is green; PR-level P7/P8/Evaluation acceptance remains owned by ChatGPT.
