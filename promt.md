@@ -1,5 +1,112 @@
 # Active Project Handoff — CTX-RD-01
 
+## CHATGPT REMOTE CI REVIEW — AI-PIPE-03A MIGRATION REPAIR REQUIRED (2026-10-11)
+
+The P3 repair itself passed its production-shaped Compose gate, but branch CI is **not green**.
+
+Authoritative GitHub Actions evidence:
+
+```text
+P8 run: 38147151096
+head:   26471ffb25ed830b48dcd59da4ffbcaa55d79d7a
+overall: FAILURE
+
+root-compose-cutover-smoke: PASS
+  AI-PIPE-03A full system runner: PASS
+  AI-PIPE-03A evidence validator: PASS
+  AI-PIPE-03A AI-service route suite: PASS
+  AI-PIPE-03A backend controller suite: PASS
+
+unit job: FAILURE
+  Full AI-service non-PostgreSQL regression
+  244 passed / 1 failed / 2 skipped
+```
+
+Exact failing test:
+
+```text
+tests/test_migrations.py::MigrationTests::test_upgrade_and_downgrade_clean_database
+
+sqlite3.OperationalError: unknown database "narrative"
+SQL: PRAGMA "narrative".table_xinfo("autonomous_runs")
+```
+
+Failure originates from `migrations/versions/0009_autonomous_runs.py`, which performs schema-qualified SQLAlchemy inspection unconditionally:
+
+```python
+insp.get_columns("autonomous_runs", schema="narrative")
+insp.get_indexes("autonomous_runs", schema="narrative")
+```
+
+The repository's migration regression suite intentionally runs the full Alembic chain on SQLite, where the `narrative` schema name is not valid.
+
+### Required repair
+
+This is a **migration portability regression**, not an autonomous-controller architecture failure.
+
+Implement the smallest dialect-aware repair:
+
+```text
+PostgreSQL:
+  keep production narrative schema
+  keep partial unique active-run/idempotency indexes
+
+SQLite migration regression:
+  never inspect PRAGMA using schema="narrative"
+  use schema=None / SQLite-compatible inspection
+```
+
+`AutonomousRunRecord` already declares `input_hash` and the indexes. Avoid duplicating index creation merely to satisfy SQLite.
+
+Recommended shape:
+
+```python
+dialect = bind.dialect.name
+schema = "narrative" if dialect == "postgresql" else None
+
+cols = insp.get_columns("autonomous_runs", schema=schema)
+indexes = insp.get_indexes("autonomous_runs", schema=schema)
+```
+
+Any explicit `op.add_column` / `op.create_index` calls must use the same dialect-aware schema handling.
+
+Because PostgreSQL partial indexes encode the actual production single-writer contract, do **not** weaken or remove those constraints just to make SQLite pass.
+
+If SQLAlchemy's model-level `postgresql_where` results in different SQLite uniqueness semantics, add the smallest dialect-specific handling needed so SQLite migration tests remain portable without changing the PostgreSQL guarantee.
+
+### Required verification
+
+After the patch:
+
+```text
+1. commit migration fix -> NEW_CODE_SHA
+2. run tests/test_migrations.py locally
+3. run full AI-service non-PostgreSQL regression
+4. run PostgreSQL migration downgrade/re-upgrade
+5. rerun AI-PIPE-03A local gate if the migration code participates in the validated CODE_SHA
+6. regenerate evidence with evidence.git_commit = NEW_CODE_SHA if CODE_SHA changed
+7. rerun evidence validator
+8. push branch
+9. stop at LOCAL_PASS_CI_PENDING
+```
+
+The P3 controller's previous remote system gate PASS should be preserved as historical evidence, but final acceptance requires a green full workflow on the new head.
+
+Current status:
+
+```text
+AI-PIPE-03A controller gate              PASS
+AI-PIPE-03A remote Compose gate          PASS
+full AI-service regression               FAIL
+migration 0009 SQLite portability        REPAIR_REQUIRED
+PR                                      NOT_OPENED
+final GitHub CI                          NOT_GREEN
+```
+
+Do not open/merge a PR until this regression is repaired and the new branch head is green.
+
+---
+
 ## CURRENT STATUS — AI-PIPE-03A REPAIRED & LOCAL_PASS_CI_PENDING (2026-10-11)
 
 All 6 blockers from the ChatGPT remote review have been fully implemented, verified, and integrated:
