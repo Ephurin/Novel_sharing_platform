@@ -1,5 +1,114 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT CANONICAL STATUS — P1/P2/P3 BACKEND PIPELINES CI-CLOSED (2026-10-11)
+
+AI-PIPE-03A has completed final GitHub acceptance and is merged.
+
+```text
+PR #42 merged SHA: a760600507ace97daeff2e951921235e8f74fa16
+accepted PR head:   3228d85559a72a9650e0954b33ff47916fd6ccf9
+
+P8:          38150084372  PASS
+P7:          38150084376  PASS
+Evaluation:  38150084364  PASS
+Defense Demo:38150084378  PASS
+```
+
+Within P8, all AI-PIPE-03A gates passed on the accepted PR head:
+
+```text
+Autonomous Controller Validation       PASS
+Evidence Schema / Invariants           PASS
+AI-service Autonomous Route Suite      PASS
+Backend Autonomous Controller Suite    PASS
+```
+
+Canonical pipeline state:
+
+```text
+AI-PIPE-01A  P1 backend closed loop        CI_PASS / MERGED
+AI-PIPE-01B  P1 browser/UI system E2E      PENDING_UI_REFACTOR
+
+AI-PIPE-02A  Idea/World-Bible bootstrap    CI_PASS / MERGED
+AI-PIPE-02B  Durable outline planning      CI_PASS / MERGED
+
+AI-PIPE-03A  Full-auto bounded controller  CI_PASS / MERGED
+```
+
+### P3 closure interpretation
+
+The original P3 gate defines P3 conceptually as:
+
+```text
+P2
++ autonomous controller replacing the human review loop
++ progress/completion/termination orchestration
+```
+
+and requires a bounded multi-iteration scenario with a real intentional completion gate rather than stopping only at `max_iterations`.
+
+AI-PIPE-03A now satisfies that backend/system contract:
+
+```text
+active Story Plan
+ -> deterministic current objective
+ -> existing P1 WritingService
+ -> deterministic fail-closed quality gate
+ -> automatic accept/retry decision
+ -> canonical revision persistence
+ -> outbox + Story Brain update
+ -> explicit plan progress
+ -> next objective
+ -> terminal/completion gate
+ -> no post-terminal generation
+```
+
+It also proves database-level single-writer safety, autonomous-run idempotency conflict semantics, scoped proposal auto-acceptance, bounded retry/iteration guards and crash recovery after canonical acceptance.
+
+Therefore do **not** invent an AI-PIPE-03B merely to continue implementation. Any further autonomous work is hardening/product enhancement unless a new concrete gap is identified.
+
+### Remaining mandatory acceptance
+
+The remaining mandatory gate from the current three-pipeline validation program is:
+
+```text
+AI-PIPE-01B — Browser/UI System E2E
+```
+
+This remains `PENDING_UI_REFACTOR` until the team declares the refactored UI ready.
+
+Required late browser flow remains:
+
+```text
+AUTHOR login
+ -> import manuscript
+ -> extraction/review
+ -> Story Brain active
+ -> Author IDE
+ -> generate
+ -> reject/edit and prove canon unchanged
+ -> generate again
+ -> accept
+ -> refresh/reopen and prove persistence
+ -> Story Brain update
+ -> next generation observes updated state
+```
+
+Until that browser gate is executed:
+
+```text
+P1 backend/system      PASS
+P2 backend/system      PASS
+P3 backend/system      PASS
+P1 final browser E2E   PENDING_UI_REFACTOR
+```
+
+Do not reopen P1/P2/P3 backend implementation without a regression or newly approved scope.
+
+Historical P3 `LOCAL_PASS_CI_PENDING`, migration-repair and PR-ready sections lower in this file are superseded by this canonical section.
+
+---
+
 ## CURRENT REMOTE STATUS — AI-PIPE-03A PR-READY AFTER GREEN BRANCH CI (2026-10-11)
 
 Latest accepted local/evidence lineage:
