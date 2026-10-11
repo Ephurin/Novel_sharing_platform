@@ -190,6 +190,7 @@ class AutonomousRun:
     last_brain_version: int = 1
     stop_reason: str | None = None
     idempotency_key: str | None = None
+    input_hash: str | None = None
     created_by: str | None = None
     created_at: str | None = None
     updated_at: str | None = None

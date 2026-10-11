@@ -211,78 +211,131 @@ export class AutonomousControllerService {
       });
     }
 
-    // Generate draft via P1 Writing Generation API
-    const genIdempotencyKey = `auto-${run.run_id}-iter-${run.current_iteration}-try-${run.current_retries}`;
-    const genPayload = {
-      novel_id: run.novel_id,
-      chapter_id: targetChapter.chapterId,
-      revision_id: latestRev.revisionId,
-      content_hash: latestRev.contentHash,
-      operation: 'continuation',
-      selection: {
-        start: latestRev.content.length,
-        end: latestRev.content.length,
-        cursor: latestRev.content.length,
-      },
-      instruction: `Thực hiện mục tiêu cốt truyện: ${eligibleObj.title}. ${eligibleObj.description}`,
-      expected_brain_version: run.last_brain_version,
-      chapter_number: targetChapter.chapterNumber,
-      actor_id: auth.userId,
-      idempotency_key: genIdempotencyKey,
-    };
-
-    const initialGen = await aiGatewayService.forwardRequest<any>({
-      method: 'POST',
-      path: '/v1/writing/generations',
-      body: genPayload,
-      userId: auth.userId,
-    });
-
-    const genJobId = initialGen?.job_id;
-    if (!genJobId) {
-      throw new AppError(502, 'AI_SERVICE_ERROR', 'Writing generation failed to return job_id');
-    }
-
-    // Poll for generation completion (internal API)
+    let isAlreadyAccepted = false;
     let genJob: any = null;
-    for (let i = 0; i < 25; i++) {
+
+    if (latestRev.sourceType === 'AI_DRAFT_ACCEPT' && latestRev.sourceGenerationId) {
       try {
-        const fetched = await aiGatewayService.forwardRequest<any>({
+        const existingJob = await aiGatewayService.forwardRequest<any>({
           method: 'GET',
-          path: `/internal/v1/writing/generations/${genJobId}`,
+          path: `/internal/v1/writing/generations/${latestRev.sourceGenerationId}`,
           userId: auth.userId,
         });
-        if (fetched && (fetched.status === 'completed' || fetched.status === 'failed')) {
-          genJob = fetched;
-          break;
+        if (existingJob && existingJob.status === 'completed') {
+          genJob = existingJob;
+          isAlreadyAccepted = true;
         }
       } catch {
-        // Retry
+        // Fallback to generating anew if retrieval fails
       }
-      await new Promise(r => setTimeout(r, 200));
+    }
+
+    if (!isAlreadyAccepted) {
+      // Generate draft via P1 Writing Generation API
+      const genIdempotencyKey = `auto-${run.run_id}-iter-${run.current_iteration}-try-${run.current_retries}`;
+      const genPayload = {
+        novel_id: run.novel_id,
+        chapter_id: targetChapter.chapterId,
+        revision_id: latestRev.revisionId,
+        content_hash: latestRev.contentHash,
+        operation: 'continuation',
+        selection: {
+          start: latestRev.content.length,
+          end: latestRev.content.length,
+          cursor: latestRev.content.length,
+        },
+        instruction: `Thực hiện mục tiêu cốt truyện: ${eligibleObj.title}. ${eligibleObj.description}`,
+        expected_brain_version: run.last_brain_version,
+        chapter_number: targetChapter.chapterNumber,
+        actor_id: auth.userId,
+        idempotency_key: genIdempotencyKey,
+      };
+
+      const initialGen = await aiGatewayService.forwardRequest<any>({
+        method: 'POST',
+        path: '/v1/writing/generations',
+        body: genPayload,
+        userId: auth.userId,
+      });
+
+      const genJobId = initialGen?.job_id;
+      if (!genJobId) {
+        throw new AppError(502, 'AI_SERVICE_ERROR', 'Writing generation failed to return job_id');
+      }
+
+      // Poll for generation completion (internal API)
+      for (let i = 0; i < 25; i++) {
+        try {
+          const fetched = await aiGatewayService.forwardRequest<any>({
+            method: 'GET',
+            path: `/internal/v1/writing/generations/${genJobId}`,
+            userId: auth.userId,
+          });
+          if (fetched && (fetched.status === 'completed' || fetched.status === 'failed')) {
+            genJob = fetched;
+            break;
+          }
+        } catch {
+          // Retry
+        }
+        await new Promise(r => setTimeout(r, 200));
+      }
     }
 
     if (!genJob) {
       throw new AppError(504, 'AI_SERVICE_TIMEOUT', 'Writing generation did not complete within timeout');
     }
 
-    // Deterministic Quality Gate
+    // Deterministic Quality Gate (Strict Fail-Closed)
     const isJobCompleted = genJob.status === 'completed';
     const isValidationPassed =
       genJob.validation_status === 'passed' &&
       (genJob.validations?.every((v: any) => v.passed) ?? true);
-    const isPatchValid =
-      !!genJob.patch &&
-      ((typeof genJob.patch.replacement === 'string' &&
-        typeof genJob.patch.start === 'number' &&
-        typeof genJob.patch.end === 'number') ||
-        (typeof genJob.patch.patched_content === 'string' &&
-          genJob.patch.patched_content.length >= latestRev.content.length));
-    const isBrainFresh = !genJob.brain_version_used || genJob.brain_version_used === run.last_brain_version;
+
+    const isBrainFresh =
+      genJob.brain_version_used !== undefined &&
+      genJob.brain_version_used !== null &&
+      Number(genJob.brain_version_used) === run.last_brain_version;
+
+    let isPatchValid = false;
+    if (genJob.patch) {
+      if (typeof genJob.patch.replacement === 'string') {
+        const rep = genJob.patch.replacement.trim();
+        const codePoints = Array.from(latestRev.content);
+        const hasValidBounds =
+          typeof genJob.patch.start === 'number' &&
+          typeof genJob.patch.end === 'number' &&
+          Number.isInteger(genJob.patch.start) &&
+          Number.isInteger(genJob.patch.end) &&
+          genJob.patch.start >= 0 &&
+          genJob.patch.end >= genJob.patch.start &&
+          genJob.patch.end <= codePoints.length;
+        const isNoOp =
+          genJob.patch.start === genJob.patch.end
+            ? rep.length === 0
+            : codePoints.slice(genJob.patch.start, genJob.patch.end).join('') === genJob.patch.replacement;
+        isPatchValid = hasValidBounds && rep.length > 0 && !isNoOp;
+      } else if (typeof genJob.patch.patched_content === 'string') {
+        const patched = genJob.patch.patched_content.trim();
+        isPatchValid = patched.length > 0 && patched !== latestRev.content.trim();
+      }
+    }
+
+    const isDraftNonEmpty =
+      genJob.draft === undefined ||
+      genJob.draft === null ||
+      (typeof genJob.draft === 'string' && genJob.draft.trim().length > 0);
+
     const isSimulatedFailure =
       options?.force_gate_failure === true || eligibleObj.metadata?.force_gate_failure === true;
 
-    const qualityGatePassed = isJobCompleted && isValidationPassed && isPatchValid && isBrainFresh && !isSimulatedFailure;
+    const qualityGatePassed =
+      isJobCompleted &&
+      isValidationPassed &&
+      isPatchValid &&
+      isDraftNonEmpty &&
+      isBrainFresh &&
+      !isSimulatedFailure;
 
     if (!qualityGatePassed) {
       // Quality Gate Failed: Bounded retry, DO NOT mutate canon, DO NOT mutate plan progress
@@ -306,15 +359,20 @@ export class AutonomousControllerService {
       });
     }
 
-    // Quality Gate Passed: Accept draft via production acceptDraft()
-    const acceptResult = await acceptDraft(auth, targetChapter.chapterId, {
-      generationId: genJob.job_id,
-    });
+    // Quality Gate Passed: Accept draft via production acceptDraft() with Crash/Recovery check
+    let acceptResult: any = null;
+    if (isAlreadyAccepted) {
+      acceptResult = { revision: latestRev };
+    } else {
+      acceptResult = await acceptDraft(auth, targetChapter.chapterId, {
+        generationId: genJob.job_id,
+      });
+    }
 
     // Process outbox to advance Story Brain
     await processOutboxOnce(10);
 
-    // If incremental analysis produced proposals in the review queue, auto-accept them to advance Story Brain
+    // Scoped auto-acceptance: strictly accept only proposals originating from this accepted revision
     try {
       const queue = await aiGatewayService.forwardRequest<any[]>({
         method: 'GET',
@@ -322,11 +380,17 @@ export class AutonomousControllerService {
         userId: auth.userId,
       });
 
-      if (Array.isArray(queue) && queue.length > 0) {
-        const groupIds = Array.from(new Set(queue.map(p => p.dependency_group_id).filter(Boolean)));
+      const acceptedRevId = acceptResult.revision.revisionId;
+      const relevantProposals = (Array.isArray(queue) ? queue : []).filter((p: any) => {
+        if (!Array.isArray(p.evidence)) return false;
+        return p.evidence.some((ev: any) => ev && ev.revision_id === acceptedRevId);
+      });
+
+      if (relevantProposals.length > 0) {
+        const groupIds = Array.from(new Set(relevantProposals.map(p => p.dependency_group_id).filter(Boolean)));
         let currentBv = run.last_brain_version;
         for (const gid of groupIds) {
-          const groupProposals = queue.filter(p => p.dependency_group_id === gid);
+          const groupProposals = relevantProposals.filter(p => p.dependency_group_id === gid);
           try {
             const acceptRes: any = await aiGatewayService.forwardRequest({
               method: 'POST',

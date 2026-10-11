@@ -646,6 +646,10 @@ class JsonNarrativeRepository:
         if run.idempotency_key:
             for r in self._autonomous_runs.values():
                 if r.novel_id == run.novel_id and r.idempotency_key == run.idempotency_key:
+                    if r.input_hash and run.input_hash and r.input_hash != run.input_hash:
+                        raise IdempotencyConflictError(
+                            f"Idempotency key {run.idempotency_key} reused with conflicting payload"
+                        )
                     return r
         for r in self._autonomous_runs.values():
             if r.novel_id == run.novel_id and r.status in ("queued", "running"):

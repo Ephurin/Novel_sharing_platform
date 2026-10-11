@@ -116,58 +116,103 @@ describe('Autonomous Controller Gateway & Contract Tests', () => {
     }
   });
 
-  test('Deterministic quality gate: checks completion, validation, patch validity and brain freshness', () => {
-    function evaluateQualityGate(genJob: any, expectedBrainVersion: number) {
+  test('Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch', () => {
+    function evaluateQualityGate(genJob: any, expectedBrainVersion: number, baseContent = 'Existing text') {
       const isJobCompleted = genJob?.status === 'completed';
       const isValidationPassed =
         genJob?.validation_status === 'passed' &&
         (genJob?.validations?.every((v: any) => v.passed) ?? true);
-      const isPatchValid =
-        !!genJob?.patch &&
-        typeof genJob?.patch?.patched_content === 'string' &&
-        genJob.patch.patched_content.length > 0;
-      const isBrainFresh =
-        !genJob?.brain_version_used || genJob.brain_version_used === expectedBrainVersion;
 
-      return isJobCompleted && isValidationPassed && isPatchValid && isBrainFresh;
+      const isBrainFresh =
+        genJob?.brain_version_used !== undefined &&
+        genJob?.brain_version_used !== null &&
+        Number(genJob?.brain_version_used) === expectedBrainVersion;
+
+      let isPatchValid = false;
+      if (genJob?.patch) {
+        if (typeof genJob.patch.replacement === 'string') {
+          const rep = genJob.patch.replacement.trim();
+          const codePoints = Array.from(baseContent);
+          const hasValidBounds =
+            typeof genJob.patch.start === 'number' &&
+            typeof genJob.patch.end === 'number' &&
+            Number.isInteger(genJob.patch.start) &&
+            Number.isInteger(genJob.patch.end) &&
+            genJob.patch.start >= 0 &&
+            genJob.patch.end >= genJob.patch.start &&
+            genJob.patch.end <= codePoints.length;
+          const isNoOp =
+            genJob.patch.start === genJob.patch.end
+              ? rep.length === 0
+              : codePoints.slice(genJob.patch.start, genJob.patch.end).join('') === genJob.patch.replacement;
+          isPatchValid = hasValidBounds && rep.length > 0 && !isNoOp;
+        } else if (typeof genJob.patch.patched_content === 'string') {
+          const patched = genJob.patch.patched_content.trim();
+          isPatchValid = patched.length > 0 && patched !== baseContent.trim();
+        }
+      }
+
+      const isDraftNonEmpty =
+        genJob?.draft === undefined ||
+        genJob?.draft === null ||
+        (typeof genJob.draft === 'string' && genJob.draft.trim().length > 0);
+
+      return isJobCompleted && isValidationPassed && isPatchValid && isDraftNonEmpty && isBrainFresh;
     }
 
-    // Happy path: PASS
+    // Happy path with replacement: PASS
     assert.equal(
       evaluateQualityGate(
         {
           status: 'completed',
           validation_status: 'passed',
           validations: [{ passed: true }],
-          patch: { patched_content: 'Nội dung chương 1...' },
+          patch: { start: 13, end: 13, replacement: ' with addition' },
           brain_version_used: 1,
         },
-        1
+        1,
+        'Existing text'
       ),
       true
     );
 
-    // Incomplete job: FAIL
+    // Missing brain_version_used: FAIL (strict fail-closed)
     assert.equal(
       evaluateQualityGate(
         {
-          status: 'generating',
+          status: 'completed',
           validation_status: 'passed',
-          patch: { patched_content: '...' },
+          validations: [{ passed: true }],
+          patch: { start: 0, end: 0, replacement: 'new content' },
         },
         1
       ),
       false
     );
 
-    // Validation failed: FAIL
+    // Stale brain_version_used: FAIL
     assert.equal(
       evaluateQualityGate(
         {
           status: 'completed',
-          validation_status: 'failed',
-          validations: [{ passed: false }],
-          patch: { patched_content: '...' },
+          validation_status: 'passed',
+          validations: [{ passed: true }],
+          patch: { start: 0, end: 0, replacement: 'new content' },
+          brain_version_used: 2, // expected 1
+        },
+        1
+      ),
+      false
+    );
+
+    // Empty replacement: FAIL
+    assert.equal(
+      evaluateQualityGate(
+        {
+          status: 'completed',
+          validation_status: 'passed',
+          validations: [{ passed: true }],
+          patch: { start: 0, end: 0, replacement: '' },
           brain_version_used: 1,
         },
         1
@@ -175,17 +220,33 @@ describe('Autonomous Controller Gateway & Contract Tests', () => {
       false
     );
 
-    // Stale brain version: FAIL
+    // Whitespace only replacement: FAIL
     assert.equal(
       evaluateQualityGate(
         {
           status: 'completed',
           validation_status: 'passed',
           validations: [{ passed: true }],
-          patch: { patched_content: '...' },
-          brain_version_used: 2, // expected 1
+          patch: { start: 0, end: 0, replacement: '   ' },
+          brain_version_used: 1,
         },
         1
+      ),
+      false
+    );
+
+    // No-op replacement (replacing slice with identical text): FAIL
+    assert.equal(
+      evaluateQualityGate(
+        {
+          status: 'completed',
+          validation_status: 'passed',
+          validations: [{ passed: true }],
+          patch: { start: 0, end: 8, replacement: 'Existing' },
+          brain_version_used: 1,
+        },
+        1,
+        'Existing text'
       ),
       false
     );
@@ -204,6 +265,58 @@ describe('Autonomous Controller Gateway & Contract Tests', () => {
       ),
       false
     );
+  });
+
+  test('Scoped proposal acceptance: ignores unrelated pending proposals in review queue', () => {
+    const queue = [
+      {
+        proposal_id: 'p-unrelated-1',
+        dependency_group_id: 'grp-unrelated',
+        evidence: [{ revision_id: 'rev-other-author' }],
+      },
+      {
+        proposal_id: 'p-unrelated-2',
+        dependency_group_id: 'grp-unrelated',
+        evidence: [{ revision_id: 'rev-old-chapter' }],
+      },
+      {
+        proposal_id: 'p-current-1',
+        dependency_group_id: 'grp-current',
+        evidence: [{ revision_id: 'rev-current-step' }],
+      },
+    ];
+
+    const currentRevId = 'rev-current-step';
+    const relevant = queue.filter((p: any) => {
+      if (!Array.isArray(p.evidence)) return false;
+      return p.evidence.some((ev: any) => ev && ev.revision_id === currentRevId);
+    });
+
+    assert.equal(relevant.length, 1);
+    assert.equal(relevant[0].proposal_id, 'p-current-1');
+
+    // Unrelated proposals remain unselected
+    const unselected = queue.filter(p => !relevant.includes(p));
+    assert.equal(unselected.length, 2);
+    assert.ok(unselected.every(p => p.dependency_group_id === 'grp-unrelated'));
+  });
+
+  test('Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft', () => {
+    const latestRev = {
+      revisionId: 'rev-committed',
+      sourceType: 'AI_DRAFT_ACCEPT',
+      sourceGenerationId: 'gen-job-123',
+    };
+    const genJob = {
+      id: 'gen-uuid',
+      job_id: 'gen-job-123',
+    };
+
+    const isAlreadyAccepted =
+      latestRev.sourceType === 'AI_DRAFT_ACCEPT' &&
+      (latestRev.sourceGenerationId === genJob.job_id || latestRev.sourceGenerationId === genJob.id);
+
+    assert.equal(isAlreadyAccepted, true);
   });
 
   test('Intentional completion gate terminates on terminal objective or all objectives done', () => {

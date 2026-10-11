@@ -102,6 +102,9 @@ def validate(evidence: dict[str, Any]) -> list[str]:
     cp4_d = cp4.get("details", {})
     require(cp4_d.get("status_code") == 409, "cp4_conflict_not_409")
     require(cp4_d.get("conflict_detected") is True, "cp4_conflict_not_detected")
+    require(cp4_d.get("concurrency_conflict_detected") is True, "cp4_concurrency_conflict_not_detected")
+    require(cp4_d.get("idempotency_conflict_detected") is True, "cp4_idempotency_conflict_not_detected")
+    require(cp4_d.get("idempotent_replay_success") is True, "cp4_idempotent_replay_failed")
 
     # CP 5: Active Plan & Version Pinned
     cp5 = cp_map.get(5, {})
@@ -141,6 +144,7 @@ def validate(evidence: dict[str, Any]) -> list[str]:
     cp11 = cp_map.get(11, {})
     cp11_d = cp11.get("details", {})
     require(int(cp11_d.get("brain_version", 0)) >= 2, "cp11_brain_version_did_not_advance")
+    require(cp11_d.get("unrelated_proposal_isolated") is True, "cp11_unrelated_proposal_not_isolated")
 
     # CP 12: Explicit Objective Progress Update
     cp12 = cp_map.get(12, {})
@@ -157,6 +161,7 @@ def validate(evidence: dict[str, Any]) -> list[str]:
     cp14 = cp_map.get(14, {})
     cp14_d = cp14.get("details", {})
     require(cp14_d.get("revisions_count_unchanged") is True, "cp14_duplicate_revisions_created")
+    require(cp14_d.get("crash_recovery_zero_duplicate_revisions") is True, "cp14_crash_recovery_failed")
 
     # CP 15: Maximum Retry Guard Fails Closed
     cp15 = cp_map.get(15, {})
@@ -248,7 +253,25 @@ def test_mutants(evidence: dict[str, Any]) -> None:
     err10 = validate(m10)
     assert any("cp11_brain_version_did_not_advance" in e for e in err10), f"Mutant 10 failed: {err10}"
 
-    print("[MUTANT TEST] 10/10 negative fail-closed mutants rejected cleanly.")
+    # Mutant 11: Concurrency conflict not detected in CP4
+    m11 = copy.deepcopy(evidence)
+    m11["checkpoints"][3]["details"]["concurrency_conflict_detected"] = False
+    err11 = validate(m11)
+    assert any("cp4_concurrency_conflict_not_detected" in e for e in err11), f"Mutant 11 failed: {err11}"
+
+    # Mutant 12: Unrelated proposal leaked in review queue in CP11
+    m12 = copy.deepcopy(evidence)
+    m12["checkpoints"][10]["details"]["unrelated_proposal_isolated"] = False
+    err12 = validate(m12)
+    assert any("cp11_unrelated_proposal_not_isolated" in e for e in err12), f"Mutant 12 failed: {err12}"
+
+    # Mutant 13: Crash recovery failed (duplicated revisions) in CP14
+    m13 = copy.deepcopy(evidence)
+    m13["checkpoints"][13]["details"]["crash_recovery_zero_duplicate_revisions"] = False
+    err13 = validate(m13)
+    assert any("cp14_crash_recovery_failed" in e for e in err13), f"Mutant 13 failed: {err13}"
+
+    print("[MUTANT TEST] 13/13 negative fail-closed mutants rejected cleanly.")
 
 
 def main() -> None:

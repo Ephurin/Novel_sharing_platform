@@ -153,3 +153,88 @@ class AutonomousRouteTests(unittest.TestCase):
         stopped = stop_res.json()["data"]
         self.assertEqual(stopped["status"], "stopped")
         self.assertEqual(stopped["stop_reason"], "cancelled_by_user")
+
+    def test_idempotency_same_key_same_payload_returns_existing(self) -> None:
+        payload = {
+            "novel_id": self.novel_id,
+            "plan_id": self.plan.plan_id,
+            "max_iterations": 5,
+            "max_retries_per_objective": 2,
+            "idempotency_key": "idemp-key-stable",
+        }
+        res1 = self.client.post("/v1/autonomous/runs", json=payload, headers=self.headers)
+        self.assertEqual(res1.status_code, 201)
+        run_id_1 = res1.json()["data"]["run_id"]
+
+        # Same key + identical payload -> returns existing run
+        res2 = self.client.post("/v1/autonomous/runs", json=payload, headers=self.headers)
+        self.assertEqual(res2.status_code, 201)
+        run_id_2 = res2.json()["data"]["run_id"]
+        self.assertEqual(run_id_1, run_id_2)
+
+    def test_idempotency_same_key_conflicting_payload_raises_409(self) -> None:
+        payload1 = {
+            "novel_id": self.novel_id,
+            "plan_id": self.plan.plan_id,
+            "max_iterations": 5,
+            "max_retries_per_objective": 2,
+            "idempotency_key": "idemp-key-conflict",
+        }
+        res1 = self.client.post("/v1/autonomous/runs", json=payload1, headers=self.headers)
+        self.assertEqual(res1.status_code, 201)
+
+        # Same key + different max_iterations -> 409 IDEMPOTENCY_CONFLICT
+        payload2 = {
+            "novel_id": self.novel_id,
+            "plan_id": self.plan.plan_id,
+            "max_iterations": 10,
+            "max_retries_per_objective": 2,
+            "idempotency_key": "idemp-key-conflict",
+        }
+        res2 = self.client.post("/v1/autonomous/runs", json=payload2, headers=self.headers)
+        self.assertEqual(res2.status_code, 409)
+        self.assertEqual(res2.json()["detail"]["code"], "IDEMPOTENCY_CONFLICT")
+
+    def test_concurrent_active_run_attempts(self) -> None:
+        import concurrent.futures
+
+        novel_id = str(uuid.uuid4())
+        # create active plan for this new novel
+        plan = self.repository.create_story_plan(
+            StoryPlan(
+                plan_id=str(uuid.uuid4()),
+                novel_id=novel_id,
+                tenant_id=self.tenant_id,
+                plan_version=1,
+                status="active",
+                objectives=(
+                    StoryPlanObjective(
+                        objective_id=str(uuid.uuid4()),
+                        order_index=1,
+                        title="Goal 1",
+                        description="Desc 1",
+                        status="pending",
+                    ),
+                ),
+            )
+        )
+
+        def make_request(idx: int):
+            return self.client.post(
+                "/v1/autonomous/runs",
+                json={"novel_id": novel_id, "plan_id": plan.plan_id, "idempotency_key": f"key-{idx}"},
+                headers=self.headers,
+            )
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            f1 = executor.submit(make_request, 1)
+            f2 = executor.submit(make_request, 2)
+            results = [f1.result(), f2.result()]
+
+        statuses = [r.status_code for r in results]
+        # Exactly one must succeed (201) and the other must be rejected (409)
+        self.assertIn(201, statuses)
+        self.assertIn(409, statuses)
+        conflicts = [r for r in results if r.status_code == 409]
+        self.assertEqual(conflicts[0].json()["detail"]["code"], "ACTIVE_RUN_CONFLICT")
+

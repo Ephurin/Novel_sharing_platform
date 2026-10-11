@@ -38,6 +38,7 @@ import subprocess
 import sys
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -200,26 +201,26 @@ def run_pipeline(
         # Create 3-Objective Story Plan
         plan_payload = {
             "novel_id": novel_id,
-            "source_outline": "Chương 1: Thức tỉnh tại cổ mộ.\nChương 2: Giải mã phong ấn cổ trận.\nChương 3: Thoát hiểm thành công.",
+            "source_outline": "Chương 1: Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ.\nChương 2: Tiêu Viêm và Hải Ba Đông phá trận pháp tại Mạc Gia.\nChương 3: Thoát hiểm thành công.",
             "objectives": [
                 {
                     "order_index": 1,
-                    "title": "Thức tỉnh tại cổ mộ",
-                    "description": "Nhân vật chính thức tỉnh trong bóng tối của di tích cổ và thắp sáng đuốc.",
+                    "title": "Thức tỉnh tại Tháp Qua Nhĩ",
+                    "description": "Tiêu Viêm kịch chiến cùng Hải Ba Đông tại sa mạc Tháp Qua Nhĩ.",
                     "target_chapter": 1,
                     "objective_type": "chapter_goal",
                 },
                 {
                     "order_index": 2,
-                    "title": "Giải mã phong ấn cổ trận",
-                    "description": "Tìm kiếm cơ quan bí mật và giải trừ phong ấn kiếm trận.",
+                    "title": "Phá giải trận đồ Mạc Gia",
+                    "description": "Tiêu Viêm và Hải Ba Đông phá trận pháp tại Mạc Gia.",
                     "target_chapter": 2,
                     "objective_type": "chapter_goal",
                 },
                 {
                     "order_index": 3,
                     "title": "Thoát hiểm thành công",
-                    "description": "Rời khỏi cổ mộ trước khi hang động sụp đổ hoàn toàn.",
+                    "description": "Tiêu Viêm và Hải Ba Đông rời khỏi sa mạc Tháp Qua Nhĩ an toàn.",
                     "target_chapter": 3,
                     "objective_type": "ending",
                     "metadata": {"is_terminal": True},
@@ -276,7 +277,7 @@ def run_pipeline(
         third_chapter_id = str(cur.fetchone()[0])
 
         # Initial revision for Chapter 1
-        c1_init_text = "Bóng tối bao trùm lấy không gian. Gió lạnh từ khe đá rít lên từng hồi."
+        c1_init_text = "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ. Bóng tối bao trùm lấy không gian."
         c1_hash = sha256(c1_init_text)
         cur.execute(
             """
@@ -290,7 +291,7 @@ def run_pipeline(
         cur.execute("UPDATE chapters SET latest_revision_id = %s WHERE chapter_id = %s", (c1_rev_id, first_chapter_id))
 
         # Initial revision for Chapter 2
-        c2_init_text = "Bước vào sảnh chính, trận đồ cổ xưa hiện ra lấp lánh ánh lam quang."
+        c2_init_text = "Tiêu Viêm và Hải Ba Đông phá trận pháp tại Mạc Gia. Trận đồ cổ xưa lấp lánh lam quang."
         c2_hash = sha256(c2_init_text)
         cur.execute(
             """
@@ -304,7 +305,7 @@ def run_pipeline(
         cur.execute("UPDATE chapters SET latest_revision_id = %s WHERE chapter_id = %s", (c2_rev_id, second_chapter_id))
 
         # Initial revision for Chapter 3
-        c3_init_text = "Cả hang động rung chuyển dữ dội, đất đá bắt đầu rơi lả tả."
+        c3_init_text = "Tiêu Viêm và Hải Ba Đông thoát hiểm thành công khỏi Tháp Qua Nhĩ. Cả hang động rung chuyển."
         c3_hash = sha256(c3_init_text)
         cur.execute(
             """
@@ -321,6 +322,35 @@ def run_pipeline(
         cur.execute("UPDATE revision_outbox_events SET status = 'COMPLETED' WHERE novel_id = %s", (novel_id,))
 
         print("[FIXTURE] Setup complete with 3 chapters, revisions, and active Story Plan.")
+
+        # Seed unrelated proposal in review queue to prove scoped auto-acceptance (Blocker 4)
+        cur.execute("SELECT id FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
+        sb_row = cur.fetchone()
+        story_brain_id = str(sb_row[0]) if sb_row else None
+        cur.execute("SELECT id FROM narrative.analysis_runs WHERE novel_id = %s LIMIT 1", (novel_id,))
+        ar_row = cur.fetchone()
+        analysis_run_id = str(ar_row[0]) if ar_row else None
+
+        unrelated_prop_id = str(uuid.uuid4())
+        unrelated_group_id = str(uuid.uuid4())
+        if story_brain_id and analysis_run_id:
+            cur.execute(
+                """
+                INSERT INTO narrative.proposals (
+                    id, analysis_run_id, story_brain_id, tenant_id, novel_id,
+                    dependency_group_id, materialization_order, proposal_type,
+                    payload, evidence, status, expected_brain_version
+                ) VALUES (
+                    %s, %s, %s, %s, %s,
+                    %s, 1, 'fact',
+                    '{"fact_key": "unrelated_lore", "fact_value": "Biển sâu vạn trượng có cự thú"}'::jsonb,
+                    '[{"revision_id": "00000000-0000-0000-0000-000000000099"}]'::jsonb,
+                    'pending', 1
+                )
+                """,
+                (unrelated_prop_id, analysis_run_id, story_brain_id, author_id, novel_id, unrelated_group_id),
+            )
+            print(f"[FIXTURE] Seeded unrelated proposal {unrelated_prop_id} with foreign revision provenance.")
 
         # ─────────────────────────────────────────────────────────────────
         # Checkpoint 01: Autonomous Run Creation via Node API
@@ -422,8 +452,9 @@ def run_pipeline(
         )
 
         # ─────────────────────────────────────────────────────────────────
-        # Checkpoint 04: Serialized Single-Writer Invariant (409 Conflict)
+        # Checkpoint 04: Serialized Single-Writer & Canonical Idempotency
         # ─────────────────────────────────────────────────────────────────
+        # 1. Active run conflict: attempting to create a second run for the same novel returns 409
         duplicate_res = httpx.post(
             f"{backend_url}/ai/autonomous/runs",
             json={
@@ -437,14 +468,110 @@ def run_pipeline(
         assert duplicate_res.status_code == 409, f"Expected 409 conflict: {duplicate_res.status_code}"
         assert "ACTIVE_RUN_CONFLICT" in duplicate_res.text or "Active autonomous run" in duplicate_res.text
 
+        # 2. Idempotency with canonical input_hash (Blocker 5):
+        # Same key + same payload => returns existing run (200 or 201)
+        same_res = httpx.post(
+            f"{backend_url}/ai/autonomous/runs",
+            json=run_payload,
+            headers=headers,
+            timeout=15.0,
+        )
+        assert same_res.status_code in (200, 201), f"Expected 200/201 on replay: {same_res.status_code}"
+        assert same_res.json()["data"]["run_id"] == run_id
+
+        # Same key + conflicting payload (different max_iterations) => 409 IDEMPOTENCY_CONFLICT
+        conflict_res = httpx.post(
+            f"{backend_url}/ai/autonomous/runs",
+            json={**run_payload, "max_iterations": 99},
+            headers=headers,
+            timeout=15.0,
+        )
+        assert conflict_res.status_code == 409, f"Expected 409 conflict on modified payload: {conflict_res.status_code}"
+        assert "IDEMPOTENCY_CONFLICT" in conflict_res.text or "Payload hash mismatch" in conflict_res.text
+
+        # 3. Concurrent creation race test (Blocker 1):
+        # Create disposable novel and launch 2 concurrent create requests with different idempotency keys.
+        cur.execute(
+            """
+            INSERT INTO novels (author_id, title, slug, synopsis)
+            VALUES (%s, %s, %s, %s)
+            RETURNING novel_id
+            """,
+            (
+                author_id,
+                f"Concurrent Test Novel {int(time.time())}",
+                f"conc-novel-{int(time.time())}",
+                "Novel for concurrency test",
+            ),
+        )
+        conc_novel_id = str(cur.fetchone()[0])
+
+        conc_plan_res = httpx.post(
+            f"{backend_url}/ai/story-plans",
+            json={
+                "novel_id": conc_novel_id,
+                "source_outline": "Chương 1: Test Conc",
+                "objectives": [{"order_index": 1, "title": "Conc Obj", "description": "Desc"}],
+            },
+            headers=headers,
+            timeout=15.0,
+        )
+        conc_plan_id = conc_plan_res.json()["data"]["plan_id"]
+        httpx.post(
+            f"{backend_url}/ai/story-plans/{conc_plan_id}/activate",
+            params={"novel_id": conc_novel_id},
+            headers=headers,
+            timeout=15.0,
+        )
+
+        # Pre-seed Story Brain for conc_novel_id so concurrent race targets autonomous_runs exclusively
+        cur.execute(
+            """
+            INSERT INTO narrative.story_brains (id, tenant_id, novel_id, status, brain_version, schema_version)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT (tenant_id, novel_id) DO NOTHING
+            """,
+            (str(uuid.uuid4()), author_id, conc_novel_id, "active", 1, 1),
+        )
+
+        def attempt_create(k: str) -> int:
+            res = httpx.post(
+                f"{backend_url}/ai/autonomous/runs",
+                json={
+                    "novel_id": conc_novel_id,
+                    "plan_id": conc_plan_id,
+                    "idempotency_key": k,
+                },
+                headers=headers,
+                timeout=15.0,
+            )
+            return res.status_code
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            f1 = executor.submit(attempt_create, f"conc-key-1-{uuid.uuid4()}")
+            f2 = executor.submit(attempt_create, f"conc-key-2-{uuid.uuid4()}")
+            statuses = sorted([f1.result(), f2.result()])
+
+        assert statuses == [201, 409], f"Expected [201, 409] under concurrent creation, got {statuses}"
+
+        # Verify DB has exactly 1 active run for conc_novel_id
+        cur.execute(
+            "SELECT count(*) FROM narrative.autonomous_runs WHERE novel_id = %s AND status IN ('queued', 'running')",
+            (conc_novel_id,),
+        )
+        assert cur.fetchone()[0] == 1, "Expected exactly 1 active run in DB for concurrent novel"
+
         record_cp(
             4,
             "Serialized Single-Writer Invariant",
             "PASS",
-            "Single-writer enforced: concurrent/active run creation for same novel rejected with 409 Conflict",
+            "Single-writer enforced: concurrent race resolved to [201, 409], idempotency conflict returns 409",
             {
                 "status_code": duplicate_res.status_code,
                 "conflict_detected": True,
+                "concurrency_conflict_detected": True,
+                "idempotency_conflict_detected": True,
+                "idempotent_replay_success": True,
             },
         )
 
@@ -590,14 +717,21 @@ def run_pipeline(
         brain_v1 = int(cur.fetchone()[0])
         assert brain_v1 >= 2, f"Story brain version did not advance: {brain_v1}"
 
+        # Verify unrelated proposal was NOT auto-accepted (Blocker 4)
+        cur.execute("SELECT status FROM narrative.proposals WHERE id = %s", (unrelated_prop_id,))
+        unrelated_status_row = cur.fetchone()
+        unrelated_is_pending = unrelated_status_row is not None and unrelated_status_row[0] == "pending"
+        assert unrelated_is_pending, f"Unrelated proposal was unexpectedly mutated: {unrelated_status_row}"
+
         record_cp(
             11,
             "Transactional Outbox Completes & Story Brain Advances",
             "PASS",
-            f"Transactional outbox processed, Story Brain advanced to version {brain_v1}",
+            f"Transactional outbox processed, Story Brain advanced to version {brain_v1}, unrelated proposal preserved pending",
             {
                 "brain_version": brain_v1,
                 "novel_id": novel_id,
+                "unrelated_proposal_isolated": True,
             },
         )
 
@@ -626,7 +760,7 @@ def run_pipeline(
 
         # ─────────────────────────────────────────────────────────────────
         # CRASH / RESUME PROBE:
-        # Reconstruct / reload controller from persisted state after Step 1
+        # Reconstruct controller and verify crash recovery after acceptDraft (Blocker 2)
         # ─────────────────────────────────────────────────────────────────
         print("[PROBE] Executing crash/resume probe: reload run state by run_id")
         probe_reload = httpx.get(
@@ -640,6 +774,37 @@ def run_pipeline(
         assert reloaded_state["last_accepted_revision_id"] == rev1_id
         assert reloaded_state["status"] == "running"
         print(f"[PROBE] Reloaded run {run_id} at iteration 1 cleanly from PostgreSQL.")
+
+        # Simulate process crash right after acceptDraft() wrote revision, but before run-state PATCH
+        print("[PROBE] Simulating intermediate process crash before run-state PATCH...")
+        cur.execute("SELECT count(*) FROM chapter_revisions WHERE chapter_id = %s", (first_chapter_id,))
+        c1_revs_before_probe = cur.fetchone()[0]
+
+        cur.execute(
+            "UPDATE narrative.autonomous_runs SET current_iteration = 0, last_accepted_revision_id = NULL, current_retries = 0, last_brain_version = 1 WHERE id = %s",
+            (run_id,),
+        )
+        cur.execute(
+            "UPDATE narrative.story_plan_objectives SET status = 'in_progress' WHERE id = %s",
+            (objs[0][0],),
+        )
+
+        probe_resume = httpx.post(
+            f"{backend_url}/ai/autonomous/runs/{run_id}/step",
+            headers=headers,
+            timeout=30.0,
+        )
+        assert probe_resume.status_code == 200, f"Resume step failed: {probe_resume.text}"
+        resume_data = probe_resume.json()["data"]
+        assert resume_data["current_iteration"] == 1
+        assert resume_data["last_accepted_revision_id"] == rev1_id
+
+        cur.execute("SELECT count(*) FROM chapter_revisions WHERE chapter_id = %s", (first_chapter_id,))
+        c1_revs_after_probe = cur.fetchone()[0]
+        assert c1_revs_after_probe == c1_revs_before_probe, (
+            f"Crash recovery duplicated revisions! Before: {c1_revs_before_probe}, After: {c1_revs_after_probe}"
+        )
+        print(f"[PROBE] Crash recovery verified: 0 duplicate revisions, run cleanly advanced to iteration 1.")
 
         # ─────────────────────────────────────────────────────────────────
         # Checkpoint 09: Failed/Rejected Generation Mutates Neither Canon Nor Plan Progress
@@ -747,6 +912,7 @@ def run_pipeline(
             {
                 "iteration": idem_data["current_iteration"],
                 "revisions_count_unchanged": True,
+                "crash_recovery_zero_duplicate_revisions": True,
             },
         )
 

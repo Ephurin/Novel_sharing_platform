@@ -301,6 +301,22 @@ def update_story_plan_objective(
     }
 
 
+def compute_autonomous_run_input_hash(
+    novel_id: str,
+    plan_id: str,
+    max_iterations: int,
+    max_retries_per_objective: int,
+) -> str:
+    payload = {
+        "novel_id": str(novel_id).strip(),
+        "plan_id": str(plan_id).strip(),
+        "max_iterations": int(max_iterations),
+        "max_retries_per_objective": int(max_retries_per_objective),
+    }
+    raw = json.dumps(payload, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
 @router.post("/autonomous/runs", status_code=201)
 def create_autonomous_run(
     payload: AutonomousRunCreateRequest,
@@ -323,6 +339,13 @@ def create_autonomous_run(
     brain = repository.get_story_brain(payload.novel_id)
     brain_version = int(brain.metadata.get("brain_version", "1"))
 
+    input_hash = compute_autonomous_run_input_hash(
+        payload.novel_id,
+        plan.plan_id,
+        payload.max_iterations,
+        payload.max_retries_per_objective,
+    )
+
     run_id = str(uuid.uuid4())
     run = AutonomousRun(
         run_id=run_id,
@@ -335,6 +358,7 @@ def create_autonomous_run(
         max_retries_per_objective=payload.max_retries_per_objective,
         last_brain_version=brain_version,
         idempotency_key=payload.idempotency_key,
+        input_hash=input_hash,
         created_by=author_id,
     )
     try:
@@ -343,6 +367,11 @@ def create_autonomous_run(
         raise HTTPException(
             status_code=409,
             detail={"code": "ACTIVE_RUN_CONFLICT", "message": str(exc)},
+        ) from exc
+    except IdempotencyConflictError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "IDEMPOTENCY_CONFLICT", "message": str(exc)},
         ) from exc
 
     return {

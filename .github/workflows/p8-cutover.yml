@@ -8,6 +8,7 @@ on:
       - astra/p8-03-legacy-json-readonly
       - astra/p8-04-rollback-cleanup-readiness
       - astra/p8-05-final-cleanup-gate
+      - astra/ai-pipe-03-autonomous-loop
   pull_request:
     paths:
       - "ai-service/**"
@@ -285,6 +286,17 @@ jobs:
         run: python scripts/verify_ai_pipe_02b_outline_planning_evidence.py
       - name: Run AI-PIPE-02B Story Plan Route Unit Suite
         run: docker compose exec -T -e APP_ENV=test ai-service pytest tests/test_story_plan_routes.py -q
+
+      - name: Run Gate AI-PIPE-03A Autonomous Controller Validation
+        env:
+          PLATFORM_SERVICE_TOKEN: test-token
+        run: python scripts/run_ai_pipe_03a_autonomous_controller.py
+      - name: Verify Gate AI-PIPE-03A Evidence Schema and Invariants
+        run: python scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py
+      - name: Run AI-PIPE-03A Autonomous Route Unit Suite
+        run: docker compose exec -T -e APP_ENV=test ai-service pytest tests/test_autonomous_routes.py -q
+      - name: Run Backend AI-PIPE-03A Autonomous Controller Suite
+        run: docker compose exec -T backend npx tsx --test src/modules/ai/autonomous-controller.test.ts
 
       - name: Show service status
         if: always()
