@@ -1,5 +1,229 @@
 # Active Project Handoff — CTX-RD-01
 
+## CHATGPT REMOTE REVIEW — AI-PIPE-03A REPAIR REQUIRED BEFORE PR (2026-10-11)
+
+Remote review inspected:
+
+```text
+implementation CODE_SHA:
+2e959580fa6c1cc1d4ca1ecc02a6d370b20bf99e
+
+evidence/report child:
+dc7e442dba8bd02d04aa79e4e367197e9ff7e33b
+```
+
+The current local 18/18 run and clean evidence lineage are useful preliminary evidence, but the branch is **NOT PR-ready**. The report currently overclaims several production guarantees that the implementation does not yet provide.
+
+Do not open a PR until all blockers below are repaired and the complete local gate is rerun on a new clean code SHA.
+
+### BLOCKER 1 — single-writer guarantee is not actually concurrency-safe
+
+The report claims a partial unique index:
+
+```text
+uq_autonomous_runs_active_novel
+```
+
+but `AutonomousRunRecord.__table_args__` currently contains only the normal index:
+
+```text
+ix_autonomous_runs_tenant_novel
+```
+
+`PostgresNarrativeRepository.create_autonomous_run()` currently does:
+
+```text
+SELECT active run
+ -> if none
+ -> INSERT new run
+```
+
+This is a classic check-then-insert race. Two concurrent transactions can both observe no active run and insert two active controllers for the same novel.
+
+Required repair:
+- enforce the invariant at the database level, preferably a PostgreSQL partial unique index on `(tenant_id, novel_id)` where status is active (`queued`/`running`);
+- catch the database uniqueness failure and map it to `ACTIVE_RUN_CONFLICT` rather than surfacing a generic 500;
+- keep repository pre-check only as an optimization/readable error, not as the guarantee;
+- add a PostgreSQL concurrency test that starts two create attempts concurrently and proves exactly one active run persists;
+- ensure downgrade/re-upgrade for migration `0009_autonomous_runs` remains valid.
+
+Acceptance language must be:
+
+```text
+AT MOST ONE ACTIVE AUTONOMOUS RUN PER TENANT+NOVEL
+```
+
+and this must be proven under concurrent creation, not just sequential requests.
+
+### BLOCKER 2 — crash/resume proof is not a real crash/recovery test
+
+The current report says the controller was reconstructed/reloaded, but the runner only performs a GET of the same run within the same backend process.
+
+That proves persistence/readback, not crash recovery.
+
+The more important failure window is after a durable side effect has already happened but before the autonomous run row records that fact. Examples:
+
+```text
+acceptDraft() committed revision
+ -> process dies before autonomous_runs.last_accepted_revision_id/current_iteration is updated
+
+objective marked completed
+ -> process dies before run iteration/status is updated
+```
+
+On resume, the current controller can attempt the same logical step again.
+
+Required repair:
+- define explicit recovery semantics for partially committed steps;
+- persist a durable step/phase marker or otherwise derive completion idempotently from existing production state;
+- at minimum support recovery from a crash after accepted revision persistence but before final run-state PATCH;
+- recovery must detect the already-accepted generation/revision and continue without duplicating revision, plan progress, or Story Brain advancement;
+- add an executable crash/resume probe that reconstructs the controller after an injected intermediate failure, not merely GETs the row;
+- prove resume does not call a second canonical accept for an already committed logical step.
+
+Prefer the smallest architecture-consistent mechanism. Do not build a second workflow engine if a durable step marker plus existing idempotent production APIs is sufficient.
+
+### BLOCKER 3 — deterministic quality gate currently fails open
+
+The implementation contains two fail-open conditions inconsistent with the handoff requirements.
+
+Current freshness logic:
+
+```text
+!genJob.brain_version_used || genJob.brain_version_used === run.last_brain_version
+```
+
+Therefore a generation missing `brain_version_used` is accepted as fresh.
+
+Current patch validation checks only structure. An empty replacement/no-op patch can still pass if field types are valid.
+
+Required repair:
+- `brain_version_used` must be present and exactly equal to the pinned/expected run brain version;
+- patch must produce a real non-empty content mutation;
+- reject empty replacement / empty draft / no-op content;
+- validate patch bounds against the exact base revision where practical;
+- add focused unit tests for missing brain_version, stale brain_version, empty replacement and no-op patched content;
+- all such failures must leave canon and plan progress unchanged and increment bounded retry state only.
+
+Primary acceptance must remain deterministic; do not substitute an LLM-as-judge.
+
+### BLOCKER 4 — autonomous review-queue acceptance is over-broad
+
+After `acceptDraft()` and outbox processing, the controller currently fetches the entire novel review queue and auto-accepts every pending dependency group.
+
+This can consume unrelated pending proposals that pre-date the current autonomous step or came from another workflow/revision.
+
+The narrative proposal model already carries evidence containing `revision_id`, so the controller has enough provenance to scope accepted proposals to the revision generated by the current step.
+
+Required repair:
+- only auto-accept incremental proposal groups proven to originate from the just-accepted revision/generation;
+- do not accept unrelated pending proposal groups;
+- if provenance is missing/ambiguous, fail closed or leave them pending rather than accepting them;
+- add a test fixture with an unrelated pending proposal already in the queue and prove it remains pending after an autonomous step;
+- record accepted proposal group IDs/revision provenance in P3 evidence.
+
+This is important because autonomous mode may auto-accept only the memory update caused by its own accepted content, not silently bypass unrelated author review.
+
+### BLOCKER 5 — Autonomous Run idempotency is incomplete
+
+`idempotency_key` is persisted, but create semantics currently return any existing run with the same key for the same novel without checking whether the request payload is identical.
+
+Thus:
+
+```text
+same key + different plan/max_iterations/retry policy
+ -> can silently return an incompatible old run
+```
+
+Required repair:
+- persist a canonical `input_hash` for Autonomous Run creation;
+- canonical hash should cover all request semantics affecting the run, at minimum novel, pinned/explicit plan identity, max_iterations and max_retries_per_objective;
+- same key + same hash => return existing run;
+- same key + different hash => `409 IDEMPOTENCY_CONFLICT`;
+- scope the idempotency identity by tenant + novel;
+- add tests for same/same, same/conflict and different-key cases.
+
+Reuse the P1/P2 idempotency pattern rather than inventing a new convention.
+
+### BLOCKER 6 — P3 has no GitHub system gate yet
+
+`.github/workflows/p8-cutover.yml` currently runs through AI-PIPE-02B only.
+
+Before handoff back to ChatGPT, wire AI-PIPE-03A into the same production-shaped Compose smoke:
+
+```text
+Run Gate AI-PIPE-03A Autonomous Controller Validation
+Verify Gate AI-PIPE-03A Evidence Schema and Invariants
+Run AI-PIPE-03A focused route/controller suites
+```
+
+Use the same Compose service-token alignment already required by AI-PIPE-02B if the runner calls AI Service directly.
+
+Do not claim `CI_PASS` locally; only make the remote gate executable. ChatGPT will own GitHub CI.
+
+### Existing architecture that should remain
+
+These parts are directionally correct and should not be redesigned:
+
+```text
+Story Plan -> current objective
+existing P1 WritingService
+existing acceptDraft()
+existing transactional outbox
+existing Story Brain
+explicit objective progress
+bounded retries / max iterations
+terminal completion state
+separate opt-in autonomous mode
+```
+
+Do not reopen P1 or P2 architecture.
+
+### Required evidence rerun
+
+The current `2e959580...` evidence becomes preliminary once production code changes.
+
+Required sequence:
+
+```text
+1. implement blockers 1-6
+2. add focused negative/concurrency/recovery tests
+3. commit production code + tests first -> NEW_CODE_SHA
+4. verify working tree clean
+5. rerun complete local Docker AI-PIPE-03A gate on NEW_CODE_SHA
+6. rerun evidence validator
+7. evidence.git_commit must equal NEW_CODE_SHA
+8. commit report/evidence/promt updates as a child of NEW_CODE_SHA
+9. push branch
+10. stop at LOCAL_PASS_CI_PENDING
+```
+
+Evidence/report must explicitly record:
+- database-level single-writer proof;
+- quality-gate negative cases;
+- unrelated proposal preservation proof;
+- autonomous-run idempotency conflict proof;
+- injected crash window and recovery result;
+- no duplicate canonical revision/objective transition after recovery;
+- exact accepted revision/proposal provenance.
+
+### Current status language
+
+Until the repair rerun completes, use:
+
+```text
+AI-PIPE-03A implementation              DONE (preliminary)
+preliminary local system gate           PASS 18/18
+remote architecture review              REPAIR_REQUIRED_BEFORE_PR
+final reproducible evidence             PENDING_REPAIR_RERUN
+PR                                      NOT_OPENED
+GitHub CI                               NOT_EXECUTED
+```
+
+Do not open AI-PIPE-03A PR and do not start any later autonomous gate until this section is cleared.
+
+---
+
 ## CURRENT CANONICAL STATUS — AI-PIPE-03A LOCAL PASS / CI PENDING (2026-10-11)
 
 AI-PIPE-03A local implementation and validation have passed completely (18/18 checkpoints + crash/resume probe).
