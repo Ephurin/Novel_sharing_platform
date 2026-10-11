@@ -5,7 +5,7 @@
 **Base Commit SHA (CODE_SHA):** `3aa8a0565df7f3837b69b45bef6185a76fa8d7f4`  
 **Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json` (records `git_commit = 3aa8a0565df7f3837b69b45bef6185a76fa8d7f4`)  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py` $\to$ **PASS (0 errors, 13/13 negative fail-closed mutants rejected)**  
-**Gate Verdict:** `LOCAL_PASS_CI_PENDING`
+**Gate Verdict:** `CI_PASS / MERGED` — PR #42 passed P7/P8/Evaluation/Defense Demo and merged
 
 ---
 
@@ -63,6 +63,31 @@ Run Backend AI-PIPE-03A Autonomous Controller Suite         PASS
 The earlier P8 run `38147151096` failed only in the SQLite migration regression and is superseded by this green branch-push run.
 
 This establishes the branch as **PR-ready**. It does not itself constitute final PR acceptance; ChatGPT still owns PR-level P7/P8/Evaluation verification and merge.
+
+---
+
+## Remote Acceptance Closure — PR #42
+
+- PR: `#42 — AI-PIPE-03A: bounded autonomous controller with durable recovery`
+- merged SHA: `a760600507ace97daeff2e951921235e8f74fa16`
+- accepted PR head: `3228d85559a72a9650e0954b33ff47916fd6ccf9`
+- P8 Cutover and Migration run `38150084372`: **PASS**
+- P7 Semantic Memory Foundation run `38150084376`: **PASS**
+- Evaluation Pilot Harness run `38150084364`: **PASS**
+- Defense Demo Contract run `38150084378`: **PASS**
+
+Within P8 `root-compose-cutover-smoke`, every AI-PIPE-03A remote gate passed on the accepted PR head:
+
+```text
+Run Gate AI-PIPE-03A Autonomous Controller Validation       PASS
+Verify Gate AI-PIPE-03A Evidence Schema and Invariants      PASS
+Run AI-PIPE-03A Autonomous Route Unit Suite                 PASS
+Run Backend AI-PIPE-03A Autonomous Controller Suite         PASS
+```
+
+The earlier migration regression run `38147151096` is historical and superseded. Migration repair `3aa8a0565df7f3837b69b45bef6185a76fa8d7f4` restored SQLite migration portability without weakening the PostgreSQL partial unique single-writer/idempotency constraints.
+
+This upgrades AI-PIPE-03A from `LOCAL_PASS_CI_PENDING` to `CI_PASS / MERGED`.
 
 ---
 
@@ -157,4 +182,4 @@ All 18 checkpoints and the crash/resume probe verified with status **PASS**:
 - Remote AI-PIPE-03A Compose/system gates: **PASS** on P8 run `38149684796`.
 - Full P8 workflow status on branch head `9b18988e1c9a90bd64f1a09cd4f2e7f0132883c2`: **PASS** (`final-cleanup-gate`, `unit`, `frontend-api-cutover`, `postgres-integration`, `root-compose-cutover-smoke`, and `rollback-rehearsal` all green).
 - Previous migration-regression run `38147151096` is historical and superseded by the green run above.
-- Gate Verdict: **`LOCAL_PASS_CI_PENDING`** — branch push CI is green; PR-level P7/P8/Evaluation acceptance remains owned by ChatGPT.
+- Gate Verdict: **`CI_PASS / MERGED`** via PR #42 on accepted head `3228d85559a72a9650e0954b33ff47916fd6ccf9`.
