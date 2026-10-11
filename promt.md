@@ -95,12 +95,12 @@ The P3 controller's previous remote system gate PASS should be preserved as hist
 Current status:
 
 ```text
-AI-PIPE-03A controller gate              PASS
-AI-PIPE-03A remote Compose gate          PASS
-full AI-service regression               FAIL
-migration 0009 SQLite portability        REPAIR_REQUIRED
-PR                                      NOT_OPENED
-final GitHub CI                          NOT_GREEN
+AI-PIPE-03A controller gate              PASS (18/18 checkpoints)
+AI-PIPE-03A remote Compose gate          PASS (Run 38147151096 historical)
+full AI-service regression               PASS (245 passed, 2 skipped, 42 deselected)
+migration 0009 SQLite portability        RESOLVED (PASS)
+PR                                      NOT_OPENED (Stopped at LOCAL_PASS_CI_PENDING)
+final GitHub CI                          CI_PENDING_ON_PUSH
 ```
 
 Do not open/merge a PR until this regression is repaired and the new branch head is green.
@@ -109,20 +109,21 @@ Do not open/merge a PR until this regression is repaired and the new branch head
 
 ## CURRENT STATUS — AI-PIPE-03A REPAIRED & LOCAL_PASS_CI_PENDING (2026-10-11)
 
-All 6 blockers from the ChatGPT remote review have been fully implemented, verified, and integrated:
+All 6 blockers from the ChatGPT remote review and the SQLite migration regression have been fully resolved and verified:
 - **Blocker 1 (Single-Writer Concurrency):** Enforced via PostgreSQL partial unique index `uq_autonomous_runs_active_novel` on `narrative.autonomous_runs (tenant_id, novel_id) WHERE status IN ('queued', 'running')`. Database uniqueness violations map directly to 409 `ACTIVE_RUN_CONFLICT`. Concurrent creation test verified with ThreadPoolExecutor (`[201, 409]`).
 - **Blocker 2 (Crash/Resume Recovery):** Implemented detection of already-accepted revision (`isAlreadyAccepted`). Reconstructing controller after simulated intermediate crash (after `acceptDraft()` before run-state PATCH) resumed cleanly with zero duplicate revisions and zero duplicate accepts.
 - **Blocker 3 (Deterministic Quality Gate):** Strict fail-closed checks enforce `brain_version_used === run.last_brain_version` (missing or stale fails closed); patch content, bounds, and draft must produce non-empty mutations. Unit tests pass.
 - **Blocker 4 (Scoped Proposals):** Auto-accepts incremental proposals scoped strictly to the just-accepted revision (`ev.revision_id === acceptedRevId`). Unrelated pending proposals in the queue remain untouched.
 - **Blocker 5 (Canonical input_hash Idempotency):** Persists SHA-256 `input_hash` over `(novel_id, plan_id, max_iterations, max_retries_per_objective)`. Same key + same hash returns existing run; same key + different hash returns 409 `IDEMPOTENCY_CONFLICT`.
 - **Blocker 6 (GitHub System Gate in CI):** Wired AI-PIPE-03A runner, validator, and test suites into `.github/workflows/p8-cutover.yml` under `root-compose-cutover-smoke`.
+- **Migration Portability Fix:** Dialect-aware schema handling in `0009_autonomous_runs.py` (`schema = "narrative" if dialect == "postgresql" else None`) restores 100% portability on SQLite while preserving PostgreSQL partial indexes and schemas. Isolated `DATABASE_URL` in `tests/test_migrations.py`. All 245 AI-service tests pass.
 
 ```text
 implementation CODE_SHA:
-3e052ab45cbb23f9f3044ed985e3265cdd0ec00d
+3aa8a0565df7f3837b69b45bef6185a76fa8d7f4
 
 Live evidence:
-docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json (git_commit: 3e052ab45cbb23f9f3044ed985e3265cdd0ec00d)
+docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json (git_commit: 3aa8a0565df7f3837b69b45bef6185a76fa8d7f4)
 
 Validation report:
 docs/development/AI-CORE-PIPELINE-VALIDATION-03-report.md

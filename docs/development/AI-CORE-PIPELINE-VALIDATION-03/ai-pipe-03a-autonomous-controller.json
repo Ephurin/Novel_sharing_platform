@@ -2,8 +2,8 @@
   "gate": "AI-PIPE-03A",
   "pipeline": "P3",
   "verdict": "P3_AUTONOMOUS_CONTROLLER_PASS",
-  "timestamp": "2026-10-11T14:24:03.662573+00:00",
-  "git_commit": "3e052ab45cbb23f9f3044ed985e3265cdd0ec00d",
+  "timestamp": "2026-10-11T15:02:03.165404+00:00",
+  "git_commit": "3aa8a0565df7f3837b69b45bef6185a76fa8d7f4",
   "git_branch": "astra/ai-pipe-03-autonomous-loop",
   "environment": {
     "backend_url": "http://localhost:4000/api/v1",
@@ -21,11 +21,11 @@
       "checkpoint": 1,
       "name": "Autonomous Run Creation via Node Boundary",
       "status": "PASS",
-      "summary": "Autonomous run cdf22694-4231-4659-99da-fd5b616b1ac9 created successfully via Node API boundary",
+      "summary": "Autonomous run b768c323-e341-4449-bdcb-996760a40d2c created successfully via Node API boundary",
       "details": {
-        "run_id": "cdf22694-4231-4659-99da-fd5b616b1ac9",
-        "novel_id": "89fd1cb4-8e18-4ede-a9e9-9ddca8a69f0b",
-        "plan_id": "a45ac331-0c2c-4850-8765-ffd1104ec807",
+        "run_id": "b768c323-e341-4449-bdcb-996760a40d2c",
+        "novel_id": "bffc444b-198d-4b2d-b330-1dfcb58f351c",
+        "plan_id": "11b048ff-ed1d-4022-b183-d0173a32807e",
         "plan_version": 1,
         "status": "running"
       }
@@ -44,9 +44,9 @@
       "checkpoint": 3,
       "name": "Durable PostgreSQL Persistence",
       "status": "PASS",
-      "summary": "Run cdf22694-4231-4659-99da-fd5b616b1ac9 durably persisted in narrative.autonomous_runs with schema and invariants intact",
+      "summary": "Run b768c323-e341-4449-bdcb-996760a40d2c durably persisted in narrative.autonomous_runs with schema and invariants intact",
       "details": {
-        "run_id": "cdf22694-4231-4659-99da-fd5b616b1ac9",
+        "run_id": "b768c323-e341-4449-bdcb-996760a40d2c",
         "table": "narrative.autonomous_runs",
         "persisted_status": "running",
         "persisted_plan_version": 1
@@ -69,9 +69,9 @@
       "checkpoint": 5,
       "name": "Active Story Plan & Version Pinned",
       "status": "PASS",
-      "summary": "Story Plan a45ac331-0c2c-4850-8765-ffd1104ec807 pinned at version 1",
+      "summary": "Story Plan 11b048ff-ed1d-4022-b183-d0173a32807e pinned at version 1",
       "details": {
-        "pinned_plan_id": "a45ac331-0c2c-4850-8765-ffd1104ec807",
+        "pinned_plan_id": "11b048ff-ed1d-4022-b183-d0173a32807e",
         "pinned_plan_version": 1
       }
     },
@@ -81,7 +81,7 @@
       "status": "PASS",
       "summary": "Step 1 selected Objective #1 ('Thức tỉnh tại Tháp Qua Nhĩ') deterministically",
       "details": {
-        "selected_objective_id": "e6932dc7-5b57-4465-80e4-b58c1e68d853",
+        "selected_objective_id": "316c2005-6521-47c5-81d9-dbc3915ff168",
         "title": "Thức tỉnh tại Tháp Qua Nhĩ",
         "order_index": 1
       }
@@ -90,9 +90,9 @@
       "checkpoint": 7,
       "name": "Standard P1 Generation Path Reused",
       "status": "PASS",
-      "summary": "P1 WritingService generation cb06ba67-bc6b-5f9f-8892-7ad5b5d9125f completed successfully",
+      "summary": "P1 WritingService generation e44560da-fe80-5b54-b5ef-60e8400c39c0 completed successfully",
       "details": {
-        "generation_id": "cb06ba67-bc6b-5f9f-8892-7ad5b5d9125f",
+        "generation_id": "e44560da-fe80-5b54-b5ef-60e8400c39c0",
         "status": "completed",
         "validation_status": "passed"
       }
@@ -104,7 +104,7 @@
       "summary": "Deterministic quality gate passed: generation status=completed, validation passed, brain fresh",
       "details": {
         "quality_gate_result": "PASS",
-        "accepted_revision_id": "ae98f784-d8ab-4bd5-9a27-1447249d1ba0"
+        "accepted_revision_id": "395a893a-5d73-4138-878f-b510d944af53"
       }
     },
     {
@@ -123,11 +123,11 @@
       "checkpoint": 10,
       "name": "Accepted Generation Persists via acceptDraft()",
       "status": "PASS",
-      "summary": "Revision ae98f784-d8ab-4bd5-9a27-1447249d1ba0 persisted with source_type='AI_DRAFT_ACCEPT' and source_generation_id=cb06ba67-bc6b-5f9f-8892-7ad5b5d9125f",
+      "summary": "Revision 395a893a-5d73-4138-878f-b510d944af53 persisted with source_type='AI_DRAFT_ACCEPT' and source_generation_id=e44560da-fe80-5b54-b5ef-60e8400c39c0",
       "details": {
-        "revision_id": "ae98f784-d8ab-4bd5-9a27-1447249d1ba0",
+        "revision_id": "395a893a-5d73-4138-878f-b510d944af53",
         "source_type": "AI_DRAFT_ACCEPT",
-        "source_generation_id": "cb06ba67-bc6b-5f9f-8892-7ad5b5d9125f"
+        "source_generation_id": "e44560da-fe80-5b54-b5ef-60e8400c39c0"
       }
     },
     {
@@ -137,7 +137,7 @@
       "summary": "Transactional outbox processed, Story Brain advanced to version 2, unrelated proposal preserved pending",
       "details": {
         "brain_version": 2,
-        "novel_id": "89fd1cb4-8e18-4ede-a9e9-9ddca8a69f0b",
+        "novel_id": "bffc444b-198d-4b2d-b330-1dfcb58f351c",
         "unrelated_proposal_isolated": true
       }
     },
@@ -147,7 +147,7 @@
       "status": "PASS",
       "summary": "Objective #1 status explicitly updated to 'completed' following accepted draft",
       "details": {
-        "objective_id": "e6932dc7-5b57-4465-80e4-b58c1e68d853",
+        "objective_id": "316c2005-6521-47c5-81d9-dbc3915ff168",
         "status": "completed"
       }
     },
@@ -157,7 +157,7 @@
       "status": "PASS",
       "summary": "Step 2 completed Objective #2 observing updated brain_version 3",
       "details": {
-        "objective_id": "a2149ccd-955a-47e7-b297-01143f930025",
+        "objective_id": "67783f82-f5a5-4f03-b556-4d49d3c2451f",
         "status": "completed",
         "iteration": 2,
         "observed_brain_version": 3
@@ -180,7 +180,7 @@
       "status": "PASS",
       "summary": "Max retries guard failed closed: run transitioned to 'failed' with stop_reason='max_retries_exceeded'",
       "details": {
-        "run_id": "123dd5fc-235f-4b20-88d4-b3d4c5459171",
+        "run_id": "40e0d7ca-af24-4ee2-adec-8f2abe712293",
         "status": "failed",
         "stop_reason": "max_retries_exceeded"
       }
@@ -191,7 +191,7 @@
       "status": "PASS",
       "summary": "Stop command transitioned run to 'stopped'; subsequent step was no-op preserving canon",
       "details": {
-        "run_id": "87549932-3c8d-4a63-95ea-0a8948675a7d",
+        "run_id": "c8c71a5b-606d-4f7a-a6b4-5963ec903457",
         "status": "stopped",
         "stop_reason": "author_manual_stop"
       }
@@ -202,10 +202,10 @@
       "status": "PASS",
       "summary": "Terminal objective completion intentionally transitioned run status to 'completed'",
       "details": {
-        "run_id": "cdf22694-4231-4659-99da-fd5b616b1ac9",
+        "run_id": "b768c323-e341-4449-bdcb-996760a40d2c",
         "status": "completed",
         "stop_reason": "terminal_objective_completed",
-        "terminal_objective_id": "d202d8b2-4739-4460-8df2-c2248c371082",
+        "terminal_objective_id": "7193b419-a41b-4ea9-ba9a-4fc1782f6489",
         "iteration": 3
       }
     },
@@ -215,7 +215,7 @@
       "status": "PASS",
       "summary": "Subsequent step calls on completed run perform zero extra generations (count unchanged)",
       "details": {
-        "run_id": "cdf22694-4231-4659-99da-fd5b616b1ac9",
+        "run_id": "b768c323-e341-4449-bdcb-996760a40d2c",
         "status": "completed",
         "generation_count_before": 4,
         "generation_count_after": 4,

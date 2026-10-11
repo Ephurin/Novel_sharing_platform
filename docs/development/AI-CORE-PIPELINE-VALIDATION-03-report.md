@@ -2,42 +2,25 @@
 
 **Execution Timestamp:** 2026-10-11T14:24:03Z  
 **Branch:** `astra/ai-pipe-03-autonomous-loop`  
-**Base Commit SHA (CODE_SHA):** `3e052ab45cbb23f9f3044ed985e3265cdd0ec00d`  
-**Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json` (records `git_commit = 3e052ab45cbb23f9f3044ed985e3265cdd0ec00d`)  
+**Base Commit SHA (CODE_SHA):** `3aa8a0565df7f3837b69b45bef6185a76fa8d7f4`  
+**Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json` (records `git_commit = 3aa8a0565df7f3837b69b45bef6185a76fa8d7f4`)  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py` $\to$ **PASS (0 errors, 13/13 negative fail-closed mutants rejected)**  
-**Gate Verdict:** `REMOTE_CI_BLOCKED_BY_MIGRATION_REGRESSION`
+**Gate Verdict:** `LOCAL_PASS_CI_PENDING`
 
 ---
 
-## Remote CI Qualification — Run 38147151096
+## Migration Portability Regression Resolution (SQLite & PostgreSQL)
 
-The repaired autonomous controller passed all AI-PIPE-03A production-shaped remote gates on GitHub Actions, but the overall P8 workflow is not green because migration `0009_autonomous_runs` broke the repository's SQLite migration regression test.
-
-Accepted evidence from the failed workflow:
-
-```text
-root-compose-cutover-smoke                                  PASS
-Run Gate AI-PIPE-03A Autonomous Controller Validation       PASS
-Verify Gate AI-PIPE-03A Evidence Schema and Invariants      PASS
-Run AI-PIPE-03A Autonomous Route Unit Suite                 PASS
-Run Backend AI-PIPE-03A Autonomous Controller Suite         PASS
-```
-
-The only failing job was the full AI-service non-PostgreSQL regression:
-
-```text
-244 passed, 1 failed, 2 skipped
-FAILED tests/test_migrations.py::MigrationTests::test_upgrade_and_downgrade_clean_database
-
-sqlite3.OperationalError: unknown database "narrative"
-SQL: PRAGMA "narrative".table_xinfo("autonomous_runs")
-```
-
-Cause: `0009_autonomous_runs.py` uses schema-qualified SQLAlchemy inspection with `schema="narrative"` unconditionally. The full migration chain is intentionally exercised on SQLite, where that schema qualifier is invalid.
-
-This is classified as a **migration portability regression**, not an AI-PIPE-03A controller-system failure. Nevertheless, the branch is not PR/merge ready until the migration regression is repaired and the complete workflow is green on a new head.
-
-Authoritative repair instructions are at the top of branch `promt.md`.
+The migration portability regression identified during remote CI run 38147151096 on SQLite has been resolved:
+- **Root Cause:** Migration `0009_autonomous_runs.py` used `schema="narrative"` unconditionally for SQLAlchemy table inspection and index creation. On SQLite, `schema="narrative"` is interpreted as an attached database, raising `sqlite3.OperationalError: unknown database "narrative"`.
+- **Dialect-Aware Fix:** `0009_autonomous_runs.py` dynamically inspects the database dialect: `schema = "narrative" if dialect == "postgresql" else None`. When on SQLite, `schema=None` and `postgresql_where=None` are used, preserving SQLite schema portability while keeping PostgreSQL partial unique indexes (`uq_autonomous_runs_active_novel` and `uq_autonomous_runs_idempotency`) and schema partitioning completely intact.
+- **Environment Isolation:** `tests/test_migrations.py` isolates `os.environ["DATABASE_URL"]` so ambient PostgreSQL variables do not pollute isolated SQLite migration lifecycle tests.
+- **Validation:**
+  - `tests/test_migrations.py` upgrade to head, downgrade to 0001, re-upgrade to head, and downgrade to base: **PASS (100%)**
+  - Full AI-Service unit regression suite (`pytest -q`): **245 passed, 2 skipped, 42 deselected**
+  - Live PostgreSQL container migration downgrade (`alembic downgrade -1`) and upgrade (`alembic upgrade head`): **PASS**
+  - Live Compose Gate AI-PIPE-03A Autonomous Controller (`run_ai_pipe_03a_autonomous_controller.py`): **18/18 PASS**
+  - Gate AI-PIPE-03A Evidence Validator (`verify_ai_pipe_03a_autonomous_controller_evidence.py`): **PASS (13/13 negative mutants rejected)**
 
 ---
 
