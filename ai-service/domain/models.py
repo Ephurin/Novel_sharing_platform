@@ -172,6 +172,32 @@ class StoryPlan:
 
 
 @dataclass(frozen=True, slots=True)
+class AutonomousRun:
+    run_id: str
+    novel_id: str
+    tenant_id: str
+    plan_id: str
+    plan_version: int
+    status: str = "queued"  # queued, running, completed, stopped, failed
+    current_objective_id: str | None = None
+    current_chapter_id: str | None = None
+    current_iteration: int = 0
+    max_iterations: int = 10
+    current_retries: int = 0
+    max_retries_per_objective: int = 3
+    last_generation_id: str | None = None
+    last_accepted_revision_id: str | None = None
+    last_brain_version: int = 1
+    stop_reason: str | None = None
+    idempotency_key: str | None = None
+    input_hash: str | None = None
+    created_by: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
+
+
+
+@dataclass(frozen=True, slots=True)
 class WritingContextPackage:
     brain_version: int
     entities: tuple[dict[str, Any], ...] = ()

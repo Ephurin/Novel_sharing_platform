@@ -131,6 +131,30 @@ class StoryPlanObjectiveUpdateRequest(BaseModel):
     status: str = Field(pattern="^(pending|in_progress|completed|skipped)$")
 
 
+class AutonomousRunCreateRequest(BaseModel):
+    novel_id: str = Field(min_length=1)
+    plan_id: str | None = None
+    max_iterations: int = Field(default=10, ge=1, le=100)
+    max_retries_per_objective: int = Field(default=3, ge=0, le=10)
+    idempotency_key: str | None = None
+
+
+class AutonomousRunUpdateRequest(BaseModel):
+    status: str | None = Field(default=None, pattern="^(queued|running|completed|stopped|failed)$")
+    current_objective_id: str | None = None
+    current_chapter_id: str | None = None
+    current_iteration: int | None = None
+    current_retries: int | None = None
+    last_generation_id: str | None = None
+    last_accepted_revision_id: str | None = None
+    last_brain_version: int | None = None
+    stop_reason: str | None = None
+
+
+class AutonomousRunStopRequest(BaseModel):
+    reason: str | None = "cancelled_by_user"
+
+
 class BaselineActivationRequest(BaseModel):
     job_id: str = Field(min_length=1)
 

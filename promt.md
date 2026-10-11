@@ -1,23 +1,440 @@
 # Active Project Handoff — CTX-RD-01
 
-## CURRENT CANONICAL STATUS — AI-PIPE-02B CI PASS / PR #41 MERGED (2026-10-10)
+## CURRENT REMOTE STATUS — AI-PIPE-03A PR-READY AFTER GREEN BRANCH CI (2026-10-11)
 
-AI-PIPE-02B is now closed remotely.
+Latest accepted local/evidence lineage:
 
 ```text
-PR #41 merged SHA: 9977800dedad8beee01882a0d487202ec77680f7
-accepted PR head:   2886894b4d66ce7fc050442402bc80242cb30327
-P8 run:             38070054757  PASS
-P7 run:             38070054742  PASS
-Evaluation Pilot:   38070054767  PASS
+CODE_SHA:      3aa8a0565df7f3837b69b45bef6185a76fa8d7f4
+evidence child:9b18988e1c9a90bd64f1a09cd4f2e7f0132883c2
 ```
 
-Within P8 `root-compose-cutover-smoke`, all AI-PIPE-02B remote gates passed:
+ChatGPT then synchronized the report with remote branch-push CI at:
 
 ```text
-Run Gate AI-PIPE-02B Outline Planning Validation              PASS
-Verify Gate AI-PIPE-02B Evidence Schema and Invariants        PASS
-Run AI-PIPE-02B Story Plan Route Unit Suite                   PASS
+report sync commit:
+47a595f8ca6468f82710bee9b479e1cdcd00ab89
+```
+
+Authoritative GitHub branch-push P8 run:
+
+```text
+38149684796  PASS
+```
+
+All jobs green:
+
+```text
+final-cleanup-gate           PASS
+unit                         PASS
+frontend-api-cutover         PASS
+postgres-integration         PASS
+root-compose-cutover-smoke   PASS
+rollback-rehearsal           PASS
+```
+
+AI-PIPE-03A remote Compose sub-gates all PASS:
+
+```text
+Autonomous Controller Validation       PASS
+Evidence Schema / Invariants           PASS
+AI-service Autonomous Route Suite      PASS
+Backend Autonomous Controller Suite    PASS
+```
+
+The previous migration failure run `38147151096` is historical and superseded. Migration `0009_autonomous_runs` SQLite portability is resolved while PostgreSQL partial unique constraints remain intact.
+
+Current authoritative state:
+
+```text
+AI-PIPE-03A implementation       PASS
+review blockers 1-6             RESOLVED
+migration portability           RESOLVED
+local 18/18                     PASS
+branch-push P8 CI               PASS
+PR                              NEXT CHATGPT ACTION
+final PR P7/P8/Evaluation       PENDING
+```
+
+Gemini local ownership is complete for this gate. Do not add new product changes to this branch unless ChatGPT returns a concrete PR-CI production defect.
+
+ChatGPT owns:
+
+```text
+open PR
+ -> run/inspect PR P7 + P8 + Evaluation
+ -> repair GitHub-only CI wiring if needed
+ -> merge only on green required checks
+ -> close report/promt on main
+```
+
+---
+
+## CHATGPT REMOTE CI REVIEW — AI-PIPE-03A MIGRATION REPAIR REQUIRED (2026-10-11)
+
+The P3 repair itself passed its production-shaped Compose gate, but branch CI is **not green**.
+
+Authoritative GitHub Actions evidence:
+
+```text
+P8 run: 38147151096
+head:   26471ffb25ed830b48dcd59da4ffbcaa55d79d7a
+overall: FAILURE
+
+root-compose-cutover-smoke: PASS
+  AI-PIPE-03A full system runner: PASS
+  AI-PIPE-03A evidence validator: PASS
+  AI-PIPE-03A AI-service route suite: PASS
+  AI-PIPE-03A backend controller suite: PASS
+
+unit job: FAILURE
+  Full AI-service non-PostgreSQL regression
+  244 passed / 1 failed / 2 skipped
+```
+
+Exact failing test:
+
+```text
+tests/test_migrations.py::MigrationTests::test_upgrade_and_downgrade_clean_database
+
+sqlite3.OperationalError: unknown database "narrative"
+SQL: PRAGMA "narrative".table_xinfo("autonomous_runs")
+```
+
+Failure originates from `migrations/versions/0009_autonomous_runs.py`, which performs schema-qualified SQLAlchemy inspection unconditionally:
+
+```python
+insp.get_columns("autonomous_runs", schema="narrative")
+insp.get_indexes("autonomous_runs", schema="narrative")
+```
+
+The repository's migration regression suite intentionally runs the full Alembic chain on SQLite, where the `narrative` schema name is not valid.
+
+### Required repair
+
+This is a **migration portability regression**, not an autonomous-controller architecture failure.
+
+Implement the smallest dialect-aware repair:
+
+```text
+PostgreSQL:
+  keep production narrative schema
+  keep partial unique active-run/idempotency indexes
+
+SQLite migration regression:
+  never inspect PRAGMA using schema="narrative"
+  use schema=None / SQLite-compatible inspection
+```
+
+`AutonomousRunRecord` already declares `input_hash` and the indexes. Avoid duplicating index creation merely to satisfy SQLite.
+
+Recommended shape:
+
+```python
+dialect = bind.dialect.name
+schema = "narrative" if dialect == "postgresql" else None
+
+cols = insp.get_columns("autonomous_runs", schema=schema)
+indexes = insp.get_indexes("autonomous_runs", schema=schema)
+```
+
+Any explicit `op.add_column` / `op.create_index` calls must use the same dialect-aware schema handling.
+
+Because PostgreSQL partial indexes encode the actual production single-writer contract, do **not** weaken or remove those constraints just to make SQLite pass.
+
+If SQLAlchemy's model-level `postgresql_where` results in different SQLite uniqueness semantics, add the smallest dialect-specific handling needed so SQLite migration tests remain portable without changing the PostgreSQL guarantee.
+
+### Required verification
+
+After the patch:
+
+```text
+1. commit migration fix -> NEW_CODE_SHA
+2. run tests/test_migrations.py locally
+3. run full AI-service non-PostgreSQL regression
+4. run PostgreSQL migration downgrade/re-upgrade
+5. rerun AI-PIPE-03A local gate if the migration code participates in the validated CODE_SHA
+6. regenerate evidence with evidence.git_commit = NEW_CODE_SHA if CODE_SHA changed
+7. rerun evidence validator
+8. push branch
+9. stop at LOCAL_PASS_CI_PENDING
+```
+
+The P3 controller's previous remote system gate PASS should be preserved as historical evidence, but final acceptance requires a green full workflow on the new head.
+
+Current status:
+
+```text
+AI-PIPE-03A controller gate              PASS (18/18 checkpoints)
+AI-PIPE-03A remote Compose gate          PASS (Run 38147151096 historical)
+full AI-service regression               PASS (245 passed, 2 skipped, 42 deselected)
+migration 0009 SQLite portability        RESOLVED (PASS)
+PR                                      NOT_OPENED (Stopped at LOCAL_PASS_CI_PENDING)
+final GitHub CI                          CI_PENDING_ON_PUSH
+```
+
+Do not open/merge a PR until this regression is repaired and the new branch head is green.
+
+---
+
+## CURRENT STATUS — AI-PIPE-03A REPAIRED & LOCAL_PASS_CI_PENDING (2026-10-11)
+
+All 6 blockers from the ChatGPT remote review and the SQLite migration regression have been fully resolved and verified:
+- **Blocker 1 (Single-Writer Concurrency):** Enforced via PostgreSQL partial unique index `uq_autonomous_runs_active_novel` on `narrative.autonomous_runs (tenant_id, novel_id) WHERE status IN ('queued', 'running')`. Database uniqueness violations map directly to 409 `ACTIVE_RUN_CONFLICT`. Concurrent creation test verified with ThreadPoolExecutor (`[201, 409]`).
+- **Blocker 2 (Crash/Resume Recovery):** Implemented detection of already-accepted revision (`isAlreadyAccepted`). Reconstructing controller after simulated intermediate crash (after `acceptDraft()` before run-state PATCH) resumed cleanly with zero duplicate revisions and zero duplicate accepts.
+- **Blocker 3 (Deterministic Quality Gate):** Strict fail-closed checks enforce `brain_version_used === run.last_brain_version` (missing or stale fails closed); patch content, bounds, and draft must produce non-empty mutations. Unit tests pass.
+- **Blocker 4 (Scoped Proposals):** Auto-accepts incremental proposals scoped strictly to the just-accepted revision (`ev.revision_id === acceptedRevId`). Unrelated pending proposals in the queue remain untouched.
+- **Blocker 5 (Canonical input_hash Idempotency):** Persists SHA-256 `input_hash` over `(novel_id, plan_id, max_iterations, max_retries_per_objective)`. Same key + same hash returns existing run; same key + different hash returns 409 `IDEMPOTENCY_CONFLICT`.
+- **Blocker 6 (GitHub System Gate in CI):** Wired AI-PIPE-03A runner, validator, and test suites into `.github/workflows/p8-cutover.yml` under `root-compose-cutover-smoke`.
+- **Migration Portability Fix:** Dialect-aware schema handling in `0009_autonomous_runs.py` (`schema = "narrative" if dialect == "postgresql" else None`) restores 100% portability on SQLite while preserving PostgreSQL partial indexes and schemas. Isolated `DATABASE_URL` in `tests/test_migrations.py`. All 245 AI-service tests pass.
+
+```text
+implementation CODE_SHA:
+3aa8a0565df7f3837b69b45bef6185a76fa8d7f4
+
+Live evidence:
+docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json (git_commit: 3aa8a0565df7f3837b69b45bef6185a76fa8d7f4)
+
+Validation report:
+docs/development/AI-CORE-PIPELINE-VALIDATION-03-report.md
+
+Offline evidence validator:
+18/18 checkpoints PASSED, 13/13 negative fail-closed mutants rejected cleanly.
+
+State: LOCAL_PASS_CI_PENDING
+Branch: astra/ai-pipe-03-autonomous-loop
+```
+
+## HISTORICAL REVIEW REFERENCE — CHATGPT REMOTE REVIEW (2026-10-11)
+
+Remote review inspected:
+
+```text
+previous preliminary CODE_SHA:
+2e959580fa6c1cc1d4ca1ecc02a6d370b20bf99e
+
+previous evidence child:
+dc7e442dba8bd02d04aa79e4e367197e9ff7e33b
+```
+
+### BLOCKER 1 — single-writer guarantee is not actually concurrency-safe
+
+The report claims a partial unique index:
+
+```text
+uq_autonomous_runs_active_novel
+```
+
+but `AutonomousRunRecord.__table_args__` currently contains only the normal index:
+
+```text
+ix_autonomous_runs_tenant_novel
+```
+
+`PostgresNarrativeRepository.create_autonomous_run()` currently does:
+
+```text
+SELECT active run
+ -> if none
+ -> INSERT new run
+```
+
+This is a classic check-then-insert race. Two concurrent transactions can both observe no active run and insert two active controllers for the same novel.
+
+Required repair:
+- enforce the invariant at the database level, preferably a PostgreSQL partial unique index on `(tenant_id, novel_id)` where status is active (`queued`/`running`);
+- catch the database uniqueness failure and map it to `ACTIVE_RUN_CONFLICT` rather than surfacing a generic 500;
+- keep repository pre-check only as an optimization/readable error, not as the guarantee;
+- add a PostgreSQL concurrency test that starts two create attempts concurrently and proves exactly one active run persists;
+- ensure downgrade/re-upgrade for migration `0009_autonomous_runs` remains valid.
+
+Acceptance language must be:
+
+```text
+AT MOST ONE ACTIVE AUTONOMOUS RUN PER TENANT+NOVEL
+```
+
+and this must be proven under concurrent creation, not just sequential requests.
+
+### BLOCKER 2 — crash/resume proof is not a real crash/recovery test
+
+The current report says the controller was reconstructed/reloaded, but the runner only performs a GET of the same run within the same backend process.
+
+That proves persistence/readback, not crash recovery.
+
+The more important failure window is after a durable side effect has already happened but before the autonomous run row records that fact. Examples:
+
+```text
+acceptDraft() committed revision
+ -> process dies before autonomous_runs.last_accepted_revision_id/current_iteration is updated
+
+objective marked completed
+ -> process dies before run iteration/status is updated
+```
+
+On resume, the current controller can attempt the same logical step again.
+
+Required repair:
+- define explicit recovery semantics for partially committed steps;
+- persist a durable step/phase marker or otherwise derive completion idempotently from existing production state;
+- at minimum support recovery from a crash after accepted revision persistence but before final run-state PATCH;
+- recovery must detect the already-accepted generation/revision and continue without duplicating revision, plan progress, or Story Brain advancement;
+- add an executable crash/resume probe that reconstructs the controller after an injected intermediate failure, not merely GETs the row;
+- prove resume does not call a second canonical accept for an already committed logical step.
+
+Prefer the smallest architecture-consistent mechanism. Do not build a second workflow engine if a durable step marker plus existing idempotent production APIs is sufficient.
+
+### BLOCKER 3 — deterministic quality gate currently fails open
+
+The implementation contains two fail-open conditions inconsistent with the handoff requirements.
+
+Current freshness logic:
+
+```text
+!genJob.brain_version_used || genJob.brain_version_used === run.last_brain_version
+```
+
+Therefore a generation missing `brain_version_used` is accepted as fresh.
+
+Current patch validation checks only structure. An empty replacement/no-op patch can still pass if field types are valid.
+
+Required repair:
+- `brain_version_used` must be present and exactly equal to the pinned/expected run brain version;
+- patch must produce a real non-empty content mutation;
+- reject empty replacement / empty draft / no-op content;
+- validate patch bounds against the exact base revision where practical;
+- add focused unit tests for missing brain_version, stale brain_version, empty replacement and no-op patched content;
+- all such failures must leave canon and plan progress unchanged and increment bounded retry state only.
+
+Primary acceptance must remain deterministic; do not substitute an LLM-as-judge.
+
+### BLOCKER 4 — autonomous review-queue acceptance is over-broad
+
+After `acceptDraft()` and outbox processing, the controller currently fetches the entire novel review queue and auto-accepts every pending dependency group.
+
+This can consume unrelated pending proposals that pre-date the current autonomous step or came from another workflow/revision.
+
+The narrative proposal model already carries evidence containing `revision_id`, so the controller has enough provenance to scope accepted proposals to the revision generated by the current step.
+
+Required repair:
+- only auto-accept incremental proposal groups proven to originate from the just-accepted revision/generation;
+- do not accept unrelated pending proposal groups;
+- if provenance is missing/ambiguous, fail closed or leave them pending rather than accepting them;
+- add a test fixture with an unrelated pending proposal already in the queue and prove it remains pending after an autonomous step;
+- record accepted proposal group IDs/revision provenance in P3 evidence.
+
+This is important because autonomous mode may auto-accept only the memory update caused by its own accepted content, not silently bypass unrelated author review.
+
+### BLOCKER 5 — Autonomous Run idempotency is incomplete
+
+`idempotency_key` is persisted, but create semantics currently return any existing run with the same key for the same novel without checking whether the request payload is identical.
+
+Thus:
+
+```text
+same key + different plan/max_iterations/retry policy
+ -> can silently return an incompatible old run
+```
+
+Required repair:
+- persist a canonical `input_hash` for Autonomous Run creation;
+- canonical hash should cover all request semantics affecting the run, at minimum novel, pinned/explicit plan identity, max_iterations and max_retries_per_objective;
+- same key + same hash => return existing run;
+- same key + different hash => `409 IDEMPOTENCY_CONFLICT`;
+- scope the idempotency identity by tenant + novel;
+- add tests for same/same, same/conflict and different-key cases.
+
+Reuse the P1/P2 idempotency pattern rather than inventing a new convention.
+
+### BLOCKER 6 — P3 has no GitHub system gate yet
+
+`.github/workflows/p8-cutover.yml` currently runs through AI-PIPE-02B only.
+
+Before handoff back to ChatGPT, wire AI-PIPE-03A into the same production-shaped Compose smoke:
+
+```text
+Run Gate AI-PIPE-03A Autonomous Controller Validation
+Verify Gate AI-PIPE-03A Evidence Schema and Invariants
+Run AI-PIPE-03A focused route/controller suites
+```
+
+Use the same Compose service-token alignment already required by AI-PIPE-02B if the runner calls AI Service directly.
+
+Do not claim `CI_PASS` locally; only make the remote gate executable. ChatGPT will own GitHub CI.
+
+### Existing architecture that should remain
+
+These parts are directionally correct and should not be redesigned:
+
+```text
+Story Plan -> current objective
+existing P1 WritingService
+existing acceptDraft()
+existing transactional outbox
+existing Story Brain
+explicit objective progress
+bounded retries / max iterations
+terminal completion state
+separate opt-in autonomous mode
+```
+
+Do not reopen P1 or P2 architecture.
+
+### Required evidence rerun
+
+The current `2e959580...` evidence becomes preliminary once production code changes.
+
+Required sequence:
+
+```text
+1. implement blockers 1-6
+2. add focused negative/concurrency/recovery tests
+3. commit production code + tests first -> NEW_CODE_SHA
+4. verify working tree clean
+5. rerun complete local Docker AI-PIPE-03A gate on NEW_CODE_SHA
+6. rerun evidence validator
+7. evidence.git_commit must equal NEW_CODE_SHA
+8. commit report/evidence/promt updates as a child of NEW_CODE_SHA
+9. push branch
+10. stop at LOCAL_PASS_CI_PENDING
+```
+
+Evidence/report must explicitly record:
+- database-level single-writer proof;
+- quality-gate negative cases;
+- unrelated proposal preservation proof;
+- autonomous-run idempotency conflict proof;
+- injected crash window and recovery result;
+- no duplicate canonical revision/objective transition after recovery;
+- exact accepted revision/proposal provenance.
+
+### Current status language
+
+Until the repair rerun completes, use:
+
+```text
+AI-PIPE-03A implementation              DONE (preliminary)
+preliminary local system gate           PASS 18/18
+remote architecture review              REPAIR_REQUIRED_BEFORE_PR
+final reproducible evidence             PENDING_REPAIR_RERUN
+PR                                      NOT_OPENED
+GitHub CI                               NOT_EXECUTED
+```
+
+Do not open AI-PIPE-03A PR and do not start any later autonomous gate until this section is cleared.
+
+---
+
+## CURRENT CANONICAL STATUS — AI-PIPE-03A LOCAL PASS / CI PENDING (2026-10-11)
+
+AI-PIPE-03A local implementation and validation have passed completely (18/18 checkpoints + crash/resume probe).
+
+```text
+base commit (CODE_SHA): 2e959580fa6c1cc1d4ca1ecc02a6d370b20bf99e
+evidence file:          docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json
+evidence validator:     scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py (18/18 PASS, 10/10 mutants rejected)
+validation report:      docs/development/AI-CORE-PIPELINE-VALIDATION-03-report.md
+status:                 LOCAL_PASS_CI_PENDING (ChatGPT opens PR and monitors CI)
 ```
 
 Canonical acceptance state:
@@ -27,7 +444,7 @@ AI-PIPE-01A P1 backend closed loop        CI_PASS / MERGED
 AI-PIPE-01B P1 browser/UI                 PENDING_UI_REFACTOR
 AI-PIPE-02A Idea/World-Bible bootstrap    CI_PASS / MERGED
 AI-PIPE-02B Durable outline planning      CI_PASS / MERGED
-AI-PIPE-03A Autonomous bounded loop       NEXT LOCAL TASK
+AI-PIPE-03A Autonomous bounded loop       LOCAL_PASS_CI_PENDING
 ```
 
 AI-PIPE-02B proves:

@@ -579,3 +579,53 @@ class StoryPlanObjectiveRecord(Base):
     )
 
 
+class AutonomousRunRecord(Base):
+    __tablename__ = "autonomous_runs"
+    __table_args__ = (
+        Index("ix_autonomous_runs_tenant_novel", "tenant_id", "novel_id"),
+        Index(
+            "uq_autonomous_runs_active_novel",
+            "tenant_id",
+            "novel_id",
+            unique=True,
+            postgresql_where=text("status IN ('queued', 'running')"),
+        ),
+        Index(
+            "uq_autonomous_runs_idempotency",
+            "tenant_id",
+            "novel_id",
+            "idempotency_key",
+            unique=True,
+            postgresql_where=text("idempotency_key IS NOT NULL"),
+        ),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False, index=True)
+    plan_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey(f"{SCHEMA}.story_plans.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    plan_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="queued")
+    current_objective_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    current_chapter_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    current_iteration: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    max_iterations: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
+    current_retries: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    max_retries_per_objective: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
+    last_generation_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    last_accepted_revision_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    last_brain_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    stop_reason: Mapped[str | None] = mapped_column(String(100))
+    idempotency_key: Mapped[str | None] = mapped_column(String(128), index=True)
+    input_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_by: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+
