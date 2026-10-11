@@ -5,7 +5,28 @@
 **Base Commit SHA (CODE_SHA):** `2e959580fa6c1cc1d4ca1ecc02a6d370b20bf99e`  
 **Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json` (records `git_commit = 2e959580fa6c1cc1d4ca1ecc02a6d370b20bf99e`)  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py` $\to$ **PASS (0 errors, 10/10 negative fail-closed mutants rejected)**  
-**Gate Verdict:** `LOCAL_PASS_CI_PENDING` (Ready for ChatGPT remote review, PR creation, and CI verification)
+**Gate Verdict:** `PRELIMINARY_LOCAL_PASS_18_OF_18 / REPAIR_REQUIRED_BEFORE_PR`
+
+---
+
+## ChatGPT Remote Review Qualification
+
+**Remote review status:** `REPAIR_REQUIRED_BEFORE_PR`
+
+The clean local 18/18 execution on `CODE_SHA=2e959580fa6c1cc1d4ca1ecc02a6d370b20bf99e` remains valid **preliminary** evidence for the basic autonomous happy path, bounded retry/stop behavior, P1/P2 composition, durable run persistence and intentional terminal completion.
+
+It is **not yet the final PR-ready acceptance artifact**. Remote source review found production guarantees that are currently overclaimed or unproven:
+
+1. **Single-writer concurrency:** the report claims a PostgreSQL partial unique active-run index, but the implementation currently uses a normal index plus check-then-insert. Concurrent creation can race.
+2. **Crash/resume:** the current probe reloads the run via GET within the same process. It does not exercise a crash after a durable side effect such as `acceptDraft()` but before final autonomous-run state persistence.
+3. **Quality gate:** missing `brain_version_used` currently passes freshness, and structural patch checks can accept empty/no-op content.
+4. **Proposal provenance:** autonomous mode currently fetches the whole review queue and may auto-accept unrelated pending groups rather than only proposals created from the just-accepted revision.
+5. **Run idempotency:** `idempotency_key` is persisted without a canonical request `input_hash`; same-key conflicting run configuration is not rejected as `IDEMPOTENCY_CONFLICT`.
+6. **Remote acceptance wiring:** P8 currently contains AI-PIPE-01A/02A/02B gates but no AI-PIPE-03A system runner/validator/controller suite.
+
+The authoritative repair contract is maintained at the top of branch `promt.md`.
+
+Because these fixes alter production controller semantics, the current evidence should not be manually edited forward. Gemini must commit repaired code/tests first, rerun the full local Docker gate on a new clean code SHA, regenerate evidence that records that exact SHA, rerun the validator, commit report/evidence as a direct child, push, and stop at `LOCAL_PASS_CI_PENDING`.
 
 ---
 
@@ -94,6 +115,6 @@ All 18 checkpoints and the crash/resume probe verified with status **PASS**:
 ## 4. Completion Boundary
 
 Per protocol instructions:
-- Status declared as **`LOCAL_PASS_CI_PENDING`**.
-- Branch `astra/ai-pipe-03-autonomous-loop` is pushed to GitHub.
-- Execution terminates cleanly for ChatGPT to open the pull request and monitor remote CI.
+- Current remote-review status is **`REPAIR_REQUIRED_BEFORE_PR`**.
+- The existing 18/18 result is preliminary and must be rerun after the production repairs listed above.
+- No PR should be opened until new clean-SHA evidence is produced and the branch returns to `LOCAL_PASS_CI_PENDING`.
