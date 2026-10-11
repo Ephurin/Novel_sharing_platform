@@ -37,5 +37,6 @@ def _tables():
         "memory_embeddings",
         "story_plans",
         "story_plan_objectives",
+        "autonomous_runs",
     }
     return [t for t in Base.metadata.sorted_tables if t.name not in excluded]

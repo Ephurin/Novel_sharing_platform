@@ -1,0 +1,155 @@
+from __future__ import annotations
+
+import os
+import unittest
+import uuid
+
+os.environ["LLM_ENABLED"] = "false"
+os.environ["LLM_PROVIDER"] = "none"
+os.environ["NARRATIVE_REPOSITORY"] = "json"
+
+from fastapi.testclient import TestClient
+
+from api.deps import get_narrative_repository, get_writing_service, require_service_token
+from application.writing_service import WritingService
+from domain.models import StoryPlan, StoryPlanObjective
+from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
+from main import app
+
+
+class AutonomousRouteTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tenant_id = "00000000-0000-0000-0000-000000000033"
+        self.novel_id = "10000000-0000-0000-0000-000000000033"
+        self.repository = InMemoryNarrativeRepository()
+        self.writing_service = WritingService(self.repository, llm_service=None)
+
+        app.dependency_overrides[get_narrative_repository] = lambda: self.repository
+        app.dependency_overrides[get_writing_service] = lambda: self.writing_service
+        app.dependency_overrides[require_service_token] = lambda: None
+
+        self.client = TestClient(app)
+        self.headers = {
+            "X-Tenant-Id": self.tenant_id,
+            "X-Request-Id": "autonomous-request-001",
+            "X-Author-Id": "author-user-001",
+        }
+
+        # Setup an active story plan
+        self.plan = self.repository.create_story_plan(
+            StoryPlan(
+                plan_id=str(uuid.uuid4()),
+                novel_id=self.novel_id,
+                tenant_id=self.tenant_id,
+                plan_version=1,
+                status="active",
+                objectives=(
+                    StoryPlanObjective(
+                        objective_id=str(uuid.uuid4()),
+                        order_index=1,
+                        title="Mục tiêu 1",
+                        description="Khám phá di tích cổ",
+                        target_chapter=1,
+                        status="pending",
+                    ),
+                    StoryPlanObjective(
+                        objective_id=str(uuid.uuid4()),
+                        order_index=2,
+                        title="Mục tiêu 2",
+                        description="Thu thập bí kíp",
+                        target_chapter=2,
+                        status="pending",
+                    ),
+                ),
+            )
+        )
+
+    def tearDown(self) -> None:
+        app.dependency_overrides.clear()
+
+    def test_create_and_get_autonomous_run(self) -> None:
+        create_res = self.client.post(
+            "/v1/autonomous/runs",
+            json={
+                "novel_id": self.novel_id,
+                "plan_id": self.plan.plan_id,
+                "max_iterations": 5,
+                "max_retries_per_objective": 2,
+                "idempotency_key": "run-key-1",
+            },
+            headers=self.headers,
+        )
+        self.assertEqual(create_res.status_code, 201)
+        data = create_res.json()["data"]
+        run_id = data["run_id"]
+        self.assertEqual(data["novel_id"], self.novel_id)
+        self.assertEqual(data["plan_id"], self.plan.plan_id)
+        self.assertEqual(data["plan_version"], 1)
+        self.assertEqual(data["status"], "running")
+        self.assertEqual(data["max_iterations"], 5)
+        self.assertEqual(data["max_retries_per_objective"], 2)
+
+        # GET by run_id
+        get_res = self.client.get(f"/v1/autonomous/runs/{run_id}", headers=self.headers)
+        self.assertEqual(get_res.status_code, 200)
+        self.assertEqual(get_res.json()["data"]["run_id"], run_id)
+
+        # GET active run by novel
+        active_res = self.client.get(
+            f"/v1/autonomous/by-novel/{self.novel_id}/active",
+            headers=self.headers,
+        )
+        self.assertEqual(active_res.status_code, 200)
+        self.assertEqual(active_res.json()["data"]["run_id"], run_id)
+
+    def test_single_writer_conflict(self) -> None:
+        # Create first run
+        res1 = self.client.post(
+            "/v1/autonomous/runs",
+            json={"novel_id": self.novel_id},
+            headers=self.headers,
+        )
+        self.assertEqual(res1.status_code, 201)
+
+        # Attempt to create second active run for same novel
+        res2 = self.client.post(
+            "/v1/autonomous/runs",
+            json={"novel_id": self.novel_id},
+            headers=self.headers,
+        )
+        self.assertEqual(res2.status_code, 409)
+        self.assertEqual(res2.json()["detail"]["code"], "ACTIVE_RUN_CONFLICT")
+
+    def test_update_and_stop_run(self) -> None:
+        res = self.client.post(
+            "/v1/autonomous/runs",
+            json={"novel_id": self.novel_id},
+            headers=self.headers,
+        )
+        run_id = res.json()["data"]["run_id"]
+
+        # PATCH update
+        patch_res = self.client.patch(
+            f"/v1/autonomous/runs/{run_id}",
+            json={
+                "current_iteration": 1,
+                "current_retries": 1,
+                "stop_reason": "testing_patch",
+            },
+            headers=self.headers,
+        )
+        self.assertEqual(patch_res.status_code, 200)
+        updated = patch_res.json()["data"]
+        self.assertEqual(updated["current_iteration"], 1)
+        self.assertEqual(updated["current_retries"], 1)
+
+        # POST stop
+        stop_res = self.client.post(
+            f"/v1/autonomous/runs/{run_id}/stop",
+            json={"reason": "cancelled_by_user"},
+            headers=self.headers,
+        )
+        self.assertEqual(stop_res.status_code, 200)
+        stopped = stop_res.json()["data"]
+        self.assertEqual(stopped["status"], "stopped")
+        self.assertEqual(stopped["stop_reason"], "cancelled_by_user")

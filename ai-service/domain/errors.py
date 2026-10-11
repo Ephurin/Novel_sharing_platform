@@ -59,3 +59,9 @@ class ContextRoutingUnresolvedError(NarrativeRepositoryError):
             "routing_status": "unresolved",
             "routing_reason": "scoped_package_exceeds_max_tier",
         }
+
+
+class ActiveRunConflictError(NarrativeRepositoryError):
+    def __init__(self, message: str = "Active autonomous run already exists for this novel"):
+        super().__init__(message)
+

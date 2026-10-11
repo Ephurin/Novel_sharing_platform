@@ -18,6 +18,14 @@ import {
   startWritingGenerationController,
   updateStoryPlanObjectiveController,
 } from './ai-gateway.controller.js';
+import {
+  createAutonomousRunController,
+  getAutonomousRunController,
+  getActiveAutonomousRunController,
+  stepAutonomousRunController,
+  runAutonomousController,
+  stopAutonomousRunController,
+} from './autonomous-controller.controller.js';
 
 export const aiGatewayRoutes = Router();
 
@@ -108,5 +116,36 @@ aiGatewayRoutes.patch(
 aiGatewayRoutes.get(
   '/jobs/:jobId',
   getJobStatusController
+);
+
+// Autonomous Loop Controller
+aiGatewayRoutes.post(
+  '/autonomous/runs',
+  createAutonomousRunController
+);
+
+aiGatewayRoutes.get(
+  '/autonomous/runs/:runId',
+  getAutonomousRunController
+);
+
+aiGatewayRoutes.get(
+  '/autonomous/by-novel/:novelId/active',
+  getActiveAutonomousRunController
+);
+
+aiGatewayRoutes.post(
+  '/autonomous/runs/:runId/step',
+  stepAutonomousRunController
+);
+
+aiGatewayRoutes.post(
+  '/autonomous/runs/:runId/run',
+  runAutonomousController
+);
+
+aiGatewayRoutes.post(
+  '/autonomous/runs/:runId/stop',
+  stopAutonomousRunController
 );
 

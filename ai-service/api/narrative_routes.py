@@ -4,7 +4,7 @@ import asyncio
 import hashlib
 import json
 import uuid
-from dataclasses import asdict
+from dataclasses import asdict, replace
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -32,9 +32,12 @@ from api.schemas import (
     RevisionAnalysisRequest,
     StoryPlanCreateRequest,
     StoryPlanObjectiveUpdateRequest,
+    AutonomousRunCreateRequest,
+    AutonomousRunUpdateRequest,
+    AutonomousRunStopRequest,
     WritingGenerationRequest,
 )
-from domain.models import StoryPlan, StoryPlanObjective
+from domain.models import AutonomousRun, StoryPlan, StoryPlanObjective
 from application.narrative_service import NarrativeApplicationService
 from application.semantic_memory_service import refresh_semantic_memory_safely
 from application.bootstrap_service import ManuscriptBootstrapService
@@ -42,6 +45,7 @@ from application.writing_service import WritingService
 from application.ports import ContentHashMismatchError, RevisionNotFoundError
 from application.revision_analysis_service import RevisionAnalysisService
 from domain.errors import (
+    ActiveRunConflictError,
     ContextRoutingUnresolvedError,
     IdempotencyConflictError,
     BaselineReviewRequiredError,
@@ -293,6 +297,139 @@ def update_story_plan_objective(
         raise HTTPException(404, detail={"code": "OBJECTIVE_NOT_FOUND", "message": str(exc)}) from exc
     return {
         "data": asdict(obj),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.post("/autonomous/runs", status_code=201)
+def create_autonomous_run(
+    payload: AutonomousRunCreateRequest,
+    tenant_id: str = Header(..., alias="X-Tenant-Id"),
+    request_id: str = Header(..., alias="X-Request-Id"),
+    author_id: str | None = Header(None, alias="X-Author-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    # 1. Resolve Story Plan
+    if payload.plan_id:
+        plan = repository.get_story_plan(payload.plan_id)
+        if not plan or plan.novel_id != payload.novel_id:
+            raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": f"StoryPlan {payload.plan_id} not found for novel"})
+    else:
+        plan = repository.get_active_story_plan(payload.novel_id)
+        if not plan:
+            raise HTTPException(400, detail={"code": "NO_ACTIVE_PLAN", "message": "Novel does not have an active story plan"})
+
+    # 2. Get current brain version
+    brain = repository.get_story_brain(payload.novel_id)
+    brain_version = int(brain.metadata.get("brain_version", "1"))
+
+    run_id = str(uuid.uuid4())
+    run = AutonomousRun(
+        run_id=run_id,
+        novel_id=payload.novel_id,
+        tenant_id=tenant_id,
+        plan_id=plan.plan_id,
+        plan_version=plan.plan_version,
+        status="running",
+        max_iterations=payload.max_iterations,
+        max_retries_per_objective=payload.max_retries_per_objective,
+        last_brain_version=brain_version,
+        idempotency_key=payload.idempotency_key,
+        created_by=author_id,
+    )
+    try:
+        created = repository.create_autonomous_run(run)
+    except ActiveRunConflictError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "ACTIVE_RUN_CONFLICT", "message": str(exc)},
+        ) from exc
+
+    return {
+        "data": asdict(created),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.get("/autonomous/runs/{run_id}")
+def get_autonomous_run(
+    run_id: str,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    run = repository.get_autonomous_run(run_id)
+    if not run:
+        raise HTTPException(404, detail={"code": "RUN_NOT_FOUND", "message": f"AutonomousRun {run_id} not found"})
+    return {
+        "data": asdict(run),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.get("/autonomous/by-novel/{novel_id}/active")
+def get_active_autonomous_run(
+    novel_id: str,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    run = repository.get_active_autonomous_run(novel_id)
+    if not run:
+        raise HTTPException(404, detail={"code": "NO_ACTIVE_RUN", "message": f"No active autonomous run found for novel {novel_id}"})
+    return {
+        "data": asdict(run),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.patch("/autonomous/runs/{run_id}")
+def update_autonomous_run(
+    run_id: str,
+    payload: AutonomousRunUpdateRequest,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    current = repository.get_autonomous_run(run_id)
+    if not current:
+        raise HTTPException(404, detail={"code": "RUN_NOT_FOUND", "message": f"AutonomousRun {run_id} not found"})
+
+    updated = replace(
+        current,
+        status=payload.status if payload.status is not None else current.status,
+        current_objective_id=payload.current_objective_id if payload.current_objective_id is not None else current.current_objective_id,
+        current_chapter_id=payload.current_chapter_id if payload.current_chapter_id is not None else current.current_chapter_id,
+        current_iteration=payload.current_iteration if payload.current_iteration is not None else current.current_iteration,
+        current_retries=payload.current_retries if payload.current_retries is not None else current.current_retries,
+        last_generation_id=payload.last_generation_id if payload.last_generation_id is not None else current.last_generation_id,
+        last_accepted_revision_id=payload.last_accepted_revision_id if payload.last_accepted_revision_id is not None else current.last_accepted_revision_id,
+        last_brain_version=payload.last_brain_version if payload.last_brain_version is not None else current.last_brain_version,
+        stop_reason=payload.stop_reason if payload.stop_reason is not None else current.stop_reason,
+    )
+    saved = repository.update_autonomous_run(updated)
+    return {
+        "data": asdict(saved),
+        "meta": {"request_id": request_id, "schema_version": 1},
+    }
+
+
+@router.post("/autonomous/runs/{run_id}/stop")
+def stop_autonomous_run(
+    run_id: str,
+    payload: AutonomousRunStopRequest,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    repository = Depends(get_narrative_repository),
+):
+    current = repository.get_autonomous_run(run_id)
+    if not current:
+        raise HTTPException(404, detail={"code": "RUN_NOT_FOUND", "message": f"AutonomousRun {run_id} not found"})
+
+    stopped = replace(
+        current,
+        status="stopped",
+        stop_reason=payload.reason or "cancelled_by_user",
+    )
+    saved = repository.update_autonomous_run(stopped)
+    return {
+        "data": asdict(saved),
         "meta": {"request_id": request_id, "schema_version": 1},
     }
 

@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session, sessionmaker
 logger = logging.getLogger(__name__)
 
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
-from domain.errors import IdempotencyConflictError, OptimisticLockError
+from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError
 from domain.models import (
     AnalysisRun,
     BootstrapJob,
@@ -29,6 +29,7 @@ from domain.models import (
     StoryBrain,
     StoryPlan,
     StoryPlanObjective,
+    AutonomousRun,
     ValidationResult,
     WritingContextPackage,
     WritingGenerationJob,
@@ -42,6 +43,7 @@ from infrastructure.orm_models import (
     StateTransitionRecord,
     StoryPlanObjectiveRecord,
     StoryPlanRecord,
+    AutonomousRunRecord,
     WritingGenerationRecord,
     AnalysisRunRecord,
     EntityAliasRecord,
@@ -2176,5 +2178,134 @@ class PostgresNarrativeRepository:
                 status=obj.status,
                 metadata=dict(obj.objective_metadata or {}),
             )
+
+    @staticmethod
+    def _to_autonomous_run(record: AutonomousRunRecord) -> AutonomousRun:
+        return AutonomousRun(
+            run_id=str(record.id),
+            novel_id=str(record.novel_id),
+            tenant_id=str(record.tenant_id),
+            plan_id=str(record.plan_id),
+            plan_version=record.plan_version,
+            status=record.status,
+            current_objective_id=str(record.current_objective_id) if record.current_objective_id else None,
+            current_chapter_id=str(record.current_chapter_id) if record.current_chapter_id else None,
+            current_iteration=record.current_iteration,
+            max_iterations=record.max_iterations,
+            current_retries=record.current_retries,
+            max_retries_per_objective=record.max_retries_per_objective,
+            last_generation_id=str(record.last_generation_id) if record.last_generation_id else None,
+            last_accepted_revision_id=str(record.last_accepted_revision_id) if record.last_accepted_revision_id else None,
+            last_brain_version=record.last_brain_version,
+            stop_reason=record.stop_reason,
+            idempotency_key=record.idempotency_key,
+            created_by=str(record.created_by) if record.created_by else None,
+            created_at=record.created_at.isoformat() if record.created_at else None,
+            updated_at=record.updated_at.isoformat() if record.updated_at else None,
+        )
+
+    def create_autonomous_run(self, run: AutonomousRun) -> AutonomousRun:
+        novel_id = self._novel_id(run.novel_id)
+        plan_uuid = uuid.UUID(run.plan_id)
+        run_uuid = uuid.UUID(run.run_id) if run.run_id else uuid.uuid4()
+        with session_scope(self._session_factory) as session:
+            if run.idempotency_key:
+                existing = session.scalar(
+                    select(AutonomousRunRecord).where(
+                        AutonomousRunRecord.tenant_id == self._tenant_id,
+                        AutonomousRunRecord.novel_id == novel_id,
+                        AutonomousRunRecord.idempotency_key == run.idempotency_key,
+                    )
+                )
+                if existing:
+                    return self._to_autonomous_run(existing)
+
+            # Enforce single-writer invariant: at most one active autonomous run may mutate a novel at a time
+            active_run = session.scalar(
+                select(AutonomousRunRecord).where(
+                    AutonomousRunRecord.tenant_id == self._tenant_id,
+                    AutonomousRunRecord.novel_id == novel_id,
+                    AutonomousRunRecord.status.in_(["queued", "running"]),
+                )
+            )
+            if active_run:
+                raise ActiveRunConflictError(
+                    f"Active autonomous run {active_run.id} already exists for novel {run.novel_id}"
+                )
+
+            record = AutonomousRunRecord(
+                id=run_uuid,
+                tenant_id=self._tenant_id,
+                novel_id=novel_id,
+                plan_id=plan_uuid,
+                plan_version=run.plan_version,
+                status=run.status or "queued",
+                current_objective_id=uuid.UUID(run.current_objective_id) if run.current_objective_id else None,
+                current_chapter_id=uuid.UUID(run.current_chapter_id) if run.current_chapter_id else None,
+                current_iteration=run.current_iteration,
+                max_iterations=run.max_iterations,
+                current_retries=run.current_retries,
+                max_retries_per_objective=run.max_retries_per_objective,
+                last_generation_id=uuid.UUID(run.last_generation_id) if run.last_generation_id else None,
+                last_accepted_revision_id=uuid.UUID(run.last_accepted_revision_id) if run.last_accepted_revision_id else None,
+                last_brain_version=run.last_brain_version,
+                stop_reason=run.stop_reason,
+                idempotency_key=run.idempotency_key,
+                created_by=uuid.UUID(run.created_by) if run.created_by else None,
+            )
+            session.add(record)
+            session.flush()
+            return self._to_autonomous_run(record)
+
+    def get_autonomous_run(self, run_id: str) -> AutonomousRun | None:
+        r_uuid = uuid.UUID(run_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(AutonomousRunRecord).where(
+                    AutonomousRunRecord.id == r_uuid,
+                    AutonomousRunRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if not record:
+                return None
+            return self._to_autonomous_run(record)
+
+    def get_active_autonomous_run(self, novel_id: str) -> AutonomousRun | None:
+        n_id = self._novel_id(novel_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(AutonomousRunRecord).where(
+                    AutonomousRunRecord.novel_id == n_id,
+                    AutonomousRunRecord.tenant_id == self._tenant_id,
+                    AutonomousRunRecord.status.in_(["queued", "running"]),
+                ).order_by(AutonomousRunRecord.created_at.desc())
+            )
+            if not record:
+                return None
+            return self._to_autonomous_run(record)
+
+    def update_autonomous_run(self, run: AutonomousRun) -> AutonomousRun:
+        r_uuid = uuid.UUID(run.run_id)
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(
+                select(AutonomousRunRecord).where(
+                    AutonomousRunRecord.id == r_uuid,
+                    AutonomousRunRecord.tenant_id == self._tenant_id,
+                )
+            )
+            if not record:
+                raise KeyError(f"AutonomousRun {run.run_id} not found")
+            record.status = run.status
+            record.plan_version = run.plan_version
+            record.current_objective_id = uuid.UUID(run.current_objective_id) if run.current_objective_id else None
+            record.current_chapter_id = uuid.UUID(run.current_chapter_id) if run.current_chapter_id else None
+            record.current_iteration = run.current_iteration
+            record.current_retries = run.current_retries
+            record.last_generation_id = uuid.UUID(run.last_generation_id) if run.last_generation_id else None
+            record.last_accepted_revision_id = uuid.UUID(run.last_accepted_revision_id) if run.last_accepted_revision_id else None
+            record.last_brain_version = run.last_brain_version
+            record.stop_reason = run.stop_reason
+            session.flush()
+            return self._to_autonomous_run(record)
 
 

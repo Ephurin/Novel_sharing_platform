@@ -16,6 +16,7 @@ from domain.models import (
     StoryBrain,
     StoryPlan,
     StoryPlanObjective,
+    AutonomousRun,
     WritingContextPackage,
     WritingGenerationJob,
 )
@@ -175,6 +176,14 @@ class NarrativeRepository(Protocol):
         objective_id: str,
         status: str,
     ) -> StoryPlanObjective: ...
+
+    def create_autonomous_run(self, run: AutonomousRun) -> AutonomousRun: ...
+
+    def get_autonomous_run(self, run_id: str) -> AutonomousRun | None: ...
+
+    def get_active_autonomous_run(self, novel_id: str) -> AutonomousRun | None: ...
+
+    def update_autonomous_run(self, run: AutonomousRun) -> AutonomousRun: ...
 
 
 

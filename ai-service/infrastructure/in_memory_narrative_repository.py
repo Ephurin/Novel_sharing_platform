@@ -5,7 +5,7 @@ from typing import Any
 import uuid
 
 from domain.projection import ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload
-from domain.errors import IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
+from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
 from domain.models import (
     AnalysisRun,
     BootstrapJob,
@@ -19,6 +19,7 @@ from domain.models import (
     StoryBrain,
     StoryPlan,
     StoryPlanObjective,
+    AutonomousRun,
     WritingContextPackage,
     WritingGenerationJob,
 )
@@ -32,6 +33,7 @@ class InMemoryNarrativeRepository:
         self._writing_jobs: dict[str, WritingGenerationJob] = {}
         self._revision_provenance: dict[tuple[str, str], int] = {}
         self._story_plans: dict[str, StoryPlan] = {}
+        self._autonomous_runs: dict[str, AutonomousRun] = {}
 
     def get_story_brain(self, story_id: str) -> StoryBrain:
         if story_id not in self._brains:
@@ -995,5 +997,34 @@ class InMemoryNarrativeRepository:
             raise KeyError(f"Objective {objective_id} not found in plan {plan_id}")
         self._story_plans[plan_id] = replace(plan, objectives=tuple(updated_objs))
         return target_obj
+
+    def create_autonomous_run(self, run: AutonomousRun) -> AutonomousRun:
+        run_id = run.run_id or str(uuid.uuid4())
+        if run.idempotency_key:
+            for r in self._autonomous_runs.values():
+                if r.novel_id == run.novel_id and r.idempotency_key == run.idempotency_key:
+                    return r
+        for r in self._autonomous_runs.values():
+            if r.novel_id == run.novel_id and r.status in ("queued", "running"):
+                raise ActiveRunConflictError(f"Active autonomous run {r.run_id} already exists for novel {run.novel_id}")
+        saved = replace(run, run_id=run_id)
+        self._autonomous_runs[run_id] = saved
+        return saved
+
+    def get_autonomous_run(self, run_id: str) -> AutonomousRun | None:
+        return self._autonomous_runs.get(run_id)
+
+    def get_active_autonomous_run(self, novel_id: str) -> AutonomousRun | None:
+        active = [
+            r for r in self._autonomous_runs.values()
+            if r.novel_id == novel_id and r.status in ("queued", "running")
+        ]
+        return active[-1] if active else None
+
+    def update_autonomous_run(self, run: AutonomousRun) -> AutonomousRun:
+        if run.run_id not in self._autonomous_runs:
+            raise KeyError(f"AutonomousRun {run.run_id} not found")
+        self._autonomous_runs[run.run_id] = run
+        return run
 
 
