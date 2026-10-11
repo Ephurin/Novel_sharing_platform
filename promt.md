@@ -1,5 +1,75 @@
 # Active Project Handoff — CTX-RD-01
 
+## CURRENT REMOTE STATUS — AI-PIPE-03A PR-READY AFTER GREEN BRANCH CI (2026-10-11)
+
+Latest accepted local/evidence lineage:
+
+```text
+CODE_SHA:      3aa8a0565df7f3837b69b45bef6185a76fa8d7f4
+evidence child:9b18988e1c9a90bd64f1a09cd4f2e7f0132883c2
+```
+
+ChatGPT then synchronized the report with remote branch-push CI at:
+
+```text
+report sync commit:
+47a595f8ca6468f82710bee9b479e1cdcd00ab89
+```
+
+Authoritative GitHub branch-push P8 run:
+
+```text
+38149684796  PASS
+```
+
+All jobs green:
+
+```text
+final-cleanup-gate           PASS
+unit                         PASS
+frontend-api-cutover         PASS
+postgres-integration         PASS
+root-compose-cutover-smoke   PASS
+rollback-rehearsal           PASS
+```
+
+AI-PIPE-03A remote Compose sub-gates all PASS:
+
+```text
+Autonomous Controller Validation       PASS
+Evidence Schema / Invariants           PASS
+AI-service Autonomous Route Suite      PASS
+Backend Autonomous Controller Suite    PASS
+```
+
+The previous migration failure run `38147151096` is historical and superseded. Migration `0009_autonomous_runs` SQLite portability is resolved while PostgreSQL partial unique constraints remain intact.
+
+Current authoritative state:
+
+```text
+AI-PIPE-03A implementation       PASS
+review blockers 1-6             RESOLVED
+migration portability           RESOLVED
+local 18/18                     PASS
+branch-push P8 CI               PASS
+PR                              NEXT CHATGPT ACTION
+final PR P7/P8/Evaluation       PENDING
+```
+
+Gemini local ownership is complete for this gate. Do not add new product changes to this branch unless ChatGPT returns a concrete PR-CI production defect.
+
+ChatGPT owns:
+
+```text
+open PR
+ -> run/inspect PR P7 + P8 + Evaluation
+ -> repair GitHub-only CI wiring if needed
+ -> merge only on green required checks
+ -> close report/promt on main
+```
+
+---
+
 ## CHATGPT REMOTE CI REVIEW — AI-PIPE-03A MIGRATION REPAIR REQUIRED (2026-10-11)
 
 The P3 repair itself passed its production-shaped Compose gate, but branch CI is **not green**.
