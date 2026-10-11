@@ -2,8 +2,8 @@
   "gate": "AI-PIPE-03A",
   "pipeline": "P3",
   "verdict": "P3_AUTONOMOUS_CONTROLLER_PASS",
-  "timestamp": "2026-10-11T02:30:16.168506+00:00",
-  "git_commit": "2e959580fa6c1cc1d4ca1ecc02a6d370b20bf99e",
+  "timestamp": "2026-10-11T14:24:03.662573+00:00",
+  "git_commit": "3e052ab45cbb23f9f3044ed985e3265cdd0ec00d",
   "git_branch": "astra/ai-pipe-03-autonomous-loop",
   "environment": {
     "backend_url": "http://localhost:4000/api/v1",
@@ -21,11 +21,11 @@
       "checkpoint": 1,
       "name": "Autonomous Run Creation via Node Boundary",
       "status": "PASS",
-      "summary": "Autonomous run 570a92fc-dc61-4616-bc53-2ffd26274aa1 created successfully via Node API boundary",
+      "summary": "Autonomous run cdf22694-4231-4659-99da-fd5b616b1ac9 created successfully via Node API boundary",
       "details": {
-        "run_id": "570a92fc-dc61-4616-bc53-2ffd26274aa1",
-        "novel_id": "f898fdd1-c317-4e0a-baae-e791106910ba",
-        "plan_id": "d9e7e11c-ec02-4d6b-be05-c32c0b23fa89",
+        "run_id": "cdf22694-4231-4659-99da-fd5b616b1ac9",
+        "novel_id": "89fd1cb4-8e18-4ede-a9e9-9ddca8a69f0b",
+        "plan_id": "a45ac331-0c2c-4850-8765-ffd1104ec807",
         "plan_version": 1,
         "status": "running"
       }
@@ -44,9 +44,9 @@
       "checkpoint": 3,
       "name": "Durable PostgreSQL Persistence",
       "status": "PASS",
-      "summary": "Run 570a92fc-dc61-4616-bc53-2ffd26274aa1 durably persisted in narrative.autonomous_runs with schema and invariants intact",
+      "summary": "Run cdf22694-4231-4659-99da-fd5b616b1ac9 durably persisted in narrative.autonomous_runs with schema and invariants intact",
       "details": {
-        "run_id": "570a92fc-dc61-4616-bc53-2ffd26274aa1",
+        "run_id": "cdf22694-4231-4659-99da-fd5b616b1ac9",
         "table": "narrative.autonomous_runs",
         "persisted_status": "running",
         "persisted_plan_version": 1
@@ -56,19 +56,22 @@
       "checkpoint": 4,
       "name": "Serialized Single-Writer Invariant",
       "status": "PASS",
-      "summary": "Single-writer enforced: concurrent/active run creation for same novel rejected with 409 Conflict",
+      "summary": "Single-writer enforced: concurrent race resolved to [201, 409], idempotency conflict returns 409",
       "details": {
         "status_code": 409,
-        "conflict_detected": true
+        "conflict_detected": true,
+        "concurrency_conflict_detected": true,
+        "idempotency_conflict_detected": true,
+        "idempotent_replay_success": true
       }
     },
     {
       "checkpoint": 5,
       "name": "Active Story Plan & Version Pinned",
       "status": "PASS",
-      "summary": "Story Plan d9e7e11c-ec02-4d6b-be05-c32c0b23fa89 pinned at version 1",
+      "summary": "Story Plan a45ac331-0c2c-4850-8765-ffd1104ec807 pinned at version 1",
       "details": {
-        "pinned_plan_id": "d9e7e11c-ec02-4d6b-be05-c32c0b23fa89",
+        "pinned_plan_id": "a45ac331-0c2c-4850-8765-ffd1104ec807",
         "pinned_plan_version": 1
       }
     },
@@ -76,10 +79,10 @@
       "checkpoint": 6,
       "name": "Deterministic Current Objective Selection",
       "status": "PASS",
-      "summary": "Step 1 selected Objective #1 ('Thức tỉnh tại cổ mộ') deterministically",
+      "summary": "Step 1 selected Objective #1 ('Thức tỉnh tại Tháp Qua Nhĩ') deterministically",
       "details": {
-        "selected_objective_id": "03234634-32b5-4409-92a4-da09010c793e",
-        "title": "Thức tỉnh tại cổ mộ",
+        "selected_objective_id": "e6932dc7-5b57-4465-80e4-b58c1e68d853",
+        "title": "Thức tỉnh tại Tháp Qua Nhĩ",
         "order_index": 1
       }
     },
@@ -87,9 +90,9 @@
       "checkpoint": 7,
       "name": "Standard P1 Generation Path Reused",
       "status": "PASS",
-      "summary": "P1 WritingService generation 56e760b5-8d1a-571a-9aeb-8741538476d9 completed successfully",
+      "summary": "P1 WritingService generation cb06ba67-bc6b-5f9f-8892-7ad5b5d9125f completed successfully",
       "details": {
-        "generation_id": "56e760b5-8d1a-571a-9aeb-8741538476d9",
+        "generation_id": "cb06ba67-bc6b-5f9f-8892-7ad5b5d9125f",
         "status": "completed",
         "validation_status": "passed"
       }
@@ -101,7 +104,7 @@
       "summary": "Deterministic quality gate passed: generation status=completed, validation passed, brain fresh",
       "details": {
         "quality_gate_result": "PASS",
-        "accepted_revision_id": "39874058-4551-4d41-9870-759ac6b4e1a1"
+        "accepted_revision_id": "ae98f784-d8ab-4bd5-9a27-1447249d1ba0"
       }
     },
     {
@@ -120,21 +123,22 @@
       "checkpoint": 10,
       "name": "Accepted Generation Persists via acceptDraft()",
       "status": "PASS",
-      "summary": "Revision 39874058-4551-4d41-9870-759ac6b4e1a1 persisted with source_type='AI_DRAFT_ACCEPT' and source_generation_id=56e760b5-8d1a-571a-9aeb-8741538476d9",
+      "summary": "Revision ae98f784-d8ab-4bd5-9a27-1447249d1ba0 persisted with source_type='AI_DRAFT_ACCEPT' and source_generation_id=cb06ba67-bc6b-5f9f-8892-7ad5b5d9125f",
       "details": {
-        "revision_id": "39874058-4551-4d41-9870-759ac6b4e1a1",
+        "revision_id": "ae98f784-d8ab-4bd5-9a27-1447249d1ba0",
         "source_type": "AI_DRAFT_ACCEPT",
-        "source_generation_id": "56e760b5-8d1a-571a-9aeb-8741538476d9"
+        "source_generation_id": "cb06ba67-bc6b-5f9f-8892-7ad5b5d9125f"
       }
     },
     {
       "checkpoint": 11,
       "name": "Transactional Outbox Completes & Story Brain Advances",
       "status": "PASS",
-      "summary": "Transactional outbox processed, Story Brain advanced to version 2",
+      "summary": "Transactional outbox processed, Story Brain advanced to version 2, unrelated proposal preserved pending",
       "details": {
         "brain_version": 2,
-        "novel_id": "f898fdd1-c317-4e0a-baae-e791106910ba"
+        "novel_id": "89fd1cb4-8e18-4ede-a9e9-9ddca8a69f0b",
+        "unrelated_proposal_isolated": true
       }
     },
     {
@@ -143,7 +147,7 @@
       "status": "PASS",
       "summary": "Objective #1 status explicitly updated to 'completed' following accepted draft",
       "details": {
-        "objective_id": "03234634-32b5-4409-92a4-da09010c793e",
+        "objective_id": "e6932dc7-5b57-4465-80e4-b58c1e68d853",
         "status": "completed"
       }
     },
@@ -151,12 +155,12 @@
       "checkpoint": 13,
       "name": "Next Iteration Observes Updated Brain & Next Objective",
       "status": "PASS",
-      "summary": "Step 2 completed Objective #2 observing updated brain_version 2",
+      "summary": "Step 2 completed Objective #2 observing updated brain_version 3",
       "details": {
-        "objective_id": "6f30c1a5-a95a-4541-ac93-ef7df72a130c",
+        "objective_id": "a2149ccd-955a-47e7-b297-01143f930025",
         "status": "completed",
         "iteration": 2,
-        "observed_brain_version": 2
+        "observed_brain_version": 3
       }
     },
     {
@@ -166,7 +170,8 @@
       "summary": "Reloading run state produced zero duplicate revisions and preserved iteration progress",
       "details": {
         "iteration": 2,
-        "revisions_count_unchanged": true
+        "revisions_count_unchanged": true,
+        "crash_recovery_zero_duplicate_revisions": true
       }
     },
     {
@@ -175,7 +180,7 @@
       "status": "PASS",
       "summary": "Max retries guard failed closed: run transitioned to 'failed' with stop_reason='max_retries_exceeded'",
       "details": {
-        "run_id": "9ed6d5ad-cb95-4ee1-be4a-a65c5ad2d7da",
+        "run_id": "123dd5fc-235f-4b20-88d4-b3d4c5459171",
         "status": "failed",
         "stop_reason": "max_retries_exceeded"
       }
@@ -186,7 +191,7 @@
       "status": "PASS",
       "summary": "Stop command transitioned run to 'stopped'; subsequent step was no-op preserving canon",
       "details": {
-        "run_id": "c216ed8f-fae0-42fe-a60b-ece3a3581b97",
+        "run_id": "87549932-3c8d-4a63-95ea-0a8948675a7d",
         "status": "stopped",
         "stop_reason": "author_manual_stop"
       }
@@ -197,10 +202,10 @@
       "status": "PASS",
       "summary": "Terminal objective completion intentionally transitioned run status to 'completed'",
       "details": {
-        "run_id": "570a92fc-dc61-4616-bc53-2ffd26274aa1",
+        "run_id": "cdf22694-4231-4659-99da-fd5b616b1ac9",
         "status": "completed",
         "stop_reason": "terminal_objective_completed",
-        "terminal_objective_id": "d14cf138-b8a3-4c74-aa1a-3b1d4c4fca2c",
+        "terminal_objective_id": "d202d8b2-4739-4460-8df2-c2248c371082",
         "iteration": 3
       }
     },
@@ -210,7 +215,7 @@
       "status": "PASS",
       "summary": "Subsequent step calls on completed run perform zero extra generations (count unchanged)",
       "details": {
-        "run_id": "570a92fc-dc61-4616-bc53-2ffd26274aa1",
+        "run_id": "cdf22694-4231-4659-99da-fd5b616b1ac9",
         "status": "completed",
         "generation_count_before": 4,
         "generation_count_after": 4,

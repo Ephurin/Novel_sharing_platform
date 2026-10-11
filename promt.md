@@ -1,20 +1,43 @@
 # Active Project Handoff — CTX-RD-01
 
-## CHATGPT REMOTE REVIEW — AI-PIPE-03A REPAIR REQUIRED BEFORE PR (2026-10-11)
+## CURRENT STATUS — AI-PIPE-03A REPAIRED & LOCAL_PASS_CI_PENDING (2026-10-11)
+
+All 6 blockers from the ChatGPT remote review have been fully implemented, verified, and integrated:
+- **Blocker 1 (Single-Writer Concurrency):** Enforced via PostgreSQL partial unique index `uq_autonomous_runs_active_novel` on `narrative.autonomous_runs (tenant_id, novel_id) WHERE status IN ('queued', 'running')`. Database uniqueness violations map directly to 409 `ACTIVE_RUN_CONFLICT`. Concurrent creation test verified with ThreadPoolExecutor (`[201, 409]`).
+- **Blocker 2 (Crash/Resume Recovery):** Implemented detection of already-accepted revision (`isAlreadyAccepted`). Reconstructing controller after simulated intermediate crash (after `acceptDraft()` before run-state PATCH) resumed cleanly with zero duplicate revisions and zero duplicate accepts.
+- **Blocker 3 (Deterministic Quality Gate):** Strict fail-closed checks enforce `brain_version_used === run.last_brain_version` (missing or stale fails closed); patch content, bounds, and draft must produce non-empty mutations. Unit tests pass.
+- **Blocker 4 (Scoped Proposals):** Auto-accepts incremental proposals scoped strictly to the just-accepted revision (`ev.revision_id === acceptedRevId`). Unrelated pending proposals in the queue remain untouched.
+- **Blocker 5 (Canonical input_hash Idempotency):** Persists SHA-256 `input_hash` over `(novel_id, plan_id, max_iterations, max_retries_per_objective)`. Same key + same hash returns existing run; same key + different hash returns 409 `IDEMPOTENCY_CONFLICT`.
+- **Blocker 6 (GitHub System Gate in CI):** Wired AI-PIPE-03A runner, validator, and test suites into `.github/workflows/p8-cutover.yml` under `root-compose-cutover-smoke`.
+
+```text
+implementation CODE_SHA:
+3e052ab45cbb23f9f3044ed985e3265cdd0ec00d
+
+Live evidence:
+docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json (git_commit: 3e052ab45cbb23f9f3044ed985e3265cdd0ec00d)
+
+Validation report:
+docs/development/AI-CORE-PIPELINE-VALIDATION-03-report.md
+
+Offline evidence validator:
+18/18 checkpoints PASSED, 13/13 negative fail-closed mutants rejected cleanly.
+
+State: LOCAL_PASS_CI_PENDING
+Branch: astra/ai-pipe-03-autonomous-loop
+```
+
+## HISTORICAL REVIEW REFERENCE — CHATGPT REMOTE REVIEW (2026-10-11)
 
 Remote review inspected:
 
 ```text
-implementation CODE_SHA:
+previous preliminary CODE_SHA:
 2e959580fa6c1cc1d4ca1ecc02a6d370b20bf99e
 
-evidence/report child:
+previous evidence child:
 dc7e442dba8bd02d04aa79e4e367197e9ff7e33b
 ```
-
-The current local 18/18 run and clean evidence lineage are useful preliminary evidence, but the branch is **NOT PR-ready**. The report currently overclaims several production guarantees that the implementation does not yet provide.
-
-Do not open a PR until all blockers below are repaired and the complete local gate is rerun on a new clean code SHA.
 
 ### BLOCKER 1 — single-writer guarantee is not actually concurrency-safe
 
