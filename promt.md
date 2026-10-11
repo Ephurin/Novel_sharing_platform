@@ -10,7 +10,8 @@ The three backend authoring pipelines are CI-closed.
 
 ```text
 AI-PIPE-01A  P1 Import -> Story Brain -> Assisted Writing     CI_PASS / MERGED
-AI-PIPE-01B  P1 Browser/UI System E2E                         PENDING_FINAL_UI_REFACTOR
+AI-PIPE-01B  P1 Current-UI Preflight Audit                    LOCAL_PASS_CI_PENDING (CURRENT_UI_PREFLIGHT_PASS)
+AI-PIPE-01B  P1 Final Browser/UI System E2E (Refactored UI)   PENDING_FINAL_UI_REFACTOR
 
 AI-PIPE-02A  Idea / World-Bible bootstrap                     CI_PASS / MERGED
 AI-PIPE-02B  Durable outline / Story Plan                     CI_PASS / MERGED
@@ -554,6 +555,33 @@ Codex
 Do not have both agents independently redesign the same UI.
 
 If Codex/Gemini cannot operate a real browser in the current environment, they must say so and downgrade the affected checkpoints rather than simulating browser evidence.
+
+---
+
+## 5.11 Executed Preflight Record (2026-10-11)
+
+- **Status:** `LOCAL_PASS_CI_PENDING`
+- **Verdict:** `CURRENT_UI_PREFLIGHT_PASS`
+- **Branch:** `astra/ai-pipe-01b-current-ui-preflight`
+- **Report:** `docs/development/AI-PIPE-01B-CURRENT-UI-PREFLIGHT-report.md`
+- **Evidence Directory:** `docs/development/AI-PIPE-01B-CURRENT-UI-PREFLIGHT/`
+- **Base Code SHA:** `d5c1865c363914b433ce2a1012f277ca9f074a3f`
+- **Audit Commit SHA:** `68552f13ef48bbf4d697fdced6c27bed69320a0f`
+- **Browser Tooling:** Chrome Headless / Antigravity Browser Subagent (1600x1000 Desktop Viewport)
+- **Sanitized Correlation Lineage:**
+  - `tenant / role`: Author (`reader03`)
+  - `novel_id`: `01c4c899-d0c3-472f-9acb-e4f85f90f2fa`
+  - `chapter_id`: `a242fdb7-ffc8-4727-b50a-4da207c40685`
+  - `generation_id`: `da9b30e4-bce1-5fdc-a408-cff90f70f529`
+  - `accepted_revision_id`: `41cb873e-9814-4d86-929f-93fa0c37a38a`
+  - `source_type`: `AI_DRAFT_ACCEPT`
+  - `outbox_event_id`: `086aa719-21a2-4c09-b8a2-abab5654b8e2` (`INCREMENTAL_ANALYSIS`)
+  - `story_brain_id`: `5cf599fa-bbfa-4929-9e8c-32f22b8ea3fa` (Status: `active`)
+- **Negative Cases:**
+  - Negative Case A (Discard Draft): `PASS` (Editor content untouched, 0 new revisions created)
+  - Negative Case D (Multi-tenant Authorization Guard): `PASS` (HTTP 403 `AUTH_008` for non-owner `reader04`)
+- **UI Contract Finding:** `@media (max-width: 1180px)` hides `.assistant-panel`. Desktop viewport (>1180px) displays full 4-column IDE. Refactor team should implement responsive drawer/toggle.
+- **Milestone Late Gate:** `AI-PIPE-01B FINAL BROWSER ACCEPTANCE = PENDING_UI_REFACTOR`
 
 ---
 
