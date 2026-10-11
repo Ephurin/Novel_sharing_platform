@@ -5,7 +5,39 @@
 **Base Commit SHA (CODE_SHA):** `3e052ab45cbb23f9f3044ed985e3265cdd0ec00d`  
 **Live Evidence File:** `docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json` (records `git_commit = 3e052ab45cbb23f9f3044ed985e3265cdd0ec00d`)  
 **Offline Evidence Validator:** `scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py` $\to$ **PASS (0 errors, 13/13 negative fail-closed mutants rejected)**  
-**Gate Verdict:** `LOCAL_PASS_CI_PENDING`
+**Gate Verdict:** `REMOTE_CI_BLOCKED_BY_MIGRATION_REGRESSION`
+
+---
+
+## Remote CI Qualification — Run 38147151096
+
+The repaired autonomous controller passed all AI-PIPE-03A production-shaped remote gates on GitHub Actions, but the overall P8 workflow is not green because migration `0009_autonomous_runs` broke the repository's SQLite migration regression test.
+
+Accepted evidence from the failed workflow:
+
+```text
+root-compose-cutover-smoke                                  PASS
+Run Gate AI-PIPE-03A Autonomous Controller Validation       PASS
+Verify Gate AI-PIPE-03A Evidence Schema and Invariants      PASS
+Run AI-PIPE-03A Autonomous Route Unit Suite                 PASS
+Run Backend AI-PIPE-03A Autonomous Controller Suite         PASS
+```
+
+The only failing job was the full AI-service non-PostgreSQL regression:
+
+```text
+244 passed, 1 failed, 2 skipped
+FAILED tests/test_migrations.py::MigrationTests::test_upgrade_and_downgrade_clean_database
+
+sqlite3.OperationalError: unknown database "narrative"
+SQL: PRAGMA "narrative".table_xinfo("autonomous_runs")
+```
+
+Cause: `0009_autonomous_runs.py` uses schema-qualified SQLAlchemy inspection with `schema="narrative"` unconditionally. The full migration chain is intentionally exercised on SQLite, where that schema qualifier is invalid.
+
+This is classified as a **migration portability regression**, not an AI-PIPE-03A controller-system failure. Nevertheless, the branch is not PR/merge ready until the migration regression is repaired and the complete workflow is green on a new head.
+
+Authoritative repair instructions are at the top of branch `promt.md`.
 
 ---
 
@@ -96,5 +128,8 @@ All 18 checkpoints and the crash/resume probe verified with status **PASS**:
 
 - Local Gate: **PASS (18/18 checkpoints, crash probe verified, 13/13 negative mutants rejected)**.
 - Evidence Lineage: Cleanly stamped with `CODE_SHA=3e052ab45cbb23f9f3044ed985e3265cdd0ec00d`.
-- Gate Verdict: **`LOCAL_PASS_CI_PENDING`**.
-- Branch is ready for ChatGPT remote review, PR creation, and CI execution.
+- Local controller gate: **PASS (18/18)**.
+- Remote AI-PIPE-03A Compose/system gates: **PASS** on P8 run `38147151096`.
+- Full workflow status: **FAIL** because migration `0009_autonomous_runs` is not SQLite-portable.
+- Gate Verdict: **`REMOTE_CI_BLOCKED_BY_MIGRATION_REGRESSION`**.
+- Branch is not PR/merge ready until a new clean code SHA repairs the migration and the full workflow is green.
