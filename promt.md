@@ -1,23 +1,15 @@
 # Active Project Handoff — CTX-RD-01
 
-## CURRENT CANONICAL STATUS — AI-PIPE-02B CI PASS / PR #41 MERGED (2026-10-10)
+## CURRENT CANONICAL STATUS — AI-PIPE-03A LOCAL PASS / CI PENDING (2026-10-11)
 
-AI-PIPE-02B is now closed remotely.
-
-```text
-PR #41 merged SHA: 9977800dedad8beee01882a0d487202ec77680f7
-accepted PR head:   2886894b4d66ce7fc050442402bc80242cb30327
-P8 run:             38070054757  PASS
-P7 run:             38070054742  PASS
-Evaluation Pilot:   38070054767  PASS
-```
-
-Within P8 `root-compose-cutover-smoke`, all AI-PIPE-02B remote gates passed:
+AI-PIPE-03A local implementation and validation have passed completely (18/18 checkpoints + crash/resume probe).
 
 ```text
-Run Gate AI-PIPE-02B Outline Planning Validation              PASS
-Verify Gate AI-PIPE-02B Evidence Schema and Invariants        PASS
-Run AI-PIPE-02B Story Plan Route Unit Suite                   PASS
+base commit (CODE_SHA): 2e959580fa6c1cc1d4ca1ecc02a6d370b20bf99e
+evidence file:          docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json
+evidence validator:     scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py (18/18 PASS, 10/10 mutants rejected)
+validation report:      docs/development/AI-CORE-PIPELINE-VALIDATION-03-report.md
+status:                 LOCAL_PASS_CI_PENDING (ChatGPT opens PR and monitors CI)
 ```
 
 Canonical acceptance state:
@@ -27,7 +19,7 @@ AI-PIPE-01A P1 backend closed loop        CI_PASS / MERGED
 AI-PIPE-01B P1 browser/UI                 PENDING_UI_REFACTOR
 AI-PIPE-02A Idea/World-Bible bootstrap    CI_PASS / MERGED
 AI-PIPE-02B Durable outline planning      CI_PASS / MERGED
-AI-PIPE-03A Autonomous bounded loop       NEXT LOCAL TASK
+AI-PIPE-03A Autonomous bounded loop       LOCAL_PASS_CI_PENDING
 ```
 
 AI-PIPE-02B proves:
