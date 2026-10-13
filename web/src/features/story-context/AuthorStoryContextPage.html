@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="web_standard" name="shell-type">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "outline-variant": "#c7c4d8", "secondary": "#4953bc", "on-surface": "#131b2e", "on-secondary-fixed": "#000767", "on-tertiary-fixed-variant": "#464555", "surface-container-highest": "#dae2fd", "primary": "#3525cd", "outline": "#777587", "on-primary-fixed": "#0f0069", "on-secondary-fixed-variant": "#2f3aa3", "surface-bright": "#faf8ff", "background": "#faf8ff", "on-secondary-container": "#17228f", "on-surface-variant": "#464555", "primary-container": "#4f46e5", "surface-tint": "#4d44e3", "primary-fixed": "#e2dfff", "error": "#ba1a1a", "secondary-fixed": "#e0e0ff", "surface-container-high": "#e2e7ff", "inverse-on-surface": "#eef0ff", "surface": "#faf8ff", "surface-container-low": "#f2f3ff", "secondary-fixed-dim": "#bdc2ff", "on-tertiary-fixed": "#1b1a29", "tertiary": "#484757", "tertiary-container": "#605e6f", "on-error": "#ffffff", "secondary-container": "#8792fe", "on-primary": "#ffffff", "on-primary-fixed-variant": "#3323cc", "surface-dim": "#d2d9f4", "on-tertiary-container": "#dcd9ed", "surface-variant": "#dae2fd", "tertiary-fixed": "#e4e0f5", "surface-container": "#eaedff", "inverse-primary": "#c3c0ff", "on-tertiary": "#ffffff", "primary-fixed-dim": "#c3c0ff", "inverse-surface": "#283044", "tertiary-fixed-dim": "#c7c4d8", "on-error-container": "#93000a", "surface-container-lowest": "#ffffff", "error-container": "#ffdad6", "on-secondary": "#ffffff", "on-primary-container": "#dad7ff", "on-background": "#131b2e" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter-lg": "2rem", "space-xs": "0.25rem", "margin": "1.5rem", "space-sm": "0.5rem", "gutter-sm": "1rem", "margin-lg": "3rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "gutter": "1.5rem", "margin-sm": "1rem", "space-md": "1rem" }, "fontFamily": { "headline-lg-mobile": ["Merriweather"], "display-lg": ["Merriweather"], "body-md": ["Be Vietnam Pro"], "display-lg-mobile": ["Merriweather"], "label-md": ["Be Vietnam Pro"], "body-lg": ["Be Vietnam Pro"], "headline-sm": ["Be Vietnam Pro"], "headline-md": ["Merriweather"], "body-reading": ["Merriweather"], "label-sm": ["Be Vietnam Pro"], "headline-lg": ["Merriweather"] }, "fontSize": { "headline-lg-mobile": ["24px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "display-lg": ["40px", { "lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "display-lg-mobile": ["30px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "headline-md": ["24px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "body-reading": ["18px", { "lineHeight": "34px", "letterSpacing": "0.01em", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "headline-lg": ["32px", { "lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "700" }] } } } }</script>
+</head>
+
+<body class="bg-surface font-body-md text-on-surface antialiased">
+    <header
+        class="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-md shadow-[0_1px_8px_rgba(15,23,42,0.04)]">
+        <div class="h-16 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
+            <div class="flex items-center gap-8"><a class="flex items-center gap-2.5" href="#">
+                    <div
+                        class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center text-on-primary shadow-sm">
+                        <span class="material-symbols-outlined text-[20px]">auto_stories</span></div>
+                    <div class="flex flex-col"><span
+                            class="font-headline-sm text-headline-sm text-on-surface leading-tight tracking-tight">StoryCraft</span><span
+                            class="font-label-sm text-[10px] uppercase tracking-wider text-primary font-semibold leading-none">Văn
+                            Hoa</span></div>
+                </a>
+                <nav class="hidden md:flex items-center gap-1.5"
+                    data-active-classes="bg-surface-container-high text-primary font-semibold rounded-lg shadow-sm"><a
+                        class="px-3.5 py-2 rounded-lg font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all"
+                        data-path="tong-quan" href="#">Tổng quan</a><a
+                        class="px-3.5 py-2 rounded-lg font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all"
+                        data-path="tac-pham" href="#">Tác phẩm</a><a
+                        class="px-3.5 py-2 rounded-lg font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all"
+                        data-path="vi-va-doanh-thu" href="#">Ví &amp; doanh thu</a><a
+                        class="px-3.5 py-2 rounded-lg font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all"
+                        data-path="trang-tac-gia" href="#">Trang tác giả</a></nav>
+            </div>
+            <div class="flex items-center gap-3"><a
+                    class="hidden sm:inline-flex items-center gap-2 bg-primary-container text-on-primary font-label-md text-label-md px-4 py-2 rounded-lg shadow-sm hover:bg-primary transition-colors"
+                    data-path="viet-chuong-moi" href="#"><span
+                        class="material-symbols-outlined text-[18px]">edit_square</span><span class="">Viết chương
+                        mới</span></a><button
+                    class="w-9 h-9 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors relative"
+                    type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span
+                        class="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface"></span></button>
+                <div class="flex items-center gap-2.5 pl-2">
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span
+                            class="material-symbols-outlined text-on-primary text-[18px]">person</span></div>
+                    <div class="hidden xl:flex flex-col text-left"><span
+                            class="font-label-md text-label-md font-semibold text-on-surface leading-tight">Mai
+                            Linh</span><span
+                            class="font-label-sm text-label-sm text-on-surface-variant leading-none">@moclan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="w-full pt-16 bg-surface min-h-[calc(100vh-140px)]">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 py-8">
+            <div class="flex flex-col w-full">
+                <!-- BREADCRUMB & CONTEXT NAVIGATION -->
+                <div class="flex flex-col gap-3 pb-3">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div class="flex flex-col gap-1">
+                            <nav class="flex items-center gap-1.5 text-on-surface-variant font-label-md text-[13px]"><a
+                                    class="hover:text-primary transition-colors flex items-center gap-1" href="#"><span
+                                        class="material-symbols-outlined text-[15px]">dashboard</span><span
+                                        class="">Bảng làm việc</span></a><span
+                                    class="text-outline-variant font-light">/</span><a
+                                    class="hover:text-primary transition-colors" href="#">Tác phẩm của tôi</a><span
+                                    class="text-outline-variant font-light">/</span><span
+                                    class="font-medium text-on-surface">Gió Thoảng Qua Phố Cổ</span><span
+                                    class="text-outline-variant font-light">/</span><span
+                                    class="text-primary font-semibold">Cẩm nang thế giới</span></nav>
+                            <div class="flex items-center gap-3 pt-0.5">
+                                <h1
+                                    class="font-headline-lg text-[26px] leading-tight text-on-surface font-bold tracking-tight">
+                                    Cẩm Nang Thế Giới (Story Bible)</h1><a
+                                    class="inline-flex items-center gap-1 text-on-surface-variant hover:text-primary font-label-sm text-label-sm transition-colors text-outline"
+                                    href="#"><span class="material-symbols-outlined text-[14px]">arrow_back</span><span
+                                        class="">Quay lại Quản lý</span></a>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2.5 shrink-0">
+                            <div
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high/60 text-primary">
+                                <span
+                                    class="material-symbols-outlined text-[16px] text-primary">auto_awesome</span><span
+                                    class="font-label-md text-label-sm font-semibold">12 hồ sơ đã nạp vào AI
+                                    Copilot</span></div><button
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-sm shadow-sm transition-all"
+                                type="button"><span class="material-symbols-outlined text-[16px]">menu_book</span><span
+                                    class="">Xuất file Bible</span></button><button
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-secondary text-on-primary font-label-md text-label-sm font-medium shadow-sm transition-all"
+                                type="button"><span class="material-symbols-outlined text-[16px]">sync</span><span
+                                    class="">✦ Đồng bộ AI Copilot</span></button>
+                        </div>
+                    </div>
+                    <p class="font-body-md text-body-md text-on-surface-variant max-w-3xl -mt-1">Quản lý hồ sơ nhân vật,
+                        thiết lập quan hệ và dòng thời gian tác phẩm nhằm đảm bảo tính nhất quán cho mạch truyện "Gió
+                        Thoảng Qua Phố Cổ".</p>
+                </div>
+                <!-- TITLE & SUBTITLE BLOCK -->
+
+                <!-- TABS BAR -->
+                <div class="flex items-center gap-6 mb-4 bg-surface-container-low rounded-xl px-3 py-1 shadow-sm">
+                    <button
+                        class="flex items-center gap-2 py-1.5 px-3 relative font-body-md text-body-md font-semibold text-primary transition-colors"
+                        type="button"><span class="material-symbols-outlined text-[18px]">group</span><span
+                            class="">Nhân vật</span><span
+                            class="w-5 h-5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm inline-flex items-center justify-center">12</span><span
+                            class="absolute bottom-0 left-2 right-2 h-[2px] bg-primary rounded-full"></span></button><button
+                        class="flex items-center gap-2 py-1.5 px-3 font-body-md text-body-md font-medium text-on-surface-variant hover:text-on-surface transition-colors"
+                        type="button"><span class="material-symbols-outlined text-[18px]">hub</span><span class="">Mối
+                            quan hệ</span><span
+                            class="w-5 h-5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm inline-flex items-center justify-center">8</span></button><button
+                        class="flex items-center gap-2 py-1.5 px-3 font-body-md text-body-md font-medium text-on-surface-variant hover:text-on-surface transition-colors"
+                        type="button"><span class="material-symbols-outlined text-[18px]">timeline</span><span
+                            class="">Dòng thời gian (Timeline)</span><span
+                            class="px-1.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-[11px] inline-flex items-center justify-center font-medium">1996</span></button>
+                </div>
+                <!-- TWO-COLUMN WORKSPACE -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <!-- LEFT RAIL: CHARACTER LIST (340px / 4-cols on lg) -->
+                    <div class="lg:col-span-4 flex flex-col gap-4 bg-surface-container-lowest rounded-xl p-4 shadow-sm">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="relative flex-1"><span
+                                    class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-outline">search</span><input
+                                    class="w-full pl-8 pr-2.5 py-1.5 text-body-md font-body-md bg-surface-container-low rounded-lg text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface transition-colors text-[13px]"
+                                    placeholder="Tìm kiếm nhân vật, vai trò..." type="text"></div><button
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-on-primary hover:bg-secondary transition-colors shadow-sm shrink-0"
+                                title="Thêm nhân vật mới" type="button"><span
+                                    class="material-symbols-outlined text-[18px]">person_add</span></button>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5"><button
+                                class="px-2 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-[11px] font-medium"
+                                type="button">Tất cả (12)</button><button
+                                class="px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-sm text-[11px]"
+                                type="button">Tuyến chính (4)</button><button
+                                class="px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-sm text-[11px]"
+                                type="button">Tuyến phụ (6)</button><button
+                                class="px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-sm text-[11px]"
+                                type="button">Phản diện (2)</button></div>
+                        <div class="flex flex-col gap-2 max-h-[880px] overflow-y-auto pr-0.5">
+                            <div
+                                class="relative p-2.5 rounded-xl bg-surface-container-high/60 shadow-sm cursor-pointer transition-all border-l-[3px] border-primary">
+                                <div class="flex items-center gap-3 pl-0.5">
+                                    <div
+                                        class="w-11 h-12 rounded-lg overflow-hidden shrink-0 shadow-sm bg-surface-container">
+                                        <img class="w-full h-full object-cover"
+                                            data-alt="Traditional black-and-white ink sketch portrait of Tran Hoang Vu, a 28-year-old Vietnamese painter from 1990s Hanoi."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjpuXsFlxj5TnOAqnnYGsRLmjeu9-FJMIjx2dhZpYlVN0PK6DrwrBsv4HvcySuf_xoVBUs7MXuRqkIL1UmHbVcU-LuaoPZRGwQhSgpYMs2NnnXErK1XHogiNbN4skDnu5TsFJjE4a_wQwkFh3o2nMCaFadwDt7aS0UsT2cMEijkCKKRyiTxWJi4fmxF6UBlOfuKvSNAgSSp-tOeT8AllkPAgePauHPwt7KTEJOwUGrOefHToCXWhTLMQ">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-1 mb-0.5"><span
+                                                class="font-headline-md text-[15px] text-on-surface font-semibold truncate">Trần
+                                                Hoàng Vũ</span><span
+                                                class="px-1.5 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-[10px] font-medium">Chính</span>
+                                        </div>
+                                        <p
+                                            class="font-body-md text-label-sm text-on-surface-variant truncate text-[12px]">
+                                            28 tuổi • Họa sĩ tự do Yên Thái</p>
+                                        <div
+                                            class="flex items-center gap-2.5 mt-1 text-on-surface-variant font-label-sm text-[11px]">
+                                            <span class="flex items-center gap-1 text-primary font-medium"><span
+                                                    class="material-symbols-outlined text-[13px]">movie_filter</span> 14
+                                                cảnh</span><span class="flex items-center gap-1 text-outline"><span
+                                                    class="material-symbols-outlined text-[13px] text-primary">check_circle</span>
+                                                Copilot</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low shadow-sm cursor-pointer transition-all border-l-[3px] border-transparent">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-11 h-12 rounded-lg overflow-hidden shrink-0 shadow-sm bg-surface-container">
+                                        <img class="w-full h-full object-cover"
+                                            data-alt="Artistic soft charcoal sketch of Le Thu Thao, a 25-year-old Vietnamese book editor from Hai Phong living in Hanoi in 1996."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMsp69ERh3SKBzO8MLuPYIfBpHMTI55PejtHti85wXfX_QRBdxn3qF9QQrFqNzPzNKcspawCd1AzJgxR_C2AHrPpkzv9aMlXgfqU8ePODaXnt9EHVPB6V0H19DmUmlKALD8HtnpKLrtPlcbwTWqchgEIk6UWdyJus0uIm1ObC6HEpukeq11xi3sMd96IaACgRX8YaUN63FEs3d9AUxt-Ks3o80nllDxnrZ_9EW-Q0lpDi2aREJ_ajnnA">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-1 mb-0.5"><span
+                                                class="font-headline-md text-[15px] text-on-surface font-semibold truncate">Lê
+                                                Thu Thảo (Thảo)</span><span
+                                                class="px-1.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[10px] font-medium">Nữ
+                                                chính</span></div>
+                                        <p
+                                            class="font-body-md text-label-sm text-on-surface-variant truncate text-[12px]">
+                                            25 tuổi • Biên tập viên sách</p>
+                                        <div
+                                            class="flex items-center gap-2.5 mt-1 text-outline font-label-sm text-[11px]">
+                                            <span class="flex items-center gap-1"><span
+                                                    class="material-symbols-outlined text-[13px]">movie_filter</span> 11
+                                                cảnh</span><span class="flex items-center gap-1"><span
+                                                    class="material-symbols-outlined text-[13px] text-primary">check_circle</span>
+                                                Copilot</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low shadow-sm cursor-pointer transition-all border-l-[3px] border-transparent">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-11 h-12 rounded-lg overflow-hidden shrink-0 shadow-sm bg-surface-container">
+                                        <img class="w-full h-full object-cover"
+                                            data-alt="Expressive pencil portrait sketch of Old Madame Nhan, a 74-year-old venerable tea house elder in ancient Hanoi."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUYjrCIx6ECh_8kS_KCCwWi_TDcng6WbKXYSwTfekwA0dbI9gTcixU8qpQfiwS_eCuEMKp5bNw_JttS_cASvW6Ff63fur8nhjBxm4SJeSh4h09dqUDCEZULVgAG-y8IiFemhIMVhPe2wTT1w7sgku1O78w97m1HgcqI0f26Cqg6Rspb7shqfZNMQWb8CDQdnB_8bxsJc54rOr6zCzemNzDnzx-PKlrqzvbDAV6Kda-r9fYK72aFCxKmA">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-1 mb-0.5"><span
+                                                class="font-headline-md text-[15px] text-on-surface font-semibold truncate">Cụ
+                                                Nhàn</span><span
+                                                class="px-1.5 py-0.5 rounded-full bg-surface-container text-tertiary font-label-sm text-[10px] font-medium">Then
+                                                chốt</span></div>
+                                        <p
+                                            class="font-body-md text-label-sm text-on-surface-variant truncate text-[12px]">
+                                            74 tuổi • Chủ quán trà sen ngõ Hàng Gai</p>
+                                        <div
+                                            class="flex items-center gap-2.5 mt-1 text-outline font-label-sm text-[11px]">
+                                            <span class="flex items-center gap-1"><span
+                                                    class="material-symbols-outlined text-[13px]">movie_filter</span> 9
+                                                cảnh</span><span class="flex items-center gap-1"><span
+                                                    class="material-symbols-outlined text-[13px] text-primary">check_circle</span>
+                                                Copilot</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low shadow-sm cursor-pointer transition-all border-l-[3px] border-transparent">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-11 h-12 rounded-lg overflow-hidden shrink-0 shadow-sm bg-surface-container">
+                                        <img class="w-full h-full object-cover"
+                                            data-alt="Grim fine-line sketch portrait of Lam the Scarred, a rugged 35-year-old antique broker in 1990s Hanoi."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuArQfKAMsOMoJd697b91rERoT_dTljh_nh-JnrW_Gue6BeOv1-4ShFA1lQQTxB15xCJZF6PbXyBfZshCW7G6kimeKoojJgRTJvJA62o4ic3OuT1U0YJjHP4CCHGRw3T4HHhB72-GXJRHKfkX9IeTq1B9vnZse5i3lWl66jzAAN8ekEpzzeJdb3F1Dt-3sEPNIT2DRTOb6uUAV4tzq3L7vkK1nkxCq_KoZi6s0VEVzMdy9_b9n-32DZI1g">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-1 mb-0.5"><span
+                                                class="font-headline-md text-[15px] text-on-surface font-semibold truncate">Lâm
+                                                "Sẹo"</span><span
+                                                class="px-1.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-[10px] font-medium">Đối
+                                                đầu</span></div>
+                                        <p
+                                            class="font-body-md text-label-sm text-on-surface-variant truncate text-[12px]">
+                                            35 tuổi • Môi giới cổ vật Chợ Trời</p>
+                                        <div
+                                            class="flex items-center gap-1.5 mt-1 font-label-sm text-[11px] text-error font-medium">
+                                            <span class="material-symbols-outlined text-[13px]">warning</span><span
+                                                class="">Thiếu mục tiêu &amp; bí mật</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low shadow-sm cursor-pointer transition-all border-l-[3px] border-transparent">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-11 h-12 rounded-lg overflow-hidden shrink-0 shadow-sm bg-surface-container">
+                                        <img class="w-full h-full object-cover"
+                                            data-alt="Detailed ink drawing of Uncle Toan, a 58-year-old master jeweler on Hang Bac street Hanoi."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHBFfgHJvD2sg78pqits9JWLVaEY_4SNrn6L55Xbo6t3VbIvBzigRaczY-Xdo7WZX-Stii2jDiAtJQ0yv-fKvXnbO1WsyHvP-NPgaafTl71NMxL-cYDkCtiy1uBW2KUFupxE3fAVi4kbvecZLfGRT7PvDQ9wG89BimbfQm_HafODdCpizxfe7NuTIXz1zBmINU4gjHccKwD1ETlb6IvDSjxJkpHxWbX8MgSkHNBms3Dq6wwxAQ_9YFNw">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-1 mb-0.5"><span
+                                                class="font-headline-md text-[15px] text-on-surface font-semibold truncate">Bác
+                                                Toàn</span><span
+                                                class="px-1.5 py-0.5 rounded-full bg-surface-container text-tertiary font-label-sm text-[10px] font-medium">Tuyến
+                                                phụ</span></div>
+                                        <p
+                                            class="font-body-md text-label-sm text-on-surface-variant truncate text-[12px]">
+                                            58 tuổi • Thợ kim hoàn phố Hàng Bạc</p>
+                                        <div
+                                            class="flex items-center gap-2.5 mt-1 text-outline font-label-sm text-[11px]">
+                                            <span class="flex items-center gap-1"><span
+                                                    class="material-symbols-outlined text-[13px]">movie_filter</span> 6
+                                                cảnh</span><span class="flex items-center gap-1"><span
+                                                    class="material-symbols-outlined text-[13px] text-primary">check_circle</span>
+                                                Copilot</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low shadow-sm cursor-pointer transition-all border-l-[3px] border-transparent">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-11 h-12 rounded-lg overflow-hidden shrink-0 shadow-sm bg-surface-container">
+                                        <img class="w-full h-full object-cover"
+                                            data-alt="Delicate quick watercolor sketch portrait of Mai, a 20-year-old fine arts college student in Hanoi."
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdv982DGhf3Vx80BCbfIcODZTa7JkPyYTbYog5mPOmve8I_bTufkjaqQ84mMUDhUqpWDbJDExO0bm8lJsHVBxG7kUscb-1qFLYo_sUvAg7E0hlXWYUuml-dYvszCwRE9lSB_E9h6LkFgeVrqic1jtKnuOhg7P_NrSi40CtJdvtf2dicfIjrxrk-h1h7IhBv1M-Ie12Xa8fyHj7kr8977xuS1N7Rc2Glxoc6MuEBevH1ZFLmjsKpCmoFw">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-1 mb-0.5"><span
+                                                class="font-headline-md text-[15px] text-on-surface font-semibold truncate">Mai</span><span
+                                                class="px-1.5 py-0.5 rounded-full bg-surface-container text-tertiary font-label-sm text-[10px] font-medium">Tuyến
+                                                phụ</span></div>
+                                        <p
+                                            class="font-body-md text-label-sm text-on-surface-variant truncate text-[12px]">
+                                            20 tuổi • Sinh viên Nhạc Họa</p>
+                                        <div
+                                            class="flex items-center gap-1.5 mt-1 font-label-sm text-[11px] text-secondary font-medium">
+                                            <span class="material-symbols-outlined text-[13px]">edit_note</span><span
+                                                class="">Đang phác thảo sơ bộ</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- RIGHT WORKSPACE: DETAILED CHARACTER EDITOR (TRẦN HOÀNG VŨ) -->
+                    <div
+                        class="lg:col-span-8 flex flex-col gap-6 bg-surface-container-lowest rounded-xl p-6 lg:p-8 shadow-sm">
+                        <!-- Character Identity Header -->
+                        <div
+                            class="flex flex-col md:flex-row items-start justify-between gap-4 bg-surface-container-low/60 rounded-xl p-4 shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="relative group">
+                                    <div class="w-16 h-20 rounded-lg overflow-hidden shadow-md bg-surface-container">
+                                        <img class="w-full h-full object-cover"
+                                            data-alt="Close-up fine art portrait of Tran Hoang Vu"
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0dTdUiBvTErfW9J50aMj8L79-mW56m6yTmzk6wD3Ir7-R2TZJgg8n9Xac35T-dvqPsEJba-h2PjI_I8sTIMyWWCGUnbJz0Jdp517jXpPJ41rfc36lbtaEywv_Uatm-IVDx8WCLBZ9ADNpYrPHhl6Cz-2RsMj35cpzK_MJ9TrER6y19zDu0E_5JDCsVs8qzD9rTFQkecQUPkcxuFVMoOeBiJcDxaHEe-fDkcGE-CLvkjEd-P5CN0wi7g">
+                                    </div><button
+                                        class="absolute inset-0 bg-on-surface/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-on-primary font-label-sm text-[10px] transition-opacity rounded-lg"
+                                        type="button"><span
+                                            class="material-symbols-outlined text-[16px]">photo_camera</span><span
+                                            class="">Đổi ảnh</span></button>
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h2 class="font-display-lg text-[22px] font-bold text-on-surface leading-tight">
+                                            Trần Hoàng Vũ</h2><span
+                                            class="font-body-md text-on-surface-variant font-medium text-[13px]">(Tên
+                                            thường gọi: Vũ)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-1.5 flex-wrap"><span
+                                            class="px-2 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-[11px] font-semibold">Tuyến
+                                            chính (Protagonist)</span><span class="text-outline-variant">•</span><span
+                                            class="font-label-md text-label-sm text-on-surface-variant">Hà Nội mùa đông
+                                            1996</span><span class="text-outline-variant">•</span><span
+                                            class="inline-flex items-center gap-1 font-label-md text-label-sm text-primary font-medium"><span
+                                                class="material-symbols-outlined text-[14px]">check_circle</span><span
+                                                class="">Đã nạp AI Copilot</span></span></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 self-end md:self-start"><button
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors"
+                                    title="Sao chép ID nhân vật" type="button"><span
+                                        class="material-symbols-outlined text-[16px]">content_copy</span></button><button
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors"
+                                    title="Xem lịch sử phiên bản" type="button"><span
+                                        class="material-symbols-outlined text-[16px]">history</span></button><button
+                                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-on-primary hover:bg-secondary font-label-md text-label-sm font-semibold shadow-sm transition-all"
+                                    type="button"><span class="material-symbols-outlined text-[16px]">save</span><span
+                                        class="">Lưu thay đổi</span></button></div>
+                        </div>
+                        <!-- FORM SECTION 1: TỔNG QUAN & LAI LỊCH (Grid 3 Cột) -->
+                        <div class="flex flex-col gap-3">
+                            <div
+                                class="flex items-center gap-2 text-primary font-headline-sm text-headline-sm font-semibold">
+                                <span class="material-symbols-outlined text-[20px]">badge</span>
+                                <span class="">1. Tổng quan &amp; Lai lịch</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-surface-container-low p-4 rounded-xl">
+                                <div class="flex flex-col gap-1">
+                                    <label
+                                        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Tên
+                                        đầy đủ</label>
+                                    <div
+                                        class="p-2.5 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface font-medium shadow-sm">
+                                        Trần Hoàng Vũ
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label
+                                        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Bút
+                                        danh / Biệt danh</label>
+                                    <div
+                                        class="p-2.5 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface shadow-sm">
+                                        Vũ Bút Sắt / Họa sĩ Yên Thái
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label
+                                        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Tuổi
+                                        &amp; Ngày sinh</label>
+                                    <div
+                                        class="p-2.5 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface shadow-sm">
+                                        28 tuổi (14/11/1968 - Mậu Thân)
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label
+                                        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Giới
+                                        tính &amp; Xuất thân</label>
+                                    <div
+                                        class="p-2.5 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface shadow-sm">
+                                        Nam • Con gia đình trí thức cũ
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label
+                                        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Nghề
+                                        nghiệp</label>
+                                    <div
+                                        class="p-2.5 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface shadow-sm">
+                                        Họa sĩ tự do &amp; Minh họa sách NXB
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label
+                                        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Nơi
+                                        cư trú hiện tại</label>
+                                    <div class="p-2.5 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface shadow-sm truncate"
+                                        title="Gác xép số 14, ngõ Yên Thái, Hàng Gai, Hà Nội">
+                                        Gác xép 14 ngõ Yên Thái, Hàng Gai
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- FORM SECTION 2: NGOẠI HÌNH & NHẬN DẠNG -->
+                        <div class="flex flex-col gap-3">
+                            <div
+                                class="flex items-center gap-2 text-primary font-headline-sm text-headline-sm font-semibold">
+                                <span class="material-symbols-outlined text-[20px]">face</span>
+                                <span class="">2. Ngoại hình &amp; Đặc điểm nhận dạng</span>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-xl flex flex-col gap-4">
+                                <div class="flex flex-col gap-1.5">
+                                    <label
+                                        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Mô
+                                        tả diện mạo chung</label>
+                                    <div
+                                        class="p-3.5 rounded-lg bg-surface-container-lowest font-body-reading text-[15px] leading-relaxed text-on-surface shadow-sm">
+                                        Dáng người gầy cao, vai hơi so lại do thói quen còng lưng vẽ bản khắc đêm dài.
+                                        Đôi mắt sâu sáng ánh lên vẻ kiên định nhưng luôn phảng phất nét trầm mặc u uất.
+                                        Bàn tay thon dài gầy guộc, các đầu ngón tay dường như vĩnh viễn vương vết mực
+                                        Cửu Long đen hoặc vụn than chì. Trong suốt mùa đông 1996, Vũ luôn mặc độc một
+                                        chiếc áo khoác dạ cũ màu xanh rêu sờn gấu, quàng khăn len màu mỡ gà do người mẹ
+                                        quá cố đan tặng.
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <div class="p-3 rounded-lg bg-surface-container-lowest shadow-sm">
+                                        <span
+                                            class="font-label-sm text-[11px] text-primary uppercase font-semibold block mb-0.5">Chi
+                                            tiết nhận diện độc bản</span>
+                                        <p class="font-body-md text-body-md text-on-surface">Mùi than chì &amp; tinh dầu
+                                            thông thoang thoảng</p>
+                                    </div>
+                                    <div class="p-3 rounded-lg bg-surface-container-lowest shadow-sm">
+                                        <span
+                                            class="font-label-sm text-[11px] text-primary uppercase font-semibold block mb-0.5">Dáng
+                                            điệu &amp; Thói quen</span>
+                                        <p class="font-body-md text-body-md text-on-surface">Đi bộ chậm rãi, mắt hay
+                                            ngước nhìn viền mái ngói rêu</p>
+                                    </div>
+                                    <div class="p-3 rounded-lg bg-surface-container-lowest shadow-sm">
+                                        <span
+                                            class="font-label-sm text-[11px] text-primary uppercase font-semibold block mb-0.5">Vật
+                                            bất ly thân</span>
+                                        <p class="font-body-md text-body-md text-on-surface">Cuốn sổ phác thảo khổ vuông
+                                            bọc vải thô ngà</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- FORM SECTION 3: TÍNH CÁCH & TÂM LÝ -->
+                        <div class="flex flex-col gap-3">
+                            <div
+                                class="flex items-center gap-2 text-primary font-headline-sm text-headline-sm font-semibold">
+                                <span class="material-symbols-outlined text-[20px]">psychology</span>
+                                <span class="">3. Tính cách &amp; Xung đột nội tâm</span>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="flex flex-col gap-1.5">
+                                    <label
+                                        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Đặc
+                                        tính bên ngoài</label>
+                                    <div
+                                        class="p-3 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface leading-relaxed shadow-sm h-full">
+                                        Trầm tĩnh, kiệm lời, lịch thiệp theo lối trí thức Tràng An xưa. Có khả năng lắng
+                                        nghe tuyệt vời và quan sát thấu suốt những biến chuyển nhỏ nhất trong nét mặt
+                                        người đối diện.
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <label
+                                        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Mâu
+                                        thuẫn nội tâm &amp; Ám ảnh</label>
+                                    <div
+                                        class="p-3 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface leading-relaxed shadow-sm h-full">
+                                        Mang nặng cảm giác mặc cảm tội lỗi về biến cố mùa hè năm 1991. Dằn vặt giữa việc
+                                        níu giữ những nếp nhà ngói rêu phong sắp bị đập bỏ hay chấp nhận làn sóng mở cửa
+                                        đô thị hóa đang ùa vào từng góc phố Hàng Gai.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- FORM SECTION 4: NĂNG LỰC & SỞ TRƯỜNG -->
+                        <div class="flex flex-col gap-3">
+                            <div
+                                class="flex items-center gap-2 text-primary font-headline-sm text-headline-sm font-semibold">
+                                <span class="material-symbols-outlined text-[20px]">brush</span>
+                                <span class="">4. Năng lực &amp; Sở trường chuyên môn</span>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div
+                                    class="p-3.5 rounded-lg bg-surface-container-lowest shadow-sm flex items-start gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-[22px] text-primary shrink-0">visibility</span>
+                                    <div>
+                                        <span class="font-body-md font-semibold text-on-surface block mb-1">Trí nhớ thị
+                                            giác siêu việt</span>
+                                        <p class="font-body-md text-body-md text-on-surface-variant">Tái hiện chuẩn xác
+                                            từng chi tiết vì kèo chạm trổ, biển hiệu sơn then phố cổ dù chỉ lướt qua một
+                                            lần trong chớp mắt.</p>
+                                    </div>
+                                </div>
+                                <div
+                                    class="p-3.5 rounded-lg bg-surface-container-lowest shadow-sm flex items-start gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-[22px] text-primary shrink-0">history_edu</span>
+                                    <div>
+                                        <span class="font-body-md font-semibold text-on-surface block mb-1">Kỹ thuật
+                                            phác họa tốc hành</span>
+                                        <p class="font-body-md text-body-md text-on-surface-variant">Vẽ truyền thần chân
+                                            dung người lạ chỉ dựa trên lời mô tả khẩu ngữ trong vòng chưa đầy 10 phút
+                                            trên giấy báo cũ.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- FORM SECTION 5: MỤC TIÊU & ĐỘNG LỰC CỐT LÕI -->
+                        <div class="flex flex-col gap-3">
+                            <div
+                                class="flex items-center gap-2 text-primary font-headline-sm text-headline-sm font-semibold">
+                                <span class="material-symbols-outlined text-[20px]">flag</span>
+                                <span class="">5. Mục tiêu &amp; Động lực cốt lõi</span>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div class="p-3 rounded-lg bg-surface-container-lowest shadow-sm">
+                                    <span
+                                        class="font-label-sm text-[11px] text-primary uppercase font-semibold block mb-1">Mục
+                                        tiêu ngoại vi (Story Goal)</span>
+                                    <p class="font-body-md text-body-md text-on-surface leading-snug">Tìm lại tập ký họa
+                                        36 phố phường thất lạc của người cha trước khi dự án giải tỏa mở đường khởi
+                                        công.</p>
+                                </div>
+                                <div class="p-3 rounded-lg bg-surface-container-lowest shadow-sm">
+                                    <span
+                                        class="font-label-sm text-[11px] text-secondary uppercase font-semibold block mb-1">Động
+                                        lực nội tại (Need)</span>
+                                    <p class="font-body-md text-body-md text-on-surface leading-snug">Tìm câu trả lời
+                                        cho bức thư tình giấu kín gửi Thảo vào đêm giao thừa 1991 bị kẹt lại trong khe
+                                        tường.</p>
+                                </div>
+                                <div class="p-3 rounded-lg bg-surface-container-lowest shadow-sm">
+                                    <span
+                                        class="font-label-sm text-[11px] text-error uppercase font-semibold block mb-1">Nguy
+                                        cơ nếu thất bại (Stakes)</span>
+                                    <p class="font-body-md text-body-md text-on-surface leading-snug">Toàn bộ di sản gia
+                                        đình bị xóa sổ, Vũ mất hẳn niềm tin vào bàn tay hội họa và chấp nhận ly hương.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- FORM SECTION 6: BÍ MẬT & ĐIỂM YẾU CHÍ MẠNG -->
+                        <div class="flex flex-col gap-3">
+                            <div
+                                class="flex items-center gap-2 text-error font-headline-sm text-headline-sm font-semibold">
+                                <span class="material-symbols-outlined text-[20px]">lock</span>
+                                <span class="">6. Bí mật &amp; Điểm yếu chí mạng</span>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-xl flex flex-col md:flex-row gap-4">
+                                <div class="flex-1 p-3.5 rounded-lg bg-surface-container-lowest shadow-sm">
+                                    <span
+                                        class="font-label-sm text-[11px] text-error uppercase font-semibold block mb-1">Bí
+                                        mật chôn giấu</span>
+                                    <p class="font-body-md text-body-md text-on-surface leading-relaxed">
+                                        Năm 1991, trong một lần say rượu bồng bột, Vũ đã vô tình để lộ bản thảo tập thơ
+                                        tay của nhóm văn nghệ ngõ Yên Thái cho một tay buôn đồ cổ ngoại quốc, gián tiếp
+                                        khiến thầy giáo cũ bị kiểm điểm và phải bỏ xứ vào phương Nam sinh sống. Vũ giữ
+                                        kín chuyện này với cả Thảo lẫn cụ Nhàn.
+                                    </p>
+                                </div>
+                                <div
+                                    class="md:w-64 p-3.5 rounded-lg bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+                                    <div>
+                                        <span
+                                            class="font-label-sm text-[11px] text-error uppercase font-semibold block mb-1">Điểm
+                                            yếu chí mạng</span>
+                                        <p class="font-body-md text-body-md text-on-surface leading-snug">
+                                            Chiếc chìa khóa gỉ sét của căn gác số 14 luôn đeo trên cổ. Mỗi khi lo âu tột
+                                            độ, tay Vũ run run nắm chặt lấy chiếc chìa khóa.
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="mt-3 pt-2 text-on-surface-variant font-label-sm text-[11px] flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">info</span>
+                                        <span class="">Điểm kích hoạt mâu thuẫn Hồi 2</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- FORM SECTION 7: GHI CHÚ NGỮ CẢNH CHO AI COPILOT -->
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center justify-between">
+                                <div
+                                    class="flex items-center gap-2 text-primary font-headline-sm text-headline-sm font-semibold">
+                                    <span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                                    <span class="">7. Ghi chú ngữ cảnh cho AI Copilot (Prompt Constraint Rules)</span>
+                                </div>
+                                <span
+                                    class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-[10px] font-semibold">Bắt
+                                    buộc tuân thủ</span>
+                            </div>
+                            <div class="bg-surface-container-high/60 p-4 rounded-xl flex flex-col gap-2">
+                                <p class="font-label-sm text-label-sm text-on-surface-variant">Định hướng phong cách lời
+                                    thoại và phản xạ hành động được nạp tự động vào Sidebar AI của Writing Studio:</p>
+                                <div
+                                    class="p-3.5 rounded-lg bg-surface-container-lowest font-body-md text-body-md text-on-surface leading-relaxed shadow-sm">
+                                    "Khi AI viết lời thoại và cử chỉ của Vũ: Giữ nhịp điệu nói chậm rãi, dùng từ ngữ gãy
+                                    gọn, cổ kính nhưng tự nhiên của người Hà Nội thập niên 90. Tuyệt đối không để Vũ bộc
+                                    phát cơn giận dữ bằng tiếng la hét hay đập phá; cảm xúc kìm nén phải được biểu lộ
+                                    qua ngôn ngữ hình thể (ví dụ: bóp chặt mẩu phấn vẽ, nhìn chăm chú vệt nước mưa trên
+                                    kính cửa sổ sổ lồi, hoặc lảng tránh ánh nhìn trực diện)."
+                                </div>
+                            </div>
+                        </div>
+                        <!-- FOOTER ACTIONS -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+                            <button
+                                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors w-full sm:w-auto justify-center"
+                                type="button">
+                                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                                <span class="">+ Thêm trường dữ liệu tùy chỉnh</span>
+                            </button>
+                            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                                <button
+                                    class="px-4 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-md text-label-md transition-colors"
+                                    type="button">
+                                    Hủy thay đổi
+                                </button>
+                                <button
+                                    class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-on-primary hover:bg-secondary font-label-md text-label-md font-semibold shadow-sm transition-all"
+                                    type="button">
+                                    <span class="material-symbols-outlined text-[18px]">check</span>
+                                    <span class="">Lưu hồ sơ nhân vật</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                // Simple micro-interaction for tabs and character selection
+                document.addEventListener('DOMContentLoaded', () => {
+                    const filterButtons = document.querySelectorAll('button[class*="rounded-full"]');
+                    filterButtons.forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            if (!btn.closest('.mb-6')) { // ignore top tab pills if any
+                                filterButtons.forEach(b => {
+                                    if (b.classList.contains('bg-primary')) {
+                                        b.classList.remove('bg-primary', 'text-on-primary');
+                                        b.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+                                    }
+                                });
+                                btn.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+                                btn.classList.add('bg-primary', 'text-on-primary');
+                            }
+                        });
+                    });
+                });
+            </script>
+        </div>
+    </main>
+    <footer class="w-full bg-surface-container-low shadow-[0_-1px_6px_rgba(15,23,42,0.03)] py-8">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md"><span
+                    class="font-semibold text-on-surface">StoryCraft Văn Hoa</span><span class="">•</span><span
+                    class="">© 2025 Nền tảng Sáng tác Văn học Số</span></div>
+            <div class="flex flex-wrap items-center justify-center gap-6"><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+                    data-path="quy-chuan-ban-quyen" href="#">Quy chuẩn bản quyền</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+                    data-path="trung-tam-tro-giup" href="#">Trung tâm trợ giúp</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+                    data-path="chinh-sach-doanh-thu" href="#">Chính sách chia sẻ doanh thu</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+                    data-path="ho-tro-tac-gia" href="#">Hỗ trợ tác giả</a></div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
