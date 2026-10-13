@@ -90,3 +90,133 @@ export async function activateBaseline(novelId: string, jobId: string) {
   );
   return response.data.data;
 }
+
+export interface ParsedChapterItem {
+  id: string;
+  sourceIndex: number;
+  targetNumber: number;
+  title: string;
+  content: string;
+  wordCount: number;
+  isValid: boolean;
+  validationMessage?: string;
+}
+
+export function normalizeManuscriptText(
+  text: string,
+  options: {
+    normalizePunctuation?: boolean;
+    removeExtraBlankLines?: boolean;
+    preserveDialogue?: boolean;
+  } = {}
+): string {
+  let res = text;
+  if (options.normalizePunctuation) {
+    res = res
+      .replace(/"([^"]*)"/g, '“$1”')
+      .replace(/\.{3,}/g, '…')
+      .replace(/ - /g, ' — ');
+  }
+  if (options.removeExtraBlankLines) {
+    res = res.replace(/(\r?\n){3,}/g, '\n\n');
+  }
+  return res;
+}
+
+export function parseManuscriptChapters(
+  rawText: string,
+  regexPattern: string,
+  startingChapterNumber: number = 1
+): ParsedChapterItem[] {
+  if (!rawText.trim()) return [];
+
+  let regex: RegExp;
+  try {
+    if (regexPattern.startsWith('/') && regexPattern.lastIndexOf('/') > 0) {
+      const lastSlash = regexPattern.lastIndexOf('/');
+      const body = regexPattern.slice(1, lastSlash);
+      const flags = regexPattern.slice(lastSlash + 1);
+      regex = new RegExp(body, flags.includes('g') ? flags : flags + 'g');
+    } else {
+      regex = new RegExp(regexPattern, 'gim');
+    }
+  } catch {
+    regex = /(?:^|\n)\s*(?:Chương|Hồi|Chapter|Phần)\s+\d+[:\s\.\-—]?.*?(?=\n|$)/gim;
+  }
+
+  const matches: Array<{ index: number; fullMatch: string; title: string }> = [];
+  let m: RegExpExecArray | null;
+  while ((m = regex.exec(rawText)) !== null) {
+    matches.push({
+      index: m.index,
+      fullMatch: m[0],
+      title: m[0].trim().replace(/^[\r\n]+|[\r\n]+$/g, '')
+    });
+    if (regex.lastIndex === m.index) {
+      regex.lastIndex++;
+    }
+  }
+
+  if (matches.length === 0) {
+    const trimmed = rawText.trim();
+    const wordCount = trimmed ? trimmed.split(/\s+/).filter(Boolean).length : 0;
+    return [
+      {
+        id: 'ch-01',
+        sourceIndex: 1,
+        targetNumber: startingChapterNumber,
+        title: `Chương ${startingChapterNumber}: [Chưa có tên]`,
+        content: trimmed,
+        wordCount,
+        isValid: false,
+        validationMessage: 'Không khớp quy tắc tách chương nào'
+      }
+    ];
+  }
+
+  const items: ParsedChapterItem[] = [];
+  for (let i = 0; i < matches.length; i++) {
+    const current = matches[i];
+    const startIndex = current.index + current.fullMatch.length;
+    const endIndex = i + 1 < matches.length ? matches[i + 1].index : rawText.length;
+    const chapterContent = rawText.slice(startIndex, endIndex).trim();
+    const wordCount = chapterContent ? chapterContent.split(/\s+/).filter(Boolean).length : 0;
+    const title = current.title.trim();
+    const hasMeaningfulTitle =
+      title.length > 3 && !title.includes('[Chưa có tên]') && !title.includes('[Không tên]');
+
+    items.push({
+      id: `ch-${i + 1}`,
+      sourceIndex: i + 1,
+      targetNumber: startingChapterNumber + i,
+      title,
+      content: chapterContent,
+      wordCount,
+      isValid: hasMeaningfulTitle && wordCount > 0,
+      validationMessage: !hasMeaningfulTitle
+        ? 'Thiếu tiêu đề chương'
+        : wordCount === 0
+        ? 'Nội dung chương trống'
+        : undefined
+    });
+  }
+
+  return items;
+}
+
+export async function importChaptersBatch(
+  novelId: string,
+  chapters: Array<{ title: string; content: string; isVip?: boolean; priceCoins?: number }>,
+  onProgress?: (current: number, total: number) => void
+) {
+  const created: any[] = [];
+  for (let i = 0; i < chapters.length; i++) {
+    const ch = chapters[i];
+    const response = await apiClient.post<ApiEnvelope<any>>(`/novels/${novelId}/chapters`, ch);
+    created.push(response.data.data);
+    if (onProgress) {
+      onProgress(i + 1, chapters.length);
+    }
+  }
+  return created;
+}
