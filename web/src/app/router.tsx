@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
 import { AuthorIdeShell } from './layout/AuthorIdeShell';
+import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
 import {
   AdminModerationDetailPage,
@@ -50,7 +51,7 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-          <AuthorIdeShell />
+          <AuthorWritingIde />
         </RoleGuard>
       </AuthGate>
     )
@@ -71,6 +72,16 @@ export const router = createBrowserRouter([
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
           <AuthorStoryContextPage />
+        </RoleGuard>
+      </AuthGate>
+    )
+  },
+  {
+    path: '/author/novels/:novelId',
+    element: (
+      <AuthGate>
+        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+          <AuthorNovelMetadataPage />
         </RoleGuard>
       </AuthGate>
     )

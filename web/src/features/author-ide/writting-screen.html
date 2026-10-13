@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html class="h-full" lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Trình Soạn Thảo Sáng Tác - Văn Hoa</title>
+    <!-- Google Fonts: Merriweather for prose & Plus Jakarta Sans / Be Vietnam Pro for UI -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet">
+    <!-- Material Symbols Outlined -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS v3 with Forms & Container Queries -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Merriweather', 'Georgia', 'serif'],
+                        sans: ['"Be Vietnam Pro"', '"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                        },
+                        paper: '#faf9f6',
+                        cream: '#f5f4ef',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Base styling -->
+    <style data-purpose="base-styling">
+        body {
+            font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f7f6f2;
+        }
+
+        .manuscript-body {
+            font-family: 'Merriweather', serif;
+            line-height: 2.15;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e2dfd7;
+            border-radius: 9999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c8c4ba;
+        }
+
+        #ai-drawer,
+        #story-bible-modal,
+        #delete-modal {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+        }
+
+        #sidebar-rail {
+            transition: width 0.25s ease, margin 0.25s ease;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            font-size: 18px;
+        }
+
+        .material-symbols-outlined.fill-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+        }
+    </style>
+</head>
+
+<body class="h-full flex flex-col text-slate-800 antialiased overflow-hidden select-none">
+    <!-- BEGIN: TopHeader -->
+    <header
+        class="h-14 border-b border-stone-200/90 bg-[#faf9f6]/95 backdrop-blur-md px-3 md:px-4 flex items-center justify-between shrink-0 z-30"
+        data-purpose="top-navigation-bar"><!-- Left: Return link, Breadcrumb & Autosave indicator -->
+        <div class="flex items-center gap-2.5 min-w-0">
+            <a class="inline-flex items-center gap-1 text-xs font-medium text-stone-500 hover:text-stone-900 transition-colors py-1 px-2 rounded-md hover:bg-stone-200/60 shrink-0"
+                href="#" title="Quay lại danh sách tác phẩm">
+                <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                <span class="hidden sm:inline">Tủ truyện</span>
+            </a>
+            <div class="h-3.5 w-px bg-stone-300 shrink-0"></div>
+            <nav aria-label="Breadcrumb" class="flex items-center gap-1.5 text-xs text-stone-500 truncate">
+                <span
+                    class="font-medium text-stone-600 hover:text-stone-900 cursor-pointer truncate max-w-[130px] md:max-w-[160px]">Gió
+                    Thoảng Qua Phố Cổ</span>
+                <span class="text-stone-300">/</span>
+                <span
+                    class="text-stone-500 hover:text-stone-800 cursor-pointer hidden md:inline truncate max-w-[130px]">Quyển
+                    2</span>
+                <span class="text-stone-300 hidden md:inline">/</span>
+                <span class="font-semibold text-stone-900 truncate max-w-[150px] lg:max-w-[180px]"
+                    title="Chương 48: Lời thú nhận">Chương 48</span>
+            </nav>
+            <!-- Subtle Autosave Indicator -->
+            <div
+                class="hidden md:flex items-center gap-1.5 ml-1.5 px-2 py-0.5 rounded-full bg-emerald-50/80 border border-emerald-200/60 text-[11px] text-emerald-700 font-medium shrink-0">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="">Đã lưu • 14:45</span>
+            </div>
+        </div>
+
+        <!-- Center/Right Primary Actions -->
+        <div class="flex items-center gap-2 shrink-0">
+            <!-- Compact Word Count Badge -->
+            <div
+                class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100/80 text-stone-600 text-xs font-medium border border-stone-200/70">
+                <span class="material-symbols-outlined text-[14px] text-stone-400">description</span>
+                <span class="">2,845 từ</span>
+                <span class="text-stone-300">•</span>
+                <span class="">~8 phút</span>
+            </div>
+
+            <!-- Secondary Tools Compact Group -->
+            <div class="flex items-center bg-stone-100/70 p-0.5 rounded-lg border border-stone-200/80">
+                <button
+                    class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
+                    onclick="toggleStoryBibleModal()" title="Cẩm nang thế giới truyện" type="button">
+                    <span class="material-symbols-outlined text-stone-500 text-[15px]">menu_book</span>
+                    <span class="hidden xl:inline text-[11px]">Cẩm nang</span>
+                </button>
+                <button
+                    class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
+                    title="Lịch sử bản lưu (v12)" type="button">
+                    <span class="material-symbols-outlined text-stone-500 text-[15px]">history</span>
+                    <span class="hidden xl:inline text-[11px]">Lịch sử (v12)</span>
+                </button>
+                <button
+                    class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
+                    title="Xem trước bản thảo độc giả" type="button">
+                    <span class="material-symbols-outlined text-stone-500 text-[15px]">visibility</span>
+                    <span class="hidden md:inline text-[11px]">Xem trước</span>
+                </button>
+            </div>
+
+            <div class="h-4 w-px bg-stone-200 shrink-0 mx-0.5"></div>
+
+            <!-- Prominent AI Assistant Toggle Button -->
+            <button
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-primary-600 hover:bg-indigo-100 border border-indigo-200/90 transition-all shadow-2xs active:scale-95"
+                id="toggle-ai-top-btn" onclick="toggleAiDrawer()" title="Mở trợ lý sáng tác AI" type="button">
+                <span class="material-symbols-outlined text-primary-600 text-[16px] fill-icon">auto_awesome</span>
+                <span class="hidden sm:inline">AI Hỗ trợ viết</span>
+            </button>
+
+            <!-- Primary Publish Button with Interactive Publish Modal Trigger -->
+            <button
+                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-indigo-200 transition-all active:scale-95"
+                onclick="openPublishModal()" type="button">
+                <span class="">Xuất bản chương</span>
+                <span class="material-symbols-outlined text-[15px]">send</span>
+            </button>
+        </div>
+    </header>
+    <!-- END: TopHeader -->
+    <!-- BEGIN: Chapter Settings Subheader Bar -->
+    <section
+        class="h-11 border-b border-stone-200/80 bg-white/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-xs"
+        data-purpose="chapter-settings-bar">
+        <!-- Left: Sidebar toggle & Publication Status -->
+        <div class="flex items-center gap-3">
+            <button
+                class="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors flex items-center"
+                onclick="toggleSidebarRail()" title="Đóng/Mở thanh danh sách chương" type="button">
+                <span class="material-symbols-outlined text-[18px]">view_sidebar</span>
+            </button>
+            <div class="h-3.5 w-px bg-stone-200"></div>
+            <div class="flex items-center gap-2">
+                <span class="text-stone-500 font-medium hidden sm:inline">Trạng thái:</span>
+                <div
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-800 text-[11px] font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                    <span class="">Bản nháp</span>
+                </div>
+                <div class="text-[11px] text-stone-400 hidden lg:inline">
+                    • Thuộc: <strong class="text-stone-600 font-medium">Quyển 2: Gió Lạnh Đầu Mùa</strong>
+                </div>
+            </div>
+        </div>
+        <!-- Right: VIP / Free segmented switch with Coin price input -->
+        <div class="flex items-center gap-3">
+            <div class="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200">
+                <button
+                    class="px-2.5 py-1 rounded-md text-[11px] font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                    id="btn-mode-free" onclick="setChapterAccess('free')" type="button">
+                    Miễn phí
+                </button>
+                <button
+                    class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white text-primary-700 shadow-2xs border border-stone-200/60 flex items-center gap-1 transition-all"
+                    id="btn-mode-vip" onclick="setChapterAccess('vip')" type="button">
+                    <span class="material-symbols-outlined text-[13px] text-amber-500 fill-icon">stars</span>
+                    <span class="">Chương VIP ✦</span>
+                </button>
+            </div>
+            <!-- Dynamic Unlock Coin Price (visible for VIP chapters) -->
+            <div class="flex items-center gap-1.5 text-stone-600 text-xs bg-amber-50/70 border border-amber-200/80 px-2 py-0.5 rounded-md"
+                id="vip-price-container">
+                <span class="text-[11px] font-medium text-amber-900">Giá mở khóa:</span>
+                <div class="flex items-center gap-1">
+                    <input
+                        class="w-10 h-6 text-center text-xs font-semibold rounded border-stone-300 bg-white py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
+                        max="999" min="1" type="number" value="15">
+                    <span class="text-[11px] font-semibold text-amber-700">Xu</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END: Chapter Settings Subheader Bar -->
+    <!-- BEGIN: MainWorkspace -->
+    <div class="flex-1 flex overflow-hidden relative" data-purpose="workspace-container">
+        <!-- BEGIN: LeftSidebarChapters -->
+        <aside
+            class="w-[280px] shrink-0 border-r border-stone-200/90 bg-[#f9f8f4] flex flex-col h-full z-10 select-none relative"
+            data-purpose="chapter-outline-rail" id="sidebar-rail">
+            <!-- Rail Header -->
+            <div class="p-3 border-b border-stone-200 flex items-center justify-between bg-stone-50/50">
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[11px] font-bold tracking-wider uppercase text-stone-600">Mục lục
+                            chương</span>
+                        <span
+                            class="text-[10px] bg-stone-200/80 text-stone-700 px-1.5 py-0.2 rounded-full font-semibold">52</span>
+                    </div>
+                    <p class="text-[11px] text-stone-400 mt-0.5">2 Quyển • 148,900 từ</p>
+                </div>
+                <button class="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors"
+                    onclick="toggleSidebarRail()" title="Thu gọn danh sách" type="button">
+                    <span class="material-symbols-outlined text-[17px]">first_page</span>
+                </button>
+            </div>
+            <!-- Chapter Search & Filter -->
+            <div class="p-2.5 pb-1.5">
+                <div class="relative">
+                    <span
+                        class="material-symbols-outlined absolute left-2.5 top-2 text-stone-400 text-[16px]">search</span>
+                    <input
+                        class="w-full bg-white text-xs pl-8 pr-2.5 py-1.5 rounded-lg border border-stone-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 placeholder-stone-400"
+                        placeholder="Tìm kiếm chương..." type="text">
+                </div>
+            </div>
+            <!-- Add New Chapter Button -->
+            <div class="px-2.5 py-1.5">
+                <button
+                    class="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 text-xs font-semibold rounded-lg border border-dashed border-stone-300 bg-white/70 hover:bg-white hover:border-primary-400 text-stone-700 hover:text-primary-600 transition-all shadow-2xs group"
+                    type="button">
+                    <span
+                        class="material-symbols-outlined text-[16px] text-stone-500 group-hover:text-primary-600">add_circle</span>
+                    <span class="">Thêm chương mới</span>
+                </button>
+            </div>
+            <!-- Grouped Chapter Navigation List by Story Arcs/Volumes -->
+            <nav class="flex-1 overflow-y-auto px-2 pb-6 space-y-3 text-xs" data-purpose="chapter-list">
+                <!-- Volume 1 Accordion Header (Completed) -->
+                <div class="pt-1">
+                    <div
+                        class="flex items-center justify-between px-2 py-1 text-[11px] font-bold text-stone-500 uppercase tracking-wide cursor-pointer hover:text-stone-800 transition-colors">
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                            Quyển 1: Mùa Cốm Đầu Tiên
+                        </span>
+                        <span class="text-[10px] text-stone-400 font-normal">24 chương</span>
+                    </div>
+                    <div class="px-2 py-0.5 text-[11px] text-stone-400 italic">
+                        (Đã hoàn thành • 68,000 từ)
+                    </div>
+                </div>
+
+                <!-- Volume 2 (Active Volume) -->
+                <div>
+                    <div
+                        class="flex items-center justify-between px-2 py-1 text-[11px] font-bold text-primary-700 uppercase tracking-wide">
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px] text-primary-600">expand_more</span>
+                            Quyển 2: Gió Lạnh Đầu Mùa
+                        </span>
+                        <span
+                            class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-100 text-primary-700 font-semibold">Đang
+                            viết</span>
+                    </div>
+                    <div class="space-y-1 mt-1">
+                        <!-- Chapter 46: Published - muted restrained badge -->
+                        <div
+                            class="block p-2 rounded-lg border border-transparent hover:bg-stone-200/50 transition-colors group relative cursor-pointer">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <span class="text-[11px] font-semibold text-stone-500 group-hover:text-stone-700">CHƯƠNG
+                                    46</span>
+                                <span
+                                    class="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-500 border border-stone-200/70 font-normal">Đã
+                                    đăng</span>
+                            </div>
+                            <p class="font-medium text-stone-800 truncate text-xs">Chuyến tàu đêm cuối thu</p>
+                            <div class="flex items-center justify-between text-[11px] text-stone-400 mt-0.5">
+                                <span class="">2,900 từ</span>
+                                <span class="text-stone-400">12/10</span>
+                            </div>
+                        </div>
+                        <!-- Chapter 47: Published - muted restrained badge -->
+                        <div
+                            class="block p-2 rounded-lg border border-transparent hover:bg-stone-200/50 transition-colors group relative cursor-pointer">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <span class="text-[11px] font-semibold text-stone-500 group-hover:text-stone-700">CHƯƠNG
+                                    47</span>
+                                <span
+                                    class="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-500 border border-stone-200/70 font-normal">Đã
+                                    đăng</span>
+                            </div>
+                            <p class="font-medium text-stone-800 truncate text-xs">Quán cà phê góc phố Hàng Vải</p>
+                            <div class="flex items-center justify-between text-[11px] text-stone-400 mt-0.5">
+                                <span class="">3,100 từ</span>
+                                <span class="text-stone-400">15/10</span>
+                            </div>
+                        </div>
+                        <!-- Chapter 48: Active Selected State (Accentuated) -->
+                        <div class="p-2.5 rounded-lg bg-indigo-50/90 border border-indigo-200 shadow-2xs relative">
+                            <div class="absolute left-0 top-2 bottom-2 w-1 bg-primary-600 rounded-r-full"></div>
+                            <div class="flex items-center justify-between mb-1 pl-1">
+                                <span class="text-[11px] font-bold text-primary-700 tracking-tight">CHƯƠNG 48 • ĐANG
+                                    SOẠN</span>
+                                <div class="flex items-center gap-1">
+                                    <span
+                                        class="text-[9px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300">VIP</span>
+                                    <span
+                                        class="text-[10px] px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">Bản
+                                        nháp</span>
+                                </div>
+                            </div>
+                            <p class="font-semibold text-stone-900 truncate text-xs pl-1">Lời thú nhận</p>
+                            <div class="flex items-center justify-between mt-1 text-[11px] text-stone-500 pl-1">
+                                <span class="">2,845 từ</span>
+                                <div class="flex items-center gap-1">
+                                    <button class="p-0.5 text-stone-400 hover:text-stone-700 rounded"
+                                        onclick="openDeleteModal('Chương 48: Lời thú nhận')" title="Tùy chọn chương"
+                                        type="button">
+                                        <span class="material-symbols-outlined text-[15px]">more_horiz</span>
+                                    </button>
+                                    <span class="text-primary-600 font-medium text-[10px]">Đang mở</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Chapter 49: Pending review - muted calm tag -->
+                        <div
+                            class="block p-2 rounded-lg border border-transparent hover:bg-stone-200/50 transition-colors group relative cursor-pointer">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <span class="text-[11px] font-semibold text-stone-500 group-hover:text-stone-700">CHƯƠNG
+                                    49</span>
+                                <span
+                                    class="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 border border-stone-200/70 font-normal">Chờ
+                                    duyệt</span>
+                            </div>
+                            <p class="font-medium text-stone-700 group-hover:text-stone-900 truncate text-xs">Bức thư
+                                tay chưa gửi</p>
+                            <div class="flex items-center justify-between text-[11px] text-stone-400 mt-0.5">
+                                <span class="">1,200 từ</span>
+                                <span class="text-stone-400">Bản nháp</span>
+                            </div>
+                        </div>
+                        <!-- Chapter 50: Draft - muted calm tag -->
+                        <div
+                            class="block p-2 rounded-lg border border-transparent hover:bg-stone-200/50 transition-colors group relative cursor-pointer">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <span class="text-[11px] font-semibold text-stone-500 group-hover:text-stone-700">CHƯƠNG
+                                    50</span>
+                                <span
+                                    class="text-[10px] px-1.5 py-0.2 rounded bg-stone-100 text-stone-400 border border-stone-200/70 font-normal">Bản
+                                    nháp</span>
+                            </div>
+                            <p class="font-medium text-stone-700 group-hover:text-stone-900 truncate text-xs">Đêm giao
+                                mùa</p>
+                            <div class="flex items-center justify-between text-[11px] text-stone-400 mt-0.5">
+                                <span class="">850 từ</span>
+                                <span class="text-stone-400">Mới tạo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <!-- Footer hint inside rail -->
+            <div
+                class="p-2.5 border-t border-stone-200 bg-stone-100/60 text-[11px] text-stone-500 flex items-center justify-between">
+                <span class="">Tự động sắp xếp theo thứ tự</span>
+                <span class="material-symbols-outlined text-[15px] text-stone-400">sort</span>
+            </div>
+            <!-- Subtle drag/resize handle visual border on the right -->
+            <div class="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary-400 transition-colors group"
+                title="Kéo để chỉnh độ rộng"></div>
+        </aside>
+        <!-- END: LeftSidebarChapters -->
+        <!-- BEGIN: ManuscriptWritingArea -->
+        <main class="flex-1 overflow-y-auto flex flex-col items-center bg-[#f7f6f2] relative select-text"
+            data-purpose="manuscript-editor-canvas" id="manuscript-canvas">
+            <!-- Floating / Sticky Formatting Toolbar -->
+            <div
+                class="sticky top-4 z-20 mt-3 mb-6 bg-white/95 backdrop-blur border border-stone-200/90 rounded-xl shadow-xs py-1.5 px-3 flex items-center gap-1 max-w-2xl text-xs text-stone-700 select-none">
+                <!-- Typography Selector -->
+                <div class="flex items-center pr-2 border-r border-stone-200 mr-1">
+                    <button
+                        class="font-medium flex items-center gap-1 hover:text-stone-900 px-1.5 py-1 rounded hover:bg-stone-100"
+                        id="font-switcher-btn" onclick="toggleFontFamily()" title="Đổi kiểu chữ" type="button">
+                        <span id="current-font-label" class="">Merriweather (Có chân)</span>
+                        <span class="material-symbols-outlined text-[16px] text-stone-400">expand_more</span>
+                    </button>
+                </div>
+                <!-- Inline formatting tools -->
+                <button
+                    class="w-7 h-7 flex items-center justify-center rounded font-bold hover:bg-stone-100 text-stone-700 hover:text-stone-900"
+                    title="In đậm (Ctrl+B)" type="button">B</button>
+                <button
+                    class="w-7 h-7 flex items-center justify-center rounded italic font-serif hover:bg-stone-100 text-stone-700 hover:text-stone-900"
+                    title="In nghiêng (Ctrl+I)" type="button">I</button>
+                <button
+                    class="w-7 h-7 flex items-center justify-center rounded underline hover:bg-stone-100 text-stone-700 hover:text-stone-900"
+                    title="Gạch chân (Ctrl+U)" type="button">U</button>
+                <div class="h-4 w-px bg-stone-200 mx-0.5"></div>
+                <!-- Dialogue quote & Scene Break -->
+                <button
+                    class="w-7 h-7 flex items-center justify-center rounded hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-sm"
+                    title="Trích dẫn lời thoại “ ”" type="button">“”</button>
+                <button
+                    class="px-2 h-7 flex items-center justify-center rounded hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-xs tracking-widest"
+                    title="Chèn dấu phân cảnh (✦ ✦ ✦)" type="button">✦ ✦ ✦</button>
+                <div class="h-4 w-px bg-stone-200 mx-0.5"></div>
+                <!-- Alignment -->
+                <button class="w-7 h-7 flex items-center justify-center rounded bg-stone-100 text-stone-900"
+                    title="Căn lề trái" type="button">
+                    <span class="material-symbols-outlined text-[16px]">format_align_left</span>
+                </button>
+                <button class="w-7 h-7 flex items-center justify-center rounded hover:bg-stone-100 text-stone-600"
+                    title="Căn đều hai bên" type="button">
+                    <span class="material-symbols-outlined text-[16px]">format_align_justify</span>
+                </button>
+                <div class="h-4 w-px bg-stone-200 mx-1"></div>
+                <!-- Focus Mode Toggle -->
+                <button
+                    class="flex items-center gap-1 px-2 py-1 rounded hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-xs"
+                    onclick="toggleFocusMode()" title="Chế độ tập trung (Ẩn giao diện xung quanh)" type="button">
+                    <span class="material-symbols-outlined text-[15px]">fullscreen</span>
+                    <span class="hidden sm:inline">Tập trung</span>
+                </button>
+            </div>
+            <!-- Centered Pure White Manuscript Page (>70% width, comfortable margins) -->
+            <article
+                class="w-full max-w-3xl bg-white min-h-[960px] rounded-xl shadow-sm border border-stone-200/70 py-16 px-12 md:px-20 mb-20 transition-all"
+                data-purpose="manuscript-sheet" id="manuscript-sheet">
+                <!-- Editable Chapter Title Header -->
+                <div class="mb-10 pb-6 border-b border-stone-100">
+                    <input
+                        class="w-full font-serif font-bold text-3xl md:text-4xl text-stone-900 border-none p-0 focus:ring-0 focus:outline-none placeholder-stone-300 tracking-tight"
+                        placeholder="Đặt tiêu đề chương tại đây..." type="text" value="Chương 48: Lời thú nhận">
+                    <div class="flex flex-wrap items-center gap-2 md:gap-3 mt-3 text-xs text-stone-400 font-sans">
+                        <span class="">Cập nhật lần cuối: Hôm nay lúc 14:45</span>
+                        <span class="">•</span>
+                        <span class="text-stone-600 font-medium">Quyển 2: Gió Lạnh Đầu Mùa</span>
+                        <span class="">•</span>
+                        <span class="text-stone-500">Mạch truyện chính: Mùa đông Hà Nội 1996</span>
+                    </div>
+                </div>
+                <!-- Authentic Literary Vietnamese Manuscript Content -->
+                <div class="manuscript-body text-[17px] text-stone-800 space-y-6 text-justify leading-relaxed selection:bg-indigo-100 selection:text-indigo-900 focus:outline-none"
+                    id="editor-text-content">
+                    <p class="">
+                        Gió mùa đông bắc tràn về phố cổ chỉ sau một đêm mưa rả rích. Gió thốc qua từng mái ngói thâm nâu
+                        của ngõ Yên Thái, lùa vào khe cửa gỗ đã bạc màu theo năm tháng, kéo theo hơi lạnh ẩm ướt của
+                        sông Hồng và mùi khói rơm xa xôi từ mạn bến phà Long Biên.
+                    </p>
+                    <p class="">
+                        Vũ ngồi đối diện với Thảo bên chiếc bàn gỗ lim mộc mạc đặt nép mình dưới tán cây ngọc lan đã
+                        rụng gần hết lá. Tách trà sen của quán cụ Nhàn bốc khói mỏng manh, từng giọt nước màu hổ phách
+                        sóng sánh như muốn níu giữ chút hơi ấm hiếm hoi giữa trời chiều xám xịt. Đôi mắt Thảo trong veo
+                        nhưng giấu kín nét mệt mỏi sau chuyến tàu đêm trở về từ Hải Phòng; cô khẽ vén lọn tóc mai ra sau
+                        tai, ngón tay hãy còn vương vết mực tím chưa kịp rửa sạch.
+                    </p>
+                    <!-- Scene separator break -->
+                    <div class="py-4 text-center text-stone-400 select-none tracking-widest text-sm font-sans">
+                        ✦ &nbsp; ✦ &nbsp; ✦
+                    </div>
+                    <p class="">
+                        “Có những điều, nếu chiều nay tôi không nói ra, e rằng cả mùa đông này tôi sẽ chẳng thể ngủ
+                        yên,” giọng Vũ trầm hẳn xuống, chìm vào tiếng lách cách của những chiếc xích xe đạp cà tàng đang
+                        xuôi ngược ngoài phố Hàng Gai.
+                    </p>
+                    <p class="">
+                        Thảo dừng tay khỏi chiếc quai chén sứ Giang Tây, ánh nhìn chạm khẽ vào mắt anh rồi vội vã lẩn
+                        tránh sang bức tường vôi lở loét bên kia đường. Cô không ngắt lời. Sự im lặng giữa hai người lúc
+                        này đặc quánh lại, nhưng không phải sự ngượng ngùng của những kẻ xa lạ, mà là nỗi bồn chồn của
+                        hai tâm hồn đã thấu hiểu nỗi đau của nhau từ những ngày gian khó nhất.
+                    </p>
+                    <p class="">
+                        Vũ lấy từ trong túi áo khoác dạ cũ ra một phong thư mép đã sờn rách, đặt nhẹ lên bàn. Bức thư
+                        viết vội trên giấy kẻ ngang thời đại học, mực Cửu Long màu xanh đã nhạt dần theo bụi thời gian,
+                        nhưng từng con chữ nắn nót vẫn nguyên vẹn vẻ chân thành và vụng dại của một chàng trai tuổi hai
+                        mươi lăm năm nào.
+                    </p>
+                </div>
+                <!-- End of Manuscript Section Marker -->
+                <div
+                    class="mt-16 pt-8 border-t border-dashed border-stone-200 flex items-center justify-between text-xs text-stone-400 font-sans select-none">
+                    <span class="">Hết nội dung nháp chương 48</span>
+                    <button class="hover:text-primary-600 transition-colors font-medium text-stone-500" type="button">+
+                        Thêm ghi chú chân trang</button>
+                </div>
+            </article>
+        </main>
+        <!-- END: ManuscriptWritingArea -->
+        <!-- BEGIN: FloatingAiAssistantEdgeBadge -->
+        <!-- Unobtrusive edge pull-tab indicating AI assistant is available on demand -->
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 z-20" data-purpose="ai-edge-trigger">
+            <button
+                class="bg-white border-l border-t border-b border-stone-200/90 text-stone-600 hover:text-primary-600 hover:bg-stone-50 py-3 px-2 rounded-l-xl shadow-md flex flex-col items-center gap-1.5 transition-all text-[11px] font-semibold active:scale-95 group"
+                onclick="toggleAiDrawer()" title="Mở trợ lý AI đồng sáng tác" type="button">
+                <span
+                    class="material-symbols-outlined text-[17px] text-primary-600 group-hover:scale-110 transition-transform fill-icon">auto_awesome</span>
+                <span class="[writing-mode:vertical-rl] tracking-wider text-stone-700 text-[11px]">Trợ lý AI</span>
+            </button>
+        </div>
+        <!-- END: FloatingAiAssistantEdgeBadge -->
+        <!-- BEGIN: AiDrawerPanel (Closed by default with translate-x-full) -->
+        <aside
+            class="fixed inset-y-0 right-0 w-80 md:w-96 bg-white border-l border-stone-200 shadow-2xl flex flex-col z-40 transform select-none translate-x-0"
+            data-purpose="collapsible-ai-companion" id="ai-drawer"><!-- Drawer Header -->
+            <div class="h-14 border-b border-stone-200 px-4 flex items-center justify-between bg-stone-50/80">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-primary-600">
+                        <span class="material-symbols-outlined text-[17px] fill-icon">auto_awesome</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-stone-900 leading-none">Trợ lý sáng tác AI • Văn Hoa</h3>
+                        <span class="text-[10px] text-stone-400">Cố vấn văn phong &amp; mạch truyện 1996</span>
+                    </div>
+                </div>
+                <button class="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
+                    onclick="toggleAiDrawer()" title="Đóng trợ lý" type="button">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <!-- Context Scope Selector -->
+            <div class="px-3 py-2 border-b border-stone-100 bg-white flex items-center justify-between text-[11px]">
+                <span class="text-stone-500 font-medium">Phạm vi phân tích:</span>
+                <select
+                    class="text-xs py-0.5 px-2 rounded-md border-stone-200 bg-stone-50 text-stone-700 focus:ring-primary-500 focus:border-primary-500 font-medium">
+                    <option selected="">Đoạn đang chọn</option>
+                    <option>Toàn bộ chương 48</option>
+                    <option>Cẩm nang nhân vật Vũ &amp; Thảo</option>
+                </select>
+            </div>
+
+            <!-- Literary Quick Action Chips -->
+            <div class="p-3 border-b border-stone-100 bg-stone-50/40">
+                <span class="text-[10px] font-bold uppercase text-stone-400 tracking-wider block mb-2">Tác vụ văn học
+                    nhanh</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button
+                        class="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                        type="button">
+                        <span class="">✍️</span> <span class="">Viết tiếp</span>
+                    </button>
+                    <button
+                        class="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                        type="button">
+                        <span class="">✨</span> <span class="">Gọt giũa / Viết lại</span>
+                    </button>
+                    <button
+                        class="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                        type="button">
+                        <span class="">🎨</span> <span class="">Mô tả ngoại cảnh</span>
+                    </button>
+                    <button
+                        class="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                        type="button">
+                        <span class="">💡</span> <span class="">Gợi ý ý tưởng</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Chat & Structured Suggestion Preview -->
+            <div class="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-xs select-text">
+                <!-- Suggestion Card with Actions -->
+                <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
+                    <div class="flex items-center justify-between mb-2 text-[10px] font-semibold text-primary-700">
+                        <span class="uppercase tracking-wide">Gợi ý viết tiếp đoạn mở phong thư</span>
+                        <span class="bg-indigo-100 px-1.5 py-0.2 rounded text-[10px]">Trầm lắng • Hoài niệm</span>
+                    </div>
+                    <p
+                        class="font-serif text-[13px] leading-relaxed italic text-stone-700 bg-white/70 p-2.5 rounded-lg border border-indigo-100/60">
+                        “Thảo chưa vội mở chiếc phong bì. Bàn tay cô khẽ miết lên dòng chữ tên mình nơi góc trái, cảm
+                        nhận từng vết hằn ngòi bút như thể cảm nhận nhịp đập của người ngồi đối diện sau ngần ấy năm bặt
+                        vô âm tín.”
+                    </p>
+                    <!-- Structured Actions: Insert, Replace, Try Another -->
+                    <div class="mt-3 grid grid-cols-3 gap-1.5 font-sans pt-1">
+                        <button
+                            class="px-2 py-1.5 rounded bg-primary-600 text-white font-medium text-[11px] hover:bg-primary-700 text-center transition-all shadow-2xs active:scale-95"
+                            onclick="showToastNotification()" type="button">
+                            Chèn vào bản thảo
+                        </button>
+                        <button
+                            class="px-2 py-1.5 rounded bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 font-medium text-[11px] text-center transition-all"
+                            type="button">
+                            Thay thế đoạn chọn
+                        </button>
+                        <button
+                            class="px-2 py-1.5 rounded bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 text-[11px] text-center transition-all"
+                            type="button">
+                            Thử phương án khác
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Secondary Sensory Card -->
+                <div class="bg-stone-50 border border-stone-200 rounded-xl p-3 text-stone-700">
+                    <div
+                        class="flex items-center justify-between mb-1 text-[10px] font-semibold text-stone-500 uppercase">
+                        <span class="">Chi tiết cảm quan gợi ý</span>
+                        <span class="text-[10px] text-stone-400">Hà Nội 1996</span>
+                    </div>
+                    <p class="text-[12px] leading-normal text-stone-600">
+                        Có thể bổ sung tiếng xích lô lách cách trên phố vắng hoặc hương thơm hoa ngọc lan thoang thoảng
+                        sau mưa để đặc tả sự lắng đọng giữa hai nhân vật.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Prompt Input Footer -->
+            <div class="p-3 border-t border-stone-200 bg-white">
+                <div class="relative">
+                    <textarea
+                        class="w-full text-xs rounded-lg border-stone-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 placeholder-stone-400 resize-none pr-10 text-stone-800"
+                        placeholder="Nhập yêu cầu phát triển tình tiết, miêu tả tâm lý nhân vật hoặc chỉnh sửa văn phong..."
+                        rows="2"></textarea>
+                    <button
+                        class="absolute right-2 bottom-2.5 p-1 rounded-md bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-2xs"
+                        title="Gửi yêu cầu" type="button">
+                        <span class="material-symbols-outlined text-[16px]">send</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <!-- END: AiDrawerPanel -->
+    </div>
+    <!-- END: MainWorkspace -->
+    <!-- BEGIN: Story Bible Modal ("Cẩm nang thế giới") -->
+    <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden"
+        id="story-bible-modal">
+        <div
+            class="bg-white rounded-xl shadow-2xl border border-stone-200 w-full max-w-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-200">
+            <!-- Header -->
+            <div class="h-14 border-b border-stone-200 px-5 flex items-center justify-between bg-stone-50/80">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-primary-600">
+                        <span class="material-symbols-outlined text-[18px]">menu_book</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-stone-900">Cẩm Nang Thế Giới (Story Bible)</h3>
+                        <p class="text-[11px] text-stone-500">Tác phẩm: Gió Thoảng Qua Phố Cổ</p>
+                    </div>
+                </div>
+                <button class="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/50"
+                    onclick="toggleStoryBibleModal()" type="button">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+            <!-- Tabs: Nhân vật, Quan hệ, Dòng thời gian, Tóm tắt hồi -->
+            <div
+                class="px-5 border-b border-stone-200 flex items-center gap-6 text-xs font-semibold bg-white text-stone-500">
+                <button class="py-3 text-primary-600 border-b-2 border-primary-600" type="button">Nhân vật (12)</button>
+                <button class="py-3 hover:text-stone-900 transition-colors" type="button">Mối quan hệ</button>
+                <button class="py-3 hover:text-stone-900 transition-colors" type="button">Dòng thời gian
+                    (Timeline)</button>
+                <button class="py-3 hover:text-stone-900 transition-colors" type="button">Tóm tắt các hồi</button>
+            </div>
+            <!-- Tab Content Preview -->
+            <div class="p-5 overflow-y-auto space-y-3 flex-1 text-xs text-stone-700">
+                <div class="p-3 rounded-lg border border-stone-200 bg-stone-50/60 hover:bg-stone-50 transition-colors">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold text-stone-900 text-sm">Vũ (Nhân vật chính)</span>
+                        <span
+                            class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-primary-700 font-semibold">Tuyến
+                            chính</span>
+                    </div>
+                    <p class="text-stone-600 text-xs">28 tuổi, cựu sinh viên Mỹ thuật Hà Nội. Tính tình trầm tĩnh, sống
+                        khép kín, mang nỗi day dứt về bức thư bỏ ngỏ năm 1991.</p>
+                </div>
+                <div class="p-3 rounded-lg border border-stone-200 bg-stone-50/60 hover:bg-stone-50 transition-colors">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold text-stone-900 text-sm">Thảo</span>
+                        <span
+                            class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">Tuyến
+                            chính</span>
+                    </div>
+                    <p class="text-stone-600 text-xs">26 tuổi, biên tập viên nhà xuất bản tại Hải Phòng, đôi mắt buồn,
+                        tính độc lập nhưng sâu nặng tình nghĩa.</p>
+                </div>
+                <div class="p-3 rounded-lg border border-stone-200 bg-stone-50/60 hover:bg-stone-50 transition-colors">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold text-stone-900 text-sm">Cụ Nhàn</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-200 text-stone-700 font-medium">Nhân
+                            vật phụ</span>
+                    </div>
+                    <p class="text-stone-600 text-xs">Chủ quán trà sen gốc cổ ngõ Yên Thái, người chứng kiến những đổi
+                        thay của phố phường và thế hệ trẻ qua hai thập kỷ.</p>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="p-3.5 border-t border-stone-200 bg-stone-50 flex items-center justify-between">
+                <button class="px-3 py-1.5 rounded-lg border border-stone-300 text-xs text-stone-600 hover:bg-stone-100"
+                    type="button">+ Thêm nhân vật / sự kiện</button>
+                <button
+                    class="px-4 py-1.5 rounded-lg bg-primary-600 text-white text-xs font-semibold hover:bg-primary-700"
+                    onclick="toggleStoryBibleModal()" type="button">Đóng cẩm nang</button>
+            </div>
+        </div>
+    </div>
+    <!-- END: Story Bible Modal -->
+    <!-- BEGIN: Delete Confirmation Modal -->
+    <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden"
+        id="delete-modal">
+        <div
+            class="bg-white rounded-xl shadow-2xl border border-stone-200 w-full max-w-md p-5 animate-in fade-in zoom-in-95 duration-200">
+            <div
+                class="w-10 h-10 rounded-full bg-red-50 text-red-600 border border-red-200 flex items-center justify-center mb-3">
+                <span class="material-symbols-outlined text-[20px]">delete_outline</span>
+            </div>
+            <h3 class="text-sm font-bold text-stone-900">Xác nhận xóa chương?</h3>
+            <p class="text-xs text-stone-600 mt-1.5 leading-relaxed" id="delete-modal-msg">
+                Bạn có chắc chắn muốn xóa vĩnh viễn chương này? Hành động này sẽ chuyển nội dung vào thùng rác và không
+                thể hoàn tác sau 30 ngày.
+            </p>
+            <div class="mt-5 flex items-center justify-end gap-2 text-xs">
+                <button
+                    class="px-3 py-1.5 rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-100 font-medium"
+                    onclick="closeDeleteModal()" type="button">Hủy bỏ</button>
+                <button class="px-3.5 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 font-semibold"
+                    onclick="closeDeleteModal()" type="button">Xóa chương này</button>
+            </div>
+        </div>
+    </div><!-- BEGIN: Publish Confirmation Modal -->
+    <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden"
+        id="publish-modal">
+        <div
+            class="bg-white rounded-xl shadow-2xl border border-stone-200 w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-200">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div
+                        class="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-200 text-primary-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px]">send</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-stone-900">Xác nhận xuất bản chương 48</h3>
+                        <p class="text-[11px] text-stone-500">Tác phẩm: Gió Thoảng Qua Phố Cổ • Quyển 2</p>
+                    </div>
+                </div>
+                <button class="p-1 text-stone-400 hover:text-stone-700 rounded-md" onclick="closePublishModal()"
+                    type="button">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <!-- Summary Box -->
+            <div class="bg-stone-50 border border-stone-200 rounded-lg p-3 space-y-1.5 text-xs text-stone-700 mb-4">
+                <div class="flex justify-between">
+                    <span class="text-stone-500">Tiêu đề chương:</span>
+                    <span class="font-semibold text-stone-900">Chương 48: Lời thú nhận</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-stone-500">Độ dài:</span>
+                    <span class="font-medium text-stone-800">2,845 từ (~8 phút đọc)</span>
+                </div>
+                <div class="flex justify-between items-center pt-1 border-t border-stone-200/60">
+                    <span class="text-stone-500">Quyền truy cập:</span>
+                    <span
+                        class="inline-flex items-center gap-1 font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[11px]">
+                        <span class="material-symbols-outlined text-[12px] text-amber-500 fill-icon">stars</span> Chương
+                        VIP (15 Xu)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Validation Checklist -->
+            <div class="mb-4">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-stone-400 block mb-2">Kiểm tra tiêu
+                    chuẩn xuất bản</span>
+                <div class="space-y-1.5 text-xs">
+                    <div
+                        class="flex items-center gap-2 text-emerald-700 bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-1.5 rounded-md">
+                        <span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
+                        <span class="">Tiêu đề chương hợp lệ và đúng quy chuẩn</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-2 text-emerald-700 bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-1.5 rounded-md">
+                        <span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
+                        <span class="">Độ dài đạt chuẩn (&gt;1,000 từ theo tiêu chuẩn chương VIP)</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-2 text-emerald-700 bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-1.5 rounded-md">
+                        <span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
+                        <span class="">Không chứa nội dung hoặc từ khóa vi phạm chuẩn mực</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moderation Notice -->
+            <div
+                class="p-2.5 rounded-lg bg-indigo-50/60 border border-indigo-100 text-[11px] text-stone-600 leading-relaxed mb-5 flex items-start gap-2">
+                <span class="material-symbols-outlined text-primary-600 text-[16px] shrink-0 mt-0.5">info</span>
+                <span class="">Chương sẽ được chuyển sang trạng thái <strong>"Chờ kiểm duyệt"</strong> (thời gian xét
+                    duyệt thông thường 15-30 phút) trước khi hiển thị công khai cho độc giả.</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-2 text-xs">
+                <button
+                    class="px-3.5 py-1.5 rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-100 font-medium transition-colors"
+                    onclick="closePublishModal()" type="button">
+                    Hủy bỏ
+                </button>
+                <button
+                    class="px-4 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold transition-all shadow-sm shadow-indigo-200 active:scale-95"
+                    onclick="confirmPublishChapter()" type="button">
+                    Xác nhận gửi duyệt
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END: Publish Confirmation Modal -->
+    <!-- END: Delete Confirmation Modal -->
+    <!-- BEGIN: Toast Notification Preview (Success) -->
+    <div class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300"
+        id="toast-notification">
+        <div
+            class="flex items-center gap-2.5 bg-stone-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium border border-stone-800">
+            <span class="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span>
+            <span class="">Chương 48 đã được lưu và gửi duyệt xuất bản thành công!</span>
+        </div>
+    </div>
+    <!-- END: Toast Notification Preview -->
+    <!-- BEGIN: InteractiveHandlers -->
+    <script data-purpose="toggle-drawers-script">
+        // Toggle AI Writing Assistant Drawer
+        function toggleAiDrawer() {
+            const drawer = document.getElementById('ai-drawer');
+            const isClosed = drawer.classList.contains('translate-x-full');
+            if (isClosed) {
+                drawer.classList.remove('translate-x-full');
+                drawer.classList.add('translate-x-0');
+            } else {
+                drawer.classList.remove('translate-x-0');
+                drawer.classList.add('translate-x-full');
+            }
+        }
+
+        // Toggle Left Chapter Rail (Collapse / Expand)
+        function toggleSidebarRail() {
+            const rail = document.getElementById('sidebar-rail');
+            if (rail.classList.contains('w-[280px]')) {
+                rail.classList.remove('w-[280px]');
+                rail.classList.add('w-0', 'overflow-hidden', 'border-r-0');
+            } else {
+                rail.classList.remove('w-0', 'overflow-hidden', 'border-r-0');
+                rail.classList.add('w-[280px]');
+            }
+        }
+
+        // Toggle Story Bible Modal
+        function toggleStoryBibleModal() {
+            const modal = document.getElementById('story-bible-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Toggle Delete Modal
+        function openDeleteModal(chapterTitle) {
+            const modal = document.getElementById('delete-modal');
+            const msg = document.getElementById('delete-modal-msg');
+            if (msg) msg.textContent = `Bạn có chắc chắn muốn xóa vĩnh viễn "${chapterTitle}"? Nội dung sẽ được lưu trong thùng rác 30 ngày.`;
+            modal.classList.remove('hidden');
+        }
+        function closeDeleteModal() {
+            const modal = document.getElementById('delete-modal');
+            modal.classList.add('hidden');
+        }
+
+        // Toggle VIP / Free Access
+        function setChapterAccess(type) {
+            const freeBtn = document.getElementById('btn-mode-free');
+            const vipBtn = document.getElementById('btn-mode-vip');
+            const priceBox = document.getElementById('vip-price-container');
+
+            if (type === 'free') {
+                freeBtn.className = "px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white text-stone-900 shadow-2xs border border-stone-200/60";
+                vipBtn.className = "px-2.5 py-1 rounded-md text-[11px] font-medium text-stone-600 hover:text-stone-900 transition-colors flex items-center gap-1";
+                priceBox.classList.add('hidden');
+            } else {
+                vipBtn.className = "px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white text-primary-700 shadow-2xs border border-stone-200/60 flex items-center gap-1";
+                freeBtn.className = "px-2.5 py-1 rounded-md text-[11px] font-medium text-stone-600 hover:text-stone-900 transition-colors";
+                priceBox.classList.remove('hidden');
+            }
+        }
+
+        // Toast Notification
+        function showToastNotification() {
+            const toast = document.getElementById('toast-notification');
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3500);
+        }
+
+        // Toggle Font between Serif (Merriweather) and Sans-serif
+        let isSerif = true;
+        function toggleFontFamily() {
+            const editor = document.getElementById('editor-text-content');
+            const label = document.getElementById('current-font-label');
+            if (isSerif) {
+                editor.classList.remove('manuscript-body');
+                editor.style.fontFamily = '"Be Vietnam Pro", sans-serif';
+                label.textContent = "Be Vietnam Pro (Không chân)";
+                isSerif = false;
+            } else {
+                editor.style.fontFamily = '';
+                editor.classList.add('manuscript-body');
+                label.textContent = "Merriweather (Có chân)";
+                isSerif = true;
+            }
+        }
+
+        // Focus Mode Toggle (Hide sidebars and clean screen)
+        let focusMode = false;
+        function toggleFocusMode() {
+            const rail = document.getElementById('sidebar-rail');
+            focusMode = !focusMode;
+            if (focusMode) {
+                rail.classList.add('w-0', 'overflow-hidden', 'border-r-0');
+                rail.classList.remove('w-[280px]');
+            } else {
+                rail.classList.remove('w-0', 'overflow-hidden', 'border-r-0');
+                rail.classList.add('w-[280px]');
+            }
+        }
+    </script>
+    <!-- END: InteractiveHandlers -->
+
+
+</body>
+
+</html>
