@@ -162,6 +162,9 @@ function ProjectCard({ project }: { project: Novel }) {
           <Button size="xs" variant="light" onClick={() => navigate(`/author/novels/${project.novelId}`)}>
             Metadata
           </Button>
+          <Button size="xs" variant="light" color="indigo" onClick={() => navigate(`/author/context/${project.novelId}`)}>
+            Cẩm nang
+          </Button>
           <Button size="xs" variant="light" onClick={() => navigate(`/author/import/${project.novelId}`)}>
             Import
           </Button>
