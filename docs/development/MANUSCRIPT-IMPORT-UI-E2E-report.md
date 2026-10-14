@@ -117,3 +117,14 @@ In accordance with Section 4 and Section 5 of `promt.md`:
    ```
 3. Gemini does not create PRs, does not merge into `main`, and does not merge the old `UI` branch into `main`.
 4. Remote review, GitHub Actions CI verification, and merge decisions belong exclusively to ChatGPT.
+
+---
+
+## 6. Backward-Only SHA Lineage
+
+```text
+TESTED_MAIN_SHA:      dce5172e916d0546fe8293807bce7354e695fd50
+TESTED_CODE_SHA:      95a8afda869642b88aa74f1e6421c8366487939f
+EVIDENCE_PAYLOAD_SHA: f1b1c8e3e28e88a527fa2c4a73d9aadcaa9fcb31
+```
+
