@@ -537,16 +537,26 @@ def run_pipeline(
         # ─────────────────────────────────────────────────────────────────────
         cur.execute(
             """
-            SELECT id, dependency_group_id, proposal_type, status, expected_brain_version
+            SELECT id, dependency_group_id, proposal_type, status, expected_brain_version, evidence
             FROM narrative.proposals
-            WHERE novel_id = %s AND revision_id = %s
+            WHERE novel_id = %s
             ORDER BY materialization_order, id
             """,
-            (novel_id, accepted_revision_id),
+            (novel_id,),
         )
-        inc_proposals = cur.fetchall()
+        all_novel_proposals = cur.fetchall()
+        inc_proposals = []
+        for proposal in all_novel_proposals:
+            evidence = proposal[5] or []
+            if any(
+                isinstance(item, dict)
+                and str(item.get("revision_id", "")) == accepted_revision_id
+                for item in evidence
+            ):
+                inc_proposals.append(proposal)
+
         assert len(inc_proposals) > 0, (
-            "No incremental proposals found for accepted revision "
+            "No revision-scoped incremental proposals found for accepted revision "
             f"{accepted_revision_id}"
         )
 
