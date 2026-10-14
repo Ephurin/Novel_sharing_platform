@@ -8,8 +8,11 @@ Test target:
 
 ```text
 branch: main
-SHA:    e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2
+current handoff HEAD: f711a71b1ba27641fc869bbea3768594032ff4a1
+product/UI baseline: e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2
 ```
+
+The only change after the product/UI baseline is this handoff documentation commit; no product code changed.
 
 Recent UI merges under test:
 
@@ -37,13 +40,19 @@ git pull
 git rev-parse HEAD
 ```
 
-The HEAD under test must be exactly:
+The expected current HEAD when this task was assigned is:
+
+```text
+f711a71b1ba27641fc869bbea3768594032ff4a1
+```
+
+The latest product/UI change under test remains:
 
 ```text
 e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2
 ```
 
-If `main` has advanced before execution, stop treating the SHA above as current and record the actual tested HEAD.
+If `main` advances again before execution, record and test the actual pulled HEAD. Do not reset behind current `main` merely to recover the SHA above.
 
 Default mode:
 
