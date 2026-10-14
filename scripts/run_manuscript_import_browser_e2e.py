@@ -397,15 +397,15 @@ async def run_manuscript_import_browser_e2e():
 
         # Wait for chapter table to render with imported chapter titles
         await browser.wait_for_condition(
-            "document.body.innerText.includes('Khởi đầu hành trình') && document.body.innerText.includes('Bí mật trong cổ mộ')",
+            "document.body.innerText.includes('Mùa hoa sữa trên phố cổ') && document.body.innerText.includes('Đêm sương lạnh qua cầu Long Biên')",
             25.0
         )
         await asyncio.sleep(1.0)
         await browser.screenshot("import-e-reloaded-chapter-list.png")
 
         # Assert visual presence in DOM
-        title1_rendered = await browser.evaluate("document.body.innerText.includes('Khởi đầu hành trình')")
-        title2_rendered = await browser.evaluate("document.body.innerText.includes('Bí mật trong cổ mộ')")
+        title1_rendered = await browser.evaluate("document.body.innerText.includes('Mùa hoa sữa trên phố cổ')")
+        title2_rendered = await browser.evaluate("document.body.innerText.includes('Đêm sương lạnh qua cầu Long Biên')")
         assert title1_rendered and title2_rendered, "Both imported chapters must be visible in the rendered novel chapter list!"
         print("  Verified both imported chapters are visibly rendered in /author/novels/:novelId")
 
