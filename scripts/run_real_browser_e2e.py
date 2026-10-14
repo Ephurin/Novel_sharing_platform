@@ -1164,7 +1164,7 @@ async def run_browser_e2e():
                 return ""
 
         tested_code_sha = os.environ.get("TESTED_CODE_SHA") or get_git_sha("HEAD")
-        tested_main_sha = os.environ.get("TESTED_MAIN_SHA") or "5432a201b1076b00c3b01968832a84d4df0e7740"
+        tested_main_sha = os.environ.get("TESTED_MAIN_SHA") or "5432a20a93852cc6c4a403fa03e0ed46117f5f36"
 
         results["verdict"] = "MAIN_UI_E2E_PASS"
         results["lineage"] = {
