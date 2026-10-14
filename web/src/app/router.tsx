@@ -117,6 +117,14 @@ export const router = createBrowserRouter([
     )
   },
   {
+    path: '/wallet',
+    element: (
+      <AuthGate>
+        <WalletPage />
+      </AuthGate>
+    )
+  },
+  {
     path: '/',
     element: (
       <AuthGate>
@@ -147,10 +155,6 @@ export const router = createBrowserRouter([
       {
         path: '/reader/history',
         element: <ReaderHistoryPage />
-      },
-      {
-        path: '/wallet',
-        element: <WalletPage />
       },
       {
         path: '/notifications',

@@ -6,7 +6,8 @@ body,
 }
 
 body {
-  background: #0f1117;
+  background: #faf8ff;
+  color: #131b2e;
 }
 
 .auth-shell {
