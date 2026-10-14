@@ -3,7 +3,7 @@
   "timestamp": "2026-10-14T03:09:59.266808+00:00",
   "tested_main_sha": "356d3d48fa7f64453c72f5b8866763e186a698e8",
   "product_ui_baseline": "e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2",
-  "repaired_code_sha": "356d3d48fa7f64453c72f5b8866763e186a698e8",
+  "repaired_code_sha": "581f1a0aecebe2a0fca3044ca087bcb037981615",
   "branch": "astra/ai-pipe-01b-main-e2e-repair",
   "checkpoints": {
     "E2E-A": {
