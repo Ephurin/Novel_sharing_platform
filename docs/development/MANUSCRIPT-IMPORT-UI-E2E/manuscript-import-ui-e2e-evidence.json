@@ -1,0 +1,163 @@
+{
+  "gate": "MANUSCRIPT-IMPORT-UI-E2E",
+  "timestamp": "2026-10-14T09:02:36Z",
+  "execution_mode": "REAL_BROWSER_AUTOMATION_CDP",
+  "browser": "Microsoft Edge 155 (Headless Chrome/155.0.0.0)",
+  "novel_id": "7c071a7b-671e-4f59-a0eb-22171c00c6cb",
+  "novel_title": "Hà Nội Ký Sự - Bản Thảo Thử Nghiệm c80915",
+  "checkpoints": {
+    "Import-A": {
+      "name": "Authenticate & Navigate to Manuscript Import",
+      "status": "PASS",
+      "url": "http://127.0.0.1:5173/author/import/7c071a7b-671e-4f59-a0eb-22171c00c6cb",
+      "evidence_artifact": "import-a-navigated.png",
+      "notes": "Browser successfully logged in as author and navigated to /author/import/:novelId."
+    },
+    "Import-B": {
+      "name": "Load/Paste Deterministic Manuscript Fixture",
+      "status": "PASS",
+      "evidence_artifact": "import-b-pasted-fixture.png",
+      "fixture_length": 1157,
+      "notes": "Pasted 2-chapter Vietnamese fixture into browser paste modal and clicked apply."
+    },
+    "Import-C": {
+      "name": "Browser Chapter Parse & Preview Table",
+      "status": "PASS",
+      "rendered_chapter_count": 2,
+      "evidence_artifact": "import-c-parsed-preview.png",
+      "notes": "Preview table rendered 2 detected chapters with proper Vietnamese titles and word counts."
+    },
+    "Import-D": {
+      "name": "Select & Confirm Import Through UI",
+      "status": "PASS",
+      "evidence_artifact": "import-d-confirming-import.png",
+      "notes": "Clicked 'Xác nhận nhập' in browser, which executed importChaptersBatch and initiated Story Brain bootstrap."
+    },
+    "Import-E": {
+      "name": "Imported Chapters Persisted & Verifiable",
+      "status": "PASS",
+      "chapter_ids": [
+        "affb01f4-b1b7-4458-af7a-be5c05926898",
+        "ec904893-8de4-4538-a446-e89e3d6f2b55"
+      ],
+      "chapter_titles": [
+        "Chương 1: Mùa hoa sữa trên phố cổ",
+        "Chương 2: Đêm sương lạnh qua cầu Long Biên"
+      ],
+      "notes": "Verified chapters are persisted in PostgreSQL with correct titles and sequential numbering."
+    },
+    "Import-F": {
+      "name": "Canonical Immutable Revision & Hash Correlation",
+      "status": "PASS",
+      "ch1": {
+        "chapter_id": "affb01f4-b1b7-4458-af7a-be5c05926898",
+        "revision_id": "f91be560-c6e0-4c90-bd03-439db34d53c7",
+        "content_hash": "1d5769cfc19eb6524807c4f2ffa4fa2b02f6b5e561df23feefb9bf16ebd1bdc4"
+      },
+      "ch2": {
+        "chapter_id": "ec904893-8de4-4538-a446-e89e3d6f2b55",
+        "revision_id": "f1cdbd82-f5cc-47af-927d-ea86cecbe6b4",
+        "content_hash": "424e6fea8b401b2826e3a829c9f78c5d49cf377b3bf31777471a024fe724a6db"
+      },
+      "cryptographic_verification": "MATCHES_EXACT_SHA256",
+      "notes": "Verified distinct real UUIDs and authentic 64-char hex SHA-256 digests in PostgreSQL."
+    },
+    "Import-G": {
+      "name": "Story Brain Bootstrap Manifest Verification",
+      "status": "PASS",
+      "job_id": "dd4553bd-a135-5d3d-82cf-ba757e9968b0",
+      "status_at_dispatch": "waiting_review",
+      "manifest_revisions": [
+        {
+          "status": "completed",
+          "chapter_id": "affb01f4-b1b7-4458-af7a-be5c05926898",
+          "revision_id": "f91be560-c6e0-4c90-bd03-439db34d53c7",
+          "content_hash": "1d5769cfc19eb6524807c4f2ffa4fa2b02f6b5e561df23feefb9bf16ebd1bdc4",
+          "chapter_number": null,
+          "proposal_count": 1,
+          "analysis_run_id": "62123cc7-12ff-4367-91fc-967581534da3"
+        },
+        {
+          "status": "completed",
+          "chapter_id": "ec904893-8de4-4538-a446-e89e3d6f2b55",
+          "revision_id": "f1cdbd82-f5cc-47af-927d-ea86cecbe6b4",
+          "content_hash": "424e6fea8b401b2826e3a829c9f78c5d49cf377b3bf31777471a024fe724a6db",
+          "chapter_number": null,
+          "proposal_count": 1,
+          "analysis_run_id": "32a0b922-527e-472c-8fe9-76f27b4de79d"
+        }
+      ],
+      "notes": "Confirmed bootstrap consumed authentic persisted revision IDs and content hashes."
+    },
+    "Import-H": {
+      "name": "Review Queue Rendered in Browser",
+      "status": "PASS",
+      "proposal_count": 2,
+      "evidence_artifact": "import-h-review-queue.png",
+      "notes": "Browser UI rendered priority review queue with grouped proposals and action controls."
+    },
+    "Import-I": {
+      "name": "Reject Proposal Through UI",
+      "status": "PASS",
+      "rejected_proposal_id": "1819b1ba-8ae4-5ba4-ab58-fc1f90e21650",
+      "evidence_artifact": "import-i-rejected-proposal.png",
+      "notes": "UI 'Từ chối' action sent reject mutation; proposal marked 'rejected' and excluded from baseline."
+    },
+    "Import-J": {
+      "name": "Accept Proposal Groups Through UI",
+      "status": "PASS",
+      "accepted_proposals_count": 1,
+      "evidence_artifact": "import-j-accepted-proposals.png",
+      "notes": "All required proposal groups accepted with optimistic brain_version locking."
+    },
+    "Import-K": {
+      "name": "Activate Story Brain Baseline Through UI",
+      "status": "PASS",
+      "story_brain_status": "active",
+      "brain_version": 2,
+      "baseline_revision_id": "f1cdbd82-f5cc-47af-927d-ea86cecbe6b4",
+      "evidence_artifact": "import-k-baseline-activated.png",
+      "notes": "Clicked baseline activation button in browser; Story Brain marked active in PostgreSQL."
+    },
+    "Import-L": {
+      "name": "Open Imported Chapter in Author IDE",
+      "status": "PASS",
+      "ide_url": "http://127.0.0.1:5173/author/ide?novelId=7c071a7b-671e-4f59-a0eb-22171c00c6cb&chapterId=affb01f4-b1b7-4458-af7a-be5c05926898",
+      "evidence_artifact": "import-l-author-ide.png",
+      "content_verified": true,
+      "notes": "Author IDE loaded imported Chapter 1 with canonical text from draft/revisions."
+    },
+    "Import-M": {
+      "name": "Browser AI Generation #1 (Candidate Draft)",
+      "status": "PASS",
+      "evidence_artifact": "import-m-generation1-draft.png",
+      "notes": "Browser generation #1 completed using Story Brain context derived from imported manuscript."
+    },
+    "Import-N": {
+      "name": "Reject Generation & Invariant Verification",
+      "status": "PASS",
+      "ai_revisions_count": 0,
+      "brain_version": 2,
+      "evidence_artifact": "import-n-generation1-rejected.png",
+      "notes": "Rejected draft left canon revisions and Story Brain version strictly untouched."
+    },
+    "Import-O": {
+      "name": "AI Draft Accept & Outbox Closed-Loop",
+      "status": "PASS",
+      "accepted_revision_id": "884fa0a0-7ab0-481f-86a9-3ac72fd3d228",
+      "source_generation_id": "c07fbccb-1506-51ba-bcf4-17cf5d37ceb9",
+      "outbox_event_id": "253a746f-8ab9-4011-827c-51ab839fc072",
+      "brain_version_before": 2,
+      "brain_version_after": 3,
+      "evidence_artifact": "import-o-generation2-accepted.png",
+      "notes": "Browser acceptDraft created AI_DRAFT_ACCEPT; outbox reached COMPLETED; Story Brain version advanced."
+    },
+    "Import-P": {
+      "name": "Subsequent Browser Generation Observes N+1",
+      "status": "PASS",
+      "observed_brain_version": 3,
+      "evidence_artifact": "import-p-generation3-observes-n-plus-1.png",
+      "notes": "Browser generation #3 correctly sent advanced brain_version in expected_brain_version payload."
+    }
+  }
+}
