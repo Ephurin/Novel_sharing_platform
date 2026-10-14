@@ -1,6 +1,6 @@
 {
   "gate": "AI-PIPE-01B",
-  "timestamp": "2026-10-14T06:19:56Z",
+  "timestamp": "2026-10-14T06:43:51Z",
   "execution_mode": "REAL_BROWSER_AUTOMATION_CDP",
   "browser": "Microsoft Edge 155 (Headless Chrome/155.0.0.0)",
   "checkpoints": {
@@ -31,21 +31,21 @@
     "Browser-D": {
       "name": "AI Draft Accept & Canonical Persistence",
       "status": "PASS",
-      "accepted_revision_id": "a10881d2-b805-4f3f-b9dd-e3e034d4cc2b",
-      "source_generation_id": "7afc5da5-5557-5228-a6c9-814b57103376",
-      "chapters_latest_revision_id": "a10881d2-b805-4f3f-b9dd-e3e034d4cc2b",
-      "outbox_event_id": "4b34aa77-c922-4045-83db-cfadf183e1e2",
+      "accepted_revision_id": "476f78c6-e14c-4e70-8e06-7f21a030a10a",
+      "source_generation_id": "b112c6ab-8256-5463-85dd-6e9a62c89cad",
+      "chapters_latest_revision_id": "476f78c6-e14c-4e70-8e06-7f21a030a10a",
+      "outbox_event_id": "eced64f3-93c5-4d45-903d-9241b532b55f",
       "evidence_artifact": "browser-ai-accept.png",
       "notes": "Browser click invoked acceptDraftRevision. DB verified AI_DRAFT_ACCEPT revision, pointer advance, and INCREMENTAL_ANALYSIS outbox event."
     },
     "Browser-E": {
       "name": "Story Brain Version Advancement & Feedback Loop",
       "status": "PASS",
-      "brain_version_before": 18,
-      "brain_version_after": 19,
-      "second_browser_request_id": "2764.516",
-      "expected_brain_version": 19,
-      "observed_brain_version": 19,
+      "brain_version_before": 20,
+      "brain_version_after": 21,
+      "second_browser_request_id": "1588.516",
+      "expected_brain_version": 21,
+      "observed_brain_version": 21,
       "outbox_status": "COMPLETED",
       "evidence_artifact": "browser-feedback-context.png",
       "notes": "Transactional outbox reached COMPLETED, Story Brain advanced N -> N+1. Browser generation #2 initiated from UI observed expected_brain_version == advanced version."
@@ -54,17 +54,19 @@
       "name": "Story Bible Mutation & IDE Panel Consistency",
       "status": "PASS",
       "evidence_artifact": "browser-story-bible.png",
-      "character_verified": "Browser Arthur 257c",
-      "timeline_event_verified": "Hội thề Ashenhold 528d",
-      "mutation_mode": "100% UI DOM form controls",
-      "notes": "Character and Timeline Event created via rendered UI form controls. Verified after page reload and confirmed in IDE Story Bible modal."
+      "character_verified": "Browser Arthur fac0, Browser Guinevere d6ae",
+      "relationship_verified": "Browser Arthur fac0 -> Browser Guinevere d6ae (Hộ vệ trung thành)",
+      "timeline_event_verified": "Hội thề Ashenhold c184",
+      "plot_summary_verified": "Đại chiến Ashenhold bùng nổ, Browser Arthur fac0 sát cánh cùng Browser Guinevere d6ae bảo vệ kinh đô.",
+      "mutation_mode": "UI_DOM",
+      "notes": "All 4 Story Bible surfaces (Character A/B, Relationship, Timeline Event, Plot Summary) mutated via 100% UI DOM form controls. Verified after page reload and confirmed across all 4 tabs in IDE Story Bible modal."
     },
     "Browser-G": {
       "name": "Novel Metadata Save & Ownership Negative",
       "status": "PASS",
       "evidence_artifact": "browser-novel-metadata.png",
       "mutation_mode": "100% UI DOM form modal",
-      "synopsis_updated": "Bản hùng ca Ashenhold [Cập nhật qua UI thật lúc 1791958844]",
+      "synopsis_updated": "Bản hùng ca Ashenhold [Cập nhật qua UI thật lúc 1791960283]",
       "security_negative": {
         "classification": "API_SECURITY",
         "forbidden_status": 403,
@@ -75,7 +77,7 @@
     "Browser-H": {
       "name": "Chapter Lifecycle & VIP Publishing",
       "status": "PASS",
-      "chapter_id": "553861d8-c6b7-4f75-9dd6-6f285e85d452",
+      "chapter_id": "5044300e-2a61-4318-88a3-fcea72e52c84",
       "status_in_db": "PUBLISHED",
       "is_vip": true,
       "price_coins": 8,
@@ -86,18 +88,17 @@
   },
   "verdict": "MAIN_UI_E2E_PASS",
   "lineage": {
-    "tested_main_sha": "c538e1d479a595272b2b87788f9243982a1cc166",
-    "repaired_code_sha": "8662b78a3f4181425f9b0999b8aa34eb3ff3d195",
-    "evidence_commit_sha": "cf2029c32c3902bddb2cd99e35d4793f86f61b91",
+    "tested_code_sha": "e85570f835932bbd26992f94d4707e35dddc510f",
+    "tested_main_sha": "5432a201b1076b00c3b01968832a84d4df0e7740",
     "branch": "astra/ai-pipe-01b-main-e2e-repair",
     "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
     "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
-    "accepted_revision_id": "a10881d2-b805-4f3f-b9dd-e3e034d4cc2b",
-    "source_generation_id": "7afc5da5-5557-5228-a6c9-814b57103376",
-    "outbox_event_id": "4b34aa77-c922-4045-83db-cfadf183e1e2",
-    "brain_version_before": 18,
-    "brain_version_after": 19,
-    "second_browser_request_id": "2764.516",
-    "new_chapter_id": "553861d8-c6b7-4f75-9dd6-6f285e85d452"
+    "accepted_revision_id": "476f78c6-e14c-4e70-8e06-7f21a030a10a",
+    "source_generation_id": "b112c6ab-8256-5463-85dd-6e9a62c89cad",
+    "outbox_event_id": "eced64f3-93c5-4d45-903d-9241b532b55f",
+    "brain_version_before": 20,
+    "brain_version_after": 21,
+    "second_browser_request_id": "1588.516",
+    "new_chapter_id": "5044300e-2a61-4318-88a3-fcea72e52c84"
   }
 }
