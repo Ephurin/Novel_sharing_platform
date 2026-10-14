@@ -155,8 +155,12 @@ def validate(evidence: dict[str, Any]) -> list[str]:
     # Checkpoint 12: Story Brain Advances from Accepted Content
     cp12 = cp_map.get(12, {})
     cp12_details = cp12.get("details", {})
-    require(cp12_details.get("brain_version_before") == 2, "cp12_brain_version_before_not_2")
-    require(cp12_details.get("brain_version_after", 0) >= 3, "cp12_brain_version_not_advanced")
+    require(cp12_details.get("outbox_status") == "COMPLETED", "cp12_outbox_not_completed")
+    require(cp12_details.get("brain_version_before", 0) >= 2, "cp12_brain_version_before_below_baseline")
+    require(
+        cp12_details.get("brain_version_after", 0) > cp12_details.get("brain_version_before", 0),
+        "cp12_brain_version_not_advanced",
+    )
 
     # Checkpoint 13: Explicit Plan Progress Update
     cp13 = cp_map.get(13, {})
@@ -297,6 +301,7 @@ def run_self_tests() -> None:
                 "checkpoint": 12,
                 "status": "PASS",
                 "details": {
+                    "outbox_status": "COMPLETED",
                     "brain_version_before": 2,
                     "brain_version_after": 3,
                 },
