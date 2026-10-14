@@ -530,7 +530,7 @@ export function AuthorWritingIde() {
       const count = chaptersQuery.data?.length ?? 0;
       return createChapter(activeNovelId, {
         title: `Chương ${count + 1}: Bản thảo mới`,
-        content: '',
+        content: 'Khởi đầu bản thảo mới...',
         isVip: false,
         priceCoins: 0
       });

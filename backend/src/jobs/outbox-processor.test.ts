@@ -11,12 +11,14 @@ describe('AI-PIPE-01B Outbox Processor Fail-Closed Auto-Materialization', () => 
     novelId: 'novel-001',
     chapterId: 'chap-001',
     contentHash: 'hash-abc',
-    status: 'CLAIMED',
+    createdBy: null,
+    payload: {},
+    status: 'PROCESSING',
     retryCount: 0,
+    maxRetries: 5,
+    nextRetryAt: new Date(),
+    lastError: null,
     claimToken: 'tok-123',
-    claimedAt: new Date(),
-    processedAt: null,
-    errorMessage: null,
     createdAt: new Date(),
     updatedAt: new Date()
   };
