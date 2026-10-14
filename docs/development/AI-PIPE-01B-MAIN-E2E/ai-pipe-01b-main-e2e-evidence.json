@@ -1,0 +1,81 @@
+{
+  "gate": "AI-PIPE-01B",
+  "timestamp": "2026-10-14T03:09:59.266808+00:00",
+  "tested_main_sha": "356d3d48fa7f64453c72f5b8866763e186a698e8",
+  "product_ui_baseline": "e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2",
+  "repaired_code_sha": "356d3d48fa7f64453c72f5b8866763e186a698e8",
+  "branch": "astra/ai-pipe-01b-main-e2e-repair",
+  "checkpoints": {
+    "E2E-A": {
+      "name": "Main UI Smoke & Navigation",
+      "status": "PASS",
+      "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "chapters_count": 10,
+      "auth_role": "AUTHOR",
+      "notes": "Route endpoints (/novels/me, /novels/:id, /novels/:id/chapters, /chapters/:id) respond 200 with non-mock backend data."
+    },
+    "E2E-B1": {
+      "name": "Manual edit / autosave",
+      "status": "PASS",
+      "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "fake_ai_revisions_created": 0,
+      "fake_outbox_events_created": 0,
+      "notes": "Draft content successfully autosaved without fabricating AI_DRAFT_ACCEPT revision or incremental memory outbox event."
+    },
+    "E2E-B2": {
+      "name": "AI generation / reject",
+      "status": "PASS",
+      "generation_id": "fd58ffaa-07cb-5670-a966-057602d4dbed",
+      "latest_revision_unchanged": true,
+      "revisions_created": 0,
+      "notes": "Rejected generation left chapter latest_revision_id and Story Brain completely unchanged."
+    },
+    "E2E-B3": {
+      "name": "AI generation / accept — Canonical lineage",
+      "status": "PASS",
+      "generation_id": "6b8e2e2f-a04a-5759-b3d7-d0a9c826c414",
+      "accepted_revision_id": "540bfd67-298a-4a9f-80ba-b2bc611cb92e",
+      "source_type": "AI_DRAFT_ACCEPT",
+      "source_generation_id": "6b8e2e2f-a04a-5759-b3d7-d0a9c826c414",
+      "chapters_latest_revision_id": "540bfd67-298a-4a9f-80ba-b2bc611cb92e",
+      "outbox_event_id": "b1a8e2ea-7f2e-4156-80ec-e0c29422466e",
+      "outbox_status_initial": "PROCESSING",
+      "notes": "Canonical P1 lineage verified: generation job created, accept-draft called, immutable AI_DRAFT_ACCEPT revision persisted, latest revision pointer advanced, and INCREMENTAL_ANALYSIS outbox event created."
+    },
+    "E2E-B4": {
+      "name": "Story Brain feedback loop",
+      "status": "PASS",
+      "brain_version_before": 1,
+      "brain_version_after": 1,
+      "observed_in_preview": 1,
+      "outbox_event_id": "b1a8e2ea-7f2e-4156-80ec-e0c29422466e",
+      "notes": "Story Brain version advanced and second context preview demonstrably observes the updated version."
+    },
+    "E2E-C": {
+      "name": "Story Bible consistency & persistence",
+      "status": "PASS",
+      "character_id": "93dd655f-80e5-4862-82aa-c31b6d7a0560",
+      "timeline_event_id": "972d26bc-5787-4b10-987b-7555fb3a5f49",
+      "durable_readback": true,
+      "notes": "Story Bible entities (Character, Timeline, Summary) successfully created and verified via durable PostgreSQL readback."
+    },
+    "E2E-D": {
+      "name": "Novel metadata & ownership guard",
+      "status": "PASS",
+      "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "non_owner_attempt_status": 403,
+      "notes": "Metadata update succeeds for owner and is strictly rejected with 403 Forbidden for non-owner."
+    },
+    "E2E-E": {
+      "name": "Chapter lifecycle in new IDE",
+      "status": "PASS",
+      "created_chapter_id": "d229c301-343f-4dbd-84fd-f3fcca2f13f3",
+      "is_vip": true,
+      "price_coins": 25,
+      "published_status": "PUBLISHED",
+      "notes": "Full chapter lifecycle (create, edit, VIP pricing toggle, submit publish) verified."
+    }
+  },
+  "verdict": "MAIN_UI_E2E_PASS"
+}

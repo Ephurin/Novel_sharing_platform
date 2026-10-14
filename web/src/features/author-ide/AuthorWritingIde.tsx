@@ -23,7 +23,16 @@ import type {
   PlotSummary,
   StoryTimelineEvent
 } from '../story-context/story-context-types';
-import { createCopilotSuggestion } from '../ai-copilot/ai-copilot-api';
+import {
+  startWritingGeneration,
+  getJobStatus,
+  acceptDraftRevision,
+  createChapterSnapshot,
+  fetchContextPreview,
+  listChapterRevisions,
+  utf16OffsetToCodePoint,
+  type WritingGenerationJob
+} from '../ai-copilot/ai-copilot-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 
 export type FontOption = 'merriweather' | 'lora' | 'literata' | 'playfair' | 'roboto-slab' | 'vietnam' | 'jakarta';
@@ -169,13 +178,16 @@ export function AuthorWritingIde() {
   const [storyBibleTab, setStoryBibleTab] = useState<StoryBibleTab>('characters');
   const [chapterSearch, setChapterSearch] = useState('');
 
-  // AI Assistant State
+  // AI Assistant State (Canonical P1 Closed-Loop)
   const [aiInstruction, setAiInstruction] = useState('');
   const [aiScope, setAiScope] = useState<'selection' | 'full' | 'bible'>('selection');
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [aiSuggestionTone, setAiSuggestionTone] = useState<string>('Trầm lắng • Hoài niệm');
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [isAcceptingAi, setIsAcceptingAi] = useState(false);
+  const [currentJob, setCurrentJob] = useState<WritingGenerationJob | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const pollTimerRef = useRef<number | null>(null);
 
   // References for tracking changes
   const editorRef = useRef<HTMLTextAreaElement>(null);
@@ -256,6 +268,26 @@ export function AuthorWritingIde() {
       }
     }
   }, [activeNovelId, activeChapterId, searchParams, setSearchParams]);
+
+  // Clean up AI generation polling timer on unmount and chapter switch
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) {
+        window.clearTimeout(pollTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (pollTimerRef.current) {
+      window.clearTimeout(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+    setIsGeneratingAi(false);
+    setIsAcceptingAi(false);
+    setCurrentJob(null);
+    setAiSuggestion(null);
+  }, [activeChapterId]);
 
   // Load chapter data into editor when chapter changes
   useEffect(() => {
@@ -542,43 +574,141 @@ export function AuthorWritingIde() {
     }
   });
 
-  // AI Copilot Mutation
-  const handleGenerateAi = async (instructionText?: string) => {
-    if (!activeNovelId) return;
+  // Canonical P1 Writing Loop Generation & Draft Acceptance
+  const handleGenerateAi = async (
+    instructionText?: string,
+    operationType: 'continue' | 'rewrite' | 'describe' | 'dialogue' = 'continue'
+  ) => {
+    if (!activeNovelId || !activeChapterId) {
+      showToast('Vui lòng chọn tác phẩm và chương trước khi tạo bản thảo AI.');
+      return;
+    }
     const finalInstruction = instructionText || aiInstruction;
     if (!finalInstruction.trim()) return;
 
+    if (pollTimerRef.current) {
+      window.clearTimeout(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+
     setIsGeneratingAi(true);
+    setCurrentJob(null);
+    setAiSuggestion(null);
+
     try {
-      const recentSnippet = content.slice(-1500) || 'Bắt đầu câu chuyện mới...';
-      const result = await createCopilotSuggestion({
+      // 1. Ensure base revision exists and matches current editor content
+      let baseRevision: { revisionId: string; contentHash: string; content: string } | null = null;
+      try {
+        const revs = await listChapterRevisions(activeChapterId);
+        if (revs && revs.length > 0) {
+          baseRevision = revs[0];
+        }
+      } catch {
+        // No revisions yet
+      }
+
+      if (!baseRevision || baseRevision.content !== content) {
+        baseRevision = await createChapterSnapshot(activeChapterId, content);
+      }
+
+      // 2. Retrieve expected Story Brain version
+      let brainVer = 1;
+      try {
+        const preview = await fetchContextPreview(activeNovelId, { chapterId: activeChapterId });
+        if (preview?.brain_version) {
+          brainVer = preview.brain_version;
+        }
+      } catch {
+        brainVer = 1;
+      }
+
+      // 3. Selection offsets in Unicode code points
+      const textarea = editorRef.current;
+      const selStart = textarea ? textarea.selectionStart : 0;
+      const selEnd = textarea ? textarea.selectionEnd : 0;
+      const codePointStart = utf16OffsetToCodePoint(content, selStart);
+      const codePointEnd = utf16OffsetToCodePoint(content, selEnd);
+
+      // 4. Start writing generation job
+      const initiatedJob = await startWritingGeneration({
         novelId: activeNovelId,
-        chapterId: activeChapterId || null,
+        chapterId: activeChapterId,
+        revisionId: baseRevision.revisionId,
+        contentHash: baseRevision.contentHash,
+        operation: operationType,
+        selection: {
+          start: codePointStart,
+          end: codePointEnd,
+          cursor: codePointEnd
+        },
         instruction: finalInstruction,
-        recentText: recentSnippet
+        expectedBrainVersion: brainVer,
+        idempotencyKey: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `ui-${Date.now()}`
       });
-      setAiSuggestion(result.suggestion);
-      setAiSuggestionTone(result.context?.characters?.length ? 'Bám sát nhân vật & bối cảnh' : 'Trầm lắng • Văn học');
-    } catch (err) {
-      showToast(`Lỗi AI: ${getApiErrorMessage(err)}`);
-    } finally {
+
+      setCurrentJob(initiatedJob);
+      pollJob(initiatedJob.job_id);
+    } catch (err: unknown) {
       setIsGeneratingAi(false);
+      showToast(`Lỗi khởi tạo AI: ${getApiErrorMessage(err)}`);
     }
   };
 
-  const insertAiText = (action: 'insert' | 'replace') => {
-    if (!aiSuggestion) return;
-    if (action === 'insert') {
-      const separator = content.trim().length ? '\n\n' : '';
-      const updated = content + separator + aiSuggestion;
-      setContent(updated);
-      triggerAutosave(title, updated, isVip, priceCoins);
-      showToast('Đã chèn nội dung AI vào bản thảo');
-    } else {
-      setContent(aiSuggestion);
-      triggerAutosave(title, aiSuggestion, isVip, priceCoins);
-      showToast('Đã thay thế nội dung bản thảo bằng gợi ý AI');
+  const pollJob = async (jobId: string) => {
+    try {
+      const updated = await getJobStatus(jobId);
+      setCurrentJob(updated);
+      const status = updated.status?.toLowerCase();
+      if (status === 'completed') {
+        setIsGeneratingAi(false);
+        const draftText = updated.draft || (updated.patch?.replacement ?? '');
+        setAiSuggestion(draftText);
+        setAiSuggestionTone(
+          updated.validation_status === 'passed' ? 'Đã kiểm định nhất quán • P1 Loop' : 'Hoàn thành'
+        );
+      } else if (status === 'failed') {
+        setIsGeneratingAi(false);
+        showToast(`Tác vụ AI thất bại: ${updated.error?.message || 'Không rõ nguyên nhân'}`);
+      } else {
+        pollTimerRef.current = window.setTimeout(() => {
+          void pollJob(jobId);
+        }, 1000);
+      }
+    } catch (err: unknown) {
+      setIsGeneratingAi(false);
+      showToast(`Lỗi kiểm tra tiến trình: ${getApiErrorMessage(err)}`);
     }
+  };
+
+  // Canonical Accept Draft: creates immutable revision & emits INCREMENTAL_ANALYSIS outbox event
+  const handleAcceptDraft = async () => {
+    if (!activeChapterId || !currentJob) return;
+    setIsAcceptingAi(true);
+    try {
+      const result = await acceptDraftRevision(activeChapterId, currentJob.job_id);
+      if (result?.revision?.content) {
+        setContent(result.revision.content);
+        lastSavedSnapshot.current.content = result.revision.content;
+        setAutosaveStatus('saved');
+        setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
+      }
+      setCurrentJob(null);
+      setAiSuggestion(null);
+      queryClient.invalidateQueries({ queryKey: ['author', 'chapter', activeChapterId] });
+      queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
+      showToast('Đã chấp nhận bản thảo AI và kích hoạt cập nhật Story Brain!');
+    } catch (err: unknown) {
+      showToast(`Chấp nhận bản thảo thất bại: ${getApiErrorMessage(err)}`);
+    } finally {
+      setIsAcceptingAi(false);
+    }
+  };
+
+  // Canonical Discard Draft: leaves canon, revision pointer, and Story Brain unchanged
+  const handleDiscardDraft = () => {
+    setCurrentJob(null);
+    setAiSuggestion(null);
+    showToast('Đã từ chối gợi ý AI.');
   };
 
   // Word count & read time calculation
@@ -1343,32 +1473,36 @@ export function AuthorWritingIde() {
               </span>
               <div className="grid grid-cols-2 gap-1.5">
                 <button
-                  onClick={() => handleGenerateAi('Viết tiếp phân cảnh này tự nhiên bám sát giọng văn')}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                  onClick={() => handleGenerateAi('Viết tiếp phân cảnh này tự nhiên bám sát giọng văn', 'continue')}
+                  disabled={isGeneratingAi}
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
                   <span>✍️</span> <span>Viết tiếp</span>
                 </button>
                 <button
-                  onClick={() => handleGenerateAi('Gọt giũa và nâng tầm đoạn văn, giàu hình ảnh biểu cảm hơn')}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                  onClick={() => handleGenerateAi('Gọt giũa và nâng tầm đoạn văn, giàu hình ảnh biểu cảm hơn', 'rewrite')}
+                  disabled={isGeneratingAi}
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
                   <span>✨</span> <span>Gọt giũa văn phong</span>
                 </button>
                 <button
-                  onClick={() => handleGenerateAi('Mô tả ngoại cảnh và không gian xung quanh sâu sắc')}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                  onClick={() => handleGenerateAi('Mô tả ngoại cảnh và không gian xung quanh sâu sắc', 'describe')}
+                  disabled={isGeneratingAi}
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
                   <span>🎨</span> <span>Mô tả ngoại cảnh</span>
                 </button>
                 <button
-                  onClick={() => handleGenerateAi('Gợi ý bước ngoặt và tình tiết bất ngờ tiếp theo cho cốt truyện')}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                  onClick={() => handleGenerateAi('Phát triển đoạn đối thoại kịch tính giữa các nhân vật', 'dialogue')}
+                  disabled={isGeneratingAi}
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
-                  <span>💡</span> <span>Gợi ý ý tưởng</span>
+                  <span>💬</span> <span>Viết hội thoại</span>
                 </button>
               </div>
             </div>
@@ -1378,14 +1512,14 @@ export function AuthorWritingIde() {
               {isGeneratingAi && (
                 <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200 flex flex-col items-center justify-center gap-2 text-primary-700">
                   <span className="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></span>
-                  <span className="text-xs font-semibold">AI đang suy nghĩ và tổng hợp Story Bible...</span>
+                  <span className="text-xs font-semibold">AI đang khởi tạo tiến trình sinh bản thảo P1...</span>
                 </div>
               )}
 
               {aiSuggestion && !isGeneratingAi && (
                 <div className="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
                   <div className="flex items-center justify-between mb-2 text-[10px] font-semibold text-primary-700">
-                    <span className="uppercase tracking-wide">Gợi ý từ AI Copilot</span>
+                    <span className="uppercase tracking-wide">Bản thảo AI (Canonical P1)</span>
                     <span className="bg-indigo-100 px-1.5 py-0.2 rounded text-[10px]">{aiSuggestionTone}</span>
                   </div>
                   <p className="font-serif text-[13px] leading-relaxed italic text-stone-700 bg-white/70 p-2.5 rounded-lg border border-indigo-100/60 whitespace-pre-wrap">
@@ -1393,18 +1527,20 @@ export function AuthorWritingIde() {
                   </p>
                   <div className="mt-3 grid grid-cols-2 gap-1.5 font-sans pt-1">
                     <button
-                      onClick={() => insertAiText('insert')}
-                      className="px-2 py-1.5 rounded bg-primary-600 text-white font-medium text-[11px] hover:bg-primary-700 text-center transition-all shadow-2xs active:scale-95"
+                      onClick={() => handleAcceptDraft()}
+                      disabled={isAcceptingAi}
+                      className="px-2 py-1.5 rounded bg-primary-600 text-white font-medium text-[11px] hover:bg-primary-700 text-center transition-all shadow-2xs active:scale-95 disabled:opacity-50"
                       type="button"
                     >
-                      Chèn vào bản thảo
+                      {isAcceptingAi ? 'Đang xác nhận...' : 'Chấp nhận bản thảo'}
                     </button>
                     <button
-                      onClick={() => insertAiText('replace')}
-                      className="px-2 py-1.5 rounded bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 font-medium text-[11px] text-center transition-all"
+                      onClick={() => handleDiscardDraft()}
+                      disabled={isAcceptingAi}
+                      className="px-2 py-1.5 rounded bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 font-medium text-[11px] text-center transition-all disabled:opacity-50"
                       type="button"
                     >
-                      Thay thế nội dung
+                      Từ chối / Bỏ qua
                     </button>
                   </div>
                 </div>
