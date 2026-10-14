@@ -2,7 +2,7 @@
 
 - **Date:** 2026-10-14
 - **Tested Code SHA:** `474b04fbc6173cfc847e06bf4e522211adf6f4d5`
-- **Evidence Payload SHA:** `9d75b91b92c43ee6a03d0aa0dc937171e2ef66be`
+- **Evidence Payload SHA:** `9d75b91be6fc8f76899416a3d1d6faa629c9075b`
 - **Tested Main SHA:** `5432a20a93852cc6c4a403fa03e0ed46117f5f36`
 - **Working / Repair Branch:** `astra/ai-pipe-01b-main-e2e-repair`
 - **Overall Final Verdict:** `MAIN_UI_E2E_PASS`
@@ -66,7 +66,7 @@ The following cryptographic identifiers trace the exact lineage of the verified 
   "execution_mode": "REAL_BROWSER_AUTOMATION_CDP",
   "browser": "Microsoft Edge 155 (Headless Chrome/155.0.0.0)",
   "tested_code_sha": "474b04fbc6173cfc847e06bf4e522211adf6f4d5",
-  "evidence_payload_sha": "9d75b91b92c43ee6a03d0aa0dc937171e2ef66be",
+  "evidence_payload_sha": "9d75b91be6fc8f76899416a3d1d6faa629c9075b",
   "tested_main_sha": "5432a20a93852cc6c4a403fa03e0ed46117f5f36",
   "branch": "astra/ai-pipe-01b-main-e2e-repair",
   "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
