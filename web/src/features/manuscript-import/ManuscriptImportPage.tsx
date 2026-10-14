@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { getNovel, listChapters } from '../novels/novel-api';
 import {
@@ -76,8 +76,14 @@ export function ManuscriptImportPage() {
   const existingChapterCount = chaptersQuery.data?.length ?? 0;
   const startingChapterNumber = existingChapterCount + 1;
 
+  // URL Search Params (for resilient job & step recovery across navigation/reload)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryJobId = searchParams.get('jobId');
+  const queryStep = searchParams.get('step');
+  const initialStep: 1 | 2 | 3 = queryStep ? (Number(queryStep) as 1 | 2 | 3) : (queryJobId ? 3 : 2);
+
   // Stepper state (1: Upload, 2: Analyze & Preview, 3: Confirm Import)
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(2);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(initialStep);
 
   // File state
   const [fileName, setFileName] = useState('gio_thoang_qua_pho_co_tap2.docx');
@@ -120,7 +126,7 @@ export function ManuscriptImportPage() {
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
 
   // Story Brain Job & Review State
-  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(queryJobId);
 
   const jobQuery = useQuery({
     queryKey: ['manuscript-bootstrap-job', jobId],
@@ -276,6 +282,7 @@ export function ManuscriptImportPage() {
     },
     onSuccess: (result) => {
       setJobId(result.job_id);
+      setSearchParams({ jobId: result.job_id, step: '3' });
       showToast('Đã bắt đầu phân tích Story Brain AI! Đang tiến hành quét các chương...');
     },
     onError: (err: any) => {

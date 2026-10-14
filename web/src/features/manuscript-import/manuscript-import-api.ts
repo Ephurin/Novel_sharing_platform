@@ -258,7 +258,7 @@ export async function importChaptersBatch(
     try {
       const snapResponse = await apiClient.post<ApiEnvelope<any>>(
         `/chapters/${chapterData.chapterId}/revisions/snapshot`,
-        { content: ch.content }
+        { content: ch.content, purpose: 'MANUSCRIPT_BOOTSTRAP' }
       );
       revisionData = snapResponse.data.data;
     } catch (err: any) {

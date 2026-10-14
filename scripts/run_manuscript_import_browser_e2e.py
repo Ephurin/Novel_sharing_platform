@@ -376,10 +376,40 @@ async def run_manuscript_import_browser_e2e():
         }
         print("  [PASS] Import-D")
 
+        # Discover bootstrap job ID early for navigation/resume continuity
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT id, status, revisions FROM narrative.bootstrap_jobs WHERE novel_id = %s ORDER BY created_at DESC LIMIT 1",
+                    (active_novel_id,)
+                )
+                early_job_row = cur.fetchone()
+        assert early_job_row is not None, "Bootstrap job not found in narrative.bootstrap_jobs right after import confirmation!"
+        bootstrap_job_id = str(early_job_row[0])
+        bootstrap_status = early_job_row[1]
+        bootstrap_revisions = early_job_row[2] if isinstance(early_job_row[2], list) else json.loads(early_job_row[2])
+
         # -----------------------------------------------------------------
-        # Import-E: Imported chapters appear after reload
+        # Import-E: Imported chapters appear after reload (Real Browser Readback)
         # -----------------------------------------------------------------
-        print("\n[Import-E] Verifying imported chapters exist and appear after reload...")
+        print("\n[Import-E] Navigating to /author/novels/:novelId to verify imported chapters appear after reload...")
+        await browser.navigate(f"{WEB_URL}/author/novels/{active_novel_id}", 3.0)
+
+        # Wait for chapter table to render with imported chapter titles
+        await browser.wait_for_condition(
+            "document.body.innerText.includes('Khởi đầu hành trình') && document.body.innerText.includes('Bí mật trong cổ mộ')",
+            25.0
+        )
+        await asyncio.sleep(1.0)
+        await browser.screenshot("import-e-reloaded-chapter-list.png")
+
+        # Assert visual presence in DOM
+        title1_rendered = await browser.evaluate("document.body.innerText.includes('Khởi đầu hành trình')")
+        title2_rendered = await browser.evaluate("document.body.innerText.includes('Bí mật trong cổ mộ')")
+        assert title1_rendered and title2_rendered, "Both imported chapters must be visible in the rendered novel chapter list!"
+        print("  Verified both imported chapters are visibly rendered in /author/novels/:novelId")
+
+        # Correlate with PostgreSQL
         with psycopg.connect(DB_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -395,18 +425,24 @@ async def run_manuscript_import_browser_e2e():
         print(f"  DB Chapter 2: {ch2_id} - '{db_chapters[1][2]}'")
 
         results["checkpoints"]["Import-E"] = {
-            "name": "Imported Chapters Persisted & Verifiable",
+            "name": "Imported Chapters Appear After Reload & Readback",
             "status": "PASS",
             "chapter_ids": [ch1_id, ch2_id],
             "chapter_titles": [db_chapters[0][2], db_chapters[1][2]],
-            "notes": "Verified chapters are persisted in PostgreSQL with correct titles and sequential numbering."
+            "browser_readback_verified": True,
+            "evidence_artifact": "import-e-reloaded-chapter-list.png",
+            "notes": "Browser navigated to novel page, reloaded DOM, and visually rendered both imported chapters in the chapter table."
         }
         print("  [PASS] Import-E")
 
+        # Reopen /author/import/:novelId to resume bootstrap review queue
+        print(f"  Reopening /author/import/:novelId?jobId={bootstrap_job_id}&step=3 to resume bootstrap review queue...")
+        await browser.navigate(f"{WEB_URL}/author/import/{active_novel_id}?jobId={bootstrap_job_id}&step=3", 3.0)
+
         # -----------------------------------------------------------------
-        # Import-F: DB/API correlation proves real immutable revision_id + content_hash
+        # Import-F: DB/API correlation proves real immutable revision_id + content_hash + NO double-outbox
         # -----------------------------------------------------------------
-        print("\n[Import-F] Proving real immutable revision_id + content_hash in DB...")
+        print("\n[Import-F] Proving real immutable revision_id + content_hash + NO pre-baseline generic outbox in DB...")
         with psycopg.connect(DB_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -429,6 +465,8 @@ async def run_manuscript_import_browser_e2e():
         assert str(rev2_id) != str(ch2_id), "Invariant violation: revision_id must NOT equal chapter_id"
         assert rev1_hash != "auto-sha256", "Invariant violation: content_hash must NOT be placeholder"
         assert rev2_hash != "auto-sha256", "Invariant violation: content_hash must NOT be placeholder"
+        assert rev1_source == "BOOTSTRAP", f"Expected sourceType='BOOTSTRAP', got '{rev1_source}'"
+        assert rev2_source == "BOOTSTRAP", f"Expected sourceType='BOOTSTRAP', got '{rev2_source}'"
 
         # Verify cryptographic accuracy:
         expected_hash1 = hashlib.sha256(rev1_content.encode("utf-8")).hexdigest()
@@ -436,13 +474,29 @@ async def run_manuscript_import_browser_e2e():
         assert rev1_hash == expected_hash1, f"Hash mismatch on ch1: DB={rev1_hash}, SHA256={expected_hash1}"
         assert rev2_hash == expected_hash2, f"Hash mismatch on ch2: DB={rev2_hash}, SHA256={expected_hash2}"
 
+        # Prove BLOCKER P0: Zero pre-baseline generic INCREMENTAL_ANALYSIS outbox rows exist for imported revisions!
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT COUNT(*) FROM revision_outbox_events WHERE revision_id IN (%s, %s) AND event_type = 'INCREMENTAL_ANALYSIS'",
+                    (str(rev1_id), str(rev2_id))
+                )
+                pre_baseline_outbox_count = cur.fetchone()[0]
+
+        assert pre_baseline_outbox_count == 0, (
+            f"Invariant violation: {pre_baseline_outbox_count} generic INCREMENTAL_ANALYSIS outbox rows found before baseline! "
+            "Pre-baseline revisions must be owned solely by bootstrap review."
+        )
+        print("  Confirmed ZERO generic INCREMENTAL_ANALYSIS outbox rows for pre-baseline imported revisions.")
+
         results["checkpoints"]["Import-F"] = {
             "name": "Canonical Immutable Revision & Hash Correlation",
             "status": "PASS",
-            "ch1": {"chapter_id": ch1_id, "revision_id": str(rev1_id), "content_hash": rev1_hash},
-            "ch2": {"chapter_id": ch2_id, "revision_id": str(rev2_id), "content_hash": rev2_hash},
+            "ch1": {"chapter_id": ch1_id, "revision_id": str(rev1_id), "content_hash": rev1_hash, "source_type": rev1_source},
+            "ch2": {"chapter_id": ch2_id, "revision_id": str(rev2_id), "content_hash": rev2_hash, "source_type": rev2_source},
             "cryptographic_verification": "MATCHES_EXACT_SHA256",
-            "notes": "Verified distinct real UUIDs and authentic 64-char hex SHA-256 digests in PostgreSQL."
+            "pre_baseline_outbox_count": pre_baseline_outbox_count,
+            "notes": "Verified distinct real UUIDs, sourceType=BOOTSTRAP, authentic SHA-256 digests, and ZERO competing generic outbox rows."
         }
         print("  [PASS] Import-F")
 
@@ -450,19 +504,6 @@ async def run_manuscript_import_browser_e2e():
         # Import-G: Story Brain bootstrap starts from those exact revisions
         # -----------------------------------------------------------------
         print("\n[Import-G] Verifying Story Brain bootstrap job manifest matches canonical revisions...")
-        with psycopg.connect(DB_URL) as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    "SELECT id, status, revisions FROM narrative.bootstrap_jobs WHERE novel_id = %s ORDER BY created_at DESC LIMIT 1",
-                    (active_novel_id,)
-                )
-                job_row = cur.fetchone()
-
-        assert job_row is not None, "Bootstrap job not found in narrative.bootstrap_jobs!"
-        bootstrap_job_id = str(job_row[0])
-        bootstrap_status = job_row[1]
-        bootstrap_revisions = job_row[2] if isinstance(job_row[2], list) else json.loads(job_row[2])
-
         manifest_rev_ids = [r["revision_id"] for r in bootstrap_revisions]
         manifest_hashes = [r["content_hash"] for r in bootstrap_revisions]
 
@@ -497,7 +538,7 @@ async def run_manuscript_import_browser_e2e():
         with psycopg.connect(DB_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT id, proposal_type, dependency_group_id, status FROM narrative.proposals WHERE novel_id = %s ORDER BY materialization_order ASC",
+                    "SELECT id, proposal_type, dependency_group_id, payload, status FROM narrative.proposals WHERE novel_id = %s ORDER BY materialization_order ASC",
                     (active_novel_id,)
                 )
                 db_proposals = cur.fetchall()
@@ -521,7 +562,17 @@ async def run_manuscript_import_browser_e2e():
         # -----------------------------------------------------------------
         print("\n[Import-I] Rejecting one proposal through UI and proving non-canonical...")
 
-        # If there are multiple proposals, we reject the last one or click "Từ chối" on one
+        # Select the target proposal to reject (pick the last proposal in queue)
+        target_rejected_row = db_proposals[-1]
+        target_rejected_id = str(target_rejected_row[0])
+        target_rejected_type = str(target_rejected_row[1])
+        target_rejected_payload = target_rejected_row[3] if isinstance(target_rejected_row[3], dict) else json.loads(target_rejected_row[3])
+        rejected_fact_key = target_rejected_payload.get("fact_key", "")
+        rejected_fact_val = str(target_rejected_payload.get("fact_value", ""))
+        rejected_payload_identity = f"key={rejected_fact_key},value={rejected_fact_val[:40]}"
+        print(f"  Targeting proposal {target_rejected_id} ({target_rejected_type}) for rejection: {rejected_payload_identity}")
+
+        # Check button exists
         reject_btn_exists = await browser.evaluate("""
             (() => {
                 const buttons = Array.from(document.querySelectorAll('button'));
@@ -542,23 +593,26 @@ async def run_manuscript_import_browser_e2e():
         await asyncio.sleep(2.5)
         await browser.screenshot("import-i-rejected-proposal.png")
 
-        # Check DB that at least one proposal was rejected
+        # Check DB that the targeted proposal was rejected
         with psycopg.connect(DB_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT id, status FROM narrative.proposals WHERE novel_id = %s AND status = 'rejected'",
-                    (active_novel_id,)
+                    "SELECT id, status FROM narrative.proposals WHERE id = %s",
+                    (target_rejected_id,)
                 )
-                rejected_proposals = cur.fetchall()
+                rejected_prop_row = cur.fetchone()
 
-        assert len(rejected_proposals) > 0, "Expected at least 1 proposal to have status='rejected' in DB!"
-        rejected_prop_id = str(rejected_proposals[0][0])
-        print(f"  Verified rejected proposal in DB: {rejected_prop_id}")
+        assert rejected_prop_row is not None and rejected_prop_row[1] == "rejected", (
+            f"Expected proposal {target_rejected_id} to have status='rejected', observed: {rejected_prop_row}"
+        )
+        print(f"  Verified rejected proposal in DB: {target_rejected_id} (status='rejected')")
 
         results["checkpoints"]["Import-I"] = {
             "name": "Reject Proposal Through UI",
             "status": "PASS",
-            "rejected_proposal_id": rejected_prop_id,
+            "rejected_proposal_id": target_rejected_id,
+            "rejected_proposal_type": target_rejected_type,
+            "rejected_payload_identity": rejected_payload_identity,
             "evidence_artifact": "import-i-rejected-proposal.png",
             "notes": "UI 'Từ chối' action sent reject mutation; proposal marked 'rejected' and excluded from baseline."
         }
@@ -568,6 +622,20 @@ async def run_manuscript_import_browser_e2e():
         # Import-J: Accept required proposal group(s) through UI
         # -----------------------------------------------------------------
         print("\n[Import-J] Accepting remaining proposal groups through UI...")
+
+        # Capture pending proposal IDs and groups before accepting
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT id, dependency_group_id FROM narrative.proposals WHERE novel_id = %s AND status = 'pending'",
+                    (active_novel_id,)
+                )
+                to_accept_props = cur.fetchall()
+
+        expected_accepted_ids = [str(r[0]) for r in to_accept_props]
+        expected_accepted_groups = list(set(str(r[1]) for r in to_accept_props if r[1]))
+        assert len(expected_accepted_ids) > 0, "No pending proposals left to accept!"
+        print(f"  Proposals to accept: {len(expected_accepted_ids)} across groups: {expected_accepted_groups}")
 
         # While "Chấp nhận" buttons exist, click them to resolve the queue
         for i in range(10):
@@ -592,24 +660,30 @@ async def run_manuscript_import_browser_e2e():
         with psycopg.connect(DB_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT COUNT(*) FROM narrative.proposals WHERE novel_id = %s AND status = 'accepted'",
-                    (active_novel_id,)
+                    "SELECT id, status FROM narrative.proposals WHERE id = ANY(%s)",
+                    (expected_accepted_ids,)
                 )
-                accepted_count = cur.fetchone()[0]
+                accepted_status_rows = cur.fetchall()
 
-        print(f"  Accepted proposals in DB: {accepted_count}")
+        assert len(accepted_status_rows) > 0, "No proposals were accepted!"
+        assert all(r[1] == "accepted" for r in accepted_status_rows), "Not all expected proposals reached accepted status!"
+        assert target_rejected_id not in expected_accepted_ids, "Rejected proposal was accidentally accepted!"
+        accepted_count = len(accepted_status_rows)
+        print(f"  Accepted proposals in DB: {accepted_count} (all reaching status='accepted')")
 
         results["checkpoints"]["Import-J"] = {
             "name": "Accept Proposal Groups Through UI",
             "status": "PASS",
             "accepted_proposals_count": accepted_count,
+            "accepted_proposal_ids": expected_accepted_ids,
+            "accepted_proposal_group_ids": expected_accepted_groups,
             "evidence_artifact": "import-j-accepted-proposals.png",
             "notes": "All required proposal groups accepted with optimistic brain_version locking."
         }
         print("  [PASS] Import-J")
 
         # -----------------------------------------------------------------
-        # Import-K: Activate baseline through UI
+        # Import-K: Activate baseline through UI & Prove Canonical Absence of Rejected Proposal
         # -----------------------------------------------------------------
         print("\n[Import-K] Activating Story Brain baseline through UI...")
         await browser.wait_for_condition(
@@ -631,7 +705,7 @@ async def run_manuscript_import_browser_e2e():
         with psycopg.connect(DB_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT status, brain_version, baseline_revision_id FROM narrative.story_brains WHERE novel_id = %s",
+                    "SELECT status, brain_version, baseline_revision_id, id FROM narrative.story_brains WHERE novel_id = %s",
                     (active_novel_id,)
                 )
                 brain_row = cur.fetchone()
@@ -640,20 +714,38 @@ async def run_manuscript_import_browser_e2e():
         brain_status = brain_row[0]
         brain_version_baseline = brain_row[1]
         baseline_revision_id = str(brain_row[2])
+        story_brain_id = str(brain_row[3])
 
         assert brain_status == "active", f"Expected brain_status='active', observed='{brain_status}'"
         assert baseline_revision_id in (str(rev1_id), str(rev2_id)), f"baseline_revision_id {baseline_revision_id} not among imported revisions"
+        print(f"  Story Brain is ACTIVE: version={brain_version_baseline}, baseline_rev={baseline_revision_id}, brain_id={story_brain_id}")
 
-        print(f"  Story Brain is ACTIVE: version={brain_version_baseline}, baseline_rev={baseline_revision_id}")
+        # Prove BLOCKER P1: Assert canonical absence of the rejected proposal in narrative.facts
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT COUNT(*) FROM narrative.facts WHERE novel_id = %s AND (fact_key = %s OR fact_value::text ILIKE %s)",
+                    (active_novel_id, rejected_fact_key, f"%{rejected_fact_val}%")
+                )
+                canonical_fact_count = cur.fetchone()[0]
+
+        assert canonical_fact_count == 0, f"Rejected proposal leaked into canonical facts! Found {canonical_fact_count} rows in narrative.facts"
+        canonical_absence_proof = f"0 rows found in narrative.facts for fact_key='{rejected_fact_key}', confirming rejected proposal was never materialized."
+        print(f"  Canonical absence verified: {canonical_absence_proof}")
+
+        # Update Import-I with canonical absence proof
+        results["checkpoints"]["Import-I"]["canonical_absence_proof"] = canonical_absence_proof
 
         results["checkpoints"]["Import-K"] = {
             "name": "Activate Story Brain Baseline Through UI",
             "status": "PASS",
             "story_brain_status": brain_status,
+            "story_brain_id": story_brain_id,
             "brain_version": brain_version_baseline,
             "baseline_revision_id": baseline_revision_id,
+            "canonical_absence_verified": True,
             "evidence_artifact": "import-k-baseline-activated.png",
-            "notes": "Clicked baseline activation button in browser; Story Brain marked active in PostgreSQL."
+            "notes": "Clicked baseline activation button in browser; Story Brain active in PostgreSQL; rejected proposal completely absent from canon."
         }
         print("  [PASS] Import-K")
 
@@ -712,20 +804,51 @@ async def run_manuscript_import_browser_e2e():
         await asyncio.sleep(1.0)
         await browser.screenshot("import-m-generation1-draft.png")
 
-        # Discover generation job ID from network events
+        # Discover generation job ID and request provenance from network events
+        gen1_req_id = None
         gen1_job_id = None
+        gen1_post_data = None
+
         for ev in browser.network_events[events_before_gen1:]:
-            if ev.get("method") == "Network.responseReceived":
-                resp = ev["params"].get("response", {})
-                if "/ai/writing/generations" in resp.get("url", ""):
-                    # found response
-                    pass
+            method = ev.get("method", "")
+            if method == "Network.requestWillBeSent":
+                req = ev["params"].get("request", {})
+                url = req.get("url", "")
+                if "/ai/writing/generations" in url:
+                    gen1_req_id = ev["params"].get("requestId")
+                    post_str = req.get("postData")
+                    if post_str:
+                        try:
+                            gen1_post_data = json.loads(post_str)
+                        except Exception:
+                            pass
+                elif "/ai/jobs/" in url and not gen1_job_id:
+                    gen1_job_id = url.split("/ai/jobs/")[1].split("?")[0]
+
+        assert gen1_req_id is not None, "Failed to capture generation #1 request via CDP!"
+        assert gen1_post_data is not None, "Failed to capture generation #1 postData payload!"
+
+        # Provenance assertions
+        assert gen1_post_data.get("chapter_id") == ch1_id, f"chapter_id mismatch: {gen1_post_data.get('chapter_id')} != {ch1_id}"
+        assert gen1_post_data.get("revision_id") == str(rev1_id), f"revision_id mismatch: {gen1_post_data.get('revision_id')} != {rev1_id}"
+        assert gen1_post_data.get("content_hash") == rev1_hash, f"content_hash mismatch: {gen1_post_data.get('content_hash')} != {rev1_hash}"
+        assert gen1_post_data.get("expected_brain_version") == brain_version_baseline, (
+            f"expected_brain_version mismatch: {gen1_post_data.get('expected_brain_version')} != {brain_version_baseline}"
+        )
+        print(f"  Captured generation #1 request: ID={gen1_req_id}, job_id={gen1_job_id}")
+        print(f"  Provenance verified: chapter_id={ch1_id}, rev={rev1_id}, hash={rev1_hash[:12]}..., expected_bv={brain_version_baseline}")
 
         results["checkpoints"]["Import-M"] = {
             "name": "Browser AI Generation #1 (Candidate Draft)",
             "status": "PASS",
+            "generation1_browser_request_id": gen1_req_id,
+            "generation1_id": gen1_job_id,
+            "chapter_id": ch1_id,
+            "revision_id": str(rev1_id),
+            "content_hash": rev1_hash,
+            "expected_brain_version": brain_version_baseline,
             "evidence_artifact": "import-m-generation1-draft.png",
-            "notes": "Browser generation #1 completed using Story Brain context derived from imported manuscript."
+            "notes": "Browser generation #1 completed using exact imported canonical revision provenance and active Story Brain version."
         }
         print("  [PASS] Import-M")
 
@@ -762,6 +885,7 @@ async def run_manuscript_import_browser_e2e():
         results["checkpoints"]["Import-N"] = {
             "name": "Reject Generation & Invariant Verification",
             "status": "PASS",
+            "rejected_generation_id": gen1_job_id,
             "ai_revisions_count": ai_rev_count,
             "brain_version": brain_version_after_reject,
             "evidence_artifact": "import-n-generation1-rejected.png",
@@ -867,6 +991,7 @@ async def run_manuscript_import_browser_e2e():
             "name": "AI Draft Accept & Outbox Closed-Loop",
             "status": "PASS",
             "accepted_revision_id": accepted_revision_id,
+            "accepted_generation_id": source_gen_id,
             "source_generation_id": source_gen_id,
             "outbox_event_id": outbox_event_id,
             "brain_version_before": brain_version_baseline,
@@ -939,11 +1064,50 @@ async def run_manuscript_import_browser_e2e():
         results["checkpoints"]["Import-P"] = {
             "name": "Subsequent Browser Generation Observes N+1",
             "status": "PASS",
+            "final_browser_request_id": third_browser_req_id,
             "observed_brain_version": observed_expected_bv,
             "evidence_artifact": "import-p-generation3-observes-n-plus-1.png",
             "notes": "Browser generation #3 correctly sent advanced brain_version in expected_brain_version payload."
         }
         print("  [PASS] Import-P")
+
+        # -----------------------------------------------------------------
+        # Populate Required Top-Level Lineage & Summary Fields
+        # -----------------------------------------------------------------
+        try:
+            current_head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT).decode().strip()
+        except Exception:
+            current_head = "UNKNOWN"
+
+        results["tested_main_sha"] = "dce5172e916d0546fe8293807bce7354e695fd50"
+        results["tested_code_sha"] = current_head
+        results["branch"] = "astra/manuscript-import-ui-e2e"
+        results["novel_id"] = active_novel_id
+
+        results["imported_chapter_ids"] = [ch1_id, ch2_id]
+        results["imported_revision_ids"] = [str(rev1_id), str(rev2_id)]
+        results["imported_content_hashes"] = [rev1_hash, rev2_hash]
+
+        results["bootstrap_job_id"] = bootstrap_job_id
+        results["story_brain_id"] = story_brain_id
+        results["baseline_brain_version"] = brain_version_baseline
+
+        results["rejected_proposal_id"] = target_rejected_id
+        results["rejected_proposal_type"] = target_rejected_type
+        results["accepted_proposal_ids"] = expected_accepted_ids
+        results["accepted_proposal_group_ids"] = expected_accepted_groups
+
+        results["generation1_browser_request_id"] = gen1_req_id
+        results["rejected_generation_id"] = gen1_job_id
+
+        results["accepted_generation_id"] = source_gen_id
+        results["accepted_revision_id"] = accepted_revision_id
+        results["outbox_event_id"] = outbox_event_id
+        results["brain_version_before_accept"] = brain_version_baseline
+        results["brain_version_after_accept"] = brain_version_advanced
+
+        results["final_browser_request_id"] = third_browser_req_id
+        results["observed_final_brain_version"] = observed_expected_bv
 
         # Save evidence JSON
         evidence_file = os.path.join(EVIDENCE_DIR, "manuscript-import-ui-e2e-evidence.json")

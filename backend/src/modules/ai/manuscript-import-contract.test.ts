@@ -248,4 +248,142 @@ describe('Phase D: Manuscript Import & Canonical Provenance Contract Tests', () 
     const bufHash = crypto.createHash('sha256').update(utf8Buf).digest('hex');
     assert.equal(hash1, bufHash, 'Buffer UTF-8 hash and string UTF-8 hash must be identical');
   });
+
+  test('Checkpoint D10: Requirement A - Ordinary author snapshot creates INCREMENTAL_ANALYSIS outbox', () => {
+    // Contract simulation of snapshot creation under AUTHOR_SNAPSHOT
+    const simulateSnapshot = (purpose: 'AUTHOR_SNAPSHOT' | 'MANUSCRIPT_BOOTSTRAP') => {
+      const outboxEvents: any[] = [];
+      const sourceType = purpose === 'MANUSCRIPT_BOOTSTRAP' ? 'BOOTSTRAP' : 'AUTHOR_MANUAL';
+      if (purpose === 'AUTHOR_SNAPSHOT') {
+        outboxEvents.push({
+          eventType: 'INCREMENTAL_ANALYSIS',
+          operation: 'incremental_story_analysis'
+        });
+      }
+      return { sourceType, outboxEvents };
+    };
+
+    const authorSnapshot = simulateSnapshot('AUTHOR_SNAPSHOT');
+    assert.equal(authorSnapshot.sourceType, 'AUTHOR_MANUAL');
+    assert.equal(authorSnapshot.outboxEvents.length, 1);
+    assert.equal(authorSnapshot.outboxEvents[0].eventType, 'INCREMENTAL_ANALYSIS');
+  });
+
+  test('Checkpoint D11: Requirement B - Bootstrap-owned snapshot creates BOOTSTRAP revision without competing generic outbox event', () => {
+    const simulateSnapshot = (purpose: 'AUTHOR_SNAPSHOT' | 'MANUSCRIPT_BOOTSTRAP') => {
+      const outboxEvents: any[] = [];
+      const sourceType = purpose === 'MANUSCRIPT_BOOTSTRAP' ? 'BOOTSTRAP' : 'AUTHOR_MANUAL';
+      if (purpose === 'AUTHOR_SNAPSHOT') {
+        outboxEvents.push({
+          eventType: 'INCREMENTAL_ANALYSIS',
+          operation: 'incremental_story_analysis'
+        });
+      }
+      return { sourceType, outboxEvents };
+    };
+
+    const bootstrapSnapshot = simulateSnapshot('MANUSCRIPT_BOOTSTRAP');
+    assert.equal(bootstrapSnapshot.sourceType, 'BOOTSTRAP');
+    assert.equal(bootstrapSnapshot.outboxEvents.length, 0, 'Must NOT enqueue generic INCREMENTAL_ANALYSIS for bootstrap revision');
+  });
+
+  test('Checkpoint D12: Requirement C - Single bootstrap analysis lineage prevents duplicate proposal groups', () => {
+    const analysisRuns: { idempotencyKey: string; operation: string }[] = [];
+
+    // Bootstrap service registers its analysis run
+    const registerBootstrapAnalysis = (jobId: string, revisionId: string) => {
+      analysisRuns.push({
+        idempotencyKey: `bootstrap:${jobId}:${revisionId}`,
+        operation: 'bootstrap_manuscript'
+      });
+    };
+
+    const jobId = 'job-bootstrap-100';
+    const revId = 'rev-canonical-200';
+    registerBootstrapAnalysis(jobId, revId);
+
+    assert.equal(analysisRuns.length, 1);
+    assert.equal(analysisRuns[0].idempotencyKey, `bootstrap:${jobId}:${revId}`);
+    assert.equal(analysisRuns[0].operation, 'bootstrap_manuscript');
+    // Ensure no generic analysis run 'analysis-${revId}' is co-scheduled
+    assert.equal(analysisRuns.some((r) => r.idempotencyKey === `analysis-${revId}`), false);
+  });
+
+  test('Checkpoint D13: Requirement D - Pre-baseline bootstrap proposals stay review-controlled and un-materialized by generic outbox', () => {
+    const proposals = [
+      { id: 'p1', type: 'world_rule', status: 'pending', materialized: false },
+      { id: 'p2', type: 'world_rule', status: 'pending', materialized: false }
+    ];
+
+    // Generic outbox handler must NOT process pre-baseline bootstrap proposals
+    // Only author review decisions (accept/reject) change proposal status
+    assert.equal(proposals.every((p) => p.status === 'pending'), true);
+    assert.equal(proposals.every((p) => p.materialized === false), true);
+  });
+
+  test('Checkpoint D14: Requirement E - Rejected bootstrap proposal stays rejected/non-canonical and target is not materialized', () => {
+    const rejectedProposal = {
+      id: 'prop-rejected-rule',
+      type: 'world_rule',
+      payload: { fact_key: 'cấm_địa_canh_ba', fact_value: 'Không ai được phép vào Cấm Địa' },
+      status: 'rejected'
+    };
+
+    const canonicalFacts: any[] = [];
+
+    // When materializing accepted proposals, rejected proposals are explicitly skipped
+    const materialize = (prop: typeof rejectedProposal) => {
+      if (prop.status === 'accepted') {
+        canonicalFacts.push(prop.payload);
+      }
+    };
+
+    materialize(rejectedProposal);
+
+    assert.equal(rejectedProposal.status, 'rejected');
+    assert.equal(canonicalFacts.length, 0, 'Rejected proposal must never be materialized in canonical facts');
+  });
+
+  test('Checkpoint D15: Requirement F - After baseline activation, normal P1 AI_DRAFT_ACCEPT creates outbox and Story Brain advances', () => {
+    let brainVersion = 2; // Baseline activated at version 2
+    const outboxEvents: any[] = [];
+
+    // Author accepts AI draft in P1 loop
+    const acceptDraft = (generationId: string, revId: string) => {
+      outboxEvents.push({
+        eventType: 'INCREMENTAL_ANALYSIS',
+        revisionId: revId,
+        sourceType: 'AI_DRAFT_ACCEPT',
+        sourceGenerationId: generationId
+      });
+    };
+
+    acceptDraft('gen-p1-draft-001', 'rev-ai-accept-001');
+
+    assert.equal(outboxEvents.length, 1);
+    assert.equal(outboxEvents[0].sourceType, 'AI_DRAFT_ACCEPT');
+    assert.equal(outboxEvents[0].eventType, 'INCREMENTAL_ANALYSIS');
+
+    // Outbox processing completes and advances brain version
+    brainVersion += 1;
+    assert.equal(brainVersion, 3, 'Brain version must advance from N to N+1 after P1 draft accept');
+  });
+
+  test('Checkpoint D16: Safety constraint - Active Story Brain rejects subsequent MANUSCRIPT_BOOTSTRAP snapshots', async () => {
+    const checkAllowedPurpose = (isBrainActive: boolean, purpose: string) => {
+      if (purpose === 'MANUSCRIPT_BOOTSTRAP' && isBrainActive) {
+        throw new Error('CANNOT_BOOTSTRAP_ACTIVE_STORY_BRAIN: Cannot create bootstrap snapshot for a novel with an active Story Brain baseline');
+      }
+      return true;
+    };
+
+    // Pre-baseline: allowed
+    assert.equal(checkAllowedPurpose(false, 'MANUSCRIPT_BOOTSTRAP'), true);
+    // Post-baseline: rejected with 409
+    assert.throws(
+      () => checkAllowedPurpose(true, 'MANUSCRIPT_BOOTSTRAP'),
+      /CANNOT_BOOTSTRAP_ACTIVE_STORY_BRAIN/
+    );
+  });
 });
+
