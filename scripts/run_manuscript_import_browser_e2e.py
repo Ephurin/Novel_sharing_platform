@@ -1097,7 +1097,7 @@ async def run_manuscript_import_browser_e2e():
         results["rejected_proposal_id"] = target_rejected_id
         results["rejected_proposal_type"] = target_rejected_type
         results["canonical_absence_proof"] = {
-            "query": f"SELECT COUNT(*) FROM narrative.facts WHERE novel_id = '{active_novel_id}' AND fact_key = '{target_rejected_key}'",
+            "query": f"SELECT COUNT(*) FROM narrative.facts WHERE novel_id = '{active_novel_id}' AND fact_key = '{rejected_fact_key}'",
             "absence_count": 0,
             "verified": True
         }
