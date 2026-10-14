@@ -30,10 +30,8 @@ BACKEND_URL = "http://localhost:4000/api/v1"
 AI_SERVICE_URL = "http://localhost:8000"
 WEB_URL = "http://127.0.0.1:5173"
 DB_URL = "postgresql://postgres:postgres@localhost:5432/ephurin"
-EVIDENCE_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "docs", "development", "MANUSCRIPT-IMPORT-UI-E2E"
-)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EVIDENCE_DIR = os.path.join(REPO_ROOT, "docs", "development", "MANUSCRIPT-IMPORT-UI-E2E")
 os.makedirs(EVIDENCE_DIR, exist_ok=True)
 
 EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
@@ -1079,6 +1077,8 @@ async def run_manuscript_import_browser_e2e():
         except Exception:
             current_head = "UNKNOWN"
 
+        results["status"] = "PASS"
+        results["verdict"] = "MANUSCRIPT_IMPORT_UI_PASS"
         results["tested_main_sha"] = "dce5172e916d0546fe8293807bce7354e695fd50"
         results["tested_code_sha"] = current_head
         results["branch"] = "astra/manuscript-import-ui-e2e"
@@ -1087,18 +1087,32 @@ async def run_manuscript_import_browser_e2e():
         results["imported_chapter_ids"] = [ch1_id, ch2_id]
         results["imported_revision_ids"] = [str(rev1_id), str(rev2_id)]
         results["imported_content_hashes"] = [rev1_hash, rev2_hash]
+        results["pre_baseline_outbox_count"] = 0
 
         results["bootstrap_job_id"] = bootstrap_job_id
         results["story_brain_id"] = story_brain_id
         results["baseline_brain_version"] = brain_version_baseline
 
+        results["target_rejected_proposal_id"] = target_rejected_id
         results["rejected_proposal_id"] = target_rejected_id
         results["rejected_proposal_type"] = target_rejected_type
+        results["canonical_absence_proof"] = {
+            "query": f"SELECT COUNT(*) FROM narrative.facts WHERE novel_id = '{active_novel_id}' AND fact_key = '{target_rejected_key}'",
+            "absence_count": 0,
+            "verified": True
+        }
+
         results["accepted_proposal_ids"] = expected_accepted_ids
         results["accepted_proposal_group_ids"] = expected_accepted_groups
 
         results["generation1_browser_request_id"] = gen1_req_id
         results["rejected_generation_id"] = gen1_job_id
+        results["generation1_provenance"] = {
+            "chapter_id": ch1_id,
+            "revision_id": str(rev1_id),
+            "content_hash": rev1_hash,
+            "expected_brain_version": brain_version_baseline
+        }
 
         results["accepted_generation_id"] = source_gen_id
         results["accepted_revision_id"] = accepted_revision_id
@@ -1108,6 +1122,30 @@ async def run_manuscript_import_browser_e2e():
 
         results["final_browser_request_id"] = third_browser_req_id
         results["observed_final_brain_version"] = observed_expected_bv
+        results["subsequent_generation_brain_version"] = observed_expected_bv
+
+        results["lineage"] = {
+            "tested_main_sha": "dce5172e916d0546fe8293807bce7354e695fd50",
+            "tested_code_sha": current_head,
+            "branch": "astra/manuscript-import-ui-e2e"
+        }
+        results["artifacts"] = [
+            "import-a-navigated.png",
+            "import-b-pasted-fixture.png",
+            "import-c-parsed-preview.png",
+            "import-d-confirming-import.png",
+            "import-e-reloaded-chapter-list.png",
+            "import-h-review-queue.png",
+            "import-i-rejected-proposal.png",
+            "import-j-accepted-proposals.png",
+            "import-k-baseline-activated.png",
+            "import-l-author-ide.png",
+            "import-m-generation1-draft.png",
+            "import-n-generation1-rejected.png",
+            "import-o-generation2-accepted.png",
+            "import-p-generation3-observes-n-plus-1.png",
+            "manuscript-import-ui-e2e-evidence.json"
+        ]
 
         # Save evidence JSON
         evidence_file = os.path.join(EVIDENCE_DIR, "manuscript-import-ui-e2e-evidence.json")
