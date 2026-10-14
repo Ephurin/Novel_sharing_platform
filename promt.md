@@ -227,429 +227,191 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. ACTIVE REVIEW DIRECTIVE — Manuscript Import Double-Analysis Hardening & Evidence Repair
+## 5. FINAL EXECUTION DIRECTIVE — Manuscript Import Sync, Rerun & PR Handoff
 
-This directive supersedes the previous Manuscript Import execution directive.
+This directive supersedes all previous Manuscript Import directives.
 
-### Remote state reviewed by ChatGPT
+### Reviewed status
+
+ChatGPT has accepted the current implementation direction and browser evidence for:
 
 ```text
-main:
-dce5172e916d0546fe8293807bce7354e695fd50
+canonical import revision provenance                 PASS
+real server SHA-256 provenance                      PASS
+MANUSCRIPT_BOOTSTRAP snapshot ownership             PASS
+zero generic pre-baseline INCREMENTAL_ANALYSIS      PASS
+bootstrap human-review ownership                    PASS
+Import-E browser reload/readback                    PASS
+Import-I rejected proposal canonical absence        PASS
+Import-J actual accepted proposal/group IDs         PASS
+Import-M exact browser generation provenance        PASS
+Import-O P1 accepted-draft closed loop              PASS
+Import-P next browser request observes N+1          PASS
+```
 
-working branch:
+Current branch:
+
+```text
 astra/manuscript-import-ui-e2e
-
-current remote branch head:
-cb9c6b3267fce08b050b0dd8860ab31a68b16b21
-
-branch relation:
-ahead main 3
-behind main 0
-
-previous tested code:
-95a8afda869642b88aa74f1e6421c8366487939f
-
-previous evidence payload:
-f1b1c8e3e28e88a527fa2c4a73d9aadcaa9fcb31
-
-PR:
-DO NOT OPEN YET
 ```
 
-The following findings are already accepted and must NOT be redesigned:
+Current reviewed branch head before final sync:
 
 ```text
-fresh branch from current main                         ACCEPTED
-old UI branch not merged wholesale                    ACCEPTED
-Manuscript Import production UI port                  ACCEPTED
-chapterId -> revision_id bug removed                  ACCEPTED
-'auto-sha256' placeholder removed                     ACCEPTED
-real canonical revisionId from snapshot endpoint      ACCEPTED
-real server contentHash used for bootstrap            ACCEPTED
-browser import/preview/confirm path exists             ACCEPTED
-review queue / reject / accept / baseline UI exists   ACCEPTED
-imported chapter opens in Author IDE                  ACCEPTED
-P1 accept -> AI_DRAFT_ACCEPT -> outbox -> Brain N+1   ACCEPTED
+47bb3cd7a6fdbf160979d522f2955ccbaf43adda
 ```
 
-Do not redo those areas unless required by the blockers below.
-
----
-
-### BLOCKER P0 — eliminate or prove-safe the double-analysis path before baseline
-
-ChatGPT confirmed current-main `createSnapshot()` always does:
+Current accepted-but-stale tested lineage:
 
 ```text
-canonical revision
- -> INCREMENTAL_ANALYSIS outbox
- -> triggerImmediateProcessing()
+TESTED_CODE_SHA      40dc3fd03a991d90a787eed7ebb61d06886831c0
+EVIDENCE_PAYLOAD_SHA 43f5d75060948efc02d634adb0ac244f507b0628
+LINEAGE_SEAL_SHA     47bb3cd7a6fdbf160979d522f2955ccbaf43adda
 ```
 
-Current Manuscript Import then sends the same revision to:
+Do not reopen these behaviors unless the final sync exposes a concrete regression.
+
+### Only remaining task — sync current main and reproduce acceptance
+
+The branch was reviewed as behind main only because the latest review directive was committed after the previous run.
+
+First fetch and merge the **current** remote main after reading this directive:
+
+```bash
+git fetch origin
+git checkout astra/manuscript-import-ui-e2e
+git pull --ff-only
+git merge origin/main
+```
+
+Resolve only genuine merge conflicts. Do not reset or drop existing work.
+
+After the merge:
 
 ```text
-bootstrap/from-manuscript
- -> ManuscriptBootstrapService
- -> RevisionAnalysisService.analyze(...)
+branch behind main = 0
 ```
 
-The two paths use different idempotency identities, so they are not automatically the same deduplicated analysis run.
+Commit any conflict resolution if needed.
 
-This creates a potential race:
+Call the exact clean product/test/runner commit after sync:
 
 ```text
-import snapshot
- -> outbox incremental analysis
- -> proposal creation / retry
-                                         +-> bootstrap analysis of same revision
-                         -> human review queue
+FINAL_TESTED_CODE_SHA
 ```
 
-The import bootstrap invariant is:
+This SHA must include the current-main ancestry, including this final directive commit.
+
+### Final rerun
+
+From a clean tree at `FINAL_TESTED_CODE_SHA`, rerun at minimum:
 
 ```text
-BEFORE baseline activation:
-imported revision analysis is owned by bootstrap review flow
-and must NOT be independently auto-materialized by the generic incremental outbox path.
+frontend typecheck/build
+manuscript-import deterministic contract tests
+snapshot default/outbox regression tests
+bootstrap-owned ownership tests
+bootstrap/review/baseline relevant tests
+P1 acceptDraft/outbox regression tests
+AI gateway relevant suite
+real browser Import-A through Import-P
 ```
 
-The accepted P1 invariant must remain unchanged:
+Do not weaken or skip assertions.
+
+The final browser run must still explicitly prove:
 
 ```text
-AFTER baseline / normal authoring:
-manual/accepted revisions continue to use the canonical fail-closed
-INCREMENTAL_ANALYSIS outbox and auto-materialization path.
+pre_baseline_outbox_count == 0
+Import-E rendered browser readback after reload
+Import-I rejected proposal absent from canonical projection
+Import-J accepted_proposals_count > 0 with exact IDs/groups
+Import-M browser request uses imported chapter_id/revision_id/content_hash/current brain version
+Import-N reject leaves canon/Brain unchanged
+Import-O AI_DRAFT_ACCEPT -> outbox COMPLETED -> Brain N+1
+Import-P later browser request sends N+1
 ```
 
-#### Required investigation
+### Final evidence lineage
 
-Trace and document:
+Regenerate evidence from `FINAL_TESTED_CODE_SHA`.
+
+Create:
 
 ```text
-createSnapshot()
-insertOutboxEvent()
-triggerImmediateProcessing()
-ManuscriptBootstrapService.start/process()
-RevisionAnalysisService.analyze()
-analysis-run idempotency keys
-proposal expected_brain_version
-baseline activation semantics
+FINAL_TESTED_CODE_SHA
+        ↓
+FINAL_EVIDENCE_PAYLOAD_SHA
+        ↓
+optional FINAL_LINEAGE_SEAL_SHA
 ```
 
-Then implement the **smallest safe ownership rule** so an imported pre-baseline revision is not analyzed/materialized twice.
+Final evidence/report must record the **actual current main SHA used by this run**, not the stale `dce5172...`.
 
-A valid design may be, for example:
-
-```text
-bootstrap-owned canonical snapshot mode/purpose
- -> creates the same immutable canonical revision
- -> returns real revisionId/contentHash
- -> does NOT enqueue generic INCREMENTAL_ANALYSIS for that bootstrap-owned revision
- -> bootstrap remains the sole analysis owner until baseline activation
-```
-
-or another design that proves the same invariant without a second revision model.
-
-Safety constraints:
-
-- ordinary `createSnapshot` behavior must remain unchanged by default;
-- `acceptDraft` outbox behavior must remain unchanged;
-- do not let an arbitrary public client silently disable analysis without an explicit, validated import/bootstrap purpose;
-- do not delete/mark-completed stale outbox rows after the fact as a workaround;
-- do not merely rely on timing;
-- do not keep two independently keyed analysis runs for the same imported revision and call that acceptable;
-- do not weaken fail-closed outbox semantics.
-
-If a service-layer API is introduced, reuse the existing canonical revision persistence primitive. Do not create a parallel import-only revision store.
-
-#### Required deterministic tests
-
-At minimum prove:
-
-```text
-A. ordinary author snapshot
-   -> still creates INCREMENTAL_ANALYSIS outbox
-
-B. manuscript bootstrap-owned snapshot/provenance creation
-   -> creates real immutable revision
-   -> no competing generic incremental-analysis owner before baseline
-
-C. each imported revision is analyzed once by bootstrap ownership
-   -> one intended bootstrap analysis lineage
-   -> no duplicate proposal group from generic outbox retry
-
-D. before baseline activation
-   -> bootstrap proposals stay review-controlled
-   -> no generic outbox auto-materializes them
-
-E. rejected bootstrap proposal stays rejected/non-canonical
-
-F. after baseline activation
-   -> normal P1 AI_DRAFT_ACCEPT still creates outbox
-   -> outbox COMPLETED
-   -> Story Brain advances
-```
-
-If existing schema/service contracts make this impossible without a small backend change, make the smallest explicit change and test both old default behavior and the new bootstrap-owned behavior.
-
----
-
-### BLOCKER P1 — Import-E must really prove browser reload/readback
-
-Current runner labels Import-E as:
-
-```text
-imported chapters appear after reload
-```
-
-but only queries PostgreSQL.
-
-Repair it so the browser performs an actual reload or navigates away/back to a rendered chapter-list/novel surface and proves the imported chapters are visibly present.
-
-Required:
-
-```text
-browser-originated import
- -> browser reload/reopen
- -> both imported chapter titles visible in rendered UI
- -> then DB/API correlation
-```
-
-Record a browser screenshot for Import-E.
-
-Do not relabel a DB-only query as Browser PASS.
-
----
-
-### BLOCKER P1 — Import-I must prove the rejected proposal remains non-canonical
-
-Current evidence proves only:
-
-```text
-proposal.status = rejected
-```
-
-Strengthen the proof.
-
-Before clicking reject, capture the exact proposal ID/type/payload being rejected.
-
-After the rest of bootstrap decisions and baseline activation:
-
-```text
-proposal remains rejected
-AND
-the canonical target represented by that rejected proposal was not materialized
-```
-
-Use the correct canonical table/read contract for its proposal type:
-- entity -> entity materialization;
-- fact/world_rule -> facts/rules;
-- event -> events;
-- relationship/state transition -> corresponding canonical projection.
-
-Prefer choosing a proposal type whose non-materialization can be asserted deterministically.
-
-Record:
-
-```text
-rejected_proposal_id
-rejected_proposal_type
-rejected_payload_identity
-canonical_absence_proof
-```
-
----
-
-### BLOCKER P1 — Import-J must assert actual acceptance, not only print it
-
-Current runner can record PASS even if:
-
-```text
-accepted_count = 0
-```
-
-Fix this.
-
-Capture the exact browser-clicked proposal group(s), then assert:
-
-```text
-accepted_proposals_count > 0
-all intended clicked proposal IDs/groups reach accepted state
-brain_version locking used the current version
-no rejected proposal is accidentally accepted
-```
-
-Evidence must include accepted proposal/group IDs and resulting Brain version.
-
----
-
-### BLOCKER P0 — Import-M must prove generation #1 uses imported canonical provenance/context
-
-Current code sets:
-
-```python
-gen1_job_id = None
-...
-if "/ai/writing/generations" in response.url:
-    pass
-```
-
-and still records PASS.
-
-That is insufficient.
-
-For generation #1, capture the **browser-originated request** via CDP `Network.requestWillBeSent`.
-
-Assert at minimum:
-
-```text
-chapter_id == imported chapter id
-revision_id == imported canonical revision id
-content_hash == imported canonical content hash
-expected_brain_version == active imported Story Brain version
-```
-
-Also capture the generation/job ID from the response or subsequent browser-visible polling flow where available.
-
-Import-M may PASS only if the browser request provenance matches the imported canonical revision exactly.
-
-Record:
-
-```text
-generation1_browser_request_id
-generation1_id/job_id
-chapter_id
-revision_id
-content_hash
-expected_brain_version
-```
-
-This is the decisive proof that Manuscript Import actually feeds the already-accepted P1 writing loop rather than merely opening the same editor.
-
----
-
-### BLOCKER P1 — machine-readable evidence must contain the required lineage and IDs
-
-The current JSON lacks some required top-level lineage/trace fields.
-
-The final evidence JSON must include at minimum:
+Required top-level evidence remains:
 
 ```text
 tested_main_sha
 tested_code_sha
 branch
-
 novel_id
-
 imported_chapter_ids
 imported_revision_ids
 imported_content_hashes
-
+pre_baseline_outbox_count
 bootstrap_job_id
-story_brain_id if exposed
+story_brain_id
 baseline_brain_version
-
 rejected_proposal_id
 rejected_proposal_type
+canonical_absence_proof
 accepted_proposal_ids
 accepted_proposal_group_ids
-
 generation1_browser_request_id
-rejected_generation_id/job_id
-
+rejected_generation_id
 accepted_generation_id
 accepted_revision_id
 outbox_event_id
 brain_version_before_accept
 brain_version_after_accept
-
 final_browser_request_id
 observed_final_brain_version
 ```
 
-Do not store:
-- access tokens;
-- passwords;
-- API keys;
-- raw private manuscript bodies.
+No self-referential SHA.
 
-The deterministic fixture itself may remain in test code.
+### Final stop conditions
 
----
-
-### Final rerun and SHA lineage
-
-Because both product/test code and runner evidence will change, the old tested SHA is no longer the final acceptance SHA.
-
-After all fixes:
+Before stopping, verify:
 
 ```text
-1. sync current main into the branch if main advanced
-2. commit all product/test/runner changes
-3. clean tree
-4. call exact commit NEW_TESTED_CODE_SHA
-5. run all mandatory deterministic + browser acceptance on NEW_TESTED_CODE_SHA
-6. commit regenerated report/evidence/screenshots as NEW_EVIDENCE_PAYLOAD_SHA
-7. optionally add one backward-only LINEAGE_SEAL_SHA
+git status --short = clean
+branch behind main = 0
+all required local tests PASS
+browser Import-A..P PASS
+FINAL_TESTED_CODE_SHA resolves remotely
+FINAL_EVIDENCE_PAYLOAD_SHA resolves remotely
+report/evidence tested_main_sha == actual synced main
+verdict = MANUSCRIPT_IMPORT_UI_PASS
+boundary = LOCAL_PASS_CI_PENDING
 ```
 
-Required final tests include:
+Then push:
 
 ```text
-manuscript import contract tests
-snapshot/default outbox regression tests
-bootstrap-owned analysis ownership tests
-bootstrap/review/baseline tests
-P1 acceptDraft/outbox regression tests
-frontend typecheck/build
-relevant backend tests
-real browser Import-A through Import-P
+astra/manuscript-import-ui-e2e
 ```
 
-Final Browser acceptance must explicitly show:
-
-```text
-Import-E browser reload/readback PASS
-Import-I canonical absence after reject PASS
-Import-J actual accepted IDs/groups PASS
-Import-M exact imported generation provenance PASS
-Import-O P1 closed loop PASS
-Import-P N+1 browser observation PASS
-no competing pre-baseline generic outbox analysis for imported revisions
-```
-
-Update the report honestly. Remove the current `PASS (100%)` claim if any required assertion is not actually exercised.
-
----
-
-### Final stop boundary
-
-Final verdict:
-
-```text
-MANUSCRIPT_IMPORT_UI_PASS
-```
-
-is allowed only after the double-analysis ownership invariant and all evidence gaps above are closed.
-
-Then:
-
-```text
-push astra/manuscript-import-ui-e2e
-STOP at LOCAL_PASS_CI_PENDING
-```
+and STOP.
 
 Gemini must not:
-- open a PR;
-- merge;
+- create a PR;
+- merge to main;
+- modify accepted architecture without a newly observed regression;
 - claim GitHub Actions PASS;
-- merge the old `UI` branch;
-- weaken P1 fail-closed semantics;
-- hide or manually complete competing outbox events to make evidence green.
+- touch the obsolete `UI` branch.
 
-ChatGPT owns remote review, PR creation, CI inspection, merge decision, and canonical closure.
+ChatGPT owns the next step: remote review -> PR -> GitHub Actions -> merge decision -> canonical closure.
 
 ---
 
