@@ -227,272 +227,404 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. ACTIVE EXECUTION DIRECTIVE — Manuscript Import UI Integration & Browser E2E
+## 5. ACTIVE REVIEW DIRECTIVE — Manuscript Import Double-Analysis Hardening & Evidence Repair
+
+This directive supersedes the previous Manuscript Import execution directive.
 
 ### Remote state reviewed by ChatGPT
 
 ```text
 main:
-2acb7f4bfc6e729b9802b799b799ae96ac7c3a29
+dce5172e916d0546fe8293807bce7354e695fd50
 
-source UI branch:
-UI
+working branch:
+astra/manuscript-import-ui-e2e
 
-source UI commit:
-fe8429c77016fc58d7a8e3293cbc89030144aebc
-feat(ui): add manuscripts import screen
+current remote branch head:
+cb9c6b3267fce08b050b0dd8860ab31a68b16b21
 
 branch relation:
-UI ahead main by 1
-UI behind main by 36
-status = diverged
+ahead main 3
+behind main 0
+
+previous tested code:
+95a8afda869642b88aa74f1e6421c8366487939f
+
+previous evidence payload:
+f1b1c8e3e28e88a527fa2c4a73d9aadcaa9fcb31
+
+PR:
+DO NOT OPEN YET
 ```
 
-Do **not** merge current `main` into the old `UI` branch and continue there.
-
-Create a fresh integration branch from current `main`:
+The following findings are already accepted and must NOT be redesigned:
 
 ```text
-astra/manuscript-import-ui-e2e
+fresh branch from current main                         ACCEPTED
+old UI branch not merged wholesale                    ACCEPTED
+Manuscript Import production UI port                  ACCEPTED
+chapterId -> revision_id bug removed                  ACCEPTED
+'auto-sha256' placeholder removed                     ACCEPTED
+real canonical revisionId from snapshot endpoint      ACCEPTED
+real server contentHash used for bootstrap            ACCEPTED
+browser import/preview/confirm path exists             ACCEPTED
+review queue / reject / accept / baseline UI exists   ACCEPTED
+imported chapter opens in Author IDE                  ACCEPTED
+P1 accept -> AI_DRAFT_ACCEPT -> outbox -> Brain N+1   ACCEPTED
 ```
 
-Suggested local start:
+Do not redo those areas unless required by the blockers below.
 
-```bash
-git fetch origin
-git checkout main
-git pull --ff-only origin main
-git checkout -b astra/manuscript-import-ui-e2e
-```
+---
 
-Then inspect `UI@fe8429c...` and port only the intended Manuscript Import UI work onto the new branch. A clean cherry-pick is allowed if it applies safely; otherwise port the four intended files manually while preserving current-main APIs/components.
+### BLOCKER P0 — eliminate or prove-safe the double-analysis path before baseline
 
-Do not merge the old branch wholesale.
-Do not overwrite newer Author IDE / Story Brain / P1 code from `main`.
-
-### Confirmed blocker — invalid canonical provenance
-
-ChatGPT directly verified the source UI still contains:
-
-```ts
-const revisions = createdChapters.map((ch) => ({
-  chapter_id: ch.chapterId,
-  revision_id: ch.chapterId,
-  content_hash: 'auto-sha256'
-}));
-```
-
-This is invalid and must not be worked around by weakening backend validation.
-
-Required invariant:
+ChatGPT confirmed current-main `createSnapshot()` always does:
 
 ```text
-chapter_id      = real persisted chapter id
-revision_id     = real immutable chapter revision id
-content_hash    = real SHA-256 of the exact immutable revision content
+canonical revision
+ -> INCREMENTAL_ANALYSIS outbox
+ -> triggerImmediateProcessing()
 ```
 
-The Story Brain manuscript bootstrap must consume canonical revision provenance, not chapter IDs or placeholder hashes.
-
-### Phase A — inspect current contracts before editing
-
-Trace the current-main implementation for:
+Current Manuscript Import then sends the same revision to:
 
 ```text
-POST /novels/:novelId/chapters
-POST /chapters/:chapterId/revisions/snapshot
-POST /ai/story-brains/bootstrap/from-manuscript
-GET  /ai/jobs/:jobId
-GET  /ai/story-brains/:novelId/review-queue
-POST /ai/proposal-groups/:groupId/accept
-POST /ai/story-brains/:novelId/baseline/activate
-Author IDE chapter loading / canonical revision lookup
-P1 writing generation + acceptDraft
+bootstrap/from-manuscript
+ -> ManuscriptBootstrapService
+ -> RevisionAnalysisService.analyze(...)
 ```
 
-Determine whether chapter creation already returns a canonical revision. If it does, consume that exact response.
+The two paths use different idempotency identities, so they are not automatically the same deduplicated analysis run.
 
-If chapter creation does **not** create/return a canonical immutable revision, the import flow must explicitly create the snapshot through the existing canonical snapshot endpoint after each chapter is persisted, then use the returned:
+This creates a potential race:
 
 ```text
-revisionId
-contentHash
+import snapshot
+ -> outbox incremental analysis
+ -> proposal creation / retry
+                                         +-> bootstrap analysis of same revision
+                         -> human review queue
 ```
 
-If the snapshot response does not expose the content hash, obtain it from the canonical revision/read contract or compute SHA-256 over the exact persisted revision content only if this exactly matches the backend hash contract. Prefer server-returned canonical metadata.
-
-Do not invent a parallel import-specific revision model.
-
-### Phase B — repair import persistence flow
-
-The browser-facing import flow must become:
+The import bootstrap invariant is:
 
 ```text
-parse selected manuscript chapters
- -> user reviews/selects chapters
- -> create each chapter
- -> create/obtain canonical immutable revision for each chapter
- -> collect exact {chapter_id, revision_id, content_hash}
- -> only then call bootstrap/from-manuscript
+BEFORE baseline activation:
+imported revision analysis is owned by bootstrap review flow
+and must NOT be independently auto-materialized by the generic incremental outbox path.
 ```
 
-Failure semantics:
+The accepted P1 invariant must remain unchanged:
 
 ```text
-chapter persistence failure
- -> import visibly fails/partials with exact affected chapter
-
-revision creation/provenance failure
- -> DO NOT send fake bootstrap manifest
-
-bootstrap failure
- -> chapters/revisions remain canonical and recoverable
- -> UI reports Story Brain bootstrap failure separately
+AFTER baseline / normal authoring:
+manual/accepted revisions continue to use the canonical fail-closed
+INCREMENTAL_ANALYSIS outbox and auto-materialization path.
 ```
 
-Do not claim atomicity across multiple chapter HTTP requests if no transaction exists.
+#### Required investigation
 
-Add the smallest product/API typing changes needed. Avoid unrelated redesign.
-
-### Phase C — preserve and integrate intended UI
-
-Port the intended Manuscript Import experience from `fe8429c...` while removing obsolete duplicate/mock artifacts if they are not part of the real React application.
-
-Review specifically:
+Trace and document:
 
 ```text
-web/src/features/manuscript-import/ManuscriptImportPage.tsx
-web/src/features/manuscript-import/manuscript-import-api.ts
-web/src/features/manuscript-import/ManuscriptImportPage.html
-web/src/features/manuscript-import/ManuscriptImportPage_old.tsx
+createSnapshot()
+insertOutboxEvent()
+triggerImmediateProcessing()
+ManuscriptBootstrapService.start/process()
+RevisionAnalysisService.analyze()
+analysis-run idempotency keys
+proposal expected_brain_version
+baseline activation semantics
 ```
 
-The standalone generated HTML and `_old.tsx` must not be treated as production implementation evidence. Keep them only if the repository has an explicit reason; otherwise exclude them from the port.
+Then implement the **smallest safe ownership rule** so an imported pre-baseline revision is not analyzed/materialized twice.
 
-Supported UI behavior should include, where implemented:
+A valid design may be, for example:
 
 ```text
-file/text load
-chapter split preview
-chapter selection
-title/content preview/edit
-import progress
-Story Brain enable/disable choice
-bootstrap progress
-review queue
-proposal accept/reject
-baseline activation
-navigation into Author IDE
+bootstrap-owned canonical snapshot mode/purpose
+ -> creates the same immutable canonical revision
+ -> returns real revisionId/contentHash
+ -> does NOT enqueue generic INCREMENTAL_ANALYSIS for that bootstrap-owned revision
+ -> bootstrap remains the sole analysis owner until baseline activation
 ```
 
-### Phase D — deterministic contract tests
+or another design that proves the same invariant without a second revision model.
 
-Add focused frontend/backend contract tests proving at minimum:
+Safety constraints:
+
+- ordinary `createSnapshot` behavior must remain unchanged by default;
+- `acceptDraft` outbox behavior must remain unchanged;
+- do not let an arbitrary public client silently disable analysis without an explicit, validated import/bootstrap purpose;
+- do not delete/mark-completed stale outbox rows after the fact as a workaround;
+- do not merely rely on timing;
+- do not keep two independently keyed analysis runs for the same imported revision and call that acceptable;
+- do not weaken fail-closed outbox semantics.
+
+If a service-layer API is introduced, reuse the existing canonical revision persistence primitive. Do not create a parallel import-only revision store.
+
+#### Required deterministic tests
+
+At minimum prove:
 
 ```text
-1. import never maps chapterId to revision_id
-2. bootstrap never sends placeholder content_hash
-3. canonical revision metadata is preserved per chapter
-4. malformed/failed revision provenance blocks bootstrap
-5. partial chapter import is reported honestly
-6. Story Brain bootstrap receives revisions in correct order
-7. proposal accept uses current brain_version
-8. rejected proposal is not materialized
+A. ordinary author snapshot
+   -> still creates INCREMENTAL_ANALYSIS outbox
+
+B. manuscript bootstrap-owned snapshot/provenance creation
+   -> creates real immutable revision
+   -> no competing generic incremental-analysis owner before baseline
+
+C. each imported revision is analyzed once by bootstrap ownership
+   -> one intended bootstrap analysis lineage
+   -> no duplicate proposal group from generic outbox retry
+
+D. before baseline activation
+   -> bootstrap proposals stay review-controlled
+   -> no generic outbox auto-materializes them
+
+E. rejected bootstrap proposal stays rejected/non-canonical
+
+F. after baseline activation
+   -> normal P1 AI_DRAFT_ACCEPT still creates outbox
+   -> outbox COMPLETED
+   -> Story Brain advances
 ```
 
-If hashing is performed client-side, add a Unicode/Vietnamese content fixture and prove its SHA-256 matches the canonical backend contract.
+If existing schema/service contracts make this impossible without a small backend change, make the smallest explicit change and test both old default behavior and the new bootstrap-owned behavior.
 
-### Phase E — real browser E2E
+---
 
-Use the real rendered application, not API-only mutation, for the decisive import flow.
+### BLOCKER P1 — Import-E must really prove browser reload/readback
 
-Required Browser checkpoints:
+Current runner labels Import-E as:
 
 ```text
-Import-A  authenticate and navigate to Manuscript Import
-Import-B  load/paste a deterministic manuscript fixture with >= 2 chapters
-Import-C  browser parses chapters and renders preview
-Import-D  select/confirm import through UI
-Import-E  imported chapters appear after reload
-Import-F  DB/API correlation proves real immutable revision_id + content_hash for every imported chapter
-Import-G  Story Brain bootstrap starts from those exact revisions
-Import-H  review queue rendered in browser
-Import-I  reject one proposal through UI and prove it remains non-canonical
-Import-J  accept required proposal group(s) through UI
-Import-K  activate baseline through UI
-Import-L  open one imported chapter in Author IDE
-Import-M  browser generation #1 uses imported canonical revision/context
-Import-N  reject generation; canon/Brain unchanged
-Import-O  browser generation #2 -> accept -> AI_DRAFT_ACCEPT -> outbox COMPLETED -> Brain N -> N+1
-Import-P  subsequent browser-originated generation/context observes N+1
+imported chapters appear after reload
 ```
 
-API/DB may be used only for correlation after browser-originated mutations.
+but only queries PostgreSQL.
 
-Do not label API setup as Browser PASS.
+Repair it so the browser performs an actual reload or navigates away/back to a rendered chapter-list/novel surface and proves the imported chapters are visibly present.
 
-Use deterministic/fake LLM for the acceptance path unless the UI cannot exercise the production route without provider access. Real-provider literary quality is not part of this gate.
-
-### Phase F — evidence and lineage
-
-Create:
+Required:
 
 ```text
-docs/development/MANUSCRIPT-IMPORT-UI-E2E-report.md
-docs/development/MANUSCRIPT-IMPORT-UI-E2E/
-  manuscript-import-ui-e2e-evidence.json
-  relevant browser screenshots
+browser-originated import
+ -> browser reload/reopen
+ -> both imported chapter titles visible in rendered UI
+ -> then DB/API correlation
 ```
 
-Record at minimum:
+Record a browser screenshot for Import-E.
+
+Do not relabel a DB-only query as Browser PASS.
+
+---
+
+### BLOCKER P1 — Import-I must prove the rejected proposal remains non-canonical
+
+Current evidence proves only:
+
+```text
+proposal.status = rejected
+```
+
+Strengthen the proof.
+
+Before clicking reject, capture the exact proposal ID/type/payload being rejected.
+
+After the rest of bootstrap decisions and baseline activation:
+
+```text
+proposal remains rejected
+AND
+the canonical target represented by that rejected proposal was not materialized
+```
+
+Use the correct canonical table/read contract for its proposal type:
+- entity -> entity materialization;
+- fact/world_rule -> facts/rules;
+- event -> events;
+- relationship/state transition -> corresponding canonical projection.
+
+Prefer choosing a proposal type whose non-materialization can be asserted deterministically.
+
+Record:
+
+```text
+rejected_proposal_id
+rejected_proposal_type
+rejected_payload_identity
+canonical_absence_proof
+```
+
+---
+
+### BLOCKER P1 — Import-J must assert actual acceptance, not only print it
+
+Current runner can record PASS even if:
+
+```text
+accepted_count = 0
+```
+
+Fix this.
+
+Capture the exact browser-clicked proposal group(s), then assert:
+
+```text
+accepted_proposals_count > 0
+all intended clicked proposal IDs/groups reach accepted state
+brain_version locking used the current version
+no rejected proposal is accidentally accepted
+```
+
+Evidence must include accepted proposal/group IDs and resulting Brain version.
+
+---
+
+### BLOCKER P0 — Import-M must prove generation #1 uses imported canonical provenance/context
+
+Current code sets:
+
+```python
+gen1_job_id = None
+...
+if "/ai/writing/generations" in response.url:
+    pass
+```
+
+and still records PASS.
+
+That is insufficient.
+
+For generation #1, capture the **browser-originated request** via CDP `Network.requestWillBeSent`.
+
+Assert at minimum:
+
+```text
+chapter_id == imported chapter id
+revision_id == imported canonical revision id
+content_hash == imported canonical content hash
+expected_brain_version == active imported Story Brain version
+```
+
+Also capture the generation/job ID from the response or subsequent browser-visible polling flow where available.
+
+Import-M may PASS only if the browser request provenance matches the imported canonical revision exactly.
+
+Record:
+
+```text
+generation1_browser_request_id
+generation1_id/job_id
+chapter_id
+revision_id
+content_hash
+expected_brain_version
+```
+
+This is the decisive proof that Manuscript Import actually feeds the already-accepted P1 writing loop rather than merely opening the same editor.
+
+---
+
+### BLOCKER P1 — machine-readable evidence must contain the required lineage and IDs
+
+The current JSON lacks some required top-level lineage/trace fields.
+
+The final evidence JSON must include at minimum:
 
 ```text
 tested_main_sha
 tested_code_sha
 branch
+
 novel_id
-imported chapter ids
-canonical revision ids
-canonical content hashes
-bootstrap job id
-story brain id
-brain version before baseline
-brain version after proposal acceptance / activation
-generation reject id
-accepted generation id
-AI_DRAFT_ACCEPT revision id
-outbox event id
-brain version before accepted generation
-brain version after accepted generation
-second browser request/generation id
-observed final brain version
+
+imported_chapter_ids
+imported_revision_ids
+imported_content_hashes
+
+bootstrap_job_id
+story_brain_id if exposed
+baseline_brain_version
+
+rejected_proposal_id
+rejected_proposal_type
+accepted_proposal_ids
+accepted_proposal_group_ids
+
+generation1_browser_request_id
+rejected_generation_id/job_id
+
+accepted_generation_id
+accepted_revision_id
+outbox_event_id
+brain_version_before_accept
+brain_version_after_accept
+
+final_browser_request_id
+observed_final_brain_version
 ```
 
-Never store manuscript bodies, credentials, tokens, API keys, or private user data in evidence.
+Do not store:
+- access tokens;
+- passwords;
+- API keys;
+- raw private manuscript bodies.
 
-Use backward-only SHA lineage:
+The deterministic fixture itself may remain in test code.
+
+---
+
+### Final rerun and SHA lineage
+
+Because both product/test code and runner evidence will change, the old tested SHA is no longer the final acceptance SHA.
+
+After all fixes:
 
 ```text
-TESTED_CODE_SHA
- -> EVIDENCE_PAYLOAD_SHA
- -> optional LINEAGE_SEAL_SHA
+1. sync current main into the branch if main advanced
+2. commit all product/test/runner changes
+3. clean tree
+4. call exact commit NEW_TESTED_CODE_SHA
+5. run all mandatory deterministic + browser acceptance on NEW_TESTED_CODE_SHA
+6. commit regenerated report/evidence/screenshots as NEW_EVIDENCE_PAYLOAD_SHA
+7. optionally add one backward-only LINEAGE_SEAL_SHA
 ```
 
-No self-referential SHA fields.
-
-### Phase G — final local acceptance
-
-Run at minimum:
+Required final tests include:
 
 ```text
+manuscript import contract tests
+snapshot/default outbox regression tests
+bootstrap-owned analysis ownership tests
+bootstrap/review/baseline tests
+P1 acceptDraft/outbox regression tests
 frontend typecheck/build
-relevant frontend tests
-relevant backend deterministic tests
-import contract tests
-P1 regression tests touched by the import flow
-strict API/system import runner if added
-real browser E2E
+relevant backend tests
+real browser Import-A through Import-P
 ```
+
+Final Browser acceptance must explicitly show:
+
+```text
+Import-E browser reload/readback PASS
+Import-I canonical absence after reject PASS
+Import-J actual accepted IDs/groups PASS
+Import-M exact imported generation provenance PASS
+Import-O P1 closed loop PASS
+Import-P N+1 browser observation PASS
+no competing pre-baseline generic outbox analysis for imported revisions
+```
+
+Update the report honestly. Remove the current `PASS (100%)` claim if any required assertion is not actually exercised.
+
+---
+
+### Final stop boundary
 
 Final verdict:
 
@@ -500,27 +632,9 @@ Final verdict:
 MANUSCRIPT_IMPORT_UI_PASS
 ```
 
-only if the browser flow reaches the existing P1 loop with real canonical provenance and completes the closed feedback loop.
+is allowed only after the double-analysis ownership invariant and all evidence gaps above are closed.
 
-Use:
-
-```text
-MANUSCRIPT_IMPORT_UI_PARTIAL
-```
-
-if the UI itself is genuinely missing a required implemented control.
-
-Use:
-
-```text
-MANUSCRIPT_IMPORT_UI_FAIL
-```
-
-for contract or functional failure.
-
-### Stop boundary
-
-When locally complete:
+Then:
 
 ```text
 push astra/manuscript-import-ui-e2e
@@ -528,12 +642,12 @@ STOP at LOCAL_PASS_CI_PENDING
 ```
 
 Gemini must not:
-- merge the old `UI` branch into `main`;
-- weaken canonical revision/hash validation;
-- reopen accepted P1/P2/P3 architecture without a concrete regression;
-- create a PR;
-- merge to main;
-- claim GitHub Actions PASS.
+- open a PR;
+- merge;
+- claim GitHub Actions PASS;
+- merge the old `UI` branch;
+- weaken P1 fail-closed semantics;
+- hide or manually complete competing outbox events to make evidence green.
 
 ChatGPT owns remote review, PR creation, CI inspection, merge decision, and canonical closure.
 
