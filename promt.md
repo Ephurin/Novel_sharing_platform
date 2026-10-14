@@ -1,5 +1,404 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
+## ACTIVE EXECUTION DIRECTIVE — AI-PIPE-01B FINAL LOCAL CLOSURE (2026-10-14)
+
+This directive supersedes all earlier AI-PIPE-01B execution/review directives for Gemini.
+
+### Remote state reviewed by ChatGPT
+
+```text
+main:
+94c12df380f132580b2d2ea22667aad5154e9aa6
+
+working branch:
+astra/ai-pipe-01b-main-e2e-repair
+
+last reviewed repair commit:
+b0ceea3b9c17fb90f762f9b96c7877dddb7f4a02
+
+PR:
+DO NOT OPEN YET
+```
+
+The following work is already accepted and must NOT be redesigned:
+
+```text
+AuthorWritingIde -> canonical P1 generation path     ACCEPTED
+AI reject leaves canon unchanged                     ACCEPTED
+AI accept -> AI_DRAFT_ACCEPT revision                ACCEPTED
+INCREMENTAL_ANALYSIS outbox creation                 ACCEPTED
+real CDP browser harness                             ACCEPTED
+Story Brain advancement demonstrated 12 -> 13        ACCEPTED
+```
+
+Your task is to close only the remaining acceptance blockers.
+
+---
+
+### 1. Sync current main into the existing repair branch
+
+Continue on:
+
+```text
+astra/ai-pipe-01b-main-e2e-repair
+```
+
+First:
+
+```bash
+git fetch origin
+git checkout astra/ai-pipe-01b-main-e2e-repair
+git rev-parse HEAD
+git merge origin/main
+```
+
+Record:
+
+```text
+STARTING_REPAIR_SHA=<actual pre-merge branch head>
+CURRENT_MAIN_SHA=94c12df380f132580b2d2ea22667aad5154e9aa6
+```
+
+If the branch has advanced beyond the last reviewed commit, preserve that work and inspect it before editing.
+
+Do not reset the branch.
+Do not open a PR.
+Do not merge to main.
+
+---
+
+### 2. BLOCKER P0 — outbox proposal materialization must fail closed
+
+Current reviewed implementation in:
+
+```text
+backend/src/jobs/outbox-processor.ts
+```
+
+swallows proposal-group materialization failures with warnings. That can allow an `INCREMENTAL_ANALYSIS` event to become `COMPLETED` although Story Brain canonical mutation did not finish.
+
+Required production invariant:
+
+```text
+accepted revision
+ -> outbox event
+ -> incremental analysis
+ -> proposals scoped to this exact revision
+ -> all required proposal groups materialize successfully
+ -> Story Brain advances or explicit legitimate no-op is classified
+ -> ONLY THEN event may become COMPLETED
+```
+
+If a required materialization step fails:
+
+```text
+handleOutboxEvent throws/fails
+ -> event is NOT COMPLETED
+ -> existing mark-failed / retry semantics apply
+```
+
+Do not swallow the failure.
+
+Keep selection strictly scoped to:
+
+```text
+proposal.evidence contains revision_id == event.revisionId
+```
+
+Never auto-accept unrelated pending proposals.
+
+Required focused tests:
+
+```text
+A. analysis success + relevant materialization success
+   -> event COMPLETED
+   -> expected Story Brain mutation occurs
+
+B. proposal-group accept transient failure
+   -> event NOT COMPLETED
+   -> retryable failure state
+
+C. retry after partial attempt
+   -> no duplicate canonical Story Brain mutation
+   -> eventually COMPLETED exactly once
+
+D. unrelated pending proposal groups
+   -> untouched
+
+E. legitimate no relevant proposals
+   -> explicit no-op classification
+   -> no false claim that Story Brain advanced
+```
+
+Preserve claim-token, concurrency, and idempotency behavior already present in the outbox worker.
+
+---
+
+### 3. BLOCKER P0 — Browser-F must mutate Story Bible through rendered UI
+
+The previous runner used `httpx.post(...)` to create Story Bible data and then only verified browser readback. That is not browser mutation evidence.
+
+For every currently implemented create/edit surface among:
+
+```text
+Character
+Relationship
+Timeline Event
+Plot Summary
+```
+
+perform the mutation using real DOM controls:
+
+```text
+browser navigate
+ -> click add/create
+ -> fill rendered form
+ -> submit rendered control
+ -> observe visible success/readback
+ -> refresh/reopen
+ -> verify persistence in browser
+ -> open IDE Story Bible panel
+ -> verify same data there
+```
+
+After browser-originated mutation, prove at least one changed Story Bible fact is visible to the AI/context consumer.
+
+API/DB calls are allowed only for correlation after the browser action.
+
+If a surface has no actual create/edit UI:
+
+```text
+NOT_IMPLEMENTED
+```
+
+Do not create it by API and report browser PASS.
+
+---
+
+### 4. BLOCKER P0 — Browser-G must save Novel Data through rendered UI
+
+Execute the actual Novel Data form:
+
+```text
+open Novel Data
+ -> edit one supported metadata field
+ -> trigger actual Save
+ -> wait for UI success
+ -> refresh/reopen
+ -> visible readback matches
+ -> IDE/header/breadcrumb reflects the new value where applicable
+```
+
+The non-owner 403 check is useful but must remain labeled:
+
+```text
+API_SECURITY
+```
+
+It does not replace browser mutation evidence.
+
+---
+
+### 5. BLOCKER P0 — Browser-H chapter lifecycle must originate from UI
+
+Do not create/publish the acceptance chapter with `httpx`.
+
+Use rendered IDE controls:
+
+```text
+click New Chapter
+ -> enter title/content
+ -> wait autosave
+ -> switch to another chapter/view
+ -> return
+ -> content persists
+```
+
+If current UI exposes VIP/price/publish controls, execute those through the browser too:
+
+```text
+toggle VIP
+ -> set price
+ -> click Publish/Submit
+ -> verify rendered status/readback
+```
+
+Only after these actions may API/DB be used to correlate the resulting chapter state.
+
+If a control is genuinely absent, mark it `NOT_IMPLEMENTED`; do not fake browser coverage with API setup.
+
+---
+
+### 6. BLOCKER P0 — second feedback observation must originate from browser
+
+The accepted first loop is:
+
+```text
+browser generation #1
+ -> browser accept
+ -> AI_DRAFT_ACCEPT
+ -> outbox
+ -> Story Brain N -> N+1
+```
+
+The second observation must NOT be a direct `httpx` call pretending to be browser evidence.
+
+Preferred decisive proof:
+
+```text
+Browser generation #2
+ -> actual browser-originated POST /ai/writing/generations
+ -> request/context carries expected_brain_version == N+1
+ -> resulting context/generation observes Story Brain N+1
+```
+
+Alternative only if generation #2 is not suitable:
+
+```text
+browser UI action triggers context preview/refetch
+ -> capture browser-originated network request
+ -> response observes brain_version == N+1
+```
+
+Record:
+
+```text
+second_browser_request_id
+second_generation_id if present
+expected_brain_version
+observed_brain_version
+```
+
+Capture distinct browser/network evidence for this second observation.
+
+---
+
+### 7. Evidence lineage must match the exact tested code
+
+Regenerate final evidence only after all repairs are committed and the working tree is clean.
+
+Required lineage:
+
+```text
+tested_main_sha
+repair_code_sha
+evidence_commit_sha
+branch
+novel_id
+chapter_id
+base_revision_id
+rejected_generation_id
+accepted_generation_id
+accepted_revision_id
+outbox_event_id
+brain_version_before
+brain_version_after
+second_browser_generation_or_context_id
+expected_brain_version
+observed_brain_version
+```
+
+Rules:
+
+```text
+repair_code_sha = exact clean code/test commit that was executed
+evidence_commit_sha = evidence/report child commit where practical
+```
+
+Do not reuse old SHA claims from 581f1a0/e4fba44/b0ceea3 after the final implementation changes unless that exact SHA was actually rerun.
+
+Classify evidence explicitly as:
+
+```text
+BROWSER
+BROWSER_NETWORK
+API_SYSTEM
+DATABASE
+CONTRACT_TEST
+```
+
+Do not store secrets, passwords, JWTs, API keys, or private manuscript text.
+
+---
+
+### 8. Mandatory rerun on one final clean CODE_SHA
+
+Run at minimum:
+
+```text
+focused outbox-processor tests
+AI-PIPE-01B contract/regression tests
+strict API/system runner
+real CDP/browser E2E
+relevant backend unit tests
+relevant frontend tests/typecheck/build
+```
+
+All decisive tests must refer to the same final product/test CODE_SHA.
+
+Do not:
+- use direct incremental-analysis fallback to upgrade a failing closed loop;
+- weaken `brain_version_after > brain_version_before`;
+- bypass F/G/H browser mutations with API calls;
+- mark a screenshot as proof of a network/state transition by itself.
+
+---
+
+### 9. Final local verdict and stop boundary
+
+`MAIN_UI_E2E_PASS` is allowed only if all are true:
+
+```text
+canonical IDE P1 path PASS
+browser manual autosave PASS
+browser AI reject PASS
+browser AI accept PASS
+AI_DRAFT_ACCEPT lineage PASS
+outbox fail-closed behavior PASS
+outbox retry/idempotency PASS
+Story Brain N -> N+1 PASS
+second browser-originated request observes N+1 PASS
+Story Bible UI mutation/readback PASS for implemented surfaces
+Novel Data UI save/readback PASS
+chapter lifecycle through UI PASS for exposed controls
+evidence SHA lineage exact and internally consistent
+```
+
+If an important UI surface is genuinely not implemented, use:
+
+```text
+MAIN_UI_E2E_PARTIAL
+```
+
+If a required implemented surface fails:
+
+```text
+MAIN_UI_E2E_FAIL
+```
+
+When local work is complete:
+
+```text
+commit implementation/tests
+run final clean evidence
+commit report/evidence
+push astra/ai-pipe-01b-main-e2e-repair
+STOP at LOCAL_PASS_CI_PENDING
+```
+
+Gemini must not create the PR, merge, or claim GitHub Actions PASS.
+
+ChatGPT owns:
+- remote diff review;
+- PR creation;
+- GitHub Actions review;
+- merge decision;
+- main closure.
+
+Do not touch the separate Manuscript Import work (`fe8429c77016fc58d7a8e3293cbc89030144aebc`) in this task.
+
+---
+
 ## ACTIVE REVIEW DIRECTIVE — AI-PIPE-01B FINAL REPAIR BEFORE PR (2026-10-14)
 
 This directive supersedes the previous AI-PIPE-01B review directive.
