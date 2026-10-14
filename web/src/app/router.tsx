@@ -117,6 +117,22 @@ export const router = createBrowserRouter([
     )
   },
   {
+    path: '/author/profile',
+    element: (
+      <AuthGate>
+        <AuthorProfilePage />
+      </AuthGate>
+    )
+  },
+  {
+    path: '/authors/:authorId',
+    element: (
+      <AuthGate>
+        <AuthorProfilePage />
+      </AuthGate>
+    )
+  },
+  {
     path: '/wallet',
     element: (
       <AuthGate>

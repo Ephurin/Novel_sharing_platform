@@ -431,7 +431,7 @@ export function ManuscriptImportPage() {
                 Ví &amp; doanh thu
               </Link>
               <Link
-                to="/profile/me"
+                to="/author/profile"
                 className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition-colors"
                 data-path="trang-tac-gia"
               >

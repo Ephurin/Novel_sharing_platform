@@ -421,7 +421,7 @@ export function WalletPage() {
                 Ví &amp; doanh thu
               </Link>
               <Link
-                to="/author/projects"
+                to="/author/profile"
                 className="h-14 flex items-center font-body-md text-xs text-[#464555] hover:text-[#131b2e] transition-colors whitespace-nowrap"
               >
                 Trang tác giả
