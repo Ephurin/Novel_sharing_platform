@@ -8,11 +8,11 @@ Test target:
 
 ```text
 branch: main
-current handoff HEAD: f711a71b1ba27641fc869bbea3768594032ff4a1
-product/UI baseline: e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2
+product/UI baseline under test:
+e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2
 ```
 
-The only change after the product/UI baseline is this handoff documentation commit; no product code changed.
+Pull and test the actual current `main` HEAD. Handoff/documentation commits may exist after the product/UI baseline; record the exact tested HEAD in the report.
 
 Recent UI merges under test:
 
@@ -40,19 +40,14 @@ git pull
 git rev-parse HEAD
 ```
 
-The expected current HEAD when this task was assigned is:
+After pulling, record:
 
 ```text
-f711a71b1ba27641fc869bbea3768594032ff4a1
+TESTED_MAIN_SHA=<actual git rev-parse HEAD>
+PRODUCT_UI_BASELINE=e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2
 ```
 
-The latest product/UI change under test remains:
-
-```text
-e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2
-```
-
-If `main` advances again before execution, record and test the actual pulled HEAD. Do not reset behind current `main` merely to recover the SHA above.
+Do not reset behind current `main` merely to recover an older handoff SHA. If product code changes beyond the baseline before execution, include those changes in the trace and test the actual current product state.
 
 Default mode:
 
