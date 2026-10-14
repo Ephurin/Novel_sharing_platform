@@ -1,5 +1,222 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
+## ACTIVE REVIEW DIRECTIVE — AI-PIPE-01B FINAL SHA CORRECTION + PR HANDOFF (2026-10-14)
+
+This directive supersedes all earlier AI-PIPE-01B directives for Gemini.
+
+### Remote state reviewed by ChatGPT
+
+```text
+actual main:
+5432a20a93852cc6c4a403fa03e0ed46117f5f36
+
+repair branch:
+astra/ai-pipe-01b-main-e2e-repair
+
+current remote branch head:
+0518264ce238f83a4f7565dab09510c2e458b6c1
+
+last tested code:
+e85570f835932bbd26992f94d4707e35dddc510f
+
+last evidence payload:
+dceb5856b2284c916750281b8c0a59ed5b0b81f4
+
+branch relation:
+ahead main 12
+behind main 0
+```
+
+All functional acceptance blockers are now accepted:
+
+```text
+canonical browser P1 loop                         PASS
+outbox fail-closed                               PASS
+processOutboxOnce FAILED -> retry -> COMPLETED   PASS
+Story Brain N -> N+1                             PASS
+browser generation #2 sees N+1                   PASS
+Story Bible Character                            PASS
+Story Bible Relationship                         PASS
+Story Bible Timeline                             PASS
+Story Bible Plot Summary                         PASS
+Novel Data UI mutation                           PASS
+Chapter lifecycle/VIP/publish UI                 PASS
+```
+
+DO NOT redesign or reopen those areas.
+
+There is exactly one remaining blocker: the recorded `tested_main_sha` is mistyped.
+
+Current invalid value:
+
+```text
+5432a201b1076b00c3b01968832a84d4df0e7740
+```
+
+Correct remote-resolvable main SHA:
+
+```text
+5432a20a93852cc6c4a403fa03e0ed46117f5f36
+```
+
+ChatGPT verified the invalid SHA does not exist and the correct SHA is the merge-base/current main.
+
+---
+
+### 1. Fix the runner source, not only the report
+
+In:
+
+```text
+scripts/run_real_browser_e2e.py
+```
+
+replace the incorrect hard-coded fallback `tested_main_sha` with:
+
+```text
+5432a20a93852cc6c4a403fa03e0ed46117f5f36
+```
+
+Prefer deriving it from a supplied environment variable or an explicit verified base ref, but the final recorded value must be the exact actual main SHA above.
+
+Do not leave the invalid `5432a201...` value anywhere in:
+- runner;
+- evidence JSON;
+- report;
+- lineage metadata.
+
+Search the branch for the invalid SHA and remove every occurrence.
+
+---
+
+### 2. Because runner code changes, establish a NEW TESTED_CODE_SHA
+
+The previous `e85570f...` remains valid evidence for the functional run, but after changing the runner source the final acceptance must refer to the new exact code commit.
+
+Procedure:
+
+```bash
+git fetch origin
+git checkout astra/ai-pipe-01b-main-e2e-repair
+git pull --ff-only
+git merge origin/main
+# make only the SHA correction + any necessary lineage plumbing
+git status --short
+git add ...
+git commit -m "fix(ai-pipe-01b): correct tested main lineage"
+git push
+git rev-parse HEAD
+```
+
+Call that exact remote-resolvable commit:
+
+```text
+FINAL_TESTED_CODE_SHA
+```
+
+It must have:
+
+```text
+merge-base/current main =
+5432a20a93852cc6c4a403fa03e0ed46117f5f36
+```
+
+Do not mix unrelated product changes into this commit.
+
+---
+
+### 3. Final clean rerun on FINAL_TESTED_CODE_SHA
+
+Run the final acceptance from a clean tree at `FINAL_TESTED_CODE_SHA`.
+
+At minimum rerun:
+
+```text
+6 outbox processor tests
+5 AI-PIPE-01B IDE contract tests
+strict API/system runner
+real CDP browser E2E
+frontend typecheck/build/relevant tests
+backend relevant tests
+```
+
+The browser run must still preserve the already accepted checkpoints:
+- A through H;
+- 4 Story Bible mutation surfaces;
+- Story Brain advancement;
+- second browser generation observing advanced version.
+
+Pass the exact main SHA explicitly if useful:
+
+```text
+TESTED_MAIN_SHA=5432a20a93852cc6c4a403fa03e0ed46117f5f36
+TESTED_CODE_SHA=<FINAL_TESTED_CODE_SHA>
+```
+
+The generated evidence must record exactly those values.
+
+---
+
+### 4. Rebuild backward-only evidence lineage
+
+After the clean rerun:
+
+```text
+FINAL_TESTED_CODE_SHA
+        ↓
+FINAL_EVIDENCE_PAYLOAD_SHA
+        ↓
+optional FINAL_LINEAGE_SEAL_SHA
+```
+
+The evidence payload must contain:
+
+```text
+tested_code_sha = FINAL_TESTED_CODE_SHA
+tested_main_sha = 5432a20a93852cc6c4a403fa03e0ed46117f5f36
+branch = astra/ai-pipe-01b-main-e2e-repair
+```
+
+If creating a seal commit, it may point backward to:
+
+```text
+tested_code_sha
+evidence_payload_sha
+```
+
+Do not self-reference the seal SHA.
+
+Verify every recorded SHA remotely resolves before stopping.
+
+---
+
+### 5. Final acceptance conditions
+
+Before stopping, prove:
+
+```text
+git status --short = clean
+branch behind main = 0
+invalid SHA 5432a201... occurs nowhere
+tested_main_sha exactly matches actual main
+FINAL_TESTED_CODE_SHA resolves remotely
+FINAL_EVIDENCE_PAYLOAD_SHA resolves remotely
+all local acceptance tests PASS
+verdict = MAIN_UI_E2E_PASS
+boundary = LOCAL_PASS_CI_PENDING
+```
+
+If all are true, push the branch and STOP.
+
+Do not create the PR.
+Do not merge.
+Do not claim GitHub Actions PASS.
+Do not touch Manuscript Import.
+
+ChatGPT owns the next step: remote review -> PR -> GitHub Actions -> merge decision -> main closure.
+
+---
+
 ## ACTIVE REVIEW DIRECTIVE — AI-PIPE-01B FINAL EVIDENCE HARDENING (2026-10-14)
 
 This directive supersedes the previous AI-PIPE-01B local-closure directive for Gemini.
