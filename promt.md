@@ -1,5 +1,459 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
+## ACTIVE DIRECTIVE — AI-PIPE-01B MAIN E2E AFTER UI MERGES (2026-10-14)
+
+This directive supersedes the earlier current-UI preflight task.
+
+Test target:
+
+```text
+branch: main
+SHA:    e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2
+```
+
+Recent UI merges under test:
+
+```text
+PR #43
+1d1525ba327b75ca0a321346afe8470e59821715
+feat(ui): add author writting ide
+
+PR #44
+0e7012c08ef9e3518b91abdc55c208ec2b1fe280
+feat(ui): add novel data and story bible screen
+```
+
+The previous browser preflight on `astra/ai-pipe-01b-current-ui-preflight` is historical evidence only. It does **not** qualify the current UI because `main` has materially changed since that run.
+
+### Gemini ownership
+
+Gemini / Antigravity owns this local E2E execution.
+
+Start from current `main`.
+
+```text
+git checkout main
+git pull
+git rev-parse HEAD
+```
+
+The HEAD under test must be exactly:
+
+```text
+e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2
+```
+
+If `main` has advanced before execution, stop treating the SHA above as current and record the actual tested HEAD.
+
+Default mode:
+
+```text
+INSPECT
+ -> RUN STACK
+ -> BROWSER E2E
+ -> CORRELATE API/DB
+ -> REPORT
+```
+
+Do not refactor the UI merely because the design is imperfect.
+
+If a concrete defect is found:
+1. classify it;
+2. reproduce it;
+3. make the smallest scoped repair;
+4. add regression coverage;
+5. create a repair branch from the tested `main`;
+6. rerun the affected E2E checkpoints;
+7. push at `LOCAL_PASS_CI_PENDING`.
+
+Do not claim GitHub CI PASS or merge.
+
+---
+
+### Why this rerun is mandatory
+
+The backend P1/P2/P3 pipelines are already CI-closed, but the new UI may no longer use the same canonical contracts.
+
+The highest-risk change is the new Author Writing IDE.
+
+Historical accepted P1 browser/backend contract:
+
+```text
+POST /api/v1/ai/writing/generations
+ -> poll /api/v1/ai/jobs/:jobId
+ -> preview draft
+ -> POST /api/v1/chapters/:chapterId/revisions/accept-draft
+ -> chapter_revisions.source_type = AI_DRAFT_ACCEPT
+ -> chapters.latest_revision_id advances
+ -> revision_outbox_events.INCREMENTAL_ANALYSIS
+ -> Story Brain version advances
+ -> next context/generation sees the new brain state
+```
+
+Current `AuthorWritingIde.tsx` appears to use:
+
+```text
+POST /api/v1/ai/copilot/suggestions
+ -> insert / replace suggestion in editor
+ -> PATCH /api/v1/chapters/:chapterId via autosave
+```
+
+The canonical `startWritingGeneration`, `getJobStatus`, and `acceptDraftRevision` functions still exist in `ai-copilot-api.ts`, but the new IDE may bypass them.
+
+This must be verified by executable E2E evidence, not inferred from source alone.
+
+---
+
+## E2E-A — Main UI smoke
+
+Run the real local stack:
+
+```text
+web
+Node backend
+AI service
+PostgreSQL + pgvector
+MongoDB where required by the application
+```
+
+Use a disposable AUTHOR fixture.
+
+Browser flow:
+
+```text
+login
+ -> /author
+ -> select novel
+ -> Novel Data
+ -> Story Bible
+ -> Writing IDE
+```
+
+Verify:
+- no route crash;
+- auth/session survives navigation and refresh;
+- `novelId` / `chapterId` query state remains correct;
+- frontend API failures are surfaced honestly;
+- no fatal browser console errors;
+- current data comes from backend rather than hard-coded mock state.
+
+---
+
+## E2E-B — Writing IDE canonical contract [HIGHEST PRIORITY]
+
+### B1. Manual edit / autosave
+
+```text
+open existing chapter
+ -> edit title/content
+ -> wait for autosave
+ -> refresh/reopen
+ -> same draft content visible
+```
+
+Verify:
+- chapter draft persisted;
+- manual autosave does not create a fake `AI_DRAFT_ACCEPT` revision;
+- no incremental Story Brain update is generated merely from unaccepted editor state.
+
+### B2. AI generation / reject
+
+Through the visible AI UI:
+
+```text
+request suggestion/generation
+ -> receive candidate
+ -> reject/dismiss without insertion/acceptance
+```
+
+Verify:
+
+```text
+chapter canonical/latest revision unchanged
+Story Brain version unchanged
+no AI_DRAFT_ACCEPT revision
+no INCREMENTAL_ANALYSIS outbox event
+```
+
+### B3. AI generation / accept — DECISIVE CHECKPOINT
+
+Use the current visible UI action that represents accepting/inserting AI output.
+
+Trace the exact network calls.
+
+Expected canonical P1 result:
+
+```text
+writing generation job exists
+generation_id recorded
+accept-draft called
+new immutable chapter_revision exists
+source_type = AI_DRAFT_ACCEPT
+source_generation_id = generation_id
+chapters.latest_revision_id = accepted_revision_id
+INCREMENTAL_ANALYSIS outbox event created
+```
+
+If the UI instead performs only:
+
+```text
+copilot suggestion
+ -> insert text locally
+ -> PATCH chapter autosave
+```
+
+with no generation/accept-draft lineage, classify:
+
+```text
+UI_CONTRACT_REGRESSION
+```
+
+Do not modify the backend contract merely to accommodate this UI behavior.
+
+The expected repair direction is to reconnect the new IDE to the existing canonical P1 writing/acceptance flow.
+
+### B4. Story Brain feedback loop
+
+Record:
+
+```text
+brain_version_before = N
+accepted_revision_id
+outbox_event_id
+brain_version_after = N+1 or otherwise concretely advanced
+```
+
+Do not claim this PASS merely because the outbox reached `COMPLETED` or the brain status is `active`.
+
+Then run a second context preview or generation from the browser and prove it observes the updated state/version.
+
+Required correlation:
+
+```text
+novel_id
+chapter_id
+base_revision_id
+generation_id
+accepted_revision_id
+outbox_event_id
+brain_version_before
+brain_version_after
+second_generation_or_context_id
+```
+
+This is the decisive AI-PIPE-01B closed-loop browser condition.
+
+---
+
+## E2E-C — Story Bible ↔ IDE consistency
+
+PR #44 materially rewrote the Story Bible surface.
+
+Using the browser:
+
+```text
+Novel Data / Story Bible
+ -> create or update Character
+ -> create/update Relationship
+ -> create Timeline Event
+ -> create Plot Summary
+ -> refresh
+ -> reopen
+```
+
+Verify durable PostgreSQL-backed readback.
+
+Then open the Writing IDE Story Bible panel and verify the same data is visible.
+
+Finally prove the AI context path can observe at least one newly changed Story Bible fact/constraint.
+
+The purpose is not to judge literary prose quality. The purpose is to prove:
+
+```text
+Story Bible edit
+ -> persisted state
+ -> IDE readback
+ -> AI/context consumer sees the same state
+```
+
+---
+
+## E2E-D — Novel metadata
+
+Browser flow:
+
+```text
+Author Dashboard
+ -> Novel Data
+ -> change title/synopsis/other supported metadata
+ -> save
+ -> refresh
+```
+
+Verify consistency across:
+- Author Dashboard;
+- Novel Data page;
+- Writing IDE breadcrumb/header;
+- backend/API readback.
+
+Negative ownership check:
+- non-owner cannot mutate another author's novel.
+
+---
+
+## E2E-E — Chapter lifecycle in new IDE
+
+Test at minimum:
+
+```text
+create chapter
+ -> edit
+ -> autosave
+ -> switch chapter
+ -> return
+ -> content preserved
+```
+
+Also test supported publication state:
+
+```text
+free/VIP toggle
+ -> coin price if VIP
+ -> publish/submit
+ -> backend state/readback matches browser state
+```
+
+UI-only typography preferences are smoke-level and must not block AI-PIPE-01B unless they break editing.
+
+---
+
+## Manuscript Import — DO NOT MIX WITH CURRENT MAIN ACCEPTANCE
+
+The remote `UI` branch currently has an additional unmerged commit:
+
+```text
+fe8429c77016fc58d7a8e3293cbc89030144aebc
+feat(ui): add manuscripts import screen
+```
+
+Do not include that code in the current `main` E2E verdict.
+
+However, record it as the next pre-merge UI gate.
+
+Known contract risk to verify before that commit is merged:
+
+current candidate code appears to construct bootstrap revisions using:
+
+```text
+revision_id = chapterId
+content_hash = "auto-sha256"
+```
+
+while the production bootstrap contract requires the actual immutable revision ID and actual content SHA-256.
+
+The AI service can reject mismatched content with:
+
+```text
+CONTENT_HASH_MISMATCH
+```
+
+Therefore Manuscript Import must be tested separately on the `UI` branch before merge:
+
+```text
+parse/import chapters
+ -> real immutable revision provenance
+ -> actual revision_id
+ -> actual content_hash
+ -> Story Brain bootstrap
+ -> review queue
+ -> proposal accept/reject
+ -> baseline activation
+ -> IDE continuation uses imported canon
+```
+
+Do not weaken backend validation to make the candidate UI pass.
+
+---
+
+## Evidence and report
+
+Create/update:
+
+```text
+docs/development/AI-PIPE-01B-MAIN-E2E-report.md
+docs/development/AI-PIPE-01B-MAIN-E2E/
+```
+
+For every executed checkpoint record:
+
+```text
+browser action
+frontend route/component
+Node API call
+AI-service call where applicable
+PostgreSQL state
+Story Brain state
+status
+notes
+```
+
+Allowed checkpoint statuses:
+
+```text
+PASS
+FAIL
+PARTIAL
+MOCK_ONLY
+NOT_IMPLEMENTED
+BLOCKED
+UI_CONTRACT_REGRESSION
+```
+
+Screenshots are supporting evidence only. They do not replace API/DB correlation.
+
+Do not store secrets, JWTs, passwords, API keys or full private manuscript text.
+
+---
+
+## Required final verdict for this run
+
+Use exactly one:
+
+```text
+MAIN_UI_E2E_PASS
+MAIN_UI_E2E_PARTIAL
+MAIN_UI_E2E_FAIL
+```
+
+`MAIN_UI_E2E_PASS` requires all of the following:
+
+```text
+current main UI loads and navigates
+manual autosave works
+AI reject leaves canon unchanged
+AI accept uses canonical generation/accept-draft lineage
+immutable AI revision persists
+outbox completes
+Story Brain demonstrably advances
+second browser context/generation observes updated state
+Story Bible changes persist and reach IDE/context
+no ownership regression
+```
+
+If the AI accept path only autosaves inserted suggestion text, verdict cannot be PASS.
+
+Even after a successful run, keep architectural reporting precise:
+
+```text
+P1 final browser E2E = PASS only for the tested main SHA
+P2/P3 backend = already CI_PASS
+P2/P3 dedicated UI surfaces = assess separately when implemented
+```
+
+Gemini stops after local evidence + any necessary scoped repair is pushed. ChatGPT owns GitHub review/CI/merge.
+
+---
+
 > This file is intentionally short. It contains only the current canonical state, architecture invariants, ownership rules, and the next executable gate.
 >
 > Historical implementation/review details belong in `docs/development/*report.md`, evidence JSON, PR history, and Git history. Do not append stale phase logs back into this file.
