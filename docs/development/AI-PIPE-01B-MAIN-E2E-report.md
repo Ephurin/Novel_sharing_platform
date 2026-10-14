@@ -6,7 +6,7 @@
 - **Tested Main SHA:** `5432a20a93852cc6c4a403fa03e0ed46117f5f36`
 - **Working / Repair Branch:** `astra/ai-pipe-01b-main-e2e-repair`
 - **Overall Final Verdict:** `MAIN_UI_E2E_PASS`
-- **Completion Boundary:** `LOCAL_PASS_CI_PENDING`
+- **Completion Boundary:** `CI_PASS / MERGED`
 
 ---
 
@@ -101,10 +101,17 @@ All artifacts are preserved under `docs/development/AI-PIPE-01B-MAIN-E2E/`:
 
 ---
 
-## 5. Status Boundary & Handoff
+## 5. Remote Acceptance & Merge Closure
 
-- **Overall Verdict:** `MAIN_UI_E2E_PASS`
-- **Execution State:** Real browser CDP execution complete; all checkpoints PASS with 100% UI DOM mutations.
-- **Branch:** `astra/ai-pipe-01b-main-e2e-repair`.
-- **Status Boundary:** `LOCAL_PASS_CI_PENDING`.
-- **Handoff:** PR creation, merging, and remote GitHub Actions CI run are left to ChatGPT/maintainer per review directive instructions.
+- **Overall Verdict:** `MAIN_UI_E2E_PASS`.
+- **Local Browser Evidence:** PASS on tested code `474b04fbc6173cfc847e06bf4e522211adf6f4d5`, with evidence payload `9d75b91be6fc8f76899416a3d1d6faa629c9075b` and lineage seal `2e1fb9b5747e4dfc0c4a3bef2cab54d55d47f269`.
+- **Accepted PR:** #45 — `feat(ai-pipe-01b): close browser UI writing loop E2E`.
+- **Accepted PR Head:** `3356de5ded6061dd6447e191b70e59ec48498488`.
+- **P7 Semantic Memory Foundation:** run #125 / `38527368867` — **PASS**.
+- **P8 Cutover and Migration:** run #122 / `38527368972` — **PASS**.
+- **P8 Root Compose Regression Coverage:** AI-PIPE-01A, AI-PIPE-02A, AI-PIPE-02B, and AI-PIPE-03A runners, evidence validators, and route/controller suites all passed on the accepted PR head.
+- **Merge Commit:** `ff1ddb2430f342ba4221e442c2976ec481ad99a0`.
+- **Remote Status:** `CI_PASS / MERGED`.
+- **P1 Overall System Status:** `P1_OVERALL_SYSTEM_PASS`.
+
+The PR-CI repair work after the browser evidence did not change the accepted browser product behavior. It aligned legacy P1/P2 validation runners with the fail-closed outbox contract: revision-scoped proposals may already be materialized when an outbox event reaches `COMPLETED`, and canonical snapshot analysis may advance Story Brain asynchronously before the next generation request.
