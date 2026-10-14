@@ -1,5 +1,395 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
+## ACTIVE REVIEW DIRECTIVE — AI-PIPE-01B FINAL EVIDENCE HARDENING (2026-10-14)
+
+This directive supersedes the previous AI-PIPE-01B local-closure directive for Gemini.
+
+### Remote state reviewed by ChatGPT
+
+```text
+main:
+c538e1d479a595272b2b87788f9243982a1cc166
+
+working branch:
+astra/ai-pipe-01b-main-e2e-repair
+
+current remote branch head:
+552f97bf1e354d9ba2fe40667d41061f3379ddb4
+
+branch relation:
+ahead main by 8
+behind main by 0
+
+PR:
+DO NOT OPEN YET
+```
+
+Accepted implementation/evidence that does NOT need redesign:
+
+```text
+canonical IDE P1 generation/accept path              ACCEPTED
+AI reject leaves canon unchanged                     ACCEPTED
+AI_DRAFT_ACCEPT persistence                          ACCEPTED
+outbox production handler now throws fail-closed     ACCEPTED DIRECTION
+Story Brain N -> N+1                                 ACCEPTED
+browser generation #2 observes advanced version      ACCEPTED
+Novel Data mutation through rendered UI              ACCEPTED
+chapter create/autosave/VIP/publish through UI        ACCEPTED
+real CDP browser harness                             ACCEPTED
+```
+
+Current branch is NOT PR-ready yet. Close only the review gaps below.
+
+---
+
+### 1. Preserve branch and sync current main
+
+Continue on:
+
+```text
+astra/ai-pipe-01b-main-e2e-repair
+```
+
+Before editing:
+
+```bash
+git fetch origin
+git checkout astra/ai-pipe-01b-main-e2e-repair
+git pull --ff-only
+git merge origin/main
+git rev-parse HEAD
+git status --short
+```
+
+Expected reviewed starting remote head:
+
+```text
+552f97bf1e354d9ba2fe40667d41061f3379ddb4
+```
+
+If remote has advanced, preserve and inspect the newer work.
+
+Do not reset.
+Do not open a PR.
+Do not merge to main.
+
+---
+
+### 2. BLOCKER — Browser-F must cover ALL currently implemented Story Bible mutation surfaces
+
+Current evidence only executes real UI creation for:
+
+```text
+Character
+Timeline Event
+```
+
+but the current frontend also implements real create/edit flows for:
+
+```text
+Relationship
+Plot Summary
+```
+
+Therefore the current Browser-F PASS is overclaimed.
+
+Update the browser E2E to execute, through rendered DOM controls, all four implemented surfaces:
+
+```text
+Character
+Relationship
+Timeline Event
+Plot Summary
+```
+
+Required sequence:
+
+```text
+create Character A through UI
+create Character B through UI if needed
+ -> create Relationship A -> B through UI
+ -> create Timeline Event through UI
+ -> create Plot Summary through UI
+ -> full page reload
+ -> verify all created values remain visible
+ -> open IDE Story Bible panel
+ -> verify representative values there
+ -> correlate persisted DB rows
+```
+
+No `httpx.post` or direct DB insert may perform the mutation being claimed as Browser-F.
+
+API/DB is correlation only after browser-originated actions.
+
+If an implemented surface is broken, classify and repair the smallest product defect, then rerun.
+
+Browser-F may be PASS only when every implemented create/edit surface above has browser-native mutation evidence.
+
+Record separate fields in evidence:
+
+```text
+character_verified
+relationship_verified
+timeline_event_verified
+plot_summary_verified
+mutation_mode = UI_DOM
+```
+
+---
+
+### 3. BLOCKER — prove retry/idempotency at processOutboxOnce state-transition level
+
+The production handler now correctly throws on materialization failure, but the current focused tests mostly call `handleOutboxEvent()` directly.
+
+That does NOT fully prove the report's stronger claim:
+
+```text
+FAILED -> retry -> COMPLETED exactly once
+```
+
+Add integration-style unit/contract coverage around `processOutboxOnce()` and repository boundaries.
+
+At minimum prove this concrete sequence:
+
+```text
+attempt 1:
+  claim event with claim token
+  incremental analysis succeeds
+  proposal group A materializes
+  proposal group B transiently fails
+  -> markOutboxEventCompleted NOT called
+  -> markOutboxEventFailed called exactly once
+  -> event remains retryable
+
+attempt 2:
+  same logical event is reclaimed under valid retry semantics
+  already-materialized A is not duplicated
+  B succeeds
+  -> canonical mutation is not duplicated
+  -> markOutboxEventCompleted called exactly once
+  -> final state COMPLETED
+```
+
+Also retain proof that:
+
+```text
+unrelated pending proposals are untouched
+legitimate no-op does not falsely claim Brain advancement
+claim-token/concurrency semantics remain intact
+```
+
+Do not merely mock `pending=[]` and label that as proof of the full partial-failure retry path.
+
+If current repository design makes exact state-transition testing difficult, introduce the smallest test seam/dependency injection needed; do not redesign the outbox architecture.
+
+---
+
+### 4. BLOCKER — repair evidence lineage; do NOT invent a self-referential evidence SHA
+
+Current report/evidence records:
+
+```text
+evidence_commit_sha =
+cf2029c32c3902bddb2cd99e35d4793f86f61b91
+```
+
+ChatGPT verified that GitHub returns:
+
+```text
+No commit found for SHA
+```
+
+This lineage is invalid.
+
+Also note: a commit cannot reliably contain its own final SHA inside its own contents, because changing the contents changes the commit hash.
+
+Use this reproducible protocol instead.
+
+#### Phase A — establish one exact tested code baseline
+
+After all product/test changes and after syncing main:
+
+```bash
+git status --short
+# must be clean after commit
+git rev-parse HEAD
+```
+
+Call this:
+
+```text
+TESTED_CODE_SHA=<exact branch commit containing ALL product + test + runner code>
+```
+
+This SHA must be a real remote-resolvable commit and must include the merged/synced main ancestry being tested.
+
+Do not keep using `8662b78...` if the actual executed working tree contains later code/test/merge changes.
+
+#### Phase B — run everything against exactly TESTED_CODE_SHA
+
+From a clean tree at TESTED_CODE_SHA run the mandatory suite and browser E2E.
+
+The generated raw evidence/report must record:
+
+```text
+tested_main_sha = c538e1d479a595272b2b87788f9243982a1cc166
+tested_code_sha = TESTED_CODE_SHA
+branch = astra/ai-pipe-01b-main-e2e-repair
+```
+
+Do NOT place a guessed future evidence commit SHA into generated evidence.
+
+#### Phase C — commit evidence payload
+
+Commit only report/evidence/screenshots produced by the run:
+
+```text
+EVIDENCE_PAYLOAD_SHA=<actual git rev-parse HEAD after evidence commit>
+```
+
+Push it.
+
+Verify remotely that both are resolvable:
+
+```text
+TESTED_CODE_SHA
+EVIDENCE_PAYLOAD_SHA
+```
+
+#### Phase D — optional lineage seal
+
+If you need the report to contain the evidence payload commit SHA, create one final metadata-only seal commit that updates lineage to:
+
+```text
+tested_code_sha = TESTED_CODE_SHA
+evidence_payload_sha = EVIDENCE_PAYLOAD_SHA
+```
+
+Call the resulting commit:
+
+```text
+LINEAGE_SEAL_SHA
+```
+
+Do NOT attempt to embed `LINEAGE_SEAL_SHA` inside itself.
+
+Final remote head may be LINEAGE_SEAL_SHA.
+
+The important invariant is:
+
+```text
+real remote SHA
+ -> exact tested code
+ -> exact evidence payload generated from that code
+ -> optional metadata seal pointing backward only
+```
+
+Remove stale/nonexistent SHA claims such as `cf2029c...`.
+
+---
+
+### 5. Required final clean rerun
+
+On TESTED_CODE_SHA run at minimum:
+
+```text
+processOutboxOnce fail/retry/idempotency tests
+existing outbox focused tests
+AI-PIPE-01B IDE contract/regression tests
+strict API/system runner
+real CDP browser E2E
+frontend typecheck/build/relevant tests
+backend relevant unit tests
+```
+
+Browser acceptance must still prove:
+
+```text
+manual autosave
+AI reject
+AI accept
+AI_DRAFT_ACCEPT lineage
+outbox COMPLETED only after successful materialization
+Story Brain N -> N+1
+browser generation #2 observes N+1
+Character UI mutation
+Relationship UI mutation
+Timeline UI mutation
+Plot Summary UI mutation
+Novel Data UI save/readback
+chapter create/autosave/switch/readback/VIP/publish
+```
+
+Do not weaken existing assertions to get green output.
+
+---
+
+### 6. Report accuracy rules
+
+The report must distinguish:
+
+```text
+implemented behavior
+test evidence
+inference
+not tested
+```
+
+Do not claim:
+
+```text
+100% UI DOM Story Bible coverage
+```
+
+unless Character + Relationship + Timeline + Plot Summary were all actually mutated through rendered controls in the final run.
+
+Do not claim:
+
+```text
+retry/idempotency PASS
+```
+
+unless the partial-success/transient-failure/retry sequence was actually exercised.
+
+Do not claim remote CI PASS. Local boundary remains:
+
+```text
+LOCAL_PASS_CI_PENDING
+```
+
+---
+
+### 7. Final stop boundary
+
+When all blockers are closed:
+
+```text
+1. push TESTED_CODE_SHA
+2. run final clean acceptance on TESTED_CODE_SHA
+3. push EVIDENCE_PAYLOAD_SHA
+4. optionally push LINEAGE_SEAL_SHA
+5. verify branch clean and remote SHAs resolvable
+6. STOP
+```
+
+Final local verdict may be:
+
+```text
+MAIN_UI_E2E_PASS
+```
+
+only if all required browser and retry/idempotency conditions above pass.
+
+Gemini must not:
+- create PR;
+- merge;
+- claim GitHub Actions PASS;
+- touch Manuscript Import commit fe8429c77016fc58d7a8e3293cbc89030144aebc.
+
+ChatGPT owns remote review, PR creation, CI inspection, merge decision, and main closure.
+
+---
+
 ## ACTIVE EXECUTION DIRECTIVE — AI-PIPE-01B FINAL LOCAL CLOSURE (2026-10-14)
 
 This directive supersedes all earlier AI-PIPE-01B execution/review directives for Gemini.
