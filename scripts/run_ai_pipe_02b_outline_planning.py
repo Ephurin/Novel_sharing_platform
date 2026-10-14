@@ -187,6 +187,34 @@ def run_pipeline(
         base_rev_id = rev_res.json()["data"]["revisionId"]
         base_rev_hash = sha256(chap1_content)
 
+        # A manual canonical snapshot emits INCREMENTAL_ANALYSIS. Under the
+        # fail-closed outbox contract it may auto-materialize proposals and
+        # advance Story Brain before later writing requests. Stabilize that
+        # background work and capture the actual current version.
+        base_snapshot_outbox_status = None
+        for _ in range(30):
+            cur.execute(
+                """
+                SELECT status FROM revision_outbox_events
+                WHERE revision_id = %s AND event_type = 'INCREMENTAL_ANALYSIS'
+                """,
+                (base_rev_id,),
+            )
+            snapshot_outbox_row = cur.fetchone()
+            if snapshot_outbox_row and snapshot_outbox_row[0] == "COMPLETED":
+                base_snapshot_outbox_status = snapshot_outbox_row[0]
+                break
+            time.sleep(1.0)
+        assert base_snapshot_outbox_status == "COMPLETED", (
+            "Canonical snapshot incremental-analysis outbox did not complete"
+        )
+        cur.execute(
+            "SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s",
+            (novel_id,),
+        )
+        writing_brain_version = int(cur.fetchone()[0])
+        assert writing_brain_version >= 2
+
         # ─────────────────────────────────────────────────────────────────
         # Checkpoint 01: Application-Facing Outline/Plan Request
         # ─────────────────────────────────────────────────────────────────
@@ -484,7 +512,7 @@ def run_pipeline(
             "operation": "continue",
             "selection": {"cursor": len(chap1_content), "start": len(chap1_content), "end": len(chap1_content)},
             "instruction": "Tiếp tục miêu tả nhân vật chính quan sát xung quanh sa mạc.",
-            "expected_brain_version": 2,
+            "expected_brain_version": writing_brain_version,
             "chapter_number": 1,
             "idempotency_key": f"gen-p2b-1-{uuid.uuid4()}",
         }
@@ -527,7 +555,7 @@ def run_pipeline(
             "operation": "continue",
             "selection": {"cursor": len(chap1_content), "start": len(chap1_content), "end": len(chap1_content)},
             "instruction": "Tạo thử một đoạn nháp thứ hai nhưng tác giả không chấp nhận.",
-            "expected_brain_version": 2,
+            "expected_brain_version": writing_brain_version,
             "chapter_number": 1,
             "idempotency_key": f"gen-p2b-unaccepted-{uuid.uuid4()}",
         }
@@ -630,57 +658,42 @@ def run_pipeline(
         # ─────────────────────────────────────────────────────────────────
         # Checkpoint 12: Story Brain Advances from Accepted Content
         # ─────────────────────────────────────────────────────────────────
-        # Dispatch outbox event to AI service incremental analysis
-        ana_res = httpx.post(
-            f"{ai_service_url}/v1/revisions/{accepted_rev_id}/analyses",
-            json={
-                "novel_id": novel_id,
-                "chapter_id": first_chapter_id,
-                "tenant_id": "00000000-0000-0000-0000-000000000001",
-                "content_hash": rev_content_hash,
-                "options": {"extract_entities": True},
-            },
-            headers={
-                "X-Tenant-Id": "00000000-0000-0000-0000-000000000001",
-                "X-Request-Id": f"req-ana-{uuid.uuid4()}",
-                "Idempotency-Key": f"ana-{accepted_rev_id}",
-                "X-Service-Token": os.getenv("PLATFORM_SERVICE_TOKEN", "service-token-dev"),
-            },
-            timeout=20.0,
-        )
-        assert ana_res.status_code in (200, 202), f"Analysis dispatch failed: {ana_res.text}"
-
-        # Accept incremental proposal group to advance Story Brain version
-        cur.execute("SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
-        bv_before = cur.fetchone()[0]
-
-        q2 = httpx.get(f"{backend_url}/ai/story-brains/{novel_id}/review-queue", headers=headers, timeout=15.0)
-        p_list = q2.json()["data"]
-        if isinstance(p_list, list) and p_list:
-            g2_id = p_list[0]["dependency_group_id"]
-            group_proposals = [p for p in p_list if p.get("dependency_group_id") == g2_id]
-            accept_grp_res = httpx.post(
-                f"{backend_url}/ai/proposal-groups/{g2_id}/accept",
-                json={"proposal_ids": [p["proposal_id"] for p in group_proposals], "expected_brain_version": bv_before},
-                headers=headers,
-                timeout=15.0,
+        # Observe the real transactional outbox worker. Under the fail-closed
+        # contract it performs incremental analysis and revision-scoped proposal
+        # materialization before marking the event COMPLETED.
+        outbox_terminal_status = outbox_row[2]
+        for _ in range(30):
+            cur.execute(
+                "SELECT status FROM revision_outbox_events WHERE event_id = %s",
+                (outbox_event_id,),
             )
-            assert accept_grp_res.status_code == 200, f"Failed to accept proposal group: {accept_grp_res.text}"
+            outbox_status_row = cur.fetchone()
+            if outbox_status_row and outbox_status_row[0] == "COMPLETED":
+                outbox_terminal_status = outbox_status_row[0]
+                break
+            time.sleep(1.0)
+        assert outbox_terminal_status == "COMPLETED", (
+            f"Accepted-draft outbox did not complete: {outbox_terminal_status}"
+        )
 
         cur.execute("SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
-        brain_v_after = cur.fetchone()[0]
-        assert brain_v_after >= 3, f"Expected brain version >= 3, found {brain_v_after}"
-
-        # Mark outbox event COMPLETED
-        cur.execute("UPDATE revision_outbox_events SET status = 'COMPLETED' WHERE event_id = %s", (outbox_event_id,))
+        brain_v_after = int(cur.fetchone()[0])
+        assert brain_v_after > writing_brain_version, (
+            "Accepted content did not advance Story Brain: "
+            f"{writing_brain_version} -> {brain_v_after}"
+        )
 
         record_cp(
             12,
             "Story Brain Memory Advances Only from Accepted Content",
             "PASS",
-            f"Story Brain advanced version 2 -> {brain_v_after} after accepted draft analysis",
+            (
+                f"Transactional outbox completed and Story Brain advanced "
+                f"{writing_brain_version} -> {brain_v_after}"
+            ),
             {
-                "brain_version_before": 2,
+                "outbox_status": outbox_terminal_status,
+                "brain_version_before": writing_brain_version,
                 "brain_version_after": brain_v_after,
             },
         )
