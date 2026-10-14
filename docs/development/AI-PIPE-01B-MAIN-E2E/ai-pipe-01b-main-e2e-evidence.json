@@ -1,6 +1,6 @@
 {
   "gate": "AI-PIPE-01B",
-  "timestamp": "2026-10-14T05:06:09Z",
+  "timestamp": "2026-10-14T06:19:56Z",
   "execution_mode": "REAL_BROWSER_AUTOMATION_CDP",
   "browser": "Microsoft Edge 155 (Headless Chrome/155.0.0.0)",
   "checkpoints": {
@@ -31,21 +31,21 @@
     "Browser-D": {
       "name": "AI Draft Accept & Canonical Persistence",
       "status": "PASS",
-      "accepted_revision_id": "78218b67-748c-43ba-bbdf-525833d41807",
-      "source_generation_id": "ac7d1d79-af3a-5131-8a6d-61a77012ba62",
-      "chapters_latest_revision_id": "78218b67-748c-43ba-bbdf-525833d41807",
-      "outbox_event_id": "e7c93aaf-1d29-4812-af50-3c2b83e10c33",
+      "accepted_revision_id": "a10881d2-b805-4f3f-b9dd-e3e034d4cc2b",
+      "source_generation_id": "7afc5da5-5557-5228-a6c9-814b57103376",
+      "chapters_latest_revision_id": "a10881d2-b805-4f3f-b9dd-e3e034d4cc2b",
+      "outbox_event_id": "4b34aa77-c922-4045-83db-cfadf183e1e2",
       "evidence_artifact": "browser-ai-accept.png",
       "notes": "Browser click invoked acceptDraftRevision. DB verified AI_DRAFT_ACCEPT revision, pointer advance, and INCREMENTAL_ANALYSIS outbox event."
     },
     "Browser-E": {
       "name": "Story Brain Version Advancement & Feedback Loop",
       "status": "PASS",
-      "brain_version_before": 16,
-      "brain_version_after": 17,
-      "second_browser_request_id": "18444.515",
-      "expected_brain_version": 17,
-      "observed_brain_version": 17,
+      "brain_version_before": 18,
+      "brain_version_after": 19,
+      "second_browser_request_id": "2764.516",
+      "expected_brain_version": 19,
+      "observed_brain_version": 19,
       "outbox_status": "COMPLETED",
       "evidence_artifact": "browser-feedback-context.png",
       "notes": "Transactional outbox reached COMPLETED, Story Brain advanced N -> N+1. Browser generation #2 initiated from UI observed expected_brain_version == advanced version."
@@ -54,8 +54,8 @@
       "name": "Story Bible Mutation & IDE Panel Consistency",
       "status": "PASS",
       "evidence_artifact": "browser-story-bible.png",
-      "character_verified": "Browser Arthur 7388",
-      "timeline_event_verified": "Hội thề Ashenhold f3ff",
+      "character_verified": "Browser Arthur 257c",
+      "timeline_event_verified": "Hội thề Ashenhold 528d",
       "mutation_mode": "100% UI DOM form controls",
       "notes": "Character and Timeline Event created via rendered UI form controls. Verified after page reload and confirmed in IDE Story Bible modal."
     },
@@ -64,7 +64,7 @@
       "status": "PASS",
       "evidence_artifact": "browser-novel-metadata.png",
       "mutation_mode": "100% UI DOM form modal",
-      "synopsis_updated": "Bản hùng ca Ashenhold [Cập nhật qua UI thật lúc 1791954416]",
+      "synopsis_updated": "Bản hùng ca Ashenhold [Cập nhật qua UI thật lúc 1791958844]",
       "security_negative": {
         "classification": "API_SECURITY",
         "forbidden_status": 403,
@@ -75,7 +75,7 @@
     "Browser-H": {
       "name": "Chapter Lifecycle & VIP Publishing",
       "status": "PASS",
-      "chapter_id": "e5aa4e81-0873-46b2-b550-7a1e6a5681c0",
+      "chapter_id": "553861d8-c6b7-4f75-9dd6-6f285e85d452",
       "status_in_db": "PUBLISHED",
       "is_vip": true,
       "price_coins": 8,
@@ -86,18 +86,18 @@
   },
   "verdict": "MAIN_UI_E2E_PASS",
   "lineage": {
-    "tested_main_sha": "94c12df380f132580b2d2ea22667aad5154e9aa6",
+    "tested_main_sha": "c538e1d479a595272b2b87788f9243982a1cc166",
     "repaired_code_sha": "8662b78a3f4181425f9b0999b8aa34eb3ff3d195",
-    "evidence_commit_sha": "9a12125c580f95009a61a77a289114440ae30683",
+    "evidence_commit_sha": "cf2029c32c3902bddb2cd99e35d4793f86f61b91",
     "branch": "astra/ai-pipe-01b-main-e2e-repair",
     "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
     "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
-    "accepted_revision_id": "78218b67-748c-43ba-bbdf-525833d41807",
-    "source_generation_id": "ac7d1d79-af3a-5131-8a6d-61a77012ba62",
-    "outbox_event_id": "e7c93aaf-1d29-4812-af50-3c2b83e10c33",
-    "brain_version_before": 16,
-    "brain_version_after": 17,
-    "second_browser_request_id": "18444.515",
-    "new_chapter_id": "e5aa4e81-0873-46b2-b550-7a1e6a5681c0"
+    "accepted_revision_id": "a10881d2-b805-4f3f-b9dd-e3e034d4cc2b",
+    "source_generation_id": "7afc5da5-5557-5228-a6c9-814b57103376",
+    "outbox_event_id": "4b34aa77-c922-4045-83db-cfadf183e1e2",
+    "brain_version_before": 18,
+    "brain_version_after": 19,
+    "second_browser_request_id": "2764.516",
+    "new_chapter_id": "553861d8-c6b7-4f75-9dd6-6f285e85d452"
   }
 }

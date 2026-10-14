@@ -1,7 +1,7 @@
 # Gate AI-PIPE-01B: Main UI & P1 Writing Loop System E2E Report
 
 - **Date:** 2026-10-14
-- **Tested Main SHA:** `94c12df380f132580b2d2ea22667aad5154e9aa6`
+- **Tested Main SHA:** `c538e1d479a595272b2b87788f9243982a1cc166`
 - **Product UI Baseline:** `e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2`
 - **Repaired Code SHA:** `8662b78a3f4181425f9b0999b8aa34eb3ff3d195`
 - **Working / Repair Branch:** `astra/ai-pipe-01b-main-e2e-repair`
@@ -39,9 +39,9 @@ Following the directive `ACTIVE REVIEW DIRECTIVE — AI-PIPE-01B FINAL REPAIR BE
 | **Browser-A: Auth & IDE Navigation** | `/login` -> enter credentials -> click Login -> redirect to `/author` -> click Open in IDE -> `/author/ide` | Navigated to `/login`, typed `reader03@example.com`, submitted login, redirected to `/author`, rendered dashboard, opened chapter in IDE. | Session authenticated in `localStorage`, Ashenhold novel loaded. | **PASS** | `browser-login-dashboard.png`<br>`browser-writing-ide.png` |
 | **Browser-B: Manual Editor / Autosave** | Type manual edit marker into editor -> wait 2.5s debounced autosave -> refresh page | Edit persisted in `textarea.value` across full page refresh. | `chapter_revisions` count for `AI_DRAFT_ACCEPT` = 0 (no fake AI revisions). | **PASS** | `browser-manual-autosave.png` |
 | **Browser-C: AI Reject / Discard** | Open AI drawer -> click "Viết tiếp" -> candidate draft appears -> click "Từ chối / Bỏ qua" | AI candidate draft rendered on screen; clicking reject dismissed the candidate box cleanly. | `chapters.latest_revision_id` unchanged; `story_brains.brain_version` unchanged; zero `AI_DRAFT_ACCEPT` revisions created. | **PASS** | `browser-ai-candidate.png`<br>`browser-ai-reject.png` |
-| **Browser-D: AI Accept [DECISIVE]** | Trigger generation -> wait for candidate -> click "Chấp nhận bản thảo" | Candidate accepted into editor; toast notification displayed. | Immutable revision `78218b67...` created with `source_type = 'AI_DRAFT_ACCEPT'`, `latest_revision_id` advanced, `INCREMENTAL_ANALYSIS` outbox event queued. | **PASS** | `browser-ai-accept.png` |
-| **Browser-E: Outbox & Feedback Loop** | Background outbox processing after Browser-D acceptance + UI generation #2 | Background worker processed outbox event to `COMPLETED`; Story Brain version advanced: **16 -> 17**. Generation #2 from UI sent `expected_brain_version: 17`. | `brain_version` advanced: **16 -> 17**.<br>`expected_brain_version` = **17**.<br>`second_browser_request_id` = **18444.515**.<br>`outbox_status` = **COMPLETED**. | **PASS** | `browser-feedback-context.png` |
-| **Browser-F: Story Bible ↔ IDE** | Navigate to `/author/context/:id` -> create Character and Timeline Event via UI form controls -> verify reload and IDE modal | Created `Browser Arthur 7388` and `Hội thề Ashenhold f3ff` via rendered form controls. Story Bible page reload and IDE Story Bible modal both render `Browser Arthur 7388`. | Persistent in PostgreSQL tables `character_profiles` and `story_timeline_events`. | **PASS** | `browser-story-bible.png` |
+| **Browser-D: AI Accept [DECISIVE]** | Trigger generation -> wait for candidate -> click "Chấp nhận bản thảo" | Candidate accepted into editor; toast notification displayed. | Immutable revision `a10881d2...` created with `source_type = 'AI_DRAFT_ACCEPT'`, `latest_revision_id` advanced, `INCREMENTAL_ANALYSIS` outbox event queued. | **PASS** | `browser-ai-accept.png` |
+| **Browser-E: Outbox & Feedback Loop** | Background outbox processing after Browser-D acceptance + UI generation #2 | Background worker processed outbox event to `COMPLETED`; Story Brain version advanced: **18 -> 19**. Generation #2 from UI sent `expected_brain_version: 19`. | `brain_version` advanced: **18 -> 19**.<br>`expected_brain_version` = **19**.<br>`second_browser_request_id` = **2764.516**.<br>`outbox_status` = **COMPLETED**. | **PASS** | `browser-feedback-context.png` |
+| **Browser-F: Story Bible ↔ IDE** | Navigate to `/author/context/:id` -> create Character and Timeline Event via UI form controls -> verify reload and IDE modal | Created `Browser Arthur 257c` and `Hội thề Ashenhold 528d` via rendered form controls. Story Bible page reload and IDE Story Bible modal both render `Browser Arthur 257c`. | Persistent in PostgreSQL tables `character_profiles` and `story_timeline_events`. | **PASS** | `browser-story-bible.png` |
 | **Browser-G: Novel Metadata & Security Negative** | Open `/author/novels/:id` -> edit synopsis via UI modal -> save -> reload -> non-owner security check | Synopsis modified via UI modal, verified upon reload. Non-owner attempt to update novel via API blocked. | Non-owner PATCH returned `403 Forbidden` (`AUTH_008: Unauthorized action`), labeled `API_SECURITY`. | **PASS** | `browser-novel-metadata.png` |
 | **Browser-H: Chapter Lifecycle & VIP Publish** | Click "Thêm chương mới" in IDE rail -> edit title/content -> toggle VIP (8 xu) -> wait autosave -> switch away & return -> publish modal | New chapter created via UI, edited, autosaved, verified preserved upon switching away/returning, and submitted publish modal in UI. | In PostgreSQL: `status = 'PUBLISHED'`, `is_vip = true`, `price_coins = 8`. | **PASS** | `browser-chapter-lifecycle.png` |
 
@@ -56,19 +56,19 @@ The following cryptographic identifiers trace the exact lineage of the verified 
   "gate": "AI-PIPE-01B",
   "execution_mode": "REAL_BROWSER_AUTOMATION_CDP",
   "browser": "Microsoft Edge 155 (Headless Chrome/155.0.0.0)",
-  "tested_main_sha": "94c12df380f132580b2d2ea22667aad5154e9aa6",
+  "tested_main_sha": "c538e1d479a595272b2b87788f9243982a1cc166",
   "repaired_code_sha": "8662b78a3f4181425f9b0999b8aa34eb3ff3d195",
-  "evidence_commit_sha": "9a12125c580f95009a61a77a289114440ae30683",
+  "evidence_commit_sha": "cf2029c32c3902bddb2cd99e35d4793f86f61b91",
   "branch": "astra/ai-pipe-01b-main-e2e-repair",
   "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
   "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
-  "accepted_revision_id": "78218b67-748c-43ba-bbdf-525833d41807",
-  "source_generation_id": "ac7d1d79-af3a-5131-8a6d-61a77012ba62",
-  "outbox_event_id": "e7c93aaf-1d29-4812-af50-3c2b83e10c33",
-  "brain_version_before": 16,
-  "brain_version_after": 17,
-  "second_browser_request_id": "18444.515",
-  "new_chapter_id": "e5aa4e81-0873-46b2-b550-7a1e6a5681c0"
+  "accepted_revision_id": "a10881d2-b805-4f3f-b9dd-e3e034d4cc2b",
+  "source_generation_id": "7afc5da5-5557-5228-a6c9-814b57103376",
+  "outbox_event_id": "4b34aa77-c922-4045-83db-cfadf183e1e2",
+  "brain_version_before": 18,
+  "brain_version_after": 19,
+  "second_browser_request_id": "2764.516",
+  "new_chapter_id": "553861d8-c6b7-4f75-9dd6-6f285e85d452"
 }
 ```
 

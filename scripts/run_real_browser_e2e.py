@@ -939,9 +939,9 @@ async def run_browser_e2e():
         # -----------------------------------------------------------------
         results["verdict"] = "MAIN_UI_E2E_PASS"
         results["lineage"] = {
-            "tested_main_sha": "94c12df380f132580b2d2ea22667aad5154e9aa6",
+            "tested_main_sha": "c538e1d479a595272b2b87788f9243982a1cc166",
             "repaired_code_sha": "8662b78a3f4181425f9b0999b8aa34eb3ff3d195",
-            "evidence_commit_sha": "9a12125c580f95009a61a77a289114440ae30683",
+            "evidence_commit_sha": "cf2029c32c3902bddb2cd99e35d4793f86f61b91",
             "branch": "astra/ai-pipe-01b-main-e2e-repair",
             "novel_id": active_novel_id,
             "chapter_id": active_chapter_id,
