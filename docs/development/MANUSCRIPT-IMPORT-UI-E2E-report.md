@@ -143,4 +143,5 @@ In accordance with Section 4 and Section 5 of `promt.md`:
 ```text
 TESTED_MAIN_SHA:      dce5172e916d0546fe8293807bce7354e695fd50
 TESTED_CODE_SHA:      40dc3fd03a991d90a787eed7ebb61d06886831c0
+EVIDENCE_PAYLOAD_SHA: 43f5d75060948efc02d634adb0ac244f507b0628
 ```
