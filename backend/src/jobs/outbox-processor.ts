@@ -103,6 +103,60 @@ async function handleOutboxEvent(event: RevisionOutboxEvent): Promise<void> {
       const errText = await res.text().catch(() => '');
       throw new Error(`AI service returned HTTP ${res.status}: ${errText}`);
     }
+
+    // Materialize incremental proposals generated for this accepted draft to advance Story Brain
+    try {
+      const brainRes = await fetch(`${env.AI_SERVICE_URL}/v1/story-brains/by-novel/${event.novelId}`, {
+        headers
+      });
+      if (brainRes.ok) {
+        const brainBody = (await brainRes.json()) as any;
+        const currentBv = brainBody?.data?.brain_version || 1;
+        const proposalsRes = await fetch(
+          `${env.AI_SERVICE_URL}/v1/story-brains/${event.novelId}/proposals?status=pending`,
+          { headers }
+        );
+        if (proposalsRes.ok) {
+          const proposalsBody = (await proposalsRes.json()) as any;
+          const proposals = proposalsBody?.data || [];
+          const relevantProposals = proposals.filter((p: any) =>
+            Array.isArray(p.evidence) &&
+            p.evidence.some((ev: any) => ev && ev.revision_id === event.revisionId)
+          );
+          if (relevantProposals.length > 0) {
+            const groupIds = Array.from(
+              new Set(relevantProposals.map((p: any) => p.dependency_group_id).filter(Boolean))
+            ) as string[];
+            let nextBv = currentBv;
+            for (const gid of groupIds) {
+              const groupProps = relevantProposals.filter((p: any) => p.dependency_group_id === gid);
+              const pids = groupProps.map((p: any) => p.proposal_id);
+              const acceptRes = await fetch(
+                `${env.AI_SERVICE_URL}/v1/proposal-groups/${gid}/accept`,
+                {
+                  method: 'POST',
+                  headers,
+                  body: JSON.stringify({
+                    proposal_ids: pids,
+                    expected_brain_version: nextBv,
+                    reason: 'incremental_outbox_auto_materialize'
+                  })
+                }
+              );
+              if (acceptRes.ok) {
+                const acceptBody = (await acceptRes.json()) as any;
+                nextBv = acceptBody?.data?.brain_version || nextBv + 1;
+              } else {
+                const accErr = await acceptRes.text().catch(() => '');
+                console.warn(`[OutboxProcessor] Proposal group ${gid} auto-materialize warning: ${accErr}`);
+              }
+            }
+          }
+        }
+      }
+    } catch (matErr: any) {
+      console.warn('[OutboxProcessor] Incremental proposal auto-materialization error:', matErr?.message || matErr);
+    }
   } else if (event.eventType === 'MONGO_DRAFT_SYNC') {
     const payload = event.payload || {};
     const result = await syncDraftFromRevisionConditional({

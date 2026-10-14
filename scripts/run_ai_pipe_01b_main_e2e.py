@@ -222,11 +222,13 @@ def run_e2e(
                 cur.execute("SELECT latest_revision_id FROM chapters WHERE chapter_id = %s", (chapter_id,))
                 latest_rev_before_reject = cur.fetchone()[0]
 
-        brain_res_b2 = client.get(
-            f"{ai_service_url}/v1/story-brains/by-novel/{novel_id}",
-            headers={"X-Tenant-Id": "00000000-0000-0000-0000-000000000001", "Authorization": "Bearer test-token"}
+        ctx_b2 = client.get(
+            f"{backend_url}/ai/story-brains/{novel_id}/context-preview",
+            headers=author_headers,
+            params={"chapter_id": chapter_id}
         )
-        brain_version_b2 = brain_res_b2.json()["data"]["brain_version"] if brain_res_b2.status_code == 200 else 1
+        assert ctx_b2.status_code == 200, f"Context preview failed: {ctx_b2.text}"
+        brain_version_b2 = ctx_b2.json()["data"]["brain_version"]
 
         # 2. Trigger AI generation
         gen_res = client.post(
@@ -284,7 +286,17 @@ def run_e2e(
         # E2E-B3: AI generation / accept — DECISIVE CHECKPOINT
         # ---------------------------------------------------------
         print("\n[E2E-B3] Testing AI generation / accept (Decisive Canonical Lineage)...")
-        # Trigger second generation for acceptance
+        # Fetch fresh context preview just like the UI does
+        ctx_b3 = client.get(
+            f"{backend_url}/ai/story-brains/{novel_id}/context-preview",
+            headers=author_headers,
+            params={"chapter_id": chapter_id}
+        )
+        assert ctx_b3.status_code == 200, f"Context preview failed: {ctx_b3.text}"
+        brain_version_before_accept = ctx_b3.json()["data"]["brain_version"]
+        print(f"  Current brain version before generation: {brain_version_before_accept}")
+
+        # Trigger second generation for acceptance with deterministic content
         gen_accept_res = client.post(
             f"{backend_url}/ai/writing/generations",
             headers=author_headers,
@@ -295,8 +307,8 @@ def run_e2e(
                 "content_hash": base_content_hash,
                 "operation": "continue",
                 "selection": {"start": len(edit_content), "end": len(edit_content), "cursor": len(edit_content)},
-                "instruction": "Tiếp tục diễn biến câu chuyện với một phát hiện bất ngờ.",
-                "expected_brain_version": brain_version_b2,
+                "instruction": "Tiêu Viêm kịch chiến tại Mạc Gia.",
+                "expected_brain_version": brain_version_before_accept,
                 "idempotency_key": f"accept-test-{uuid.uuid4()}"
             }
         )
@@ -374,11 +386,11 @@ def run_e2e(
         # E2E-B4: Story Brain feedback loop
         # ---------------------------------------------------------
         print("\n[E2E-B4] Testing Story Brain feedback loop (Outbox processing & Version Advancement)...")
-        brain_version_before = brain_version_b2
+        brain_version_before = brain_version_before_accept
 
-        # Allow / wait for outbox processor to execute INCREMENTAL_ANALYSIS (poll up to 10s)
+        # Allow / wait for outbox processor to execute INCREMENTAL_ANALYSIS (poll up to 15s)
         outbox_final_status = "PENDING"
-        for _ in range(10):
+        for _ in range(15):
             with psycopg.connect(db_url) as conn:
                 with conn.cursor() as cur:
                     cur.execute(
@@ -401,31 +413,10 @@ def run_e2e(
         brain_version_after = brain_after_res.json()["data"]["brain_version"] if brain_after_res.status_code == 200 else brain_version_before
         print(f"  Story Brain version: {brain_version_before} -> {brain_version_after}")
 
-        # If background timer hasn't fired in test run, invoke incremental analysis endpoint directly to prove contract
-        if brain_version_after == brain_version_before:
-            print("  Invoking analysis route to complete closed loop...")
-            ana_res = client.post(
-                f"{ai_service_url}/v1/revisions/{accepted_revision_id}/analyses",
-                headers={
-                    "Content-Type": "application/json",
-                    "X-Tenant-Id": "00000000-0000-0000-0000-000000000001",
-                    "Authorization": "Bearer test-token"
-                },
-                json={
-                    "novel_id": novel_id,
-                    "chapter_id": chapter_id,
-                    "revision_id": accepted_revision_id,
-                    "content_hash": accepted_revision["contentHash"],
-                    "operation": "incremental_story_analysis"
-                }
-            )
-            if ana_res.status_code == 200:
-                brain_after_res = client.get(
-                    f"{ai_service_url}/v1/story-brains/by-novel/{novel_id}",
-                    headers={"X-Tenant-Id": "00000000-0000-0000-0000-000000000001", "Authorization": "Bearer test-token"}
-                )
-                brain_version_after = brain_after_res.json()["data"]["brain_version"]
-                print(f"  Story Brain version updated: {brain_version_after}")
+        assert outbox_final_status == "COMPLETED", f"Outbox event did not complete: {outbox_final_status}"
+        assert brain_version_after > brain_version_before, (
+            f"Story Brain version did not advance: was {brain_version_before}, now {brain_version_after}"
+        )
 
         # Second context preview to prove updated state is observed
         preview_res = client.get(
@@ -437,6 +428,9 @@ def run_e2e(
         preview_data = preview_res.json()["data"]
         observed_brain_version = preview_data.get("brain_version")
         print(f"  Context preview observed brain version: {observed_brain_version}")
+        assert observed_brain_version == brain_version_after, (
+            f"Context preview did not observe advanced brain version: expected {brain_version_after}, got {observed_brain_version}"
+        )
 
         results["checkpoints"]["E2E-B4"] = {
             "name": "Story Brain feedback loop",

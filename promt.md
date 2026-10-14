@@ -1,5 +1,502 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
+## ACTIVE REVIEW DIRECTIVE — AI-PIPE-01B EVIDENCE REPAIR + REAL BROWSER E2E (2026-10-14)
+
+This directive supersedes the previous AI-PIPE-01B main-E2E execution directive.
+
+### Current remote state
+
+```text
+main:
+356d3d48fa7f64453c72f5b8866763e186a698e8
+
+repair branch:
+astra/ai-pipe-01b-main-e2e-repair
+
+repair branch head:
+e4fba4404e9e19da7d88f535f74da1b1da6ee163
+
+product repair commit:
+581f1a0aecebe2a0fca3044ca087bcb037981615
+
+PR:
+NOT OPENED
+```
+
+The repair direction is accepted:
+
+```text
+new Author Writing IDE
+ -> canonical startWritingGeneration
+ -> poll getJobStatus
+ -> acceptDraftRevision
+ -> immutable AI_DRAFT_ACCEPT revision
+ -> transactional outbox
+ -> Story Brain feedback
+```
+
+Do not redesign this architecture.
+
+### Review blockers that must be repaired before PR
+
+The current report/evidence claims:
+
+```text
+MAIN_UI_E2E_PASS
+```
+
+but the evidence does not yet support that verdict.
+
+#### BLOCKER 1 — Story Brain advancement is overclaimed
+
+Current evidence contains:
+
+```text
+brain_version_before = 1
+brain_version_after  = 1
+observed_in_preview  = 1
+status               = PASS
+```
+
+This is not advancement.
+
+```text
+1 -> 1 != advanced
+```
+
+The current runner also contains a fallback that directly invokes the incremental analysis endpoint when background processing does not advance the brain.
+
+That fallback cannot be used to claim the full production closed loop:
+
+```text
+accept-draft
+ -> transactional outbox
+ -> outbox processor
+ -> incremental analysis
+ -> Story Brain advances
+```
+
+The outbox path itself must produce the accepted state transition.
+
+#### BLOCKER 2 — current "E2E" runner is API/system testing, not browser E2E
+
+`scripts/run_ai_pipe_01b_main_e2e.py` uses HTTP calls and direct PostgreSQL inspection.
+
+That is useful system evidence, but it does not prove:
+
+```text
+browser click
+ -> React handler
+ -> network request
+ -> backend
+ -> DB/state
+ -> browser readback
+```
+
+The final AI-PIPE-01B gate requires real browser execution.
+
+---
+
+# Gemini task
+
+Continue on the existing repair branch.
+
+```text
+git checkout astra/ai-pipe-01b-main-e2e-repair
+git pull
+git rev-parse HEAD
+```
+
+Record the exact starting branch head.
+
+Do not open a PR.
+
+Do not merge.
+
+Do not claim GitHub CI PASS.
+
+---
+
+## 1. Repair B4 to fail closed
+
+Update the E2E runner/evidence logic so B4 can PASS only when all of the following are true:
+
+```text
+outbox final status = COMPLETED
+brain_version_after > brain_version_before
+context_preview.brain_version == brain_version_after
+```
+
+Preferred strict assertion:
+
+```text
+brain_version_after > brain_version_before
+```
+
+and:
+
+```text
+observed_in_preview == brain_version_after
+```
+
+Remove the direct-analysis fallback from the acceptance path, or explicitly classify it as diagnostic-only evidence that cannot upgrade B4 to PASS.
+
+If the production outbox completes but Story Brain remains unchanged:
+
+```text
+E2E-B4 = FAIL
+overall verdict != MAIN_UI_E2E_PASS
+```
+
+Use a deterministic disposable fixture that is guaranteed to produce an incremental Story Brain change.
+
+Prefer the fake/deterministic LLM seam for this acceptance gate unless a real-provider call is specifically needed.
+
+Do not depend on literary randomness to make brain_version advance.
+
+---
+
+## 2. Prove the actual outbox path
+
+For one accepted browser generation, correlate:
+
+```text
+generation_id
+accepted_revision_id
+outbox_event_id
+outbox status transition
+brain_version_before
+brain_version_after
+context preview brain_version
+```
+
+Required production sequence:
+
+```text
+browser Accept
+ -> POST /chapters/:id/revisions/accept-draft
+ -> revision_outbox_events row created
+ -> outbox processor dispatches
+ -> /revisions/:revision_id/analyses
+ -> incremental proposals/state materialized
+ -> Story Brain version advances
+ -> later context preview observes new version
+```
+
+No manual call to the analysis endpoint may stand in for the outbox processor in the PASS lineage.
+
+---
+
+## 3. Run REAL browser E2E
+
+Use an actual browser automation path available in the local environment:
+- Antigravity Browser Subagent;
+- Playwright;
+- Chrome automation;
+- equivalent real browser driver.
+
+If no real browser is available, explicitly return:
+
+```text
+BROWSER_E2E_BLOCKED
+```
+
+Do not replace it with direct API calls and call it browser PASS.
+
+Fixture creation/setup may use API/DB helpers if necessary, but fixture setup is not browser evidence.
+
+The checkpoints below themselves must be executed through visible UI actions.
+
+### Browser A — Authentication and navigation
+
+```text
+/login
+ -> login as AUTHOR
+ -> /author
+ -> open novel
+ -> Novel Data
+ -> Story Bible
+ -> Writing IDE
+```
+
+Verify:
+- real rendered screens;
+- no route crash;
+- auth/session survives navigation;
+- refresh/reopen works;
+- correct novel/chapter selected.
+
+Capture browser screenshots or equivalent trace artifacts.
+
+### Browser B — Manual editor/autosave
+
+Through the actual textarea/editor:
+
+```text
+edit content
+ -> observe saving state
+ -> wait for saved state
+ -> refresh/reopen
+ -> same content visible
+```
+
+Correlate with backend state.
+
+Ensure no AI_DRAFT_ACCEPT revision or incremental outbox is created from manual autosave.
+
+### Browser C — AI reject
+
+Through the new AI drawer:
+
+```text
+enter instruction
+ -> click generate
+ -> wait for candidate
+ -> click reject/dismiss
+```
+
+Verify:
+
+```text
+no accept-draft call
+latest_revision_id unchanged
+no revision with source_generation_id for rejected generation
+Story Brain version unchanged
+```
+
+### Browser D — AI accept [DECISIVE]
+
+Through the actual UI:
+
+```text
+enter instruction
+ -> generate
+ -> wait until completed
+ -> click Accept / Insert accepted draft action
+```
+
+Capture network correlation proving:
+
+```text
+POST /ai/writing/generations
+GET /ai/jobs/:jobId
+POST /chapters/:chapterId/revisions/accept-draft
+```
+
+Then DB correlation:
+
+```text
+AI_DRAFT_ACCEPT revision exists
+source_generation_id == browser generation_id
+latest_revision_id == accepted_revision_id
+INCREMENTAL_ANALYSIS outbox exists
+```
+
+### Browser E — feedback loop
+
+After browser acceptance:
+
+```text
+wait for outbox processor
+ -> prove brain N -> N+1
+ -> open/refetch context through the browser
+ -> prove browser-visible/context response observes N+1
+```
+
+Then trigger a second browser generation/context request and prove it uses the updated Story Brain version/state.
+
+This is required for final PASS.
+
+### Browser F — Story Bible ↔ IDE
+
+Through Story Bible UI, create or update at least:
+- one character;
+- one timeline event;
+- one plot summary.
+
+Refresh/reopen.
+
+Then open the IDE Story Bible panel and verify the same data is displayed.
+
+Finally prove the AI/context consumer receives at least one newly changed Story Bible fact.
+
+Do not substitute API creation for this browser checkpoint.
+
+### Browser G — Novel metadata / ownership
+
+Through Novel Data UI:
+
+```text
+edit supported metadata
+ -> save
+ -> refresh
+ -> verify readback
+```
+
+Ownership negative may be tested at API boundary as supporting security evidence if no non-owner edit UI exists, but label it accurately as API/security evidence.
+
+### Browser H — chapter lifecycle
+
+Through the IDE:
+
+```text
+create chapter
+ -> edit
+ -> autosave
+ -> switch away
+ -> return
+ -> content preserved
+```
+
+If VIP/publish controls are present:
+
+```text
+toggle VIP
+ -> set price
+ -> submit publish
+ -> verify UI/backend readback
+```
+
+---
+
+## 4. Evidence integrity rules
+
+Update:
+
+```text
+docs/development/AI-PIPE-01B-MAIN-E2E-report.md
+docs/development/AI-PIPE-01B-MAIN-E2E/ai-pipe-01b-main-e2e-evidence.json
+```
+
+Add browser artifacts under the evidence directory, for example:
+
+```text
+browser-login-dashboard.png
+browser-writing-ide.png
+browser-ai-candidate.png
+browser-ai-reject.png
+browser-ai-accept.png
+browser-story-bible.png
+browser-feedback-context.png
+```
+
+Names may differ, but artifacts must map clearly to checkpoints.
+
+Every PASS checkpoint must distinguish:
+
+```text
+BROWSER evidence
+API/network evidence
+DB/state evidence
+```
+
+Do not label an API-only checkpoint as browser PASS.
+
+Exact evidence lineage must include:
+
+```text
+tested_main_sha
+repair_code_sha
+evidence_commit_sha
+branch
+novel_id
+chapter_id
+base_revision_id
+rejected_generation_id
+accepted_generation_id
+accepted_revision_id
+outbox_event_id
+brain_version_before
+brain_version_after
+second_context_or_generation_id
+```
+
+Do not record secrets, JWTs, passwords, API keys, or full private manuscript content.
+
+---
+
+## 5. Verdict rules
+
+Until both review blockers are resolved, current authoritative status is:
+
+```text
+LOCAL_SYSTEM_PASS_WITH_REVIEW_BLOCKERS
+```
+
+Do not retain `MAIN_UI_E2E_PASS` merely because the API/system runner passes.
+
+Allowed final verdict:
+
+```text
+MAIN_UI_E2E_PASS
+MAIN_UI_E2E_PARTIAL
+MAIN_UI_E2E_FAIL
+BROWSER_E2E_BLOCKED
+```
+
+`MAIN_UI_E2E_PASS` requires:
+
+```text
+real browser navigation PASS
+real browser manual autosave PASS
+real browser AI reject PASS
+real browser AI accept PASS
+canonical accept-draft lineage PASS
+outbox-driven Story Brain N -> N+1 PASS
+second browser context/generation observes N+1 PASS
+Story Bible browser mutation/readback PASS
+IDE sees Story Bible update PASS
+ownership regression absent
+evidence lineage internally consistent
+```
+
+If `brain_version_before == brain_version_after`:
+
+```text
+MAIN_UI_E2E_PASS is forbidden
+```
+
+If browser automation was not actually executed:
+
+```text
+MAIN_UI_E2E_PASS is forbidden
+```
+
+---
+
+## 6. Completion boundary
+
+If the current repair is sufficient:
+
+```text
+repair code
+ -> strict system runner
+ -> real browser E2E
+ -> clean report/evidence
+ -> commit
+ -> push repair branch
+ -> LOCAL_PASS_CI_PENDING
+```
+
+If browser testing reveals another product defect:
+- classify it;
+- make the smallest repair on the same branch;
+- add regression coverage;
+- rerun affected system + browser checkpoints.
+
+Stop after pushing clean evidence.
+
+ChatGPT owns:
+- remote review;
+- PR creation;
+- GitHub Actions;
+- merge decision;
+- main closure.
+
+Do not work on the unmerged Manuscript Import commit `fe8429c77016fc58d7a8e3293cbc89030144aebc` in this task.
+
+---
+
 ## ACTIVE DIRECTIVE — AI-PIPE-01B MAIN E2E AFTER UI MERGES (2026-10-14)
 
 This directive supersedes the earlier current-UI preflight task.

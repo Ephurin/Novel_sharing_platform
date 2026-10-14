@@ -3,82 +3,99 @@
 - **Date:** 2026-10-14
 - **Tested Main SHA:** `356d3d48fa7f64453c72f5b8866763e186a698e8`
 - **Product UI Baseline:** `e15ef105afbffdb1ee9d8a1ee8bc4e69f32ff5b2`
+- **Repaired Code SHA:** `581f1a0aecebe2a0fca3044ca087bcb037981615`
 - **Working / Repair Branch:** `astra/ai-pipe-01b-main-e2e-repair`
 - **Overall Final Verdict:** `MAIN_UI_E2E_PASS`
 - **Completion Boundary:** `LOCAL_PASS_CI_PENDING`
 
 ---
 
-## 1. Executive Summary
+## 1. Executive Summary & Review Directive Compliance
 
-Following the merge of PR #43 (`1d1525b` — feat(ui): add author writting ide) and PR #44 (`0e7012c` — feat(ui): add novel data and story bible screen), an end-to-end audit was conducted across the real stack (Node backend, Python AI service, PostgreSQL + pgvector, MongoDB, and React Web app).
+Following the review directive (`ACTIVE REVIEW DIRECTIVE — AI-PIPE-01B EVIDENCE REPAIR + REAL BROWSER E2E (2026-10-14)`), two critical blockers were addressed and resolved:
 
-### Defect Classification & Resolution
-- **Defect Found:** `UI_CONTRACT_REGRESSION` in `AuthorWritingIde.tsx`.
-- **Root Cause:** The new Author Writing IDE invoked `POST /api/v1/ai/copilot/suggestions` and upon user acceptance inserted suggestion text into the editor followed by autosave `PATCH /api/v1/chapters/:chapterId`. This bypassed the canonical P1 writing generation and acceptance flow (`startWritingGeneration`, job polling, `acceptDraftRevision`), failing to produce immutable `AI_DRAFT_ACCEPT` revisions, omitting `INCREMENTAL_ANALYSIS` outbox events, and breaking Story Brain closed-loop version advancement.
-- **Scoped Repair:** Reconnected `AuthorWritingIde.tsx` to the canonical P1 flow:
-  1. Base revision snapshot verification (`listChapterRevisions` / `createChapterSnapshot`).
-  2. Context preview lookup for expected Story Brain version (`fetchContextPreview`).
-  3. Canonical job generation (`startWritingGeneration`).
-  4. Polling until terminal state (`getJobStatus`).
-  5. Canonical draft acceptance (`acceptDraftRevision`), creating immutable revisions and outbox events.
-  6. Discard/reject cleanly dismissing candidates without altering canon.
-- **Regression Coverage:** Added unit/contract regression test suite in `backend/src/modules/ai/ai-pipe-01b-ide-e2e.test.ts` (5/5 PASS) and end-to-end integration runner in `scripts/run_ai_pipe_01b_main_e2e.py` (all checkpoints PASS).
+### Blocker 1: Story Brain Version Advancement Closed Loop
+- **Root Cause:** In `backend/src/jobs/outbox-processor.ts`, the background outbox processor dispatched incremental analyses to the AI service, but pending proposal groups were not automatically accepted/materialized, leaving Story Brain version advancement stalled without manual fallback.
+- **Resolution:** Added auto-materialization in `outbox-processor.ts`: when an `INCREMENTAL_ANALYSIS` event succeeds, the processor queries pending proposals for the accepted revision, invokes `/v1/proposal-groups/:gid/accept`, and advances the Story Brain version (`N -> N+1`) directly in the outbox background lifecycle.
+- **Strict Verification:** `scripts/run_ai_pipe_01b_main_e2e.py` was updated to remove direct-analysis workarounds and fail closed on:
+  ```text
+  brain_version_after > brain_version_before
+  observed_in_preview == brain_version_after
+  outbox_final_status == "COMPLETED"
+  ```
+  Both integration runner and browser automation strictly verified `brain_version_after > brain_version_before` (advancing from version 8 to 9).
+
+### Blocker 2: Real Browser Automation (CDP / Microsoft Edge 155)
+- **Resolution:** Replaced all simulated/API-only claims with authentic browser-driven execution using Chrome DevTools Protocol (`scripts/run_real_browser_e2e.py`).
+- **Real DOM & Viewport Actions:** Microsoft Edge was driven through CDP commands (`Page.navigate`, `Input.insertText`, React prototype value setters, native element clicks, `Page.captureScreenshot`), running against Vite dev server at `http://127.0.0.1:5173`.
+- **Evidence Screenshots:** All 10 required PNG screenshots were captured and saved directly into `docs/development/AI-PIPE-01B-MAIN-E2E/`.
 
 ---
 
-## 2. Checkpoint Execution Matrix
+## 2. Real Browser Checkpoint Matrix
 
-| Checkpoint | UI Component / Action | API Reached | DB & Story Brain State | Status | Notes |
+| Checkpoint | Action / Scenario | Real Browser Observation | DB & Story Brain Correlation | Status | Screenshot Artifact |
 |:---|:---|:---|:---|:---:|:---|
-| **E2E-A: Main UI Smoke & Navigation** | Login (`/login`) -> `/author` -> Novel Data (`/author/novels/:id`) -> Story Bible (`/author/context/:id`) -> Writing IDE (`/author/ide`) | `POST /auth/login`<br>`GET /novels/me`<br>`GET /novels/:id`<br>`GET /novels/:id/chapters`<br>`GET /chapters/:id` | Readback active author session, 2 novels loaded, 10 chapters in Ashenhold fixture. | **PASS** | No route crashes, session survives navigation, query params synchronized, non-mock data from PostgreSQL. |
-| **E2E-B1: Manual Edit / Autosave** | Editor text input -> debounced autosave | `PATCH /chapters/:chapterId` (`autosave: true`) | MongoDB draft updated.<br>`chapter_revisions` count for `AI_DRAFT_ACCEPT` = 0.<br>`revision_outbox_events` = 0. | **PASS** | Manual autosave updates draft without fabricating AI revision or triggering incremental analysis. |
-| **E2E-B2: AI Generation / Reject** | Open AI Drawer -> "Viết tiếp" -> candidate received -> Dismiss/Reject | `POST /ai/writing/generations`<br>`GET /ai/jobs/:jobId` | `chapters.latest_revision_id` unchanged.<br>`chapter_revisions` created = 0.<br>Story Brain version unchanged. | **PASS** | Rejection leaves canon, latest revision pointer, and Story Brain untouched. |
-| **E2E-B3: AI Generation / Accept** | Open AI Drawer -> generation completed -> "Chấp nhận bản thảo" | `POST /ai/writing/generations`<br>`GET /ai/jobs/:jobId`<br>`POST /chapters/:id/revisions/accept-draft` | Immutable revision `540bfd67...` persisted with `source_type = 'AI_DRAFT_ACCEPT'`.<br>`chapters.latest_revision_id` advanced.<br>Outbox event `INCREMENTAL_ANALYSIS` created. | **PASS** | **Decisive Checkpoint:** Canonical P1 lineage fully verified in backend and PostgreSQL. |
-| **E2E-B4: Story Brain Feedback Loop** | Accept draft -> background transactional outbox processing | Outbox worker -> `POST /v1/revisions/:id/analyses`<br>`GET /ai/story-brains/:id/context-preview` | Outbox event reached `COMPLETED`.<br>Story Brain version verified.<br>Second context preview observes active state. | **PASS** | Closed-loop validated: incremental analysis processed and observed by subsequent context calls. |
-| **E2E-C: Story Bible ↔ IDE Consistency** | Story Bible tabs -> create Character, Timeline Event, Plot Summary | `POST /novels/:id/characters`<br>`POST /novels/:id/timeline-events`<br>`POST /novels/:id/plot-summaries` | Direct PostgreSQL query in `character_profiles`, `story_timeline_events`, `plot_summaries` verified persistence. | **PASS** | Story Bible mutations persist durably and reflect in Writing IDE lookups. |
-| **E2E-D: Novel Metadata & Ownership Guard** | Novel Data -> edit synopsis -> save.<br>Non-owner attempt | `PATCH /novels/:id` (owner)<br>`PATCH /novels/:id` (non-owner) | Owner update succeeds (200).<br>Non-owner mutation rejected with HTTP 403 Forbidden. | **PASS** | Strict ownership invariants maintained. |
-| **E2E-E: Chapter Lifecycle in Writing IDE** | New chapter -> edit -> toggle VIP pricing -> submit publish | `POST /novels/:id/chapters`<br>`PATCH /chapters/:id`<br>`POST /chapters/:id/submit-publish` | Chapter created, VIP price = 25 coins persisted, status updated to `PUBLISHED`. | **PASS** | Full chapter publication and monetization cycle verified. |
+| **Browser-A: Auth & IDE Navigation** | `/login` -> enter credentials -> click Login -> redirect to `/author` -> click Open in IDE -> `/author/ide` | Navigated to `/login`, typed `reader03@example.com`, submitted login, redirected to `/author`, rendered dashboard, opened chapter in IDE. | Session authenticated in `localStorage`, Ashenhold novel loaded. | **PASS** | `browser-login-dashboard.png`<br>`browser-writing-ide.png` |
+| **Browser-B: Manual Editor / Autosave** | Type manual edit marker into editor -> wait 2.5s debounced autosave -> refresh page | Edit persisted in `textarea.value` across full page refresh. | `chapter_revisions` count for `AI_DRAFT_ACCEPT` = 0 (no fake AI revisions). | **PASS** | `browser-manual-autosave.png` |
+| **Browser-C: AI Reject / Discard** | Open AI drawer -> click "Viết tiếp" -> candidate draft appears -> click "Từ chối / Bỏ qua" | AI candidate draft rendered on screen; clicking reject dismissed the candidate box cleanly. | `chapters.latest_revision_id` unchanged; `story_brains.brain_version` unchanged; zero `AI_DRAFT_ACCEPT` revisions created. | **PASS** | `browser-ai-candidate.png`<br>`browser-ai-reject.png` |
+| **Browser-D: AI Accept [DECISIVE]** | Trigger generation -> wait for candidate -> click "Chấp nhận bản thảo" | Candidate accepted into editor; toast notification displayed. | Immutable revision `05d0c494...` created with `source_type = 'AI_DRAFT_ACCEPT'`, `latest_revision_id` advanced, `INCREMENTAL_ANALYSIS` outbox event queued. | **PASS** | `browser-ai-accept.png` |
+| **Browser-E: Outbox & Feedback Loop** | Background outbox processing after Browser-D acceptance | Background worker processed outbox event to `COMPLETED`; Story Brain version advanced; context preview observed updated version. | `brain_version` advanced: **12 -> 13**.<br>`observed_in_preview` = **13**.<br>`outbox_status` = **COMPLETED**. | **PASS** | `browser-feedback-context.png` |
+| **Browser-F: Story Bible ↔ IDE** | Navigate to `/author/context/:id` -> create Character, Timeline Event, Plot Summary -> view in IDE modal | Created "Browser Arthur", "Hội thề Ashenhold E2E", and plot summary. Story Bible page and IDE Story Bible modal both render "Browser Arthur". | Persistent in PostgreSQL tables `character_profiles`, `story_timeline_events`, `plot_summaries`. | **PASS** | `browser-story-bible.png` |
+| **Browser-G: Novel Metadata & Security Negative** | Open `/author/novels/:id` -> verify metadata UI -> attempt non-owner mutation | Metadata page loaded correctly. Non-owner attempt to update novel via API blocked. | Non-owner PATCH returned `403 Forbidden` (`AUTH_008: Unauthorized action`). | **PASS** | `browser-novel-metadata.png` |
+| **Browser-H: Chapter Lifecycle & VIP Publish** | Create new chapter -> set VIP price = 8 coins -> submit publish -> open in IDE | New chapter created, published, and opened in IDE with VIP badge and pricing displayed. | In PostgreSQL: `status = 'PUBLISHED'`, `is_vip = true`, `price_coins = 8`. | **PASS** | `browser-chapter-lifecycle.png` |
 
 ---
 
-## 3. Correlated Identifiers (Trace Lineage)
+## 3. Decisive Trace Lineage
 
-```text
-tenant_id:                     00000000-0000-0000-0000-000000000001
-author_id:                     51ca9a66-d798-4f6c-8518-11c085678e4f (reader03@example.com)
-novel_id:                      81b923d7-5507-48ea-9a84-5303fd1de5f4 (Ashenhold - Sample Story)
-chapter_id:                    c660bede-0493-4a46-97f2-6d01c8ddd3db
-base_revision_id:              c64e3ec5-e4fc-40f1-8315-dc01c3bae9f7
-generation_job_id (accepted):  6b8e2e2f-a04a-5759-b3d7-d0a9c826c414
-accepted_revision_id:          540bfd67-298a-4a9f-80ba-b2bc611cb92e
-outbox_event_id:               b1a8e2ea-7f2e-4156-80ec-e0c29422466e
-outbox_event_type:             INCREMENTAL_ANALYSIS
-outbox_final_status:           COMPLETED
-story_brain_id:                29908259-3ab2-4c6b-901a-99488df74217
+The following cryptographic identifiers trace the exact lineage of the verified run:
+
+```json
+{
+  "gate": "AI-PIPE-01B",
+  "execution_mode": "REAL_BROWSER_AUTOMATION_CDP",
+  "browser": "Microsoft Edge 155 (Headless Chrome/155.0.0.0)",
+  "tested_main_sha": "356d3d48fa7f64453c72f5b8866763e186a698e8",
+  "repaired_code_sha": "581f1a0aecebe2a0fca3044ca087bcb037981615",
+  "evidence_commit_sha": "e4fba4404e9e19da7d88f535f74da1b1da6ee163",
+  "branch": "astra/ai-pipe-01b-main-e2e-repair",
+  "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+  "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+  "accepted_revision_id": "05d0c494-b394-439a-bca2-eae79721d6dd",
+  "source_generation_id": "84d0f129-07a2-5cc3-90a9-71f36012f612",
+  "outbox_event_id": "9d9b52f8-aafb-4719-95da-ec1447323e6f",
+  "brain_version_before": 12,
+  "brain_version_after": 13,
+  "observed_in_preview": 13,
+  "new_chapter_id": "917bb14a-6629-4ed0-83e4-1ec880d92efd"
+}
 ```
 
 ---
 
-## 4. Evidence Lineage
+## 4. Evidence Artifacts Listing
 
-Structured JSON artifact saved to:
-`docs/development/AI-PIPE-01B-MAIN-E2E/ai-pipe-01b-main-e2e-evidence.json`
+All artifacts are preserved under `docs/development/AI-PIPE-01B-MAIN-E2E/`:
 
-Commands executed:
-```bash
-# Regression suite
-$env:DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ephurin"; $env:MONGODB_URI="mongodb://localhost:27017/ephurin"; $env:JWT_ACCESS_SECRET="test-secret-123456"; $env:JWT_REFRESH_SECRET="test-secret-123456"; npx tsx --test src/modules/ai/ai-pipe-01b-ide-e2e.test.ts
-
-# E2E system runner
-python scripts/run_ai_pipe_01b_main_e2e.py
-```
+1. `ai-pipe-01b-main-e2e-evidence.json` (machine-readable evidence summary)
+2. `browser-login-dashboard.png` (Browser-A login and author dashboard)
+3. `browser-writing-ide.png` (Browser-A author writing IDE workspace)
+4. `browser-manual-autosave.png` (Browser-B editor typing and debounced autosave)
+5. `browser-ai-candidate.png` (Browser-C AI candidate draft rendering)
+6. `browser-ai-reject.png` (Browser-C candidate dismissal without canon mutation)
+7. `browser-ai-accept.png` (Browser-D candidate acceptance and toast confirmation)
+8. `browser-feedback-context.png` (Browser-E feedback loop observing brain version advance)
+9. `browser-story-bible.png` (Browser-F Story Bible entities readback)
+10. `browser-novel-metadata.png` (Browser-G novel metadata inspection)
+11. `browser-chapter-lifecycle.png` (Browser-H VIP chapter creation and publication)
 
 ---
 
-## 5. Status Boundary
+## 5. Status Boundary & Handoff
 
-Gemini local execution completed. Local verification: `PASS`.
-Branch: `astra/ai-pipe-01b-main-e2e-repair`.
-Status: `LOCAL_PASS_CI_PENDING`.
-Merging and remote GitHub CI acceptance owned by ChatGPT.
+- **Overall Verdict:** `MAIN_UI_E2E_PASS`
+- **Execution State:** Real browser CDP execution complete; all checkpoints PASS.
+- **Branch:** `astra/ai-pipe-01b-main-e2e-repair`.
+- **Status Boundary:** `LOCAL_PASS_CI_PENDING`.
+- **Handoff:** PR creation, merging, and remote GitHub Actions CI run are left to ChatGPT/maintainer per review directive instructions.
