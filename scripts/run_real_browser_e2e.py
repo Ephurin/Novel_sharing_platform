@@ -574,15 +574,15 @@ async def run_browser_e2e():
         print("  [PASS] Browser-E")
 
         # -----------------------------------------------------------------
-        # Browser F: Story Bible ↔ IDE Consistency (100% UI Mutation)
+        # Browser F: Story Bible ↔ IDE Consistency (100% UI Mutation, 4 Surfaces)
         # -----------------------------------------------------------------
-        print("\n[Browser F] Story Bible UI mutation and readback...")
+        print("\n[Browser F] Story Bible 4-surface UI mutation and readback...")
         story_bible_url = f"{WEB_URL}/author/context/{active_novel_id}"
         await browser.navigate(story_bible_url, 3.0)
         await browser.wait_for_condition("document.body.innerText.includes('Cẩm Nang') || document.body.innerText.includes('Cẩm nang')", 10.0)
 
-        # 1. Mutate Story Bible character entirely through rendered UI form controls
-        print("  [Browser F] Creating character via UI form controls...")
+        # 1. Mutate Character A via UI form controls
+        print("  [Browser F] Creating Character A via UI form controls...")
         await browser.evaluate("""
             (() => {
                 const btn = document.querySelector('button[title="Thêm nhân vật mới"]');
@@ -591,9 +591,9 @@ async def run_browser_e2e():
         """)
         await browser.wait_for_condition("document.querySelector('input[placeholder*=\"Trần Hoàng Vũ\"]') !== null", 5.0)
 
-        char_name = f"Browser Arthur {uuid.uuid4().hex[:4]}"
-        char_title = "Hộ vệ hoàng gia"
-        char_desc = "[Thân phận: Hộ vệ]\nHiệp sĩ trung thành của vương triều Ashenhold."
+        char_a_name = f"Browser Arthur {uuid.uuid4().hex[:4]}"
+        char_a_title = "Hộ vệ hoàng gia"
+        char_a_desc = "[Thân phận: Hộ vệ]\nHiệp sĩ trung thành của vương triều Ashenhold."
 
         await browser.evaluate(f"""
             (() => {{
@@ -604,13 +604,13 @@ async def run_browser_e2e():
                 const inputSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
                 const textSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
                 
-                inputSetter.call(nameInput, {json.dumps(char_name)});
+                inputSetter.call(nameInput, {json.dumps(char_a_name)});
                 nameInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
                 
-                inputSetter.call(titleInput, {json.dumps(char_title)});
+                inputSetter.call(titleInput, {json.dumps(char_a_title)});
                 titleInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
                 
-                textSetter.call(descTextarea, {json.dumps(char_desc)});
+                textSetter.call(descTextarea, {json.dumps(char_a_desc)});
                 descTextarea.dispatchEvent(new Event('input', {{ bubbles: true }}));
             }})()
         """)
@@ -624,10 +624,119 @@ async def run_browser_e2e():
                 if (saveBtn) saveBtn.click();
             })()
         """)
-        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(char_name)})", 10.0)
-        print(f"  Character '{char_name}' created via UI.")
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(char_a_name)})", 10.0)
+        print(f"  Character A '{char_a_name}' created via UI.")
 
-        # 2. Mutate Story Bible timeline event through rendered UI controls
+        # 2. Mutate Character B via UI form controls
+        print("  [Browser F] Creating Character B via UI form controls...")
+        await browser.evaluate("""
+            (() => {
+                const btn = document.querySelector('button[title="Thêm nhân vật mới"]');
+                if (btn) btn.click();
+            })()
+        """)
+        await browser.wait_for_condition("document.querySelector('input[placeholder*=\"Trần Hoàng Vũ\"]') !== null", 5.0)
+
+        char_b_name = f"Browser Guinevere {uuid.uuid4().hex[:4]}"
+        char_b_title = "Nữ vương Ashenhold"
+        char_b_desc = "[Thân phận: Nữ vương]\nNgười thống lĩnh tối cao của vương quốc."
+
+        await browser.evaluate(f"""
+            (() => {{
+                const nameInput = document.querySelector('input[placeholder*="Trần Hoàng Vũ"]');
+                const titleInput = document.querySelector('input[placeholder*="Nam chính, Nữ chính"]');
+                const descTextarea = document.querySelector('textarea[placeholder*="Dáng người gầy cao"]');
+                
+                const inputSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                const textSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+                
+                inputSetter.call(nameInput, {json.dumps(char_b_name)});
+                nameInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                
+                inputSetter.call(titleInput, {json.dumps(char_b_title)});
+                titleInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                
+                textSetter.call(descTextarea, {json.dumps(char_b_desc)});
+                descTextarea.dispatchEvent(new Event('input', {{ bubbles: true }}));
+            }})()
+        """)
+        await asyncio.sleep(0.5)
+
+        # Click "Tạo nhân vật" button
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const saveBtn = buttons.find(b => b.innerText.includes('Tạo nhân vật'));
+                if (saveBtn) saveBtn.click();
+            })()
+        """)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(char_b_name)})", 10.0)
+        print(f"  Character B '{char_b_name}' created via UI.")
+
+        # 3. Mutate Relationship (Character A -> Character B) via UI form controls
+        print("  [Browser F] Creating Relationship via UI form controls...")
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const tab = buttons.find(b => b.innerText.includes('Mối quan hệ'));
+                if (tab) tab.click();
+            })()
+        """)
+        await browser.wait_for_condition("document.querySelectorAll('select').length >= 2", 5.0)
+
+        rel_type = "Hộ vệ trung thành"
+        rel_desc = f"Hiệp sĩ {char_a_name} phụng sự Nữ vương {char_b_name} với lòng trung thành tuyệt đối."
+
+        await browser.evaluate(f"""
+            (() => {{
+                const selects = Array.from(document.querySelectorAll('select'));
+                const srcSelect = selects[0];
+                const tgtSelect = selects[1];
+                
+                for (const opt of srcSelect.options) {{
+                    if (opt.text.includes({json.dumps(char_a_name)})) {{
+                        srcSelect.value = opt.value;
+                        srcSelect.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                        break;
+                    }}
+                }}
+                for (const opt of tgtSelect.options) {{
+                    if (opt.text.includes({json.dumps(char_b_name)})) {{
+                        tgtSelect.value = opt.value;
+                        tgtSelect.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                        break;
+                    }}
+                }}
+                
+                const inputs = Array.from(document.querySelectorAll('input'));
+                const typeInput = inputs.find(i => i.placeholder && i.placeholder.includes('Bằng hữu tri kỷ')) || inputs[0];
+                const textareas = Array.from(document.querySelectorAll('textarea'));
+                const descArea = textareas.find(t => t.placeholder && t.placeholder.includes('Mối quan hệ phát triển')) || textareas[0];
+                
+                const inputSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                const textSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+                
+                inputSetter.call(typeInput, {json.dumps(rel_type)});
+                typeInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                
+                textSetter.call(descArea, {json.dumps(rel_desc)});
+                descArea.dispatchEvent(new Event('input', {{ bubbles: true }}));
+            }})()
+        """)
+        await asyncio.sleep(0.5)
+
+        # Click "Lưu mối quan hệ" button
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const saveBtn = buttons.find(b => b.innerText.includes('Lưu mối quan hệ'));
+                if (saveBtn) saveBtn.click();
+            })()
+        """)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(rel_type)})", 10.0)
+        print(f"  Relationship '{rel_type}' created via UI.")
+
+        # 4. Mutate Story Bible timeline event through rendered UI controls
         print("  [Browser F] Creating timeline event via UI form controls...")
         await browser.evaluate("""
             (() => {
@@ -679,12 +788,89 @@ async def run_browser_e2e():
         await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(event_title)})", 10.0)
         print(f"  Timeline event '{event_title}' created via UI.")
 
-        # 3. Refresh Story Bible page to prove UI persistence & readback
-        await browser.navigate(story_bible_url, 3.0)
-        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(char_name)})", 10.0)
-        await browser.screenshot("browser-story-bible.png")
+        # 5. Mutate Plot Summary through rendered UI controls
+        print("  [Browser F] Creating plot summary via UI form controls...")
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const tab = buttons.find(b => b.innerText.includes('Tóm tắt hồi'));
+                if (tab) tab.click();
+            })()
+        """)
+        await asyncio.sleep(1.0)
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const addBtn = buttons.find(b => b.innerText.includes('Thêm tóm tắt'));
+                if (addBtn) addBtn.click();
+            })()
+        """)
+        await asyncio.sleep(0.5)
 
-        # 4. Navigate back to IDE and verify character is rendered in IDE Story Bible panel
+        plot_summary_text = f"Đại chiến Ashenhold bùng nổ, {char_a_name} sát cánh cùng {char_b_name} bảo vệ kinh đô."
+
+        await browser.evaluate(f"""
+            (() => {{
+                const textareas = Array.from(document.querySelectorAll('textarea'));
+                const sumArea = textareas.find(t => t.placeholder && t.placeholder.includes('Tóm tắt ngắn gọn')) || textareas[0];
+                const textSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+                textSetter.call(sumArea, {json.dumps(plot_summary_text)});
+                sumArea.dispatchEvent(new Event('input', {{ bubbles: true }}));
+            }})()
+        """)
+        await asyncio.sleep(0.5)
+
+        # Click "Lưu bản tóm tắt" button
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const saveBtn = buttons.find(b => b.innerText.includes('Lưu bản tóm tắt'));
+                if (saveBtn) saveBtn.click();
+            })()
+        """)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(plot_summary_text)})", 10.0)
+        print(f"  Plot summary created via UI.")
+
+        # 6. Refresh Story Bible page to prove UI persistence & readback across all 4 surfaces
+        print("  [Browser F] Verifying full page reload persistence for all 4 surfaces...")
+        await browser.navigate(story_bible_url, 3.0)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(char_a_name)})", 10.0)
+        assert await browser.evaluate(f"document.body.innerText.includes({json.dumps(char_b_name)})"), "Character B missing after reload!"
+
+        # Check relationship tab
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const tab = buttons.find(b => b.innerText.includes('Mối quan hệ'));
+                if (tab) tab.click();
+            })()
+        """)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(rel_type)})", 10.0)
+
+        # Check timeline tab
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const tab = buttons.find(b => b.innerText.includes('Dòng thời gian'));
+                if (tab) tab.click();
+            })()
+        """)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(event_title)})", 10.0)
+
+        # Check summaries tab
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const tab = buttons.find(b => b.innerText.includes('Tóm tắt hồi'));
+                if (tab) tab.click();
+            })()
+        """)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(plot_summary_text)})", 10.0)
+        await browser.screenshot("browser-story-bible.png")
+        print("  All 4 Story Bible surfaces confirmed persistent on full page reload.")
+
+        # 7. Navigate back to IDE and verify all surfaces in IDE Story Bible modal
+        print("  [Browser F] Verifying IDE Story Bible modal renders all surfaces...")
         await browser.navigate(ide_url, 3.0)
         await browser.wait_for_condition("document.querySelector('textarea') !== null", 10.0)
         await browser.evaluate("""
@@ -694,14 +880,46 @@ async def run_browser_e2e():
                 if (bibleBtn) bibleBtn.click();
             })()
         """)
-        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(char_name)})", 10.0)
-        print(f"  IDE Story Bible modal verified character '{char_name}' present.")
+        # Verify characters tab in IDE modal
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(char_a_name)})", 10.0)
+        assert await browser.evaluate(f"document.body.innerText.includes({json.dumps(char_b_name)})"), "IDE modal missing Character B"
+
+        # Verify relationship tab in IDE modal
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const tab = buttons.find(b => b.innerText.includes('Mối quan hệ'));
+                if (tab) tab.click();
+            })()
+        """)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(rel_type)})", 10.0)
+
+        # Verify timeline tab in IDE modal
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const tab = buttons.find(b => b.innerText.includes('Dòng thời gian'));
+                if (tab) tab.click();
+            })()
+        """)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(event_title)})", 10.0)
+
+        # Verify plot summary tab in IDE modal
+        await browser.evaluate("""
+            (() => {
+                const buttons = Array.from(document.querySelectorAll('button'));
+                const tab = buttons.find(b => b.innerText.includes('Tóm tắt hồi'));
+                if (tab) tab.click();
+            })()
+        """)
+        await browser.wait_for_condition(f"document.body.innerText.includes({json.dumps(plot_summary_text)})", 10.0)
+        print("  IDE Story Bible modal verified all 4 surfaces rendered correctly.")
 
         # Close Story Bible modal in IDE
         await browser.evaluate("""
             (() => {
                 const buttons = Array.from(document.querySelectorAll('button'));
-                const closeBtn = buttons.find(b => b.innerText.includes('Đóng cẩm nang'));
+                const closeBtn = buttons.find(b => b.title?.includes('Đóng') || b.innerText.includes('close') || b.innerText.includes('Đóng cẩm nang'));
                 if (closeBtn) closeBtn.click();
             })()
         """)
@@ -710,10 +928,12 @@ async def run_browser_e2e():
             "name": "Story Bible Mutation & IDE Panel Consistency",
             "status": "PASS",
             "evidence_artifact": "browser-story-bible.png",
-            "character_verified": char_name,
+            "character_verified": f"{char_a_name}, {char_b_name}",
+            "relationship_verified": f"{char_a_name} -> {char_b_name} ({rel_type})",
             "timeline_event_verified": event_title,
-            "mutation_mode": "100% UI DOM form controls",
-            "notes": "Character and Timeline Event created via rendered UI form controls. Verified after page reload and confirmed in IDE Story Bible modal."
+            "plot_summary_verified": plot_summary_text,
+            "mutation_mode": "UI_DOM",
+            "notes": "All 4 Story Bible surfaces (Character A/B, Relationship, Timeline Event, Plot Summary) mutated via 100% UI DOM form controls. Verified after page reload and confirmed across all 4 tabs in IDE Story Bible modal."
         }
         print("  [PASS] Browser-F")
 
@@ -937,11 +1157,19 @@ async def run_browser_e2e():
         # -----------------------------------------------------------------
         # Compilation & Lineage
         # -----------------------------------------------------------------
+        def get_git_sha(ref: str) -> str:
+            try:
+                return subprocess.check_output(["git", "rev-parse", ref], text=True).strip()
+            except Exception:
+                return ""
+
+        tested_code_sha = os.environ.get("TESTED_CODE_SHA") or get_git_sha("HEAD")
+        tested_main_sha = os.environ.get("TESTED_MAIN_SHA") or "5432a201b1076b00c3b01968832a84d4df0e7740"
+
         results["verdict"] = "MAIN_UI_E2E_PASS"
         results["lineage"] = {
-            "tested_main_sha": "c538e1d479a595272b2b87788f9243982a1cc166",
-            "repaired_code_sha": "8662b78a3f4181425f9b0999b8aa34eb3ff3d195",
-            "evidence_commit_sha": "cf2029c32c3902bddb2cd99e35d4793f86f61b91",
+            "tested_code_sha": tested_code_sha,
+            "tested_main_sha": tested_main_sha,
             "branch": "astra/ai-pipe-01b-main-e2e-repair",
             "novel_id": active_novel_id,
             "chapter_id": active_chapter_id,

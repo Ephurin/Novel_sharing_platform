@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { handleOutboxEvent } from './outbox-processor.js';
+import { handleOutboxEvent, processOutboxOnce } from './outbox-processor.js';
 import type { RevisionOutboxEvent } from '../modules/novels/outbox.repository.js';
 
 describe('AI-PIPE-01B Outbox Processor Fail-Closed Auto-Materialization', () => {
@@ -208,6 +208,143 @@ describe('AI-PIPE-01B Outbox Processor Fail-Closed Auto-Materialization', () => 
     try {
       // Must complete without error
       await handleOutboxEvent(baseEvent);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('6. processOutboxOnce multi-attempt sequence: Attempt 1 partial failure leaves event retryable (FAILED), Attempt 2 idempotent retry marks COMPLETED', async () => {
+    interface StoredEvent extends RevisionOutboxEvent {
+      dbStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+    }
+
+    const storedEvents: Record<string, StoredEvent> = {
+      'evt-retry-001': {
+        eventId: 'evt-retry-001',
+        eventType: 'INCREMENTAL_ANALYSIS',
+        revisionId: 'rev-retry-101',
+        novelId: 'novel-retry-001',
+        chapterId: 'chap-retry-001',
+        contentHash: 'hash-retry-101',
+        createdBy: 'user-001',
+        payload: {},
+        status: 'PENDING',
+        dbStatus: 'PENDING',
+        retryCount: 0,
+        maxRetries: 5,
+        nextRetryAt: new Date(),
+        lastError: null,
+        claimToken: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    };
+
+    const completedCalls: { eventId: string; claimToken: string }[] = [];
+    const failedCalls: { eventId: string; error: string; backoffSeconds: number; claimToken: string }[] = [];
+    const materializedGroups: string[] = [];
+
+    const originalFetch = globalThis.fetch;
+    let brainVersion = 10;
+
+    globalThis.fetch = (async (url: any) => {
+      const urlStr = String(url);
+      if (urlStr.includes('/analyses')) {
+        return new Response(JSON.stringify({ success: true, data: { analysis_id: 'ana-retry' } }), { status: 200 });
+      }
+      if (urlStr.includes('/story-brains/by-novel/')) {
+        return new Response(JSON.stringify({ success: true, data: { brain_version: brainVersion } }), { status: 200 });
+      }
+      if (urlStr.includes('/proposals?status=pending')) {
+        const pending: any[] = [];
+        if (!materializedGroups.includes('grp-A')) {
+          pending.push({
+            proposal_id: 'prop-A',
+            dependency_group_id: 'grp-A',
+            evidence: [{ revision_id: 'rev-retry-101' }]
+          });
+        }
+        if (!materializedGroups.includes('grp-B')) {
+          pending.push({
+            proposal_id: 'prop-B',
+            dependency_group_id: 'grp-B',
+            evidence: [{ revision_id: 'rev-retry-101' }]
+          });
+        }
+        return new Response(JSON.stringify({ success: true, data: pending }), { status: 200 });
+      }
+      if (urlStr.includes('/proposal-groups/grp-A/accept')) {
+        materializedGroups.push('grp-A');
+        brainVersion++;
+        return new Response(JSON.stringify({ success: true, data: { brain_version: brainVersion } }), { status: 200 });
+      }
+      if (urlStr.includes('/proposal-groups/grp-B/accept')) {
+        // Attempt 1: fail transiently
+        if (storedEvents['evt-retry-001'].retryCount === 0) {
+          return new Response('Transient AI service 503 error on group B', { status: 503 });
+        }
+        materializedGroups.push('grp-B');
+        brainVersion++;
+        return new Response(JSON.stringify({ success: true, data: { brain_version: brainVersion } }), { status: 200 });
+      }
+      return new Response('Not found', { status: 404 });
+    }) as any;
+
+    const deps = {
+      claimEvents: async (limit: number) => {
+        const eligible = Object.values(storedEvents).filter(
+          (e) => e.dbStatus === 'PENDING' || e.dbStatus === 'FAILED'
+        ).slice(0, limit);
+        return eligible.map((e) => {
+          e.dbStatus = 'PROCESSING';
+          e.status = 'PROCESSING';
+          e.claimToken = `token-attempt-${e.retryCount + 1}`;
+          return { ...e };
+        });
+      },
+      markCompleted: async (eventId: string, claimToken: string) => {
+        const e = storedEvents[eventId];
+        assert.equal(e.claimToken, claimToken, 'Claim token must match active processing lease');
+        e.dbStatus = 'COMPLETED';
+        e.status = 'COMPLETED';
+        completedCalls.push({ eventId, claimToken });
+        return true;
+      },
+      markFailed: async (eventId: string, error: string, backoffSeconds: number, claimToken: string) => {
+        const e = storedEvents[eventId];
+        assert.equal(e.claimToken, claimToken, 'Claim token must match active processing lease');
+        e.dbStatus = 'FAILED';
+        e.status = 'FAILED';
+        e.retryCount += 1;
+        e.lastError = error;
+        failedCalls.push({ eventId, error, backoffSeconds, claimToken });
+        return true;
+      }
+    };
+
+    try {
+      // === ATTEMPT 1 ===
+      const attempt1 = await processOutboxOnce(10, deps);
+      assert.equal(attempt1.processed, 1, 'Attempt 1 processed 1 event');
+      assert.equal(attempt1.succeeded, 0, 'Attempt 1 had 0 succeeded');
+      assert.equal(attempt1.failed, 1, 'Attempt 1 failed on group B');
+      assert.deepEqual(materializedGroups, ['grp-A'], 'Group A materialized before Group B failed');
+      assert.equal(completedCalls.length, 0, 'markCompleted must NOT be called on partial failure');
+      assert.equal(failedCalls.length, 1, 'markFailed must be called on partial failure');
+      assert.match(failedCalls[0].error, /503/);
+      assert.equal(storedEvents['evt-retry-001'].dbStatus, 'FAILED', 'Event remains retryable (FAILED)');
+      assert.equal(storedEvents['evt-retry-001'].retryCount, 1);
+
+      // === ATTEMPT 2 (Retry) ===
+      const attempt2 = await processOutboxOnce(10, deps);
+      assert.equal(attempt2.processed, 1, 'Attempt 2 processed reclaimed event');
+      assert.equal(attempt2.succeeded, 1, 'Attempt 2 succeeded');
+      assert.equal(attempt2.failed, 0, 'Attempt 2 had 0 failed');
+      assert.deepEqual(materializedGroups, ['grp-A', 'grp-B'], 'Group A not duplicated; Group B succeeded');
+      assert.equal(completedCalls.length, 1, 'markCompleted MUST be called on successful retry');
+      assert.equal(completedCalls[0].eventId, 'evt-retry-001');
+      assert.equal(completedCalls[0].claimToken, 'token-attempt-2');
+      assert.equal(storedEvents['evt-retry-001'].dbStatus, 'COMPLETED', 'Event transitioned to COMPLETED');
     } finally {
       globalThis.fetch = originalFetch;
     }

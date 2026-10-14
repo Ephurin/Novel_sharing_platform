@@ -12,7 +12,17 @@ import { syncDraftFromRevisionConditional } from '../modules/novels/draft-chapte
 let isProcessing = false;
 let outboxTimer: NodeJS.Timeout | null = null;
 
-export async function processOutboxOnce(limit: number = 10): Promise<{
+export interface OutboxDependencies {
+  claimEvents?: (limit: number) => Promise<RevisionOutboxEvent[]>;
+  handleEvent?: (event: RevisionOutboxEvent) => Promise<void>;
+  markCompleted?: (eventId: string, claimToken: string) => Promise<boolean>;
+  markFailed?: (eventId: string, error: string, backoffSeconds: number, claimToken: string) => Promise<boolean>;
+}
+
+export async function processOutboxOnce(
+  limit: number = 10,
+  deps?: OutboxDependencies
+): Promise<{
   processed: number;
   succeeded: number;
   failed: number;
@@ -27,19 +37,27 @@ export async function processOutboxOnce(limit: number = 10): Promise<{
   let failed = 0;
 
   try {
-    const pool = getPostgresPool();
-    const client = await pool.connect();
     let events: RevisionOutboxEvent[] = [];
-    try {
-      await client.query('BEGIN');
-      events = await claimPendingOutboxEvents(client, limit);
-      await client.query('COMMIT');
-    } catch (claimErr) {
-      await client.query('ROLLBACK');
-      throw claimErr;
-    } finally {
-      client.release();
+    if (deps?.claimEvents) {
+      events = await deps.claimEvents(limit);
+    } else {
+      const pool = getPostgresPool();
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        events = await claimPendingOutboxEvents(client, limit);
+        await client.query('COMMIT');
+      } catch (claimErr) {
+        await client.query('ROLLBACK');
+        throw claimErr;
+      } finally {
+        client.release();
+      }
     }
+
+    const handler = deps?.handleEvent ?? handleOutboxEvent;
+    const markCompletedFn = deps?.markCompleted ?? ((id, token) => markOutboxEventCompleted(undefined, id, token));
+    const markFailedFn = deps?.markFailed ?? ((id, err, backoff, token) => markOutboxEventFailed(undefined, id, err, backoff, token));
 
     for (const event of events) {
       processed++;
@@ -48,13 +66,13 @@ export async function processOutboxOnce(limit: number = 10): Promise<{
         continue;
       }
       try {
-        await handleOutboxEvent(event);
-        await markOutboxEventCompleted(undefined, event.eventId, event.claimToken);
+        await handler(event);
+        await markCompletedFn(event.eventId, event.claimToken);
         succeeded++;
       } catch (err: any) {
         failed++;
         const backoffSeconds = Math.min(300, Math.pow(2, event.retryCount + 1) * 5);
-        await markOutboxEventFailed(undefined, event.eventId, err?.message || String(err), backoffSeconds, event.claimToken);
+        await markFailedFn(event.eventId, err?.message || String(err), backoffSeconds, event.claimToken);
         console.warn(
           `[OutboxProcessor] Event ${event.eventId} (${event.eventType}) failed (attempt ${event.retryCount + 1}):`,
           err?.message || err
