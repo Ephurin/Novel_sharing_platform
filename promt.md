@@ -1,5 +1,378 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
+## ACTIVE REVIEW DIRECTIVE — AI-PIPE-01B FINAL REPAIR BEFORE PR (2026-10-14)
+
+This directive supersedes the previous AI-PIPE-01B review directive.
+
+### Remote state observed by ChatGPT
+
+```text
+main:
+60ab526716f9a730785703c15aa63dac948b7866
+
+repair branch:
+astra/ai-pipe-01b-main-e2e-repair
+
+repair branch head:
+b0ceea3b9c17fb90f762f9b96c7877dddb7f4a02
+
+PR:
+NOT OPENED
+```
+
+Accepted progress:
+
+```text
+AuthorWritingIde canonical P1 reconnect      PASS
+real browser login/editor/AI reject/accept  PASS
+AI_DRAFT_ACCEPT persistence                 PASS
+outbox creation                             PASS
+Story Brain advancement                     PASS (12 -> 13)
+context API observes advanced version        PASS
+```
+
+Do not redesign these working parts.
+
+Current status remains:
+
+```text
+LOCAL_PASS_WITH_REVIEW_BLOCKERS
+```
+
+because the latest commit introduced a production semantic change in the outbox processor and some checkpoints are still API-assisted rather than true browser actions.
+
+---
+
+## 1. Keep the repair branch and sync current main
+
+Continue on:
+
+```text
+astra/ai-pipe-01b-main-e2e-repair
+```
+
+First fetch current main and incorporate the latest handoff/review commit without discarding existing repair work.
+
+Record:
+
+```text
+STARTING_REPAIR_SHA=b0ceea3b9c17fb90f762f9b96c7877dddb7f4a02
+CURRENT_MAIN_SHA=<actual origin/main>
+```
+
+Do not open a PR yet.
+
+---
+
+## 2. BLOCKER — outbox auto-materialization must fail closed
+
+The latest repair added proposal auto-materialization to:
+
+```text
+backend/src/jobs/outbox-processor.ts
+```
+
+The intended production sequence is valid:
+
+```text
+accepted revision
+ -> INCREMENTAL_ANALYSIS outbox
+ -> revision analysis
+ -> proposals scoped to that accepted revision
+ -> proposal groups materialized
+ -> Story Brain advances
+ -> event COMPLETED
+```
+
+But the current implementation catches materialization failures, logs warnings, and may still allow the outbox event to be marked COMPLETED.
+
+That is not acceptable for the closed-loop contract.
+
+### Required behavior
+
+If any required proposal group for the accepted revision fails to materialize:
+
+```text
+handleOutboxEvent must fail
+ -> event must NOT be marked COMPLETED
+ -> markOutboxEventFailed / retry semantics apply
+```
+
+Do not swallow failures that prevent Story Brain advancement.
+
+Keep proposal selection scoped to the exact accepted revision:
+
+```text
+proposal.evidence contains revision_id == event.revisionId
+```
+
+Unrelated pending proposals must remain untouched.
+
+### Required outbox tests
+
+Add focused tests proving:
+
+```text
+1. analysis success + scoped materialization success
+   -> event COMPLETED
+   -> Brain advances
+
+2. proposal-group accept transient failure
+   -> event NOT COMPLETED
+   -> retryable failure state
+
+3. retry after partial/failed attempt
+   -> no duplicate canonical Story Brain mutation
+   -> eventually COMPLETED exactly once
+
+4. unrelated pending proposal groups
+   -> not auto-accepted
+
+5. no relevant proposals / legitimate no-op analysis
+   -> classify explicitly
+   -> do not falsely claim Brain advancement
+```
+
+Preserve existing claim-token/idempotency behavior.
+
+Do not convert the outbox into a broad 'accept every pending proposal' worker.
+
+---
+
+## 3. Browser evidence — finish the checkpoints that are still API-assisted
+
+The current CDP runner is accepted as a real browser harness for login/editor/AI reject/AI accept.
+
+However, current Browser-F/G/H claims are stronger than the executed actions.
+
+### Browser-F — Story Bible mutation must happen through rendered UI
+
+Current evidence creates Character/Timeline/Plot Summary with httpx, then only verifies browser readback.
+
+Replace the mutation portion with real DOM interactions:
+
+```text
+Story Bible UI
+ -> click add/create
+ -> fill form fields
+ -> submit through rendered controls
+ -> visible success/readback
+ -> refresh
+ -> data still visible
+ -> open IDE Story Bible panel
+ -> same data visible
+```
+
+Execute at least every implemented surface among:
+
+```text
+Character
+Relationship
+Timeline Event
+Plot Summary
+```
+
+If a surface has no create/edit UI, mark it NOT_IMPLEMENTED instead of creating it through API and calling browser PASS.
+
+After the UI mutation, prove at least one changed fact reaches the context consumer.
+
+### Browser-G — Novel metadata save must happen through UI
+
+Through the rendered Novel Data form:
+
+```text
+change a supported field
+ -> click Save / trigger actual UI save
+ -> wait success
+ -> refresh
+ -> visible readback matches
+ -> IDE header/breadcrumb reflects the change where applicable
+```
+
+The non-owner 403 API check may remain supporting security evidence, but label it API_SECURITY, not browser mutation evidence.
+
+### Browser-H — chapter lifecycle must happen through UI
+
+Current evidence creates/publishes via httpx and only opens the result in browser.
+
+Execute through IDE controls:
+
+```text
+click New Chapter
+ -> edit content/title
+ -> wait autosave
+ -> switch away
+ -> return
+ -> content preserved
+```
+
+If the UI exposes VIP/price/publish controls, also execute:
+
+```text
+toggle VIP
+ -> set price
+ -> click Publish/Submit
+ -> verify rendered status/readback
+```
+
+Only backend correlation may use API/DB after the browser action.
+
+---
+
+## 4. Browser feedback loop — second observation must also originate from browser
+
+The current run proves:
+
+```text
+browser accept
+ -> real outbox
+ -> Story Brain 12 -> 13
+ -> direct API context preview observes 13
+```
+
+This is strong backend evidence, but final browser acceptance requires the second observation to be initiated by the rendered application.
+
+After Brain advances:
+
+```text
+browser opens/refetches context preview or triggers another generation
+ -> capture browser-originated network request
+ -> response observes brain_version == advanced version
+```
+
+Preferred decisive continuation:
+
+```text
+Browser generation #2
+ -> POST /ai/writing/generations
+ -> expected_brain_version == brain_version_after
+ -> generation/context uses advanced Story Brain state
+```
+
+Record:
+
+```text
+second_browser_request_id
+second_generation_id if generated
+expected_brain_version
+observed_brain_version
+```
+
+Do not reuse the AI-accept screenshot as feedback-context evidence. Capture a distinct browser state/trace for the second observation.
+
+---
+
+## 5. Evidence lineage must pin the actual tested code
+
+The current evidence still records older SHAs:
+
+```text
+repaired_code_sha = 581f1a0...
+evidence_commit_sha = e4fba44...
+```
+
+but the browser/outbox behavior being claimed depends on:
+
+```text
+b0ceea3b9c17fb90f762f9b96c7877dddb7f4a02
+```
+
+After this final repair, regenerate evidence from a clean working tree and pin:
+
+```text
+tested_main_sha
+repair_code_sha = exact clean product/test CODE_SHA used for execution
+evidence_commit_sha = child commit containing only report/evidence artifacts where practical
+branch
+```
+
+Do not claim evidence for a SHA that did not contain the tested implementation.
+
+Keep a single correlated browser lineage:
+
+```text
+novel_id
+chapter_id
+base_revision_id
+rejected_generation_id
+accepted_generation_id
+accepted_revision_id
+outbox_event_id
+brain_version_before
+brain_version_after
+second_browser_generation_or_context_id
+observed_brain_version
+```
+
+Evidence types must be explicit:
+
+```text
+BROWSER
+BROWSER_NETWORK
+API_SYSTEM
+DATABASE
+CONTRACT_TEST
+```
+
+---
+
+## 6. Rerun requirements
+
+After repairs, rerun at minimum:
+
+```text
+focused outbox processor tests
+AI-PIPE-01B contract/regression tests
+strict API/system runner
+real CDP/browser E2E
+frontend/backend relevant unit tests
+```
+
+All must run against the same final clean CODE_SHA.
+
+Do not use direct analysis fallback.
+
+Do not weaken Brain N -> N+1 assertions.
+
+Do not bypass browser mutations for F/G/H.
+
+---
+
+## 7. Final verdict rules
+
+`MAIN_UI_E2E_PASS` is allowed only when all are true:
+
+```text
+canonical IDE P1 path PASS
+browser AI reject PASS
+browser AI accept PASS
+AI_DRAFT_ACCEPT lineage PASS
+outbox materialization fail-closed PASS
+outbox retry/idempotency PASS
+Story Brain N -> N+1 PASS
+second browser-originated context/generation sees N+1 PASS
+Story Bible UI mutation + browser readback PASS for implemented surfaces
+Novel Data UI save/readback PASS
+chapter lifecycle through UI PASS for exposed controls
+evidence SHA lineage exact and internally consistent
+```
+
+If a UI surface is genuinely not implemented, mark NOT_IMPLEMENTED and use `MAIN_UI_E2E_PARTIAL` unless that surface is non-mandatory for P1 final acceptance.
+
+Completion boundary after clean local rerun:
+
+```text
+LOCAL_PASS_CI_PENDING
+```
+
+Gemini stops after committing/pushing the repaired branch and updated evidence.
+
+ChatGPT owns PR creation, remote CI review, merge, and main closure.
+
+Do not work on unmerged Manuscript Import commit fe8429c77016fc58d7a8e3293cbc89030144aebc in this task.
+
+---
+
 ## ACTIVE REVIEW DIRECTIVE — AI-PIPE-01B EVIDENCE REPAIR + REAL BROWSER E2E (2026-10-14)
 
 This directive supersedes the previous AI-PIPE-01B main-E2E execution directive.
