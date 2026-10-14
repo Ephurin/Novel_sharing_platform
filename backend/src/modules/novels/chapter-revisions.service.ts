@@ -66,13 +66,13 @@ async function checkStoryBrainActive(novelId: string): Promise<boolean> {
   const pool = getPostgresPool();
   try {
     const res = await pool.query(
-      `SELECT status FROM narrative.story_brains WHERE novel_id = $1`,
+      `SELECT status, baseline_revision_id FROM narrative.story_brains WHERE novel_id = $1`,
       [novelId]
     );
     if (res.rows.length === 0) {
       return false;
     }
-    return res.rows[0].status === 'active';
+    return res.rows[0].status === 'active' && Boolean(res.rows[0].baseline_revision_id);
   } catch (err: any) {
     if (err?.code === '42P01') {
       return false;
