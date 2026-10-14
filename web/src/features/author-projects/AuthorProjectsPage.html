@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="web_standard" name="shell-type">
+    <title>StoryCraft Văn Hoa - Studio Tác Giả</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Merriweather:ital,wght@0,400;0,700;1,400&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-tertiary": "#ffffff", "tertiary-fixed": "#e4e0f5", "inverse-on-surface": "#eef0ff", "on-tertiary-fixed": "#1b1a29", "surface-dim": "#d2d9f4", "surface": "#faf8ff", "on-primary-fixed": "#0f0069", "surface-tint": "#4d44e3", "background": "#faf8ff", "primary-fixed-dim": "#c3c0ff", "secondary": "#4953bc", "error-container": "#ffdad6", "outline-variant": "#c7c4d8", "on-background": "#131b2e", "inverse-surface": "#283044", "primary-fixed": "#e2dfff", "surface-container-lowest": "#ffffff", "surface-bright": "#faf8ff", "on-surface-variant": "#464555", "on-tertiary-container": "#dcd9ed", "on-tertiary-fixed-variant": "#464555", "error": "#ba1a1a", "on-secondary-fixed-variant": "#2f3aa3", "on-secondary-fixed": "#000767", "primary": "#3525cd", "secondary-fixed": "#e0e0ff", "primary-container": "#4f46e5", "tertiary-fixed-dim": "#c7c4d8", "on-primary": "#ffffff", "on-primary-container": "#dad7ff", "on-secondary": "#ffffff", "on-surface": "#131b2e", "on-primary-fixed-variant": "#3323cc", "on-error": "#ffffff", "on-error-container": "#93000a", "secondary-fixed-dim": "#bdc2ff", "tertiary-container": "#605e6f", "surface-container-highest": "#dae2fd", "tertiary": "#484757", "secondary-container": "#8792fe", "on-secondary-container": "#17228f", "outline": "#777587", "surface-container-high": "#e2e7ff", "surface-variant": "#dae2fd", "inverse-primary": "#c3c0ff", "surface-container": "#eaedff", "surface-container-low": "#f2f3ff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "margin-sm": "1rem", "gutter": "1.5rem", "margin": "1.5rem", "space-xl": "2.5rem", "space-sm": "0.5rem", "gutter-sm": "1rem", "space-xs": "0.25rem", "gutter-lg": "2rem", "space-md": "1rem", "margin-lg": "3rem" }, "fontFamily": { "label-md": ["Be Vietnam Pro"], "headline-lg": ["Merriweather"], "body-reading": ["Merriweather"], "body-lg": ["Be Vietnam Pro"], "display-lg-mobile": ["Merriweather"], "body-md": ["Be Vietnam Pro"], "headline-md": ["Merriweather"], "headline-sm": ["Be Vietnam Pro"], "display-lg": ["Merriweather"], "label-sm": ["Be Vietnam Pro"], "headline-lg-mobile": ["Merriweather"] }, "fontSize": { "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }], "headline-lg": ["32px", { "lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "body-reading": ["18px", { "lineHeight": "34px", "letterSpacing": "0.01em", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "display-lg-mobile": ["30px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-md": ["24px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "display-lg": ["40px", { "lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "headline-lg-mobile": ["24px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }] } } } };</script>
+</head>
+
+<body class="bg-background font-body-md text-on-surface antialiased">
+    <header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div class="h-16 max-w-7xl mx-auto px-margin flex items-center justify-between">
+            <div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm group"
+                    data-path="tong-quan" href="#"><span
+                        class="w-9 h-9 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-headline-md text-headline-sm font-bold shadow-sm">V</span>
+                    <div class="flex flex-col"><span
+                            class="font-headline-sm text-headline-sm font-bold text-primary tracking-tight">StoryCraft</span><span
+                            class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant -mt-1">Văn
+                            Hoa Studio</span></div>
+                </a>
+                <nav class="hidden lg:flex items-center gap-space-lg" data-active-classes="text-primary font-semibold">
+                    <a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-sm"
+                        data-path="tong-quan" href="#">Tổng quan</a><a
+                        class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-sm"
+                        data-path="tac-pham" href="#">Tác phẩm</a><a
+                        class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-sm"
+                        data-path="vi-va-doanh-thu" href="#">Ví &amp; doanh thu</a><a
+                        class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors py-space-sm"
+                        data-path="trang-tac-gia" href="#">Trang tác giả</a></nav>
+            </div>
+            <div class="flex items-center gap-space-md"><a
+                    class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md shadow-sm transition-all"
+                    data-path="writing-studio" href="#"><span
+                        class="material-symbols-outlined text-[18px]">edit_square</span><span class="">Viết chương
+                        mới</span></a><button aria-label="Thông báo"
+                    class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                    type="button"><span class="material-symbols-outlined text-[22px]">notifications</span></button>
+                <div class="flex items-center gap-space-sm pl-space-xs">
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span
+                            class="material-symbols-outlined text-on-primary text-[18px]">person</span></div>
+                    <div class="hidden sm:flex flex-col text-left"><span
+                            class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Mai
+                            Linh</span><span
+                            class="font-label-sm text-label-sm text-on-surface-variant leading-tight">@moclan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="w-full bg-background min-h-screen pt-16">
+        <div class="flex flex-col w-full">
+            <!-- Page Body Container (Constrained 1440px desktop) -->
+            <div class="w-full max-w-[1440px] mx-auto px-margin md:px-margin-lg py-space-lg flex flex-col gap-space-xl">
+                <!-- Page Header & Main Title -->
+                <header class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+                    <div class="flex flex-col gap-space-xs">
+                        <nav
+                            class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">
+                            <span class="">Trang chủ</span>
+                            <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                            <span class="text-primary font-semibold">Bảng làm việc</span>
+                        </nav>
+                        <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Bảng làm việc</h1>
+                        <p class="font-body-md text-body-md text-on-surface-variant">
+                            Quản lý tác phẩm và tiếp tục hành trình sáng tác văn học của bạn.
+                        </p>
+                    </div>
+                    <!-- Quick Action -->
+                    <div class="flex items-center gap-space-sm">
+                        <button
+                            class="inline-flex items-center gap-space-xs px-space-lg py-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md shadow-sm transition-all transform active:scale-95"
+                            id="openModalBtn" type="button">
+                            <span class="material-symbols-outlined text-[20px]">add_circle</span>
+                            <span class="">Tạo tác phẩm mới</span>
+                        </button>
+                    </div>
+                </header>
+                <!-- Compact Overview Statistics (3 Cards, Single Row) -->
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+                    <!-- Card 1: Tổng tác phẩm -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl px-space-md py-3 shadow-sm flex items-center justify-between">
+                        <div class="flex flex-col gap-space-xs"><span
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Tổng
+                                tác phẩm</span><span
+                                class="font-headline-lg text-headline-lg text-on-surface font-bold leading-none">6</span><span
+                                class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5"><span
+                                    class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span> Tất cả dự án sáng
+                                tác</span></div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0">
+                            <span class="material-symbols-outlined text-[26px]">auto_stories</span></div>
+                    </div>
+                    <!-- Card 2: Tổng lượt đọc -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl px-space-md py-3 shadow-sm flex items-center justify-between">
+                        <div class="flex flex-col gap-space-xs"><span
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Tổng
+                                lượt đọc</span>
+                            <div class="flex items-baseline gap-space-xs"><span
+                                    class="font-headline-lg text-headline-lg text-on-surface font-bold leading-none">285.4K</span><span
+                                    class="inline-flex items-center text-label-sm font-label-sm text-primary font-bold px-1.5 py-0.5 rounded bg-primary-fixed">+12.4%
+                                    tuần này</span></div><span
+                                class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Tương tác độc giả
+                                tích lũy</span>
+                        </div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0">
+                            <span class="material-symbols-outlined text-[26px]">visibility</span></div>
+                    </div>
+                    <!-- Card 3: Chương đã xuất bản -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl px-space-md py-3 shadow-sm flex items-center justify-between">
+                        <div class="flex flex-col gap-space-xs"><span
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Chương
+                                đã xuất bản</span><span
+                                class="font-headline-lg text-headline-lg text-on-surface font-bold leading-none">152</span><span
+                                class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5"><span
+                                    class="w-1.5 h-1.5 rounded-full bg-secondary-container inline-block"></span> Trên 6
+                                bộ truyện đang chạy</span></div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0">
+                            <span class="material-symbols-outlined text-[26px]">history_edu</span></div>
+                    </div>
+                </section>
+                <!-- Main Section: Tác phẩm của tôi -->
+                <section class="flex flex-col gap-space-md">
+                    <!-- Section Header with Count Badge -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-xs">
+                        <div class="flex items-center gap-space-sm">
+                            <h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Tác phẩm của tôi
+                            </h2>
+                            <span
+                                class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-bold">
+                                6 tác phẩm
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-space-xs self-end sm:self-auto">
+                            <span class="font-label-sm text-label-sm text-on-surface-variant">Sắp xếp: Mới cập
+                                nhật</span>
+                            <span class="material-symbols-outlined text-on-surface-variant text-[18px]">swap_vert</span>
+                        </div>
+                    </div>
+                    <!-- Filter Toolbar Row -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl p-space-sm shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-sm">
+                        <!-- Search Input -->
+                        <div class="relative flex-1 min-w-[260px]">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+                            <input
+                                class="w-full pl-10 pr-4 py-2 rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-high transition-colors"
+                                id="novelSearch" placeholder="Tìm kiếm tác phẩm theo tên, từ khóa..." type="text">
+                        </div>
+                        <!-- Filters & View Mode -->
+                        <div class="flex flex-wrap items-center gap-space-xs sm:gap-space-sm">
+                            <!-- Status Pills -->
+                            <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-lg">
+                                <button
+                                    class="px-3 py-1 rounded font-label-md text-label-md bg-primary text-on-primary shadow-sm font-medium transition-colors"
+                                    data-filter="all">Tất cả (6)</button>
+                                <button
+                                    class="px-3 py-1 rounded font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors"
+                                    data-filter="writing">Đang sáng tác (4)</button>
+                                <button
+                                    class="px-3 py-1 rounded font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors"
+                                    data-filter="completed">Hoàn thành (1)</button>
+                                <button
+                                    class="px-3 py-1 rounded font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors"
+                                    data-filter="draft">Bản nháp (1)</button>
+                            </div>
+                            <!-- Genre Dropdown Selector -->
+                            <div class="relative">
+                                <select
+                                    class="appearance-none bg-surface-container-low text-on-surface font-label-md text-label-md py-2 pl-3.5 pr-8 rounded-lg focus:outline-none cursor-pointer">
+                                    <option>Tất cả thể loại</option>
+                                    <option>Huyền huyễn</option>
+                                    <option>Tiên hiệp</option>
+                                    <option>Khoa huyễn</option>
+                                    <option>Đô thị</option>
+                                    <option>Lịch sử</option>
+                                    <option>Quân sự</option>
+                                    <option>Võng du</option>
+                                    <option>Đồng nhân</option>
+                                    <option>Trinh thám</option>
+                                    <option>Kinh dị</option>
+                                    <option>Linh dị</option>
+                                    <option>Ngôn tình</option>
+                                    <option>Đam mỹ</option>
+                                    <option>Bách hợp</option>
+                                    <option>Kiếm hiệp</option>
+                                    <option>Kỳ ảo</option>
+                                    <option>Hài hước</option>
+                                    <option>Khác</option>
+                                </select>
+                                <span
+                                    class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+                            </div>
+                            <!-- View Toggle -->
+                            <div class="flex items-center bg-surface-container-low p-1 rounded-lg">
+                                <button class="p-1.5 rounded bg-surface text-primary shadow-xs" title="Lưới">
+                                    <span class="material-symbols-outlined text-[20px]">grid_view</span>
+                                </button>
+                                <button class="p-1.5 rounded text-on-surface-variant hover:text-on-surface"
+                                    title="Danh sách">
+                                    <span class="material-symbols-outlined text-[20px]">view_list</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Novel Cards Grid (3 cards per row, 2 rows for 6 realistic items) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-4.5">
+                        <!-- Novel 1 -->
+                        <article
+                            class="bg-surface-container-lowest rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group border border-outline-variant/30 hover:border-primary/30 h-full">
+                            <div class="flex gap-3 items-start">
+                                <!-- Book Cover (compact 2:3 aspect ratio) -->
+                                <div
+                                    class="relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden shadow-xs bg-surface-container-high">
+                                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        data-alt="Book cover artistic illustration for Vietnamese novel titled Gio Thoang Qua Pho Co."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1QMEm28F1KQwQ8pCRsLys6-ZTiwowyrwWjmRZD3TcX6oE44ZhKhg-5uvoQujw5-9dw_Zmi6WPKq6Mruc9W6CtGpwxJqueIif6BfqH86aGr_X0pNRDA6Z-Y3GlP-UKPZPZ-BnG3xTI4UlLPpx0buf_tMQI-CbhU81aKAHdwTlmSw0SSmLsYlbN1oAYedFqZMPWNnuChHACCvIgevtuuoMPICj_mBTtAUUZU3B4DSV-Tp9z-0r9gY8n5Q">
+                                </div>
+                                <!-- Header & Details -->
+                                <div class="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
+                                    <div>
+                                        <div class="flex items-center justify-between gap-1 mb-1">
+                                            <span class="text-[11px] font-medium text-on-surface-variant truncate">
+                                                Hiện đại / Lãng mạn
+                                            </span>
+                                            <span
+                                                class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+                                                Đang sáng tác
+                                            </span>
+                                        </div>
+                                        <h3
+                                            class="font-headline-md text-[15px] leading-snug font-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors">
+                                            Gió Thoảng Qua Phố Cổ
+                                        </h3>
+                                        <p class="text-[11.5px] text-on-surface-variant/80 font-normal mt-1.5 flex items-center gap-1 truncate">
+                                            <span class="material-symbols-outlined text-[14px] text-on-surface-variant/60 shrink-0">edit_note</span>
+                                            <span class="truncate">Chỉnh sửa gần nhất: Chương 48</span>
+                                        </p>
+                                    </div>
+                                    <div class="mt-2 space-y-1">
+                                        <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-[15px] text-primary/80">menu_book</span>
+                                            <span><strong class="font-semibold text-on-surface">48</strong> chương</span>
+                                            <span class="text-outline/60">•</span>
+                                            <span class="material-symbols-outlined text-[15px] text-secondary/80">visibility</span>
+                                            <span><strong class="font-semibold text-on-surface">142.8K</strong></span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[11px] text-on-surface-variant/70">
+                                            <span class="material-symbols-outlined text-[13px]">update</span>
+                                            <span class="truncate">Cập nhật hôm nay 14:45</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Action Buttons Row -->
+                            <div class="pt-2.5 mt-3 flex items-center justify-between gap-1.5 border-t border-outline-variant/30">
+                                <div class="flex items-center gap-1.5 flex-1">
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-xs font-medium text-on-surface transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">settings</span>
+                                        <span>Quản lý</span>
+                                    </a>
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-xs font-medium transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">draw</span>
+                                        <span>Viết tiếp</span>
+                                    </a>
+                                </div>
+                                <button
+                                    class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                                    title="Thêm thao tác">
+                                    <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                                </button>
+                            </div>
+                        </article>
+                        <!-- Novel 2 -->
+                        <article
+                            class="bg-surface-container-lowest rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group border border-outline-variant/30 hover:border-primary/30 h-full">
+                            <div class="flex gap-3 items-start">
+                                <!-- Book Cover (compact 2:3 aspect ratio) -->
+                                <div
+                                    class="relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden shadow-xs bg-surface-container-high">
+                                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        data-alt="Book cover artistic design for Vietnamese crime thriller novel Dem Mua Tren Pho Cu."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqMEOurNhJ5oPcxbxtCvrikez1AT4PnT6Pn5bOcvpeDOGpbU8m3qx4v0Kvrj5JqKyIgdAELROgfOe-GbmydVz6yntP86PP_rY8PgghhX5d2ooz3jUAHVsWFHxrKRej6zVQCFJHVEvcZdQ4RSXfCME_0NXwtnwt-RpIuut-JdxSWsdufuMJc0OetsVZkwG1rgdnYgkzVlvqxmZPyG7YxghwiEUZUKyLvQb9drYxdOGzZriEE3x2NZg93w">
+                                </div>
+                                <!-- Header & Details -->
+                                <div class="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
+                                    <div>
+                                        <div class="flex items-center justify-between gap-1 mb-1">
+                                            <span class="text-[11px] font-medium text-on-surface-variant truncate">
+                                                Trinh thám / Kịch tính
+                                            </span>
+                                            <span
+                                                class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+                                                Đang sáng tác
+                                            </span>
+                                        </div>
+                                        <h3
+                                            class="font-headline-md text-[15px] leading-snug font-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors">
+                                            Đêm Mưa Trên Phố Cũ
+                                        </h3>
+                                        <p class="text-[11.5px] text-on-surface-variant/80 font-normal mt-1.5 flex items-center gap-1 truncate">
+                                            <span class="material-symbols-outlined text-[14px] text-on-surface-variant/60 shrink-0">edit_note</span>
+                                            <span class="truncate">Chỉnh sửa gần nhất: Chương 36</span>
+                                        </p>
+                                    </div>
+                                    <div class="mt-2 space-y-1">
+                                        <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-[15px] text-primary/80">menu_book</span>
+                                            <span><strong class="font-semibold text-on-surface">36</strong> chương</span>
+                                            <span class="text-outline/60">•</span>
+                                            <span class="material-symbols-outlined text-[15px] text-secondary/80">visibility</span>
+                                            <span><strong class="font-semibold text-on-surface">68.2K</strong></span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[11px] text-on-surface-variant/70">
+                                            <span class="material-symbols-outlined text-[13px]">update</span>
+                                            <span class="truncate">Cập nhật hôm qua</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Action Buttons Row -->
+                            <div class="pt-2.5 mt-3 flex items-center justify-between gap-1.5 border-t border-outline-variant/30">
+                                <div class="flex items-center gap-1.5 flex-1">
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-xs font-medium text-on-surface transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">settings</span>
+                                        <span>Quản lý</span>
+                                    </a>
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-xs font-medium transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">draw</span>
+                                        <span>Viết tiếp</span>
+                                    </a>
+                                </div>
+                                <button
+                                    class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                                    title="Thêm thao tác">
+                                    <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                                </button>
+                            </div>
+                        </article>
+                        <!-- Novel 3 -->
+                        <article
+                            class="bg-surface-container-lowest rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group border border-outline-variant/30 hover:border-primary/30 h-full">
+                            <div class="flex gap-3 items-start">
+                                <!-- Book Cover (compact 2:3 aspect ratio) -->
+                                <div
+                                    class="relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden shadow-xs bg-surface-container-high">
+                                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        data-alt="Book cover artistic illustration for Vietnamese fantasy mystery novel Dau Chan Trong Suong."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXJ12S4sxTdLE3LnqI1GDF_qQsbdWPcgu5ALssQ5bxf6rEAyr0AOD40u4l2A0cpzk87i3qjG5tv5eLjZSTHHPY6JWeD0REU6TCUmBCbS-TLJjB3C3fsQb1XUFJXp3jmrWBP8M3JqYPPiJ7rkse5579oP68EQapwcwvSU5RWuZDBZE12n8EY1PAUo4aO20T-sLRVIFwb-8ksQtxTEdt-MqLm6qbrAglNTYi7zuh7136WgwFFo58Se1vjg">
+                                </div>
+                                <!-- Header & Details -->
+                                <div class="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
+                                    <div>
+                                        <div class="flex items-center justify-between gap-1 mb-1">
+                                            <span class="text-[11px] font-medium text-on-surface-variant truncate">
+                                                Huyền bí / Đô thị
+                                            </span>
+                                            <span
+                                                class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+                                                Đang sáng tác
+                                            </span>
+                                        </div>
+                                        <h3
+                                            class="font-headline-md text-[15px] leading-snug font-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors">
+                                            Dấu Chân Trong Sương
+                                        </h3>
+                                        <p class="text-[11.5px] text-on-surface-variant/80 font-normal mt-1.5 flex items-center gap-1 truncate">
+                                            <span class="material-symbols-outlined text-[14px] text-on-surface-variant/60 shrink-0">edit_note</span>
+                                            <span class="truncate">Chỉnh sửa gần nhất: Chương 28</span>
+                                        </p>
+                                    </div>
+                                    <div class="mt-2 space-y-1">
+                                        <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-[15px] text-primary/80">menu_book</span>
+                                            <span><strong class="font-semibold text-on-surface">28</strong> chương</span>
+                                            <span class="text-outline/60">•</span>
+                                            <span class="material-symbols-outlined text-[15px] text-secondary/80">visibility</span>
+                                            <span><strong class="font-semibold text-on-surface">34.5K</strong></span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[11px] text-on-surface-variant/70">
+                                            <span class="material-symbols-outlined text-[13px]">update</span>
+                                            <span class="truncate">Cập nhật 4 ngày trước</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Action Buttons Row -->
+                            <div class="pt-2.5 mt-3 flex items-center justify-between gap-1.5 border-t border-outline-variant/30">
+                                <div class="flex items-center gap-1.5 flex-1">
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-xs font-medium text-on-surface transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">settings</span>
+                                        <span>Quản lý</span>
+                                    </a>
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-xs font-medium transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">draw</span>
+                                        <span>Viết tiếp</span>
+                                    </a>
+                                </div>
+                                <button
+                                    class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                                    title="Thêm thao tác">
+                                    <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                                </button>
+                            </div>
+                        </article>
+                        <!-- Novel 4 -->
+                        <article
+                            class="bg-surface-container-lowest rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group border border-outline-variant/30 hover:border-primary/30 h-full">
+                            <div class="flex gap-3 items-start">
+                                <!-- Book Cover (compact 2:3 aspect ratio) -->
+                                <div
+                                    class="relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden shadow-xs bg-surface-container-high">
+                                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        data-alt="Book cover artistic illustration for completed youth romance novel Mua Ha Khong Ten."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlWeLimlykIxQsl6wiGXH-bycfwEpM78YB0P16cQPqCabqsRB9DBQJ_AQK83ndJzKj1azP1cxYqObNXsO8hh-jsBksM9oHHxQThjZmbfn4mOHviTPObpDVMTmw3B-Cs0O75RusNhFI7t2UZKfpjjKEWIhwkTrHLAXOMgs-5hmyBoqR6mvn3LvH6mISZEGOAgliTdae6SZwDFzPJ9_-WeiQkZElHUoKnz81J3qe3HJ3d68e_vJgFZfeUg">
+                                </div>
+                                <!-- Header & Details -->
+                                <div class="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
+                                    <div>
+                                        <div class="flex items-center justify-between gap-1 mb-1">
+                                            <span class="text-[11px] font-medium text-on-surface-variant truncate">
+                                                Thanh xuân / Tuổi trẻ
+                                            </span>
+                                            <span
+                                                class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-700">
+                                                Hoàn thành
+                                            </span>
+                                        </div>
+                                        <h3
+                                            class="font-headline-md text-[15px] leading-snug font-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors">
+                                            Mùa Hạ Không Tên
+                                        </h3>
+                                        <p class="text-[11.5px] text-on-surface-variant/80 font-normal mt-1.5 flex items-center gap-1 truncate">
+                                            <span class="material-symbols-outlined text-[14px] text-on-surface-variant/60 shrink-0">edit_note</span>
+                                            <span class="truncate">Chỉnh sửa gần nhất: Chương 24</span>
+                                        </p>
+                                    </div>
+                                    <div class="mt-2 space-y-1">
+                                        <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-[15px] text-primary/80">menu_book</span>
+                                            <span><strong class="font-semibold text-on-surface">24</strong> chương</span>
+                                            <span class="text-outline/60">•</span>
+                                            <span class="material-symbols-outlined text-[15px] text-secondary/80">visibility</span>
+                                            <span><strong class="font-semibold text-on-surface">29.1K</strong></span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[11px] text-on-surface-variant/70">
+                                            <span class="material-symbols-outlined text-[13px]">check_circle</span>
+                                            <span class="truncate">Cập nhật 2 tuần trước</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Action Buttons Row -->
+                            <div class="pt-2.5 mt-3 flex items-center justify-between gap-1.5 border-t border-outline-variant/30">
+                                <div class="flex items-center gap-1.5 flex-1">
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-xs font-medium text-on-surface transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">settings</span>
+                                        <span>Quản lý</span>
+                                    </a>
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary text-xs font-medium transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">visibility</span>
+                                        <span>Xem tác phẩm</span>
+                                    </a>
+                                </div>
+                                <button
+                                    class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                                    title="Thêm thao tác">
+                                    <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                                </button>
+                            </div>
+                        </article>
+                        <!-- Novel 5 -->
+                        <article
+                            class="bg-surface-container-lowest rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group border border-outline-variant/30 hover:border-primary/30 h-full">
+                            <div class="flex gap-3 items-start">
+                                <!-- Book Cover (compact 2:3 aspect ratio) -->
+                                <div
+                                    class="relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden shadow-xs bg-surface-container-high">
+                                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        data-alt="Book cover artistic digital art for Vietnamese sci-fi fantasy novel Ben Kia Dong Thoi Gian."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF2pEV4MsCoAZcNsKBukzpsAY6dK_aS9g0AqW3WPn8khvnFPp6YV6xQD-lExodKgPmn2-jHgQJOJz3Yg0-rKsZZtUfmc-csH58g9SBoHAJs8i9e-w-UpiXbQBlzI-jH2novWxP-U-72GPwnyII3dWCuRCHOk-DVBH-7zfOWzE5Te1JtHOSkPNTjVjxmY_spE-dn5xnknc453BbAdkhd7YAuuuemEdNDi7JCiRtcwEPVe3uYg-eXfLzgA">
+                                </div>
+                                <!-- Header & Details -->
+                                <div class="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
+                                    <div>
+                                        <div class="flex items-center justify-between gap-1 mb-1">
+                                            <span class="text-[11px] font-medium text-on-surface-variant truncate">
+                                                Xuyên không / Viễn tưởng
+                                            </span>
+                                            <span
+                                                class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+                                                Đang sáng tác
+                                            </span>
+                                        </div>
+                                        <h3
+                                            class="font-headline-md text-[15px] leading-snug font-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors">
+                                            Bên Kia Dòng Thời Gian
+                                        </h3>
+                                        <p class="text-[11.5px] text-on-surface-variant/80 font-normal mt-1.5 flex items-center gap-1 truncate">
+                                            <span class="material-symbols-outlined text-[14px] text-on-surface-variant/60 shrink-0">edit_note</span>
+                                            <span class="truncate">Chỉnh sửa gần nhất: Chương 12</span>
+                                        </p>
+                                    </div>
+                                    <div class="mt-2 space-y-1">
+                                        <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-[15px] text-primary/80">menu_book</span>
+                                            <span><strong class="font-semibold text-on-surface">12</strong> chương</span>
+                                            <span class="text-outline/60">•</span>
+                                            <span class="material-symbols-outlined text-[15px] text-secondary/80">visibility</span>
+                                            <span><strong class="font-semibold text-on-surface">8.6K</strong></span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[11px] text-on-surface-variant/70">
+                                            <span class="material-symbols-outlined text-[13px]">update</span>
+                                            <span class="truncate">Cập nhật 1 tuần trước</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Action Buttons Row -->
+                            <div class="pt-2.5 mt-3 flex items-center justify-between gap-1.5 border-t border-outline-variant/30">
+                                <div class="flex items-center gap-1.5 flex-1">
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-xs font-medium text-on-surface transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">settings</span>
+                                        <span>Quản lý</span>
+                                    </a>
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-xs font-medium transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">draw</span>
+                                        <span>Viết tiếp</span>
+                                    </a>
+                                </div>
+                                <button
+                                    class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                                    title="Thêm thao tác">
+                                    <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                                </button>
+                            </div>
+                        </article>
+                        <!-- Novel 6 -->
+                        <article
+                            class="bg-surface-container-lowest rounded-xl p-3 sm:p-3.5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group border border-outline-variant/30 hover:border-primary/30 h-full">
+                            <div class="flex gap-3 items-start">
+                                <!-- Book Cover (compact 2:3 aspect ratio) -->
+                                <div
+                                    class="relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden shadow-xs bg-surface-container-high">
+                                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        data-alt="Book cover artistic minimal watercolor illustration for Vietnamese literary fiction novel Ngon Den Cuoi Ngo."
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIB4Wc-osb5h-EQkxfl-8uSc_xQTLeiLiEEZ4E7LIactoJn0LJbgqJiKpEmClAetBvvFWDLnUZkqrZVW2eK2_VOhu54BAdsyiQM68QgH8TOtTnXwautzGxqUqen6wgMRpL1pNxz9S-H6MEG7w-wohocxSg_Tqh5t44ELlv6lV8iA8Eki1jmxZ6p10qhz7FiCwqDaLK6fSdRLSmCpGJhzLzgSWklFpj413j6EzzBl8ZB-0hBcOKo683rw">
+                                </div>
+                                <!-- Header & Details -->
+                                <div class="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
+                                    <div>
+                                        <div class="flex items-center justify-between gap-1 mb-1">
+                                            <span class="text-[11px] font-medium text-on-surface-variant truncate">
+                                                Đời thường / Văn học
+                                            </span>
+                                            <span
+                                                class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-surface-container-high text-on-surface-variant">
+                                                Bản nháp
+                                            </span>
+                                        </div>
+                                        <h3
+                                            class="font-headline-md text-[15px] leading-snug font-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors">
+                                            Ngọn Đèn Cuối Ngõ
+                                        </h3>
+                                        <p class="text-[11.5px] text-on-surface-variant/80 font-normal mt-1.5 flex items-center gap-1 truncate">
+                                            <span class="material-symbols-outlined text-[14px] text-on-surface-variant/60 shrink-0">edit_note</span>
+                                            <span class="truncate">Chỉnh sửa gần nhất: Chương 4</span>
+                                        </p>
+                                    </div>
+                                    <div class="mt-2 space-y-1">
+                                        <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-[15px] text-primary/80">edit_note</span>
+                                            <span><strong class="font-semibold text-on-surface">4</strong> chương</span>
+                                            <span class="text-outline/60">•</span>
+                                            <span class="material-symbols-outlined text-[15px] text-secondary/80">visibility</span>
+                                            <span><strong class="font-semibold text-on-surface">2.2K</strong></span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[11px] text-on-surface-variant/70">
+                                            <span class="material-symbols-outlined text-[13px]">schedule</span>
+                                            <span class="truncate">Mới tạo tuần này</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Action Buttons Row -->
+                            <div class="pt-2.5 mt-3 flex items-center justify-between gap-1.5 border-t border-outline-variant/30">
+                                <div class="flex items-center gap-1.5 flex-1">
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-xs font-medium text-on-surface transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">settings</span>
+                                        <span>Quản lý</span>
+                                    </a>
+                                    <a class="inline-flex items-center justify-center gap-1 flex-1 py-1.5 px-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-xs font-medium transition-colors"
+                                        href="#">
+                                        <span class="material-symbols-outlined text-[15px]">draw</span>
+                                        <span>Viết tiếp</span>
+                                    </a>
+                                </div>
+                                <button
+                                    class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                                    title="Thêm thao tác">
+                                    <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                                </button>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Create Novel Modal Dialog (Accessible & Interactive) -->
+            <div class="fixed inset-0 z-50 hidden bg-black/40 backdrop-blur-xs flex items-center justify-center p-4"
+                id="createNovelModal">
+                <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-stone-200/80 overflow-hidden flex flex-col">
+                    <!-- Modal Header -->
+                    <div class="px-5 py-4 bg-[#f3f5fe] border-b border-indigo-50/70 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[#3525cd] text-[22px]">menu_book</span>
+                            <h3 class="text-sm font-bold text-stone-900">Tạo tác phẩm mới</h3>
+                        </div>
+                        <button class="p-1 rounded-full hover:bg-stone-200/60 text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
+                            id="closeModalBtn" type="button">
+                            <span class="material-symbols-outlined text-[19px]">close</span>
+                        </button>
+                    </div>
+                    <!-- Modal Body -->
+                    <form class="p-5 flex flex-col gap-4">
+                        <!-- Field 1: Tên tác phẩm -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-bold text-stone-900">
+                                Tên tác phẩm <span class="text-red-500">*</span>
+                            </label>
+                            <input class="w-full px-3.5 py-2.5 rounded-xl bg-[#f0f2fa] text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#3525cd] focus:bg-white border-0 transition-colors"
+                                placeholder="Hoàng Hôn Trên Dòng Sông Đáy" required="" type="text">
+                            <p class="text-[11px] text-stone-500">Vui lòng nhập tên tác phẩm (tối thiểu 2 ký tự)</p>
+                        </div>
+                        <!-- Field 2: Thể loại chính -->
+                        <div class="flex flex-col gap-1.5 relative">
+                            <label class="text-xs font-bold text-stone-900">
+                                Thể loại chính <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <select class="w-full appearance-none px-3.5 py-2.5 rounded-xl bg-[#f0f2fa] text-xs text-stone-900 font-medium focus:outline-none focus:ring-1 focus:ring-[#3525cd] focus:bg-white border-0 transition-colors cursor-pointer pr-10">
+                                    <option>Hiện đại / Lãng mạn</option>
+                                    <option>Hiện đại / Đô thị</option>
+                                    <option>Trinh thám / Kịch tính</option>
+                                    <option>Huyền ảo / Tiên hiệp</option>
+                                    <option>Lịch sử / Cổ phong</option>
+                                    <option>Huyền bí / Kỳ ảo</option>
+                                    <option>Võng du / Khoa huyễn</option>
+                                    <option>Đời thường / Gia đình</option>
+                                    <option>Thanh xuân / Vườn trường</option>
+                                </select>
+                                <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-stone-500 text-[20px]">expand_more</span>
+                            </div>
+                        </div>
+                        <!-- Field 3: Giới thiệu ngắn -->
+                        <div class="flex flex-col gap-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-stone-900">Giới thiệu ngắn</label>
+                                <span class="text-xs text-stone-400 font-normal">Tùy chọn</span>
+                            </div>
+                            <textarea class="w-full px-3.5 py-2.5 rounded-xl bg-[#f0f2fa] text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#3525cd] focus:bg-white border-0 resize-none transition-colors leading-relaxed"
+                                placeholder="Một câu chuyện giàu chất thơ về những mảnh đời trầm lặng bên bến sông xưa, nơi quá khứ và hiện tại giao hòa qua từng con sóng dạt dào cảm xúc."
+                                rows="3"></textarea>
+                        </div>
+                        <!-- Field 4: Ảnh bìa tác phẩm -->
+                        <div class="flex flex-col gap-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-stone-900">Ảnh bìa tác phẩm</label>
+                                <span class="text-xs text-stone-400 font-normal">Tùy chọn</span>
+                            </div>
+                            <div class="rounded-xl bg-[#f0f2fa] p-3 flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-lg bg-[#dee6fd] text-[#3525cd] flex items-center justify-center shrink-0">
+                                        <span class="material-symbols-outlined text-[24px]">photo_library</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-stone-800">Kéo thả ảnh hoặc tải lên</p>
+                                        <p class="text-[10.5px] text-stone-500">Hỗ trợ: JPG, PNG, WEBP (Tỷ lệ gợi ý 2:3)</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="px-3.5 py-1.5 rounded-lg bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700 text-xs font-medium shadow-2xs transition-colors cursor-pointer shrink-0">
+                                    Chọn ảnh
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Info Notice Box -->
+                        <div class="rounded-xl bg-[#eef2ff] p-2.5 flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-[#3525cd] text-[18px] shrink-0 mt-0.5">info</span>
+                            <p class="text-xs text-stone-600 leading-relaxed">Tác phẩm mới sẽ được lưu dưới dạng bản nháp riêng tư. Bạn có thể thay đổi trạng thái sau.</p>
+                        </div>
+                        <!-- Modal Actions -->
+                        <div class="flex items-center justify-end gap-2.5 pt-1">
+                            <button class="px-4 py-2 rounded-lg bg-[#e6ebf8] hover:bg-[#d9e1f5] text-stone-700 font-semibold text-xs cursor-pointer transition-colors"
+                                id="cancelModalBtn" type="button">
+                                Hủy
+                            </button>
+                            <button class="px-5 py-2 rounded-lg bg-[#3525cd] hover:bg-[#2b1fba] text-white font-semibold text-xs shadow-2xs transition-colors cursor-pointer"
+                                type="submit">
+                                Tạo tác phẩm
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Micro-interactions Script -->
+            <script>
+                (function () {
+                    const openModalBtn = document.getElementById('openModalBtn');
+                    const closeModalBtn = document.getElementById('closeModalBtn');
+                    const cancelModalBtn = document.getElementById('cancelModalBtn');
+                    const createNovelModal = document.getElementById('createNovelModal');
+
+                    function toggleModal(show) {
+                        if (!createNovelModal) return;
+                        if (show) {
+                            createNovelModal.classList.remove('hidden');
+                        } else {
+                            createNovelModal.classList.add('hidden');
+                        }
+                    }
+
+                    if (openModalBtn) openModalBtn.addEventListener('click', () => toggleModal(true));
+                    if (closeModalBtn) closeModalBtn.addEventListener('click', () => toggleModal(false));
+                    if (cancelModalBtn) cancelModalBtn.addEventListener('click', () => toggleModal(false));
+
+                    // Quick filter pill toggle interactivity
+                    const filterButtons = document.querySelectorAll('[data-filter]');
+                    filterButtons.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            filterButtons.forEach(b => {
+                                b.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm', 'font-medium');
+                                b.classList.add('text-on-surface-variant');
+                            });
+                            btn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm', 'font-medium');
+                            btn.classList.remove('text-on-surface-variant');
+                        });
+                    });
+                })();
+            </script>
+        </div>
+    </main>
+    <footer class="w-full bg-surface-container-low mt-space-xl">
+        <div
+            class="max-w-7xl mx-auto px-margin py-space-xl flex flex-col md:flex-row items-center justify-between gap-space-md">
+            <div class="flex flex-col items-center md:items-start">
+                <div class="flex items-center gap-space-xs"><span
+                        class="w-5 h-5 rounded bg-primary-container text-on-primary flex items-center justify-center font-headline-md text-[11px] font-bold">V</span><span
+                        class="font-headline-sm text-label-md font-bold text-on-surface">StoryCraft Văn Hoa</span></div>
+                <p class="font-body-md text-label-sm text-on-surface-variant mt-1 text-center md:text-left">© 2025 Văn
+                    Hoa Literary Publishing Platform. Không gian nuôi dưỡng tác phẩm và độc giả Việt.</p>
+            </div>
+            <div class="flex items-center flex-wrap justify-center gap-space-lg"><a
+                    class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                    data-path="chinh-sach-xuat-ban" href="#">Chính sách xuất bản</a><a
+                    class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                    data-path="ban-quyen-va-so-huu-tri-tue" href="#">Bản quyền &amp; Sở hữu trí tuệ</a><a
+                    class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                    data-path="tieu-chuan-cong-dong" href="#">Tiêu chuẩn cộng đồng</a><a
+                    class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                    data-path="trung-tam-tro-giup" href="#">Trung tâm trợ giúp tác giả</a></div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

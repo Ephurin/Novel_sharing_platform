@@ -77,11 +77,41 @@ export const router = createBrowserRouter([
     )
   },
   {
+    path: '/author',
+    element: (
+      <AuthGate>
+        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+          <AuthorProjectsPage />
+        </RoleGuard>
+      </AuthGate>
+    )
+  },
+  {
+    path: '/author/projects',
+    element: (
+      <AuthGate>
+        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+          <AuthorProjectsPage />
+        </RoleGuard>
+      </AuthGate>
+    )
+  },
+  {
     path: '/author/novels/:novelId',
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
           <AuthorNovelMetadataPage />
+        </RoleGuard>
+      </AuthGate>
+    )
+  },
+  {
+    path: '/author/novels/:novelId/chapters/:chapterId',
+    element: (
+      <AuthGate>
+        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+          <AuthorChapterDeepLink />
         </RoleGuard>
       </AuthGate>
     )
@@ -97,30 +127,6 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <RoleHomeRedirect />
-      },
-      {
-        path: '/author',
-        element: (
-          <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-            <AuthorProjectsPage />
-          </RoleGuard>
-        )
-      },
-      {
-        path: '/author/novels/:novelId',
-        element: (
-          <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-            <AuthorNovelMetadataPage />
-          </RoleGuard>
-        )
-      },
-      {
-        path: '/author/novels/:novelId/chapters/:chapterId',
-        element: (
-          <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-            <AuthorChapterDeepLink />
-          </RoleGuard>
-        )
       },
       {
         path: '/reader',
