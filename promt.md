@@ -227,55 +227,50 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. FINAL EXECUTION DIRECTIVE — Manuscript Import Sync, Rerun & PR Handoff
+## 5. EXECUTE NOW — Manuscript Import Final Sync / Rerun / Stop
 
-This directive supersedes all previous Manuscript Import directives.
+No new architecture work is requested. This is an execution-only reminder because the remote working branch has not advanced since the previous directive.
 
-### Reviewed status
-
-ChatGPT has accepted the current implementation direction and browser evidence for:
+### Exact remote state
 
 ```text
-canonical import revision provenance                 PASS
-real server SHA-256 provenance                      PASS
-MANUSCRIPT_BOOTSTRAP snapshot ownership             PASS
-zero generic pre-baseline INCREMENTAL_ANALYSIS      PASS
-bootstrap human-review ownership                    PASS
-Import-E browser reload/readback                    PASS
-Import-I rejected proposal canonical absence        PASS
-Import-J actual accepted proposal/group IDs         PASS
-Import-M exact browser generation provenance        PASS
-Import-O P1 accepted-draft closed loop              PASS
-Import-P next browser request observes N+1          PASS
-```
+current main before this reminder:
+3bd6a43542a69d15ebee469ec68d5090c4966d77
 
-Current branch:
-
-```text
+working branch:
 astra/manuscript-import-ui-e2e
-```
 
-Current reviewed branch head before final sync:
-
-```text
+current branch head:
 47bb3cd7a6fdbf160979d522f2955ccbaf43adda
+
+current relation before this reminder:
+ahead main 10
+behind main 2
+merge base dce5172e916d0546fe8293807bce7354e695fd50
 ```
 
-Current accepted-but-stale tested lineage:
+The product/evidence design is already accepted. Do not redesign it.
+
+Accepted behavior that must remain intact:
 
 ```text
-TESTED_CODE_SHA      40dc3fd03a991d90a787eed7ebb61d06886831c0
-EVIDENCE_PAYLOAD_SHA 43f5d75060948efc02d634adb0ac244f507b0628
-LINEAGE_SEAL_SHA     47bb3cd7a6fdbf160979d522f2955ccbaf43adda
+MANUSCRIPT_BOOTSTRAP snapshot -> source_type BOOTSTRAP
+MANUSCRIPT_BOOTSTRAP snapshot -> no generic INCREMENTAL_ANALYSIS outbox
+AUTHOR_SNAPSHOT default -> generic INCREMENTAL_ANALYSIS remains
+AI_DRAFT_ACCEPT -> generic fail-closed INCREMENTAL_ANALYSIS remains
+pre_baseline_outbox_count == 0
+Import-E browser readback PASS
+Import-I canonical absence PASS
+Import-J real accepted proposal IDs/groups PASS
+Import-M exact imported generation provenance PASS
+Import-N reject leaves canon/Brain unchanged
+Import-O AI_DRAFT_ACCEPT -> outbox COMPLETED -> Brain N+1
+Import-P later browser request sees N+1
 ```
 
-Do not reopen these behaviors unless the final sync exposes a concrete regression.
+### Do this now
 
-### Only remaining task — sync current main and reproduce acceptance
-
-The branch was reviewed as behind main only because the latest review directive was committed after the previous run.
-
-First fetch and merge the **current** remote main after reading this directive:
+Read the **actual latest origin/main SHA after this reminder is committed**, then:
 
 ```bash
 git fetch origin
@@ -284,134 +279,115 @@ git pull --ff-only
 git merge origin/main
 ```
 
-Resolve only genuine merge conflicts. Do not reset or drop existing work.
-
-After the merge:
+Do not hard-code `3bd6a43...` as final tested main if origin/main is newer because of this reminder. Record:
 
 ```text
-branch behind main = 0
+ACTUAL_SYNCED_MAIN_SHA = git rev-parse origin/main
 ```
 
-Commit any conflict resolution if needed.
-
-Call the exact clean product/test/runner commit after sync:
+After merge, verify:
 
 ```text
-FINAL_TESTED_CODE_SHA
+git merge-base --is-ancestor origin/main HEAD
+branch behind origin/main = 0
 ```
 
-This SHA must include the current-main ancestry, including this final directive commit.
+If the merge only brings `promt.md` review instructions and there are no product conflicts, do not modify product behavior.
 
-### Final rerun
+### Establish final code baseline
 
-From a clean tree at `FINAL_TESTED_CODE_SHA`, rerun at minimum:
+Commit the sync if Git creates a merge commit. Ensure clean tree.
+
+Then:
+
+```text
+FINAL_TESTED_CODE_SHA = git rev-parse HEAD
+```
+
+Push that code baseline before generating evidence so the SHA is remotely resolvable.
+
+### Mandatory rerun on FINAL_TESTED_CODE_SHA
+
+Run:
 
 ```text
 frontend typecheck/build
-manuscript-import deterministic contract tests
-snapshot default/outbox regression tests
-bootstrap-owned ownership tests
-bootstrap/review/baseline relevant tests
+manuscript-import contract tests
+snapshot/outbox regression tests
+bootstrap/review/baseline tests
 P1 acceptDraft/outbox regression tests
-AI gateway relevant suite
+relevant AI gateway/backend tests
 real browser Import-A through Import-P
 ```
 
-Do not weaken or skip assertions.
-
-The final browser run must still explicitly prove:
+The final browser run must preserve all previously accepted assertions, including:
 
 ```text
 pre_baseline_outbox_count == 0
-Import-E rendered browser readback after reload
-Import-I rejected proposal absent from canonical projection
-Import-J accepted_proposals_count > 0 with exact IDs/groups
-Import-M browser request uses imported chapter_id/revision_id/content_hash/current brain version
-Import-N reject leaves canon/Brain unchanged
-Import-O AI_DRAFT_ACCEPT -> outbox COMPLETED -> Brain N+1
-Import-P later browser request sends N+1
+Import-E real browser reload/readback
+Import-I rejected proposal canonical absence
+Import-J accepted_proposals_count > 0
+Import-M exact chapter_id/revision_id/content_hash/expected_brain_version
+Import-N no canonical mutation
+Import-O AI_DRAFT_ACCEPT + COMPLETED outbox + Brain N->N+1
+Import-P browser observes N+1
 ```
 
-### Final evidence lineage
+### Regenerate evidence with current ancestry
 
-Regenerate evidence from `FINAL_TESTED_CODE_SHA`.
+The old lineage:
 
-Create:
+```text
+40dc3fd -> 43f5d75 -> 47bb3cd
+```
+
+is historical only.
+
+Create new final lineage:
 
 ```text
 FINAL_TESTED_CODE_SHA
-        ↓
-FINAL_EVIDENCE_PAYLOAD_SHA
-        ↓
-optional FINAL_LINEAGE_SEAL_SHA
+    -> FINAL_EVIDENCE_PAYLOAD_SHA
+    -> optional FINAL_LINEAGE_SEAL_SHA
 ```
 
-Final evidence/report must record the **actual current main SHA used by this run**, not the stale `dce5172...`.
-
-Required top-level evidence remains:
+Evidence/report must record:
 
 ```text
-tested_main_sha
-tested_code_sha
-branch
-novel_id
-imported_chapter_ids
-imported_revision_ids
-imported_content_hashes
-pre_baseline_outbox_count
-bootstrap_job_id
-story_brain_id
-baseline_brain_version
-rejected_proposal_id
-rejected_proposal_type
-canonical_absence_proof
-accepted_proposal_ids
-accepted_proposal_group_ids
-generation1_browser_request_id
-rejected_generation_id
-accepted_generation_id
-accepted_revision_id
-outbox_event_id
-brain_version_before_accept
-brain_version_after_accept
-final_browser_request_id
-observed_final_brain_version
+tested_main_sha = ACTUAL_SYNCED_MAIN_SHA
+tested_code_sha = FINAL_TESTED_CODE_SHA
+branch = astra/manuscript-import-ui-e2e
 ```
 
-No self-referential SHA.
+plus all existing machine-readable import/proposal/generation/outbox IDs.
 
-### Final stop conditions
+Do not embed a seal commit SHA into itself.
 
-Before stopping, verify:
+### Stop condition
+
+Only after:
 
 ```text
-git status --short = clean
-branch behind main = 0
-all required local tests PASS
-browser Import-A..P PASS
-FINAL_TESTED_CODE_SHA resolves remotely
-FINAL_EVIDENCE_PAYLOAD_SHA resolves remotely
-report/evidence tested_main_sha == actual synced main
-verdict = MANUSCRIPT_IMPORT_UI_PASS
-boundary = LOCAL_PASS_CI_PENDING
+behind origin/main = 0
+working tree clean
+all deterministic tests PASS
+Import-A..P PASS
+MANUSCRIPT_IMPORT_UI_PASS
+all final SHAs resolve remotely
 ```
 
-Then push:
+push the final evidence/seal and STOP at:
 
 ```text
-astra/manuscript-import-ui-e2e
+LOCAL_PASS_CI_PENDING
 ```
 
-and STOP.
+Do not create a PR.
+Do not merge.
+Do not claim CI PASS.
+Do not touch the obsolete `UI` branch.
 
-Gemini must not:
-- create a PR;
-- merge to main;
-- modify accepted architecture without a newly observed regression;
-- claim GitHub Actions PASS;
-- touch the obsolete `UI` branch.
-
-ChatGPT owns the next step: remote review -> PR -> GitHub Actions -> merge decision -> canonical closure.
+ChatGPT will handle PR, GitHub Actions, CI-only repairs if needed, merge, and canonical closure.
 
 ---
 
