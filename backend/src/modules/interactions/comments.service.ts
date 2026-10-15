@@ -1,6 +1,6 @@
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
-import { findChapterById } from '../novels/chapters.repository.js';
+import { findReadableChapter } from '../reading/reading.repository.js';
 import { checkContent } from '../content-control/content-control.service.js';
 import type { CreateCommentInput, ListCommentsInput, UpdateCommentInput } from './comments.schemas.js';
 import {
@@ -42,7 +42,7 @@ async function moderateComment(input: {
 }
 
 export async function createComment(auth: AuthContext, chapterId: string, input: CreateCommentInput) {
-  const chapter = await findChapterById(chapterId);
+  const chapter = await findReadableChapter(chapterId);
 
   if (!chapter) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
@@ -71,7 +71,7 @@ export async function createComment(auth: AuthContext, chapterId: string, input:
 }
 
 export async function listComments(chapterId: string, input: ListCommentsInput) {
-  const chapter = await findChapterById(chapterId);
+  const chapter = await findReadableChapter(chapterId);
 
   if (!chapter) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
