@@ -1,0 +1,217 @@
+{
+  "tested_main_sha": "5fa1c929a4f5eb8c27d4e2b5ca0ccac0720b68c8",
+  "tested_code_sha": "97ef253b544cba9376ed9b491cd3064c05c56647",
+  "branch": "astra/reader-discovery-reading-state-e2e",
+  "reader_user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+  "reader_email": "reader04@example.com",
+  "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+  "novel_title": "Ashenhold - Sample Story",
+  "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+  "chapter_number": 1,
+  "chapter_title": "Chương 1: Tàn Tro Của Ashenhold",
+  "chapter_is_vip": false,
+  "checkpoints": {
+    "reader_a": {
+      "checkpoint": "Reader-A",
+      "description": "Reader logs in via rendered UI form at /login",
+      "request_id": "10372.222",
+      "status": 200,
+      "destination": "/reader",
+      "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+      "role": "READER",
+      "screenshot": "reader-a-login.png",
+      "result": "PASS"
+    },
+    "reader_b": {
+      "checkpoint": "Reader-B",
+      "description": "Search published novel 'Ashenhold' on /reader and open detail",
+      "search_request_id": "10372.224",
+      "novel_detail_request_id": "10372.225",
+      "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "novel_title": "Ashenhold - Sample Story",
+      "screenshot": "reader-b-search-detail.png",
+      "result": "PASS"
+    },
+    "reader_c": {
+      "checkpoint": "Reader-C",
+      "description": "Click 'Add library', capture POST /reading/library/me, correlate DB row",
+      "request_id": "10372.227",
+      "status": 201,
+      "target_novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "db_proof": {
+        "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+        "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "created_at": "2026-10-15T07:11:45.126455+00:00",
+        "active_bookmark_count": 1
+      },
+      "screenshot": "reader-c-add-library.png",
+      "result": "PASS"
+    },
+    "reader_d": {
+      "checkpoint": "Reader-D",
+      "description": "Navigate to /reader/library, reload, prove persisted novel in DOM & response",
+      "request_id": "10372.360",
+      "status": 200,
+      "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "novel_title": "Ashenhold - Sample Story",
+      "open_detail_target": "/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "screenshot": "reader-d-library-persisted.png",
+      "result": "PASS"
+    },
+    "reader_e": {
+      "checkpoint": "Reader-E",
+      "description": "Open free chapter, verify GET response, isVip=false, and rendered content",
+      "request_id": "10372.364",
+      "status": 200,
+      "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "chapter_number": 1,
+      "chapter_title": "Chương 1: Tàn Tro Của Ashenhold",
+      "is_vip": false,
+      "content_verified": true,
+      "screenshot": "reader-e-chapter-reading.png",
+      "result": "PASS"
+    },
+    "reader_f": {
+      "checkpoint": "Reader-F",
+      "description": "Auto-sync history PUT /reading/history/me and verify DB row",
+      "request_id": "10372.367",
+      "status": 200,
+      "target_novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "target_chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "db_proof": {
+        "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+        "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+        "paragraph_index": 0,
+        "page_offset": 0.0,
+        "read_at": "2026-10-15T07:11:49.260710+00:00",
+        "updated_at": "2026-10-15T07:11:49.260710+00:00",
+        "active_history_count": 1
+      },
+      "screenshot": "reader-f-history-sync.png",
+      "result": "PASS"
+    },
+    "reader_g": {
+      "checkpoint": "Reader-G",
+      "description": "Navigate /reader/history, reload, verify rendered novel/chapter, click Continue",
+      "request_id": "10372.500",
+      "status": 200,
+      "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "destination": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "screenshot": "reader-g-history-continue.png",
+      "result": "PASS"
+    },
+    "reader_h": {
+      "checkpoint": "Reader-H",
+      "description": "Click Remove, capture DELETE /reading/library/me/:novelId, verify absence in DOM & DB (history retained)",
+      "request_id": "10372.507",
+      "status": 204,
+      "target_novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "db_proof": {
+        "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+        "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "bookmark_row_count": 0,
+        "reading_history_retained_count": 1
+      },
+      "screenshot": "reader-h-library-removed.png",
+      "result": "PASS"
+    }
+  },
+  "login_browser_request_id": "10372.222",
+  "search_browser_request_id": "10372.224",
+  "add_library_browser_request_id": "10372.227",
+  "bookmark_created_db_proof": {
+    "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+    "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+    "created_at": "2026-10-15T07:11:45.126455+00:00",
+    "active_bookmark_count": 1
+  },
+  "library_reload_request_id": "10372.360",
+  "chapter_browser_request_id": "10372.364",
+  "history_sync_browser_request_id": "10372.367",
+  "history_db_proof": {
+    "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+    "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+    "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+    "paragraph_index": 0,
+    "page_offset": 0.0,
+    "read_at": "2026-10-15T07:11:49.260710+00:00",
+    "updated_at": "2026-10-15T07:11:49.260710+00:00",
+    "active_history_count": 1
+  },
+  "history_list_browser_request_id": "10372.500",
+  "remove_library_browser_request_id": "10372.507",
+  "bookmark_removed_db_proof": {
+    "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+    "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+    "bookmark_row_count": 0,
+    "reading_history_retained_count": 1
+  },
+  "negative_suite": {
+    "test_file": "backend/src/modules/reading/reading-lifecycle.postgres.test.ts",
+    "command": "npx tsx --test --test-reporter=tap src/modules/reading/reading-lifecycle.postgres.test.ts",
+    "exit_code": 0,
+    "result": "PASS",
+    "tests_passed": 6,
+    "tests_failed": 0,
+    "covered_invariants": [
+      "anonymous_library_rejected_401",
+      "duplicate_add_library_conflict_409",
+      "remove_nonexistent_bookmark_not_found_404",
+      "history_sync_mismatched_novel_chapter_rejected_404",
+      "history_user_scoped_isolation",
+      "non_published_novel_chapter_rejected_404"
+    ]
+  },
+  "validation": [
+    {
+      "name": "web_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "web",
+      "exit_code": 0,
+      "duration_seconds": 4.34,
+      "result": "PASS"
+    },
+    {
+      "name": "web_build",
+      "command": "npm run build",
+      "cwd": "web",
+      "exit_code": 0,
+      "duration_seconds": 13.64,
+      "result": "PASS"
+    },
+    {
+      "name": "backend_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 2.86,
+      "result": "PASS"
+    },
+    {
+      "name": "reading_lifecycle_postgres_test",
+      "command": "npx tsx --test --test-reporter=tap src/modules/reading/reading-lifecycle.postgres.test.ts",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.55,
+      "result": "PASS",
+      "tests_passed": 6,
+      "tests_failed": 0
+    },
+    {
+      "name": "backend_all_unit_and_integration_tests",
+      "command": "npm test",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.97,
+      "result": "PASS"
+    },
+    {
+      "name": "browser_reader_flow",
+      "description": "Real browser Reader-A through Reader-H CDP flow",
+      "result": "PASS"
+    }
+  ],
+  "verdict": "READER_DISCOVERY_READING_STATE_PASS"
+}
