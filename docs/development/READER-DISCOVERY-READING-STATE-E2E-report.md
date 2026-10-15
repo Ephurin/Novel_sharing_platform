@@ -3,7 +3,7 @@
 **Verdict**: `READER_DISCOVERY_READING_STATE_PASS`  
 **Tested Base Main SHA**: `5fa1c929a4f5eb8c27d4e2b5ca0ccac0720b68c8`  
 **Tested Code SHA**: `97ef253b544cba9376ed9b491cd3064c05c56647`  
-**Working Branch**: `astra/reader-discovery-reading-state-e2e`  
+**Working Branch**: `astra/reader-discovery-reading-state-e2e` — **MERGED via PR #48**  
 **Date**: `2026-10-15 07:11:57Z`  
 **Driver**: Microsoft Edge CDP over WebSocket (real browser automation)
 
@@ -122,11 +122,36 @@ Canonical evidence JSON:
 
 ---
 
-## 7. Stop Boundary State
+## 7. Remote Acceptance & Merge Closure
 
-- **Gate Status**: `LOCAL_PASS_CI_PENDING`
-- **Branch**: `astra/reader-discovery-reading-state-e2e`
-- **Working Tree**: Clean (`git status --porcelain` is empty)
-- **Tested Code Commit**: `97ef253b544cba9376ed9b491cd3064c05c56647`
-- **Evidence Push**: Complete
-- **No PR or merge to main attempted** (owned by ChatGPT).
+Local acceptance was independently exercised by the required GitHub Actions workflows on PR #48.
+
+```text
+PR:
+#48 — test(reading): close reader discovery and reading state E2E
+
+accepted PR head:
+089c1f57cb7ed8632cbd00d8b2d3e2bfa4122cb1
+
+P7 Semantic Memory Foundation:
+run #128 / 38699170011 / PASS
+
+P8 Cutover and Migration:
+run #125 / 38699169981 / PASS
+
+merge commit:
+8badd3361c8368aa351fcff249cf9c4d919685ac
+```
+
+The P8 root-compose regression passed the complete accepted AI-PIPE chain including AI-PIPE-01A, AI-PIPE-02A, AI-PIPE-02B, and AI-PIPE-03A. Frontend/API cutover, PostgreSQL integration, rollback rehearsal, and final cleanup gate also passed.
+
+Remote status:
+
+```text
+READER_DISCOVERY_READING_STATE_PASS
+CI_PASS / MERGED
+```
+
+No CI-only product repair was required for PR #48.
+
+The accepted scope remains chapter-level reading state. Paragraph/page-offset persistence was not claimed by this gate.
