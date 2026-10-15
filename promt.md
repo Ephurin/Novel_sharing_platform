@@ -16,6 +16,7 @@ AI-PIPE-03A  Bounded autonomous controller                  CI_PASS / MERGED
 MANUSCRIPT-IMPORT-UI  Canonical import -> Story Brain -> P1   CI_PASS / MERGED
 AUTHOR-PUBLISH-MODERATION  Author -> Admin -> Public lifecycle   CI_PASS / MERGED
 READER-DISCOVERY-STATE     Discovery/library/history lifecycle    CI_PASS / MERGED
+READER-SOCIAL-COMMENT-PREF Social/comment/preferences lifecycle    CI_PASS / MERGED
 
 P1_OVERALL_SYSTEM_PASS
 ```
@@ -31,6 +32,7 @@ PR #45  AI-PIPE-01B  merged
 PR #46  MANUSCRIPT-IMPORT-UI  merged
 PR #47  AUTHOR-PUBLISH-MODERATION  merged
 PR #48  READER-DISCOVERY-STATE  merged
+PR #49  READER-SOCIAL-COMMENT-PREF  merged
 ```
 
 AI-PIPE-01B remote closure:
@@ -133,7 +135,29 @@ report:
 docs/development/READER-DISCOVERY-READING-STATE-E2E-report.md
 ```
 
-Do not reopen P1/P2/P3, Manuscript Import, Author Publish/Moderation, or Reader Discovery/Reading State architecture without a concrete regression or explicitly approved new scope.
+Reader Social / Comment / Preferences remote closure:
+
+```text
+tested code:
+0b2c53f7fb4a1af6e601763ebe4bf654192a44ff
+
+accepted PR head / evidence commit:
+fcfe3f078929e6df0f0bdade02e90ab3e91aa7ba
+
+P7 Semantic Memory Foundation:
+run #129 / 38707250887 / PASS
+
+P8 Cutover and Migration:
+run #126 / 38707250954 / PASS
+
+merge:
+9e79b65c16a9c7776eefeadc3904660011e174a6
+
+report:
+docs/development/READER-SOCIAL-COMMENT-PREFERENCES-E2E-report.md
+```
+
+Do not reopen P1/P2/P3, Manuscript Import, Author Publish/Moderation, Reader Discovery/Reading State, or Reader Social/Comment/Preferences architecture without a concrete regression or explicitly approved new scope.
 
 ---
 
@@ -303,39 +327,54 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. ACTIVE EXECUTION DIRECTIVE — Reader Social + Comment + Preferences E2E
+## 5. ACTIVE EXECUTION DIRECTIVE — Comment User Report -> Admin Moderation -> Notifications E2E
 
-Reader Discovery / Library / Reading History is now CI_PASS / MERGED.
+Reader Social / Comment / Preferences is now CI_PASS / MERGED.
 
-The next bounded gate is:
-
-```text
-READER-SOCIAL-COMMENT-PREFERENCES-E2E
-```
-
-This gate proves the remaining non-wallet Reader interaction loop on already-published/free content:
+The next bounded cross-role gate is:
 
 ```text
-Reader
- -> like / unlike published novel
- -> follow / unfollow published author
- -> save reading preferences
- -> reload and prove persisted preferences are applied
- -> create clean comment
- -> edit own clean comment
- -> delete own comment
+COMMENT-USER-REPORT-ADMIN-MODERATION-E2E
 ```
+
+This gate proves the canonical user-report lifecycle for an already-approved reader comment:
+
+```text
+Reader A creates clean APPROVED comment
+ -> Reader B reports that exact comment
+ -> one USER_REPORT moderation review
+ -> Admin opens exact report review
+ -> Admin APPROVES the report
+ -> report RESOLVED
+ -> comment soft-deleted
+ -> reporter notification
+ -> comment-owner notification
+ -> comment disappears from reader list
+```
+
+Important semantics:
+
+```text
+USER_REPORT + decision=APPROVED
+= approve the REPORT
+= remove the reported comment
+
+USER_REPORT + decision=REJECTED
+= reject the REPORT
+= keep the comment
+```
+
+Do not describe these as “approve/reject the comment”.
 
 Explicitly OUT OF SCOPE:
 
 ```text
-User Report -> Admin moderation
-Wallet / deposits / VIP unlock
-Author FE static/mock metric cleanup
-AI / Story Brain architecture
+Wallet / deposit / VIP unlock
+novel/chapter/user report browser lifecycle
+keyword-filter Admin lifecycle (already covered separately)
+Author FE static/mock cleanup
+AI / Story Brain
 ```
-
-User-report moderation will be a separate cross-role gate after this one.
 
 ---
 
@@ -345,7 +384,7 @@ User-report moderation will be a separate cross-role gate after this one.
 git fetch origin
 git checkout main
 git pull --ff-only origin main
-git checkout -b astra/reader-social-comment-preferences-e2e
+git checkout -b astra/comment-user-report-admin-moderation-e2e
 ```
 
 Record:
@@ -357,143 +396,202 @@ GATE_BASE_MAIN_SHA = git rev-parse origin/main
 Working branch:
 
 ```text
-astra/reader-social-comment-preferences-e2e
+astra/comment-user-report-admin-moderation-e2e
 ```
 
 ---
 
-### Confirmed current-main production contracts
+### Confirmed current-main contracts
 
-#### Social interactions
-
-Frontend:
+Reader report API:
 
 ```text
-POST   /api/v1/novels/:novelId/likes
-DELETE /api/v1/novels/:novelId/likes/me
+POST /api/v1/reports
 
-POST   /api/v1/authors/:authorId/follow
-DELETE /api/v1/authors/:authorId/follow
+body:
+targetType = COMMENT
+targetId = commentId
+reason
+description? 
 ```
 
-Backend production path:
+Backend:
 
 ```text
-backend/src/modules/interactions/social.routes.ts
-backend/src/modules/interactions/social.service.ts
-backend/src/modules/interactions/social.repository.ts
+createUserReport()
+ -> findOpenReview(COMMENT, commentId)
+ -> reuse open review OR create moderation_review
+ -> source = USER_REPORT
+ -> create report row
+ -> response:
+      reportId
+      moderationReviewId
+      status=PENDING
 ```
 
-Existing semantics:
+Admin:
 
 ```text
-Like published novel:
- first like -> success
- duplicate -> 409 INTERACTION_001
-
-Unlike:
- existing -> success
- missing -> 404 INTERACTION_002
-
-Follow active author:
- first follow -> success
- duplicate/self-follow -> 409 INTERACTION_001
-
-Unfollow:
- existing -> success
- missing -> 404 INTERACTION_002
+GET  /api/v1/admin/moderation/reviews
+GET  /api/v1/admin/moderation/reviews/:reviewId
+POST /api/v1/admin/moderation/reviews/:reviewId/resolve
 ```
 
-#### Reading preferences
+For:
 
 ```text
-GET /api/v1/reading/preferences/me
-PUT /api/v1/reading/preferences/me
+target_type=COMMENT
+source=USER_REPORT
 ```
 
-Current UI exposes:
-- font family;
-- font size;
-- background;
-- line height;
-- rendered `Save preferences` action;
-- chapter body style derived from persisted preferences.
-
-#### Comments
+Admin decision:
 
 ```text
-GET    /api/v1/chapters/:chapterId/comments
-POST   /api/v1/chapters/:chapterId/comments
-PATCH  /api/v1/comments/:commentId
-DELETE /api/v1/comments/:commentId
+APPROVED
+ -> moderation_review.status = APPROVED
+ -> all OPEN reports on review -> RESOLVED
+ -> comment softDelete
+ -> owner notification: COMMENT_REMOVED_BY_REPORT
+ -> reporter notification: COMMENT_REPORT_APPROVED
+
+REJECTED
+ -> moderation_review.status = REJECTED
+ -> all OPEN reports on review -> REJECTED
+ -> comment remains available
+ -> owner notification: COMMENT_REPORT_REJECTED_OWNER
+ -> reporter notification: COMMENT_REPORT_REJECTED
 ```
 
-Production path:
+Notification UI:
 
 ```text
-backend/src/modules/interactions/comments.routes.ts
-backend/src/modules/interactions/comments.service.ts
-backend/src/modules/interactions/comments.repository.ts
+GET   /api/v1/notifications
+PATCH /api/v1/notifications/:notificationId/read
+
+route:
+/notifications
 ```
-
-Comment content is checked by content-control.
-
-Clean text:
-
-```text
-no active filter match
- -> status APPROVED
- -> immediately visible in approved comment list
-```
-
-Filtered text:
-
-```text
-matching active filter
- -> PENDING_MODERATION
- -> requires Admin lifecycle
-```
-
-This gate MUST use clean deterministic comment text and MUST NOT pull Admin moderation into scope.
-
-Use a unique clean comment string such as:
-
-```text
-E2E reader comment <unique suffix>
-```
-
-Do not include `harassment`, `badword`, or other seeded filter tokens.
 
 ---
 
-### Deterministic fixture
+### Confirmed gaps to inspect/fix
 
-Reuse the accepted Reader fixture from the prior gate where valid:
+#### Gap 1 — User Reports route is not wired
 
-```text
-reader:
-reader04@example.com
+`AdminModerationPage` already accepts:
 
-novel:
-Ashenhold - Sample Story
-81b923d7-5507-48ea-9a84-5303fd1de5f4
-
-free chapter:
-c660bede-0493-4a46-97f2-6d01c8ddd3db
+```tsx
+sourceFilter="USER_REPORT"
 ```
 
-Before final browser execution, verify remotely-selected local seed state:
+and renders the title `User Reports`, but current router/nav do not expose `/admin/reports`.
+
+The prior web completion plan explicitly listed `/admin/reports`.
+
+If current main still matches this inspection, wire the smallest reuse-only route:
 
 ```text
-novel.status = PUBLISHED
-chapter.status = PUBLISHED
-chapter.is_vip = false
-author exists and is active
+/admin/reports
+ -> RoleGuard ADMIN
+ -> <AdminModerationPage sourceFilter="USER_REPORT" />
 ```
 
-The runner may clean only this reader's prior like/follow/comment/preferences fixture state as deterministic test setup.
+and add one Admin nav item:
 
-Do not mutate the Author/Admin publication lifecycle.
+```text
+User Reports
+```
+
+Do NOT create a second moderation component.
+
+#### Gap 2 — Admin USER_REPORT decision copy is semantically wrong
+
+Current generic detail copy says approximately:
+
+```text
+Approve -> related content remains available/approved
+Reject -> comment targets propagated to rejected status
+```
+
+That is wrong for `source=USER_REPORT`.
+
+For USER_REPORT comment review, rendered confirmation must explicitly communicate:
+
+```text
+Approve report
+ -> reported comment will be removed
+
+Reject report
+ -> reported comment will be kept
+```
+
+Keyword-filter review semantics must remain unchanged.
+
+Prefer source-aware labels/descriptions, e.g.:
+
+```text
+Approve report
+Reject report
+```
+
+Do not change backend decision enum values.
+
+#### Gap 3 — Report target validation
+
+Current `createUserReport()` creates/reuses a review and creates a report without first proving a COMMENT target exists and is reportable.
+
+For this gate, a COMMENT report must fail closed if the target:
+- does not exist;
+- is already deleted;
+- belongs to non-reader-visible unpublished content if such state can be reached.
+
+Use the canonical comment/readability repositories; do not add a test-only endpoint.
+
+Keep this change bounded to COMMENT targets unless a tiny shared validator cleanly supports all report target types.
+
+#### Gap 4 — Duplicate OPEN reports by same reporter
+
+The current migration has no uniqueness constraint for:
+
+```text
+reporter_id + target_type + target_id + OPEN
+```
+
+and `createUserReport()` does not visibly prevent the same reporter from creating unlimited duplicate OPEN rows for the same target.
+
+Required behavior:
+
+```text
+same reporter + same target + unresolved/open report
+must NOT create unbounded duplicate OPEN rows
+```
+
+Accept either:
+- fail closed with an explicit 409; or
+- idempotently return/reuse the existing open report.
+
+Pick the smallest behavior consistent with existing error conventions and document it.
+
+Distinct reporters MAY share the same open moderation review and each have one report row; this is desirable because `reportCount` aggregates reports on one review.
+
+If a migration/index is needed, make it partial to unresolved/open state so historical resolved reports do not block future legitimate reports.
+
+---
+
+### Deterministic fixtures
+
+Use three distinct deterministic identities:
+
+```text
+comment owner: READER
+reporter:      READER
+moderator:     ADMIN
+```
+
+Prefer existing demo seed accounts. Verify:
+- owner user ID != reporter user ID;
+- reporter user ID != admin user ID;
+- roles are correct.
 
 Password must come from:
 
@@ -501,262 +599,326 @@ Password must come from:
 EPHURIN_E2E_DEMO_PASSWORD
 ```
 
-No committed password/token literals and no token/storage auth injection.
+No password/token literals or auth-store injection.
+
+Reuse the deterministic published/free Ashenhold fixture when still valid:
+
+```text
+novel:
+81b923d7-5507-48ea-9a84-5303fd1de5f4
+
+chapter:
+c660bede-0493-4a46-97f2-6d01c8ddd3db
+```
+
+Before run verify:
+- novel PUBLISHED;
+- chapter PUBLISHED;
+- chapter non-VIP/free;
+- chapter readable through Reader UI.
+
+Use a unique CLEAN comment string with no filter keywords.
 
 ---
 
 ### Phase A — inspect before editing
 
-Inspect:
+Inspect at minimum:
 
 ```text
+web/src/app/router.tsx
+web/src/app/layout/WebAppShell.tsx
 web/src/features/reader/ReaderPage.tsx
 web/src/features/reader/reader-api.ts
+web/src/features/admin/AdminPage.tsx
+web/src/features/admin/admin-api.ts
+web/src/features/notifications/NotificationsPage.tsx
+web/src/features/notifications/notification-api.ts
 
-backend/src/modules/interactions/social.routes.ts
-backend/src/modules/interactions/social.service.ts
-backend/src/modules/interactions/social.repository.ts
-
-backend/src/modules/interactions/comments.routes.ts
-backend/src/modules/interactions/comments.service.ts
-backend/src/modules/interactions/comments.repository.ts
-
-backend/src/modules/reading/reading.routes.ts
-backend/src/modules/reading/reading.service.ts
-backend/src/modules/reading/reading.repository.ts
-
+backend/src/modules/content-control/content-control.routes.ts
+backend/src/modules/content-control/content-control.schemas.ts
 backend/src/modules/content-control/content-control.service.ts
+backend/src/modules/content-control/content-control.repository.ts
+backend/src/modules/interactions/comments.repository.ts
+backend/src/modules/interactions/notifications.repository.ts
+backend/src/modules/interactions/notifications.service.ts
+backend/src/core/database/migrations/004_content_control.sql
 ```
 
-If behavior already closes the loop, do not manufacture product changes.
+Do not manufacture unrelated refactors.
 
-Adding stable `data-testid` selectors is acceptable where necessary.
-
-If a real browser run exposes stale/incorrect interaction state, fix the smallest production defect and rerun.
+Stable `data-testid` additions are acceptable.
 
 ---
 
-### Phase B — real browser checkpoints
+### Phase B — browser lifecycle
 
-All decisive mutations must originate from rendered UI.
+All decisive user actions must originate from rendered UI.
 
 Required checkpoints:
 
 ```text
-Interact-A — login as READER via rendered login
-Interact-B — open exact published novel detail, Like, DB/readback proves like
-Interact-C — Unlike, DB/readback proves removal
-Interact-D — Follow exact author, DB/follower readback proves follow; then Unfollow proves removal
-Interact-E — open exact free chapter, change reading preferences and Save; reload proves persisted values/style
-Interact-F — create unique clean comment; response status APPROVED; rendered list + DB prove ownership/content
-Interact-G — Edit own comment through rendered UI; response remains APPROVED; reload/readback proves updated content
-Interact-H — Delete own comment through rendered UI; reload/readback + DB prove soft-deleted/absent
+Report-A — Owner Reader UI login; create exact clean APPROVED comment
+Report-B — Owner real UI logout; Reporter Reader UI login
+Report-C — Reporter opens exact chapter and reports exact comment
+Report-D — DB/API prove one OPEN report + one PENDING USER_REPORT review for exact comment
+Report-E — Reporter real UI logout; Admin UI login; open /admin/reports and exact pending review
+Report-F — Admin detail proves source USER_REPORT, target COMMENT, reportCount; source-aware confirmation copy
+Report-G — Admin clicks "Approve report" through rendered UI
+Report-H — reload/DB prove review APPROVED, report RESOLVED, exact comment soft-deleted
+Report-I — Reporter logs in -> /notifications shows COMMENT_REPORT_APPROVED
+Report-J — Owner logs in -> /notifications shows COMMENT_REMOVED_BY_REPORT; chapter reload proves comment absent
 ```
 
-#### Interact-A
+#### Report-A — create target comment
 
-Normal UI login only.
+Owner logs in through rendered form and opens exact free chapter.
 
-Prove:
-
-```text
-role = READER
-authenticated shell visible
-```
-
-#### Interact-B — Like
-
-Navigate via rendered Reader UI to the deterministic novel detail.
-
-Clean test fixture state first so reader has no existing like.
-
-Click rendered `Like`.
-
-Capture:
-
-```text
-POST /api/v1/novels/:novelId/likes
-HTTP success
-response.liked = true
-```
-
-DB/readback:
-
-```text
-exact reader_id
-exact novel_id
-exactly one active like
-```
-
-If response contains `likesCount`, correlate it to repository count.
-
-Do not require the existing stats badge to update unless production code actually refetches it. If the UI claims an updated count but displays a stale/incorrect count, classify and fix that concrete defect.
-
-#### Interact-C — Unlike
-
-Click rendered `Unlike`.
-
-Capture:
-
-```text
-DELETE /api/v1/novels/:novelId/likes/me
-HTTP success
-response.liked = false
-```
-
-DB proves reader/novel like absent.
-
-#### Interact-D — Follow/Unfollow
-
-Use exact `novel.authorId`.
-
-Click `Follow`.
-
-Capture exact POST and DB row:
-
-```text
-follower_id = reader
-author_id = target author
-```
-
-Use:
-
-```text
-GET /api/v1/authors/:authorId/followers/count
-```
-
-or direct DB correlation to prove count/state.
-
-Then click `Unfollow`, capture DELETE, prove row absent.
-
-Do not use the Reader's own user as target author.
-
-#### Interact-E — Reading preferences
-
-Open exact free chapter.
-
-Record original preferences.
-
-Through rendered controls, set a deterministic alternative combination that differs from the original, for example:
-
-```text
-fontFamily = Georgia
-fontSize = 20
-background = SEPIA
-lineHeight = 1.9
-```
-
-If any value already equals the target, choose another valid value so a real mutation occurs.
-
-Click rendered:
-
-```text
-Save preferences
-```
-
-Capture:
-
-```text
-PUT /api/v1/reading/preferences/me
-```
-
-Reload the chapter.
-
-Prove:
-
-```text
-GET preferences returns saved values
-controls read back saved values
-chapter prose rendered style reflects saved preferences
-DB row matches
-```
-
-At final cleanup, restore the original fixture preferences if practical. Restoration is test cleanup, not an acceptance checkpoint.
-
-#### Interact-F — Create clean comment
-
-Use a unique content string with no seeded moderation keyword.
-
-Click rendered `Submit comment`.
+Create a unique clean comment through the rendered comment UI.
 
 Capture:
 
 ```text
 POST /api/v1/chapters/:chapterId/comments
-commentId = real UUID
 status = APPROVED
 moderationReviewId = null
 ```
 
-If it returns `PENDING_MODERATION`, fail:
+Record exact `commentId`.
 
-```text
-COMMENT_FIXTURE_UNEXPECTEDLY_FILTERED
-```
+Mongo correlation:
+- exact owner userId;
+- exact chapterId;
+- exact content;
+- status APPROVED;
+- not deleted.
 
-Do not continue by involving Admin.
+Do not preinsert the accepted target comment directly in Mongo.
 
-After query invalidation/reload prove:
-- exact comment appears in rendered approved list;
-- exact content appears;
-- exact user owns it;
-- DB status = APPROVED;
-- deleted_at is null if repository uses soft deletion.
+#### Report-B — role transition
 
-#### Interact-G — Edit own comment
+Click canonical rendered Logout.
 
-Use rendered `Edit` -> modify to a second unique clean string -> `Save`.
+Reporter logs in via rendered login form.
 
-Capture PATCH:
+No storage/token shortcut.
 
-```text
-PATCH /api/v1/comments/:commentId
-status = APPROVED
-moderationReviewId = null
-```
+#### Report-C — report exact comment
 
-Reload/comments readback must show updated content, old content absent.
+Reporter opens the same chapter.
 
-#### Interact-H — Delete own comment
+Prove the exact `commentId`/content is rendered.
 
-Click rendered `Delete`.
+Click that exact comment's `Report` action.
 
 Capture:
 
 ```text
-DELETE /api/v1/comments/:commentId
+POST /api/v1/reports
+targetType = COMMENT
+targetId = exact commentId
+HTTP success
+reportId = real UUID
+moderationReviewId = real UUID
+status = PENDING
 ```
 
-Reload.
+The browser-visible UI must show report submission success.
+
+#### Report-D — persistence correlation
+
+PostgreSQL must prove:
+
+```text
+reports.report_id = response.reportId
+reports.reporter_id = reporter user
+reports.target_type = COMMENT
+reports.target_id = exact commentId
+reports.status = OPEN
+
+moderation_reviews.review_id = response.moderationReviewId
+moderation_reviews.target_type = COMMENT
+moderation_reviews.target_id = exact commentId
+moderation_reviews.source = USER_REPORT
+moderation_reviews.status = PENDING
+```
+
+Exact open report count for this reporter/target = 1.
+
+#### Report-E — Admin User Reports surface
+
+Reporter clicks rendered Logout.
+
+Admin logs in via rendered login form.
+
+Use rendered Admin navigation to open:
+
+```text
+/admin/reports
+```
+
+This route must be source-filtered to `USER_REPORT`.
+
+Capture:
+
+```text
+GET /api/v1/admin/moderation/reviews?...source=USER_REPORT...
+```
+
+Exact `moderationReviewId` must be visible.
+
+Do not satisfy this checkpoint with an unrelated pending review.
+
+#### Report-F — exact detail + semantic copy
+
+Open:
+
+```text
+/admin/moderation/:reviewId
+```
+
+Prove rendered detail:
+
+```text
+targetType = COMMENT
+targetId = exact commentId
+source = USER_REPORT
+status = PENDING
+Reports = 1
+```
+
+The decision UI must visibly communicate:
+
+```text
+Approve report -> remove reported comment
+Reject report -> keep reported comment
+```
+
+If it still says content remains available on approve, classify:
+
+```text
+BROKEN_USER_REPORT_ADMIN_COPY
+```
+
+and fix before continuing.
+
+#### Report-G — approve report
+
+Click rendered `Approve report`.
+
+Use the rendered confirmation modal.
+
+Capture:
+
+```text
+POST /api/v1/admin/moderation/reviews/:reviewId/resolve
+
+body.decision = APPROVED
+```
+
+This means “approve the report”, not “approve the comment”.
+
+#### Report-H — resolution persistence
+
+Reload Admin detail/queue.
+
+PostgreSQL:
+
+```text
+moderation_reviews.status = APPROVED
+reviewed_by = admin
+reviewed_at != null
+
+reports.status = RESOLVED
+reports.resolved_by = admin
+reports.resolved_at != null
+```
+
+Mongo comment:
+
+```text
+status = DELETED
+deletedAt != null
+```
+
+Pending USER_REPORT queue must no longer include exact review.
+
+#### Report-I — reporter notification
+
+Admin real UI logout.
+
+Reporter real UI login.
+
+Open rendered:
+
+```text
+/notifications
+```
+
+Capture `GET /api/v1/notifications`.
+
+Prove an exact notification tied by payload to the review/report/comment:
+
+```text
+type = COMMENT_REPORT_APPROVED
+userId = reporter
+payload.reviewId = exact reviewId
+payload.commentId = exact commentId
+```
+
+Rendered UI must show it.
+
+Mark-read behavior is optional for this gate; do not expand scope solely for it.
+
+#### Report-J — owner notification + content consequence
+
+Reporter real UI logout.
+
+Owner real UI login.
+
+Open `/notifications`.
 
 Prove:
-- comment absent from approved list;
-- DB row is deleted/soft-deleted according to canonical repository behavior;
-- another unrelated comment is not used to satisfy the assertion.
+
+```text
+type = COMMENT_REMOVED_BY_REPORT
+userId = owner
+payload.reviewId = exact reviewId
+payload.commentId = exact commentId
+```
+
+Then open/reload exact chapter.
+
+Prove the exact comment content/id is absent from approved rendered comments.
 
 ---
 
-### Phase C — negative/idempotency checks
+### Phase C — deterministic integrity checks
 
-Add/execute the smallest production-path deterministic assertions proving:
+Add/execute focused production-path tests proving at least:
 
 ```text
-1. anonymous like/follow/comment mutations are rejected by auth
-2. duplicate like -> 409 INTERACTION_001
-3. unlike without existing like -> 404 INTERACTION_002
-4. duplicate follow -> 409 INTERACTION_001
-5. unfollow without existing follow -> 404 INTERACTION_002
-6. reader cannot edit/delete another user's comment -> 403 AUTH_008
-7. clean comment -> APPROVED without moderation review
-8. filtered comment -> PENDING_MODERATION with review ID
-9. commenting on non-reader-visible/non-published chapter must fail closed;
-   if current production service accepts it, classify BROKEN_CONTRACT and repair minimally
-10. reading preferences are user-scoped
+1. anonymous POST /reports -> 401
+2. non-Admin cannot access/resolve Admin moderation review -> 403
+3. COMMENT report against nonexistent target fails closed
+4. COMMENT report against deleted target fails closed
+5. same reporter cannot create multiple unresolved OPEN reports for same comment
+6. two distinct reporters on same comment reuse ONE open moderation review and produce reportCount=2
+7. approving USER_REPORT:
+     review -> APPROVED
+     reports -> RESOLVED
+     comment -> DELETED
+8. rejecting USER_REPORT:
+     review -> REJECTED
+     reports -> REJECTED
+     comment remains APPROVED/not deleted
+9. approve notification types/payloads are correct for owner and reporter
+10. reject notification types/payloads are correct for owner and reporter
+11. duplicate resolve of resolved review -> 409
+12. keyword-filter COMMENT moderation semantics remain unchanged
 ```
 
-The filtered-comment negative check may use service-level deterministic test data. It must not invoke browser/Admin moderation.
-
-Do not add user-report resolution tests here.
+Do not browser-run the reject branch unless needed to expose/fix UI behavior; service/integration coverage is sufficient.
 
 ---
 
@@ -765,49 +927,54 @@ Do not add user-report resolution tests here.
 Create:
 
 ```text
-docs/development/READER-SOCIAL-COMMENT-PREFERENCES-E2E-report.md
+docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E-report.md
 
-docs/development/READER-SOCIAL-COMMENT-PREFERENCES-E2E/
-  reader-social-comment-preferences-e2e-evidence.json
-  Interact-A..H screenshots
+docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E/
+  comment-user-report-admin-moderation-e2e-evidence.json
+  Report-A..J screenshots
 ```
 
-Evidence must include:
+Evidence must include at least:
 
 ```text
 tested_main_sha
 tested_code_sha
 branch
 
-reader_user_id
-reader_email
+owner_user_id
+reporter_user_id
+admin_user_id
+
 novel_id
-author_id
 chapter_id
+comment_id
+comment_original_content
 
-login_browser_request_id
-like_request_id
-unlike_request_id
-follow_request_id
-unfollow_request_id
-preferences_save_request_id
 comment_create_request_id
-comment_update_request_id
-comment_delete_request_id
+report_create_request_id
+report_id
+moderation_review_id
+admin_review_list_request_id
+admin_review_detail_request_id
+admin_resolve_request_id
 
-like_db_proof
-follow_db_proof
-preferences_db_proof
-comment_create_db_proof
-comment_update_db_proof
-comment_delete_db_proof
+report_db_before
+review_db_before
+report_db_after
+review_db_after
+comment_db_before
+comment_db_after
+
+reporter_notification_id
+owner_notification_id
+notification_db_proof
 
 negative_suite
 validation
 verdict
 ```
 
-Do not store passwords, tokens, cookies, or unrelated private data.
+No passwords, tokens, cookies, or unrelated private data.
 
 ---
 
@@ -819,18 +986,18 @@ Run at minimum:
 web typecheck
 web build
 backend typecheck
-focused social/comments/reading PostgreSQL tests
+focused content-control/comments/notifications PostgreSQL+Mongo tests
 backend regression suite if production code changed
-real browser Interact-A..H
+real browser Report-A..J
 ```
 
 Final local verdict:
 
 ```text
-READER_SOCIAL_COMMENT_PREFERENCES_PASS
+COMMENT_USER_REPORT_ADMIN_MODERATION_PASS
 ```
 
-only when Interact-A..H and Phase C invariants pass.
+only when Report-A..J and Phase C pass.
 
 ---
 
@@ -843,9 +1010,9 @@ branch behind main = 0
 git status clean
 final tested SHA pushed
 evidence generated from final tested SHA
-Interact-A..H PASS
-credentials/tokens absent from evidence
-READER_SOCIAL_COMMENT_PREFERENCES_PASS
+Report-A..J PASS
+credentials/tokens absent
+COMMENT_USER_REPORT_ADMIN_MODERATION_PASS
 LOCAL_PASS_CI_PENDING
 ```
 
@@ -854,10 +1021,10 @@ Push and STOP.
 Gemini must not:
 - create PR;
 - merge;
-- execute user-report/Admin moderation lifecycle;
 - implement Wallet/VIP/deposit;
-- fix unrelated Author static/mock metrics;
-- reopen AI/Story Brain architecture;
+- broaden browser scope to novel/chapter/user reports;
+- reopen accepted Reader/Author/AI gates;
+- fix unrelated FE hardcoded metrics;
 - claim GitHub Actions PASS.
 
 ChatGPT owns remote review, PR, CI, and merge.
