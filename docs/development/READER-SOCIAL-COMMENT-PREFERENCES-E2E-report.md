@@ -3,7 +3,7 @@
 **Verdict**: `READER_SOCIAL_COMMENT_PREFERENCES_PASS`  
 **Tested Base Main SHA**: `45e3c06de6076edb26e9f39a2917c68e8dde6133`  
 **Tested Code SHA**: `0b2c53f7fb4a1af6e601763ebe4bf654192a44ff`  
-**Working Branch**: `astra/reader-social-comment-preferences-e2e`  
+**Working Branch**: `astra/reader-social-comment-preferences-e2e` — **MERGED via PR #49**  
 **Date**: `2026-10-15 08:11:37Z`  
 **Driver**: Microsoft Edge CDP over WebSocket (real browser automation)
 
@@ -128,11 +128,36 @@ Canonical evidence JSON:
 
 ---
 
-## 7. Stop Boundary State
+## 7. Remote Acceptance & Merge Closure
 
-- **Gate Status**: `LOCAL_PASS_CI_PENDING`
-- **Branch**: `astra/reader-social-comment-preferences-e2e`
-- **Working Tree**: Clean (`git status --porcelain` is empty)
-- **Tested Code Commit**: `0b2c53f7fb4a1af6e601763ebe4bf654192a44ff`
-- **Evidence Push**: Complete
-- **No PR or merge to main attempted** (owned by ChatGPT).
+Local acceptance was independently exercised by the required GitHub Actions workflows on PR #49.
+
+```text
+PR:
+#49 — feat(interactions): close reader social comment preferences lifecycle
+
+accepted PR head:
+fcfe3f078929e6df0f0bdade02e90ab3e91aa7ba
+
+P7 Semantic Memory Foundation:
+run #129 / 38707250887 / PASS
+
+P8 Cutover and Migration:
+run #126 / 38707250954 / PASS
+
+merge commit:
+9e79b65c16a9c7776eefeadc3904660011e174a6
+```
+
+The P8 root-compose regression passed the complete accepted AI-PIPE chain including AI-PIPE-01A, AI-PIPE-02A, AI-PIPE-02B, and AI-PIPE-03A. Frontend/API cutover, PostgreSQL integration, rollback rehearsal, and final cleanup gate also passed.
+
+Remote status:
+
+```text
+READER_SOCIAL_COMMENT_PREFERENCES_PASS
+CI_PASS / MERGED
+```
+
+No CI-only product repair was required for PR #49.
+
+The reader-visible comment boundary fix remains accepted: create/list comments use `findReadableChapter()`, so non-published chapter/novel targets fail closed.
