@@ -257,6 +257,38 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ## 5. EXECUTE NOW — Product UI Integration Inventory
 
+### Remote execution reminder
+
+ChatGPT re-checked the remote repository before this assignment:
+
+```text
+latest main before this reminder:
+a21e9ac2e4165adaa0f38e38f857a5fd27e6301b
+
+expected working branch:
+astra/product-ui-integration-inventory
+
+remote branch:
+NOT CREATED YET
+
+required report:
+docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.md
+
+remote report:
+NOT PRESENT YET
+```
+
+Start this gate now. After this reminder is committed, fetch the actual latest `origin/main`; do not hard-code the SHA above as the inventory base if main has advanced.
+
+Create and work only on:
+
+```text
+astra/product-ui-integration-inventory
+```
+
+This remains an **inventory/reconnaissance-only gate**. Do not implement the selected next product gate yet.
+
+
 This is an inventory/reconnaissance gate, not an implementation phase.
 
 ### Start from the actual latest main
