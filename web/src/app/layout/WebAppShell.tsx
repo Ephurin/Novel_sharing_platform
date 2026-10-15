@@ -53,7 +53,12 @@ export function WebAppShell() {
           <Text size="sm" c="dimmed">
             {user?.username ?? 'session restored'}
           </Text>
-          <Button size="xs" variant="subtle" onClick={() => void handleLogout()}>
+          <Button
+            size="xs"
+            variant="subtle"
+            data-testid="shell-logout-btn"
+            onClick={() => void handleLogout()}
+          >
             Logout
           </Button>
         </Group>

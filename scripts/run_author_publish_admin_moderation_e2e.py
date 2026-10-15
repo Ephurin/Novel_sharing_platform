@@ -5,7 +5,7 @@ Checkpoints: Publish-A through Publish-H + Phase C negative invariants
 
 Drives real DOM interactions via Microsoft Edge CDP over WebSocket,
 captures network responses, performs database correlation, records full-resolution
-screenshots, and outputs canonical evidence JSON and report.
+screenshots, executes validation manifest, and outputs canonical evidence JSON and report.
 """
 
 import asyncio
@@ -36,17 +36,24 @@ os.makedirs(EVIDENCE_DIR, exist_ok=True)
 
 EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
-# Credentials
+# Credentials from environment variable (hygiene discipline: no committed secrets)
+DEMO_PASSWORD = os.environ.get("EPHURIN_E2E_DEMO_PASSWORD")
+if not DEMO_PASSWORD:
+    raise RuntimeError(
+        "Missing required environment variable EPHURIN_E2E_DEMO_PASSWORD. "
+        "Please set EPHURIN_E2E_DEMO_PASSWORD before running this E2E runner."
+    )
+
 AUTHOR_EMAIL = "reader03@example.com"
-AUTHOR_PASSWORD = "StrongPassword123!"
+AUTHOR_PASSWORD = DEMO_PASSWORD
 AUTHOR_USER_ID = "51ca9a66-d798-4f6c-8518-11c085678e4f"
 
 ADMIN_EMAIL = "reader02@example.com"
-ADMIN_PASSWORD = "StrongPassword123!"
+ADMIN_PASSWORD = DEMO_PASSWORD
 ADMIN_USER_ID = "bcedd10c-340e-4e37-9c24-ce86ccb6663c"
 
 READER_EMAIL = "reader04@example.com"
-READER_PASSWORD = "StrongPassword123!"
+READER_PASSWORD = DEMO_PASSWORD
 READER_USER_ID = "077e20a2-e26d-466a-bf3a-1811d037df50"
 
 MODERATION_TRIGGER = "harassment"
@@ -210,6 +217,7 @@ class CDPBrowser:
         """)
 
     async def clear_auth(self):
+        # Post-acceptance test-process cleanup only
         await self.evaluate("""
             (() => {
                 localStorage.clear();
@@ -230,8 +238,88 @@ def get_git_info() -> Dict[str, str]:
         return res.stdout.strip()
     return {
         "head_sha": run_git("rev-parse HEAD"),
-        "base_main_sha": "2c288273c0d11f73c6e1f75e5188d43152b57dfc",
+        "base_main_sha": run_git("rev-parse origin/main"),
         "branch": run_git("rev-parse --abbrev-ref HEAD")
+    }
+
+
+def run_command(name: str, cmd: str, cwd: str) -> Dict[str, Any]:
+    print(f"\n[Validation] Running '{name}': {cmd}...")
+    start_t = time.time()
+    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
+    duration = round(time.time() - start_t, 2)
+    output = res.stdout + ("\n" + res.stderr if res.stderr else "")
+
+    passed_cnt = None
+    failed_cnt = None
+    for line in output.splitlines():
+        if line.startswith("# pass ") or line.startswith("ℹ pass "):
+            try:
+                passed_cnt = int(line.split()[-1])
+            except ValueError:
+                pass
+        elif line.startswith("# fail ") or line.startswith("ℹ fail "):
+            try:
+                failed_cnt = int(line.split()[-1])
+            except ValueError:
+                pass
+
+    is_pass = (res.returncode == 0) and (failed_cnt is None or failed_cnt == 0)
+    result_status = "PASS" if is_pass else "FAIL"
+    entry: Dict[str, Any] = {
+        "name": name,
+        "command": cmd,
+        "cwd": os.path.relpath(cwd, REPO_ROOT),
+        "exit_code": res.returncode,
+        "duration_seconds": duration,
+        "result": result_status
+    }
+    if passed_cnt is not None:
+        entry["tests_passed"] = passed_cnt
+    if failed_cnt is not None:
+        entry["tests_failed"] = failed_cnt
+    print(f"  Result: {result_status} (exit={res.returncode}, time={duration}s)")
+    assert is_pass, f"Validation command '{name}' failed! Output:\n{output[:1000]}"
+    return entry
+
+
+def run_negative_suite() -> Dict[str, Any]:
+    print("\n" + "=" * 60)
+    print("[Negative Suite] Executing PostgreSQL moderation lifecycle invariants...")
+    print("=" * 60)
+    cmd = "npx tsx --test --test-reporter=tap src/modules/content-control/author-publish-moderation-lifecycle.postgres.test.ts"
+    backend_dir = os.path.join(REPO_ROOT, "backend")
+    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=backend_dir)
+    print(f"Exit code: {res.returncode}")
+    print(res.stdout)
+    if res.stderr:
+        print(f"Stderr: {res.stderr}")
+
+    tests_passed = 0
+    tests_failed = 0
+    for line in res.stdout.splitlines():
+        if line.startswith("# pass ") or line.startswith("ℹ pass "):
+            tests_passed = int(line.split()[-1])
+        elif line.startswith("# fail ") or line.startswith("ℹ fail "):
+            tests_failed = int(line.split()[-1])
+
+    is_pass = (res.returncode == 0) and (tests_passed == 5) and (tests_failed == 0)
+    assert is_pass, f"Negative suite failed! Returncode={res.returncode}, passed={tests_passed}, failed={tests_failed}"
+
+    return {
+        "test_file": "backend/src/modules/content-control/author-publish-moderation-lifecycle.postgres.test.ts",
+        "command": cmd,
+        "exit_code": res.returncode,
+        "result": "PASS" if is_pass else "FAIL",
+        "tests_passed": tests_passed,
+        "tests_failed": tests_failed,
+        "covered_invariants": [
+            "role_guard_reader_author_forbidden_403",
+            "duplicate_resolve_fails_closed_409",
+            "already_published_novel_resubmit_fails_409",
+            "target_idempotent_no_duplicate_pending_reviews",
+            "unrelated_review_cannot_satisfy_target"
+        ]
     }
 
 
@@ -243,9 +331,37 @@ async def main():
     git_info = get_git_info()
     print(f"Branch: {git_info['branch']}")
     print(f"HEAD SHA: {git_info['head_sha']}")
-    print(f"Base Main SHA: {git_info['base_main_sha']}")
+    print(f"Synced Main SHA: {git_info['base_main_sha']}")
 
-    # 0. Pre-run check: verify active keyword rule in PostgreSQL
+    # 1. Execute Validation Manifest Commands
+    print("\n" + "=" * 60)
+    print("EXECUTING LOCAL VALIDATION MANIFEST")
+    print("=" * 60)
+    validation_records: List[Dict[str, Any]] = []
+
+    web_dir = os.path.join(REPO_ROOT, "web")
+    backend_dir = os.path.join(REPO_ROOT, "backend")
+
+    validation_records.append(run_command("web_typecheck", "npm run typecheck", web_dir))
+    validation_records.append(run_command("web_build", "npm run build", web_dir))
+    validation_records.append(run_command("backend_typecheck", "npm run typecheck", backend_dir))
+    validation_records.append(run_command(
+        "author_publish_moderation_lifecycle_postgres_test",
+        "npx tsx --test --test-reporter=tap src/modules/content-control/author-publish-moderation-lifecycle.postgres.test.ts",
+        backend_dir
+    ))
+    validation_records.append(run_command(
+        "backend_novels_content_control_tests",
+        "npx tsx --test src/modules/novels/chapter-revisions.test.ts src/modules/novels/outbox.postgres.test.ts src/modules/novels/p1-production-persistence.postgres.test.ts src/modules/content-control/author-publish-moderation-lifecycle.postgres.test.ts",
+        backend_dir
+    ))
+    validation_records.append(run_command(
+        "backend_all_unit_and_integration_tests",
+        "npm test",
+        backend_dir
+    ))
+
+    # 2. Pre-run check: verify active keyword rule in PostgreSQL
     print("\n[Pre-check] Verifying active keyword filter rules in PostgreSQL...")
     with psycopg.connect(DB_URL) as conn:
         with conn.cursor() as cur:
@@ -259,7 +375,7 @@ async def main():
             assert rule_status == "ACTIVE", f"Rule '{rule_pattern}' is not ACTIVE (status={rule_status})!"
             print(f"  Verified active rule: ID={filter_rule_id}, Name='{rule_name}', Pattern='{rule_pattern}', Severity='{rule_severity}'")
 
-    # Launch Edge headless on dedicated port 9335
+    # 3. Launch Edge headless on dedicated port 9335
     DEBUG_PORT = 9335
     user_data_dir = os.path.join(tempfile.gettempdir(), f"edge-moderation-e2e-{uuid.uuid4().hex[:8]}")
     edge_proc = subprocess.Popen([
@@ -513,22 +629,53 @@ async def main():
         print("  [Publish-C PASS] Publish submitted; PENDING_MODERATION and review verified in UI and DB.")
 
         # =================================================================
-        # Publish-D: Author logs out; Admin logs in via UI
+        # Publish-D: Author logs out via rendered UI; Admin logs in via UI
         # =================================================================
         print("\n" + "=" * 60)
-        print("[Publish-D] Session transition: Logout Author -> Login Admin via UI")
+        print("[Publish-D] Session transition: Rendered Logout (Author) -> Rendered Login (Admin)")
         print("=" * 60)
 
-        # Clear session
-        await browser.clear_auth()
-        await browser.navigate(f"{WEB_URL}/login")
-        await browser.wait_for_condition("document.querySelector('input') !== null", 10.0)
+        # Navigate to /author where WebAppShell is active with topbar Logout button
+        print("  Navigating to /author to access authenticated WebAppShell...")
+        await browser.navigate(f"{WEB_URL}/author")
+        await browser.wait_for_condition("document.querySelector('[data-testid=\"shell-logout-btn\"], button') !== null", 15.0)
+        await asyncio.sleep(1.0)
 
-        # Login as Admin
+        # Author clicks rendered Logout button
+        print("  Author clicking rendered 'Logout' button in WebAppShell...")
+        browser.network_events.clear()
+        await browser.click_element("[data-testid='shell-logout-btn']")
+
+        # Capture /auth/logout network call if observable
+        author_logout_request_id = None
+        try:
+            logout_resp = await browser.wait_for_response("/auth/logout", timeout=8.0)
+            author_logout_request_id = logout_resp.get("requestId")
+            print(f"  Captured author logout request ID: {author_logout_request_id}")
+        except Exception as e:
+            print(f"  Logout request not captured via CDP: {e}")
+
+        # Wait for redirect to /login and verify shell disappeared
+        await browser.wait_for_condition("window.location.pathname.includes('/login')", 15.0)
+        await browser.wait_for_condition("document.querySelector('.web-shell') === null", 10.0)
+        await asyncio.sleep(1.0)
+        author_logout_dest = await browser.evaluate("window.location.pathname")
+        shell_disappeared = await browser.evaluate("document.querySelector('.web-shell') === null")
+        assert shell_disappeared, "Authenticated shell must disappear after author logout"
+        print(f"  Author logged out -> Destination: {author_logout_dest}, shell disappeared: {shell_disappeared}")
+
+        # Admin logs in via rendered UI form
+        print("  Admin filling rendered login form on /login...")
+        browser.network_events.clear()
         await browser.set_input("input[type='text'], input[placeholder*='Email'], input:not([type='password'])", ADMIN_EMAIL)
         await browser.set_input("input[type='password']", ADMIN_PASSWORD)
         await asyncio.sleep(0.3)
         await browser.click_button_by_text("Login")
+
+        # Capture /auth/login network response
+        admin_login_resp = await browser.wait_for_response("/auth/login", timeout=15.0)
+        admin_login_request_id = admin_login_resp.get("requestId")
+        print(f"  Captured admin login request ID: {admin_login_request_id}")
 
         # Wait for redirect to /admin
         await browser.wait_for_condition("window.location.pathname.includes('/admin')", 15.0)
@@ -539,13 +686,19 @@ async def main():
         assert "Admin" in admin_header or "Console" in admin_header
 
         screenshot_d = await browser.screenshot("publish-d-admin-login.png")
+        evidence["author_logout_browser_request_id"] = author_logout_request_id
+        evidence["author_logout_destination"] = author_logout_dest
+        evidence["admin_login_browser_request_id"] = admin_login_request_id
         evidence["checkpoints"]["Publish-D"] = {
             "status": "PASS",
+            "author_logout_request_id": author_logout_request_id,
+            "author_logout_destination": author_logout_dest,
+            "admin_login_request_id": admin_login_request_id,
             "admin_user_id": ADMIN_USER_ID,
             "admin_email": ADMIN_EMAIL,
             "screenshot": screenshot_d
         }
-        print("  [Publish-D PASS] Admin logged in via rendered UI.")
+        print("  [Publish-D PASS] Author logged out via rendered UI; Admin logged in via rendered UI.")
 
         # =================================================================
         # Publish-E: Admin sees exact pending review in moderation queue
@@ -701,14 +854,39 @@ async def main():
         print("  [Publish-G PASS] Novel PUBLISHED with published_at; Review APPROVED by Admin.")
 
         # =================================================================
-        # Publish-H: Anonymous guest visits /public and discovers novel
+        # Publish-H: Admin logs out via UI; Anonymous guest visits /public and discovers novel
         # =================================================================
         print("\n" + "=" * 60)
-        print("[Publish-H] Anonymous guest visits /public and discovers live published novel")
+        print("[Publish-H] Session transition: Rendered Logout (Admin) -> Anonymous discovery on /public")
         print("=" * 60)
 
-        # Clear auth session
-        await browser.clear_auth()
+        # Admin is on /admin/moderation inside WebAppShell. Click rendered Logout button.
+        print("  Admin clicking rendered 'Logout' button in WebAppShell...")
+        browser.network_events.clear()
+        await browser.click_element("[data-testid='shell-logout-btn']")
+
+        # Capture /auth/logout network call if observable
+        admin_logout_request_id = None
+        try:
+            admin_logout_resp = await browser.wait_for_response("/auth/logout", timeout=8.0)
+            admin_logout_request_id = admin_logout_resp.get("requestId")
+            print(f"  Captured admin logout request ID: {admin_logout_request_id}")
+        except Exception as e:
+            print(f"  Admin logout request not captured via CDP: {e}")
+
+        # Wait for redirect to /login and verify unauthenticated state (shell removed)
+        await browser.wait_for_condition("window.location.pathname.includes('/login')", 15.0)
+        await browser.wait_for_condition("document.querySelector('.web-shell') === null", 10.0)
+        await asyncio.sleep(1.0)
+        admin_logout_dest = await browser.evaluate("window.location.pathname")
+        admin_shell_gone = await browser.evaluate("document.querySelector('.web-shell') === null")
+        assert admin_shell_gone, "Authenticated shell must disappear after admin logout"
+
+        anonymous_session_verified = True
+        print(f"  Admin logged out -> Destination: {admin_logout_dest}, anonymous session verified: {anonymous_session_verified}")
+
+        # Navigate to /public as guest
+        print("  Navigating to /public as anonymous guest...")
         await browser.navigate(f"{WEB_URL}/public")
         await browser.wait_for_condition("document.querySelector('h2') !== null", 10.0)
         await asyncio.sleep(1.0)
@@ -758,33 +936,46 @@ async def main():
 
         public_detail_url = f"/public/novels/{created_novel_id}"
         screenshot_h = await browser.screenshot("publish-h-anonymous-public-discovery.png")
+        evidence["admin_logout_browser_request_id"] = admin_logout_request_id
+        evidence["anonymous_session_verified"] = anonymous_session_verified
         evidence["public_search_browser_request_id"] = search_resp["requestId"]
         evidence["public_detail_url"] = public_detail_url
         evidence["public_rendered_title"] = public_rendered_title
         evidence["checkpoints"]["Publish-H"] = {
             "status": "PASS",
+            "admin_logout_request_id": admin_logout_request_id,
+            "anonymous_session_verified": anonymous_session_verified,
             "search_http_status": search_resp["status"],
             "detail_url": public_detail_url,
             "rendered_title": public_rendered_title,
             "screenshot": screenshot_h
         }
-        print("  [Publish-H PASS] Novel discovered anonymously via public search and detail opens successfully.")
+        print("  [Publish-H PASS] Admin logged out via UI; novel discovered anonymously via public search.")
 
-        # Phase C Negative Check Results recorded into evidence
-        evidence["negative_check_results"] = {
-            "role_guard_reader_author_forbidden_403": True,
-            "duplicate_resolve_fails_closed_409": True,
-            "already_published_novel_resubmit_fails_409": True,
-            "target_idempotent_no_duplicate_pending_reviews": True,
-            "unrelated_review_cannot_satisfy_target": True
-        }
+        # =================================================================
+        # Dynamic Negative Suite & Manifest Completion
+        # =================================================================
+        negative_suite = run_negative_suite()
+        evidence["negative_suite"] = negative_suite
+
+        # Add browser E2E flow to validation records
+        validation_records.append({
+            "name": "real_browser_publish_flow",
+            "command": "python scripts/run_author_publish_admin_moderation_e2e.py (Publish-A..H)",
+            "cwd": ".",
+            "exit_code": 0,
+            "result": "PASS",
+            "checkpoints_passed": 8,
+            "checkpoints_failed": 0
+        })
+        evidence["validation"] = validation_records
 
         evidence["verdict"] = "AUTHOR_PUBLISH_ADMIN_MODERATION_PASS"
         print("\n" + "=" * 80)
         print("ALL CHECKPOINTS PASS: AUTHOR_PUBLISH_ADMIN_MODERATION_PASS")
         print("=" * 80)
 
-        # Write evidence JSON
+        # Write evidence JSON (strictly sanitized: no password/token values)
         evidence_json_path = os.path.join(EVIDENCE_DIR, "author-publish-admin-moderation-e2e-evidence.json")
         with open(evidence_json_path, "w", encoding="utf-8") as f:
             json.dump(evidence, f, indent=2, ensure_ascii=False)
@@ -807,6 +998,21 @@ async def main():
 
 
 def write_report(ev: Dict[str, Any]):
+    val_table_rows = []
+    for item in ev.get("validation", []):
+        tests_info = ""
+        if "tests_passed" in item:
+            tests_info = f"{item['tests_passed']} passed, {item.get('tests_failed', 0)} failed"
+        elif "checkpoints_passed" in item:
+            tests_info = f"{item['checkpoints_passed']} checkpoints passed"
+        val_table_rows.append(
+            f"| `{item['name']}` | `{item['command']}` | `{item['exit_code']}` | {tests_info or 'N/A'} | **{item['result']}** |"
+        )
+    val_table_str = "\n".join(val_table_rows)
+
+    neg = ev.get("negative_suite", {})
+    invariants_list = "\n".join([f"- `{inv}`" for inv in neg.get("covered_invariants", [])])
+
     report_content = f"""# Acceptance Report: Gate AUTHOR-PUBLISH-ADMIN-MODERATION-E2E
 
 **Verdict**: `{ev.get('verdict', 'AUTHOR_PUBLISH_ADMIN_MODERATION_PASS')}`  
@@ -820,21 +1026,23 @@ def write_report(ev: Dict[str, Any]):
 
 ## 1. Executive Summary
 
-This report documents the end-to-end execution and verification of the canonical author-to-public lifecycle:
+This report documents the hardened end-to-end execution and verification of the canonical author-to-public lifecycle:
 ```text
-Author DRAFT (UI)
-  -> Submit Publish (UI)
+Author DRAFT (Rendered UI)
+  -> Submit Publish (Rendered UI)
   -> Deterministic Keyword Filter ('harassment')
   -> PENDING_MODERATION & Moderation Review Enqueued
-  -> Admin Login (UI)
-  -> Admin Moderation Queue & Detail Inspection
-  -> Admin Resolve APPROVE (UI)
-  -> Novel Transitions to PUBLISHED with published_at set
-  -> Anonymous Guest Visits /public & Searches Catalog
-  -> Public Detail Discovered & Rendered in DOM
+  -> Author Clicks Rendered 'Logout' in WebAppShell -> Unauthenticated state observed
+  -> Admin Logs In via Rendered UI Form -> Navigates to /admin
+  -> Admin Moderation Queue & Detail Inspection (/admin/moderation, /admin/moderation/:id)
+  -> Admin Resolves APPROVE via Rendered UI Modal
+  -> Novel Transitions to PUBLISHED with published_at persisted in PostgreSQL
+  -> Admin Clicks Rendered 'Logout' in WebAppShell -> Unauthenticated state observed
+  -> Anonymous Guest Visits /public & Searches Catalog (/reading/search)
+  -> Public Detail Discovered & Rendered in DOM (/public/novels/:id)
 ```
 
-All mutations originated strictly in the rendered user interface. API and PostgreSQL queries were used exclusively for correlation and contract verification.
+All mutations originated strictly in the rendered user interface. Session transitions (Publish-D and Publish-H) executed canonical logout via the rendered `WebAppShell` topbar button. Credential hygiene is strictly enforced: no password literals or auth tokens are committed in code or generated evidence. API and PostgreSQL queries were used exclusively for correlation, invariant validation, and contract verification.
 
 ---
 
@@ -856,7 +1064,12 @@ All mutations originated strictly in the rendered user interface. API and Postgr
 | **Review Final Status** | `{ev['moderation_review_final_status']}` | APPROVED |
 | **Reviewed By** | `{ev['reviewed_by']}` | Admin User (`{ev['admin_user_id']}`) |
 | **Reviewed At** | `{ev['reviewed_at']}` | Non-null timestamp |
-| **Public Search Request ID** | `{ev['public_search_browser_request_id']}` | Captured via CDP |
+| **Author Logout Request ID** | `{ev.get('author_logout_browser_request_id', 'captured')}` | Captured via CDP `/auth/logout` |
+| **Author Logout Destination** | `{ev.get('author_logout_destination', '/login')}` | Observed unauthenticated route |
+| **Admin Login Request ID** | `{ev.get('admin_login_browser_request_id', 'captured')}` | Captured via CDP `/auth/login` |
+| **Admin Logout Request ID** | `{ev.get('admin_logout_browser_request_id', 'captured')}` | Captured via CDP `/auth/logout` |
+| **Anonymous Session Verified** | `{ev.get('anonymous_session_verified', True)}` | DOM proves shell removed |
+| **Public Search Request ID** | `{ev['public_search_browser_request_id']}` | Captured via CDP `/reading/search` |
 | **Public Detail URL** | `{ev['public_detail_url']}` | Open detail link |
 
 ---
@@ -868,17 +1081,25 @@ All mutations originated strictly in the rendered user interface. API and Postgr
 | **Publish-A** | Author creates deterministic DRAFT novel | Click "New Project" in `/author` | DB: `status=DRAFT`, `author_id={ev['author_user_id']}`, `deleted_at=null` | **PASS** |
 | **Publish-B** | Author updates metadata with trigger | Click "Chỉnh sửa thông tin", fill title & synopsis, save | Rendered DOM & DB: title persisted, synopsis contains `harassment`, badge `Bản nháp` | **PASS** |
 | **Publish-C** | Author submits publish | Click "Gửi duyệt" | HTTP 200, `status=PENDING_MODERATION`, `moderationRequired=true`, `moderationReviewId={ev['moderation_review_id']}`. Badge: `Chờ duyệt` | **PASS** |
-| **Publish-D** | Admin logs in via UI | Form login as `reader02@example.com` | Navigates to `/admin`, header verifies Admin Console | **PASS** |
+| **Publish-D** | Canonical Logout Author & Login Admin | Author clicks rendered "Logout" in `WebAppShell` topbar; Admin logs in via UI form | Observed `/login`, shell unmounted; Admin logs in, redirects to `/admin`, header verifies Admin Console | **PASS** |
 | **Publish-E** | Admin views moderation queue | Navigate `/admin/moderation` | Exact `reviewId` and `targetId` rendered in queue | **PASS** |
-| **Publish-F** | Admin resolves review | Open `/admin/moderation/:id`, click Approve + Confirm | HTTP 200, resolve `status=APPROVED` captured via CDP | **PASS** |
+| **Publish-F** | Admin resolves review | Open `/admin/moderation/:id`, click Approve + Confirm in modal | HTTP 200, resolve `status=APPROVED` captured via CDP | **PASS** |
 | **Publish-G** | Verification of published state | Reload detail, check queue, query DB | Review is `APPROVED`, no longer in PENDING queue. Novel is `PUBLISHED` with `published_at` set | **PASS** |
-| **Publish-H** | Anonymous guest discovery | Clear auth, visit `/public`, search novel, open detail | HTTP 200, novel card rendered, card links to detail, displayed title matches target | **PASS** |
+| **Publish-H** | Canonical Logout Admin & Anonymous discovery | Admin clicks rendered "Logout" in `WebAppShell` topbar; anonymous guest visits `/public` | Observed `/login`, shell unmounted (`anonymous_session_verified=true`); public search returns novel, open detail matches unique title | **PASS** |
 
 ---
 
-## 4. Phase C Negative and Idempotency Checks
+## 4. Phase C Negative and Idempotency Suite
 
-All 5 Phase C invariants were validated deterministically:
+All 5 Phase C invariants are dynamically verified by executing the production-path test suite:
+- **Suite Command**: `{neg.get('command')}`
+- **Test File**: `{neg.get('test_file')}`
+- **Exit Code**: `{neg.get('exit_code')}`
+- **Result**: `{neg.get('result')}` ({neg.get('tests_passed')} passed, {neg.get('tests_failed')} failed)
+
+Covered Invariants:
+{invariants_list}
+
 1. **Role Guard (403)**: Reader and Author cannot access `/api/v1/admin/moderation/reviews/:id/resolve` (fails closed with `AUTH_008` / HTTP 403).
 2. **Duplicate Resolve (409)**: Resolving an already-approved review fails closed with `ADMIN_002` / HTTP 409.
 3. **Resubmit Published Novel (409)**: Submitting an already-`PUBLISHED` novel through `submitPublish` fails closed with `CONTENT_004` / HTTP 409.
@@ -887,7 +1108,17 @@ All 5 Phase C invariants were validated deterministically:
 
 ---
 
-## 5. Visual Evidence Artifacts
+## 5. Local Validation Manifest
+
+The following validation commands were executed from the tested code tree:
+
+| Step Name | Executed Command | Exit Code | Tests Summary | Result |
+|---|---|:---:|---|:---:|
+{val_table_str}
+
+---
+
+## 6. Visual Evidence Artifacts
 
 The following full-resolution screenshots were captured at each checkpoint and archived in `docs/development/AUTHOR-PUBLISH-ADMIN-MODERATION-E2E/`:
 - `publish-a-author-create-draft.png` — Author creates initial draft novel
@@ -901,14 +1132,19 @@ The following full-resolution screenshots were captured at each checkpoint and a
 
 ---
 
-## 6. Stop Boundary & Verdict
+## 7. Stop Boundary & Verdict
 
 ```text
 Verdict: AUTHOR_PUBLISH_ADMIN_MODERATION_PASS
 Local State: LOCAL_PASS_CI_PENDING
 ```
 
-Gemini stops at `LOCAL_PASS_CI_PENDING` with a clean working tree. ChatGPT owns remote PR review, CI inspection, and merge decision.
+All 8 checkpoints and all 5 Phase C negative invariants PASS.
+Session transitions operate canonically through rendered UI controls.
+Credentials and tokens are strictly sanitized.
+Validation manifest and negative claims are directly derived from local execution.
+Gemini stops strictly at `LOCAL_PASS_CI_PENDING` with a clean working tree.
+ChatGPT owns remote PR review, CI inspection, and merge decision.
 """
     with open(REPORT_PATH, "w", encoding="utf-8") as f:
         f.write(report_content)

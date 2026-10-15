@@ -10,7 +10,7 @@
 | **Inspection Date** | 2026-10-15 |
 | **Web Typecheck & Build** | **PASS (100%)** (`tsc -b --noEmit` + `tsc -b && vite build` in 11.42s) |
 | **Total Production Surfaces Inventoried** | **27 distinct surfaces** |
-| **Primary Classification Counts** | **REAL + E2E-COVERED**: 5<br>**REAL + NOT-YET-E2E-COVERED**: 19<br>**PARTIALLY-WIRED**: 0<br>**MOCK / STATIC**: 0<br>**BROKEN CONTRACT**: 0<br>**NOT_IMPLEMENTED**: 0<br>**OBSOLETE / DUPLICATE**: 3 |
+| **Primary Classification Counts** | **REAL + E2E-COVERED**: 5<br>**REAL + NOT-YET-E2E-COVERED**: 19<br>**PARTIALLY-WIRED**: 0<br>**MOCK / STATIC ROUTES**: 0 *(Note: while all 24 active functional routes are backed by real backend APIs, individual production screens contain FE-owned static/mock presentation debt such as fallback view counts and revenue metrics)*<br>**BROKEN CONTRACT**: 0<br>**NOT_IMPLEMENTED**: 0<br>**OBSOLETE / DUPLICATE**: 3 |
 | **Priority Breakdown** | **P0 (Critical Blocker)**: 0<br>**P1 (Core Flow / Verification Gap)**: 20<br>**P2 (Secondary Feature)**: 4<br>**P3 (Cosmetic / Obsolete Cleanup)**: 3 |
 | **Recommended Next Executable Gate** | **`AUTHOR-PUBLISH-ADMIN-MODERATION-E2E`** |
 

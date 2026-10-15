@@ -124,7 +124,7 @@ class CDPBrowser:
                 const buttons = Array.from(document.querySelectorAll('button')).map(b => b.innerText.trim()).filter(Boolean);
                 const inputs = Array.from(document.querySelectorAll('input')).map(i => ({
                     placeholder: i.placeholder,
-                    value: i.value,
+                    value: i.type === 'password' ? '<redacted>' : i.value,
                     type: i.type
                 }));
                 const links = Array.from(document.querySelectorAll('a')).map(a => ({
@@ -167,17 +167,6 @@ class CDPBrowser:
             await self.ws.close()
 
 
-async def set_auth_session(browser: CDPBrowser, token: str, user: Dict[str, Any]):
-    user_json = json.dumps(user)
-    await browser.evaluate(f"""
-        (() => {{
-            localStorage.setItem('ephurin_access_token', '{token}');
-            localStorage.setItem('ephurin_user', JSON.stringify({user_json}));
-            // Also update zustand auth store state in localStorage if present
-        }})()
-    """)
-
-
 async def clear_auth_session(browser: CDPBrowser):
     await browser.evaluate("""
         (() => {
@@ -192,20 +181,23 @@ async def run_reconnaissance():
     print("STARTING COMPREHENSIVE PRODUCT UI RECONNAISSANCE")
     print("=" * 80)
 
+    demo_password = os.environ.get("EPHURIN_E2E_DEMO_PASSWORD")
+    if not demo_password:
+        raise RuntimeError("Missing required environment variable EPHURIN_E2E_DEMO_PASSWORD for reconnaissance.")
+
     # 1. Fetch test tokens and user data for all 3 seeded accounts
     print("\n[Setup] Authenticating test accounts...")
     accounts = {}
     async with httpx.AsyncClient(base_url=BACKEND_URL) as client:
-        for ident, pwd, role_key in [
-            ("reader04@example.com", "StrongPassword123!", "reader"),
-            ("reader03@example.com", "StrongPassword123!", "author"),
-            ("reader02@example.com", "StrongPassword123!", "admin")
+        for ident, role_key in [
+            ("reader04@example.com", "reader"),
+            ("reader03@example.com", "author"),
+            ("reader02@example.com", "admin")
         ]:
-            resp = await client.post("/auth/login", json={"identifier": ident, "password": pwd})
+            resp = await client.post("/auth/login", json={"identifier": ident, "password": demo_password})
             assert resp.status_code == 200, f"Login failed for {ident}: {resp.text}"
             data = resp.json()["data"]
             accounts[role_key] = {
-                "token": data["accessToken"],
                 "user": data["user"]
             }
             print(f"  {role_key.upper()}: userId={data['user']['userId']}, email={data['user']['email']}, role={data['user']['role']}")
@@ -327,29 +319,24 @@ async def run_reconnaissance():
 
         # Perform UI login as reader04
         await browser.navigate("/login", wait_seconds=1.5)
-        await browser.evaluate("""
-            (() => {
-                const setVal = (el, val) => {
+        await browser.evaluate(f"""
+            (() => {{
+                const setVal = (el, val) => {{
                     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
                     setter.call(el, val);
-                    el.dispatchEvent(new Event('input', { bubbles: true }));
-                };
+                    el.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                }};
                 const inputs = document.querySelectorAll('input');
                 setVal(inputs[0], 'reader04@example.com');
-                setVal(inputs[1], 'StrongPassword123!');
+                setVal(inputs[1], {json.dumps(demo_password)});
                 const buttons = document.querySelectorAll('button');
                 buttons[0].click(); // Login
-            })()
+            }})()
         """)
         await asyncio.sleep(3.0)
         after_login_url = await browser.evaluate("window.location.pathname")
         print(f"  Reader login -> Redirected to: {after_login_url}")
-        if after_login_url == "/login":
-            # If still on /login, set token in localStorage and reload
-            token = accounts['reader']['token']
-            user = accounts['reader']['user']
-            await set_auth_session(browser, token, user)
-            await browser.navigate("/reader", wait_seconds=2.0)
+        assert after_login_url != "/login", "UI login failed for reader04; URL remained /login"
 
         # 2.1 /reader (Authenticated Reader Home & Discovery)
         print("\n--- Route: /reader (Reader Home) ---")
@@ -494,28 +481,24 @@ async def run_reconnaissance():
         # Logout & login as author
         await clear_auth_session(browser)
         await browser.navigate("/login", wait_seconds=1.5)
-        await browser.evaluate("""
-            (() => {
-                const setVal = (el, val) => {
+        await browser.evaluate(f"""
+            (() => {{
+                const setVal = (el, val) => {{
                     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
                     setter.call(el, val);
-                    el.dispatchEvent(new Event('input', { bubbles: true }));
-                };
+                    el.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                }};
                 const inputs = document.querySelectorAll('input');
                 setVal(inputs[0], 'reader03@example.com');
-                setVal(inputs[1], 'StrongPassword123!');
+                setVal(inputs[1], {json.dumps(demo_password)});
                 const buttons = document.querySelectorAll('button');
                 buttons[0].click();
-            })()
+            }})()
         """)
         await asyncio.sleep(3.0)
         after_login_url = await browser.evaluate("window.location.pathname")
         print(f"  Author login -> Redirected to: {after_login_url}")
-        if after_login_url == "/login":
-            token = accounts['author']['token']
-            user = accounts['author']['user']
-            await set_auth_session(browser, token, user)
-            await browser.navigate("/author", wait_seconds=2.0)
+        assert after_login_url != "/login", "UI login failed for reader03; URL remained /login"
 
         # 3.1 /author (Author Projects Dashboard)
         print("\n--- Route: /author (Author Projects) ---")
@@ -596,28 +579,24 @@ async def run_reconnaissance():
         # Logout & login as admin
         await clear_auth_session(browser)
         await browser.navigate("/login", wait_seconds=1.5)
-        await browser.evaluate("""
-            (() => {
-                const setVal = (el, val) => {
+        await browser.evaluate(f"""
+            (() => {{
+                const setVal = (el, val) => {{
                     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
                     setter.call(el, val);
-                    el.dispatchEvent(new Event('input', { bubbles: true }));
-                };
+                    el.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                }};
                 const inputs = document.querySelectorAll('input');
                 setVal(inputs[0], 'reader02@example.com');
-                setVal(inputs[1], 'StrongPassword123!');
+                setVal(inputs[1], {json.dumps(demo_password)});
                 const buttons = document.querySelectorAll('button');
                 buttons[0].click();
-            })()
+            }})()
         """)
         await asyncio.sleep(3.0)
         after_login_url = await browser.evaluate("window.location.pathname")
         print(f"  Admin login -> Redirected to: {after_login_url}")
-        if after_login_url == "/login":
-            token = accounts['admin']['token']
-            user = accounts['admin']['user']
-            await set_auth_session(browser, token, user)
-            await browser.navigate("/admin", wait_seconds=2.0)
+        assert after_login_url != "/login", "UI login failed for reader02; URL remained /login"
 
         # 4.1 /admin (Overview)
         print("\n--- Route: /admin (Admin Console Overview) ---")
