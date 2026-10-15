@@ -5,7 +5,8 @@ export const snapshotSchema = z.object({
     chapterId: z.string().uuid()
   }),
   body: z.object({
-    content: z.string().optional()
+    content: z.string().optional(),
+    purpose: z.enum(['AUTHOR_SNAPSHOT', 'MANUSCRIPT_BOOTSTRAP']).optional().default('AUTHOR_SNAPSHOT')
   }).default({})
 });
 
