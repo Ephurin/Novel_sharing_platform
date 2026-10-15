@@ -15,6 +15,7 @@ AI-PIPE-03A  Bounded autonomous controller                  CI_PASS / MERGED
 
 MANUSCRIPT-IMPORT-UI  Canonical import -> Story Brain -> P1   CI_PASS / MERGED
 AUTHOR-PUBLISH-MODERATION  Author -> Admin -> Public lifecycle   CI_PASS / MERGED
+READER-DISCOVERY-STATE     Discovery/library/history lifecycle    CI_PASS / MERGED
 
 P1_OVERALL_SYSTEM_PASS
 ```
@@ -29,6 +30,7 @@ PR #42  AI-PIPE-03A  merged
 PR #45  AI-PIPE-01B  merged
 PR #46  MANUSCRIPT-IMPORT-UI  merged
 PR #47  AUTHOR-PUBLISH-MODERATION  merged
+PR #48  READER-DISCOVERY-STATE  merged
 ```
 
 AI-PIPE-01B remote closure:
@@ -109,7 +111,29 @@ report:
 docs/development/AUTHOR-PUBLISH-ADMIN-MODERATION-E2E-report.md
 ```
 
-Do not reopen P1/P2/P3, Manuscript Import, or Author Publish/Moderation architecture without a concrete regression or explicitly approved new scope.
+Reader Discovery / Reading State remote closure:
+
+```text
+tested code:
+97ef253b544cba9376ed9b491cd3064c05c56647
+
+accepted PR head / evidence commit:
+089c1f57cb7ed8632cbd00d8b2d3e2bfa4122cb1
+
+P7 Semantic Memory Foundation:
+run #128 / 38699170011 / PASS
+
+P8 Cutover and Migration:
+run #125 / 38699169981 / PASS
+
+merge:
+8badd3361c8368aa351fcff249cf9c4d919685ac
+
+report:
+docs/development/READER-DISCOVERY-READING-STATE-E2E-report.md
+```
+
+Do not reopen P1/P2/P3, Manuscript Import, Author Publish/Moderation, or Reader Discovery/Reading State architecture without a concrete regression or explicitly approved new scope.
 
 ---
 
@@ -279,33 +303,49 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. ACTIVE EXECUTION DIRECTIVE — Reader Discovery + Reading State E2E
+## 5. ACTIVE EXECUTION DIRECTIVE — Reader Social + Comment + Preferences E2E
 
-The Author -> Admin -> Public publication bridge is now CI_PASS / MERGED.
+Reader Discovery / Library / Reading History is now CI_PASS / MERGED.
 
-The next bounded product gate is:
+The next bounded gate is:
 
 ```text
-READER-DISCOVERY-READING-STATE-E2E
+READER-SOCIAL-COMMENT-PREFERENCES-E2E
 ```
 
-This gate proves that an authenticated reader can discover a real published novel, persist it in the personal library, read a free published chapter, create/read back reading history, survive page reloads, and remove the library item.
+This gate proves the remaining non-wallet Reader interaction loop on already-published/free content:
 
-FE-owned static/mock presentation debt remains a separate task and does not block this gate unless it makes a decisive reader action impossible.
+```text
+Reader
+ -> like / unlike published novel
+ -> follow / unfollow published author
+ -> save reading preferences
+ -> reload and prove persisted preferences are applied
+ -> create clean comment
+ -> edit own clean comment
+ -> delete own comment
+```
 
-Do not include Wallet/VIP unlock in this gate.
+Explicitly OUT OF SCOPE:
+
+```text
+User Report -> Admin moderation
+Wallet / deposits / VIP unlock
+Author FE static/mock metric cleanup
+AI / Story Brain architecture
+```
+
+User-report moderation will be a separate cross-role gate after this one.
 
 ---
 
 ### Start from actual latest main
 
-After this directive is committed:
-
 ```bash
 git fetch origin
 git checkout main
 git pull --ff-only origin main
-git checkout -b astra/reader-discovery-reading-state-e2e
+git checkout -b astra/reader-social-comment-preferences-e2e
 ```
 
 Record:
@@ -317,335 +357,406 @@ GATE_BASE_MAIN_SHA = git rev-parse origin/main
 Working branch:
 
 ```text
-astra/reader-discovery-reading-state-e2e
+astra/reader-social-comment-preferences-e2e
 ```
 
 ---
 
-### Confirmed production contracts
+### Confirmed current-main production contracts
 
-ChatGPT directly verified current-main reader contracts.
+#### Social interactions
 
-Discovery/detail/chapter:
-
-```text
-GET /api/v1/reading/search
-GET /api/v1/reading/novels/:novelId
-GET /api/v1/reading/chapters/:chapterId
-```
-
-Library:
+Frontend:
 
 ```text
-GET    /api/v1/reading/library/me
-POST   /api/v1/reading/library/me
-DELETE /api/v1/reading/library/me/:novelId
+POST   /api/v1/novels/:novelId/likes
+DELETE /api/v1/novels/:novelId/likes/me
+
+POST   /api/v1/authors/:authorId/follow
+DELETE /api/v1/authors/:authorId/follow
 ```
 
-History:
+Backend production path:
 
 ```text
-PUT /api/v1/reading/history/me
-GET /api/v1/reading/history/me
-GET /api/v1/reading/history/me/:novelId
+backend/src/modules/interactions/social.routes.ts
+backend/src/modules/interactions/social.service.ts
+backend/src/modules/interactions/social.repository.ts
 ```
 
-Current Reader UI behavior:
+Existing semantics:
 
 ```text
-/reader
- -> searchPublishedNovels()
+Like published novel:
+ first like -> success
+ duplicate -> 409 INTERACTION_001
 
-/reader/novels/:novelId
- -> Add library
- -> Continue / Read chapter
+Unlike:
+ existing -> success
+ missing -> 404 INTERACTION_002
 
-/reader/chapters/:chapterId
- -> getReaderChapter()
- -> useEffect automatically calls syncHistory({novelId, chapterId})
- -> explicit "Sync history" button can repeat the same mutation
+Follow active author:
+ first follow -> success
+ duplicate/self-follow -> 409 INTERACTION_001
 
-/reader/library
- -> listLibrary()
- -> Remove
-
-/reader/history
- -> listHistory()
- -> Continue link back to exact chapter
+Unfollow:
+ existing -> success
+ missing -> 404 INTERACTION_002
 ```
 
-Current UI does **not** provide a user-driven paragraph/page-offset progress control. The auto-sync mutation currently supplies only `novelId + chapterId`; backend defaults `paragraphIndex=0` and allows nullable pageOffset.
+#### Reading preferences
 
-Therefore this gate must prove **chapter-level reading state**, not invent paragraph-level acceptance.
+```text
+GET /api/v1/reading/preferences/me
+PUT /api/v1/reading/preferences/me
+```
+
+Current UI exposes:
+- font family;
+- font size;
+- background;
+- line height;
+- rendered `Save preferences` action;
+- chapter body style derived from persisted preferences.
+
+#### Comments
+
+```text
+GET    /api/v1/chapters/:chapterId/comments
+POST   /api/v1/chapters/:chapterId/comments
+PATCH  /api/v1/comments/:commentId
+DELETE /api/v1/comments/:commentId
+```
+
+Production path:
+
+```text
+backend/src/modules/interactions/comments.routes.ts
+backend/src/modules/interactions/comments.service.ts
+backend/src/modules/interactions/comments.repository.ts
+```
+
+Comment content is checked by content-control.
+
+Clean text:
+
+```text
+no active filter match
+ -> status APPROVED
+ -> immediately visible in approved comment list
+```
+
+Filtered text:
+
+```text
+matching active filter
+ -> PENDING_MODERATION
+ -> requires Admin lifecycle
+```
+
+This gate MUST use clean deterministic comment text and MUST NOT pull Admin moderation into scope.
+
+Use a unique clean comment string such as:
+
+```text
+E2E reader comment <unique suffix>
+```
+
+Do not include `harassment`, `badword`, or other seeded filter tokens.
 
 ---
 
-### Deterministic fixture rule
+### Deterministic fixture
 
-Use an existing deterministic published novel that has at least one **PUBLISHED, non-VIP/free chapter**.
-
-Preferred fixture selection:
-1. inspect current deterministic demo seed;
-2. choose a published novel owned by a seed author;
-3. select an exact published free chapter;
-4. record all IDs before browser execution.
-
-Do not:
-- use a VIP chapter;
-- deposit coins;
-- unlock content;
-- mutate author/admin publication state;
-- create a new novel solely for this reader gate if the accepted seed is sufficient.
-
-If no deterministic published free chapter exists in the current canonical seed, classify:
+Reuse the accepted Reader fixture from the prior gate where valid:
 
 ```text
-READER_FIXTURE_MISSING
+reader:
+reader04@example.com
+
+novel:
+Ashenhold - Sample Story
+81b923d7-5507-48ea-9a84-5303fd1de5f4
+
+free chapter:
+c660bede-0493-4a46-97f2-6d01c8ddd3db
 ```
 
-and add the smallest deterministic test fixture through the existing seed mechanism. Do not add a production endpoint for test setup.
+Before final browser execution, verify remotely-selected local seed state:
 
-Reader login must use the rendered UI. Use deterministic fixture identity, preferably the existing READER demo account.
+```text
+novel.status = PUBLISHED
+chapter.status = PUBLISHED
+chapter.is_vip = false
+author exists and is active
+```
 
-Runner password must come from:
+The runner may clean only this reader's prior like/follow/comment/preferences fixture state as deterministic test setup.
+
+Do not mutate the Author/Admin publication lifecycle.
+
+Password must come from:
 
 ```text
 EPHURIN_E2E_DEMO_PASSWORD
 ```
 
-No committed password/token literals.
+No committed password/token literals and no token/storage auth injection.
 
 ---
 
 ### Phase A — inspect before editing
 
-Inspect current production path before changing product code:
+Inspect:
 
 ```text
 web/src/features/reader/ReaderPage.tsx
 web/src/features/reader/reader-api.ts
-web/src/app/router.tsx
+
+backend/src/modules/interactions/social.routes.ts
+backend/src/modules/interactions/social.service.ts
+backend/src/modules/interactions/social.repository.ts
+
+backend/src/modules/interactions/comments.routes.ts
+backend/src/modules/interactions/comments.service.ts
+backend/src/modules/interactions/comments.repository.ts
+
 backend/src/modules/reading/reading.routes.ts
-backend/src/modules/reading/reading.controller.ts
 backend/src/modules/reading/reading.service.ts
 backend/src/modules/reading/reading.repository.ts
-backend/src/modules/reading/reading.schemas.ts
+
+backend/src/modules/content-control/content-control.service.ts
 ```
 
-If the current UI already closes the loop, do not manufacture product changes.
+If behavior already closes the loop, do not manufacture product changes.
 
-Only fix a concrete browser-observed defect.
+Adding stable `data-testid` selectors is acceptable where necessary.
 
-Do not fix unrelated Author hardcoded metrics/dates in this branch.
+If a real browser run exposes stale/incorrect interaction state, fix the smallest production defect and rerun.
 
 ---
 
-### Phase B — browser checkpoints
+### Phase B — real browser checkpoints
 
-All decisive reader mutations must originate in the rendered browser UI.
+All decisive mutations must originate from rendered UI.
 
 Required checkpoints:
 
 ```text
-Reader-A — login as READER through rendered login form
-Reader-B — search exact deterministic published novel on /reader and open detail
-Reader-C — Add library through rendered button; exact POST succeeds and DB bookmark exists
-Reader-D — reload/open /reader/library; exact novel remains visibly persisted
-Reader-E — open exact free published chapter through rendered reader navigation
-Reader-F — chapter render auto-syncs history; exact PUT /reading/history/me captured and DB history points to exact chapter
-Reader-G — reload/open /reader/history; exact novel/chapter appears; Continue returns to exact chapter
-Reader-H — remove novel through rendered /reader/library UI; reload proves absence and DB bookmark removed
+Interact-A — login as READER via rendered login
+Interact-B — open exact published novel detail, Like, DB/readback proves like
+Interact-C — Unlike, DB/readback proves removal
+Interact-D — Follow exact author, DB/follower readback proves follow; then Unfollow proves removal
+Interact-E — open exact free chapter, change reading preferences and Save; reload proves persisted values/style
+Interact-F — create unique clean comment; response status APPROVED; rendered list + DB prove ownership/content
+Interact-G — Edit own comment through rendered UI; response remains APPROVED; reload/readback proves updated content
+Interact-H — Delete own comment through rendered UI; reload/readback + DB prove soft-deleted/absent
 ```
 
-#### Reader-A
+#### Interact-A
 
-Use normal rendered login form.
+Normal UI login only.
 
 Prove:
+
 ```text
 role = READER
-authenticated WebAppShell visible
-/reader reachable
+authenticated shell visible
 ```
 
-Do not inject tokens/storage.
+#### Interact-B — Like
 
-#### Reader-B
+Navigate via rendered Reader UI to the deterministic novel detail.
 
-On `/reader`, use the rendered search input with the fixture's exact title.
+Clean test fixture state first so reader has no existing like.
+
+Click rendered `Like`.
 
 Capture:
+
 ```text
-GET /api/v1/reading/search
-HTTP 200
-exact novel_id returned
-exact title rendered
+POST /api/v1/novels/:novelId/likes
+HTTP success
+response.liked = true
 ```
 
-Open:
+DB/readback:
+
 ```text
-/reader/novels/:novelId
+exact reader_id
+exact novel_id
+exactly one active like
 ```
 
-Prove the rendered detail contains the exact target and exact free chapter.
+If response contains `likesCount`, correlate it to repository count.
 
-#### Reader-C
+Do not require the existing stats badge to update unless production code actually refetches it. If the UI claims an updated count but displays a stale/incorrect count, classify and fix that concrete defect.
+
+#### Interact-C — Unlike
+
+Click rendered `Unlike`.
+
+Capture:
+
+```text
+DELETE /api/v1/novels/:novelId/likes/me
+HTTP success
+response.liked = false
+```
+
+DB proves reader/novel like absent.
+
+#### Interact-D — Follow/Unfollow
+
+Use exact `novel.authorId`.
+
+Click `Follow`.
+
+Capture exact POST and DB row:
+
+```text
+follower_id = reader
+author_id = target author
+```
+
+Use:
+
+```text
+GET /api/v1/authors/:authorId/followers/count
+```
+
+or direct DB correlation to prove count/state.
+
+Then click `Unfollow`, capture DELETE, prove row absent.
+
+Do not use the Reader's own user as target author.
+
+#### Interact-E — Reading preferences
+
+Open exact free chapter.
+
+Record original preferences.
+
+Through rendered controls, set a deterministic alternative combination that differs from the original, for example:
+
+```text
+fontFamily = Georgia
+fontSize = 20
+background = SEPIA
+lineHeight = 1.9
+```
+
+If any value already equals the target, choose another valid value so a real mutation occurs.
 
 Click rendered:
+
 ```text
-Add library
+Save preferences
 ```
 
 Capture:
+
 ```text
-POST /api/v1/reading/library/me
-body.novelId == target novel
-successful status
+PUT /api/v1/reading/preferences/me
 ```
 
-DB-correlate bookmark:
-```text
-user_id == reader
-novel_id == target
-one active bookmark row
-```
-
-If the fixture reader already has this novel saved, clean that **test fixture state before the browser run** through test setup/DB cleanup, not via a fake production endpoint.
-
-The browser mutation itself must create the accepted bookmark.
-
-#### Reader-D
-
-Navigate through rendered shell/navigation to:
-```text
-/reader/library
-```
-
-Reload the page.
+Reload the chapter.
 
 Prove:
+
 ```text
-GET /reading/library/me
-exact novel_id returned
-title rendered after reload
-Open detail link targets exact novel
+GET preferences returns saved values
+controls read back saved values
+chapter prose rendered style reflects saved preferences
+DB row matches
 ```
 
-#### Reader-E
+At final cleanup, restore the original fixture preferences if practical. Restoration is test cleanup, not an acceptance checkpoint.
 
-From reader detail/library navigation, open the exact free chapter.
+#### Interact-F — Create clean comment
+
+Use a unique content string with no seeded moderation keyword.
+
+Click rendered `Submit comment`.
 
 Capture:
+
 ```text
-GET /api/v1/reading/chapters/:chapterId
-HTTP 200
-chapter_id == target
-novel_id == target
-isVip == false
-rendered title/content non-empty
+POST /api/v1/chapters/:chapterId/comments
+commentId = real UUID
+status = APPROVED
+moderationReviewId = null
 ```
 
-Do not use a VIP chapter as substitute.
+If it returns `PENDING_MODERATION`, fail:
 
-#### Reader-F
-
-The current UI automatically invokes history sync after chapter load.
-
-Capture the browser-originated:
 ```text
-PUT /api/v1/reading/history/me
+COMMENT_FIXTURE_UNEXPECTEDLY_FILTERED
 ```
 
-Required body correlation:
+Do not continue by involving Admin.
+
+After query invalidation/reload prove:
+- exact comment appears in rendered approved list;
+- exact content appears;
+- exact user owns it;
+- DB status = APPROVED;
+- deleted_at is null if repository uses soft deletion.
+
+#### Interact-G — Edit own comment
+
+Use rendered `Edit` -> modify to a second unique clean string -> `Save`.
+
+Capture PATCH:
+
 ```text
-novelId == target novel
-chapterId == target chapter
+PATCH /api/v1/comments/:commentId
+status = APPROVED
+moderationReviewId = null
 ```
 
-Backend defaults are acceptable:
+Reload/comments readback must show updated content, old content absent.
+
+#### Interact-H — Delete own comment
+
+Click rendered `Delete`.
+
+Capture:
+
 ```text
-paragraphIndex = 0
-pageOffset = null/omitted
-```
-
-DB/readback must prove one history state for:
-```text
-reader user
-target novel
-target chapter
-```
-
-Do not claim paragraph-position persistence.
-
-#### Reader-G
-
-Navigate to:
-```text
-/reader/history
+DELETE /api/v1/comments/:commentId
 ```
 
 Reload.
 
 Prove:
-```text
-GET /reading/history/me
-exact target novel/chapter returned
-exact novel title rendered
-exact chapter title/number rendered
-```
-
-Click rendered `Continue`.
-
-Required destination:
-```text
-/reader/chapters/:targetChapterId
-```
-
-and the exact chapter must render again.
-
-#### Reader-H
-
-Return to:
-```text
-/reader/library
-```
-
-Click rendered `Remove` for the exact target.
-
-Capture:
-```text
-DELETE /api/v1/reading/library/me/:novelId
-```
-
-Reload library.
-
-Prove:
-```text
-target novel absent from DOM
-target novel absent from GET /reading/library/me
-bookmark row absent in DB
-```
-
-History should remain unless the existing product contract explicitly removes it; do not assume library removal deletes reading history.
+- comment absent from approved list;
+- DB row is deleted/soft-deleted according to canonical repository behavior;
+- another unrelated comment is not used to satisfy the assertion.
 
 ---
 
-### Phase C — bounded negative/idempotency checks
+### Phase C — negative/idempotency checks
 
-Add/execute the smallest deterministic assertions proving:
+Add/execute the smallest production-path deterministic assertions proving:
 
 ```text
-1. anonymous POST /reading/library/me is rejected by auth
-2. duplicate Add library fails closed with existing conflict contract
-3. removing a non-existent bookmark fails with existing not-found contract
-4. history sync rejects mismatched novelId/chapterId
-5. history is user-scoped: another reader cannot satisfy/read back the target reader's state as their own
-6. non-published novel/chapter cannot be used to create accepted reader state
+1. anonymous like/follow/comment mutations are rejected by auth
+2. duplicate like -> 409 INTERACTION_001
+3. unlike without existing like -> 404 INTERACTION_002
+4. duplicate follow -> 409 INTERACTION_001
+5. unfollow without existing follow -> 404 INTERACTION_002
+6. reader cannot edit/delete another user's comment -> 403 AUTH_008
+7. clean comment -> APPROVED without moderation review
+8. filtered comment -> PENDING_MODERATION with review ID
+9. commenting on non-reader-visible/non-published chapter must fail closed;
+   if current production service accepts it, classify BROKEN_CONTRACT and repair minimally
+10. reading preferences are user-scoped
 ```
 
-Use existing service/route tests where available. Add focused production-path tests only where missing.
+The filtered-comment negative check may use service-level deterministic test data. It must not invoke browser/Admin moderation.
 
-Do not expand this into comments/likes/follows/reporting.
+Do not add user-report resolution tests here.
 
 ---
 
@@ -654,14 +765,14 @@ Do not expand this into comments/likes/follows/reporting.
 Create:
 
 ```text
-docs/development/READER-DISCOVERY-READING-STATE-E2E-report.md
+docs/development/READER-SOCIAL-COMMENT-PREFERENCES-E2E-report.md
 
-docs/development/READER-DISCOVERY-READING-STATE-E2E/
-  reader-discovery-reading-state-e2e-evidence.json
-  Reader-A..H screenshots
+docs/development/READER-SOCIAL-COMMENT-PREFERENCES-E2E/
+  reader-social-comment-preferences-e2e-evidence.json
+  Interact-A..H screenshots
 ```
 
-Evidence must include at minimum:
+Evidence must include:
 
 ```text
 tested_main_sha
@@ -670,37 +781,33 @@ branch
 
 reader_user_id
 reader_email
-
 novel_id
-novel_title
+author_id
 chapter_id
-chapter_number
-chapter_title
-chapter_is_vip
 
 login_browser_request_id
-search_browser_request_id
-add_library_browser_request_id
-library_reload_request_id
-chapter_browser_request_id
-history_sync_browser_request_id
-history_list_browser_request_id
-remove_library_browser_request_id
+like_request_id
+unlike_request_id
+follow_request_id
+unfollow_request_id
+preferences_save_request_id
+comment_create_request_id
+comment_update_request_id
+comment_delete_request_id
 
-bookmark_created_db_proof
-history_db_proof
-bookmark_removed_db_proof
+like_db_proof
+follow_db_proof
+preferences_db_proof
+comment_create_db_proof
+comment_update_db_proof
+comment_delete_db_proof
 
 negative_suite
 validation
 verdict
 ```
 
-Do not store:
-- password values;
-- auth tokens;
-- cookies;
-- private unrelated data.
+Do not store passwords, tokens, cookies, or unrelated private data.
 
 ---
 
@@ -709,23 +816,21 @@ Do not store:
 Run at minimum:
 
 ```text
-web typecheck/build
+web typecheck
+web build
 backend typecheck
-relevant reading service/route/PostgreSQL tests
-real browser Reader-A..H
+focused social/comments/reading PostgreSQL tests
+backend regression suite if production code changed
+real browser Interact-A..H
 ```
-
-If current product code changes, run the relevant broader regression too.
-
-Do not rerun AI provider-quality tests unless a concrete unrelated regression appears.
 
 Final local verdict:
 
 ```text
-READER_DISCOVERY_READING_STATE_PASS
+READER_SOCIAL_COMMENT_PREFERENCES_PASS
 ```
 
-only when Reader-A..H and negative invariants pass.
+only when Interact-A..H and Phase C invariants pass.
 
 ---
 
@@ -738,9 +843,9 @@ branch behind main = 0
 git status clean
 final tested SHA pushed
 evidence generated from final tested SHA
-Reader-A..H PASS
+Interact-A..H PASS
 credentials/tokens absent from evidence
-READER_DISCOVERY_READING_STATE_PASS
+READER_SOCIAL_COMMENT_PREFERENCES_PASS
 LOCAL_PASS_CI_PENDING
 ```
 
@@ -749,13 +854,13 @@ Push and STOP.
 Gemini must not:
 - create PR;
 - merge;
-- implement Wallet/VIP unlock;
-- expand into comments/likes/follows/reporting;
-- fix FE-owned Author static metrics;
-- reopen AI/Story Brain/Manuscript architecture;
+- execute user-report/Admin moderation lifecycle;
+- implement Wallet/VIP/deposit;
+- fix unrelated Author static/mock metrics;
+- reopen AI/Story Brain architecture;
 - claim GitHub Actions PASS.
 
-ChatGPT owns remote review, PR, CI and merge.
+ChatGPT owns remote review, PR, CI, and merge.
 
 ---
 
