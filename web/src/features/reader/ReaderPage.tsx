@@ -81,6 +81,7 @@ export function ReaderPage() {
           placeholder="Title, synopsis, genre..."
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.currentTarget.value)}
+          data-testid="reader-search-input"
         />
         <SimpleGrid cols={{ base: 1, md: 4 }} mt="md">
           <TextInput
@@ -278,7 +279,11 @@ export function ReaderNovelDetailPage() {
             <Text c="dimmed">{novel?.synopsis ?? 'No synopsis.'}</Text>
             {interactionNotice ? <Alert color="blue">{interactionNotice}</Alert> : null}
             <Group>
-              <Button loading={addLibraryMutation.isPending} onClick={() => addLibraryMutation.mutate()}>
+              <Button
+                loading={addLibraryMutation.isPending}
+                onClick={() => addLibraryMutation.mutate()}
+                data-testid="reader-add-library-btn"
+              >
                 Add library
               </Button>
               <Button variant="light" loading={likeMutation.isPending} onClick={() => likeMutation.mutate()}>
@@ -878,7 +883,14 @@ export function ReaderLibraryPage() {
             key={novel.novelId}
             novel={novel}
             extraAction={
-              <Button size="xs" color="red" variant="light" loading={removeMutation.isPending} onClick={() => removeMutation.mutate(novel.novelId)}>
+              <Button
+                size="xs"
+                color="red"
+                variant="light"
+                loading={removeMutation.isPending}
+                onClick={() => removeMutation.mutate(novel.novelId)}
+                data-testid={`reader-remove-library-${novel.novelId}`}
+              >
                 Remove
               </Button>
             }
@@ -908,7 +920,11 @@ export function ReaderHistoryPage() {
                   Ch. {item.chapter.chapterNumber}: {item.chapter.title}
                 </Text>
               </Box>
-              <Button component={Link} to={`/reader/chapters/${item.chapterId}`}>
+              <Button
+                component={Link}
+                to={`/reader/chapters/${item.chapterId}`}
+                data-testid={`reader-history-continue-${item.chapterId}`}
+              >
                 Continue
               </Button>
             </Group>
@@ -953,7 +969,12 @@ function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNo
           <Badge variant="outline">{novel.viewsCount ?? 0} views</Badge>
         </Group>
         <Group>
-          <Button component={Link} to={`${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`} size="xs">
+          <Button
+            component={Link}
+            to={`${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`}
+            size="xs"
+            data-testid={`novel-open-detail-${novel.novelId}`}
+          >
             Open detail
           </Button>
           {extraAction}
@@ -977,7 +998,12 @@ function ChapterRow({ chapter, publicMode = false }: { chapter: ReaderChapter; p
         </Box>
         <Group gap="xs">
           {chapter.isVip ? <Badge color="yellow">VIP {chapter.priceCoins}</Badge> : <Badge color="green">Free</Badge>}
-          <Button component={Link} to={`${publicMode ? '/public' : '/reader'}/chapters/${chapter.chapterId}`} size="xs">
+          <Button
+            component={Link}
+            to={`${publicMode ? '/public' : '/reader'}/chapters/${chapter.chapterId}`}
+            size="xs"
+            data-testid={`read-chapter-${chapter.chapterId}`}
+          >
             Read
           </Button>
         </Group>
