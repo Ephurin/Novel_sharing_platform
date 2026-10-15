@@ -1,7 +1,8 @@
 {
-  "tested_main_sha": "2b00a36c78be0d8e4a2b59bbe84d810cd13da37c",
-  "tested_code_sha": "6a30907fc5a9fb7977b8ecde52562a5517418d79",
+  "tested_main_sha": "1b49d94577500c4456cfa4c7871b4c9fc713b2cc",
+  "tested_code_sha": "a6fac5c38fde2015b046a59469895cc50de6368d",
   "branch": "astra/comment-user-report-admin-moderation-e2e",
+  "run_uuid": "d3ebdc52",
   "owner_user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
   "reporter_user_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
   "admin_user_id": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
@@ -11,16 +12,16 @@
     "report_a": {
       "checkpoint": "Report-A",
       "description": "Owner logs in via rendered UI form, creates clean APPROVED comment",
-      "login_request_id": "9240.223",
-      "comment_create_request_id": "9240.361",
-      "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
-      "content": "E2E clean report target 09510ecf",
+      "login_request_id": "8876.222",
+      "comment_create_request_id": "8876.360",
+      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+      "content": "E2E clean report target d3ebdc52",
       "status": "APPROVED",
       "db_proof": {
-        "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
+        "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
         "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
         "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
-        "content": "E2E clean report target 09510ecf",
+        "content": "E2E clean report target d3ebdc52",
         "status": "APPROVED",
         "deleted_at": null
       },
@@ -32,17 +33,17 @@
       "description": "Owner logs out; Reporter logs in via rendered form at /login",
       "reporter_email": "reader05@example.com",
       "reporter_user_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
-      "login_request_id": "9240.494",
+      "login_request_id": "8876.493",
       "screenshot": "report-b-reporter-login.png",
       "result": "PASS"
     },
     "report_c": {
       "checkpoint": "Report-C",
       "description": "Reporter opens chapter, clicks Report on target comment, captures POST /reports",
-      "request_id": "9240.632",
+      "request_id": "8876.631",
       "status": 201,
-      "report_id": "1a0a2f11-e54c-4019-843b-d8e5f68a7176",
-      "moderation_review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
+      "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
+      "moderation_review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
       "screenshot": "report-c-comment-reported.png",
       "result": "PASS"
     },
@@ -50,17 +51,17 @@
       "checkpoint": "Report-D",
       "description": "PostgreSQL correlation proves one OPEN report and one PENDING USER_REPORT review",
       "report_db_before": {
-        "report_id": "1a0a2f11-e54c-4019-843b-d8e5f68a7176",
+        "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
         "reporter_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
         "target_type": "COMMENT",
-        "target_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
-        "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
+        "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+        "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
         "status": "OPEN"
       },
       "review_db_before": {
-        "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
+        "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
         "target_type": "COMMENT",
-        "target_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
+        "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
         "source": "USER_REPORT",
         "status": "PENDING"
       },
@@ -73,27 +74,27 @@
       "description": "Admin logs in, opens /admin/reports, finds exact pending review in queue",
       "admin_email": "reader02@example.com",
       "admin_user_id": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-      "admin_review_list_request_id": "9240.901",
-      "moderation_review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
+      "admin_review_list_request_id": "8876.900",
+      "moderation_review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
       "screenshot": "report-e-admin-reports-queue.png",
       "result": "PASS"
     },
     "report_f": {
       "checkpoint": "Report-F",
       "description": "Admin detail proves source USER_REPORT, target COMMENT, reportCount=1; source-aware copy verified",
-      "admin_review_detail_request_id": "9240.902",
+      "admin_review_detail_request_id": "8876.901",
       "target_type": "COMMENT",
-      "target_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
+      "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
       "source": "USER_REPORT",
       "reports_count": 1,
-      "modal_description": "Approve report 49243732-cdb0-4b89-9585-606d0b35fe98. The reported comment will be removed.",
+      "modal_description": "Approve report ba5a1def-0f38-4707-97d4-691301b0fe7c. The reported comment will be removed.",
       "screenshot": "report-f-admin-review-detail.png",
       "result": "PASS"
     },
     "report_g": {
       "checkpoint": "Report-G",
       "description": "Admin clicks 'Approve report' in rendered modal; POST resolve captured with decision=APPROVED",
-      "request_id": "9240.903",
+      "request_id": "8876.1166",
       "status": 200,
       "decision": "APPROVED",
       "screenshot": "report-g-admin-report-approved.png",
@@ -103,21 +104,21 @@
       "checkpoint": "Report-H",
       "description": "Database proves review APPROVED, report RESOLVED, comment soft-deleted; review absent from queue",
       "review_db_after": {
-        "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
+        "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
         "status": "APPROVED",
         "reviewed_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-        "reviewed_at": "2026-10-15T09:14:48.630747+00:00"
+        "reviewed_at": "2026-10-15T09:46:09.497196+00:00"
       },
       "report_db_after": {
-        "report_id": "1a0a2f11-e54c-4019-843b-d8e5f68a7176",
+        "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
         "status": "RESOLVED",
         "resolved_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-        "resolved_at": "2026-10-15T09:14:48.641317+00:00"
+        "resolved_at": "2026-10-15T09:46:09.505179+00:00"
       },
       "comment_db_after": {
-        "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
+        "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
         "status": "DELETED",
-        "deleted_at": "2026-10-15T09:14:48.643Z"
+        "deleted_at": "2026-10-15T09:46:09.506Z"
       },
       "screenshot": "report-h-admin-resolution-verified.png",
       "result": "PASS"
@@ -126,10 +127,10 @@
       "checkpoint": "Report-I",
       "description": "Reporter logs in, opens /notifications, verifies COMMENT_REPORT_APPROVED notification in DOM & DB",
       "reporter_user_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
-      "notification_id": "da6fd0ca-7763-4ce9-b9c0-e2820f7ded42",
+      "notification_id": "c19d3e1d-d044-42c2-8a7e-2d1b0336fbfd",
       "type": "COMMENT_REPORT_APPROVED",
-      "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
-      "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
+      "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
       "screenshot": "report-i-reporter-notification.png",
       "result": "PASS"
     },
@@ -137,80 +138,80 @@
       "checkpoint": "Report-J",
       "description": "Owner verifies COMMENT_REMOVED_BY_REPORT notification, reloads chapter, proves comment absent",
       "owner_user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
-      "notification_id": "a28f1b5e-4d19-4edf-9c0c-a5b8eb3cd116",
+      "notification_id": "5af09c3e-5026-41e8-b18c-ed1b9c8ec5d6",
       "type": "COMMENT_REMOVED_BY_REPORT",
-      "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
-      "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
+      "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
       "comment_absent_from_dom": true,
       "screenshot": "report-j-owner-notification-and-comment-absent.png",
       "result": "PASS"
     }
   },
-  "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
-  "comment_original_content": "E2E clean report target 09510ecf",
-  "comment_create_request_id": "9240.361",
+  "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+  "comment_original_content": "E2E clean report target d3ebdc52",
+  "comment_create_request_id": "8876.360",
   "comment_db_before": {
-    "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
+    "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
     "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
     "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
-    "content": "E2E clean report target 09510ecf",
+    "content": "E2E clean report target d3ebdc52",
     "status": "APPROVED",
     "deleted_at": null
   },
-  "report_create_request_id": "9240.632",
-  "report_id": "1a0a2f11-e54c-4019-843b-d8e5f68a7176",
-  "moderation_review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
+  "report_create_request_id": "8876.631",
+  "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
+  "moderation_review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
   "report_db_before": {
-    "report_id": "1a0a2f11-e54c-4019-843b-d8e5f68a7176",
+    "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
     "reporter_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
     "target_type": "COMMENT",
-    "target_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
-    "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
+    "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+    "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
     "status": "OPEN"
   },
   "review_db_before": {
-    "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
+    "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
     "target_type": "COMMENT",
-    "target_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
+    "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
     "source": "USER_REPORT",
     "status": "PENDING"
   },
-  "admin_review_list_request_id": "9240.901",
-  "admin_review_detail_request_id": "9240.902",
-  "admin_resolve_request_id": "9240.903",
+  "admin_review_list_request_id": "8876.900",
+  "admin_review_detail_request_id": "8876.901",
+  "admin_resolve_request_id": "8876.1166",
   "review_db_after": {
-    "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
+    "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
     "status": "APPROVED",
     "reviewed_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-    "reviewed_at": "2026-10-15T09:14:48.630747+00:00"
+    "reviewed_at": "2026-10-15T09:46:09.497196+00:00"
   },
   "report_db_after": {
-    "report_id": "1a0a2f11-e54c-4019-843b-d8e5f68a7176",
+    "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
     "status": "RESOLVED",
     "resolved_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-    "resolved_at": "2026-10-15T09:14:48.641317+00:00"
+    "resolved_at": "2026-10-15T09:46:09.505179+00:00"
   },
   "comment_db_after": {
-    "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d",
+    "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
     "status": "DELETED",
-    "deleted_at": "2026-10-15T09:14:48.643Z"
+    "deleted_at": "2026-10-15T09:46:09.506Z"
   },
-  "reporter_notification_id": "da6fd0ca-7763-4ce9-b9c0-e2820f7ded42",
-  "owner_notification_id": "a28f1b5e-4d19-4edf-9c0c-a5b8eb3cd116",
+  "reporter_notification_id": "c19d3e1d-d044-42c2-8a7e-2d1b0336fbfd",
+  "owner_notification_id": "5af09c3e-5026-41e8-b18c-ed1b9c8ec5d6",
   "notification_db_proof": {
     "reporter_notification": {
-      "notification_id": "da6fd0ca-7763-4ce9-b9c0-e2820f7ded42",
+      "notification_id": "c19d3e1d-d044-42c2-8a7e-2d1b0336fbfd",
       "user_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
       "type": "COMMENT_REPORT_APPROVED",
-      "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
-      "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d"
+      "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8"
     },
     "owner_notification": {
-      "notification_id": "a28f1b5e-4d19-4edf-9c0c-a5b8eb3cd116",
+      "notification_id": "5af09c3e-5026-41e8-b18c-ed1b9c8ec5d6",
       "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
       "type": "COMMENT_REMOVED_BY_REPORT",
-      "review_id": "49243732-cdb0-4b89-9585-606d0b35fe98",
-      "comment_id": "55b49707-2196-4d19-ae47-dd8757d0de1d"
+      "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8"
     }
   },
   "negative_suite": {
@@ -218,15 +219,20 @@
     "command": "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
     "exit_code": 0,
     "result": "PASS",
-    "tests_passed": 12,
+    "tests_passed": 17,
     "tests_failed": 0,
     "covered_invariants": [
       "anonymous_reports_rejected_401",
       "non_admin_moderation_forbidden_403",
       "nonexistent_comment_report_rejected_404",
       "deleted_comment_report_rejected_404",
+      "pending_moderation_comment_report_rejected_404",
+      "rejected_comment_report_rejected_404",
+      "unpublished_chapter_comment_report_rejected_404",
       "same_reporter_duplicate_open_report_rejected_409",
+      "concurrent_same_reporter_duplicate_submits_409",
       "distinct_reporters_share_one_review_and_aggregate_reports",
+      "concurrent_distinct_reporters_atomically_share_review",
       "admin_approve_report_resolves_reports_and_soft_deletes_comment",
       "admin_reject_report_rejects_reports_and_keeps_comment_approved",
       "approve_notifications_delivered_to_owner_and_reporter",
@@ -235,13 +241,52 @@
       "keyword_filter_comment_moderation_semantics_unchanged"
     ]
   },
+  "sentinel_preservation": {
+    "verified": true,
+    "sentinels": [
+      {
+        "type": "sentinel_review",
+        "id": "f0da598f-dbda-4694-996d-3ab2a32c3c58",
+        "status_before": "PENDING",
+        "status_after": "PENDING",
+        "hash_match": true
+      },
+      {
+        "type": "sentinel_report",
+        "id": "aa5a15ae-e604-47b2-ace6-b7cbf2325cb8",
+        "status_before": "OPEN",
+        "status_after": "OPEN",
+        "hash_match": true
+      },
+      {
+        "type": "sentinel_reporter_report",
+        "id": "a49d664a-b960-4127-8664-b43020e5a339",
+        "target_type": "NOVEL",
+        "status_before": "OPEN",
+        "status_after": "OPEN",
+        "hash_match": true
+      },
+      {
+        "type": "sentinel_owner_comment",
+        "id": "ebeda9a0-0602-4159-93c0-ff306b7df7cc",
+        "status_before": "APPROVED",
+        "status_after": "APPROVED",
+        "hash_match": true
+      },
+      {
+        "type": "sentinel_notification",
+        "id": "c5b65338-1bb9-4898-adcd-64236e28ab6e",
+        "hash_match": true
+      }
+    ]
+  },
   "validation": [
     {
       "name": "web_typecheck",
       "command": "npm run typecheck",
       "cwd": "web",
       "exit_code": 0,
-      "duration_seconds": 4.97,
+      "duration_seconds": 4.89,
       "result": "PASS"
     },
     {
@@ -249,7 +294,7 @@
       "command": "npm run build",
       "cwd": "web",
       "exit_code": 0,
-      "duration_seconds": 16.51,
+      "duration_seconds": 15.88,
       "result": "PASS"
     },
     {
@@ -257,7 +302,7 @@
       "command": "npm run typecheck",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 3.2,
+      "duration_seconds": 3.04,
       "result": "PASS"
     },
     {
@@ -265,9 +310,9 @@
       "command": "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 2.38,
+      "duration_seconds": 1.94,
       "result": "PASS",
-      "tests_passed": 12,
+      "tests_passed": 17,
       "tests_failed": 0
     },
     {
@@ -275,12 +320,12 @@
       "command": "npm test",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 2.79,
+      "duration_seconds": 2.5,
       "result": "PASS"
     },
     {
       "name": "browser_comment_user_report_moderation_flow",
-      "description": "Real browser Report-A through Report-J CDP flow",
+      "description": "Real browser Report-A through Report-J CDP flow + Checkpoint F2",
       "result": "PASS"
     }
   ],
