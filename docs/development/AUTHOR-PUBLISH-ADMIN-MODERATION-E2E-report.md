@@ -3,7 +3,7 @@
 **Verdict**: `AUTHOR_PUBLISH_ADMIN_MODERATION_PASS`  
 **Tested Base Main SHA**: `a272d87c3f4edeab6b5de19a1e7c60f5035311b5`  
 **Tested Code SHA**: `6c9a196a7eeb86cb48a5de363b9274ca1eaa6128`  
-**Working Branch**: `astra/author-publish-admin-moderation-e2e`  
+**Working Branch**: `astra/author-publish-admin-moderation-e2e` — **MERGED via PR #47**  
 **Date**: `2026-10-15 06:19:38Z`  
 **Driver**: Microsoft Edge CDP over WebSocket (real browser automation)
 
@@ -127,16 +127,39 @@ The following full-resolution screenshots were captured at each checkpoint and a
 
 ---
 
-## 7. Stop Boundary & Verdict
+## 7. Remote Acceptance & Merge Closure
+
+Local acceptance was independently exercised by the required GitHub Actions workflows on PR #47.
 
 ```text
-Verdict: AUTHOR_PUBLISH_ADMIN_MODERATION_PASS
-Local State: LOCAL_PASS_CI_PENDING
+PR:
+#47 — feat(moderation): close author publish admin moderation lifecycle
+
+accepted PR head:
+2833a68f3d6b2e6b4026ac51cc5932388de64888
+
+P7 Semantic Memory Foundation:
+run #127 / 38694642827 / PASS
+
+P8 Cutover and Migration:
+run #124 / 38694642777 / PASS
+
+merge commit:
+b7c9d4ea284ea8bf1eb135b6e876d7679ea8b18a
 ```
 
-All 8 checkpoints and all 5 Phase C negative invariants PASS.
+The P8 root-compose regression passed the complete accepted chain including AI-PIPE-01A, AI-PIPE-02A, AI-PIPE-02B, and AI-PIPE-03A. Frontend/API cutover, PostgreSQL integration, rollback rehearsal, and the final cleanup gate also passed.
+
+Remote status:
+
+```text
+AUTHOR_PUBLISH_ADMIN_MODERATION_PASS
+CI_PASS / MERGED
+```
+
+No CI-only product repair was required for PR #47.
+
+All 8 browser checkpoints and all 5 Phase C negative invariants remain accepted.
 Session transitions operate canonically through rendered UI controls.
-Credentials and tokens are strictly sanitized.
-Validation manifest and negative claims are directly derived from local execution.
-Gemini stops strictly at `LOCAL_PASS_CI_PENDING` with a clean working tree.
-ChatGPT owns remote PR review, CI inspection, and merge decision.
+Credentials and tokens remain sanitized.
+FE-owned static/mock presentation debt remains intentionally outside this gate.
