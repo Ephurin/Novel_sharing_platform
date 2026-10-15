@@ -13,6 +13,8 @@ AI-PIPE-02B  Durable outline / Story Plan                   CI_PASS / MERGED
 
 AI-PIPE-03A  Bounded autonomous controller                  CI_PASS / MERGED
 
+MANUSCRIPT-IMPORT-UI  Canonical import -> Story Brain -> P1   CI_PASS / MERGED
+
 P1_OVERALL_SYSTEM_PASS
 ```
 
@@ -24,6 +26,7 @@ PR #40  AI-PIPE-02A  merged
 PR #41  AI-PIPE-02B  merged
 PR #42  AI-PIPE-03A  merged
 PR #45  AI-PIPE-01B  merged
+PR #46  MANUSCRIPT-IMPORT-UI  merged
 ```
 
 AI-PIPE-01B remote closure:
@@ -57,7 +60,32 @@ Canonical report:
 docs/development/AI-PIPE-01B-MAIN-E2E-report.md
 ```
 
-Do not reopen P1/P2/P3 architecture without a concrete regression or explicitly approved new scope.
+Manuscript Import remote closure:
+
+```text
+tested code:
+66f94e22980b2c10cf3e2e93523e31f6582def60
+
+evidence payload:
+9771996f92b19076ebd081421c25e6aad033b9d7
+
+lineage seal / accepted PR head:
+d73e6d138e27892f3eec71d627dae2aeaa3f2c55
+
+P7 Semantic Memory Foundation:
+run #126 / 38670492688 / PASS
+
+P8 Cutover and Migration:
+run #123 / 38670492674 / PASS
+
+merge:
+ff1d47b59ca995af32b068163599cefdcc158db8
+
+report:
+docs/development/MANUSCRIPT-IMPORT-UI-E2E-report.md
+```
+
+Do not reopen P1/P2/P3 or Manuscript Import architecture without a concrete regression or explicitly approved new scope.
 
 ---
 
@@ -227,167 +255,145 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. EXECUTE NOW — Manuscript Import Final Sync / Rerun / Stop
+## 5. NEXT ACTIVE GATE — Product UI Integration Inventory & Browser E2E Plan
 
-No new architecture work is requested. This is an execution-only reminder because the remote working branch has not advanced since the previous directive.
+The AI authoring core and Manuscript Import entry flow are now closed on local browser acceptance and required PR CI.
 
-### Exact remote state
+The next task is not another architecture redesign. It is a product-level inventory of the remaining web UI surfaces and their real backend wiring.
 
-```text
-current main before this reminder:
-3bd6a43542a69d15ebee469ec68d5090c4966d77
+### Objective
 
-working branch:
-astra/manuscript-import-ui-e2e
-
-current branch head:
-47bb3cd7a6fdbf160979d522f2955ccbaf43adda
-
-current relation before this reminder:
-ahead main 10
-behind main 2
-merge base dce5172e916d0546fe8293807bce7354e695fd50
-```
-
-The product/evidence design is already accepted. Do not redesign it.
-
-Accepted behavior that must remain intact:
+Build a concrete matrix of all significant web routes/screens and classify each one as:
 
 ```text
-MANUSCRIPT_BOOTSTRAP snapshot -> source_type BOOTSTRAP
-MANUSCRIPT_BOOTSTRAP snapshot -> no generic INCREMENTAL_ANALYSIS outbox
-AUTHOR_SNAPSHOT default -> generic INCREMENTAL_ANALYSIS remains
-AI_DRAFT_ACCEPT -> generic fail-closed INCREMENTAL_ANALYSIS remains
-pre_baseline_outbox_count == 0
-Import-E browser readback PASS
-Import-I canonical absence PASS
-Import-J real accepted proposal IDs/groups PASS
-Import-M exact imported generation provenance PASS
-Import-N reject leaves canon/Brain unchanged
-Import-O AI_DRAFT_ACCEPT -> outbox COMPLETED -> Brain N+1
-Import-P later browser request sees N+1
+REAL + E2E-COVERED
+REAL + NOT-YET-E2E-COVERED
+PARTIALLY-WIRED
+MOCK / STATIC
+BROKEN CONTRACT
+NOT_IMPLEMENTED
+OBSOLETE / DUPLICATE
 ```
 
-### Do this now
+Focus on what a real user can do through the rendered product, not only whether a component file exists.
 
-Read the **actual latest origin/main SHA after this reminder is committed**, then:
+### Required inventory
 
-```bash
-git fetch origin
-git checkout astra/manuscript-import-ui-e2e
-git pull --ff-only
-git merge origin/main
-```
-
-Do not hard-code `3bd6a43...` as final tested main if origin/main is newer because of this reminder. Record:
+At minimum inspect:
 
 ```text
-ACTUAL_SYNCED_MAIN_SHA = git rev-parse origin/main
+reader/public flows
+- discovery / novel list
+- novel detail
+- chapter reader
+- comments/reactions if implemented
+- library/bookmarks/history if implemented
+
+author flows
+- author dashboard
+- novel create/edit
+- novel data/settings
+- chapter lifecycle
+- Author Writing IDE
+- Story Bible
+- Manuscript Import
+- analytics/earnings if implemented
+
+admin/moderation flows
+- dashboard
+- user/novel moderation
+- reports/review queues
+- monetization/admin controls if implemented
+
+auth/account flows
+- sign in / sign up
+- profile/settings
+- role/permission boundaries
 ```
 
-After merge, verify:
+For each surface record:
 
 ```text
-git merge-base --is-ancestor origin/main HEAD
-branch behind origin/main = 0
+route
+intended user
+rendered UI status
+API calls actually used
+backend route/service
+persistence owner
+auth/ownership rule
+browser E2E coverage
+known mock/static data
+known blocker
+recommended next action
 ```
 
-If the merge only brings `promt.md` review instructions and there are no product conflicts, do not modify product behavior.
+### Deliverable
 
-### Establish final code baseline
-
-Commit the sync if Git creates a merge commit. Ensure clean tree.
-
-Then:
+Create:
 
 ```text
-FINAL_TESTED_CODE_SHA = git rev-parse HEAD
+docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.md
 ```
 
-Push that code baseline before generating evidence so the SHA is remotely resolvable.
+and optionally a machine-readable companion JSON if useful.
 
-### Mandatory rerun on FINAL_TESTED_CODE_SHA
+The report must produce a prioritized next-gate list, ordered by product value and integration risk.
 
-Run:
+Recommended priority rule:
 
 ```text
-frontend typecheck/build
-manuscript-import contract tests
-snapshot/outbox regression tests
-bootstrap/review/baseline tests
-P1 acceptDraft/outbox regression tests
-relevant AI gateway/backend tests
-real browser Import-A through Import-P
+P0 = user-visible core flow is fake/broken
+P1 = core flow real but lacks browser acceptance
+P2 = secondary feature incomplete
+P3 = cosmetic / non-blocking
 ```
 
-The final browser run must preserve all previously accepted assertions, including:
+### Browser reconnaissance
+
+Use the current rendered web app against the real local backend.
+
+Do not mutate production-like data destructively unless needed.
+
+For each major route:
+- navigate through UI where possible;
+- capture whether the screen is real, placeholder, broken, or partially wired;
+- correlate API/network calls;
+- identify dead buttons/forms and client-only mocks.
+
+API/DB inspection may support the diagnosis, but do not call an API-only flow a browser PASS.
+
+### Architecture boundary
+
+Do not reopen:
 
 ```text
-pre_baseline_outbox_count == 0
-Import-E real browser reload/readback
-Import-I rejected proposal canonical absence
-Import-J accepted_proposals_count > 0
-Import-M exact chapter_id/revision_id/content_hash/expected_brain_version
-Import-N no canonical mutation
-Import-O AI_DRAFT_ACCEPT + COMPLETED outbox + Brain N->N+1
-Import-P browser observes N+1
+AI-PIPE-01A
+AI-PIPE-01B
+AI-PIPE-02A
+AI-PIPE-02B
+AI-PIPE-03A
+MANUSCRIPT-IMPORT-UI
 ```
 
-### Regenerate evidence with current ancestry
+unless the product inventory exposes a concrete regression in an accepted invariant.
 
-The old lineage:
+### Stop boundary
 
-```text
-40dc3fd -> 43f5d75 -> 47bb3cd
-```
+This gate is inventory/planning only.
 
-is historical only.
+Gemini should:
+- inspect locally;
+- produce the inventory report;
+- identify the smallest next executable UI integration gate;
+- commit/push the report on a fresh branch from current main.
 
-Create new final lineage:
+Gemini should not:
+- launch a large UI rewrite;
+- create a PR;
+- merge;
+- claim product readiness from file existence alone.
 
-```text
-FINAL_TESTED_CODE_SHA
-    -> FINAL_EVIDENCE_PAYLOAD_SHA
-    -> optional FINAL_LINEAGE_SEAL_SHA
-```
-
-Evidence/report must record:
-
-```text
-tested_main_sha = ACTUAL_SYNCED_MAIN_SHA
-tested_code_sha = FINAL_TESTED_CODE_SHA
-branch = astra/manuscript-import-ui-e2e
-```
-
-plus all existing machine-readable import/proposal/generation/outbox IDs.
-
-Do not embed a seal commit SHA into itself.
-
-### Stop condition
-
-Only after:
-
-```text
-behind origin/main = 0
-working tree clean
-all deterministic tests PASS
-Import-A..P PASS
-MANUSCRIPT_IMPORT_UI_PASS
-all final SHAs resolve remotely
-```
-
-push the final evidence/seal and STOP at:
-
-```text
-LOCAL_PASS_CI_PENDING
-```
-
-Do not create a PR.
-Do not merge.
-Do not claim CI PASS.
-Do not touch the obsolete `UI` branch.
-
-ChatGPT will handle PR, GitHub Actions, CI-only repairs if needed, merge, and canonical closure.
+ChatGPT will review the inventory and choose the next implementation/E2E gate.
 
 ---
 
