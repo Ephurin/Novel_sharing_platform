@@ -756,7 +756,7 @@ export function AdminModerationDetailPage() {
             </Text>
           </Box>
           <Group>
-            {review?.source === 'USER_REPORT' ? (
+            {review?.source === 'USER_REPORT' && review?.targetType === 'COMMENT' ? (
               <>
                 <Button
                   disabled={review?.status !== 'PENDING'}
@@ -783,6 +783,42 @@ export function AdminModerationDetailPage() {
                     setPendingAction({
                       title: 'Reject report?',
                       description: `Reject report ${review?.reviewId}. The reported comment will be kept.`,
+                      confirmLabel: 'Reject report',
+                      color: 'red',
+                      run: () => resolveMutation.mutate({ decision: 'REJECTED' })
+                    })
+                  }
+                >
+                  Reject report
+                </Button>
+              </>
+            ) : review?.source === 'USER_REPORT' ? (
+              <>
+                <Button
+                  disabled={review?.status !== 'PENDING'}
+                  loading={resolveMutation.isPending}
+                  data-testid="admin-approve-report-btn"
+                  onClick={() =>
+                    setPendingAction({
+                      title: 'Approve report?',
+                      description: `Approve report ${review?.reviewId} for ${review?.targetType?.toLowerCase()}. The report will be marked as resolved.`,
+                      confirmLabel: 'Approve report',
+                      run: () => resolveMutation.mutate({ decision: 'APPROVED' })
+                    })
+                  }
+                >
+                  Approve report
+                </Button>
+                <Button
+                  color="red"
+                  variant="light"
+                  disabled={review?.status !== 'PENDING'}
+                  loading={resolveMutation.isPending}
+                  data-testid="admin-reject-report-btn"
+                  onClick={() =>
+                    setPendingAction({
+                      title: 'Reject report?',
+                      description: `Reject report ${review?.reviewId} for ${review?.targetType?.toLowerCase()}. The report will be marked as rejected.`,
                       confirmLabel: 'Reject report',
                       color: 'red',
                       run: () => resolveMutation.mutate({ decision: 'REJECTED' })

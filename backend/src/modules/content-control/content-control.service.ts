@@ -1,4 +1,5 @@
 import { AppError } from '../../core/errors/app-error.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import type {
   ContentControlCheckInput,
@@ -101,7 +102,7 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
     if (!comment) {
       throw new AppError(404, 'CONTENT_001', 'Comment not found');
     }
-    if (comment.deletedAt !== null || comment.status === 'DELETED') {
+    if (comment.deletedAt !== null || comment.status !== 'APPROVED') {
       throw new AppError(404, 'CONTENT_001', 'Comment not found');
     }
     const chapter = await findReadableChapter(comment.chapterId);
@@ -110,31 +111,49 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
     }
   }
 
-  const existingOpenReport = await findOpenReportByReporter(auth.userId, input.targetType, input.targetId);
-  if (existingOpenReport) {
-    throw new AppError(409, 'REPORT_001', 'An open report already exists for this content');
+  try {
+    return await withPostgresTransaction(async (client) => {
+      const existingOpenReport = await findOpenReportByReporter(auth.userId, input.targetType, input.targetId, client);
+      if (existingOpenReport) {
+        throw new AppError(409, 'REPORT_001', 'An open report already exists for this content');
+      }
+
+      const existingReview = await findOpenReview(input.targetType, input.targetId, client);
+      const review =
+        existingReview ??
+        (await createModerationReview(
+          {
+            targetType: input.targetType,
+            targetId: input.targetId,
+            source: 'USER_REPORT'
+          },
+          client
+        ));
+
+      const report = await createReportRow(
+        {
+          ...input,
+          reporterId: auth.userId,
+          reviewId: review.review_id
+        },
+        client
+      );
+
+      return {
+        reportId: report.report_id,
+        moderationReviewId: review.review_id,
+        status: 'PENDING'
+      };
+    });
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    if (error?.code === '23505') {
+      throw new AppError(409, 'REPORT_001', 'An open report already exists for this content');
+    }
+    throw error;
   }
-
-  const existingReview = await findOpenReview(input.targetType, input.targetId);
-  const review =
-    existingReview ??
-    (await createModerationReview({
-      targetType: input.targetType,
-      targetId: input.targetId,
-      source: 'USER_REPORT'
-    }));
-
-  const report = await createReportRow({
-    ...input,
-    reporterId: auth.userId,
-    reviewId: review.review_id
-  });
-
-  return {
-    reportId: report.report_id,
-    moderationReviewId: review.review_id,
-    status: 'PENDING'
-  };
 }
 
 export async function listModerationReviews(input: ListReviewsInput) {
