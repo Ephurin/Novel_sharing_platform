@@ -14,6 +14,7 @@ AI-PIPE-02B  Durable outline / Story Plan                   CI_PASS / MERGED
 AI-PIPE-03A  Bounded autonomous controller                  CI_PASS / MERGED
 
 MANUSCRIPT-IMPORT-UI  Canonical import -> Story Brain -> P1   CI_PASS / MERGED
+AUTHOR-PUBLISH-MODERATION  Author -> Admin -> Public lifecycle   CI_PASS / MERGED
 
 P1_OVERALL_SYSTEM_PASS
 ```
@@ -27,6 +28,7 @@ PR #41  AI-PIPE-02B  merged
 PR #42  AI-PIPE-03A  merged
 PR #45  AI-PIPE-01B  merged
 PR #46  MANUSCRIPT-IMPORT-UI  merged
+PR #47  AUTHOR-PUBLISH-MODERATION  merged
 ```
 
 AI-PIPE-01B remote closure:
@@ -85,7 +87,29 @@ report:
 docs/development/MANUSCRIPT-IMPORT-UI-E2E-report.md
 ```
 
-Do not reopen P1/P2/P3 or Manuscript Import architecture without a concrete regression or explicitly approved new scope.
+Author Publish / Moderation remote closure:
+
+```text
+tested code:
+6c9a196a7eeb86cb48a5de363b9274ca1eaa6128
+
+accepted PR head / evidence commit:
+2833a68f3d6b2e6b4026ac51cc5932388de64888
+
+P7 Semantic Memory Foundation:
+run #127 / 38694642827 / PASS
+
+P8 Cutover and Migration:
+run #124 / 38694642777 / PASS
+
+merge:
+b7c9d4ea284ea8bf1eb135b6e876d7679ea8b18a
+
+report:
+docs/development/AUTHOR-PUBLISH-ADMIN-MODERATION-E2E-report.md
+```
+
+Do not reopen P1/P2/P3, Manuscript Import, or Author Publish/Moderation architecture without a concrete regression or explicitly approved new scope.
 
 ---
 
@@ -255,357 +279,453 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. FINAL HARDENING DIRECTIVE — Author Publish / Moderation E2E
+## 5. ACTIVE EXECUTION DIRECTIVE — Reader Discovery + Reading State E2E
 
-The functional product lifecycle is accepted in direction. Do not open a PR yet.
+The Author -> Admin -> Public publication bridge is now CI_PASS / MERGED.
 
-Current reviewed branch:
-
-```text
-astra/author-publish-admin-moderation-e2e
-```
-
-Reviewed remote head before this directive:
+The next bounded product gate is:
 
 ```text
-401b8da300f31f44c742ffc9282856c71443eb5a
+READER-DISCOVERY-READING-STATE-E2E
 ```
 
-Reviewed product/test baseline:
+This gate proves that an authenticated reader can discover a real published novel, persist it in the personal library, read a free published chapter, create/read back reading history, survive page reloads, and remove the library item.
 
-```text
-6b94d8a7d6b0298f0d58979c48038ce2d9ce32ed
-```
+FE-owned static/mock presentation debt remains a separate task and does not block this gate unless it makes a decisive reader action impossible.
 
-Accepted functional behavior:
-
-```text
-Author creates DRAFT via rendered UI                 PASS
-deterministic harassment rule triggers moderation    PASS
-browser submit-publish -> PENDING_MODERATION          PASS
-exact moderationReviewId correlation                  PASS
-Admin queue/detail exact target                       PASS
-Admin APPROVED -> novel PUBLISHED                     PASS
-published_at persisted                                PASS
-anonymous /public discovery                           PASS
-publish CTA/status badge product fix                  ACCEPTED
-Phase-C deterministic service invariants              IMPLEMENTED
-```
-
-The only remaining work is evidence/runner hardening plus final rerun.
-
-### FE-owned debt is explicitly out of scope
-
-Do not fix or redesign existing mock/static presentation values in Author UI in this branch.
-
-Known FE-owned debt includes examples inherited from PR #44 / commit `0e7012c`:
-
-```text
-285.4k views fallback
-86.4k Xu revenue fallback
-static creation/update timestamps
-other mock/static display values ported from design HTML
-```
-
-These are assigned to FE separately and must not block this lifecycle gate.
-
-However, correct the inventory wording so it does not claim `MOCK / STATIC = 0` as a universal property of all display fields. The lifecycle route can be real while containing FE-owned static presentation debt.
-
-Do not alter those FE values here.
+Do not include Wallet/VIP unlock in this gate.
 
 ---
 
-### Step 1 — sync this final directive
+### Start from actual latest main
 
-After this commit lands on main:
+After this directive is committed:
 
 ```bash
 git fetch origin
-git checkout astra/author-publish-admin-moderation-e2e
-git pull --ff-only
-git merge origin/main
+git checkout main
+git pull --ff-only origin main
+git checkout -b astra/reader-discovery-reading-state-e2e
 ```
 
-Record the actual synced main SHA:
+Record:
 
 ```text
-FINAL_SYNCED_MAIN_SHA = git rev-parse origin/main
+GATE_BASE_MAIN_SHA = git rev-parse origin/main
 ```
 
-Branch must be behind main by zero before the final run.
+Working branch:
+
+```text
+astra/reader-discovery-reading-state-e2e
+```
 
 ---
 
-### Step 2 — fix Publish-D and Publish-H session transitions
+### Confirmed production contracts
 
-Current runner incorrectly uses direct storage clearing for the decisive logout transition.
+ChatGPT directly verified current-main reader contracts.
 
-Production UI already provides canonical logout in:
-
-```text
-web/src/app/layout/WebAppShell.tsx
-```
-
-The rendered `Logout` button executes:
+Discovery/detail/chapter:
 
 ```text
-logout() backend call
--> clearSession()
--> queryClient.clear()
--> navigate('/login')
+GET /api/v1/reading/search
+GET /api/v1/reading/novels/:novelId
+GET /api/v1/reading/chapters/:chapterId
 ```
 
-Change the browser runner so:
+Library:
 
 ```text
-Publish-D:
-Author clicks rendered "Logout"
--> browser observes /login
--> Admin fills rendered login form
--> Admin enters /admin
-
-Publish-H:
-Admin clicks rendered "Logout"
--> browser observes /login / unauthenticated state
--> navigate to /public as guest
+GET    /api/v1/reading/library/me
+POST   /api/v1/reading/library/me
+DELETE /api/v1/reading/library/me/:novelId
 ```
 
-Do not use:
+History:
 
 ```text
-localStorage.clear()
-sessionStorage.clear()
-token injection
-direct auth-store mutation
+PUT /api/v1/reading/history/me
+GET /api/v1/reading/history/me
+GET /api/v1/reading/history/me/:novelId
 ```
 
-as the decisive transition for Publish-D or Publish-H.
-
-Direct storage cleanup may only be used as test-process cleanup after acceptance is complete, not as a PASS-producing user action.
-
-Capture evidence:
+Current Reader UI behavior:
 
 ```text
-author_logout_browser_request_id if logout endpoint is observable
-author_logout_destination
-admin_login_browser_request_id
-admin_logout_browser_request_id if observable
-anonymous_session_verified
+/reader
+ -> searchPublishedNovels()
+
+/reader/novels/:novelId
+ -> Add library
+ -> Continue / Read chapter
+
+/reader/chapters/:chapterId
+ -> getReaderChapter()
+ -> useEffect automatically calls syncHistory({novelId, chapterId})
+ -> explicit "Sync history" button can repeat the same mutation
+
+/reader/library
+ -> listLibrary()
+ -> Remove
+
+/reader/history
+ -> listHistory()
+ -> Continue link back to exact chapter
 ```
 
-At minimum the DOM/route must prove the authenticated shell disappeared after logout.
+Current UI does **not** provide a user-driven paragraph/page-offset progress control. The auto-sync mutation currently supplies only `novelId + chapterId`; backend defaults `paragraphIndex=0` and allows nullable pageOffset.
+
+Therefore this gate must prove **chapter-level reading state**, not invent paragraph-level acceptance.
 
 ---
 
-### Step 3 — evidence credential hygiene
+### Deterministic fixture rule
 
-The repository intentionally contains deterministic demo seed credentials in deployment/demo documentation. That does not justify copying password/token values into generated evidence.
+Use an existing deterministic published novel that has at least one **PUBLISHED, non-VIP/free chapter**.
 
-Before final evidence commit:
+Preferred fixture selection:
+1. inspect current deterministic demo seed;
+2. choose a published novel owned by a seed author;
+3. select an exact published free chapter;
+4. record all IDs before browser execution.
+
+Do not:
+- use a VIP chapter;
+- deposit coins;
+- unlock content;
+- mutate author/admin publication state;
+- create a new novel solely for this reader gate if the accepted seed is sufficient.
+
+If no deterministic published free chapter exists in the current canonical seed, classify:
 
 ```text
-no password values in evidence JSON
-no access/refresh token values in evidence JSON
-no password values captured from rendered input snapshots
-no auth token values captured in inventory JSON
+READER_FIXTURE_MISSING
 ```
 
-For the new browser runner, do not commit a password literal.
+and add the smallest deterministic test fixture through the existing seed mechanism. Do not add a production endpoint for test setup.
 
-Read the deterministic demo password from an environment variable, e.g.:
+Reader login must use the rendered UI. Use deterministic fixture identity, preferably the existing READER demo account.
+
+Runner password must come from:
 
 ```text
 EPHURIN_E2E_DEMO_PASSWORD
 ```
 
-Fail with a clear setup error if missing.
-
-The account identifiers/emails may remain because they are deterministic non-secret fixtures.
-
-Sanitize the cherry-picked inventory artifact:
-
-```text
-docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.json
-```
-
-For any password input:
-
-```text
-type=password
-value must be omitted or "<redacted>"
-```
-
-Update `scripts/recon_product_ui_inventory.py` so future runs never persist password values.
-
-Also remove any fallback that silently injects access tokens into browser storage and then presents the route as browser-authenticated. If a normal UI login fails, reconnaissance must record auth failure rather than bypassing it.
-
-Do not rewrite the whole inventory.
+No committed password/token literals.
 
 ---
 
-### Step 4 — make negative evidence derived, not asserted by constant
+### Phase A — inspect before editing
 
-Current browser runner must not end with five unconditional:
-
-```text
-negative_check_results = true
-```
-
-The production-path deterministic suite already exists:
+Inspect current production path before changing product code:
 
 ```text
-backend/src/modules/content-control/author-publish-moderation-lifecycle.postgres.test.ts
+web/src/features/reader/ReaderPage.tsx
+web/src/features/reader/reader-api.ts
+web/src/app/router.tsx
+backend/src/modules/reading/reading.routes.ts
+backend/src/modules/reading/reading.controller.ts
+backend/src/modules/reading/reading.service.ts
+backend/src/modules/reading/reading.repository.ts
+backend/src/modules/reading/reading.schemas.ts
 ```
 
-It exercises:
+If the current UI already closes the loop, do not manufacture product changes.
 
-```text
-non-admin resolve guard
-duplicate resolve 409
-published resubmit 409
-single open pending review
-unrelated-review isolation
-```
+Only fix a concrete browser-observed defect.
 
-The final evidence must link its negative claims to the actual executed suite.
-
-Preferred shape:
-
-```json
-"negative_suite": {
-  "test_file": "...author-publish-moderation-lifecycle.postgres.test.ts",
-  "command": "<actual command>",
-  "exit_code": 0,
-  "result": "PASS",
-  "covered_invariants": [
-    "role_guard_reader_author_forbidden_403",
-    "duplicate_resolve_fails_closed_409",
-    "already_published_novel_resubmit_fails_409",
-    "target_idempotent_no_duplicate_pending_reviews",
-    "unrelated_review_cannot_satisfy_target"
-  ]
-}
-```
-
-Do not write PASS or boolean true if that suite was not executed successfully in the same final validation run.
-
-If practical, capture machine-readable TAP/JSON output. Do not add complex infrastructure solely for this.
+Do not fix unrelated Author hardcoded metrics/dates in this branch.
 
 ---
 
-### Step 5 — add a real validation manifest
+### Phase B — browser checkpoints
 
-The final report/evidence currently under-specifies local validation.
+All decisive reader mutations must originate in the rendered browser UI.
 
-Final evidence must record the exact executed commands and results for at least:
+Required checkpoints:
 
 ```text
-web typecheck
-web build
+Reader-A — login as READER through rendered login form
+Reader-B — search exact deterministic published novel on /reader and open detail
+Reader-C — Add library through rendered button; exact POST succeeds and DB bookmark exists
+Reader-D — reload/open /reader/library; exact novel remains visibly persisted
+Reader-E — open exact free published chapter through rendered reader navigation
+Reader-F — chapter render auto-syncs history; exact PUT /reading/history/me captured and DB history points to exact chapter
+Reader-G — reload/open /reader/history; exact novel/chapter appears; Continue returns to exact chapter
+Reader-H — remove novel through rendered /reader/library UI; reload proves absence and DB bookmark removed
+```
+
+#### Reader-A
+
+Use normal rendered login form.
+
+Prove:
+```text
+role = READER
+authenticated WebAppShell visible
+/reader reachable
+```
+
+Do not inject tokens/storage.
+
+#### Reader-B
+
+On `/reader`, use the rendered search input with the fixture's exact title.
+
+Capture:
+```text
+GET /api/v1/reading/search
+HTTP 200
+exact novel_id returned
+exact title rendered
+```
+
+Open:
+```text
+/reader/novels/:novelId
+```
+
+Prove the rendered detail contains the exact target and exact free chapter.
+
+#### Reader-C
+
+Click rendered:
+```text
+Add library
+```
+
+Capture:
+```text
+POST /api/v1/reading/library/me
+body.novelId == target novel
+successful status
+```
+
+DB-correlate bookmark:
+```text
+user_id == reader
+novel_id == target
+one active bookmark row
+```
+
+If the fixture reader already has this novel saved, clean that **test fixture state before the browser run** through test setup/DB cleanup, not via a fake production endpoint.
+
+The browser mutation itself must create the accepted bookmark.
+
+#### Reader-D
+
+Navigate through rendered shell/navigation to:
+```text
+/reader/library
+```
+
+Reload the page.
+
+Prove:
+```text
+GET /reading/library/me
+exact novel_id returned
+title rendered after reload
+Open detail link targets exact novel
+```
+
+#### Reader-E
+
+From reader detail/library navigation, open the exact free chapter.
+
+Capture:
+```text
+GET /api/v1/reading/chapters/:chapterId
+HTTP 200
+chapter_id == target
+novel_id == target
+isVip == false
+rendered title/content non-empty
+```
+
+Do not use a VIP chapter as substitute.
+
+#### Reader-F
+
+The current UI automatically invokes history sync after chapter load.
+
+Capture the browser-originated:
+```text
+PUT /api/v1/reading/history/me
+```
+
+Required body correlation:
+```text
+novelId == target novel
+chapterId == target chapter
+```
+
+Backend defaults are acceptable:
+```text
+paragraphIndex = 0
+pageOffset = null/omitted
+```
+
+DB/readback must prove one history state for:
+```text
+reader user
+target novel
+target chapter
+```
+
+Do not claim paragraph-position persistence.
+
+#### Reader-G
+
+Navigate to:
+```text
+/reader/history
+```
+
+Reload.
+
+Prove:
+```text
+GET /reading/history/me
+exact target novel/chapter returned
+exact novel title rendered
+exact chapter title/number rendered
+```
+
+Click rendered `Continue`.
+
+Required destination:
+```text
+/reader/chapters/:targetChapterId
+```
+
+and the exact chapter must render again.
+
+#### Reader-H
+
+Return to:
+```text
+/reader/library
+```
+
+Click rendered `Remove` for the exact target.
+
+Capture:
+```text
+DELETE /api/v1/reading/library/me/:novelId
+```
+
+Reload library.
+
+Prove:
+```text
+target novel absent from DOM
+target novel absent from GET /reading/library/me
+bookmark row absent in DB
+```
+
+History should remain unless the existing product contract explicitly removes it; do not assume library removal deletes reading history.
+
+---
+
+### Phase C — bounded negative/idempotency checks
+
+Add/execute the smallest deterministic assertions proving:
+
+```text
+1. anonymous POST /reading/library/me is rejected by auth
+2. duplicate Add library fails closed with existing conflict contract
+3. removing a non-existent bookmark fails with existing not-found contract
+4. history sync rejects mismatched novelId/chapterId
+5. history is user-scoped: another reader cannot satisfy/read back the target reader's state as their own
+6. non-published novel/chapter cannot be used to create accepted reader state
+```
+
+Use existing service/route tests where available. Add focused production-path tests only where missing.
+
+Do not expand this into comments/likes/follows/reporting.
+
+---
+
+### Phase D — evidence
+
+Create:
+
+```text
+docs/development/READER-DISCOVERY-READING-STATE-E2E-report.md
+
+docs/development/READER-DISCOVERY-READING-STATE-E2E/
+  reader-discovery-reading-state-e2e-evidence.json
+  Reader-A..H screenshots
+```
+
+Evidence must include at minimum:
+
+```text
+tested_main_sha
+tested_code_sha
+branch
+
+reader_user_id
+reader_email
+
+novel_id
+novel_title
+chapter_id
+chapter_number
+chapter_title
+chapter_is_vip
+
+login_browser_request_id
+search_browser_request_id
+add_library_browser_request_id
+library_reload_request_id
+chapter_browser_request_id
+history_sync_browser_request_id
+history_list_browser_request_id
+remove_library_browser_request_id
+
+bookmark_created_db_proof
+history_db_proof
+bookmark_removed_db_proof
+
+negative_suite
+validation
+verdict
+```
+
+Do not store:
+- password values;
+- auth tokens;
+- cookies;
+- private unrelated data.
+
+---
+
+### Phase E — validation
+
+Run at minimum:
+
+```text
+web typecheck/build
 backend typecheck
-author publish/moderation lifecycle PostgreSQL tests
-relevant novels/content-control tests
-relevant admin/reading tests
-real browser Publish-A..H
+relevant reading service/route/PostgreSQL tests
+real browser Reader-A..H
 ```
 
-Use the repository's actual package scripts discovered locally; do not invent command names.
+If current product code changes, run the relevant broader regression too.
 
-Recommended machine-readable structure:
+Do not rerun AI provider-quality tests unless a concrete unrelated regression appears.
 
-```json
-"validation": [
-  {
-    "name": "web_typecheck",
-    "command": "...",
-    "exit_code": 0,
-    "result": "PASS"
-  }
-]
-```
-
-Where a test runner reports counts, include:
+Final local verdict:
 
 ```text
-tests_passed
-tests_failed
+READER_DISCOVERY_READING_STATE_PASS
 ```
 
-Do not claim a command was run unless it was executed from the final tested tree.
-
----
-
-### Step 6 — final tested lineage and rerun
-
-After all hardening code changes but before generated evidence:
-
-```text
-git status clean
-FINAL_TESTED_CODE_SHA = git rev-parse HEAD
-```
-
-Push that SHA so it resolves remotely.
-
-Then from exactly `FINAL_TESTED_CODE_SHA` execute the full final validation and browser flow.
-
-Publish-A..H must all pass again.
-
-The final browser evidence must still prove:
-
-```text
-A browser-created DRAFT owned by Author
-B persisted moderation-triggering synopsis
-C browser submit -> moderationRequired=true + exact reviewId
-D real UI Logout -> Admin UI Login
-E exact target review visible
-F exact target approved through rendered Admin UI
-G reload + DB: APPROVED / PUBLISHED / published_at
-H real UI Logout -> anonymous public search/detail
-```
-
-Generate:
-
-```text
-FINAL_TESTED_CODE_SHA
-  -> FINAL_EVIDENCE_PAYLOAD_SHA
-  -> optional FINAL_LINEAGE_SEAL_SHA
-```
-
-Evidence must record:
-
-```text
-tested_main_sha = FINAL_SYNCED_MAIN_SHA
-tested_code_sha = FINAL_TESTED_CODE_SHA
-branch = astra/author-publish-admin-moderation-e2e
-```
-
-plus the existing novel/review/browser correlation fields, the logout/session fields, `negative_suite`, and `validation`.
-
----
-
-### Step 7 — report wording corrections
-
-The final report may say:
-
-```text
-AUTHOR_PUBLISH_ADMIN_MODERATION_PASS
-LOCAL_PASS_CI_PENDING
-```
-
-only after the final run.
-
-Correct prior overclaim:
-
-Do not say “Author logs out via UI” unless the final runner actually clicks the rendered Logout button.
-
-Correct inventory interpretation:
-
-```text
-route/API lifecycle reconnaissance found no P0 broken contract
-BUT some production screens contain FE-owned mock/static presentation debt
-```
-
-Do not classify the static metrics cleanup as part of this gate.
+only when Reader-A..H and negative invariants pass.
 
 ---
 
@@ -616,26 +736,26 @@ When complete:
 ```text
 branch behind main = 0
 git status clean
-all validation commands PASS
-Publish-A..H PASS
-evidence contains no password/token values
-negative claims derived from executed suite
-final SHAs resolve remotely
-AUTHOR_PUBLISH_ADMIN_MODERATION_PASS
+final tested SHA pushed
+evidence generated from final tested SHA
+Reader-A..H PASS
+credentials/tokens absent from evidence
+READER_DISCOVERY_READING_STATE_PASS
 LOCAL_PASS_CI_PENDING
 ```
 
 Push and STOP.
 
 Gemini must not:
-- create a PR;
+- create PR;
 - merge;
-- touch the FE-owned static metric/date cleanup;
-- implement Reader/Wallet/VIP work;
-- reopen AI/Story Brain architecture;
+- implement Wallet/VIP unlock;
+- expand into comments/likes/follows/reporting;
+- fix FE-owned Author static metrics;
+- reopen AI/Story Brain/Manuscript architecture;
 - claim GitHub Actions PASS.
 
-ChatGPT owns remote review -> PR -> CI -> merge.
+ChatGPT owns remote review, PR, CI and merge.
 
 ---
 
