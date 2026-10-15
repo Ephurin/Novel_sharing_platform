@@ -255,15 +255,51 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. NEXT ACTIVE GATE — Product UI Integration Inventory & Browser E2E Plan
+## 5. EXECUTE NOW — Product UI Integration Inventory
 
-The AI authoring core and Manuscript Import entry flow are now closed on local browser acceptance and required PR CI.
+This is an inventory/reconnaissance gate, not an implementation phase.
 
-The next task is not another architecture redesign. It is a product-level inventory of the remaining web UI surfaces and their real backend wiring.
+### Start from the actual latest main
 
-### Objective
+After this directive is committed:
 
-Build a concrete matrix of all significant web routes/screens and classify each one as:
+```bash
+git fetch origin
+git checkout main
+git pull --ff-only origin main
+git checkout -b astra/product-ui-integration-inventory
+```
+
+Record:
+
+```text
+INVENTORY_BASE_MAIN_SHA = git rev-parse origin/main
+branch = astra/product-ui-integration-inventory
+```
+
+Do not reuse old UI or AI acceptance branches.
+
+### Goal
+
+Determine the real product state of every significant web surface by combining:
+
+```text
+route/source inspection
++
+rendered browser inspection
++
+actual network/API observation
++
+backend/service correlation
++
+existing E2E evidence
+```
+
+File existence alone is not evidence that a feature works.
+
+### Required classification
+
+Every significant surface must receive exactly one primary classification:
 
 ```text
 REAL + E2E-COVERED
@@ -275,59 +311,93 @@ NOT_IMPLEMENTED
 OBSOLETE / DUPLICATE
 ```
 
-Focus on what a real user can do through the rendered product, not only whether a component file exists.
-
-### Required inventory
-
-At minimum inspect:
+Also assign priority:
 
 ```text
-reader/public flows
-- discovery / novel list
+P0 = core user-visible flow is fake/broken or blocks basic product use
+P1 = core flow appears real but lacks browser acceptance / has meaningful gaps
+P2 = secondary feature incomplete or weakly integrated
+P3 = cosmetic, polish, duplicate cleanup, or non-blocking
+```
+
+### Phase A — static route and component inventory
+
+Inspect the current web routing tree and identify every real route.
+
+At minimum cover these product areas if routes/components exist:
+
+```text
+PUBLIC / READER
+- landing / discovery
+- search / category / ranking
 - novel detail
 - chapter reader
-- comments/reactions if implemented
-- library/bookmarks/history if implemented
+- comments / reactions
+- bookmarks / library / reading history
+- payments / chapter unlock if implemented
 
-author flows
-- author dashboard
-- novel create/edit
-- novel data/settings
-- chapter lifecycle
+AUTH / ACCOUNT
+- sign in
+- sign up
+- refresh/logout behavior
+- profile
+- account/settings
+- role guards / unauthorized redirects
+
+AUTHOR
+- dashboard
+- novel create
+- novel edit / Novel Data
+- chapter list/create/edit/delete
+- draft/autosave
+- publish / VIP / price
 - Author Writing IDE
 - Story Bible
 - Manuscript Import
-- analytics/earnings if implemented
+- Story Plan / autonomous controls if exposed
+- analytics / earnings if exposed
 
-admin/moderation flows
+ADMIN / MODERATION
 - dashboard
-- user/novel moderation
-- reports/review queues
-- monetization/admin controls if implemented
-
-auth/account flows
-- sign in / sign up
-- profile/settings
-- role/permission boundaries
+- users
+- novels
+- reports / moderation queue
+- categories/tags
+- monetization/admin controls
 ```
 
-For each surface record:
+Do not invent missing features. If something does not exist, record `NOT_IMPLEMENTED`.
+
+Identify obsolete generated/static/duplicate pages separately rather than treating them as production routes.
+
+### Phase B — browser reconnaissance
+
+Run the current local production-like stack and the real web app.
+
+Use at least these identities if available in current fixtures:
 
 ```text
-route
-intended user
-rendered UI status
-API calls actually used
-backend route/service
-persistence owner
-auth/ownership rule
-browser E2E coverage
-known mock/static data
-known blocker
-recommended next action
+anonymous visitor
+reader
+author
+admin
 ```
 
-### Deliverable
+For each major route:
+
+1. navigate through rendered UI where possible;
+2. verify it actually renders;
+3. interact with the primary CTA/form/button without destructive production-like mutations;
+4. observe CDP/browser network requests;
+5. correlate the request with the actual backend route/service;
+6. identify static hard-coded data, fake counters, no-op buttons, 404/500s, auth leaks, ownership failures, and stale API contracts;
+7. record whether any existing browser E2E already proves the flow.
+
+Do not mark a surface `REAL` merely because it makes one API request. The primary user action must be meaningfully wired.
+
+Do not mark a surface `E2E-COVERED` from unit/API tests alone.
+
+### Phase C — integration matrix
 
 Create:
 
@@ -335,36 +405,57 @@ Create:
 docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.md
 ```
 
-and optionally a machine-readable companion JSON if useful.
-
-The report must produce a prioritized next-gate list, ordered by product value and integration risk.
-
-Recommended priority rule:
+The main table must contain at least:
 
 ```text
-P0 = user-visible core flow is fake/broken
-P1 = core flow real but lacks browser acceptance
-P2 = secondary feature incomplete
-P3 = cosmetic / non-blocking
+Area
+Route
+Primary user
+Primary user action
+Rendered status
+Observed browser/API requests
+Backend route/service
+Persistence owner
+Auth/ownership behavior
+Existing browser E2E evidence
+Primary classification
+Priority
+Concrete blocker/gap
+Recommended next action
 ```
 
-### Browser reconnaissance
+For routes with no API call because they are intentionally static/navigation-only, state that explicitly.
 
-Use the current rendered web app against the real local backend.
+For mock/static pages, identify the mock data source or hard-coded behavior.
 
-Do not mutate production-like data destructively unless needed.
+For broken contracts, include the exact UI expectation vs backend contract mismatch.
 
-For each major route:
-- navigate through UI where possible;
-- capture whether the screen is real, placeholder, broken, or partially wired;
-- correlate API/network calls;
-- identify dead buttons/forms and client-only mocks.
+### Phase D — product flow map
 
-API/DB inspection may support the diagnosis, but do not call an API-only flow a browser PASS.
+Do not only list isolated screens. Group them into end-to-end user journeys and classify whether each journey is usable:
 
-### Architecture boundary
+```text
+Reader:
+discover -> novel detail -> read chapter -> continue/history/library
 
-Do not reopen:
+Author:
+create novel -> configure metadata -> create/import chapter
+-> edit/write -> Story Brain/AI -> publish
+
+Admin:
+sign in -> moderation queue -> inspect target -> take moderation action
+
+Account:
+sign up/sign in -> session persistence -> profile/settings -> logout
+```
+
+For each journey, explicitly identify the **first broken or unverified transition**.
+
+This transition is usually a better next gate than the weakest-looking isolated component.
+
+### Phase E — reconcile with already-accepted gates
+
+These are already accepted and must not be downgraded without a concrete observed regression:
 
 ```text
 AI-PIPE-01A
@@ -375,25 +466,131 @@ AI-PIPE-03A
 MANUSCRIPT-IMPORT-UI
 ```
 
-unless the product inventory exposes a concrete regression in an accepted invariant.
+If browser reconnaissance finds a regression in one of them:
+- record the exact route/action/request;
+- attach reproducible evidence;
+- classify it as a regression;
+- do not redesign the architecture during this inventory gate.
+
+### Phase F — choose exactly one next executable gate
+
+At the end of the report, produce a ranked list of P0/P1 gaps.
+
+Then select **exactly one** recommended next gate using:
+
+```text
+highest user value
+x blocks the largest real user journey
+x smallest bounded implementation scope
+x highest confidence that browser E2E can close it
+```
+
+For the selected next gate provide:
+
+```text
+gate name
+user journey
+current failure/gap
+exact routes/components involved
+backend APIs/services involved
+minimum implementation scope
+browser E2E checkpoints
+acceptance criteria
+explicit non-goals
+estimated architectural risk: LOW / MEDIUM / HIGH
+```
+
+Do not implement that gate yet.
+
+### Evidence discipline
+
+The report must distinguish:
+
+```text
+STATIC_INSPECTION
+BROWSER_OBSERVED
+NETWORK_OBSERVED
+API_CORRELATED
+DB_CORRELATED
+EXISTING_E2E_PROVEN
+NOT_VERIFIED
+```
+
+Never present static inspection as browser evidence.
+
+Screenshots are optional for this inventory, but recommended for broken/mock/high-risk surfaces.
+
+Do not store credentials, tokens, private manuscript bodies, or secrets.
+
+### Minimum validation before push
+
+At minimum run:
+
+```text
+web typecheck/build
+route/component static inventory
+browser reconnaissance over every major product area
+network correlation for all P0/P1 surfaces
+```
+
+This gate does not require rerunning the closed AI browser suites unless a regression is observed.
+
+### Deliverables
+
+Required:
+
+```text
+docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.md
+```
+
+Optional but encouraged:
+
+```text
+docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.json
+docs/development/PRODUCT-UI-INTEGRATION-INVENTORY/
+  screenshots of P0/P1 findings
+```
+
+The report header must record:
+
+```text
+inventory_base_main_sha
+branch
+browser/runtime used
+date
+web build result
+number of production routes inventoried
+classification counts
+P0/P1/P2/P3 counts
+selected next gate
+```
 
 ### Stop boundary
 
-This gate is inventory/planning only.
+When inventory is complete:
 
-Gemini should:
-- inspect locally;
-- produce the inventory report;
-- identify the smallest next executable UI integration gate;
-- commit/push the report on a fresh branch from current main.
+```text
+git status clean
+commit report/evidence
+push astra/product-ui-integration-inventory
+STOP
+```
 
-Gemini should not:
-- launch a large UI rewrite;
+Final status:
+
+```text
+PRODUCT_UI_INVENTORY_COMPLETE
+REVIEW_PENDING
+```
+
+Gemini must not:
+- implement the selected next gate;
+- perform a broad UI refactor;
 - create a PR;
-- merge;
-- claim product readiness from file existence alone.
+- merge to main;
+- reopen accepted AI/Manuscript architecture without a reproduced regression.
 
-ChatGPT will review the inventory and choose the next implementation/E2E gate.
+ChatGPT will review the inventory, validate the prioritization, and issue the next bounded implementation/E2E directive.
 
 ---
 
