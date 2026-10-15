@@ -136,7 +136,7 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
   }
 
   test('Invariant 1: anonymous POST /reports -> 401', () => {
-    let errorCaught: AppError | null = null;
+    let errorCaught: any = null;
     let nextCalled = false;
     const reqAnonymous = {
       header: (_name: string) => undefined,
@@ -156,7 +156,7 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
   });
 
   test('Invariant 2: non-Admin cannot access/resolve Admin moderation review -> 403', () => {
-    let errorCaught: AppError | null = null;
+    let errorCaught: any = null;
     let nextCalled = false;
     const reqNonAdmin = {
       auth: reporter1Auth,
