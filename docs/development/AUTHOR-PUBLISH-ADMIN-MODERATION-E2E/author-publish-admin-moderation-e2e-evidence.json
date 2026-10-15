@@ -1,0 +1,94 @@
+{
+  "tested_main_sha": "2c288273c0d11f73c6e1f75e5188d43152b57dfc",
+  "tested_code_sha": "6b94d8a7d6b0298f0d58979c48038ce2d9ce32ed",
+  "branch": "astra/author-publish-admin-moderation-e2e",
+  "author_user_id": "51ca9a66-d798-4f6c-8518-11c085678e4f",
+  "admin_user_id": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
+  "content_filter_rule_id": "99da69ab-42f2-4276-b774-8f915701d2a1",
+  "moderation_trigger": "harassment",
+  "checkpoints": {
+    "Publish-A": {
+      "status": "PASS",
+      "novel_id": "6c1df614-aa37-4a62-88ee-65f0243dc7e1",
+      "author_id": "51ca9a66-d798-4f6c-8518-11c085678e4f",
+      "novel_status": "DRAFT",
+      "screenshot": "publish-a-author-create-draft.png"
+    },
+    "Publish-B": {
+      "status": "PASS",
+      "novel_title": "E2E Moderation Lifecycle e0f5b280",
+      "synopsis_trigger": "harassment",
+      "db_status": "DRAFT",
+      "screenshot": "publish-b-author-synopsis-trigger.png"
+    },
+    "Publish-C": {
+      "status": "PASS",
+      "moderation_required": true,
+      "novel_status": "PENDING_MODERATION",
+      "moderation_review_id": "02fc3928-3154-4c2a-8bc8-14028d5438fa",
+      "review_source": "KEYWORD_FILTER",
+      "screenshot": "publish-c-author-submit-moderation.png"
+    },
+    "Publish-D": {
+      "status": "PASS",
+      "admin_user_id": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
+      "admin_email": "reader02@example.com",
+      "screenshot": "publish-d-admin-login.png"
+    },
+    "Publish-E": {
+      "status": "PASS",
+      "moderation_review_id": "02fc3928-3154-4c2a-8bc8-14028d5438fa",
+      "target_novel_id": "6c1df614-aa37-4a62-88ee-65f0243dc7e1",
+      "screenshot": "publish-e-admin-moderation-queue.png"
+    },
+    "Publish-F": {
+      "status": "PASS",
+      "decision": "APPROVED",
+      "resolve_http_status": 200,
+      "screenshot": "publish-f-admin-moderation-detail-approve.png"
+    },
+    "Publish-G": {
+      "status": "PASS",
+      "novel_status": "PUBLISHED",
+      "published_at": "2026-10-15T04:09:53.331142+00:00",
+      "review_status": "APPROVED",
+      "reviewed_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
+      "screenshot": "publish-g-admin-approved-novel-published.png"
+    },
+    "Publish-H": {
+      "status": "PASS",
+      "search_http_status": 200,
+      "detail_url": "/public/novels/6c1df614-aa37-4a62-88ee-65f0243dc7e1",
+      "rendered_title": "E2E Moderation Lifecycle e0f5b280",
+      "screenshot": "publish-h-anonymous-public-discovery.png"
+    }
+  },
+  "novel_id": "6c1df614-aa37-4a62-88ee-65f0243dc7e1",
+  "novel_initial_status": "DRAFT",
+  "unique_novel_title": "E2E Moderation Lifecycle e0f5b280",
+  "novel_pending_status": "PENDING_MODERATION",
+  "submit_publish_browser_request_id": "20652.524",
+  "submit_publish_http_status": 200,
+  "moderation_required": true,
+  "moderation_review_id": "02fc3928-3154-4c2a-8bc8-14028d5438fa",
+  "moderation_review_source": "KEYWORD_FILTER",
+  "moderation_review_initial_status": "PENDING",
+  "moderation_resolve_browser_request_id": "20652.1062",
+  "moderation_resolve_http_status": 200,
+  "moderation_review_final_status": "APPROVED",
+  "novel_final_status": "PUBLISHED",
+  "published_at": "2026-10-15T04:09:53.331142+00:00",
+  "reviewed_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
+  "reviewed_at": "2026-10-15T04:09:53.327909+00:00",
+  "public_search_browser_request_id": "20652.1550",
+  "public_detail_url": "/public/novels/6c1df614-aa37-4a62-88ee-65f0243dc7e1",
+  "public_rendered_title": "E2E Moderation Lifecycle e0f5b280",
+  "negative_check_results": {
+    "role_guard_reader_author_forbidden_403": true,
+    "duplicate_resolve_fails_closed_409": true,
+    "already_published_novel_resubmit_fails_409": true,
+    "target_idempotent_no_duplicate_pending_reviews": true,
+    "unrelated_review_cannot_satisfy_target": true
+  },
+  "verdict": "AUTHOR_PUBLISH_ADMIN_MODERATION_PASS"
+}
