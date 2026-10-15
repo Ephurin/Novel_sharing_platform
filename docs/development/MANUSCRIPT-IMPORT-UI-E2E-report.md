@@ -6,7 +6,7 @@
 | :--- | :--- | :--- |
 | **Gate Identifier** | `MANUSCRIPT-IMPORT-UI-E2E` | **ACCEPTED** |
 | **Final System Verdict** | `MANUSCRIPT_IMPORT_UI_PASS` | **PASS (100%)** |
-| **Integration Branch** | `astra/manuscript-import-ui-e2e` | **ACTIVE** |
+| **Integration Branch** | `astra/manuscript-import-ui-e2e` | **MERGED via PR #46** |
 | **Base Main Commit** | `f500f0013253add139b3e08cf7d0ff85236f3dce` | **MATCHED** |
 | **Tested Product Code SHA** | `66f94e22980b2c10cf3e2e93523e31f6582def60` | **SEALED** |
 | **Evidence Payload Path** | `docs/development/MANUSCRIPT-IMPORT-UI-E2E/manuscript-import-ui-e2e-evidence.json` | **PERSISTED** |
@@ -125,16 +125,48 @@ All 16 checkpoints were executed autonomously using Microsoft Edge CDP automatio
 
 ---
 
-## 5. Scope Boundary & Handoff Directive
+## 5. Remote Acceptance & Merge Closure
 
-In accordance with Section 4 and Section 5 of `promt.md`:
-1. Gemini local scope is **100% complete**.
-2. Stop boundary is strictly observed at:
-   ```text
-   LOCAL_PASS_CI_PENDING
-   ```
-3. Gemini does not create PRs, does not merge into `main`, and does not merge the old `UI` branch into `main`.
-4. Remote review, GitHub Actions CI verification, and merge decisions belong exclusively to ChatGPT.
+The local browser/system gate was accepted and then independently exercised by required GitHub Actions on PR #46.
+
+```text
+PR:
+#46 — feat(manuscript-import): canonical bootstrap ownership and browser E2E
+
+accepted PR head:
+d73e6d138e27892f3eec71d627dae2aeaa3f2c55
+
+P7 Semantic Memory Foundation:
+run #126 / 38670492688 / PASS
+
+P8 Cutover and Migration:
+run #123 / 38670492674 / PASS
+
+merge commit:
+ff1d47b59ca995af32b068163599cefdcc158db8
+```
+
+P8 root-compose regression passed the complete accepted chain:
+
+```text
+AI-PIPE-01A production persistence   PASS
+AI-PIPE-02A idea bootstrap           PASS
+AI-PIPE-02B outline planning         PASS
+AI-PIPE-03A autonomous controller    PASS
+frontend/API cutover                 PASS
+PostgreSQL integration               PASS
+rollback rehearsal                   PASS
+final cleanup gate                   PASS
+```
+
+Remote status:
+
+```text
+MANUSCRIPT_IMPORT_UI_PASS
+CI_PASS / MERGED
+```
+
+No CI-only product behavior repair was required for PR #46.
 
 ---
 
