@@ -286,19 +286,19 @@ export function ReaderNovelDetailPage() {
               >
                 Add library
               </Button>
-              <Button variant="light" loading={likeMutation.isPending} onClick={() => likeMutation.mutate()}>
+              <Button variant="light" loading={likeMutation.isPending} onClick={() => likeMutation.mutate()} data-testid="reader-like-btn">
                 Like
               </Button>
-              <Button variant="light" loading={unlikeMutation.isPending} onClick={() => unlikeMutation.mutate()}>
+              <Button variant="light" loading={unlikeMutation.isPending} onClick={() => unlikeMutation.mutate()} data-testid="reader-unlike-btn">
                 Unlike
               </Button>
-              <Button variant="light" loading={followMutation.isPending} disabled={!novel?.authorId} onClick={() => followMutation.mutate()}>
+              <Button variant="light" loading={followMutation.isPending} disabled={!novel?.authorId} onClick={() => followMutation.mutate()} data-testid="reader-follow-btn">
                 Follow
               </Button>
               <Button component={Link} to={`/authors/${novel?.authorId ?? ''}`} variant="light" disabled={!novel?.authorId}>
                 Author profile
               </Button>
-              <Button variant="light" loading={unfollowMutation.isPending} disabled={!novel?.authorId} onClick={() => unfollowMutation.mutate()}>
+              <Button variant="light" loading={unfollowMutation.isPending} disabled={!novel?.authorId} onClick={() => unfollowMutation.mutate()} data-testid="reader-unfollow-btn">
                 Unfollow
               </Button>
               <Button color="red" variant="light" loading={reportMutation.isPending} onClick={() => reportMutation.mutate()}>
@@ -581,8 +581,15 @@ export function ReaderChapterPage() {
           onChange={(event) => setCommentContent(event.currentTarget.value)}
           minRows={3}
           mb="sm"
+          data-testid="reader-comment-input"
         />
-        <Button loading={commentMutation.isPending} disabled={!commentContent.trim()} onClick={() => commentMutation.mutate()} mb="md">
+        <Button
+          loading={commentMutation.isPending}
+          disabled={!commentContent.trim()}
+          onClick={() => commentMutation.mutate()}
+          mb="md"
+          data-testid="reader-comment-submit-btn"
+        >
           Submit comment
         </Button>
 
@@ -723,6 +730,7 @@ function ReadingPreferencesPanel({
         ]}
         value={draft.fontFamily ?? 'system-ui'}
         onChange={(value) => setDraft((current) => ({ ...current, fontFamily: value }))}
+        data-testid="reader-pref-font-family"
       />
       <NumberInput
         label="Font size"
@@ -730,6 +738,7 @@ function ReadingPreferencesPanel({
         max={40}
         value={draft.fontSize}
         onChange={(value) => setDraft((current) => ({ ...current, fontSize: Number(value) || current.fontSize }))}
+        data-testid="reader-pref-font-size"
       />
       <Select
         label="Background"
@@ -740,6 +749,7 @@ function ReadingPreferencesPanel({
         ]}
         value={draft.background}
         onChange={(value) => setDraft((current) => ({ ...current, background: (value ?? 'DARK') as ReadingPreferences['background'] }))}
+        data-testid="reader-pref-background"
       />
       <NumberInput
         label="Line height"
@@ -748,8 +758,9 @@ function ReadingPreferencesPanel({
         step={0.1}
         value={draft.lineHeight}
         onChange={(value) => setDraft((current) => ({ ...current, lineHeight: Number(value) || current.lineHeight }))}
+        data-testid="reader-pref-line-height"
       />
-      <Button mt="xl" loading={saving} onClick={() => onSave(draft)}>
+      <Button mt="xl" loading={saving} onClick={() => onSave(draft)} data-testid="reader-save-preferences-btn">
         Save preferences
       </Button>
     </SimpleGrid>
@@ -788,29 +799,53 @@ function CommentCard({
   });
 
   return (
-    <Paper p="sm" withBorder>
+    <Paper p="sm" withBorder data-testid={`reader-comment-card-${comment.commentId}`}>
       <Group justify="space-between" align="flex-start">
         <Box flex={1}>
           <Badge size="xs" variant="outline">
             {comment.status}
           </Badge>
           {isEditing ? (
-            <Textarea mt="xs" value={content} onChange={(event) => setContent(event.currentTarget.value)} minRows={2} />
+            <Textarea
+              mt="xs"
+              value={content}
+              onChange={(event) => setContent(event.currentTarget.value)}
+              minRows={2}
+              data-testid={`reader-comment-edit-input-${comment.commentId}`}
+            />
           ) : (
             <Text mt={6}>{comment.content}</Text>
           )}
         </Box>
         <Group gap="xs">
           {isEditing ? (
-            <Button size="compact-xs" loading={updateMutation.isPending} disabled={!content.trim()} onClick={() => updateMutation.mutate()}>
+            <Button
+              size="compact-xs"
+              loading={updateMutation.isPending}
+              disabled={!content.trim()}
+              onClick={() => updateMutation.mutate()}
+              data-testid={`reader-comment-save-btn-${comment.commentId}`}
+            >
               Save
             </Button>
           ) : (
-            <Button size="compact-xs" variant="subtle" onClick={() => setIsEditing(true)}>
+            <Button
+              size="compact-xs"
+              variant="subtle"
+              onClick={() => setIsEditing(true)}
+              data-testid={`reader-comment-edit-btn-${comment.commentId}`}
+            >
               Edit
             </Button>
           )}
-          <Button size="compact-xs" color="red" variant="subtle" loading={deleting} onClick={onDelete}>
+          <Button
+            size="compact-xs"
+            color="red"
+            variant="subtle"
+            loading={deleting}
+            onClick={onDelete}
+            data-testid={`reader-comment-delete-btn-${comment.commentId}`}
+          >
             Delete
           </Button>
           <Button size="compact-xs" color="orange" variant="subtle" loading={reportMutation.isPending} onClick={() => reportMutation.mutate()}>

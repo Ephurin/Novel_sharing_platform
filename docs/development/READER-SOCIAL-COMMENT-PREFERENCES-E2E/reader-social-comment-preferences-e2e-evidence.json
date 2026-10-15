@@ -1,0 +1,253 @@
+{
+  "tested_main_sha": "45e3c06de6076edb26e9f39a2917c68e8dde6133",
+  "tested_code_sha": "0b2c53f7fb4a1af6e601763ebe4bf654192a44ff",
+  "branch": "astra/reader-social-comment-preferences-e2e",
+  "reader_user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+  "reader_email": "reader04@example.com",
+  "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+  "author_id": "51ca9a66-d798-4f6c-8518-11c085678e4f",
+  "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+  "checkpoints": {
+    "interact_a": {
+      "checkpoint": "Interact-A",
+      "description": "Reader logs in via rendered UI form at /login",
+      "request_id": "10060.223",
+      "status": 200,
+      "destination": "/reader",
+      "role": "READER",
+      "screenshot": "interact-a-login.png",
+      "result": "PASS"
+    },
+    "interact_b": {
+      "checkpoint": "Interact-B",
+      "description": "Click Like, capture POST /novels/:id/likes, verify response.liked=true & DB row",
+      "request_id": "10060.358",
+      "status": 200,
+      "db_proof": {
+        "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+        "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "active_like_count": 1,
+        "response_likes_count": 1
+      },
+      "screenshot": "interact-b-like.png",
+      "result": "PASS"
+    },
+    "interact_c": {
+      "checkpoint": "Interact-C",
+      "description": "Click Unlike, capture DELETE /novels/:id/likes/me, verify response.liked=false & DB absence",
+      "request_id": "10060.359",
+      "status": 200,
+      "active_like_count": 0,
+      "screenshot": "interact-c-unlike.png",
+      "result": "PASS"
+    },
+    "interact_d": {
+      "checkpoint": "Interact-D",
+      "description": "Follow author (POST), verify DB; Unfollow author (DELETE), verify absence in DB",
+      "follow_request_id": "10060.360",
+      "unfollow_request_id": "10060.361",
+      "author_id": "51ca9a66-d798-4f6c-8518-11c085678e4f",
+      "db_proof": {
+        "follower_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+        "author_id": "51ca9a66-d798-4f6c-8518-11c085678e4f",
+        "active_follow_count": 1
+      },
+      "final_follow_count": 0,
+      "screenshot": "interact-d-follow-unfollow.png",
+      "result": "PASS"
+    },
+    "interact_e": {
+      "checkpoint": "Interact-E",
+      "description": "Change reading preferences, Save (PUT), reload and prove persisted style/values in DOM & DB",
+      "request_id": "10060.498",
+      "status": 200,
+      "persisted_values": {
+        "fontFamily": "Georgia",
+        "fontSize": 20,
+        "background": "SEPIA",
+        "lineHeight": 1.9
+      },
+      "computed_style": {
+        "fontFamily": "Georgia",
+        "fontSize": "20px",
+        "backgroundColor": "rgb(47, 38, 28)",
+        "lineHeight": "38px"
+      },
+      "db_proof": {
+        "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+        "font_family": "Georgia",
+        "font_size": 20,
+        "background": "SEPIA",
+        "line_height": 1.9
+      },
+      "screenshot": "interact-e-preferences.png",
+      "result": "PASS"
+    },
+    "interact_f": {
+      "checkpoint": "Interact-F",
+      "description": "Submit clean comment, verify status=APPROVED, rendered card in list & MongoDB doc",
+      "request_id": "10060.636",
+      "status": 201,
+      "comment_id": "ace3bd73-1431-421a-abdb-402e5e98e2a3",
+      "content": "E2E clean comment 466c2f7c",
+      "db_proof": {
+        "comment_id": "ace3bd73-1431-421a-abdb-402e5e98e2a3",
+        "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+        "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+        "content": "E2E clean comment 466c2f7c",
+        "status": "APPROVED",
+        "deleted_at": null
+      },
+      "screenshot": "interact-f-comment-created.png",
+      "result": "PASS"
+    },
+    "interact_g": {
+      "checkpoint": "Interact-G",
+      "description": "Edit own comment, capture PATCH, verify status=APPROVED, reload DOM & MongoDB doc",
+      "request_id": "10060.638",
+      "status": 200,
+      "comment_id": "ace3bd73-1431-421a-abdb-402e5e98e2a3",
+      "updated_content": "E2E updated comment 60e43872",
+      "db_proof": {
+        "comment_id": "ace3bd73-1431-421a-abdb-402e5e98e2a3",
+        "content": "E2E updated comment 60e43872",
+        "status": "APPROVED",
+        "old_content_absent": true
+      },
+      "screenshot": "interact-g-comment-edited.png",
+      "result": "PASS"
+    },
+    "interact_h": {
+      "checkpoint": "Interact-H",
+      "description": "Delete own comment, capture DELETE, verify absence in DOM & soft-deleted status in MongoDB",
+      "request_id": "10060.776",
+      "status": 204,
+      "comment_id": "ace3bd73-1431-421a-abdb-402e5e98e2a3",
+      "db_proof": {
+        "comment_id": "ace3bd73-1431-421a-abdb-402e5e98e2a3",
+        "status": "DELETED",
+        "deleted_at": "2026-10-15T08:11:32.027Z",
+        "absent_from_dom": true
+      },
+      "screenshot": "interact-h-comment-deleted.png",
+      "result": "PASS"
+    }
+  },
+  "login_browser_request_id": "10060.223",
+  "like_request_id": "10060.358",
+  "like_db_proof": {
+    "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+    "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+    "active_like_count": 1,
+    "response_likes_count": 1
+  },
+  "unlike_request_id": "10060.359",
+  "follow_request_id": "10060.360",
+  "unfollow_request_id": "10060.361",
+  "follow_db_proof": {
+    "follower_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+    "author_id": "51ca9a66-d798-4f6c-8518-11c085678e4f",
+    "active_follow_count": 1
+  },
+  "preferences_save_request_id": "10060.498",
+  "preferences_db_proof": {
+    "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+    "font_family": "Georgia",
+    "font_size": 20,
+    "background": "SEPIA",
+    "line_height": 1.9
+  },
+  "comment_create_request_id": "10060.636",
+  "comment_create_db_proof": {
+    "comment_id": "ace3bd73-1431-421a-abdb-402e5e98e2a3",
+    "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+    "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+    "content": "E2E clean comment 466c2f7c",
+    "status": "APPROVED",
+    "deleted_at": null
+  },
+  "comment_update_request_id": "10060.638",
+  "comment_update_db_proof": {
+    "comment_id": "ace3bd73-1431-421a-abdb-402e5e98e2a3",
+    "content": "E2E updated comment 60e43872",
+    "status": "APPROVED",
+    "old_content_absent": true
+  },
+  "comment_delete_request_id": "10060.776",
+  "comment_delete_db_proof": {
+    "comment_id": "ace3bd73-1431-421a-abdb-402e5e98e2a3",
+    "status": "DELETED",
+    "deleted_at": "2026-10-15T08:11:32.027Z",
+    "absent_from_dom": true
+  },
+  "negative_suite": {
+    "test_file": "backend/src/modules/interactions/reader-social-comment-preferences.postgres.test.ts",
+    "command": "npx tsx --test --test-reporter=tap src/modules/interactions/reader-social-comment-preferences.postgres.test.ts",
+    "exit_code": 0,
+    "result": "PASS",
+    "tests_passed": 10,
+    "tests_failed": 0,
+    "covered_invariants": [
+      "anonymous_mutations_rejected_401",
+      "duplicate_like_conflict_409",
+      "unlike_missing_not_found_404",
+      "duplicate_follow_conflict_409",
+      "unfollow_missing_not_found_404",
+      "comment_unauthorized_edit_delete_forbidden_403",
+      "clean_comment_approved_without_moderation",
+      "filtered_comment_pending_moderation_with_review",
+      "comment_on_unpublished_chapter_fails_closed_404",
+      "reading_preferences_user_scoped"
+    ]
+  },
+  "validation": [
+    {
+      "name": "web_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "web",
+      "exit_code": 0,
+      "duration_seconds": 5.26,
+      "result": "PASS"
+    },
+    {
+      "name": "web_build",
+      "command": "npm run build",
+      "cwd": "web",
+      "exit_code": 0,
+      "duration_seconds": 17.04,
+      "result": "PASS"
+    },
+    {
+      "name": "backend_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 3.29,
+      "result": "PASS"
+    },
+    {
+      "name": "reader_social_comment_preferences_postgres_test",
+      "command": "npx tsx --test --test-reporter=tap src/modules/interactions/reader-social-comment-preferences.postgres.test.ts",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 2.19,
+      "result": "PASS",
+      "tests_passed": 10,
+      "tests_failed": 0
+    },
+    {
+      "name": "backend_all_unit_and_integration_tests",
+      "command": "npm test",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 2.25,
+      "result": "PASS"
+    },
+    {
+      "name": "browser_reader_interaction_flow",
+      "description": "Real browser Interact-A through Interact-H CDP flow",
+      "result": "PASS"
+    }
+  ],
+  "verdict": "READER_SOCIAL_COMMENT_PREFERENCES_PASS"
+}
