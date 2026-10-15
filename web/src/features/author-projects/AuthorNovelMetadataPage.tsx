@@ -415,6 +415,27 @@ export function AuthorNovelMetadataPage() {
                         Văn Học Đô Thị
                       </span>
                       <span className="text-stone-300">•</span>
+                      <span
+                        data-testid="novel-status-badge"
+                        className={`font-label-sm text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                          novel.status === 'PUBLISHED'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : novel.status === 'PENDING_MODERATION'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                            : novel.status === 'REJECTED'
+                            ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                            : 'bg-stone-100 text-stone-700 border border-stone-200'
+                        }`}
+                      >
+                        {novel.status === 'PUBLISHED'
+                          ? 'Đã xuất bản'
+                          : novel.status === 'PENDING_MODERATION'
+                          ? 'Chờ duyệt'
+                          : novel.status === 'REJECTED'
+                          ? 'Từ chối'
+                          : 'Bản nháp'}
+                      </span>
+                      <span className="text-stone-300">•</span>
                       <span className="font-label-md text-label-md text-stone-500">
                         Tác giả:{' '}
                         <strong className="text-stone-900 font-semibold">
@@ -511,11 +532,12 @@ export function AuthorNovelMetadataPage() {
                           ? 'Đang chờ duyệt'
                           : 'Gửi duyệt toàn bộ tác phẩm'
                       }
-                      className="p-2 rounded-lg bg-stone-100 hover:bg-stone-200/80 border border-stone-200/70 text-stone-600 hover:text-stone-900 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-40"
+                      className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-label-md transition-colors font-medium whitespace-nowrap cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs"
                       type="button"
-                      aria-label="Tùy chọn khác"
+                      data-testid="submit-publish-btn"
                     >
-                      <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                      <span className="material-symbols-outlined text-[17px]">publish</span>
+                      <span>{submitPublishMutation.isPending ? 'Đang gửi...' : 'Gửi duyệt'}</span>
                     </button>
                   </div>
                 </div>
@@ -944,6 +966,7 @@ export function AuthorNovelMetadataPage() {
                 }
                 className="px-3 py-1.5 rounded-lg border border-primary-200 bg-indigo-50 text-primary-700 text-xs font-semibold hover:bg-indigo-100 transition-colors disabled:opacity-40 cursor-pointer"
                 type="button"
+                data-testid="modal-submit-publish-btn"
               >
                 {submitPublishMutation.isPending ? 'Đang gửi...' : 'Gửi duyệt toàn truyện'}
               </button>
