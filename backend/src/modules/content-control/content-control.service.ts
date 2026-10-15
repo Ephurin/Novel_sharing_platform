@@ -15,6 +15,7 @@ import {
   listActiveFilterRules,
   listReviews as listReviewRows,
   listReportsForReview,
+  findOpenReportByReporter,
   resolveReportsForReview,
   resolveReview as resolveReviewRow
 } from './content-control.repository.js';
@@ -22,10 +23,12 @@ import { createModerationEvidence, findModerationEvidence } from './moderation-e
 import type { MatchedRule, ModerationStatus, ModerationTargetType } from './content-control.types.js';
 import {
   findCommentById,
+  findCommentRecordById,
   softDeleteComment,
   updateCommentModerationStatus,
   type CommentStatus
 } from '../interactions/comments.repository.js';
+import { findReadableChapter } from '../reading/reading.repository.js';
 import { createNotification } from '../interactions/notifications.repository.js';
 import { publishNovel, rejectNovelPublication } from '../novels/novels.repository.js';
 import { findChapterById, publishChapter, rejectChapterPublication } from '../novels/chapters.repository.js';
@@ -93,6 +96,25 @@ export async function checkContent(input: ContentControlCheckInput) {
 }
 
 export async function createUserReport(auth: AuthContext, input: CreateReportInput) {
+  if (input.targetType === 'COMMENT') {
+    const comment = await findCommentRecordById(input.targetId);
+    if (!comment) {
+      throw new AppError(404, 'CONTENT_001', 'Comment not found');
+    }
+    if (comment.deletedAt !== null || comment.status === 'DELETED') {
+      throw new AppError(404, 'CONTENT_001', 'Comment not found');
+    }
+    const chapter = await findReadableChapter(comment.chapterId);
+    if (!chapter) {
+      throw new AppError(404, 'CONTENT_001', 'Content not found');
+    }
+  }
+
+  const existingOpenReport = await findOpenReportByReporter(auth.userId, input.targetType, input.targetId);
+  if (existingOpenReport) {
+    throw new AppError(409, 'REPORT_001', 'An open report already exists for this content');
+  }
+
   const existingReview = await findOpenReview(input.targetType, input.targetId);
   const review =
     existingReview ??

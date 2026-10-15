@@ -672,14 +672,14 @@ export function AdminModerationDetailPage() {
     <Box>
       <Modal opened={Boolean(pendingAction)} onClose={() => setPendingAction(null)} title={pendingAction?.title}>
         <Stack>
-          <Text size="sm" c="dimmed">
+          <Text size="sm" c="dimmed" data-testid="admin-modal-description">
             {pendingAction?.description}
           </Text>
           <Group justify="flex-end">
             <Button variant="subtle" onClick={() => setPendingAction(null)}>
               Cancel
             </Button>
-            <Button color={pendingAction?.color} onClick={runPendingAction}>
+            <Button color={pendingAction?.color} onClick={runPendingAction} data-testid="admin-modal-confirm-btn">
               {pendingAction?.confirmLabel ?? 'Confirm'}
             </Button>
           </Group>
@@ -756,37 +756,79 @@ export function AdminModerationDetailPage() {
             </Text>
           </Box>
           <Group>
-            <Button
-              disabled={review?.status !== 'PENDING'}
-              loading={resolveMutation.isPending}
-              onClick={() =>
-                setPendingAction({
-                  title: 'Approve moderation review?',
-                  description: `Approve ${review?.reviewId}. Related content remains available/approved.`,
-                  confirmLabel: 'Approve',
-                  run: () => resolveMutation.mutate({ decision: 'APPROVED' })
-                })
-              }
-            >
-              Approve
-            </Button>
-            <Button
-              color="red"
-              variant="light"
-              disabled={review?.status !== 'PENDING'}
-              loading={resolveMutation.isPending}
-              onClick={() =>
-                setPendingAction({
-                  title: 'Reject moderation review?',
-                  description: `Reject ${review?.reviewId}. Comment targets are propagated to rejected status by backend.`,
-                  confirmLabel: 'Reject',
-                  color: 'red',
-                  run: () => resolveMutation.mutate({ decision: 'REJECTED' })
-                })
-              }
-            >
-              Reject
-            </Button>
+            {review?.source === 'USER_REPORT' ? (
+              <>
+                <Button
+                  disabled={review?.status !== 'PENDING'}
+                  loading={resolveMutation.isPending}
+                  data-testid="admin-approve-report-btn"
+                  onClick={() =>
+                    setPendingAction({
+                      title: 'Approve report?',
+                      description: `Approve report ${review?.reviewId}. The reported comment will be removed.`,
+                      confirmLabel: 'Approve report',
+                      run: () => resolveMutation.mutate({ decision: 'APPROVED' })
+                    })
+                  }
+                >
+                  Approve report
+                </Button>
+                <Button
+                  color="red"
+                  variant="light"
+                  disabled={review?.status !== 'PENDING'}
+                  loading={resolveMutation.isPending}
+                  data-testid="admin-reject-report-btn"
+                  onClick={() =>
+                    setPendingAction({
+                      title: 'Reject report?',
+                      description: `Reject report ${review?.reviewId}. The reported comment will be kept.`,
+                      confirmLabel: 'Reject report',
+                      color: 'red',
+                      run: () => resolveMutation.mutate({ decision: 'REJECTED' })
+                    })
+                  }
+                >
+                  Reject report
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  disabled={review?.status !== 'PENDING'}
+                  loading={resolveMutation.isPending}
+                  data-testid="admin-approve-review-btn"
+                  onClick={() =>
+                    setPendingAction({
+                      title: 'Approve moderation review?',
+                      description: `Approve ${review?.reviewId}. Related content remains available/approved.`,
+                      confirmLabel: 'Approve',
+                      run: () => resolveMutation.mutate({ decision: 'APPROVED' })
+                    })
+                  }
+                >
+                  Approve
+                </Button>
+                <Button
+                  color="red"
+                  variant="light"
+                  disabled={review?.status !== 'PENDING'}
+                  loading={resolveMutation.isPending}
+                  data-testid="admin-reject-review-btn"
+                  onClick={() =>
+                    setPendingAction({
+                      title: 'Reject moderation review?',
+                      description: `Reject ${review?.reviewId}. Comment targets are propagated to rejected status by backend.`,
+                      confirmLabel: 'Reject',
+                      color: 'red',
+                      run: () => resolveMutation.mutate({ decision: 'REJECTED' })
+                    })
+                  }
+                >
+                  Reject
+                </Button>
+              </>
+            )}
           </Group>
         </Group>
       </Paper>
@@ -796,7 +838,7 @@ export function AdminModerationDetailPage() {
 
 function ModerationReviewCard({ review }: { review: ModerationReview }) {
   return (
-    <Paper p="md" withBorder>
+    <Paper p="md" withBorder data-testid={`moderation-review-card-${review.reviewId}`}>
       <Group justify="space-between" align="flex-start">
         <Box>
           <Group gap="xs">
@@ -813,7 +855,7 @@ function ModerationReviewCard({ review }: { review: ModerationReview }) {
         </Box>
         <Group gap="xs">
           <TargetNavigation review={review} compact />
-          <Button component={Link} to={`/admin/moderation/${review.reviewId}`} size="xs">
+          <Button component={Link} to={`/admin/moderation/${review.reviewId}`} size="xs" data-testid={`moderation-review-inspect-${review.reviewId}`}>
             Inspect
           </Button>
         </Group>

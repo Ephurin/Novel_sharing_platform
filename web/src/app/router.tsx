@@ -207,6 +207,14 @@ export const router = createBrowserRouter([
         )
       },
       {
+        path: '/admin/reports',
+        element: (
+          <RoleGuard roles={['ADMIN']}>
+            <AdminModerationPage sourceFilter="USER_REPORT" />
+          </RoleGuard>
+        )
+      },
+      {
         path: '/admin/moderation/:reviewId',
         element: (
           <RoleGuard roles={['ADMIN']}>

@@ -90,6 +90,24 @@ export async function createReport(input: CreateReportInput & {
   return result.rows[0];
 }
 
+export async function findOpenReportByReporter(
+  reporterId: string,
+  targetType: string,
+  targetId: string
+) {
+  const result = await getPostgresPool().query(
+    `
+      select *
+      from reports
+      where reporter_id = $1 and target_type = $2 and target_id = $3 and status = 'OPEN'
+      limit 1
+    `,
+    [reporterId, targetType, targetId]
+  );
+
+  return result.rows[0] ?? null;
+}
+
 export async function listReviews(input: ListReviewsInput) {
   const offset = (input.page - 1) * input.limit;
   const result = await getPostgresPool().query(
