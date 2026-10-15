@@ -255,43 +255,63 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. EXECUTE NOW — Product UI Integration Inventory
+## 5. ACTIVE EXECUTION DIRECTIVE — Author Publish -> Admin Moderation -> Public Discovery E2E
 
-### Remote execution reminder
+The Product UI Integration Inventory is accepted as the planning basis for the next bounded gate.
 
-ChatGPT re-checked the remote repository before this assignment:
-
-```text
-latest main before this reminder:
-a21e9ac2e4165adaa0f38e38f857a5fd27e6301b
-
-expected working branch:
-astra/product-ui-integration-inventory
-
-remote branch:
-NOT CREATED YET
-
-required report:
-docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.md
-
-remote report:
-NOT PRESENT YET
-```
-
-Start this gate now. After this reminder is committed, fetch the actual latest `origin/main`; do not hard-code the SHA above as the inventory base if main has advanced.
-
-Create and work only on:
+### Accepted inventory
 
 ```text
+inventory branch:
 astra/product-ui-integration-inventory
+
+inventory commit:
+a5c975e1e281863c78dbc08922993ae3dece5fc1
+
+inventory base main:
+1b5fcbc7b69e9ce3b928aa130370b73115b49cbd
+
+surfaces inventoried:
+27
+
+REAL + E2E-COVERED:
+5
+
+REAL + NOT-YET-E2E-COVERED:
+19
+
+P0:
+0
+
+inventory verdict:
+PRODUCT_UI_INVENTORY_COMPLETE
+REVIEW_PENDING -> ACCEPTED
 ```
 
-This remains an **inventory/reconnaissance-only gate**. Do not implement the selected next product gate yet.
+The inventory priority labels are advisory. Some already-covered/no-blocker surfaces were still counted as P1; do not treat the raw P1 count as a product defect count.
 
+The next gate is accepted:
 
-This is an inventory/reconnaissance gate, not an implementation phase.
+```text
+AUTHOR-PUBLISH-ADMIN-MODERATION-E2E
+```
 
-### Start from the actual latest main
+This gate closes the first cross-role/cross-surface lifecycle:
+
+```text
+Author DRAFT
+ -> submit publish
+ -> moderation review
+ -> Admin APPROVE
+ -> novel PUBLISHED
+ -> anonymous public discovery
+```
+
+Do not reopen AI/Story Brain/Manuscript Import architecture.
+
+---
+
+### Start branch from actual latest main
 
 After this directive is committed:
 
@@ -299,330 +319,468 @@ After this directive is committed:
 git fetch origin
 git checkout main
 git pull --ff-only origin main
-git checkout -b astra/product-ui-integration-inventory
+git checkout -b astra/author-publish-admin-moderation-e2e
 ```
 
 Record:
 
 ```text
-INVENTORY_BASE_MAIN_SHA = git rev-parse origin/main
-branch = astra/product-ui-integration-inventory
+GATE_BASE_MAIN_SHA = git rev-parse origin/main
 ```
 
-Do not reuse old UI or AI acceptance branches.
+Preserve the accepted inventory in the eventual implementation PR by cherry-picking the inventory-only commit:
 
-### Goal
+```bash
+git cherry-pick a5c975e1e281863c78dbc08922993ae3dece5fc1
+```
 
-Determine the real product state of every significant web surface by combining:
+If that commit conflicts only because main changed documentation/handoff text, preserve current-main handoff and keep the inventory report/evidence files. Do not resurrect an old `promt.md`.
+
+Working branch:
 
 ```text
-route/source inspection
-+
-rendered browser inspection
-+
-actual network/API observation
-+
-backend/service correlation
-+
-existing E2E evidence
+astra/author-publish-admin-moderation-e2e
 ```
 
-File existence alone is not evidence that a feature works.
+---
 
-### Required classification
+### Confirmed production contracts
 
-Every significant surface must receive exactly one primary classification:
+ChatGPT directly verified current-main behavior.
+
+Author UI:
 
 ```text
-REAL + E2E-COVERED
-REAL + NOT-YET-E2E-COVERED
-PARTIALLY-WIRED
-MOCK / STATIC
-BROKEN CONTRACT
-NOT_IMPLEMENTED
-OBSOLETE / DUPLICATE
+AuthorNovelMetadataPage
+ -> submitNovelPublish(novelId)
+ -> POST /api/v1/novels/:novelId/submit-publish
 ```
 
-Also assign priority:
+Backend submit behavior:
 
 ```text
-P0 = core user-visible flow is fake/broken or blocks basic product use
-P1 = core flow appears real but lacks browser acceptance / has meaningful gaps
-P2 = secondary feature incomplete or weakly integrated
-P3 = cosmetic, polish, duplicate cleanup, or non-blocking
+submitPublish()
+ -> checkContent(NOVEL)
+ -> if moderationRequired=false:
+      publishNovel() immediately
+ -> if moderationRequired=true:
+      novel -> PENDING_MODERATION
+      return moderationReviewId
 ```
 
-### Phase A — static route and component inventory
-
-Inspect the current web routing tree and identify every real route.
-
-At minimum cover these product areas if routes/components exist:
+Admin UI/backend:
 
 ```text
-PUBLIC / READER
-- landing / discovery
-- search / category / ranking
-- novel detail
-- chapter reader
-- comments / reactions
-- bookmarks / library / reading history
-- payments / chapter unlock if implemented
-
-AUTH / ACCOUNT
-- sign in
-- sign up
-- refresh/logout behavior
-- profile
-- account/settings
-- role guards / unauthorized redirects
-
-AUTHOR
-- dashboard
-- novel create
-- novel edit / Novel Data
-- chapter list/create/edit/delete
-- draft/autosave
-- publish / VIP / price
-- Author Writing IDE
-- Story Bible
-- Manuscript Import
-- Story Plan / autonomous controls if exposed
-- analytics / earnings if exposed
-
-ADMIN / MODERATION
-- dashboard
-- users
-- novels
-- reports / moderation queue
-- categories/tags
-- monetization/admin controls
+GET  /api/v1/admin/moderation/reviews
+GET  /api/v1/admin/moderation/reviews/:reviewId
+POST /api/v1/admin/moderation/reviews/:reviewId/resolve
 ```
 
-Do not invent missing features. If something does not exist, record `NOT_IMPLEMENTED`.
-
-Identify obsolete generated/static/duplicate pages separately rather than treating them as production routes.
-
-### Phase B — browser reconnaissance
-
-Run the current local production-like stack and the real web app.
-
-Use at least these identities if available in current fixtures:
+For a NOVEL review:
 
 ```text
-anonymous visitor
-reader
-author
-admin
+decision=APPROVED
+ -> moderation_reviews.status = APPROVED
+ -> publishNovel(target_id)
+ -> novels.status = PUBLISHED
+ -> published_at set
 ```
 
-For each major route:
-
-1. navigate through rendered UI where possible;
-2. verify it actually renders;
-3. interact with the primary CTA/form/button without destructive production-like mutations;
-4. observe CDP/browser network requests;
-5. correlate the request with the actual backend route/service;
-6. identify static hard-coded data, fake counters, no-op buttons, 404/500s, auth leaks, ownership failures, and stale API contracts;
-7. record whether any existing browser E2E already proves the flow.
-
-Do not mark a surface `REAL` merely because it makes one API request. The primary user action must be meaningfully wired.
-
-Do not mark a surface `E2E-COVERED` from unit/API tests alone.
-
-### Phase C — integration matrix
-
-Create:
+Public discovery:
 
 ```text
-docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.md
+GET /api/v1/reading/search
+ -> novels where status = PUBLISHED
 ```
 
-The main table must contain at least:
+Public search does not require a published chapter merely to list the novel.
+
+---
+
+### Critical deterministic-fixture rule
+
+Do **not** use clean content and then accept immediate auto-publication as gate success.
+
+The migration contains active demo filter rules including:
 
 ```text
-Area
-Route
-Primary user
-Primary user action
-Rendered status
-Observed browser/API requests
-Backend route/service
-Persistence owner
-Auth/ownership behavior
-Existing browser E2E evidence
-Primary classification
-Priority
-Concrete blocker/gap
-Recommended next action
+pattern: badword
+severity: HIGH
+
+pattern: harassment
+severity: MEDIUM
 ```
 
-For routes with no API call because they are intentionally static/navigation-only, state that explicitly.
-
-For mock/static pages, identify the mock data source or hard-coded behavior.
-
-For broken contracts, include the exact UI expectation vs backend contract mismatch.
-
-### Phase D — product flow map
-
-Do not only list isolated screens. Group them into end-to-end user journeys and classify whether each journey is usable:
+Use a unique browser-created test novel whose title/synopsis contains the exact deterministic trigger:
 
 ```text
-Reader:
-discover -> novel detail -> read chapter -> continue/history/library
-
-Author:
-create novel -> configure metadata -> create/import chapter
--> edit/write -> Story Brain/AI -> publish
-
-Admin:
-sign in -> moderation queue -> inspect target -> take moderation action
-
-Account:
-sign up/sign in -> session persistence -> profile/settings -> logout
+harassment
 ```
 
-For each journey, explicitly identify the **first broken or unverified transition**.
-
-This transition is usually a better next gate than the weakest-looking isolated component.
-
-### Phase E — reconcile with already-accepted gates
-
-These are already accepted and must not be downgraded without a concrete observed regression:
+Prefer placing the trigger in the synopsis, while keeping a unique title such as:
 
 ```text
-AI-PIPE-01A
-AI-PIPE-01B
-AI-PIPE-02A
-AI-PIPE-02B
-AI-PIPE-03A
-MANUSCRIPT-IMPORT-UI
+E2E Moderation Lifecycle <unique suffix>
 ```
 
-If browser reconnaissance finds a regression in one of them:
-- record the exact route/action/request;
-- attach reproducible evidence;
-- classify it as a regression;
-- do not redesign the architecture during this inventory gate.
+Before the browser run, verify the active rule exists in the local test database.
 
-### Phase F — choose exactly one next executable gate
-
-At the end of the report, produce a ranked list of P0/P1 gaps.
-
-Then select **exactly one** recommended next gate using:
+Publish-C MUST fail the test unless the browser-originated submit response proves:
 
 ```text
-highest user value
-x blocks the largest real user journey
-x smallest bounded implementation scope
-x highest confidence that browser E2E can close it
+moderationRequired == true
+status == PENDING_MODERATION
+moderationReviewId != null
 ```
 
-For the selected next gate provide:
+If the response says `moderationRequired=false`, classify:
 
 ```text
-gate name
-user journey
-current failure/gap
-exact routes/components involved
-backend APIs/services involved
-minimum implementation scope
-browser E2E checkpoints
-acceptance criteria
-explicit non-goals
-estimated architectural risk: LOW / MEDIUM / HIGH
+TEST_FIXTURE_NOT_TRIGGERING_MODERATION
 ```
 
-Do not implement that gate yet.
+Do not silently continue to Admin checkpoints.
 
-### Evidence discipline
+Do not add a fake test-only production endpoint to force moderation.
 
-The report must distinguish:
+---
+
+### Phase A — inspect before editing
+
+Reinspect current branch after cherry-pick:
 
 ```text
-STATIC_INSPECTION
-BROWSER_OBSERVED
-NETWORK_OBSERVED
-API_CORRELATED
-DB_CORRELATED
-EXISTING_E2E_PROVEN
-NOT_VERIFIED
+web/src/features/author-projects/AuthorNovelMetadataPage.tsx
+web/src/features/novels/novel-api.ts
+web/src/features/admin/AdminPage.tsx
+web/src/features/admin/admin-api.ts
+backend/src/modules/novels/novels.service.ts
+backend/src/modules/content-control/content-control.service.ts
+backend/src/modules/reading/reading.repository.ts
 ```
 
-Never present static inspection as browser evidence.
+Determine whether any product code change is actually required.
 
-Screenshots are optional for this inventory, but recommended for broken/mock/high-risk surfaces.
+If current UI already completes the lifecycle correctly, **do not manufacture product changes**. It is acceptable for this gate to consist primarily of a hardened browser runner, deterministic tests, evidence and report.
 
-Do not store credentials, tokens, private manuscript bodies, or secrets.
+Only fix a UI/backend defect if the real browser run exposes one.
 
-### Minimum validation before push
+---
 
-At minimum run:
+### Phase B — real browser lifecycle
+
+Use the rendered web application and production-like local stack.
+
+All lifecycle mutations must originate in the browser UI.
+
+API/DB calls may be used only for correlation/verification after the browser mutation.
+
+Required checkpoints:
 
 ```text
-web typecheck/build
-route/component static inventory
-browser reconnaissance over every major product area
-network correlation for all P0/P1 surfaces
+Publish-A — Author creates deterministic DRAFT novel
+Publish-B — Author verifies DRAFT state and moderation-triggering synopsis
+Publish-C — Author clicks "Gửi duyệt"; exact browser request/response proves PENDING_MODERATION + moderationReviewId
+Publish-D — Author logs out; Admin logs in and opens moderation queue
+Publish-E — Admin sees exact pending NOVEL review for the target novel/reviewId
+Publish-F — Admin opens exact review detail and submits APPROVED through rendered UI
+Publish-G — Admin readback + DB prove review APPROVED and novel PUBLISHED/published_at set
+Publish-H — clear auth; anonymous /public search visibly renders the unique published novel and public detail opens
 ```
 
-This gate does not require rerunning the closed AI browser suites unless a regression is observed.
+#### Publish-A
 
-### Deliverables
+Author must create the target novel via rendered Author UI if a create control exists.
+
+Use a unique title per run.
+
+Do not preinsert the target novel directly in PostgreSQL and call that a browser checkpoint.
+
+DB correlation after creation must prove:
+
+```text
+novel.author_id == logged-in author
+novel.status == DRAFT
+deleted_at == null
+```
+
+#### Publish-B
+
+Through rendered author metadata UI, ensure the final persisted synopsis contains the exact trigger token:
+
+```text
+harassment
+```
+
+Reload/reopen the author metadata page and prove the target title/synopsis/status persist.
+
+#### Publish-C
+
+Capture via CDP:
+
+```text
+POST /api/v1/novels/:novelId/submit-publish
+```
+
+Record:
+
+```text
+browser request id
+novel_id
+HTTP status
+response.status
+response.moderationRequired
+response.moderationReviewId
+```
 
 Required:
 
 ```text
-docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.md
+response.status == PENDING_MODERATION
+response.moderationRequired == true
+response.moderationReviewId == real UUID
 ```
 
-Optional but encouraged:
+Then DB-correlate:
 
 ```text
-docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.json
-docs/development/PRODUCT-UI-INTEGRATION-INVENTORY/
-  screenshots of P0/P1 findings
+novels.status = PENDING_MODERATION
+moderation_reviews.review_id = response.moderationReviewId
+moderation_reviews.target_type = NOVEL
+moderation_reviews.target_id = novel_id
+moderation_reviews.status = PENDING
+source = KEYWORD_FILTER
 ```
 
-The report header must record:
+The Author UI must visibly reflect the pending state after mutation/refetch/reload.
+
+#### Publish-D
+
+Use normal UI logout/session transition.
+
+Login as Admin through rendered login UI.
+
+Do not inject an Admin token into storage as the decisive auth step.
+
+#### Publish-E
+
+Navigate to:
 
 ```text
-inventory_base_main_sha
+/admin/moderation
+```
+
+Filter/use the rendered queue as needed.
+
+Prove the exact `moderationReviewId` for the exact target novel is present.
+
+Do not pass by observing an unrelated pending review.
+
+#### Publish-F
+
+Open:
+
+```text
+/admin/moderation/:reviewId
+```
+
+Verify the detail corresponds to:
+
+```text
+targetType = NOVEL
+targetId = target novel id
+status = PENDING
+```
+
+Submit:
+
+```text
+decision = APPROVED
+```
+
+through the rendered Admin UI.
+
+Capture the browser-originated resolve request:
+
+```text
+POST /api/v1/admin/moderation/reviews/:reviewId/resolve
+```
+
+and response.
+
+#### Publish-G
+
+After approval:
+
+```text
+review status = APPROVED
+reviewed_by = admin user
+reviewed_at != null
+
+novel status = PUBLISHED
+published_at != null
+```
+
+Browser/Admin UI must also show the review no longer belongs to the pending queue, or clearly show resolved/approved state if the product retains it in another filter.
+
+Reload the relevant Admin view before PASS.
+
+#### Publish-H
+
+Logout/clear the authenticated session through normal UI, then visit as anonymous:
+
+```text
+/public
+```
+
+Use public search/filter UI with the exact unique title.
+
+Prove:
+
+```text
+target novel appears in rendered DOM
+target novel card links to /public/novels/:novelId
+opening that detail succeeds
+displayed title matches target
+```
+
+Capture the public search network request and correlate that it returns the target novel.
+
+---
+
+### Phase C — negative and idempotency checks
+
+Add the smallest deterministic/browser assertions proving:
+
+```text
+1. Reader/Author cannot resolve Admin moderation review (403 / guarded route)
+2. duplicate resolve of the already-approved review fails closed with 409
+3. already-PUBLISHED novel cannot be resubmitted through normal author publish flow as a second pending review
+4. the same target does not produce multiple open PENDING moderation reviews
+5. an unrelated pending review cannot satisfy Publish-E/F
+```
+
+These may be API-level deterministic tests except where a rendered role guard is the behavior under test.
+
+Do not expand into a full moderation-system rewrite.
+
+---
+
+### Phase D — evidence and report
+
+Create:
+
+```text
+docs/development/AUTHOR-PUBLISH-ADMIN-MODERATION-E2E-report.md
+
+docs/development/AUTHOR-PUBLISH-ADMIN-MODERATION-E2E/
+  author-publish-admin-moderation-e2e-evidence.json
+  Publish-A..H screenshots
+```
+
+Evidence JSON must include at minimum:
+
+```text
+tested_main_sha
+tested_code_sha
 branch
-browser/runtime used
-date
-web build result
-number of production routes inventoried
-classification counts
-P0/P1/P2/P3 counts
-selected next gate
+
+author_user_id
+admin_user_id
+
+novel_id
+unique_novel_title
+novel_initial_status
+novel_pending_status
+novel_final_status
+published_at
+
+content_filter_rule_id or rule identity
+moderation_trigger
+
+submit_publish_browser_request_id
+submit_publish_http_status
+moderation_required
+moderation_review_id
+
+moderation_review_source
+moderation_review_initial_status
+moderation_resolve_browser_request_id
+moderation_resolve_http_status
+moderation_review_final_status
+reviewed_by
+reviewed_at
+
+public_search_browser_request_id
+public_detail_url
+public_rendered_title
+
+negative_check_results
 ```
+
+Do not store:
+- passwords;
+- access/refresh tokens;
+- secrets;
+- unrelated private content.
+
+Use backward-only SHA lineage if a separate evidence commit is used.
+
+---
+
+### Phase E — validation
+
+Run at minimum:
+
+```text
+web typecheck/build
+relevant novels/content-control deterministic tests
+relevant admin/reading deterministic tests
+backend typecheck
+real browser Publish-A through Publish-H
+```
+
+Do not rerun AI provider quality tests unless this gate exposes an unrelated concrete regression.
+
+Accepted AI/Story Brain/Manuscript gates remain closed.
+
+Final verdict:
+
+```text
+AUTHOR_PUBLISH_ADMIN_MODERATION_PASS
+```
+
+only when all eight browser checkpoints and DB correlations pass.
+
+If UI product behavior is actually broken:
+
+```text
+AUTHOR_PUBLISH_ADMIN_MODERATION_FAIL
+```
+
+until repaired and rerun.
+
+---
 
 ### Stop boundary
 
-When inventory is complete:
+When local acceptance is complete:
 
 ```text
 git status clean
-commit report/evidence
-push astra/product-ui-integration-inventory
-STOP
-```
-
-Final status:
-
-```text
-PRODUCT_UI_INVENTORY_COMPLETE
-REVIEW_PENDING
+push astra/author-publish-admin-moderation-e2e
+STOP at LOCAL_PASS_CI_PENDING
 ```
 
 Gemini must not:
-- implement the selected next gate;
-- perform a broad UI refactor;
 - create a PR;
 - merge to main;
-- reopen accepted AI/Manuscript architecture without a reproduced regression.
+- claim GitHub Actions PASS;
+- implement Reader/Wallet/VIP gates in the same branch;
+- reopen AI/Story Brain architecture;
+- accept the auto-publish no-moderation path as a substitute for this gate.
 
-ChatGPT will review the inventory, validate the prioritization, and issue the next bounded implementation/E2E directive.
+ChatGPT owns remote review, PR, CI inspection, merge decision and canonical closure.
 
 ---
 
