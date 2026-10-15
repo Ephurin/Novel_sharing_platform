@@ -7,8 +7,8 @@
 | **Gate Identifier** | `MANUSCRIPT-IMPORT-UI-E2E` | **ACCEPTED** |
 | **Final System Verdict** | `MANUSCRIPT_IMPORT_UI_PASS` | **PASS (100%)** |
 | **Integration Branch** | `astra/manuscript-import-ui-e2e` | **ACTIVE** |
-| **Base Main Commit** | `dce5172e916d0546fe8293807bce7354e695fd50` | **MATCHED** |
-| **Tested Product Code SHA** | `40dc3fd03a991d90a787eed7ebb61d06886831c0` | **SEALED** |
+| **Base Main Commit** | `f500f0013253add139b3e08cf7d0ff85236f3dce` | **MATCHED** |
+| **Tested Product Code SHA** | `66f94e22980b2c10cf3e2e93523e31f6582def60` | **SEALED** |
 | **Evidence Payload Path** | `docs/development/MANUSCRIPT-IMPORT-UI-E2E/manuscript-import-ui-e2e-evidence.json` | **PERSISTED** |
 | **Execution Mode** | Real Microsoft Edge Headless CDP (Automated Native DOM) | **VERIFIED** |
 | **Deterministic Contract Tests** | 16 / 16 Node:test specifications (D1–D16) | **PASS (100%)** |
@@ -75,20 +75,20 @@ All 16 checkpoints were executed autonomously using Microsoft Edge CDP automatio
 ## 4. Cryptographic & Correlation Proofs
 
 ### Target Novel
-- **Novel ID**: `1cb5a593-1dd2-4ff8-bd17-97484c293c07`
-- **Novel Title**: `Hà Nội Ký Sự - Bản Thảo Thử Nghiệm 3474b7`
+- **Novel ID**: `3babb4a1-8c44-4ef5-8448-3699d7b7c694`
+- **Novel Title**: `Hà Nội Ký Sự - Bản Thảo Thử Nghiệm bde3d8`
 - **Author ID**: `51ca9a66-d798-4f6c-8518-11c085678e4f`
 
 ### Canonical Chapters & Revisions
 1. **Chapter 1**:
-   - `chapter_id`: `bcdaeaa8-907f-452b-b4b1-789b8cada53a`
-   - `revision_id`: `0debb4da-7fec-4618-9785-b405d120e6b6`
+   - `chapter_id`: `29e748d1-b1cb-440d-b9d9-ed265f10dd70`
+   - `revision_id`: `26195fb8-5bef-402c-a0f4-0faf79491010`
    - `content_hash`: `1d5769cfc19eb6524807c4f2ffa4fa2b02f6b5e561df23feefb9bf16ebd1bdc4`
    - `source_type`: `BOOTSTRAP`
    - `title`: `Chương 1: Mùa hoa sữa trên phố cổ`
 2. **Chapter 2**:
-   - `chapter_id`: `568cef94-1958-4fd3-8201-8e045875f885`
-   - `revision_id`: `1dbec61d-c2a2-4f31-9d66-3936ab2c898c`
+   - `chapter_id`: `bf125340-7021-4094-bf4d-4df64bfebbad`
+   - `revision_id`: `9aeaac3c-756e-4bc3-9dfc-42ad9ea023a9`
    - `content_hash`: `424e6fea8b401b2826e3a829c9f78c5d49cf377b3bf31777471a024fe724a6db`
    - `source_type`: `BOOTSTRAP`
    - `title`: `Chương 2: Đêm sương lạnh qua cầu Long Biên`
@@ -97,30 +97,30 @@ All 16 checkpoints were executed autonomously using Microsoft Edge CDP automatio
 - `pre_baseline_outbox_count`: `0` (Confirmed zero generic outbox rows created prior to baseline activation).
 
 ### Story Brain Lifecycle & Non-Canonical Proof
-- **Bootstrap Job ID**: `64e678af-35a4-5133-8f8f-a8f3f4ce12f6`
-- **Story Brain ID**: `8ca1cff4-8678-4293-b149-ad302005a7a4`
+- **Bootstrap Job ID**: `1596c880-40cb-5aa9-b110-e59202f79a5d`
+- **Story Brain ID**: `93ff7257-93cb-4378-b623-57d29f53e62b`
 - **Initial Brain Version**: `1`
-- **Baseline Revision ID**: `1dbec61d-c2a2-4f31-9d66-3936ab2c898c`
+- **Baseline Revision ID**: `9aeaac3c-756e-4bc3-9dfc-42ad9ea023a9`
 - **Post-Baseline Brain Version**: `2`
-- **Target Rejected Proposal ID**: `537d4e4b-2aa9-51c1-931b-5bca92d4e847` (type: `fact`, key: `world_rule_39429a23f0b4881b`)
+- **Target Rejected Proposal ID**: `ca21cfc0-005f-5079-8b6f-4d3eee7dddb0` (type: `fact`, key: `world_rule_39429a23f0b4881b`)
 - **PostgreSQL Status**: `status = 'rejected'`
 - **Canonical Absence Proof**:
-  - Query: `SELECT COUNT(*) FROM narrative.facts WHERE novel_id = '1cb5a593-1dd2-4ff8-bd17-97484c293c07' AND fact_key = 'world_rule_39429a23f0b4881b'`
+  - Query: `SELECT COUNT(*) FROM narrative.facts WHERE novel_id = '3babb4a1-8c44-4ef5-8448-3699d7b7c694' AND fact_key = 'world_rule_39429a23f0b4881b'`
   - Result: `0` (Confirmed non-canonical proposal was never materialized into knowledge base).
-- **Accepted Proposal ID**: `111a55f5-7969-5a5b-9d1c-771e4981e9a2` across group `69e33656-b8e0-5896-8f27-19242a0664ee` (`status = 'accepted'`)
+- **Accepted Proposal ID**: `d0303362-b333-5f9f-b132-aa5d38deb486` across group `9529cb12-c44a-57c6-85ee-81ad985d832c` (`status = 'accepted'`)
 
 ### Closed-Loop Writing IDE Verification
 - **Generation #1 Provenance Verification**:
-  - Request ID: `7F7459A6D85D791B73CBDDF44A8FE444`
-  - Job ID: `2376f0fb-58fb-5b07-bac7-a853659914e2`
-  - Observed Payload: `chapter_id = bcdaeaa8-907f-452b-b4b1-789b8cada53a`, `revision_id = 0debb4da-7fec-4618-9785-b405d120e6b6`, `expected_brain_version = 2`
+  - Request ID: `222DB8D3E7B3378DB851DE3B62C43332`
+  - Job ID: `e1d6a775-fc04-59a2-a8ef-ae18dffafc07`
+  - Observed Payload: `chapter_id = 29e748d1-b1cb-440d-b9d9-ed265f10dd70`, `revision_id = 26195fb8-5bef-402c-a0f4-0faf79491010`, `expected_brain_version = 2`
 - **Generation #1 Discard**: Canon revision and Story Brain version remain `2`.
 - **Generation #2 Acceptance**:
-  - Accepted Revision: `20df83c1-ebe2-46fb-a9a7-6a7c60af6a5e` (`source_type = 'AI_DRAFT_ACCEPT'`)
-  - Outbox Event: `61e38cf7-b6a4-4b34-ae57-40298e4f8109` (`status = 'COMPLETED'`)
+  - Accepted Revision: `60ba7e8d-8de1-448e-93d6-44b4a3c5470c` (`source_type = 'AI_DRAFT_ACCEPT'`)
+  - Outbox Event: `8f4e8b20-3011-48b0-a36f-110c8764f1fd` (`status = 'COMPLETED'`)
   - Advanced Story Brain Version: `3`
 - **Generation #3 N+1 Observation**:
-  - Intercepted Request ID: `23980.908`
+  - Intercepted Request ID: `18600.819`
   - Observed Brain Version: `expected_brain_version = 3`
 
 ---
@@ -141,7 +141,7 @@ In accordance with Section 4 and Section 5 of `promt.md`:
 ## 6. Backward-Only SHA Lineage
 
 ```text
-TESTED_MAIN_SHA:      dce5172e916d0546fe8293807bce7354e695fd50
-TESTED_CODE_SHA:      40dc3fd03a991d90a787eed7ebb61d06886831c0
-EVIDENCE_PAYLOAD_SHA: 43f5d75060948efc02d634adb0ac244f507b0628
+TESTED_MAIN_SHA:      f500f0013253add139b3e08cf7d0ff85236f3dce
+TESTED_CODE_SHA:      66f94e22980b2c10cf3e2e93523e31f6582def60
+EVIDENCE_PAYLOAD_SHA: [PENDING_COMMIT]
 ```

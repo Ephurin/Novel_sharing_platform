@@ -1,15 +1,15 @@
 {
   "gate": "MANUSCRIPT-IMPORT-UI-E2E",
-  "timestamp": "2026-10-14T10:12:36Z",
+  "timestamp": "2026-10-15T02:13:41Z",
   "execution_mode": "REAL_BROWSER_AUTOMATION_CDP",
   "browser": "Microsoft Edge 155 (Headless Chrome/155.0.0.0)",
-  "novel_id": "1cb5a593-1dd2-4ff8-bd17-97484c293c07",
-  "novel_title": "Hà Nội Ký Sự - Bản Thảo Thử Nghiệm 3474b7",
+  "novel_id": "3babb4a1-8c44-4ef5-8448-3699d7b7c694",
+  "novel_title": "Hà Nội Ký Sự - Bản Thảo Thử Nghiệm bde3d8",
   "checkpoints": {
     "Import-A": {
       "name": "Authenticate & Navigate to Manuscript Import",
       "status": "PASS",
-      "url": "http://127.0.0.1:5173/author/import/1cb5a593-1dd2-4ff8-bd17-97484c293c07",
+      "url": "http://127.0.0.1:5173/author/import/3babb4a1-8c44-4ef5-8448-3699d7b7c694",
       "evidence_artifact": "import-a-navigated.png",
       "notes": "Browser successfully logged in as author and navigated to /author/import/:novelId."
     },
@@ -37,8 +37,8 @@
       "name": "Imported Chapters Appear After Reload & Readback",
       "status": "PASS",
       "chapter_ids": [
-        "bcdaeaa8-907f-452b-b4b1-789b8cada53a",
-        "568cef94-1958-4fd3-8201-8e045875f885"
+        "29e748d1-b1cb-440d-b9d9-ed265f10dd70",
+        "bf125340-7021-4094-bf4d-4df64bfebbad"
       ],
       "chapter_titles": [
         "Chương 1: Mùa hoa sữa trên phố cổ",
@@ -52,14 +52,14 @@
       "name": "Canonical Immutable Revision & Hash Correlation",
       "status": "PASS",
       "ch1": {
-        "chapter_id": "bcdaeaa8-907f-452b-b4b1-789b8cada53a",
-        "revision_id": "0debb4da-7fec-4618-9785-b405d120e6b6",
+        "chapter_id": "29e748d1-b1cb-440d-b9d9-ed265f10dd70",
+        "revision_id": "26195fb8-5bef-402c-a0f4-0faf79491010",
         "content_hash": "1d5769cfc19eb6524807c4f2ffa4fa2b02f6b5e561df23feefb9bf16ebd1bdc4",
         "source_type": "BOOTSTRAP"
       },
       "ch2": {
-        "chapter_id": "568cef94-1958-4fd3-8201-8e045875f885",
-        "revision_id": "1dbec61d-c2a2-4f31-9d66-3936ab2c898c",
+        "chapter_id": "bf125340-7021-4094-bf4d-4df64bfebbad",
+        "revision_id": "9aeaac3c-756e-4bc3-9dfc-42ad9ea023a9",
         "content_hash": "424e6fea8b401b2826e3a829c9f78c5d49cf377b3bf31777471a024fe724a6db",
         "source_type": "BOOTSTRAP"
       },
@@ -70,26 +70,26 @@
     "Import-G": {
       "name": "Story Brain Bootstrap Manifest Verification",
       "status": "PASS",
-      "job_id": "64e678af-35a4-5133-8f8f-a8f3f4ce12f6",
+      "job_id": "1596c880-40cb-5aa9-b110-e59202f79a5d",
       "status_at_dispatch": "waiting_review",
       "manifest_revisions": [
         {
           "status": "completed",
-          "chapter_id": "bcdaeaa8-907f-452b-b4b1-789b8cada53a",
-          "revision_id": "0debb4da-7fec-4618-9785-b405d120e6b6",
+          "chapter_id": "29e748d1-b1cb-440d-b9d9-ed265f10dd70",
+          "revision_id": "26195fb8-5bef-402c-a0f4-0faf79491010",
           "content_hash": "1d5769cfc19eb6524807c4f2ffa4fa2b02f6b5e561df23feefb9bf16ebd1bdc4",
           "chapter_number": null,
           "proposal_count": 1,
-          "analysis_run_id": "9991e613-5bef-4642-9721-3fda76d32c56"
+          "analysis_run_id": "e89cbfa7-137f-424e-861f-9050984938e4"
         },
         {
           "status": "completed",
-          "chapter_id": "568cef94-1958-4fd3-8201-8e045875f885",
-          "revision_id": "1dbec61d-c2a2-4f31-9d66-3936ab2c898c",
+          "chapter_id": "bf125340-7021-4094-bf4d-4df64bfebbad",
+          "revision_id": "9aeaac3c-756e-4bc3-9dfc-42ad9ea023a9",
           "content_hash": "424e6fea8b401b2826e3a829c9f78c5d49cf377b3bf31777471a024fe724a6db",
           "chapter_number": null,
           "proposal_count": 1,
-          "analysis_run_id": "e51bf4df-d2ad-45bc-8387-fc2dbfd9282f"
+          "analysis_run_id": "8eae045e-2177-4bb2-a1bf-32181ea9d322"
         }
       ],
       "notes": "Confirmed bootstrap consumed authentic persisted revision IDs and content hashes."
@@ -104,7 +104,7 @@
     "Import-I": {
       "name": "Reject Proposal Through UI",
       "status": "PASS",
-      "rejected_proposal_id": "537d4e4b-2aa9-51c1-931b-5bca92d4e847",
+      "rejected_proposal_id": "ca21cfc0-005f-5079-8b6f-4d3eee7dddb0",
       "rejected_proposal_type": "fact",
       "rejected_payload_identity": "key=world_rule_39429a23f0b4881b,value=Còi tàu Long Biên chỉ xé màn đêm đúng mư",
       "evidence_artifact": "import-i-rejected-proposal.png",
@@ -116,10 +116,10 @@
       "status": "PASS",
       "accepted_proposals_count": 1,
       "accepted_proposal_ids": [
-        "111a55f5-7969-5a5b-9d1c-771e4981e9a2"
+        "d0303362-b333-5f9f-b132-aa5d38deb486"
       ],
       "accepted_proposal_group_ids": [
-        "69e33656-b8e0-5896-8f27-19242a0664ee"
+        "9529cb12-c44a-57c6-85ee-81ad985d832c"
       ],
       "evidence_artifact": "import-j-accepted-proposals.png",
       "notes": "All required proposal groups accepted with optimistic brain_version locking."
@@ -128,9 +128,9 @@
       "name": "Activate Story Brain Baseline Through UI",
       "status": "PASS",
       "story_brain_status": "active",
-      "story_brain_id": "8ca1cff4-8678-4293-b149-ad302005a7a4",
+      "story_brain_id": "93ff7257-93cb-4378-b623-57d29f53e62b",
       "brain_version": 2,
-      "baseline_revision_id": "1dbec61d-c2a2-4f31-9d66-3936ab2c898c",
+      "baseline_revision_id": "9aeaac3c-756e-4bc3-9dfc-42ad9ea023a9",
       "canonical_absence_verified": true,
       "evidence_artifact": "import-k-baseline-activated.png",
       "notes": "Clicked baseline activation button in browser; Story Brain active in PostgreSQL; rejected proposal completely absent from canon."
@@ -138,7 +138,7 @@
     "Import-L": {
       "name": "Open Imported Chapter in Author IDE",
       "status": "PASS",
-      "ide_url": "http://127.0.0.1:5173/author/ide?novelId=1cb5a593-1dd2-4ff8-bd17-97484c293c07&chapterId=bcdaeaa8-907f-452b-b4b1-789b8cada53a",
+      "ide_url": "http://127.0.0.1:5173/author/ide?novelId=3babb4a1-8c44-4ef5-8448-3699d7b7c694&chapterId=29e748d1-b1cb-440d-b9d9-ed265f10dd70",
       "evidence_artifact": "import-l-author-ide.png",
       "content_verified": true,
       "notes": "Author IDE loaded imported Chapter 1 with canonical text from draft/revisions."
@@ -146,10 +146,10 @@
     "Import-M": {
       "name": "Browser AI Generation #1 (Candidate Draft)",
       "status": "PASS",
-      "generation1_browser_request_id": "7F7459A6D85D791B73CBDDF44A8FE444",
-      "generation1_id": "2376f0fb-58fb-5b07-bac7-a853659914e2",
-      "chapter_id": "bcdaeaa8-907f-452b-b4b1-789b8cada53a",
-      "revision_id": "0debb4da-7fec-4618-9785-b405d120e6b6",
+      "generation1_browser_request_id": "222DB8D3E7B3378DB851DE3B62C43332",
+      "generation1_id": "e1d6a775-fc04-59a2-a8ef-ae18dffafc07",
+      "chapter_id": "29e748d1-b1cb-440d-b9d9-ed265f10dd70",
+      "revision_id": "26195fb8-5bef-402c-a0f4-0faf79491010",
       "content_hash": "1d5769cfc19eb6524807c4f2ffa4fa2b02f6b5e561df23feefb9bf16ebd1bdc4",
       "expected_brain_version": 2,
       "evidence_artifact": "import-m-generation1-draft.png",
@@ -158,7 +158,7 @@
     "Import-N": {
       "name": "Reject Generation & Invariant Verification",
       "status": "PASS",
-      "rejected_generation_id": "2376f0fb-58fb-5b07-bac7-a853659914e2",
+      "rejected_generation_id": "e1d6a775-fc04-59a2-a8ef-ae18dffafc07",
       "ai_revisions_count": 0,
       "brain_version": 2,
       "evidence_artifact": "import-n-generation1-rejected.png",
@@ -167,10 +167,10 @@
     "Import-O": {
       "name": "AI Draft Accept & Outbox Closed-Loop",
       "status": "PASS",
-      "accepted_revision_id": "20df83c1-ebe2-46fb-a9a7-6a7c60af6a5e",
-      "accepted_generation_id": "aee6f153-2b00-52fa-9a9e-b50f3b47fa8c",
-      "source_generation_id": "aee6f153-2b00-52fa-9a9e-b50f3b47fa8c",
-      "outbox_event_id": "61e38cf7-b6a4-4b34-ae57-40298e4f8109",
+      "accepted_revision_id": "60ba7e8d-8de1-448e-93d6-44b4a3c5470c",
+      "accepted_generation_id": "9e6ea1c2-ea68-5caf-afdf-bba69b187b9e",
+      "source_generation_id": "9e6ea1c2-ea68-5caf-afdf-bba69b187b9e",
+      "outbox_event_id": "8f4e8b20-3011-48b0-a36f-110c8764f1fd",
       "brain_version_before": 2,
       "brain_version_after": 3,
       "evidence_artifact": "import-o-generation2-accepted.png",
@@ -179,7 +179,7 @@
     "Import-P": {
       "name": "Subsequent Browser Generation Observes N+1",
       "status": "PASS",
-      "final_browser_request_id": "23980.908",
+      "final_browser_request_id": "18600.819",
       "observed_brain_version": 3,
       "evidence_artifact": "import-p-generation3-observes-n-plus-1.png",
       "notes": "Browser generation #3 correctly sent advanced brain_version in expected_brain_version payload."
@@ -187,58 +187,58 @@
   },
   "status": "PASS",
   "verdict": "MANUSCRIPT_IMPORT_UI_PASS",
-  "tested_main_sha": "dce5172e916d0546fe8293807bce7354e695fd50",
-  "tested_code_sha": "40dc3fd03a991d90a787eed7ebb61d06886831c0",
+  "tested_main_sha": "f500f0013253add139b3e08cf7d0ff85236f3dce",
+  "tested_code_sha": "66f94e22980b2c10cf3e2e93523e31f6582def60",
   "branch": "astra/manuscript-import-ui-e2e",
   "imported_chapter_ids": [
-    "bcdaeaa8-907f-452b-b4b1-789b8cada53a",
-    "568cef94-1958-4fd3-8201-8e045875f885"
+    "29e748d1-b1cb-440d-b9d9-ed265f10dd70",
+    "bf125340-7021-4094-bf4d-4df64bfebbad"
   ],
   "imported_revision_ids": [
-    "0debb4da-7fec-4618-9785-b405d120e6b6",
-    "1dbec61d-c2a2-4f31-9d66-3936ab2c898c"
+    "26195fb8-5bef-402c-a0f4-0faf79491010",
+    "9aeaac3c-756e-4bc3-9dfc-42ad9ea023a9"
   ],
   "imported_content_hashes": [
     "1d5769cfc19eb6524807c4f2ffa4fa2b02f6b5e561df23feefb9bf16ebd1bdc4",
     "424e6fea8b401b2826e3a829c9f78c5d49cf377b3bf31777471a024fe724a6db"
   ],
   "pre_baseline_outbox_count": 0,
-  "bootstrap_job_id": "64e678af-35a4-5133-8f8f-a8f3f4ce12f6",
-  "story_brain_id": "8ca1cff4-8678-4293-b149-ad302005a7a4",
+  "bootstrap_job_id": "1596c880-40cb-5aa9-b110-e59202f79a5d",
+  "story_brain_id": "93ff7257-93cb-4378-b623-57d29f53e62b",
   "baseline_brain_version": 2,
-  "target_rejected_proposal_id": "537d4e4b-2aa9-51c1-931b-5bca92d4e847",
-  "rejected_proposal_id": "537d4e4b-2aa9-51c1-931b-5bca92d4e847",
+  "target_rejected_proposal_id": "ca21cfc0-005f-5079-8b6f-4d3eee7dddb0",
+  "rejected_proposal_id": "ca21cfc0-005f-5079-8b6f-4d3eee7dddb0",
   "rejected_proposal_type": "fact",
   "canonical_absence_proof": {
-    "query": "SELECT COUNT(*) FROM narrative.facts WHERE novel_id = '1cb5a593-1dd2-4ff8-bd17-97484c293c07' AND fact_key = 'world_rule_39429a23f0b4881b'",
+    "query": "SELECT COUNT(*) FROM narrative.facts WHERE novel_id = '3babb4a1-8c44-4ef5-8448-3699d7b7c694' AND fact_key = 'world_rule_39429a23f0b4881b'",
     "absence_count": 0,
     "verified": true
   },
   "accepted_proposal_ids": [
-    "111a55f5-7969-5a5b-9d1c-771e4981e9a2"
+    "d0303362-b333-5f9f-b132-aa5d38deb486"
   ],
   "accepted_proposal_group_ids": [
-    "69e33656-b8e0-5896-8f27-19242a0664ee"
+    "9529cb12-c44a-57c6-85ee-81ad985d832c"
   ],
-  "generation1_browser_request_id": "7F7459A6D85D791B73CBDDF44A8FE444",
-  "rejected_generation_id": "2376f0fb-58fb-5b07-bac7-a853659914e2",
+  "generation1_browser_request_id": "222DB8D3E7B3378DB851DE3B62C43332",
+  "rejected_generation_id": "e1d6a775-fc04-59a2-a8ef-ae18dffafc07",
   "generation1_provenance": {
-    "chapter_id": "bcdaeaa8-907f-452b-b4b1-789b8cada53a",
-    "revision_id": "0debb4da-7fec-4618-9785-b405d120e6b6",
+    "chapter_id": "29e748d1-b1cb-440d-b9d9-ed265f10dd70",
+    "revision_id": "26195fb8-5bef-402c-a0f4-0faf79491010",
     "content_hash": "1d5769cfc19eb6524807c4f2ffa4fa2b02f6b5e561df23feefb9bf16ebd1bdc4",
     "expected_brain_version": 2
   },
-  "accepted_generation_id": "aee6f153-2b00-52fa-9a9e-b50f3b47fa8c",
-  "accepted_revision_id": "20df83c1-ebe2-46fb-a9a7-6a7c60af6a5e",
-  "outbox_event_id": "61e38cf7-b6a4-4b34-ae57-40298e4f8109",
+  "accepted_generation_id": "9e6ea1c2-ea68-5caf-afdf-bba69b187b9e",
+  "accepted_revision_id": "60ba7e8d-8de1-448e-93d6-44b4a3c5470c",
+  "outbox_event_id": "8f4e8b20-3011-48b0-a36f-110c8764f1fd",
   "brain_version_before_accept": 2,
   "brain_version_after_accept": 3,
-  "final_browser_request_id": "23980.908",
+  "final_browser_request_id": "18600.819",
   "observed_final_brain_version": 3,
   "subsequent_generation_brain_version": 3,
   "lineage": {
-    "tested_main_sha": "dce5172e916d0546fe8293807bce7354e695fd50",
-    "tested_code_sha": "40dc3fd03a991d90a787eed7ebb61d06886831c0",
+    "tested_main_sha": "f500f0013253add139b3e08cf7d0ff85236f3dce",
+    "tested_code_sha": "66f94e22980b2c10cf3e2e93523e31f6582def60",
     "branch": "astra/manuscript-import-ui-e2e"
   },
   "artifacts": [
