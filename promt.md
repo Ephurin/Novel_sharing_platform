@@ -255,532 +255,387 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. ACTIVE EXECUTION DIRECTIVE — Author Publish -> Admin Moderation -> Public Discovery E2E
+## 5. FINAL HARDENING DIRECTIVE — Author Publish / Moderation E2E
 
-The Product UI Integration Inventory is accepted as the planning basis for the next bounded gate.
+The functional product lifecycle is accepted in direction. Do not open a PR yet.
 
-### Accepted inventory
-
-```text
-inventory branch:
-astra/product-ui-integration-inventory
-
-inventory commit:
-a5c975e1e281863c78dbc08922993ae3dece5fc1
-
-inventory base main:
-1b5fcbc7b69e9ce3b928aa130370b73115b49cbd
-
-surfaces inventoried:
-27
-
-REAL + E2E-COVERED:
-5
-
-REAL + NOT-YET-E2E-COVERED:
-19
-
-P0:
-0
-
-inventory verdict:
-PRODUCT_UI_INVENTORY_COMPLETE
-REVIEW_PENDING -> ACCEPTED
-```
-
-The inventory priority labels are advisory. Some already-covered/no-blocker surfaces were still counted as P1; do not treat the raw P1 count as a product defect count.
-
-The next gate is accepted:
-
-```text
-AUTHOR-PUBLISH-ADMIN-MODERATION-E2E
-```
-
-This gate closes the first cross-role/cross-surface lifecycle:
-
-```text
-Author DRAFT
- -> submit publish
- -> moderation review
- -> Admin APPROVE
- -> novel PUBLISHED
- -> anonymous public discovery
-```
-
-Do not reopen AI/Story Brain/Manuscript Import architecture.
-
----
-
-### Start branch from actual latest main
-
-After this directive is committed:
-
-```bash
-git fetch origin
-git checkout main
-git pull --ff-only origin main
-git checkout -b astra/author-publish-admin-moderation-e2e
-```
-
-Record:
-
-```text
-GATE_BASE_MAIN_SHA = git rev-parse origin/main
-```
-
-Preserve the accepted inventory in the eventual implementation PR by cherry-picking the inventory-only commit:
-
-```bash
-git cherry-pick a5c975e1e281863c78dbc08922993ae3dece5fc1
-```
-
-If that commit conflicts only because main changed documentation/handoff text, preserve current-main handoff and keep the inventory report/evidence files. Do not resurrect an old `promt.md`.
-
-Working branch:
+Current reviewed branch:
 
 ```text
 astra/author-publish-admin-moderation-e2e
 ```
 
----
-
-### Confirmed production contracts
-
-ChatGPT directly verified current-main behavior.
-
-Author UI:
+Reviewed remote head before this directive:
 
 ```text
-AuthorNovelMetadataPage
- -> submitNovelPublish(novelId)
- -> POST /api/v1/novels/:novelId/submit-publish
+401b8da300f31f44c742ffc9282856c71443eb5a
 ```
 
-Backend submit behavior:
+Reviewed product/test baseline:
 
 ```text
-submitPublish()
- -> checkContent(NOVEL)
- -> if moderationRequired=false:
-      publishNovel() immediately
- -> if moderationRequired=true:
-      novel -> PENDING_MODERATION
-      return moderationReviewId
+6b94d8a7d6b0298f0d58979c48038ce2d9ce32ed
 ```
 
-Admin UI/backend:
+Accepted functional behavior:
 
 ```text
-GET  /api/v1/admin/moderation/reviews
-GET  /api/v1/admin/moderation/reviews/:reviewId
-POST /api/v1/admin/moderation/reviews/:reviewId/resolve
+Author creates DRAFT via rendered UI                 PASS
+deterministic harassment rule triggers moderation    PASS
+browser submit-publish -> PENDING_MODERATION          PASS
+exact moderationReviewId correlation                  PASS
+Admin queue/detail exact target                       PASS
+Admin APPROVED -> novel PUBLISHED                     PASS
+published_at persisted                                PASS
+anonymous /public discovery                           PASS
+publish CTA/status badge product fix                  ACCEPTED
+Phase-C deterministic service invariants              IMPLEMENTED
 ```
 
-For a NOVEL review:
+The only remaining work is evidence/runner hardening plus final rerun.
+
+### FE-owned debt is explicitly out of scope
+
+Do not fix or redesign existing mock/static presentation values in Author UI in this branch.
+
+Known FE-owned debt includes examples inherited from PR #44 / commit `0e7012c`:
 
 ```text
-decision=APPROVED
- -> moderation_reviews.status = APPROVED
- -> publishNovel(target_id)
- -> novels.status = PUBLISHED
- -> published_at set
+285.4k views fallback
+86.4k Xu revenue fallback
+static creation/update timestamps
+other mock/static display values ported from design HTML
 ```
 
-Public discovery:
+These are assigned to FE separately and must not block this lifecycle gate.
 
-```text
-GET /api/v1/reading/search
- -> novels where status = PUBLISHED
-```
+However, correct the inventory wording so it does not claim `MOCK / STATIC = 0` as a universal property of all display fields. The lifecycle route can be real while containing FE-owned static presentation debt.
 
-Public search does not require a published chapter merely to list the novel.
+Do not alter those FE values here.
 
 ---
 
-### Critical deterministic-fixture rule
+### Step 1 — sync this final directive
 
-Do **not** use clean content and then accept immediate auto-publication as gate success.
+After this commit lands on main:
 
-The migration contains active demo filter rules including:
-
-```text
-pattern: badword
-severity: HIGH
-
-pattern: harassment
-severity: MEDIUM
+```bash
+git fetch origin
+git checkout astra/author-publish-admin-moderation-e2e
+git pull --ff-only
+git merge origin/main
 ```
 
-Use a unique browser-created test novel whose title/synopsis contains the exact deterministic trigger:
+Record the actual synced main SHA:
 
 ```text
-harassment
+FINAL_SYNCED_MAIN_SHA = git rev-parse origin/main
 ```
 
-Prefer placing the trigger in the synopsis, while keeping a unique title such as:
-
-```text
-E2E Moderation Lifecycle <unique suffix>
-```
-
-Before the browser run, verify the active rule exists in the local test database.
-
-Publish-C MUST fail the test unless the browser-originated submit response proves:
-
-```text
-moderationRequired == true
-status == PENDING_MODERATION
-moderationReviewId != null
-```
-
-If the response says `moderationRequired=false`, classify:
-
-```text
-TEST_FIXTURE_NOT_TRIGGERING_MODERATION
-```
-
-Do not silently continue to Admin checkpoints.
-
-Do not add a fake test-only production endpoint to force moderation.
+Branch must be behind main by zero before the final run.
 
 ---
 
-### Phase A — inspect before editing
+### Step 2 — fix Publish-D and Publish-H session transitions
 
-Reinspect current branch after cherry-pick:
+Current runner incorrectly uses direct storage clearing for the decisive logout transition.
+
+Production UI already provides canonical logout in:
 
 ```text
-web/src/features/author-projects/AuthorNovelMetadataPage.tsx
-web/src/features/novels/novel-api.ts
-web/src/features/admin/AdminPage.tsx
-web/src/features/admin/admin-api.ts
-backend/src/modules/novels/novels.service.ts
-backend/src/modules/content-control/content-control.service.ts
-backend/src/modules/reading/reading.repository.ts
+web/src/app/layout/WebAppShell.tsx
 ```
 
-Determine whether any product code change is actually required.
+The rendered `Logout` button executes:
 
-If current UI already completes the lifecycle correctly, **do not manufacture product changes**. It is acceptable for this gate to consist primarily of a hardened browser runner, deterministic tests, evidence and report.
+```text
+logout() backend call
+-> clearSession()
+-> queryClient.clear()
+-> navigate('/login')
+```
 
-Only fix a UI/backend defect if the real browser run exposes one.
+Change the browser runner so:
+
+```text
+Publish-D:
+Author clicks rendered "Logout"
+-> browser observes /login
+-> Admin fills rendered login form
+-> Admin enters /admin
+
+Publish-H:
+Admin clicks rendered "Logout"
+-> browser observes /login / unauthenticated state
+-> navigate to /public as guest
+```
+
+Do not use:
+
+```text
+localStorage.clear()
+sessionStorage.clear()
+token injection
+direct auth-store mutation
+```
+
+as the decisive transition for Publish-D or Publish-H.
+
+Direct storage cleanup may only be used as test-process cleanup after acceptance is complete, not as a PASS-producing user action.
+
+Capture evidence:
+
+```text
+author_logout_browser_request_id if logout endpoint is observable
+author_logout_destination
+admin_login_browser_request_id
+admin_logout_browser_request_id if observable
+anonymous_session_verified
+```
+
+At minimum the DOM/route must prove the authenticated shell disappeared after logout.
 
 ---
 
-### Phase B — real browser lifecycle
+### Step 3 — evidence credential hygiene
 
-Use the rendered web application and production-like local stack.
+The repository intentionally contains deterministic demo seed credentials in deployment/demo documentation. That does not justify copying password/token values into generated evidence.
 
-All lifecycle mutations must originate in the browser UI.
-
-API/DB calls may be used only for correlation/verification after the browser mutation.
-
-Required checkpoints:
+Before final evidence commit:
 
 ```text
-Publish-A — Author creates deterministic DRAFT novel
-Publish-B — Author verifies DRAFT state and moderation-triggering synopsis
-Publish-C — Author clicks "Gửi duyệt"; exact browser request/response proves PENDING_MODERATION + moderationReviewId
-Publish-D — Author logs out; Admin logs in and opens moderation queue
-Publish-E — Admin sees exact pending NOVEL review for the target novel/reviewId
-Publish-F — Admin opens exact review detail and submits APPROVED through rendered UI
-Publish-G — Admin readback + DB prove review APPROVED and novel PUBLISHED/published_at set
-Publish-H — clear auth; anonymous /public search visibly renders the unique published novel and public detail opens
+no password values in evidence JSON
+no access/refresh token values in evidence JSON
+no password values captured from rendered input snapshots
+no auth token values captured in inventory JSON
 ```
 
-#### Publish-A
+For the new browser runner, do not commit a password literal.
 
-Author must create the target novel via rendered Author UI if a create control exists.
-
-Use a unique title per run.
-
-Do not preinsert the target novel directly in PostgreSQL and call that a browser checkpoint.
-
-DB correlation after creation must prove:
+Read the deterministic demo password from an environment variable, e.g.:
 
 ```text
-novel.author_id == logged-in author
-novel.status == DRAFT
-deleted_at == null
+EPHURIN_E2E_DEMO_PASSWORD
 ```
 
-#### Publish-B
+Fail with a clear setup error if missing.
 
-Through rendered author metadata UI, ensure the final persisted synopsis contains the exact trigger token:
+The account identifiers/emails may remain because they are deterministic non-secret fixtures.
+
+Sanitize the cherry-picked inventory artifact:
 
 ```text
-harassment
+docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.json
 ```
 
-Reload/reopen the author metadata page and prove the target title/synopsis/status persist.
-
-#### Publish-C
-
-Capture via CDP:
+For any password input:
 
 ```text
-POST /api/v1/novels/:novelId/submit-publish
+type=password
+value must be omitted or "<redacted>"
 ```
 
-Record:
+Update `scripts/recon_product_ui_inventory.py` so future runs never persist password values.
 
-```text
-browser request id
-novel_id
-HTTP status
-response.status
-response.moderationRequired
-response.moderationReviewId
-```
+Also remove any fallback that silently injects access tokens into browser storage and then presents the route as browser-authenticated. If a normal UI login fails, reconnaissance must record auth failure rather than bypassing it.
 
-Required:
-
-```text
-response.status == PENDING_MODERATION
-response.moderationRequired == true
-response.moderationReviewId == real UUID
-```
-
-Then DB-correlate:
-
-```text
-novels.status = PENDING_MODERATION
-moderation_reviews.review_id = response.moderationReviewId
-moderation_reviews.target_type = NOVEL
-moderation_reviews.target_id = novel_id
-moderation_reviews.status = PENDING
-source = KEYWORD_FILTER
-```
-
-The Author UI must visibly reflect the pending state after mutation/refetch/reload.
-
-#### Publish-D
-
-Use normal UI logout/session transition.
-
-Login as Admin through rendered login UI.
-
-Do not inject an Admin token into storage as the decisive auth step.
-
-#### Publish-E
-
-Navigate to:
-
-```text
-/admin/moderation
-```
-
-Filter/use the rendered queue as needed.
-
-Prove the exact `moderationReviewId` for the exact target novel is present.
-
-Do not pass by observing an unrelated pending review.
-
-#### Publish-F
-
-Open:
-
-```text
-/admin/moderation/:reviewId
-```
-
-Verify the detail corresponds to:
-
-```text
-targetType = NOVEL
-targetId = target novel id
-status = PENDING
-```
-
-Submit:
-
-```text
-decision = APPROVED
-```
-
-through the rendered Admin UI.
-
-Capture the browser-originated resolve request:
-
-```text
-POST /api/v1/admin/moderation/reviews/:reviewId/resolve
-```
-
-and response.
-
-#### Publish-G
-
-After approval:
-
-```text
-review status = APPROVED
-reviewed_by = admin user
-reviewed_at != null
-
-novel status = PUBLISHED
-published_at != null
-```
-
-Browser/Admin UI must also show the review no longer belongs to the pending queue, or clearly show resolved/approved state if the product retains it in another filter.
-
-Reload the relevant Admin view before PASS.
-
-#### Publish-H
-
-Logout/clear the authenticated session through normal UI, then visit as anonymous:
-
-```text
-/public
-```
-
-Use public search/filter UI with the exact unique title.
-
-Prove:
-
-```text
-target novel appears in rendered DOM
-target novel card links to /public/novels/:novelId
-opening that detail succeeds
-displayed title matches target
-```
-
-Capture the public search network request and correlate that it returns the target novel.
+Do not rewrite the whole inventory.
 
 ---
 
-### Phase C — negative and idempotency checks
+### Step 4 — make negative evidence derived, not asserted by constant
 
-Add the smallest deterministic/browser assertions proving:
+Current browser runner must not end with five unconditional:
 
 ```text
-1. Reader/Author cannot resolve Admin moderation review (403 / guarded route)
-2. duplicate resolve of the already-approved review fails closed with 409
-3. already-PUBLISHED novel cannot be resubmitted through normal author publish flow as a second pending review
-4. the same target does not produce multiple open PENDING moderation reviews
-5. an unrelated pending review cannot satisfy Publish-E/F
+negative_check_results = true
 ```
 
-These may be API-level deterministic tests except where a rendered role guard is the behavior under test.
+The production-path deterministic suite already exists:
 
-Do not expand into a full moderation-system rewrite.
+```text
+backend/src/modules/content-control/author-publish-moderation-lifecycle.postgres.test.ts
+```
+
+It exercises:
+
+```text
+non-admin resolve guard
+duplicate resolve 409
+published resubmit 409
+single open pending review
+unrelated-review isolation
+```
+
+The final evidence must link its negative claims to the actual executed suite.
+
+Preferred shape:
+
+```json
+"negative_suite": {
+  "test_file": "...author-publish-moderation-lifecycle.postgres.test.ts",
+  "command": "<actual command>",
+  "exit_code": 0,
+  "result": "PASS",
+  "covered_invariants": [
+    "role_guard_reader_author_forbidden_403",
+    "duplicate_resolve_fails_closed_409",
+    "already_published_novel_resubmit_fails_409",
+    "target_idempotent_no_duplicate_pending_reviews",
+    "unrelated_review_cannot_satisfy_target"
+  ]
+}
+```
+
+Do not write PASS or boolean true if that suite was not executed successfully in the same final validation run.
+
+If practical, capture machine-readable TAP/JSON output. Do not add complex infrastructure solely for this.
 
 ---
 
-### Phase D — evidence and report
+### Step 5 — add a real validation manifest
 
-Create:
+The final report/evidence currently under-specifies local validation.
 
-```text
-docs/development/AUTHOR-PUBLISH-ADMIN-MODERATION-E2E-report.md
-
-docs/development/AUTHOR-PUBLISH-ADMIN-MODERATION-E2E/
-  author-publish-admin-moderation-e2e-evidence.json
-  Publish-A..H screenshots
-```
-
-Evidence JSON must include at minimum:
+Final evidence must record the exact executed commands and results for at least:
 
 ```text
-tested_main_sha
-tested_code_sha
-branch
-
-author_user_id
-admin_user_id
-
-novel_id
-unique_novel_title
-novel_initial_status
-novel_pending_status
-novel_final_status
-published_at
-
-content_filter_rule_id or rule identity
-moderation_trigger
-
-submit_publish_browser_request_id
-submit_publish_http_status
-moderation_required
-moderation_review_id
-
-moderation_review_source
-moderation_review_initial_status
-moderation_resolve_browser_request_id
-moderation_resolve_http_status
-moderation_review_final_status
-reviewed_by
-reviewed_at
-
-public_search_browser_request_id
-public_detail_url
-public_rendered_title
-
-negative_check_results
-```
-
-Do not store:
-- passwords;
-- access/refresh tokens;
-- secrets;
-- unrelated private content.
-
-Use backward-only SHA lineage if a separate evidence commit is used.
-
----
-
-### Phase E — validation
-
-Run at minimum:
-
-```text
-web typecheck/build
-relevant novels/content-control deterministic tests
-relevant admin/reading deterministic tests
+web typecheck
+web build
 backend typecheck
-real browser Publish-A through Publish-H
+author publish/moderation lifecycle PostgreSQL tests
+relevant novels/content-control tests
+relevant admin/reading tests
+real browser Publish-A..H
 ```
 
-Do not rerun AI provider quality tests unless this gate exposes an unrelated concrete regression.
+Use the repository's actual package scripts discovered locally; do not invent command names.
 
-Accepted AI/Story Brain/Manuscript gates remain closed.
+Recommended machine-readable structure:
 
-Final verdict:
+```json
+"validation": [
+  {
+    "name": "web_typecheck",
+    "command": "...",
+    "exit_code": 0,
+    "result": "PASS"
+  }
+]
+```
+
+Where a test runner reports counts, include:
+
+```text
+tests_passed
+tests_failed
+```
+
+Do not claim a command was run unless it was executed from the final tested tree.
+
+---
+
+### Step 6 — final tested lineage and rerun
+
+After all hardening code changes but before generated evidence:
+
+```text
+git status clean
+FINAL_TESTED_CODE_SHA = git rev-parse HEAD
+```
+
+Push that SHA so it resolves remotely.
+
+Then from exactly `FINAL_TESTED_CODE_SHA` execute the full final validation and browser flow.
+
+Publish-A..H must all pass again.
+
+The final browser evidence must still prove:
+
+```text
+A browser-created DRAFT owned by Author
+B persisted moderation-triggering synopsis
+C browser submit -> moderationRequired=true + exact reviewId
+D real UI Logout -> Admin UI Login
+E exact target review visible
+F exact target approved through rendered Admin UI
+G reload + DB: APPROVED / PUBLISHED / published_at
+H real UI Logout -> anonymous public search/detail
+```
+
+Generate:
+
+```text
+FINAL_TESTED_CODE_SHA
+  -> FINAL_EVIDENCE_PAYLOAD_SHA
+  -> optional FINAL_LINEAGE_SEAL_SHA
+```
+
+Evidence must record:
+
+```text
+tested_main_sha = FINAL_SYNCED_MAIN_SHA
+tested_code_sha = FINAL_TESTED_CODE_SHA
+branch = astra/author-publish-admin-moderation-e2e
+```
+
+plus the existing novel/review/browser correlation fields, the logout/session fields, `negative_suite`, and `validation`.
+
+---
+
+### Step 7 — report wording corrections
+
+The final report may say:
 
 ```text
 AUTHOR_PUBLISH_ADMIN_MODERATION_PASS
+LOCAL_PASS_CI_PENDING
 ```
 
-only when all eight browser checkpoints and DB correlations pass.
+only after the final run.
 
-If UI product behavior is actually broken:
+Correct prior overclaim:
+
+Do not say “Author logs out via UI” unless the final runner actually clicks the rendered Logout button.
+
+Correct inventory interpretation:
 
 ```text
-AUTHOR_PUBLISH_ADMIN_MODERATION_FAIL
+route/API lifecycle reconnaissance found no P0 broken contract
+BUT some production screens contain FE-owned mock/static presentation debt
 ```
 
-until repaired and rerun.
+Do not classify the static metrics cleanup as part of this gate.
 
 ---
 
 ### Stop boundary
 
-When local acceptance is complete:
+When complete:
 
 ```text
+branch behind main = 0
 git status clean
-push astra/author-publish-admin-moderation-e2e
-STOP at LOCAL_PASS_CI_PENDING
+all validation commands PASS
+Publish-A..H PASS
+evidence contains no password/token values
+negative claims derived from executed suite
+final SHAs resolve remotely
+AUTHOR_PUBLISH_ADMIN_MODERATION_PASS
+LOCAL_PASS_CI_PENDING
 ```
+
+Push and STOP.
 
 Gemini must not:
 - create a PR;
-- merge to main;
-- claim GitHub Actions PASS;
-- implement Reader/Wallet/VIP gates in the same branch;
+- merge;
+- touch the FE-owned static metric/date cleanup;
+- implement Reader/Wallet/VIP work;
 - reopen AI/Story Brain architecture;
-- accept the auto-publish no-moderation path as a substitute for this gate.
+- claim GitHub Actions PASS.
 
-ChatGPT owns remote review, PR, CI inspection, merge decision and canonical closure.
+ChatGPT owns remote review -> PR -> CI -> merge.
 
 ---
 
