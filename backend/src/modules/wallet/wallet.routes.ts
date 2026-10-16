@@ -26,7 +26,7 @@ export const walletResourceRoutes = Router();
 walletRoutes.get('/me', requireAuth, getWalletController);
 walletRoutes.get('/transactions', requireAuth, validateRequest(walletTransactionsSchema), getTransactionsController);
 walletRoutes.post('/deposit-sessions', requireAuth, validateRequest(createDepositSessionSchema), createDepositSessionController);
-walletRoutes.post('/mock-webhook/deposit-success', validateRequest(mockDepositSuccessSchema), completeMockDepositController);
+walletRoutes.post('/mock-webhook/deposit-success', requireAuth, validateRequest(mockDepositSuccessSchema), completeMockDepositController);
 walletRoutes.post('/withdraw-requests', requireAuth, validateRequest(createWithdrawRequestSchema), createWithdrawRequestController);
 
 walletResourceRoutes.post('/chapters/:chapterId/unlock', requireAuth, validateRequest(chapterIdParamSchema), unlockChapterController);

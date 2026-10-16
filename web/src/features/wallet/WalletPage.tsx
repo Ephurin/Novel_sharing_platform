@@ -47,15 +47,21 @@ export function WalletPage() {
     onSuccess: async () => {
       setStatus('Mock deposit completed');
       await refreshWallet();
+    },
+    onError: (error) => {
+      setStatus(`Deposit failed: ${getApiErrorMessage(error)}`);
     }
   });
 
   const unlockMutation = useMutation({
     mutationFn: () => unlockChapter(chapterId),
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       localStorage.setItem('ephurin_wallet_chapter_id', chapterId);
-      setStatus('Chapter unlocked');
+      setStatus(data?.alreadyUnlocked ? 'Chapter already unlocked' : 'Chapter unlocked');
       await refreshWallet();
+    },
+    onError: (error) => {
+      setStatus(`Unlock failed: ${getApiErrorMessage(error)}`);
     }
   });
 
@@ -88,14 +94,14 @@ export function WalletPage() {
           <Title order={2}>Mock Wallet</Title>
           <Text c="dimmed">Graduation-project wallet flow with mock deposit and reviewable transactions.</Text>
         </Box>
-        <Badge variant="light">{status}</Badge>
+        <Badge variant="light" data-testid="wallet-status-badge">{status}</Badge>
       </Group>
 
       <Box className="phase-grid">
         <Paper p="md" withBorder>
           <Stack>
             <Title order={4}>Balance</Title>
-            <Text size="xl" fw={800}>
+            <Text size="xl" fw={800} data-testid="wallet-coins-balance">
               {walletQuery.data?.coinsBalance ?? 0} coins
             </Text>
             <Text c="dimmed">Locked: {walletQuery.data?.lockedCoins ?? 0}</Text>
@@ -104,8 +110,9 @@ export function WalletPage() {
               value={packageCode}
               data={['COIN_100', 'COIN_500', 'COIN_1000', 'COIN_5000']}
               onChange={(value) => setPackageCode((value ?? 'COIN_500') as typeof packageCode)}
+              data-testid="mock-package-select"
             />
-            <Button loading={depositMutation.isPending} onClick={() => depositMutation.mutate()}>
+            <Button loading={depositMutation.isPending} onClick={() => depositMutation.mutate()} data-testid="deposit-mock-coins-button">
               Deposit mock coins
             </Button>
           </Stack>
@@ -114,8 +121,8 @@ export function WalletPage() {
         <Paper p="md" withBorder>
           <Stack>
             <Title order={4}>VIP Unlock</Title>
-            <TextInput label="VIP Chapter ID" value={chapterId} onChange={(event) => setChapterId(event.currentTarget.value)} />
-            <Button disabled={!chapterId} loading={unlockMutation.isPending} onClick={() => unlockMutation.mutate()}>
+            <TextInput label="VIP Chapter ID" value={chapterId} onChange={(event) => setChapterId(event.currentTarget.value)} data-testid="vip-chapter-id-input" />
+            <Button disabled={!chapterId} loading={unlockMutation.isPending} onClick={() => unlockMutation.mutate()} data-testid="wallet-unlock-chapter-button">
               Unlock chapter
             </Button>
           </Stack>
@@ -164,7 +171,7 @@ export function WalletPage() {
         {!transactionsQuery.isLoading && !transactionsQuery.isError && !transactionsQuery.data?.length ? (
           <EmptyState description="No wallet transactions yet." />
         ) : null}
-        <Table>
+        <Table data-testid="wallet-transactions-table">
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Type</Table.Th>

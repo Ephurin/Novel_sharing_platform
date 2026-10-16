@@ -190,7 +190,7 @@ export async function deleteComment(commentId: string) {
 }
 
 export async function unlockVipChapter(chapterId: string) {
-  const response = await apiClient.post<ApiEnvelope<{ unlocked: boolean; transactionId?: string }>>(`/chapters/${chapterId}/unlock`);
+  const response = await apiClient.post<ApiEnvelope<{ chapterId?: string; unlocked: boolean; transactionId?: string | null; alreadyUnlocked?: boolean }>>(`/chapters/${chapterId}/unlock`);
   return response.data.data;
 }
 

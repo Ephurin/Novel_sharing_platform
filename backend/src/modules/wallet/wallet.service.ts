@@ -1,3 +1,4 @@
+import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import type {
@@ -61,8 +62,11 @@ export async function createDepositSession(auth: AuthContext, input: CreateDepos
   };
 }
 
-export async function completeMockDeposit(input: MockDepositSuccessInput) {
-  const result = await completeDepositSession(input.depositSessionId);
+export async function completeMockDeposit(auth: AuthContext, input: MockDepositSuccessInput) {
+  if (env.NODE_ENV === 'production') {
+    throw new AppError(403, 'AUTH_008', 'Mock deposit webhook is disabled in production');
+  }
+  const result = await completeDepositSession(input.depositSessionId, auth.userId);
   if (!result) {
     throw new AppError(404, 'PAYMENT_004', 'Invalid or completed deposit session');
   }

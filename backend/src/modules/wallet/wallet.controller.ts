@@ -45,7 +45,7 @@ export const createDepositSessionController: RequestHandler = async (request, re
 
 export const completeMockDepositController: RequestHandler = async (request, response, next) => {
   try {
-    response.json(successResponse(await completeMockDeposit(request.body)));
+    response.json(successResponse(await completeMockDeposit(requireRequestAuth(request), request.body)));
   } catch (error) {
     next(error);
   }

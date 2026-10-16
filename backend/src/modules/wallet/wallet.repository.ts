@@ -1,4 +1,5 @@
 import type { PoolClient, QueryResultRow } from 'pg';
+import { AppError } from '../../core/errors/app-error.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import type {
@@ -116,7 +117,7 @@ export async function createDepositSession(userId: string, input: CreateDepositS
   };
 }
 
-export async function completeDepositSession(depositSessionId: string) {
+export async function completeDepositSession(depositSessionId: string, userId?: string) {
   return withPostgresTransaction(async (client) => {
     const sessionResult = await client.query(
       'select * from deposit_sessions where deposit_session_id = $1 for update',
@@ -127,6 +128,10 @@ export async function completeDepositSession(depositSessionId: string) {
 
     const wallet = await findWalletByIdForUpdate(client, session.wallet_id);
     if (!wallet) return null;
+
+    if (userId && wallet.userId !== userId) {
+      throw new AppError(403, 'AUTH_008', 'Unauthorized deposit session');
+    }
 
     await client.query(
       `
@@ -201,6 +206,9 @@ export async function userHasChapterUnlock(userId: string, chapterId: string) {
 
 export async function unlockChapter(userId: string, chapter: QueryResultRow) {
   return withPostgresTransaction(async (client) => {
+    const readerWallet = await findWalletByUserIdForUpdate(client, userId);
+    if (!readerWallet) return null;
+
     const existingUnlock = await client.query(
       'select transaction_id from chapter_unlocks where user_id = $1 and chapter_id = $2',
       [userId, chapter.chapter_id]
@@ -214,19 +222,30 @@ export async function unlockChapter(userId: string, chapter: QueryResultRow) {
       };
     }
 
-    const readerWallet = await findWalletByUserIdForUpdate(client, userId);
-    const authorWallet = await findWalletByUserIdForUpdate(client, chapter.author_id);
-    if (!readerWallet || !authorWallet) return null;
+    let authorWallet = readerWallet;
+    if (userId !== chapter.author_id) {
+      const foundAuthorWallet = await findWalletByUserIdForUpdate(client, chapter.author_id);
+      if (!foundAuthorWallet) return null;
+      authorWallet = foundAuthorWallet;
+    }
+
     if (readerWallet.coinsBalance < chapter.price_coins) return false;
 
     await client.query('update wallets set coins_balance = coins_balance - $2, updated_at = now() where wallet_id = $1', [
       readerWallet.walletId,
       chapter.price_coins
     ]);
-    await client.query('update wallets set coins_balance = coins_balance + $2, updated_at = now() where wallet_id = $1', [
-      authorWallet.walletId,
-      chapter.price_coins
-    ]);
+    if (userId !== chapter.author_id) {
+      await client.query('update wallets set coins_balance = coins_balance + $2, updated_at = now() where wallet_id = $1', [
+        authorWallet.walletId,
+        chapter.price_coins
+      ]);
+    } else {
+      await client.query('update wallets set coins_balance = coins_balance + $2, updated_at = now() where wallet_id = $1', [
+        readerWallet.walletId,
+        chapter.price_coins
+      ]);
+    }
 
     const txResult = await client.query(
       `

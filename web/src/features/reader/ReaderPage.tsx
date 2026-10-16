@@ -491,16 +491,21 @@ export function ReaderChapterPage() {
 
   if (isLockedVip) {
     return (
-      <Box>
+      <Box data-testid="vip-locked-box">
         <ReaderHeader title="VIP Chapter Locked" description="Unlock this chapter with mock coins to continue reading." />
-        <Alert color="yellow" mb="md">
+        <Alert color="yellow" mb="md" data-testid="vip-locked-alert">
           {getApiErrorMessage(chapterQuery.error)}
         </Alert>
+        {unlockMutation.isError ? (
+          <Alert color="red" mb="md" data-testid="unlock-error-alert">
+            {getApiErrorMessage(unlockMutation.error)}
+          </Alert>
+        ) : null}
         <Group>
-          <Button loading={unlockMutation.isPending} onClick={() => unlockMutation.mutate()}>
+          <Button loading={unlockMutation.isPending} onClick={() => unlockMutation.mutate()} data-testid="reader-unlock-chapter-button">
             Unlock chapter
           </Button>
-          <Button component={Link} to="/wallet" variant="light">
+          <Button component={Link} to="/wallet" variant="light" data-testid="reader-go-to-wallet-button">
             Go to Wallet
           </Button>
         </Group>
@@ -633,16 +638,16 @@ export function PublicReaderChapterPage() {
 
   if (isLockedVip) {
     return (
-      <Box className="web-content">
+      <Box className="web-content" data-testid="public-vip-locked-box">
         <ReaderHeader title="VIP Chapter Locked" description="Guest users can preview public metadata, but VIP unlock requires login." />
-        <Alert color="yellow" mb="md">
+        <Alert color="yellow" mb="md" data-testid="public-vip-locked-alert">
           {getApiErrorMessage(chapterQuery.error)}
         </Alert>
         <Group>
-          <Button component={Link} to="/login">
+          <Button component={Link} to="/login" data-testid="login-to-unlock-button">
             Login to unlock
           </Button>
-          <Button component={Link} to="/public" variant="light">
+          <Button component={Link} to="/public" variant="light" data-testid="public-library-button">
             Public library
           </Button>
         </Group>

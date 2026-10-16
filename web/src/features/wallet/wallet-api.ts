@@ -45,7 +45,7 @@ export async function completeMockDeposit(depositSessionId: string) {
 }
 
 export async function unlockChapter(chapterId: string) {
-  const response = await apiClient.post<ApiEnvelope<{ unlocked: boolean; transactionId?: string }>>(`/chapters/${chapterId}/unlock`);
+  const response = await apiClient.post<ApiEnvelope<{ chapterId?: string; unlocked: boolean; transactionId?: string | null; alreadyUnlocked?: boolean }>>(`/chapters/${chapterId}/unlock`);
   return response.data.data;
 }
 
