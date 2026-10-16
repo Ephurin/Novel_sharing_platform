@@ -614,6 +614,38 @@ def run_command(name: str, cmd: str, cwd: str, extra_env: Optional[Dict[str, str
     return entry
 
 
+def teardown_owned_resources(
+    edge_proc: Optional[subprocess.Popen],
+    web_proc: Optional[subprocess.Popen],
+    backend_proc: Optional[subprocess.Popen],
+    db_creation_ownership: Dict[str, Any],
+    admin_pg_url: str,
+    isolated_db_name: str
+) -> None:
+    kill_proc(edge_proc)
+    kill_proc(web_proc)
+    kill_proc(backend_proc)
+    if db_creation_ownership.get("pg_db_created_by_this_run") and not db_creation_ownership.get("pg_dropped_on_cleanup"):
+        try:
+            with psycopg.connect(admin_pg_url, autocommit=True) as admin_conn:
+                with admin_conn.cursor() as cur:
+                    cur.execute(f'DROP DATABASE IF EXISTS "{isolated_db_name}" WITH (FORCE)')
+            db_creation_ownership["pg_dropped_on_cleanup"] = True
+            print(f"  [Teardown] Dropped owned isolated PostgreSQL database: {isolated_db_name}")
+        except Exception as ex:
+            db_creation_ownership["cleanup_error"] = str(ex)
+            print(f"  [Teardown Warning] Failed to drop PostgreSQL database '{isolated_db_name}': {ex}")
+
+    if db_creation_ownership.get("mongo_db_created_by_this_run") and not db_creation_ownership.get("mongo_dropped_on_cleanup"):
+        try:
+            query_mongo_db(isolated_db_name, "JSON.stringify(db.dropDatabase())")
+            db_creation_ownership["mongo_dropped_on_cleanup"] = True
+            print(f"  [Teardown] Dropped owned isolated MongoDB database: {isolated_db_name}")
+        except Exception as ex:
+            db_creation_ownership["cleanup_error"] = str(ex)
+            print(f"  [Teardown Warning] Failed to drop MongoDB database '{isolated_db_name}': {ex}")
+
+
 async def main():
     print("=" * 80)
     print("GATE COMMENT-USER-REPORT-ADMIN-MODERATION-E2E: HARDENED RUNNER")
@@ -625,8 +657,6 @@ async def main():
     print(f"HEAD SHA: {git_info['head_sha']}")
     print(f"Synced Main SHA: {git_info['base_main_sha']}")
 
-    # 1. Provision Isolated Test Database with Affirmative Ownership Tracking
-    print("\n[DB Provisioning] Checking collisions and safely provisioning isolated databases...")
     db_creation_ownership: Dict[str, Any] = {
         "pg_database": ISOLATED_DB_NAME,
         "mongo_database": ISOLATED_DB_NAME,
@@ -636,389 +666,395 @@ async def main():
         "mongo_dropped_on_cleanup": False,
         "cleanup_error": None
     }
-
-    # Pre-check MongoDB server for existing database names before any insertion
-    existing_mongo = get_existing_mongo_databases()
-    if ISOLATED_DB_NAME in existing_mongo:
-        raise RuntimeError(
-            f"TEST_DB_ALREADY_EXISTS: MongoDB database '{ISOLATED_DB_NAME}' already exists. "
-            "Preserving existing database without mutation."
-        )
-
-    # Safe PostgreSQL CREATE DATABASE without prior DROP; catch SQLSTATE 42P04
-    with psycopg.connect(ADMIN_PG_URL, autocommit=True) as admin_conn:
-        with admin_conn.cursor() as cur:
-            try:
-                cur.execute(f'CREATE DATABASE "{ISOLATED_DB_NAME}"')
-                db_creation_ownership["pg_db_created_by_this_run"] = True
-            except Exception as ex:
-                if getattr(ex, "sqlstate", None) == "42P04" or "42P04" in str(ex) or "already exists" in str(ex):
-                    raise RuntimeError(
-                        f"TEST_DB_ALREADY_EXISTS: PostgreSQL database '{ISOLATED_DB_NAME}' already exists (SQLSTATE 42P04). "
-                        "Preserving existing database without mutation."
-                    ) from ex
-                raise
-    print(f"  Safely created isolated PostgreSQL database: {ISOLATED_DB_NAME}")
-
-    # Initialize MongoDB test database affirmatively by creating initial marker collection
-    query_mongo("JSON.stringify(db.createCollection('_run_marker'))")
-    db_creation_ownership["mongo_db_created_by_this_run"] = True
-    print(f"  Safely initialized isolated MongoDB database: {ISOLATED_DB_NAME}")
-
-    backend_dir = os.path.join(REPO_ROOT, "backend")
-    web_dir = os.path.join(REPO_ROOT, "web")
-
-    iso_env = {
-        "DATABASE_URL": ISOLATED_PG_URL,
-        "MONGODB_URI": ISOLATED_MONGO_URI,
-        "EXPECTED_TEST_DB_NAME": ISOLATED_DB_NAME,
-        "EPHURIN_ALLOW_TEST_DB_MUTATIONS": "1"
-    }
-
-    # Run migrations on isolated DB
-    print("[DB Provisioning] Running migrations against isolated DB...")
-    mig_res = subprocess.run(
-        "npm run db:migrate",
-        shell=True,
-        capture_output=True,
-        text=True,
-        cwd=backend_dir,
-        env={**os.environ, **iso_env},
-        encoding="utf-8",
-        errors="replace"
-    )
-    assert mig_res.returncode == 0, f"db:migrate failed on isolated DB: {mig_res.stderr}\n{mig_res.stdout}"
-
-    # Run demo seed on isolated DB
-    print("[DB Provisioning] Seeding demo stories and users into isolated DB...")
-    seed_res = subprocess.run(
-        "npm run db:seed:demo",
-        shell=True,
-        capture_output=True,
-        text=True,
-        cwd=backend_dir,
-        env={**os.environ, **iso_env},
-        encoding="utf-8",
-        errors="replace"
-    )
-    assert seed_res.returncode == 0, f"db:seed:demo failed on isolated DB: {seed_res.stderr}\n{seed_res.stdout}"
-
-    # Dynamically resolve seeded deterministic fixture users from isolated DB
-    global OWNER_USER_ID, REPORTER_USER_ID, ADMIN_USER_ID
-    with psycopg.connect(ISOLATED_PG_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT user_id FROM users WHERE email = %s", (ADMIN_EMAIL,))
-            ADMIN_USER_ID = str(cur.fetchone()[0])
-            cur.execute("SELECT user_id FROM users WHERE email = %s", (OWNER_EMAIL,))
-            OWNER_USER_ID = str(cur.fetchone()[0])
-            cur.execute("SELECT user_id FROM users WHERE email = %s", (REPORTER_EMAIL,))
-            REPORTER_USER_ID = str(cur.fetchone()[0])
-    print(f"  Resolved seeded users: Admin={ADMIN_USER_ID}, Owner={OWNER_USER_ID}, Reporter={REPORTER_USER_ID}")
-
-    # 2. Database Identity Preflight and Guard Proofs
-    print("\n[DB Preflight] Validating isolated database identity and positive isolation assertion...")
-    db_isolation: Dict[str, Any] = {}
-    with psycopg.connect(ISOLATED_PG_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT current_database(), inet_server_addr(), inet_server_port()")
-            row = cur.fetchone()
-            actual_pg_db = row[0]
-            server_addr = str(row[1]) if row[1] else "localhost"
-            server_port = row[2]
-            assert actual_pg_db == ISOLATED_DB_NAME, f"DB name mismatch: {actual_pg_db} != {ISOLATED_DB_NAME}"
-            assert actual_pg_db != "ephurin", "Target database must never be default 'ephurin'!"
-            db_isolation["postgres"] = {
-                "database": actual_pg_db,
-                "server_addr": server_addr,
-                "server_port": server_port,
-                "is_isolated": True
-            }
-
-    # Verify MongoDB isolated target
-    mongo_ping = query_mongo("db.runCommand({ ping: 1 }).ok")
-    assert mongo_ping == 1, f"MongoDB ping failed on {ISOLATED_DB_NAME}"
-    db_isolation["mongo"] = {
-        "database": ISOLATED_DB_NAME,
-        "ping_ok": True,
-        "is_isolated": True
-    }
-    db_isolation["opt_in_verified"] = True
-    print(f"  Isolated PostgreSQL: {db_isolation['postgres']['database']} (port: {db_isolation['postgres']['server_port']})")
-    print(f"  Isolated MongoDB: {db_isolation['mongo']['database']}")
-
-    # Negative guard tests
-    print("\n[DB Guard] Running negative guard proof suite (test-db-guard.test.ts)...")
-    guard_test_res = subprocess.run(
-        "npx tsx --test src/core/database/test-db-guard.test.ts",
-        shell=True,
-        capture_output=True,
-        text=True,
-        cwd=backend_dir,
-        env=os.environ,
-        encoding="utf-8",
-        errors="replace"
-    )
-    assert guard_test_res.returncode == 0, f"Guard negative tests failed: {guard_test_res.stderr}\n{guard_test_res.stdout}"
-    guard_negative_tests = {
-        "suite": "backend/src/core/database/test-db-guard.test.ts",
-        "result": "PASS",
-        "tested_rules": [
-            "missing_opt_in_fails_closed",
-            "ambient_ci_fails_closed",
-            "ambient_node_env_fails_closed",
-            "ambient_npm_lifecycle_fails_closed",
-            "default_postgres_ephurin_rejected",
-            "system_postgres_rejected",
-            "default_mongo_ephurin_rejected",
-            "system_mongo_rejected",
-            "db_name_mismatch_rejected",
-            "isolated_pattern_with_opt_in_passes"
-        ]
-    }
-    print("  Guard negative tests verified: 11/11 passed.")
-
-    # 3. Collision Refusal & Opt-In Validation Suite (P1-C)
-    collision_refusal_manifest = run_collision_and_opt_in_tests(ADMIN_PG_URL, REPO_ROOT, RUN_UUID)
-    assert collision_refusal_manifest["verdict"] == "COLLISION_REFUSAL_AND_OPT_IN_PASS"
-
-    # 4. Migration 012 Acceptance Suite
-    print("\n[Migration 012 Acceptance] Running Migration 012 preflight, failure, idempotency and partial index suite...")
-    migration_012_manifest = run_migration_012_acceptance(RUN_UUID)
-    assert migration_012_manifest["result"] == "PASS", f"Migration 012 acceptance failed: {migration_012_manifest}"
-
-    # 4. PLANT 5 SENTINEL RECORDS BEFORE ANY MUTATING TEST SUITE EXECUTION
-    print("\n[Sentinel Setup] Planting 5 exact-ID sentinel records BEFORE test execution to span entire mutating sequence...")
-    sentinel_review_id: str
-    sentinel_report_id: str
-    sentinel_reporter_report_id: str
-    sentinel_novel_review_id: str
-    sentinel_comment_id: str
-    sentinel_notif_id: str
-
-    sentinels_dict: Dict[str, Any] = {}
-
-    with psycopg.connect(ISOLATED_PG_URL) as conn:
-        with conn.cursor() as cur:
-            # Sentinel 1: Unrelated COMMENT moderation review
-            cur.execute(
-                """INSERT INTO moderation_reviews (target_type, target_id, source, status)
-                   VALUES ('COMMENT', %s, 'USER_REPORT', 'PENDING')
-                   RETURNING review_id, target_type, target_id, source, status""",
-                (f"sentinel-comment-runner-{RUN_UUID}",)
-            )
-            s_rev = cur.fetchone()
-            sentinel_review_id = str(s_rev[0])
-            s_rev_hash = compute_deterministic_hash([str(x) for x in s_rev])
-            sentinels_dict["sentinel_review"] = {
-                "id": sentinel_review_id,
-                "type": "moderation_reviews",
-                "target_type": s_rev[1],
-                "status_before": s_rev[4],
-                "hash_before": s_rev_hash
-            }
-
-            # Sentinel 2: Unrelated COMMENT report
-            cur.execute(
-                """INSERT INTO reports (reporter_id, target_type, target_id, reason, status)
-                   VALUES (%s, 'COMMENT', %s, 'Sentinel runner report', 'OPEN')
-                   RETURNING report_id, reporter_id, target_type, target_id, status""",
-                (ADMIN_USER_ID, f"sentinel-comment-runner-{RUN_UUID}")
-            )
-            s_rep = cur.fetchone()
-            sentinel_report_id = str(s_rep[0])
-            s_rep_hash = compute_deterministic_hash([str(x) for x in s_rep])
-            sentinels_dict["sentinel_report"] = {
-                "id": sentinel_report_id,
-                "type": "reports",
-                "reporter_id": str(s_rep[1]),
-                "status_before": s_rep[4],
-                "hash_before": s_rep_hash
-            }
-
-            # Sentinel 3: Sentinel report for SAME reporter (reader05) on NOVEL target (Checkpoint F2 target)
-            cur.execute(
-                """INSERT INTO moderation_reviews (target_type, target_id, source, status)
-                   VALUES ('NOVEL', %s, 'USER_REPORT', 'PENDING')
-                   ON CONFLICT (target_type, target_id, source) WHERE status = 'PENDING'
-                   DO UPDATE SET updated_at = now()
-                   RETURNING review_id, target_type, target_id, source, status""",
-                (TARGET_NOVEL_ID,)
-            )
-            s_nov_rev = cur.fetchone()
-            sentinel_novel_review_id = str(s_nov_rev[0])
-
-            cur.execute(
-                """INSERT INTO reports (reporter_id, target_type, target_id, review_id, reason, status)
-                   VALUES (%s, 'NOVEL', %s, %s, 'Sentinel novel report by reader05', 'OPEN')
-                   RETURNING report_id, reporter_id, target_type, target_id, status""",
-                (REPORTER_USER_ID, TARGET_NOVEL_ID, sentinel_novel_review_id)
-            )
-            s_rep_reporter = cur.fetchone()
-            sentinel_reporter_report_id = str(s_rep_reporter[0])
-            s_rep_rep_hash = compute_deterministic_hash([str(x) for x in s_rep_reporter])
-            sentinels_dict["sentinel_reporter_report"] = {
-                "id": sentinel_reporter_report_id,
-                "type": "reports",
-                "reporter_id": str(s_rep_reporter[1]),
-                "target_type": s_rep_reporter[2],
-                "review_id": sentinel_novel_review_id,
-                "status_before": s_rep_reporter[4],
-                "hash_before": s_rep_rep_hash
-            }
-            conn.commit()
-
-    # Sentinel 4: Unrelated comment belonging to SAME seed owner on chapter in MongoDB
-    sentinel_comment_id = str(uuid.uuid4())
-    s_comm_text = f"[SENTINEL PRESERVED] Comment by owner {RUN_UUID}"
-    query_mongo(
-        f"db.comments.insertOne({{"
-        f" commentId: '{sentinel_comment_id}',"
-        f" chapterId: '{TARGET_CHAPTER_ID}',"
-        f" novelId: '{TARGET_NOVEL_ID}',"
-        f" userId: '{OWNER_USER_ID}',"
-        f" content: '{s_comm_text}',"
-        f" status: 'APPROVED',"
-        f" deletedAt: null,"
-        f" createdAt: new Date(),"
-        f" updatedAt: new Date()"
-        f"}})"
-    )
-    s_comm_doc = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{sentinel_comment_id}' }}))")
-    s_comm_hash = compute_deterministic_hash(s_comm_doc)
-    sentinels_dict["sentinel_owner_comment"] = {
-        "id": sentinel_comment_id,
-        "type": "mongo_comments",
-        "user_id": OWNER_USER_ID,
-        "status_before": s_comm_doc.get("status"),
-        "hash_before": s_comm_hash
-    }
-
-    # Sentinel 5: Unrelated notification for reporter (reader05) in MongoDB
-    sentinel_notif_id = str(uuid.uuid4())
-    query_mongo(
-        f"db.notifications.insertOne({{"
-        f" notificationId: '{sentinel_notif_id}',"
-        f" userId: '{REPORTER_USER_ID}',"
-        f" type: 'SYSTEM_ANNOUNCEMENT',"
-        f" payload: {{ sentinel: true, runId: '{RUN_UUID}' }},"
-        f" read: false,"
-        f" createdAt: new Date()"
-        f"}})"
-    )
-    s_notif_doc = query_mongo(f"JSON.stringify(db.notifications.findOne({{ notificationId: '{sentinel_notif_id}' }}))")
-    s_notif_hash = compute_deterministic_hash(s_notif_doc)
-    sentinels_dict["sentinel_notification"] = {
-        "id": sentinel_notif_id,
-        "type": "mongo_notifications",
-        "user_id": REPORTER_USER_ID,
-        "status_before": "-",
-        "hash_before": s_notif_hash
-    }
-    print(f"  All 5 Sentinels planted and cryptographically fingerprinted: {list(sentinels_dict.keys())}")
-
-    # 5. Execute Local Validation Manifest against Isolated Database
-    print("\n" + "=" * 60)
-    print("EXECUTING LOCAL VALIDATION MANIFEST AGAINST ISOLATED DB")
-    print("=" * 60)
-    validation_records: List[Dict[str, Any]] = []
-
-    validation_records.append(run_command("web_typecheck", "npm run typecheck", web_dir))
-    validation_records.append(run_command("web_build", "npm run build", web_dir))
-    validation_records.append(run_command("backend_typecheck", "npm run typecheck", backend_dir))
-    validation_records.append(run_command(
-        "test_db_guard_suite",
-        "npx tsx --test src/core/database/test-db-guard.test.ts",
-        backend_dir
-    ))
-    validation_records.append(run_command(
-        "comment_user_report_admin_moderation_postgres_test",
-        "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
-        backend_dir,
-        extra_env=iso_env
-    ))
-    validation_records.append(run_command(
-        "backend_all_unit_and_integration_tests",
-        "npm test",
-        backend_dir,
-        extra_env=iso_env
-    ))
-
-    # 6. Verify Sentinels CHECKPOINT 1 (After Test Suite)
-    print("\n[Sentinel Checkpoint 1] Verifying sentinel preservation after full backend test suite...")
-    with psycopg.connect(ISOLATED_PG_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT review_id, target_type, target_id, source, status FROM moderation_reviews WHERE review_id = %s", (sentinel_review_id,))
-            s1_row = cur.fetchone()
-            assert s1_row is not None, "Sentinel review destroyed during test suite!"
-            s1_hash_after = compute_deterministic_hash([str(x) for x in s1_row])
-            assert s1_hash_after == sentinels_dict["sentinel_review"]["hash_before"], "Sentinel review mutated during test suite!"
-            sentinels_dict["sentinel_review"]["hash_after_tests"] = s1_hash_after
-            sentinels_dict["sentinel_review"]["status_after_tests"] = s1_row[4]
-
-            cur.execute("SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s", (sentinel_report_id,))
-            s2_row = cur.fetchone()
-            assert s2_row is not None, "Sentinel report destroyed during test suite!"
-            s2_hash_after = compute_deterministic_hash([str(x) for x in s2_row])
-            assert s2_hash_after == sentinels_dict["sentinel_report"]["hash_before"], "Sentinel report mutated during test suite!"
-            sentinels_dict["sentinel_report"]["hash_after_tests"] = s2_hash_after
-            sentinels_dict["sentinel_report"]["status_after_tests"] = s2_row[4]
-
-            cur.execute("SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s", (sentinel_reporter_report_id,))
-            s3_row = cur.fetchone()
-            assert s3_row is not None, "Sentinel reporter report destroyed during test suite!"
-            s3_hash_after = compute_deterministic_hash([str(x) for x in s3_row])
-            assert s3_hash_after == sentinels_dict["sentinel_reporter_report"]["hash_before"], "Sentinel reporter report mutated during test suite!"
-            sentinels_dict["sentinel_reporter_report"]["hash_after_tests"] = s3_hash_after
-            sentinels_dict["sentinel_reporter_report"]["status_after_tests"] = s3_row[4]
-
-    s4_doc = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{sentinel_comment_id}' }}))")
-    assert s4_doc is not None, "Sentinel comment destroyed during test suite!"
-    s4_hash_after = compute_deterministic_hash(s4_doc)
-    assert s4_hash_after == sentinels_dict["sentinel_owner_comment"]["hash_before"], "Sentinel comment mutated during test suite!"
-    sentinels_dict["sentinel_owner_comment"]["hash_after_tests"] = s4_hash_after
-    sentinels_dict["sentinel_owner_comment"]["status_after_tests"] = s4_doc.get("status")
-
-    s5_doc = query_mongo(f"JSON.stringify(db.notifications.findOne({{ notificationId: '{sentinel_notif_id}' }}))")
-    assert s5_doc is not None, "Sentinel notification destroyed during test suite!"
-    s5_hash_after = compute_deterministic_hash(s5_doc)
-    assert s5_hash_after == sentinels_dict["sentinel_notification"]["hash_before"], "Sentinel notification mutated during test suite!"
-    sentinels_dict["sentinel_notification"]["hash_after_tests"] = s5_hash_after
-    sentinels_dict["sentinel_notification"]["status_after_tests"] = "-"
-
-    print("  Sentinel Checkpoint 1 PASSED: All 5 sentinels identically preserved after backend test suite.")
-
-    # 7. Start Local Backend Server and Web Dev Server Targeting Isolated DB
-    print("\n[Service Startup] Starting backend server and web dev server targeting isolated DB...")
     backend_proc: Optional[subprocess.Popen] = None
     web_proc: Optional[subprocess.Popen] = None
     edge_proc: Optional[subprocess.Popen] = None
 
-    created_comment_id: Optional[str] = None
-    created_report_id: Optional[str] = None
-    created_review_id: Optional[str] = None
-    reporter_notif_id: Optional[str] = None
-    owner_notif_id: Optional[str] = None
-
-    evidence: Dict[str, Any] = {
-        "verdict": "FAIL",
-        "tested_main_sha": git_info["base_main_sha"],
-        "tested_code_sha": git_info["head_sha"],
-        "branch": git_info["branch"],
-        "run_uuid": RUN_UUID,
-        "db_creation_ownership": db_creation_ownership,
-        "collision_refusal_tests": collision_refusal_manifest,
-        "db_isolation": db_isolation,
-        "guard_negative_tests": guard_negative_tests,
-        "migration_012_validation": migration_012_manifest,
-        "owner_user_id": OWNER_USER_ID,
-        "reporter_user_id": REPORTER_USER_ID,
-        "admin_user_id": ADMIN_USER_ID,
-        "novel_id": TARGET_NOVEL_ID,
-        "chapter_id": TARGET_CHAPTER_ID,
-        "checkpoints": {}
-    }
-
     try:
+        # 1. Provision Isolated Test Database with Affirmative Ownership Tracking
+        print("\n[DB Provisioning] Checking collisions and safely provisioning isolated databases...")
+
+        # Pre-check MongoDB server for existing database names before any insertion
+        existing_mongo = get_existing_mongo_databases()
+        if ISOLATED_DB_NAME in existing_mongo:
+            raise RuntimeError(
+                f"TEST_DB_ALREADY_EXISTS: MongoDB database '{ISOLATED_DB_NAME}' already exists. "
+                "Preserving existing database without mutation."
+            )
+
+        # Safe PostgreSQL CREATE DATABASE without prior DROP; catch SQLSTATE 42P04
+        with psycopg.connect(ADMIN_PG_URL, autocommit=True) as admin_conn:
+            with admin_conn.cursor() as cur:
+                try:
+                    cur.execute(f'CREATE DATABASE "{ISOLATED_DB_NAME}"')
+                    db_creation_ownership["pg_db_created_by_this_run"] = True
+                except Exception as ex:
+                    if getattr(ex, "sqlstate", None) == "42P04" or "42P04" in str(ex) or "already exists" in str(ex):
+                        raise RuntimeError(
+                            f"TEST_DB_ALREADY_EXISTS: PostgreSQL database '{ISOLATED_DB_NAME}' already exists (SQLSTATE 42P04). "
+                            "Preserving existing database without mutation."
+                        ) from ex
+                    raise
+        print(f"  Safely created isolated PostgreSQL database: {ISOLATED_DB_NAME}")
+
+        # Initialize MongoDB test database affirmatively by creating initial marker collection
+        query_mongo("JSON.stringify(db.createCollection('_run_marker'))")
+        db_creation_ownership["mongo_db_created_by_this_run"] = True
+        print(f"  Safely initialized isolated MongoDB database: {ISOLATED_DB_NAME}")
+
+        backend_dir = os.path.join(REPO_ROOT, "backend")
+        web_dir = os.path.join(REPO_ROOT, "web")
+
+        iso_env = {
+            "DATABASE_URL": ISOLATED_PG_URL,
+            "MONGODB_URI": ISOLATED_MONGO_URI,
+            "EXPECTED_TEST_DB_NAME": ISOLATED_DB_NAME,
+            "EPHURIN_ALLOW_TEST_DB_MUTATIONS": "1"
+        }
+
+        # Run migrations on isolated DB
+        print("[DB Provisioning] Running migrations against isolated DB...")
+        mig_res = subprocess.run(
+            "npm run db:migrate",
+            shell=True,
+            capture_output=True,
+            text=True,
+            cwd=backend_dir,
+            env={**os.environ, **iso_env},
+            encoding="utf-8",
+            errors="replace"
+        )
+        assert mig_res.returncode == 0, f"db:migrate failed on isolated DB: {mig_res.stderr}\n{mig_res.stdout}"
+
+        # Run demo seed on isolated DB
+        print("[DB Provisioning] Seeding demo stories and users into isolated DB...")
+        seed_res = subprocess.run(
+            "npm run db:seed:demo",
+            shell=True,
+            capture_output=True,
+            text=True,
+            cwd=backend_dir,
+            env={**os.environ, **iso_env},
+            encoding="utf-8",
+            errors="replace"
+        )
+        assert seed_res.returncode == 0, f"db:seed:demo failed on isolated DB: {seed_res.stderr}\n{seed_res.stdout}"
+
+        # Dynamically resolve seeded deterministic fixture users from isolated DB
+        global OWNER_USER_ID, REPORTER_USER_ID, ADMIN_USER_ID
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT user_id FROM users WHERE email = %s", (ADMIN_EMAIL,))
+                ADMIN_USER_ID = str(cur.fetchone()[0])
+                cur.execute("SELECT user_id FROM users WHERE email = %s", (OWNER_EMAIL,))
+                OWNER_USER_ID = str(cur.fetchone()[0])
+                cur.execute("SELECT user_id FROM users WHERE email = %s", (REPORTER_EMAIL,))
+                REPORTER_USER_ID = str(cur.fetchone()[0])
+        print(f"  Resolved seeded users: Admin={ADMIN_USER_ID}, Owner={OWNER_USER_ID}, Reporter={REPORTER_USER_ID}")
+
+        # 2. Database Identity Preflight and Guard Proofs
+        print("\n[DB Preflight] Validating isolated database identity and positive isolation assertion...")
+        db_isolation: Dict[str, Any] = {}
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT current_database(), inet_server_addr(), inet_server_port()")
+                row = cur.fetchone()
+                actual_pg_db = row[0]
+                server_addr = str(row[1]) if row[1] else "localhost"
+                server_port = row[2]
+                assert actual_pg_db == ISOLATED_DB_NAME, f"DB name mismatch: {actual_pg_db} != {ISOLATED_DB_NAME}"
+                assert actual_pg_db != "ephurin", "Target database must never be default 'ephurin'!"
+                db_isolation["postgres"] = {
+                    "database": actual_pg_db,
+                    "server_addr": server_addr,
+                    "server_port": server_port,
+                    "is_isolated": True
+                }
+
+        # Verify MongoDB isolated target
+        mongo_ping = query_mongo("db.runCommand({ ping: 1 }).ok")
+        assert mongo_ping == 1, f"MongoDB ping failed on {ISOLATED_DB_NAME}"
+        db_isolation["mongo"] = {
+            "database": ISOLATED_DB_NAME,
+            "ping_ok": True,
+            "is_isolated": True
+        }
+        db_isolation["opt_in_verified"] = True
+        print(f"  Isolated PostgreSQL: {db_isolation['postgres']['database']} (port: {db_isolation['postgres']['server_port']})")
+        print(f"  Isolated MongoDB: {db_isolation['mongo']['database']}")
+
+        # Negative guard tests
+        print("\n[DB Guard] Running negative guard proof suite (test-db-guard.test.ts)...")
+        guard_test_res = subprocess.run(
+            "npx tsx --test src/core/database/test-db-guard.test.ts",
+            shell=True,
+            capture_output=True,
+            text=True,
+            cwd=backend_dir,
+            env=os.environ,
+            encoding="utf-8",
+            errors="replace"
+        )
+        assert guard_test_res.returncode == 0, f"Guard negative tests failed: {guard_test_res.stderr}\n{guard_test_res.stdout}"
+        guard_negative_tests = {
+            "suite": "backend/src/core/database/test-db-guard.test.ts",
+            "result": "PASS",
+            "tested_rules": [
+                "missing_opt_in_fails_closed",
+                "ambient_ci_fails_closed",
+                "ambient_node_env_fails_closed",
+                "ambient_npm_lifecycle_fails_closed",
+                "default_postgres_ephurin_rejected",
+                "system_postgres_rejected",
+                "default_mongo_ephurin_rejected",
+                "system_mongo_rejected",
+                "db_name_mismatch_rejected",
+                "isolated_pattern_with_opt_in_passes"
+            ]
+        }
+        print("  Guard negative tests verified: 11/11 passed.")
+
+        # 3. Collision Refusal & Opt-In Validation Suite (P1-C)
+        collision_refusal_manifest = run_collision_and_opt_in_tests(ADMIN_PG_URL, REPO_ROOT, RUN_UUID)
+        assert collision_refusal_manifest["verdict"] == "COLLISION_REFUSAL_AND_OPT_IN_PASS"
+
+        # 4. Migration 012 Acceptance Suite
+        print("\n[Migration 012 Acceptance] Running Migration 012 preflight, failure, idempotency and partial index suite...")
+        migration_012_manifest = run_migration_012_acceptance(RUN_UUID)
+        assert migration_012_manifest["result"] == "PASS", f"Migration 012 acceptance failed: {migration_012_manifest}"
+
+        # 4. PLANT 5 SENTINEL RECORDS BEFORE ANY MUTATING TEST SUITE EXECUTION
+        print("\n[Sentinel Setup] Planting 5 exact-ID sentinel records BEFORE test execution to span entire mutating sequence...")
+        sentinel_review_id: str
+        sentinel_report_id: str
+        sentinel_reporter_report_id: str
+        sentinel_novel_review_id: str
+        sentinel_comment_id: str
+        sentinel_notif_id: str
+
+        sentinels_dict: Dict[str, Any] = {}
+
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
+            with conn.cursor() as cur:
+                # Sentinel 1: Unrelated COMMENT moderation review
+                cur.execute(
+                    """INSERT INTO moderation_reviews (target_type, target_id, source, status)
+                       VALUES ('COMMENT', %s, 'USER_REPORT', 'PENDING')
+                       RETURNING review_id, target_type, target_id, source, status""",
+                    (f"sentinel-comment-runner-{RUN_UUID}",)
+                )
+                s_rev = cur.fetchone()
+                sentinel_review_id = str(s_rev[0])
+                s_rev_hash = compute_deterministic_hash([str(x) for x in s_rev])
+                sentinels_dict["sentinel_review"] = {
+                    "id": sentinel_review_id,
+                    "type": "moderation_reviews",
+                    "target_type": s_rev[1],
+                    "status_before": s_rev[4],
+                    "hash_before": s_rev_hash
+                }
+
+                # Sentinel 2: Unrelated COMMENT report
+                cur.execute(
+                    """INSERT INTO reports (reporter_id, target_type, target_id, reason, status)
+                       VALUES (%s, 'COMMENT', %s, 'Sentinel runner report', 'OPEN')
+                       RETURNING report_id, reporter_id, target_type, target_id, status""",
+                    (ADMIN_USER_ID, f"sentinel-comment-runner-{RUN_UUID}")
+                )
+                s_rep = cur.fetchone()
+                sentinel_report_id = str(s_rep[0])
+                s_rep_hash = compute_deterministic_hash([str(x) for x in s_rep])
+                sentinels_dict["sentinel_report"] = {
+                    "id": sentinel_report_id,
+                    "type": "reports",
+                    "reporter_id": str(s_rep[1]),
+                    "status_before": s_rep[4],
+                    "hash_before": s_rep_hash
+                }
+
+                # Sentinel 3: Sentinel report for SAME reporter (reader05) on NOVEL target (Checkpoint F2 target)
+                cur.execute(
+                    """INSERT INTO moderation_reviews (target_type, target_id, source, status)
+                       VALUES ('NOVEL', %s, 'USER_REPORT', 'PENDING')
+                       ON CONFLICT (target_type, target_id, source) WHERE status = 'PENDING'
+                       DO UPDATE SET updated_at = now()
+                       RETURNING review_id, target_type, target_id, source, status""",
+                    (TARGET_NOVEL_ID,)
+                )
+                s_nov_rev = cur.fetchone()
+                sentinel_novel_review_id = str(s_nov_rev[0])
+
+                cur.execute(
+                    """INSERT INTO reports (reporter_id, target_type, target_id, review_id, reason, status)
+                       VALUES (%s, 'NOVEL', %s, %s, 'Sentinel novel report by reader05', 'OPEN')
+                       RETURNING report_id, reporter_id, target_type, target_id, status""",
+                    (REPORTER_USER_ID, TARGET_NOVEL_ID, sentinel_novel_review_id)
+                )
+                s_rep_reporter = cur.fetchone()
+                sentinel_reporter_report_id = str(s_rep_reporter[0])
+                s_rep_rep_hash = compute_deterministic_hash([str(x) for x in s_rep_reporter])
+                sentinels_dict["sentinel_reporter_report"] = {
+                    "id": sentinel_reporter_report_id,
+                    "type": "reports",
+                    "reporter_id": str(s_rep_reporter[1]),
+                    "target_type": s_rep_reporter[2],
+                    "review_id": sentinel_novel_review_id,
+                    "status_before": s_rep_reporter[4],
+                    "hash_before": s_rep_rep_hash
+                }
+                conn.commit()
+
+        # Sentinel 4: Unrelated comment belonging to SAME seed owner on chapter in MongoDB
+        sentinel_comment_id = str(uuid.uuid4())
+        s_comm_text = f"[SENTINEL PRESERVED] Comment by owner {RUN_UUID}"
+        query_mongo(
+            f"db.comments.insertOne({{"
+            f" commentId: '{sentinel_comment_id}',"
+            f" chapterId: '{TARGET_CHAPTER_ID}',"
+            f" novelId: '{TARGET_NOVEL_ID}',"
+            f" userId: '{OWNER_USER_ID}',"
+            f" content: '{s_comm_text}',"
+            f" status: 'APPROVED',"
+            f" deletedAt: null,"
+            f" createdAt: new Date(),"
+            f" updatedAt: new Date()"
+            f"}})"
+        )
+        s_comm_doc = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{sentinel_comment_id}' }}))")
+        s_comm_hash = compute_deterministic_hash(s_comm_doc)
+        sentinels_dict["sentinel_owner_comment"] = {
+            "id": sentinel_comment_id,
+            "type": "mongo_comments",
+            "user_id": OWNER_USER_ID,
+            "status_before": s_comm_doc.get("status"),
+            "hash_before": s_comm_hash
+        }
+
+        # Sentinel 5: Unrelated notification for reporter (reader05) in MongoDB
+        sentinel_notif_id = str(uuid.uuid4())
+        query_mongo(
+            f"db.notifications.insertOne({{"
+            f" notificationId: '{sentinel_notif_id}',"
+            f" userId: '{REPORTER_USER_ID}',"
+            f" type: 'SYSTEM_ANNOUNCEMENT',"
+            f" payload: {{ sentinel: true, runId: '{RUN_UUID}' }},"
+            f" read: false,"
+            f" createdAt: new Date()"
+            f"}})"
+        )
+        s_notif_doc = query_mongo(f"JSON.stringify(db.notifications.findOne({{ notificationId: '{sentinel_notif_id}' }}))")
+        s_notif_hash = compute_deterministic_hash(s_notif_doc)
+        sentinels_dict["sentinel_notification"] = {
+            "id": sentinel_notif_id,
+            "type": "mongo_notifications",
+            "user_id": REPORTER_USER_ID,
+            "status_before": "-",
+            "hash_before": s_notif_hash
+        }
+        print(f"  All 5 Sentinels planted and cryptographically fingerprinted: {list(sentinels_dict.keys())}")
+
+        # 5. Execute Local Validation Manifest against Isolated Database
+        print("\n" + "=" * 60)
+        print("EXECUTING LOCAL VALIDATION MANIFEST AGAINST ISOLATED DB")
+        print("=" * 60)
+        validation_records: List[Dict[str, Any]] = []
+
+        validation_records.append(run_command("web_typecheck", "npm run typecheck", web_dir))
+        validation_records.append(run_command("web_build", "npm run build", web_dir))
+        validation_records.append(run_command("backend_typecheck", "npm run typecheck", backend_dir))
+        validation_records.append(run_command(
+            "test_db_guard_suite",
+            "npx tsx --test src/core/database/test-db-guard.test.ts",
+            backend_dir
+        ))
+        validation_records.append(run_command(
+            "comment_user_report_admin_moderation_postgres_test",
+            "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
+            backend_dir,
+            extra_env=iso_env
+        ))
+        validation_records.append(run_command(
+            "backend_all_unit_and_integration_tests",
+            "npm test",
+            backend_dir,
+            extra_env=iso_env
+        ))
+
+        # 6. Verify Sentinels CHECKPOINT 1 (After Test Suite)
+        print("\n[Sentinel Checkpoint 1] Verifying sentinel preservation after full backend test suite...")
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT review_id, target_type, target_id, source, status FROM moderation_reviews WHERE review_id = %s", (sentinel_review_id,))
+                s1_row = cur.fetchone()
+                assert s1_row is not None, "Sentinel review destroyed during test suite!"
+                s1_hash_after = compute_deterministic_hash([str(x) for x in s1_row])
+                assert s1_hash_after == sentinels_dict["sentinel_review"]["hash_before"], "Sentinel review mutated during test suite!"
+                sentinels_dict["sentinel_review"]["hash_after_tests"] = s1_hash_after
+                sentinels_dict["sentinel_review"]["status_after_tests"] = s1_row[4]
+
+                cur.execute("SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s", (sentinel_report_id,))
+                s2_row = cur.fetchone()
+                assert s2_row is not None, "Sentinel report destroyed during test suite!"
+                s2_hash_after = compute_deterministic_hash([str(x) for x in s2_row])
+                assert s2_hash_after == sentinels_dict["sentinel_report"]["hash_before"], "Sentinel report mutated during test suite!"
+                sentinels_dict["sentinel_report"]["hash_after_tests"] = s2_hash_after
+                sentinels_dict["sentinel_report"]["status_after_tests"] = s2_row[4]
+
+                cur.execute("SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s", (sentinel_reporter_report_id,))
+                s3_row = cur.fetchone()
+                assert s3_row is not None, "Sentinel reporter report destroyed during test suite!"
+                s3_hash_after = compute_deterministic_hash([str(x) for x in s3_row])
+                assert s3_hash_after == sentinels_dict["sentinel_reporter_report"]["hash_before"], "Sentinel reporter report mutated during test suite!"
+                sentinels_dict["sentinel_reporter_report"]["hash_after_tests"] = s3_hash_after
+                sentinels_dict["sentinel_reporter_report"]["status_after_tests"] = s3_row[4]
+
+        s4_doc = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{sentinel_comment_id}' }}))")
+        assert s4_doc is not None, "Sentinel comment destroyed during test suite!"
+        s4_hash_after = compute_deterministic_hash(s4_doc)
+        assert s4_hash_after == sentinels_dict["sentinel_owner_comment"]["hash_before"], "Sentinel comment mutated during test suite!"
+        sentinels_dict["sentinel_owner_comment"]["hash_after_tests"] = s4_hash_after
+        sentinels_dict["sentinel_owner_comment"]["status_after_tests"] = s4_doc.get("status")
+
+        s5_doc = query_mongo(f"JSON.stringify(db.notifications.findOne({{ notificationId: '{sentinel_notif_id}' }}))")
+        assert s5_doc is not None, "Sentinel notification destroyed during test suite!"
+        s5_hash_after = compute_deterministic_hash(s5_doc)
+        assert s5_hash_after == sentinels_dict["sentinel_notification"]["hash_before"], "Sentinel notification mutated during test suite!"
+        sentinels_dict["sentinel_notification"]["hash_after_tests"] = s5_hash_after
+        sentinels_dict["sentinel_notification"]["status_after_tests"] = "-"
+
+        print("  Sentinel Checkpoint 1 PASSED: All 5 sentinels identically preserved after backend test suite.")
+
+        # 7. Start Local Backend Server and Web Dev Server Targeting Isolated DB
+        print("\n[Service Startup] Starting backend server and web dev server targeting isolated DB...")
+        backend_proc: Optional[subprocess.Popen] = None
+        web_proc: Optional[subprocess.Popen] = None
+        edge_proc: Optional[subprocess.Popen] = None
+
+        created_comment_id: Optional[str] = None
+        created_report_id: Optional[str] = None
+        created_review_id: Optional[str] = None
+        reporter_notif_id: Optional[str] = None
+        owner_notif_id: Optional[str] = None
+
+        evidence: Dict[str, Any] = {
+            "verdict": "FAIL",
+            "tested_main_sha": git_info["base_main_sha"],
+            "tested_code_sha": git_info["head_sha"],
+            "branch": git_info["branch"],
+            "run_uuid": RUN_UUID,
+            "db_creation_ownership": db_creation_ownership,
+            "collision_refusal_tests": collision_refusal_manifest,
+            "db_isolation": db_isolation,
+            "guard_negative_tests": guard_negative_tests,
+            "migration_012_validation": migration_012_manifest,
+            "owner_user_id": OWNER_USER_ID,
+            "reporter_user_id": REPORTER_USER_ID,
+            "admin_user_id": ADMIN_USER_ID,
+            "novel_id": TARGET_NOVEL_ID,
+            "chapter_id": TARGET_CHAPTER_ID,
+            "checkpoints": {}
+        }
+
         backend_server_env = os.environ.copy()
         backend_server_env.update(iso_env)
         backend_server_env["PORT"] = "4000"
@@ -1724,6 +1760,15 @@ async def main():
         evidence["validation"] = validation_records
         evidence["verdict"] = "COMMENT_USER_REPORT_ADMIN_MODERATION_PASS"
 
+        # Deterministic teardown of owned child processes and databases before sealing evidence
+        teardown_owned_resources(
+            edge_proc, web_proc, backend_proc,
+            db_creation_ownership, ADMIN_PG_URL, ISOLATED_DB_NAME
+        )
+
+        if db_creation_ownership.get("cleanup_error"):
+            evidence["verdict"] = "FAIL"
+
         # Save Evidence JSON
         evidence_json_path = os.path.join(EVIDENCE_DIR, "comment-user-report-admin-moderation-e2e-evidence.json")
         with open(evidence_json_path, "w", encoding="utf-8") as f:
@@ -1739,39 +1784,11 @@ async def main():
         print("=" * 80)
 
     finally:
-        # Deterministic teardown of child processes
-        print("\n[Teardown] Shutting down browser, backend, and web processes...")
-        kill_proc(edge_proc)
-        kill_proc(web_proc)
-        kill_proc(backend_proc)
-
-        # Drop disposable isolated database ONLY if created by this run
-        print(f"[Teardown] Dropping disposable isolated databases for '{ISOLATED_DB_NAME}'...")
-        if db_creation_ownership.get("pg_db_created_by_this_run"):
-            try:
-                with psycopg.connect(ADMIN_PG_URL, autocommit=True) as admin_conn:
-                    with admin_conn.cursor() as cur:
-                        cur.execute(f'DROP DATABASE IF EXISTS "{ISOLATED_DB_NAME}"')
-                db_creation_ownership["pg_dropped_on_cleanup"] = True
-                print(f"  Dropped owned isolated PostgreSQL database '{ISOLATED_DB_NAME}'.")
-            except Exception as e:
-                db_creation_ownership["cleanup_error"] = str(e)
-                print(f"  Error during PostgreSQL drop: {e}")
-                raise
-        else:
-            print(f"  PostgreSQL database '{ISOLATED_DB_NAME}' was not created by this run; preserved without drop.")
-
-        if db_creation_ownership.get("mongo_db_created_by_this_run"):
-            try:
-                query_mongo("JSON.stringify(db.dropDatabase())")
-                db_creation_ownership["mongo_dropped_on_cleanup"] = True
-                print(f"  Dropped owned isolated MongoDB database '{ISOLATED_DB_NAME}'.")
-            except Exception as e:
-                db_creation_ownership["cleanup_error"] = str(e)
-                print(f"  Error during MongoDB drop: {e}")
-                raise
-        else:
-            print(f"  MongoDB database '{ISOLATED_DB_NAME}' was not created by this run; preserved without drop.")
+        # Guarantee teardown in failure paths as well (idempotent)
+        teardown_owned_resources(
+            edge_proc, web_proc, backend_proc,
+            db_creation_ownership, ADMIN_PG_URL, ISOLATED_DB_NAME
+        )
 
 
 def generate_markdown_report(ev: Dict[str, Any]):
