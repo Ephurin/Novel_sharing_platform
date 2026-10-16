@@ -327,181 +327,57 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. ACTIVE EXECUTION DIRECTIVE — FINAL ISOLATION + SENTINEL/MIGRATION ACCEPTANCE
+## 5. ACTIVE EXECUTION DIRECTIVE — FINAL P1 DATABASE OWNERSHIP PATCH
 
-This is a STRICT TARGETED FOLLOW-UP to the prior hardening review; no new feature gate.
+Gate: COMMENT-USER-REPORT-ADMIN-MODERATION-E2E.
+Existing branch: astra/comment-user-report-admin-moderation-e2e.
+Last reviewed head: 3e8bfe6a3fdf379cf36b7a6d9c8693418172a707.
+Final locally tested code from prior evidence: 12607475117b0166401efc857e8d1bded1db19ed.
+Main before this directive: 3d51838e758ed86b68795d6d3af0b0daa66b3c8f.
 
-```text
-Gate: COMMENT-USER-REPORT-ADMIN-MODERATION-E2E
-Branch: astra/comment-user-report-admin-moderation-e2e
-Last reviewed head: c8016484d387bcda3eaf4902335228b765c3d19b
-Tested code at last evidence: a6fac5c38fde2015b046a59469895cc50de6368d
-Main before this directive: 1b49d94577500c4456cfa4c7871b4c9fc713b2cc
-Remote review verdict: LOCAL_PASS_WITH_REVIEW_BLOCKERS / NOT_READY_FOR_PR
-```
+This is a tightly bounded final safety patch, NOT a new functional gate. The existing evidence reports Report-A..J+F2, 17/17 Phase C tests, 11/11 guard tests, 123 backend tests, 5 full-span sentinels, and 6-stage migration validation as local PASS. Those results are not remote CI PASS.
+Remote verdict until this patch is confirmed: LOCAL_PASS_WITH_REVIEW_BLOCKERS / NOT_READY_FOR_PR.
 
-Already accepted as local functional evidence: browser Report-A..J; source+target-aware Admin modal Checkpoint F2; 17 deterministic COMMENT USER_REPORT invariants; transactional report creation; report/review unique indexes; source-aware comment removals and notifications. **Do not reimplement these.**
+### 0. Sync latest main into EXISTING branch
 
-The previous unsafe blanket delete bug was materially reduced by tracked-ID cleanup in code and 5 sentinel checks. However, two acceptance-critical defects remain. Fix these before any PR.
+git fetch origin; git checkout astra/comment-user-report-admin-moderation-e2e; git pull --ff-only; git merge origin/main.
+Record FINAL_SYNCED_MAIN_SHA, keep branch behind main=0. Do not create a new branch, PR or merge.
 
-### 0. Sync and inspect
+### P1-A — eliminate standalone self-authorization
 
-```bash
-git fetch origin
-git checkout astra/comment-user-report-admin-moderation-e2e
-git pull --ff-only
-git merge origin/main
-```
+In scripts/validate_migration_012.py, the __main__ entrypoint sets os.environ['EPHURIN_ALLOW_TEST_DB_MUTATIONS']='1'. DELETE this self-authorization. The function's external opt-in check remains mandatory. Prove standalone invocation without caller-provided opt-in REFUSES before any DB connection/mutation, and a caller opt-in allows running 6-stage migration acceptance only on a disposable DB.
 
-Record `FINAL_SYNCED_MAIN_SHA` and ensure `behind main = 0`. Reuse this existing branch; do not make a second gate branch.
+### P1-B — never DROP an already-existing database during provision
 
-Review current:
-```text
-backend/src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts
-scripts/run_comment_user_report_admin_moderation_e2e.py
-backend/src/core/config/env.ts
-backend/src/core/database/postgres.ts
-backend/src/core/database/mongo.ts
-backend/src/core/database/migrate.ts
-backend/src/core/database/migrations/012_reports_unique_open.sql
-docker-compose.yml
-.github/workflows/p7-semantic-memory.yml
-.github/workflows/p8-cutover.yml
-```
+Both scripts/validate_migration_012.py and scripts/run_comment_user_report_admin_moderation_e2e.py currently execute DROP DATABASE IF EXISTS <run-generated-name> BEFORE CREATE DATABASE. This is unsafe if the generated name collides. Replace with CREATE DATABASE only; treat already-exists SQLSTATE 42P04 as TEST_DB_ALREADY_EXISTS and stop, preserving existing rows. Do not retry by dropping and recreating. Ensure enough entropy in run identity.
 
-### P0 — hard fail-closed database guard, not a self-authorizing env flag
+Use same resolved PostgreSQL host/port for migration admin connection and test DB connection. Avoid hard-coded localhost when ADMIN_DATABASE_URL points elsewhere.
 
-Confirmed unsafe code in the test file:
+The E2E runner must also query the actual MongoDB server for existing database names BEFORE any Mongo seed/fixture/sentinel insertion. If an identically named DB already exists, REFUSE and preserve it. Do not infer absence from a URI or prefix. Check both PG and Mongo before any destructive setup.
 
-```ts
-process.env.EPHURIN_ALLOW_TEST_DB_MUTATIONS === '1' ||
-process.env.NODE_ENV === 'test' ||
-process.env.CI === 'true' ||
-Boolean(process.env.npm_lifecycle_script)
-```
+Track pg_db_created_by_this_run and mongo_db_created_by_this_run (or exact equivalent) as affirmative ownership evidence. Cleanup may drop ONLY resources positively created by that run. An error between CREATE and the browser-stage try/finally must not leave unsafe cleanup behavior; wrap all provisioning and execution in deterministic failure handling. Report cleanup errors, never convert them into PASS. Keep external opt-in check at script startup; neither entrypoint may self-enable it.
 
-The condition `CI=true`, `NODE_ENV=test` or `npm test` NEVER proves target database isolation.
+Preserve the already-fixed ID-scoped report/review/comment/notification teardown, Test DB guard, database-identity preflight, migration SQL, UI flows and product contracts. NO broad DELETE by reporter, chapter, or target type.
 
-Confirmed unsafe E2E runner behavior:
+### P1-C — negative validation of collision / opt-in
 
-```python
-DB_URL = "postgresql://...@localhost:5432/ephurin"
-os.environ["EPHURIN_ALLOW_TEST_DB_MUTATIONS"] = "1"
-```
+Using intentionally disposable local test targets ONLY, execute and record:
+1. Standalone migration script without opt-in: refused before mutation.
+2. Standalone migration script with opt-in: six migration stages PASS.
+3. Pre-existing test-named PostgreSQL DB with sentinel row: collision refused, same row/hash preserved.
+4. Pre-existing test-named MongoDB DB with sentinel doc: collision refused, same doc/hash preserved.
+5. Fresh unique PG and Mongo DB names: provision PASS, correct identity verified, cleanup only owned resources PASS.
+6. No credentials, tokens or DB URL secrets in log/evidence.
 
-This permits the runner to authorize itself to mutate a conventional persistent database.
+### Reseal evidence only after the actual code is tested
 
-Required changes:
+Commit/push final tested code SHA first. Then rerun the full local manifest on that tree (web typecheck/build, backend typecheck, guard 11, Phase C 17, backend npm test, isolated DB migration 012, browser Report-A..J + F2). Keep 5 same-ID sentinel fingerprints before tests, after tests and after browser. Regenerate the report, JSON and screenshots. The JSON must record: tested_main_sha, tested_code_sha, db_creation_ownership, collision_refusal_tests, db_isolation, migration_012_validation, sentinel_preservation, validation, verdict. Capture real exit codes and hashes. Evidence commit follows tested code SHA.
 
-1. Provision a **disposable, explicit isolated test environment** (distinct PostgreSQL database and MongoDB database; ideally separate Compose project/volumes and ports). Use existing repo migrations and deterministic seed against ONLY that environment. Prefer unique names like `ephurin_report_e2e_<run_id>` or a dedicated isolated Compose project.
-2. Node backend tests, web/browser backend server and Python runner must target the **same** isolated PostgreSQL and MongoDB, verified from their actual resolved connection configuration. No silently falling back to default `ephurin` database/port or default Compose Mongo container.
-3. Make a shared fail-closed preflight/helper for mutating tests/runner as practical. Require ALL of:
-   - explicit external opt-in `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1` (the runner must not set it itself);
-   - actual PostgreSQL database identity checked via `SELECT current_database(), inet_server_addr(), inet_server_port()`, with an expected isolated test DB name/identity;
-   - actual MongoDB database identity checked from `MONGODB_URI` / driver database name and accessible target;
-   - a positive isolation assertion (dedicated disposable Compose project/database instance, or explicit approved test DB identity), not just strings naming production/demo instances.
-4. Reject ordinary default `ephurin` DB / default seed Mongo database and any non-isolated target **before any insert, delete, migration, or fixture creation**. If isolated environment cannot be provisioned, STOP as `TEST_DB_ISOLATION_MISSING`.
-5. Prove negative guard tests: `CI=true`, `NODE_ENV=test`, `npm test`, missing opt-in and a wrong/non-test database each fail before mutation. Never run these tests with destructive access to genuine user data.
-6. Keep guard execution compatible with full backend regression in the isolated environment. It is acceptable to run full backend tests locally against the isolated Compose setup and leave existing unrelated P7/P8 CI scripts untouched.
+Stop boundary: branch behind main=0, clean worktree, external opt-in enforced everywhere, PG/Mongo collisions refused without deletion, owned-only cleanup verified, migration/guard/Phase C/browser/sentinel PASS, COMMENT_USER_REPORT_ADMIN_MODERATION_PASS / LOCAL_PASS_CI_PENDING.
 
-Do not commit credentials or live DB connection strings to evidence. Only record safe identities, validation booleans, and run IDs.
-
-### P0 — same sentinels must span entire mutating validation sequence
-
-Current runner executes focused tests + `npm test` FIRST, then plants 5 browser sentinel records. The 5 browser sentinel hashes therefore do not prove preservation through the earlier tests.
-
-Required:
-1. Resolve isolated DB identities and pass guard.
-2. Plant 5 exact-ID sentinel entities BEFORE any focused/backend mutating test execution:
-   - unrelated COMMENT review;
-   - unrelated COMMENT report;
-   - same reporter, DIFFERENT target report;
-   - same owner + chapter, DIFFERENT comment;
-   - same user, unrelated notification.
-3. Capture before fingerprints with stable deterministic serialization and full `hash_before`.
-4. Execute focused suite and complete `npm test`, then real browser Report-A..J and Checkpoint F2.
-5. Verify **the same sentinel IDs** after the test suite and again after browser E2E + cleanup. Store real `hash_after_tests`, `hash_after_browser`, and compare to pre-run hashes. Do not claim hashes match without actual reread.
-6. Remove only the exact run-owned sentinel IDs after verification. Preserve unrelated data unconditionally.
-7. In failure paths, ensure process/server teardown is deterministic and cleanup remains ID-scoped; if safety cannot be proven, stop and leave evidence with the failure rather than executing broad cleanup.
-8. Ensure the TS test teardown also uses exact created IDs. Remove this remaining broad-looking operation if possible:
-   ```sql
-   DELETE FROM reports WHERE reporter_id = ANY(trackedUserIds)
-   ```
-   despite trackedUserIds being generated fixtures, prefer exact report IDs to establish consistent ownership boundary.
-9. Keep browser POST comment/report/approve and rendered Logout/Login **real**; do not mutate the accepted target state directly in DB to fake success.
-
-Only after these prove safety may the report say `SENTINEL_PRESERVATION_PASS`. A 5x `hash_match=true` claim alone is insufficient.
-
-### P1 — migration 012 preflight/failure/reapply acceptance
-
-The existing `012_reports_unique_open.sql` does a preflight for duplicate OPEN reports and duplicate PENDING reviews and creates partial unique indexes. This is reasonable but has not been validated in a recorded migration manifest.
-
-Test in disposable isolated PostgreSQL DB ONLY:
-
-- baseline earlier schema installed, migration 012 not yet marked applied;
-- duplicate OPEN reports -> migration fails clearly and atomically; pre-existing rows are untouched; `schema_migrations` does not falsely mark 012 complete;
-- duplicate PENDING review for same target+source -> failure equally non-destructive;
-- clean data -> migration succeeds and both unique indexes exist;
-- rerun `db:migrate` -> 012 skipped/reapply idempotently, with no data loss;
-- verify historical RESOLVED/REJECTED reports do not collide with OPEN partial index;
-- optional rollback test ONLY if repo has a supported downgrade mechanism; `backend/src/core/database/migrate.ts` currently supports forward migrations with transaction + `schema_migrations`, NOT an explicit downgrade mechanism. Do not invent a downgrade claim.
-
-Record commands, database identity (non-secret), exit codes, tested index names and pass/fail behavior.
-
-### P1 — honest documentation
-
-The prior report says that five sentinel fingerprints “mathematically prove no broad or unscoped deletion occurred.” Replace with precise scoped language: matching sentinel hashes show *those* records stayed unchanged within the observed test window; they do not prove that arbitrary other records cannot be deleted.
-
-Similarly remove absolute statements such as “all mutations only originated in rendered UI” when the same runner explicitly seeds sentinels/tests via DB; say "**decisive acceptance lifecycle mutations** originated in the rendered UI; fixture setup/cleanup and assertions used DB."
-
-### Final validation / evidence lineage
-
-Do not change unrelated FE hardcoded presentation, Wallet/VIP, Story Brain, or previously accepted gates.
-
-After safe code changes:
-
-```text
-FINAL_TESTED_CODE_SHA = new pushed commit with isolated-db guard + sentinel/migration fixes
-```
-
-Run on that exact tree:
-```text
-- isolated database identity preflight PASS
-- negative guard tests PASS (unsafe configurations refused)
-- migration 012 failure + success + idempotency PASS
-- web typecheck + build PASS
-- backend typecheck PASS
-- expanded COMMENT report PostgreSQL/Mongo tests PASS
-- full backend npm test PASS
-- browser Report-A..J + F2 PASS
-- sentinel readbacks after tests and browser PASS
-- no password/token/cookie/connection secret in evidence
-```
-
-Regenerate:
-```text
-docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E-report.md
-docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E/comment-user-report-admin-moderation-e2e-evidence.json
-10 browser screenshots if the flow is rerun
-```
-
-Evidence must distinguish executed test claims from narrative report claims, include actual machine-readable `db_isolation`, `guard_negative_tests`, `migration_012_validation`, `sentinel_preservation` (before/after hash values), `validation`, `tested_main_sha`, `tested_code_sha`, and a clear verdict.
-
-After committing evidence and pushing:
-
-```text
-branch behind main = 0
-git status clean
-isolated-DB guard proven
-migration/sentinel proof complete
-COMMENT_USER_REPORT_ADMIN_MODERATION_PASS
-LOCAL_PASS_CI_PENDING
-```
-
-Gemini must STOP without creating PR, merging, implementing Wallet/VIP, or claiming GitHub CI pass. ChatGPT owns remote code review, PR, CI, and merge.
+If any claim cannot be verified, stop and report exact blocker. Gemini does not create PR or merge. ChatGPT owns remote review/PR/P7-P8 CI/merge. Do not implement Wallet/VIP or unrelated frontend/AI tasks.
 
 ---
-
 ## 6. Reporting Discipline
 
 Always distinguish:
