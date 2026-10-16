@@ -1,27 +1,115 @@
 {
-  "tested_main_sha": "1b49d94577500c4456cfa4c7871b4c9fc713b2cc",
-  "tested_code_sha": "a6fac5c38fde2015b046a59469895cc50de6368d",
+  "verdict": "COMMENT_USER_REPORT_ADMIN_MODERATION_PASS",
+  "tested_main_sha": "3d51838e758ed86b68795d6d3af0b0daa66b3c8f",
+  "tested_code_sha": "12607475117b0166401efc857e8d1bded1db19ed",
   "branch": "astra/comment-user-report-admin-moderation-e2e",
-  "run_uuid": "d3ebdc52",
-  "owner_user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
-  "reporter_user_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
-  "admin_user_id": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
+  "run_uuid": "994f42e9",
+  "db_isolation": {
+    "postgres": {
+      "database": "ephurin_report_e2e_994f42e9",
+      "server_addr": "172.18.0.2",
+      "server_port": 5432,
+      "is_isolated": true
+    },
+    "mongo": {
+      "database": "ephurin_report_e2e_994f42e9",
+      "ping_ok": true,
+      "is_isolated": true
+    },
+    "opt_in_verified": true
+  },
+  "guard_negative_tests": {
+    "suite": "backend/src/core/database/test-db-guard.test.ts",
+    "result": "PASS",
+    "tested_rules": [
+      "missing_opt_in_fails_closed",
+      "ambient_ci_fails_closed",
+      "ambient_node_env_fails_closed",
+      "ambient_npm_lifecycle_fails_closed",
+      "default_postgres_ephurin_rejected",
+      "system_postgres_rejected",
+      "default_mongo_ephurin_rejected",
+      "system_mongo_rejected",
+      "db_name_mismatch_rejected",
+      "isolated_pattern_with_opt_in_passes"
+    ]
+  },
+  "migration_012_validation": {
+    "run_uuid": "994f42e9",
+    "database_name": "ephurin_test_mig012_994f42e9",
+    "steps": [
+      {
+        "step": "baseline_schema_001_to_011",
+        "applied_files_count": 11,
+        "status": "PASS"
+      },
+      {
+        "step": "duplicate_open_reports_atomic_rollback",
+        "error_caught": "Migration 012 halted: found 1 group(s) of duplicate OPEN reports. Manual remediation required: review and resolve duplicate open reports before applying idx_reports_open_reporter_target.",
+        "schema_migrations_clean": true,
+        "index_not_created": true,
+        "pre_existing_rows_preserved": true,
+        "status": "PASS"
+      },
+      {
+        "step": "duplicate_pending_reviews_atomic_rollback",
+        "error_caught": "Migration 012 halted: found 1 group(s) of duplicate PENDING moderation reviews. Manual remediation required before applying idx_moderation_reviews_pending_target_source.",
+        "schema_migrations_clean": true,
+        "index_not_created": true,
+        "pre_existing_rows_preserved": true,
+        "status": "PASS"
+      },
+      {
+        "step": "clean_migration_012_apply",
+        "indexes_created": [
+          "idx_reports_open_reporter_target",
+          "idx_moderation_reviews_pending_target_source"
+        ],
+        "status": "PASS"
+      },
+      {
+        "step": "idempotent_reapply_without_error",
+        "status": "PASS"
+      },
+      {
+        "step": "historical_resolved_rejected_reports_non_collision",
+        "historical_resolved_allowed": 2,
+        "historical_rejected_allowed": 2,
+        "duplicate_open_rejected_by_index": true,
+        "status": "PASS"
+      }
+    ],
+    "indexes_verified": [
+      "idx_reports_open_reporter_target",
+      "idx_moderation_reviews_pending_target_source"
+    ],
+    "rollback_evaluation": "Verified backend/src/core/database/migrate.ts forward-only architecture. Transactions roll back failed migrations atomically; no down-migration schema tooling is supported by the repository, and none is claimed.",
+    "result": "PASS",
+    "database_identity": {
+      "current_database": "ephurin_test_mig012_994f42e9",
+      "server_addr": "172.18.0.2",
+      "server_port": 5432
+    }
+  },
+  "owner_user_id": "4b754c94-4827-4443-a850-859243591585",
+  "reporter_user_id": "bfbba97d-7128-4efd-8237-b2c2e98f8a16",
+  "admin_user_id": "5571e630-b88c-4f36-8e8e-ecf83a8f2554",
   "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
   "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
   "checkpoints": {
     "report_a": {
       "checkpoint": "Report-A",
       "description": "Owner logs in via rendered UI form, creates clean APPROVED comment",
-      "login_request_id": "8876.222",
-      "comment_create_request_id": "8876.360",
-      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
-      "content": "E2E clean report target d3ebdc52",
+      "login_request_id": "18056.222",
+      "comment_create_request_id": "18056.360",
+      "comment_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
+      "content": "E2E clean report target 994f42e9",
       "status": "APPROVED",
       "db_proof": {
-        "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+        "comment_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
         "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
-        "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
-        "content": "E2E clean report target d3ebdc52",
+        "user_id": "4b754c94-4827-4443-a850-859243591585",
+        "content": "E2E clean report target 994f42e9",
         "status": "APPROVED",
         "deleted_at": null
       },
@@ -32,93 +120,91 @@
       "checkpoint": "Report-B",
       "description": "Owner logs out; Reporter logs in via rendered form at /login",
       "reporter_email": "reader05@example.com",
-      "reporter_user_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
-      "login_request_id": "8876.493",
+      "reporter_user_id": "bfbba97d-7128-4efd-8237-b2c2e98f8a16",
+      "login_request_id": "18056.493",
       "screenshot": "report-b-reporter-login.png",
       "result": "PASS"
     },
     "report_c": {
       "checkpoint": "Report-C",
-      "description": "Reporter opens chapter, clicks Report on target comment, captures POST /reports",
-      "request_id": "8876.631",
-      "status": 201,
-      "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
-      "moderation_review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+      "description": "Reporter clicks 'Report' on exact comment card; captures POST /reports",
+      "report_request_id": "18056.631",
+      "report_id": "e63848d0-ff6d-4e08-b148-0e2377ea74bb",
+      "moderation_review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
+      "status": "PENDING",
       "screenshot": "report-c-comment-reported.png",
       "result": "PASS"
     },
     "report_d": {
       "checkpoint": "Report-D",
-      "description": "PostgreSQL correlation proves one OPEN report and one PENDING USER_REPORT review",
-      "report_db_before": {
-        "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
-        "reporter_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
+      "description": "PostgreSQL queries prove 1 row in reports (OPEN) and 1 row in moderation_reviews (PENDING, USER_REPORT)",
+      "report_proof": {
+        "report_id": "e63848d0-ff6d-4e08-b148-0e2377ea74bb",
+        "reporter_id": "bfbba97d-7128-4efd-8237-b2c2e98f8a16",
         "target_type": "COMMENT",
-        "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
-        "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+        "target_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
+        "review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
         "status": "OPEN"
       },
-      "review_db_before": {
-        "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+      "review_proof": {
+        "review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
         "target_type": "COMMENT",
-        "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+        "target_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
         "source": "USER_REPORT",
-        "status": "PENDING"
+        "status": "PENDING",
+        "reviewed_by": null,
+        "reviewed_at": null
       },
-      "open_report_count": 1,
       "screenshot": "report-d-db-correlated.png",
       "result": "PASS"
     },
     "report_e": {
       "checkpoint": "Report-E",
-      "description": "Admin logs in, opens /admin/reports, finds exact pending review in queue",
-      "admin_email": "reader02@example.com",
-      "admin_user_id": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-      "admin_review_list_request_id": "8876.900",
-      "moderation_review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+      "description": "Admin logs in, opens /admin/reports, proves pending review card renders with USER_REPORT badge",
+      "admin_user_id": "5571e630-b88c-4f36-8e8e-ecf83a8f2554",
+      "review_list_request_id": "18056.900",
+      "review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
+      "card_text_snippet": "COMMENT | PENDING | USER_REPORT |  | 3e872929-2846-4212-b4ac-9fe5841ff418 |  | Target: 928eb0c9-2aa6-40b7-8fe0-40c34767277c |  | COMMENT TARGET HAS NO STANDALONE READER ROUTE | Ins",
       "screenshot": "report-e-admin-reports-queue.png",
       "result": "PASS"
     },
     "report_f": {
       "checkpoint": "Report-F",
-      "description": "Admin detail proves source USER_REPORT, target COMMENT, reportCount=1; source-aware copy verified",
-      "admin_review_detail_request_id": "8876.901",
-      "target_type": "COMMENT",
-      "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
-      "source": "USER_REPORT",
-      "reports_count": 1,
-      "modal_description": "Approve report ba5a1def-0f38-4707-97d4-691301b0fe7c. The reported comment will be removed.",
+      "description": "Admin opens detail; verifies source=USER_REPORT, target=COMMENT, reportCount=1; modal confirms: 'The reported comment will be removed.'",
+      "review_detail_request_id": "18056.901",
+      "decision_button_text": "Approve report",
+      "modal_confirmation_text": "The reported comment will be removed.",
       "screenshot": "report-f-admin-review-detail.png",
       "result": "PASS"
     },
     "report_g": {
       "checkpoint": "Report-G",
-      "description": "Admin clicks 'Approve report' in rendered modal; POST resolve captured with decision=APPROVED",
-      "request_id": "8876.1166",
-      "status": 200,
+      "description": "Admin confirms 'Approve report' in modal; captured POST /admin/moderation/reviews/:id/resolve returns status=APPROVED",
+      "resolve_request_id": "18056.1257",
       "decision": "APPROVED",
+      "status": "APPROVED",
       "screenshot": "report-g-admin-report-approved.png",
       "result": "PASS"
     },
     "report_h": {
       "checkpoint": "Report-H",
-      "description": "Database proves review APPROVED, report RESOLVED, comment soft-deleted; review absent from queue",
-      "review_db_after": {
-        "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+      "description": "PostgreSQL: review APPROVED, report RESOLVED. Mongo: comment status=DELETED, deletedAt set. Queue: card absent",
+      "review_proof": {
+        "review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
         "status": "APPROVED",
-        "reviewed_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-        "reviewed_at": "2026-10-15T09:46:09.497196+00:00"
+        "reviewed_by": "5571e630-b88c-4f36-8e8e-ecf83a8f2554",
+        "reviewed_at": "2026-10-16 02:37:42.414530+00:00"
       },
-      "report_db_after": {
-        "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
+      "report_proof": {
+        "report_id": "e63848d0-ff6d-4e08-b148-0e2377ea74bb",
         "status": "RESOLVED",
-        "resolved_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-        "resolved_at": "2026-10-15T09:46:09.505179+00:00"
+        "resolved_by": "5571e630-b88c-4f36-8e8e-ecf83a8f2554",
+        "resolved_at": "2026-10-16 02:37:42.423206+00:00"
       },
-      "comment_db_after": {
-        "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+      "comment_proof": {
+        "comment_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
         "status": "DELETED",
-        "deleted_at": "2026-10-15T09:46:09.506Z"
+        "deleted_at": "2026-10-16T02:37:42.421Z"
       },
       "screenshot": "report-h-admin-resolution-verified.png",
       "result": "PASS"
@@ -126,157 +212,143 @@
     "report_i": {
       "checkpoint": "Report-I",
       "description": "Reporter logs in, opens /notifications, verifies COMMENT_REPORT_APPROVED notification in DOM & DB",
-      "reporter_user_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
-      "notification_id": "c19d3e1d-d044-42c2-8a7e-2d1b0336fbfd",
+      "reporter_user_id": "bfbba97d-7128-4efd-8237-b2c2e98f8a16",
+      "notification_id": "d20a8c6a-d901-4585-a9a0-5026a214c203",
       "type": "COMMENT_REPORT_APPROVED",
-      "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
-      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+      "review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
+      "comment_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
       "screenshot": "report-i-reporter-notification.png",
       "result": "PASS"
     },
     "report_j": {
       "checkpoint": "Report-J",
-      "description": "Owner verifies COMMENT_REMOVED_BY_REPORT notification, reloads chapter, proves comment absent",
-      "owner_user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
-      "notification_id": "5af09c3e-5026-41e8-b18c-ed1b9c8ec5d6",
+      "description": "Owner logs in, verifies COMMENT_REMOVED_BY_REPORT in DOM & DB; reload chapter proves comment card and text absent",
+      "owner_user_id": "4b754c94-4827-4443-a850-859243591585",
+      "notification_id": "19713e8c-d1fa-4642-a48a-5d952e699da3",
       "type": "COMMENT_REMOVED_BY_REPORT",
-      "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
-      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
-      "comment_absent_from_dom": true,
+      "review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
+      "comment_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
+      "comment_absent_from_chapter": true,
       "screenshot": "report-j-owner-notification-and-comment-absent.png",
       "result": "PASS"
     }
   },
-  "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
-  "comment_original_content": "E2E clean report target d3ebdc52",
-  "comment_create_request_id": "8876.360",
+  "comment_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
+  "comment_original_content": "E2E clean report target 994f42e9",
+  "comment_create_request_id": "18056.360",
   "comment_db_before": {
-    "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+    "comment_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
     "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
-    "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
-    "content": "E2E clean report target d3ebdc52",
+    "user_id": "4b754c94-4827-4443-a850-859243591585",
+    "content": "E2E clean report target 994f42e9",
     "status": "APPROVED",
     "deleted_at": null
   },
-  "report_create_request_id": "8876.631",
-  "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
-  "moderation_review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
-  "report_db_before": {
-    "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
-    "reporter_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
+  "report_id": "e63848d0-ff6d-4e08-b148-0e2377ea74bb",
+  "moderation_review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
+  "report_create_request_id": "18056.631",
+  "report_db": {
+    "report_id": "e63848d0-ff6d-4e08-b148-0e2377ea74bb",
+    "reporter_id": "bfbba97d-7128-4efd-8237-b2c2e98f8a16",
     "target_type": "COMMENT",
-    "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
-    "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+    "target_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
+    "review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
     "status": "OPEN"
   },
   "review_db_before": {
-    "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+    "review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
     "target_type": "COMMENT",
-    "target_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+    "target_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
     "source": "USER_REPORT",
-    "status": "PENDING"
+    "status": "PENDING",
+    "reviewed_by": null,
+    "reviewed_at": null
   },
-  "admin_review_list_request_id": "8876.900",
-  "admin_review_detail_request_id": "8876.901",
-  "admin_resolve_request_id": "8876.1166",
+  "admin_review_list_request_id": "18056.900",
+  "admin_review_detail_request_id": "18056.901",
+  "admin_resolve_request_id": "18056.1257",
   "review_db_after": {
-    "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
+    "review_id": "3e872929-2846-4212-b4ac-9fe5841ff418",
     "status": "APPROVED",
-    "reviewed_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-    "reviewed_at": "2026-10-15T09:46:09.497196+00:00"
+    "reviewed_by": "5571e630-b88c-4f36-8e8e-ecf83a8f2554",
+    "reviewed_at": "2026-10-16 02:37:42.414530+00:00"
   },
   "report_db_after": {
-    "report_id": "0b5dd9ed-fa25-4304-b53e-57b8790457e9",
+    "report_id": "e63848d0-ff6d-4e08-b148-0e2377ea74bb",
     "status": "RESOLVED",
-    "resolved_by": "bcedd10c-340e-4e37-9c24-ce86ccb6663c",
-    "resolved_at": "2026-10-15T09:46:09.505179+00:00"
+    "resolved_by": "5571e630-b88c-4f36-8e8e-ecf83a8f2554",
+    "resolved_at": "2026-10-16 02:37:42.423206+00:00"
   },
   "comment_db_after": {
-    "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8",
+    "comment_id": "928eb0c9-2aa6-40b7-8fe0-40c34767277c",
     "status": "DELETED",
-    "deleted_at": "2026-10-15T09:46:09.506Z"
+    "deleted_at": "2026-10-16T02:37:42.421Z"
   },
-  "reporter_notification_id": "c19d3e1d-d044-42c2-8a7e-2d1b0336fbfd",
-  "owner_notification_id": "5af09c3e-5026-41e8-b18c-ed1b9c8ec5d6",
-  "notification_db_proof": {
-    "reporter_notification": {
-      "notification_id": "c19d3e1d-d044-42c2-8a7e-2d1b0336fbfd",
-      "user_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
-      "type": "COMMENT_REPORT_APPROVED",
-      "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
-      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8"
-    },
-    "owner_notification": {
-      "notification_id": "5af09c3e-5026-41e8-b18c-ed1b9c8ec5d6",
-      "user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
-      "type": "COMMENT_REMOVED_BY_REPORT",
-      "review_id": "ba5a1def-0f38-4707-97d4-691301b0fe7c",
-      "comment_id": "7d236030-1ae3-497f-ae3b-c3138e9fe8e8"
-    }
-  },
-  "negative_suite": {
-    "test_file": "backend/src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
-    "command": "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
-    "exit_code": 0,
-    "result": "PASS",
-    "tests_passed": 17,
-    "tests_failed": 0,
-    "covered_invariants": [
-      "anonymous_reports_rejected_401",
-      "non_admin_moderation_forbidden_403",
-      "nonexistent_comment_report_rejected_404",
-      "deleted_comment_report_rejected_404",
-      "pending_moderation_comment_report_rejected_404",
-      "rejected_comment_report_rejected_404",
-      "unpublished_chapter_comment_report_rejected_404",
-      "same_reporter_duplicate_open_report_rejected_409",
-      "concurrent_same_reporter_duplicate_submits_409",
-      "distinct_reporters_share_one_review_and_aggregate_reports",
-      "concurrent_distinct_reporters_atomically_share_review",
-      "admin_approve_report_resolves_reports_and_soft_deletes_comment",
-      "admin_reject_report_rejects_reports_and_keeps_comment_approved",
-      "approve_notifications_delivered_to_owner_and_reporter",
-      "reject_notifications_delivered_to_owner_and_reporter",
-      "duplicate_resolve_rejected_409",
-      "keyword_filter_comment_moderation_semantics_unchanged"
-    ]
-  },
+  "reporter_notification_id": "d20a8c6a-d901-4585-a9a0-5026a214c203",
+  "owner_notification_id": "19713e8c-d1fa-4642-a48a-5d952e699da3",
   "sentinel_preservation": {
-    "verified": true,
+    "verdict": "SENTINEL_PRESERVATION_PASS",
+    "full_sequence_spanned": true,
     "sentinels": [
       {
         "type": "sentinel_review",
-        "id": "f0da598f-dbda-4694-996d-3ab2a32c3c58",
+        "id": "617a4c18-5a3c-4bb0-8d1c-6fc2a4d6030c",
         "status_before": "PENDING",
-        "status_after": "PENDING",
-        "hash_match": true
+        "status_after_tests": "PENDING",
+        "status_after_browser": "PENDING",
+        "hash_before": "8d17f93b914ca5460981f359df9192f5072bd480949e00c2ea9a73d76daeef44",
+        "hash_after_tests": "8d17f93b914ca5460981f359df9192f5072bd480949e00c2ea9a73d76daeef44",
+        "hash_after_browser": "8d17f93b914ca5460981f359df9192f5072bd480949e00c2ea9a73d76daeef44",
+        "match_after_tests": true,
+        "match_after_browser": true
       },
       {
         "type": "sentinel_report",
-        "id": "aa5a15ae-e604-47b2-ace6-b7cbf2325cb8",
+        "id": "5ff45307-f3f2-4011-a880-c47d48593c36",
         "status_before": "OPEN",
-        "status_after": "OPEN",
-        "hash_match": true
+        "status_after_tests": "OPEN",
+        "status_after_browser": "OPEN",
+        "hash_before": "c3f11c9899711185d506030e19fd5222c1eea70e21f93e4cf133a10f5c2cff55",
+        "hash_after_tests": "c3f11c9899711185d506030e19fd5222c1eea70e21f93e4cf133a10f5c2cff55",
+        "hash_after_browser": "c3f11c9899711185d506030e19fd5222c1eea70e21f93e4cf133a10f5c2cff55",
+        "match_after_tests": true,
+        "match_after_browser": true
       },
       {
         "type": "sentinel_reporter_report",
-        "id": "a49d664a-b960-4127-8664-b43020e5a339",
-        "target_type": "NOVEL",
+        "id": "7ae00eb9-80ed-4873-a2c7-de3d2d55a920",
         "status_before": "OPEN",
-        "status_after": "OPEN",
-        "hash_match": true
+        "status_after_tests": "OPEN",
+        "status_after_browser": "OPEN",
+        "hash_before": "ea12f8501c7b82ada9bc8137d3e75e51cc95ecd68400b3c92698b78af1511a2f",
+        "hash_after_tests": "ea12f8501c7b82ada9bc8137d3e75e51cc95ecd68400b3c92698b78af1511a2f",
+        "hash_after_browser": "ea12f8501c7b82ada9bc8137d3e75e51cc95ecd68400b3c92698b78af1511a2f",
+        "match_after_tests": true,
+        "match_after_browser": true
       },
       {
         "type": "sentinel_owner_comment",
-        "id": "ebeda9a0-0602-4159-93c0-ff306b7df7cc",
+        "id": "eb0d5711-6d12-4a9a-abaf-bc031f9e0620",
         "status_before": "APPROVED",
-        "status_after": "APPROVED",
-        "hash_match": true
+        "status_after_tests": "APPROVED",
+        "status_after_browser": "APPROVED",
+        "hash_before": "339da855c28568021dbc98c76c79c83653fb588f74efbf7a5c589fbc2fc34caa",
+        "hash_after_tests": "339da855c28568021dbc98c76c79c83653fb588f74efbf7a5c589fbc2fc34caa",
+        "hash_after_browser": "339da855c28568021dbc98c76c79c83653fb588f74efbf7a5c589fbc2fc34caa",
+        "match_after_tests": true,
+        "match_after_browser": true
       },
       {
         "type": "sentinel_notification",
-        "id": "c5b65338-1bb9-4898-adcd-64236e28ab6e",
-        "hash_match": true
+        "id": "4137bd17-6d93-4e2f-b07f-caaba86da073",
+        "status_before": "-",
+        "status_after_tests": "-",
+        "status_after_browser": "-",
+        "hash_before": "8b9abcb668f848db05d81a22352a25a79a8f7b0d4e29438613d58d56f1ebfb7b",
+        "hash_after_tests": "8b9abcb668f848db05d81a22352a25a79a8f7b0d4e29438613d58d56f1ebfb7b",
+        "hash_after_browser": "8b9abcb668f848db05d81a22352a25a79a8f7b0d4e29438613d58d56f1ebfb7b",
+        "match_after_tests": true,
+        "match_after_browser": true
       }
     ]
   },
@@ -286,7 +358,7 @@
       "command": "npm run typecheck",
       "cwd": "web",
       "exit_code": 0,
-      "duration_seconds": 4.89,
+      "duration_seconds": 4.86,
       "result": "PASS"
     },
     {
@@ -294,7 +366,7 @@
       "command": "npm run build",
       "cwd": "web",
       "exit_code": 0,
-      "duration_seconds": 15.88,
+      "duration_seconds": 15.04,
       "result": "PASS"
     },
     {
@@ -302,15 +374,25 @@
       "command": "npm run typecheck",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 3.04,
+      "duration_seconds": 3.14,
       "result": "PASS"
+    },
+    {
+      "name": "test_db_guard_suite",
+      "command": "npx tsx --test src/core/database/test-db-guard.test.ts",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.24,
+      "result": "PASS",
+      "tests_passed": 11,
+      "tests_failed": 0
     },
     {
       "name": "comment_user_report_admin_moderation_postgres_test",
       "command": "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 1.94,
+      "duration_seconds": 1.96,
       "result": "PASS",
       "tests_passed": 17,
       "tests_failed": 0
@@ -320,14 +402,15 @@
       "command": "npm test",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 2.5,
-      "result": "PASS"
+      "duration_seconds": 2.64,
+      "result": "PASS",
+      "tests_passed": 123,
+      "tests_failed": 0
     },
     {
       "name": "browser_comment_user_report_moderation_flow",
       "description": "Real browser Report-A through Report-J CDP flow + Checkpoint F2",
       "result": "PASS"
     }
-  ],
-  "verdict": "COMMENT_USER_REPORT_ADMIN_MODERATION_PASS"
+  ]
 }
