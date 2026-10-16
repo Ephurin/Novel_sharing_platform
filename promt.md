@@ -329,99 +329,93 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. ACTIVE EXECUTION DIRECTIVE — READER WALLET + VIP UNLOCK BROWSER E2E
+## 5. ACTIVE EXECUTION DIRECTIVE — WALLET/VIP E2E ACCEPTANCE HARNESS HARDENING
 
-### Gate transition (2026-10-16)
+Gate: `READER-WALLET-VIP-UNLOCK-E2E`
+Work on EXISTING branch: `astra/reader-wallet-vip-unlock-e2e`
+Last reviewed branch head / evidence commit: `bf7bccc2720e8975dcc6c43f142e30bcc0db876d`
+Prior tested product/test/runner code SHA: `5a0a77a0f196f7e0bbfa11739451b93b8de8ed2e`
+Main before this directive: `864dfabdf05be30e1e745b09312058425aff09d7`
+Remote reviewer verdict: `LOCAL_PASS_WITH_REVIEW_BLOCKERS / NOT_READY_FOR_PR`.
 
-Previous gate COMMENT-USER-REPORT-ADMIN-MODERATION-E2E is CLOSED. PR #50 merged.
-Tested product SHA: ab235d43516238516012a2a2528cbf07d769497a
-Final accepted PR head SHA: c27b4d524a9257dbe2d443584d3b003a41c7d5f6
-Merge SHA: 7f0ed1dde93dac72b4fab2e05deb5d60d59d40d4
-P7 #130: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/38851810884 SUCCESS (3/3 jobs).
-P8 #127: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/38851810760 SUCCESS (6/6 jobs).
-Defense Demo Contract #6: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/38851810645 SUCCESS.
-Closure report: docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E-report.md
-Engineering record: docs/development/DEVELOPMENT_HISTORY.md (EDR-12).
-Do not reopen, downgrade, retest as a new acceptance, rewrite historical evidence JSON, or redo previous gate.
+**Scope:** narrow safety/evidence hardening ONLY. The virtual coin product flow has browser Wallet-A..J local PASS, 12 wallet PostgreSQL invariants, 11 DB guard tests, web/backend typecheck/build PASS. No PR. Preserve the backend security hardening already implemented (authenticated mock completion + deposit owner check + production refusal), existing UI logic, transaction semantics and screenshots unless rerunning changes those.
 
-### NEXT GATE (strictly bounded)
+### 0 — Sync + bound the work
 
-Gate ID: READER-WALLET-VIP-UNLOCK-E2E
-Proposed working branch: astra/reader-wallet-vip-unlock-e2e
-Status: ASSIGNED / NOT_YET_IMPLEMENTED
-Ownership: Gemini executes local implementation + Docker/database + browser tests and commits evidence to branch. ChatGPT reviews, opens PR, verifies P7/P8 CI, merges, and updates the engineering history after remote acceptance.
+```bash
+git fetch origin
+git checkout astra/reader-wallet-vip-unlock-e2e
+git pull --ff-only
+git merge origin/main
+git rev-parse HEAD
+git status --porcelain
+```
 
-Rationale: PRODUCT-UI-INTEGRATION-INVENTORY.md ranked wallet/VIP monetization among remaining high-priority browser-acceptance gaps. Reader discovery, social/comment, author publishing, Admin moderation and notifications have now received separate E2E acceptance; the next narrow, useful user-facing loop is virtual-coin wallet -> VIP unlock -> reading entitlement.
+Record `FINAL_SYNCED_MAIN_SHA`. Do not create a new branch, PR, or merge. Focus on:
+- `scripts/run_reader_wallet_vip_unlock_e2e.py`
+- `backend/src/modules/wallet/wallet.postgres.test.ts`
+- report/evidence/screenshot files for this gate.
+Only modify production code if an independently reproducible contract problem is exposed. No real payments, external banking, withdrawals, donations, Wallet UI redesign, Story Brain, or Wallet business-model changes.
 
-### A. Start with current main, isolate the task
+### P0-A — Validation FAIL must never yield final PASS
 
-1. git fetch origin; git checkout main; git pull --ff-only; create/use branch astra/reader-wallet-vip-unlock-e2e from latest origin/main.
-2. Record synced origin/main SHA. Do NOT reuse previous gate branch or mix unrelated unmerged changes.
-3. Inspect real current implementations before editing:
-   - web/src/features/wallet/WalletPage.tsx and wallet-api.ts
-   - web/src/features/reader/ReaderPage.tsx and reader-api.ts
-   - backend/src/modules/wallet/{wallet.routes.ts,wallet.controller.ts,wallet.service.ts,wallet.repository.ts,wallet.schemas.ts}
-   - backend/src/modules/reading/{reading.service.ts,reading.repository.ts}
-   - backend/src/core/database/test-db-guard.ts
-   - backend/src/scripts/seed-sample-stories.ts and production migrations
-   - docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.md
-4. Confirm exact VIP chapter fixture and price from a disposable seeded DB; do not assume the canonical free chapter is VIP or modify canonical demo data to force PASS.
+Confirmed runner source (`run_reader_wallet_vip_unlock_e2e.py`, approx. lines 718–733 and 1330) appends `run_command(...)` results but never verifies every command PASS before later writing `evidence['verdict'] = 'READER_WALLET_VIP_UNLOCK_PASS'`.
 
-### B. Acceptance journey: virtual coins ONLY (no real payments)
+Implement a single fail-closed validation gate which checks ALL command exit codes + status, then rejects before browser with machine-readable `FAILED_VALIDATION` (or a specific failed command). The final overall PASS must be computed from observed validation, checkpoints, sentinel verification, and confirmed teardown: never assigned unconditionally inside the browser block.
 
-Use isolated PostgreSQL+Mongo test DBs with explicit external EPHURIN_ALLOW_TEST_DB_MUTATIONS=1 opt-in, actual resolved DB identities, throwaway run ID, run-owned fixtures, exact-ID cleanup and no pre-creation DROP. Reuse the prior gate's proven safety discipline. The real browser must use rendered UI login/logout and buttons; database/API queries are correlation/assertion only, not substitutes for decisive UI actions.
+Prove **negative fault injection** without touching real databases: intentionally make one validation command return nonzero and show runner emits nonzero exit, correctly names failed command, persists failure evidence, and DOES NOT claim PASS. Then rerun normal passing sequence to restore actual acceptance.
 
-Desired browser checkpoints:
-Wallet-A: isolated fixture has published VIP chapter with nonempty real content and positive price; reader wallet starts with zero or verified insufficient virtual coins.
-Wallet-B: anonymous attempt to access VIP chapter cannot read content; record actual HTTP status and UI lock state, not invented screenshots.
-Wallet-C: READER signs in via rendered /login, opens VIP chapter, receives expected PAYMENT_002/402 lock contract and no content leak.
-Wallet-D: Reader opens /wallet, sees initial virtual balance and transactions; chooses mock-only COIN_* package via UI.
-Wallet-E: Reader clicks Deposit mock coins via UI. Capture actual create-session and mock completion requests and unique depositSessionId / transactionId; PostgreSQL verifies exactly one successful deposit and expected balance delta.
-Wallet-F: Reader fills VIP Chapter ID and clicks Unlock chapter via UI, or uses canonical ReaderChapterPage unlock button. Capture POST /api/v1/chapters/:chapterId/unlock and new transactionId.
-Wallet-G: Correlate exactly one chapter_unlocks entitlement and one UNLOCK transaction; reader balance decreases by exact price, author wallet increases by exact price; total virtual balance conserved across this transfer.
-Wallet-H: Reader reloads the VIP chapter through rendered UI, GET /api/v1/reading/chapters/:id succeeds and actual content is visible; no auth/token injection.
-Wallet-I: Reader retries unlock; prove alreadyUnlocked=true, no second debit, no duplicate entitlement, no second UNLOCK transaction; refresh wallet and transactions list to verify persistence.
-Wallet-J: Distinct reader / anonymous visitor still cannot access locked VIP text; published FREE chapter still readable without payment.
+### P0-B — test fixture teardown must not erase unrelated sentinels
 
-Do not hardcode expected IDs, balances, chapter price or success flags into product code or acceptance evidence. Use real output fields and DB readbacks.
+Confirmed `backend/src/modules/wallet/wallet.postgres.test.ts`: sentinel_chapter_unlock is inserted using `[sUserId, vipChapterId, sTxId]` (approx. 238–251), BUT `after()` performs `DELETE FROM chapter_unlocks WHERE chapter_id = $1` on `trackedChapterIds` (approx. line 261). That erases the sentinel entitlement before its own exact-ID teardown. The test verifies sentinel in invariant 12 BEFORE teardown; it does not prove preservation throughout teardown.
 
-### C. Deterministic integrity/security checks (mandatory review)
+Fix by tracking EACH run-owned chapter_unlock (user_id, chapter_id), deleting only those exact pairs. Avoid broad deletes by chapter_id and broad account/wallet-based deletion where precise entity IDs are feasible. Preserve cross-user sentinel on same chapter until an explicit post-cleanup assertion rereads its stable hash; only then may the sentinel harness itself delete exactly that sentinel. Set teardown errors to test FAIL rather than `catch { /* ignore cleanup errors */ }`. Use try/finally around suite-owned entities and close DB connections even on failure.
 
-At minimum cover: unauthenticated wallet/deposit/unlock API access, missing/unpublished chapter, insufficient funds 402, same-user repeat unlock idempotency, concurrent same-user unlock double-debit prevention, unauthorized cross-user entitlement, deposit-session completion replay, foreign session abuse, failed mock deposit behavior where implemented, nonnegative wallet balances and ledger consistency. For scenarios the current API does not support, mark NOT_SUPPORTED with explanation instead of inventing passing tests.
+Where deleting a parent chapter requires deleting a sentinel entitlement first due to FK, use a dedicated **persistent fixture chapter NOT marked owned for the tested-chapter teardown**, or record and compare sentinel before/after product-cleanup, then explicitly remove the sentinel with harness ownership before dropping its parent. Document the order. Never claim that a destroyed sentinel survived cleanup.
 
-SECURITY REVIEW: backend/src/modules/wallet/wallet.routes.ts currently maps POST /mock-webhook/deposit-success without requireAuth. This endpoint is a TEST/DEMO mock path, not a real payment gateway. Inspect whether it is reachable in non-demo/production environments and whether an attacker could credit virtual coins by using a session ID. If a real trust-boundary issue exists, implement the smallest fail-closed environment/authorization guard and deterministic negative tests; do not wire any real payment processor, secret or banking API in this gate. Changes in mock-only payment gating must not break the explicitly guarded local E2E. Flag unresolved risks instead of silently claiming secure.
+### P1-A — provisioning and teardown must cover early failure
 
-### D. Data safety and evidence requirements
+Runner currently creates PostgreSQL at lines ~495–508 and Mongo marker at ~510–512 OUTSIDE the execution `try/finally` beginning around line 532. If Mongo creation fails after PostgreSQL creation, owned PG DB can be orphaned.
 
-- No calls to real payment processors, banks, real funds, payouts, financial account credentials, live payment keys, or external checkout URLs. The entire test uses only disposable in-app mock currency.
-- All mutating tests run only in confirmed isolated disposable test databases; reject default ephurin DB and any collision. Verify resource ownership before cleanup. Never delete by user role, chapter type or broad wallet ID if not owned by run.
-- Set up five or more unrelated sentinel records (at least wallet, deposit/session, transaction, entitlement and unrelated reader data if schema permits) before tests; compare actual state before/after full local validation and browser E2E.
-- Check no credentials/session tokens are printed in reports, screenshots or JSON; do not take shortcuts by injecting localStorage auth.
-- Record actual executable test status, not placeholder PASS: backend tests, frontend typecheck/build, migration checks if touched, negative/consistency tests, browser checkpoints, DB correlation, sentinel preservation, resource teardown.
-- Tested code SHA must identify a clean pushed commit BEFORE evidence generation; evidence commit must point backwards to that SHA. Never claim local browser PASS from structural/mock only.
+Move the lifetime boundary to include all initial provisioning and execution, with external opt-in required before ANY mutation and affirmative ownership flags set only after success. Handle partial-creation failures safely; no pre-create DROP; never touch a pre-existing DB. Confirm PostgreSQL and MongoDB preflight/CRUD/cleanup refer to the same resolved server (do not rely solely on string prefix).
 
-Expected deliverables:
-docs/development/READER-WALLET-VIP-UNLOCK-E2E-report.md
-docs/development/READER-WALLET-VIP-UNLOCK-E2E/reader-wallet-vip-unlock-e2e-evidence.json
-docs/development/READER-WALLET-VIP-UNLOCK-E2E/wallet-a...wallet-j screenshots if real browser checkpoints succeeded.
-scripts/run_reader_wallet_vip_unlock_e2e.py (or an equivalent well-documented non-destructive runner).
-Focused backend tests for ledger and authorization invariants; avoid unrelated edits.
+After cleanup: requery actual `pg_database` and Mongo listDatabases to prove exact run-owned DB names are absent. Capture `postgres_deleted_verified`, `mongo_deleted_verified`, cleanup errors, and safe server identity in evidence. Check `subprocess.run(...).returncode` and actual DB readback (don't print 'Dropped cleanly' just because shell launched). Any failure means overall verdict FAIL. Do not hide cleanup exceptions or execute broad cleanup.
 
-### E. Scope fence and stop boundary
+### P1-B — complete Wallet-J browser isolation
 
-DO NOT add real payments, author withdrawal settlement, donation payout logic, external bank accounts, Wallet UI redesign, new business model, mobile wallet, global AI-context-policy activation, Story Brain rewrites or P8 destructive cleanup. Donations/withdrawal are separate future gates.
+Wallet-J currently only logs out, proves anonymous VIP access 402, and verifies guest free chapter 200. The distinct-reader scenario is currently tested only in backend invariant 11, not in real browser.
 
-Stop at:
-  - branch ahead of main with behind=0 and git status clean
-  - all 10 browser checkpoints either evidenced PASS or honestly BLOCKED with reason
-  - transaction and entitlement integrity proven without ledger drift
-  - production mock-webhook exposure reviewed and contained or honestly BLOCKED
-  - guard/sentinels prove local fixture isolation
-  - accurate tested_main_sha, tested_code_sha, evidence and screenshots
-  - verdict READER_WALLET_VIP_UNLOCK_PASS / LOCAL_PASS_CI_PENDING only if fully verified
-  - pushed branch and NO PR / NO MERGE / NO premature CI_PASS
+Using rendered login/logout, log in as a **second fixture READER who has never unlocked VIP**, navigate to the same VIP chapter and verify 402/no content leak; then explicitly log out and verify anonymous 402 + free 200. Correlate second reader's absence of entitlement and absence of debits. Screenshots/JSON must reflect the actually executed steps.
 
-Gemini must STOP after branch/evidence handoff. ChatGPT owns remote review/CI/merge and closes EDR next. If a safety blocker is found, fail closed and report it, rather than trying to make the test green by bypassing protection.
+### P1-C — complete local regression manifest
+
+Add isolated full backend `npm test` to recorded validation, with external opt-in and test DB URLs pointed to the verified same disposable DB. Ensure 12 wallet invariants and any other DB-mutating suite stay isolated. Fail closed if npm test cannot safely run. Separately keep web typecheck/build, backend typecheck/build, 11 guard tests, 12 wallet PostgreSQL tests, Wallet-A..J browser and sentinel stages.
+
+Do not write 'full backend suite PASS' when only the focused 12 tests ran. Keep production `NODE_ENV=production` mock completion blocked; do not bypass this to make a demo pass. Do not claim auth/ledger controls are sufficient for real money.
+
+### P1-D — keep truthful source and evidence lineage
+
+After fixing code/runner, commit + push actual tested code first; record `FINAL_TESTED_CODE_SHA`. Rerun entire isolated validation/browser manifest on exactly that tree, including fault-injection FAIL check, teardown fault check and actual DB disappearance readbacks.
+
+Reseal only real results in:
+- `docs/development/READER-WALLET-VIP-UNLOCK-E2E-report.md`
+- `docs/development/READER-WALLET-VIP-UNLOCK-E2E/reader-wallet-vip-unlock-e2e-evidence.json`
+- 10 Wallet-A..J screenshots when the browser flow was genuinely rerun.
+
+Evidence must include: `tested_main_sha`, `tested_code_sha`, `validation_records` with nonzero test injection captured separately, `negative_harness_tests`, `db_creation_ownership`, `db_cleanup_verification`, `sentinel_preservation` before/after *test teardown* and after browser, `checkpoints` including second-reader steps, and precise verdict. No passwords, JWT, cookies, raw credential-bearing URLs or unrelated user data. Do not convert hashes into hardcoded expected PASS fields.
+
+### Stop & handoff
+
+Require:
+- Behind main = 0, clean local worktree and pushed code/evidence commit lineage.
+- Both P0 issues fixed and negative failure tests truly executed.
+- Early-provision failure cleans up owned resources safely.
+- Teardown proves both DBs absent and no unrelated sentinels deleted.
+- Wallet-J second-reader browser boundary + guest/free chapter PASS.
+- Full local regression + 12 wallet invariants + 11 guard + Wallet-A..J PASS.
+- `READER_WALLET_VIP_UNLOCK_PASS / LOCAL_PASS_CI_PENDING` ONLY if every requirement really passes.
+
+Otherwise explicitly report `LOCAL_BLOCKED` with failing commands and preserve diagnostic evidence. Gemini STOPS after push; ChatGPT owns review, PR, P7/P8 CI, merge and the next Development History closure record. No new feature gate.
 
 ---
 ## 6. Reporting Discipline
