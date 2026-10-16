@@ -1,6 +1,6 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
-## 1. Canonical Status — 2026-10-14
+## 1. Canonical Status — 2026-10-16
 
 All three authoring pipelines are closed on backend/system acceptance, and P1 browser acceptance is now closed on the refactored Author UI.
 
@@ -17,6 +17,7 @@ MANUSCRIPT-IMPORT-UI  Canonical import -> Story Brain -> P1   CI_PASS / MERGED
 AUTHOR-PUBLISH-MODERATION  Author -> Admin -> Public lifecycle   CI_PASS / MERGED
 READER-DISCOVERY-STATE     Discovery/library/history lifecycle    CI_PASS / MERGED
 READER-SOCIAL-COMMENT-PREF Social/comment/preferences lifecycle    CI_PASS / MERGED
+COMMENT-USER-REPORT-MODERATION  Reader report/Admin decision/notifications CI_PASS / MERGED
 
 P1_OVERALL_SYSTEM_PASS
 ```
@@ -33,6 +34,7 @@ PR #46  MANUSCRIPT-IMPORT-UI  merged
 PR #47  AUTHOR-PUBLISH-MODERATION  merged
 PR #48  READER-DISCOVERY-STATE  merged
 PR #49  READER-SOCIAL-COMMENT-PREF  merged
+PR #50  COMMENT-USER-REPORT-MODERATION  merged
 ```
 
 AI-PIPE-01B remote closure:
@@ -327,103 +329,101 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. ACTIVE EXECUTION DIRECTIVE — CLOSE COMMENT REPORT E2E REVIEW GAP
+## 5. ACTIVE EXECUTION DIRECTIVE — READER WALLET + VIP UNLOCK BROWSER E2E
 
-### Situation and scope
+### Gate transition (2026-10-16)
 
-Gate: `COMMENT-USER-REPORT-ADMIN-MODERATION-E2E`  
-Existing branch: `astra/comment-user-report-admin-moderation-e2e`  
-Current reviewed evidence HEAD: `7bf26fd5b3415038b172dcaa25f609287f4ce907`  
-Current final tested code: `89252479f047bd372bc0e19b39463905d866f383`  
-Canonical main before handoff: `1f7a7035f8b0fb6017d4a0249d9c3bf5c35762ec`  
-Current remote verdict: `LOCAL_PASS_CI_PENDING` **as recorded by Gemini**, not yet independently CI accepted.
+Previous gate COMMENT-USER-REPORT-ADMIN-MODERATION-E2E is CLOSED. PR #50 merged.
+Tested product SHA: ab235d43516238516012a2a2528cbf07d769497a
+Final accepted PR head SHA: c27b4d524a9257dbe2d443584d3b003a41c7d5f6
+Merge SHA: 7f0ed1dde93dac72b4fab2e05deb5d60d59d40d4
+P7 #130: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/38851810884 SUCCESS (3/3 jobs).
+P8 #127: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/38851810760 SUCCESS (6/6 jobs).
+Defense Demo Contract #6: https://github.com/Ephurin/Novel_sharing_platform/actions/runs/38851810645 SUCCESS.
+Closure report: docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E-report.md
+Engineering record: docs/development/DEVELOPMENT_HISTORY.md (EDR-12).
+Do not reopen, downgrade, retest as a new acceptance, rewrite historical evidence JSON, or redo previous gate.
 
-The full rendered Reader → report → Admin approval → notification lifecycle (Report-A..J + F2), 17/17 Phase C, 11 guard tests, 123 backend tests, six-stage migration 012 and five full-span sentinels are already evidenced locally. **Do not reimplement or redesign them.**
+### NEXT GATE (strictly bounded)
 
-**Single remaining code review gap:** The MongoDB collision test in `scripts/run_comment_user_report_admin_moderation_e2e.py` currently does:
+Gate ID: READER-WALLET-VIP-UNLOCK-E2E
+Proposed working branch: astra/reader-wallet-vip-unlock-e2e
+Status: ASSIGNED / NOT_YET_IMPLEMENTED
+Ownership: Gemini executes local implementation + Docker/database + browser tests and commits evidence to branch. ChatGPT reviews, opens PR, verifies P7/P8 CI, merges, and updates the engineering history after remote acceptance.
 
-```python
-existing_mongo = get_existing_mongo_databases()
-mongo_collision_caught = coll_mongo_name in existing_mongo
-assert mongo_collision_caught
-```
+Rationale: PRODUCT-UI-INTEGRATION-INVENTORY.md ranked wallet/VIP monetization among remaining high-priority browser-acceptance gaps. Reader discovery, social/comment, author publishing, Admin moderation and notifications have now received separate E2E acceptance; the next narrow, useful user-facing loop is virtual-coin wallet -> VIP unlock -> reading entitlement.
 
-This proves a database is listed, but it does NOT prove the **actual runner provisioning path rejects** a colliding database without modifying it. The test currently has a self-fulfilling PASS. Fix the test seam, not the product lifecycle.
+### A. Start with current main, isolate the task
 
-Latest `main` also adds `docs/development/DEVELOPMENT_HISTORY.md`, which records engineering decision history including this ongoing gate. It must stay accurate: DO NOT label this gate CI_PASS or MERGED until ChatGPT closes the PR.
+1. git fetch origin; git checkout main; git pull --ff-only; create/use branch astra/reader-wallet-vip-unlock-e2e from latest origin/main.
+2. Record synced origin/main SHA. Do NOT reuse previous gate branch or mix unrelated unmerged changes.
+3. Inspect real current implementations before editing:
+   - web/src/features/wallet/WalletPage.tsx and wallet-api.ts
+   - web/src/features/reader/ReaderPage.tsx and reader-api.ts
+   - backend/src/modules/wallet/{wallet.routes.ts,wallet.controller.ts,wallet.service.ts,wallet.repository.ts,wallet.schemas.ts}
+   - backend/src/modules/reading/{reading.service.ts,reading.repository.ts}
+   - backend/src/core/database/test-db-guard.ts
+   - backend/src/scripts/seed-sample-stories.ts and production migrations
+   - docs/development/PRODUCT-UI-INTEGRATION-INVENTORY.md
+4. Confirm exact VIP chapter fixture and price from a disposable seeded DB; do not assume the canonical free chapter is VIP or modify canonical demo data to force PASS.
 
-### A. Sync existing branch first
+### B. Acceptance journey: virtual coins ONLY (no real payments)
 
-```bash
-git fetch origin
-git checkout astra/comment-user-report-admin-moderation-e2e
-git pull --ff-only
-git merge origin/main
-git rev-parse origin/main
-git rev-parse HEAD
-git status --porcelain
-```
+Use isolated PostgreSQL+Mongo test DBs with explicit external EPHURIN_ALLOW_TEST_DB_MUTATIONS=1 opt-in, actual resolved DB identities, throwaway run ID, run-owned fixtures, exact-ID cleanup and no pre-creation DROP. Reuse the prior gate's proven safety discipline. The real browser must use rendered UI login/logout and buttons; database/API queries are correlation/assertion only, not substitutes for decisive UI actions.
 
-Record `FINAL_SYNCED_MAIN_SHA` and preserve the new development-history document. Behind `main` must be 0.
+Desired browser checkpoints:
+Wallet-A: isolated fixture has published VIP chapter with nonempty real content and positive price; reader wallet starts with zero or verified insufficient virtual coins.
+Wallet-B: anonymous attempt to access VIP chapter cannot read content; record actual HTTP status and UI lock state, not invented screenshots.
+Wallet-C: READER signs in via rendered /login, opens VIP chapter, receives expected PAYMENT_002/402 lock contract and no content leak.
+Wallet-D: Reader opens /wallet, sees initial virtual balance and transactions; chooses mock-only COIN_* package via UI.
+Wallet-E: Reader clicks Deposit mock coins via UI. Capture actual create-session and mock completion requests and unique depositSessionId / transactionId; PostgreSQL verifies exactly one successful deposit and expected balance delta.
+Wallet-F: Reader fills VIP Chapter ID and clicks Unlock chapter via UI, or uses canonical ReaderChapterPage unlock button. Capture POST /api/v1/chapters/:chapterId/unlock and new transactionId.
+Wallet-G: Correlate exactly one chapter_unlocks entitlement and one UNLOCK transaction; reader balance decreases by exact price, author wallet increases by exact price; total virtual balance conserved across this transfer.
+Wallet-H: Reader reloads the VIP chapter through rendered UI, GET /api/v1/reading/chapters/:id succeeds and actual content is visible; no auth/token injection.
+Wallet-I: Reader retries unlock; prove alreadyUnlocked=true, no second debit, no duplicate entitlement, no second UNLOCK transaction; refresh wallet and transactions list to verify persistence.
+Wallet-J: Distinct reader / anonymous visitor still cannot access locked VIP text; published FREE chapter still readable without payment.
 
-### B. Fix MongoDB collision test by testing the real guard
+Do not hardcode expected IDs, balances, chapter price or success flags into product code or acceptance evidence. Use real output fields and DB readbacks.
 
-1. Extract the **actual MongoDB pre-provision check** from runner `main()` into one small reusable function, e.g. `assert_mongo_database_absent(db_name)`:
-   - read names from the actual intended Mongo server;
-   - if the target name already exists, raise `TEST_DB_ALREADY_EXISTS` before any creation/insertion/drop;
-   - fail closed on list-databases errors rather than treating errors as an empty list;
-   - use exactly the same function from normal runner provisioning and the collision-negative test. Do not make a second imitation of the condition.
-2. In the negative test, create a **test-owned** named Mongo database and insert a unique sentinel document. Record its ID, fields and SHA-256.
-3. Call the shared, real guard on this deliberately pre-existing database. Capture the expected `TEST_DB_ALREADY_EXISTS` error. Assert that provisioning did not continue, `mongo_db_created_by_this_run` was not assigned to that existing DB, and no cleanup of it was attempted by the rejected provision.
-4. Read the same sentinel from Mongo again. Assert fields and SHA-256 identical. Only the outer test harness that explicitly created this disposable collision fixture may remove it afterward.
-5. Repeat the guard on a fresh nonexistent name and verify it allows continuation (without claiming an actual create/delete happened until observed). Negative/positive paths must both be exercised.
-6. **Connection identity:** The current `get_existing_mongo_databases()` / `query_mongo_db()` use Docker container `novel_sharing_platform-mongodb-1`, while backend derives `ISOLATED_MONGO_URI` from `BASE_MONGODB_URI`. Ensure that preflight queries and backend truly target the same Mongo server; either route checks through the exact configured endpoint or fail closed if environment points to a different server. Do not expose credentials or redesign all database infrastructure.
-7. Preserve the caller-supplied `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1` gate before any mutation. No self-authorization, default `ephurin` target, hardcoded PASS, or broad cleanup.
+### C. Deterministic integrity/security checks (mandatory review)
 
-Keep this patch minimal. Primary file: `scripts/run_comment_user_report_admin_moderation_e2e.py`; touch a small supporting test/helper only when unavoidable. No product service/UI changes without a directly exposed regression.
+At minimum cover: unauthenticated wallet/deposit/unlock API access, missing/unpublished chapter, insufficient funds 402, same-user repeat unlock idempotency, concurrent same-user unlock double-debit prevention, unauthorized cross-user entitlement, deposit-session completion replay, foreign session abuse, failed mock deposit behavior where implemented, nonnegative wallet balances and ledger consistency. For scenarios the current API does not support, mark NOT_SUPPORTED with explanation instead of inventing passing tests.
 
-### C. Remove unsupported PASS language
+SECURITY REVIEW: backend/src/modules/wallet/wallet.routes.ts currently maps POST /mock-webhook/deposit-success without requireAuth. This endpoint is a TEST/DEMO mock path, not a real payment gateway. Inspect whether it is reachable in non-demo/production environments and whether an attacker could credit virtual coins by using a session ID. If a real trust-boundary issue exists, implement the smallest fail-closed environment/authorization guard and deterministic negative tests; do not wire any real payment processor, secret or banking API in this gate. Changes in mock-only payment gating must not break the explicitly guarded local E2E. Flag unresolved risks instead of silently claiming secure.
 
-The existing `collision_refusal_tests.tests[fresh_unique_db_names_provision_and_ownership]` is appended as PASS before teardown; that statement should instead be **derived from observed final ownership and cleanup flags**, or explicitly marked as pending until teardown has succeeded.
+### D. Data safety and evidence requirements
 
-For `credential_and_secret_hygiene`, do not claim a runtime secret scan if the test only appends `secrets_redacted=True`; either add a bounded actual check of generated artifacts or describe it honestly as a static policy/manifest assertion.
+- No calls to real payment processors, banks, real funds, payouts, financial account credentials, live payment keys, or external checkout URLs. The entire test uses only disposable in-app mock currency.
+- All mutating tests run only in confirmed isolated disposable test databases; reject default ephurin DB and any collision. Verify resource ownership before cleanup. Never delete by user role, chapter type or broad wallet ID if not owned by run.
+- Set up five or more unrelated sentinel records (at least wallet, deposit/session, transaction, entitlement and unrelated reader data if schema permits) before tests; compare actual state before/after full local validation and browser E2E.
+- Check no credentials/session tokens are printed in reports, screenshots or JSON; do not take shortcuts by injecting localStorage auth.
+- Record actual executable test status, not placeholder PASS: backend tests, frontend typecheck/build, migration checks if touched, negative/consistency tests, browser checkpoints, DB correlation, sentinel preservation, resource teardown.
+- Tested code SHA must identify a clean pushed commit BEFORE evidence generation; evidence commit must point backwards to that SHA. Never claim local browser PASS from structural/mock only.
 
-Preserve actual traces and hashes; never regenerate “PASS” records without rerunning.
+Expected deliverables:
+docs/development/READER-WALLET-VIP-UNLOCK-E2E-report.md
+docs/development/READER-WALLET-VIP-UNLOCK-E2E/reader-wallet-vip-unlock-e2e-evidence.json
+docs/development/READER-WALLET-VIP-UNLOCK-E2E/wallet-a...wallet-j screenshots if real browser checkpoints succeeded.
+scripts/run_reader_wallet_vip_unlock_e2e.py (or an equivalent well-documented non-destructive runner).
+Focused backend tests for ledger and authorization invariants; avoid unrelated edits.
 
-### D. Execute final validation and reseal lineage
+### E. Scope fence and stop boundary
 
-1. Commit and push fixed code. Record `FINAL_TESTED_CODE_SHA`.
-2. Execute negative collision tests (same Mongo guard invoked by provisioning; untouched sentinel), external opt-in rejection, real owned-only teardown, migration 012 acceptance, full-span sentinel checks, web typecheck/build, backend typecheck, Phase C tests, backend `npm test`, browser Report-A..J+F2. If no production code changed, the latest established functional checks can still be run as the integrated runner manifest; do not claim execution if unavailable.
-3. Keep all E2E targets isolated and disposal-owned; preserve P7/P8 production default settings.
-4. Regenerate and commit:
-   - `docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E-report.md`
-   - `docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E/comment-user-report-admin-moderation-e2e-evidence.json`
-   - Browser screenshots only if browser flow was actually rerun.
-5. Evidence JSON: exact `tested_main_sha`, `tested_code_sha`, `collision_refusal_tests` with *observed* guard exception and actual sentinel readbacks, `db_creation_ownership` with after-cleanup state, `db_isolation`, `migration_012_validation`, `sentinel_preservation`, `validation`, verdict and `LOCAL_PASS_CI_PENDING` boundary. No passwords, JWTs, cookies or raw credential-bearing DB URLs.
-6. Review the existing `docs/development/DEVELOPMENT_HISTORY.md`. Preserve EDR-12 as “in review”, with no premature CI/MERGED claim; do not expand the document needlessly. ChatGPT will update remote closure in that history after actual PR merge.
+DO NOT add real payments, author withdrawal settlement, donation payout logic, external bank accounts, Wallet UI redesign, new business model, mobile wallet, global AI-context-policy activation, Story Brain rewrites or P8 destructive cleanup. Donations/withdrawal are separate future gates.
 
-### Stop boundary — hand back for PR/CI
+Stop at:
+  - branch ahead of main with behind=0 and git status clean
+  - all 10 browser checkpoints either evidenced PASS or honestly BLOCKED with reason
+  - transaction and entitlement integrity proven without ledger drift
+  - production mock-webhook exposure reviewed and contained or honestly BLOCKED
+  - guard/sentinels prove local fixture isolation
+  - accurate tested_main_sha, tested_code_sha, evidence and screenshots
+  - verdict READER_WALLET_VIP_UNLOCK_PASS / LOCAL_PASS_CI_PENDING only if fully verified
+  - pushed branch and NO PR / NO MERGE / NO premature CI_PASS
 
-```text
-branch behind main = 0
-working tree clean
-new final tested code SHA pushed
-evidence commit references that exact SHA
-Mongo collision test invokes SAME guard as provisioning
-test-owned collision sentinel unchanged on refusal
-positive path and actual owned-only teardown checked
-no unsupported hardcoded PASS claims
-local Report-A..J + F2 / Phase C / guard / migration / sentinel PASS
-COMMENT_USER_REPORT_ADMIN_MODERATION_PASS
-LOCAL_PASS_CI_PENDING
-```
-
-If a check fails, label it FAILED/BLOCKED honestly and push diagnostic evidence only; do not claim PASS.
-
-Push branch and **STOP**. Gemini must not create PR, merge, widen scope to Wallet/VIP/Story Brain, or write CI_PASS into either report or development history. ChatGPT owns code review, opening PR, P7/P8 CI, merge, and remote-closure history entry.
+Gemini must STOP after branch/evidence handoff. ChatGPT owns remote review/CI/merge and closes EDR next. If a safety blocker is found, fail closed and report it, rather than trying to make the test green by bypassing protection.
 
 ---
-
 ## 6. Reporting Discipline
 
 Always distinguish:
