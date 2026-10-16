@@ -1,12 +1,12 @@
 {
   "verdict": "COMMENT_USER_REPORT_ADMIN_MODERATION_PASS",
-  "tested_main_sha": "de68cae9bb766365ec88286080a10d440c875adb",
-  "tested_code_sha": "89252479f047bd372bc0e19b39463905d866f383",
+  "tested_main_sha": "5be86e01734da7b7a165f249b7455a4096f93c57",
+  "tested_code_sha": "ab235d43516238516012a2a2528cbf07d769497a",
   "branch": "astra/comment-user-report-admin-moderation-e2e",
-  "run_uuid": "5f6fd642c24a4412941e19173dc3586f",
+  "run_uuid": "523a3c898be7482398d64f9254d16639",
   "db_creation_ownership": {
-    "pg_database": "ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f",
-    "mongo_database": "ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f",
+    "pg_database": "ephurin_report_e2e_523a3c898be7482398d64f9254d16639",
+    "mongo_database": "ephurin_report_e2e_523a3c898be7482398d64f9254d16639",
     "pg_db_created_by_this_run": true,
     "mongo_db_created_by_this_run": true,
     "pg_dropped_on_cleanup": true,
@@ -33,7 +33,7 @@
       {
         "test": "pre_existing_postgres_db_collision_refusal",
         "description": "Pre-existing test-named PostgreSQL DB with sentinel row: collision refused (SQLSTATE 42P04), existing row/hash preserved",
-        "colliding_db_name": "ephurin_test_coll_pg_5f6fd642c24a",
+        "colliding_db_name": "ephurin_test_coll_pg_523a3c898be7",
         "hash_before": "c69691f4c3764ed17bcaaf9b124f941bb87e6603cba3c0aa17590039292dbe48",
         "hash_after": "c69691f4c3764ed17bcaaf9b124f941bb87e6603cba3c0aa17590039292dbe48",
         "hashes_match": true,
@@ -42,37 +42,47 @@
       },
       {
         "test": "pre_existing_mongo_db_collision_refusal",
-        "description": "Pre-existing test-named MongoDB DB with sentinel doc: collision refused before mutation, existing doc/hash preserved",
-        "colliding_db_name": "ephurin_test_coll_mg_5f6fd642c24a",
-        "hash_before": "d832190f9adc388a7810f2177fe021ff0041d4801374f560289db1f86c3aa5ff",
-        "hash_after": "d832190f9adc388a7810f2177fe021ff0041d4801374f560289db1f86c3aa5ff",
+        "description": "Pre-existing test-named MongoDB DB with sentinel doc: collision refused by shared guard before mutation, existing doc/hash preserved",
+        "colliding_db_name": "ephurin_test_coll_mg_523a3c898be7",
+        "shared_guard_invoked": "assert_mongo_database_absent",
+        "guard_caught_error": "TEST_DB_ALREADY_EXISTS: MongoDB database 'ephurin_test_coll_mg_523a3c898be7' already exists. Preserving existing database without mutation.",
+        "hash_before": "57d03e9cf8eeb857972384ead3800649dd1d744f96dd24bc8bf826bd47680cb7",
+        "hash_after": "57d03e9cf8eeb857972384ead3800649dd1d744f96dd24bc8bf826bd47680cb7",
         "hashes_match": true,
         "collision_refused": true,
+        "positive_guard_verified_on_fresh_name": true,
         "result": "PASS"
       },
       {
         "test": "fresh_unique_db_names_provision_and_ownership",
-        "description": "Fresh unique PG and Mongo DB names: provision PASS, affirmative ownership tracked, cleanup only owned resources PASS",
+        "description": "Fresh unique PG and Mongo DB names: provision PASS, affirmative ownership tracked, cleanup only owned resources verified on teardown",
         "ownership_discipline": "OWNED_RESOURCES_ONLY_DROPPED",
-        "result": "PASS"
+        "result": "PASS",
+        "observed_ownership": {
+          "pg_db_created": true,
+          "mongo_db_created": true,
+          "pg_dropped_on_cleanup": true,
+          "mongo_dropped_on_cleanup": true
+        }
       },
       {
         "test": "credential_and_secret_hygiene",
-        "description": "Discipline confirmed: no credentials, passwords, tokens, or raw DB URLs with credentials committed or logged in evidence",
-        "secrets_redacted": true,
-        "result": "PASS"
+        "description": "Static policy assertion and runtime artifact scan: verifies no credentials, passwords, tokens, or raw DB URLs with credentials are leaked",
+        "inspection_type": "STATIC_POLICY_AND_RUNTIME_ARTIFACT_SCAN",
+        "result": "PASS",
+        "runtime_scan_passed": true
       }
     ]
   },
   "db_isolation": {
     "postgres": {
-      "database": "ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f",
+      "database": "ephurin_report_e2e_523a3c898be7482398d64f9254d16639",
       "server_addr": "172.18.0.2",
       "server_port": 5432,
       "is_isolated": true
     },
     "mongo": {
-      "database": "ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f",
+      "database": "ephurin_report_e2e_523a3c898be7482398d64f9254d16639",
       "ping_ok": true,
       "is_isolated": true
     },
@@ -95,8 +105,8 @@
     ]
   },
   "migration_012_validation": {
-    "run_uuid": "5f6fd642c24a4412941e19173dc3586f",
-    "database_name": "ephurin_test_mig012_5f6fd642c24a4412941e19173dc3586f",
+    "run_uuid": "523a3c898be7482398d64f9254d16639",
+    "database_name": "ephurin_test_mig012_523a3c898be7482398d64f9254d16639",
     "db_creation_ownership": {
       "pg_db_created_by_this_run": true,
       "owned_resources_dropped": true
@@ -150,30 +160,30 @@
     "rollback_evaluation": "Verified backend/src/core/database/migrate.ts forward-only architecture. Transactions roll back failed migrations atomically; no down-migration schema tooling is supported by the repository, and none is claimed.",
     "result": "PASS",
     "database_identity": {
-      "current_database": "ephurin_test_mig012_5f6fd642c24a4412941e19173dc3586f",
+      "current_database": "ephurin_test_mig012_523a3c898be7482398d64f9254d16639",
       "server_addr": "172.18.0.2",
       "server_port": 5432
     }
   },
-  "owner_user_id": "5c489467-7be9-4e8f-ba08-b8cfdedd57eb",
-  "reporter_user_id": "638d6e3a-37d7-47f5-8f4a-bc94b6a0b92e",
-  "admin_user_id": "18d2f8e9-c4e7-4ec7-8260-245f9bc6e746",
+  "owner_user_id": "86dfa20a-067b-4487-87f6-ab4451a63c61",
+  "reporter_user_id": "7b72b5c5-59b0-486f-a2a4-5be2c8d8b3ab",
+  "admin_user_id": "c22bc016-a0ba-43ce-9335-2c2d9b98e7be",
   "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
   "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
   "checkpoints": {
     "report_a": {
       "checkpoint": "Report-A",
       "description": "Owner logs in via rendered UI form, creates clean APPROVED comment",
-      "login_request_id": "11864.223",
-      "comment_create_request_id": "11864.361",
-      "comment_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
-      "content": "E2E clean report target 5f6fd642c24a4412941e19173dc3586f",
+      "login_request_id": "20204.222",
+      "comment_create_request_id": "20204.360",
+      "comment_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
+      "content": "E2E clean report target 523a3c898be7482398d64f9254d16639",
       "status": "APPROVED",
       "db_proof": {
-        "comment_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
+        "comment_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
         "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
-        "user_id": "5c489467-7be9-4e8f-ba08-b8cfdedd57eb",
-        "content": "E2E clean report target 5f6fd642c24a4412941e19173dc3586f",
+        "user_id": "86dfa20a-067b-4487-87f6-ab4451a63c61",
+        "content": "E2E clean report target 523a3c898be7482398d64f9254d16639",
         "status": "APPROVED",
         "deleted_at": null
       },
@@ -184,17 +194,17 @@
       "checkpoint": "Report-B",
       "description": "Owner logs out; Reporter logs in via rendered form at /login",
       "reporter_email": "reader05@example.com",
-      "reporter_user_id": "638d6e3a-37d7-47f5-8f4a-bc94b6a0b92e",
-      "login_request_id": "11864.494",
+      "reporter_user_id": "7b72b5c5-59b0-486f-a2a4-5be2c8d8b3ab",
+      "login_request_id": "20204.493",
       "screenshot": "report-b-reporter-login.png",
       "result": "PASS"
     },
     "report_c": {
       "checkpoint": "Report-C",
       "description": "Reporter clicks 'Report' on exact comment card; captures POST /reports",
-      "report_request_id": "11864.632",
-      "report_id": "efd4f003-7fa4-4ca2-9c08-db2f9cafec40",
-      "moderation_review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
+      "report_request_id": "20204.631",
+      "report_id": "7f073bc5-a027-4438-a604-cff1429a7d47",
+      "moderation_review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
       "status": "PENDING",
       "screenshot": "report-c-comment-reported.png",
       "result": "PASS"
@@ -203,17 +213,17 @@
       "checkpoint": "Report-D",
       "description": "PostgreSQL queries prove 1 row in reports (OPEN) and 1 row in moderation_reviews (PENDING, USER_REPORT)",
       "report_proof": {
-        "report_id": "efd4f003-7fa4-4ca2-9c08-db2f9cafec40",
-        "reporter_id": "638d6e3a-37d7-47f5-8f4a-bc94b6a0b92e",
+        "report_id": "7f073bc5-a027-4438-a604-cff1429a7d47",
+        "reporter_id": "7b72b5c5-59b0-486f-a2a4-5be2c8d8b3ab",
         "target_type": "COMMENT",
-        "target_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
-        "review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
+        "target_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
+        "review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
         "status": "OPEN"
       },
       "review_proof": {
-        "review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
+        "review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
         "target_type": "COMMENT",
-        "target_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
+        "target_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
         "source": "USER_REPORT",
         "status": "PENDING",
         "reviewed_by": null,
@@ -225,17 +235,17 @@
     "report_e": {
       "checkpoint": "Report-E",
       "description": "Admin logs in, opens /admin/reports, proves pending review card renders with USER_REPORT badge",
-      "admin_user_id": "18d2f8e9-c4e7-4ec7-8260-245f9bc6e746",
-      "review_list_request_id": "11864.901",
-      "review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
-      "card_text_snippet": "COMMENT | PENDING | USER_REPORT |  | 5dcbdb48-8d76-4c33-b661-7511c6e6e5a6 |  | Target: 87ae88ea-6fb9-4d89-867c-ccbede2f3fc1 |  | COMMENT TARGET HAS NO STANDALONE READER ROUTE | Ins",
+      "admin_user_id": "c22bc016-a0ba-43ce-9335-2c2d9b98e7be",
+      "review_list_request_id": "20204.900",
+      "review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
+      "card_text_snippet": "COMMENT | PENDING | USER_REPORT |  | 608c48c3-0a84-47ff-a71d-5740f8e76a1c |  | Target: 8ee2faee-f6b5-4673-8f94-8c8d5762daed |  | COMMENT TARGET HAS NO STANDALONE READER ROUTE | Ins",
       "screenshot": "report-e-admin-reports-queue.png",
       "result": "PASS"
     },
     "report_f": {
       "checkpoint": "Report-F",
       "description": "Admin opens detail; verifies source=USER_REPORT, target=COMMENT, reportCount=1; modal confirms: 'The reported comment will be removed.'",
-      "review_detail_request_id": "11864.902",
+      "review_detail_request_id": "20204.901",
       "decision_button_text": "Approve report",
       "modal_confirmation_text": "The reported comment will be removed.",
       "screenshot": "report-f-admin-review-detail.png",
@@ -244,7 +254,7 @@
     "report_g": {
       "checkpoint": "Report-G",
       "description": "Admin confirms 'Approve report' in modal; captured POST /admin/moderation/reviews/:id/resolve returns status=APPROVED",
-      "resolve_request_id": "11864.1167",
+      "resolve_request_id": "20204.1348",
       "decision": "APPROVED",
       "status": "APPROVED",
       "screenshot": "report-g-admin-report-approved.png",
@@ -254,21 +264,21 @@
       "checkpoint": "Report-H",
       "description": "PostgreSQL: review APPROVED, report RESOLVED. Mongo: comment status=DELETED, deletedAt set. Queue: card absent",
       "review_proof": {
-        "review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
+        "review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
         "status": "APPROVED",
-        "reviewed_by": "18d2f8e9-c4e7-4ec7-8260-245f9bc6e746",
-        "reviewed_at": "2026-10-16 03:22:59.406185+00:00"
+        "reviewed_by": "c22bc016-a0ba-43ce-9335-2c2d9b98e7be",
+        "reviewed_at": "2026-10-16 03:55:21.580349+00:00"
       },
       "report_proof": {
-        "report_id": "efd4f003-7fa4-4ca2-9c08-db2f9cafec40",
+        "report_id": "7f073bc5-a027-4438-a604-cff1429a7d47",
         "status": "RESOLVED",
-        "resolved_by": "18d2f8e9-c4e7-4ec7-8260-245f9bc6e746",
-        "resolved_at": "2026-10-16 03:22:59.412910+00:00"
+        "resolved_by": "c22bc016-a0ba-43ce-9335-2c2d9b98e7be",
+        "resolved_at": "2026-10-16 03:55:21.803995+00:00"
       },
       "comment_proof": {
-        "comment_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
+        "comment_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
         "status": "DELETED",
-        "deleted_at": "2026-10-16T03:22:59.412Z"
+        "deleted_at": "2026-10-16T03:55:21.874Z"
       },
       "screenshot": "report-h-admin-resolution-verified.png",
       "result": "PASS"
@@ -276,141 +286,141 @@
     "report_i": {
       "checkpoint": "Report-I",
       "description": "Reporter logs in, opens /notifications, verifies COMMENT_REPORT_APPROVED notification in DOM & DB",
-      "reporter_user_id": "638d6e3a-37d7-47f5-8f4a-bc94b6a0b92e",
-      "notification_id": "3fc5e686-db4f-471f-b3ac-9bc7db19fd77",
+      "reporter_user_id": "7b72b5c5-59b0-486f-a2a4-5be2c8d8b3ab",
+      "notification_id": "b12732d7-6dfe-49f1-a99e-06931537c720",
       "type": "COMMENT_REPORT_APPROVED",
-      "review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
-      "comment_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
+      "review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
+      "comment_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
       "screenshot": "report-i-reporter-notification.png",
       "result": "PASS"
     },
     "report_j": {
       "checkpoint": "Report-J",
       "description": "Owner logs in, verifies COMMENT_REMOVED_BY_REPORT in DOM & DB; reload chapter proves comment card and text absent",
-      "owner_user_id": "5c489467-7be9-4e8f-ba08-b8cfdedd57eb",
-      "notification_id": "f1dd84ff-daa4-4b94-987a-6e465b2bfb3d",
+      "owner_user_id": "86dfa20a-067b-4487-87f6-ab4451a63c61",
+      "notification_id": "86678930-7d98-49b6-ada9-ec1dd8035fa8",
       "type": "COMMENT_REMOVED_BY_REPORT",
-      "review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
-      "comment_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
+      "review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
+      "comment_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
       "comment_absent_from_chapter": true,
       "screenshot": "report-j-owner-notification-and-comment-absent.png",
       "result": "PASS"
     }
   },
-  "comment_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
-  "comment_original_content": "E2E clean report target 5f6fd642c24a4412941e19173dc3586f",
-  "comment_create_request_id": "11864.361",
+  "comment_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
+  "comment_original_content": "E2E clean report target 523a3c898be7482398d64f9254d16639",
+  "comment_create_request_id": "20204.360",
   "comment_db_before": {
-    "comment_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
+    "comment_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
     "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
-    "user_id": "5c489467-7be9-4e8f-ba08-b8cfdedd57eb",
-    "content": "E2E clean report target 5f6fd642c24a4412941e19173dc3586f",
+    "user_id": "86dfa20a-067b-4487-87f6-ab4451a63c61",
+    "content": "E2E clean report target 523a3c898be7482398d64f9254d16639",
     "status": "APPROVED",
     "deleted_at": null
   },
-  "report_id": "efd4f003-7fa4-4ca2-9c08-db2f9cafec40",
-  "moderation_review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
-  "report_create_request_id": "11864.632",
+  "report_id": "7f073bc5-a027-4438-a604-cff1429a7d47",
+  "moderation_review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
+  "report_create_request_id": "20204.631",
   "report_db": {
-    "report_id": "efd4f003-7fa4-4ca2-9c08-db2f9cafec40",
-    "reporter_id": "638d6e3a-37d7-47f5-8f4a-bc94b6a0b92e",
+    "report_id": "7f073bc5-a027-4438-a604-cff1429a7d47",
+    "reporter_id": "7b72b5c5-59b0-486f-a2a4-5be2c8d8b3ab",
     "target_type": "COMMENT",
-    "target_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
-    "review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
+    "target_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
+    "review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
     "status": "OPEN"
   },
   "review_db_before": {
-    "review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
+    "review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
     "target_type": "COMMENT",
-    "target_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
+    "target_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
     "source": "USER_REPORT",
     "status": "PENDING",
     "reviewed_by": null,
     "reviewed_at": null
   },
-  "admin_review_list_request_id": "11864.901",
-  "admin_review_detail_request_id": "11864.902",
-  "admin_resolve_request_id": "11864.1167",
+  "admin_review_list_request_id": "20204.900",
+  "admin_review_detail_request_id": "20204.901",
+  "admin_resolve_request_id": "20204.1348",
   "review_db_after": {
-    "review_id": "5dcbdb48-8d76-4c33-b661-7511c6e6e5a6",
+    "review_id": "608c48c3-0a84-47ff-a71d-5740f8e76a1c",
     "status": "APPROVED",
-    "reviewed_by": "18d2f8e9-c4e7-4ec7-8260-245f9bc6e746",
-    "reviewed_at": "2026-10-16 03:22:59.406185+00:00"
+    "reviewed_by": "c22bc016-a0ba-43ce-9335-2c2d9b98e7be",
+    "reviewed_at": "2026-10-16 03:55:21.580349+00:00"
   },
   "report_db_after": {
-    "report_id": "efd4f003-7fa4-4ca2-9c08-db2f9cafec40",
+    "report_id": "7f073bc5-a027-4438-a604-cff1429a7d47",
     "status": "RESOLVED",
-    "resolved_by": "18d2f8e9-c4e7-4ec7-8260-245f9bc6e746",
-    "resolved_at": "2026-10-16 03:22:59.412910+00:00"
+    "resolved_by": "c22bc016-a0ba-43ce-9335-2c2d9b98e7be",
+    "resolved_at": "2026-10-16 03:55:21.803995+00:00"
   },
   "comment_db_after": {
-    "comment_id": "87ae88ea-6fb9-4d89-867c-ccbede2f3fc1",
+    "comment_id": "8ee2faee-f6b5-4673-8f94-8c8d5762daed",
     "status": "DELETED",
-    "deleted_at": "2026-10-16T03:22:59.412Z"
+    "deleted_at": "2026-10-16T03:55:21.874Z"
   },
-  "reporter_notification_id": "3fc5e686-db4f-471f-b3ac-9bc7db19fd77",
-  "owner_notification_id": "f1dd84ff-daa4-4b94-987a-6e465b2bfb3d",
+  "reporter_notification_id": "b12732d7-6dfe-49f1-a99e-06931537c720",
+  "owner_notification_id": "86678930-7d98-49b6-ada9-ec1dd8035fa8",
   "sentinel_preservation": {
     "verdict": "SENTINEL_PRESERVATION_PASS",
     "full_sequence_spanned": true,
     "sentinels": [
       {
         "type": "sentinel_review",
-        "id": "bbbafd94-a8b5-43d3-9e71-ea7093a72115",
+        "id": "3639e41d-5c0d-4179-a0de-8f8b6b2cf6c0",
         "status_before": "PENDING",
         "status_after_tests": "PENDING",
         "status_after_browser": "PENDING",
-        "hash_before": "d7f82a1cf67b4e05229ebb2e8c75eea0a87fecbb1ed95fa04f2e5f7d80ee0aca",
-        "hash_after_tests": "d7f82a1cf67b4e05229ebb2e8c75eea0a87fecbb1ed95fa04f2e5f7d80ee0aca",
-        "hash_after_browser": "d7f82a1cf67b4e05229ebb2e8c75eea0a87fecbb1ed95fa04f2e5f7d80ee0aca",
+        "hash_before": "b600de9537f91aafff1e4d8eeb75d086689db4c362d7ab3bb39e841b696bf55d",
+        "hash_after_tests": "b600de9537f91aafff1e4d8eeb75d086689db4c362d7ab3bb39e841b696bf55d",
+        "hash_after_browser": "b600de9537f91aafff1e4d8eeb75d086689db4c362d7ab3bb39e841b696bf55d",
         "match_after_tests": true,
         "match_after_browser": true
       },
       {
         "type": "sentinel_report",
-        "id": "9a57643c-771b-4217-90ff-91e312cb2cf1",
+        "id": "322c751b-683e-4288-a378-5b29874aece0",
         "status_before": "OPEN",
         "status_after_tests": "OPEN",
         "status_after_browser": "OPEN",
-        "hash_before": "71808951d819bc01ab2719a5aa83fac3dd6db0fefdd7cd2640b06dc640d2c2a2",
-        "hash_after_tests": "71808951d819bc01ab2719a5aa83fac3dd6db0fefdd7cd2640b06dc640d2c2a2",
-        "hash_after_browser": "71808951d819bc01ab2719a5aa83fac3dd6db0fefdd7cd2640b06dc640d2c2a2",
+        "hash_before": "afe04b1a7847e33fab95b9158924f837b233a36f000de948f375f85d9cd082e7",
+        "hash_after_tests": "afe04b1a7847e33fab95b9158924f837b233a36f000de948f375f85d9cd082e7",
+        "hash_after_browser": "afe04b1a7847e33fab95b9158924f837b233a36f000de948f375f85d9cd082e7",
         "match_after_tests": true,
         "match_after_browser": true
       },
       {
         "type": "sentinel_reporter_report",
-        "id": "32f38077-d174-405a-bced-dd3968460b2c",
+        "id": "8f8428c8-ce34-4ac7-b07f-4d3d087ec134",
         "status_before": "OPEN",
         "status_after_tests": "OPEN",
         "status_after_browser": "OPEN",
-        "hash_before": "04af333ac1d14f8d5ab5074d312ee651a78c27d569c0077fd76a1d436f007eb8",
-        "hash_after_tests": "04af333ac1d14f8d5ab5074d312ee651a78c27d569c0077fd76a1d436f007eb8",
-        "hash_after_browser": "04af333ac1d14f8d5ab5074d312ee651a78c27d569c0077fd76a1d436f007eb8",
+        "hash_before": "182b2006f2330046acd71d69615d0bc1a0ed9b34a0f2a6b225979d334c0c377e",
+        "hash_after_tests": "182b2006f2330046acd71d69615d0bc1a0ed9b34a0f2a6b225979d334c0c377e",
+        "hash_after_browser": "182b2006f2330046acd71d69615d0bc1a0ed9b34a0f2a6b225979d334c0c377e",
         "match_after_tests": true,
         "match_after_browser": true
       },
       {
         "type": "sentinel_owner_comment",
-        "id": "64877955-b2fe-466b-b4c6-f78dd5360bf3",
+        "id": "60b6cd44-24f4-426a-b57f-e0d4cfd64751",
         "status_before": "APPROVED",
         "status_after_tests": "APPROVED",
         "status_after_browser": "APPROVED",
-        "hash_before": "96917017818b5ac63b5d4993a91fde14108b671fee26c2722397a6eb53ce9935",
-        "hash_after_tests": "96917017818b5ac63b5d4993a91fde14108b671fee26c2722397a6eb53ce9935",
-        "hash_after_browser": "96917017818b5ac63b5d4993a91fde14108b671fee26c2722397a6eb53ce9935",
+        "hash_before": "44129ad89909ff2742fd4a3e86861300aab47cf5cb1ce1a4f0096e30d92b7f69",
+        "hash_after_tests": "44129ad89909ff2742fd4a3e86861300aab47cf5cb1ce1a4f0096e30d92b7f69",
+        "hash_after_browser": "44129ad89909ff2742fd4a3e86861300aab47cf5cb1ce1a4f0096e30d92b7f69",
         "match_after_tests": true,
         "match_after_browser": true
       },
       {
         "type": "sentinel_notification",
-        "id": "ef60d82c-0eb2-45f1-b61d-0f64f2ead24a",
+        "id": "2d753ae4-60ba-425d-a05d-ad6aff48c7bd",
         "status_before": "-",
         "status_after_tests": "-",
         "status_after_browser": "-",
-        "hash_before": "7fc3dfbd3b023895bf238cf5172ab776b862ae89fb17d8ddaf79bb19f9bc326f",
-        "hash_after_tests": "7fc3dfbd3b023895bf238cf5172ab776b862ae89fb17d8ddaf79bb19f9bc326f",
-        "hash_after_browser": "7fc3dfbd3b023895bf238cf5172ab776b862ae89fb17d8ddaf79bb19f9bc326f",
+        "hash_before": "9980e6a9cd0ec3a6d221618a5bb2f210d598b1f383655b7cda62f74c069e7bde",
+        "hash_after_tests": "9980e6a9cd0ec3a6d221618a5bb2f210d598b1f383655b7cda62f74c069e7bde",
+        "hash_after_browser": "9980e6a9cd0ec3a6d221618a5bb2f210d598b1f383655b7cda62f74c069e7bde",
         "match_after_tests": true,
         "match_after_browser": true
       }
@@ -422,7 +432,7 @@
       "command": "npm run typecheck",
       "cwd": "web",
       "exit_code": 0,
-      "duration_seconds": 4.95,
+      "duration_seconds": 5.13,
       "result": "PASS"
     },
     {
@@ -430,7 +440,7 @@
       "command": "npm run build",
       "cwd": "web",
       "exit_code": 0,
-      "duration_seconds": 16.89,
+      "duration_seconds": 18.26,
       "result": "PASS"
     },
     {
@@ -438,7 +448,7 @@
       "command": "npm run typecheck",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 2.99,
+      "duration_seconds": 4.09,
       "result": "PASS"
     },
     {
@@ -446,7 +456,7 @@
       "command": "npx tsx --test src/core/database/test-db-guard.test.ts",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 1.07,
+      "duration_seconds": 1.56,
       "result": "PASS",
       "tests_passed": 11,
       "tests_failed": 0
@@ -456,7 +466,7 @@
       "command": "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 1.99,
+      "duration_seconds": 2.53,
       "result": "PASS",
       "tests_passed": 17,
       "tests_failed": 0
@@ -466,7 +476,7 @@
       "command": "npm test",
       "cwd": "backend",
       "exit_code": 0,
-      "duration_seconds": 2.39,
+      "duration_seconds": 3.24,
       "result": "PASS",
       "tests_passed": 123,
       "tests_failed": 0

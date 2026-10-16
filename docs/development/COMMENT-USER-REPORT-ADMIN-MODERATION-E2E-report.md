@@ -1,12 +1,12 @@
 # Acceptance Report: Gate COMMENT-USER-REPORT-ADMIN-MODERATION-E2E
 
 **Verdict**: `COMMENT_USER_REPORT_ADMIN_MODERATION_PASS`  
-**Tested Base Main SHA**: `de68cae9bb766365ec88286080a10d440c875adb`  
-**Tested Code SHA**: `89252479f047bd372bc0e19b39463905d866f383`  
+**Tested Base Main SHA**: `5be86e01734da7b7a165f249b7455a4096f93c57`  
+**Tested Code SHA**: `ab235d43516238516012a2a2528cbf07d769497a`  
 **Working Branch**: `astra/comment-user-report-admin-moderation-e2e`  
-**Date**: `2026-10-16 03:23:28Z`  
+**Date**: `2026-10-16 03:55:53Z`  
 **Driver**: Microsoft Edge CDP over WebSocket (real browser automation)  
-**Database Isolation**: Enforced (`ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f` / `ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f`)
+**Database Isolation**: Enforced (`ephurin_report_e2e_523a3c898be7482398d64f9254d16639` / `ephurin_report_e2e_523a3c898be7482398d64f9254d16639`)
 
 ---
 
@@ -50,8 +50,8 @@ Decisive acceptance lifecycle mutations originated in the rendered user interfac
 
 ### Database Isolation Configuration
 - **Isolation Status**: `ISOLATED_TEST_ENVIRONMENT_ENFORCED`
-- **PostgreSQL Test Database**: `ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f` (Server: `172.18.0.2:5432`)
-- **MongoDB Test Database**: `ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f`
+- **PostgreSQL Test Database**: `ephurin_report_e2e_523a3c898be7482398d64f9254d16639` (Server: `172.18.0.2:5432`)
+- **MongoDB Test Database**: `ephurin_report_e2e_523a3c898be7482398d64f9254d16639`
 - **External Opt-In Guard**: `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1` verified
 - **Default Database Rejected**: Verified fail-closed refusal of `ephurin` target
 - **Guard Negative Tests**: 11/11 negative assertions passed (`test-db-guard.test.ts`)
@@ -59,32 +59,32 @@ Decisive acceptance lifecycle mutations originated in the rendered user interfac
 ### Tested Entities
 | Field | Value | Notes |
 |---|---|---|
-| **Comment Owner User ID** | `5c489467-7be9-4e8f-ba08-b8cfdedd57eb` | Fixture Reader Account (`reader04@example.com`) |
-| **Reporter User ID** | `638d6e3a-37d7-47f5-8f4a-bc94b6a0b92e` | Fixture Reader Account (`reader05@example.com`) |
-| **Admin User ID** | `18d2f8e9-c4e7-4ec7-8260-245f9bc6e746` | Fixture Admin Account (`reader02@example.com`) |
+| **Comment Owner User ID** | `86dfa20a-067b-4487-87f6-ab4451a63c61` | Fixture Reader Account (`reader04@example.com`) |
+| **Reporter User ID** | `7b72b5c5-59b0-486f-a2a4-5be2c8d8b3ab` | Fixture Reader Account (`reader05@example.com`) |
+| **Admin User ID** | `c22bc016-a0ba-43ce-9335-2c2d9b98e7be` | Fixture Admin Account (`reader02@example.com`) |
 | **Novel ID** | `81b923d7-5507-48ea-9a84-5303fd1de5f4` | Deterministic published novel |
 | **Chapter ID** | `c660bede-0493-4a46-97f2-6d01c8ddd3db` | Free published chapter |
-| **Comment ID** | `87ae88ea-6fb9-4d89-867c-ccbede2f3fc1` | Target comment created in Report-A |
-| **Comment Original Content** | `E2E clean report target 5f6fd642c24a4412941e19173dc3586f` | Unique clean comment string |
-| **Comment Create Request ID** | `11864.361` | Captured via CDP `POST /chapters/:id/comments` |
-| **Report Create Request ID** | `11864.632` | Captured via CDP `POST /reports` |
-| **Report ID** | `efd4f003-7fa4-4ca2-9c08-db2f9cafec40` | Captured from `POST /reports` response |
-| **Moderation Review ID** | `5dcbdb48-8d76-4c33-b661-7511c6e6e5a6` | Created for USER_REPORT moderation review |
-| **Admin Review List Request ID** | `11864.901` | Captured via CDP `GET /admin/moderation/reviews` |
-| **Admin Review Detail Request ID** | `11864.902` | Captured via CDP `GET /admin/moderation/reviews/:id` |
-| **Admin Resolve Request ID** | `11864.1167` | Captured via CDP `POST /admin/moderation/reviews/:id/resolve` |
-| **Reporter Notification ID** | `3fc5e686-db4f-471f-b3ac-9bc7db19fd77` | Notification: `COMMENT_REPORT_APPROVED` |
-| **Owner Notification ID** | `f1dd84ff-daa4-4b94-987a-6e465b2bfb3d` | Notification: `COMMENT_REMOVED_BY_REPORT` |
+| **Comment ID** | `8ee2faee-f6b5-4673-8f94-8c8d5762daed` | Target comment created in Report-A |
+| **Comment Original Content** | `E2E clean report target 523a3c898be7482398d64f9254d16639` | Unique clean comment string |
+| **Comment Create Request ID** | `20204.360` | Captured via CDP `POST /chapters/:id/comments` |
+| **Report Create Request ID** | `20204.631` | Captured via CDP `POST /reports` |
+| **Report ID** | `7f073bc5-a027-4438-a604-cff1429a7d47` | Captured from `POST /reports` response |
+| **Moderation Review ID** | `608c48c3-0a84-47ff-a71d-5740f8e76a1c` | Created for USER_REPORT moderation review |
+| **Admin Review List Request ID** | `20204.900` | Captured via CDP `GET /admin/moderation/reviews` |
+| **Admin Review Detail Request ID** | `20204.901` | Captured via CDP `GET /admin/moderation/reviews/:id` |
+| **Admin Resolve Request ID** | `20204.1348` | Captured via CDP `POST /admin/moderation/reviews/:id/resolve` |
+| **Reporter Notification ID** | `b12732d7-6dfe-49f1-a99e-06931537c720` | Notification: `COMMENT_REPORT_APPROVED` |
+| **Owner Notification ID** | `86678930-7d98-49b6-ada9-ec1dd8035fa8` | Notification: `COMMENT_REMOVED_BY_REPORT` |
 
 ---
 
 ## 2b. Database Creation Ownership & Collision Refusal Proof (P1-B & P1-C)
 
 ### Database Creation Ownership & Affirmative Tracking
-- **PostgreSQL Database**: `ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f`
+- **PostgreSQL Database**: `ephurin_report_e2e_523a3c898be7482398d64f9254d16639`
   - Created By This Run: `True`
   - Dropped On Cleanup: `True`
-- **MongoDB Database**: `ephurin_report_e2e_5f6fd642c24a4412941e19173dc3586f`
+- **MongoDB Database**: `ephurin_report_e2e_523a3c898be7482398d64f9254d16639`
   - Created By This Run: `True`
   - Dropped On Cleanup: `True`
 - **Ownership Invariant**: Pre-existing databases are NEVER dropped during provisioning or cleanup; already-existing database collisions fail closed and preserve pre-existing rows without mutation. Only resources affirmatively created by this run are dropped on teardown.
@@ -95,9 +95,9 @@ Decisive acceptance lifecycle mutations originated in the rendered user interfac
 | `validate_migration_012_standalone_refusal_without_opt_in` | Standalone migration script without opt-in refuses before any DB connection/mutation | **PASS** |
 | `validate_migration_012_standalone_acceptance_with_opt_in` | Standalone migration script with caller opt-in executes and completes all 6 stages cleanly | **PASS** |
 | `pre_existing_postgres_db_collision_refusal` | Pre-existing test-named PostgreSQL DB with sentinel row: collision refused (SQLSTATE 42P04), existing row/hash preserved | **PASS** |
-| `pre_existing_mongo_db_collision_refusal` | Pre-existing test-named MongoDB DB with sentinel doc: collision refused before mutation, existing doc/hash preserved | **PASS** |
-| `fresh_unique_db_names_provision_and_ownership` | Fresh unique PG and Mongo DB names: provision PASS, affirmative ownership tracked, cleanup only owned resources PASS | **PASS** |
-| `credential_and_secret_hygiene` | Discipline confirmed: no credentials, passwords, tokens, or raw DB URLs with credentials committed or logged in evidence | **PASS** |
+| `pre_existing_mongo_db_collision_refusal` | Pre-existing test-named MongoDB DB with sentinel doc: collision refused by shared guard before mutation, existing doc/hash preserved | **PASS** |
+| `fresh_unique_db_names_provision_and_ownership` | Fresh unique PG and Mongo DB names: provision PASS, affirmative ownership tracked, cleanup only owned resources verified on teardown | **PASS** |
+| `credential_and_secret_hygiene` | Static policy assertion and runtime artifact scan: verifies no credentials, passwords, tokens, or raw DB URLs with credentials are leaked | **PASS** |
 
 ---
 
@@ -123,11 +123,11 @@ Decisive acceptance lifecycle mutations originated in the rendered user interfac
 
 | Sentinel Type | Sentinel ID | Pre-Run Status | Post-Tests Status | Post-Browser Status | Tests Hash Match | Browser Hash Match |
 |---|---|:---:|:---:|:---:|:---:|:---:|
-| `sentinel_review` | `bbbafd94-a8b5-43d3-9e71-ea7093a72115` | `PENDING` | `PENDING` | `PENDING` | **MATCH** | **MATCH** |
-| `sentinel_report` | `9a57643c-771b-4217-90ff-91e312cb2cf1` | `OPEN` | `OPEN` | `OPEN` | **MATCH** | **MATCH** |
-| `sentinel_reporter_report` | `32f38077-d174-405a-bced-dd3968460b2c` | `OPEN` | `OPEN` | `OPEN` | **MATCH** | **MATCH** |
-| `sentinel_owner_comment` | `64877955-b2fe-466b-b4c6-f78dd5360bf3` | `APPROVED` | `APPROVED` | `APPROVED` | **MATCH** | **MATCH** |
-| `sentinel_notification` | `ef60d82c-0eb2-45f1-b61d-0f64f2ead24a` | `-` | `-` | `-` | **MATCH** | **MATCH** |
+| `sentinel_review` | `3639e41d-5c0d-4179-a0de-8f8b6b2cf6c0` | `PENDING` | `PENDING` | `PENDING` | **MATCH** | **MATCH** |
+| `sentinel_report` | `322c751b-683e-4288-a378-5b29874aece0` | `OPEN` | `OPEN` | `OPEN` | **MATCH** | **MATCH** |
+| `sentinel_reporter_report` | `8f8428c8-ce34-4ac7-b07f-4d3d087ec134` | `OPEN` | `OPEN` | `OPEN` | **MATCH** | **MATCH** |
+| `sentinel_owner_comment` | `60b6cd44-24f4-426a-b57f-e0d4cfd64751` | `APPROVED` | `APPROVED` | `APPROVED` | **MATCH** | **MATCH** |
+| `sentinel_notification` | `2d753ae4-60ba-425d-a05d-ad6aff48c7bd` | `-` | `-` | `-` | **MATCH** | **MATCH** |
 
 All 5 planted sentinels were read back both immediately after the full backend test suites and again after the real browser CDP flow and cleanup. Every SHA-256 fingerprint matched identically across all observation checkpoints, demonstrating that those specific records remained completely unaltered throughout the full test and browser lifecycle. Matching sentinel hashes show that these records stayed unchanged within the observed test window; they do not prove that arbitrary other records cannot be deleted.
 
@@ -151,12 +151,14 @@ All 5 planted sentinels were read back both immediately after the full backend t
 
 ## 6. Local Validation Manifest
 
-| `web_typecheck` | `npm run typecheck` | `4.95` | **PASS** |
-| `web_build` | `npm run build` | `16.89` | **PASS** |
-| `backend_typecheck` | `npm run typecheck` | `2.99` | **PASS** |
-| `test_db_guard_suite` | `npx tsx --test src/core/database/test-db-guard.test.ts` | `1.07` | **PASS** |
-| `comment_user_report_admin_moderation_postgres_test` | `npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts` | `1.99` | **PASS** |
-| `backend_all_unit_and_integration_tests` | `npm test` | `2.39` | **PASS** |
+| Name | Command | Duration (s) | Result |
+|---|---|:---:|:---:|
+| `web_typecheck` | `npm run typecheck` | `5.13` | **PASS** |
+| `web_build` | `npm run build` | `18.26` | **PASS** |
+| `backend_typecheck` | `npm run typecheck` | `4.09` | **PASS** |
+| `test_db_guard_suite` | `npx tsx --test src/core/database/test-db-guard.test.ts` | `1.56` | **PASS** |
+| `comment_user_report_admin_moderation_postgres_test` | `npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts` | `2.53` | **PASS** |
+| `backend_all_unit_and_integration_tests` | `npm test` | `3.24` | **PASS** |
 | `browser_comment_user_report_moderation_flow` | `CDP browser automation` | `-` | **PASS** |
 
 ---
@@ -186,6 +188,6 @@ Canonical evidence JSON:
 - **Gate Status**: `LOCAL_PASS_CI_PENDING`
 - **Branch**: `astra/comment-user-report-admin-moderation-e2e`
 - **Working Tree**: Clean (`git status --porcelain` is empty)
-- **Tested Code Commit**: `89252479f047bd372bc0e19b39463905d866f383`
+- **Tested Code Commit**: `ab235d43516238516012a2a2528cbf07d769497a`
 - **Evidence Push**: Complete
 - **No PR or merge to main attempted** (owned by ChatGPT).
