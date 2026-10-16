@@ -184,6 +184,7 @@ describe('Test Database Isolation Guard Rules (Negative and Positive Contract)',
     assert.equal(isAllowedTestDbName('random_name'), false);
 
     assert.equal(isAllowedTestDbName('ephurin_report_e2e_12345678'), true);
+    assert.equal(isAllowedTestDbName('ephurin_wallet_e2e_12345678'), true);
     assert.equal(isAllowedTestDbName('ephurin_test_suite'), true);
     assert.equal(isAllowedTestDbName('my_suite_test'), true);
   });

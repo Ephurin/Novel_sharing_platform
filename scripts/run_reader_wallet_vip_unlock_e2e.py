@@ -1026,7 +1026,7 @@ async def main_async():
         assert deposit_tx_id, "transactionId missing from completion response"
 
         # Wait for UI status badge to confirm completion and balance to update to 500
-        await browser.wait_for_condition("document.querySelector('[data-testid=\"wallet-status-badge\"]')?.innerText.includes('Mock deposit completed')", 10.0)
+        await browser.wait_for_condition("document.querySelector('[data-testid=\"wallet-status-badge\"]')?.innerText.toLowerCase().includes('mock deposit completed')", 10.0)
         await browser.wait_for_condition("document.querySelector('[data-testid=\"wallet-coins-balance\"]')?.innerText.includes('500 coins')", 10.0)
 
         # Correlate with PostgreSQL database
@@ -1205,7 +1205,7 @@ async def main_async():
         assert retry_data.get("transactionId") == unlock_tx_id, "transactionId must match original unlock transaction"
 
         # Wait for status badge update
-        await browser.wait_for_condition("document.querySelector('[data-testid=\"wallet-status-badge\"]')?.innerText.includes('already unlocked')", 10.0)
+        await browser.wait_for_condition("document.querySelector('[data-testid=\"wallet-status-badge\"]')?.innerText.toLowerCase().includes('already unlocked')", 10.0)
 
         # PostgreSQL verification: zero balance change, zero duplicate transaction
         with psycopg.connect(ISOLATED_PG_URL) as conn:

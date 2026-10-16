@@ -15,7 +15,7 @@ export const FORBIDDEN_DB_NAMES = new Set([
   'local'
 ]);
 
-export const APPROVED_TEST_DB_PATTERN = /^(ephurin_report_e2e_[a-zA-Z0-9_-]+|ephurin_test_[a-zA-Z0-9_-]+|[a-zA-Z0-9_-]+_test)$/;
+export const APPROVED_TEST_DB_PATTERN = /^(ephurin_report_e2e_[a-zA-Z0-9_-]+|ephurin_wallet_e2e_[a-zA-Z0-9_-]+|ephurin_test_[a-zA-Z0-9_-]+|[a-zA-Z0-9_-]+_test)$/;
 
 export interface DatabaseIsolationInfo {
   postgresDb: string;
