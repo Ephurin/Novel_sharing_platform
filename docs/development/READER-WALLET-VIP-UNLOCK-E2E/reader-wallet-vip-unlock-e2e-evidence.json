@@ -1,0 +1,216 @@
+{
+  "verdict": "READER_WALLET_VIP_UNLOCK_PASS",
+  "tested_main_sha": "864dfabdf05be30e1e745b09312058425aff09d7",
+  "tested_code_sha": "5a0a77a0f196f7e0bbfa11739451b93b8de8ed2e",
+  "branch": "astra/reader-wallet-vip-unlock-e2e",
+  "run_uuid": "c15fe69c7d4d4f48bcd583ff1bdac7dc",
+  "db_creation_ownership": {
+    "postgres_db_created_by_this_run": true,
+    "mongo_db_created_by_this_run": true,
+    "run_uuid": "c15fe69c7d4d4f48bcd583ff1bdac7dc",
+    "isolated_db_name": "ephurin_wallet_e2e_c15fe69c7d4d4f48bcd583ff1bdac7dc"
+  },
+  "db_isolation": {
+    "postgres": {
+      "database": "ephurin_wallet_e2e_c15fe69c7d4d4f48bcd583ff1bdac7dc",
+      "server_addr": "172.18.0.2",
+      "server_port": 5432,
+      "is_isolated": true
+    },
+    "mongo": {
+      "database": "ephurin_wallet_e2e_c15fe69c7d4d4f48bcd583ff1bdac7dc",
+      "ping_ok": true,
+      "is_isolated": true
+    },
+    "opt_in_verified": true
+  },
+  "validation_records": [
+    {
+      "name": "web_typecheck",
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "duration_seconds": 4.87,
+      "passed_tests": null,
+      "failed_tests": null,
+      "status": "PASS",
+      "output_tail": "> ephurin-web@0.1.0 typecheck\n> tsc -b --noEmit"
+    },
+    {
+      "name": "web_build",
+      "command": "npm run build",
+      "exit_code": 0,
+      "duration_seconds": 13.47,
+      "passed_tests": null,
+      "failed_tests": null,
+      "status": "PASS",
+      "output_tail": "\u001b[33mnode_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarY.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarY.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/ScrollArea/utils/get-scroll-position-from-pointer.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/ScrollArea/utils/get-scroll-position-from-pointer.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarX.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarX.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-aside-variables/assign-aside-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-aside-variables/assign-aside-variables.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-footer-variables/assign-footer-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-footer-variables/assign-footer-variables.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-header-variables/assign-header-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-header-variables/assign-header-variables.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-navbar-variables/assign-navbar-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-navbar-variables/assign-navbar-variables.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-padding-variables/assign-padding-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-padding-variables/assign-padding-variables.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/hooks/esm/use-focus-trap/scope-tab.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/hooks/esm/use-focus-trap/scope-tab.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/hooks/esm/use-focus-trap/tabbable.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/hooks/esm/use-focus-trap/tabbable.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/Rating/StarSymbol/StarIcon.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/Rating/StarSymbol/StarIcon.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/Slider/Marks/is-mark-filled.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/Slider/Marks/is-mark-filled.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/ScrollArea/utils/linear-scale.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/ScrollArea/utils/linear-scale.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-size.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-size.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/ScrollArea/utils/is-scrolling-within-scrollbar-bounds.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/ScrollArea/utils/is-scrolling-within-scrollbar-bounds.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-base-size/get-base-size.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-base-size/get-base-size.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-primitive-size/is-primitive-size.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-primitive-size/is-primitive-size.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/Scrollbar.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/Scrollbar.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-responsive-size/is-responsive-size.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-responsive-size/is-responsive-size.mjs\" was ignored.\u001b[39m\n\u001b[33mnode_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-padding-value/get-padding-value.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-padding-value/get-padding-value.mjs\" was ignored.\u001b[39m\n\u001b[33m\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\u001b[39m"
+    },
+    {
+      "name": "backend_typecheck",
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "duration_seconds": 2.84,
+      "passed_tests": null,
+      "failed_tests": null,
+      "status": "PASS",
+      "output_tail": "> ephurin-backend@0.1.0 typecheck\n> tsc -p tsconfig.json --noEmit"
+    },
+    {
+      "name": "backend_build",
+      "command": "npm run build",
+      "exit_code": 0,
+      "duration_seconds": 3.04,
+      "passed_tests": null,
+      "failed_tests": null,
+      "status": "PASS",
+      "output_tail": "> ephurin-backend@0.1.0 build\n> tsc -p tsconfig.json"
+    },
+    {
+      "name": "test_db_guard_suite",
+      "command": "npx tsx --test src/core/database/test-db-guard.test.ts",
+      "exit_code": 0,
+      "duration_seconds": 1.07,
+      "passed_tests": 11,
+      "failed_tests": 0,
+      "status": "PASS",
+      "output_tail": "▶ Test Database Isolation Guard Rules (Negative and Positive Contract)\n  ✔ Rule 1: Missing external opt-in (EPHURIN_ALLOW_TEST_DB_MUTATIONS != \"1\") fails closed (1.0786ms)\n  ✔ Rule 2: Ambient CI=true does NOT authorize mutations without opt-in (0.1418ms)\n  ✔ Rule 3: Ambient NODE_ENV=test does NOT authorize mutations without opt-in (0.1336ms)\n  ✔ Rule 4: Ambient npm lifecycle script does NOT authorize mutations without opt-in (0.1275ms)\n  ✔ Rule 5: Default PostgreSQL database \"ephurin\" is REJECTED even with opt-in (0.1525ms)\n  ✔ Rule 6: Production/system PostgreSQL databases (postgres, template0) are REJECTED even with opt-in (0.2039ms)\n  ✔ Rule 7: Default MongoDB database \"ephurin\" is REJECTED even with opt-in (0.2004ms)\n  ✔ Rule 8: System MongoDB databases (admin, config, local) are REJECTED even with opt-in (0.2729ms)\n  ✔ Rule 9: Expected test DB name mismatch is REJECTED (0.2132ms)\n  ✔ Rule 10: Approved isolated test database with opt-in PASSES (0.2571ms)\n  ✔ Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names (0.1392ms)\n✔ Test Database Isolation Guard Rules (Negative and Positive Contract) (4.2308ms)\nℹ tests 11\nℹ suites 1\nℹ pass 11\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 145.9298"
+    },
+    {
+      "name": "wallet_postgres_integration_suite",
+      "command": "npx tsx --test --test-reporter=tap src/modules/wallet/wallet.postgres.test.ts",
+      "exit_code": 0,
+      "duration_seconds": 1.61,
+      "passed_tests": 12,
+      "failed_tests": 0,
+      "status": "PASS",
+      "output_tail": "      type: 'test'\n      ...\n    # Subtest: Invariant 12: Sentinel records remain preserved and unmutated across the entire test suite\n    ok 12 - Invariant 12: Sentinel records remain preserved and unmutated across the entire test suite\n      ---\n      duration_ms: 3.7217\n      type: 'test'\n      ...\n# {\"level\":30,\"time\":1792128550692,\"pid\":27920,\"hostname\":\"Ephurin\",\"msg\":\"PostgreSQL connection closed\"}\n    1..12\nok 1 - Reader Wallet + VIP Unlock Ledger and Authorization Invariants\n  ---\n  duration_ms: 173.5679\n  type: 'suite'\n  ...\n# {\"level\":30,\"time\":1792128550692,\"pid\":27920,\"hostname\":\"Ephurin\",\"msg\":\"MongoDB connection closed\"}\n1..1\n# tests 12\n# suites 1\n# pass 12\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 679.3865"
+    }
+  ],
+  "reader_user_id": "e852a494-2960-40ff-a35f-3bf027da7722",
+  "author_user_id": "1457b1f4-8e86-4dd4-822c-b8de082553d5",
+  "target_novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+  "vip_chapter_id": "e30f7437-467b-4b3d-94fe-796ed9970499",
+  "free_chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+  "vip_price_coins": 50,
+  "checkpoints": {
+    "Wallet-A": {
+      "status": "PASS",
+      "vip_chapter_id": "e30f7437-467b-4b3d-94fe-796ed9970499",
+      "chapter_title": "Chương 10: Nhật Thực Cuối Cùng",
+      "price_coins": 50,
+      "reader_initial_coins": 0,
+      "screenshot": "wallet-a-fixture-verified.png"
+    },
+    "Wallet-B": {
+      "status": "PASS",
+      "http_status": 402,
+      "error_code": "PAYMENT_002",
+      "content_leak_prevented": true,
+      "screenshot": "wallet-b-anonymous-locked.png"
+    },
+    "Wallet-C": {
+      "status": "PASS",
+      "http_status": 402,
+      "error_code": "PAYMENT_002",
+      "content_leak_prevented": true,
+      "screenshot": "wallet-c-reader-locked.png"
+    },
+    "Wallet-D": {
+      "status": "PASS",
+      "rendered_balance": "0 coins",
+      "selected_package": "COIN_500",
+      "screenshot": "wallet-d-wallet-page.png"
+    },
+    "Wallet-E": {
+      "status": "PASS",
+      "deposit_session_id": "4ab9f5e2-d940-4beb-9a91-eb974b21e30f",
+      "transaction_id": "034fbacf-5d03-46d6-a956-91675ebfb19b",
+      "deposited_amount": 500,
+      "new_reader_balance": 500,
+      "screenshot": "wallet-e-deposit-success.png"
+    },
+    "Wallet-F": {
+      "status": "PASS",
+      "vip_chapter_id": "e30f7437-467b-4b3d-94fe-796ed9970499",
+      "unlocked": true,
+      "already_unlocked": false,
+      "transaction_id": "9e7bd302-4c0f-4789-9058-7b19dc23c557",
+      "screenshot": "wallet-f-unlock-invoked.png"
+    },
+    "Wallet-G": {
+      "status": "PASS",
+      "entitlement_verified": true,
+      "unlock_transaction_id": "9e7bd302-4c0f-4789-9058-7b19dc23c557",
+      "reader_balance_before": 500,
+      "reader_balance_after": 450,
+      "author_balance_before": 500,
+      "author_balance_after": 550,
+      "ledger_delta_conserved": true,
+      "net_system_coins_drift": 0,
+      "screenshot": "wallet-g-ledger-correlated.png"
+    },
+    "Wallet-H": {
+      "status": "PASS",
+      "http_status": 200,
+      "content_verified": true,
+      "screenshot": "wallet-h-content-unlocked.png"
+    },
+    "Wallet-I": {
+      "status": "PASS",
+      "already_unlocked": true,
+      "original_transaction_id": "9e7bd302-4c0f-4789-9058-7b19dc23c557",
+      "reader_balance_unchanged": 450,
+      "author_balance_unchanged": 550,
+      "duplicate_transactions_prevented": true,
+      "screenshot": "wallet-i-repeat-unlock-idempotent.png"
+    },
+    "Wallet-J": {
+      "status": "PASS",
+      "vip_anonymous_status": 402,
+      "free_chapter_status": 200,
+      "free_chapter_accessible_without_coins": true,
+      "screenshot": "wallet-j-isolation-and-free-chapter.png"
+    }
+  },
+  "sentinels": {
+    "sentinel_user": {
+      "id": "f5e8af3a-74ae-4d7f-abae-e51df2870a5c",
+      "table": "users",
+      "hash_before": "4f8e2ebe286e2bbb4c3a138d538eb5f86bbc9fd2d86b79b88e0b0baa2bf05837",
+      "status_before": "ACTIVE",
+      "hash_after_tests": "4f8e2ebe286e2bbb4c3a138d538eb5f86bbc9fd2d86b79b88e0b0baa2bf05837",
+      "hash_after_browser": "4f8e2ebe286e2bbb4c3a138d538eb5f86bbc9fd2d86b79b88e0b0baa2bf05837"
+    },
+    "sentinel_wallet": {
+      "id": "b2438951-bef6-49c9-815f-733a823a2348",
+      "table": "wallets",
+      "hash_before": "d18334bdfab502651f529b3a37313b639d16c23afdef6c22723f8fabdcf5f9b8",
+      "coins_before": 888,
+      "hash_after_tests": "d18334bdfab502651f529b3a37313b639d16c23afdef6c22723f8fabdcf5f9b8",
+      "hash_after_browser": "d18334bdfab502651f529b3a37313b639d16c23afdef6c22723f8fabdcf5f9b8"
+    },
+    "sentinel_deposit_session": {
+      "id": "306b5e3f-51a6-4dcf-88b6-089978829fc3",
+      "table": "deposit_sessions",
+      "hash_before": "d76bc22949d6418d1aac2b7418b66658343277297b955437c8ec209556f679d9",
+      "status_before": "PENDING",
+      "hash_after_tests": "d76bc22949d6418d1aac2b7418b66658343277297b955437c8ec209556f679d9",
+      "hash_after_browser": "d76bc22949d6418d1aac2b7418b66658343277297b955437c8ec209556f679d9"
+    },
+    "sentinel_transaction": {
+      "id": "5b73d597-30b2-4e4b-bad8-8998dd43c0e5",
+      "table": "transactions",
+      "hash_before": "598bd67ef9774262f7ada9bb32305731183532eaecac9ea3f32c532abe907744",
+      "amount_coins": 888,
+      "hash_after_tests": "598bd67ef9774262f7ada9bb32305731183532eaecac9ea3f32c532abe907744",
+      "hash_after_browser": "598bd67ef9774262f7ada9bb32305731183532eaecac9ea3f32c532abe907744"
+    },
+    "sentinel_chapter_unlock": {
+      "id": "f5e8af3a-74ae-4d7f-abae-e51df2870a5c_e30f7437-467b-4b3d-94fe-796ed9970499",
+      "table": "chapter_unlocks",
+      "hash_before": "d39ae87b83d19f0c07db6239085b0506b47f8f7d3577a246a918820a2d4cd06b",
+      "hash_after_tests": "d39ae87b83d19f0c07db6239085b0506b47f8f7d3577a246a918820a2d4cd06b",
+      "hash_after_browser": "d39ae87b83d19f0c07db6239085b0506b47f8f7d3577a246a918820a2d4cd06b"
+    }
+  }
+}
