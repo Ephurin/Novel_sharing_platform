@@ -19,6 +19,7 @@ const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: '/admin/users', label: 'Users', roles: ['ADMIN'] },
   { to: '/admin/taxonomy', label: 'Taxonomy', roles: ['ADMIN'] },
   { to: '/admin/moderation', label: 'Moderation', roles: ['ADMIN'] },
+  { to: '/admin/reports', label: 'User Reports', roles: ['ADMIN'] },
   { to: '/admin/withdraws', label: 'Withdraws', roles: ['ADMIN'] }
 ];
 

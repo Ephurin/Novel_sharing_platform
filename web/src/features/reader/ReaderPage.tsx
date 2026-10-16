@@ -848,7 +848,14 @@ function CommentCard({
           >
             Delete
           </Button>
-          <Button size="compact-xs" color="orange" variant="subtle" loading={reportMutation.isPending} onClick={() => reportMutation.mutate()}>
+          <Button
+            size="compact-xs"
+            color="orange"
+            variant="subtle"
+            loading={reportMutation.isPending}
+            onClick={() => reportMutation.mutate()}
+            data-testid={`reader-comment-report-btn-${comment.commentId}`}
+          >
             Report
           </Button>
         </Group>
@@ -859,7 +866,7 @@ function CommentCard({
         </Alert>
       ) : null}
       {reportMutation.isSuccess ? (
-        <Alert color="yellow" mt="sm">
+        <Alert color="yellow" mt="sm" data-testid={`reader-comment-report-alert-${comment.commentId}`}>
           Comment report submitted.
         </Alert>
       ) : null}

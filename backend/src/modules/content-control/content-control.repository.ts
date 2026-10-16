@@ -1,4 +1,4 @@
-import type { QueryResultRow } from 'pg';
+import type { QueryResultRow, PoolClient } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import type {
   ListReviewsInput,
@@ -34,16 +34,22 @@ export async function listActiveFilterRules() {
   return result.rows.map(mapRule);
 }
 
-export async function createModerationReview(input: {
-  targetType: ModerationTargetType;
-  targetId: string;
-  source: ModerationSource;
-  evidenceId?: string | null;
-}) {
-  const result = await getPostgresPool().query(
+export async function createModerationReview(
+  input: {
+    targetType: ModerationTargetType;
+    targetId: string;
+    source: ModerationSource;
+    evidenceId?: string | null;
+  },
+  client?: PoolClient
+) {
+  const runner = client ?? getPostgresPool();
+  const result = await runner.query(
     `
       insert into moderation_reviews (target_type, target_id, source, evidence_id)
       values ($1, $2, $3, $4)
+      on conflict (target_type, target_id, source) where status = 'PENDING'
+      do update set updated_at = now()
       returning *
     `,
     [input.targetType, input.targetId, input.source, input.evidenceId ?? null]
@@ -52,8 +58,13 @@ export async function createModerationReview(input: {
   return result.rows[0];
 }
 
-export async function findOpenReview(targetType: ModerationTargetType, targetId: string) {
-  const result = await getPostgresPool().query(
+export async function findOpenReview(
+  targetType: ModerationTargetType,
+  targetId: string,
+  client?: PoolClient
+) {
+  const runner = client ?? getPostgresPool();
+  const result = await runner.query(
     `
       select *
       from moderation_reviews
@@ -67,11 +78,15 @@ export async function findOpenReview(targetType: ModerationTargetType, targetId:
   return result.rows[0] ?? null;
 }
 
-export async function createReport(input: CreateReportInput & {
-  reporterId: string;
-  reviewId: string;
-}) {
-  const result = await getPostgresPool().query(
+export async function createReport(
+  input: CreateReportInput & {
+    reporterId: string;
+    reviewId: string;
+  },
+  client?: PoolClient
+) {
+  const runner = client ?? getPostgresPool();
+  const result = await runner.query(
     `
       insert into reports (reporter_id, target_type, target_id, review_id, reason, description)
       values ($1, $2, $3, $4, $5, $6)
@@ -88,6 +103,26 @@ export async function createReport(input: CreateReportInput & {
   );
 
   return result.rows[0];
+}
+
+export async function findOpenReportByReporter(
+  reporterId: string,
+  targetType: string,
+  targetId: string,
+  client?: PoolClient
+) {
+  const runner = client ?? getPostgresPool();
+  const result = await runner.query(
+    `
+      select *
+      from reports
+      where reporter_id = $1 and target_type = $2 and target_id = $3 and status = 'OPEN'
+      limit 1
+    `,
+    [reporterId, targetType, targetId]
+  );
+
+  return result.rows[0] ?? null;
 }
 
 export async function listReviews(input: ListReviewsInput) {
