@@ -411,9 +411,9 @@ export function ManuscriptImportPage() {
           <div className="flex items-center gap-4 lg:gap-6">
             <Link to="/author" className="flex items-center gap-1.5" data-path="tong-quan">
               <span className="material-symbols-outlined text-primary-600 text-[26px]">menu_book</span>
-              <span className="font-headline-sm text-[17px] text-primary-600 tracking-tight font-bold">StoryCraft</span>
+              <span className="font-headline-sm text-[17px] text-primary-600 tracking-tight font-bold">Ephurin</span>
               <span className="font-label-sm text-[11px] uppercase tracking-wider text-stone-500 bg-stone-100 border border-stone-200/80 px-1.5 py-0.5 rounded font-semibold">
-                Văn Hoa
+                Reading
               </span>
             </Link>
             <nav className="hidden md:flex items-center gap-1 ml-2">

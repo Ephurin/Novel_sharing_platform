@@ -87,6 +87,16 @@ export const router = createBrowserRouter([
     )
   },
   {
+    path: '/author',
+    element: (
+      <AuthGate>
+        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+          <AuthorProjectsPage />
+        </RoleGuard>
+      </AuthGate>
+    )
+  },
+  {
     path: '/',
     element: (
       <AuthGate>

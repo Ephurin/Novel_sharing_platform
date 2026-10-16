@@ -10,6 +10,7 @@ import {
   createChapter
 } from '../novels/novel-api';
 import type { Chapter, ChapterStatus } from '../novels/novel-types';
+import { AppTopBar } from '../../shared/components/AppTopBar';
 
 export function AuthorNovelMetadataPage() {
   const { novelId = '' } = useParams();
@@ -255,77 +256,11 @@ export function AuthorNovelMetadataPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f6f2] font-body-md text-stone-800 antialiased selection:bg-indigo-100 selection:text-indigo-900 flex flex-col">
+    <div className="min-h-screen bg-[#f7f6f2] font-body-md text-stone-800 antialiased selection:bg-primary-100 selection:text-primary-800 flex flex-col">
       {/* ──────────────────────────────────────────
           BEGIN: Fixed Top Header Navigation Bar (Preserved Layout & Texts, IDE Color & Compact Scale)
          ────────────────────────────────────────── */}
-      <header className="fixed top-0 w-full z-50 bg-[#faf9f6]/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-stone-200/80">
-        <div className="h-14 max-w-7xl mx-auto px-4 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-4 lg:gap-6">
-            <Link to="/author" className="flex items-center gap-1.5" data-path="tong-quan">
-              <span className="material-symbols-outlined text-primary-600 text-[26px]">menu_book</span>
-              <span className="font-headline-sm text-[17px] text-primary-600 tracking-tight font-bold">StoryCraft</span>
-              <span className="font-label-sm text-[11px] uppercase tracking-wider text-stone-500 bg-stone-100 border border-stone-200/80 px-1.5 py-0.5 rounded font-semibold">
-                Văn Hoa
-              </span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-1 ml-2">
-              <Link
-                to="/author"
-                className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition-colors"
-                data-path="tong-quan"
-              >
-                Tổng quan
-              </Link>
-              <Link
-                to="/author"
-                className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-primary-600 font-semibold bg-stone-100/90 border border-stone-200/60 transition-colors"
-                data-path="tac-pham"
-              >
-                Tác phẩm
-              </Link>
-              <Link
-                to="/wallet"
-                className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition-colors"
-                data-path="vi-va-doanh-thu"
-              >
-                Ví &amp; doanh thu
-              </Link>
-              <Link
-                to="/profile/me"
-                className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition-colors"
-                data-path="trang-tac-gia"
-              >
-                Trang tác giả
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => openIde()}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary-600 text-white font-label-md text-label-md hover:bg-primary-700 shadow-2xs transition-all active:scale-95 font-medium cursor-pointer"
-              data-path="viet-tiep"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-[17px]">edit_note</span>
-              <span>Viết tiếp</span>
-            </button>
-            <Link
-              to="/notifications"
-              aria-label="Thông báo"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-stone-500 hover:bg-stone-100 hover:text-stone-900 transition-colors relative"
-            >
-              <span className="material-symbols-outlined text-[20px]">notifications</span>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500"></span>
-            </Link>
-            <Link to="/profile/me" className="flex items-center gap-1">
-              <div className="w-7 h-7 rounded-full bg-primary-600 text-white flex items-center justify-center text-xs font-semibold">
-                {user?.username ? user.username.charAt(0).toUpperCase() : 'A'}
-              </div>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <AppTopBar active="works" onWrite={() => openIde()} />
 
       {/* ──────────────────────────────────────────
           BEGIN: Main Content Workstation
@@ -355,7 +290,7 @@ export function AuthorNovelMetadataPage() {
                   to={`/public/novels/${novelId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200/80 text-stone-600 hover:text-stone-900 border border-stone-200/80 text-xs font-medium transition-colors"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white hover:bg-stone-50 text-stone-600 hover:text-stone-900 border border-stone-200 hover:border-stone-300 text-xs font-medium transition-colors"
                   title="Xem trang độc giả"
                 >
                   <span className="material-symbols-outlined text-[14px] text-stone-500">open_in_new</span>
@@ -363,7 +298,7 @@ export function AuthorNovelMetadataPage() {
                 </Link>
                 <Link
                   to={`/author/import/${novelId}`}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200/80 text-stone-600 hover:text-stone-900 border border-stone-200/80 text-xs font-medium transition-colors"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white hover:bg-stone-50 text-stone-600 hover:text-stone-900 border border-stone-200 hover:border-stone-300 text-xs font-medium transition-colors"
                   title="Nhập bản thảo (Bulk Import)"
                 >
                   <span className="material-symbols-outlined text-[14px] text-stone-500">file_upload</span>
@@ -371,7 +306,7 @@ export function AuthorNovelMetadataPage() {
                 </Link>
                 <button
                   onClick={() => setNewChapterModalOpen(true)}
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-primary-600 text-white text-xs hover:bg-primary-700 shadow-2xs transition-all font-semibold cursor-pointer active:scale-95"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-primary-600 text-white text-xs hover:bg-primary-700 transition-colors font-medium cursor-pointer"
                   type="button"
                 >
                   <span className="material-symbols-outlined text-[15px]">add</span>
@@ -396,7 +331,7 @@ export function AuthorNovelMetadataPage() {
                       src={coverImage}
                     />
                     <div className="absolute top-2 left-2 flex gap-1">
-                      <span className="bg-stone-900/80 backdrop-blur-xs text-white font-label-sm text-[10px] px-1.5 py-0.5 rounded font-semibold shadow-xs">
+                      <span className="bg-stone-900/80 backdrop-blur-xs text-white font-label-sm text-[11px] px-1.5 py-0.5 rounded font-semibold shadow-xs">
                         {ageRatingLabel}
                       </span>
                     </div>
@@ -411,7 +346,7 @@ export function AuthorNovelMetadataPage() {
                   {/* Central Novel Metadata & Synopsis */}
                   <div className="flex flex-col justify-center min-w-0 flex-1 py-0.5">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <span className="font-label-sm text-[11px] uppercase tracking-wider text-primary-700 font-bold bg-indigo-50 border border-indigo-200/70 px-2 py-0.5 rounded">
+                      <span className="font-label-sm text-[11px] uppercase tracking-wider text-primary-700 font-bold bg-primary-50 border border-primary-200/70 px-2 py-0.5 rounded">
                         Văn Học Đô Thị
                       </span>
                       <span className="text-stone-300">•</span>
@@ -443,10 +378,10 @@ export function AuthorNovelMetadataPage() {
                         </strong>
                       </span>
                     </div>
-                    <h1 className="font-headline-lg text-[24px] sm:text-[26px] leading-snug text-stone-900 font-bold tracking-tight mb-1.5 truncate">
+                    <h1 className="font-headline-sm text-[24px] leading-snug text-stone-900 font-bold tracking-tight mb-1.5 truncate">
                       {novel.title}
                     </h1>
-                    <p className="font-body-reading text-[14px] text-stone-600 italic leading-relaxed line-clamp-2 max-w-xl mb-2.5 font-serif">
+                    <p className="font-body-md text-[13px] text-stone-600 leading-relaxed line-clamp-2 max-w-xl mb-2.5">
                       {novel.synopsis ? `“${novel.synopsis}”` : '“Chưa có lời giới thiệu cho tác phẩm này...”'}
                     </p>
                     <div className="flex items-center gap-3.5 text-stone-500 font-label-sm text-[12px] flex-wrap">
@@ -505,17 +440,17 @@ export function AuthorNovelMetadataPage() {
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => setEditModalOpen(true)}
-                      className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-stone-100 hover:bg-stone-200/80 border border-stone-200/70 text-stone-800 font-label-md text-label-md transition-colors font-medium whitespace-nowrap cursor-pointer"
+                      className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-white hover:bg-stone-50 border border-stone-200 hover:border-stone-300 text-stone-700 hover:text-stone-900 font-label-md text-label-md transition-colors font-medium whitespace-nowrap cursor-pointer"
                       type="button"
                     >
-                      <span className="material-symbols-outlined text-[17px] text-stone-500">edit</span>
+                      <span className="material-symbols-outlined text-[16px] text-stone-400">edit</span>
                       <span>Chỉnh sửa thông tin</span>
                     </button>
                     <Link
                       to={`/author/context/${novelId}`}
-                      className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-stone-100 hover:bg-stone-200/80 border border-stone-200/70 text-stone-800 font-label-md text-label-md transition-colors font-medium whitespace-nowrap"
+                      className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-white hover:bg-stone-50 border border-stone-200 hover:border-stone-300 text-stone-700 hover:text-stone-900 font-label-md text-label-md transition-colors font-medium whitespace-nowrap"
                     >
-                      <span className="material-symbols-outlined text-[17px] text-primary-600">auto_stories</span>
+                      <span className="material-symbols-outlined text-[16px] text-primary-600">auto_stories</span>
                       <span>Cẩm nang (Story Bible)</span>
                     </Link>
                     <button
@@ -532,11 +467,11 @@ export function AuthorNovelMetadataPage() {
                           ? 'Đang chờ duyệt'
                           : 'Gửi duyệt toàn bộ tác phẩm'
                       }
-                      className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-label-md transition-colors font-medium whitespace-nowrap cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs"
+                      className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-primary-600 hover:bg-primary-700 border border-primary-600 hover:border-primary-700 text-white font-label-md text-label-md transition-colors font-medium whitespace-nowrap cursor-pointer disabled:bg-stone-100 disabled:border-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed"
                       type="button"
                       data-testid="submit-publish-btn"
                     >
-                      <span className="material-symbols-outlined text-[17px]">publish</span>
+                      <span className="material-symbols-outlined text-[16px]">publish</span>
                       <span>{submitPublishMutation.isPending ? 'Đang gửi...' : 'Gửi duyệt'}</span>
                     </button>
                   </div>
@@ -561,7 +496,7 @@ export function AuthorNovelMetadataPage() {
                   type="button"
                 >
                   <span>Danh sách chương</span>
-                  <span className="font-label-sm text-[11px] bg-primary-600 text-white px-2 py-0.5 rounded-full font-bold">
+                  <span className="font-label-sm text-[11px] bg-primary-50 text-primary-700 border border-primary-200/70 px-1.5 py-px rounded-full font-semibold">
                     {chapters.length}
                   </span>
                 </button>
@@ -731,10 +666,10 @@ export function AuthorNovelMetadataPage() {
                               onClick={() => openIde(chapter.chapterId)}
                               className="font-medium text-stone-900 hover:text-primary-600 cursor-pointer transition-colors"
                             >
-                              Chương {chapter.chapterNumber}: {chapter.title}
+                              Chương {chapter.chapterNumber}: {chapter.title.replace(/^\s*Chương\s*\d+\s*[:.\-–—]?\s*/i, '')}
                             </span>
                             {chapter.chapterNumber === chapters.length && (
-                              <span className="text-[10px] font-semibold text-primary-700 bg-indigo-50 border border-indigo-200/70 px-1.5 py-0.2 rounded">
+                              <span className="text-[11px] font-semibold text-primary-700 bg-primary-50 border border-primary-200/70 px-1.5 py-0.2 rounded">
                                 Đang mở
                               </span>
                             )}
@@ -743,7 +678,7 @@ export function AuthorNovelMetadataPage() {
                             {chapter.draft?.autosave ? 'Đang soạn trong Studio' : `Mã bản thảo: #${chapter.chapterId.slice(0, 8)}`}
                           </div>
                         </td>
-                        <td className="py-3 px-3.5 text-right font-mono text-stone-800">
+                        <td className="py-3 px-3.5 text-right tabular-nums text-stone-800">
                           {chapter.wordCount.toLocaleString()}
                         </td>
                         <td className="py-3 px-3.5 text-center">
@@ -758,7 +693,7 @@ export function AuthorNovelMetadataPage() {
                           )}
                         </td>
                         <td className="py-3 px-3.5 text-center">{renderStatusBadge(chapter.status)}</td>
-                        <td className="py-3 px-3.5 text-right text-stone-400 font-mono">
+                        <td className="py-3 px-3.5 text-right text-stone-400 tabular-nums">
                           {chapter.status === 'PUBLISHED' ? '4.2k' : '—'}
                         </td>
                         <td className="py-3 px-3.5 text-stone-500 text-[12px]">
@@ -770,7 +705,7 @@ export function AuthorNovelMetadataPage() {
                           <div className="inline-flex items-center gap-1.5">
                             <button
                               onClick={() => openIde(chapter.chapterId)}
-                              className="px-2.5 py-1 rounded bg-primary-600 text-white font-label-sm text-[11px] hover:bg-primary-700 transition-colors font-medium cursor-pointer shadow-2xs"
+                              className="px-2.5 py-1 rounded-md bg-primary-50 text-primary-700 border border-primary-200/70 font-label-sm text-[12px] hover:bg-primary-100 hover:border-primary-300 transition-colors font-medium cursor-pointer"
                               type="button"
                             >
                               Mở Studio
@@ -789,7 +724,7 @@ export function AuthorNovelMetadataPage() {
 
                     {paginatedChapters.length === 0 && (
                       <tr>
-                        <td colSpan={8} className="py-12 text-center text-stone-400 italic">
+                        <td colSpan={8} className="py-12 text-center text-stone-400">
                           Không tìm thấy chương truyện nào phù hợp với bộ lọc hiện tại.
                         </td>
                       </tr>
@@ -855,7 +790,7 @@ export function AuthorNovelMetadataPage() {
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-primary-600 text-[18px]">auto_stories</span>
-            <span className="font-headline-sm text-stone-900 font-semibold">StoryCraft Văn Hoa</span>
+            <span className="font-headline-sm text-stone-900 font-semibold">Ephurin Reading</span>
             <span className="font-label-sm text-stone-400 ml-2">© 2025 Nền tảng Sáng tác Văn học Số.</span>
           </div>
           <div className="flex items-center gap-6">
@@ -893,7 +828,7 @@ export function AuthorNovelMetadataPage() {
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 text-primary-600 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center">
                   <span className="material-symbols-outlined text-[18px]">edit_square</span>
                 </div>
                 <div>
@@ -964,7 +899,7 @@ export function AuthorNovelMetadataPage() {
                   novel.status === 'PUBLISHED' ||
                   novel.status === 'PENDING_MODERATION'
                 }
-                className="px-3 py-1.5 rounded-lg border border-primary-200 bg-indigo-50 text-primary-700 text-xs font-semibold hover:bg-indigo-100 transition-colors disabled:opacity-40 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg border border-primary-200 bg-primary-50 text-primary-700 text-xs font-semibold hover:bg-primary-100 transition-colors disabled:opacity-40 cursor-pointer"
                 type="button"
                 data-testid="modal-submit-publish-btn"
               >
@@ -1000,12 +935,12 @@ export function AuthorNovelMetadataPage() {
           <div className="bg-white rounded-xl shadow-2xl border border-stone-200 w-full max-w-sm p-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-3.5">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-200 text-primary-600 flex items-center justify-center">
+                <div className="w-7 h-7 rounded-lg bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center">
                   <span className="material-symbols-outlined text-[17px]">add_circle</span>
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-stone-900">Thêm chương mới</h3>
-                  <p className="text-[10px] text-stone-400">Khởi tạo và mở Studio viết truyện</p>
+                  <p className="text-[11px] text-stone-400">Khởi tạo và mở Studio viết truyện</p>
                 </div>
               </div>
               <button
@@ -1032,7 +967,7 @@ export function AuthorNovelMetadataPage() {
               <div className="flex items-center justify-between p-2.5 rounded-lg bg-stone-50 border border-stone-200">
                 <div>
                   <span className="font-semibold text-stone-800 block text-xs">Chế độ chương VIP</span>
-                  <span className="text-[10px] text-stone-500">Độc giả trả Xu để mở khóa</span>
+                  <span className="text-[11px] text-stone-500">Độc giả trả Xu để mở khóa</span>
                 </div>
                 <input
                   type="checkbox"
@@ -1051,7 +986,7 @@ export function AuthorNovelMetadataPage() {
                     max={999}
                     value={newChapterPrice}
                     onChange={(e) => setNewChapterPrice(parseInt(e.target.value, 10) || 1)}
-                    className="w-full px-3 py-1.5 rounded-lg bg-stone-50 text-stone-900 border border-stone-200 focus:ring-1 focus:ring-primary-500 focus:outline-none text-xs font-mono"
+                    className="w-full px-3 py-1.5 rounded-lg bg-stone-50 text-stone-900 border border-stone-200 focus:ring-1 focus:ring-primary-500 focus:outline-none text-xs"
                   />
                 </div>
               )}

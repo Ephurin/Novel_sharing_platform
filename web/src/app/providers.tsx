@@ -9,7 +9,7 @@ const queryClient = new QueryClient();
 export function AppProviders({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider defaultColorScheme="dark" theme={theme}>
+      <MantineProvider defaultColorScheme="light" forceColorScheme="light" theme={theme}>
         {children}
       </MantineProvider>
     </QueryClientProvider>
