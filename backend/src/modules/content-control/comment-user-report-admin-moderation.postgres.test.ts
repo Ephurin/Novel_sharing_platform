@@ -22,20 +22,7 @@ import {
   findCommentById,
   findCommentRecordById
 } from '../interactions/comments.repository.js';
-
-function assertSafeTestEnvironment() {
-  const isAllowed =
-    process.env.EPHURIN_ALLOW_TEST_DB_MUTATIONS === '1' ||
-    process.env.NODE_ENV === 'test' ||
-    process.env.CI === 'true' ||
-    Boolean(process.env.npm_lifecycle_script);
-  if (!isAllowed) {
-    throw new Error(
-      'Refusing to run test mutations without test environment switch. ' +
-      'Set EPHURIN_ALLOW_TEST_DB_MUTATIONS=1 or NODE_ENV=test or run under npm test.'
-    );
-  }
-}
+import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
 
 describe('Phase C: Comment User Report, Admin Moderation, and Notifications Invariants', () => {
   const pool = getPostgresPool();
@@ -73,7 +60,7 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
   let draftChapterId: string;
 
   before(async () => {
-    assertSafeTestEnvironment();
+    await validateTestDatabaseIsolation(pool, getMongoDatabase());
 
     const timestamp = Date.now();
 
@@ -305,9 +292,6 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
     // 3. Clean up ONLY tracked test entities by explicit IDs in FK-safe order
     if (trackedReportIds.size > 0) {
       await pool.query('delete from reports where report_id = any($1)', [Array.from(trackedReportIds)]);
-    }
-    if (trackedUserIds.size > 0) {
-      await pool.query('delete from reports where reporter_id = any($1)', [Array.from(trackedUserIds)]);
     }
     if (trackedReviewIds.size > 0) {
       await pool.query('delete from moderation_reviews where review_id = any($1)', [Array.from(trackedReviewIds)]);

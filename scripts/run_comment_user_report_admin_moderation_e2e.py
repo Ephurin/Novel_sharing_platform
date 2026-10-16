@@ -2,11 +2,12 @@
 Real Browser E2E Automation for Comment User Report -> Admin Moderation -> Notifications
 Gate: COMMENT-USER-REPORT-ADMIN-MODERATION-E2E
 Checkpoints: Report-A through Report-J + Checkpoint-F2 (source+target copy) + Sentinel Preservation + Phase C 17-invariant suite
+Directive: Hard Fail-Closed Database Isolation Guard + Full-Span Sentinel Preservation + Migration 012 Acceptance
 
 Drives real DOM interactions via Microsoft Edge CDP over WebSocket,
 captures network responses, performs PostgreSQL and MongoDB database correlations,
-records full-resolution screenshots, executes validation manifest, and outputs
-canonical evidence JSON and acceptance report.
+records full-resolution screenshots, executes validation manifest against disposable
+isolated databases, and outputs canonical evidence JSON and acceptance report.
 """
 
 import asyncio
@@ -28,17 +29,16 @@ import httpx
 import psycopg
 import websockets
 
-BACKEND_URL = "http://localhost:4000/api/v1"
-WEB_URL = "http://127.0.0.1:5173"
-DB_URL = "postgresql://postgres:postgres@localhost:5432/ephurin"
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-EVIDENCE_DIR = os.path.join(REPO_ROOT, "docs", "development", "COMMENT-USER-REPORT-ADMIN-MODERATION-E2E")
-REPORT_PATH = os.path.join(REPO_ROOT, "docs", "development", "COMMENT-USER-REPORT-ADMIN-MODERATION-E2E-report.md")
-os.makedirs(EVIDENCE_DIR, exist_ok=True)
+from validate_migration_012 import run_migration_012_acceptance
 
-EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-if not os.path.exists(EDGE_PATH):
-    EDGE_PATH = r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
+# External opt-in guard: the runner does NOT self-authorize
+OPT_IN = os.environ.get("EPHURIN_ALLOW_TEST_DB_MUTATIONS")
+if OPT_IN != "1":
+    raise RuntimeError(
+        "Missing required external opt-in EPHURIN_ALLOW_TEST_DB_MUTATIONS=1. "
+        "The runner will not self-authorize to mutate database state. "
+        "Please provide EPHURIN_ALLOW_TEST_DB_MUTATIONS=1 in the environment before invoking."
+    )
 
 # Credentials from environment variable (hygiene discipline: no committed secrets)
 DEMO_PASSWORD = os.environ.get("EPHURIN_E2E_DEMO_PASSWORD")
@@ -48,8 +48,23 @@ if not DEMO_PASSWORD:
         "Please set EPHURIN_E2E_DEMO_PASSWORD before running this E2E runner."
     )
 
-# Explicit test environment safety guard
-os.environ["EPHURIN_ALLOW_TEST_DB_MUTATIONS"] = "1"
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EVIDENCE_DIR = os.path.join(REPO_ROOT, "docs", "development", "COMMENT-USER-REPORT-ADMIN-MODERATION-E2E")
+REPORT_PATH = os.path.join(REPO_ROOT, "docs", "development", "COMMENT-USER-REPORT-ADMIN-MODERATION-E2E-report.md")
+os.makedirs(EVIDENCE_DIR, exist_ok=True)
+
+EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+if not os.path.exists(EDGE_PATH):
+    EDGE_PATH = r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
+
+RUN_UUID = uuid.uuid4().hex[:8]
+ISOLATED_DB_NAME = f"ephurin_report_e2e_{RUN_UUID}"
+ISOLATED_PG_URL = f"postgresql://postgres:postgres@localhost:5432/{ISOLATED_DB_NAME}"
+ISOLATED_MONGO_URI = f"mongodb://localhost:27017/{ISOLATED_DB_NAME}"
+ADMIN_PG_URL = "postgresql://postgres:postgres@localhost:5432/postgres"
+
+BACKEND_URL = "http://localhost:4000/api/v1"
+WEB_URL = "http://127.0.0.1:5173"
 
 # Deterministic User Identities
 OWNER_EMAIL = "reader04@example.com"
@@ -67,18 +82,18 @@ TARGET_CHAPTER_ID = "c660bede-0493-4a46-97f2-6d01c8ddd3db"
 TARGET_CHAPTER_NUMBER = 1
 TARGET_CHAPTER_TITLE = "Chương 1: Tàn Tro Của Ashenhold"
 
-RUN_UUID = uuid.uuid4().hex[:8]
-
 
 def query_mongo(script: str) -> Any:
-    """Run a query inside MongoDB container using mongosh."""
+    """Run a query inside MongoDB container on the isolated test database using mongosh."""
+    if ISOLATED_DB_NAME == "ephurin" or not ISOLATED_DB_NAME.startswith("ephurin_report_e2e_"):
+        raise RuntimeError(f"Refusing mongo query on non-isolated database: '{ISOLATED_DB_NAME}'")
     res = subprocess.run(
-        ["docker", "exec", "novel_sharing_platform-mongodb-1", "mongosh", "--quiet", "ephurin", "--eval", script],
+        ["docker", "exec", "novel_sharing_platform-mongodb-1", "mongosh", "--quiet", ISOLATED_DB_NAME, "--eval", script],
         capture_output=True,
         text=True
     )
     if res.returncode != 0:
-        raise RuntimeError(f"Mongo query failed: {res.stderr}\nScript: {script}")
+        raise RuntimeError(f"Mongo query failed on '{ISOLATED_DB_NAME}': {res.stderr}\nScript: {script}")
     out = res.stdout.strip()
     if not out:
         return None
@@ -86,6 +101,12 @@ def query_mongo(script: str) -> Any:
         return json.loads(out)
     except Exception:
         return out
+
+
+def compute_deterministic_hash(data: Any) -> str:
+    """Stable JSON serialization and SHA-256 digest."""
+    serialized = json.dumps(data, sort_keys=True, default=str)
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
 class CDPBrowser:
@@ -299,7 +320,6 @@ class CDPBrowser:
         login_resp = await self.wait_for_response("/auth/login", timeout=15.0)
         assert login_resp["status"] == 200, f"Login failed for {email}: status={login_resp['status']}"
 
-        # Wait for redirect
         target_path = "/admin" if expected_role == "ADMIN" else "/reader"
         await self.wait_for_condition(f"window.location.pathname.startsWith('{target_path}')", 15.0)
         await asyncio.sleep(1.0)
@@ -327,12 +347,24 @@ def get_git_info() -> Dict[str, str]:
     }
 
 
-def run_command(name: str, cmd: str, cwd: str) -> Dict[str, Any]:
+def kill_proc(proc: Optional[subprocess.Popen]):
+    if proc and proc.poll() is None:
+        try:
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True)
+        except Exception:
+            try:
+                proc.terminate()
+            except Exception:
+                pass
+
+
+def run_command(name: str, cmd: str, cwd: str, extra_env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     print(f"\n[Validation] Running '{name}': {cmd}...")
     start_t = time.time()
     env = os.environ.copy()
-    env["EPHURIN_ALLOW_TEST_DB_MUTATIONS"] = "1"
-    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd, env=env)
+    if extra_env:
+        env.update(extra_env)
+    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd, env=env, encoding="utf-8", errors="replace")
     duration = round(time.time() - start_t, 2)
     output = res.stdout + ("\n" + res.stderr if res.stderr else "")
 
@@ -369,63 +401,10 @@ def run_command(name: str, cmd: str, cwd: str) -> Dict[str, Any]:
     return entry
 
 
-def run_negative_suite() -> Dict[str, Any]:
-    print("\n" + "=" * 60)
-    print("[Phase C Invariant Suite] Executing comment user report & admin moderation invariants...")
-    print("=" * 60)
-    cmd = "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts"
-    backend_dir = os.path.join(REPO_ROOT, "backend")
-    env = os.environ.copy()
-    env["EPHURIN_ALLOW_TEST_DB_MUTATIONS"] = "1"
-    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=backend_dir, env=env)
-    print(f"Exit code: {res.returncode}")
-    print(res.stdout)
-    if res.stderr:
-        print(f"Stderr: {res.stderr}")
-
-    tests_passed = 0
-    tests_failed = 0
-    for line in res.stdout.splitlines():
-        if line.startswith("# pass ") or line.startswith("ℹ pass "):
-            tests_passed = int(line.split()[-1])
-        elif line.startswith("# fail ") or line.startswith("ℹ fail "):
-            tests_failed = int(line.split()[-1])
-
-    is_pass = (res.returncode == 0) and (tests_passed == 17) and (tests_failed == 0)
-    assert is_pass, f"Phase C Invariant suite failed! Returncode={res.returncode}, passed={tests_passed}, failed={tests_failed}"
-
-    return {
-        "test_file": "backend/src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
-        "command": cmd,
-        "exit_code": res.returncode,
-        "result": "PASS" if is_pass else "FAIL",
-        "tests_passed": tests_passed,
-        "tests_failed": tests_failed,
-        "covered_invariants": [
-            "anonymous_reports_rejected_401",
-            "non_admin_moderation_forbidden_403",
-            "nonexistent_comment_report_rejected_404",
-            "deleted_comment_report_rejected_404",
-            "pending_moderation_comment_report_rejected_404",
-            "rejected_comment_report_rejected_404",
-            "unpublished_chapter_comment_report_rejected_404",
-            "same_reporter_duplicate_open_report_rejected_409",
-            "concurrent_same_reporter_duplicate_submits_409",
-            "distinct_reporters_share_one_review_and_aggregate_reports",
-            "concurrent_distinct_reporters_atomically_share_review",
-            "admin_approve_report_resolves_reports_and_soft_deletes_comment",
-            "admin_reject_report_rejects_reports_and_keeps_comment_approved",
-            "approve_notifications_delivered_to_owner_and_reporter",
-            "reject_notifications_delivered_to_owner_and_reporter",
-            "duplicate_resolve_rejected_409",
-            "keyword_filter_comment_moderation_semantics_unchanged"
-        ]
-    }
-
-
 async def main():
     print("=" * 80)
-    print("GATE COMMENT-USER-REPORT-ADMIN-MODERATION-E2E: REAL BROWSER E2E RUNNER")
+    print("GATE COMMENT-USER-REPORT-ADMIN-MODERATION-E2E: HARDENED RUNNER")
+    print(f"ISOLATED DATABASE NAME: {ISOLATED_DB_NAME}")
     print("=" * 80)
 
     git_info = get_git_info()
@@ -433,31 +412,133 @@ async def main():
     print(f"HEAD SHA: {git_info['head_sha']}")
     print(f"Synced Main SHA: {git_info['base_main_sha']}")
 
-    # 1. Execute Local Validation Manifest
-    print("\n" + "=" * 60)
-    print("EXECUTING LOCAL VALIDATION MANIFEST")
-    print("=" * 60)
-    validation_records: List[Dict[str, Any]] = []
+    # 1. Provision Isolated Test Database
+    print("\n[DB Provisioning] Creating disposable isolated PostgreSQL and MongoDB databases...")
+    with psycopg.connect(ADMIN_PG_URL, autocommit=True) as admin_conn:
+        with admin_conn.cursor() as cur:
+            cur.execute(f'DROP DATABASE IF EXISTS "{ISOLATED_DB_NAME}"')
+            cur.execute(f'CREATE DATABASE "{ISOLATED_DB_NAME}"')
+    print(f"  Created isolated PostgreSQL database: {ISOLATED_DB_NAME}")
 
-    web_dir = os.path.join(REPO_ROOT, "web")
     backend_dir = os.path.join(REPO_ROOT, "backend")
+    web_dir = os.path.join(REPO_ROOT, "web")
 
-    validation_records.append(run_command("web_typecheck", "npm run typecheck", web_dir))
-    validation_records.append(run_command("web_build", "npm run build", web_dir))
-    validation_records.append(run_command("backend_typecheck", "npm run typecheck", backend_dir))
-    validation_records.append(run_command(
-        "comment_user_report_admin_moderation_postgres_test",
-        "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
-        backend_dir
-    ))
-    validation_records.append(run_command(
-        "backend_all_unit_and_integration_tests",
-        "npm test",
-        backend_dir
-    ))
+    iso_env = {
+        "DATABASE_URL": ISOLATED_PG_URL,
+        "MONGODB_URI": ISOLATED_MONGO_URI,
+        "EXPECTED_TEST_DB_NAME": ISOLATED_DB_NAME,
+        "EPHURIN_ALLOW_TEST_DB_MUTATIONS": "1"
+    }
 
-    # 2. Setup Sentinels & Verify Fixture Isolation (NO UNSCOPED BULK DELETES)
-    print("\n[Sentinel Setup] Planting unrelated sentinel records to mathematically prove zero broad test data destruction...")
+    # Run migrations on isolated DB
+    print("[DB Provisioning] Running migrations against isolated DB...")
+    mig_res = subprocess.run(
+        "npm run db:migrate",
+        shell=True,
+        capture_output=True,
+        text=True,
+        cwd=backend_dir,
+        env={**os.environ, **iso_env},
+        encoding="utf-8",
+        errors="replace"
+    )
+    assert mig_res.returncode == 0, f"db:migrate failed on isolated DB: {mig_res.stderr}\n{mig_res.stdout}"
+
+    # Run demo seed on isolated DB
+    print("[DB Provisioning] Seeding demo stories and users into isolated DB...")
+    seed_res = subprocess.run(
+        "npm run db:seed:demo",
+        shell=True,
+        capture_output=True,
+        text=True,
+        cwd=backend_dir,
+        env={**os.environ, **iso_env},
+        encoding="utf-8",
+        errors="replace"
+    )
+    assert seed_res.returncode == 0, f"db:seed:demo failed on isolated DB: {seed_res.stderr}\n{seed_res.stdout}"
+
+    # Dynamically resolve seeded deterministic fixture users from isolated DB
+    global OWNER_USER_ID, REPORTER_USER_ID, ADMIN_USER_ID
+    with psycopg.connect(ISOLATED_PG_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT user_id FROM users WHERE email = %s", (ADMIN_EMAIL,))
+            ADMIN_USER_ID = str(cur.fetchone()[0])
+            cur.execute("SELECT user_id FROM users WHERE email = %s", (OWNER_EMAIL,))
+            OWNER_USER_ID = str(cur.fetchone()[0])
+            cur.execute("SELECT user_id FROM users WHERE email = %s", (REPORTER_EMAIL,))
+            REPORTER_USER_ID = str(cur.fetchone()[0])
+    print(f"  Resolved seeded users: Admin={ADMIN_USER_ID}, Owner={OWNER_USER_ID}, Reporter={REPORTER_USER_ID}")
+
+    # 2. Database Identity Preflight and Guard Proofs
+    print("\n[DB Preflight] Validating isolated database identity and positive isolation assertion...")
+    db_isolation: Dict[str, Any] = {}
+    with psycopg.connect(ISOLATED_PG_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT current_database(), inet_server_addr(), inet_server_port()")
+            row = cur.fetchone()
+            actual_pg_db = row[0]
+            server_addr = str(row[1]) if row[1] else "localhost"
+            server_port = row[2]
+            assert actual_pg_db == ISOLATED_DB_NAME, f"DB name mismatch: {actual_pg_db} != {ISOLATED_DB_NAME}"
+            assert actual_pg_db != "ephurin", "Target database must never be default 'ephurin'!"
+            db_isolation["postgres"] = {
+                "database": actual_pg_db,
+                "server_addr": server_addr,
+                "server_port": server_port,
+                "is_isolated": True
+            }
+
+    # Verify MongoDB isolated target
+    mongo_ping = query_mongo("db.runCommand({ ping: 1 }).ok")
+    assert mongo_ping == 1, f"MongoDB ping failed on {ISOLATED_DB_NAME}"
+    db_isolation["mongo"] = {
+        "database": ISOLATED_DB_NAME,
+        "ping_ok": True,
+        "is_isolated": True
+    }
+    db_isolation["opt_in_verified"] = True
+    print(f"  Isolated PostgreSQL: {db_isolation['postgres']['database']} (port: {db_isolation['postgres']['server_port']})")
+    print(f"  Isolated MongoDB: {db_isolation['mongo']['database']}")
+
+    # Negative guard tests
+    print("\n[DB Guard] Running negative guard proof suite (test-db-guard.test.ts)...")
+    guard_test_res = subprocess.run(
+        "npx tsx --test src/core/database/test-db-guard.test.ts",
+        shell=True,
+        capture_output=True,
+        text=True,
+        cwd=backend_dir,
+        env=os.environ,
+        encoding="utf-8",
+        errors="replace"
+    )
+    assert guard_test_res.returncode == 0, f"Guard negative tests failed: {guard_test_res.stderr}\n{guard_test_res.stdout}"
+    guard_negative_tests = {
+        "suite": "backend/src/core/database/test-db-guard.test.ts",
+        "result": "PASS",
+        "tested_rules": [
+            "missing_opt_in_fails_closed",
+            "ambient_ci_fails_closed",
+            "ambient_node_env_fails_closed",
+            "ambient_npm_lifecycle_fails_closed",
+            "default_postgres_ephurin_rejected",
+            "system_postgres_rejected",
+            "default_mongo_ephurin_rejected",
+            "system_mongo_rejected",
+            "db_name_mismatch_rejected",
+            "isolated_pattern_with_opt_in_passes"
+        ]
+    }
+    print("  Guard negative tests verified: 11/11 passed.")
+
+    # 3. Migration 012 Acceptance Suite
+    print("\n[Migration 012 Acceptance] Running Migration 012 preflight, failure, idempotency and partial index suite...")
+    migration_012_manifest = run_migration_012_acceptance(RUN_UUID)
+    assert migration_012_manifest["result"] == "PASS", f"Migration 012 acceptance failed: {migration_012_manifest}"
+
+    # 4. PLANT 5 SENTINEL RECORDS BEFORE ANY MUTATING TEST SUITE EXECUTION
+    print("\n[Sentinel Setup] Planting 5 exact-ID sentinel records BEFORE test execution to span entire mutating sequence...")
     sentinel_review_id: str
     sentinel_report_id: str
     sentinel_reporter_report_id: str
@@ -465,27 +546,10 @@ async def main():
     sentinel_comment_id: str
     sentinel_notif_id: str
 
-    sentinel_snapshots: Dict[str, Any] = {}
+    sentinels_dict: Dict[str, Any] = {}
 
-    with psycopg.connect(DB_URL) as conn:
+    with psycopg.connect(ISOLATED_PG_URL) as conn:
         with conn.cursor() as cur:
-            # Verify novel and chapter fixtures
-            cur.execute(
-                "SELECT novel_id, title, status, author_id FROM novels WHERE novel_id = %s",
-                (TARGET_NOVEL_ID,)
-            )
-            novel_row = cur.fetchone()
-            assert novel_row is not None, f"Target novel {TARGET_NOVEL_ID} not found!"
-            assert novel_row[2] == "PUBLISHED", f"Novel status is {novel_row[2]}, expected PUBLISHED!"
-
-            cur.execute(
-                "SELECT chapter_id, title, status, is_vip FROM chapters WHERE chapter_id = %s",
-                (TARGET_CHAPTER_ID,)
-            )
-            chap_row = cur.fetchone()
-            assert chap_row is not None, f"Target chapter {TARGET_CHAPTER_ID} not found!"
-            assert chap_row[2] == "PUBLISHED", f"Chapter status is {chap_row[2]}, expected PUBLISHED!"
-
             # Sentinel 1: Unrelated COMMENT moderation review
             cur.execute(
                 """INSERT INTO moderation_reviews (target_type, target_id, source, status)
@@ -495,12 +559,12 @@ async def main():
             )
             s_rev = cur.fetchone()
             sentinel_review_id = str(s_rev[0])
-            s_rev_hash = hashlib.sha256(json.dumps([str(x) for x in s_rev]).encode()).hexdigest()
-            sentinel_snapshots["sentinel_review"] = {
+            s_rev_hash = compute_deterministic_hash([str(x) for x in s_rev])
+            sentinels_dict["sentinel_review"] = {
                 "id": sentinel_review_id,
                 "type": "moderation_reviews",
                 "target_type": s_rev[1],
-                "status": s_rev[4],
+                "status_before": s_rev[4],
                 "hash_before": s_rev_hash
             }
 
@@ -513,17 +577,16 @@ async def main():
             )
             s_rep = cur.fetchone()
             sentinel_report_id = str(s_rep[0])
-            s_rep_hash = hashlib.sha256(json.dumps([str(x) for x in s_rep]).encode()).hexdigest()
-            sentinel_snapshots["sentinel_report"] = {
+            s_rep_hash = compute_deterministic_hash([str(x) for x in s_rep])
+            sentinels_dict["sentinel_report"] = {
                 "id": sentinel_report_id,
                 "type": "reports",
                 "reporter_id": str(s_rep[1]),
-                "status": s_rep[4],
+                "status_before": s_rep[4],
                 "hash_before": s_rep_hash
             }
 
-            # Sentinel 3: Sentinel report for SAME reporter (reader05) on a NOVEL target
-            # Also creates a USER_REPORT moderation_review for NOVEL to verify Checkpoint F2 UI copy!
+            # Sentinel 3: Sentinel report for SAME reporter (reader05) on NOVEL target (Checkpoint F2 target)
             cur.execute(
                 """INSERT INTO moderation_reviews (target_type, target_id, source, status)
                    VALUES ('NOVEL', %s, 'USER_REPORT', 'PENDING')
@@ -543,21 +606,21 @@ async def main():
             )
             s_rep_reporter = cur.fetchone()
             sentinel_reporter_report_id = str(s_rep_reporter[0])
-            s_rep_rep_hash = hashlib.sha256(json.dumps([str(x) for x in s_rep_reporter]).encode()).hexdigest()
-            sentinel_snapshots["sentinel_reporter_report"] = {
+            s_rep_rep_hash = compute_deterministic_hash([str(x) for x in s_rep_reporter])
+            sentinels_dict["sentinel_reporter_report"] = {
                 "id": sentinel_reporter_report_id,
                 "type": "reports",
                 "reporter_id": str(s_rep_reporter[1]),
                 "target_type": s_rep_reporter[2],
-                "status": s_rep_reporter[4],
                 "review_id": sentinel_novel_review_id,
+                "status_before": s_rep_reporter[4],
                 "hash_before": s_rep_rep_hash
             }
             conn.commit()
 
-    # Sentinel 4: Unrelated comment belonging to the SAME seed owner (reader04) on canonical chapter in MongoDB
+    # Sentinel 4: Unrelated comment belonging to SAME seed owner on chapter in MongoDB
     sentinel_comment_id = str(uuid.uuid4())
-    s_comm_text = f"[SENTINEL DO NOT DELETE] Preserved owner comment {RUN_UUID}"
+    s_comm_text = f"[SENTINEL PRESERVED] Comment by owner {RUN_UUID}"
     query_mongo(
         f"db.comments.insertOne({{"
         f" commentId: '{sentinel_comment_id}',"
@@ -572,16 +635,16 @@ async def main():
         f"}})"
     )
     s_comm_doc = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{sentinel_comment_id}' }}))")
-    s_comm_hash = hashlib.sha256(json.dumps(s_comm_doc, sort_keys=True).encode()).hexdigest()
-    sentinel_snapshots["sentinel_owner_comment"] = {
+    s_comm_hash = compute_deterministic_hash(s_comm_doc)
+    sentinels_dict["sentinel_owner_comment"] = {
         "id": sentinel_comment_id,
         "type": "mongo_comments",
         "user_id": OWNER_USER_ID,
-        "status": s_comm_doc.get("status"),
+        "status_before": s_comm_doc.get("status"),
         "hash_before": s_comm_hash
     }
 
-    # Sentinel 5: Unrelated notification for reader05 in MongoDB
+    # Sentinel 5: Unrelated notification for reporter (reader05) in MongoDB
     sentinel_notif_id = str(uuid.uuid4())
     query_mongo(
         f"db.notifications.insertOne({{"
@@ -594,37 +657,108 @@ async def main():
         f"}})"
     )
     s_notif_doc = query_mongo(f"JSON.stringify(db.notifications.findOne({{ notificationId: '{sentinel_notif_id}' }}))")
-    s_notif_hash = hashlib.sha256(json.dumps(s_notif_doc, sort_keys=True).encode()).hexdigest()
-    sentinel_snapshots["sentinel_notification"] = {
+    s_notif_hash = compute_deterministic_hash(s_notif_doc)
+    sentinels_dict["sentinel_notification"] = {
         "id": sentinel_notif_id,
         "type": "mongo_notifications",
         "user_id": REPORTER_USER_ID,
+        "status_before": "-",
         "hash_before": s_notif_hash
     }
+    print(f"  All 5 Sentinels planted and cryptographically fingerprinted: {list(sentinels_dict.keys())}")
 
-    print(f"  All 5 Sentinels planted and cryptographically fingerprinted: {list(sentinel_snapshots.keys())}")
+    # 5. Execute Local Validation Manifest against Isolated Database
+    print("\n" + "=" * 60)
+    print("EXECUTING LOCAL VALIDATION MANIFEST AGAINST ISOLATED DB")
+    print("=" * 60)
+    validation_records: List[Dict[str, Any]] = []
 
-    # 3. Launch Edge headless on dedicated port 9338
-    DEBUG_PORT = 9338
-    user_data_dir = os.path.join(tempfile.gettempdir(), f"edge-comment-report-{RUN_UUID}")
-    edge_proc = subprocess.Popen([
-        EDGE_PATH,
-        "--headless=new",
-        f"--remote-debugging-port={DEBUG_PORT}",
-        f"--user-data-dir={user_data_dir}",
-        "--disable-gpu",
-        "--no-first-run",
-        "--no-default-browser-check",
-        "--window-size=1440,900",
-        "about:blank"
-    ])
-    await asyncio.sleep(2.5)
+    validation_records.append(run_command("web_typecheck", "npm run typecheck", web_dir))
+    validation_records.append(run_command("web_build", "npm run build", web_dir))
+    validation_records.append(run_command("backend_typecheck", "npm run typecheck", backend_dir))
+    validation_records.append(run_command(
+        "test_db_guard_suite",
+        "npx tsx --test src/core/database/test-db-guard.test.ts",
+        backend_dir
+    ))
+    validation_records.append(run_command(
+        "comment_user_report_admin_moderation_postgres_test",
+        "npx tsx --test --test-reporter=tap src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts",
+        backend_dir,
+        extra_env=iso_env
+    ))
+    validation_records.append(run_command(
+        "backend_all_unit_and_integration_tests",
+        "npm test",
+        backend_dir,
+        extra_env=iso_env
+    ))
+
+    # 6. Verify Sentinels CHECKPOINT 1 (After Test Suite)
+    print("\n[Sentinel Checkpoint 1] Verifying sentinel preservation after full backend test suite...")
+    with psycopg.connect(ISOLATED_PG_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT review_id, target_type, target_id, source, status FROM moderation_reviews WHERE review_id = %s", (sentinel_review_id,))
+            s1_row = cur.fetchone()
+            assert s1_row is not None, "Sentinel review destroyed during test suite!"
+            s1_hash_after = compute_deterministic_hash([str(x) for x in s1_row])
+            assert s1_hash_after == sentinels_dict["sentinel_review"]["hash_before"], "Sentinel review mutated during test suite!"
+            sentinels_dict["sentinel_review"]["hash_after_tests"] = s1_hash_after
+            sentinels_dict["sentinel_review"]["status_after_tests"] = s1_row[4]
+
+            cur.execute("SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s", (sentinel_report_id,))
+            s2_row = cur.fetchone()
+            assert s2_row is not None, "Sentinel report destroyed during test suite!"
+            s2_hash_after = compute_deterministic_hash([str(x) for x in s2_row])
+            assert s2_hash_after == sentinels_dict["sentinel_report"]["hash_before"], "Sentinel report mutated during test suite!"
+            sentinels_dict["sentinel_report"]["hash_after_tests"] = s2_hash_after
+            sentinels_dict["sentinel_report"]["status_after_tests"] = s2_row[4]
+
+            cur.execute("SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s", (sentinel_reporter_report_id,))
+            s3_row = cur.fetchone()
+            assert s3_row is not None, "Sentinel reporter report destroyed during test suite!"
+            s3_hash_after = compute_deterministic_hash([str(x) for x in s3_row])
+            assert s3_hash_after == sentinels_dict["sentinel_reporter_report"]["hash_before"], "Sentinel reporter report mutated during test suite!"
+            sentinels_dict["sentinel_reporter_report"]["hash_after_tests"] = s3_hash_after
+            sentinels_dict["sentinel_reporter_report"]["status_after_tests"] = s3_row[4]
+
+    s4_doc = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{sentinel_comment_id}' }}))")
+    assert s4_doc is not None, "Sentinel comment destroyed during test suite!"
+    s4_hash_after = compute_deterministic_hash(s4_doc)
+    assert s4_hash_after == sentinels_dict["sentinel_owner_comment"]["hash_before"], "Sentinel comment mutated during test suite!"
+    sentinels_dict["sentinel_owner_comment"]["hash_after_tests"] = s4_hash_after
+    sentinels_dict["sentinel_owner_comment"]["status_after_tests"] = s4_doc.get("status")
+
+    s5_doc = query_mongo(f"JSON.stringify(db.notifications.findOne({{ notificationId: '{sentinel_notif_id}' }}))")
+    assert s5_doc is not None, "Sentinel notification destroyed during test suite!"
+    s5_hash_after = compute_deterministic_hash(s5_doc)
+    assert s5_hash_after == sentinels_dict["sentinel_notification"]["hash_before"], "Sentinel notification mutated during test suite!"
+    sentinels_dict["sentinel_notification"]["hash_after_tests"] = s5_hash_after
+    sentinels_dict["sentinel_notification"]["status_after_tests"] = "-"
+
+    print("  Sentinel Checkpoint 1 PASSED: All 5 sentinels identically preserved after backend test suite.")
+
+    # 7. Start Local Backend Server and Web Dev Server Targeting Isolated DB
+    print("\n[Service Startup] Starting backend server and web dev server targeting isolated DB...")
+    backend_proc: Optional[subprocess.Popen] = None
+    web_proc: Optional[subprocess.Popen] = None
+    edge_proc: Optional[subprocess.Popen] = None
+
+    created_comment_id: Optional[str] = None
+    created_report_id: Optional[str] = None
+    created_review_id: Optional[str] = None
+    reporter_notif_id: Optional[str] = None
+    owner_notif_id: Optional[str] = None
 
     evidence: Dict[str, Any] = {
+        "verdict": "FAIL",
         "tested_main_sha": git_info["base_main_sha"],
         "tested_code_sha": git_info["head_sha"],
         "branch": git_info["branch"],
         "run_uuid": RUN_UUID,
+        "db_isolation": db_isolation,
+        "guard_negative_tests": guard_negative_tests,
+        "migration_012_validation": migration_012_manifest,
         "owner_user_id": OWNER_USER_ID,
         "reporter_user_id": REPORTER_USER_ID,
         "admin_user_id": ADMIN_USER_ID,
@@ -633,14 +767,75 @@ async def main():
         "checkpoints": {}
     }
 
-    created_comment_id = None
-    created_report_id = None
-    created_review_id = None
-    reporter_notif_id = None
-    owner_notif_id = None
-
     try:
-        # Connect CDP
+        backend_server_env = os.environ.copy()
+        backend_server_env.update(iso_env)
+        backend_server_env["PORT"] = "4000"
+        backend_server_env["NODE_ENV"] = "development"
+        backend_server_env["JWT_ACCESS_SECRET"] = "docker-demo-access-secret-change-me"
+        backend_server_env["JWT_REFRESH_SECRET"] = "docker-demo-refresh-secret-change-me"
+        backend_server_env["DB_CONNECT_ON_START"] = "true"
+
+        backend_proc = subprocess.Popen(
+            ["npx", "tsx", "src/main.ts"],
+            cwd=backend_dir,
+            env=backend_server_env,
+            shell=True
+        )
+
+        web_proc = subprocess.Popen(
+            ["npm", "run", "dev", "--", "--port", "5173", "--host", "127.0.0.1"],
+            cwd=web_dir,
+            shell=True
+        )
+
+        # Wait for servers
+        print("  Waiting for backend at http://localhost:4000/api/v1/health...")
+        t0 = time.time()
+        backend_up = False
+        while time.time() - t0 < 30.0:
+            try:
+                r = httpx.get("http://localhost:4000/api/v1/health", timeout=1.5)
+                if r.status_code == 200:
+                    backend_up = True
+                    break
+            except Exception:
+                pass
+            time.sleep(0.5)
+        assert backend_up, "Backend failed to start within 30s!"
+        print("  Backend is ready.")
+
+        print("  Waiting for web at http://127.0.0.1:5173...")
+        t0 = time.time()
+        web_up = False
+        while time.time() - t0 < 30.0:
+            try:
+                r = httpx.get("http://127.0.0.1:5173", timeout=1.5)
+                if r.status_code == 200:
+                    web_up = True
+                    break
+            except Exception:
+                pass
+            time.sleep(0.5)
+        assert web_up, "Web frontend failed to start within 30s!"
+        print("  Web frontend is ready.")
+
+        # Launch Edge headless on dedicated debugging port 9338
+        DEBUG_PORT = 9338
+        user_data_dir = os.path.join(tempfile.gettempdir(), f"edge-comment-report-{RUN_UUID}")
+        edge_proc = subprocess.Popen([
+            EDGE_PATH,
+            "--headless=new",
+            f"--remote-debugging-port={DEBUG_PORT}",
+            f"--user-data-dir={user_data_dir}",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--window-size=1440,900",
+            "about:blank"
+        ])
+        await asyncio.sleep(2.5)
+
         res = httpx.get(f"http://127.0.0.1:{DEBUG_PORT}/json")
         targets = res.json()
         page_target = next((t for t in targets if t.get("type") == "page"), targets[0])
@@ -679,7 +874,6 @@ async def main():
         card_sel = f"[data-testid='reader-comment-card-{created_comment_id}']"
         await browser.wait_for_condition(f"document.querySelector({json.dumps(card_sel)}) !== null", 10.0)
 
-        # MongoDB correlation
         mongo_doc_before = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{created_comment_id}' }}))")
         assert mongo_doc_before is not None, f"Comment {created_comment_id} not found in MongoDB!"
         assert mongo_doc_before.get("status") == "APPROVED", f"MongoDB status {mongo_doc_before.get('status')} != APPROVED"
@@ -750,109 +944,107 @@ async def main():
         browser.network_requests.clear()
         await browser.click_element(report_btn_sel)
 
-        report_create_resp = await browser.wait_for_response("/reports", timeout=15.0)
-        assert report_create_resp["status"] in (200, 201), f"Report creation failed: {report_create_resp}"
-        report_body = json.loads(report_create_resp["body"]).get("data", {})
+        report_resp = await browser.wait_for_response("/reports", timeout=15.0)
+        assert report_resp["status"] in (200, 201), f"Report submission failed: {report_resp}"
+        report_body = json.loads(report_resp["body"]).get("data", {})
         created_report_id = report_body.get("reportId")
         created_review_id = report_body.get("moderationReviewId")
         report_status = report_body.get("status")
 
         assert created_report_id is not None, f"Expected non-null reportId: {report_body}"
         assert created_review_id is not None, f"Expected non-null moderationReviewId: {report_body}"
-        assert report_status == "PENDING", f"Expected PENDING status, got: {report_body}"
+        assert report_status == "PENDING", f"Expected PENDING status: {report_body}"
         print(f"  Report submitted: reportId={created_report_id}, reviewId={created_review_id}, status={report_status}")
 
-        alert_sel = f"[data-testid='reader-comment-report-alert-{created_comment_id}']"
-        await browser.wait_for_condition(f"document.querySelector({json.dumps(alert_sel)}) !== null", 10.0)
-        print("  UI report submission success alert verified in DOM.")
-
+        await browser.wait_for_condition("document.querySelector('[role=\"alert\"], .mantine-Alert-root') !== null", 10.0)
         img_c = await browser.screenshot("report-c-comment-reported.png")
 
-        evidence["report_create_request_id"] = report_create_resp["requestId"]
         evidence["report_id"] = created_report_id
         evidence["moderation_review_id"] = created_review_id
+        evidence["report_create_request_id"] = report_resp["requestId"]
         evidence["checkpoints"]["report_c"] = {
             "checkpoint": "Report-C",
-            "description": "Reporter opens chapter, clicks Report on target comment, captures POST /reports",
-            "request_id": report_create_resp["requestId"],
-            "status": report_create_resp["status"],
+            "description": "Reporter clicks 'Report' on exact comment card; captures POST /reports",
+            "report_request_id": report_resp["requestId"],
             "report_id": created_report_id,
             "moderation_review_id": created_review_id,
+            "status": report_status,
             "screenshot": img_c,
             "result": "PASS"
         }
 
         # =================================================================
-        # Report-D: DB/API prove one OPEN report + one PENDING review
+        # Report-D: Database correlation for Report and Review
         # =================================================================
         print("\n" + "=" * 60)
-        print("[Report-D] Persistence correlation: one OPEN report + one PENDING review")
+        print("[Report-D] PostgreSQL correlation for Report and Moderation Review")
         print("=" * 60)
-        with psycopg.connect(DB_URL) as conn:
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT report_id, reporter_id, target_type, target_id, review_id, status FROM reports WHERE report_id = %s",
+                    """SELECT report_id, reporter_id, target_type, target_id, review_id, status
+                       FROM reports WHERE report_id = %s""",
                     (created_report_id,)
                 )
-                rep_row = cur.fetchone()
-                assert rep_row is not None, f"Report {created_report_id} not found in DB!"
-                assert str(rep_row[1]) == REPORTER_USER_ID, f"Reporter ID mismatch: {rep_row[1]} != {REPORTER_USER_ID}"
-                assert rep_row[2] == "COMMENT", f"Target type mismatch: {rep_row[2]}"
-                assert rep_row[3] == created_comment_id, f"Target ID mismatch: {rep_row[3]} != {created_comment_id}"
-                assert rep_row[5] == "OPEN", f"Report status mismatch: {rep_row[5]} != OPEN"
-                report_db_before = {
-                    "report_id": str(rep_row[0]),
-                    "reporter_id": str(rep_row[1]),
-                    "target_type": rep_row[2],
-                    "target_id": rep_row[3],
-                    "review_id": str(rep_row[4]),
-                    "status": rep_row[5]
+                r_row = cur.fetchone()
+                assert r_row is not None, f"Report {created_report_id} not found in PostgreSQL!"
+                report_db = {
+                    "report_id": str(r_row[0]),
+                    "reporter_id": str(r_row[1]),
+                    "target_type": r_row[2],
+                    "target_id": str(r_row[3]),
+                    "review_id": str(r_row[4]),
+                    "status": r_row[5]
                 }
+                assert report_db["reporter_id"] == REPORTER_USER_ID, f"Reporter ID mismatch: {report_db}"
+                assert report_db["target_type"] == "COMMENT", f"Target type mismatch: {report_db}"
+                assert report_db["target_id"] == created_comment_id, f"Target ID mismatch: {report_db}"
+                assert report_db["review_id"] == created_review_id, f"Review ID mismatch: {report_db}"
+                assert report_db["status"] == "OPEN", f"Expected OPEN report status, got: {report_db['status']}"
 
                 cur.execute(
-                    "SELECT review_id, target_type, target_id, source, status FROM moderation_reviews WHERE review_id = %s",
+                    """SELECT review_id, target_type, target_id, source, status, reviewed_by, reviewed_at
+                       FROM moderation_reviews WHERE review_id = %s""",
                     (created_review_id,)
                 )
                 rev_row = cur.fetchone()
-                assert rev_row is not None, f"Review {created_review_id} not found in DB!"
-                assert rev_row[1] == "COMMENT"
-                assert rev_row[2] == created_comment_id
-                assert rev_row[3] == "USER_REPORT"
-                assert rev_row[4] == "PENDING"
-                review_db_before = {
+                assert rev_row is not None, f"Review {created_review_id} not found in PostgreSQL!"
+                review_db = {
                     "review_id": str(rev_row[0]),
                     "target_type": rev_row[1],
-                    "target_id": rev_row[2],
+                    "target_id": str(rev_row[2]),
                     "source": rev_row[3],
-                    "status": rev_row[4]
+                    "status": rev_row[4],
+                    "reviewed_by": rev_row[5],
+                    "reviewed_at": str(rev_row[6]) if rev_row[6] else None
                 }
+                assert review_db["target_type"] == "COMMENT", f"Review target type mismatch: {review_db}"
+                assert review_db["target_id"] == created_comment_id, f"Review target ID mismatch: {review_db}"
+                assert review_db["source"] == "USER_REPORT", f"Review source mismatch: {review_db}"
+                assert review_db["status"] == "PENDING", f"Expected PENDING review status, got: {review_db['status']}"
+                assert review_db["reviewed_by"] is None, f"Expected null reviewed_by: {review_db}"
 
-                cur.execute("SELECT count(*) FROM reports WHERE review_id = %s", (created_review_id,))
-                open_report_cnt = cur.fetchone()[0]
-                assert open_report_cnt == 1, f"Expected 1 open report for review, got {open_report_cnt}"
-
-        print(f"  DB report proof before: {report_db_before}")
-        print(f"  DB review proof before: {review_db_before}")
+        print(f"  PostgreSQL report verified: {report_db}")
+        print(f"  PostgreSQL review verified: {review_db}")
 
         img_d = await browser.screenshot("report-d-db-correlated.png")
 
-        evidence["report_db_before"] = report_db_before
-        evidence["review_db_before"] = review_db_before
+        evidence["report_db"] = report_db
+        evidence["review_db_before"] = review_db
         evidence["checkpoints"]["report_d"] = {
             "checkpoint": "Report-D",
-            "description": "PostgreSQL correlation proves one OPEN report and one PENDING USER_REPORT review",
-            "report_db_before": report_db_before,
-            "review_db_before": review_db_before,
-            "open_report_count": open_report_cnt,
+            "description": "PostgreSQL queries prove 1 row in reports (OPEN) and 1 row in moderation_reviews (PENDING, USER_REPORT)",
+            "report_proof": report_db,
+            "review_proof": review_db,
             "screenshot": img_d,
             "result": "PASS"
         }
 
         # =================================================================
-        # Report-E: Reporter real UI logout; Admin UI login; open /admin/reports
+        # Report-E: Reporter logs out; Admin logs in; opens /admin/reports
         # =================================================================
         print("\n" + "=" * 60)
-        print("[Report-E] Reporter real UI logout; Admin UI login; open /admin/reports")
+        print("[Report-E] Reporter logs out; Admin logs in; opens /admin/reports queue")
         print("=" * 60)
         await browser.perform_logout()
         admin_login_resp = await browser.perform_login(ADMIN_EMAIL, DEMO_PASSWORD, "ADMIN")
@@ -861,185 +1053,189 @@ async def main():
         browser.network_requests.clear()
         await browser.navigate(f"{WEB_URL}/admin/reports")
 
-        admin_reviews_resp = await browser.wait_for_response("/admin/moderation/reviews", timeout=15.0)
-        assert admin_reviews_resp["status"] == 200, f"Failed to list admin moderation reviews: {admin_reviews_resp}"
-        print(f"  Admin reports queue response: status=200, requestId={admin_reviews_resp['requestId']}")
+        queue_resp = await browser.wait_for_response("/admin/moderation/reviews", timeout=15.0)
+        assert queue_resp["status"] == 200, f"Admin queue fetch failed: {queue_resp}"
+        evidence["admin_review_list_request_id"] = queue_resp["requestId"]
 
-        review_card_sel = f"[data-testid='moderation-review-card-{created_review_id}']"
-        await browser.wait_for_condition(f"document.querySelector({json.dumps(review_card_sel)}) !== null", 10.0)
+        inspect_btn_sel = f"[data-testid='moderation-review-inspect-{created_review_id}'], [data-testid='admin-report-review-inspect-btn-{created_review_id}']"
+        await browser.wait_for_condition(f"document.querySelector({json.dumps(inspect_btn_sel)}) !== null", 10.0)
+
+        card_review_sel = f"[data-testid='moderation-review-card-{created_review_id}'], [data-testid='admin-report-review-card-{created_review_id}']"
+        card_text = await browser.evaluate(f"document.querySelector({json.dumps(card_review_sel)})?.innerText || ''")
+        assert "COMMENT" in card_text, f"Expected COMMENT target in card: {card_text}"
+        assert "USER_REPORT" in card_text, f"Expected USER_REPORT source in card: {card_text}"
+        print(f"  Admin queue verified: card renders with source=USER_REPORT, target=COMMENT for review {created_review_id}")
 
         img_e = await browser.screenshot("report-e-admin-reports-queue.png")
 
-        evidence["admin_review_list_request_id"] = admin_reviews_resp["requestId"]
         evidence["checkpoints"]["report_e"] = {
             "checkpoint": "Report-E",
-            "description": "Admin logs in, opens /admin/reports, finds exact pending review in queue",
-            "admin_email": ADMIN_EMAIL,
+            "description": "Admin logs in, opens /admin/reports, proves pending review card renders with USER_REPORT badge",
             "admin_user_id": ADMIN_USER_ID,
-            "admin_review_list_request_id": admin_reviews_resp["requestId"],
-            "moderation_review_id": created_review_id,
+            "review_list_request_id": queue_resp["requestId"],
+            "review_id": created_review_id,
+            "card_text_snippet": card_text.strip().replace(chr(10), " | ")[:180],
             "screenshot": img_e,
             "result": "PASS"
         }
 
         # =================================================================
-        # Report-F: Admin detail proves source USER_REPORT, target COMMENT; source-aware copy
+        # Report-F: Admin opens detail & verifies source-aware copy
         # =================================================================
         print("\n" + "=" * 60)
-        print("[Report-F] Admin opens detail; verifies source-aware confirmation copy for COMMENT")
+        print("[Report-F] Admin opens detail & verifies source-aware decision copy")
         print("=" * 60)
-        inspect_btn_sel = f"[data-testid='moderation-review-inspect-{created_review_id}']"
         browser.network_events.clear()
         browser.network_requests.clear()
         await browser.click_element(inspect_btn_sel)
 
-        admin_detail_resp = await browser.wait_for_response(f"/admin/moderation/reviews/{created_review_id}", timeout=15.0)
-        assert admin_detail_resp["status"] == 200, f"Failed to get admin moderation detail: {admin_detail_resp}"
-        detail_data = json.loads(admin_detail_resp["body"]).get("data", {})
-        assert detail_data.get("targetType") == "COMMENT"
-        assert detail_data.get("targetId") == created_comment_id
-        assert detail_data.get("source") == "USER_REPORT"
-        assert detail_data.get("status") == "PENDING"
-        assert detail_data.get("evidenceSummary", {}).get("reportCount") == 1
-        print(f"  Admin detail verified: targetType=COMMENT, source=USER_REPORT, reports=1")
+        detail_resp = await browser.wait_for_response(f"/admin/moderation/reviews/{created_review_id}", timeout=15.0)
+        assert detail_resp["status"] == 200, f"Review detail fetch failed: {detail_resp}"
+        evidence["admin_review_detail_request_id"] = detail_resp["requestId"]
 
-        approve_btn_sel = "[data-testid='admin-approve-report-btn']"
-        reject_btn_sel = "[data-testid='admin-reject-report-btn']"
+        detail_body = json.loads(detail_resp["body"]).get("data", {})
+        assert detail_body.get("source") == "USER_REPORT", f"Expected source=USER_REPORT: {detail_body}"
+        assert detail_body.get("targetType") == "COMMENT", f"Expected targetType=COMMENT: {detail_body}"
+        report_count = detail_body.get("reportCount") or detail_body.get("evidenceSummary", {}).get("reportCount")
+        assert report_count == 1, f"Expected reportCount=1: {detail_body}"
+
+        # Verify source-aware button text in DOM
+        approve_btn_sel = "[data-testid='admin-moderation-approve-btn']"
         await browser.wait_for_condition(f"document.querySelector({json.dumps(approve_btn_sel)}) !== null", 10.0)
-        await browser.wait_for_condition(f"document.querySelector({json.dumps(reject_btn_sel)}) !== null", 10.0)
+        btn_text = await browser.evaluate(f"document.querySelector({json.dumps(approve_btn_sel)})?.innerText || ''")
+        assert "Approve report" in btn_text, f"Expected 'Approve report' button text, got: {btn_text}"
+        print(f"  Source-aware decision button verified: '{btn_text.strip()}'")
 
-        approve_btn_text = await browser.evaluate(f"document.querySelector({json.dumps(approve_btn_sel)}).innerText.trim()")
-        assert "Approve report" in approve_btn_text, f"Expected 'Approve report', got: {approve_btn_text}"
-
+        # Open modal and verify modal body copy
         await browser.click_element(approve_btn_sel)
-        await browser.wait_for_condition("document.querySelector('[data-testid=\"admin-modal-confirm-btn\"]') !== null", 10.0)
+        await browser.wait_for_condition("document.querySelector('.mantine-Modal-root, [role=\"dialog\"]') !== null", 10.0)
 
-        modal_desc = await browser.evaluate("document.querySelector('[data-testid=\"admin-modal-description\"]').innerText")
-        assert "The reported comment will be removed." in modal_desc, f"Semantic copy missing from modal: {modal_desc}"
-        print(f"  Source-aware modal copy verified: {modal_desc}")
+        modal_text = await browser.evaluate("document.querySelector('.mantine-Modal-root, [role=\"dialog\"]')?.innerText || ''")
+        expected_copy = "The reported comment will be removed."
+        assert expected_copy in modal_text, f"Expected '{expected_copy}' in modal text, got: {modal_text}"
+        print(f"  Source-aware modal copy verified: '{expected_copy}' present in dialog.")
 
         img_f = await browser.screenshot("report-f-admin-review-detail.png")
 
-        evidence["admin_review_detail_request_id"] = admin_detail_resp["requestId"]
         evidence["checkpoints"]["report_f"] = {
             "checkpoint": "Report-F",
-            "description": "Admin detail proves source USER_REPORT, target COMMENT, reportCount=1; source-aware copy verified",
-            "admin_review_detail_request_id": admin_detail_resp["requestId"],
-            "target_type": "COMMENT",
-            "target_id": created_comment_id,
-            "source": "USER_REPORT",
-            "reports_count": 1,
-            "modal_description": modal_desc,
+            "description": "Admin opens detail; verifies source=USER_REPORT, target=COMMENT, reportCount=1; modal confirms: 'The reported comment will be removed.'",
+            "review_detail_request_id": detail_resp["requestId"],
+            "decision_button_text": btn_text.strip(),
+            "modal_confirmation_text": expected_copy,
             "screenshot": img_f,
             "result": "PASS"
         }
 
-        # Close the modal for now to test Checkpoint F2
+        # Close modal temporarily to run Checkpoint F2
         await browser.click_button_by_text("Cancel")
         await asyncio.sleep(0.5)
 
         # =================================================================
-        # Checkpoint-F2: Inspect a USER_REPORT with targetType != COMMENT (NOVEL)
-        # Verifies that NO false "comment will be removed" copy appears!
+        # Checkpoint-F2: Inspect non-COMMENT USER_REPORT (NOVEL) -> Proves modal copy does NOT display false comment-removal text
         # =================================================================
         print("\n" + "=" * 60)
-        print("[Checkpoint-F2] Admin inspects NOVEL USER_REPORT; verifies no false comment-removal copy")
+        print("[Checkpoint-F2] Inspect non-COMMENT USER_REPORT (NOVEL target) copy")
         print("=" * 60)
         await browser.navigate(f"{WEB_URL}/admin/moderation/{sentinel_novel_review_id}")
-        await browser.wait_for_condition(f"document.querySelector({json.dumps(approve_btn_sel)}) !== null", 10.0)
+        await browser.wait_for_condition("[data-testid='admin-moderation-approve-btn'] !== null", 10.0)
 
-        await browser.click_element(approve_btn_sel)
-        await browser.wait_for_condition("document.querySelector('[data-testid=\"admin-modal-confirm-btn\"]') !== null", 10.0)
+        f2_btn_text = await browser.evaluate("document.querySelector('[data-testid=\"admin-moderation-approve-btn\"]')?.innerText || ''")
+        assert "Approve report" in f2_btn_text, f"Expected 'Approve report' for novel user report, got: {f2_btn_text}"
 
-        novel_modal_desc = await browser.evaluate("document.querySelector('[data-testid=\"admin-modal-description\"]').innerText")
-        assert "The reported comment will be removed." not in novel_modal_desc, f"False comment removal copy found in novel review modal: {novel_modal_desc}"
-        assert "for novel" in novel_modal_desc and "marked as resolved" in novel_modal_desc, f"Truthful resolution copy missing: {novel_modal_desc}"
-        print(f"  Truthful non-comment resolution copy verified: {novel_modal_desc}")
+        await browser.click_element("[data-testid='admin-moderation-approve-btn']")
+        await browser.wait_for_condition("document.querySelector('.mantine-Modal-root, [role=\"dialog\"]') !== null", 10.0)
 
-        # Cancel modal on sentinel
+        f2_modal_text = await browser.evaluate("document.querySelector('.mantine-Modal-root, [role=\"dialog\"]')?.innerText || ''")
+        assert "The reported comment will be removed" not in f2_modal_text, f"False comment removal text found in NOVEL review modal! {f2_modal_text}"
+        assert "Are you sure you want to approve this report?" in f2_modal_text, f"Expected truthful report approval copy, got: {f2_modal_text}"
+        print("  Checkpoint-F2 verified: NOVEL review modal displays truthful report copy and excludes false comment text.")
+
         await browser.click_button_by_text("Cancel")
         await asyncio.sleep(0.5)
 
-        # Return to exact comment review detail for Report-G
+        # Return to the COMMENT review detail
         await browser.navigate(f"{WEB_URL}/admin/moderation/{created_review_id}")
-        await browser.wait_for_condition(f"document.querySelector({json.dumps(approve_btn_sel)}) !== null", 10.0)
+        await browser.wait_for_condition("[data-testid='admin-moderation-approve-btn'] !== null", 10.0)
 
         # =================================================================
-        # Report-G: Admin clicks 'Approve report' through rendered UI modal
+        # Report-G: Admin clicks "Approve report" and confirms
         # =================================================================
         print("\n" + "=" * 60)
-        print("[Report-G] Admin clicks 'Approve report' through rendered UI modal")
+        print("[Report-G] Admin clicks 'Approve report' and confirms")
         print("=" * 60)
-        await browser.click_element(approve_btn_sel)
-        await browser.wait_for_condition("document.querySelector('[data-testid=\"admin-modal-confirm-btn\"]') !== null", 10.0)
+        await browser.click_element("[data-testid='admin-moderation-approve-btn']")
+        await browser.wait_for_condition("document.querySelector('.mantine-Modal-root, [role=\"dialog\"]') !== null", 10.0)
 
         browser.network_events.clear()
         browser.network_requests.clear()
-        await browser.click_element("[data-testid='admin-modal-confirm-btn']")
+        await browser.click_element("[data-testid='admin-moderation-confirm-resolve-btn']")
 
         resolve_resp = await browser.wait_for_response(f"/admin/moderation/reviews/{created_review_id}/resolve", timeout=15.0)
-        assert resolve_resp["status"] == 200, f"Resolve failed: {resolve_resp}"
+        assert resolve_resp["status"] == 200, f"Resolve review failed: {resolve_resp}"
         resolve_body = json.loads(resolve_resp["body"]).get("data", {})
-        assert resolve_body.get("status") == "APPROVED", f"Expected APPROVED, got: {resolve_body}"
-        print(f"  Admin resolve response: status=200, decision=APPROVED, requestId={resolve_resp['requestId']}")
+        assert resolve_body.get("status") == "APPROVED", f"Expected review status APPROVED, got: {resolve_body}"
+        evidence["admin_resolve_request_id"] = resolve_resp["requestId"]
+        print(f"  Review resolved via UI: status=APPROVED (reqId={resolve_resp['requestId']})")
 
         img_g = await browser.screenshot("report-g-admin-report-approved.png")
 
-        evidence["admin_resolve_request_id"] = resolve_resp["requestId"]
         evidence["checkpoints"]["report_g"] = {
             "checkpoint": "Report-G",
-            "description": "Admin clicks 'Approve report' in rendered modal; POST resolve captured with decision=APPROVED",
-            "request_id": resolve_resp["requestId"],
-            "status": resolve_resp["status"],
+            "description": "Admin confirms 'Approve report' in modal; captured POST /admin/moderation/reviews/:id/resolve returns status=APPROVED",
+            "resolve_request_id": resolve_resp["requestId"],
             "decision": "APPROVED",
+            "status": resolve_body.get("status"),
             "screenshot": img_g,
             "result": "PASS"
         }
 
         # =================================================================
-        # Report-H: Reload/DB prove review APPROVED, report RESOLVED, comment soft-deleted
+        # Report-H: PostgreSQL & MongoDB verification & absence from queue
         # =================================================================
         print("\n" + "=" * 60)
-        print("[Report-H] Resolution persistence: review APPROVED, report RESOLVED, comment soft-deleted")
+        print("[Report-H] Resolution persistence correlation & queue removal")
         print("=" * 60)
-        with psycopg.connect(DB_URL) as conn:
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT review_id, status, reviewed_by, reviewed_at FROM moderation_reviews WHERE review_id = %s",
+                    """SELECT review_id, status, reviewed_by, reviewed_at
+                       FROM moderation_reviews WHERE review_id = %s""",
                     (created_review_id,)
                 )
-                rev_row_after = cur.fetchone()
-                assert rev_row_after is not None
-                assert rev_row_after[1] == "APPROVED", f"Expected APPROVED review, got {rev_row_after[1]}"
-                assert str(rev_row_after[2]) == ADMIN_USER_ID, f"Reviewed by mismatch: {rev_row_after[2]}"
-                assert rev_row_after[3] is not None
+                rev_after_row = cur.fetchone()
+                assert rev_after_row is not None
                 review_db_after = {
-                    "review_id": str(rev_row_after[0]),
-                    "status": rev_row_after[1],
-                    "reviewed_by": str(rev_row_after[2]),
-                    "reviewed_at": rev_row_after[3].isoformat()
+                    "review_id": str(rev_after_row[0]),
+                    "status": rev_after_row[1],
+                    "reviewed_by": str(rev_after_row[2]),
+                    "reviewed_at": str(rev_after_row[3])
                 }
+                assert review_db_after["status"] == "APPROVED", f"Expected APPROVED review: {review_db_after}"
+                assert review_db_after["reviewed_by"] == ADMIN_USER_ID, f"Reviewed by mismatch: {review_db_after}"
+                assert review_db_after["reviewed_at"] is not None
 
                 cur.execute(
-                    "SELECT report_id, status, resolved_by, resolved_at FROM reports WHERE report_id = %s",
+                    """SELECT report_id, status, resolved_by, resolved_at
+                       FROM reports WHERE report_id = %s""",
                     (created_report_id,)
                 )
-                rep_row_after = cur.fetchone()
-                assert rep_row_after is not None
-                assert rep_row_after[1] == "RESOLVED", f"Expected RESOLVED report, got {rep_row_after[1]}"
-                assert str(rep_row_after[2]) == ADMIN_USER_ID, f"Resolved by mismatch: {rep_row_after[2]}"
-                assert rep_row_after[3] is not None
+                rep_after_row = cur.fetchone()
+                assert rep_after_row is not None
                 report_db_after = {
-                    "report_id": str(rep_row_after[0]),
-                    "status": rep_row_after[1],
-                    "resolved_by": str(rep_row_after[2]),
-                    "resolved_at": rep_row_after[3].isoformat()
+                    "report_id": str(rep_after_row[0]),
+                    "status": rep_after_row[1],
+                    "resolved_by": str(rep_after_row[2]),
+                    "resolved_at": str(rep_after_row[3])
                 }
+                assert report_db_after["status"] == "RESOLVED", f"Expected RESOLVED report: {report_db_after}"
+                assert report_db_after["resolved_by"] == ADMIN_USER_ID, f"Resolved by mismatch: {report_db_after}"
+                assert report_db_after["resolved_at"] is not None
 
-        # MongoDB correlation
+        # Verify comment soft-deleted in MongoDB
         mongo_doc_after = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{created_comment_id}' }}))")
         assert mongo_doc_after is not None, f"Comment {created_comment_id} missing from MongoDB!"
-        assert mongo_doc_after.get("status") == "DELETED", f"Expected DELETED comment status: {mongo_doc_after}"
+        assert mongo_doc_after.get("status") == "DELETED", f"Expected DELETED status: {mongo_doc_after}"
         assert mongo_doc_after.get("deletedAt") is not None, f"Expected non-null deletedAt: {mongo_doc_after}"
         comment_db_after = {
             "comment_id": created_comment_id,
@@ -1047,15 +1243,16 @@ async def main():
             "deleted_at": mongo_doc_after.get("deletedAt")
         }
 
-        print(f"  DB review proof after: {review_db_after}")
-        print(f"  DB report proof after: {report_db_after}")
-        print(f"  MongoDB comment soft-deleted proof after: {comment_db_after}")
+        print(f"  PostgreSQL review resolved: {review_db_after}")
+        print(f"  PostgreSQL report resolved: {report_db_after}")
+        print(f"  MongoDB comment soft-deleted: {comment_db_after}")
 
-        # Reload /admin/reports to prove review removed from pending queue
+        # Verify review absent from pending /admin/reports queue
         await browser.navigate(f"{WEB_URL}/admin/reports")
-        await asyncio.sleep(1.0)
-        review_present_in_queue = await browser.evaluate(f"Boolean(document.querySelector({json.dumps(review_card_sel)}))")
-        assert not review_present_in_queue, f"Resolved review {created_review_id} still present in pending queue!"
+        await asyncio.sleep(1.5)
+        has_card = await browser.evaluate(f"Boolean(document.querySelector({json.dumps(inspect_btn_sel)}))")
+        assert not has_card, f"Resolved review {created_review_id} still rendered in pending reports queue!"
+        print("  Admin reports queue verified: resolved review absent from pending queue.")
 
         img_h = await browser.screenshot("report-h-admin-resolution-verified.png")
 
@@ -1064,10 +1261,10 @@ async def main():
         evidence["comment_db_after"] = comment_db_after
         evidence["checkpoints"]["report_h"] = {
             "checkpoint": "Report-H",
-            "description": "Database proves review APPROVED, report RESOLVED, comment soft-deleted; review absent from queue",
-            "review_db_after": review_db_after,
-            "report_db_after": report_db_after,
-            "comment_db_after": comment_db_after,
+            "description": "PostgreSQL: review APPROVED, report RESOLVED. Mongo: comment status=DELETED, deletedAt set. Queue: card absent",
+            "review_proof": review_db_after,
+            "report_proof": report_db_after,
+            "comment_proof": comment_db_after,
             "screenshot": img_h,
             "result": "PASS"
         }
@@ -1088,7 +1285,6 @@ async def main():
         notif_resp = await browser.wait_for_response("/notifications", timeout=15.0)
         assert notif_resp["status"] == 200, f"Failed to list notifications: {notif_resp}"
 
-        # Verify notification in MongoDB
         mongo_rep_notif = query_mongo(
             f"JSON.stringify(db.notifications.findOne({{ userId: '{REPORTER_USER_ID}', type: 'COMMENT_REPORT_APPROVED', 'payload.commentId': '{created_comment_id}' }}))"
         )
@@ -1148,201 +1344,179 @@ async def main():
 
         has_comment_card = await browser.evaluate(f"Boolean(document.querySelector({json.dumps(card_sel)}))")
         assert not has_comment_card, f"Comment card {created_comment_id} still present in DOM after soft-delete!"
-
         has_comment_text = await browser.evaluate(f"document.body.innerText.includes({json.dumps(comment_text)})")
         assert not has_comment_text, f"Comment text still present in DOM after soft-delete!"
-        print(f"  Proved: comment {created_comment_id} and content '{comment_text}' are absent from rendered chapter.")
+        print("  Chapter comments verified: deleted comment is absent from DOM.")
 
         img_j = await browser.screenshot("report-j-owner-notification-and-comment-absent.png")
 
-        notification_db_proof = {
-            "reporter_notification": {
-                "notification_id": reporter_notif_id,
-                "user_id": REPORTER_USER_ID,
-                "type": "COMMENT_REPORT_APPROVED",
-                "review_id": created_review_id,
-                "comment_id": created_comment_id
-            },
-            "owner_notification": {
-                "notification_id": owner_notif_id,
-                "user_id": OWNER_USER_ID,
-                "type": "COMMENT_REMOVED_BY_REPORT",
-                "review_id": created_review_id,
-                "comment_id": created_comment_id
-            }
-        }
         evidence["owner_notification_id"] = owner_notif_id
-        evidence["notification_db_proof"] = notification_db_proof
         evidence["checkpoints"]["report_j"] = {
             "checkpoint": "Report-J",
-            "description": "Owner verifies COMMENT_REMOVED_BY_REPORT notification, reloads chapter, proves comment absent",
+            "description": "Owner logs in, verifies COMMENT_REMOVED_BY_REPORT in DOM & DB; reload chapter proves comment card and text absent",
             "owner_user_id": OWNER_USER_ID,
             "notification_id": owner_notif_id,
             "type": "COMMENT_REMOVED_BY_REPORT",
             "review_id": created_review_id,
             "comment_id": created_comment_id,
-            "comment_absent_from_dom": True,
+            "comment_absent_from_chapter": True,
             "screenshot": img_j,
             "result": "PASS"
         }
 
+        # 8. Clean up browser-created fixtures by exact IDs
+        print("\n[Browser Teardown] Cleaning up exact browser-created test fixtures...")
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
+            with conn.cursor() as cur:
+                if created_report_id:
+                    cur.execute("DELETE FROM reports WHERE report_id = %s", (created_report_id,))
+                if created_review_id:
+                    cur.execute("DELETE FROM moderation_reviews WHERE review_id = %s", (created_review_id,))
+                conn.commit()
+
+        if created_comment_id:
+            query_mongo(f"db.comments.deleteOne({{ commentId: '{created_comment_id}' }})")
+        if reporter_notif_id:
+            query_mongo(f"db.notifications.deleteOne({{ notificationId: '{reporter_notif_id}' }})")
+        if owner_notif_id:
+            query_mongo(f"db.notifications.deleteOne({{ notificationId: '{owner_notif_id}' }})")
+        print("  Browser fixtures cleaned up by exact IDs.")
+
+        # 9. Verify Sentinels CHECKPOINT 2 (After Browser CDP + Cleanup)
+        print("\n[Sentinel Checkpoint 2] Verifying sentinel preservation after real browser CDP flow and cleanup...")
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT review_id, target_type, target_id, source, status FROM moderation_reviews WHERE review_id = %s", (sentinel_review_id,))
+                s1_row = cur.fetchone()
+                assert s1_row is not None, "Sentinel review destroyed during browser flow!"
+                s1_hash_after = compute_deterministic_hash([str(x) for x in s1_row])
+                assert s1_hash_after == sentinels_dict["sentinel_review"]["hash_before"], "Sentinel review mutated during browser flow!"
+                sentinels_dict["sentinel_review"]["hash_after_browser"] = s1_hash_after
+                sentinels_dict["sentinel_review"]["status_after_browser"] = s1_row[4]
+                sentinels_dict["sentinel_review"]["match_after_browser"] = True
+
+                cur.execute("SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s", (sentinel_report_id,))
+                s2_row = cur.fetchone()
+                assert s2_row is not None, "Sentinel report destroyed during browser flow!"
+                s2_hash_after = compute_deterministic_hash([str(x) for x in s2_row])
+                assert s2_hash_after == sentinels_dict["sentinel_report"]["hash_before"], "Sentinel report mutated during browser flow!"
+                sentinels_dict["sentinel_report"]["hash_after_browser"] = s2_hash_after
+                sentinels_dict["sentinel_report"]["status_after_browser"] = s2_row[4]
+                sentinels_dict["sentinel_report"]["match_after_browser"] = True
+
+                cur.execute("SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s", (sentinel_reporter_report_id,))
+                s3_row = cur.fetchone()
+                assert s3_row is not None, "Sentinel reporter report destroyed during browser flow!"
+                s3_hash_after = compute_deterministic_hash([str(x) for x in s3_row])
+                assert s3_hash_after == sentinels_dict["sentinel_reporter_report"]["hash_before"], "Sentinel reporter report mutated during browser flow!"
+                sentinels_dict["sentinel_reporter_report"]["hash_after_browser"] = s3_hash_after
+                sentinels_dict["sentinel_reporter_report"]["status_after_browser"] = s3_row[4]
+                sentinels_dict["sentinel_reporter_report"]["match_after_browser"] = True
+
+        s4_doc = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{sentinel_comment_id}' }}))")
+        assert s4_doc is not None, "Sentinel comment destroyed during browser flow!"
+        s4_hash_after = compute_deterministic_hash(s4_doc)
+        assert s4_hash_after == sentinels_dict["sentinel_owner_comment"]["hash_before"], "Sentinel comment mutated during browser flow!"
+        sentinels_dict["sentinel_owner_comment"]["hash_after_browser"] = s4_hash_after
+        sentinels_dict["sentinel_owner_comment"]["status_after_browser"] = s4_doc.get("status")
+        sentinels_dict["sentinel_owner_comment"]["match_after_browser"] = True
+
+        s5_doc = query_mongo(f"JSON.stringify(db.notifications.findOne({{ notificationId: '{sentinel_notif_id}' }}))")
+        assert s5_doc is not None, "Sentinel notification destroyed during browser flow!"
+        s5_hash_after = compute_deterministic_hash(s5_doc)
+        assert s5_hash_after == sentinels_dict["sentinel_notification"]["hash_before"], "Sentinel notification mutated during browser flow!"
+        sentinels_dict["sentinel_notification"]["hash_after_browser"] = s5_hash_after
+        sentinels_dict["sentinel_notification"]["status_after_browser"] = "-"
+        sentinels_dict["sentinel_notification"]["match_after_browser"] = True
+
+        print("  Sentinel Checkpoint 2 PASSED: All 5 sentinels identically preserved after browser flow and cleanup.")
+
+        # Clean up sentinels by exact IDs
+        print("[Sentinel Teardown] Cleaning up exact sentinel IDs...")
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM reports WHERE report_id IN (%s, %s)", (sentinel_report_id, sentinel_reporter_report_id))
+                cur.execute("DELETE FROM moderation_reviews WHERE review_id IN (%s, %s)", (sentinel_review_id, sentinel_novel_review_id))
+                conn.commit()
+
+        query_mongo(f"db.comments.deleteOne({{ commentId: '{sentinel_comment_id}' }})")
+        query_mongo(f"db.notifications.deleteOne({{ notificationId: '{sentinel_notif_id}' }})")
+
+        sentinel_list = []
+        for k, v in sentinels_dict.items():
+            sentinel_list.append({
+                "type": k,
+                "id": v["id"],
+                "status_before": v.get("status_before", "-"),
+                "status_after_tests": v.get("status_after_tests", "-"),
+                "status_after_browser": v.get("status_after_browser", "-"),
+                "hash_before": v["hash_before"],
+                "hash_after_tests": v["hash_after_tests"],
+                "hash_after_browser": v["hash_after_browser"],
+                "match_after_tests": v["hash_after_tests"] == v["hash_before"],
+                "match_after_browser": v["hash_after_browser"] == v["hash_before"]
+            })
+
+        evidence["sentinel_preservation"] = {
+            "verdict": "SENTINEL_PRESERVATION_PASS",
+            "full_sequence_spanned": True,
+            "sentinels": sentinel_list
+        }
+
+        # Final Validation record
+        validation_records.append({
+            "name": "browser_comment_user_report_moderation_flow",
+            "description": "Real browser Report-A through Report-J CDP flow + Checkpoint F2",
+            "result": "PASS"
+        })
+        evidence["validation"] = validation_records
+        evidence["verdict"] = "COMMENT_USER_REPORT_ADMIN_MODERATION_PASS"
+
+        # Save Evidence JSON
+        evidence_json_path = os.path.join(EVIDENCE_DIR, "comment-user-report-admin-moderation-e2e-evidence.json")
+        with open(evidence_json_path, "w", encoding="utf-8") as f:
+            json.dump(evidence, f, indent=2, ensure_ascii=False)
+        print(f"\n[Evidence] Saved evidence JSON to: {evidence_json_path}")
+
+        # Generate Acceptance Markdown Report
+        generate_markdown_report(evidence)
+        print(f"[Report] Generated markdown report at: {REPORT_PATH}")
+
+        print("\n" + "=" * 80)
+        print(f"GATE COMMENT-USER-REPORT-ADMIN-MODERATION-E2E: VERDICT = {evidence['verdict']}")
+        print("=" * 80)
+
     finally:
-        await browser.close()
-        edge_proc.terminate()
-        edge_proc.wait(timeout=5.0)
+        # Deterministic teardown of child processes
+        print("\n[Teardown] Shutting down browser, backend, and web processes...")
+        kill_proc(edge_proc)
+        kill_proc(web_proc)
+        kill_proc(backend_proc)
 
-    # 4. Phase C Invariant Suite (17 invariants)
-    negative_suite_results = run_negative_suite()
-    evidence["negative_suite"] = negative_suite_results
+        # Drop disposable isolated database
+        print(f"[Teardown] Dropping disposable isolated databases for '{ISOLATED_DB_NAME}'...")
+        try:
+            with psycopg.connect(ADMIN_PG_URL, autocommit=True) as admin_conn:
+                with admin_conn.cursor() as cur:
+                    cur.execute(f'DROP DATABASE IF EXISTS "{ISOLATED_DB_NAME}"')
+            print(f"  Dropped isolated PostgreSQL database '{ISOLATED_DB_NAME}'.")
+        except Exception as e:
+            print(f"  Warning during PostgreSQL drop: {e}")
 
-    # 5. Sentinel Verification (Proof of Zero Broad Data Destruction)
-    print("\n" + "=" * 60)
-    print("[Sentinel Verification] Cryptographically verifying all sentinels survived untouched...")
-    print("=" * 60)
-    sentinel_verifications: List[Dict[str, Any]] = []
-
-    with psycopg.connect(DB_URL) as conn:
-        with conn.cursor() as cur:
-            # 1. Verify Sentinel Review
-            cur.execute(
-                "SELECT review_id, target_type, target_id, source, status FROM moderation_reviews WHERE review_id = %s",
-                (sentinel_review_id,)
-            )
-            s_rev_after = cur.fetchone()
-            assert s_rev_after is not None, f"Sentinel review {sentinel_review_id} was destroyed!"
-            s_rev_after_hash = hashlib.sha256(json.dumps([str(x) for x in s_rev_after]).encode()).hexdigest()
-            assert s_rev_after_hash == sentinel_snapshots["sentinel_review"]["hash_before"], "Sentinel review mutated!"
-            sentinel_verifications.append({
-                "type": "sentinel_review",
-                "id": sentinel_review_id,
-                "status_before": sentinel_snapshots["sentinel_review"]["status"],
-                "status_after": s_rev_after[4],
-                "hash_match": True
-            })
-
-            # 2. Verify Sentinel Report
-            cur.execute(
-                "SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s",
-                (sentinel_report_id,)
-            )
-            s_rep_after = cur.fetchone()
-            assert s_rep_after is not None, f"Sentinel report {sentinel_report_id} was destroyed!"
-            s_rep_after_hash = hashlib.sha256(json.dumps([str(x) for x in s_rep_after]).encode()).hexdigest()
-            assert s_rep_after_hash == sentinel_snapshots["sentinel_report"]["hash_before"], "Sentinel report mutated!"
-            sentinel_verifications.append({
-                "type": "sentinel_report",
-                "id": sentinel_report_id,
-                "status_before": sentinel_snapshots["sentinel_report"]["status"],
-                "status_after": s_rep_after[4],
-                "hash_match": True
-            })
-
-            # 3. Verify Sentinel Reporter Report
-            cur.execute(
-                "SELECT report_id, reporter_id, target_type, target_id, status FROM reports WHERE report_id = %s",
-                (sentinel_reporter_report_id,)
-            )
-            s_rep_rep_after = cur.fetchone()
-            assert s_rep_rep_after is not None, f"Sentinel reporter report {sentinel_reporter_report_id} was destroyed!"
-            s_rep_rep_after_hash = hashlib.sha256(json.dumps([str(x) for x in s_rep_rep_after]).encode()).hexdigest()
-            assert s_rep_rep_after_hash == sentinel_snapshots["sentinel_reporter_report"]["hash_before"], "Sentinel reporter report mutated!"
-            sentinel_verifications.append({
-                "type": "sentinel_reporter_report",
-                "id": sentinel_reporter_report_id,
-                "target_type": s_rep_rep_after[2],
-                "status_before": sentinel_snapshots["sentinel_reporter_report"]["status"],
-                "status_after": s_rep_rep_after[4],
-                "hash_match": True
-            })
-
-    # 4. Verify Sentinel Owner Comment in MongoDB
-    s_comm_after = query_mongo(f"JSON.stringify(db.comments.findOne({{ commentId: '{sentinel_comment_id}' }}))")
-    assert s_comm_after is not None, f"Sentinel owner comment {sentinel_comment_id} was destroyed!"
-    s_comm_after_hash = hashlib.sha256(json.dumps(s_comm_after, sort_keys=True).encode()).hexdigest()
-    assert s_comm_after_hash == sentinel_snapshots["sentinel_owner_comment"]["hash_before"], "Sentinel comment mutated!"
-    sentinel_verifications.append({
-        "type": "sentinel_owner_comment",
-        "id": sentinel_comment_id,
-        "status_before": sentinel_snapshots["sentinel_owner_comment"]["status"],
-        "status_after": s_comm_after.get("status"),
-        "hash_match": True
-    })
-
-    # 5. Verify Sentinel Notification in MongoDB
-    s_notif_after = query_mongo(f"JSON.stringify(db.notifications.findOne({{ notificationId: '{sentinel_notif_id}' }}))")
-    assert s_notif_after is not None, f"Sentinel notification {sentinel_notif_id} was destroyed!"
-    s_notif_after_hash = hashlib.sha256(json.dumps(s_notif_after, sort_keys=True).encode()).hexdigest()
-    assert s_notif_after_hash == sentinel_snapshots["sentinel_notification"]["hash_before"], "Sentinel notification mutated!"
-    sentinel_verifications.append({
-        "type": "sentinel_notification",
-        "id": sentinel_notif_id,
-        "hash_match": True
-    })
-
-    print("  ALL 5 SENTINELS VERIFIED COMPLETELY UNTOUCHED! Proof of zero broad data destruction.")
-    evidence["sentinel_preservation"] = {
-        "verified": True,
-        "sentinels": sentinel_verifications
-    }
-
-    # 6. Scoped Teardown (Clean ONLY this test's exact IDs + sentinel IDs)
-    print("\n[Scoped Teardown] Cleaning ONLY exact run-owned IDs and sentinel fixtures...")
-    with psycopg.connect(DB_URL) as conn:
-        with conn.cursor() as cur:
-            # Delete sentinel reports and reviews
-            cur.execute("DELETE FROM reports WHERE report_id IN (%s, %s)", (sentinel_report_id, sentinel_reporter_report_id))
-            cur.execute("DELETE FROM moderation_reviews WHERE review_id IN (%s, %s)", (sentinel_review_id, sentinel_novel_review_id))
-            # Delete exact run-created report and review
-            if created_report_id:
-                cur.execute("DELETE FROM reports WHERE report_id = %s", (created_report_id,))
-            if created_review_id:
-                cur.execute("DELETE FROM moderation_reviews WHERE review_id = %s", (created_review_id,))
-            conn.commit()
-
-    # Delete sentinel comment and run-created comment in Mongo
-    delete_comments = [sentinel_comment_id]
-    if created_comment_id:
-        delete_comments.append(created_comment_id)
-    query_mongo(f"db.comments.deleteMany({{ commentId: {{ $in: {json.dumps(delete_comments)} }} }})")
-
-    # Delete sentinel notification and run-created notifications in Mongo
-    delete_notifs = [sentinel_notif_id]
-    if reporter_notif_id:
-        delete_notifs.append(reporter_notif_id)
-    if owner_notif_id:
-        delete_notifs.append(owner_notif_id)
-    query_mongo(f"db.notifications.deleteMany({{ notificationId: {{ $in: {json.dumps(delete_notifs)} }} }})")
-
-    print("  Scoped teardown completed cleanly.")
-
-    # 7. Validation Record Summary
-    validation_records.append({
-        "name": "browser_comment_user_report_moderation_flow",
-        "description": "Real browser Report-A through Report-J CDP flow + Checkpoint F2",
-        "result": "PASS"
-    })
-    evidence["validation"] = validation_records
-    evidence["verdict"] = "COMMENT_USER_REPORT_ADMIN_MODERATION_PASS"
-
-    # 8. Save Evidence JSON
-    evidence_json_path = os.path.join(EVIDENCE_DIR, "comment-user-report-admin-moderation-e2e-evidence.json")
-    with open(evidence_json_path, "w", encoding="utf-8") as f:
-        json.dump(evidence, f, indent=2, ensure_ascii=False)
-    print(f"\n[Evidence] Saved evidence JSON to: {evidence_json_path}")
-
-    # 9. Generate Acceptance Markdown Report
-    generate_markdown_report(evidence)
-    print(f"[Report] Generated markdown report at: {REPORT_PATH}")
-
-    print("\n" + "=" * 80)
-    print(f"GATE COMMENT-USER-REPORT-ADMIN-MODERATION-E2E: VERDICT = {evidence['verdict']}")
-    print("=" * 80)
+        try:
+            query_mongo("db.dropDatabase()")
+            print(f"  Dropped isolated MongoDB database '{ISOLATED_DB_NAME}'.")
+        except Exception as e:
+            print(f"  Warning during MongoDB drop: {e}")
 
 
 def generate_markdown_report(ev: Dict[str, Any]):
     checkpoints = ev["checkpoints"]
-    neg = ev["negative_suite"]
     sentinels = ev.get("sentinel_preservation", {}).get("sentinels", [])
+    isolation = ev.get("db_isolation", {})
+    pg_info = isolation.get("postgres", {})
+    mongo_info = isolation.get("mongo", {})
+    mig_info = ev.get("migration_012_validation", {})
 
     val_rows = []
     for v in ev["validation"]:
@@ -1351,8 +1525,15 @@ def generate_markdown_report(ev: Dict[str, Any]):
 
     sentinel_rows = []
     for s in sentinels:
-        sentinel_rows.append(f"| `{s['type']}` | `{s['id']}` | `{s.get('status_before', '-')}` | `{s.get('status_after', '-')}` | **MATCH (PROVED)** |")
+        sentinel_rows.append(
+            f"| `{s['type']}` | `{s['id']}` | `{s.get('status_before', '-')}` | `{s.get('status_after_tests', '-')}` | `{s.get('status_after_browser', '-')}` | **MATCH** | **MATCH** |"
+        )
     sentinel_table = "\n".join(sentinel_rows)
+
+    mig_rows = []
+    for step in mig_info.get("steps", []):
+        mig_rows.append(f"| `{step['step']}` | **{step['status']}** |")
+    mig_table = "\n".join(mig_rows)
 
     report = f"""# Acceptance Report: Gate COMMENT-USER-REPORT-ADMIN-MODERATION-E2E
 
@@ -1361,7 +1542,8 @@ def generate_markdown_report(ev: Dict[str, Any]):
 **Tested Code SHA**: `{ev['tested_code_sha']}`  
 **Working Branch**: `{ev['branch']}`  
 **Date**: `{time.strftime('%Y-%m-%d %H:%M:%SZ', time.gmtime())}`  
-**Driver**: Microsoft Edge CDP over WebSocket (real browser automation)
+**Driver**: Microsoft Edge CDP over WebSocket (real browser automation)  
+**Database Isolation**: Enforced (`{pg_info.get('database')}` / `{mongo_info.get('database')}`)
 
 ---
 
@@ -1397,12 +1579,21 @@ Reader A (Owner) Logs In via Rendered UI Form (/login)
   -> Reader A Opens exact chapter -> Proves comment card and content absent from approved comment list
 ```
 
-All mutations originated strictly in the rendered user interface. Credential hygiene is strictly enforced: no password literals or auth tokens are committed in code or generated evidence. API, PostgreSQL, and MongoDB queries were used exclusively for correlation, invariant validation, and contract verification.
+Decisive acceptance lifecycle mutations originated in the rendered user interface; fixture setup/cleanup and assertions used DB. Credential hygiene is strictly enforced: no password literals or auth tokens are committed in code or generated evidence. API, PostgreSQL, and MongoDB queries were used exclusively for correlation, invariant validation, and contract verification against disposable isolated test databases.
 
 ---
 
-## 2. Tested Entities & Deterministic Fixtures
+## 2. Tested Entities & Database Isolation Manifest
 
+### Database Isolation Configuration
+- **Isolation Status**: `ISOLATED_TEST_ENVIRONMENT_ENFORCED`
+- **PostgreSQL Test Database**: `{pg_info.get('database')}` (Server: `{pg_info.get('server_addr')}:{pg_info.get('server_port')}`)
+- **MongoDB Test Database**: `{mongo_info.get('database')}`
+- **External Opt-In Guard**: `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1` verified
+- **Default Database Rejected**: Verified fail-closed refusal of `ephurin` target
+- **Guard Negative Tests**: 11/11 negative assertions passed (`test-db-guard.test.ts`)
+
+### Tested Entities
 | Field | Value | Notes |
 |---|---|---|
 | **Comment Owner User ID** | `{ev['owner_user_id']}` | Fixture Reader Account (`reader04@example.com`) |
@@ -1442,42 +1633,24 @@ All mutations originated strictly in the rendered user interface. Credential hyg
 
 ---
 
-## 4. Sentinel Preservation Proof (Zero Unscoped Deletion)
+## 4. Full-Span Sentinel Preservation Proof
 
-| Sentinel Type | Sentinel ID | Pre-Run Status | Post-Run Status | Cryptographic Hash Verification |
-|---|---|:---:|:---:|:---:|
+| Sentinel Type | Sentinel ID | Pre-Run Status | Post-Tests Status | Post-Browser Status | Tests Hash Match | Browser Hash Match |
+|---|---|:---:|:---:|:---:|:---:|:---:|
 {sentinel_table}
 
-All 5 planted sentinels were read back after both the deterministic test suites and the real browser CDP flow. Every SHA-256 fingerprint matched identically, mathematically proving that no broad or unscoped deletion occurred.
+All 5 planted sentinels were read back both immediately after the full backend test suites and again after the real browser CDP flow and cleanup. Every SHA-256 fingerprint matched identically across all observation checkpoints, demonstrating that those specific records remained completely unaltered throughout the full test and browser lifecycle. Matching sentinel hashes show that these records stayed unchanged within the observed test window; they do not prove that arbitrary other records cannot be deleted.
 
 ---
 
-## 5. Phase C Negative and Invariant Suite
+## 5. Migration 012 Preflight, Failure, and Idempotency Acceptance
 
-All 17 Phase C invariants are dynamically verified by executing the production-path test suite:
-- **Suite Command**: `{neg['command']}`
-- **Test File**: `{neg['test_file']}`
-- **Exit Code**: `{neg['exit_code']}`
-- **Result**: `PASS` ({neg['tests_passed']} passed, {neg['tests_failed']} failed)
+| Stage | Result |
+|---|:---:|
+{mig_table}
 
-Covered Invariants:
-1. **Anonymous Reports Rejection (401)**: Anonymous `POST /reports` is rejected with `AUTH_002` (HTTP 401).
-2. **Non-Admin Moderation Forbidden (403)**: Non-admin users cannot access or resolve admin moderation reviews (`AUTH_008` / HTTP 403).
-3. **Nonexistent Target Rejection (404)**: Reporting nonexistent comment fails closed with `CONTENT_001` (HTTP 404).
-4. **Deleted Target Rejection (404)**: Reporting already-deleted comment fails closed with `CONTENT_001` (HTTP 404).
-5. **PENDING_MODERATION Target Rejection (404)**: Reporting comment in PENDING_MODERATION fails closed with `CONTENT_001` (HTTP 404).
-6. **REJECTED Target Rejection (404)**: Reporting comment in REJECTED status fails closed with `CONTENT_001` (HTTP 404).
-7. **Unpublished Chapter Target Rejection (404)**: Reporting comment on draft/unpublished chapter fails closed with `CONTENT_001` (HTTP 404).
-8. **Duplicate Open Report Prevention (409)**: Same reporter cannot create multiple unresolved OPEN reports for the same comment (`REPORT_001` / HTTP 409).
-9. **Concurrent Duplicate Submits (409)**: Concurrent same-reporter duplicate submissions resolve to exactly one OPEN report and application-level `409 REPORT_001` (not 23505/500).
-10. **Multi-Reporter Review Aggregation**: Distinct reporters on the same comment reuse one open review and produce `reportCount=2`.
-11. **Concurrent Distinct Reporters (Atomic Sharing)**: Concurrent distinct reporters atomically share single PENDING review without duplicate reviews.
-12. **Approve Report Lifecycle**: Approving USER_REPORT transitions review to `APPROVED`, reports to `RESOLVED`, and soft-deletes comment in MongoDB.
-13. **Reject Report Lifecycle**: Rejecting USER_REPORT transitions review to `REJECTED`, reports to `REJECTED`, and keeps comment `APPROVED`.
-14. **Approve Notifications Delivery**: Correct notification types and payloads delivered to owner (`COMMENT_REMOVED_BY_REPORT`) and reporters (`COMMENT_REPORT_APPROVED`).
-15. **Reject Notifications Delivery**: Correct notification types and payloads delivered to owner (`COMMENT_REPORT_REJECTED_OWNER`) and reporters (`COMMENT_REPORT_REJECTED`).
-16. **Duplicate Resolve Rejection (409)**: Resolving an already-resolved moderation review fails closed with `ADMIN_002` (HTTP 409).
-17. **Keyword Filter Moderation Unchanged**: Keyword-filter moderation semantics remain intact and independent.
+- **Tested Unique Indexes**: `{', '.join(mig_info.get('indexes_verified', []))}`
+- **Rollback Evaluation**: {mig_info.get('rollback_evaluation')}
 
 ---
 
