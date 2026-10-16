@@ -1,6 +1,7 @@
 # Acceptance Report: Gate COMMENT-USER-REPORT-ADMIN-MODERATION-E2E
 
 **Verdict**: `COMMENT_USER_REPORT_ADMIN_MODERATION_PASS`  
+**Completion Boundary**: `CI_PASS / MERGED` (GitHub PR #50, verified 2026-10-16)  
 **Tested Base Main SHA**: `5be86e01734da7b7a165f249b7455a4096f93c57`  
 **Tested Code SHA**: `ab235d43516238516012a2a2528cbf07d769497a`  
 **Working Branch**: `astra/comment-user-report-admin-moderation-e2e`  
@@ -183,11 +184,26 @@ Canonical evidence JSON:
 
 ---
 
-## 8. Stop Boundary State
+## 8. Remote Acceptance & Merge Closure (2026-10-16)
 
-- **Gate Status**: `LOCAL_PASS_CI_PENDING`
-- **Branch**: `astra/comment-user-report-admin-moderation-e2e`
-- **Working Tree**: Clean (`git status --porcelain` is empty)
-- **Tested Code Commit**: `ab235d43516238516012a2a2528cbf07d769497a`
-- **Evidence Push**: Complete
-- **No PR or merge to main attempted** (owned by ChatGPT).
+- **Final status**: `COMMENT_USER_REPORT_ADMIN_MODERATION_PASS` — `CI_PASS / MERGED`.
+- **Merged PR**: [#50 — Comment user-report, Admin moderation and notifications](https://github.com/Ephurin/Novel_sharing_platform/pull/50).
+- **Tested local product-code SHA**: [`ab235d43516238516012a2a2528cbf07d769497a`](https://github.com/Ephurin/Novel_sharing_platform/commit/ab235d43516238516012a2a2528cbf07d769497a).
+- **Final evidence / PR head SHA**: [`c27b4d524a9257dbe2d443584d3b003a41c7d5f6`](https://github.com/Ephurin/Novel_sharing_platform/commit/c27b4d524a9257dbe2d443584d3b003a41c7d5f6).
+- **Tested base main SHA**: `5be86e01734da7b7a165f249b7455a4096f93c57`.
+- **Merge commit SHA**: [`7f0ed1dde93dac72b4fab2e05deb5d60d59d40d4`](https://github.com/Ephurin/Novel_sharing_platform/commit/7f0ed1dde93dac72b4fab2e05deb5d60d59d40d4).
+- **P7 Semantic Memory Foundation**: [run #130](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/38851810884) — **SUCCESS**, 3/3 jobs (`unit`, `pgvector-integration`, `root-compose-smoke`).
+- **P8 Cutover and Migration**: [run #127](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/38851810760) — **SUCCESS**, 6/6 jobs (`final-cleanup-gate`, `unit`, `rollback-rehearsal`, `postgres-integration`, `frontend-api-cutover`, `root-compose-cutover-smoke`).
+- **Defense Demo Contract**: [run #6](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/38851810645) — **SUCCESS**.
+- **PR-head consistency**: all three runs belong to `c27b4d524a9257dbe2d443584d3b003a41c7d5f6`. GitHub reported PR mergeable; merge was leased against this exact SHA.
+
+### Scope qualification
+
+The above GitHub CI results prove regression gates on the PR head. They **do not** mean the new Windows/Edge browser Report-A..J suite or its `*.postgres.test.ts` 17-test Phase C suite ran remotely. Those are the separately recorded **local** evidence from the same source SHA. The full suite/isolated database test results in Sections 3–6 remain local measurements, not independent CI executions.
+
+The P8 final-cleanup-gate job being green asserts that cleanup safety restrictions still hold; it **does not authorize destructive P8-05 legacy cleanup**. No Wallet/VIP, global context-policy change or unrelated product work is included.
+
+### Evidence preservation
+
+Original local JSON evidence and screenshots are retained unchanged as the record of the tested execution. This section is an additional remote acceptance record and does not rewrite earlier local observations or invent a new E2E run.
+
