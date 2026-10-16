@@ -104,7 +104,7 @@ FREE_CHAPTER_TITLE = "Chương 1: Tàn Tro Của Ashenhold"
 
 VIP_CHAPTER_ID = "e30f7437-467b-4b3d-94fe-796ed9970499"
 VIP_CHAPTER_NUMBER = 10
-VIP_CHAPTER_TITLE = "Chương 10: Tàn Dư Của Hư Không"
+VIP_CHAPTER_TITLE = "Chương 10: Nhật Thực Cuối Cùng"
 VIP_PRICE_COINS = 50
 
 
@@ -914,7 +914,7 @@ async def main_async():
 
         # Verify no content leaked into DOM
         page_text = await browser.evaluate("document.body.innerText")
-        assert "Thánh Điện Ashenhold" not in page_text, "Secret VIP chapter content must not leak to anonymous visitors"
+        assert "Trận chiến cuối cùng" not in page_text and "Nhật Thực Cuối Cùng" not in page_text, "Secret VIP chapter content must not leak to anonymous visitors"
 
         ss_b = await browser.screenshot("wallet-b-anonymous-locked.png")
         evidence["checkpoints"]["Wallet-B"] = {
@@ -965,7 +965,7 @@ async def main_async():
 
         # Verify no content leaked into DOM
         page_text = await browser.evaluate("document.body.innerText")
-        assert "Thánh Điện Ashenhold" not in page_text, "Secret VIP chapter content must not leak to reader without unlock"
+        assert "Trận chiến cuối cùng" not in page_text and "Nhật Thực Cuối Cùng" not in page_text, "Secret VIP chapter content must not leak to reader without unlock"
 
         ss_c = await browser.screenshot("wallet-c-reader-locked.png")
         evidence["checkpoints"]["Wallet-C"] = {
@@ -1171,8 +1171,8 @@ async def main_async():
         # Real DOM renders authentic content
         await browser.wait_for_condition("document.body.innerText.includes('Chương 10')", 10.0)
         page_text = await browser.evaluate("document.body.innerText")
-        assert "Chương 10: Tàn Dư Của Hư Không" in page_text or "Chương 10" in page_text, "Chapter title not found in DOM"
-        assert "Thánh Điện Ashenhold" in page_text or "tàn dư" in page_text.lower(), "Secret VIP text must be visible in DOM"
+        assert "Chương 10: Nhật Thực Cuối Cùng" in page_text or "Chương 10" in page_text, "Chapter title not found in DOM"
+        assert "Obsidian Citadel" in page_text or "Lucien Blackthorn" in page_text or "Trận chiến cuối cùng" in page_text, "Secret VIP text must be visible in DOM"
 
         ss_h = await browser.screenshot("wallet-h-content-unlocked.png")
         evidence["checkpoints"]["Wallet-H"] = {
