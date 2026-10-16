@@ -331,30 +331,30 @@ Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ### Situation and scope
 
-Gate: \`COMMENT-USER-REPORT-ADMIN-MODERATION-E2E\`  
-Existing branch: \`astra/comment-user-report-admin-moderation-e2e\`  
-Current reviewed evidence HEAD: \`7bf26fd5b3415038b172dcaa25f609287f4ce907\`  
-Current final tested code: \`89252479f047bd372bc0e19b39463905d866f383\`  
-Canonical main before handoff: \`1f7a7035f8b0fb6017d4a0249d9c3bf5c35762ec\`  
-Current remote verdict: \`LOCAL_PASS_CI_PENDING\` **as recorded by Gemini**, not yet independently CI accepted.
+Gate: `COMMENT-USER-REPORT-ADMIN-MODERATION-E2E`  
+Existing branch: `astra/comment-user-report-admin-moderation-e2e`  
+Current reviewed evidence HEAD: `7bf26fd5b3415038b172dcaa25f609287f4ce907`  
+Current final tested code: `89252479f047bd372bc0e19b39463905d866f383`  
+Canonical main before handoff: `1f7a7035f8b0fb6017d4a0249d9c3bf5c35762ec`  
+Current remote verdict: `LOCAL_PASS_CI_PENDING` **as recorded by Gemini**, not yet independently CI accepted.
 
 The full rendered Reader → report → Admin approval → notification lifecycle (Report-A..J + F2), 17/17 Phase C, 11 guard tests, 123 backend tests, six-stage migration 012 and five full-span sentinels are already evidenced locally. **Do not reimplement or redesign them.**
 
-**Single remaining code review gap:** The MongoDB collision test in \`scripts/run_comment_user_report_admin_moderation_e2e.py\` currently does:
+**Single remaining code review gap:** The MongoDB collision test in `scripts/run_comment_user_report_admin_moderation_e2e.py` currently does:
 
-\`\`\`python
+```python
 existing_mongo = get_existing_mongo_databases()
 mongo_collision_caught = coll_mongo_name in existing_mongo
 assert mongo_collision_caught
-\`\`\`
+```
 
 This proves a database is listed, but it does NOT prove the **actual runner provisioning path rejects** a colliding database without modifying it. The test currently has a self-fulfilling PASS. Fix the test seam, not the product lifecycle.
 
-Latest \`main\` also adds \`docs/development/DEVELOPMENT_HISTORY.md\`, which records engineering decision history including this ongoing gate. It must stay accurate: DO NOT label this gate CI_PASS or MERGED until ChatGPT closes the PR.
+Latest `main` also adds `docs/development/DEVELOPMENT_HISTORY.md`, which records engineering decision history including this ongoing gate. It must stay accurate: DO NOT label this gate CI_PASS or MERGED until ChatGPT closes the PR.
 
 ### A. Sync existing branch first
 
-\`\`\`bash
+```bash
 git fetch origin
 git checkout astra/comment-user-report-admin-moderation-e2e
 git pull --ff-only
@@ -362,49 +362,49 @@ git merge origin/main
 git rev-parse origin/main
 git rev-parse HEAD
 git status --porcelain
-\`\`\`
+```
 
-Record \`FINAL_SYNCED_MAIN_SHA\` and preserve the new development-history document. Behind \`main\` must be 0.
+Record `FINAL_SYNCED_MAIN_SHA` and preserve the new development-history document. Behind `main` must be 0.
 
 ### B. Fix MongoDB collision test by testing the real guard
 
-1. Extract the **actual MongoDB pre-provision check** from runner \`main()\` into one small reusable function, e.g. \`assert_mongo_database_absent(db_name)\`:
+1. Extract the **actual MongoDB pre-provision check** from runner `main()` into one small reusable function, e.g. `assert_mongo_database_absent(db_name)`:
    - read names from the actual intended Mongo server;
-   - if the target name already exists, raise \`TEST_DB_ALREADY_EXISTS\` before any creation/insertion/drop;
+   - if the target name already exists, raise `TEST_DB_ALREADY_EXISTS` before any creation/insertion/drop;
    - fail closed on list-databases errors rather than treating errors as an empty list;
    - use exactly the same function from normal runner provisioning and the collision-negative test. Do not make a second imitation of the condition.
 2. In the negative test, create a **test-owned** named Mongo database and insert a unique sentinel document. Record its ID, fields and SHA-256.
-3. Call the shared, real guard on this deliberately pre-existing database. Capture the expected \`TEST_DB_ALREADY_EXISTS\` error. Assert that provisioning did not continue, \`mongo_db_created_by_this_run\` was not assigned to that existing DB, and no cleanup of it was attempted by the rejected provision.
+3. Call the shared, real guard on this deliberately pre-existing database. Capture the expected `TEST_DB_ALREADY_EXISTS` error. Assert that provisioning did not continue, `mongo_db_created_by_this_run` was not assigned to that existing DB, and no cleanup of it was attempted by the rejected provision.
 4. Read the same sentinel from Mongo again. Assert fields and SHA-256 identical. Only the outer test harness that explicitly created this disposable collision fixture may remove it afterward.
 5. Repeat the guard on a fresh nonexistent name and verify it allows continuation (without claiming an actual create/delete happened until observed). Negative/positive paths must both be exercised.
-6. **Connection identity:** The current \`get_existing_mongo_databases()\` / \`query_mongo_db()\` use Docker container \`novel_sharing_platform-mongodb-1\`, while backend derives \`ISOLATED_MONGO_URI\` from \`BASE_MONGODB_URI\`. Ensure that preflight queries and backend truly target the same Mongo server; either route checks through the exact configured endpoint or fail closed if environment points to a different server. Do not expose credentials or redesign all database infrastructure.
-7. Preserve the caller-supplied \`EPHURIN_ALLOW_TEST_DB_MUTATIONS=1\` gate before any mutation. No self-authorization, default \`ephurin\` target, hardcoded PASS, or broad cleanup.
+6. **Connection identity:** The current `get_existing_mongo_databases()` / `query_mongo_db()` use Docker container `novel_sharing_platform-mongodb-1`, while backend derives `ISOLATED_MONGO_URI` from `BASE_MONGODB_URI`. Ensure that preflight queries and backend truly target the same Mongo server; either route checks through the exact configured endpoint or fail closed if environment points to a different server. Do not expose credentials or redesign all database infrastructure.
+7. Preserve the caller-supplied `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1` gate before any mutation. No self-authorization, default `ephurin` target, hardcoded PASS, or broad cleanup.
 
-Keep this patch minimal. Primary file: \`scripts/run_comment_user_report_admin_moderation_e2e.py\`; touch a small supporting test/helper only when unavoidable. No product service/UI changes without a directly exposed regression.
+Keep this patch minimal. Primary file: `scripts/run_comment_user_report_admin_moderation_e2e.py`; touch a small supporting test/helper only when unavoidable. No product service/UI changes without a directly exposed regression.
 
 ### C. Remove unsupported PASS language
 
-The existing \`collision_refusal_tests.tests[fresh_unique_db_names_provision_and_ownership]\` is appended as PASS before teardown; that statement should instead be **derived from observed final ownership and cleanup flags**, or explicitly marked as pending until teardown has succeeded.
+The existing `collision_refusal_tests.tests[fresh_unique_db_names_provision_and_ownership]` is appended as PASS before teardown; that statement should instead be **derived from observed final ownership and cleanup flags**, or explicitly marked as pending until teardown has succeeded.
 
-For \`credential_and_secret_hygiene\`, do not claim a runtime secret scan if the test only appends \`secrets_redacted=True\`; either add a bounded actual check of generated artifacts or describe it honestly as a static policy/manifest assertion.
+For `credential_and_secret_hygiene`, do not claim a runtime secret scan if the test only appends `secrets_redacted=True`; either add a bounded actual check of generated artifacts or describe it honestly as a static policy/manifest assertion.
 
 Preserve actual traces and hashes; never regenerate “PASS” records without rerunning.
 
 ### D. Execute final validation and reseal lineage
 
-1. Commit and push fixed code. Record \`FINAL_TESTED_CODE_SHA\`.
-2. Execute negative collision tests (same Mongo guard invoked by provisioning; untouched sentinel), external opt-in rejection, real owned-only teardown, migration 012 acceptance, full-span sentinel checks, web typecheck/build, backend typecheck, Phase C tests, backend \`npm test\`, browser Report-A..J+F2. If no production code changed, the latest established functional checks can still be run as the integrated runner manifest; do not claim execution if unavailable.
+1. Commit and push fixed code. Record `FINAL_TESTED_CODE_SHA`.
+2. Execute negative collision tests (same Mongo guard invoked by provisioning; untouched sentinel), external opt-in rejection, real owned-only teardown, migration 012 acceptance, full-span sentinel checks, web typecheck/build, backend typecheck, Phase C tests, backend `npm test`, browser Report-A..J+F2. If no production code changed, the latest established functional checks can still be run as the integrated runner manifest; do not claim execution if unavailable.
 3. Keep all E2E targets isolated and disposal-owned; preserve P7/P8 production default settings.
 4. Regenerate and commit:
-   - \`docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E-report.md\`
-   - \`docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E/comment-user-report-admin-moderation-e2e-evidence.json\`
+   - `docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E-report.md`
+   - `docs/development/COMMENT-USER-REPORT-ADMIN-MODERATION-E2E/comment-user-report-admin-moderation-e2e-evidence.json`
    - Browser screenshots only if browser flow was actually rerun.
-5. Evidence JSON: exact \`tested_main_sha\`, \`tested_code_sha\`, \`collision_refusal_tests\` with *observed* guard exception and actual sentinel readbacks, \`db_creation_ownership\` with after-cleanup state, \`db_isolation\`, \`migration_012_validation\`, \`sentinel_preservation\`, \`validation\`, verdict and \`LOCAL_PASS_CI_PENDING\` boundary. No passwords, JWTs, cookies or raw credential-bearing DB URLs.
-6. Review the existing \`docs/development/DEVELOPMENT_HISTORY.md\`. Preserve EDR-12 as “in review”, with no premature CI/MERGED claim; do not expand the document needlessly. ChatGPT will update remote closure in that history after actual PR merge.
+5. Evidence JSON: exact `tested_main_sha`, `tested_code_sha`, `collision_refusal_tests` with *observed* guard exception and actual sentinel readbacks, `db_creation_ownership` with after-cleanup state, `db_isolation`, `migration_012_validation`, `sentinel_preservation`, `validation`, verdict and `LOCAL_PASS_CI_PENDING` boundary. No passwords, JWTs, cookies or raw credential-bearing DB URLs.
+6. Review the existing `docs/development/DEVELOPMENT_HISTORY.md`. Preserve EDR-12 as “in review”, with no premature CI/MERGED claim; do not expand the document needlessly. ChatGPT will update remote closure in that history after actual PR merge.
 
 ### Stop boundary — hand back for PR/CI
 
-\`\`\`text
+```text
 branch behind main = 0
 working tree clean
 new final tested code SHA pushed
@@ -416,7 +416,7 @@ no unsupported hardcoded PASS claims
 local Report-A..J + F2 / Phase C / guard / migration / sentinel PASS
 COMMENT_USER_REPORT_ADMIN_MODERATION_PASS
 LOCAL_PASS_CI_PENDING
-\`\`\`
+```
 
 If a check fails, label it FAILED/BLOCKED honestly and push diagnostic evidence only; do not claim PASS.
 
