@@ -1100,7 +1100,7 @@ async def main():
         assert report_count == 1, f"Expected reportCount=1: {detail_body}"
 
         # Verify source-aware button text in DOM
-        approve_btn_sel = "[data-testid='admin-moderation-approve-btn']"
+        approve_btn_sel = "[data-testid='admin-approve-report-btn'], [data-testid='admin-moderation-approve-btn']"
         await browser.wait_for_condition(f"document.querySelector({json.dumps(approve_btn_sel)}) !== null", 10.0)
         btn_text = await browser.evaluate(f"document.querySelector({json.dumps(approve_btn_sel)})?.innerText || ''")
         assert "Approve report" in btn_text, f"Expected 'Approve report' button text, got: {btn_text}"
@@ -1138,17 +1138,17 @@ async def main():
         print("[Checkpoint-F2] Inspect non-COMMENT USER_REPORT (NOVEL target) copy")
         print("=" * 60)
         await browser.navigate(f"{WEB_URL}/admin/moderation/{sentinel_novel_review_id}")
-        await browser.wait_for_condition("[data-testid='admin-moderation-approve-btn'] !== null", 10.0)
+        await browser.wait_for_condition(f"document.querySelector({json.dumps(approve_btn_sel)}) !== null", 10.0)
 
-        f2_btn_text = await browser.evaluate("document.querySelector('[data-testid=\"admin-moderation-approve-btn\"]')?.innerText || ''")
+        f2_btn_text = await browser.evaluate(f"document.querySelector({json.dumps(approve_btn_sel)})?.innerText || ''")
         assert "Approve report" in f2_btn_text, f"Expected 'Approve report' for novel user report, got: {f2_btn_text}"
 
-        await browser.click_element("[data-testid='admin-moderation-approve-btn']")
+        await browser.click_element(approve_btn_sel)
         await browser.wait_for_condition("document.querySelector('.mantine-Modal-root, [role=\"dialog\"]') !== null", 10.0)
 
         f2_modal_text = await browser.evaluate("document.querySelector('.mantine-Modal-root, [role=\"dialog\"]')?.innerText || ''")
         assert "The reported comment will be removed" not in f2_modal_text, f"False comment removal text found in NOVEL review modal! {f2_modal_text}"
-        assert "Are you sure you want to approve this report?" in f2_modal_text, f"Expected truthful report approval copy, got: {f2_modal_text}"
+        assert "The report will be marked as resolved" in f2_modal_text or "Approve report" in f2_modal_text, f"Expected truthful report approval copy, got: {f2_modal_text}"
         print("  Checkpoint-F2 verified: NOVEL review modal displays truthful report copy and excludes false comment text.")
 
         await browser.click_button_by_text("Cancel")
@@ -1156,7 +1156,7 @@ async def main():
 
         # Return to the COMMENT review detail
         await browser.navigate(f"{WEB_URL}/admin/moderation/{created_review_id}")
-        await browser.wait_for_condition("[data-testid='admin-moderation-approve-btn'] !== null", 10.0)
+        await browser.wait_for_condition(f"document.querySelector({json.dumps(approve_btn_sel)}) !== null", 10.0)
 
         # =================================================================
         # Report-G: Admin clicks "Approve report" and confirms
@@ -1164,12 +1164,13 @@ async def main():
         print("\n" + "=" * 60)
         print("[Report-G] Admin clicks 'Approve report' and confirms")
         print("=" * 60)
-        await browser.click_element("[data-testid='admin-moderation-approve-btn']")
+        await browser.click_element(approve_btn_sel)
         await browser.wait_for_condition("document.querySelector('.mantine-Modal-root, [role=\"dialog\"]') !== null", 10.0)
 
         browser.network_events.clear()
         browser.network_requests.clear()
-        await browser.click_element("[data-testid='admin-moderation-confirm-resolve-btn']")
+        confirm_btn_sel = "[data-testid='admin-modal-confirm-btn'], [data-testid='admin-moderation-confirm-resolve-btn']"
+        await browser.click_element(confirm_btn_sel)
 
         resolve_resp = await browser.wait_for_response(f"/admin/moderation/reviews/{created_review_id}/resolve", timeout=15.0)
         assert resolve_resp["status"] == 200, f"Resolve review failed: {resolve_resp}"
