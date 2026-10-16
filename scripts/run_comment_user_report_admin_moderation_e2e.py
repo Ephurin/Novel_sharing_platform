@@ -71,6 +71,19 @@ BASE_MONGO_URI = os.environ.get("BASE_MONGODB_URI", os.environ.get("MONGODB_URI"
 parsed_mongo = urlsplit(BASE_MONGO_URI)
 ISOLATED_MONGO_URI = urlunsplit((parsed_mongo.scheme, parsed_mongo.netloc, f"/{ISOLATED_DB_NAME}", parsed_mongo.query, parsed_mongo.fragment))
 
+# Server connection identity: ensure preflight and backend target the same endpoint
+if parsed_admin_pg.hostname not in ("localhost", "127.0.0.1") or (parsed_admin_pg.port is not None and parsed_admin_pg.port != 5432):
+    raise RuntimeError(
+        f"Server identity mismatch: ADMIN_DATABASE_URL points to host '{parsed_admin_pg.hostname}' port '{parsed_admin_pg.port}', "
+        "which differs from local container novel_sharing_platform-postgres-1 (localhost:5432)."
+    )
+
+if parsed_mongo.hostname not in ("localhost", "127.0.0.1") or (parsed_mongo.port is not None and parsed_mongo.port != 27017):
+    raise RuntimeError(
+        f"Server identity mismatch: BASE_MONGODB_URI points to host '{parsed_mongo.hostname}' port '{parsed_mongo.port}', "
+        "which differs from local container novel_sharing_platform-mongodb-1 (localhost:27017)."
+    )
+
 BACKEND_URL = "http://localhost:4000/api/v1"
 WEB_URL = "http://127.0.0.1:5173"
 
@@ -103,6 +116,19 @@ def get_existing_mongo_databases() -> List[str]:
     if res.returncode != 0:
         raise RuntimeError(f"Failed to query MongoDB databases: {res.stderr}")
     return json.loads(res.stdout.strip())
+
+
+def assert_mongo_database_absent(db_name: str) -> None:
+    """Pre-check MongoDB server for existing database names before any insertion/mutation.
+    
+    Fails closed if the database already exists or if listDatabases fails.
+    """
+    existing_mongo = get_existing_mongo_databases()
+    if db_name in existing_mongo:
+        raise RuntimeError(
+            f"TEST_DB_ALREADY_EXISTS: MongoDB database '{db_name}' already exists. "
+            "Preserving existing database without mutation."
+        )
 
 
 def get_existing_postgres_databases(admin_url: str) -> List[str]:
@@ -262,62 +288,97 @@ def run_collision_and_opt_in_tests(admin_pg_url: str, repo_root: str, run_uuid: 
     })
     print(f"  3. Pre-existing PostgreSQL DB collision: REFUSED without drop, sentinel hash verified.")
 
-    # 4. Pre-existing test-named MongoDB DB with sentinel doc: collision refused, same doc/hash preserved
+    # 4. Pre-existing test-named MongoDB DB with sentinel doc: collision refused by shared guard, same doc/hash preserved
     coll_mongo_name = f"ephurin_test_coll_mg_{run_uuid[:12]}"
-    query_mongo_db(coll_mongo_name, "db.collision_sentinel.insertOne({ id: 1, marker: 'mongo-sentinel-must-survive' })")
-    mg_doc_before = query_mongo_db(coll_mongo_name, "JSON.stringify(db.collision_sentinel.findOne({ id: 1 }, { _id: 0 }))")
+    sentinel_doc_id = str(uuid.uuid4())
+    query_mongo_db(
+        coll_mongo_name,
+        f"db.collision_sentinel.insertOne({{ id: '{sentinel_doc_id}', marker: 'mongo-sentinel-must-survive', val: 42 }})"
+    )
+    mg_doc_before = query_mongo_db(
+        coll_mongo_name,
+        f"JSON.stringify(db.collision_sentinel.findOne({{ id: '{sentinel_doc_id}' }}, {{ _id: 0 }}))"
+    )
     mg_sentinel_hash_before = compute_deterministic_hash(mg_doc_before)
 
-    # Verify it appears in server listDatabases
+    # Verify sentinel document appears in server listDatabases
     existing_mongo = get_existing_mongo_databases()
     assert coll_mongo_name in existing_mongo, f"Mongo test DB '{coll_mongo_name}' not in listDatabases!"
 
+    # Simulate runner provisioning attempting to provision on this colliding DB name
+    simulated_ownership = {
+        "mongo_database": coll_mongo_name,
+        "mongo_db_created_by_this_run": False,
+        "mongo_dropped_on_cleanup": False
+    }
     mongo_collision_caught = False
-    if coll_mongo_name in existing_mongo:
-        mongo_collision_caught = True
+    caught_error_message = None
 
-    assert mongo_collision_caught, f"Mongo did not catch collision on existing '{coll_mongo_name}'!"
+    try:
+        # Invoke the exact same shared guard used by runner main()
+        assert_mongo_database_absent(coll_mongo_name)
+        simulated_ownership["mongo_db_created_by_this_run"] = True
+    except RuntimeError as ex:
+        if "TEST_DB_ALREADY_EXISTS" in str(ex):
+            mongo_collision_caught = True
+            caught_error_message = str(ex)
+        else:
+            raise
 
-    # Read back sentinel doc and hash after collision
-    mg_doc_after = query_mongo_db(coll_mongo_name, "JSON.stringify(db.collision_sentinel.findOne({ id: 1 }, { _id: 0 }))")
+    assert mongo_collision_caught, f"Shared guard assert_mongo_database_absent failed to catch collision on existing '{coll_mongo_name}'!"
+    assert simulated_ownership["mongo_db_created_by_this_run"] is False, "Ownership must not be claimed for colliding database!"
+    assert simulated_ownership["mongo_dropped_on_cleanup"] is False, "Teardown drop must not be attempted for rejected collision database!"
+
+    # Read back same sentinel doc and verify SHA-256 identical after collision refusal
+    mg_doc_after = query_mongo_db(
+        coll_mongo_name,
+        f"JSON.stringify(db.collision_sentinel.findOne({{ id: '{sentinel_doc_id}' }}, {{ _id: 0 }}))"
+    )
     mg_sentinel_hash_after = compute_deterministic_hash(mg_doc_after)
     assert mg_sentinel_hash_before == mg_sentinel_hash_after, "Mongo sentinel document mutated during collision attempt!"
 
-    # Clean up test DB
+    # Only the outer test harness that explicitly created this disposable fixture may remove it
     query_mongo_db(coll_mongo_name, "JSON.stringify(db.dropDatabase())")
+
+    # Positive guard validation on a fresh nonexistent name
+    fresh_test_name = f"ephurin_test_fresh_{uuid.uuid4().hex[:12]}"
+    assert_mongo_database_absent(fresh_test_name)
 
     tests.append({
         "test": "pre_existing_mongo_db_collision_refusal",
-        "description": "Pre-existing test-named MongoDB DB with sentinel doc: collision refused before mutation, existing doc/hash preserved",
+        "description": "Pre-existing test-named MongoDB DB with sentinel doc: collision refused by shared guard before mutation, existing doc/hash preserved",
         "colliding_db_name": coll_mongo_name,
+        "shared_guard_invoked": "assert_mongo_database_absent",
+        "guard_caught_error": caught_error_message,
         "hash_before": mg_sentinel_hash_before,
         "hash_after": mg_sentinel_hash_after,
         "hashes_match": mg_sentinel_hash_before == mg_sentinel_hash_after,
         "collision_refused": mongo_collision_caught,
+        "positive_guard_verified_on_fresh_name": True,
         "result": "PASS"
     })
-    print(f"  4. Pre-existing MongoDB DB collision: REFUSED without drop, sentinel hash verified.")
+    print(f"  4. Pre-existing MongoDB DB collision: REFUSED by shared guard, sentinel hash verified, positive guard on fresh name verified.")
 
-    # 5. Fresh unique PG and Mongo DB names: provision PASS, correct identity verified, cleanup only owned resources PASS
+    # 5. Fresh unique PG and Mongo DB names: provision and ownership tracking
     tests.append({
         "test": "fresh_unique_db_names_provision_and_ownership",
-        "description": "Fresh unique PG and Mongo DB names: provision PASS, affirmative ownership tracked, cleanup only owned resources PASS",
+        "description": "Fresh unique PG and Mongo DB names: provision PASS, affirmative ownership tracked, cleanup only owned resources verified on teardown",
         "ownership_discipline": "OWNED_RESOURCES_ONLY_DROPPED",
-        "result": "PASS"
+        "result": "PENDING_TEARDOWN_VERIFICATION"
     })
-    print("  5. Fresh unique DB names: provision & ownership tracking verified.")
+    print("  5. Fresh unique DB names: provision and ownership registered (pending teardown verification).")
 
-    # 6. No credentials, tokens or DB URL secrets in log/evidence
+    # 6. Credential and secret hygiene
     tests.append({
         "test": "credential_and_secret_hygiene",
-        "description": "Discipline confirmed: no credentials, passwords, tokens, or raw DB URLs with credentials committed or logged in evidence",
-        "secrets_redacted": True,
-        "result": "PASS"
+        "description": "Static policy assertion and runtime artifact scan: verifies no credentials, passwords, tokens, or raw DB URLs with credentials are leaked",
+        "inspection_type": "STATIC_POLICY_AND_RUNTIME_ARTIFACT_SCAN",
+        "result": "PENDING_ARTIFACT_SCAN"
     })
-    print("  6. Credential hygiene: verified no secrets in logs or evidence.")
+    print("  6. Credential hygiene: registered (runtime scan to execute before evidence serialization).")
 
     return {
-        "verdict": "COLLISION_REFUSAL_AND_OPT_IN_PASS",
+        "verdict": "COLLISION_REFUSAL_AND_OPT_IN_PREFLIGHT_PASS",
         "tests": tests
     }
 
@@ -675,12 +736,7 @@ async def main():
         print("\n[DB Provisioning] Checking collisions and safely provisioning isolated databases...")
 
         # Pre-check MongoDB server for existing database names before any insertion
-        existing_mongo = get_existing_mongo_databases()
-        if ISOLATED_DB_NAME in existing_mongo:
-            raise RuntimeError(
-                f"TEST_DB_ALREADY_EXISTS: MongoDB database '{ISOLATED_DB_NAME}' already exists. "
-                "Preserving existing database without mutation."
-            )
+        assert_mongo_database_absent(ISOLATED_DB_NAME)
 
         # Safe PostgreSQL CREATE DATABASE without prior DROP; catch SQLSTATE 42P04
         with psycopg.connect(ADMIN_PG_URL, autocommit=True) as admin_conn:
@@ -816,7 +872,7 @@ async def main():
 
         # 3. Collision Refusal & Opt-In Validation Suite (P1-C)
         collision_refusal_manifest = run_collision_and_opt_in_tests(ADMIN_PG_URL, REPO_ROOT, RUN_UUID)
-        assert collision_refusal_manifest["verdict"] == "COLLISION_REFUSAL_AND_OPT_IN_PASS"
+        assert collision_refusal_manifest["verdict"] == "COLLISION_REFUSAL_AND_OPT_IN_PREFLIGHT_PASS"
 
         # 4. Migration 012 Acceptance Suite
         print("\n[Migration 012 Acceptance] Running Migration 012 preflight, failure, idempotency and partial index suite...")
@@ -1769,6 +1825,54 @@ async def main():
         if db_creation_ownership.get("cleanup_error"):
             evidence["verdict"] = "FAIL"
 
+        # Derive fresh_unique_db_names_provision_and_ownership from observed teardown flags
+        for t in collision_refusal_manifest.get("tests", []):
+            if t.get("test") == "fresh_unique_db_names_provision_and_ownership":
+                if (
+                    db_creation_ownership.get("pg_db_created_by_this_run")
+                    and db_creation_ownership.get("mongo_db_created_by_this_run")
+                    and db_creation_ownership.get("pg_dropped_on_cleanup")
+                    and db_creation_ownership.get("mongo_dropped_on_cleanup")
+                    and not db_creation_ownership.get("cleanup_error")
+                ):
+                    t["result"] = "PASS"
+                    t["observed_ownership"] = {
+                        "pg_db_created": True,
+                        "mongo_db_created": True,
+                        "pg_dropped_on_cleanup": True,
+                        "mongo_dropped_on_cleanup": True
+                    }
+                else:
+                    t["result"] = "FAIL"
+
+        # Runtime secret scan on evidence dictionary
+        evidence_serialized = json.dumps(evidence, sort_keys=True, default=str)
+        forbidden_secrets = [
+            os.environ.get("EPHURIN_E2E_DEMO_PASSWORD", "StrongPassword123!"),
+            "docker-demo-access-secret",
+            "docker-demo-refresh-secret",
+            "postgres:postgres@",
+        ]
+        leaks_found = [s for s in forbidden_secrets if s and s in evidence_serialized]
+        for t in collision_refusal_manifest.get("tests", []):
+            if t.get("test") == "credential_and_secret_hygiene":
+                if not leaks_found:
+                    t["result"] = "PASS"
+                    t["runtime_scan_passed"] = True
+                else:
+                    t["result"] = "FAIL"
+                    t["runtime_scan_passed"] = False
+                    t["leaks_detected"] = len(leaks_found)
+
+        if leaks_found:
+            raise RuntimeError(f"Credential leak detected in evidence payload! {len(leaks_found)} matches.")
+
+        if all(t.get("result") == "PASS" for t in collision_refusal_manifest.get("tests", [])):
+            collision_refusal_manifest["verdict"] = "COLLISION_REFUSAL_AND_OPT_IN_PASS"
+        else:
+            collision_refusal_manifest["verdict"] = "COLLISION_REFUSAL_AND_OPT_IN_FAIL"
+            evidence["verdict"] = "FAIL"
+
         # Save Evidence JSON
         evidence_json_path = os.path.join(EVIDENCE_DIR, "comment-user-report-admin-moderation-e2e-evidence.json")
         with open(evidence_json_path, "w", encoding="utf-8") as f:
@@ -1962,6 +2066,8 @@ All 5 planted sentinels were read back both immediately after the full backend t
 
 ## 6. Local Validation Manifest
 
+| Name | Command | Duration (s) | Result |
+|---|---|:---:|:---:|
 {val_table}
 
 ---
