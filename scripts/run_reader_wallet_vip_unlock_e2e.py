@@ -525,6 +525,7 @@ async def main_async():
     backend_proc: Optional[subprocess.Popen] = None
     web_proc: Optional[subprocess.Popen] = None
     edge_proc: Optional[subprocess.Popen] = None
+    browser: Optional[CDPBrowser] = None
 
     sentinels_dict: Dict[str, Any] = {}
 
@@ -587,9 +588,17 @@ async def main_async():
         print(f"  Isolated PostgreSQL: {db_isolation['postgres']['database']} (port: {db_isolation['postgres']['server_port']})")
         print(f"  Isolated MongoDB: {db_isolation['mongo']['database']}")
 
-        # Ensure reader04 wallet starts with strictly 0 coins and no existing unlock on VIP chapter
+        # Dynamically resolve seeded user IDs from isolated database
+        global READER_USER_ID, AUTHOR_USER_ID, DISTINCT_READER_USER_ID
         with psycopg.connect(ISOLATED_PG_URL) as conn:
             with conn.cursor() as cur:
+                cur.execute("SELECT user_id FROM users WHERE email = %s", (READER_EMAIL,))
+                READER_USER_ID = str(cur.fetchone()[0])
+                cur.execute("SELECT user_id FROM users WHERE email = %s", (AUTHOR_EMAIL,))
+                AUTHOR_USER_ID = str(cur.fetchone()[0])
+                cur.execute("SELECT user_id FROM users WHERE email = %s", (DISTINCT_READER_EMAIL,))
+                DISTINCT_READER_USER_ID = str(cur.fetchone()[0])
+
                 cur.execute("UPDATE wallets SET coins_balance = 0, locked_coins = 0 WHERE user_id = %s", (READER_USER_ID,))
                 cur.execute("DELETE FROM chapter_unlocks WHERE user_id = %s AND chapter_id = %s", (READER_USER_ID, VIP_CHAPTER_ID))
                 conn.commit()
@@ -598,7 +607,7 @@ async def main_async():
                 assert r_bal == 0, f"Reader wallet coins balance must be 0, got {r_bal}"
                 cur.execute("SELECT coins_balance FROM wallets WHERE user_id = %s", (AUTHOR_USER_ID,))
                 author_initial_coins = cur.fetchone()[0]
-        print(f"  Fixture initialized: Reader {READER_EMAIL} coins = 0, Author {AUTHOR_EMAIL} initial coins = {author_initial_coins}")
+        print(f"  Fixture initialized: Reader {READER_EMAIL} ({READER_USER_ID}) coins = 0, Author {AUTHOR_EMAIL} ({AUTHOR_USER_ID}) initial coins = {author_initial_coins}")
 
         # PLANT 5 SENTINEL RECORDS before running test suite or browser
         print("\n[Sentinel Plantation] Planting 5 sentinel records across distinct tables...")
