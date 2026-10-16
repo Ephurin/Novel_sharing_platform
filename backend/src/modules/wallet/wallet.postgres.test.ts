@@ -265,9 +265,12 @@ describe('Reader Wallet + VIP Unlock Ledger and Authorization Invariants', () =>
       await pool.query('delete from novels where novel_id = $1', [nid]);
     }
     for (const uid of trackedUserIds) {
-      await pool.query('delete from transactions where wallet_id in (select wallet_id from wallets where user_id = $1)', [uid]);
-      await pool.query('delete from deposit_sessions where wallet_id in (select wallet_id from wallets where user_id = $1)', [uid]);
       await pool.query('delete from chapter_unlocks where user_id = $1', [uid]);
+      await pool.query('delete from deposit_sessions where wallet_id in (select wallet_id from wallets where user_id = $1)', [uid]);
+      await pool.query(
+        'delete from transactions where wallet_id in (select wallet_id from wallets where user_id = $1) or counterparty_wallet_id in (select wallet_id from wallets where user_id = $1)',
+        [uid]
+      );
       await pool.query('delete from wallets where user_id = $1', [uid]);
       await pool.query('delete from users where user_id = $1', [uid]);
     }

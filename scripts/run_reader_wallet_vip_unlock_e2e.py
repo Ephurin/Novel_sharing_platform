@@ -934,8 +934,11 @@ async def main_async():
         print("=" * 60)
         await browser.click_element("[data-testid='login-to-unlock-button']")
         await browser.wait_for_condition("window.location.pathname === '/login'", 10.0)
+        await browser.wait_for_condition("document.querySelector('input') !== null", 10.0)
 
         # Login as Reader04
+        browser.network_events.clear()
+        browser.network_requests.clear()
         await browser.set_input("input[type='text'], input[placeholder*='Email'], input:not([type='password'])", READER_EMAIL)
         await browser.set_input("input[type='password']", DEMO_PASSWORD)
         await asyncio.sleep(0.3)
