@@ -17,6 +17,7 @@ import os
 import sys
 import uuid
 import json
+from urllib.parse import urlsplit, urlunsplit
 import psycopg
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +27,7 @@ ADMIN_DB_URL = os.environ.get("ADMIN_DATABASE_URL", "postgresql://postgres:postg
 
 def run_migration_012_acceptance(run_uuid: str = None) -> dict:
     if not run_uuid:
-        run_uuid = uuid.uuid4().hex[:8]
+        run_uuid = uuid.uuid4().hex
 
     temp_db_name = f"ephurin_test_mig012_{run_uuid}"
 
@@ -36,16 +37,31 @@ def run_migration_012_acceptance(run_uuid: str = None) -> dict:
 
     print(f"\n[Migration 012 Acceptance] Provisioning isolated test database '{temp_db_name}'...")
 
-    # 1. Create disposable database
+    # Resolve test_db_url from ADMIN_DB_URL using exact resolved host and port
+    parsed_admin = urlsplit(ADMIN_DB_URL)
+    test_db_url = urlunsplit((parsed_admin.scheme, parsed_admin.netloc, f"/{temp_db_name}", parsed_admin.query, parsed_admin.fragment))
+
+    pg_db_created = False
     with psycopg.connect(ADMIN_DB_URL, autocommit=True) as admin_conn:
         with admin_conn.cursor() as cur:
-            cur.execute(f'DROP DATABASE IF EXISTS "{temp_db_name}"')
-            cur.execute(f'CREATE DATABASE "{temp_db_name}"')
+            try:
+                cur.execute(f'CREATE DATABASE "{temp_db_name}"')
+                pg_db_created = True
+            except Exception as ex:
+                if getattr(ex, "sqlstate", None) == "42P04" or "42P04" in str(ex) or "already exists" in str(ex):
+                    raise RuntimeError(
+                        f"TEST_DB_ALREADY_EXISTS: PostgreSQL database '{temp_db_name}' already exists (SQLSTATE 42P04). "
+                        "Preserving existing database without mutation."
+                    ) from ex
+                raise
 
-    test_db_url = f"postgresql://postgres:postgres@localhost:5432/{temp_db_name}"
     manifest = {
         "run_uuid": run_uuid,
         "database_name": temp_db_name,
+        "db_creation_ownership": {
+            "pg_db_created_by_this_run": pg_db_created,
+            "owned_resources_dropped": False
+        },
         "steps": [],
         "indexes_verified": [],
         "rollback_evaluation": (
@@ -292,16 +308,20 @@ def run_migration_012_acceptance(run_uuid: str = None) -> dict:
         return manifest
 
     finally:
-        # Drop temporary disposable database
-        with psycopg.connect(ADMIN_DB_URL, autocommit=True) as admin_conn:
-            with admin_conn.cursor() as cur:
-                cur.execute(f'DROP DATABASE IF EXISTS "{temp_db_name}"')
-        print(f"[Migration 012 Acceptance] Teardown complete: dropped disposable '{temp_db_name}'.")
+        # Drop temporary disposable database only if created by this run
+        if pg_db_created:
+            with psycopg.connect(ADMIN_DB_URL, autocommit=True) as admin_conn:
+                with admin_conn.cursor() as cur:
+                    cur.execute(f'DROP DATABASE IF EXISTS "{temp_db_name}"')
+            manifest["db_creation_ownership"]["owned_resources_dropped"] = True
+            print(f"[Migration 012 Acceptance] Teardown complete: dropped owned disposable '{temp_db_name}'.")
+        else:
+            print(f"[Migration 012 Acceptance] Teardown: '{temp_db_name}' was not created by this run; preserved without drop.")
 
 
 if __name__ == "__main__":
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    os.environ["EPHURIN_ALLOW_TEST_DB_MUTATIONS"] = "1"
+    # External opt-in must be provided by the caller; standalone script does not self-authorize
     res = run_migration_012_acceptance()
     print(json.dumps(res, indent=2))
