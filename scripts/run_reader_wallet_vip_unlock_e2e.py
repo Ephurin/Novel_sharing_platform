@@ -901,7 +901,7 @@ async def main_async(inject_fault: bool = False):
         )
 
         web_proc = subprocess.Popen(
-            ["npm", "run", "dev", "--", "--port", "5173", "--host", "127.0.0.1"],
+            ["npm", "run", "preview", "--", "--port", "5173", "--host", "127.0.0.1"],
             cwd=web_dir,
             shell=True
         )
@@ -952,9 +952,24 @@ async def main_async(inject_fault: bool = False):
         ])
         await asyncio.sleep(2.5)
 
-        res = httpx.get(f"http://127.0.0.1:{DEBUG_PORT}/json")
-        targets = res.json()
-        page_target = next((t for t in targets if t.get("type") == "page"), targets[0])
+        page_target = None
+        targets: List[Dict[str, Any]] = []
+        for _ in range(25):
+            try:
+                res = httpx.get(f"http://127.0.0.1:{DEBUG_PORT}/json", timeout=1.5)
+                targets = res.json()
+                page_target = next((t for t in targets if t.get("type") == "page" and "about:blank" in t.get("url", "")), None)
+                if not page_target:
+                    page_target = next((t for t in targets if t.get("type") == "page"), None)
+                if page_target:
+                    break
+            except Exception:
+                pass
+            await asyncio.sleep(0.5)
+        if not page_target:
+            raise RuntimeError(f"No valid page target found in Edge debugger! Targets: {targets}")
+
+        print(f"  [Browser Target] Attached to page target: {page_target.get('title')} ({page_target.get('url')})")
         ws_url = page_target["webSocketDebuggerUrl"]
         browser = CDPBrowser(ws_url)
         await browser.connect()
