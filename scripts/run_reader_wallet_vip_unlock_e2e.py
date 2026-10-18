@@ -212,6 +212,10 @@ class CDPBrowser:
         await self.call("Runtime.enable")
         await self.call("Network.enable")
         await self.call("DOM.enable")
+        try:
+            await self.call("Log.enable")
+        except Exception:
+            pass
         await self.call("Emulation.setDeviceMetricsOverride", {
             "width": 1440,
             "height": 900,
@@ -232,6 +236,23 @@ class CDPBrowser:
                     req_id = params.get("requestId")
                     if req_id:
                         self.network_requests[req_id] = params.get("request", {})
+                elif method == "Network.responseReceived":
+                    resp = msg.get("params", {}).get("response", {})
+                    url = resp.get("url", "")
+                    status = resp.get("status")
+                    if status != 200 or "main" in url or "root" in url or "public" in url or "login" in url:
+                        print(f"  [Browser Network]: {status} {url[:90]}")
+                    self.network_events.append(msg)
+                elif method == "Network.loadingFailed":
+                    params = msg.get("params", {})
+                    err = params.get("errorText")
+                    req_id = params.get("requestId")
+                    url = self.network_requests.get(req_id, {}).get("url", "unknown")
+                    print(f"  [Browser Network FAILED]: {err} {url[:90]}")
+                    self.network_events.append(msg)
+                elif method == "Log.entryAdded":
+                    entry = msg.get("params", {}).get("entry", {})
+                    print(f"  [Browser Log {entry.get('level')}]: {entry.get('text')} (source={entry.get('source')})")
                 elif method == "Runtime.exceptionThrown":
                     details = msg.get("params", {}).get("exceptionDetails", {})
                     text = details.get("text", "")
