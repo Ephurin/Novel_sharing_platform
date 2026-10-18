@@ -232,6 +232,15 @@ class CDPBrowser:
                     req_id = params.get("requestId")
                     if req_id:
                         self.network_requests[req_id] = params.get("request", {})
+                elif method == "Runtime.exceptionThrown":
+                    details = msg.get("params", {}).get("exceptionDetails", {})
+                    text = details.get("text", "")
+                    exc = details.get("exception", {}).get("description", "")
+                    print(f"  [Browser JS Exception]: {text} - {exc}")
+                elif method == "Runtime.consoleAPICalled":
+                    args = msg.get("params", {}).get("args", [])
+                    vals = " ".join(str(a.get("value", a.get("description", ""))) for a in args)
+                    print(f"  [Browser Console]: {vals}")
                 elif method.startswith("Network."):
                     self.network_events.append(msg)
         except asyncio.CancelledError:
@@ -288,10 +297,12 @@ class CDPBrowser:
         try:
             curr_url = await self.evaluate("window.location.href")
             body_snippet = await self.evaluate("document.body.innerText.slice(0, 400)")
+            html_snippet = await self.evaluate("document.body.innerHTML.slice(0, 400)")
         except Exception:
             curr_url = "unknown"
             body_snippet = "unknown"
-        raise TimeoutError(f"Condition timed out after {timeout}s: {condition_js}\nCurrent URL: {curr_url}\nBody snippet: {body_snippet}")
+            html_snippet = "unknown"
+        raise TimeoutError(f"Condition timed out after {timeout}s: {condition_js}\nCurrent URL: {curr_url}\nBody snippet: {body_snippet}\nHTML snippet: {html_snippet}")
 
     async def wait_for_response(
         self,
