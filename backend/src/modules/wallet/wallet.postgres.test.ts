@@ -24,6 +24,7 @@ describe('Reader Wallet + VIP Unlock Ledger and Authorization Invariants', () =>
   const trackedNovelIds = new Set<string>();
   const trackedChapterIds = new Set<string>();
   const trackedDepositSessionIds = new Set<string>();
+  const trackedChapterUnlocks = new Set<string>(); // stored as `${userId}:${chapterId}`
 
   // Sentinel tracking
   interface SentinelRecord {
@@ -253,39 +254,76 @@ describe('Reader Wallet + VIP Unlock Ledger and Authorization Invariants', () =>
   });
 
   after(async () => {
-    // Strictly scoped affirmative teardown
-    for (const sid of trackedDepositSessionIds) {
-      await pool.query('delete from deposit_sessions where deposit_session_id = $1', [sid]);
-    }
-    for (const cid of trackedChapterIds) {
-      await pool.query('delete from chapter_unlocks where chapter_id = $1', [cid]);
-      await pool.query('delete from chapters where chapter_id = $1', [cid]);
-    }
-    for (const nid of trackedNovelIds) {
-      await pool.query('delete from novels where novel_id = $1', [nid]);
-    }
-    for (const uid of trackedUserIds) {
-      await pool.query('delete from chapter_unlocks where user_id = $1', [uid]);
-      await pool.query('delete from deposit_sessions where wallet_id in (select wallet_id from wallets where user_id = $1)', [uid]);
-      await pool.query(
-        'delete from transactions where wallet_id in (select wallet_id from wallets where user_id = $1) or counterparty_wallet_id in (select wallet_id from wallets where user_id = $1)',
-        [uid]
-      );
-      await pool.query('delete from wallets where user_id = $1', [uid]);
-      await pool.query('delete from users where user_id = $1', [uid]);
-    }
-
-    // Teardown sentinels
-    for (const sentinel of sentinels.reverse()) {
-      try {
-        await sentinel.cleanup();
-      } catch {
-        // ignore cleanup errors on teardown
+    try {
+      // 1. Strictly scoped suite-owned chapter unlocks teardown (only exact tracked pairs)
+      for (const key of trackedChapterUnlocks) {
+        const [uId, cId] = key.split(':');
+        await pool.query('delete from chapter_unlocks where user_id = $1 and chapter_id = $2', [uId, cId]);
       }
-    }
 
-    await disconnectPostgres();
-    await disconnectMongo();
+      // 2. Strictly scoped suite-owned deposit sessions teardown
+      for (const sid of trackedDepositSessionIds) {
+        await pool.query('delete from deposit_sessions where deposit_session_id = $1', [sid]);
+      }
+
+      // 3. Strictly scoped suite-owned users, wallets, and transactions teardown
+      for (const uid of trackedUserIds) {
+        await pool.query('delete from chapter_unlocks where user_id = $1', [uid]);
+        await pool.query(
+          'delete from transactions where wallet_id in (select wallet_id from wallets where user_id = $1) or counterparty_wallet_id in (select wallet_id from wallets where user_id = $1)',
+          [uid]
+        );
+        await pool.query('delete from wallets where user_id = $1', [uid]);
+        await pool.query('delete from users where user_id = $1', [uid]);
+      }
+
+      // 4. Affirmative post-cleanup sentinel verification: prove sentinels survived product teardown
+      for (const sentinel of sentinels) {
+        if (sentinel.type === 'sentinel_user') {
+          const res = await pool.query('select user_id, email, username, role, status from users where user_id = $1', [sentinel.id]);
+          assert.equal(res.rowCount, 1, `Sentinel user ${sentinel.id} must survive product teardown`);
+          const currentHash = createHash('sha256').update(JSON.stringify(res.rows[0])).digest('hex');
+          assert.equal(currentHash, sentinel.hash, `Sentinel user ${sentinel.id} must be unmodified`);
+        } else if (sentinel.type === 'sentinel_wallet') {
+          const res = await pool.query('select wallet_id, user_id, coins_balance, locked_coins from wallets where wallet_id = $1', [sentinel.id]);
+          assert.equal(res.rowCount, 1, `Sentinel wallet ${sentinel.id} must survive product teardown`);
+          const currentHash = createHash('sha256').update(JSON.stringify(res.rows[0])).digest('hex');
+          assert.equal(currentHash, sentinel.hash, `Sentinel wallet ${sentinel.id} must be unmodified`);
+        } else if (sentinel.type === 'sentinel_deposit_session') {
+          const res = await pool.query('select deposit_session_id, wallet_id, package_code, amount_coins, status from deposit_sessions where deposit_session_id = $1', [sentinel.id]);
+          assert.equal(res.rowCount, 1, `Sentinel deposit session ${sentinel.id} must survive product teardown`);
+          const currentHash = createHash('sha256').update(JSON.stringify(res.rows[0])).digest('hex');
+          assert.equal(currentHash, sentinel.hash, `Sentinel deposit session ${sentinel.id} must be unmodified`);
+        } else if (sentinel.type === 'sentinel_transaction') {
+          const res = await pool.query('select transaction_id, wallet_id, type, status, amount_coins from transactions where transaction_id = $1', [sentinel.id]);
+          assert.equal(res.rowCount, 1, `Sentinel transaction ${sentinel.id} must survive product teardown`);
+          const currentHash = createHash('sha256').update(JSON.stringify(res.rows[0])).digest('hex');
+          assert.equal(currentHash, sentinel.hash, `Sentinel transaction ${sentinel.id} must be unmodified`);
+        } else if (sentinel.type === 'sentinel_chapter_unlock') {
+          const [uId, cId] = sentinel.id.split('_');
+          const res = await pool.query('select user_id, chapter_id, transaction_id from chapter_unlocks where user_id = $1 and chapter_id = $2', [uId, cId]);
+          assert.equal(res.rowCount, 1, `Sentinel chapter unlock ${sentinel.id} must survive product teardown`);
+          const currentHash = createHash('sha256').update(JSON.stringify(res.rows[0])).digest('hex');
+          assert.equal(currentHash, sentinel.hash, `Sentinel chapter unlock ${sentinel.id} must be unmodified`);
+        }
+      }
+
+      // 5. Harness-owned sentinel teardown: explicit deletion without swallowing errors
+      for (const sentinel of sentinels.reverse()) {
+        await sentinel.cleanup();
+      }
+
+      // 6. Parent chapters and novels teardown (executed only after sentinel unlock dropped)
+      for (const cid of trackedChapterIds) {
+        await pool.query('delete from chapters where chapter_id = $1', [cid]);
+      }
+      for (const nid of trackedNovelIds) {
+        await pool.query('delete from novels where novel_id = $1', [nid]);
+      }
+    } finally {
+      await disconnectPostgres();
+      await disconnectMongo();
+    }
   });
 
   test('Invariant 1: Unauthenticated wallet and unlock requests fail closed with 401', async () => {
@@ -434,6 +472,7 @@ describe('Reader Wallet + VIP Unlock Ledger and Authorization Invariants', () =>
     const totalBefore = readerBefore.coinsBalance + authorBefore.coinsBalance;
 
     const unlockResult = await unlockVipChapter(reader1Auth, vipChapterId);
+    trackedChapterUnlocks.add(`${reader1Id}:${vipChapterId}`);
 
     assert.equal(unlockResult.unlocked, true);
     assert.equal(unlockResult.alreadyUnlocked, false);
@@ -504,6 +543,7 @@ describe('Reader Wallet + VIP Unlock Ledger and Authorization Invariants', () =>
       unlockVipChapter(concurrentReaderAuth, vipChapterId),
       unlockVipChapter(concurrentReaderAuth, vipChapterId)
     ]);
+    trackedChapterUnlocks.add(`${concurrentReaderId}:${vipChapterId}`);
 
     assert.equal(res1.unlocked, true);
     assert.equal(res2.unlocked, true);

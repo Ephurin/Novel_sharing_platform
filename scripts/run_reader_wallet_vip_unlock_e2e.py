@@ -73,13 +73,13 @@ ISOLATED_MONGO_URI = urlunsplit((parsed_mongo.scheme, parsed_mongo.netloc, f"/{I
 if parsed_admin_pg.hostname not in ("localhost", "127.0.0.1") or (parsed_admin_pg.port is not None and parsed_admin_pg.port != 5432):
     raise RuntimeError(
         f"Server identity mismatch: ADMIN_DATABASE_URL points to host '{parsed_admin_pg.hostname}' port '{parsed_admin_pg.port}', "
-        "which differs from local container novel_sharing_platform-postgres-1 (localhost:5432)."
+        "which differs from local container PostgreSQL (localhost:5432)."
     )
 
 if parsed_mongo.hostname not in ("localhost", "127.0.0.1") or (parsed_mongo.port is not None and parsed_mongo.port != 27017):
     raise RuntimeError(
         f"Server identity mismatch: BASE_MONGODB_URI points to host '{parsed_mongo.hostname}' port '{parsed_mongo.port}', "
-        "which differs from local container novel_sharing_platform-mongodb-1 (localhost:27017)."
+        "which differs from local container MongoDB (localhost:27017)."
     )
 
 BACKEND_URL = "http://localhost:4000/api/v1"
@@ -108,10 +108,30 @@ VIP_CHAPTER_TITLE = "Chương 10: Nhật Thực Cuối Cùng"
 VIP_PRICE_COINS = 50
 
 
+def get_mongo_container_name() -> str:
+    """Inspect active Docker containers to dynamically locate running mongo:7 container."""
+    res = subprocess.run(
+        ["docker", "ps", "--filter", "ancestor=mongo:7", "--format", "{{.Names}}"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace"
+    )
+    names = [n.strip() for n in res.stdout.strip().splitlines() if n.strip()]
+    if names:
+        return names[0]
+    for fallback in ["testproject-mongodb-1", "novel_sharing_platform-mongodb-1"]:
+        chk = subprocess.run(["docker", "inspect", fallback], capture_output=True)
+        if chk.returncode == 0:
+            return fallback
+    raise RuntimeError("No active MongoDB container found running mongo:7")
+
+
 def get_existing_mongo_databases() -> List[str]:
     """Inspect active MongoDB server for existing database names."""
+    cname = get_mongo_container_name()
     res = subprocess.run(
-        ["docker", "exec", "novel_sharing_platform-mongodb-1", "mongosh", "--quiet", "--eval", "JSON.stringify(db.adminCommand({ listDatabases: 1 }).databases.map(d => d.name))"],
+        ["docker", "exec", cname, "mongosh", "--quiet", "--eval", "JSON.stringify(db.adminCommand({ listDatabases: 1 }).databases.map(d => d.name))"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -144,8 +164,9 @@ def query_mongo_db(db_name: str, script: str) -> Any:
     """Run a query inside MongoDB container on specified test database using mongosh."""
     if db_name in ("ephurin", "admin", "config", "local") or not (db_name.startswith("ephurin_wallet_e2e_") or db_name.startswith("ephurin_test_")):
         raise RuntimeError(f"Refusing mongo query on non-test database: '{db_name}'")
+    cname = get_mongo_container_name()
     res = subprocess.run(
-        ["docker", "exec", "novel_sharing_platform-mongodb-1", "mongosh", "--quiet", db_name, "--eval", script],
+        ["docker", "exec", cname, "mongosh", "--quiet", db_name, "--eval", script],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -461,7 +482,9 @@ def run_command(name: str, cmd: str, cwd: str, extra_env: Optional[Dict[str, str
     }
 
 
-async def main_async():
+async def main_async(inject_fault: bool = False):
+    global READER_USER_ID, AUTHOR_USER_ID, DISTINCT_READER_USER_ID
+
     print("=" * 70)
     print("STARTING READER WALLET + VIP UNLOCK BROWSER E2E ACCEPTANCE RUNNER")
     print("Gate: READER-WALLET-VIP-UNLOCK-E2E")
@@ -480,37 +503,40 @@ async def main_async():
         "isolated_db_name": ISOLATED_DB_NAME
     }
 
-    # 1. Preflight Collision Refusal Proof
-    print("\n[DB Preflight] Verifying absence of isolated databases before creation...")
-    existing_pg = get_existing_postgres_databases(ADMIN_PG_URL)
-    if ISOLATED_DB_NAME in existing_pg:
-        raise RuntimeError(
-            f"TEST_DB_ALREADY_EXISTS: PostgreSQL database '{ISOLATED_DB_NAME}' already exists. "
-            "Refusing execution without pre-creation DROP."
-        )
+    cleanup_verification: Dict[str, Any] = {
+        "postgres_deleted_verified": False,
+        "mongo_deleted_verified": False,
+        "cleanup_errors": []
+    }
 
-    assert_mongo_database_absent(ISOLATED_DB_NAME)
-    print("  Preflight verified: target DB names do not exist in PostgreSQL or MongoDB.")
+    validation_records: List[Dict[str, Any]] = []
+    sentinels_dict: Dict[str, Any] = {}
 
-    # Create isolated PostgreSQL test DB
-    with psycopg.connect(ADMIN_PG_URL, autocommit=True) as conn:
-        with conn.cursor() as cur:
-            try:
-                cur.execute(f'CREATE DATABASE "{ISOLATED_DB_NAME}"')
-                db_creation_ownership["postgres_db_created_by_this_run"] = True
-            except Exception as ex:
-                if getattr(ex, "sqlstate", None) == "42P04" or "42P04" in str(ex) or "already exists" in str(ex):
-                    raise RuntimeError(
-                        f"TEST_DB_ALREADY_EXISTS: PostgreSQL database '{ISOLATED_DB_NAME}' already exists (SQLSTATE 42P04). "
-                        "Preserving existing database without mutation."
-                    ) from ex
-                raise
-    print(f"  Safely created isolated PostgreSQL database: {ISOLATED_DB_NAME}")
-
-    # Initialize MongoDB test database affirmatively by creating initial marker collection
-    query_mongo("JSON.stringify(db.createCollection('_run_marker'))")
-    db_creation_ownership["mongo_db_created_by_this_run"] = True
-    print(f"  Safely initialized isolated MongoDB database: {ISOLATED_DB_NAME}")
+    evidence: Dict[str, Any] = {
+        "verdict": "FAIL",
+        "tested_main_sha": git_info["base_main_sha"],
+        "tested_code_sha": git_info["head_sha"],
+        "branch": git_info["branch"],
+        "run_uuid": RUN_UUID,
+        "negative_harness_tests": {
+            "validation_fault_injection_tested": inject_fault,
+            "validation_fault_command": "negative_fault_injection_probe" if inject_fault else None,
+            "validation_fault_exit_code": 42 if inject_fault else None
+        },
+        "db_creation_ownership": db_creation_ownership,
+        "db_cleanup_verification": cleanup_verification,
+        "db_isolation": {},
+        "validation_records": validation_records,
+        "reader_user_id": READER_USER_ID,
+        "author_user_id": AUTHOR_USER_ID,
+        "distinct_reader_user_id": DISTINCT_READER_USER_ID,
+        "target_novel_id": TARGET_NOVEL_ID,
+        "vip_chapter_id": VIP_CHAPTER_ID,
+        "free_chapter_id": FREE_CHAPTER_ID,
+        "vip_price_coins": VIP_PRICE_COINS,
+        "checkpoints": {},
+        "sentinels": {}
+    }
 
     backend_dir = os.path.join(REPO_ROOT, "backend")
     web_dir = os.path.join(REPO_ROOT, "web")
@@ -519,7 +545,9 @@ async def main_async():
         "DATABASE_URL": ISOLATED_PG_URL,
         "MONGODB_URI": ISOLATED_MONGO_URI,
         "EXPECTED_TEST_DB_NAME": ISOLATED_DB_NAME,
-        "EPHURIN_ALLOW_TEST_DB_MUTATIONS": "1"
+        "EPHURIN_ALLOW_TEST_DB_MUTATIONS": "1",
+        "JWT_ACCESS_SECRET": "docker-demo-access-secret-change-me",
+        "JWT_REFRESH_SECRET": "docker-demo-refresh-secret-change-me"
     }
 
     backend_proc: Optional[subprocess.Popen] = None
@@ -527,9 +555,38 @@ async def main_async():
     edge_proc: Optional[subprocess.Popen] = None
     browser: Optional[CDPBrowser] = None
 
-    sentinels_dict: Dict[str, Any] = {}
-
     try:
+        # 1. Preflight Collision Refusal Proof
+        print("\n[DB Preflight] Verifying absence of isolated databases before creation...")
+        existing_pg = get_existing_postgres_databases(ADMIN_PG_URL)
+        if ISOLATED_DB_NAME in existing_pg:
+            raise RuntimeError(
+                f"TEST_DB_ALREADY_EXISTS: PostgreSQL database '{ISOLATED_DB_NAME}' already exists. "
+                "Refusing execution without pre-creation DROP."
+            )
+
+        assert_mongo_database_absent(ISOLATED_DB_NAME)
+        print("  Preflight verified: target DB names do not exist in PostgreSQL or MongoDB.")
+
+        # Create isolated PostgreSQL test DB
+        with psycopg.connect(ADMIN_PG_URL, autocommit=True) as conn:
+            with conn.cursor() as cur:
+                try:
+                    cur.execute(f'CREATE DATABASE "{ISOLATED_DB_NAME}"')
+                    db_creation_ownership["postgres_db_created_by_this_run"] = True
+                except Exception as ex:
+                    if getattr(ex, "sqlstate", None) == "42P04" or "42P04" in str(ex) or "already exists" in str(ex):
+                        raise RuntimeError(
+                            f"TEST_DB_ALREADY_EXISTS: PostgreSQL database '{ISOLATED_DB_NAME}' already exists (SQLSTATE 42P04). "
+                            "Preserving existing database without mutation."
+                        ) from ex
+                    raise
+        print(f"  Safely created isolated PostgreSQL database: {ISOLATED_DB_NAME}")
+
+        # Initialize MongoDB test database affirmatively by creating initial marker collection
+        query_mongo("JSON.stringify(db.createCollection('_run_marker'))")
+        db_creation_ownership["mongo_db_created_by_this_run"] = True
+        print(f"  Safely initialized isolated MongoDB database: {ISOLATED_DB_NAME}")
         # Run migrations on isolated DB
         print("\n[DB Provisioning] Running migrations against isolated DB...")
         mig_res = subprocess.run(
@@ -589,7 +646,6 @@ async def main_async():
         print(f"  Isolated MongoDB: {db_isolation['mongo']['database']}")
 
         # Dynamically resolve seeded user IDs from isolated database
-        global READER_USER_ID, AUTHOR_USER_ID, DISTINCT_READER_USER_ID
         with psycopg.connect(ISOLATED_PG_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT user_id FROM users WHERE email = %s", (READER_EMAIL,))
@@ -713,8 +769,6 @@ async def main_async():
         print("\n" + "=" * 60)
         print("EXECUTING LOCAL VALIDATION MANIFEST AGAINST ISOLATED DB")
         print("=" * 60)
-        validation_records: List[Dict[str, Any]] = []
-
         validation_records.append(run_command("web_typecheck", "npm run typecheck", web_dir))
         validation_records.append(run_command("web_build", "npm run build", web_dir))
         validation_records.append(run_command("backend_typecheck", "npm run typecheck", backend_dir))
@@ -730,6 +784,38 @@ async def main_async():
             backend_dir,
             extra_env=iso_env
         ))
+        validation_records.append(run_command(
+            "backend_full_test_suite",
+            "npm test",
+            backend_dir,
+            extra_env=iso_env
+        ))
+
+        if inject_fault:
+            print("\n[Fault Injection] Injecting artificial validation failure to prove fail-closed gate...")
+            injected_record = run_command(
+                "negative_fault_injection_probe",
+                "node -e \"console.error('Simulated validation failure'); process.exit(42)\"",
+                backend_dir
+            )
+            validation_records.append(injected_record)
+            evidence["negative_harness_tests"] = {
+                "validation_fault_injection_tested": True,
+                "validation_fault_command": "negative_fault_injection_probe",
+                "validation_fault_exit_code": 42
+            }
+
+        evidence["validation_records"] = validation_records
+
+        # Fail-closed validation gate: check all commands before proceeding to browser
+        print("\n[Validation Gate] Verifying all validation manifest commands PASSED...")
+        failed_cmds = [r for r in validation_records if r.get("status") != "PASS" or r.get("exit_code") != 0]
+        if failed_cmds:
+            first_fail = failed_cmds[0]
+            evidence["verdict"] = f"FAILED_VALIDATION: {first_fail['name']}"
+            print(f"\n[FAIL-CLOSED GATE] Validation command '{first_fail['name']}' FAILED (exit={first_fail['exit_code']}). Refusing to launch browser.")
+            raise RuntimeError(f"FAILED_VALIDATION: command '{first_fail['name']}' failed with exit code {first_fail['exit_code']}")
+        print("  All validation commands PASSED cleanly.")
 
         # Checkpoint 1: Verify Sentinels after Backend Test Suite
         print("\n[Sentinel Checkpoint 1] Verifying sentinel preservation after full backend test suite...")
@@ -764,23 +850,7 @@ async def main_async():
 
         # Start Local Backend Server and Web Dev Server Targeting Isolated DB
         print("\n[Service Startup] Starting backend server and web dev server targeting isolated DB...")
-        evidence: Dict[str, Any] = {
-            "verdict": "FAIL",
-            "tested_main_sha": git_info["base_main_sha"],
-            "tested_code_sha": git_info["head_sha"],
-            "branch": git_info["branch"],
-            "run_uuid": RUN_UUID,
-            "db_creation_ownership": db_creation_ownership,
-            "db_isolation": db_isolation,
-            "validation_records": validation_records,
-            "reader_user_id": READER_USER_ID,
-            "author_user_id": AUTHOR_USER_ID,
-            "target_novel_id": TARGET_NOVEL_ID,
-            "vip_chapter_id": VIP_CHAPTER_ID,
-            "free_chapter_id": FREE_CHAPTER_ID,
-            "vip_price_coins": VIP_PRICE_COINS,
-            "checkpoints": {}
-        }
+        evidence["db_isolation"] = db_isolation
 
         backend_server_env = os.environ.copy()
         backend_server_env.update(iso_env)
@@ -1256,11 +1326,54 @@ async def main_async():
         # Wallet-J: Distinct reader / anonymous access denied; Free chapter still accessible
         # =====================================================================
         print("\n" + "=" * 60)
-        print("[Wallet-J] Anonymous visitor cannot read VIP chapter; Free chapter accessible")
+        print("[Wallet-J] Multi-tenant isolation: Distinct reader & anonymous locked out; Free chapter accessible")
         print("=" * 60)
         await browser.perform_logout()
 
-        # 1. Anonymous visitor accesses VIP chapter -> 402 PAYMENT_002
+        # Step 1: Login via UI as distinct reader (reader05@example.com) who never unlocked VIP
+        print("  [Wallet-J.1] Logging in as distinct reader (reader05@example.com)...")
+        await browser.perform_login(DISTINCT_READER_EMAIL, DEMO_PASSWORD, "READER")
+
+        # Step 2: Distinct reader attempts to access VIP chapter -> 402 PAYMENT_002
+        print("  [Wallet-J.2] Distinct reader attempts to access VIP chapter...")
+        browser.network_events.clear()
+        browser.network_requests.clear()
+        await browser.navigate(f"{WEB_URL}/public/chapters/{VIP_CHAPTER_ID}")
+
+        distinct_vip_resp = await browser.wait_for_response(f"/reading/chapters/{VIP_CHAPTER_ID}", timeout=15.0)
+        assert distinct_vip_resp["status"] == 402, f"Expected 402 for distinct reader on VIP chapter, got {distinct_vip_resp['status']}"
+        await browser.wait_for_condition("document.querySelector('[data-testid=\"public-vip-locked-box\"], [data-testid=\"wallet-unlock-chapter-button\"]') !== null", 10.0)
+
+        # Verify no content leaked into DOM for distinct reader
+        distinct_text = await browser.evaluate("document.body.innerText")
+        assert "Trận chiến cuối cùng" not in distinct_text and "Nhật Thực Cuối Cùng - Nội dung bí mật" not in distinct_text, "Content leaked to distinct reader!"
+
+        # Step 3: Database correlation: distinct reader has 0 entitlements, 0 debits, 0 UNLOCK transactions
+        with psycopg.connect(ISOLATED_PG_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT count(*)::int FROM chapter_unlocks WHERE user_id = %s AND chapter_id = %s",
+                    (DISTINCT_READER_USER_ID, VIP_CHAPTER_ID)
+                )
+                distinct_entitlements = cur.fetchone()[0]
+                assert distinct_entitlements == 0, f"Distinct reader must have 0 entitlements, got {distinct_entitlements}"
+
+                cur.execute("SELECT coins_balance FROM wallets WHERE user_id = %s", (DISTINCT_READER_USER_ID,))
+                distinct_coins = cur.fetchone()[0]
+
+                cur.execute(
+                    "SELECT count(*)::int FROM transactions WHERE wallet_id = (SELECT wallet_id FROM wallets WHERE user_id = %s) AND type = 'UNLOCK'",
+                    (DISTINCT_READER_USER_ID,)
+                )
+                distinct_unlock_tx = cur.fetchone()[0]
+                assert distinct_unlock_tx == 0, f"Distinct reader must have 0 UNLOCK transactions, got {distinct_unlock_tx}"
+
+        # Step 4: Distinct reader explicitly logs out
+        print("  [Wallet-J.3] Distinct reader logging out...")
+        await browser.perform_logout()
+
+        # Step 5: Anonymous visitor accesses VIP chapter -> 402 PAYMENT_002
+        print("  [Wallet-J.4] Anonymous visitor accessing VIP chapter...")
         browser.network_events.clear()
         browser.network_requests.clear()
         await browser.navigate(f"{WEB_URL}/public/chapters/{VIP_CHAPTER_ID}")
@@ -1269,7 +1382,8 @@ async def main_async():
         assert vip_anon_resp["status"] == 402, f"Expected 402 on VIP chapter, got {vip_anon_resp['status']}"
         await browser.wait_for_condition("document.querySelector('[data-testid=\"public-vip-locked-box\"]') !== null", 10.0)
 
-        # 2. Anonymous visitor accesses Free chapter -> 200 OK and text visible
+        # Step 6: Anonymous visitor accesses Free chapter -> 200 OK and text visible
+        print("  [Wallet-J.5] Anonymous visitor accessing Free chapter...")
         browser.network_events.clear()
         browser.network_requests.clear()
         await browser.navigate(f"{WEB_URL}/public/chapters/{FREE_CHAPTER_ID}")
@@ -1284,12 +1398,17 @@ async def main_async():
         ss_j = await browser.screenshot("wallet-j-isolation-and-free-chapter.png")
         evidence["checkpoints"]["Wallet-J"] = {
             "status": "PASS",
+            "distinct_reader_email": DISTINCT_READER_EMAIL,
+            "distinct_reader_http_status": distinct_vip_resp["status"],
+            "distinct_reader_entitlements": distinct_entitlements,
+            "distinct_reader_unlock_tx": distinct_unlock_tx,
+            "distinct_reader_coins_balance": distinct_coins,
             "vip_anonymous_status": vip_anon_resp["status"],
             "free_chapter_status": free_resp["status"],
             "free_chapter_accessible_without_coins": True,
             "screenshot": ss_j
         }
-        print("  Wallet-J PASSED: VIP isolation preserved; free chapter accessible without payment.")
+        print("  Wallet-J PASSED: Multi-tenant VIP isolation verified (second reader locked, anon locked, free readable).")
 
         # =====================================================================
         # Checkpoint 2: Verify Sentinels after Browser E2E
@@ -1327,8 +1446,6 @@ async def main_async():
         evidence["sentinels"] = sentinels_dict
         print("  Sentinel Checkpoint 2 PASSED: All 5 sentinels identically preserved.")
 
-        evidence["verdict"] = "READER_WALLET_VIP_UNLOCK_PASS"
-
     finally:
         print("\n[Teardown] Shutting down services and cleaning up run-owned test DBs...")
         if browser:
@@ -1352,43 +1469,109 @@ async def main_async():
                             WHERE datname = '{ISOLATED_DB_NAME}' AND pid <> pg_backend_pid()
                         """)
                         cur.execute(f'DROP DATABASE IF EXISTS "{ISOLATED_DB_NAME}"')
-                print("  Dropped isolated PostgreSQL database cleanly.")
+                remaining_pg = get_existing_postgres_databases(ADMIN_PG_URL)
+                if ISOLATED_DB_NAME not in remaining_pg:
+                    cleanup_verification["postgres_deleted_verified"] = True
+                    print("  Verified: isolated PostgreSQL database dropped and absent from pg_database.")
+                else:
+                    err_msg = f"PostgreSQL database '{ISOLATED_DB_NAME}' still present in pg_database after DROP!"
+                    cleanup_verification["cleanup_errors"].append(err_msg)
+                    print(f"  Error: {err_msg}")
             except Exception as e:
-                print(f"  Warning: failed to drop PostgreSQL test database: {e}")
+                err_msg = f"Failed to drop PostgreSQL test database: {e}"
+                cleanup_verification["cleanup_errors"].append(err_msg)
+                print(f"  Warning: {err_msg}")
 
         if db_creation_ownership.get("mongo_db_created_by_this_run"):
             print(f"  Dropping run-owned isolated MongoDB database '{ISOLATED_DB_NAME}'...")
             try:
-                subprocess.run(
-                    ["docker", "exec", "novel_sharing_platform-mongodb-1", "mongosh", "--quiet", "--eval", f"db.getSiblingDB('{ISOLATED_DB_NAME}').dropDatabase()"],
+                cname = get_mongo_container_name()
+                res = subprocess.run(
+                    ["docker", "exec", cname, "mongosh", "--quiet", "--eval", f"db.getSiblingDB('{ISOLATED_DB_NAME}').dropDatabase()"],
                     capture_output=True,
-                    text=True
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace"
                 )
-                print("  Dropped isolated MongoDB database cleanly.")
+                if res.returncode == 0:
+                    remaining_mongo = get_existing_mongo_databases()
+                    if ISOLATED_DB_NAME not in remaining_mongo:
+                        cleanup_verification["mongo_deleted_verified"] = True
+                        print("  Verified: isolated MongoDB database dropped and absent from listDatabases.")
+                    else:
+                        err_msg = f"MongoDB database '{ISOLATED_DB_NAME}' still present in listDatabases after dropDatabase!"
+                        cleanup_verification["cleanup_errors"].append(err_msg)
+                        print(f"  Error: {err_msg}")
+                else:
+                    err_msg = f"MongoDB dropDatabase returned nonzero: {res.stderr}"
+                    cleanup_verification["cleanup_errors"].append(err_msg)
+                    print(f"  Warning: {err_msg}")
             except Exception as e:
-                print(f"  Warning: failed to drop MongoDB test database: {e}")
+                err_msg = f"Failed to drop MongoDB test database: {e}"
+                cleanup_verification["cleanup_errors"].append(err_msg)
+                print(f"  Warning: {err_msg}")
 
-    # Write evidence JSON
-    evidence_json_path = os.path.join(EVIDENCE_DIR, "reader-wallet-vip-unlock-e2e-evidence.json")
-    with open(evidence_json_path, "w", encoding="utf-8") as f:
-        json.dump(evidence, f, indent=2, ensure_ascii=False)
-    print(f"\n[Artifact] Evidence written to: {evidence_json_path}")
+        evidence["db_cleanup_verification"] = cleanup_verification
 
-    # Generate Markdown Report
-    generate_markdown_report(evidence)
-    print(f"[Artifact] Report written to: {REPORT_PATH}")
+        # Compute overall final gate verdict
+        validation_all_pass = (
+            len(evidence.get("validation_records", [])) > 0 and
+            all(r.get("status") == "PASS" and r.get("exit_code") == 0 for r in evidence.get("validation_records", []))
+        )
+        checkpoints_all_pass = (
+            len(evidence.get("checkpoints", {})) == 10 and
+            all(cp.get("status") == "PASS" for cp in evidence["checkpoints"].values())
+        )
+        sentinels_all_preserved = (
+            bool(sentinels_dict) and
+            all(
+                s.get("hash_before") == s.get("hash_after_tests") == s.get("hash_after_browser")
+                for s in sentinels_dict.values()
+            )
+        )
+        cleanup_all_verified = (
+            cleanup_verification.get("postgres_deleted_verified", False) and
+            cleanup_verification.get("mongo_deleted_verified", False) and
+            len(cleanup_verification.get("cleanup_errors", [])) == 0
+        )
 
-    print("\n" + "=" * 70)
-    print(f"FINAL RUNNER VERDICT: {evidence['verdict']}")
-    print("=" * 70)
-    if evidence["verdict"] != "READER_WALLET_VIP_UNLOCK_PASS":
-        sys.exit(1)
+        if validation_all_pass and checkpoints_all_pass and sentinels_all_preserved and cleanup_all_verified:
+            evidence["verdict"] = "READER_WALLET_VIP_UNLOCK_PASS"
+        elif evidence.get("verdict") == "FAIL" or not evidence.get("verdict", "").startswith("FAILED_VALIDATION"):
+            if not validation_all_pass:
+                first_failed = next((r["name"] for r in evidence.get("validation_records", []) if r.get("status") != "PASS"), "unknown")
+                evidence["verdict"] = f"FAILED_VALIDATION: {first_failed}"
+            elif not checkpoints_all_pass:
+                evidence["verdict"] = "FAILED_CHECKPOINTS"
+            elif not sentinels_all_preserved:
+                evidence["verdict"] = "FAILED_SENTINEL_MUTATION"
+            elif not cleanup_all_verified:
+                evidence["verdict"] = "FAILED_CLEANUP_VERIFICATION"
+
+        # Write evidence JSON
+        evidence_json_path = os.path.join(EVIDENCE_DIR, "reader-wallet-vip-unlock-e2e-evidence.json")
+        with open(evidence_json_path, "w", encoding="utf-8") as f:
+            json.dump(evidence, f, indent=2, ensure_ascii=False)
+        print(f"\n[Artifact] Evidence written to: {evidence_json_path}")
+
+        # Generate Markdown Report
+        generate_markdown_report(evidence)
+        print(f"[Artifact] Report written to: {REPORT_PATH}")
+
+        print("\n" + "=" * 70)
+        print(f"FINAL RUNNER VERDICT: {evidence['verdict']}")
+        print("=" * 70)
+        if evidence["verdict"] != "READER_WALLET_VIP_UNLOCK_PASS":
+            sys.exit(1)
 
 
 def generate_markdown_report(evidence: Dict[str, Any]):
     checkpoints = evidence.get("checkpoints", {})
     records = evidence.get("validation_records", [])
     sentinels = evidence.get("sentinels", {})
+    cleanup = evidence.get("db_cleanup_verification", {})
+    ownership = evidence.get("db_creation_ownership", {})
+    neg_harness = evidence.get("negative_harness_tests", {})
 
     md = f"""# Acceptance Report: Reader Wallet + VIP Unlock Browser E2E
 
@@ -1406,16 +1589,17 @@ def generate_markdown_report(evidence: Dict[str, Any]):
 
 This acceptance gate establishes end-to-end browser and backend verification for the **Reader Wallet + VIP Unlock** user loop.
 The entire user journey was conducted using **in-app virtual coins ONLY** without connecting to any external payment gateways, live bank accounts, or financial credentials.
-All state mutations occurred exclusively inside isolated disposable PostgreSQL and MongoDB databases, protected by affirmative ownership tracking and collision refusal.
+All state mutations occurred exclusively inside isolated disposable PostgreSQL and MongoDB databases, protected by affirmative ownership tracking, collision refusal, and verified disappearance upon teardown.
 
 ### Core Verified Invariants:
 1. **Mock Wallet Deposit**: Reader with 0 coins creates a deposit session for `COIN_500` and completes it via `completeMockDeposit`, crediting exactly 500 virtual coins and writing a `DEPOSIT` transaction.
 2. **Security & Production Containment**: Unauthenticated callers are rejected (401 `AUTH_002`). Foreign session abuse (attempting to complete another user's deposit session) is rejected (403 `AUTH_008`). Production calls to mock webhooks fail closed (403 `AUTH_008`). Completed deposit sessions cannot be replayed (404 `PAYMENT_004`).
-3. **VIP Chapter Paywall**: Anonymous visitors and readers with insufficient coins receive HTTP 402 `PAYMENT_002` ("Chapter unlock required") with zero text content leakage.
+3. **VIP Chapter Paywall & Multi-Tenant Isolation**: Anonymous visitors, readers with insufficient coins, and distinct readers who have not unlocked the chapter receive HTTP 402 `PAYMENT_002` ("Chapter unlock required") with zero text content leakage.
 4. **Strict Ledger Conservation**: Unlocking Chapter 10 (price: 50 coins) debits the reader wallet by 50 and credits the author wallet by 50, resulting in zero net system drift across the transfer.
 5. **Repeat Unlock Idempotency**: Subsequent unlock attempts for the same reader and chapter return `alreadyUnlocked: true` with zero balance delta and zero duplicate transactions.
 6. **Concurrent Unlock Serialization**: Concurrent requests for the same reader serialize under row-level database locking, preventing double-debits.
 7. **Free Chapter Access**: Published free chapters remain freely readable without virtual coins or login.
+8. **Fail-Closed Gate & Safe Teardown**: Validation failures prevent browser execution with machine-readable status; teardown verifies disappearance from `pg_database` and MongoDB `listDatabases` while strictly preserving sentinels.
 
 ---
 
@@ -1423,16 +1607,16 @@ All state mutations occurred exclusively inside isolated disposable PostgreSQL a
 
 | Checkpoint | Description | Result | Screenshot |
 |---|---|---|---|
-| **Wallet-A** | Isolated fixture verified: VIP chapter published, reader wallet has 0 coins | **PASS** | `wallet-a-fixture-verified.png` |
-| **Wallet-B** | Anonymous visitor cannot read VIP chapter; receives 402 `PAYMENT_002`; no content leak | **PASS** | `wallet-b-anonymous-locked.png` |
-| **Wallet-C** | Reader signs in via `/login`; accesses VIP chapter; receives 402 and unlock prompt | **PASS** | `wallet-c-reader-locked.png` |
-| **Wallet-D** | Reader opens `/wallet`; verifies initial 0 balance; selects `COIN_500` package | **PASS** | `wallet-d-wallet-page.png` |
-| **Wallet-E** | Reader clicks Deposit mock coins; session created and completed; balance updates to 500 | **PASS** | `wallet-e-deposit-success.png` |
-| **Wallet-F** | Reader clicks Unlock chapter via UI; POST `/chapters/:id/unlock` succeeds with `unlocked=true` | **PASS** | `wallet-f-unlock-invoked.png` |
-| **Wallet-G** | Database correlation: `chapter_unlocks` entitlement created, reader balance 450 (-50), author balance +50, zero net drift | **PASS** | `wallet-g-ledger-correlated.png` |
-| **Wallet-H** | Reader reloads chapter; GET succeeds with 200 OK; authentic chapter text rendered in DOM | **PASS** | `wallet-h-content-unlocked.png` |
-| **Wallet-I** | Reader retries unlock; `alreadyUnlocked=true`, 0 second debit, zero duplicate transaction | **PASS** | `wallet-i-repeat-unlock-idempotent.png` |
-| **Wallet-J** | Anonymous visitor still locked out of VIP chapter; free Chapter 1 readable without payment | **PASS** | `wallet-j-isolation-and-free-chapter.png` |
+| **Wallet-A** | Isolated fixture verified: VIP chapter published, reader wallet has 0 coins | **{checkpoints.get('Wallet-A', {}).get('status', 'PENDING')}** | `wallet-a-fixture-verified.png` |
+| **Wallet-B** | Anonymous visitor cannot read VIP chapter; receives 402 `PAYMENT_002`; no content leak | **{checkpoints.get('Wallet-B', {}).get('status', 'PENDING')}** | `wallet-b-anonymous-locked.png` |
+| **Wallet-C** | Reader signs in via `/login`; accesses VIP chapter; receives 402 and unlock prompt | **{checkpoints.get('Wallet-C', {}).get('status', 'PENDING')}** | `wallet-c-reader-locked.png` |
+| **Wallet-D** | Reader opens `/wallet`; verifies initial 0 balance; selects `COIN_500` package | **{checkpoints.get('Wallet-D', {}).get('status', 'PENDING')}** | `wallet-d-wallet-page.png` |
+| **Wallet-E** | Reader clicks Deposit mock coins; session created and completed; balance updates to 500 | **{checkpoints.get('Wallet-E', {}).get('status', 'PENDING')}** | `wallet-e-deposit-success.png` |
+| **Wallet-F** | Reader clicks Unlock chapter via UI; POST `/chapters/:id/unlock` succeeds with `unlocked=true` | **{checkpoints.get('Wallet-F', {}).get('status', 'PENDING')}** | `wallet-f-unlock-invoked.png` |
+| **Wallet-G** | Database correlation: `chapter_unlocks` entitlement created, reader balance 450 (-50), author balance +50, zero net drift | **{checkpoints.get('Wallet-G', {}).get('status', 'PENDING')}** | `wallet-g-ledger-correlated.png` |
+| **Wallet-H** | Reader reloads chapter; GET succeeds with 200 OK; authentic chapter text rendered in DOM | **{checkpoints.get('Wallet-H', {}).get('status', 'PENDING')}** | `wallet-h-content-unlocked.png` |
+| **Wallet-I** | Reader retries unlock; `alreadyUnlocked=true`, 0 second debit, zero duplicate transaction | **{checkpoints.get('Wallet-I', {}).get('status', 'PENDING')}** | `wallet-i-repeat-unlock-idempotent.png` |
+| **Wallet-J** | Multi-tenant isolation: distinct reader (reader05) receives 402 (0 debits, 0 entitlements); anonymous locked (402); free chapter readable (200) | **{checkpoints.get('Wallet-J', {}).get('status', 'PENDING')}** | `wallet-j-isolation-and-free-chapter.png` |
 
 ---
 
@@ -1457,12 +1641,34 @@ All 5 sentinel records planted prior to validation and browser runs were verifie
     for s_name, s_data in sentinels.items():
         preserved = (s_data.get("hash_before") == s_data.get("hash_after_tests") == s_data.get("hash_after_browser"))
         pres_str = "YES" if preserved else "MUTATED"
-        md += f"| `{s_name}` | `{s_data.get('table')}` | `{s_data.get('hash_before')[:12]}...` | `{s_data.get('hash_after_tests')[:12]}...` | `{s_data.get('hash_after_browser')[:12]}...` | **{pres_str}** |\n"
+        md += f"| `{s_name}` | `{s_data.get('table')}` | `{s_data.get('hash_before', '')[:12]}...` | `{s_data.get('hash_after_tests', '')[:12]}...` | `{s_data.get('hash_after_browser', '')[:12]}...` | **{pres_str}** |\n"
 
     md += f"""
 ---
 
-## 5. Security & Boundary Conformance
+## 5. Disposable Database Lifecycle and Cleanup Verification
+
+| Item | Value | Verified |
+|---|---|---|
+| PostgreSQL Created By Run | `{ownership.get('postgres_db_created_by_this_run')}` | YES |
+| MongoDB Created By Run | `{ownership.get('mongo_db_created_by_this_run')}` | YES |
+| PostgreSQL Absent from `pg_database` After Drop | `{cleanup.get('postgres_deleted_verified')}` | **{'PASS' if cleanup.get('postgres_deleted_verified') else 'FAIL'}** |
+| MongoDB Absent from `listDatabases` After Drop | `{cleanup.get('mongo_deleted_verified')}` | **{'PASS' if cleanup.get('mongo_deleted_verified') else 'FAIL'}** |
+| Teardown Error Count | `{len(cleanup.get('cleanup_errors', []))}` | **{'PASS' if len(cleanup.get('cleanup_errors', [])) == 0 else 'FAIL'}** |
+
+---
+
+## 6. Negative Fault Injection Harness Proof
+
+| Property | Value |
+|---|---|
+| Fault Injection Tested | `{neg_harness.get('validation_fault_injection_tested')}` |
+| Injected Command | `{neg_harness.get('validation_fault_command')}` |
+| Injected Exit Code | `{neg_harness.get('validation_fault_exit_code')}` |
+
+---
+
+## 7. Security & Boundary Conformance
 
 - **Mock Currency Only**: Only disposable virtual coins were utilized. No external payment processors, bank accounts, or financial APIs were integrated.
 - **Fail-Closed Production Guard**: `POST /wallet/mock-webhook/deposit-success` enforces `NODE_ENV !== 'production'` and requires authentication.
@@ -1478,7 +1684,8 @@ All 5 sentinel records planted prior to validation and browser runs were verifie
 
 
 def main():
-    asyncio.run(main_async())
+    inject_fault = "--inject-validation-fault" in sys.argv
+    asyncio.run(main_async(inject_fault=inject_fault))
 
 
 if __name__ == "__main__":
