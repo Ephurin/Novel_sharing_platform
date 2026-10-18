@@ -1,0 +1,120 @@
+{
+  "verdict": "FAILED_VALIDATION: negative_fault_injection_probe",
+  "tested_main_sha": "390b09fd043ec29db84519a9d195b59b76eec003",
+  "tested_code_sha": "63db1e6b130d07c59fd6f75311dfe51794ea509c",
+  "branch": "astra/reader-wallet-vip-unlock-e2e",
+  "run_uuid": "3159081b20c049418848c60f54ee41da",
+  "negative_harness_tests": {
+    "validation_fault_injection_tested": true,
+    "validation_fault_command": "negative_fault_injection_probe",
+    "validation_fault_exit_code": 42
+  },
+  "db_creation_ownership": {
+    "postgres_db_created_by_this_run": true,
+    "mongo_db_created_by_this_run": true,
+    "run_uuid": "3159081b20c049418848c60f54ee41da",
+    "isolated_db_name": "ephurin_wallet_e2e_3159081b20c049418848c60f54ee41da"
+  },
+  "db_cleanup_verification": {
+    "postgres_deleted_verified": true,
+    "mongo_deleted_verified": true,
+    "cleanup_errors": []
+  },
+  "db_isolation": {},
+  "validation_records": [
+    {
+      "name": "web_typecheck",
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "duration_seconds": 4.94,
+      "passed_tests": null,
+      "failed_tests": null,
+      "status": "PASS",
+      "output_tail": "> ephurin-web@0.1.0 typecheck\n> tsc -b --noEmit"
+    },
+    {
+      "name": "web_build",
+      "command": "npm run build",
+      "exit_code": 0,
+      "duration_seconds": 17.48,
+      "passed_tests": null,
+      "failed_tests": null,
+      "status": "PASS",
+      "output_tail": "\u001b[33m../../web/node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarX.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarX.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-aside-variables/assign-aside-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-aside-variables/assign-aside-variables.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarY.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarY.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-navbar-variables/assign-navbar-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-navbar-variables/assign-navbar-variables.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/ScrollArea/utils/get-scroll-position-from-pointer.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/ScrollArea/utils/get-scroll-position-from-pointer.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-header-variables/assign-header-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-header-variables/assign-header-variables.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-footer-variables/assign-footer-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-footer-variables/assign-footer-variables.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/Slider/Marks/is-mark-filled.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/Slider/Marks/is-mark-filled.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-padding-variables/assign-padding-variables.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-padding-variables/assign-padding-variables.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/Rating/StarSymbol/StarIcon.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/Rating/StarSymbol/StarIcon.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/hooks/esm/use-focus-trap/scope-tab.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/hooks/esm/use-focus-trap/scope-tab.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/hooks/esm/use-focus-trap/tabbable.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/hooks/esm/use-focus-trap/tabbable.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-size.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-size.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/ScrollArea/utils/linear-scale.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/ScrollArea/utils/linear-scale.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/ScrollArea/utils/is-scrolling-within-scrollbar-bounds.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/ScrollArea/utils/is-scrolling-within-scrollbar-bounds.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-responsive-size/is-responsive-size.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-responsive-size/is-responsive-size.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-primitive-size/is-primitive-size.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-primitive-size/is-primitive-size.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-base-size/get-base-size.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-base-size/get-base-size.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/Scrollbar.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/Scrollbar.mjs\" was ignored.\u001b[39m\n\u001b[33m../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-padding-value/get-padding-value.mjs (1:0): Module level directives cause errors when bundled, \"use client\" in \"../../web/node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-padding-value/get-padding-value.mjs\" was ignored.\u001b[39m\n\u001b[33m\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\u001b[39m"
+    },
+    {
+      "name": "backend_typecheck",
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "duration_seconds": 3.54,
+      "passed_tests": null,
+      "failed_tests": null,
+      "status": "PASS",
+      "output_tail": "> ephurin-backend@0.1.0 typecheck\n> tsc -p tsconfig.json --noEmit"
+    },
+    {
+      "name": "backend_build",
+      "command": "npm run build",
+      "exit_code": 0,
+      "duration_seconds": 3.38,
+      "passed_tests": null,
+      "failed_tests": null,
+      "status": "PASS",
+      "output_tail": "> ephurin-backend@0.1.0 build\n> tsc -p tsconfig.json"
+    },
+    {
+      "name": "test_db_guard_suite",
+      "command": "npx tsx --test src/core/database/test-db-guard.test.ts",
+      "exit_code": 0,
+      "duration_seconds": 1.79,
+      "passed_tests": 11,
+      "failed_tests": 0,
+      "status": "PASS",
+      "output_tail": "    # Subtest: Rule 10: Approved isolated test database with opt-in PASSES\n    ok 10 - Rule 10: Approved isolated test database with opt-in PASSES\n      ---\n      duration_ms: 0.6446\n      ...\n    # Subtest: Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names\n    ok 11 - Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names\n      ---\n      duration_ms: 0.6376\n      ...\n    1..11\nok 1 - Test Database Isolation Guard Rules (Negative and Positive Contract)\n  ---\n  duration_ms: 8.879\n  type: 'suite'\n  ...\n1..1\n# tests 11\n# suites 1\n# pass 11\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 384.5266"
+    },
+    {
+      "name": "wallet_postgres_integration_suite",
+      "command": "npx tsx --test --test-reporter=tap src/modules/wallet/wallet.postgres.test.ts",
+      "exit_code": 0,
+      "duration_seconds": 3.12,
+      "passed_tests": 12,
+      "failed_tests": 0,
+      "status": "PASS",
+      "output_tail": "      ---\n      duration_ms: 6.6001\n      ...\n    # Subtest: Invariant 12: Sentinel records remain preserved and unmutated across the entire test suite\n    ok 12 - Invariant 12: Sentinel records remain preserved and unmutated across the entire test suite\n      ---\n      duration_ms: 8.6405\n      ...\n# {\"level\":30,\"time\":1792299166469,\"pid\":7384,\"hostname\":\"LAPTOP-2CITHEGB\",\"msg\":\"PostgreSQL connection closed\"}\n    1..12\nok 1 - Reader Wallet + VIP Unlock Ledger and Authorization Invariants\n  ---\n  duration_ms: 252.2773\n  type: 'suite'\n  ...\n# {\"level\":30,\"time\":1792299166469,\"pid\":7384,\"hostname\":\"LAPTOP-2CITHEGB\",\"msg\":\"MongoDB connection closed\"}\n1..1\n# tests 12\n# suites 1\n# pass 12\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1185.3142"
+    },
+    {
+      "name": "backend_full_test_suite",
+      "command": "npm test",
+      "exit_code": 0,
+      "duration_seconds": 3.45,
+      "passed_tests": 143,
+      "failed_tests": 0,
+      "status": "PASS",
+      "output_tail": "    # Subtest: seedUuid is deterministic and UUID-shaped\n    ok 7 - seedUuid is deterministic and UUID-shaped\n      ---\n      duration_ms: 0.6576\n      ...\n    # Subtest: slugify strips Vietnamese diacritics\n    ok 8 - slugify strips Vietnamese diacritics\n      ---\n      duration_ms: 0.3246\n      ...\n    1..8\nok 19 - author workspace seed data\n  ---\n  duration_ms: 96.4513\n  type: 'suite'\n  ...\n1..19\n# tests 143\n# suites 19\n# pass 143\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 2920.958"
+    },
+    {
+      "name": "negative_fault_injection_probe",
+      "command": "node -e \"console.error('Simulated validation failure'); process.exit(42)\"",
+      "exit_code": 42,
+      "duration_seconds": 0.08,
+      "passed_tests": null,
+      "failed_tests": null,
+      "status": "FAIL",
+      "output_tail": "Simulated validation failure"
+    }
+  ],
+  "reader_user_id": "077e20a2-e26d-466a-bf3a-1811d037df50",
+  "author_user_id": "b8719f95-46aa-4fb1-9bb7-251f49635fa2",
+  "distinct_reader_user_id": "649ed288-fa71-4fd6-92a0-3d0327795cbc",
+  "target_novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+  "vip_chapter_id": "e30f7437-467b-4b3d-94fe-796ed9970499",
+  "free_chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+  "vip_price_coins": 50,
+  "checkpoints": {},
+  "sentinels": {},
+  "error": {
+    "type": "RuntimeError",
+    "message": "FAILED_VALIDATION: command 'negative_fault_injection_probe' failed with exit code 42",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\.wallet-e2e\\scripts\\run_reader_wallet_vip_unlock_e2e.py\", line 855, in main_async\n    raise RuntimeError(f\"FAILED_VALIDATION: command '{first_fail['name']}' failed with exit code {first_fail['exit_code']}\")\nRuntimeError: FAILED_VALIDATION: command 'negative_fault_injection_probe' failed with exit code 42\n"
+  }
+}
