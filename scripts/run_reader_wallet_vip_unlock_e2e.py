@@ -416,6 +416,11 @@ class CDPBrowser:
 
     async def perform_logout(self):
         print("  [Auth] Logging out via rendered shell logout button...")
+        has_shell_btn = await self.evaluate("Boolean(document.querySelector('[data-testid=\"shell-logout-btn\"]'))")
+        if not has_shell_btn:
+            print("  [Auth] Shell logout button not on current route, navigating to /reader...")
+            await self.navigate(f"{WEB_URL}/reader")
+            await self.wait_for_condition("document.querySelector('[data-testid=\"shell-logout-btn\"]') !== null", 10.0)
         self.network_events.clear()
         self.network_requests.clear()
         await self.click_element("[data-testid='shell-logout-btn']")
