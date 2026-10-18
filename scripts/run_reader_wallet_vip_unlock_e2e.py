@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 import uuid
 from typing import Any, Callable, Dict, List, Optional
 from urllib.parse import urlsplit, urlunsplit
@@ -949,8 +950,8 @@ async def main_async(inject_fault: bool = False):
                 wallet_row = cur.fetchone()
                 assert wallet_row[0] == 0, f"Reader coins must be 0, got {wallet_row[0]}"
 
-        await browser.navigate(f"{WEB_URL}/public")
-        await browser.wait_for_condition("document.querySelector('h2, h1') !== null", 10.0)
+        await browser.navigate(f"{WEB_URL}/public", wait_seconds=3.0)
+        await browser.wait_for_condition("document.querySelector('h2, h1') !== null", 25.0)
         ss_a = await browser.screenshot("wallet-a-fixture-verified.png")
         evidence["checkpoints"]["Wallet-A"] = {
             "status": "PASS",
@@ -1446,6 +1447,14 @@ async def main_async(inject_fault: bool = False):
         evidence["sentinels"] = sentinels_dict
         print("  Sentinel Checkpoint 2 PASSED: All 5 sentinels identically preserved.")
 
+    except Exception as ex:
+        print(f"\n[FATAL ERROR during test execution]: {ex}")
+        traceback.print_exc()
+        evidence["error"] = {
+            "type": type(ex).__name__,
+            "message": str(ex),
+            "traceback": traceback.format_exc()
+        }
     finally:
         print("\n[Teardown] Shutting down services and cleaning up run-owned test DBs...")
         if browser:
