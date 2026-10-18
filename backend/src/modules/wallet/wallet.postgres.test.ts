@@ -266,18 +266,7 @@ describe('Reader Wallet + VIP Unlock Ledger and Authorization Invariants', () =>
         await pool.query('delete from deposit_sessions where deposit_session_id = $1', [sid]);
       }
 
-      // 3. Strictly scoped suite-owned users, wallets, and transactions teardown
-      for (const uid of trackedUserIds) {
-        await pool.query('delete from chapter_unlocks where user_id = $1', [uid]);
-        await pool.query(
-          'delete from transactions where wallet_id in (select wallet_id from wallets where user_id = $1) or counterparty_wallet_id in (select wallet_id from wallets where user_id = $1)',
-          [uid]
-        );
-        await pool.query('delete from wallets where user_id = $1', [uid]);
-        await pool.query('delete from users where user_id = $1', [uid]);
-      }
-
-      // 4. Affirmative post-cleanup sentinel verification: prove sentinels survived product teardown
+      // 3. Affirmative post-cleanup sentinel verification: prove sentinels survived product teardown
       for (const sentinel of sentinels) {
         if (sentinel.type === 'sentinel_user') {
           const res = await pool.query('select user_id, email, username, role, status from users where user_id = $1', [sentinel.id]);
@@ -308,17 +297,30 @@ describe('Reader Wallet + VIP Unlock Ledger and Authorization Invariants', () =>
         }
       }
 
-      // 5. Harness-owned sentinel teardown: explicit deletion without swallowing errors
+      // 4. Harness-owned sentinel teardown: explicit deletion without swallowing errors
       for (const sentinel of sentinels.reverse()) {
         await sentinel.cleanup();
       }
 
-      // 6. Parent chapters and novels teardown (executed only after sentinel unlock dropped)
+      // 5. Parent chapters teardown (executed only after sentinel unlock dropped)
       for (const cid of trackedChapterIds) {
         await pool.query('delete from chapters where chapter_id = $1', [cid]);
       }
+
+      // 6. Parent novels teardown (executed only after chapters dropped)
       for (const nid of trackedNovelIds) {
         await pool.query('delete from novels where novel_id = $1', [nid]);
+      }
+
+      // 7. Strictly scoped suite-owned users, wallets, and transactions teardown (executed after novels dropped)
+      for (const uid of trackedUserIds) {
+        await pool.query('delete from chapter_unlocks where user_id = $1', [uid]);
+        await pool.query(
+          'delete from transactions where wallet_id in (select wallet_id from wallets where user_id = $1) or counterparty_wallet_id in (select wallet_id from wallets where user_id = $1)',
+          [uid]
+        );
+        await pool.query('delete from wallets where user_id = $1', [uid]);
+        await pool.query('delete from users where user_id = $1', [uid]);
       }
     } finally {
       await disconnectPostgres();
