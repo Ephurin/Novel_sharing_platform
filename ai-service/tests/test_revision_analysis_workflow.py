@@ -89,6 +89,13 @@ class RevisionAnalysisWorkflowTests(unittest.TestCase):
         self.assertEqual(self.content[evidence["start"] : evidence["end"]], "Minh")
         self.assertEqual(evidence["text_hash"], self.content_hash)
 
+    def test_maximum_entity_score_maps_to_unit_confidence(self) -> None:
+        self.llm.responses[0] = json.dumps([{"phrase": "Minh", "entity": "PER", "score": 10}])
+        result = self._analyze()
+        entity = next(p for p in result.proposals if p.proposal_type == "entity")
+        self.assertEqual(entity.confidence, 1.0)
+        self.assertEqual(self.repository.list_proposals("novel-1")[0].confidence, 1.0)
+
     def test_same_revision_and_idempotency_key_does_not_duplicate_or_recall_llm(self) -> None:
         first = self._analyze()
         second = self._analyze()

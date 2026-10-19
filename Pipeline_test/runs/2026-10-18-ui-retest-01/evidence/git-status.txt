@@ -1,0 +1,49 @@
+ M ai-service/.env.example
+ M ai-service/api/narrative_routes.py
+ M ai-service/api/schemas.py
+ M ai-service/application/bootstrap_service.py
+ M ai-service/application/narrative_service.py
+ M ai-service/application/revision_analysis_service.py
+ M ai-service/core/llm_service.py
+ M ai-service/core/settings.py
+ M ai-service/domain/projection.py
+ M ai-service/infrastructure/in_memory_narrative_repository.py
+ M ai-service/infrastructure/json_narrative_repository.py
+ M ai-service/infrastructure/postgres_narrative_repository.py
+ M ai-service/main.py
+ M ai-service/services/entity_pipeline/pipeline.py
+ M ai-service/services/event_summarizer.py
+ M ai-service/services/state_transition_proposals.py
+ M ai-service/tests/test_autonomous_routes.py
+ M ai-service/tests/test_idea_bootstrap_routes.py
+ M ai-service/tests/test_narrative_repository_contract.py
+ M ai-service/tests/test_revision_analysis_workflow.py
+ M ai-service/tests/test_settings.py
+ M backend/src/jobs/outbox-processor.test.ts
+ M backend/src/jobs/outbox-processor.ts
+ M backend/src/main.ts
+ M backend/src/modules/ai/ai-gateway.controller.ts
+ M backend/src/modules/ai/ai-gateway.routes.ts
+ M backend/src/modules/ai/ai-gateway.service.ts
+ M backend/src/modules/ai/autonomous-controller.service.ts
+ M backend/src/modules/novels/chapter-revisions.service.ts
+ M backend/src/modules/novels/chapters.service.ts
+ M backend/src/modules/novels/outbox.repository.ts
+ M docker-compose.yml
+ M web/src/features/author-ide/AuthorWritingIde.tsx
+ M web/src/features/manuscript-import/manuscript-import-api.ts
+?? Pipeline_test/
+?? ai-service/application/author_workflow.py
+?? ai-service/core/structured_call.py
+?? ai-service/domain/confidence.py
+?? ai-service/tests/test_author_workflow.py
+?? ai-service/tests/test_m0_repairs.py
+?? backend/src/jobs/autonomous-processor.test.ts
+?? backend/src/jobs/autonomous-processor.ts
+?? backend/src/modules/ai/autonomous-memory.service.ts
+?? backend/src/modules/ai/autonomous-memory.test.ts
+?? backend/src/modules/ai/autonomous-run.repository.ts
+?? backend/src/modules/ai/proposal-evidence.service.ts
+?? promt_.md
+?? web/src/features/ai-copilot/AuthorMemoryPanel.tsx
+?? web/src/features/ai-copilot/author-memory-api.ts

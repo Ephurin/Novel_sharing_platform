@@ -8,7 +8,7 @@ from typing import Any
 from domain.models import WritingContextPackage
 
 
-CONTEXT_PACKING_VERSION = "context-budget-v1"
+CONTEXT_PACKING_VERSION = "context-budget-v2-diverse"
 TOKEN_ESTIMATOR_VERSION = "utf8-json-bytes-3-v1"
 DEFAULT_CONTEXT_TOKEN_BUDGET = 12_000
 
@@ -172,72 +172,64 @@ class ContextBudgetPacker:
             return self.estimate_prompt_tokens(candidate) <= budget
 
         if not protected_overflow:
-            # Entity/current-state bundles are atomic.
-            for entity, state in optional_entity_bundles:
-                next_entities = [*selected_entities, entity] if entity else list(selected_entities)
-                next_states = [*selected_states, state] if state else list(selected_states)
-                if fits(candidate_package(entities=next_entities, states=next_states)):
-                    if entity:
-                        selected_entities.append(entity)
-                    if state:
-                        selected_states.append(state)
-                else:
-                    identifier = self._entity_id(entity) or self._entity_id(state or {})
-                    if identifier:
-                        dropped_entity_ids.append(identifier)
+            # Select across memory kinds instead of allowing entity cards to consume
+            # the entire budget. No fixed percentages: whole artifacts compete in
+            # relevance order within lanes, one candidate per lane per round.
+            query = str(package.context_summary.get("requested_character") or "").casefold()
+            import re
+            query_terms = set(re.findall(r'\w{3,}', str(package.context_summary.get('query_text') or '').casefold()))
+            focus_ids = {self._entity_id(e) for e in package.entities
+                         if query and query in str(e.get("name", "")).casefold()}
 
-            # Canonical non-locked rules precede derived semantic memory.
-            for rule in unlocked_rules:
-                next_rules = [*selected_rules, rule]
-                if fits(candidate_package(rules=next_rules)):
-                    selected_rules.append(rule)
-                else:
-                    dropped_rule_ids.append(self._rule_id(rule))
+            def relevance(item):
+                encoded = json.dumps(item, ensure_ascii=False, default=str).casefold()
+                return (2 if query and query in encoded else 0) + int(
+                    any(identifier.casefold() in encoded for identifier in focus_ids if identifier)) + sum(term in encoded for term in query_terms)
 
-            # Preserve hybrid order. A semantic duplicate promotes the canonical
-            # recent-event representation into this priority lane.
-            for kind, artifact, _memory_id in evidence_candidates:
-                if kind == "semantic":
-                    next_semantic = [*selected_semantic, artifact]
-                    if fits(candidate_package(semantic=next_semantic)):
-                        selected_semantic.append(artifact)
-                    else:
-                        dropped_semantic_ids.append(self._semantic_id(artifact))
-                else:
-                    event_id = self._event_id(artifact)
-                    if event_id and any(self._event_id(item) == event_id for item in selected_recent):
+            critical_keys = {"status", "health", "location", "inventory", "hearing", "hearing_impairment"}
+            rules = sorted(unlocked_rules, key=lambda r: (
+                relevance(r), int(r.get("priority", 0)), r.get("fact_key") in critical_keys), reverse=True)
+            bundles = sorted(optional_entity_bundles, key=lambda b: relevance(b[0] or b[1] or {}), reverse=True)
+            evidence = list(evidence_candidates)
+            # Hybrid order is retained among retrieved evidence. Non-promoted events
+            # are ordered by query relevance, then narrative order.
+            events = sorted([e for e in package.recent_events
+                             if self._event_id(e) not in promoted_recent_ids],
+                            key=lambda e: (relevance(e), self._recent_sort_key(e)), reverse=True)
+            lanes = [("rule", rules), ("recent", events), ("entity", bundles), ("evidence", evidence)]
+            while any(items for _, items in lanes):
+                for lane, items in lanes:
+                    if not items:
                         continue
-                    next_recent = [*selected_recent, artifact]
-                    if fits(candidate_package(recent=next_recent)):
-                        selected_recent.append(artifact)
-                    elif event_id:
-                        dropped_event_ids.append(event_id)
+                    item = items.pop(0)
+                    if lane == "rule":
+                        if fits(candidate_package(rules=[*selected_rules, item])):
+                            selected_rules.append(item)
+                        else:
+                            dropped_rule_ids.append(self._rule_id(item))
+                    elif lane == "entity":
+                        entity, state = item
+                        if fits(candidate_package(entities=[*selected_entities, entity] if entity else selected_entities,
+                                                  states=[*selected_states, state] if state else selected_states)):
+                            if entity: selected_entities.append(entity)
+                            if state: selected_states.append(state)
+                        else:
+                            dropped_entity_ids.append(self._entity_id(entity) or self._entity_id(state or {}))
+                    else:
+                        kind, artifact = (item[0], item[1]) if lane == "evidence" else ("recent", item)
+                        if kind == "semantic":
+                            if fits(candidate_package(semantic=[*selected_semantic, artifact])):
+                                selected_semantic.append(artifact)
+                            else:
+                                dropped_semantic_ids.append(self._semantic_id(artifact))
+                        elif not any(self._event_id(e) == self._event_id(artifact) for e in selected_recent):
+                            if fits(candidate_package(recent=[*selected_recent, artifact])):
+                                selected_recent.append(artifact)
+                            else:
+                                dropped_event_ids.append(self._event_id(artifact))
 
-            # Remaining recent events compete newest-first, then are restored to
-            # chronological output order below.
-            already_selected_event_ids = {
-                self._event_id(event) for event in selected_recent if self._event_id(event)
-            }
-            remaining_recent = [
-                event
-                for event in package.recent_events
-                if self._event_id(event) not in already_selected_event_ids
-                and self._event_id(event) not in promoted_recent_ids
-            ]
-            for event in reversed(remaining_recent):
-                next_recent = [*selected_recent, event]
-                if fits(candidate_package(recent=next_recent)):
-                    selected_recent.append(event)
-                else:
-                    event_id = self._event_id(event)
-                    if event_id:
-                        dropped_event_ids.append(event_id)
-
-            # State records without any stable entity identity are lowest priority
-            # but may still fit. They remain whole artifacts.
             for state in orphan_states:
-                next_states = [*selected_states, state]
-                if fits(candidate_package(states=next_states)):
+                if fits(candidate_package(states=[*selected_states, state])):
                     selected_states.append(state)
 
         else:
@@ -295,6 +287,12 @@ class ContextBudgetPacker:
         context_summary["deduplicated_semantic_memory_ids"] = self._unique(
             deduplicated_semantic_ids
         )
+
+        context_summary["selection_policy"] = ["query-relevance-diverse-whole-artifacts-v2"]
+        context_summary["drop_reasons"] = {
+            identifier: "out_of_budget_after_relevance_ordering"
+            for identifier in [*dropped_entity_ids, *dropped_rule_ids, *dropped_event_ids, *dropped_semantic_ids]
+        }
 
         token_budget = {
             "used": after_tokens,

@@ -1,0 +1,27 @@
+{
+  "time": "2026-10-17T22:55:17.552342+07:00",
+  "channel": "PUBLIC_API",
+  "method": "GET",
+  "path": "/novels/8bfd205f-c055-45e4-beda-e81a24b7854b/chapters",
+  "request": null,
+  "status": 200,
+  "latency_ms": 15,
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "chapterId": "2991c50d-2dc1-46d0-b996-93e6c8caecd2",
+        "novelId": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+        "title": "Chapter 1",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 6,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      }
+    ],
+    "error": null,
+    "meta": {}
+  }
+}

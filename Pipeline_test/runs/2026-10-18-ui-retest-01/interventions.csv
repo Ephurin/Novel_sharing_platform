@@ -1,0 +1,5 @@
+intervention_id,time_iso,chapter_number,kind,reason,requested_change,channel,revision_before,revision_after,estimated_words_changed,measurement_method,author_minutes,issue_id,evidence
+I-LIVE-01,2026-10-18T22:37:53.641200+07:00,,EXTRACTION_RETRY_2,Natural schema validation failures; same job retried twice,,LIVE_UI,,,0,No prose modification; metadata/proposal decision only,,,evidence/s02-schema-failure.png; evidence/s02-retry01-failed.png
+I-LIVE-02,2026-10-18T22:37:53.641200+07:00,,PROPOSAL_REJECT_2,False item and wrong scan location,,LIVE_UI,,,0,No prose modification; metadata/proposal decision only,,,evidence/s03-reject-machine.txt; evidence/s03-reject-location-event.txt
+I-LIVE-03,2026-10-18T22:37:53.641200+07:00,,ENTITY_GROUP_APPROVE_26,Checked ch2 entity names; no events or states approved,,LIVE_UI,,,0,No prose modification; metadata/proposal decision only,,,evidence/memory/P1-M0/readonly-after-author-review.json
+I-LIVE-04,2026-10-18T22:37:53.641200+07:00,,AUTH_RELOGIN,Expired token; resume through normal UI,,LIVE_UI,,,0,No prose modification; metadata/proposal decision only,,,evidence/s04-auth-expired.png

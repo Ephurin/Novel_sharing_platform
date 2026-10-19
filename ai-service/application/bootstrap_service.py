@@ -7,6 +7,8 @@ import unicodedata
 import uuid
 from dataclasses import asdict, replace
 from typing import Any
+from core.structured_call import call_structured, source_scope
+from domain.confidence import score_to_confidence
 
 from application.ports import ContentHashMismatchError, RevisionContentProvider
 from application.revision_analysis_service import RevisionAnalysisService
@@ -91,6 +93,7 @@ class ManuscriptBootstrapService:
         locale: str = "vi-VN",
         preferences: dict[str, Any] | None = None,
         author_constraints: list[str] | None = None,
+        mode: str = "blueprint",
     ) -> BootstrapJob:
         if not idea or not idea.strip():
             raise ValueError("idea must not be empty")
@@ -109,6 +112,7 @@ class ManuscriptBootstrapService:
                 "outline": (outline or "").strip(),
                 "preferences": preferences,
                 "author_constraints": author_constraints,
+                "mode": mode,
             },
             sort_keys=True,
         )
@@ -124,7 +128,7 @@ class ManuscriptBootstrapService:
         brain = self._repository.get_story_brain(novel_id)
         brain_version = int(brain.metadata.get("brain_version", "1"))
 
-        blueprint = self._generate_blueprint(
+        blueprint = self._generate_setup(idea, author_constraints) if mode == "extract" else self._generate_blueprint(
             idea=idea,
             outline=outline,
             preferences=preferences,
@@ -202,7 +206,12 @@ class ManuscriptBootstrapService:
                 ent_type = "character"
             ent_hash = hashlib.sha256(name.casefold().encode("utf-8")).hexdigest()[:16]
             score_val = float(ent.get("score", 9.0))
-            confidence = score_val / 10.0 if score_val > 1.0 else score_val
+            confidence = score_to_confidence(score_val)
+            initial_status = str(ent.get("initial_status", "Unknown")).strip().capitalize()
+            if initial_status not in {"Alive", "Dead", "Unknown"}:
+                raise ValueError("Blueprint entity initial_status must be Alive, Dead or Unknown")
+            if ent_type != "character" and initial_status != "Unknown":
+                raise ValueError("Only a character may have an Alive or Dead initial_status")
             proposals.append(
                 NarrativeProposal(
                     proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"prop:{run.run_id}:entity:{ent_hash}")),
@@ -211,6 +220,7 @@ class ManuscriptBootstrapService:
                         "canonical_name": name,
                         "normalized_name": name.casefold(),
                         "entity_type": ent_type,
+                        "initial_status": initial_status,
                     },
                     analysis_run_id=run.run_id,
                     dependency_group_id=group_id,
@@ -248,6 +258,9 @@ class ManuscriptBootstrapService:
                 )
             )
 
+        if mode == "extract":
+            proposals = [p for p in proposals if p.proposal_type == "entity"
+                         and p.payload.get("entity_type") in {"character", "location"}]
         self._repository.save_proposals(novel_id, proposals)
 
         job = BootstrapJob(
@@ -256,7 +269,8 @@ class ManuscriptBootstrapService:
             tenant_id=tenant_id,
             revisions=(),
             locale=locale,
-            options={"from_idea": True, "require_review_for_all": True},
+            options={"from_idea": True, "require_review_for_all": True, "mode": mode,
+                     "source_idea": idea, "source_outline": outline, "author_constraints": author_constraints},
             status="waiting_review",
             stage="review",
             result={
@@ -266,6 +280,27 @@ class ManuscriptBootstrapService:
             },
         )
         return self._repository.create_bootstrap_job(job)
+
+    def _generate_setup(self, idea: str, constraints: list[str]) -> dict[str, Any]:
+        if self._llm_service is None:
+            raise ValueError("LLM is required for setup extraction")
+        raw = call_structured(self._llm_service, operation="setup_extraction",
+            system_prompt=("Extract ONLY explicitly supplied characters and locations from the author's setup. "
+                "Do not invent names, premise, world rules or events. Do not use future plans as present facts. "
+                'Return JSON {"entities":[{"name":"exact source name","entity_type":"character|location",'
+                '"score":9,"initial_status":"Alive|Dead|Unknown"}]}. '
+                "Use Dead only for explicitly established prior death, Unknown for uncertainty and locations."),
+            user_prompt=json.dumps({"setup": idea, "constraints": constraints}, ensure_ascii=False))
+        data = json.loads(raw)
+        if not isinstance(data, dict) or not isinstance(data.get("entities"), list):
+            raise ValueError("Invalid setup extraction output")
+        # Only names grounded in author input may enter the review queue.
+        source = (idea + " " + " ".join(constraints)).casefold()
+        entities = [e for e in data["entities"] if isinstance(e, dict)
+                    and str(e.get("name", "")).strip()
+                    and str(e["name"]).casefold() in source
+                    and e.get("entity_type") in {"character", "location"}]
+        return {"premise": idea, "entities": entities}
 
     def _generate_blueprint(
         self,
@@ -288,11 +323,16 @@ class ManuscriptBootstrapService:
             system_prompt = (
                 "You are an expert novel architect. Generate a structured story blueprint from the premise. "
                 "Return only a JSON object with this schema: "
-                '{"premise": "...", "world_rules": ["..."], "entities": [{"name": "...", "entity_type": "character|location", "score": 9.0}], "author_constraints": ["..."]}'
+                '{"premise": "...", "world_rules": ["..."], "entities": [{"name": "...", "entity_type": "character|location", "score": 9.0, "initial_status": "Alive|Dead|Unknown"}], "author_constraints": ["..."]}. '
+                "Entity score is always on the 0..10 scale. initial_status describes the START of the story: "
+                "use Dead when the supplied premise or author constraints establish a character is already dead; "
+                "use Unknown when not established, for uncertain/reported claims, and for non-characters. "
+                "Never infer present state from FUTURE outline events. Respect author constraints in entities as well as rules."
             )
             user_prompt = f"Idea:\n{idea}\n\nOutline:\n{outline or ''}\n\nPreferences:\n{json.dumps(preferences)}\n\nConstraints:\n{json.dumps(author_constraints)}"
             try:
-                raw = self._llm_service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+                with source_scope(operation="idea_bootstrap", request_sha256=hashlib.sha256(user_prompt.encode("utf-8")).hexdigest()):
+                    raw = call_structured(self._llm_service, operation="idea_blueprint", system_prompt=system_prompt, user_prompt=user_prompt)
                 data = json.loads(raw)
                 if isinstance(data, dict) and "premise" in data and isinstance(data["premise"], str) and data["premise"].strip():
                     return data
@@ -346,6 +386,8 @@ class ManuscriptBootstrapService:
                         "extract_entities": True,
                         "extract_events": True,
                         "extract_state_transitions": True,
+                        "extract_prose_facts": True,
+                        "review_fact_coverage": True,
                         "extract_world_rules": bool(
                             job.options.get("extract_world_rules", True)
                         ),

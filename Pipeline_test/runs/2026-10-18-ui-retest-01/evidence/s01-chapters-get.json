@@ -1,0 +1,67 @@
+{
+  "method": "GET",
+  "url": "http://localhost:14000/api/v1/novels/06a979c5-b089-4648-a04e-81383aa7b119/chapters",
+  "status": 200,
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "chapterId": "57d56c84-7b75-491e-9876-d8e255e2e63a",
+        "novelId": "06a979c5-b089-4648-a04e-81383aa7b119",
+        "title": "Chương 1 — Bến trở về",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 1216,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      },
+      {
+        "chapterId": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af",
+        "novelId": "06a979c5-b089-4648-a04e-81383aa7b119",
+        "title": "Chương 2 — Lần đọc thứ nhất",
+        "chapterNumber": 2,
+        "content": null,
+        "wordCount": 1005,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      },
+      {
+        "chapterId": "094ea587-c8b3-4c17-850c-9933ee6978aa",
+        "novelId": "06a979c5-b089-4648-a04e-81383aa7b119",
+        "title": "Chương 3 — Hai nơi treo một quả chuông",
+        "chapterNumber": 3,
+        "content": null,
+        "wordCount": 995,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      },
+      {
+        "chapterId": "91a25305-aae7-4d6a-8869-4a52e34e0b9c",
+        "novelId": "06a979c5-b089-4648-a04e-81383aa7b119",
+        "title": "Chương 4 — Bản đồ không có tiếng nước",
+        "chapterNumber": 4,
+        "content": null,
+        "wordCount": 957,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      },
+      {
+        "chapterId": "1cb10eda-ec02-4712-86e4-85bf48f8539b",
+        "novelId": "06a979c5-b089-4648-a04e-81383aa7b119",
+        "title": "Chương 5 — Ba tiếng gõ",
+        "chapterNumber": 5,
+        "content": null,
+        "wordCount": 574,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      }
+    ],
+    "error": null,
+    "meta": {}
+  }
+}

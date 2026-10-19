@@ -53,6 +53,7 @@ class IdeaBootstrapRouteTests(unittest.TestCase):
 
     def test_bootstrap_from_idea_creates_proposals_and_activates_baseline(self) -> None:
         payload = {
+            "mode": "blueprint",
             "novel_id": self.novel_id,
             "idea": "Một pháp sư mất trí nhớ điều tra cái chết của chính mình tại sa mạc.",
             "outline": "Chương 1: Tỉnh dậy trong hoang mạc. Chương 2: Gặp gỡ đồng minh.",
@@ -131,6 +132,7 @@ class IdeaBootstrapRouteTests(unittest.TestCase):
 
     def test_bootstrap_from_idea_idempotency(self) -> None:
         payload = {
+            "mode": "blueprint",
             "novel_id": self.novel_id,
             "idea": "Idempotent idea test.",
             "locale": "vi-VN",
@@ -147,11 +149,13 @@ class IdeaBootstrapRouteTests(unittest.TestCase):
 
     def test_bootstrap_locale_distinct_jobs(self) -> None:
         payload_vi = {
+            "mode": "blueprint",
             "novel_id": self.novel_id,
             "idea": "A detective solves their own murder.",
             "locale": "vi-VN",
         }
         payload_en = {
+            "mode": "blueprint",
             "novel_id": self.novel_id,
             "idea": "A detective solves their own murder.",
             "locale": "en-US",

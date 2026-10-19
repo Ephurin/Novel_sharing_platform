@@ -1,0 +1,68 @@
+{
+  "run_id": "2026-10-18-ui-retest-01",
+  "updated_at": "2026-10-18T17:14:06.726481+07:00",
+  "status": "BLOCKED",
+  "main_novel_id": null,
+  "current_chapter_number": 5,
+  "current_chapter_id": null,
+  "latest_canonical_revision_id": null,
+  "latest_content_hash": null,
+  "brain_version": null,
+  "plan_id": null,
+  "plan_version": null,
+  "objective_id": null,
+  "autonomous_run_id": null,
+  "last_generation_id": null,
+  "pending_jobs": [],
+  "pending_accept_idempotency_key": null,
+  "canonical_word_count": null,
+  "completed_chapters_by_content_review": [],
+  "unresolved_issue_ids": [
+    "TOOL-UI-001"
+  ],
+  "memory_audit": {
+    "completed_audit_ids_by_pipeline": {
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "next_due_by_pipeline": {
+      "P1": "M0_AFTER_UI_IMPORT",
+      "P2": "M0_ONLY_AFTER_P1_SHORT_LOOP_PASS",
+      "P3": "M0_ONLY_AFTER_P1_SHORT_LOOP_PASS"
+    },
+    "pending_audit_ids": [],
+    "unresolved_issue_ids": [],
+    "resume_rule": "Finish due memory audit before next generation; read server revisions and analysis status first."
+  },
+  "last_action_log_row": null,
+  "next_action": "Use isolated web http://localhost:18080. Sign in through UI, create a new project and begin S01. Environment blockers resolved on isolated stack; current session browser tool fails initialization (OS error 3). UI test verdict stays BLOCKED until an operational browser agent resumes. Do not use old localhost:8080 or reuse prior project. No generation or author writes pending.",
+  "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth.",
+  "budget": {
+    "approved": true,
+    "provider_generation_calls_in_run": 0,
+    "cost_usd": null
+  },
+  "observed_prior_run_project_for_version_only": {
+    "novel_id": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+    "chapter_id": "2991c50d-2dc1-46d0-b996-93e6c8caecd2",
+    "author_edits": false
+  },
+  "rollout": {
+    "at": "2026-10-18T17:14:06.726481+07:00",
+    "status": "ENVIRONMENT_READY_UI_NOT_RUN",
+    "compose_project": "ephurin-ui-retest",
+    "web_url": "http://localhost:18080",
+    "backend_url": "http://localhost:14000/api/v1",
+    "ai_url": "http://localhost:18000",
+    "evidence": [
+      "evidence/rollout-preflight.json",
+      "evidence/rollout-runtime.json"
+    ]
+  },
+  "environment_issues_resolved": [
+    "ENV-001",
+    "ENV-002",
+    "ENV-003"
+  ]
+}

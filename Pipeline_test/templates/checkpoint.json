@@ -1,0 +1,31 @@
+{
+  "run_id": null,
+  "updated_at": null,
+  "status": "NOT_STARTED",
+  "main_novel_id": null,
+  "current_chapter_number": 5,
+  "current_chapter_id": null,
+  "latest_canonical_revision_id": null,
+  "latest_content_hash": null,
+  "brain_version": null,
+  "plan_id": null,
+  "plan_version": null,
+  "objective_id": null,
+  "autonomous_run_id": null,
+  "last_generation_id": null,
+  "pending_jobs": [],
+  "pending_accept_idempotency_key": null,
+  "canonical_word_count": null,
+  "completed_chapters_by_content_review": [],
+  "unresolved_issue_ids": [],
+  "memory_audit": {
+    "completed_audit_ids_by_pipeline": {"P1": [], "P2": [], "P3": []},
+    "next_due_by_pipeline": {"P1": "M0", "P2": "M0", "P3": "M0"},
+    "pending_audit_ids": [],
+    "unresolved_issue_ids": [],
+    "resume_rule": "Finish due memory audit before next generation; read server revisions and analysis status first."
+  },
+  "last_action_log_row": null,
+  "next_action": "Complete preflight and import the unchanged fixture through the application.",
+  "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth."
+}

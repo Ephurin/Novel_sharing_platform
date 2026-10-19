@@ -26,6 +26,27 @@ PROPOSAL_ONE_ID = "20000000-0000-0000-0000-000000000001"
 class NarrativeRepositoryContract:
     repository: NarrativeRepository
 
+    def test_proposal_confidence_rejected_before_any_batch_write(self) -> None:
+        proposals = [
+            NarrativeProposal(proposal_id="bad-score-valid", proposal_type="entity", payload={}, confidence=.95),
+            NarrativeProposal(proposal_id="bad-score-invalid", proposal_type="entity", payload={}, confidence=10),
+        ]
+        with self.assertRaisesRegex(ValueError, "confidence"):
+            self.repository.save_proposals("invalid-confidence", proposals)
+        self.assertEqual(self.repository.list_proposals("invalid-confidence"), [])
+
+    def test_reviewed_initial_status_survives_materialization(self) -> None:
+        for name, supplied, expected in [("Father", "Dead", "Dead"), ("Harbor", None, "Unknown")]:
+            story = f"initial-status-{name}"
+            payload = {"canonical_name": name, "normalized_name": name.casefold(), "entity_type": "PER"}
+            if supplied is not None:
+                payload["initial_status"] = supplied
+            proposal = NarrativeProposal(proposal_id=f"entity-{name}", proposal_type="entity", payload=payload, confidence=1)
+            self.repository.save_proposals(story, [proposal])
+            self.assertEqual(self.repository.list_entities(story), [])
+            self.repository.accept_proposal_group(story, [proposal.proposal_id], expected_brain_version=1)
+            self.assertEqual(self.repository.list_entities(story)[0].status, expected)
+
     def test_empty_story_brain_is_created_on_read(self) -> None:
         brain = self.repository.get_story_brain("story-empty")
 

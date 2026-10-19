@@ -1,0 +1,97 @@
+{
+  "fixture_id": "PT-CV-001",
+  "fixture_version": "1.0.0",
+  "task_revision": "1.1",
+  "run_id": "2026-10-17-author-01",
+  "status": "BLOCKED",
+  "mode": "AUTHOR_ASSISTED_HYBRID",
+  "started_at": "2026-10-17T22:44:01.970537+07:00",
+  "code_sha": "390b09fd043ec29db84519a9d195b59b76eec003",
+  "working_tree_dirty": true,
+  "fixture_manifest_sha256": "7abef96ba77bef7a8bd520207b7abc43c94e339f2c5d4a7f86dce87da96fa255",
+  "application_base_url": "http://localhost:4000/api/v1",
+  "author_account_id": "86c6646a-5c29-478e-89bb-74c7a9326ce0",
+  "main_novel_id": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+  "p2_probe_novel_id": "38efd972-da60-4c19-a967-5ef8c62e230a",
+  "p3_probe_novel_id": "2bb31f80-4a5c-4eba-a5b9-6d936fd76986",
+  "runtime": {
+    "requested_generation_model": "gemini-3.5-flash-lite",
+    "observed_generation_model": "gemini-3.5-flash-lite selected; provider HTTP route observed; response model/usage not exposed",
+    "bootstrap_provider": "gemini",
+    "extraction_provider": "gemini",
+    "embedding_provider_and_version": "none; semantic NOT_ASSESSED",
+    "semantic_lane_enabled": false,
+    "context_routing_policy": "legacy-v1",
+    "output_token_limit": 512,
+    "fallback_behavior": "Runtime LLMService fallback_provider=openai but no fallback key; local fallback false; no configured key pool. Requested model 3.5 Flash-Lite; effective response model not yet observed."
+  },
+  "budget": {
+    "approved_by": "user",
+    "approval_reference": "User message: unlimited budget; 4 independent APIs, each 15 RPM / 250000 TPM / 500 RPD",
+    "max_cost_usd": null,
+    "max_provider_calls": null,
+    "max_wall_clock_hours": null,
+    "consumed_cost_usd": null,
+    "consumed_provider_calls": 10,
+    "consumed_wall_clock_hours": 0,
+    "require_observable_call_or_time_cap": false,
+    "approval_status": "APPROVED_UNLIMITED",
+    "monetary_cap": "UNLIMITED",
+    "provider_call_cap": "UNLIMITED_SUBJECT_TO_QUOTA",
+    "wall_clock_cap": "UNLIMITED",
+    "provider_quota_user_reported": {
+      "independent_apis": 4,
+      "per_api_rpm": 15,
+      "per_api_tpm": 250000,
+      "per_api_rpd": 500,
+      "runtime_key_pool_verified": false,
+      "remaining_quota": "UNKNOWN"
+    },
+    "call_count_method": "9 AI-service generateContent HTTP 200 in run logs + 1 successful Node copilot smoke; excludes metadata health/model-list calls. Remaining account quota UNKNOWN."
+  },
+  "timeouts": {
+    "generation_seconds": 180,
+    "outbox_seconds": 180,
+    "max_retries_per_action": 3
+  },
+  "target": {
+    "words": 100000,
+    "min_words": 95000,
+    "max_words": 105000,
+    "planned_chapters": 40
+  },
+  "memory_audit": {
+    "pipelines": [
+      "P1",
+      "P2",
+      "P3"
+    ],
+    "after_bootstrap_import": true,
+    "after_first_accepted_revision": true,
+    "every_completed_chapters": 10,
+    "deep_audit_every_chapters": 20,
+    "cumulative_audit_every_chapters": 50,
+    "at_run_end_including_early_stop": true,
+    "capture_before_manual_correction": true,
+    "require_extraction_provider_trace": true,
+    "minimum_sample_recall": 0.9,
+    "minimum_sample_precision": 0.95,
+    "required_critical_recall": 1.0,
+    "required_provenance_accuracy": 1.0,
+    "allowed_future_leaks": 0,
+    "allowed_stale_current_states": 0
+  },
+  "reviewer": {
+    "identity": "SELF_REVIEW_ONLY",
+    "independent": false,
+    "full_text_read": false,
+    "scope": "Read all five seed source chapters; no full final novel exists"
+  },
+  "notes": "Explicit Gemini data transmission approval received. Live run stopped by product failures P1-001/P2-001/P3-001; no code/DB/global-config fix or gold injection. Existing demo stack used; isolated novel IDs. All API substitutions logged. Main canonical artifact 4747 seed words, zero new accepted prose; target unchanged.",
+  "data_transmission_approval": {
+    "approved": true,
+    "reference": "User explicitly: Tôi cho phép gửi bản thảo, blueprint và văn bản phát sinh trong Pipeline_test tới Google Gemini API để kiểm thử",
+    "destination": "Google Gemini API"
+  },
+  "ended_at": "2026-10-17T23:09:11.173294+07:00"
+}

@@ -1,0 +1,48 @@
+{
+  "time": "2026-10-18T16:47:55.726776+07:00",
+  "sha": "390b09fd043ec29db84519a9d195b59b76eec003",
+  "dirty": true,
+  "files": [
+    {
+      "path": "web/src/features/ai-copilot/AuthorMemoryPanel.tsx",
+      "sha256": "4cf4ed96b055af383c79538162531d5d6af6ef92274e87a0a41e6b22d5683f2a"
+    },
+    {
+      "path": "web/src/features/author-ide/AuthorWritingIde.tsx",
+      "sha256": "18f5bda382f7365771f3c1f74c89d67ba7080d657eb8e627a86be04ee4e3b3ea"
+    },
+    {
+      "path": "backend/src/modules/ai/ai-gateway.routes.ts",
+      "sha256": "7df285aa5afd54085ef3f8acefe3f4115cfe12d5556714c9a625ee2522ec66e0"
+    },
+    {
+      "path": "backend/src/modules/novels/chapters.service.ts",
+      "sha256": "3d3bdd375d3d4ba6b921f90a1d01748e501c99bc8ca3995b9fa8dff6ea6b7a11"
+    },
+    {
+      "path": "backend/src/jobs/autonomous-processor.ts",
+      "sha256": "070056999f5914657e3346ef12600890ee6fa536e731672ca74561edfb418890"
+    },
+    {
+      "path": "ai-service/api/narrative_routes.py",
+      "sha256": "72197f3d455a29c5781cf06171edbea2b9d32075b59ea0d89f2c26a7e2532594"
+    },
+    {
+      "path": "ai-service/api/schemas.py",
+      "sha256": "ea51a9447debfdb37f34105b6855b73cfdf20844936c9ef083622205dda569ef"
+    },
+    {
+      "path": "ai-service/application/bootstrap_service.py",
+      "sha256": "2997efb45f8246dceb920fd2af412e9f7271f1d5fc5a38c89079198820566ec6"
+    },
+    {
+      "path": "ai-service/core/llm_service.py",
+      "sha256": "27f173ee43feeef39daede83c211d14311b0e27f2f72d1a6c064cea17e10f9fd"
+    },
+    {
+      "path": "docker-compose.yml",
+      "sha256": "625fcbba80833317fee8bb00924cc0c41ae912c4fb2866a759ae9e752732b02b"
+    }
+  ],
+  "scope": "Local source identity only; not proof deployed runtime matches"
+}

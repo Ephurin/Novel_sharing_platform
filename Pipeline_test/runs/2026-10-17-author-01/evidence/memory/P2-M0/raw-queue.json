@@ -1,0 +1,232 @@
+{
+  "time": "2026-10-17T23:00:07.419127+07:00",
+  "channel": "PUBLIC_API",
+  "method": "GET",
+  "path": "/ai/story-brains/38efd972-da60-4c19-a967-5ef8c62e230a/review-queue",
+  "request": null,
+  "status": 200,
+  "latency_ms": 16,
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "proposal_id": "3ebbc33e-0ec8-5cdb-9bc4-29e287b763be",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "story_premise",
+          "priority": 100,
+          "fact_type": "premise",
+          "fact_value": "Một người phục chế âm thanh trở về Cồn Vân điều tra lựa chọn của cha trong lũ cũ và ngăn thành phố lặp lại việc hy sinh Bãi Dưới."
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 0,
+        "evidence": [],
+        "confidence": 1,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 80,
+        "review_reason": "world_rule_or_author_fact"
+      },
+      {
+        "proposal_id": "60ba3b88-5e2a-53b0-810e-92f4d23ec3ba",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "world_rule_15f48c48eec8858f",
+          "priority": 100,
+          "fact_type": "world_rule",
+          "fact_value": "Gốm thanh chỉ lưu âm đã xảy ra"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 1,
+        "evidence": [],
+        "confidence": 0.95,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 80,
+        "review_reason": "world_rule_or_author_fact"
+      },
+      {
+        "proposal_id": "61797e16-9a7a-556f-82c4-13f4b3310956",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "world_rule_c7c5247bb6610913",
+          "priority": 100,
+          "fact_type": "world_rule",
+          "fact_value": "Mai Lâm đã chết, không hồi sinh"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 2,
+        "evidence": [],
+        "confidence": 0.95,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 80,
+        "review_reason": "world_rule_or_author_fact"
+      },
+      {
+        "proposal_id": "10985a78-e0ec-51b9-98fd-6b3228486ac2",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "world_rule_f687977fd8043cc0",
+          "priority": 100,
+          "fact_type": "world_rule",
+          "fact_value": "Kế hoạch tương lai không phải lịch sử canon"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 3,
+        "evidence": [],
+        "confidence": 0.95,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 80,
+        "review_reason": "world_rule_or_author_fact"
+      },
+      {
+        "proposal_id": "f6f86acb-307f-51fd-ac5d-bc7d7b61a1ec",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "author_constraint_c7c5247bb6610913",
+          "priority": 100,
+          "fact_type": "world_rule",
+          "fact_value": "Mai Lâm đã chết, không hồi sinh"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 8,
+        "evidence": [],
+        "confidence": 1,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 80,
+        "review_reason": "world_rule_or_author_fact"
+      },
+      {
+        "proposal_id": "f1bfce2a-db10-54a4-a602-318206812214",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "author_constraint_15f48c48eec8858f",
+          "priority": 100,
+          "fact_type": "world_rule",
+          "fact_value": "Gốm thanh chỉ lưu âm đã xảy ra"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 9,
+        "evidence": [],
+        "confidence": 1,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 80,
+        "review_reason": "world_rule_or_author_fact"
+      },
+      {
+        "proposal_id": "0ed2802e-7ac9-5ec5-81ee-4741cab39bb3",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "author_constraint_f687977fd8043cc0",
+          "priority": 100,
+          "fact_type": "world_rule",
+          "fact_value": "Kế hoạch tương lai không phải lịch sử canon"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 10,
+        "evidence": [],
+        "confidence": 1,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 80,
+        "review_reason": "world_rule_or_author_fact"
+      },
+      {
+        "proposal_id": "81699bf4-fb70-5c68-afbb-1977492a2443",
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "character",
+          "canonical_name": "Nhân vật phục chế âm thanh",
+          "normalized_name": "nhân vật phục chế âm thanh"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 4,
+        "evidence": [],
+        "confidence": 0.95,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 40,
+        "review_reason": "standard_review"
+      },
+      {
+        "proposal_id": "9cab3afb-7484-5326-8130-8969a1b70bc3",
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "character",
+          "canonical_name": "Mai Lâm",
+          "normalized_name": "mai lâm"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 5,
+        "evidence": [],
+        "confidence": 0.9,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 40,
+        "review_reason": "standard_review"
+      },
+      {
+        "proposal_id": "b8563766-f126-5bc3-8638-6ded8a8f98c1",
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "location",
+          "canonical_name": "Cồn Vân",
+          "normalized_name": "cồn vân"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 6,
+        "evidence": [],
+        "confidence": 0.92,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 40,
+        "review_reason": "standard_review"
+      },
+      {
+        "proposal_id": "5c6e8077-6eae-51b8-916b-df662de9bac1",
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "location",
+          "canonical_name": "Bãi Dưới",
+          "normalized_name": "bãi dưới"
+        },
+        "analysis_run_id": "b6b9a3bd-92d1-42b1-83fb-a22eff314e1a",
+        "dependency_group_id": "8eca7a15-b42c-5d68-8f24-a48531ec254a",
+        "materialization_order": 7,
+        "evidence": [],
+        "confidence": 0.9,
+        "expected_brain_version": 1,
+        "status": "pending",
+        "decision_reason": null,
+        "review_priority": 40,
+        "review_reason": "standard_review"
+      }
+    ],
+    "error": null,
+    "meta": {}
+  }
+}

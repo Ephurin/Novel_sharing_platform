@@ -1,0 +1,15 @@
+{
+  "time": "2026-10-17T23:09:00.190637+07:00",
+  "channel": "PUBLIC_API",
+  "method": "GET",
+  "path": "/ai/story-brains/38efd972-da60-4c19-a967-5ef8c62e230a/review-queue",
+  "request": null,
+  "status": 200,
+  "latency_ms": 47,
+  "response": {
+    "success": true,
+    "data": [],
+    "error": null,
+    "meta": {}
+  }
+}

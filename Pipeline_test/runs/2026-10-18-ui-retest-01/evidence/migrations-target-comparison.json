@@ -1,0 +1,27 @@
+[
+  {
+    "target": "::1:5432/ephurin",
+    "mode": "READ_ONLY",
+    "server_version": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35227, 64-bit",
+    "vector": [],
+    "alembic": [
+      {
+        "schema": "public",
+        "versions": [
+          "0006_fix_revision_provenance"
+        ]
+      }
+    ],
+    "autonomous_status_counts": []
+  },
+  {
+    "target": "127.0.0.1:5433/ephurin",
+    "mode": "READ_ONLY",
+    "error_type": "ConnectionTimeout",
+    "detail": "connection timeout expired"
+  },
+  {
+    "docker_contexts": "default npipe:////./pipe/docker_engine\ndesktop-linux npipe:////./pipe/dockerDesktopLinuxEngine\n",
+    "exit": 0
+  }
+]

@@ -24,6 +24,7 @@ export type ReviewProposal = {
   confidence: number | null;
   review_priority: number;
   review_reason: string;
+  evidence?: { revision_id?: string; start?: number; end?: number }[];
 };
 
 export type StoryBrainSummary = {
@@ -50,6 +51,11 @@ export async function startManuscriptBootstrap(novelId: string, revisions: Boots
 
 export async function getBootstrapJob(jobId: string) {
   const response = await apiClient.get<ApiEnvelope<BootstrapJob>>(`/ai/jobs/${jobId}`);
+  return response.data.data;
+}
+
+export async function resumeBootstrapJob(jobId: string) {
+  const response = await apiClient.post<ApiEnvelope<BootstrapJob>>(`/ai/jobs/${jobId}/resume`);
   return response.data.data;
 }
 

@@ -1,0 +1,36 @@
+entry_id,chapter_number,revision_id,entity_or_object,event_or_state,certainty,known_by,source_excerpt,previous_entry_id,payoff_id,review_status
+C01,1,d373c4ca-080a-47e9-9629-d7dcd766b045,entity,Linh 29 tuổi,confirmed_in_prose,,Ở tuổi hai mươi chín,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C02,1,d373c4ca-080a-47e9-9629-d7dcd766b045,state,Linh trở về sau 11 năm,confirmed_in_prose,,Mười một năm trước,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C03,1,d373c4ca-080a-47e9-9629-d7dcd766b045,event,Lũ cũ xảy ra 17 năm trước,confirmed_in_prose,,mười bảy năm trước,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C04,1,d373c4ca-080a-47e9-9629-d7dcd766b045,event,Có 23 người chết trong lũ,confirmed_in_prose,,hai mươi ba người chết,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C05,1,d373c4ca-080a-47e9-9629-d7dcd766b045,state,Mai Lâm đã chết trong lũ,confirmed_in_prose,,"Mai Lâm, cha cô",,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C06,1,d373c4ca-080a-47e9-9629-d7dcd766b045,item,CV-04 có cạnh sơn xanh,confirmed_in_prose,,một cạnh phủ sơn xanh,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C07,1,d373c4ca-080a-47e9-9629-d7dcd766b045,item,CV-04 có vết nứt cong hình móc,confirmed_in_prose,,vết nứt cong như móc câu,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C08,2,d0a73413-6ee4-4011-87e6-117d7df41c52,event,CV-04 đã quét một lần,confirmed_in_prose,,Lần quét thứ nhất,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C09,2,d0a73413-6ee4-4011-87e6-117d7df41c52,fact,Mỗi lần quét làm mất phổ cao,confirmed_in_prose,,phần phổ cao mất thêm,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C10,2,d0a73413-6ee4-4011-87e6-117d7df41c52,fact,Giới hạn bảo tồn đề nghị ba lần quét,confirmed_in_prose,,Ba lần đã là giới hạn,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C11,2,d0a73413-6ee4-4011-87e6-117d7df41c52,event,Bản ghi có câu mở cửa Bốn,confirmed_in_prose,,Mở cửa Bốn.,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C12,2,d0a73413-6ee4-4011-87e6-117d7df41c52,certainty,"Linh cho rằng giọng giống cha, chưa xác minh",attributed/unverified,,Ghi là chị nhận ra giọng giống ông,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C13,2,d0a73413-6ee4-4011-87e6-117d7df41c52,certainty,Chuông chưa chứng minh thời gian/vị trí,attributed/unverified,,Cô viết ba chữ “nếu”,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C14,2,d0a73413-6ee4-4011-87e6-117d7df41c52,state,Duy không nghe tai trái,confirmed_in_prose,,Tai trái tôi không nghe,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C15,2,d0a73413-6ee4-4011-87e6-117d7df41c52,state,Duy dùng tai phải và dụng cụ,confirmed_in_prose,,Anh đặt ngón tay lên mặt bàn,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C16,2,d0a73413-6ee4-4011-87e6-117d7df41c52,ownership,Hai ổ lưu dữ liệu đã thu,confirmed_in_prose,,hai ổ lưu cùng dữ liệu,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C17,2,d0a73413-6ee4-4011-87e6-117d7df41c52,ownership,Một ổ niêm trong tủ ông Hòa,confirmed_in_prose,,Một ổ được niêm trong tủ,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C18,2,d0a73413-6ee4-4011-87e6-117d7df41c52,ownership,Một ổ trong túi chống ẩm Linh,confirmed_in_prose,,ổ kia nằm trong túi chống ẩm,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C19,2,d0a73413-6ee4-4011-87e6-117d7df41c52,item,Vòng chuẩn đồng có khía tam giác,confirmed_in_prose,,vết khía hình tam giác,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C20,2,d0a73413-6ee4-4011-87e6-117d7df41c52,ownership,Vòng chuẩn được Duy cất trong hộp dụng cụ,confirmed_in_prose,,đặt lại trong hộp dụng cụ,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C21,3,e0f4b022-0456-416f-a459-02d94b7bf918,certainty,Sâm kể chuông được chuyển sau lũ; chưa có hồ sơ,attributed/unverified,,Ta chỉ thấy họ chuyển. Ta không ký.,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C22,3,e0f4b022-0456-416f-a459-02d94b7bf918,ownership,Yên giấu sổ bọc vải dưới ghế,confirmed_in_prose,,một gói vải xám buộc dây,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C23,3,e0f4b022-0456-416f-a459-02d94b7bf918,state,Linh thấy sổ nhưng chưa đọc,confirmed_in_prose,,Một góc bìa sổ lộ ra,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C24,4,441ff0f6-b3ca-4937-ab4d-4afb29f42371,event,Vũ cho phép khảo sát có điều kiện,confirmed_in_prose,,Giấy cho phép khảo sát được ký,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C25,4,441ff0f6-b3ca-4937-ab4d-4afb29f42371,fact,Không vận hành cửa nước khi khảo sát,confirmed_in_prose,,không vận hành cửa nước,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C26,4,441ff0f6-b3ca-4937-ab4d-4afb29f42371,fact,Không xuống khoang kín,confirmed_in_prose,,không xuống khoang kín,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C27,4,441ff0f6-b3ca-4937-ab4d-4afb29f42371,certainty,Động cơ Vũ chưa chứng minh,attributed/unverified,,Việc ông sẽ kể hết những gì biết thì tôi chưa biết,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C28,4,441ff0f6-b3ca-4937-ab4d-4afb29f42371,certainty,Bản đồ đánh dấu ống bịt nhưng hiện trường có âm,attributed/unverified,,còn nghe dòng chảy ở phía này,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C29,5,f93bb1e2-4da0-4e1b-97b2-8494bbad2853,time,"Ngày hai, buổi sáng trạm Bốn",confirmed_in_prose,,"ngày hai, trạm Bốn, nhánh tây",,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C30,5,f93bb1e2-4da0-4e1b-97b2-8494bbad2853,state,An giữ thuyền ngoài trạm,confirmed_in_prose,,"Ngoài sân, An buộc lại thuyền",,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C31,5,f93bb1e2-4da0-4e1b-97b2-8494bbad2853,state,"Linh và Duy quan sát sàn trên, chưa xuống khoang",confirmed_in_prose,,quan sát từ sàn trên; chưa xuống khoang,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C32,5,f93bb1e2-4da0-4e1b-97b2-8494bbad2853,certainty,Chưa có bằng chứng có người dưới khoang,attributed/unverified,,anh chưa có lý do để đặt một người,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C33,5,f93bb1e2-4da0-4e1b-97b2-8494bbad2853,event,Linh nghe ba tiếng gõ ngắn và tiếng thứ tư dài,confirmed_in_prose,,ba tiếng gõ ngắn,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C34,5,f93bb1e2-4da0-4e1b-97b2-8494bbad2853,certainty,Nguồn tiếng gõ chưa xác định,attributed/unverified,,như một vật nặng bị kéo ngang thành ống,,,SOURCE_GOLD_ONLY_NOT_INJECTED
+C35,5,f93bb1e2-4da0-4e1b-97b2-8494bbad2853,event,Mực nước khe cửa bắt đầu lên,confirmed_in_prose,,đường nước phản sáng bắt đầu dịch lên,,,SOURCE_GOLD_ONLY_NOT_INJECTED

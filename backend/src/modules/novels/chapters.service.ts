@@ -15,6 +15,7 @@ import {
 } from './chapters.repository.js';
 import { findDraftChapterByChapterId, upsertDraftChapter } from './draft-chapters.repository.js';
 import { getNovel } from './novels.service.js';
+import { snapshotSavedChapter } from './chapter-revisions.service.js';
 
 function countWords(content: string) {
   return content.trim().split(/\s+/).filter(Boolean).length;
@@ -68,6 +69,8 @@ export async function createChapter(auth: AuthContext, novelId: string, input: C
     wordCount,
     autosave: false
   });
+
+  if (input.content.trim()) await snapshotSavedChapter(auth, chapter.chapterId, input.content);
 
   return {
     ...chapter,
@@ -181,8 +184,13 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
     });
   }
 
+  const revision = input.content !== undefined
+    ? await snapshotSavedChapter(auth, chapterId, input.content)
+    : null;
+
   return {
     ...updatedChapter,
+    analysisRevisionId: revision?.revisionId ?? null,
     draftVersion: draft?.version ?? null
   };
 }

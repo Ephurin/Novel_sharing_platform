@@ -1,0 +1,31 @@
+{
+  "time": "2026-10-17T23:03:26.209863+07:00",
+  "based_on": "Gold source/author inputs frozen before extraction; context preview only, no QA API",
+  "probes": [
+    [
+      "CV-04 đã quét bao nhiêu lần?",
+      "CV-04",
+      "Exactly one original scan"
+    ],
+    [
+      "Ai giữ vòng chuẩn?",
+      "Trần Duy",
+      "Duy toolbox"
+    ],
+    [
+      "Giọng Lâm đã xác minh chưa?",
+      "Mai Linh",
+      "Unverified attribution"
+    ],
+    [
+      "Duy nghe bằng tai nào?",
+      "Trần Duy",
+      "Right; left deaf"
+    ],
+    [
+      "83 người đã được xác nhận cứu chưa?",
+      "Mai Lâm",
+      "No historical assertion"
+    ]
+  ]
+}

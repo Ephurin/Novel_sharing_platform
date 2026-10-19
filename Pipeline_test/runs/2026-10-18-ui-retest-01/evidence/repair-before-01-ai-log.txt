@@ -1,0 +1,230 @@
+INFO:     127.0.0.1:54036 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46908 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55778 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52082 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.1:59026 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48878 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35618 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58556 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60814 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34534 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34524 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34528 - "GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39216 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60904 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55428 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60040 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34496 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34508 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50980 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42232 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42222 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42210 - "GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42208 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42208 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51140 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58932 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48526 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:42202 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO:     Started server process [8]
+INFO:     Waiting for application startup.
+2026-10-18 15:57:19,499 | INFO | ai-service | Starting AI service with pure-LLM entity pipeline.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2026-10-18 15:57:27,311 | INFO | ai-service | GET /health -> 200 (1.85 ms)
+2026-10-18 15:57:37,370 | INFO | ai-service | GET /health -> 200 (1.02 ms)
+2026-10-18 15:57:47,448 | INFO | ai-service | GET /health -> 200 (0.95 ms)
+2026-10-18 15:57:57,512 | INFO | ai-service | GET /health -> 200 (0.81 ms)
+2026-10-18 15:58:06,630 | INFO | ai-service | GET /openapi.json -> 200 (178.40 ms)
+2026-10-18 15:58:07,584 | INFO | ai-service | GET /health -> 200 (0.71 ms)
+2026-10-18 15:58:17,666 | INFO | ai-service | GET /health -> 200 (1.07 ms)
+2026-10-18 15:58:27,730 | INFO | ai-service | GET /health -> 200 (0.92 ms)
+2026-10-18 15:58:37,805 | INFO | ai-service | GET /health -> 200 (0.83 ms)
+2026-10-18 15:58:46,933 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (75.35 ms)
+2026-10-18 15:58:46,942 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (95.75 ms)
+2026-10-18 15:58:46,947 | INFO | ai-service | GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (97.04 ms)
+2026-10-18 15:58:47,012 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (176.32 ms)
+2026-10-18 15:58:47,015 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (170.41 ms)
+2026-10-18 15:58:47,885 | INFO | ai-service | GET /health -> 200 (1.10 ms)
+2026-10-18 15:58:50,015 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (7.23 ms)
+2026-10-18 15:58:50,018 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.46 ms)
+2026-10-18 15:58:50,046 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (20.19 ms)
+2026-10-18 15:58:50,048 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (21.82 ms)
+2026-10-18 15:58:53,032 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.13 ms)
+2026-10-18 15:58:53,048 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.71 ms)
+2026-10-18 15:58:53,079 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (20.26 ms)
+2026-10-18 15:58:53,082 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (23.81 ms)
+2026-10-18 15:58:56,061 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.38 ms)
+2026-10-18 15:58:56,080 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.63 ms)
+2026-10-18 15:58:56,116 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (26.24 ms)
+2026-10-18 15:58:56,117 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (28.19 ms)
+2026-10-18 15:58:57,959 | INFO | ai-service | GET /health -> 200 (1.23 ms)
+2026-10-18 15:58:59,091 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.65 ms)
+2026-10-18 15:58:59,109 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.42 ms)
+2026-10-18 15:58:59,155 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (21.03 ms)
+2026-10-18 15:58:59,157 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (23.67 ms)
+2026-10-18 15:59:02,111 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.02 ms)
+2026-10-18 15:59:02,140 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.43 ms)
+2026-10-18 15:59:02,187 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (21.99 ms)
+2026-10-18 15:59:02,203 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (21.04 ms)
+2026-10-18 15:59:05,139 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (6.44 ms)
+2026-10-18 15:59:05,172 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.68 ms)
+2026-10-18 15:59:05,235 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (25.23 ms)
+2026-10-18 15:59:05,237 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (22.23 ms)
+2026-10-18 15:59:08,036 | INFO | ai-service | GET /health -> 200 (1.02 ms)
+2026-10-18 15:59:08,162 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (6.29 ms)
+2026-10-18 15:59:08,194 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.23 ms)
+2026-10-18 15:59:08,269 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (22.02 ms)
+2026-10-18 15:59:08,271 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (22.90 ms)
+2026-10-18 15:59:11,180 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.91 ms)
+2026-10-18 15:59:11,215 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.11 ms)
+2026-10-18 15:59:11,312 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (21.07 ms)
+2026-10-18 15:59:11,313 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (23.71 ms)
+2026-10-18 15:59:14,197 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.66 ms)
+2026-10-18 15:59:14,248 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.33 ms)
+2026-10-18 15:59:14,411 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (77.62 ms)
+2026-10-18 15:59:14,412 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (77.84 ms)
+2026-10-18 15:59:17,222 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (6.15 ms)
+2026-10-18 15:59:17,268 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.76 ms)
+2026-10-18 15:59:17,454 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (22.40 ms)
+2026-10-18 15:59:17,458 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (25.86 ms)
+2026-10-18 15:59:18,094 | INFO | ai-service | GET /health -> 200 (0.72 ms)
+2026-10-18 15:59:20,241 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.45 ms)
+2026-10-18 15:59:20,289 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.86 ms)
+2026-10-18 15:59:20,494 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (23.56 ms)
+2026-10-18 15:59:20,495 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (23.29 ms)
+2026-10-18 15:59:28,181 | INFO | ai-service | GET /health -> 200 (0.84 ms)
+2026-10-18 15:59:33,726 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (45.19 ms)
+2026-10-18 15:59:33,738 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (65.63 ms)
+2026-10-18 15:59:33,746 | INFO | ai-service | GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (76.00 ms)
+2026-10-18 15:59:33,750 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (92.20 ms)
+2026-10-18 15:59:33,768 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (105.13 ms)
+2026-10-18 15:59:36,764 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.57 ms)
+2026-10-18 15:59:36,781 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (13.31 ms)
+2026-10-18 15:59:36,798 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (27.26 ms)
+2026-10-18 15:59:36,977 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (17.45 ms)
+2026-10-18 15:59:38,255 | INFO | ai-service | GET /health -> 200 (1.05 ms)
+2026-10-18 15:59:39,785 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.66 ms)
+2026-10-18 15:59:39,802 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.28 ms)
+2026-10-18 15:59:39,829 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (18.14 ms)
+2026-10-18 15:59:40,008 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.75 ms)
+2026-10-18 15:59:42,813 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.12 ms)
+2026-10-18 15:59:42,826 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.91 ms)
+2026-10-18 15:59:42,869 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.48 ms)
+2026-10-18 15:59:43,040 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (18.04 ms)
+2026-10-18 15:59:45,837 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.95 ms)
+2026-10-18 15:59:45,850 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.42 ms)
+2026-10-18 15:59:45,909 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.20 ms)
+2026-10-18 15:59:46,084 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (19.56 ms)
+2026-10-18 15:59:48,339 | INFO | ai-service | GET /health -> 200 (0.90 ms)
+2026-10-18 15:59:48,858 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.11 ms)
+2026-10-18 15:59:48,870 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.23 ms)
+2026-10-18 15:59:48,949 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (18.00 ms)
+2026-10-18 15:59:49,115 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (17.59 ms)
+2026-10-18 15:59:51,874 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.30 ms)
+2026-10-18 15:59:51,889 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.68 ms)
+2026-10-18 15:59:51,977 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.82 ms)
+2026-10-18 15:59:52,145 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.11 ms)
+2026-10-18 15:59:54,894 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.11 ms)
+2026-10-18 15:59:54,908 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.72 ms)
+2026-10-18 15:59:55,018 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.90 ms)
+2026-10-18 15:59:55,193 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (20.67 ms)
+2026-10-18 15:59:57,912 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.84 ms)
+2026-10-18 15:59:57,932 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.57 ms)
+2026-10-18 15:59:58,058 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.56 ms)
+2026-10-18 15:59:58,230 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.80 ms)
+2026-10-18 15:59:58,413 | INFO | ai-service | GET /health -> 200 (0.66 ms)
+2026-10-18 16:00:00,940 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.90 ms)
+2026-10-18 16:00:00,952 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.70 ms)
+2026-10-18 16:00:01,096 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.86 ms)
+2026-10-18 16:00:01,269 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.20 ms)
+2026-10-18 16:00:03,959 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.99 ms)
+2026-10-18 16:00:03,971 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.77 ms)
+2026-10-18 16:00:04,122 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.15 ms)
+2026-10-18 16:00:04,307 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (18.77 ms)

@@ -4,6 +4,79 @@ import { successResponse } from '../../core/response/response.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { findNovelById, type NovelRecord } from '../novels/novels.repository.js';
 import { findChapterById, type ChapterRecord } from '../novels/chapters.repository.js';
+import { assertCurrentProposalEvidence } from './proposal-evidence.service.js';
+import { listLatestChapterAnalysis } from '../novels/outbox.repository.js';
+import { findRevisionById, findLatestRevisionByChapterId } from '../novels/chapter-revisions.repository.js';
+
+export async function reanalyseSavedChapterController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const revision = typeof req.body.revision_id === 'string' ? await findRevisionById(undefined, req.body.revision_id) : null;
+    const head = revision && await findLatestRevisionByChapterId(undefined, revision.chapterId);
+    if (!revision || revision.novelId !== novelId || head?.revisionId !== revision.revisionId) {
+      throw new AppError(409, 'STALE_PROPOSAL_EVIDENCE', 'Select the latest saved revision of this novel');
+    }
+    const data = await aiGatewayService.forwardRequest({ method: 'POST',
+      path: `/v1/revisions/${revision.revisionId}/analyses`, userId: req.auth!.userId,
+      body: { novel_id: novelId, chapter_id: revision.chapterId, content_hash: revision.contentHash,
+        operation: 'author_reanalysis', options: { extract_state_transitions: true } } });
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function authorMemoryProposalController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const revision = typeof req.body.revision_id === 'string' ? await findRevisionById(undefined, req.body.revision_id) : null;
+    const head = revision && await findLatestRevisionByChapterId(undefined, revision.chapterId);
+    if (!revision || revision.novelId !== novelId || revision.chapterId !== req.body.chapter_id || head?.revisionId !== revision.revisionId) {
+      throw new AppError(409, 'STALE_PROPOSAL_EVIDENCE', 'Choose the latest saved revision of this novel');
+    }
+    const data = await aiGatewayService.forwardRequest({ method: 'POST',
+      path: `/v1/story-brains/${novelId}/author-proposals`, body: req.body, userId: req.auth!.userId });
+    res.status(201).json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function extractionStatusController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    res.json(successResponse(await listLatestChapterAnalysis(novelId)));
+  } catch (error) { next(error); }
+}
+
+export async function getApprovedMemoryController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({ method: 'GET',
+      path: `/v1/story-brains/${novelId}/memory`, userId: req.auth!.userId });
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function authorOperationController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({ method: 'POST',
+      path: `/v1/story-brains/${novelId}/author-operation`, body: req.body, userId: req.auth!.userId });
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function eventCorrectionController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({ method: 'POST',
+      path: `/v1/story-brains/${novelId}/events/${req.params.eventId}/corrections`, body: req.body, userId: req.auth!.userId });
+    res.status(201).json(successResponse(data));
+  } catch (error) { next(error); }
+}
 
 export async function assertNovelOwnership(
   userId: string,
@@ -150,6 +223,28 @@ export async function getJobStatusController(
   }
 }
 
+export async function resumeJobController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { jobId } = req.params;
+    const userId = req.auth!.userId;
+
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/jobs/${jobId}/resume`,
+      userId,
+      requestId: req.header('x-request-id'),
+    });
+
+    res.status(202).json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function startManuscriptBootstrapController(
   req: Request,
   res: Response,
@@ -285,6 +380,8 @@ export async function acceptProposalGroupController(
 
     await assertNovelOwnership(userId, userRole, trustedNovelId);
 
+    await assertCurrentProposalEvidence(trustedNovelId, req.body?.proposal_ids, userId);
+
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
       path: `/v1/proposal-groups/${groupId}/accept`,
@@ -360,6 +457,8 @@ export async function editAndAcceptProposalController(
     }
 
     await assertNovelOwnership(userId, userRole, trustedNovelId);
+
+    await assertCurrentProposalEvidence(trustedNovelId, [String(proposalId)], userId);
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',

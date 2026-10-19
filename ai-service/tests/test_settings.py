@@ -6,6 +6,13 @@ from core.settings import Settings
 
 
 class SettingsTests(unittest.TestCase):
+    def test_structured_output_budget_is_configurable_and_positive(self) -> None:
+        with patch.dict(os.environ, {"LLM_STRUCTURED_MAX_TOKENS": "4096"}, clear=True):
+            self.assertEqual(Settings.from_env().llm_structured_max_tokens, 4096)
+        with patch.dict(os.environ, {"LLM_STRUCTURED_MAX_TOKENS": "0"}, clear=True):
+            with self.assertRaises(ValueError):
+                Settings.from_env()
+
     def test_defaults_disable_provider_and_keep_local_cors(self) -> None:
         with patch.dict(os.environ, {}, clear=True):
             settings = Settings.from_env()

@@ -1,0 +1,9 @@
+{
+  "time": "2026-10-17T22:58:00.902703+07:00",
+  "action": "Gemini manuscript-derived smoke via public application API",
+  "execution": "REJECTED_BEFORE_PROCESS_CREATION",
+  "user_reply": "tiếp tục đi",
+  "review_reason": "Reply judged ambiguous; exact manuscript payload and Google Gemini destination require explicit approval after prior rejection",
+  "provider_generation_calls": 0,
+  "no_bypass": true
+}

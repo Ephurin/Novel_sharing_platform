@@ -1,0 +1,20 @@
+{
+  "time": "2026-10-17T23:00:36.956948+07:00",
+  "channel": "PUBLIC_API",
+  "method": "POST",
+  "path": "/ai/proposals/0ed2802e-7ac9-5ec5-81ee-4741cab39bb3/reject",
+  "request": {
+    "reason": "Duplicate of model-proposed matching world rule; original author constraint retained in run evidence."
+  },
+  "status": 200,
+  "latency_ms": 47,
+  "response": {
+    "success": true,
+    "data": {
+      "proposal_id": "0ed2802e-7ac9-5ec5-81ee-4741cab39bb3",
+      "status": "rejected"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

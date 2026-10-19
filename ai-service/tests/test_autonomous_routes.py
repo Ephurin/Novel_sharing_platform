@@ -67,6 +67,19 @@ class AutonomousRouteTests(unittest.TestCase):
     def tearDown(self) -> None:
         app.dependency_overrides.clear()
 
+    def test_active_run_pins_plan_and_stopped_run_cannot_be_revived(self) -> None:
+        created = self.client.post("/v1/autonomous/runs", json={"novel_id": self.novel_id}, headers=self.headers)
+        self.assertEqual(created.status_code, 201)
+        run_id = created.json()["data"]["run_id"]
+        activate = self.client.post(f"/v1/story-plans/{self.plan.plan_id}/activate",
+                                    params={"novel_id": self.novel_id}, headers=self.headers)
+        self.assertEqual(activate.status_code, 409)
+        stopped = self.client.post(f"/v1/autonomous/runs/{run_id}/stop", json={}, headers=self.headers)
+        self.assertEqual(stopped.status_code, 200)
+        revive = self.client.patch(f"/v1/autonomous/runs/{run_id}", json={"status": "completed"}, headers=self.headers)
+        self.assertEqual(revive.status_code, 409)
+        self.assertEqual(self.repository.get_autonomous_run(run_id).status, "stopped")
+
     def test_create_and_get_autonomous_run(self) -> None:
         create_res = self.client.post(
             "/v1/autonomous/runs",

@@ -1,3 +1,4 @@
+import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -11,18 +12,6 @@ import {
   updateChapter
 } from '../novels/novel-api';
 import type { Chapter, Novel } from '../novels/novel-types';
-import {
-  listCharacterRelationships,
-  listCharacters,
-  listPlotSummaries,
-  listTimelineEvents
-} from '../story-context/story-context-api';
-import type {
-  CharacterProfile,
-  CharacterRelationship,
-  PlotSummary,
-  StoryTimelineEvent
-} from '../story-context/story-context-types';
 import {
   startWritingGeneration,
   getJobStatus,
@@ -226,36 +215,16 @@ export function AuthorWritingIde() {
     if (chapterId) return chapterId;
     return chaptersQuery.data?.[0]?.chapterId || '';
   }, [chapterId, chaptersQuery.data]);
+  const activeChapterRef = useRef(activeChapterId);
+  activeChapterRef.current = activeChapterId;
+  const currentBodyRef = useRef(content);
+  currentBodyRef.current = content;
+  const hydratedChapterRef = useRef('');
 
   const chapterQuery = useQuery({
     queryKey: ['author', 'chapter', activeChapterId],
     queryFn: () => getChapter(activeChapterId),
     enabled: Boolean(activeChapterId)
-  });
-
-  // Story Bible Queries
-  const charactersQuery = useQuery({
-    queryKey: ['author', 'story-context', 'characters', activeNovelId],
-    queryFn: () => listCharacters(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
-  });
-
-  const relationshipsQuery = useQuery({
-    queryKey: ['author', 'story-context', 'relationships', activeNovelId],
-    queryFn: () => listCharacterRelationships(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
-  });
-
-  const timelineQuery = useQuery({
-    queryKey: ['author', 'story-context', 'timeline', activeNovelId],
-    queryFn: () => listTimelineEvents(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
-  });
-
-  const plotSummariesQuery = useQuery({
-    queryKey: ['author', 'story-context', 'summaries', activeNovelId],
-    queryFn: () => listPlotSummaries(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
   });
 
   // Keep search params in sync
@@ -293,6 +262,9 @@ export function AuthorWritingIde() {
   useEffect(() => {
     if (chapterQuery.data) {
       const ch = chapterQuery.data;
+      // A background refetch must not replace text the author is still editing.
+      if (hydratedChapterRef.current === ch.chapterId && content !== lastSavedSnapshot.current.content) return;
+      hydratedChapterRef.current = ch.chapterId;
       const initialTitle = ch.draft?.title ?? ch.title ?? '';
       const initialContent = ch.draft?.content ?? ch.content ?? '';
       const initialVip = Boolean(ch.isVip);
@@ -453,21 +425,23 @@ export function AuthorWritingIde() {
 
   // Autosave Mutation
   const saveMutation = useMutation({
-    mutationFn: async (payload: { title?: string; content?: string; isVip?: boolean; priceCoins?: number }) => {
-      if (!activeChapterId) throw new Error('No chapter selected');
-      return updateChapter(activeChapterId, { ...payload, autosave: true });
+    mutationFn: async (payload: { targetChapterId: string; targetNovelId: string; title?: string; content?: string; isVip?: boolean; priceCoins?: number }) => {
+      const { targetChapterId, targetNovelId: _novelId, ...body } = payload;
+      if (!targetChapterId) throw new Error('No chapter selected');
+      return updateChapter(targetChapterId, { ...body, autosave: true });
     },
-    onSuccess: (updated: Chapter) => {
-      setAutosaveStatus('saved');
+    scope: { id: `chapter-save-${activeChapterId}` },
+    onSuccess: (_updated: Chapter, payload) => {
+      queryClient.invalidateQueries({ queryKey: ['author', 'chapters', payload.targetNovelId] });
+      if (payload.targetChapterId !== activeChapterRef.current) return;
+      setAutosaveStatus(payload.content === currentBodyRef.current ? 'saved' : 'saving');
       setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
       lastSavedSnapshot.current = {
-        title,
-        content,
-        isVip,
-        priceCoins
+        title: payload.title ?? title,
+        content: payload.content ?? content,
+        isVip: payload.isVip ?? isVip,
+        priceCoins: payload.priceCoins ?? priceCoins
       };
-      queryClient.setQueryData(['author', 'chapter', activeChapterId], updated);
-      queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
     },
     onError: () => {
       setAutosaveStatus('error');
@@ -493,6 +467,8 @@ export function AuthorWritingIde() {
 
     autosaveTimeoutRef.current = setTimeout(() => {
       saveMutation.mutate({
+        targetChapterId: activeChapterId,
+        targetNovelId: activeNovelId,
         title: newTitle,
         content: newContent,
         isVip: newIsVip,
@@ -797,11 +773,11 @@ export function AuthorWritingIde() {
             <button
               onClick={() => setStoryBibleOpen(true)}
               className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
-              title="Cẩm nang thế giới truyện (Story Bible)"
+              title="Bộ nhớ, trích xuất và định hướng tiểu thuyết"
               type="button"
             >
               <span className="material-symbols-outlined text-stone-500 text-[15px]">menu_book</span>
-              <span className="hidden xl:inline text-[11px]">Cẩm nang</span>
+              <span className="hidden xl:inline text-[11px]">Bộ nhớ truyện</span>
             </button>
             <button
               onClick={() => setFocusMode((prev: boolean) => !prev)}
@@ -925,6 +901,8 @@ export function AuthorWritingIde() {
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
           <aside className="w-[280px] shrink-0 border-r border-stone-200/90 bg-[#f9f8f4] flex flex-col h-full z-10 select-none relative">
+            <button type="button" className="p-3 text-left text-sm font-semibold border-b border-stone-200"
+              onClick={() => setStoryBibleOpen(true)}>Bộ nhớ · Trích xuất · Chờ duyệt</button>
             {/* Rail Header */}
             <div className="p-3 border-b border-stone-200 flex items-center justify-between bg-stone-50/50">
               <div>
@@ -1590,299 +1568,9 @@ export function AuthorWritingIde() {
         )}
       </div>
 
-      {/* ──────────────────────────────────────────
-          BEGIN: Story Bible Modal
-         ────────────────────────────────────────── */}
-      {storyBibleOpen && (
-        <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div
-            style={{ height: '620px', maxHeight: '88vh' }}
-            className="bg-white rounded-2xl shadow-2xl border border-stone-200/90 w-full max-w-3xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
-          >
-            {/* Header */}
-            <div className="h-16 border-b border-stone-200 px-6 flex items-center justify-between bg-stone-50/90 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary-50 border border-primary-200/60 flex items-center justify-center text-primary-600 shadow-xs">
-                  <span className="material-symbols-outlined text-[20px]">menu_book</span>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-stone-900">Cẩm Nang Thế Giới (Story Bible)</h3>
-                    <span className="px-2 py-0.5 rounded-full bg-stone-200/60 text-[10px] font-semibold text-stone-600">Tra cứu nhanh</span>
-                  </div>
-                  <p className="text-[11px] text-stone-500 font-medium">Tác phẩm: {novelQuery.data?.title || 'Đang tải...'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Link
-                  to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-xs text-stone-700 hover:text-stone-900 hover:bg-white font-medium shadow-xs transition-colors"
-                  title="Mở toàn màn hình để thêm/sửa nhân vật, thiết lập chi tiết"
-                >
-                  <span className="material-symbols-outlined text-[15px] text-primary-600">open_in_new</span>
-                  <span>Mở Cẩm nang đầy đủ</span>
-                </Link>
-                <button
-                  onClick={() => setStoryBibleOpen(false)}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors"
-                  type="button"
-                  title="Đóng popup"
-                >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Tabs */}
-            <div className="px-6 border-b border-stone-200 flex items-center gap-6 text-xs font-semibold bg-white text-stone-500 shrink-0">
-              <button
-                onClick={() => setStoryBibleTab('characters')}
-                className={`py-3.5 flex items-center gap-1.5 transition-colors ${
-                  storyBibleTab === 'characters'
-                    ? 'text-primary-600 border-b-2 border-primary-600 font-bold'
-                    : 'hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[16px]">groups</span>
-                <span>Nhân vật ({charactersQuery.data?.length ?? 0})</span>
-              </button>
-              <button
-                onClick={() => setStoryBibleTab('relationships')}
-                className={`py-3.5 flex items-center gap-1.5 transition-colors ${
-                  storyBibleTab === 'relationships'
-                    ? 'text-primary-600 border-b-2 border-primary-600 font-bold'
-                    : 'hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[16px]">hub</span>
-                <span>Mối quan hệ ({relationshipsQuery.data?.length ?? 0})</span>
-              </button>
-              <button
-                onClick={() => setStoryBibleTab('timeline')}
-                className={`py-3.5 flex items-center gap-1.5 transition-colors ${
-                  storyBibleTab === 'timeline'
-                    ? 'text-primary-600 border-b-2 border-primary-600 font-bold'
-                    : 'hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[16px]">history_edu</span>
-                <span>Dòng thời gian ({timelineQuery.data?.length ?? 0})</span>
-              </button>
-              <button
-                onClick={() => setStoryBibleTab('summaries')}
-                className={`py-3.5 flex items-center gap-1.5 transition-colors ${
-                  storyBibleTab === 'summaries'
-                    ? 'text-primary-600 border-b-2 border-primary-600 font-bold'
-                    : 'hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[16px]">auto_stories</span>
-                <span>Tóm tắt hồi ({plotSummariesQuery.data?.length ?? 0})</span>
-              </button>
-            </div>
-
-            {/* Tab Contents: Uniform scrollable container */}
-            <div className="p-6 overflow-y-auto space-y-3 flex-1 min-h-0 text-xs text-stone-700 bg-stone-50/40">
-              {storyBibleTab === 'characters' && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {charactersQuery.data?.map((c: CharacterProfile, idx: number) => {
-                      const { customTitle, cleanDescription } = parseIdeCharacterDesc(c.description);
-                      const avatarUrl = AVATAR_FALLBACKS[idx % AVATAR_FALLBACKS.length];
-                      const roleBadgeClass =
-                        c.role === 'PROTAGONIST'
-                          ? 'bg-primary-50 text-primary-700 border-primary-200'
-                          : c.role === 'ANTAGONIST'
-                          ? 'bg-rose-50 text-rose-700 border-rose-200'
-                          : c.role === 'SUPPORTING'
-                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                          : 'bg-stone-100 text-stone-600 border-stone-200';
-                      const roleLabel =
-                        c.role === 'PROTAGONIST'
-                          ? 'Tuyến chính'
-                          : c.role === 'ANTAGONIST'
-                          ? 'Phản diện'
-                          : c.role === 'SUPPORTING'
-                          ? 'Tuyến phụ'
-                          : 'Quần chúng';
-
-                      return (
-                        <div
-                          key={c.characterId}
-                          className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 hover:shadow-xs transition-all flex flex-col justify-between gap-2.5"
-                        >
-                          <div className="flex items-start gap-3">
-                            <img
-                              src={avatarUrl}
-                              alt={c.name}
-                              className="w-11 h-11 rounded-full object-cover border border-stone-200 shrink-0 shadow-2xs"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-bold text-stone-900 text-sm truncate">{c.name}</span>
-                                {customTitle && (
-                                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 truncate">
-                                    {customTitle}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-1 mt-1">
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${roleBadgeClass}`}>
-                                  {roleLabel}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {c.personality && (
-                            <div className="bg-stone-50 rounded-lg p-2 border border-stone-100 text-[11px] text-stone-600 italic">
-                              "{c.personality}"
-                            </div>
-                          )}
-
-                          <p className="text-stone-600 text-xs line-clamp-3 leading-relaxed">
-                            {cleanDescription || 'Chưa có tiểu sử chi tiết.'}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {(!charactersQuery.data || charactersQuery.data.length === 0) && (
-                    <div className="py-12 text-center flex flex-col items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-2">
-                        <span className="material-symbols-outlined text-[24px]">person_off</span>
-                      </div>
-                      <p className="text-stone-600 font-semibold text-sm">Chưa có nhân vật nào trong Story Bible</p>
-                      <p className="text-stone-400 text-xs mt-1 max-w-sm">
-                        Thêm nhân vật để AI Copilot ghi nhớ tính cách, lời thoại và xây dựng cốt truyện nhất quán.
-                      </p>
-                      <Link
-                        to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-4 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs shadow-xs inline-flex items-center gap-1.5 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">add</span>
-                        <span>Mở Cẩm nang để thêm nhân vật ↗</span>
-                      </Link>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {storyBibleTab === 'relationships' && (
-                <>
-                  <div className="space-y-2.5">
-                    {relationshipsQuery.data?.map((r: CharacterRelationship) => (
-                      <div key={r.relationshipId} className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 transition-colors">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
-                            <span className="text-primary-700">{r.sourceCharacterName}</span>
-                            <span className="material-symbols-outlined text-[14px] text-stone-400">arrow_forward</span>
-                            <span className="text-stone-800">{r.targetCharacterName}</span>
-                          </span>
-                          <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-semibold">
-                            {r.relationshipType}
-                          </span>
-                        </div>
-                        {r.description && <p className="text-xs text-stone-600 leading-relaxed">{r.description}</p>}
-                      </div>
-                    ))}
-                  </div>
-
-                  {(!relationshipsQuery.data || relationshipsQuery.data.length === 0) && (
-                    <div className="py-12 text-center text-stone-400">
-                      <span className="material-symbols-outlined text-[28px] text-stone-300 block mb-1">hub</span>
-                      <p className="text-xs italic">Chưa có dữ liệu mối quan hệ nhân vật nào.</p>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {storyBibleTab === 'timeline' && (
-                <>
-                  <div className="space-y-2.5">
-                    {timelineQuery.data?.map((ev: StoryTimelineEvent) => (
-                      <div key={ev.eventId} className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 transition-colors">
-                        <div className="flex items-center gap-2 font-bold text-stone-900 mb-1">
-                          <span className="w-5 h-5 rounded-full bg-stone-100 border border-stone-200 text-[10px] flex items-center justify-center text-stone-600 font-mono">
-                            #{ev.eventOrder}
-                          </span>
-                          <span className="text-xs">{ev.title}</span>
-                        </div>
-                        <p className="text-xs text-stone-600 leading-relaxed ml-7">{ev.summary}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {(!timelineQuery.data || timelineQuery.data.length === 0) && (
-                    <div className="py-12 text-center text-stone-400">
-                      <span className="material-symbols-outlined text-[28px] text-stone-300 block mb-1">history_edu</span>
-                      <p className="text-xs italic">Chưa có sự kiện mốc thời gian nào được ghi nhận.</p>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {storyBibleTab === 'summaries' && (
-                <>
-                  <div className="space-y-2.5">
-                    {plotSummariesQuery.data?.map((s: PlotSummary) => (
-                      <div key={s.summaryId} className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 transition-colors">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="material-symbols-outlined text-[16px] text-primary-600">bookmark</span>
-                          <span className="font-bold text-stone-900 text-xs">{s.arcName || 'Tóm tắt phân cảnh'}</span>
-                        </div>
-                        <p className="text-xs text-stone-600 leading-relaxed ml-6">{s.summary}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {(!plotSummariesQuery.data || plotSummariesQuery.data.length === 0) && (
-                    <div className="py-12 text-center text-stone-400">
-                      <span className="material-symbols-outlined text-[28px] text-stone-300 block mb-1">auto_stories</span>
-                      <p className="text-xs italic">Chưa có tóm tắt hồi hay chương nào.</p>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between shrink-0">
-              <div className="text-[11px] text-stone-500 hidden sm:flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px] text-amber-500">lightbulb</span>
-                <span>Dữ liệu Cẩm nang được AI Copilot tự động nạp để tạo gợi ý văn phong nhất quán.</span>
-              </div>
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <Link
-                  to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3.5 py-1.5 rounded-xl border border-stone-300 text-xs text-stone-700 hover:bg-stone-100 font-medium inline-flex items-center gap-1 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[15px]">edit_note</span>
-                  <span>Chỉnh sửa Cẩm nang ↗</span>
-                </Link>
-                <button
-                  onClick={() => setStoryBibleOpen(false)}
-                  className="px-4 py-1.5 rounded-xl bg-primary-600 text-white text-xs font-semibold hover:bg-primary-700 transition-colors shadow-2xs"
-                  type="button"
-                >
-                  Đóng cẩm nang
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <AuthorMemoryPanel key={activeNovelId} novelId={activeNovelId} chapterId={activeChapterId}
+        content={content} opened={storyBibleOpen} onClose={() => setStoryBibleOpen(false)}
+        saved={autosaveStatus === 'saved' && lastSavedSnapshot.current?.content === content} />
 
       {/* ──────────────────────────────────────────
           BEGIN: Publish Confirmation Modal

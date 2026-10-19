@@ -1,0 +1,80 @@
+{
+  "run_id": "2026-10-17-author-01",
+  "updated_at": "2026-10-17T23:09:11.173294+07:00",
+  "status": "BLOCKED",
+  "main_novel_id": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+  "current_chapter_number": 5,
+  "current_chapter_id": "4a19e69b-8098-4706-9aec-dfec63587177",
+  "latest_canonical_revision_id": "f93bb1e2-4da0-4e1b-97b2-8494bbad2853",
+  "latest_content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+  "brain_version": null,
+  "plan_id": "3d04cbef-32dc-4a5e-89da-a1a31a49fa5e",
+  "plan_version": 1,
+  "objective_id": null,
+  "autonomous_run_id": null,
+  "last_generation_id": null,
+  "pending_jobs": [],
+  "pending_accept_idempotency_key": null,
+  "canonical_word_count": 4747,
+  "completed_chapters_by_content_review": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "unresolved_issue_ids": [
+    "P1-001",
+    "P2-001",
+    "P3-001",
+    "OBS-001",
+    "OBS-002",
+    "UI-001"
+  ],
+  "memory_audit": {
+    "completed_audit_ids_by_pipeline": {
+      "P1": [
+        "P1-M0_FAIL",
+        "P1-M-FINAL_EARLY_STOP_ALIAS"
+      ],
+      "P2": [
+        "P2-M0_FAIL",
+        "P2-M-FINAL_EARLY_STOP_ALIAS"
+      ],
+      "P3": [
+        "P3-M0_FAIL",
+        "P3-M-FINAL_EARLY_STOP_ALIAS"
+      ]
+    },
+    "next_due_by_pipeline": {
+      "P1": "M0_RETEST_AFTER_PRODUCT_FIX",
+      "P2": "M0_RETEST_AFTER_PRODUCT_FIX",
+      "P3": "M0_RETEST_AFTER_PRODUCT_FIX"
+    },
+    "pending_audit_ids": [],
+    "unresolved_issue_ids": [
+      "P1-001",
+      "P2-001",
+      "P3-001",
+      "OBS-002"
+    ],
+    "resume_rule": "Finish due memory audit before next generation; read server revisions and analysis status first."
+  },
+  "last_action_log_row": null,
+  "next_action": "Do not generate against failed M0. Fix product separately: extraction output/parse handling, canonical dead-state correction/materialization, confidence normalization. Preserve this run; after fix create new versioned run or explicit pre/post boundary. Verify same server revisions and job terminal state; re-audit M0 before any writing. Do not re-import existing seed or repeat accepted P2 proposals.",
+  "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth.",
+  "budget": {
+    "approved": true,
+    "provider_calls_made": 10,
+    "cost_usd": null,
+    "limits": "UNLIMITED subject to user-reported per-API quota"
+  },
+  "input_seed_words": 4747,
+  "remaining_words_to_target_if_seed_imported": 95253,
+  "p2_probe_novel_id": "38efd972-da60-4c19-a967-5ef8c62e230a",
+  "p3_probe_novel_id": "2bb31f80-4a5c-4eba-a5b9-6d936fd76986",
+  "bootstrap_job_ids": {
+    "P1": "a3218759-98a6-57bd-9d97-944d266ebd6c",
+    "P2": "9edd2bef-027b-5cf2-8b90-11229ef1a3d6",
+    "P3": "89ec650f-4497-58d6-908f-0b5890611945"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "ai_openapi_paths": [
+    "/v1/ai/suggest-next",
+    "/internal/v1/story-brains/{brain_id}/semantic-memory/rebuild",
+    "/suggest-next"
+  ],
+  "idea_schema": {
+    "properties": {
+      "novel_id": {
+        "type": "string",
+        "minLength": 1,
+        "title": "Novel Id"
+      },
+      "idea": {
+        "type": "string",
+        "minLength": 1,
+        "title": "Idea"
+      },
+      "outline": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Outline"
+      },
+      "locale": {
+        "type": "string",
+        "title": "Locale",
+        "default": "vi-VN"
+      },
+      "preferences": {
+        "$ref": "#/components/schemas/IdeaBootstrapPreferences"
+      },
+      "author_constraints": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "title": "Author Constraints"
+      }
+    },
+    "type": "object",
+    "required": [
+      "novel_id",
+      "idea"
+    ],
+    "title": "IdeaBootstrapRequest"
+  },
+  "web_scripts": [
+    "https://cdn.tailwindcss.com?plugins=forms,container-queries",
+    "/assets/index-BVL2JlSe.js"
+  ],
+  "web_repair_markers": {
+    "Bộ nhớ truyện": false,
+    "Trích xuất dữ liệu tiểu thuyết": false,
+    "Gợi ý sự kiện": false,
+    "consistency-check": false,
+    "official-memory": false
+  },
+  "docker": {
+    "error": "TIMEOUT_12_SECONDS"
+  }
+}

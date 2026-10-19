@@ -1,0 +1,23 @@
+{
+  "time": "2026-10-17T22:54:07.915283+07:00",
+  "channel": "PUBLIC_API",
+  "method": "GET",
+  "path": "/auth/me",
+  "request": null,
+  "status": 200,
+  "latency_ms": 0,
+  "response": {
+    "success": true,
+    "data": {
+      "userId": "86c6646a-5c29-478e-89bb-74c7a9326ce0",
+      "email": "reader03@example.com",
+      "username": "reader03",
+      "displayName": "Reader 03 Author",
+      "avatarUrl": null,
+      "role": "AUTHOR",
+      "status": "ACTIVE"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

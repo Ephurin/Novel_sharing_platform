@@ -1,0 +1,19 @@
+{
+  "scope": "AI-service existing runtime logs only; Node copilot smoke logged separately",
+  "provider_http_requests_observed": 9,
+  "requests": [
+    "2026-10-17 15:58:56,034 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent \"HTTP/1.1 200 OK\"",
+    "2026-10-17 15:59:58,809 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent \"HTTP/1.1 200 OK\"",
+    "2026-10-17 16:00:10,291 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent \"HTTP/1.1 200 OK\"",
+    "2026-10-17 16:00:12,656 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent \"HTTP/1.1 200 OK\"",
+    "2026-10-17 16:01:52,484 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent \"HTTP/1.1 200 OK\"",
+    "2026-10-17 16:01:54,625 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent \"HTTP/1.1 200 OK\"",
+    "2026-10-17 16:01:55,660 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent \"HTTP/1.1 200 OK\"",
+    "2026-10-17 16:01:56,862 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent \"HTTP/1.1 200 OK\"",
+    "2026-10-17 16:01:57,969 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent \"HTTP/1.1 200 OK\""
+  ],
+  "tokens": "UNKNOWN",
+  "cost_usd": "UNKNOWN",
+  "call_ids": "NOT_EXPOSED",
+  "remaining_rpd": "UNKNOWN"
+}

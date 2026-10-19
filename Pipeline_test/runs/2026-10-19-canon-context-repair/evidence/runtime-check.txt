@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-19T14:05:42.664384+07:00",
+  "context": {
+    "4000": {
+      "entities": 7,
+      "events": 7,
+      "facts": 8,
+      "estimated_tokens": 3996,
+      "packing_version": "context-budget-v2-diverse"
+    },
+    "8192": {
+      "entities": 16,
+      "events": 15,
+      "facts": 16,
+      "estimated_tokens": 8175,
+      "packing_version": "context-budget-v2-diverse"
+    }
+  },
+  "generation_calls": 0,
+  "novel_writes": 0,
+  "live_ui": "NOT_RUN",
+  "real_provider_reconciliation": "NOT_RUN",
+  "fingerprints": {
+    "ai-service/services/canon_reconciliation.py": "923a0fc4773bd51fd73c0e68291bbb4685f487896de6e6d83ecb201eb9bcccb4",
+    "ai-service/domain/canon_identity.py": "ae3e38a3fb31cfe89ce9af4075e26e361e42d46e217b12159fcc2cc36c814ae1",
+    "ai-service/application/context_budget.py": "1b2d684ee797c0b2755ee82b655ab64212f3800073de0d885f8c573d69437d22",
+    "ai-service/services/prose_facts.py": "ac2414ad19b9a38647fc2b6b68d6b55acb8ecdb447b0790fdaf50991c49ba12e",
+    "ai-service/application/revision_analysis_service.py": "ac8ea0995b891ab6d85710980cab31bd5431f236814164b9b3073ab04c1952ae",
+    "ai-service/core/llm_service.py": "556ae519def5cd1254e26cf324280ab04b9c0e00cd30e3358f61bdca4cc19131",
+    "ai-service/domain/projection.py": "4e157deca93d3dd91c4c42b4f952b309d2d3ef16441ec988eefb404db5b883a8",
+    "ai-service/infrastructure/postgres_narrative_repository.py": "258734c89d4be27c75e0f057460dc2e6874bd5a263a1231c249676f6346c499f",
+    "backend/src/modules/ai/proposal-evidence.service.ts": "160376d894a079cc162a34186c50b951a266a06d7db84098eec29a18e7b28fcd",
+    "backend/src/modules/ai/ai-gateway.controller.ts": "2de177e8d1cd3af5312cf258825e00259456726abdc82e0714dfeb7b79edac1b"
+  },
+  "database": [
+    "BEGIN",
+    "0010_fact_supersession",
+    "independent|accepted|152",
+    "independent|pending|26",
+    "independent|rejected|1",
+    "reader03|accepted|27",
+    "reader03|pending|65",
+    "reader03|rejected|2",
+    "COMMIT"
+  ],
+  "web_asset": "/assets/index-CitlNgpn.js"
+}

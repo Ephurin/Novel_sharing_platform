@@ -84,6 +84,7 @@ class WritingService:
             enforce_token_budget=False,
         )
 
+        package = replace(package, context_summary={**package.context_summary, 'query_text': semantic_query or ''})
         retrieval_result = None
         if self._semantic_retriever is not None and semantic_query and semantic_query.strip():
             retrieval_result = self._semantic_retriever.retrieve(
@@ -723,6 +724,9 @@ class WritingService:
         # 3. Locked world rules violation
         target_lower = target_text.lower()
         for rule in context_package.world_rules:
+            value = rule.get("fact_value")
+            if isinstance(value, dict) and value.get("certainty") in {"reported", "hypothesis", "proposed"}:
+                continue
             rule_text = str(
                 rule.get("fact_value")
                 or rule.get("statement")

@@ -1,0 +1,132 @@
+- banner:
+  - link "arrow_back":
+    - /url: /author/novels/06a979c5-b089-4648-a04e-81383aa7b119
+    - generic: arrow_back
+  - navigation "Breadcrumb":
+    - generic: Thành phố giữ lại tiếng mưa — UI retest 2026-10-18-01
+    - generic: /
+    - generic "Chương 1 — Bến trở về"
+  - button "menu_book":
+    - generic: menu_book
+  - button "fullscreen":
+    - generic: fullscreen
+  - button "auto_awesome":
+    - generic: auto_awesome
+  - button "Xuất bản chương send":
+    - generic: Xuất bản chương
+    - generic: send
+- button "view_sidebar":
+  - generic: view_sidebar
+- generic: DRAFT
+- button "Miễn phí"
+- button "stars Chương VIP ✦":
+  - generic: stars
+  - generic: Chương VIP ✦
+- complementary:
+  - button "Bộ nhớ · Trích xuất · Chờ duyệt"
+  - generic: Mục lục chương
+  - generic: "5"
+  - paragraph: "Truyện: Thành phố giữ lại tiếng mưa — UI retest 2026-10-18-01"
+  - button "first_page":
+    - generic: first_page
+  - generic: search
+  - textbox "Tìm kiếm chương..."
+  - button "add_circle Thêm chương mới":
+    - generic: add_circle
+    - generic: Thêm chương mới
+  - navigation:
+    - generic: CHƯƠNG 1
+    - generic: Bản nháp
+    - paragraph: Chương 1 — Bến trở về
+    - generic: 1,216 từ
+    - generic: Đang mở
+    - generic: CHƯƠNG 2
+    - generic: Bản nháp
+    - paragraph: Chương 2 — Lần đọc thứ nhất
+    - generic: 1,005 từ
+    - generic: CHƯƠNG 3
+    - generic: Bản nháp
+    - paragraph: Chương 3 — Hai nơi treo một quả chuông
+    - generic: 995 từ
+    - generic: CHƯƠNG 4
+    - generic: Bản nháp
+    - paragraph: Chương 4 — Bản đồ không có tiếng nước
+    - generic: 957 từ
+    - generic: CHƯƠNG 5
+    - generic: Bản nháp
+    - paragraph: Chương 5 — Ba tiếng gõ
+    - generic: 574 từ
+- main:
+  - button "text_fields Merriweather expand_more":
+    - generic: text_fields
+    - generic: Merriweather
+    - generic: expand_more
+  - generic "Cỡ chữ":
+    - button "A-"
+    - generic: "17"
+    - button "A+"
+  - button "format_align_justify":
+    - generic: format_align_justify
+  - button "format_align_left":
+    - generic: format_align_left
+  - button "format_align_center":
+    - generic: format_align_center
+  - button "format_align_right":
+    - generic: format_align_right
+  - button "format_line_spacing 2.15x expand_more":
+    - generic: format_line_spacing
+    - generic: 2.15x
+    - generic: expand_more
+  - button "format_indent_increase":
+    - generic: format_indent_increase
+  - button "format_bold":
+    - generic: format_bold
+  - button "format_italic":
+    - generic: format_italic
+  - button "format_underlined":
+    - generic: format_underlined
+  - button "strikethrough_s":
+    - generic: strikethrough_s
+  - button "“”"
+  - button "—"
+  - button "✦ ✦ ✦"
+  - article:
+    - textbox "Đặt tiêu đề chương tại đây...": Chương 1 — Bến trở về
+    - generic: "Đã lưu: 22:33"
+    - generic: •
+    - generic: Thành phố giữ lại tiếng mưa — UI retest 2026-10-18-01
+    - generic: •
+    - generic: Chương số 1
+    - textbox "Bắt đầu câu từ chương truyện của bạn tại đây...": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà. Mười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến. Một người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu. “Đừng kéo. Bến này phải bế đồ qua.” Linh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác. Trên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng. Một cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau. “Chị Mai Linh? Cháu bà Yên?” “Con bà Yên.” “Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.” Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá. “Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.” “Mẹ tôi nhờ em?” “Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.” Linh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc. Thuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô. An chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới. “Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.” Linh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ. Kho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô. “Tôi tưởng cô sẽ mang máy.” “Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.” “Nó hoạt động theo cách riêng.” Ông tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại. Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm. Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn. “Vì sao đợi đến bây giờ?” Ông Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào. “Vì đến bây giờ mới có tiền.” Cô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn. “Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.” Linh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04. “Đã đọc chưa?” “Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.” Ở góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng. Ngày trước khi Bãi Dưới ngập. Ngoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không. Ông Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác. Linh nhìn mười hai ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại. “Cho tôi xem hồ sơ trạm Bốn trước,” cô nói. Ông Hòa lấy chìa khóa. Đến cửa, ông quay lại. “Cô có cần tôi gọi cho mẹ cô không?” Linh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra. Tin nhắn viết: Cá nguội thì hấp lại được. Cô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiết."
+- button "auto_awesome Trợ lý AI":
+  - generic: auto_awesome
+  - generic: Trợ lý AI
+- dialog "Bộ nhớ và định hướng tiểu thuyết":
+  - banner:
+    - heading "Bộ nhớ và định hướng tiểu thuyết" [level=2]
+    - button:
+  - paragraph: Bộ nhớ chính thức v2 · importing. Đề xuất chưa duyệt chưa được dùng làm sự thật.
+  - tablist:
+    - tab "Chờ duyệt (65)":
+      - generic: Chờ duyệt (65)
+    - tab "Nhân vật" [active] [selected]:
+      - generic: Nhân vật
+    - tab "Địa danh":
+      - generic: Địa danh
+    - tab "Vật phẩm":
+      - generic: Vật phẩm
+    - tab "Sự kiện":
+      - generic: Sự kiện
+    - tab "Trích xuất":
+      - generic: Trích xuất
+    - tab "Định hướng":
+      - generic: Định hướng
+    - tab "Full auto":
+      - generic: Full auto
+  - tabpanel "Nhân vật":
+    - paragraph: Linh
+    - paragraph: Unknown · Unknown
+    - paragraph: Duy
+    - paragraph: Unknown · Unknown
+    - paragraph: Ông Hòa
+    - paragraph: Unknown · Unknown

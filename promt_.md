@@ -1,0 +1,9 @@
+Kiểm thử lại AI-copilot sau sửa theo hành trình của một tác giả thật.
+Đọc Pipeline_test/WORKFLOW_CONTRACT.md, SHORT_LOOP_TEST.md, AGENT_GUIDE.md và runs/2026-10-18-workflow-repair/REPORT.md trước khi chạy. Tạo thư mục run mới trong Pipeline_test/runs/, giữ nguyên evidence cũ.
+1. Kiểm tra stack đã chạy code mới, migrations đầy đủ và provider thật được phép nhận dữ liệu test. Kiểm tra integrity fixture. Thiếu điều kiện nào ghi BLOCKED cụ thể.
+2. Chạy đủ S01–S11 trong SHORT_LOOP_TEST.md qua UI: nhập bản thảo → chủ động trích xuất → review/duyệt baseline → kiểm tra memory → gợi ý/chỉnh kế hoạch → viết/lưu → tự trích xuất → duyệt → kiểm tra nhất quán → reload và tiếp tục.
+3. Nếu P1 đạt, chạy P2 từ ý tưởng thô và P3 full auto có/không có kế hoạch. Kiểm tra dừng/tiếp tục, lỗi extraction, chống viết trùng và không tự xuất bản.
+4. Audit narrative memory theo NARRATIVE_MEMORY_AUDIT.md: kiểm tra riêng đầu ra LLM, proposals, memory đã duyệt và context AI thực sự sử dụng. Ý tưởng thô chỉ trích xuất nhân vật/địa danh được nêu; event tương lai không trở thành lịch sử. Chế độ thường phải chờ tác giả duyệt.
+5. Chỉ khi các vòng ngắn đạt mới chạy bài dài theo TASK.md và EVALUATION.md. Đầu ra là tiểu thuyết hoàn chỉnh 95.000–105.000 từ đọc lại từ sản phẩm, không dùng tóm tắt/lặp văn để bù. Audit memory sau import, mỗi 10 chương, sâu tại 20/50 và cuối run; không đến mốc nào thì ghi rõ chưa có coverage.
+Dùng UI cho mọi thao tác tác giả; API chỉ đọc để kiểm chứng. Không sửa DB, gọi API ghi hoặc sửa code để vượt lỗi rồi báo UI PASS. Không xuất bản. Nếu bị chặn, giữ bằng chứng và báo đúng bước.
+Lưu cấu hình phiên bản, nhật ký thao tác, ảnh UI, IDs/revisions, word count, audit memory và mọi vấn đề vào thư mục run; không lưu secrets. Báo cáo tách PASS/FAIL/BLOCKED/NOT_RUN cho P1/P2/P3, chất lượng văn học và mức can thiệp. Hoàn thành 100k có hỗ trợ không được coi là bằng chứng full auto đạt 100k.

@@ -1,0 +1,86 @@
+{
+  "time": "2026-10-17T23:02:10.324832+07:00",
+  "channel": "PUBLIC_API",
+  "method": "GET",
+  "path": "/ai/jobs/89ec650f-4497-58d6-908f-0b5890611945",
+  "request": null,
+  "status": 200,
+  "latency_ms": 0,
+  "response": {
+    "success": true,
+    "data": {
+      "job_id": "89ec650f-4497-58d6-908f-0b5890611945",
+      "novel_id": "2bb31f80-4a5c-4eba-a5b9-6d936fd76986",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "revisions": [
+        {
+          "chapter_id": "2ee6ca0c-14e7-4f95-874f-6a2b2116e22b",
+          "revision_id": "a43127d5-bd44-4bd9-8cb8-78e96396cc74",
+          "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+          "status": "pending",
+          "proposal_count": 0,
+          "analysis_run_id": null,
+          "chapter_number": null
+        },
+        {
+          "chapter_id": "7e577df8-cac0-4103-92b3-7866b4be020f",
+          "revision_id": "e9590c4a-e284-4e57-8c1a-266736e419b4",
+          "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+          "status": "pending",
+          "proposal_count": 0,
+          "analysis_run_id": null,
+          "chapter_number": null
+        },
+        {
+          "chapter_id": "b40acced-a790-4ad0-acab-1ac24d0dcec1",
+          "revision_id": "a6ad9cf5-4a38-4dc9-8c60-d2eed8af1435",
+          "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+          "status": "pending",
+          "proposal_count": 0,
+          "analysis_run_id": null,
+          "chapter_number": null
+        },
+        {
+          "chapter_id": "829084d6-d777-444c-b833-f3c428b01c08",
+          "revision_id": "e8082cab-5fd4-4b5c-8f8e-b1ac60b00e11",
+          "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+          "status": "pending",
+          "proposal_count": 0,
+          "analysis_run_id": null,
+          "chapter_number": null
+        },
+        {
+          "chapter_id": "02e0e337-6ea6-4f9b-a7f0-88177f3c2f73",
+          "revision_id": "2685f5ee-7b8c-4c31-bdc0-4319fb0d837f",
+          "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+          "status": "pending",
+          "proposal_count": 0,
+          "analysis_run_id": null,
+          "chapter_number": null
+        }
+      ],
+      "locale": "vi-VN",
+      "options": {
+        "build_embeddings": false,
+        "extract_world_rules": true,
+        "require_review_for_all": true
+      },
+      "status": "failed",
+      "progress_current": 0,
+      "stage": "failed",
+      "result": null,
+      "error": {
+        "message": "(raised as a result of Query-invoked autoflush; consider using a session.no_autoflush block if this flush is occurring prematurely)\n(psycopg.errors.NumericValueOutOfRange) numeric field overflow\nDETAIL:  A field with precision 5, scale 4 must round to an absolute value less than 10^1.\n[SQL: INSERT INTO narrative.proposals (id, analysis_run_id, story_brain_id, tenant_id, novel_id, dependency_group_id, materialization_order, proposal_type, payload, evidence, confidence, status, expected_brain_version, decision_reason) VALUES (%(id)s::UUID, %(analysis_run_id)s::UUID, %(story_brain_id)s::UUID, %(tenant_id)s::UUID, %(novel_id)s::UUID, %(dependency_group_id)s::UUID, %(materialization_order)s::INTEGER, %(proposal_type)s::VARCHAR, %(payload)s::JSONB, %(evidence)s::JSONB, %(confidence)s, %(status)s::VARCHAR, %(expected_brain_version)s::BIGINT, %(decision_reason)s::VARCHAR) RETURNING narrative.proposals.created_at, narrative.proposals.updated_at]\n[parameters: {'id': UUID('b0ae9ab0-176a-59a0-9969-78f78b0eee46'), 'analysis_run_id': UUID('484e25f2-37e6-41b1-a12c-e9e26582647f'), 'story_brain_id': UUID('1a799290-c5e2-4cf1-84d9-93fdf3d9ffea'), 'tenant_id': UUID('00000000-0000-0000-0000-000000000001'), 'novel_id': UUID('2bb31f80-4a5c-4eba-a5b9-6d936fd76986'), 'dependency_group_id': UUID('a0fc1297-0b85-59f8-bdc4-9a9a543dc116'), 'materialization_order': 0, 'proposal_type': 'entity', 'payload': Jsonb({'canonical_name': 'Mai Linh', 'nor ... (83 chars)), 'evidence': Jsonb([{'revision_id': 'a43127d5-bd44-4bd ... (162 chars)), 'confidence': Decimal('10.0'), 'status': 'pending', 'expected_brain_version': 1, 'decision_reason': None}]\n(Background on this error at: https://sqlalche.me/e/21/9h9h)"
+      },
+      "type": "bootstrap",
+      "progress": {
+        "current": 0,
+        "total": 5,
+        "unit": "chapter",
+        "stage": "failed"
+      }
+    },
+    "error": null,
+    "meta": {}
+  }
+}

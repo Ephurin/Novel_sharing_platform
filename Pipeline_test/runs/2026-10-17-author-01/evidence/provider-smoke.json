@@ -1,0 +1,29 @@
+{
+  "time": "2026-10-17T22:58:44.725209+07:00",
+  "channel": "PUBLIC_API",
+  "method": "POST",
+  "path": "/ai/copilot/suggestions",
+  "request": {
+    "novelId": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+    "chapterId": "4a19e69b-8098-4706-9aec-dfec63587177",
+    "instruction": "Đề xuất ngắn một cách khảo sát an toàn nguồn tiếng gõ tại cửa trạm Bốn. Không tiết lộ bí mật tương lai. Đây là smoke provider, chưa áp dụng vào bản thảo.",
+    "recentText": "Linh và Duy quan sát từ sàn trên. Mực nước trong khe cửa đang lên."
+  },
+  "status": 200,
+  "latency_ms": 3015,
+  "response": {
+    "success": true,
+    "data": {
+      "suggestion": "Dưới đây là một số đề xuất ngắn gọn cho cách khảo sát an toàn nguồn tiếng gõ tại cửa trạm Bốn, bám sát tình huống mực nước đang dâng cao mà không làm lộ bí mật tương lai:\n\n1. **Khảo sát từ trên cao:** Dùng thiết bị quan sát gắn camera mini hoặc ống nhòm từ sàn trên để kiểm tra khu vực cửa mà không cần trực tiếp bước xuống dòng nước đang dâng.\n2. **Thăm dò bằng vật cản dài:** Dùng một sào dài hoặc gậy đo mực nước khua nhẹ xung quanh vị trí phát ra tiếng gõ để kiểm tra vật thể mà không đặt tay chân vào vùng nguy hiểm.\n3. **Quan sát phản ứng dòng chảy:** Theo dõi chuyển động của nước xung quanh khe cửa (xoáy nước, bong bóng, vật nổi) để suy đoán xem tiếng gõ do áp lực nước, dị vật trôi dạt hay một tác động cơ học nào khác gây ra trước khi tiếp cận.",
+      "context": {
+        "characters": [],
+        "recentTimelineEvents": [],
+        "recentText": "Linh và Duy quan sát từ sàn trên. Mực nước trong khe cửa đang lên.",
+        "recentTextWordLimit": 500,
+        "provider": "openai-compatible-ngrok"
+      }
+    },
+    "error": null,
+    "meta": {}
+  }
+}

@@ -20,6 +20,8 @@ class ExtractedEntity(StrictOutputModel):
     phrase: str = Field(min_length=1)
     entity: EntityType
     score: float = Field(ge=0.0, le=10.0)
+    initial_status: Literal["Alive", "Dead", "Unknown"] = "Unknown"
+    status_quote: str = ""
 
 
 class EntityExtractionOutput(StrictOutputModel):
@@ -28,6 +30,7 @@ class EntityExtractionOutput(StrictOutputModel):
 
 
 class NarrativeEventOutput(StrictOutputModel):
+    evidence_quote: str = ""
     participants: list[str] = Field(default_factory=list)
     locations: list[str] = Field(default_factory=list)
     event_type: str = Field(min_length=1)

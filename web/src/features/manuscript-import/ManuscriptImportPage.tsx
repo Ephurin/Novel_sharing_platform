@@ -10,6 +10,7 @@ import {
   getReviewQueue,
   getStoryBrainSummary,
   rejectProposal,
+  resumeBootstrapJob,
   startManuscriptBootstrap,
   parseManuscriptChapters,
   normalizeManuscriptText,
@@ -1280,6 +1281,24 @@ export function ManuscriptImportPage() {
                     <div className="p-2.5 rounded-lg bg-rose-50 text-rose-700 text-xs border border-rose-200">
                       {job.error.message}
                     </div>
+                  )}
+                  {job.status === 'failed' && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await resumeBootstrapJob(job.job_id);
+                          await jobQuery.refetch();
+                          showToast('Đang tiếp tục trích xuất Story Brain...');
+                        } catch (err: any) {
+                          showToast('Lỗi tiếp tục trích xuất: ' + (err?.message || 'Thất bại'));
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer self-start"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">refresh</span>
+                      <span>Tiếp tục trích xuất từ chương chưa xong</span>
+                    </button>
                   )}
                 </div>
               )}

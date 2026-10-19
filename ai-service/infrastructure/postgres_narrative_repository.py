@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from domain.confidence import validate_confidence
+
 import hashlib
 import json
 import logging
@@ -140,6 +142,9 @@ class PostgresNarrativeRepository:
                         "fact_key": item.fact_key,
                         "fact_value": item.fact_value,
                         "is_locked": item.is_locked,
+                        "chapter_number": item.chapter_number, "source_revision_id": str(item.source_revision_id) if item.source_revision_id else None,
+                        "source_start": item.source_start, "source_end": item.source_end,
+                        "supersedes_id": str(item.supersedes_id) if item.supersedes_id else None, "is_retired": item.is_retired,
                     }
                     for item in facts
                 ),
@@ -344,6 +349,8 @@ class PostgresNarrativeRepository:
     def save_proposals(
         self, story_id: str, proposals: list[NarrativeProposal]
     ) -> list[NarrativeProposal]:
+        for proposal in proposals:
+            validate_confidence(proposal.confidence)
         if not proposals:
             return []
         novel_id = self._novel_id(story_id)
@@ -504,17 +511,28 @@ class PostgresNarrativeRepository:
             groups = {item.dependency_group_id for item in proposals}
             if len(proposals) > 1 and len(groups) != 1:
                 raise ValueError("All proposals must belong to the same dependency group")
-            if any(item.expected_brain_version != expected_brain_version for item in proposals):
+            if any(item.expected_brain_version > expected_brain_version for item in proposals):
                 raise OptimisticLockError(story_id)
 
             artifact_ids: list[str] = []
+            from domain.canon_identity import validate_reconciliation_base
+            _, base_facts, base_events, _ = self._projection_inputs(session, novel_id)
+            validate_reconciliation_base([self._to_proposal(p) for p in proposals], base_events, base_facts)
             for proposal in proposals:
                 external_id = next(
                     item for item in proposal_ids if self._stable_uuid("proposal", item) == proposal.id
                 )
-                payload = edited_payloads.get(external_id, proposal.payload)
+                payload = dict(edited_payloads.get(external_id, proposal.payload))
                 validate_payload(proposal.proposal_type, payload)
-                if proposal.proposal_type == "entity":
+                if payload.get('reuse_artifact_id') or (proposal.proposal_type == 'fact' and payload.get('supersedes_id')):
+                    from domain.canon_identity import validate_canon_reference
+                    _, current_facts, current_events, _ = self._projection_inputs(session, novel_id)
+                    validate_canon_reference(proposal.proposal_type, payload, proposal.evidence, current_events, current_facts)
+                if payload.get('reuse_artifact_id'):
+                    if external_id in edited_payloads and payload != proposal.payload:
+                        raise ProjectionError('A reused artifact cannot be edited; request a new source analysis')
+                    artifact_ids.append(payload['reuse_artifact_id'])
+                elif proposal.proposal_type == "entity":
                     normalized = str(payload["normalized_name"]).casefold()
                     entity = session.scalar(
                         select(EntityRecord).where(
@@ -532,7 +550,7 @@ class PostgresNarrativeRepository:
                             entity_type=str(payload["entity_type"]),
                             canonical_name=str(payload["canonical_name"]),
                             normalized_name=normalized,
-                            static_attributes={"mentions": 1, "status": "Alive", "location": "Unknown"},
+                            static_attributes={"mentions": 1, "status": str(payload.get("initial_status", "Unknown")), "location": "Unknown"},
                             source_type="AI",
                             confirmation_status="confirmed",
                             confidence=proposal.confidence,
@@ -541,6 +559,13 @@ class PostgresNarrativeRepository:
                         session.flush()
                     artifact_ids.append(str(entity.id))
                 elif proposal.proposal_type == "event":
+                    if payload.get('supersedes_id'):
+                        _, _, history_events, _ = self._projection_inputs(session, novel_id)
+                        from domain.canon_identity import active_events
+                        target = next((e for e in active_events(history_events) if e.event_id == payload['supersedes_id']), None)
+                        if not target:
+                            raise ProjectionError('Correction target is no longer active')
+                        payload['original_narrative_order'] = target.metadata.get('original_narrative_order') or target.metadata.get('narrative_order')
                     event_uuid = self._stable_uuid("event", str(payload.get("event_id") or external_id))
                     if session.scalar(select(EventRecord.id).where(EventRecord.id == event_uuid, *self._scope(EventRecord, novel_id))):
                         raise ProjectionError("Historical event IDs are immutable and unique")
@@ -634,6 +659,9 @@ class PostgresNarrativeRepository:
                         )
                         if prov:
                             fact_ch = prov.chapter_number
+                    if payload.get("subject_entity_name") and not payload.get("subject_entity_id"):
+                        entities, _, _, _ = self._projection_inputs(session, novel_id)
+                        payload["subject_entity_id"] = resolve_entity(payload["subject_entity_name"], entities)
                     fact = FactRecord(
                         story_brain_id=brain.id,
                         tenant_id=self._tenant_id,
@@ -646,6 +674,8 @@ class PostgresNarrativeRepository:
                         fact_type=str(payload.get("fact_type", "world_rule")),
                         fact_key=str(payload["fact_key"]),
                         fact_value=payload["fact_value"],
+                        supersedes_id=uuid.UUID(payload['supersedes_id']) if payload.get('supersedes_id') else None,
+                        is_retired=bool(payload.get('is_retired', False)),
                         chapter_number=fact_ch,
                         source_type="AI",
                         confirmation_status="confirmed",
@@ -658,8 +688,16 @@ class PostgresNarrativeRepository:
                     )
                     session.add(fact)
                     session.flush()
+                    if fact.subject_entity_id and fact.fact_key == 'status':
+                        subject = session.scalar(select(EntityRecord).where(EntityRecord.id == fact.subject_entity_id,
+                            *self._scope(EntityRecord, novel_id)))
+                        if subject and subject.is_locked:
+                            raise ProjectionError('Cannot change an author-locked entity status')
+                        if subject:
+                            subject.static_attributes = {**(subject.static_attributes or {}), 'status': 'Unknown'}
+                            session.flush()
                     artifact_ids.append(str(fact.id))
-                    if fact.subject_entity_id:
+                    if fact.subject_entity_id and not fact.is_retired:
                         entities, facts, events, transitions = self._projection_inputs(session, novel_id)
                         transition = transition_from_payload(
                             str(uuid.uuid5(uuid.NAMESPACE_URL, f"initial:{fact.id}")),
@@ -758,7 +796,9 @@ class PostgresNarrativeRepository:
         entities = [self._to_entity(e) for e in session.scalars(
             select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
         facts = [{"fact_id": str(f.id), "subject_entity_id": str(f.subject_entity_id) if f.subject_entity_id else None,
-                  "fact_key": f.fact_key, "fact_value": f.fact_value, "is_locked": f.is_locked}
+                  "fact_key": f.fact_key, "fact_value": f.fact_value, "is_locked": f.is_locked,
+                  "chapter_number": f.chapter_number, "supersedes_id": str(f.supersedes_id) if f.supersedes_id else None,
+                  "is_retired": f.is_retired}
                  for f in session.scalars(select(FactRecord).where(*self._scope(FactRecord, novel_id))).all()]
         events = [self._to_event(e) for e in session.scalars(select(EventRecord).where(
             *self._scope(EventRecord, novel_id)).order_by(EventRecord.narrative_order)).all()]
@@ -805,9 +845,13 @@ class PostgresNarrativeRepository:
         relationships = []
         for record in records:
             for target, relation in record.state.get("active_relationships", {}).items():
-                relationships.append({"subject_entity_id": str(record.entity_id),
-                    "object_entity_id": resolve_entity(target, entities), "relation": relation,
-                    **record.provenance["active_relationships"]})
+                try:
+                    target_id = resolve_entity(target, entities)
+                    relationships.append({"subject_entity_id": str(record.entity_id),
+                        "object_entity_id": target_id, "relation": relation,
+                        **record.provenance["active_relationships"]})
+                except ProjectionError:
+                    continue
         relationships.sort(key=lambda r: (r["subject_entity_id"], r["object_entity_id"], r["relation"]))
         return {"entities": {str(r.entity_id): r.state for r in records},
                 "provenance": {str(r.entity_id): r.provenance for r in records},
@@ -1342,7 +1386,7 @@ class PostgresNarrativeRepository:
             participants=tuple(record.participants),
             summary=record.summary,
             chapter=record.chapter_number,
-            metadata=dict(record.event_metadata),
+            metadata={**dict(record.event_metadata), 'narrative_order': (record.event_metadata or {}).get('original_narrative_order') or record.narrative_order},
         )
 
     @staticmethod
@@ -1351,7 +1395,7 @@ class PostgresNarrativeRepository:
             proposal_id=str(record.id),
             proposal_type=record.proposal_type,
             payload=dict(record.payload),
-            analysis_run_id=str(record.analysis_run_id),
+            analysis_run_id=str(record.analysis_run_id) if record.analysis_run_id else None,
             dependency_group_id=str(record.dependency_group_id),
             materialization_order=record.materialization_order,
             evidence=tuple(record.evidence),
@@ -1632,7 +1676,9 @@ class PostgresNarrativeRepository:
                         return False
                 return True
 
-            facts = [f for f in raw_facts if _is_fact_allowed(f)]
+            allowed_facts = [f for f in raw_facts if _is_fact_allowed(f)]
+            superseded_fact_ids = {f.supersedes_id for f in allowed_facts if f.supersedes_id}
+            facts = [f for f in allowed_facts if f.id not in superseded_fact_ids and not f.is_retired]
 
             # 1. Confirmed Events with temporal cutoff and supersede resolution
             event_stmt = select(EventRecord).where(
@@ -1655,7 +1701,9 @@ class PostgresNarrativeRepository:
                     replacements[str(target)] = ev_id_str
                 by_id[ev_id_str] = ev
 
-            active_events = [ev for ev in candidate_events if str(ev.id) not in replacements]
+            from domain.canon_identity import active_events as current_events
+            active_ids = [e.event_id for e in current_events([self._to_event(ev) for ev in candidate_events])]
+            active_events = [by_id[identifier] for identifier in active_ids]
             events_for_output = active_events[-limit_recent_events:]
 
             # Routing-only canonical identity for the newest five recent events.
@@ -1723,6 +1771,8 @@ class PostgresNarrativeRepository:
                     for f in facts
                 ]
                 proj_events = [self._to_event(e) for e in active_events]
+                from dataclasses import replace
+                proj_events = [replace(e, metadata={k: v for k, v in e.metadata.items() if k != 'supersedes_id'}) for e in proj_events]
                 proj_trans = [
                     {
                         "transition_id": str(t.id),
@@ -1758,13 +1808,15 @@ class PostgresNarrativeRepository:
                 f_dict = {
                     "id": str(f.id),
                     "fact_type": f.fact_type,
+                    "subject_entity_id": str(f.subject_entity_id) if f.subject_entity_id else None,
+                    "subject_name": next((e.canonical_name for e in entities if e.id == f.subject_entity_id), ''),
                     "fact_key": f.fact_key,
                     "fact_value": f.fact_value,
                     "is_locked": f.is_locked,
                 }
                 if f.is_locked:
                     locked_rules.append(f_dict)
-                elif f.fact_type in ("world_rule", "character_trait"):
+                elif f.fact_type in ("world_rule", "character_trait", "narrative_fact", "author_fact"):
                     other_rules.append(f_dict)
 
             # 4. Phase 6 compatibility budget. P7-05 production disables
@@ -1817,7 +1869,7 @@ class PostgresNarrativeRepository:
                 return [
                     {
                         "event_id": str(event.id),
-                        "narrative_order": event.narrative_order,
+                        "narrative_order": (event.event_metadata or {}).get('original_narrative_order') or event.narrative_order,
                         "chapter_number": event.chapter_number,
                         "event_type": event.event_type,
                         "summary": event.summary,
@@ -1901,7 +1953,7 @@ class PostgresNarrativeRepository:
                 "entity_ids": [e["entity_id"] for e in entities_out],
                 "event_ids": [ev["event_id"] for ev in events_out],
                 "fact_ids": [r["id"] for r in rules_out],
-                "cutoff_chapter": chapter_number,
+                "cutoff_chapter": chapter_number, "requested_character": character_name,
                 "recent_scope_participant_entity_ids": recent_scope_participant_entity_ids,
                 "recent_scope_participant_identity": [
                     "normalized-event-participants-v1"

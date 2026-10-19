@@ -56,6 +56,7 @@ class Settings:
     semantic_retrieval_limit: int
     context_routing_policy: str = "legacy-v1"
     service_auth_disabled: bool = False
+    llm_structured_max_tokens: int = 8192
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -123,6 +124,7 @@ class Settings:
             llm_model=(os.getenv("LLM_MODEL", default_model) or default_model).strip(),
             llm_base_url=configured_base_url,
             llm_timeout_seconds=_env_int("LLM_TIMEOUT_SECONDS", 30),
+            llm_structured_max_tokens=_env_int("LLM_STRUCTURED_MAX_TOKENS", 8192),
             database_url=database_url,
             narrative_repository=repository,
             json_repository_mode=json_repository_mode,

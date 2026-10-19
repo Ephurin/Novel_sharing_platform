@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from domain.confidence import validate_confidence
+
 from dataclasses import asdict, replace
 from typing import Any
 import uuid
@@ -162,6 +164,8 @@ class InMemoryNarrativeRepository:
     def save_proposals(
         self, story_id: str, proposals: list[NarrativeProposal]
     ) -> list[NarrativeProposal]:
+        for proposal in proposals:
+            validate_confidence(proposal.confidence)
         brain = self.get_story_brain(story_id)
         saved = {item.proposal_id: item for item in brain.proposals}
         saved.update({item.proposal_id: item for item in proposals})
@@ -226,12 +230,21 @@ class InMemoryNarrativeRepository:
         events = list(brain.events)
         facts = list(brain.facts)
         transitions = list(brain.transitions)
+        from domain.canon_identity import validate_reconciliation_base
+        validate_reconciliation_base(selected, events, facts)
         artifact_ids: list[str] = []
         edited_payloads = edited_payloads or {}
         for proposal in sorted(selected, key=lambda item: item.materialization_order):
-            payload = edited_payloads.get(proposal.proposal_id, proposal.payload)
+            payload = dict(edited_payloads.get(proposal.proposal_id, proposal.payload))
             validate_payload(proposal.proposal_type, payload)
-            if proposal.proposal_type == "entity":
+            if payload.get('reuse_artifact_id') or (proposal.proposal_type == 'fact' and payload.get('supersedes_id')):
+                from domain.canon_identity import validate_canon_reference
+                validate_canon_reference(proposal.proposal_type, payload, proposal.evidence, events, facts)
+            if payload.get('reuse_artifact_id'):
+                if proposal.proposal_id in edited_payloads and payload != proposal.payload:
+                    raise ProjectionError('A reused artifact cannot be edited; request a new source analysis')
+                artifact_ids.append(payload['reuse_artifact_id'])
+            elif proposal.proposal_type == "entity":
                 normalized = str(payload["normalized_name"]).casefold()
                 existing = next(
                     (item for item in entities if item.name.casefold() == normalized), None
@@ -243,10 +256,17 @@ class InMemoryNarrativeRepository:
                         name=str(payload["canonical_name"]),
                         entity_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:{normalized}")),
                         entity_type=str(payload["entity_type"]),
+                        status=str(payload.get("initial_status", "Unknown")),
                     )
                     entities.append(existing)
                 artifact_ids.append(str(existing.entity_id))
             elif proposal.proposal_type == "event":
+                if payload.get('supersedes_id'):
+                    from domain.canon_identity import active_events
+                    target = next((e for e in active_events(events) if e.event_id == payload['supersedes_id']), None)
+                    if not target:
+                        raise ProjectionError('Correction target is no longer active')
+                    payload['original_narrative_order'] = target.metadata.get('original_narrative_order') or target.metadata.get('narrative_order') or (events.index(target) + 1) * 1024
                 event_id = str(payload.get("event_id") or proposal.proposal_id)
                 for participant in payload.get("participants", []):
                     resolve_entity(participant, entities)
@@ -293,6 +313,8 @@ class InMemoryNarrativeRepository:
                 )
                 artifact_ids.append(alias_id)
             elif proposal.proposal_type == "fact":
+                if payload.get("subject_entity_name") and not payload.get("subject_entity_id"):
+                    payload["subject_entity_id"] = resolve_entity(payload["subject_entity_name"], list(entities))
                 fact_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"fact:{proposal.proposal_id}"))
                 evidence = proposal.evidence[0] if proposal.evidence else {}
                 rev_id = evidence.get("revision_id")
@@ -304,10 +326,18 @@ class InMemoryNarrativeRepository:
                     **payload,
                     "chapter_number": fact_ch,
                     "source_revision_id": rev_id,
+                    "evidence": list(proposal.evidence),
                     "is_locked": False,
                 })
+                if payload.get('subject_entity_id') and payload.get('fact_key') == 'status':
+                    subject = next(e for e in entities if e.entity_id == payload['subject_entity_id'])
+                    if subject.is_locked:
+                        raise ProjectionError('Cannot change an author-locked entity status')
+                    # Once status has explicit fact provenance, never fall back to an
+                    # obsolete entity default if that fact is later retired.
+                    entities = [replace(e, status='Unknown') if e.entity_id == subject.entity_id else e for e in entities]
                 artifact_ids.append(fact_id)
-                if payload.get("subject_entity_id"):
+                if payload.get("subject_entity_id") and not payload.get('is_retired'):
                     transitions.append(transition_from_payload(
                         str(uuid.uuid5(uuid.NAMESPACE_URL, f"initial:{fact_id}")),
                         {"entity_id": payload["subject_entity_id"], "fact_id": fact_id,
@@ -655,10 +685,8 @@ class InMemoryNarrativeRepository:
                 continue
             candidate_events.append(ev)
 
-        candidate_events = sorted(
-            candidate_events,
-            key=lambda x: (getattr(x, "narrative_order", 0) or getattr(x, "chapter", 0) or 0, getattr(x, "event_id", "")),
-        )
+        # The append-only list records original narrative order. Resolve corrections
+        # at their original positions instead of sorting random UUIDs within a chapter.
 
         by_id = {}
         replacements = {}
@@ -669,7 +697,8 @@ class InMemoryNarrativeRepository:
                 replacements[str(target)] = str(ev.event_id)
             by_id[str(ev.event_id)] = ev
 
-        active_events = [ev for ev in candidate_events if str(ev.event_id) not in replacements]
+        from domain.canon_identity import active_events as current_events
+        active_events = current_events(candidate_events)
         events_for_output = active_events[-limit_recent_events:]
 
         def _is_fact_allowed(fact: dict[str, Any]) -> bool:
@@ -684,7 +713,8 @@ class InMemoryNarrativeRepository:
                 return False
             return True
 
-        active_facts = [f for f in brain.facts if _is_fact_allowed(f)]
+        from domain.canon_identity import active_facts as current_facts
+        active_facts = current_facts([f for f in brain.facts if _is_fact_allowed(f)])
 
         # 2. Entity State Resolution (as-of chapter cutoff if chapter_number specified)
         as_of_states: dict[str, dict[str, Any]] = {}
@@ -697,7 +727,8 @@ class InMemoryNarrativeRepository:
                 or (t.get("event_id") and str(t.get("event_id")) in active_event_ids)
             ]
             try:
-                proj = project(brain.entities, active_facts, active_events, active_transitions)
+                proj = project(brain.entities, active_facts,
+                    [replace(e, metadata={k: v for k, v in e.metadata.items() if k != 'supersedes_id'}) for e in active_events], active_transitions)
                 as_of_states = proj.get("entities", {})
             except Exception:
                 as_of_states = {}
@@ -712,13 +743,15 @@ class InMemoryNarrativeRepository:
             f_dict = {
                 "id": f_id,
                 "fact_type": f_type,
+                "subject_entity_id": fact.get('subject_entity_id'),
+                "subject_name": next((e.name for e in brain.entities if e.entity_id == fact.get('subject_entity_id')), fact.get('subject_name', '')),
                 "fact_key": fact.get("fact_key", ""),
                 "fact_value": fact.get("fact_value", fact.get("statement", "")),
                 "is_locked": f_locked,
             }
             if f_locked:
                 locked_rules.append(f_dict)
-            elif f_type in ("world_rule", "character_trait"):
+            elif f_type in ("world_rule", "character_trait", "narrative_fact", "author_fact"):
                 other_rules.append(f_dict)
 
         # 4. Phase 6 compatibility budget. P7-05 production calls this
@@ -777,7 +810,7 @@ class InMemoryNarrativeRepository:
             return [
                 {
                     "event_id": str(ev.event_id),
-                    "narrative_order": getattr(ev, "narrative_order", 0)
+                    "narrative_order": ev.metadata.get('original_narrative_order') or getattr(ev, "narrative_order", 0)
                     or getattr(ev, "chapter", 1),
                     "chapter_number": getattr(ev, "chapter", 1)
                     or getattr(ev, "chapter_number", 1)
@@ -863,7 +896,7 @@ class InMemoryNarrativeRepository:
             "entity_ids": [str(e["entity_id"]) for e in entities_out],
             "event_ids": [str(e["event_id"]) for e in events_out],
             "fact_ids": [str(f.get("id") or f.get("fact_id", i)) for i, f in enumerate(rules_out)],
-            "cutoff_chapter": chapter_number,
+            "cutoff_chapter": chapter_number, "requested_character": character_name,
         }
 
         active_plan = self.get_active_story_plan(story_id)

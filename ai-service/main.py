@@ -114,6 +114,7 @@ try:
                 api_key="",
                 base_url=settings.llm_base_url,
                 timeout_seconds=settings.llm_timeout_seconds,
+                structured_max_tokens=settings.llm_structured_max_tokens,
             )
             if settings.llm_enabled and settings.llm_provider != "none"
             else None

@@ -9,6 +9,7 @@ import {
   getActiveStoryPlanController,
   getContextPreviewController,
   getJobStatusController,
+  resumeJobController,
   getReviewQueueController,
   getStoryBrainSummaryController,
   getStoryPlanController,
@@ -17,6 +18,12 @@ import {
   startManuscriptBootstrapController,
   startWritingGenerationController,
   updateStoryPlanObjectiveController,
+  getApprovedMemoryController,
+  authorOperationController,
+  eventCorrectionController,
+  extractionStatusController,
+  authorMemoryProposalController,
+  reanalyseSavedChapterController,
 } from './ai-gateway.controller.js';
 import {
   createAutonomousRunController,
@@ -31,6 +38,12 @@ export const aiGatewayRoutes = Router();
 
 // All AI operations require AUTHOR or ADMIN role
 aiGatewayRoutes.use(requireAuth, requireRoles(['AUTHOR', 'ADMIN']));
+aiGatewayRoutes.get('/story-brains/:novelId/memory', getApprovedMemoryController);
+aiGatewayRoutes.post('/story-brains/:novelId/author-proposals', authorMemoryProposalController);
+aiGatewayRoutes.post('/story-brains/:novelId/reanalyse', reanalyseSavedChapterController);
+aiGatewayRoutes.get('/story-brains/:novelId/extraction-status', extractionStatusController);
+aiGatewayRoutes.post('/story-brains/:novelId/author-operation', authorOperationController);
+aiGatewayRoutes.post('/story-brains/:novelId/events/:eventId/corrections', eventCorrectionController);
 
 // Story Brain / Context endpoints
 aiGatewayRoutes.get(
@@ -116,6 +129,11 @@ aiGatewayRoutes.patch(
 aiGatewayRoutes.get(
   '/jobs/:jobId',
   getJobStatusController
+);
+
+aiGatewayRoutes.post(
+  '/jobs/:jobId/resume',
+  resumeJobController
 );
 
 // Autonomous Loop Controller

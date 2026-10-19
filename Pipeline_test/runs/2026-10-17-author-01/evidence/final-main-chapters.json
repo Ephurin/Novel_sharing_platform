@@ -1,0 +1,71 @@
+{
+  "time": "2026-10-17T23:03:26.871770+07:00",
+  "channel": "PUBLIC_API",
+  "method": "GET",
+  "path": "/novels/8bfd205f-c055-45e4-beda-e81a24b7854b/chapters",
+  "request": null,
+  "status": 200,
+  "latency_ms": 0,
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "chapterId": "2991c50d-2dc1-46d0-b996-93e6c8caecd2",
+        "novelId": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+        "title": "Chương 1 — Bến trở về",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 1216,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      },
+      {
+        "chapterId": "ed487a4d-e03b-4168-8045-64f86aedacf0",
+        "novelId": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+        "title": "Chương 2 — Lần đọc thứ nhất",
+        "chapterNumber": 2,
+        "content": null,
+        "wordCount": 1005,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      },
+      {
+        "chapterId": "5bfa9b59-995c-48eb-ab78-adfb9ef5f3d9",
+        "novelId": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+        "title": "Chương 3 — Hai nơi treo một quả chuông",
+        "chapterNumber": 3,
+        "content": null,
+        "wordCount": 995,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      },
+      {
+        "chapterId": "0c29393d-3b16-4ddb-bef8-e5c60af2f154",
+        "novelId": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+        "title": "Chương 4 — Bản đồ không có tiếng nước",
+        "chapterNumber": 4,
+        "content": null,
+        "wordCount": 957,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      },
+      {
+        "chapterId": "4a19e69b-8098-4706-9aec-dfec63587177",
+        "novelId": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+        "title": "Chương 5 — Ba tiếng gõ",
+        "chapterNumber": 5,
+        "content": null,
+        "wordCount": 574,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT"
+      }
+    ],
+    "error": null,
+    "meta": {}
+  }
+}

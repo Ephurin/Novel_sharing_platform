@@ -1,0 +1,5584 @@
+[
+  {
+    "id": "42438b53-4101-57cf-8443-be857878aa12",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "materialization_order": 0,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Mai Linh",
+      "initial_status": "Alive",
+      "normalized_name": "mai linh"
+    },
+    "evidence": [
+      {
+        "end": 184,
+        "quote": "Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "start": 109,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "652a331d-389b-5580-b329-7ef903006feb",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "materialization_order": 1,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Mai Lâm",
+      "initial_status": "Dead",
+      "normalized_name": "mai lâm"
+    },
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "1c4f6aee-dafd-557a-bcaf-3aeda7cda76d",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 1,
+    "materialization_order": 2,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "bà Yên",
+      "initial_status": "Unknown",
+      "normalized_name": "bà yên"
+    },
+    "evidence": [
+      {
+        "end": 1349,
+        "quote": "bà Yên",
+        "start": 1343,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "f8e5d059-f93e-544d-a30f-001a9cff7c16",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 1,
+    "materialization_order": 3,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Alive",
+      "normalized_name": "an"
+    },
+    "evidence": [
+      {
+        "end": 1508,
+        "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+        "start": 1443,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "b77accc4-e502-5d70-a353-67e4cffcaf2c",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 1,
+    "materialization_order": 4,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Ông Hòa",
+      "initial_status": "Alive",
+      "normalized_name": "ông hòa"
+    },
+    "evidence": [
+      {
+        "end": 2774,
+        "quote": "Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút.",
+        "start": 2712,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "f6302b3c-7664-5557-85ab-5a931c88c868",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 1,
+    "materialization_order": 5,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Chợ Giữa",
+      "initial_status": "Unknown",
+      "normalized_name": "chợ giữa"
+    },
+    "evidence": [
+      {
+        "end": 1933,
+        "quote": "Chợ Giữa",
+        "start": 1925,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "171abbfc-9751-553b-b6eb-3e923bbaccc5",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 1,
+    "materialization_order": 6,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Cồn Vân",
+      "initial_status": "Unknown",
+      "normalized_name": "cồn vân"
+    },
+    "evidence": [
+      {
+        "end": 2162,
+        "quote": "Cồn Vân",
+        "start": 2155,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "c9f8ae72-a169-5682-92c6-cd08a30d51c7",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 1,
+    "materialization_order": 7,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Đồi Bắc",
+      "initial_status": "Unknown",
+      "normalized_name": "đồi bắc"
+    },
+    "evidence": [
+      {
+        "end": 2262,
+        "quote": "Đồi Bắc",
+        "start": 2255,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "2e5c4426-e565-5d23-905f-35a533645fcc",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 1,
+    "materialization_order": 8,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Bãi Dưới",
+      "initial_status": "Unknown",
+      "normalized_name": "bãi dưới"
+    },
+    "evidence": [
+      {
+        "end": 4425,
+        "quote": "Bãi Dưới",
+        "start": 4417,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "85a08ba0-06f3-5a90-8fb7-6b1faaef5271",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 1,
+    "materialization_order": 9,
+    "payload": {
+      "entity_type": "ORG",
+      "canonical_name": "Phòng lưu trữ âm thanh đô thị",
+      "initial_status": "Unknown",
+      "normalized_name": "phòng lưu trữ âm thanh đô thị"
+    },
+    "evidence": [
+      {
+        "end": 2696,
+        "quote": "Phòng lưu trữ âm thanh đô thị",
+        "start": 2667,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "b54feb73-7fc8-55c1-8f04-9b93134146db",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 1,
+    "materialization_order": 10,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "bà Sâm",
+      "initial_status": "Unknown",
+      "normalized_name": "bà sâm"
+    },
+    "evidence": [
+      {
+        "end": 1384,
+        "quote": "Bà Sâm",
+        "start": 1378,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "a39e1085-2e27-5d38-b0ad-2ce3e38cdcfe",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 1,
+    "materialization_order": 11,
+    "payload": {
+      "entity_type": "ORG",
+      "canonical_name": "Ban công trình",
+      "initial_status": "Unknown",
+      "normalized_name": "ban công trình"
+    },
+    "evidence": [
+      {
+        "end": 2340,
+        "quote": "Ban công trình",
+        "start": 2326,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "65622651-bc7d-52a5-a901-cd719d10ad64",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 1,
+    "materialization_order": 12,
+    "payload": {
+      "entity_type": "ORG",
+      "canonical_name": "Kho gốm",
+      "initial_status": "Unknown",
+      "normalized_name": "kho gốm"
+    },
+    "evidence": [
+      {
+        "end": 2363,
+        "quote": "Kho gốm",
+        "start": 2356,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "7e77a9ca-0bc6-5850-be0f-1c38fd6dc8f2",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 1,
+    "materialization_order": 13,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "trạm Bốn",
+      "initial_status": "Unknown",
+      "normalized_name": "trạm bốn"
+    },
+    "evidence": [
+      {
+        "end": 3951,
+        "quote": "trạm Bốn",
+        "start": 3943,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "bfbb93a8-e986-59c5-84bf-4406899f4d31",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.8,
+    "expected_brain_version": 1,
+    "materialization_order": 14,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh arrives back at the city by ferry after eleven years.",
+      "locations": [],
+      "event_type": "arrival",
+      "consequences": [
+        "Mai Linh returns to her hometown."
+      ],
+      "participants": [
+        "Mai Linh"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 184,
+        "quote": "Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "start": 51,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "db9c32c3-e006-5990-afc0-13d30a9d8576",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.5,
+    "expected_brain_version": 1,
+    "materialization_order": 15,
+    "payload": {
+      "chapter": 1,
+      "summary": "An meets Mai Linh at the dock and greets her on behalf of her mother.",
+      "locations": [],
+      "event_type": "meeting",
+      "consequences": [
+        "An carries Mai Linh's luggage toward the boat."
+      ],
+      "participants": [
+        "Mai Linh",
+        "An"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 1508,
+        "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+        "start": 1443,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "628034da-28a5-5978-9aaa-cdceff9df5e8",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.6,
+    "expected_brain_version": 1,
+    "materialization_order": 16,
+    "payload": {
+      "chapter": 1,
+      "summary": "Ông Hòa greets Mai Linh at the ceramic warehouse / audio archive room.",
+      "locations": [
+        "Kho gốm"
+      ],
+      "event_type": "meeting",
+      "consequences": [
+        "Mai Linh meets Ông Hòa at the archive."
+      ],
+      "participants": [
+        "Mai Linh",
+        "Ông Hòa"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 2774,
+        "quote": "Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút.",
+        "start": 2712,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "223eea03-929c-5dc9-a4d0-bd8df4f4be06",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.7,
+    "expected_brain_version": 1,
+    "materialization_order": 17,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh signs a twelve-day contract with Ông Hòa to inspect audio and ceramic fragments.",
+      "locations": [
+        "Kho gốm"
+      ],
+      "event_type": "signing_contract",
+      "consequences": [
+        "Mai Linh officially undertakes the archival inspection project."
+      ],
+      "participants": [
+        "Mai Linh",
+        "Ông Hòa"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 3435,
+        "quote": "Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày.",
+        "start": 3388,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "4ca0c892-515f-50e9-bb33-85d5765cebb8",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.6,
+    "expected_brain_version": 1,
+    "materialization_order": 18,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh asks Ông Hòa to show her the records for station Four first.",
+      "locations": [
+        "Kho gốm"
+      ],
+      "event_type": "request",
+      "consequences": [
+        "Ông Hòa retrieves the key for the station Four records."
+      ],
+      "participants": [
+        "Mai Linh",
+        "Ông Hòa"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 5026,
+        "quote": "“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.",
+        "start": 4983,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "b1ec4d96-b2b3-56ca-9163-2b68fb6490f9",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "fact",
+    "status": "rejected",
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "materialization_order": 19,
+    "payload": {
+      "fact_key": "age",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 29,
+      "subject_name": "Mai Linh",
+      "chapter_number": 1,
+      "subject_entity_name": "Mai Linh"
+    },
+    "evidence": [
+      {
+        "end": 184,
+        "quote": "Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "start": 109,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Rejected during manuscript import",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:19.266027+00"
+  },
+  {
+    "id": "08d1f09f-813f-5733-a67d-cb4c69c9f0b0",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "materialization_order": 20,
+    "payload": {
+      "fact_key": "flood_history_years_ago",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": 17,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "subject_name": "",
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 1014,
+        "quote": "Trên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao.",
+        "start": 909,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "e7cbad25-1276-5745-a7bc-7a579a7a6100",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "materialization_order": 21,
+    "payload": {
+      "fact_key": "age",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 19,
+      "subject_name": "An",
+      "chapter_number": 1,
+      "subject_entity_name": "An"
+    },
+    "evidence": [
+      {
+        "end": 1508,
+        "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+        "start": 1443,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "04a49f3e-e781-52a7-951c-56b4d6640860",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "materialization_order": 22,
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "Dead",
+      "subject_name": "Mai Lâm",
+      "chapter_number": 1,
+      "subject_entity_name": "Mai Lâm"
+    },
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "f4c37e2d-2dc6-50c7-b0a2-a827846abd0a",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "materialization_order": 23,
+    "payload": {
+      "fact_key": "flood_death_toll",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": 23,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "subject_name": "",
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "4bfd5efa-f186-5ddf-82c9-70b1745ba8e2",
+    "analysis_run_id": "6abfd52b-80ba-4b9f-bb95-b028c969febb",
+    "source_key": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "materialization_order": 24,
+    "payload": {
+      "fact_key": "contract_duration_days",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": 12,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "subject_name": "",
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 3435,
+        "quote": "Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày.",
+        "start": 3388,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-18 18:02:33.228488+00",
+    "updated_at": "2026-10-18 18:09:47.222545+00"
+  },
+  {
+    "id": "551b92c1-203a-5bce-a195-456b0196989e",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 0,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Linh",
+      "initial_status": "Alive",
+      "normalized_name": "linh"
+    },
+    "evidence": [
+      {
+        "end": 222,
+        "quote": "Linh đang cúi dưới bàn, kiểm tra bộ ổn áp.",
+        "start": 180,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "e8604934-df40-5508-985c-f4263e82e050",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 1,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Ông Hòa",
+      "initial_status": "Alive",
+      "normalized_name": "ông hòa"
+    },
+    "evidence": [
+      {
+        "end": 294,
+        "quote": "Ông Hòa bảo chị đã lau bàn đọc ba lần.",
+        "start": 256,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "1959d96d-c44d-542a-a07d-f3ab06cdc493",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 2,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Duy",
+      "initial_status": "Alive",
+      "normalized_name": "duy"
+    },
+    "evidence": [
+      {
+        "end": 350,
+        "quote": "Duy đặt hộp lên ghế.",
+        "start": 330,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "50c86f2d-f658-568c-a1d8-5bef0e9f913e",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 3,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "trạm Bốn",
+      "initial_status": "Unknown",
+      "normalized_name": "trạm bốn"
+    },
+    "evidence": [
+      {
+        "end": 825,
+        "quote": "trạm Bốn",
+        "start": 817,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "c98b5114-3e84-5849-abbd-697fd2435f39",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 4,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Bãi Dưới",
+      "initial_status": "Unknown",
+      "normalized_name": "bãi dưới"
+    },
+    "evidence": [
+      {
+        "end": 3341,
+        "quote": "Bãi Dưới",
+        "start": 3333,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "9935a196-dedd-51fa-acce-2dec0cc93635",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 5,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "cha",
+      "initial_status": "Unknown",
+      "normalized_name": "cha"
+    },
+    "evidence": [
+      {
+        "end": 2684,
+        "quote": "cha",
+        "start": 2681,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "dcaad6a9-f352-51f6-883c-be957c52b02a",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 6,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "mẹ",
+      "initial_status": "Alive",
+      "normalized_name": "mẹ"
+    },
+    "evidence": [
+      {
+        "end": 4431,
+        "quote": "Cô gọi mẹ. Đầu dây bên kia có tiếng kéo cắt lưới.",
+        "start": 4382,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "cb0e894d-0443-5023-89e0-dacc0505063e",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 7,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "vòng đồng",
+      "initial_status": "Unknown",
+      "normalized_name": "vòng đồng"
+    },
+    "evidence": [
+      {
+        "end": 683,
+        "quote": "vòng đồng",
+        "start": 674,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "ea43e97d-c6aa-53e1-88ff-3fdda7bc4194",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 8,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "hộp dụng cụ kim loại",
+      "initial_status": "Unknown",
+      "normalized_name": "hộp dụng cụ kim loại"
+    },
+    "evidence": [
+      {
+        "end": 91,
+        "quote": "hộp dụng cụ kim loại",
+        "start": 71,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "8e49e001-fbd8-5993-8fbf-43c5ea55d105",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 9,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "quạt",
+      "initial_status": "Unknown",
+      "normalized_name": "quạt"
+    },
+    "evidence": [
+      {
+        "end": 110,
+        "quote": "quạt",
+        "start": 106,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "3dd604a7-fe82-5757-979b-d711fbc25e23",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 10,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "bộ ổn áp",
+      "initial_status": "Unknown",
+      "normalized_name": "bộ ổn áp"
+    },
+    "evidence": [
+      {
+        "end": 221,
+        "quote": "bộ ổn áp",
+        "start": 213,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "2e034f41-68ae-5997-9cc1-94a8c6f29cd8",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 11,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "bộ nguồn dự phòng",
+      "initial_status": "Unknown",
+      "normalized_name": "bộ nguồn dự phòng"
+    },
+    "evidence": [
+      {
+        "end": 1156,
+        "quote": "bộ nguồn dự phòng",
+        "start": 1139,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "bbd005e2-dc22-5d97-8820-e4c602cdbce5",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 12,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "mã CV-04",
+      "initial_status": "Unknown",
+      "normalized_name": "mã cv-04"
+    },
+    "evidence": [
+      {
+        "end": 1204,
+        "quote": "mã CV-04",
+        "start": 1196,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "7e11d317-5dd3-584d-93ee-f04b85ca5875",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 13,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "máy",
+      "initial_status": "Unknown",
+      "normalized_name": "máy"
+    },
+    "evidence": [
+      {
+        "end": 1763,
+        "quote": "máy",
+        "start": 1760,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "2646ddaf-3514-5dd8-b8e9-8eacf204f1c7",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 14,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "máy phát",
+      "initial_status": "Unknown",
+      "normalized_name": "máy phát"
+    },
+    "evidence": [
+      {
+        "end": 2127,
+        "quote": "máy phát",
+        "start": 2119,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "9d2e70a0-fe8a-5963-ba9f-62f3365467e0",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 15,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "ổ lưu",
+      "initial_status": "Unknown",
+      "normalized_name": "ổ lưu"
+    },
+    "evidence": [
+      {
+        "end": 3737,
+        "quote": "ổ lưu",
+        "start": 3732,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "54f2c3b6-5bd7-5057-bfc0-572d50dc9fa6",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 16,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "túi chống ẩm",
+      "initial_status": "Unknown",
+      "normalized_name": "túi chống ẩm"
+    },
+    "evidence": [
+      {
+        "end": 3825,
+        "quote": "túi chống ẩm",
+        "start": 3813,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "2a3161c0-63d3-5630-bcef-1bedf8627504",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 17,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "khăn mềm",
+      "initial_status": "Unknown",
+      "normalized_name": "khăn mềm"
+    },
+    "evidence": [
+      {
+        "end": 3999,
+        "quote": "khăn mềm",
+        "start": 3991,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "45fa50d3-21e0-5ccd-add4-d9cf0b3181e0",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 18,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "bản đồ",
+      "initial_status": "Unknown",
+      "normalized_name": "bản đồ"
+    },
+    "evidence": [
+      {
+        "end": 4139,
+        "quote": "bản đồ",
+        "start": 4133,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "e8e60b61-eed4-53f4-bf99-6d624bb6b491",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 19,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "bóng đèn",
+      "initial_status": "Unknown",
+      "normalized_name": "bóng đèn"
+    },
+    "evidence": [
+      {
+        "end": 4301,
+        "quote": "bóng đèn",
+        "start": 4293,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "e2028032-981b-56e7-977f-02791dd0edb1",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 20,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "tai nghe",
+      "initial_status": "Unknown",
+      "normalized_name": "tai nghe"
+    },
+    "evidence": [
+      {
+        "end": 3618,
+        "quote": "tai nghe",
+        "start": 3610,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "b669fcc1-cc27-5a46-aab1-db0c72bd1611",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.4,
+    "expected_brain_version": 2,
+    "materialization_order": 21,
+    "payload": {
+      "chapter": 2,
+      "summary": "Linh kiểm tra thiết bị trong kho gốm trong lúc chờ điện ổn định cùng với Duy và ông Hòa.",
+      "locations": [
+        "Kho gốm"
+      ],
+      "event_type": "preparation",
+      "consequences": [
+        "Chuẩn bị cho việc quét bản ghi âm"
+      ],
+      "participants": [
+        "Linh",
+        "Duy",
+        "Ông Hòa"
+      ],
+      "chapter_number": 2
+    },
+    "evidence": [
+      {
+        "end": 236,
+        "quote": "Linh đang cúi dưới bàn, kiểm tra bộ ổn áp. Cô ngẩng lên.",
+        "start": 180,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "089574fc-0131-523f-8289-ad3ebda4e53d",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 22,
+    "payload": {
+      "chapter": 2,
+      "summary": "Nhóm của Linh phát hiện một đoạn ghi âm ngắn có giọng nói phát ra từ mảnh gốm.",
+      "locations": [
+        "Kho gốm"
+      ],
+      "event_type": "audio_playback",
+      "consequences": [
+        "Linh nhận ra giọng nói có thể thuộc về cha cô",
+        "Bản ghi được lưu lại để phân tích"
+      ],
+      "participants": [
+        "Linh",
+        "Duy",
+        "Ông Hòa"
+      ],
+      "chapter_number": 2
+    },
+    "evidence": [
+      {
+        "end": 2275,
+        "quote": "Ở giây thứ bốn mươi mốt có giọng đàn ông.",
+        "start": 2234,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "3ca79f97-e558-5823-b951-6a64933cd4da",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.3,
+    "expected_brain_version": 2,
+    "materialization_order": 23,
+    "payload": {
+      "chapter": 2,
+      "summary": "Linh gọi điện thoại cho mẹ sau khi kết thúc công việc tại kho gốm.",
+      "locations": [],
+      "event_type": "phone_call",
+      "consequences": [
+        "Trao đổi ngắn gọn về sự phát hiện bản ghi"
+      ],
+      "participants": [
+        "Linh",
+        "mẹ"
+      ],
+      "chapter_number": 2
+    },
+    "evidence": [
+      {
+        "end": 4431,
+        "quote": "Cô gọi mẹ. Đầu dây bên kia có tiếng kéo cắt lưới.",
+        "start": 4382,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "3e3c9cbd-befd-5140-a166-c2624492953e",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "state_transition",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 24,
+    "payload": {
+      "event_id": "3ca79f97-e558-5823-b951-6a64933cd4da",
+      "entity_id": "Linh",
+      "new_value": "gọi điện thoại cho mẹ",
+      "attribute_key": "activity"
+    },
+    "evidence": [
+      {
+        "end": 4431,
+        "quote": "Cô gọi mẹ. Đầu dây bên kia có tiếng kéo cắt lưới.",
+        "start": 4382,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "1050ac93-6536-5acc-9548-ab9d0a8cf80a",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 0.8,
+    "expected_brain_version": 2,
+    "materialization_order": 25,
+    "payload": {
+      "fact_key": "age",
+      "certainty": "reported",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "ngoài ba mươi",
+        "subject": "Duy",
+        "certainty": "reported"
+      },
+      "subject_name": "Duy",
+      "chapter_number": 2
+    },
+    "evidence": [
+      {
+        "end": 421,
+        "quote": "Anh khoảng ngoài ba mươi, áo công nhân có một đường chỉ tự vá ở khuỷu.",
+        "start": 351,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "a23063b7-8333-56d0-a298-542ea8d589ce",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 26,
+    "payload": {
+      "fact_key": "hearing_impairment",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "Tai trái không nghe",
+      "subject_name": "Duy",
+      "chapter_number": 2,
+      "subject_entity_name": "Duy"
+    },
+    "evidence": [
+      {
+        "end": 593,
+        "quote": "Tai trái tôi không nghe. Chị đứng bên này là được, không cần nói to.",
+        "start": 525,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "a55d1929-5f9b-57d4-9885-8bf0160a3245",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 27,
+    "payload": {
+      "fact_key": "impairment_duration_years",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 4,
+      "subject_name": "Duy",
+      "chapter_number": 2,
+      "subject_entity_name": "Duy"
+    },
+    "evidence": [
+      {
+        "end": 656,
+        "quote": "Bốn năm rồi, tôi vẫn quên báo trước.",
+        "start": 620,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "570f6489-c9a4-5289-9714-ccee1b4fa018",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 28,
+    "payload": {
+      "fact_key": "origin",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "bộ chuẩn của trạm Bốn",
+      "subject_name": "vòng đồng",
+      "chapter_number": 2,
+      "subject_entity_name": "vòng đồng"
+    },
+    "evidence": [
+      {
+        "end": 826,
+        "quote": "Duy nói vòng thuộc bộ chuẩn của trạm Bốn.",
+        "start": 785,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "e9767f0c-e6bc-5d86-866b-cb6182b9c539",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 29,
+    "payload": {
+      "fact_key": "preservation_limit_touches",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 3,
+      "subject_name": "mã CV-04",
+      "chapter_number": 2,
+      "subject_entity_name": "mã CV-04"
+    },
+    "evidence": [
+      {
+        "end": 1575,
+        "quote": "Ba lần đã là giới hạn bảo tồn đề nghị cho loại này.",
+        "start": 1524,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "4dbd78eb-6649-5aec-b15e-9baf60a000c5",
+    "analysis_run_id": "00227cb7-dcf4-4240-87c5-6f29051c5e48",
+    "source_key": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 0.7,
+    "expected_brain_version": 2,
+    "materialization_order": 30,
+    "payload": {
+      "fact_key": "voice_recognition_hypothesis",
+      "certainty": "hypothesis",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "Giọng trong bản ghi có thể là cha cô",
+        "subject": "Linh",
+        "certainty": "hypothesis"
+      },
+      "subject_name": "Linh",
+      "chapter_number": 2
+    },
+    "evidence": [
+      {
+        "end": 2927,
+        "quote": "Có thể là cha tôi",
+        "start": 2910,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+        "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+        "chapter_number": 2
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:01:31.022059+00",
+    "updated_at": "2026-10-19 04:20:12.374292+00"
+  },
+  {
+    "id": "95267235-2ae4-5484-82d3-fc17cda28671",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 0,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Bà Sâm",
+      "initial_status": "Alive",
+      "normalized_name": "bà sâm"
+    },
+    "evidence": [
+      {
+        "end": 33,
+        "quote": "Bà Sâm bán cháo ở chỗ con hẻm hẹp",
+        "start": 0,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "ca8ffc2d-22fe-5566-9811-45caa4aef056",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 1,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Linh",
+      "initial_status": "Alive",
+      "normalized_name": "linh"
+    },
+    "evidence": [
+      {
+        "end": 182,
+        "quote": "Linh ngồi xuống ghế thấp",
+        "start": 158,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "51de8a97-5748-5ac2-a3bb-c64d5de23665",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 2,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Alive",
+      "normalized_name": "an"
+    },
+    "evidence": [
+      {
+        "end": 435,
+        "quote": "An ngồi cạnh bếp, vá áo mưa",
+        "start": 408,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "d5796240-00ad-5a75-882d-205ba88fbd3d",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 3,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Bà Yên",
+      "initial_status": "Alive",
+      "normalized_name": "bà yên"
+    },
+    "evidence": [
+      {
+        "end": 3160,
+        "quote": "Bà Yên đặt bát xuống.",
+        "start": 3139,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "ca825e51-5ba0-5f80-b073-2dcb5bfa73d8",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 4,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Duy",
+      "initial_status": "Alive",
+      "normalized_name": "duy"
+    },
+    "evidence": [
+      {
+        "end": 3977,
+        "quote": "cô ra hiên gọi Duy.",
+        "start": 3958,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "d0e6adf6-d557-54f8-8ba9-af9d23a2c4db",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 5,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "máy ghi âm",
+      "initial_status": "Unknown",
+      "normalized_name": "máy ghi âm"
+    },
+    "evidence": [
+      {
+        "end": 1100,
+        "quote": "máy ghi âm",
+        "start": 1090,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "9fda48f3-91cd-5e44-b7bd-a83313da3094",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 6,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "mảnh gốm",
+      "initial_status": "Unknown",
+      "normalized_name": "mảnh gốm"
+    },
+    "evidence": [
+      {
+        "end": 1191,
+        "quote": "mảnh gốm",
+        "start": 1183,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "73de3c50-e007-54fa-845a-0270b0b875d4",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 7,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "chuông",
+      "initial_status": "Unknown",
+      "normalized_name": "chuông"
+    },
+    "evidence": [
+      {
+        "end": 932,
+        "quote": "chuông",
+        "start": 926,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "e975426f-f888-535b-8d41-a11d9ea8202f",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 8,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "trạm Bốn",
+      "initial_status": "Unknown",
+      "normalized_name": "trạm bốn"
+    },
+    "evidence": [
+      {
+        "end": 1866,
+        "quote": "trạm Bốn",
+        "start": 1858,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "21f0ca83-7b14-5e06-b84b-e44ba273c703",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 9,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "cần cẩu",
+      "initial_status": "Unknown",
+      "normalized_name": "cần cẩu"
+    },
+    "evidence": [
+      {
+        "end": 1419,
+        "quote": "cần cẩu",
+        "start": 1412,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "5888c2cf-8d33-57aa-9235-d3d0ba27dc2c",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 10,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "va li",
+      "initial_status": "Unknown",
+      "normalized_name": "va li"
+    },
+    "evidence": [
+      {
+        "end": 2640,
+        "quote": "va li",
+        "start": 2635,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "9fe2403f-6452-5138-a8f2-9b84e776c876",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 11,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "tai nghe",
+      "initial_status": "Unknown",
+      "normalized_name": "tai nghe"
+    },
+    "evidence": [
+      {
+        "end": 4401,
+        "quote": "tai nghe",
+        "start": 4393,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "bc6d4d7a-dbc8-5c4f-9541-66c9674e0bb0",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.4,
+    "expected_brain_version": 2,
+    "materialization_order": 12,
+    "payload": {
+      "chapter": 3,
+      "summary": "Linh meets Bà Sâm at her porridge stall and they converse about porridge orders.",
+      "locations": [],
+      "event_type": "conversation",
+      "consequences": [
+        "Bà Sâm serves porridge without spring onions."
+      ],
+      "participants": [
+        "bà Sâm",
+        "Linh"
+      ],
+      "chapter_number": 3
+    },
+    "evidence": [
+      {
+        "end": 244,
+        "quote": "Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.\n\n“Không hành, phải không?” bà hỏi.",
+        "start": 158,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "3b7c0794-d550-5787-8d7b-da07e9d2b5a0",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.7,
+    "expected_brain_version": 2,
+    "materialization_order": 13,
+    "payload": {
+      "chapter": 3,
+      "summary": "Linh records an interview with Bà Sâm regarding the history of a bell.",
+      "locations": [],
+      "event_type": "interview",
+      "consequences": [
+        "Linh records Bà Sâm's statement about the bell's relocation."
+      ],
+      "participants": [
+        "bà Sâm",
+        "Linh"
+      ],
+      "chapter_number": 3
+    },
+    "evidence": [
+      {
+        "end": 1729,
+        "quote": "Linh xin phép bật máy. Bà Sâm đồng ý, rồi nói lại chậm rãi, giữ nguyên cả câu “ta không ký”.",
+        "start": 1637,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "d3976045-8bea-5864-a366-6e5f14121e2e",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.6,
+    "expected_brain_version": 2,
+    "materialization_order": 14,
+    "payload": {
+      "chapter": 3,
+      "summary": "Linh returns home and reunites with her mother, Bà Yên.",
+      "locations": [],
+      "event_type": "reunion",
+      "consequences": [
+        "Linh has dinner with her mother and discusses various topics while avoiding mentioning her father initially."
+      ],
+      "participants": [
+        "bà Yên",
+        "Linh"
+      ],
+      "chapter_number": 3
+    },
+    "evidence": [
+      {
+        "end": 2736,
+        "quote": "Mẹ cô từ bếp đi ra, lau tay vào vạt áo, nhìn con từ đầu đến chân.\n\n“Gầy hơn ảnh.”",
+        "start": 2655,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "61f658c5-a8cb-5c8a-af9b-d8671e48a058",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.5,
+    "expected_brain_version": 2,
+    "materialization_order": 15,
+    "payload": {
+      "chapter": 3,
+      "summary": "Linh calls Duy from the porch after dinner to discuss finding documents about the bell.",
+      "locations": [],
+      "event_type": "phone_call",
+      "consequences": [
+        "Duy agrees to look for the records and invites Linh to go to the station with him."
+      ],
+      "participants": [
+        "Linh",
+        "Duy"
+      ],
+      "chapter_number": 3
+    },
+    "evidence": [
+      {
+        "end": 4009,
+        "quote": "Sau bữa cơm, cô ra hiên gọi Duy. Anh nghe máy sau ba hồi chuông.",
+        "start": 3945,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "76e3bcb8-0898-513d-9ede-d6232e4cb643",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 16,
+    "payload": {
+      "fact_key": "cháo_hành",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": false,
+      "subject_name": "bà Sâm",
+      "chapter_number": 3,
+      "subject_entity_name": "bà Sâm"
+    },
+    "evidence": [
+      {
+        "end": 294,
+        "quote": "Bà Sâm vẫn không cho hành.",
+        "start": 268,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "f4dfb12a-0dcb-53e7-b6ba-442451dc4164",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 17,
+    "payload": {
+      "fact_key": "vá_áo_mưa",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": true,
+      "subject_name": "An",
+      "chapter_number": 3,
+      "subject_entity_name": "An"
+    },
+    "evidence": [
+      {
+        "end": 457,
+        "quote": "An ngồi cạnh bếp, vá áo mưa bằng băng dính trong.",
+        "start": 408,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "cd9d0699-4b49-564f-b64f-09a7e8a3cfdd",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 18,
+    "payload": {
+      "fact_key": "trực_trạm_Bốn",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": true,
+      "subject_name": "bà Sâm",
+      "chapter_number": 3,
+      "subject_entity_name": "bà Sâm"
+    },
+    "evidence": [
+      {
+        "end": 1898,
+        "quote": "Ta từng trực ở đó.",
+        "start": 1880,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "2d399b21-4d82-5aa7-ad6f-d0a0b960adcd",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 19,
+    "payload": {
+      "fact_key": "danh_sách_treo_tường",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 23,
+      "subject_name": "bà Sâm",
+      "chapter_number": 3,
+      "subject_entity_name": "bà Sâm"
+    },
+    "evidence": [
+      {
+        "end": 2338,
+        "quote": "Hai mươi ba người.",
+        "start": 2320,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "4af2aa24-1e58-5166-b800-7233855ad6f3",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 20,
+    "payload": {
+      "fact_key": "danh_sách_sai_tên",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 3,
+      "subject_name": "bà Sâm",
+      "chapter_number": 3,
+      "subject_entity_name": "bà Sâm"
+    },
+    "evidence": [
+      {
+        "end": 2358,
+        "quote": "Có ba tên viết sai.",
+        "start": 2339,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "300b44f4-8b0f-560c-8922-dd380d7e88da",
+    "analysis_run_id": "e02569e7-4809-444a-840d-3539c3d2d1a4",
+    "source_key": "22fe72de-3597-41e1-9520-1fc6452f653a",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 21,
+    "payload": {
+      "fact_key": "thời_gian_bố_vắng",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 17,
+      "subject_name": "bà Yên",
+      "chapter_number": 3,
+      "subject_entity_name": "bà Yên"
+    },
+    "evidence": [
+      {
+        "end": 3410,
+        "quote": "Mẹ đã nghe người ta nói bố con làm gì suốt mười bảy năm.",
+        "start": 3354,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+        "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+        "chapter_number": 3
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:07.083139+00",
+    "updated_at": "2026-10-19 04:20:11.932568+00"
+  },
+  {
+    "id": "3bcd814b-4119-591f-91a1-e45fe76f3ae8",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 0,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Duy",
+      "initial_status": "Unknown",
+      "normalized_name": "duy"
+    },
+    "evidence": [
+      {
+        "end": 132,
+        "quote": "Duy",
+        "start": 129,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "12d33e84-847c-5ce1-b3df-9289351f9737",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 1,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "linh"
+    },
+    "evidence": [
+      {
+        "end": 141,
+        "quote": "Linh",
+        "start": 137,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "7ba07c94-a655-5b96-913c-a48013b5669b",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 2,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Nguyễn Vũ",
+      "initial_status": "Unknown",
+      "normalized_name": "nguyễn vũ"
+    },
+    "evidence": [
+      {
+        "end": 571,
+        "quote": "Nguyễn Vũ",
+        "start": 562,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "7b24a3aa-0413-5eb4-af76-eb006b7a2f6e",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 3,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Vũ",
+      "initial_status": "Unknown",
+      "normalized_name": "vũ"
+    },
+    "evidence": [
+      {
+        "end": 571,
+        "quote": "Vũ",
+        "start": 569,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "5554cf84-7329-5539-b5f2-e56a3913b8bc",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 4,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Cồn Vân",
+      "initial_status": "Unknown",
+      "normalized_name": "cồn vân"
+    },
+    "evidence": [
+      {
+        "end": 26,
+        "quote": "Cồn Vân",
+        "start": 19,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "a78c8a3b-0def-5d72-a1f5-94b1fe3bcec4",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 5,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Đồi Bắc",
+      "initial_status": "Unknown",
+      "normalized_name": "đồi bắc"
+    },
+    "evidence": [
+      {
+        "end": 156,
+        "quote": "Đồi Bắc",
+        "start": 149,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "fe96ee57-0963-5e2d-af3f-b1ef34d56fa8",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 6,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Unknown",
+      "normalized_name": "an"
+    },
+    "evidence": [
+      {
+        "end": 2880,
+        "quote": "an",
+        "start": 2878,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "348e2993-173e-5322-a686-458a72dcd9a1",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 7,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "bà Sâm",
+      "initial_status": "Unknown",
+      "normalized_name": "bà sâm"
+    },
+    "evidence": [
+      {
+        "end": 3042,
+        "quote": "bà Sâm",
+        "start": 3036,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "bd0c0976-3537-551d-ba8d-0a20f779e4e9",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.4,
+    "expected_brain_version": 2,
+    "materialization_order": 8,
+    "payload": {
+      "chapter": 4,
+      "summary": "Duy and Linh meet at the foot of North Hill before their tasks.",
+      "locations": [
+        "Đồi Bắc"
+      ],
+      "event_type": "meeting",
+      "consequences": [
+        "They begin walking together toward their meeting."
+      ],
+      "participants": [
+        "Duy",
+        "Linh"
+      ],
+      "chapter_number": 4
+    },
+    "evidence": [
+      {
+        "end": 157,
+        "quote": "Duy chờ Linh ở chân Đồi Bắc.",
+        "start": 129,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "822f7c72-ad2d-5f43-8c16-3d60c230d1e5",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.7,
+    "expected_brain_version": 2,
+    "materialization_order": 9,
+    "payload": {
+      "chapter": 4,
+      "summary": "Nguyễn Vũ meets Linh and Duy in a meeting room to discuss warehouse conditions and survey plans.",
+      "locations": [
+        "Cồn Vân"
+      ],
+      "event_type": "meeting",
+      "consequences": [
+        "A survey permit is discussed and eventually signed with conditions."
+      ],
+      "participants": [
+        "Nguyễn Vũ",
+        "Linh",
+        "Duy"
+      ],
+      "chapter_number": 4
+    },
+    "evidence": [
+      {
+        "end": 629,
+        "quote": "Nguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố.",
+        "start": 562,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "5f1812d8-5fb0-5128-8fd7-671a12a0ba14",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.8,
+    "expected_brain_version": 2,
+    "materialization_order": 10,
+    "payload": {
+      "chapter": 4,
+      "summary": "The survey permit is signed under specific restrictions regarding water gates and sealed compartments.",
+      "locations": [
+        "Cồn Vân"
+      ],
+      "event_type": "agreement",
+      "consequences": [
+        "Duy and Linh obtain conditional permission to carry out their work."
+      ],
+      "participants": [
+        "Nguyễn Vũ",
+        "Duy",
+        "Linh"
+      ],
+      "chapter_number": 4
+    },
+    "evidence": [
+      {
+        "end": 2531,
+        "quote": "Giấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng.",
+        "start": 2402,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "8bb1c097-a912-57e5-bdba-5d1dd39f21b4",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "state_transition",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 11,
+    "payload": {
+      "event_id": "5f1812d8-5fb0-5128-8fd7-671a12a0ba14",
+      "entity_id": "Duy",
+      "new_value": {
+        "survey permit": "conditional permission"
+      },
+      "attribute_key": "active_relationships"
+    },
+    "evidence": [
+      {
+        "end": 2531,
+        "quote": "Giấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng.",
+        "start": 2402,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "8fc255b5-5459-5d2e-8007-73141376d445",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "state_transition",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 12,
+    "payload": {
+      "event_id": "5f1812d8-5fb0-5128-8fd7-671a12a0ba14",
+      "entity_id": "Linh",
+      "new_value": {
+        "survey permit": "conditional permission"
+      },
+      "attribute_key": "active_relationships"
+    },
+    "evidence": [
+      {
+        "end": 2531,
+        "quote": "Giấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng.",
+        "start": 2402,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "4b08ac52-e0a7-5e5b-b486-a475feb8842e",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 13,
+    "payload": {
+      "chapter": 4,
+      "summary": "Duy and Linh arrive at Station Four to conduct their survey, aided by An outside.",
+      "locations": [
+        "trạm Bốn"
+      ],
+      "event_type": "investigation",
+      "consequences": [
+        "They discover unexpected water movement and a knocking sound from below."
+      ],
+      "participants": [
+        "Duy",
+        "Linh",
+        "An"
+      ],
+      "chapter_number": 4
+    },
+    "evidence": [
+      {
+        "end": 3303,
+        "quote": "Trạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi.",
+        "start": 3240,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "142618b5-00df-5e91-822e-077a058c8ae0",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 14,
+    "payload": {
+      "fact_key": "weather",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "không mưa",
+      "subject_name": "Cồn Vân",
+      "chapter_number": 4,
+      "subject_entity_name": "Cồn Vân"
+    },
+    "evidence": [
+      {
+        "end": 37,
+        "quote": "Sáng ngày thứ hai, Cồn Vân không mưa.",
+        "start": 0,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "f3966c10-19aa-5e3f-a903-2d7a10be3509",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 15,
+    "payload": {
+      "fact_key": "kho_duration_days",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 12,
+      "subject_name": "Linh",
+      "chapter_number": 4,
+      "subject_entity_name": "Linh"
+    },
+    "evidence": [
+      {
+        "end": 1479,
+        "quote": "Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.",
+        "start": 1416,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "8118cd16-cfda-5354-8edf-0813e479e07a",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 16,
+    "payload": {
+      "fact_key": "kho_current_day",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 2,
+      "subject_name": "Linh",
+      "chapter_number": 4,
+      "subject_entity_name": "Linh"
+    },
+    "evidence": [
+      {
+        "end": 1479,
+        "quote": "Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.",
+        "start": 1416,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "2e28d25d-2d8e-5f96-89b8-18cdd3cea031",
+    "analysis_run_id": "366db917-f5f9-4488-9f31-017123d71275",
+    "source_key": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 17,
+    "payload": {
+      "fact_key": "funding_proposal_signer",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": true,
+      "subject_name": "Nguyễn Vũ",
+      "chapter_number": 4,
+      "subject_entity_name": "Nguyễn Vũ"
+    },
+    "evidence": [
+      {
+        "end": 1559,
+        "quote": "Chính tôi ký đề nghị kinh phí.",
+        "start": 1529,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+        "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+        "chapter_number": 4
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:06:21.466693+00",
+    "updated_at": "2026-10-19 04:16:30.913137+00"
+  },
+  {
+    "id": "3b9d3e48-fdf3-5076-89be-b0206080e829",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 0,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Duy",
+      "initial_status": "Alive",
+      "normalized_name": "duy"
+    },
+    "evidence": [
+      {
+        "end": 1070,
+        "quote": "Duy ngồi xổm cạnh chân tường",
+        "start": 1042,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "758a0289-cb28-5439-ad88-5bb1bd30a7f2",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 1,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Linh",
+      "initial_status": "Alive",
+      "normalized_name": "linh"
+    },
+    "evidence": [
+      {
+        "end": 132,
+        "quote": "Linh lùi về phần sàn có ánh sáng",
+        "start": 100,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "bdaad6f1-15e6-5ade-be64-eefd1afd81d5",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 2,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Alive",
+      "normalized_name": "an"
+    },
+    "evidence": [
+      {
+        "end": 632,
+        "quote": "An buộc lại thuyền",
+        "start": 614,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "42710167-a9ad-56c0-9e8f-4fecc88e38dd",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 3,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "bà Sâm",
+      "initial_status": "Alive",
+      "normalized_name": "bà sâm"
+    },
+    "evidence": [
+      {
+        "end": 1991,
+        "quote": "Bà Sâm nói đó không phải cửa",
+        "start": 1963,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "05de28a1-653a-50d3-b3de-1b8d90870c73",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 4,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "tai nghe",
+      "initial_status": "Unknown",
+      "normalized_name": "tai nghe"
+    },
+    "evidence": [
+      {
+        "end": 410,
+        "quote": "tai nghe",
+        "start": 402,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "504ab9f0-b5d4-534d-bd42-33375e658a96",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 5,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "micro",
+      "initial_status": "Unknown",
+      "normalized_name": "micro"
+    },
+    "evidence": [
+      {
+        "end": 459,
+        "quote": "micro",
+        "start": 454,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "af000d79-667e-5ca7-910a-66c27406b22b",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 6,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "thuyền",
+      "initial_status": "Unknown",
+      "normalized_name": "thuyền"
+    },
+    "evidence": [
+      {
+        "end": 632,
+        "quote": "thuyền",
+        "start": 626,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "289b01d3-3063-51d8-bd17-8ac289a31813",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 7,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "trạm Bốn",
+      "initial_status": "Unknown",
+      "normalized_name": "trạm bốn"
+    },
+    "evidence": [
+      {
+        "end": 870,
+        "quote": "trạm Bốn",
+        "start": 862,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "412a01b5-5cd9-576c-8dd1-eedee7831dd6",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 8,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "thước",
+      "initial_status": "Unknown",
+      "normalized_name": "thước"
+    },
+    "evidence": [
+      {
+        "end": 1143,
+        "quote": "thước",
+        "start": 1138,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "59353dd7-6619-5d4b-94b5-6a90fba1dd88",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 9,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "Điện thoại",
+      "initial_status": "Unknown",
+      "normalized_name": "điện thoại"
+    },
+    "evidence": [
+      {
+        "end": 1807,
+        "quote": "Điện thoại",
+        "start": 1797,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "6127676e-ea22-5637-ab1b-005c5429ce0c",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 10,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "bản đồ",
+      "initial_status": "Unknown",
+      "normalized_name": "bản đồ"
+    },
+    "evidence": [
+      {
+        "end": 2144,
+        "quote": "bản đồ",
+        "start": 2138,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "3883920d-395e-5be3-bc0f-2b0d3157bb53",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 11,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "CV-04",
+      "initial_status": "Unknown",
+      "normalized_name": "cv-04"
+    },
+    "evidence": [
+      {
+        "end": 1025,
+        "quote": "CV-04",
+        "start": 1020,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "a0b29c46-2aad-5699-b2ef-e9f09af4abc5",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 2,
+    "materialization_order": 12,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "nhánh tây",
+      "initial_status": "Unknown",
+      "normalized_name": "nhánh tây"
+    },
+    "evidence": [
+      {
+        "end": 881,
+        "quote": "nhánh tây",
+        "start": 872,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "78bf3cd7-b21b-5f54-abc9-7f13f42458f1",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.6,
+    "expected_brain_version": 2,
+    "materialization_order": 13,
+    "payload": {
+      "chapter": 5,
+      "summary": "Duy secures the door with a wedge and warning rope and tells Linh to step back into the light.",
+      "locations": [],
+      "event_type": "security_precaution",
+      "consequences": [
+        "Linh moves back to the lighted part of the floor",
+        "The door is physically secured"
+      ],
+      "participants": [
+        "Duy",
+        "Linh"
+      ],
+      "chapter_number": 5
+    },
+    "evidence": [
+      {
+        "end": 133,
+        "quote": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+        "start": 0,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "00b9c546-97f3-5b73-a27d-0b09fedb7cef",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "state_transition",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 2,
+    "materialization_order": 14,
+    "payload": {
+      "event_id": "78bf3cd7-b21b-5f54-abc9-7f13f42458f1",
+      "entity_id": "Linh",
+      "new_value": "part of the floor with light",
+      "attribute_key": "location"
+    },
+    "evidence": [
+      {
+        "end": 133,
+        "quote": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+        "start": 0,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "8eb17707-4bf2-501b-9e51-ada4278f8187",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.5,
+    "expected_brain_version": 2,
+    "materialization_order": 15,
+    "payload": {
+      "chapter": 5,
+      "summary": "An ties up the boat outside and asks Duy if they should inform ba Sâm, to which Duy eventually agrees to ask a specific question.",
+      "locations": [],
+      "event_type": "communication",
+      "consequences": [
+        "Duy decides to have An ask ba Sâm about the white crank"
+      ],
+      "participants": [
+        "An",
+        "Duy"
+      ],
+      "chapter_number": 5
+    },
+    "evidence": [
+      {
+        "end": 699,
+        "quote": "Ngoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.",
+        "start": 603,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "bb7b2408-2c9e-58ed-9660-834d32fe0d6a",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.6,
+    "expected_brain_version": 2,
+    "materialization_order": 16,
+    "payload": {
+      "chapter": 5,
+      "summary": "Duy inspects a weld along the wall using a flashlight and a ruler without touching it directly, while Linh observes.",
+      "locations": [],
+      "event_type": "investigation",
+      "consequences": [
+        "Duy and Linh examine the weld and notice color differences in the metal"
+      ],
+      "participants": [
+        "Duy",
+        "Linh"
+      ],
+      "chapter_number": 5
+    },
+    "evidence": [
+      {
+        "end": 1161,
+        "quote": "Duy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào.",
+        "start": 1042,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "534ff886-5254-52da-9ab1-d185a1192a44",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.5,
+    "expected_brain_version": 2,
+    "materialization_order": 17,
+    "payload": {
+      "chapter": 5,
+      "summary": "Linh takes a wide-angle photograph of the area including the door, ruler, warning rope, and Duy's hand.",
+      "locations": [],
+      "event_type": "documentation",
+      "consequences": [
+        "Photographic evidence of the scene is captured"
+      ],
+      "participants": [
+        "Linh",
+        "Duy"
+      ],
+      "chapter_number": 5
+    },
+    "evidence": [
+      {
+        "end": 1603,
+        "quote": "Linh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối.",
+        "start": 1498,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "998e2193-ba1e-539d-bf8b-166efab2925c",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.7,
+    "expected_brain_version": 2,
+    "materialization_order": 18,
+    "payload": {
+      "chapter": 5,
+      "summary": "Duy receives a phone call from ba Sâm providing information that the spot is an auxiliary control point rather than an engine room entrance.",
+      "locations": [],
+      "event_type": "phone_call",
+      "consequences": [
+        "Duy learns the door is an auxiliary control location for power outages"
+      ],
+      "participants": [
+        "Duy",
+        "Linh",
+        "bà Sâm"
+      ],
+      "chapter_number": 5
+    },
+    "evidence": [
+      {
+        "end": 1926,
+        "quote": "Điện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.",
+        "start": 1797,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "68c997c9-454a-55ba-9c87-d5470a71290e",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.8,
+    "expected_brain_version": 2,
+    "materialization_order": 19,
+    "payload": {
+      "chapter": 5,
+      "summary": "Four short knocks and dragging sounds echo from beneath the floor, causing Linh to alert Duy via her monitoring display.",
+      "locations": [],
+      "event_type": "disturbance",
+      "consequences": [
+        "Linh shows the running logs to Duy as light patterns shift on her screen",
+        "Water reflection in the door gap starts rising"
+      ],
+      "participants": [
+        "Linh",
+        "Duy"
+      ],
+      "chapter_number": 5
+    },
+    "evidence": [
+      {
+        "end": 2459,
+        "quote": "Từ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống.",
+        "start": 2325,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "47518ebf-76c7-5e6d-9274-4d0d8074414d",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 20,
+    "payload": {
+      "fact_key": "tai_nghe_status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "tháo một bên",
+      "subject_name": "Linh",
+      "chapter_number": 5,
+      "subject_entity_name": "Linh"
+    },
+    "evidence": [
+      {
+        "end": 446,
+        "quote": "Linh tháo tai nghe một bên để vẫn nghe được tiếng Duy.",
+        "start": 392,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "7a81e6d1-0b63-55c4-85bc-5c6c11e2f098",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 21,
+    "payload": {
+      "fact_key": "activity",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "buộc lại thuyền",
+      "subject_name": "An",
+      "chapter_number": 5,
+      "subject_entity_name": "An"
+    },
+    "evidence": [
+      {
+        "end": 633,
+        "quote": "Ngoài sân, An buộc lại thuyền.",
+        "start": 603,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "873e5903-ed5e-57ec-a3d6-290da60f594f",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 2,
+    "materialization_order": 22,
+    "payload": {
+      "fact_key": "location",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "trạm Bốn, nhánh tây",
+      "subject_name": "Linh",
+      "chapter_number": 5,
+      "subject_entity_name": "Linh"
+    },
+    "evidence": [
+      {
+        "end": 882,
+        "quote": "Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây.",
+        "start": 818,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "27482961-51fb-54ba-b68f-194ba0867b29",
+    "analysis_run_id": "1024df8a-0ea8-4cda-9e3e-286f19c795f8",
+    "source_key": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 2,
+    "materialization_order": 23,
+    "payload": {
+      "fact_key": "statement",
+      "certainty": "reported",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "đó không phải cửa xuống phòng máy",
+        "subject": "bà Sâm",
+        "certainty": "reported"
+      },
+      "subject_name": "bà Sâm",
+      "chapter_number": 5
+    },
+    "evidence": [
+      {
+        "end": 2008,
+        "quote": "Bà Sâm nói đó không phải cửa xuống phòng máy.",
+        "start": 1963,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+        "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+        "chapter_number": 5
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:11:14.492045+00",
+    "updated_at": "2026-10-19 04:20:12.166111+00"
+  },
+  {
+    "id": "722b3153-516e-540b-9675-c1f0556c737a",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "materialization_order": 0,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Mai Linh",
+      "initial_status": "Alive",
+      "normalized_name": "mai linh"
+    },
+    "evidence": [
+      {
+        "end": 184,
+        "quote": "Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "start": 109,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "98734825-5c95-5706-ab65-34f019414606",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "materialization_order": 1,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Mai Lâm",
+      "initial_status": "Dead",
+      "normalized_name": "mai lâm"
+    },
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "facb7f02-5e4c-518e-9fff-848c21862c8e",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "materialization_order": 2,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "bà Yên",
+      "initial_status": "Unknown",
+      "normalized_name": "bà yên"
+    },
+    "evidence": [
+      {
+        "end": 1349,
+        "quote": "bà Yên",
+        "start": 1343,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "0c637dee-824d-5714-ae86-b91847d84375",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "materialization_order": 3,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Alive",
+      "normalized_name": "an"
+    },
+    "evidence": [
+      {
+        "end": 1508,
+        "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+        "start": 1443,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "ae25268d-12d7-521f-85ba-a72329f53345",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "materialization_order": 4,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Hòa",
+      "initial_status": "Alive",
+      "normalized_name": "hòa"
+    },
+    "evidence": [
+      {
+        "end": 3028,
+        "quote": "Ông tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung.",
+        "start": 2960,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "d20bee3b-a631-55df-8a68-eed3e6493622",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "materialization_order": 5,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Định",
+      "initial_status": "Alive",
+      "normalized_name": "định"
+    },
+    "evidence": [
+      {
+        "end": 5532,
+        "quote": "Buổi chiều hôm đó, Mai Linh gặp ông giáo Định tại quán nước đầu dốc Cồn Vân.",
+        "start": 5456,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "d86e4191-9b3b-57bd-9831-e85e27eada31",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "materialization_order": 6,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Cồn Vân",
+      "initial_status": "Unknown",
+      "normalized_name": "cồn vân"
+    },
+    "evidence": [
+      {
+        "end": 2162,
+        "quote": "Cồn Vân",
+        "start": 2155,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "2fb3f5bb-4818-5526-80c5-43efd0578d8d",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "materialization_order": 7,
+    "payload": {
+      "entity_type": "ORG",
+      "canonical_name": "Phòng lưu trữ âm thanh đô thị",
+      "initial_status": "Unknown",
+      "normalized_name": "phòng lưu trữ âm thanh đô thị"
+    },
+    "evidence": [
+      {
+        "end": 2696,
+        "quote": "Phòng lưu trữ âm thanh đô thị",
+        "start": 2667,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "66449061-6793-57bc-b816-0c3de44c07a9",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "materialization_order": 8,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "va li",
+      "initial_status": "Unknown",
+      "normalized_name": "va li"
+    },
+    "evidence": [
+      {
+        "end": 515,
+        "quote": "va li",
+        "start": 510,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "ade6386b-2307-5705-9793-4812eca5a1d7",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "materialization_order": 9,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "điện thoại",
+      "initial_status": "Unknown",
+      "normalized_name": "điện thoại"
+    },
+    "evidence": [
+      {
+        "end": 1792,
+        "quote": "điện thoại",
+        "start": 1782,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "30ce2262-91b5-5400-8393-138d2014b7b6",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 10,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "bà Sâm",
+      "initial_status": "Unknown",
+      "normalized_name": "bà sâm"
+    },
+    "evidence": [
+      {
+        "end": 1384,
+        "quote": "Bà Sâm",
+        "start": 1378,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "fb4f8173-da7f-558e-b30f-d565f06685d2",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 11,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Chợ Giữa",
+      "initial_status": "Unknown",
+      "normalized_name": "chợ giữa"
+    },
+    "evidence": [
+      {
+        "end": 1933,
+        "quote": "Chợ Giữa",
+        "start": 1925,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "5da66439-481f-53f5-9592-74c17b75e362",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 12,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Đồi Bắc",
+      "initial_status": "Unknown",
+      "normalized_name": "đồi bắc"
+    },
+    "evidence": [
+      {
+        "end": 2262,
+        "quote": "Đồi Bắc",
+        "start": 2255,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "92fc9772-cb81-5451-8b97-985d212cc8b8",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 13,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Bãi Dưới",
+      "initial_status": "Unknown",
+      "normalized_name": "bãi dưới"
+    },
+    "evidence": [
+      {
+        "end": 4425,
+        "quote": "Bãi Dưới",
+        "start": 4417,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "1e2e789e-8f80-5c4c-827f-f0a57dc44025",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 14,
+    "payload": {
+      "entity_type": "ORG",
+      "canonical_name": "Ban công trình",
+      "initial_status": "Unknown",
+      "normalized_name": "ban công trình"
+    },
+    "evidence": [
+      {
+        "end": 2340,
+        "quote": "Ban công trình",
+        "start": 2326,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "762137ae-212e-5a32-a8f5-7b3c91477708",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 15,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "áo mưa",
+      "initial_status": "Unknown",
+      "normalized_name": "áo mưa"
+    },
+    "evidence": [
+      {
+        "end": 494,
+        "quote": "áo mưa",
+        "start": 488,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "919f80f1-4276-5ee6-86e6-a1c5440c84fb",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 16,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "mảnh gốm",
+      "initial_status": "Unknown",
+      "normalized_name": "mảnh gốm"
+    },
+    "evidence": [
+      {
+        "end": 3041,
+        "quote": "mảnh gốm",
+        "start": 3033,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "356cce44-3557-57eb-b2e0-4067c679f867",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 17,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "hợp đồng",
+      "initial_status": "Unknown",
+      "normalized_name": "hợp đồng"
+    },
+    "evidence": [
+      {
+        "end": 3420,
+        "quote": "hợp đồng",
+        "start": 3412,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "53084f55-810b-5539-b33c-04093a14ef21",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 18,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "hộp gỗ",
+      "initial_status": "Unknown",
+      "normalized_name": "hộp gỗ"
+    },
+    "evidence": [
+      {
+        "end": 3844,
+        "quote": "hộp gỗ",
+        "start": 3838,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "8fe94eb2-3516-5470-8d6c-566041be67d4",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "materialization_order": 19,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "chìa khóa đồng",
+      "initial_status": "Unknown",
+      "normalized_name": "chìa khóa đồng"
+    },
+    "evidence": [
+      {
+        "end": 5578,
+        "quote": "chìa khóa đồng",
+        "start": 5564,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "0d2c18f6-5e64-58c1-8b6f-e2f2daa60a4d",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "materialization_order": 20,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "thùng cá",
+      "initial_status": "Unknown",
+      "normalized_name": "thùng cá"
+    },
+    "evidence": [
+      {
+        "end": 1196,
+        "quote": "thùng cá",
+        "start": 1188,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "cb7a3ce3-c23d-51ff-bbaf-ff9c697f821f",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "materialization_order": 21,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "giỏ nhựa",
+      "initial_status": "Unknown",
+      "normalized_name": "giỏ nhựa"
+    },
+    "evidence": [
+      {
+        "end": 2153,
+        "quote": "giỏ nhựa",
+        "start": 2145,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "b80408fd-fb91-5c1a-a7ce-5be3eb8e93fc",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "entity",
+    "status": "accepted",
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "materialization_order": 22,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "nhíp",
+      "initial_status": "Unknown",
+      "normalized_name": "nhíp"
+    },
+    "evidence": [
+      {
+        "end": 4308,
+        "quote": "nhíp",
+        "start": 4304,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5"
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "c5f8682a-6642-5790-b8ce-f1559a71f055",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.5,
+    "expected_brain_version": 6,
+    "materialization_order": 23,
+    "payload": {
+      "chapter": 1,
+      "summary": "An meets Mai Linh at the ferry landing with a sign bearing her name.",
+      "locations": [
+        "bến"
+      ],
+      "event_type": "meeting",
+      "consequences": [
+        "An carries Mai Linh's luggage."
+      ],
+      "participants": [
+        "Mai Linh",
+        "An",
+        "bà Yên"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 1351,
+        "quote": "Một cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”",
+        "start": 1160,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "df63a129-2716-5424-8f29-69bcdad65f1c",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.7,
+    "expected_brain_version": 6,
+    "materialization_order": 24,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh arrives at the pottery warehouse and meets storekeeper Hòa.",
+      "locations": [
+        "Kho gốm",
+        "Phòng lưu trữ âm thanh đô thị"
+      ],
+      "event_type": "meeting",
+      "consequences": [
+        "Mai Linh is shown into the archive."
+      ],
+      "participants": [
+        "Mai Linh",
+        "Hòa"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 2774,
+        "quote": "Kho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút.",
+        "start": 2546,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "d63a1e48-2f1a-54c2-b9b5-2fedc9be65d8",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.8,
+    "expected_brain_version": 6,
+    "materialization_order": 25,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh signs a twelve-day contract for inventory and assessment work with Hòa.",
+      "locations": [
+        "Phòng lưu trữ âm thanh đô thị"
+      ],
+      "event_type": "contract_signing",
+      "consequences": [
+        "Mai Linh officially begins her archive inspection assignment."
+      ],
+      "participants": [
+        "Mai Linh",
+        "Hòa"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 3630,
+        "quote": "Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.",
+        "start": 3388,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "b0b51a7e-f580-5b23-a632-cd73754927f6",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "event",
+    "status": "accepted",
+    "confidence": 0.6,
+    "expected_brain_version": 6,
+    "materialization_order": 26,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh meets Định at a teahouse, receiving an old bronze key to the reading room.",
+      "locations": [
+        "quán nước",
+        "Cồn Vân"
+      ],
+      "event_type": "meeting",
+      "consequences": [
+        "Mai Linh obtains the reading room key."
+      ],
+      "participants": [
+        "Mai Linh",
+        "Định"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 5604,
+        "quote": "Buổi chiều hôm đó, Mai Linh gặp ông giáo Định tại quán nước đầu dốc Cồn Vân. Ông giáo trao cho cô một chiếc chìa khóa đồng cũ kỹ của phòng đọc sách.",
+        "start": 5456,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "d1dac751-3a44-5f65-b5e8-a8a81ab6f7f7",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "materialization_order": 27,
+    "payload": {
+      "fact_key": "age",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 29,
+      "subject_name": "Mai Linh",
+      "chapter_number": 1,
+      "subject_entity_name": "Mai Linh"
+    },
+    "evidence": [
+      {
+        "end": 184,
+        "quote": "Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "start": 109,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "349bfb16-d54f-5e91-b820-85fc04ec4b7c",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "materialization_order": 28,
+    "payload": {
+      "fact_key": "flood_time_ago_years",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": 17,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "subject_name": "",
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 1014,
+        "quote": "Trên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao.",
+        "start": 909,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "8dda6432-96d7-512a-b224-bf1a5940f860",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "materialization_order": 29,
+    "payload": {
+      "fact_key": "age",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 19,
+      "subject_name": "An",
+      "chapter_number": 1,
+      "subject_entity_name": "An"
+    },
+    "evidence": [
+      {
+        "end": 1508,
+        "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+        "start": 1443,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "c2873c68-daa9-5332-a46e-cbc1e0cded38",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "materialization_order": 30,
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "Dead",
+      "subject_name": "Mai Lâm",
+      "chapter_number": 1,
+      "subject_entity_name": "Mai Lâm"
+    },
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "d66263be-e0a4-5081-bfb6-81112fa93f38",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "materialization_order": 31,
+    "payload": {
+      "fact_key": "death_toll_in_flood",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 23,
+      "subject_name": "Mai Lâm",
+      "chapter_number": 1,
+      "subject_entity_name": "Mai Lâm"
+    },
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "cb5d4fe8-e6fd-52a7-9da0-cfafb06d6341",
+    "analysis_run_id": "25b87982-a855-40d7-a919-958eaed70c3a",
+    "source_key": "analysis-addb83f3-e1bb-4d9b-9817-2a61165742e5",
+    "proposal_type": "fact",
+    "status": "accepted",
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "materialization_order": 32,
+    "payload": {
+      "fact_key": "contract_duration_days",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 12,
+      "subject_name": "Ông Hòa",
+      "chapter_number": 1,
+      "subject_entity_name": "Ông Hòa"
+    },
+    "evidence": [
+      {
+        "end": 3435,
+        "quote": "Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày.",
+        "start": 3388,
+        "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": "Author reviewed in editor",
+    "created_at": "2026-10-19 04:32:50.980413+00",
+    "updated_at": "2026-10-19 04:34:06.608894+00"
+  },
+  {
+    "id": "a51ad59a-5f66-546b-b41a-864af6dbfb6b",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 1.0,
+    "expected_brain_version": 7,
+    "materialization_order": 0,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Mai Linh",
+      "initial_status": "Alive",
+      "normalized_name": "mai linh"
+    },
+    "evidence": [
+      {
+        "end": 184,
+        "quote": "Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "start": 109,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "8feddfbf-f534-53f2-801f-fcec3da5e0c0",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 1.0,
+    "expected_brain_version": 7,
+    "materialization_order": 1,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Mai Lâm",
+      "initial_status": "Dead",
+      "normalized_name": "mai lâm"
+    },
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "ed433d18-47b7-5e46-a3f2-1a95662661fd",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.95,
+    "expected_brain_version": 7,
+    "materialization_order": 2,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Alive",
+      "normalized_name": "an"
+    },
+    "evidence": [
+      {
+        "end": 1508,
+        "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+        "start": 1443,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "2598d3e5-a0d2-5f59-a92b-5d24d0fa9464",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.95,
+    "expected_brain_version": 7,
+    "materialization_order": 3,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "ông Hòa",
+      "initial_status": "Alive",
+      "normalized_name": "ông hòa"
+    },
+    "evidence": [
+      {
+        "end": 2774,
+        "quote": "Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút.",
+        "start": 2712,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "8d2ab3a4-01b4-5b91-9045-5e3ea5b237c0",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.95,
+    "expected_brain_version": 7,
+    "materialization_order": 4,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "ông giáo Định",
+      "initial_status": "Alive",
+      "normalized_name": "ông giáo định"
+    },
+    "evidence": [
+      {
+        "end": 5532,
+        "quote": "Buổi chiều hôm đó, Mai Linh gặp ông giáo Định tại quán nước đầu dốc Cồn Vân.",
+        "start": 5456,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "5282bc64-2a8f-5730-88c0-e4fe44372b34",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.95,
+    "expected_brain_version": 7,
+    "materialization_order": 5,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Cồn Vân",
+      "initial_status": "Unknown",
+      "normalized_name": "cồn vân"
+    },
+    "evidence": [
+      {
+        "end": 2162,
+        "quote": "Cồn Vân",
+        "start": 2155,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "6a5dc4fa-e80d-5ccd-855f-ef66fd834564",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.9,
+    "expected_brain_version": 7,
+    "materialization_order": 6,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "bà Yên",
+      "initial_status": "Alive",
+      "normalized_name": "bà yên"
+    },
+    "evidence": [
+      {
+        "end": 1365,
+        "quote": "Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.",
+        "start": 1324,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "c7b4130f-4ecc-5828-8580-e116875d2720",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.9,
+    "expected_brain_version": 7,
+    "materialization_order": 7,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Chợ Giữa",
+      "initial_status": "Unknown",
+      "normalized_name": "chợ giữa"
+    },
+    "evidence": [
+      {
+        "end": 1933,
+        "quote": "Chợ Giữa",
+        "start": 1925,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "e00c7ece-1eca-5c5f-ae9a-9c394ca3a91d",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.9,
+    "expected_brain_version": 7,
+    "materialization_order": 8,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Đồi Bắc",
+      "initial_status": "Unknown",
+      "normalized_name": "đồi bắc"
+    },
+    "evidence": [
+      {
+        "end": 2262,
+        "quote": "Đồi Bắc",
+        "start": 2255,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "a33e7624-9f8b-552d-9294-f4718ac0dad9",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.9,
+    "expected_brain_version": 7,
+    "materialization_order": 9,
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "Bãi Dưới",
+      "initial_status": "Unknown",
+      "normalized_name": "bãi dưới"
+    },
+    "evidence": [
+      {
+        "end": 4425,
+        "quote": "Bãi Dưới",
+        "start": 4417,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "58fabccd-cbfa-5e5a-8b2e-6e443b5e9131",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.85,
+    "expected_brain_version": 7,
+    "materialization_order": 10,
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Bà Sâm",
+      "initial_status": "Unknown",
+      "normalized_name": "bà sâm"
+    },
+    "evidence": [
+      {
+        "end": 1384,
+        "quote": "Bà Sâm",
+        "start": 1378,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "39686446-10bb-58e1-816f-f0bfdbe7d102",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.85,
+    "expected_brain_version": 7,
+    "materialization_order": 11,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "điện thoại",
+      "initial_status": "Unknown",
+      "normalized_name": "điện thoại"
+    },
+    "evidence": [
+      {
+        "end": 1792,
+        "quote": "điện thoại",
+        "start": 1782,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "514a9fb8-68e1-5b96-9136-ca360e0694e7",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.85,
+    "expected_brain_version": 7,
+    "materialization_order": 12,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "mảnh gốm",
+      "initial_status": "Unknown",
+      "normalized_name": "mảnh gốm"
+    },
+    "evidence": [
+      {
+        "end": 3041,
+        "quote": "mảnh gốm",
+        "start": 3033,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "2c202e4f-3b86-5947-9a54-18dbfb21594f",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.85,
+    "expected_brain_version": 7,
+    "materialization_order": 13,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "chìa khóa đồng",
+      "initial_status": "Unknown",
+      "normalized_name": "chìa khóa đồng"
+    },
+    "evidence": [
+      {
+        "end": 5578,
+        "quote": "chìa khóa đồng",
+        "start": 5564,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "619b3498-20ce-5eb9-80a2-7df79b5e2d94",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.8,
+    "expected_brain_version": 7,
+    "materialization_order": 14,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "va li",
+      "initial_status": "Unknown",
+      "normalized_name": "va li"
+    },
+    "evidence": [
+      {
+        "end": 515,
+        "quote": "va li",
+        "start": 510,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "5f74cc5c-2117-5d5e-8bcb-5bf0eefd02ed",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "entity",
+    "status": "pending",
+    "confidence": 0.8,
+    "expected_brain_version": 7,
+    "materialization_order": 15,
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "áo mưa",
+      "initial_status": "Unknown",
+      "normalized_name": "áo mưa"
+    },
+    "evidence": [
+      {
+        "end": 494,
+        "quote": "áo mưa",
+        "start": 488,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5"
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "683d8f9d-2021-5cba-91c7-ad71172b113a",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "event",
+    "status": "pending",
+    "confidence": 0.8,
+    "expected_brain_version": 7,
+    "materialization_order": 16,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh arrives at the city by ferry and experiences familiar sounds from her past.",
+      "locations": [
+        "bến phà"
+      ],
+      "event_type": "arrival",
+      "consequences": [
+        "Mai Linh steps off the ferry into the city."
+      ],
+      "participants": [
+        "Mai Linh"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 108,
+        "quote": "Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố.",
+        "start": 51,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "e4a41465-570f-5969-821a-fe583f53b0f1",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "event",
+    "status": "pending",
+    "confidence": 0.85,
+    "expected_brain_version": 7,
+    "materialization_order": 17,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh meets the storekeeper, Mr. Hòa, at the audio archive storage room.",
+      "locations": [
+        "Phòng lưu trữ âm thanh đô thị"
+      ],
+      "event_type": "meeting",
+      "consequences": [
+        "Mr. Hòa presents a twelve-day contract to Mai Linh."
+      ],
+      "participants": [
+        "Mai Linh",
+        "ông Hòa"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 2774,
+        "quote": "Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút.",
+        "start": 2712,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "1827bd47-0d75-502a-bb5f-24ed0c34ef32",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "event",
+    "status": "pending",
+    "confidence": 0.9,
+    "expected_brain_version": 7,
+    "materialization_order": 18,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh signs a twelve-day contract to inspect and prioritize damaged sound and ceramic artifacts.",
+      "locations": [
+        "Phòng lưu trữ âm thanh đô thị"
+      ],
+      "event_type": "contract_signing",
+      "consequences": [
+        "Mai Linh officially agrees to perform the archive restoration work."
+      ],
+      "participants": [
+        "Mai Linh",
+        "ông Hòa"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 3435,
+        "quote": "Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày.",
+        "start": 3388,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "0dd4d7ed-5421-5639-a5e3-b18d6e06ef1e",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "event",
+    "status": "pending",
+    "confidence": 0.75,
+    "expected_brain_version": 7,
+    "materialization_order": 19,
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh meets teacher Định at a teahouse at the slope of Cồn Vân in the afternoon.",
+      "locations": [
+        "Cồn Vân"
+      ],
+      "event_type": "meeting",
+      "consequences": [
+        "Mai Linh receives an old bronze key to the reading room."
+      ],
+      "participants": [
+        "Mai Linh",
+        "ông giáo Định"
+      ],
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 5532,
+        "quote": "Buổi chiều hôm đó, Mai Linh gặp ông giáo Định tại quán nước đầu dốc Cồn Vân.",
+        "start": 5456,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "3de4aa54-e080-5e3c-a8eb-e402a2703b70",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "fact",
+    "status": "pending",
+    "confidence": 1.0,
+    "expected_brain_version": 7,
+    "materialization_order": 20,
+    "payload": {
+      "fact_key": "age",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 29,
+      "subject_name": "Mai Linh",
+      "chapter_number": 1,
+      "subject_entity_name": "Mai Linh"
+    },
+    "evidence": [
+      {
+        "end": 184,
+        "quote": "Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "start": 109,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "20203f35-fc37-50f2-ac64-afb3f231d37b",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "fact",
+    "status": "pending",
+    "confidence": 1.0,
+    "expected_brain_version": 7,
+    "materialization_order": 21,
+    "payload": {
+      "fact_key": "flood_history",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "Mười một năm trước",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "subject_name": "",
+      "chapter_number": 1
+    },
+    "evidence": [
+      {
+        "end": 241,
+        "quote": "Mười một năm trước, cầu dẫn còn có một thanh thép lỏng.",
+        "start": 186,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "101bf2a5-0236-5b3d-8410-292cc0df4c7e",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "fact",
+    "status": "pending",
+    "confidence": 1.0,
+    "expected_brain_version": 7,
+    "materialization_order": 22,
+    "payload": {
+      "fact_key": "age",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 19,
+      "subject_name": "An",
+      "chapter_number": 1,
+      "subject_entity_name": "An"
+    },
+    "evidence": [
+      {
+        "end": 1508,
+        "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+        "start": 1443,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "4cf443a3-5745-53bb-b700-3fc2a1c097b4",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "fact",
+    "status": "pending",
+    "confidence": 1.0,
+    "expected_brain_version": 7,
+    "materialization_order": 23,
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "Dead",
+      "subject_name": "Mai Lâm",
+      "chapter_number": 1,
+      "subject_entity_name": "Mai Lâm"
+    },
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "310d8303-fdc6-55f8-b00a-8f9a3c8c6be7",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "fact",
+    "status": "pending",
+    "confidence": 1.0,
+    "expected_brain_version": 7,
+    "materialization_order": 24,
+    "payload": {
+      "fact_key": "flood_victim_count",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 23,
+      "subject_name": "Mai Lâm",
+      "chapter_number": 1,
+      "subject_entity_name": "Mai Lâm"
+    },
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  },
+  {
+    "id": "588d38c6-e9a9-552e-8f35-fca589f12081",
+    "analysis_run_id": "ab084d01-c825-4b12-9fd9-66eea6d3e5c2",
+    "source_key": "analysis-6212307d-fb36-43f7-8e6e-d42dac617ae5",
+    "proposal_type": "fact",
+    "status": "pending",
+    "confidence": 1.0,
+    "expected_brain_version": 7,
+    "materialization_order": 25,
+    "payload": {
+      "fact_key": "contract_duration_days",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 12,
+      "subject_name": "ông Hòa",
+      "chapter_number": 1,
+      "subject_entity_name": "ông Hòa"
+    },
+    "evidence": [
+      {
+        "end": 3435,
+        "quote": "Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày.",
+        "start": 3388,
+        "text_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+        "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+        "revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+        "chapter_number": 1
+      }
+    ],
+    "decision_reason": null,
+    "created_at": "2026-10-19 04:35:09.433686+00",
+    "updated_at": "2026-10-19 04:35:09.433686+00"
+  }
+]

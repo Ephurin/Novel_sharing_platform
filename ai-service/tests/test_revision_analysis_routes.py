@@ -27,6 +27,8 @@ class FakeLLMService:
         self.responses = [
             json.dumps([{"phrase": "Minh", "entity": "PER", "score": 0.98}]),
             json.dumps({"events": []}),
+            json.dumps({"facts": []}),
+            json.dumps({"facts": []}),
         ]
 
     def _call_llm(self, system_prompt: str, user_prompt: str) -> str:

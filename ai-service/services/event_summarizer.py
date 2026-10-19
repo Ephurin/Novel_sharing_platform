@@ -8,8 +8,10 @@ from typing import Any
 from pydantic import ValidationError
 
 from core.exceptions import EventExtractionError
+from core.structured_call import call_structured
 from core.story_kb_manager import EventHistoryEntry
 from core.structured_outputs import EventExtractionOutput, NarrativeEventOutput, PipelineMetadata
+from services.source_grounding import quote_span, resolve_grounded_quote
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +45,11 @@ def extract_narrative_events(
         "You are a narrative event extractor. Only extract significant events involving the supplied known entities. "
         "Return only valid JSON with an 'events' array. Every event must contain participants, locations, summary, "
         "event_type, emotion_tags, importance_score between 0 and 1, and consequences. Return an empty array when "
-        "there is no significant event."
+        "there is no significant event. participants, locations, emotion_tags and consequences are arrays of strings, never strings. "
+        "evidence_quote must be the smallest sufficient exact contiguous quote from the passage supporting this event. "
+        "Include only people actually present and the location where the event happens, not places merely mentioned. "
+        "Preserve reported speech, uncertainty and negation; do not turn hypotheses into established conclusions. "
+        "Schema: " + json.dumps(NarrativeEventOutput.model_json_schema(), ensure_ascii=False)
     )
     user_prompt = (
         f"Text passage: {text.strip()}\n"
@@ -52,7 +58,7 @@ def extract_narrative_events(
     )
 
     try:
-        raw_output = llm_service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+        raw_output = call_structured(llm_service, operation="event_extraction", system_prompt=system_prompt, user_prompt=user_prompt)
     except Exception as exc:
         raise EventExtractionError(f"provider call failed: {exc}") from exc
 
@@ -72,6 +78,16 @@ def extract_narrative_events(
     known_names = {name.casefold(): name for name in entity_names}
     results: list[EventHistoryEntry] = []
     for event in extraction.events:
+        # Legacy adapters can omit a quote only when their summary is itself an exact source excerpt.
+        evidence_quote = event.evidence_quote or event.summary
+        _, _, resolved_quote = resolve_grounded_quote(
+            text,
+            evidence_quote,
+            context_hint=event.summary,
+            llm_service=llm_service,
+            max_retries=2,
+        )
+        evidence_quote = resolved_quote
         participants = []
         for participant in event.participants:
             normalized_participant = participant.strip().casefold()
@@ -79,7 +95,7 @@ def extract_narrative_events(
                 (
                     canonical
                     for known, canonical in known_names.items()
-                    if normalized_participant in known or known in normalized_participant
+                    if normalized_participant == known
                 ),
                 None,
             )
@@ -88,6 +104,7 @@ def extract_narrative_events(
 
         results.append(
             EventHistoryEntry(
+                evidence_quote=evidence_quote,
                 event_id=f"evt_{uuid.uuid4().hex[:8]}",
                 chapter=chapter_num,
                 timestamp=datetime.now(timezone.utc).isoformat(),

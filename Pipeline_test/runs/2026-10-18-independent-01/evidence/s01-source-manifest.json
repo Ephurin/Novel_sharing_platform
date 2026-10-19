@@ -1,0 +1,52 @@
+{
+  "novel_id": "46642ff1-5bac-4513-98fd-ffe1be6cb318",
+  "chapter_count": 5,
+  "total_word_count": 4747,
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+      "title": "Chương 1 — Bến trở về",
+      "word_count": 1216,
+      "status": "DRAFT",
+      "latest_revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+      "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b"
+    },
+    {
+      "chapter_number": 2,
+      "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+      "title": "Chương 2 — Lần đọc thứ nhất",
+      "word_count": 1005,
+      "status": "DRAFT",
+      "latest_revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+      "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45"
+    },
+    {
+      "chapter_number": 3,
+      "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+      "title": "Chương 3 — Hai nơi treo một quả chuông",
+      "word_count": 995,
+      "status": "DRAFT",
+      "latest_revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+      "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717"
+    },
+    {
+      "chapter_number": 4,
+      "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+      "title": "Chương 4 — Bản đồ không có tiếng nước",
+      "word_count": 957,
+      "status": "DRAFT",
+      "latest_revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+      "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf"
+    },
+    {
+      "chapter_number": 5,
+      "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+      "title": "Chương 5 — Ba tiếng gõ",
+      "word_count": 574,
+      "status": "DRAFT",
+      "latest_revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+      "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321"
+    }
+  ]
+}

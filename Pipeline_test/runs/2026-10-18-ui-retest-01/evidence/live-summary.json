@@ -1,0 +1,20 @@
+{
+  "saved_at": "2026-10-18T22:37:53.641200+07:00",
+  "proposal_types": {
+    "entity": 79,
+    "event": 13,
+    "state_transition": 1
+  },
+  "proposal_statuses": {
+    "pending": 65,
+    "accepted": 26,
+    "rejected": 2
+  },
+  "bad_word_boundary_spans": 4,
+  "usage": {
+    "prompt_token_count": 21901,
+    "candidates_token_count": 7572,
+    "total_token_count": 29473
+  },
+  "canonical_words": 4747
+}

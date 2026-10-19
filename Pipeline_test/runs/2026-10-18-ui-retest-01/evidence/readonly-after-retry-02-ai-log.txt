@@ -1,0 +1,1324 @@
+INFO:     127.0.0.1:46908 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49182 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57918 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33118 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43538 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48924 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42808 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.1:44152 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44216 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54018 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36238 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33128 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48190 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59986 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54296 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36568 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45790 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46268 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47944 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43338 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42500 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42644 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39310 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49480 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59282 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48282 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59746 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35270 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58828 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59522 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38840 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56196 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57424 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58292 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56404 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60466 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54216 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43256 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57280 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38194 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44242 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41918 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57892 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49186 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47910 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43654 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60852 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52816 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58690 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58002 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40298 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33252 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54540 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40542 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40948 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45246 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47530 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54828 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38540 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58890 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34888 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45096 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57238 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51468 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37066 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39172 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45970 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54894 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59110 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54500 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53638 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57290 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39972 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44944 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56754 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54634 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41354 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44158 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36622 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38640 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58914 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57480 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33900 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60394 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58726 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43980 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48158 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51998 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60700 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40272 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43512 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60518 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50898 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56700 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40304 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55020 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60244 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34270 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51080 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34068 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54136 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33532 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57052 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39626 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47704 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54900 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37778 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59088 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41862 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48256 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41196 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57902 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51918 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40416 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52722 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60294 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39886 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59688 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59556 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58292 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38596 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40188 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59354 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40002 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55946 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50828 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38328 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50408 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34902 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39958 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56260 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.1:60602 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48504 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33090 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55622 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33250 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44014 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49988 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36294 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:55344 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56738 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39228 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49786 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54554 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38584 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37426 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58606 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36218 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44792 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44784 - "GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44808 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54464 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44784 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48222 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52234 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "POST /v1/story-brains/bootstrap/from-manuscript HTTP/1.1" 202 Accepted
+INFO:     172.22.0.5:44776 - "GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:52526 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:52540 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:52550 - "GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:52528 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44768 - "GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41788 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43328 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58202 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:48752 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:48752 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:48752 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51480 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:45702 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34466 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57090 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51280 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35202 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:56594 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52556 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54380 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54378 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "POST /v1/story-brains/bootstrap/from-manuscript HTTP/1.1" 202 Accepted
+INFO:     172.22.0.5:35362 - "GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:35346 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:35374 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:35346 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:35346 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:35384 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56402 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:51212 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47212 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60368 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57944 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56990 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40110 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34410 - "GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34396 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34416 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34406 - "GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42184 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34396 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "POST /v1/story-brains/bootstrap/from-manuscript HTTP/1.1" 202 Accepted
+INFO:     172.22.0.5:44776 - "GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38658 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34396 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38654 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:34396 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38654 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57078 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34396 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38654 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:34396 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53714 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45994 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active HTTP/1.1" 404 Not Found
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue HTTP/1.1" 200 OK
+INFO:     172.22.0.5:38820 - "GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory HTTP/1.1" 200 OK
+INFO:     172.22.0.5:44776 - "GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 HTTP/1.1" 200 OK
+
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_narrative_foundation, Create Narrative Memory foundation tables.
+INFO  [alembic.runtime.migration] Running upgrade 0001_narrative_foundation -> 0002_state_projection, Add confirmed transitions, participants and rebuildable state projections.
+INFO  [alembic.runtime.migration] Running upgrade 0002_state_projection -> 0003_manuscript_bootstrap, Add durable manuscript bootstrap jobs.
+INFO  [alembic.runtime.migration] Running upgrade 0003_manuscript_bootstrap -> 0004_writing_generations, Add durable writing generations.
+INFO  [alembic.runtime.migration] Running upgrade 0004_writing_generations -> 0005_revision_provenance, Add revision provenance and fact chapter number.
+INFO  [alembic.runtime.migration] Running upgrade 0005_revision_provenance -> 0006_fix_revision_provenance, Fix revision provenance schema with revision_id and unique constraint.
+INFO  [alembic.runtime.migration] Running upgrade 0006_fix_revision_provenance -> 0007_semantic_memory_foundation, Add semantic-memory chunk and embedding storage.
+INFO  [alembic.runtime.migration] Running upgrade 0007_semantic_memory_foundation -> 0008_story_plans, Add story_plans and story_plan_objectives storage.
+INFO  [alembic.runtime.migration] Running upgrade 0008_story_plans -> 0009_autonomous_runs
+INFO:     Started server process [8]
+INFO:     Waiting for application startup.
+2026-10-18 10:11:47,786 | INFO | ai-service | Starting AI service with pure-LLM entity pipeline.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2026-10-18 10:11:54,777 | INFO | ai-service | GET /health -> 200 (2.71 ms)
+2026-10-18 10:12:04,869 | INFO | ai-service | GET /health -> 200 (1.20 ms)
+2026-10-18 10:12:14,949 | INFO | ai-service | GET /health -> 200 (0.88 ms)
+2026-10-18 10:12:25,005 | INFO | ai-service | GET /health -> 200 (0.58 ms)
+2026-10-18 10:12:35,088 | INFO | ai-service | GET /health -> 200 (1.58 ms)
+2026-10-18 10:12:45,138 | INFO | ai-service | GET /health -> 200 (0.89 ms)
+2026-10-18 10:12:55,210 | INFO | ai-service | GET /health -> 200 (0.54 ms)
+2026-10-18 10:13:05,281 | INFO | ai-service | GET /health -> 200 (1.00 ms)
+2026-10-18 10:13:09,973 | INFO | ai-service | GET /openapi.json -> 200 (168.75 ms)
+2026-10-18 10:13:15,342 | INFO | ai-service | GET /health -> 200 (0.65 ms)
+2026-10-18 10:13:25,403 | INFO | ai-service | GET /health -> 200 (0.81 ms)
+2026-10-18 10:13:35,466 | INFO | ai-service | GET /health -> 200 (1.44 ms)
+2026-10-18 10:13:45,549 | INFO | ai-service | GET /health -> 200 (0.89 ms)
+2026-10-18 10:13:55,625 | INFO | ai-service | GET /health -> 200 (0.83 ms)
+2026-10-18 10:14:05,698 | INFO | ai-service | GET /health -> 200 (0.92 ms)
+2026-10-18 10:14:15,761 | INFO | ai-service | GET /health -> 200 (0.66 ms)
+2026-10-18 10:14:25,830 | INFO | ai-service | GET /health -> 200 (0.55 ms)
+2026-10-18 10:14:35,909 | INFO | ai-service | GET /health -> 200 (0.88 ms)
+2026-10-18 10:14:46,010 | INFO | ai-service | GET /health -> 200 (0.84 ms)
+2026-10-18 10:14:56,072 | INFO | ai-service | GET /health -> 200 (0.84 ms)
+2026-10-18 10:15:06,135 | INFO | ai-service | GET /health -> 200 (1.02 ms)
+2026-10-18 10:15:16,212 | INFO | ai-service | GET /health -> 200 (0.73 ms)
+2026-10-18 10:15:26,295 | INFO | ai-service | GET /health -> 200 (1.37 ms)
+2026-10-18 10:15:36,359 | INFO | ai-service | GET /health -> 200 (0.91 ms)
+2026-10-18 10:15:46,440 | INFO | ai-service | GET /health -> 200 (0.76 ms)
+2026-10-18 10:15:56,514 | INFO | ai-service | GET /health -> 200 (0.71 ms)
+2026-10-18 10:16:06,585 | INFO | ai-service | GET /health -> 200 (1.09 ms)
+2026-10-18 10:16:16,675 | INFO | ai-service | GET /health -> 200 (0.81 ms)
+2026-10-18 10:16:26,753 | INFO | ai-service | GET /health -> 200 (0.71 ms)
+2026-10-18 10:16:36,808 | INFO | ai-service | GET /health -> 200 (0.94 ms)
+2026-10-18 10:16:46,877 | INFO | ai-service | GET /health -> 200 (0.66 ms)
+2026-10-18 10:16:56,956 | INFO | ai-service | GET /health -> 200 (1.21 ms)
+2026-10-18 10:17:07,011 | INFO | ai-service | GET /health -> 200 (0.63 ms)
+2026-10-18 10:17:17,084 | INFO | ai-service | GET /health -> 200 (0.70 ms)
+2026-10-18 10:17:27,163 | INFO | ai-service | GET /health -> 200 (0.53 ms)
+2026-10-18 10:17:37,242 | INFO | ai-service | GET /health -> 200 (0.68 ms)
+2026-10-18 10:17:47,324 | INFO | ai-service | GET /health -> 200 (0.96 ms)
+2026-10-18 10:17:57,393 | INFO | ai-service | GET /health -> 200 (0.60 ms)
+2026-10-18 10:18:07,452 | INFO | ai-service | GET /health -> 200 (0.77 ms)
+2026-10-18 10:18:17,531 | INFO | ai-service | GET /health -> 200 (0.70 ms)
+2026-10-18 10:18:27,612 | INFO | ai-service | GET /health -> 200 (0.68 ms)
+2026-10-18 10:18:37,667 | INFO | ai-service | GET /health -> 200 (0.80 ms)
+2026-10-18 10:18:47,745 | INFO | ai-service | GET /health -> 200 (0.52 ms)
+2026-10-18 10:18:57,826 | INFO | ai-service | GET /health -> 200 (0.77 ms)
+2026-10-18 10:19:07,903 | INFO | ai-service | GET /health -> 200 (0.76 ms)
+2026-10-18 10:19:17,968 | INFO | ai-service | GET /health -> 200 (0.98 ms)
+2026-10-18 10:19:28,029 | INFO | ai-service | GET /health -> 200 (0.74 ms)
+2026-10-18 10:19:38,111 | INFO | ai-service | GET /health -> 200 (0.77 ms)
+2026-10-18 10:19:48,202 | INFO | ai-service | GET /health -> 200 (0.96 ms)
+2026-10-18 10:19:58,262 | INFO | ai-service | GET /health -> 200 (0.79 ms)
+2026-10-18 10:20:08,343 | INFO | ai-service | GET /health -> 200 (0.80 ms)
+2026-10-18 10:20:18,401 | INFO | ai-service | GET /health -> 200 (0.64 ms)
+2026-10-18 10:20:28,461 | INFO | ai-service | GET /health -> 200 (0.78 ms)
+2026-10-18 10:20:38,547 | INFO | ai-service | GET /health -> 200 (0.96 ms)
+2026-10-18 10:20:48,611 | INFO | ai-service | GET /health -> 200 (0.98 ms)
+2026-10-18 10:20:58,673 | INFO | ai-service | GET /health -> 200 (0.78 ms)
+2026-10-18 10:21:08,746 | INFO | ai-service | GET /health -> 200 (0.92 ms)
+2026-10-18 10:21:18,830 | INFO | ai-service | GET /health -> 200 (0.68 ms)
+2026-10-18 10:21:28,872 | INFO | ai-service | GET /health -> 200 (0.54 ms)
+2026-10-18 10:21:38,923 | INFO | ai-service | GET /health -> 200 (0.75 ms)
+2026-10-18 10:21:48,983 | INFO | ai-service | GET /health -> 200 (0.68 ms)
+2026-10-18 10:21:59,060 | INFO | ai-service | GET /health -> 200 (0.72 ms)
+2026-10-18 10:22:09,120 | INFO | ai-service | GET /health -> 200 (0.72 ms)
+2026-10-18 10:22:19,194 | INFO | ai-service | GET /health -> 200 (0.74 ms)
+2026-10-18 10:22:29,250 | INFO | ai-service | GET /health -> 200 (0.78 ms)
+2026-10-18 10:22:39,316 | INFO | ai-service | GET /health -> 200 (0.96 ms)
+2026-10-18 10:22:49,403 | INFO | ai-service | GET /health -> 200 (0.92 ms)
+2026-10-18 10:22:59,486 | INFO | ai-service | GET /health -> 200 (1.29 ms)
+2026-10-18 10:23:09,572 | INFO | ai-service | GET /health -> 200 (1.17 ms)
+2026-10-18 10:23:19,631 | INFO | ai-service | GET /health -> 200 (0.59 ms)
+2026-10-18 10:23:29,683 | INFO | ai-service | GET /health -> 200 (0.63 ms)
+2026-10-18 10:23:39,757 | INFO | ai-service | GET /health -> 200 (0.97 ms)
+2026-10-18 10:23:49,841 | INFO | ai-service | GET /health -> 200 (0.82 ms)
+2026-10-18 10:23:59,930 | INFO | ai-service | GET /health -> 200 (1.00 ms)
+2026-10-18 10:24:09,992 | INFO | ai-service | GET /health -> 200 (0.57 ms)
+2026-10-18 10:24:20,069 | INFO | ai-service | GET /health -> 200 (0.52 ms)
+2026-10-18 10:24:30,158 | INFO | ai-service | GET /health -> 200 (0.77 ms)
+2026-10-18 10:24:40,231 | INFO | ai-service | GET /health -> 200 (0.91 ms)
+2026-10-18 10:24:50,300 | INFO | ai-service | GET /health -> 200 (0.53 ms)
+2026-10-18 10:25:00,370 | INFO | ai-service | GET /health -> 200 (0.71 ms)
+2026-10-18 10:25:10,443 | INFO | ai-service | GET /health -> 200 (0.79 ms)
+2026-10-18 10:25:20,498 | INFO | ai-service | GET /health -> 200 (0.83 ms)
+2026-10-18 10:25:30,578 | INFO | ai-service | GET /health -> 200 (0.80 ms)
+2026-10-18 10:25:40,635 | INFO | ai-service | GET /health -> 200 (0.53 ms)
+2026-10-18 10:25:50,702 | INFO | ai-service | GET /health -> 200 (0.54 ms)
+2026-10-18 10:26:00,763 | INFO | ai-service | GET /health -> 200 (0.56 ms)
+2026-10-18 10:26:10,827 | INFO | ai-service | GET /health -> 200 (0.74 ms)
+2026-10-18 10:26:20,901 | INFO | ai-service | GET /health -> 200 (0.59 ms)
+2026-10-18 10:26:30,964 | INFO | ai-service | GET /health -> 200 (0.55 ms)
+2026-10-18 10:26:41,035 | INFO | ai-service | GET /health -> 200 (0.73 ms)
+2026-10-18 10:26:51,117 | INFO | ai-service | GET /health -> 200 (0.69 ms)
+2026-10-18 10:27:01,178 | INFO | ai-service | GET /health -> 200 (0.65 ms)
+2026-10-18 10:27:11,267 | INFO | ai-service | GET /health -> 200 (0.85 ms)
+2026-10-18 10:27:21,325 | INFO | ai-service | GET /health -> 200 (0.75 ms)
+2026-10-18 10:27:31,387 | INFO | ai-service | GET /health -> 200 (0.58 ms)
+2026-10-18 10:27:41,466 | INFO | ai-service | GET /health -> 200 (0.63 ms)
+2026-10-18 10:27:51,522 | INFO | ai-service | GET /health -> 200 (0.64 ms)
+2026-10-18 10:28:01,594 | INFO | ai-service | GET /health -> 200 (0.91 ms)
+2026-10-18 10:28:11,671 | INFO | ai-service | GET /health -> 200 (0.67 ms)
+2026-10-18 10:28:21,755 | INFO | ai-service | GET /health -> 200 (0.64 ms)
+2026-10-18 10:28:31,824 | INFO | ai-service | GET /health -> 200 (0.96 ms)
+2026-10-18 10:28:41,889 | INFO | ai-service | GET /health -> 200 (0.70 ms)
+2026-10-18 10:28:51,953 | INFO | ai-service | GET /health -> 200 (0.74 ms)
+2026-10-18 10:29:02,028 | INFO | ai-service | GET /health -> 200 (0.81 ms)
+2026-10-18 10:29:12,104 | INFO | ai-service | GET /health -> 200 (0.62 ms)
+2026-10-18 10:29:22,178 | INFO | ai-service | GET /health -> 200 (0.53 ms)
+2026-10-18 10:29:32,242 | INFO | ai-service | GET /health -> 200 (0.77 ms)
+2026-10-18 10:29:42,317 | INFO | ai-service | GET /health -> 200 (0.70 ms)
+2026-10-18 10:29:52,392 | INFO | ai-service | GET /health -> 200 (0.53 ms)
+2026-10-18 10:30:02,460 | INFO | ai-service | GET /health -> 200 (0.77 ms)
+2026-10-18 10:30:12,524 | INFO | ai-service | GET /health -> 200 (0.66 ms)
+2026-10-18 10:30:22,599 | INFO | ai-service | GET /health -> 200 (0.69 ms)
+2026-10-18 10:30:32,671 | INFO | ai-service | GET /health -> 200 (0.68 ms)
+2026-10-18 10:30:42,726 | INFO | ai-service | GET /health -> 200 (0.88 ms)
+2026-10-18 10:30:52,793 | INFO | ai-service | GET /health -> 200 (0.57 ms)
+2026-10-18 10:31:02,872 | INFO | ai-service | GET /health -> 200 (0.52 ms)
+2026-10-18 10:31:12,945 | INFO | ai-service | GET /health -> 200 (1.19 ms)
+2026-10-18 10:31:23,021 | INFO | ai-service | GET /health -> 200 (0.63 ms)
+2026-10-18 10:31:33,097 | INFO | ai-service | GET /health -> 200 (0.64 ms)
+2026-10-18 10:31:43,148 | INFO | ai-service | GET /health -> 200 (0.69 ms)
+2026-10-18 10:31:53,216 | INFO | ai-service | GET /health -> 200 (0.62 ms)
+2026-10-18 10:32:03,275 | INFO | ai-service | GET /health -> 200 (0.61 ms)
+2026-10-18 10:32:13,345 | INFO | ai-service | GET /health -> 200 (0.61 ms)
+2026-10-18 10:32:23,436 | INFO | ai-service | GET /health -> 200 (1.24 ms)
+2026-10-18 10:32:33,518 | INFO | ai-service | GET /health -> 200 (0.67 ms)
+2026-10-18 10:32:43,588 | INFO | ai-service | GET /health -> 200 (0.56 ms)
+2026-10-18 10:32:53,684 | INFO | ai-service | GET /health -> 200 (1.10 ms)
+2026-10-18 10:33:03,755 | INFO | ai-service | GET /health -> 200 (0.69 ms)
+2026-10-18 10:33:13,819 | INFO | ai-service | GET /health -> 200 (0.69 ms)
+2026-10-18 10:33:23,885 | INFO | ai-service | GET /health -> 200 (0.80 ms)
+2026-10-18 10:33:33,965 | INFO | ai-service | GET /health -> 200 (0.75 ms)
+2026-10-18 10:33:44,043 | INFO | ai-service | GET /health -> 200 (0.70 ms)
+2026-10-18 10:33:54,107 | INFO | ai-service | GET /health -> 200 (1.16 ms)
+2026-10-18 10:33:55,744 | INFO | ai-service | GET /openapi.json -> 200 (2.57 ms)
+2026-10-18 10:34:04,168 | INFO | ai-service | GET /health -> 200 (0.56 ms)
+2026-10-18 10:34:14,231 | INFO | ai-service | GET /health -> 200 (0.70 ms)
+2026-10-18 10:34:24,297 | INFO | ai-service | GET /health -> 200 (0.73 ms)
+2026-10-18 10:34:34,363 | INFO | ai-service | GET /health -> 200 (0.58 ms)
+2026-10-18 10:34:44,423 | INFO | ai-service | GET /health -> 200 (0.72 ms)
+2026-10-18 10:34:48,165 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (74.74 ms)
+2026-10-18 10:34:54,509 | INFO | ai-service | GET /health -> 200 (1.09 ms)
+2026-10-18 10:35:04,593 | INFO | ai-service | GET /health -> 200 (0.81 ms)
+2026-10-18 10:35:05,139 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.91 ms)
+2026-10-18 10:35:14,681 | INFO | ai-service | GET /health -> 200 (0.67 ms)
+2026-10-18 10:35:24,741 | INFO | ai-service | GET /health -> 200 (0.69 ms)
+2026-10-18 10:35:34,828 | INFO | ai-service | GET /health -> 200 (0.62 ms)
+2026-10-18 10:35:44,899 | INFO | ai-service | GET /health -> 200 (0.96 ms)
+2026-10-18 10:35:54,959 | INFO | ai-service | GET /health -> 200 (0.66 ms)
+2026-10-18 10:36:05,040 | INFO | ai-service | GET /health -> 200 (0.64 ms)
+2026-10-18 10:36:15,106 | INFO | ai-service | GET /health -> 200 (0.99 ms)
+2026-10-18 10:36:25,175 | INFO | ai-service | GET /health -> 200 (0.61 ms)
+2026-10-18 10:36:32,906 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (24.39 ms)
+2026-10-18 10:36:32,909 | INFO | ai-service | GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (29.32 ms)
+2026-10-18 10:36:32,912 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (24.53 ms)
+2026-10-18 10:36:32,917 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (41.48 ms)
+2026-10-18 10:36:32,923 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (46.16 ms)
+2026-10-18 10:36:35,245 | INFO | ai-service | GET /health -> 200 (0.92 ms)
+2026-10-18 10:36:35,976 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (3.39 ms)
+2026-10-18 10:36:35,995 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (8.37 ms)
+2026-10-18 10:36:36,004 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (17.16 ms)
+2026-10-18 10:36:36,006 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.57 ms)
+2026-10-18 10:36:38,999 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (3.72 ms)
+2026-10-18 10:36:39,013 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.33 ms)
+2026-10-18 10:36:39,034 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.02 ms)
+2026-10-18 10:36:39,035 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.45 ms)
+2026-10-18 10:36:42,015 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (3.70 ms)
+2026-10-18 10:36:42,035 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.85 ms)
+2026-10-18 10:36:42,060 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (12.68 ms)
+2026-10-18 10:36:42,060 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (12.39 ms)
+2026-10-18 10:36:45,036 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.03 ms)
+2026-10-18 10:36:45,050 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.81 ms)
+2026-10-18 10:36:45,084 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (13.12 ms)
+2026-10-18 10:36:45,085 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (13.34 ms)
+2026-10-18 10:36:45,330 | INFO | ai-service | GET /health -> 200 (0.78 ms)
+2026-10-18 10:36:48,055 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (3.35 ms)
+2026-10-18 10:36:48,066 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (2.85 ms)
+2026-10-18 10:36:48,120 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (11.59 ms)
+2026-10-18 10:36:48,121 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (12.75 ms)
+2026-10-18 10:36:51,071 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (4.55 ms)
+2026-10-18 10:36:51,082 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.92 ms)
+2026-10-18 10:36:51,156 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (13.24 ms)
+2026-10-18 10:36:51,157 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (14.38 ms)
+2026-10-18 10:36:54,091 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (4.59 ms)
+2026-10-18 10:36:54,097 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (2.98 ms)
+2026-10-18 10:36:54,193 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (14.79 ms)
+2026-10-18 10:36:54,193 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (14.73 ms)
+2026-10-18 10:36:55,392 | INFO | ai-service | GET /health -> 200 (0.97 ms)
+2026-10-18 10:36:55,478 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-manuscript -> 202 (60.75 ms)
+2026-10-18 10:36:55,512 | INFO | ai-service | GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (19.49 ms)
+2026-10-18 10:36:55,532 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (33.34 ms)
+2026-10-18 10:36:55,534 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (31.58 ms)
+2026-10-18 10:36:55,539 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (48.28 ms)
+2026-10-18 10:36:55,546 | INFO | ai-service | GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 -> 200 (40.56 ms)
+2026-10-18 10:36:55,555 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (55.88 ms)
+2026-10-18 10:36:56,020 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:36:56,020 | WARNING | google_genai.models | Direct use of automatic function calling (AFC) in Models.generate_content is not recommended. Instead, we recommend to use AFC in Chat.send_message. Similarly, direct use of AFC in Models.generate_content_stream is not recommended. Instead, we recommend to use AFC in Chat.send_message_stream.
+2026-10-18 10:36:57,078 | INFO | ai-service | GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 -> 200 (5.33 ms)
+2026-10-18 10:36:57,890 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:36:57,907 | INFO | core.llm_service | structured_provider_response {"trace_id": "3450abae-2835-4709-a14d-68b6f5289054", "operation": "entity_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a", "revision_id": "60541649-d04b-4fa2-80c3-2abe3fbe79f8", "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b", "analysis_run_id": "dc343684-e09f-4e45-9af8-768f660be59c"}, "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660", "input_sha256": "c315023f018dcb2f1fac935340ec0fce5d49768dea250711cba0a0a67915228d", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "SaHUaojKFZHfosUPvonxEQ", "response_sha256": "006d33b7b9aec75fce8da989828cca8369a167b63159243e32cd1fd2ea44926c", "response_characters": 1195, "usage": {"prompt_token_count": 1691, "candidates_token_count": 479, "total_token_count": 2170}}
+2026-10-18 10:36:57,941 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:36:58,555 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (4.03 ms)
+2026-10-18 10:36:58,556 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.72 ms)
+2026-10-18 10:36:58,573 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.44 ms)
+2026-10-18 10:36:58,586 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (7.49 ms)
+2026-10-18 10:36:58,595 | INFO | ai-service | GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 -> 200 (3.05 ms)
+2026-10-18 10:36:59,734 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:36:59,735 | INFO | core.llm_service | structured_provider_response {"trace_id": "12eaafe0-50c5-423a-a145-28e0bcc084fe", "operation": "event_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a", "revision_id": "60541649-d04b-4fa2-80c3-2abe3fbe79f8", "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b", "analysis_run_id": "dc343684-e09f-4e45-9af8-768f660be59c"}, "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2", "input_sha256": "d63a8baeb8f22788edb02b6be4a40399ca982b6b941b956ab38e81f6c126b254", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "S6HUao_DDYCG1e8P56bR-Qw", "response_sha256": "20f2178cb777c77e1f66acce23ed50041e6157610975b751084a421767d36f97", "response_characters": 1399, "usage": {"prompt_token_count": 1737, "candidates_token_count": 373, "total_token_count": 2110}}
+2026-10-18 10:36:59,737 | INFO | services.event_summarizer | Event summarizer: extracted 2 events from text
+2026-10-18 10:36:59,766 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:37:00,115 | INFO | ai-service | GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 -> 200 (4.94 ms)
+2026-10-18 10:37:00,483 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:37:00,485 | INFO | core.llm_service | structured_provider_response {"trace_id": "c5cf28ad-135c-45cc-a324-2cd42c678da3", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a", "revision_id": "60541649-d04b-4fa2-80c3-2abe3fbe79f8", "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b", "analysis_run_id": "dc343684-e09f-4e45-9af8-768f660be59c"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "efba62f54995ab56d4124e2c671baeb47ea739e6ef1b32327df9bff7481a546e", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "TKHUataIL9Su2roPjpHG6QI", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 189, "candidates_token_count": 9, "total_token_count": 198}}
+2026-10-18 10:37:00,513 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:37:01,444 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:37:01,445 | INFO | core.llm_service | structured_provider_response {"trace_id": "47007881-4877-4f7c-a70b-1404f0b19df2", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a", "revision_id": "60541649-d04b-4fa2-80c3-2abe3fbe79f8", "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b", "analysis_run_id": "dc343684-e09f-4e45-9af8-768f660be59c"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "20e4bd4784bd21192261e6486664effae0fd9a928a4e6bd4ca58cf77147e5e68", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "TaHUaoGFJO2x1e8P7dXt6AE", "response_sha256": "83bccbbb15d664561cf9e747a7f502a585f4031eadcf5acb9b3a5fd0dabcdbc4", "response_characters": 196, "usage": {"prompt_token_count": 204, "candidates_token_count": 69, "total_token_count": 273}}
+2026-10-18 10:37:01,539 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:37:01,571 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.44 ms)
+2026-10-18 10:37:01,577 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (12.20 ms)
+2026-10-18 10:37:01,596 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (10.70 ms)
+2026-10-18 10:37:01,634 | INFO | ai-service | GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 -> 200 (5.22 ms)
+2026-10-18 10:37:01,642 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (14.90 ms)
+2026-10-18 10:37:02,773 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:37:02,775 | INFO | core.llm_service | structured_provider_response {"trace_id": "acf89d5b-3c4d-4502-a653-e78c4a122631", "operation": "entity_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af", "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33", "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45", "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"}, "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660", "input_sha256": "a251509a95a545a01973505dcd980030beb25096a154c9bae5606f4b9a2abc1e", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "TqHUaoybL-fprfcPiN__iAk", "response_sha256": "ee27edb3cec068f0cc38a1b352bb9ca20b5268ec81458d594588162cafbb29a0", "response_characters": 511, "usage": {"prompt_token_count": 1425, "candidates_token_count": 213, "total_token_count": 1638}}
+2026-10-18 10:37:02,807 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:37:03,158 | INFO | ai-service | GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 -> 200 (3.54 ms)
+2026-10-18 10:37:04,606 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (6.84 ms)
+2026-10-18 10:37:04,606 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.53 ms)
+2026-10-18 10:37:04,637 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (11.07 ms)
+2026-10-18 10:37:04,679 | INFO | ai-service | GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 -> 200 (5.14 ms)
+2026-10-18 10:37:04,687 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (12.12 ms)
+2026-10-18 10:37:05,187 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:37:05,188 | INFO | core.llm_service | structured_provider_response {"trace_id": "f4e75463-e92a-4142-a64c-597df872a6e2", "operation": "event_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af", "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33", "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45", "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"}, "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2", "input_sha256": "3a4a8d1a72bccfe91d559dd211b60122e13a7ae58cebb7838241764a536d2c96", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "UKHUarhu4uHV7w-n04uIBQ", "response_sha256": "13adac1f2e9246c8be1ebb04893ca0bc5427680a666d64f407c0653965dd2c72", "response_characters": 1665, "usage": {"prompt_token_count": 1437, "candidates_token_count": 504, "total_token_count": 1941}}
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/app/services/event_summarizer.py", line 63, in extract_narrative_events
+    events=[NarrativeEventOutput.model_validate(item) for item in raw_events],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pydantic/main.py", line 732, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for NarrativeEventOutput
+consequences
+  Input should be a valid list [type=list_type, input_value='Linh thu được bản ...oàn toàn chính xác.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/list_type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 152, in app
+    await response(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/responses.py", line 172, in __call__
+    await self.background()
+  File "/usr/local/lib/python3.12/site-packages/fastapi/background.py", line 67, in __call__
+    await task()
+  File "/usr/local/lib/python3.12/site-packages/starlette/background.py", line 23, in __call__
+    await run_in_threadpool(self.func, *self.args, **self.kwargs)
+  File "/usr/local/lib/python3.12/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/application/bootstrap_service.py", line 377, in process
+    result = self._analysis_service.analyze(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/application/revision_analysis_service.py", line 183, in analyze
+    events = extract_narrative_events(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/services/event_summarizer.py", line 71, in extract_narrative_events
+    raise EventExtractionError(f"model output failed schema validation: {exc}") from exc
+core.exceptions.EventExtractionError: Event extraction error: model output failed schema validation: 1 validation error for NarrativeEventOutput
+consequences
+  Input should be a valid list [type=list_type, input_value='Linh thu được bản ...oàn toàn chính xác.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/list_type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/fastapi/applications.py", line 1215, in __call__
+    await super().__call__(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/base.py", line 202, in __call__
+    raise app_exc
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 149, in simple_response
+    await self.app(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 2786, in app
+    await route.handle(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 1817, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 2869, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 1843, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 1308, in handle
+    await effective_context.app(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 165, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 56, in wrapped_app
+    raise RuntimeError("Caught handled exception, but response already started.") from exc
+RuntimeError: Caught handled exception, but response already started.
+2026-10-18 10:37:05,478 | INFO | ai-service | GET /health -> 200 (0.58 ms)
+2026-10-18 10:37:06,197 | INFO | ai-service | GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 -> 200 (4.30 ms)
+2026-10-18 10:37:07,636 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.92 ms)
+2026-10-18 10:37:07,637 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (11.41 ms)
+2026-10-18 10:37:07,657 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (10.73 ms)
+2026-10-18 10:37:07,714 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (10.67 ms)
+2026-10-18 10:37:10,655 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.64 ms)
+2026-10-18 10:37:10,655 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.54 ms)
+2026-10-18 10:37:10,676 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (10.63 ms)
+2026-10-18 10:37:10,735 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (10.23 ms)
+2026-10-18 10:37:13,677 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (7.00 ms)
+2026-10-18 10:37:13,678 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.47 ms)
+2026-10-18 10:37:13,696 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (10.57 ms)
+2026-10-18 10:37:13,757 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (11.22 ms)
+2026-10-18 10:37:15,563 | INFO | ai-service | GET /health -> 200 (1.44 ms)
+2026-10-18 10:37:16,698 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.71 ms)
+2026-10-18 10:37:16,699 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (5.44 ms)
+2026-10-18 10:37:16,717 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.50 ms)
+2026-10-18 10:37:16,782 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (12.20 ms)
+2026-10-18 10:37:19,723 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (6.64 ms)
+2026-10-18 10:37:19,725 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.91 ms)
+2026-10-18 10:37:19,739 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.72 ms)
+2026-10-18 10:37:19,823 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (11.45 ms)
+2026-10-18 10:37:22,749 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.94 ms)
+2026-10-18 10:37:22,750 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (9.93 ms)
+2026-10-18 10:37:22,763 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.08 ms)
+2026-10-18 10:37:22,858 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (12.46 ms)
+2026-10-18 10:37:25,626 | INFO | ai-service | GET /health -> 200 (0.63 ms)
+2026-10-18 10:37:25,786 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.73 ms)
+2026-10-18 10:37:25,788 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (11.23 ms)
+2026-10-18 10:37:25,794 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.76 ms)
+2026-10-18 10:37:25,896 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (13.59 ms)
+2026-10-18 10:37:28,819 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.94 ms)
+2026-10-18 10:37:28,820 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (9.23 ms)
+2026-10-18 10:37:28,827 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (14.76 ms)
+2026-10-18 10:37:28,929 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (11.39 ms)
+2026-10-18 10:37:31,849 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (8.27 ms)
+2026-10-18 10:37:31,849 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.94 ms)
+2026-10-18 10:37:31,855 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (14.36 ms)
+2026-10-18 10:37:31,960 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (12.88 ms)
+2026-10-18 10:37:34,869 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.59 ms)
+2026-10-18 10:37:34,872 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.70 ms)
+2026-10-18 10:37:34,886 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.16 ms)
+2026-10-18 10:37:35,000 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (11.22 ms)
+2026-10-18 10:37:35,693 | INFO | ai-service | GET /health -> 200 (0.56 ms)
+2026-10-18 10:37:37,892 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (4.79 ms)
+2026-10-18 10:37:37,893 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.89 ms)
+2026-10-18 10:37:37,909 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (8.73 ms)
+2026-10-18 10:37:38,020 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (8.93 ms)
+2026-10-18 10:37:40,928 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.81 ms)
+2026-10-18 10:37:40,929 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (9.51 ms)
+2026-10-18 10:37:40,938 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (13.84 ms)
+2026-10-18 10:37:41,047 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (10.62 ms)
+2026-10-18 10:37:43,952 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.16 ms)
+2026-10-18 10:37:43,953 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (6.91 ms)
+2026-10-18 10:37:43,968 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (10.19 ms)
+2026-10-18 10:37:44,079 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (10.51 ms)
+2026-10-18 10:37:45,760 | INFO | ai-service | GET /health -> 200 (0.77 ms)
+2026-10-18 10:37:46,982 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.57 ms)
+2026-10-18 10:37:46,983 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (8.47 ms)
+2026-10-18 10:37:46,999 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (10.08 ms)
+2026-10-18 10:37:47,109 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (12.20 ms)
+2026-10-18 10:37:50,004 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.37 ms)
+2026-10-18 10:37:50,006 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (7.68 ms)
+2026-10-18 10:37:50,020 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.32 ms)
+2026-10-18 10:37:50,151 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (14.03 ms)
+2026-10-18 10:37:53,039 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (8.00 ms)
+2026-10-18 10:37:53,039 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.43 ms)
+2026-10-18 10:37:53,053 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.40 ms)
+2026-10-18 10:37:53,180 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (11.09 ms)
+2026-10-18 10:37:55,833 | INFO | ai-service | GET /health -> 200 (0.83 ms)
+2026-10-18 10:37:56,060 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.13 ms)
+2026-10-18 10:37:56,061 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.08 ms)
+2026-10-18 10:37:56,076 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.26 ms)
+2026-10-18 10:37:56,217 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (9.86 ms)
+2026-10-18 10:37:59,097 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (8.00 ms)
+2026-10-18 10:37:59,099 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.17 ms)
+2026-10-18 10:37:59,107 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.87 ms)
+2026-10-18 10:37:59,253 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (11.35 ms)
+2026-10-18 10:38:02,116 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (5.67 ms)
+2026-10-18 10:38:02,117 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.78 ms)
+2026-10-18 10:38:02,135 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.53 ms)
+2026-10-18 10:38:02,276 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (9.68 ms)
+2026-10-18 10:38:05,145 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.86 ms)
+2026-10-18 10:38:05,146 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (8.71 ms)
+2026-10-18 10:38:05,158 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (8.41 ms)
+2026-10-18 10:38:05,304 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (12.85 ms)
+2026-10-18 10:38:05,895 | INFO | ai-service | GET /health -> 200 (0.70 ms)
+2026-10-18 10:38:08,179 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (8.01 ms)
+2026-10-18 10:38:08,180 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.17 ms)
+2026-10-18 10:38:08,187 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (12.79 ms)
+2026-10-18 10:38:08,336 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (13.06 ms)
+2026-10-18 10:38:11,198 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.71 ms)
+2026-10-18 10:38:11,199 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.54 ms)
+2026-10-18 10:38:11,217 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (8.79 ms)
+2026-10-18 10:38:11,359 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (10.33 ms)
+2026-10-18 10:38:14,225 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (5.78 ms)
+2026-10-18 10:38:14,226 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.91 ms)
+2026-10-18 10:38:14,243 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (8.57 ms)
+2026-10-18 10:38:14,379 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (9.42 ms)
+2026-10-18 10:38:15,984 | INFO | ai-service | GET /health -> 200 (0.65 ms)
+2026-10-18 10:38:17,247 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.48 ms)
+2026-10-18 10:38:17,248 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (8.64 ms)
+2026-10-18 10:38:17,264 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.05 ms)
+2026-10-18 10:38:17,407 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (10.39 ms)
+2026-10-18 10:38:20,272 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.88 ms)
+2026-10-18 10:38:20,274 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (9.72 ms)
+2026-10-18 10:38:20,299 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.85 ms)
+2026-10-18 10:38:20,443 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (11.85 ms)
+2026-10-18 10:38:23,300 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (5.80 ms)
+2026-10-18 10:38:23,300 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (6.67 ms)
+2026-10-18 10:38:23,321 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (10.12 ms)
+2026-10-18 10:38:23,477 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (9.28 ms)
+2026-10-18 10:38:26,045 | INFO | ai-service | GET /health -> 200 (0.82 ms)
+2026-10-18 10:38:26,331 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (7.96 ms)
+2026-10-18 10:38:26,331 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.36 ms)
+2026-10-18 10:38:26,347 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (10.09 ms)
+2026-10-18 10:38:26,501 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (9.95 ms)
+2026-10-18 10:38:29,356 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.33 ms)
+2026-10-18 10:38:29,357 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.26 ms)
+2026-10-18 10:38:29,375 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (9.03 ms)
+2026-10-18 10:38:29,529 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (10.10 ms)
+2026-10-18 10:38:32,384 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.26 ms)
+2026-10-18 10:38:32,385 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (7.16 ms)
+2026-10-18 10:38:32,398 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (8.30 ms)
+2026-10-18 10:38:32,556 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (9.26 ms)
+2026-10-18 10:38:35,414 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (7.14 ms)
+2026-10-18 10:38:35,415 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.72 ms)
+2026-10-18 10:38:35,428 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (8.66 ms)
+2026-10-18 10:38:35,590 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (11.53 ms)
+2026-10-18 10:38:36,127 | INFO | ai-service | GET /health -> 200 (0.64 ms)
+2026-10-18 10:38:37,879 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-manuscript -> 202 (15.60 ms)
+2026-10-18 10:38:37,913 | INFO | ai-service | GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (16.86 ms)
+2026-10-18 10:38:37,919 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (24.19 ms)
+2026-10-18 10:38:37,924 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (26.00 ms)
+2026-10-18 10:38:37,929 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (40.42 ms)
+2026-10-18 10:38:37,935 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (45.45 ms)
+2026-10-18 10:38:37,968 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:40,947 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.72 ms)
+2026-10-18 10:38:40,949 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (8.80 ms)
+2026-10-18 10:38:40,955 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (14.97 ms)
+2026-10-18 10:38:40,961 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:40,963 | INFO | core.llm_service | structured_provider_response {"trace_id": "42925316-74a9-482d-976f-1c036baea641", "operation": "entity_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af", "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33", "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45", "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"}, "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660", "input_sha256": "a251509a95a545a01973505dcd980030beb25096a154c9bae5606f4b9a2abc1e", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "r6HUapbuGPbt2roP5ciXyAQ", "response_sha256": "66abb2005900479bb2b951a7ef1f7cb25c23c96529f0158266418821abc21e8f", "response_characters": 2378, "usage": {"prompt_token_count": 1425, "candidates_token_count": 948, "total_token_count": 2373}}
+2026-10-18 10:38:40,969 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (12.43 ms)
+2026-10-18 10:38:40,993 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:42,570 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:42,571 | INFO | core.llm_service | structured_provider_response {"trace_id": "5d3116ba-ce2c-4253-a384-c5eb8c35fd76", "operation": "event_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af", "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33", "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45", "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"}, "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2", "input_sha256": "ec64890d75d41e25241de0a7bfe7e650c022f406265e1d7c712046fe0ceb59d1", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "sqHUatHXEPno2roP6s6umAM", "response_sha256": "47bd53d7452045b18d1301f120105672af71b11848b4079b889620465e29ab72", "response_characters": 805, "usage": {"prompt_token_count": 1510, "candidates_token_count": 253, "total_token_count": 1763}}
+2026-10-18 10:38:42,572 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+2026-10-18 10:38:42,600 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:43,416 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:43,418 | INFO | core.llm_service | structured_provider_response {"trace_id": "227129f9-9ad7-43d7-9b66-d712252cb498", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af", "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33", "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45", "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "2c99abc678cdd4c89a2eb05c2af2528cc4b83d7febfceec8ac75bd68e866a687", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "s6HUasugLrrf9tMP4NLyCA", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 248, "candidates_token_count": 9, "total_token_count": 257}}
+2026-10-18 10:38:43,517 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:43,982 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (7.40 ms)
+2026-10-18 10:38:43,988 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (11.74 ms)
+2026-10-18 10:38:44,001 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (24.97 ms)
+2026-10-18 10:38:44,006 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (18.73 ms)
+2026-10-18 10:38:45,330 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:45,331 | INFO | core.llm_service | structured_provider_response {"trace_id": "d288c2c2-774d-4e6d-bb0c-76eca4c978f8", "operation": "entity_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa", "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005", "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717", "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"}, "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660", "input_sha256": "adb3d5a3fab0de8546cf47cdab437da707e7c71407e06383e96fb7a2ebf9726a", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "tKHUas33K-2x1e8P7dXt6AE", "response_sha256": "2dcd1c37c65bbd101bf31354cd68b62fb8395f56b639342a2573f84bb444b2c2", "response_characters": 676, "usage": {"prompt_token_count": 1428, "candidates_token_count": 279, "total_token_count": 1707}}
+2026-10-18 10:38:45,367 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:46,205 | INFO | ai-service | GET /health -> 200 (0.70 ms)
+2026-10-18 10:38:47,009 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.73 ms)
+2026-10-18 10:38:47,014 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.09 ms)
+2026-10-18 10:38:47,067 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (14.21 ms)
+2026-10-18 10:38:47,069 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.22 ms)
+2026-10-18 10:38:47,603 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:47,605 | INFO | core.llm_service | structured_provider_response {"trace_id": "1368f15e-7cfa-4382-9f84-9b0ae704095b", "operation": "event_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa", "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005", "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717", "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"}, "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2", "input_sha256": "7568a0a3acd21b827355e1feaa7ef815e0305aa72d3c661a31b39d055c65f985", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "tqHUatnRIo3J2roPpvjR-AI", "response_sha256": "5416e14c7d48e199c0592e9da41614dab5efd26b16dc3500838470d78a3f6507", "response_characters": 1565, "usage": {"prompt_token_count": 1443, "candidates_token_count": 512, "total_token_count": 1955}}
+2026-10-18 10:38:47,607 | INFO | services.event_summarizer | Event summarizer: extracted 3 events from text
+2026-10-18 10:38:47,636 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:48,357 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:48,359 | INFO | core.llm_service | structured_provider_response {"trace_id": "59937f46-dd2f-46e2-934c-a9ecf63670e8", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa", "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005", "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717", "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "e4b33f867d5cf34c494178087998e3da7c8826f7eaf494c0041437b10449279b", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "uKHUauKFKevR1e8PmbatoA4", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 194, "candidates_token_count": 9, "total_token_count": 203}}
+2026-10-18 10:38:48,389 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:49,004 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:49,006 | INFO | core.llm_service | structured_provider_response {"trace_id": "9785dd86-513f-4183-a5a6-e45f54ac439e", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa", "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005", "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717", "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "0332528e9cd27b2e78ddb30d25a24c121d10dc798807b2af3ead05fe541b616d", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "uaHUaszpF4XLrfcP5duO6AY", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 184, "candidates_token_count": 9, "total_token_count": 193}}
+2026-10-18 10:38:49,035 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:49,804 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:49,806 | INFO | core.llm_service | structured_provider_response {"trace_id": "e8f5ef86-7297-4231-91a3-d49db7b08d94", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa", "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005", "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717", "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "7ca7f265b1c6435367dfe23254e36d47a44863f85987924e66288e24388c3841", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "uqHUaryPBv65vr0P9ZzrsQ8", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 188, "candidates_token_count": 9, "total_token_count": 197}}
+2026-10-18 10:38:49,891 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:50,031 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.65 ms)
+2026-10-18 10:38:50,079 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.93 ms)
+2026-10-18 10:38:50,104 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.36 ms)
+2026-10-18 10:38:50,106 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (19.82 ms)
+2026-10-18 10:38:52,121 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:52,123 | INFO | core.llm_service | structured_provider_response {"trace_id": "30055bd4-39ec-4327-b59c-6097848a8afe", "operation": "entity_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "91a25305-aae7-4d6a-8869-4a52e34e0b9c", "revision_id": "b4b9da1f-08d1-4441-90b4-ec0ffc7d7fd2", "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf", "analysis_run_id": "53f5fd58-2403-4d84-96f4-037b0451acbf"}, "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660", "input_sha256": "05e30b3962af8a9341c63950839397ae4dad231c7387eabd4899b860b21cc6a6", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "uqHUauexN6njrfcPhK68qAk", "response_sha256": "7e5044880b8fd56a95cd49137a1d53d3c8795fc0d860bd97dc89f30475c22632", "response_characters": 2280, "usage": {"prompt_token_count": 1335, "candidates_token_count": 911, "total_token_count": 2246}}
+2026-10-18 10:38:52,155 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:38:53,054 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.98 ms)
+2026-10-18 10:38:53,106 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.59 ms)
+2026-10-18 10:38:53,151 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (14.96 ms)
+2026-10-18 10:38:53,152 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.75 ms)
+2026-10-18 10:38:53,998 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:38:54,000 | INFO | core.llm_service | structured_provider_response {"trace_id": "b2736745-d5b7-4e7e-8027-0a9a363e2a72", "operation": "event_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "91a25305-aae7-4d6a-8869-4a52e34e0b9c", "revision_id": "b4b9da1f-08d1-4441-90b4-ec0ffc7d7fd2", "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf", "analysis_run_id": "53f5fd58-2403-4d84-96f4-037b0451acbf"}, "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2", "input_sha256": "055312341cd960a2a9c1af0545d4248ec1ccfc38569970f1e9557f4eaa397c7e", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "vaHUasqXCs7NrfcPsYOguQM", "response_sha256": "34a4e0f506d8f18ed1eb0dfd02322ecb97ef73ce4e5e473765ab50da78d66664", "response_characters": 1642, "usage": {"prompt_token_count": 1419, "candidates_token_count": 542, "total_token_count": 1961}}
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/app/services/event_summarizer.py", line 63, in extract_narrative_events
+    events=[NarrativeEventOutput.model_validate(item) for item in raw_events],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pydantic/main.py", line 732, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for NarrativeEventOutput
+consequences
+  Input should be a valid list [type=list_type, input_value='Tạo tiền đề cho v...a tại Trạm Bốn.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/list_type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 152, in app
+    await response(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/responses.py", line 172, in __call__
+    await self.background()
+  File "/usr/local/lib/python3.12/site-packages/fastapi/background.py", line 67, in __call__
+    await task()
+  File "/usr/local/lib/python3.12/site-packages/starlette/background.py", line 23, in __call__
+    await run_in_threadpool(self.func, *self.args, **self.kwargs)
+  File "/usr/local/lib/python3.12/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/application/bootstrap_service.py", line 377, in process
+    result = self._analysis_service.analyze(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/application/revision_analysis_service.py", line 183, in analyze
+    events = extract_narrative_events(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/services/event_summarizer.py", line 71, in extract_narrative_events
+    raise EventExtractionError(f"model output failed schema validation: {exc}") from exc
+core.exceptions.EventExtractionError: Event extraction error: model output failed schema validation: 1 validation error for NarrativeEventOutput
+consequences
+  Input should be a valid list [type=list_type, input_value='Tạo tiền đề cho v...a tại Trạm Bốn.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/list_type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/fastapi/applications.py", line 1215, in __call__
+    await super().__call__(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/base.py", line 202, in __call__
+    raise app_exc
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py", line 149, in simple_response
+    await self.app(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 2786, in app
+    await route.handle(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 1817, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 2869, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 1843, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 1308, in handle
+    await effective_context.app(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 165, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 56, in wrapped_app
+    raise RuntimeError("Caught handled exception, but response already started.") from exc
+RuntimeError: Caught handled exception, but response already started.
+2026-10-18 10:38:56,078 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.40 ms)
+2026-10-18 10:38:56,158 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.75 ms)
+2026-10-18 10:38:56,181 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.32 ms)
+2026-10-18 10:38:56,182 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.58 ms)
+2026-10-18 10:38:56,274 | INFO | ai-service | GET /health -> 200 (0.64 ms)
+2026-10-18 10:38:59,107 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.36 ms)
+2026-10-18 10:38:59,183 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.96 ms)
+2026-10-18 10:38:59,208 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (14.56 ms)
+2026-10-18 10:38:59,209 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.86 ms)
+2026-10-18 10:39:02,130 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.21 ms)
+2026-10-18 10:39:02,204 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.32 ms)
+2026-10-18 10:39:02,244 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.74 ms)
+2026-10-18 10:39:02,245 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.05 ms)
+2026-10-18 10:39:05,149 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.96 ms)
+2026-10-18 10:39:05,231 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.36 ms)
+2026-10-18 10:39:05,283 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (14.97 ms)
+2026-10-18 10:39:05,285 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.22 ms)
+2026-10-18 10:39:06,334 | INFO | ai-service | GET /health -> 200 (0.69 ms)
+2026-10-18 10:39:08,181 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.72 ms)
+2026-10-18 10:39:08,262 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.12 ms)
+2026-10-18 10:39:08,319 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.62 ms)
+2026-10-18 10:39:08,320 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.03 ms)
+2026-10-18 10:39:11,208 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.12 ms)
+2026-10-18 10:39:11,286 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.85 ms)
+2026-10-18 10:39:11,368 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (24.77 ms)
+2026-10-18 10:39:11,369 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (25.52 ms)
+2026-10-18 10:39:14,240 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.15 ms)
+2026-10-18 10:39:14,323 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (12.27 ms)
+2026-10-18 10:39:14,407 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (17.09 ms)
+2026-10-18 10:39:14,409 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (17.90 ms)
+2026-10-18 10:39:16,405 | INFO | ai-service | GET /health -> 200 (0.88 ms)
+2026-10-18 10:39:17,267 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.44 ms)
+2026-10-18 10:39:17,349 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (8.02 ms)
+2026-10-18 10:39:17,435 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.39 ms)
+2026-10-18 10:39:17,436 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.67 ms)
+2026-10-18 10:39:20,288 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.38 ms)
+2026-10-18 10:39:20,383 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.56 ms)
+2026-10-18 10:39:20,470 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (14.98 ms)
+2026-10-18 10:39:20,470 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.11 ms)
+2026-10-18 10:39:23,319 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.33 ms)
+2026-10-18 10:39:23,412 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (11.31 ms)
+2026-10-18 10:39:23,509 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.08 ms)
+2026-10-18 10:39:23,511 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (17.88 ms)
+2026-10-18 10:39:26,343 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.47 ms)
+2026-10-18 10:39:26,434 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.35 ms)
+2026-10-18 10:39:26,486 | INFO | ai-service | GET /health -> 200 (0.67 ms)
+2026-10-18 10:39:26,539 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (14.83 ms)
+2026-10-18 10:39:26,540 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.33 ms)
+2026-10-18 10:39:29,365 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (2.89 ms)
+2026-10-18 10:39:29,461 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.28 ms)
+2026-10-18 10:39:29,567 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (13.90 ms)
+2026-10-18 10:39:29,570 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (18.11 ms)
+2026-10-18 10:39:32,382 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.47 ms)
+2026-10-18 10:39:32,499 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (11.03 ms)
+2026-10-18 10:39:32,597 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.10 ms)
+2026-10-18 10:39:32,597 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (14.73 ms)
+2026-10-18 10:39:35,406 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.32 ms)
+2026-10-18 10:39:35,519 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.78 ms)
+2026-10-18 10:39:35,635 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (14.76 ms)
+2026-10-18 10:39:35,636 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.19 ms)
+2026-10-18 10:39:36,544 | INFO | ai-service | GET /health -> 200 (0.66 ms)
+2026-10-18 10:39:38,422 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (2.88 ms)
+2026-10-18 10:39:38,551 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.36 ms)
+2026-10-18 10:39:38,667 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.04 ms)
+2026-10-18 10:39:38,668 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.28 ms)
+2026-10-18 10:39:41,453 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.42 ms)
+2026-10-18 10:39:41,581 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (7.04 ms)
+2026-10-18 10:39:41,700 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.27 ms)
+2026-10-18 10:39:41,700 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.16 ms)
+2026-10-18 10:39:44,483 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.93 ms)
+2026-10-18 10:39:44,611 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (6.96 ms)
+2026-10-18 10:39:44,735 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (15.41 ms)
+2026-10-18 10:39:44,737 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (15.99 ms)
+2026-10-18 10:39:45,728 | INFO | ai-service | GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (27.41 ms)
+2026-10-18 10:39:45,730 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (34.93 ms)
+2026-10-18 10:39:45,731 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (29.31 ms)
+2026-10-18 10:39:45,739 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (51.16 ms)
+2026-10-18 10:39:45,743 | INFO | ai-service | GET /v1/jobs/1f60955d-c43a-519c-83b6-2dd4be904491 -> 200 (45.28 ms)
+2026-10-18 10:39:45,744 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (55.27 ms)
+2026-10-18 10:39:46,615 | INFO | ai-service | GET /health -> 200 (0.55 ms)
+2026-10-18 10:39:48,767 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (6.78 ms)
+2026-10-18 10:39:48,771 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (12.03 ms)
+2026-10-18 10:39:48,779 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (18.82 ms)
+2026-10-18 10:39:48,812 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (10.64 ms)
+2026-10-18 10:39:51,054 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-manuscript -> 202 (14.53 ms)
+2026-10-18 10:39:51,079 | INFO | ai-service | GET /v1/story-plans/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (14.19 ms)
+2026-10-18 10:39:51,085 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (15.18 ms)
+2026-10-18 10:39:51,090 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (24.12 ms)
+2026-10-18 10:39:51,101 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (37.29 ms)
+2026-10-18 10:39:51,108 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (40.30 ms)
+2026-10-18 10:39:51,148 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:39:53,510 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:39:53,511 | INFO | core.llm_service | structured_provider_response {"trace_id": "dec4e7f0-f675-48ae-97bf-f40f658fe5a4", "operation": "entity_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "91a25305-aae7-4d6a-8869-4a52e34e0b9c", "revision_id": "b4b9da1f-08d1-4441-90b4-ec0ffc7d7fd2", "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf", "analysis_run_id": "53f5fd58-2403-4d84-96f4-037b0451acbf"}, "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660", "input_sha256": "05e30b3962af8a9341c63950839397ae4dad231c7387eabd4899b860b21cc6a6", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "-KHUau2EH62yvr0P2JDsoQY", "response_sha256": "36f23a280dcd50ac443d71a3d00abf29eb0337a4c31e90fe6fe0442585fa535f", "response_characters": 2134, "usage": {"prompt_token_count": 1335, "candidates_token_count": 848, "total_token_count": 2183}}
+2026-10-18 10:39:53,543 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:39:54,135 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (14.32 ms)
+2026-10-18 10:39:54,136 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (12.89 ms)
+2026-10-18 10:39:54,145 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (21.87 ms)
+2026-10-18 10:39:54,148 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (26.78 ms)
+2026-10-18 10:39:55,631 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:39:55,633 | INFO | core.llm_service | structured_provider_response {"trace_id": "8ef28632-e9d7-4c69-87c7-bffc64376abf", "operation": "event_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "91a25305-aae7-4d6a-8869-4a52e34e0b9c", "revision_id": "b4b9da1f-08d1-4441-90b4-ec0ffc7d7fd2", "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf", "analysis_run_id": "53f5fd58-2403-4d84-96f4-037b0451acbf"}, "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2", "input_sha256": "80dc047f9aa54c7621b2bf04aee6dc46b45bb7ddbc54ff9970635c6bce3400c1", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "-qHUavzaN6yU9tMPq_3EiQ8", "response_sha256": "e5d432b56d667b6f709b48256978e6ee819cbdc6a988bfd092eb85be477e74a7", "response_characters": 1582, "usage": {"prompt_token_count": 1417, "candidates_token_count": 487, "total_token_count": 1904}}
+2026-10-18 10:39:55,635 | INFO | services.event_summarizer | Event summarizer: extracted 2 events from text
+2026-10-18 10:39:55,664 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:39:56,436 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:39:56,438 | INFO | core.llm_service | structured_provider_response {"trace_id": "847a9b79-6a30-4c9c-adae-5c44138a34e4", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "91a25305-aae7-4d6a-8869-4a52e34e0b9c", "revision_id": "b4b9da1f-08d1-4441-90b4-ec0ffc7d7fd2", "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf", "analysis_run_id": "53f5fd58-2403-4d84-96f4-037b0451acbf"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "d7655aaa04278031e953adf830c1ad4866e80f05c77eb103f8fdeaf1ee91e191", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "_KHUavOxMLmQ1e8P2Mrx4AM", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 249, "candidates_token_count": 9, "total_token_count": 258}}
+2026-10-18 10:39:56,469 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:39:56,678 | INFO | ai-service | GET /health -> 200 (0.72 ms)
+2026-10-18 10:39:57,171 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (10.72 ms)
+2026-10-18 10:39:57,175 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (15.67 ms)
+2026-10-18 10:39:57,187 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (27.66 ms)
+2026-10-18 10:39:57,189 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (27.85 ms)
+2026-10-18 10:39:57,253 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:39:57,254 | INFO | core.llm_service | structured_provider_response {"trace_id": "7e016762-1147-4da8-8f56-6f1e0b8a13e4", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "91a25305-aae7-4d6a-8869-4a52e34e0b9c", "revision_id": "b4b9da1f-08d1-4441-90b4-ec0ffc7d7fd2", "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf", "analysis_run_id": "53f5fd58-2403-4d84-96f4-037b0451acbf"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "8ce5470bb84385f34934076f3a7b36441e0b00a4c5584c4d745b28ae401c7cae", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "_aHUap6pJvPnrfcP5sTI6AM", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 245, "candidates_token_count": 9, "total_token_count": 254}}
+2026-10-18 10:39:57,351 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:39:58,646 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:39:58,648 | INFO | core.llm_service | structured_provider_response {"trace_id": "8496b458-a4fa-43fa-b81f-479f1fd5ce63", "operation": "entity_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "1cb10eda-ec02-4712-86e4-85bf48f8539b", "revision_id": "4dafd1f5-91f7-49b9-89b6-d09408b4ee51", "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321", "analysis_run_id": "89e769c4-213a-4b2a-a889-d91b731b7065"}, "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660", "input_sha256": "158e45cd36b981b56727ff6d15800bbf4023358ec45e0f99827bb2fdf7f6c684", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "_qHUarCyJafgrfcP68GyiQE", "response_sha256": "d345697906162fde5ab9ef82d5d9ae87df6e0f4b759e381226e434a70d9e04bb", "response_characters": 502, "usage": {"prompt_token_count": 836, "candidates_token_count": 209, "total_token_count": 1045}}
+2026-10-18 10:39:58,675 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:40:00,187 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.99 ms)
+2026-10-18 10:40:00,211 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (12.93 ms)
+2026-10-18 10:40:00,225 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (25.12 ms)
+2026-10-18 10:40:00,226 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (27.22 ms)
+2026-10-18 10:40:01,303 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:40:01,305 | INFO | core.llm_service | structured_provider_response {"trace_id": "37189e3e-1af8-41d4-9ab0-82f2216b0107", "operation": "event_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "1cb10eda-ec02-4712-86e4-85bf48f8539b", "revision_id": "4dafd1f5-91f7-49b9-89b6-d09408b4ee51", "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321", "analysis_run_id": "89e769c4-213a-4b2a-a889-d91b731b7065"}, "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2", "input_sha256": "f2eea9db6287c69151d9ec6bacfeef8deeb189f43abbb7ae7296a5a5f13b6b54", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "_6HUapWvNMWf0-kPufG2yAI", "response_sha256": "7df6780518b1f58ae14d4f18a2d51c683cc024f4171ba7599dcaefb979e7d8b0", "response_characters": 2653, "usage": {"prompt_token_count": 841, "candidates_token_count": 837, "total_token_count": 1678}}
+2026-10-18 10:40:01,306 | INFO | services.event_summarizer | Event summarizer: extracted 5 events from text
+2026-10-18 10:40:01,335 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:40:02,066 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:40:02,067 | INFO | core.llm_service | structured_provider_response {"trace_id": "c18d9e21-974d-402a-9a26-34b411c37a07", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "1cb10eda-ec02-4712-86e4-85bf48f8539b", "revision_id": "4dafd1f5-91f7-49b9-89b6-d09408b4ee51", "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321", "analysis_run_id": "89e769c4-213a-4b2a-a889-d91b731b7065"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "1a3eb23b1577f4e267999d2845a79fe47fbfc6397cebb972d14cfa58382ce836", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "AqLUarr6F_65vr0P9ZzrsQ8", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 192, "candidates_token_count": 9, "total_token_count": 201}}
+2026-10-18 10:40:02,094 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:40:02,708 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:40:02,709 | INFO | core.llm_service | structured_provider_response {"trace_id": "0ff92aa8-7936-486b-b02b-ced5b74f247b", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "1cb10eda-ec02-4712-86e4-85bf48f8539b", "revision_id": "4dafd1f5-91f7-49b9-89b6-d09408b4ee51", "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321", "analysis_run_id": "89e769c4-213a-4b2a-a889-d91b731b7065"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "9f4ce4e1a88efca87396ac0f37a357a243a56503d4449e63ed7eb6dfc3d4bbba", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "A6LUaqG3BufprfcPiN__iAk", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 190, "candidates_token_count": 9, "total_token_count": 199}}
+2026-10-18 10:40:02,739 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:40:03,215 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.36 ms)
+2026-10-18 10:40:03,236 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (10.15 ms)
+2026-10-18 10:40:03,368 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (101.54 ms)
+2026-10-18 10:40:03,369 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (103.27 ms)
+2026-10-18 10:40:03,539 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:40:03,540 | INFO | core.llm_service | structured_provider_response {"trace_id": "27774ba1-e3af-4d29-a53c-7de5a761306b", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "1cb10eda-ec02-4712-86e4-85bf48f8539b", "revision_id": "4dafd1f5-91f7-49b9-89b6-d09408b4ee51", "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321", "analysis_run_id": "89e769c4-213a-4b2a-a889-d91b731b7065"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "819670d8cf68b0b35b4f25cd3c868de52f45b2ad5f4b23fd435086acaa7aa527", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "A6LUave8Mp2a1e8PstmgsQ8", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 176, "candidates_token_count": 9, "total_token_count": 185}}
+2026-10-18 10:40:03,571 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:40:04,468 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:40:04,468 | INFO | core.llm_service | structured_provider_response {"trace_id": "e09c5180-f7a7-40af-95dc-e1b700ba9dab", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "1cb10eda-ec02-4712-86e4-85bf48f8539b", "revision_id": "4dafd1f5-91f7-49b9-89b6-d09408b4ee51", "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321", "analysis_run_id": "89e769c4-213a-4b2a-a889-d91b731b7065"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "5204c22794796b88b821848706a22dad16fa475625c40ca85e1f179419ed15fd", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "BKLUaqXfJv7arfcPqdOMMQ", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 178, "candidates_token_count": 9, "total_token_count": 187}}
+2026-10-18 10:40:04,495 | INFO | google_genai.models | AFC is enabled with max remote calls: 10.
+2026-10-18 10:40:05,216 | INFO | httpx | HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+2026-10-18 10:40:05,218 | INFO | core.llm_service | structured_provider_response {"trace_id": "c9d217f7-1258-4ae6-b77f-0831e92832d9", "operation": "state_transition_extraction", "source": {"novel_id": "06a979c5-b089-4648-a04e-81383aa7b119", "chapter_id": "1cb10eda-ec02-4712-86e4-85bf48f8539b", "revision_id": "4dafd1f5-91f7-49b9-89b6-d09408b4ee51", "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321", "analysis_run_id": "89e769c4-213a-4b2a-a889-d91b731b7065"}, "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74", "input_sha256": "7d4c5450610012e5591e3fc996fbe4e8e788e08bcdf5ec6720a95479dfd4a6c3", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "BaLUauDyIa_W1e8P877kyAU", "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623", "response_characters": 23, "usage": {"prompt_token_count": 185, "candidates_token_count": 9, "total_token_count": 194}}
+2026-10-18 10:40:06,235 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (5.84 ms)
+2026-10-18 10:40:06,287 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (11.43 ms)
+2026-10-18 10:40:06,402 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (17.63 ms)
+2026-10-18 10:40:06,403 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (17.34 ms)
+2026-10-18 10:40:06,745 | INFO | ai-service | GET /health -> 200 (0.57 ms)
+2026-10-18 10:40:09,267 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (6.08 ms)
+2026-10-18 10:40:09,317 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (12.34 ms)
+2026-10-18 10:40:09,445 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.22 ms)
+2026-10-18 10:40:09,447 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (18.93 ms)
+2026-10-18 10:40:12,287 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.72 ms)
+2026-10-18 10:40:12,374 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (13.25 ms)
+2026-10-18 10:40:12,485 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.02 ms)
+2026-10-18 10:40:12,488 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (19.53 ms)
+2026-10-18 10:40:15,313 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.03 ms)
+2026-10-18 10:40:15,412 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (10.15 ms)
+2026-10-18 10:40:15,532 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (18.57 ms)
+2026-10-18 10:40:15,534 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (20.27 ms)
+2026-10-18 10:40:16,808 | INFO | ai-service | GET /health -> 200 (0.61 ms)
+2026-10-18 10:40:18,334 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.42 ms)
+2026-10-18 10:40:18,451 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.45 ms)
+2026-10-18 10:40:18,567 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.52 ms)
+2026-10-18 10:40:18,568 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (18.68 ms)
+2026-10-18 10:40:21,354 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (4.46 ms)
+2026-10-18 10:40:21,480 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.96 ms)
+2026-10-18 10:40:21,613 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (17.17 ms)
+2026-10-18 10:40:21,614 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (18.29 ms)
+2026-10-18 10:40:24,371 | INFO | ai-service | GET /v1/autonomous/by-novel/06a979c5-b089-4648-a04e-81383aa7b119/active -> 404 (3.60 ms)
+2026-10-18 10:40:24,516 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/review-queue -> 200 (9.49 ms)
+2026-10-18 10:40:24,647 | INFO | ai-service | GET /v1/story-brains/06a979c5-b089-4648-a04e-81383aa7b119/memory -> 200 (16.41 ms)
+2026-10-18 10:40:24,648 | INFO | ai-service | GET /v1/story-brains/by-novel/06a979c5-b089-4648-a04e-81383aa7b119 -> 200 (16.79 ms)

@@ -1,0 +1,186 @@
+{
+  "historical_events_count": 5,
+  "historical_events": [
+    {
+      "event_id": "bfbb93a8-e986-59c5-84bf-4406899f4d31",
+      "event_type": "arrival",
+      "participants": [
+        "Mai Linh"
+      ],
+      "summary": "Mai Linh arrives back at the city by ferry after eleven years.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh arrives back at the city by ferry after eleven years.",
+        "evidence": [
+          {
+            "end": 184,
+            "quote": "Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+            "start": 51,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "arrival",
+        "consequences": [
+          "Mai Linh returns to her hometown."
+        ],
+        "participants": [
+          "Mai Linh"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "db9c32c3-e006-5990-afc0-13d30a9d8576",
+      "event_type": "meeting",
+      "participants": [
+        "Mai Linh",
+        "An"
+      ],
+      "summary": "An meets Mai Linh at the dock and greets her on behalf of her mother.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "An meets Mai Linh at the dock and greets her on behalf of her mother.",
+        "evidence": [
+          {
+            "end": 1508,
+            "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+            "start": 1443,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "meeting",
+        "consequences": [
+          "An carries Mai Linh's luggage toward the boat."
+        ],
+        "participants": [
+          "Mai Linh",
+          "An"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "628034da-28a5-5978-9aaa-cdceff9df5e8",
+      "event_type": "meeting",
+      "participants": [
+        "Mai Linh",
+        "Ông Hòa"
+      ],
+      "summary": "Ông Hòa greets Mai Linh at the ceramic warehouse / audio archive room.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Ông Hòa greets Mai Linh at the ceramic warehouse / audio archive room.",
+        "evidence": [
+          {
+            "end": 2774,
+            "quote": "Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút.",
+            "start": 2712,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "Kho gốm"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "Mai Linh meets Ông Hòa at the archive."
+        ],
+        "participants": [
+          "Mai Linh",
+          "Ông Hòa"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "223eea03-929c-5dc9-a4d0-bd8df4f4be06",
+      "event_type": "signing_contract",
+      "participants": [
+        "Mai Linh",
+        "Ông Hòa"
+      ],
+      "summary": "Mai Linh signs a twelve-day contract with Ông Hòa to inspect audio and ceramic fragments.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh signs a twelve-day contract with Ông Hòa to inspect audio and ceramic fragments.",
+        "evidence": [
+          {
+            "end": 3435,
+            "quote": "Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày.",
+            "start": 3388,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "Kho gốm"
+        ],
+        "event_type": "signing_contract",
+        "consequences": [
+          "Mai Linh officially undertakes the archival inspection project."
+        ],
+        "participants": [
+          "Mai Linh",
+          "Ông Hòa"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "4ca0c892-515f-50e9-bb33-85d5765cebb8",
+      "event_type": "request",
+      "participants": [
+        "Mai Linh",
+        "Ông Hòa"
+      ],
+      "summary": "Mai Linh asks Ông Hòa to show her the records for station Four first.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh asks Ông Hòa to show her the records for station Four first.",
+        "evidence": [
+          {
+            "end": 5026,
+            "quote": "“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.",
+            "start": 4983,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "Kho gốm"
+        ],
+        "event_type": "request",
+        "consequences": [
+          "Ông Hòa retrieves the key for the station Four records."
+        ],
+        "participants": [
+          "Mai Linh",
+          "Ông Hòa"
+        ],
+        "chapter_number": 1
+      }
+    }
+  ],
+  "leaked_future_events_count": 0,
+  "entities_count": 14
+}

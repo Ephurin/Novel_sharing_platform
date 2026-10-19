@@ -18,6 +18,7 @@ from api.deps import (
     get_semantic_materializer,
     get_writing_service,
     require_service_token,
+    get_llm_service,
 )
 from api.schemas import (
     EventCorrectionRequest,
@@ -56,10 +57,67 @@ from domain.errors import (
     WritingGenerationNotFoundError,
 )
 from domain.projection import ProjectionError
+from application.author_workflow import run_author_operation
+from pydantic import BaseModel, Field
+from typing import Literal
+
+
+class AuthorOperationRequest(BaseModel):
+    operation: Literal["suggest_events", "check_consistency", "evaluate_objective"]
+    instruction: str = Field(default="", max_length=30000)
+    content: str = Field(default="", max_length=200000)
+    revision_id: str = ""
+    objective: str = Field(default="", max_length=30000)
+
+
+class AuthorMemoryProposalRequest(BaseModel):
+    chapter_id: str
+    revision_id: str
+    quote: str = Field(min_length=1, max_length=30000)
+    proposal_type: Literal["entity", "event", "fact"]
+    payload: dict
+    expected_brain_version: int = Field(ge=1)
 
 
 router = APIRouter(prefix="/v1", tags=["narrative-memory"], dependencies=[Depends(require_service_token)])
 internal_router = APIRouter(prefix="/internal/v1", tags=["internal-writing"], dependencies=[Depends(require_service_token)])
+
+
+@router.post("/story-brains/{novel_id}/author-proposals", status_code=201)
+def author_memory_proposal(novel_id: str, payload: AuthorMemoryProposalRequest,
+                          tenant_id: str = Header(..., alias="X-Tenant-Id"),
+                          service=Depends(get_revision_analysis_service)):
+    try:
+        proposal = service.create_author_proposal(tenant_id=tenant_id, novel_id=novel_id, **payload.model_dump())
+        return {"data": asdict(proposal)}
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={"code": "BRAIN_VERSION_CONFLICT"}) from exc
+    except (ValueError, RevisionNotFoundError, ContentHashMismatchError) as exc:
+        raise HTTPException(422, detail={"code": "INVALID_AUTHOR_EVIDENCE", "message": str(exc)}) from exc
+
+
+@router.get("/story-brains/{novel_id}/memory")
+def approved_memory(novel_id: str, repository=Depends(get_narrative_repository)):
+    brain = asdict(repository.get_story_brain(novel_id))
+    brain.pop("proposals", None)
+    from domain.canon_identity import active_facts
+    brain['facts'] = active_facts(brain['facts'])
+    states = brain.get("current_state", {}).get("entities", {})
+    for entity in brain["entities"]:
+        state = states.get(str(entity.get("entity_id")), {})
+        entity["status"] = state.get("status", entity["status"])
+        entity["location"] = state.get("location", entity["location"])
+    return {"data": brain}
+
+
+@router.post("/story-brains/{novel_id}/author-operation")
+def author_operation(novel_id: str, payload: AuthorOperationRequest,
+                     repository=Depends(get_narrative_repository), llm=Depends(get_llm_service)):
+    try:
+        result = run_author_operation(repository, llm, novel_id, **payload.model_dump())
+    except ValueError as exc:
+        raise HTTPException(422, detail={"code": "INVALID_AUTHOR_OPERATION", "message": str(exc)}) from exc
+    return {"data": result}
 
 
 
@@ -126,6 +184,7 @@ def bootstrap_from_idea(
             locale=payload.locale,
             preferences=payload.preferences.model_dump(),
             author_constraints=payload.author_constraints,
+            mode=payload.mode,
         )
     except ValueError as exc:
         raise HTTPException(422, detail={"code": "INVALID_IDEA", "message": str(exc)}) from exc
@@ -267,6 +326,8 @@ def activate_story_plan(
     request_id: str = Header(..., alias="X-Request-Id"),
     repository = Depends(get_narrative_repository),
 ):
+    if repository.get_active_autonomous_run(novel_id):
+        raise HTTPException(409, detail={"code": "ACTIVE_RUN_CONFLICT", "message": "Stop full auto before changing its plan"})
     try:
         plan = repository.activate_story_plan(novel_id, plan_id)
     except KeyError as exc:
@@ -420,6 +481,9 @@ def update_autonomous_run(
     current = repository.get_autonomous_run(run_id)
     if not current:
         raise HTTPException(404, detail={"code": "RUN_NOT_FOUND", "message": f"AutonomousRun {run_id} not found"})
+
+    if current.status in {"stopped", "completed", "failed"} and payload.status not in {None, current.status}:
+        raise HTTPException(409, detail={"code": "RUN_TERMINAL", "message": "A finished run cannot be resumed by a stale worker"})
 
     updated = replace(
         current,
@@ -804,6 +868,7 @@ def accept_proposal_group(
             payload.proposal_ids,
             payload.expected_brain_version,
             payload.reason,
+            payload.edited_payloads,
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc

@@ -1,0 +1,16 @@
+{
+  "observed_at": "2026-10-17T22:57:06.968135+07:00",
+  "source": "docker exec read-only main.settings and llm_service",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "service_model": "models/gemini-3.5-flash-lite",
+  "routing": "legacy-v1",
+  "embedding_provider": "none",
+  "semantic_enabled": false,
+  "max_output_tokens": 512,
+  "fallback_provider": "openai",
+  "fallback_key_configured": false,
+  "local_fallback_enabled": false,
+  "key_present": true,
+  "key_pool_observed": false
+}

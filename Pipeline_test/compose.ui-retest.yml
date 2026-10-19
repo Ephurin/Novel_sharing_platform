@@ -1,0 +1,20 @@
+# Use with the root compose files and project name ephurin-ui-retest.
+# Fresh project-scoped volumes; never reuse or remove demo volumes.
+services:
+  postgres:
+    ports: !override
+      - "127.0.0.1:55432:5432"
+  mongodb:
+    ports: !override
+      - "127.0.0.1:57017:27017"
+  ai-service:
+    ports: !override
+      - "127.0.0.1:18000:8000"
+  backend:
+    environment:
+      WEB_ORIGIN: http://localhost:18080
+    ports: !override
+      - "127.0.0.1:14000:4000"
+  web:
+    ports: !override
+      - "127.0.0.1:18080:80"

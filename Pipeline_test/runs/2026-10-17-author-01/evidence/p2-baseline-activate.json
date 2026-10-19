@@ -1,0 +1,22 @@
+{
+  "time": "2026-10-17T23:00:37.079049+07:00",
+  "channel": "PUBLIC_API",
+  "method": "POST",
+  "path": "/ai/story-brains/38efd972-da60-4c19-a967-5ef8c62e230a/baseline/activate",
+  "request": {
+    "job_id": "9edd2bef-027b-5cf2-8b90-11229ef1a3d6"
+  },
+  "status": 200,
+  "latency_ms": 32,
+  "response": {
+    "success": true,
+    "data": {
+      "story_brain_id": "69362bcc-2626-4020-9ef8-7131026fae8a",
+      "status": "active",
+      "baseline_revision_id": null,
+      "brain_version": 2
+    },
+    "error": null,
+    "meta": {}
+  }
+}

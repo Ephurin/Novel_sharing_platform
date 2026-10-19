@@ -1,0 +1,708 @@
+- banner:
+  - link "arrow_back":
+    - /url: /author/novels/06a979c5-b089-4648-a04e-81383aa7b119
+    - generic: arrow_back
+  - navigation "Breadcrumb":
+    - generic: Thành phố giữ lại tiếng mưa — UI retest 2026-10-18-01
+    - generic: /
+    - generic "Chương 5 — Ba tiếng gõ"
+  - button "menu_book":
+    - generic: menu_book
+  - button "fullscreen":
+    - generic: fullscreen
+  - button "auto_awesome":
+    - generic: auto_awesome
+  - button "Xuất bản chương send":
+    - generic: Xuất bản chương
+    - generic: send
+- button "view_sidebar":
+  - generic: view_sidebar
+- generic: DRAFT
+- button "Miễn phí"
+- button "stars Chương VIP ✦":
+  - generic: stars
+  - generic: Chương VIP ✦
+- complementary:
+  - button "Bộ nhớ · Trích xuất · Chờ duyệt"
+  - generic: Mục lục chương
+  - generic: "5"
+  - paragraph: "Truyện: Thành phố giữ lại tiếng mưa — UI retest 2026-10-18-01"
+  - button "first_page":
+    - generic: first_page
+  - generic: search
+  - textbox "Tìm kiếm chương..."
+  - button "add_circle Thêm chương mới":
+    - generic: add_circle
+    - generic: Thêm chương mới
+  - navigation:
+    - generic: CHƯƠNG 1
+    - generic: Bản nháp
+    - paragraph: Chương 1 — Bến trở về
+    - generic: 1,216 từ
+    - generic: CHƯƠNG 2
+    - generic: Bản nháp
+    - paragraph: Chương 2 — Lần đọc thứ nhất
+    - generic: 1,005 từ
+    - generic: CHƯƠNG 3
+    - generic: Bản nháp
+    - paragraph: Chương 3 — Hai nơi treo một quả chuông
+    - generic: 995 từ
+    - generic: CHƯƠNG 4
+    - generic: Bản nháp
+    - paragraph: Chương 4 — Bản đồ không có tiếng nước
+    - generic: 957 từ
+    - generic: CHƯƠNG 5
+    - generic: Bản nháp
+    - paragraph: Chương 5 — Ba tiếng gõ
+    - generic: 574 từ
+    - generic: Đang mở
+- main:
+  - button "text_fields Merriweather expand_more":
+    - generic: text_fields
+    - generic: Merriweather
+    - generic: expand_more
+  - generic "Cỡ chữ":
+    - button "A-"
+    - generic: "17"
+    - button "A+"
+  - button "format_align_justify":
+    - generic: format_align_justify
+  - button "format_align_left":
+    - generic: format_align_left
+  - button "format_align_center":
+    - generic: format_align_center
+  - button "format_align_right":
+    - generic: format_align_right
+  - button "format_line_spacing 2.15x expand_more":
+    - generic: format_line_spacing
+    - generic: 2.15x
+    - generic: expand_more
+  - button "format_indent_increase":
+    - generic: format_indent_increase
+  - button "format_bold":
+    - generic: format_bold
+  - button "format_italic":
+    - generic: format_italic
+  - button "format_underlined":
+    - generic: format_underlined
+  - button "strikethrough_s":
+    - generic: strikethrough_s
+  - button "“”"
+  - button "—"
+  - button "✦ ✦ ✦"
+  - article:
+    - textbox "Đặt tiêu đề chương tại đây...": Chương 5 — Ba tiếng gõ
+    - generic: "Đã lưu: 17:41"
+    - generic: •
+    - generic: Thành phố giữ lại tiếng mưa — UI retest 2026-10-18-01
+    - generic: •
+    - generic: Chương số 5
+    - textbox "Bắt đầu câu từ chương truyện của bạn tại đây...": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng. “Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.” “Anh nghĩ có người không?” “Tôi chưa nghĩ đến người.” Cô nghe sự sửa lại trong câu nói. Không phải anh biết bên dưới không có ai; anh chưa có lý do để đặt một người vào khoảng tối đó. Linh tháo tai nghe một bên để vẫn nghe được tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều. Ngoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý. “Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.” An đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV-04 đã đứng ở đâu. Duy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào. Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp xúc với không khí hơn. Linh không hỏi ngay. “Chị thấy vạch sơn trắng không?” anh nói. Cô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết. “Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.” Linh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối. Cô chợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại. Điện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối: “Vâng. Cháu chưa chạm.” Anh cất máy, đứng lên rất chậm. “Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.” “Một lối điều khiển phụ?” “Có thể. Bản này không ghi.” Anh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ. Linh nghĩ đến tờ giấy đã đi qua những máy photocopy, mỗi lần nét mờ hơn một chút, trong khi người sử dụng có thể tin nó hơn vì trông nó cũ và chính thức. Từ dưới sàn vang lên ba tiếng gõ ngắn. Linh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy. Trong khe cửa, đường nước phản sáng bắt đầu dịch lên."
+- button "auto_awesome Trợ lý AI":
+  - generic: auto_awesome
+  - generic: Trợ lý AI
+- dialog "Bộ nhớ và định hướng tiểu thuyết":
+  - banner:
+    - heading "Bộ nhớ và định hướng tiểu thuyết" [level=2]
+    - button:
+  - paragraph: Bộ nhớ chính thức v1 · importing. Đề xuất chưa duyệt chưa được dùng làm sự thật.
+  - tablist:
+    - tab "Chờ duyệt (91)" [selected]:
+      - generic: Chờ duyệt (91)
+    - tab "Nhân vật":
+      - generic: Nhân vật
+    - tab "Địa danh":
+      - generic: Địa danh
+    - tab "Vật phẩm":
+      - generic: Vật phẩm
+    - tab "Sự kiện":
+      - generic: Sự kiện
+    - tab "Trích xuất":
+      - generic: Trích xuất
+    - tab "Định hướng":
+      - generic: Định hướng
+    - tab "Full auto":
+      - generic: Full auto
+  - tabpanel "Chờ duyệt (91)":
+    - paragraph: Lưu chương sau khi kích hoạt bộ nhớ sẽ tự trích xuất. Duyệt các nhóm dưới đây để cập nhật bộ nhớ.
+    - generic: state_transition
+    - paragraph: "active_relationships: [object Object]"
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 0–5454"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Mai Linh
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 51–59"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Linh
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 55–59"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bà Yên
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 1343–1349"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bà Sâm
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 1378–1384"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": An
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 73–75"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Mai Lâm
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 3273–3280"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": ông Hòa
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 3388–3395"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Chợ Giữa
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 1925–1933"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Cồn Vân
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 2155–2162"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Đồi Bắc
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 2255–2262"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Phòng lưu trữ âm thanh đô thị
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 2667–2696"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Ban công trình
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 2326–2340"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": trạm Bốn
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 3943–3951"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Bãi Dưới
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 4417–4425"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Mai Linh arrives at Cồn Vân by ferry and meets a delivery boy named An, who helps her with her luggage and guides her toward her destination.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Linh, An
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 0–5454"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Mai Linh arrives at the audio archives, meets the archivist ông Hòa, and signs a twelve-day contract to inventory and assess damaged audio and ceramic pieces.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Linh, ông Hòa
+    - paragraph: "Nguồn: bản lưu 60541649 · vị trí 0–5454"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - button "Duyệt nhóm đã kiểm tra":
+      - generic: Duyệt nhóm đã kiểm tra
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": An gọi hỏi Duy có cần báo bà Sâm không, và Duy nhờ An hỏi bà Sâm về tay quay trắng có nối với khoang phụ phía tây hay không.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": An, Duy, bà Sâm
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 0–2636"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Duy kiểm tra đường hàn và vệt sơn trắng trên tường, yêu cầu Linh chụp lại toàn bộ khung cảnh bao gồm cả thước và cửa.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Duy, Linh
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 0–2636"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Duy
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 0–3"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Linh
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 100–104"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": An
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 23–25"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bà Sâm
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 661–667"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": CV-04
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 1020–1025"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Duy chặn cửa, chèn gỗ và buộc dây cảnh báo, sau đó cùng Linh kiểm tra khe cửa và quan sát các vệt âm thanh trên màn hình.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Duy, Linh
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 0–2636"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Duy nhận cuộc gọi từ bà Sâm và được biết cửa đó không phải phòng máy mà là chỗ người vận hành đứng khi mất điện.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Duy, bà Sâm
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 0–2636"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Từ dưới sàn vang lên những tiếng gõ và tiếng vật nặng kéo ngang, đồng thời trên màn hình xuất hiện các vệt sáng và mực nước dịch lên.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Linh, Duy
+    - paragraph: "Nguồn: bản lưu 4dafd1f5 · vị trí 0–2636"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - button "Duyệt nhóm đã kiểm tra":
+      - generic: Duyệt nhóm đã kiểm tra
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Linh
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 180–184"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Duy
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 0–3"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Ông Hòa
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 256–263"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": trạm Bốn
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 817–825"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": mã CV-04
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 1196–1204"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Bãi Dưới
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 3333–3341"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bộ ổn áp
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 213–221"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": vòng đồng
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 674–683"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bộ nguồn dự phòng
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 1139–1156"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": đầu đọc
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 1492–1499"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": tai nghe
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 3610–3618"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": ổ lưu
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 3732–3737"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": túi chống ẩm
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 3813–3825"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bản đồ
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 4133–4139"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": kéo cắt lưới
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 4418–4430"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": hộp dụng cụ kim loại
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 71–91"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": áo công nhân
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 377–389"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": sổ
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 974–976"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": máy
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 1760–1763"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": mảnh giấy
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 3283–3292"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bộ lọc suy diễn
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 3670–3685"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": tủ
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 3781–3783"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": khăn mềm
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 3991–3999"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bóng đèn
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 4293–4301"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": quạt
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 106–110"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": gốm
+    - paragraph: "Nguồn: bản lưu 0e449ea7 · vị trí 3581–3584"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - button "Duyệt nhóm đã kiểm tra":
+      - generic: Duyệt nhóm đã kiểm tra
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Bà Sâm
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 0–6"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Linh
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 158–162"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": An
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 53–55"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Bà Yên
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 3139–3145"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Duy
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 3973–3976"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": máy ghi âm
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 1090–1100"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": tai nghe
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 4393–4401"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": trạm Bốn
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 1858–1866"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Linh gặp Bà Sâm tại quán cháo để hỏi về lịch sử chiếc chuông nhà tang lễ, mảnh gốm và trạm Bốn.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Linh, Bà Sâm
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 0–4529"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Linh trở về nhà mẹ, dùng bữa tối và có cuộc trò chuyện căng thẳng về người cha vắng mặt.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Linh, Bà Yên
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 0–4529"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Linh gọi điện cho Duy để báo cáo về thông tin quả chuông từ Bà Sâm và lên kế hoạch ngày mai đến trạm Bốn.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Linh, Duy
+    - paragraph: "Nguồn: bản lưu 61d4f9c1 · vị trí 0–4529"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - button "Duyệt nhóm đã kiểm tra":
+      - generic: Duyệt nhóm đã kiểm tra
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Duy
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 129–132"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Linh
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 137–141"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Nguyễn Vũ
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 562–571"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": An
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 158–160"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bà Sâm
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 3036–3042"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Cồn Vân
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 19–26"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Đồi Bắc
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 149–156"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": trạm Bốn
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 1066–1074"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": tay quay màu trắng
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 3084–3102"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": Trạm Bốn
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 1066–1074"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": chiếc hộp dụng cụ
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 167–184"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bản đồ
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 207–213"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": điện thoại
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 672–682"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": vòng chuẩn
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 347–357"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": CV-04
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 1705–1710"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": micro tiếp xúc
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 3579–3593"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": đồng hồ đo
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 3718–3728"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": đầu cảm biến
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 3741–3753"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": đèn
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 3443–3446"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": thuyền
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 2998–3004"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": bình nước nóng
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 3017–3031"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": tấm biển cấm
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 3308–3320"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": áo sơ mi
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 638–646"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": cốc trà
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 690–697"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: entity
+    - generic: Tên được trích xuất
+    - textbox "Tên được trích xuất": lịch triều
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 1337–1347"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Duy và Linh gặp Nguyễn Vũ tại phòng họp để thảo luận về tình trạng kho, lịch triều và bản đồ khảo sát nhánh ống tại trạm Bốn. Ông Vũ ký giấy phép khảo sát với một số điều kiện ngặt nghèo nhằm đảm bảo an toàn phòng chống lũ.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Duy, Linh, Nguyễn Vũ
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 0–4350"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - generic: event
+    - generic: Nội dung được trích xuất
+    - textbox "Nội dung được trích xuất": Duy và Linh tiến hành khảo sát thực địa tại trạm Bốn. Tại đây, họ phát hiện những âm thanh ngầm bất thường từ nhánh ống lẽ ra đã bị bịt, cùng với một tiếng gõ bí ẩn phát ra từ khoảng tối bên dưới.
+    - generic: Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+    - textbox "Nhân vật tham gia (ngăn cách bằng dấu phẩy)": Duy, Linh, An, bà Sâm
+    - paragraph: "Nguồn: bản lưu b4b9da1f · vị trí 0–4350"
+    - button "Loại đề xuất":
+      - generic: Loại đề xuất
+    - button "Duyệt nhóm đã kiểm tra":
+      - generic: Duyệt nhóm đã kiểm tra
+    - button "Kích hoạt bộ nhớ sau duyệt" [disabled]:
+      - generic: Kích hoạt bộ nhớ sau duyệt

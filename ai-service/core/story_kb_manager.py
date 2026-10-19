@@ -32,6 +32,7 @@ class KBEvent(BaseModel):
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class EventHistoryEntry(BaseModel):
+    evidence_quote: str = ""
     event_id: str
     chapter: int = 1
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())

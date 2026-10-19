@@ -1,0 +1,1405 @@
+{
+  "brain_version": 7,
+  "entities": [
+    {
+      "entity_id": "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "name": "An",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "80d45f5d-a419-4e3a-9e8c-9fa3c0743b83",
+      "name": "Ban công trình",
+      "entity_type": "ORG",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "eb05a31d-5df2-41dc-bd79-9e777c0fbdcd",
+      "name": "Bãi Dưới",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "f6bd4233-1456-4b34-9331-b6744f1b4625",
+      "name": "CV-04",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "c61c26ee-e9e3-4e8e-834a-d79393ef0b08",
+      "name": "Chợ Giữa",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "96fbe5c5-a4c2-47fa-8c86-b99b74f27bd3",
+      "name": "Cồn Vân",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "6672bb63-292e-4281-b8c5-72ef99402bb9",
+      "name": "Duy",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "edafedc6-73b5-4bf3-af2b-d3d59d468e56",
+      "name": "Hòa",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "403be656-241d-4024-a919-dfd17f6f972c",
+      "name": "Kho gốm",
+      "entity_type": "ORG",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "name": "Linh",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "part of the floor with light",
+      "is_locked": false
+    },
+    {
+      "entity_id": "d5b41ef9-5ea6-4735-a4b4-81000a8aab9d",
+      "name": "Mai Linh",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "b1368ee4-2815-4aee-8699-3acda0c231c7",
+      "name": "Mai Lâm",
+      "entity_type": "PER",
+      "status": "Dead",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "29356147-4012-481e-b810-416e50d7dcb6",
+      "name": "Nguyễn Vũ",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "808f82ef-73cd-4af1-9022-fea907063a82",
+      "name": "Phòng lưu trữ âm thanh đô thị",
+      "entity_type": "ORG",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "129e256d-b419-49a4-8d1e-4ee5bdeca2e0",
+      "name": "Vũ",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "name": "bà Sâm",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "538ace40-f6d6-4d33-ace4-aaaeb812d865",
+      "name": "bà Yên",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "a452dcce-a033-4b9f-b4f1-0cc52643643c",
+      "name": "bóng đèn",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "39089ad3-30b1-4748-a456-cbe21cf46c5f",
+      "name": "bản đồ",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "41d2894a-0634-42e7-b740-8de8bcfdb97f",
+      "name": "bộ nguồn dự phòng",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "4b8d700f-23cb-46e4-ab82-1514b200032b",
+      "name": "bộ ổn áp",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "5cc7e64c-1ccf-4090-99d7-2635a921c3a3",
+      "name": "cha",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "3377d8e2-5ad3-42c7-9d9e-c58f4fac937f",
+      "name": "chuông",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "5a348639-67e5-4e84-9ce1-a3744e409bd7",
+      "name": "chìa khóa đồng",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "08eff571-bd02-4c41-86a4-cc8502fb7251",
+      "name": "cần cẩu",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "a0ba836e-aa9f-40a3-ae55-3bf4f6c714e7",
+      "name": "giỏ nhựa",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "b27843c0-cd65-48f3-a1d3-7bf4db3fcd53",
+      "name": "hộp dụng cụ kim loại",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "8c9a3ead-e2f7-4451-8f74-4b4d77851543",
+      "name": "hộp gỗ",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "a39c1224-6f2c-41c2-ad66-0cfe3c43e81d",
+      "name": "hợp đồng",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "8444ffd7-2c17-498e-9489-eeb25178bbf7",
+      "name": "khăn mềm",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "9de9c36a-9bb7-4611-ab2d-ea133c14c5c8",
+      "name": "micro",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "657d5884-54f8-484a-b1a9-58cdafb23e0a",
+      "name": "máy",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "8069bf93-b8fa-449e-8bb7-5651e443058c",
+      "name": "máy ghi âm",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "040e50f8-7462-483e-8b08-c4d2e404c28a",
+      "name": "máy phát",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "569960d5-873f-4bfe-b345-7ac47ae3f0df",
+      "name": "mã CV-04",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "85b99c0c-817a-4862-aeab-335a1a9e6be3",
+      "name": "mảnh gốm",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "c794b198-28a2-4571-a931-55760e07ffc8",
+      "name": "mẹ",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "fc7789de-cede-4577-ba2c-92280224270f",
+      "name": "nhánh tây",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "653c30cd-c65a-43f0-bf69-cab32506665b",
+      "name": "nhíp",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "37b89380-583e-447f-8894-5de2e2720378",
+      "name": "quạt",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "2c26b9fc-3783-468a-be90-6be75d708131",
+      "name": "tai nghe",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "4b869919-d094-4143-a1cd-60430b50004a",
+      "name": "thuyền",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "a0fab88e-c15e-4b43-8dd2-bdbe18e11a9f",
+      "name": "thùng cá",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "1fa3f513-ffcb-4ac9-84cb-d578abbf5878",
+      "name": "thước",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "7f4f4993-c3bb-446c-b97d-cc2baea65785",
+      "name": "trạm Bốn",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "2a539964-8a21-4da2-8289-3d44bf8fe302",
+      "name": "túi chống ẩm",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "8f53ca63-a9de-45da-8435-4ebec1453abb",
+      "name": "va li",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "46fd7d1b-0cc0-4bbc-bb9f-27a9e22b93ac",
+      "name": "vòng đồng",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "df81bfc8-c92a-4510-a7f1-8d2478c80afc",
+      "name": "Ông Hòa",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "ba6ee329-d969-44fc-ba7e-8023cb021278",
+      "name": "áo mưa",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "f73b7d2c-f97c-4350-a791-8e8b61e6cf88",
+      "name": "Điện thoại",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "d068707c-3d36-42da-bdf9-21d3979192e6",
+      "name": "Định",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "14848cd0-1c5a-4923-8de1-55f06e39888c",
+      "name": "Đồi Bắc",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "f6f675b0-675e-4dd9-b33b-77387440de15",
+      "name": "ổ lưu",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    }
+  ],
+  "current_states": [
+    {
+      "entity_id": "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "name": "An",
+      "status": "Alive",
+      "location": "Unknown",
+      "state": {
+        "age": 19,
+        "vá_áo_mưa": true,
+        "activity": "buộc lại thuyền"
+      }
+    },
+    {
+      "entity_id": "80d45f5d-a419-4e3a-9e8c-9fa3c0743b83",
+      "name": "Ban công trình",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "eb05a31d-5df2-41dc-bd79-9e777c0fbdcd",
+      "name": "Bãi Dưới",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "f6bd4233-1456-4b34-9331-b6744f1b4625",
+      "name": "CV-04",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "c61c26ee-e9e3-4e8e-834a-d79393ef0b08",
+      "name": "Chợ Giữa",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "96fbe5c5-a4c2-47fa-8c86-b99b74f27bd3",
+      "name": "Cồn Vân",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "weather": "không mưa"
+      }
+    },
+    {
+      "entity_id": "6672bb63-292e-4281-b8c5-72ef99402bb9",
+      "name": "Duy",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "hearing_impairment": "Tai trái không nghe",
+        "impairment_duration_years": 4,
+        "active_relationships": {
+          "survey permit": "conditional permission"
+        }
+      }
+    },
+    {
+      "entity_id": "edafedc6-73b5-4bf3-af2b-d3d59d468e56",
+      "name": "Hòa",
+      "status": "Alive",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "403be656-241d-4024-a919-dfd17f6f972c",
+      "name": "Kho gốm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "name": "Linh",
+      "status": "Unknown",
+      "location": "part of the floor with light",
+      "state": {
+        "kho_duration_days": 12,
+        "kho_current_day": 2,
+        "tai_nghe_status": "tháo một bên",
+        "location": "part of the floor with light",
+        "active_relationships": {
+          "survey permit": "conditional permission"
+        },
+        "activity": "gọi điện thoại cho mẹ"
+      }
+    },
+    {
+      "entity_id": "d5b41ef9-5ea6-4735-a4b4-81000a8aab9d",
+      "name": "Mai Linh",
+      "status": "Alive",
+      "location": "Unknown",
+      "state": {
+        "age": 29
+      }
+    },
+    {
+      "entity_id": "b1368ee4-2815-4aee-8699-3acda0c231c7",
+      "name": "Mai Lâm",
+      "status": "Dead",
+      "location": "Unknown",
+      "state": {
+        "status": "Dead",
+        "death_toll_in_flood": 23
+      }
+    },
+    {
+      "entity_id": "29356147-4012-481e-b810-416e50d7dcb6",
+      "name": "Nguyễn Vũ",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "funding_proposal_signer": true
+      }
+    },
+    {
+      "entity_id": "808f82ef-73cd-4af1-9022-fea907063a82",
+      "name": "Phòng lưu trữ âm thanh đô thị",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "129e256d-b419-49a4-8d1e-4ee5bdeca2e0",
+      "name": "Vũ",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "name": "bà Sâm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "cháo_hành": false,
+        "trực_trạm_Bốn": true,
+        "danh_sách_treo_tường": 23,
+        "danh_sách_sai_tên": 3
+      }
+    },
+    {
+      "entity_id": "538ace40-f6d6-4d33-ace4-aaaeb812d865",
+      "name": "bà Yên",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "thời_gian_bố_vắng": 17
+      }
+    },
+    {
+      "entity_id": "a452dcce-a033-4b9f-b4f1-0cc52643643c",
+      "name": "bóng đèn",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "39089ad3-30b1-4748-a456-cbe21cf46c5f",
+      "name": "bản đồ",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "41d2894a-0634-42e7-b740-8de8bcfdb97f",
+      "name": "bộ nguồn dự phòng",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "4b8d700f-23cb-46e4-ab82-1514b200032b",
+      "name": "bộ ổn áp",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "5cc7e64c-1ccf-4090-99d7-2635a921c3a3",
+      "name": "cha",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "3377d8e2-5ad3-42c7-9d9e-c58f4fac937f",
+      "name": "chuông",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "5a348639-67e5-4e84-9ce1-a3744e409bd7",
+      "name": "chìa khóa đồng",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "08eff571-bd02-4c41-86a4-cc8502fb7251",
+      "name": "cần cẩu",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "a0ba836e-aa9f-40a3-ae55-3bf4f6c714e7",
+      "name": "giỏ nhựa",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "b27843c0-cd65-48f3-a1d3-7bf4db3fcd53",
+      "name": "hộp dụng cụ kim loại",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "8c9a3ead-e2f7-4451-8f74-4b4d77851543",
+      "name": "hộp gỗ",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "a39c1224-6f2c-41c2-ad66-0cfe3c43e81d",
+      "name": "hợp đồng",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "8444ffd7-2c17-498e-9489-eeb25178bbf7",
+      "name": "khăn mềm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "9de9c36a-9bb7-4611-ab2d-ea133c14c5c8",
+      "name": "micro",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "657d5884-54f8-484a-b1a9-58cdafb23e0a",
+      "name": "máy",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "8069bf93-b8fa-449e-8bb7-5651e443058c",
+      "name": "máy ghi âm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "040e50f8-7462-483e-8b08-c4d2e404c28a",
+      "name": "máy phát",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "569960d5-873f-4bfe-b345-7ac47ae3f0df",
+      "name": "mã CV-04",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "preservation_limit_touches": 3
+      }
+    },
+    {
+      "entity_id": "85b99c0c-817a-4862-aeab-335a1a9e6be3",
+      "name": "mảnh gốm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "c794b198-28a2-4571-a931-55760e07ffc8",
+      "name": "mẹ",
+      "status": "Alive",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "fc7789de-cede-4577-ba2c-92280224270f",
+      "name": "nhánh tây",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "653c30cd-c65a-43f0-bf69-cab32506665b",
+      "name": "nhíp",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "37b89380-583e-447f-8894-5de2e2720378",
+      "name": "quạt",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "2c26b9fc-3783-468a-be90-6be75d708131",
+      "name": "tai nghe",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "4b869919-d094-4143-a1cd-60430b50004a",
+      "name": "thuyền",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "a0fab88e-c15e-4b43-8dd2-bdbe18e11a9f",
+      "name": "thùng cá",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "1fa3f513-ffcb-4ac9-84cb-d578abbf5878",
+      "name": "thước",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "7f4f4993-c3bb-446c-b97d-cc2baea65785",
+      "name": "trạm Bốn",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "2a539964-8a21-4da2-8289-3d44bf8fe302",
+      "name": "túi chống ẩm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "8f53ca63-a9de-45da-8435-4ebec1453abb",
+      "name": "va li",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "46fd7d1b-0cc0-4bbc-bb9f-27a9e22b93ac",
+      "name": "vòng đồng",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "origin": "bộ chuẩn của trạm Bốn"
+      }
+    },
+    {
+      "entity_id": "df81bfc8-c92a-4510-a7f1-8d2478c80afc",
+      "name": "Ông Hòa",
+      "status": "Alive",
+      "location": "Unknown",
+      "state": {
+        "contract_duration_days": 12
+      }
+    },
+    {
+      "entity_id": "ba6ee329-d969-44fc-ba7e-8023cb021278",
+      "name": "áo mưa",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "f73b7d2c-f97c-4350-a791-8e8b61e6cf88",
+      "name": "Điện thoại",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "d068707c-3d36-42da-bdf9-21d3979192e6",
+      "name": "Định",
+      "status": "Alive",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "14848cd0-1c5a-4923-8de1-55f06e39888c",
+      "name": "Đồi Bắc",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "f6f675b0-675e-4dd9-b33b-77387440de15",
+      "name": "ổ lưu",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    }
+  ],
+  "recent_events": [
+    {
+      "event_id": "c5f8682a-6642-5790-b8ce-f1559a71f055",
+      "narrative_order": 23552,
+      "chapter_number": 1,
+      "event_type": "meeting",
+      "summary": "An meets Mai Linh at the ferry landing with a sign bearing her name.",
+      "participants": [
+        "Mai Linh",
+        "An",
+        "bà Yên"
+      ],
+      "metadata": {
+        "chapter": 1,
+        "summary": "An meets Mai Linh at the ferry landing with a sign bearing her name.",
+        "evidence": [
+          {
+            "end": 1351,
+            "quote": "Một cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”",
+            "start": 1160,
+            "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "bến"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "An carries Mai Linh's luggage."
+        ],
+        "participants": [
+          "Mai Linh",
+          "An",
+          "bà Yên"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "d63a1e48-2f1a-54c2-b9b5-2fedc9be65d8",
+      "narrative_order": 25600,
+      "chapter_number": 1,
+      "event_type": "contract_signing",
+      "summary": "Mai Linh signs a twelve-day contract for inventory and assessment work with Hòa.",
+      "participants": [
+        "Mai Linh",
+        "Hòa"
+      ],
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh signs a twelve-day contract for inventory and assessment work with Hòa.",
+        "evidence": [
+          {
+            "end": 3630,
+            "quote": "Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.",
+            "start": 3388,
+            "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "Phòng lưu trữ âm thanh đô thị"
+        ],
+        "event_type": "contract_signing",
+        "consequences": [
+          "Mai Linh officially begins her archive inspection assignment."
+        ],
+        "participants": [
+          "Mai Linh",
+          "Hòa"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "b0b51a7e-f580-5b23-a632-cd73754927f6",
+      "narrative_order": 26624,
+      "chapter_number": 1,
+      "event_type": "meeting",
+      "summary": "Mai Linh meets Định at a teahouse, receiving an old bronze key to the reading room.",
+      "participants": [
+        "Mai Linh",
+        "Định"
+      ],
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh meets Định at a teahouse, receiving an old bronze key to the reading room.",
+        "evidence": [
+          {
+            "end": 5604,
+            "quote": "Buổi chiều hôm đó, Mai Linh gặp ông giáo Định tại quán nước đầu dốc Cồn Vân. Ông giáo trao cho cô một chiếc chìa khóa đồng cũ kỹ của phòng đọc sách.",
+            "start": 5456,
+            "text_hash": "db5d2776dc94535ea3791455e1b811474e6705aaa41ad1408f5fb526d01c0ea7",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "addb83f3-e1bb-4d9b-9817-2a61165742e5",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "quán nước",
+          "Cồn Vân"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "Mai Linh obtains the reading room key."
+        ],
+        "participants": [
+          "Mai Linh",
+          "Định"
+        ],
+        "chapter_number": 1
+      }
+    }
+  ],
+  "semantic_memories": [],
+  "world_rules": [
+    {
+      "id": "f91a53b9-004b-48b5-bb3d-a96c7f501eb2",
+      "fact_type": "narrative_fact",
+      "fact_key": "flood_history_years_ago",
+      "fact_value": {
+        "value": 17,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "87e534eb-a89f-4076-b8c1-d6fd071f755a",
+      "fact_type": "narrative_fact",
+      "fact_key": "age",
+      "fact_value": 19,
+      "is_locked": false
+    },
+    {
+      "id": "ef032515-f8b0-4998-94f4-276c12423025",
+      "fact_type": "narrative_fact",
+      "fact_key": "status",
+      "fact_value": "Dead",
+      "is_locked": false
+    },
+    {
+      "id": "74353279-7370-4a83-8f0b-c407128061ea",
+      "fact_type": "narrative_fact",
+      "fact_key": "flood_death_toll",
+      "fact_value": {
+        "value": 23,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "ff05770d-1cd4-43e8-a91e-91b3f899593c",
+      "fact_type": "narrative_fact",
+      "fact_key": "contract_duration_days",
+      "fact_value": {
+        "value": 12,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "22047f75-6818-4120-8df0-03c5d49e2492",
+      "fact_type": "narrative_fact",
+      "fact_key": "weather",
+      "fact_value": "không mưa",
+      "is_locked": false
+    },
+    {
+      "id": "1aca4054-7628-44cb-b011-dab8b8dd09bb",
+      "fact_type": "narrative_fact",
+      "fact_key": "kho_duration_days",
+      "fact_value": 12,
+      "is_locked": false
+    },
+    {
+      "id": "662104f7-bc60-4564-b578-4132087d879d",
+      "fact_type": "narrative_fact",
+      "fact_key": "kho_current_day",
+      "fact_value": 2,
+      "is_locked": false
+    },
+    {
+      "id": "191e645d-f106-474e-8daa-887cea852deb",
+      "fact_type": "narrative_fact",
+      "fact_key": "funding_proposal_signer",
+      "fact_value": true,
+      "is_locked": false
+    },
+    {
+      "id": "24622064-5c6a-442f-b6ae-100d7f993a21",
+      "fact_type": "narrative_fact",
+      "fact_key": "cháo_hành",
+      "fact_value": false,
+      "is_locked": false
+    },
+    {
+      "id": "d91a93da-daf3-4a9b-bb38-48ad6cff505a",
+      "fact_type": "narrative_fact",
+      "fact_key": "vá_áo_mưa",
+      "fact_value": true,
+      "is_locked": false
+    },
+    {
+      "id": "2d88d165-dc6e-4d5a-948f-af9b1255dbb7",
+      "fact_type": "narrative_fact",
+      "fact_key": "trực_trạm_Bốn",
+      "fact_value": true,
+      "is_locked": false
+    },
+    {
+      "id": "69b3e1c3-6dd9-4205-bfec-7b4ea1122d10",
+      "fact_type": "narrative_fact",
+      "fact_key": "danh_sách_treo_tường",
+      "fact_value": 23,
+      "is_locked": false
+    },
+    {
+      "id": "b7e1aefb-fbd2-45f0-8e43-8a3a70941c57",
+      "fact_type": "narrative_fact",
+      "fact_key": "danh_sách_sai_tên",
+      "fact_value": 3,
+      "is_locked": false
+    },
+    {
+      "id": "f74a3256-4b9d-486f-82ca-f9daa70e4288",
+      "fact_type": "narrative_fact",
+      "fact_key": "thời_gian_bố_vắng",
+      "fact_value": 17,
+      "is_locked": false
+    },
+    {
+      "id": "bd057d9f-7da1-4aef-8697-769fd9894fc4",
+      "fact_type": "narrative_fact",
+      "fact_key": "tai_nghe_status",
+      "fact_value": "tháo một bên",
+      "is_locked": false
+    },
+    {
+      "id": "3fa9cb85-1c1c-426b-bf48-46e4a19a0f9d",
+      "fact_type": "narrative_fact",
+      "fact_key": "activity",
+      "fact_value": "buộc lại thuyền",
+      "is_locked": false
+    },
+    {
+      "id": "6117b1f4-cfef-4d50-8034-5b3e69147a06",
+      "fact_type": "narrative_fact",
+      "fact_key": "location",
+      "fact_value": "trạm Bốn, nhánh tây",
+      "is_locked": false
+    },
+    {
+      "id": "55c6ad0d-d647-47a0-9c6d-45f2bc3f0bfa",
+      "fact_type": "narrative_fact",
+      "fact_key": "statement",
+      "fact_value": {
+        "value": "đó không phải cửa xuống phòng máy",
+        "subject": "bà Sâm",
+        "certainty": "reported"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "bab06eb1-473f-413b-89d6-dbd29f2c77a3",
+      "fact_type": "narrative_fact",
+      "fact_key": "age",
+      "fact_value": {
+        "value": "ngoài ba mươi",
+        "subject": "Duy",
+        "certainty": "reported"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "921109f2-afb2-49ad-b5fb-e776714bd30b",
+      "fact_type": "narrative_fact",
+      "fact_key": "hearing_impairment",
+      "fact_value": "Tai trái không nghe",
+      "is_locked": false
+    },
+    {
+      "id": "4bbfc188-db47-4726-88ba-cd65ba4cdfb7",
+      "fact_type": "narrative_fact",
+      "fact_key": "impairment_duration_years",
+      "fact_value": 4,
+      "is_locked": false
+    },
+    {
+      "id": "fcf2d82b-2c37-41ea-8e21-78acc4f3f8d7",
+      "fact_type": "narrative_fact",
+      "fact_key": "origin",
+      "fact_value": "bộ chuẩn của trạm Bốn",
+      "is_locked": false
+    },
+    {
+      "id": "a8ff6115-1736-43e7-962e-3a7ab2ab728b",
+      "fact_type": "narrative_fact",
+      "fact_key": "preservation_limit_touches",
+      "fact_value": 3,
+      "is_locked": false
+    },
+    {
+      "id": "568369ff-048a-41ce-9c76-358e07b90f34",
+      "fact_type": "narrative_fact",
+      "fact_key": "voice_recognition_hypothesis",
+      "fact_value": {
+        "value": "Giọng trong bản ghi có thể là cha cô",
+        "subject": "Linh",
+        "certainty": "hypothesis"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "966e0f0e-f307-4933-8607-620c9a883a14",
+      "fact_type": "narrative_fact",
+      "fact_key": "age",
+      "fact_value": 29,
+      "is_locked": false
+    },
+    {
+      "id": "69db70dc-c0a6-4083-b501-31ad6ff6eed1",
+      "fact_type": "narrative_fact",
+      "fact_key": "flood_time_ago_years",
+      "fact_value": {
+        "value": 17,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "e973257b-0032-4d90-9a9f-d1ccc598bb3c",
+      "fact_type": "narrative_fact",
+      "fact_key": "age",
+      "fact_value": 19,
+      "is_locked": false
+    },
+    {
+      "id": "9829aecd-2b48-42e0-94f4-4c4b07e6258d",
+      "fact_type": "narrative_fact",
+      "fact_key": "status",
+      "fact_value": "Dead",
+      "is_locked": false
+    },
+    {
+      "id": "60baa852-a265-431e-aaf4-0244b9646723",
+      "fact_type": "narrative_fact",
+      "fact_key": "death_toll_in_flood",
+      "fact_value": 23,
+      "is_locked": false
+    },
+    {
+      "id": "2e9c6972-8a7f-467d-922e-b2c03051d587",
+      "fact_type": "narrative_fact",
+      "fact_key": "contract_duration_days",
+      "fact_value": 12,
+      "is_locked": false
+    }
+  ],
+  "author_constraints": [],
+  "token_budget": {
+    "used": 8175,
+    "maximum": 8192,
+    "estimated_before": 13721,
+    "budget_overflow": false,
+    "protected_overflow": false,
+    "packing_version": "context-budget-v1",
+    "estimator_version": "utf8-json-bytes-3-v1",
+    "deduplicated_semantic_count": 0,
+    "dropped_artifact_count": 17
+  },
+  "context_summary": {
+    "entity_ids": [
+      "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "80d45f5d-a419-4e3a-9e8c-9fa3c0743b83",
+      "eb05a31d-5df2-41dc-bd79-9e777c0fbdcd",
+      "f6bd4233-1456-4b34-9331-b6744f1b4625",
+      "c61c26ee-e9e3-4e8e-834a-d79393ef0b08",
+      "96fbe5c5-a4c2-47fa-8c86-b99b74f27bd3",
+      "6672bb63-292e-4281-b8c5-72ef99402bb9",
+      "edafedc6-73b5-4bf3-af2b-d3d59d468e56",
+      "403be656-241d-4024-a919-dfd17f6f972c",
+      "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "d5b41ef9-5ea6-4735-a4b4-81000a8aab9d",
+      "b1368ee4-2815-4aee-8699-3acda0c231c7",
+      "29356147-4012-481e-b810-416e50d7dcb6",
+      "808f82ef-73cd-4af1-9022-fea907063a82",
+      "129e256d-b419-49a4-8d1e-4ee5bdeca2e0",
+      "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "538ace40-f6d6-4d33-ace4-aaaeb812d865",
+      "a452dcce-a033-4b9f-b4f1-0cc52643643c",
+      "39089ad3-30b1-4748-a456-cbe21cf46c5f",
+      "41d2894a-0634-42e7-b740-8de8bcfdb97f",
+      "4b8d700f-23cb-46e4-ab82-1514b200032b",
+      "5cc7e64c-1ccf-4090-99d7-2635a921c3a3",
+      "3377d8e2-5ad3-42c7-9d9e-c58f4fac937f",
+      "5a348639-67e5-4e84-9ce1-a3744e409bd7",
+      "08eff571-bd02-4c41-86a4-cc8502fb7251",
+      "a0ba836e-aa9f-40a3-ae55-3bf4f6c714e7",
+      "b27843c0-cd65-48f3-a1d3-7bf4db3fcd53",
+      "8c9a3ead-e2f7-4451-8f74-4b4d77851543",
+      "a39c1224-6f2c-41c2-ad66-0cfe3c43e81d",
+      "8444ffd7-2c17-498e-9489-eeb25178bbf7",
+      "9de9c36a-9bb7-4611-ab2d-ea133c14c5c8",
+      "657d5884-54f8-484a-b1a9-58cdafb23e0a",
+      "8069bf93-b8fa-449e-8bb7-5651e443058c",
+      "040e50f8-7462-483e-8b08-c4d2e404c28a",
+      "569960d5-873f-4bfe-b345-7ac47ae3f0df",
+      "85b99c0c-817a-4862-aeab-335a1a9e6be3",
+      "c794b198-28a2-4571-a931-55760e07ffc8",
+      "fc7789de-cede-4577-ba2c-92280224270f",
+      "653c30cd-c65a-43f0-bf69-cab32506665b",
+      "37b89380-583e-447f-8894-5de2e2720378",
+      "2c26b9fc-3783-468a-be90-6be75d708131",
+      "4b869919-d094-4143-a1cd-60430b50004a",
+      "a0fab88e-c15e-4b43-8dd2-bdbe18e11a9f",
+      "1fa3f513-ffcb-4ac9-84cb-d578abbf5878",
+      "7f4f4993-c3bb-446c-b97d-cc2baea65785",
+      "2a539964-8a21-4da2-8289-3d44bf8fe302",
+      "8f53ca63-a9de-45da-8435-4ebec1453abb",
+      "46fd7d1b-0cc0-4bbc-bb9f-27a9e22b93ac",
+      "df81bfc8-c92a-4510-a7f1-8d2478c80afc",
+      "ba6ee329-d969-44fc-ba7e-8023cb021278",
+      "f73b7d2c-f97c-4350-a791-8e8b61e6cf88",
+      "d068707c-3d36-42da-bdf9-21d3979192e6",
+      "14848cd0-1c5a-4923-8de1-55f06e39888c",
+      "f6f675b0-675e-4dd9-b33b-77387440de15"
+    ],
+    "event_ids": [
+      "c5f8682a-6642-5790-b8ce-f1559a71f055",
+      "d63a1e48-2f1a-54c2-b9b5-2fedc9be65d8",
+      "b0b51a7e-f580-5b23-a632-cd73754927f6"
+    ],
+    "fact_ids": [
+      "f91a53b9-004b-48b5-bb3d-a96c7f501eb2",
+      "87e534eb-a89f-4076-b8c1-d6fd071f755a",
+      "ef032515-f8b0-4998-94f4-276c12423025",
+      "74353279-7370-4a83-8f0b-c407128061ea",
+      "ff05770d-1cd4-43e8-a91e-91b3f899593c",
+      "22047f75-6818-4120-8df0-03c5d49e2492",
+      "1aca4054-7628-44cb-b011-dab8b8dd09bb",
+      "662104f7-bc60-4564-b578-4132087d879d",
+      "191e645d-f106-474e-8daa-887cea852deb",
+      "24622064-5c6a-442f-b6ae-100d7f993a21",
+      "d91a93da-daf3-4a9b-bb38-48ad6cff505a",
+      "2d88d165-dc6e-4d5a-948f-af9b1255dbb7",
+      "69b3e1c3-6dd9-4205-bfec-7b4ea1122d10",
+      "b7e1aefb-fbd2-45f0-8e43-8a3a70941c57",
+      "f74a3256-4b9d-486f-82ca-f9daa70e4288",
+      "bd057d9f-7da1-4aef-8697-769fd9894fc4",
+      "3fa9cb85-1c1c-426b-bf48-46e4a19a0f9d",
+      "6117b1f4-cfef-4d50-8034-5b3e69147a06",
+      "55c6ad0d-d647-47a0-9c6d-45f2bc3f0bfa",
+      "bab06eb1-473f-413b-89d6-dbd29f2c77a3",
+      "921109f2-afb2-49ad-b5fb-e776714bd30b",
+      "4bbfc188-db47-4726-88ba-cd65ba4cdfb7",
+      "fcf2d82b-2c37-41ea-8e21-78acc4f3f8d7",
+      "a8ff6115-1736-43e7-962e-3a7ab2ab728b",
+      "568369ff-048a-41ce-9c76-358e07b90f34",
+      "966e0f0e-f307-4933-8607-620c9a883a14",
+      "69db70dc-c0a6-4083-b501-31ad6ff6eed1",
+      "e973257b-0032-4d90-9a9f-d1ccc598bb3c",
+      "9829aecd-2b48-42e0-94f4-4c4b07e6258d",
+      "60baa852-a265-431e-aaf4-0244b9646723",
+      "2e9c6972-8a7f-467d-922e-b2c03051d587"
+    ],
+    "cutoff_chapter": 5,
+    "recent_scope_participant_entity_ids": [
+      "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "c794b198-28a2-4571-a931-55760e07ffc8",
+      "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "538ace40-f6d6-4d33-ace4-aaaeb812d865",
+      "d5b41ef9-5ea6-4735-a4b4-81000a8aab9d",
+      "edafedc6-73b5-4bf3-af2b-d3d59d468e56",
+      "d068707c-3d36-42da-bdf9-21d3979192e6"
+    ],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "plan_id": [
+      "6bde4330-6495-422f-9214-44170d30151e"
+    ],
+    "plan_version": [
+      "1"
+    ],
+    "active_objective_id": [
+      "4ca59d84-717e-4d80-bd58-f505c71c21ee"
+    ],
+    "active_objective_title": [
+      "Sự thật cuối cùng tại Cồn Vân"
+    ],
+    "semantic_memory_ids": [],
+    "context_packing_version": [
+      "context-budget-v1"
+    ],
+    "context_token_estimator_version": [
+      "utf8-json-bytes-3-v1"
+    ],
+    "dropped_entity_ids": [],
+    "dropped_event_ids": [
+      "df63a129-2716-5424-8f29-69bcdad65f1c",
+      "3ca79f97-e558-5823-b951-6a64933cd4da",
+      "089574fc-0131-523f-8289-ad3ebda4e53d",
+      "b669fcc1-cc27-5a46-aab1-db0c72bd1611",
+      "68c997c9-454a-55ba-9c87-d5470a71290e",
+      "998e2193-ba1e-539d-bf8b-166efab2925c",
+      "534ff886-5254-52da-9ab1-d185a1192a44",
+      "bb7b2408-2c9e-58ed-9660-834d32fe0d6a",
+      "8eb17707-4bf2-501b-9e51-ada4278f8187",
+      "78bf3cd7-b21b-5f54-abc9-7f13f42458f1",
+      "61f658c5-a8cb-5c8a-af9b-d8671e48a058",
+      "d3976045-8bea-5864-a366-6e5f14121e2e",
+      "3b7c0794-d550-5787-8d7b-da07e9d2b5a0",
+      "bc6d4d7a-dbc8-5c4f-9541-66c9674e0bb0",
+      "4b08ac52-e0a7-5e5b-b486-a475feb8842e",
+      "5f1812d8-5fb0-5128-8fd7-671a12a0ba14",
+      "822f7c72-ad2d-5f43-8c16-3d60c230d1e5"
+    ],
+    "dropped_fact_ids": [],
+    "dropped_semantic_memory_ids": [],
+    "deduplicated_semantic_memory_ids": []
+  },
+  "planning_context": {
+    "plan_id": "6bde4330-6495-422f-9214-44170d30151e",
+    "plan_version": 1,
+    "status": "active",
+    "source_outline_hash": "",
+    "total_objectives": 3,
+    "active_objective_id": "4ca59d84-717e-4d80-bd58-f505c71c21ee"
+  },
+  "current_objective": {
+    "objective_id": "4ca59d84-717e-4d80-bd58-f505c71c21ee",
+    "order_index": 3,
+    "target_chapter": 5,
+    "objective_type": "ending",
+    "title": "Sự thật cuối cùng tại Cồn Vân",
+    "description": "Trong ngày hợp đồng cuối cùng, Mai Linh hoàn thành việc giải mã cuộn băng gốc cuối cùng, khép lại quá khứ mười một năm xa cách và đưa sự thật về Mai Lâm ra ánh sáng.",
+    "status": "pending"
+  }
+}

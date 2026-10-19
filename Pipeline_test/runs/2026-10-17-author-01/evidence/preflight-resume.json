@@ -1,0 +1,26 @@
+{
+  "time": "2026-10-17T22:49:25.277509+07:00",
+  "budget": "APPROVED_UNLIMITED",
+  "provider_calls_made": 0,
+  "health": {
+    "4000/api/v1/health": "URLError",
+    "8000/health": "URLError",
+    "5173": "URLError"
+  },
+  "docker_engine": "Linux engine named pipe not found",
+  "docker_compose": "docker compose --env-file rejected: unknown flag --env-file",
+  "startup_attempt": "Start-Process Docker Desktop.exe -WindowStyle Hidden; subsequent engine check still unavailable",
+  "static_config": {
+    "ai-service/.env": {
+      "LLM_PROVIDER": "gemini",
+      "LLM_MODEL": "gemini-3.5-flash-lite",
+      "EMBEDDING_PROVIDER": "gemini"
+    },
+    "four_key_pool_verified": false
+  },
+  "author_reference": "docs/Deployment/defense-demo-runbook.md (credentials omitted)",
+  "fallback_evidence": [
+    "ai-service/core/llm_client.py: single key resolution, no key pool",
+    "ai-service/main.py: separate llm_client and llm_service initialization"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "artifact_validation": "PASS",
+  "scope": "Local evidence integrity only; NOT product/novel acceptance",
+  "export_files_verified": [
+    "ch01.md",
+    "ch02.md",
+    "ch03.md",
+    "ch04.md",
+    "ch05.md"
+  ],
+  "canonical_words": 4747,
+  "memory_audit_reports": 3,
+  "context_probes": 15,
+  "overall_run": "BLOCKED"
+}

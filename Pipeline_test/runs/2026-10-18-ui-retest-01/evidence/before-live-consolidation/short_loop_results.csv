@@ -1,0 +1,12 @@
+step,channel,expected,actual,evidence,verdict,issue_ids
+S01,LIVE_UI_NOT_EXECUTED,"Nhập ch01–ch05 qua UI, lưu nháp",Chưa nhập: preflight phát hiện runtime cũ và migrations/provider chưa xác minh,evidence/version-preflight.json; evidence/ui-old-editor.png,BLOCKED,ENV-001;ENV-002;ENV-003
+S02,LIVE_UI_NOT_EXECUTED,Chủ động trích xuất ban đầu,S01/preflight chưa đạt,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003
+S03,LIVE_UI_NOT_EXECUTED,Review/duyệt baseline,Chưa có extraction trong run mới,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003
+S04,LIVE_UI_NOT_EXECUTED,Kiểm tra tab memory và reload,Chưa có approved memory của run mới,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003
+S05,LIVE_UI_NOT_EXECUTED,Gợi ý/chỉnh/bỏ event kế tiếp,Chưa có baseline được duyệt,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003
+S06,LIVE_UI_NOT_EXECUTED,"Duyệt plan, reload/context",Chưa có plan của run mới,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003
+S07,LIVE_UI_NOT_EXECUTED,"Viết/lưu bình thường, tự extraction",Preflight/P1 baseline chưa đạt,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003
+S08,LIVE_UI_NOT_EXECUTED,Queue chờ tác giả duyệt,Chưa có saved prose mới,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003
+S09,LIVE_UI_NOT_EXECUTED,"Hai save nhanh, dedup/stale check",Chưa có hành trình save mới,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003
+S10,LIVE_UI_NOT_EXECUTED,"Cài mâu thuẫn, consistency và sửa qua UI",Không cài fault trên dự án cũ,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003
+S11,LIVE_UI_NOT_EXECUTED,"Reload/tiếp tục, M-FIRST/final",Chưa đến điều kiện chạy,evidence/version-preflight.json; evidence/ui-old-editor.png,NOT_RUN,ENV-001;ENV-002;ENV-003

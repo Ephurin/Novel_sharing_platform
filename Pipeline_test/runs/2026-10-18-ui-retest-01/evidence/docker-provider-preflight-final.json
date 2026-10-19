@@ -1,0 +1,11 @@
+{
+  "default": {
+    "result": "TIMEOUT_7_SECONDS"
+  },
+  "desktop-linux": {
+    "result": "TIMEOUT_7_SECONDS"
+  },
+  "provider_health": {
+    "error_type": "TimeoutError"
+  }
+}

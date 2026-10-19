@@ -1,0 +1,89 @@
+{
+  "run_id": "2026-10-18-ui-retest-01",
+  "updated_at": "2026-10-18T22:37:53.641200+07:00",
+  "status": "BLOCKED",
+  "main_novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+  "current_chapter_number": 1,
+  "current_chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a",
+  "latest_canonical_revision_id": "60541649-d04b-4fa2-80c3-2abe3fbe79f8",
+  "latest_content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+  "brain_version": 2,
+  "plan_id": null,
+  "plan_version": null,
+  "objective_id": null,
+  "autonomous_run_id": null,
+  "last_generation_id": null,
+  "pending_jobs": [
+    {
+      "job_id": "1f60955d-c43a-519c-83b6-2dd4be904491",
+      "status": "waiting_review",
+      "pending_proposals": 65
+    }
+  ],
+  "pending_accept_idempotency_key": null,
+  "canonical_word_count": 4747,
+  "completed_chapters_by_content_review": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "unresolved_issue_ids": [
+    "MEM-CRITICAL-001",
+    "MEM-PROVENANCE-001",
+    "UI-REVIEW-001",
+    "EXTRACT-SCHEMA-001"
+  ],
+  "memory_audit": {
+    "completed_audit_ids_by_pipeline": {
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "next_due_by_pipeline": {
+      "P1": "M0_AFTER_UI_IMPORT",
+      "P2": "M0_ONLY_AFTER_P1_SHORT_LOOP_PASS",
+      "P3": "M0_ONLY_AFTER_P1_SHORT_LOOP_PASS"
+    },
+    "pending_audit_ids": [
+      "P1-M0"
+    ],
+    "unresolved_issue_ids": [
+      "MEM-CRITICAL-001",
+      "MEM-PROVENANCE-001",
+      "UI-REVIEW-001"
+    ],
+    "resume_rule": "Finish due memory audit before next generation; read server revisions and analysis status first."
+  },
+  "last_action_log_row": null,
+  "next_action": "Resolve documented UI memory repair gaps in a separate development task, then retest S03 with retained evidence. Before writes, re-read queue/revisions. Do not activate incomplete baseline, run P2/P3 or long test as PASS. Current browser and login recovered; historical quota is not current blocker.",
+  "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth.",
+  "budget": {
+    "approved": true,
+    "provider_generation_calls_in_run": 0,
+    "cost_usd": null,
+    "provider_structured_responses": 27
+  },
+  "observed_prior_run_project_for_version_only": {
+    "novel_id": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+    "chapter_id": "2991c50d-2dc1-46d0-b996-93e6c8caecd2",
+    "author_edits": false
+  },
+  "rollout": {
+    "at": "2026-10-18T17:14:06.726481+07:00",
+    "status": "ENVIRONMENT_READY_UI_NOT_RUN",
+    "compose_project": "ephurin-ui-retest",
+    "web_url": "http://localhost:18080",
+    "backend_url": "http://localhost:14000/api/v1",
+    "ai_url": "http://localhost:18000",
+    "evidence": [
+      "evidence/rollout-preflight.json",
+      "evidence/rollout-runtime.json"
+    ]
+  },
+  "environment_issues_resolved": [
+    "ENV-001",
+    "ENV-002",
+    "ENV-003"
+  ]
+}

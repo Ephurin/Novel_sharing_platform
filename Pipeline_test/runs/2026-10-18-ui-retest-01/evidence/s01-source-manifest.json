@@ -1,0 +1,42 @@
+[
+  {
+    "chapter_number": 1,
+    "chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a",
+    "revision_id": "PENDING_UI_BOOTSTRAP_BINDING",
+    "body_sha256": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+    "words": 1216,
+    "draft_status": "DRAFT"
+  },
+  {
+    "chapter_number": 2,
+    "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af",
+    "revision_id": "PENDING_UI_BOOTSTRAP_BINDING",
+    "body_sha256": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+    "words": 1005,
+    "draft_status": "DRAFT"
+  },
+  {
+    "chapter_number": 3,
+    "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa",
+    "revision_id": "PENDING_UI_BOOTSTRAP_BINDING",
+    "body_sha256": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+    "words": 995,
+    "draft_status": "DRAFT"
+  },
+  {
+    "chapter_number": 4,
+    "chapter_id": "91a25305-aae7-4d6a-8869-4a52e34e0b9c",
+    "revision_id": "PENDING_UI_BOOTSTRAP_BINDING",
+    "body_sha256": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+    "words": 957,
+    "draft_status": "DRAFT"
+  },
+  {
+    "chapter_number": 5,
+    "chapter_id": "1cb10eda-ec02-4712-86e4-85bf48f8539b",
+    "revision_id": "PENDING_UI_BOOTSTRAP_BINDING",
+    "body_sha256": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+    "words": 574,
+    "draft_status": "DRAFT"
+  }
+]

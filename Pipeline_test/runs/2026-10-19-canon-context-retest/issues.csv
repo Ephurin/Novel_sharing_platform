@@ -1,0 +1,1 @@
+issue_id,severity,category,first_seen_iso,code_sha,chapter_number,expected,actual,repro_steps,evidence_paths,related_ids,natural_or_injected,workaround,impact_on_completion,status,retest_evidence

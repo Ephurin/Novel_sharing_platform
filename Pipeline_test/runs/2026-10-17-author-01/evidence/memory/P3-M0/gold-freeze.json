@@ -1,0 +1,7 @@
+{
+  "time": "2026-10-17T23:01:46.304062+07:00",
+  "expected_sha256": "6187484440985bb01060a0da4444a3b011ebc07a11bbda626557b434f7fc1d50",
+  "source": "Same seed source assertions as P1, mapped to independent P3 revisions; no shared extraction credit",
+  "before_extraction": true,
+  "controller_credit": "Baseline import is P1-style preparation, not P3 controller extraction."
+}

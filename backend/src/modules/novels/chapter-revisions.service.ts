@@ -122,6 +122,11 @@ export async function createSnapshot(
 
     const latest = await findLatestRevisionByChapterId(client, chapterId);
 
+    // Repeated saves of the same body must not create duplicate analysis work.
+    if (latest?.contentHash === contentHash && latest.sourceType === sourceType) {
+      return latest;
+    }
+
     const record = await insertRevision(client, {
       novelId: chapter.novelId,
       chapterId,
@@ -196,6 +201,15 @@ export async function createSnapshot(
   }
 
   return revision;
+}
+
+// Before the initial author-triggered extraction, saves remain ordinary drafts.
+// Once the baseline is active, every changed body creates a durable revision and
+// analysis outbox event. The worker never approves its proposals.
+export async function snapshotSavedChapter(auth: AuthContext, chapterId: string, content: string) {
+  const chapter = await findChapterById(chapterId);
+  if (!chapter || !(await checkStoryBrainActive(chapter.novelId))) return null;
+  return createSnapshot(auth, chapterId, { content, purpose: 'AUTHOR_SNAPSHOT' });
 }
 
 export async function acceptDraft(

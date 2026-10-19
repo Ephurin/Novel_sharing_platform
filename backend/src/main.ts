@@ -3,12 +3,14 @@ import { env } from './core/config/env.js';
 import { connectDatabases, disconnectDatabases } from './core/database/database.js';
 import { logger } from './core/logger/logger.js';
 import { startOutboxProcessor, stopOutboxProcessor } from './jobs/outbox-processor.js';
+import { startAutonomousProcessor, stopAutonomousProcessor } from './jobs/autonomous-processor.js';
 
 const app = createApp();
 
 if (env.DB_CONNECT_ON_START) {
   await connectDatabases();
   startOutboxProcessor();
+  startAutonomousProcessor();
 }
 
 const server = app.listen(env.PORT, () => {
@@ -18,6 +20,7 @@ const server = app.listen(env.PORT, () => {
 async function shutdown(signal: string) {
   logger.info(`${signal} received, shutting down API server`);
   stopOutboxProcessor();
+  stopAutonomousProcessor();
 
   server.close(async () => {
     await disconnectDatabases();

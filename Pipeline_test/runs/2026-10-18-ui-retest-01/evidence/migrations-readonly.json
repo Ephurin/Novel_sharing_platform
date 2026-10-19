@@ -1,0 +1,17 @@
+{
+  "mode": "READ_ONLY_DIAGNOSTICS",
+  "target": "localhost:5432/ephurin (repository demo compose target)",
+  "transaction_read_only": "on",
+  "database": "ephurin",
+  "server_version": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35227, 64-bit",
+  "vector_extensions": [],
+  "alembic_versions": [
+    {
+      "schema": "public",
+      "versions": [
+        "0006_fix_revision_provenance"
+      ]
+    }
+  ],
+  "autonomous_status_counts": []
+}

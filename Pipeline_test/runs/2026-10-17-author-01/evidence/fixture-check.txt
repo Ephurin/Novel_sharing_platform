@@ -1,0 +1,11 @@
+{
+  "check": "OFFLINE_FIXTURE_INTEGRITY_ONLY",
+  "ok": true,
+  "fixture_id": "PT-CV-001",
+  "version": "1.0.0",
+  "manifest_sha256": "7abef96ba77bef7a8bd520207b7abc43c94e339f2c5d4a7f86dce87da96fa255",
+  "seed_words": 4747,
+  "planned_chapters": 40,
+  "errors": [],
+  "note": "This does not verify application behavior or literary quality."
+}

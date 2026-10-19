@@ -19,6 +19,21 @@ class FakeDeterministicLLMService:
 
     def _call_llm(self, *, system_prompt: str, user_prompt: str) -> str:
         prompt_lower = (system_prompt + " " + user_prompt).lower()
+        if 'ONE chapter revision' in system_prompt:
+            data = json.loads(user_prompt)
+            decisions, claimed = [], set()
+            for candidate in data['candidates']:
+                match = next((identifier for identifier, old in data['approved'].items()
+                    if identifier not in claimed and old['kind'] == candidate['kind'] and
+                    old['payload'].get('summary') == candidate['payload'].get('summary')), '')
+                if match: claimed.add(match)
+                decisions.append({'proposal_id': candidate['proposal_id'], 'action': 'reuse' if match else 'new',
+                                  'target_id': match, 'reason': 'Deterministic fake comparison'})
+            return json.dumps({'decisions': decisions})
+        if "extract atomic narrative facts" in system_prompt.lower():
+            return json.dumps({"facts": []})
+        if 'Review coverage of extracted atomic narrative facts' in system_prompt:
+            return json.dumps({'facts': []})
 
         # 1. State Transitions extraction
         if "transitions array" in prompt_lower or "attribute_key" in prompt_lower:
@@ -64,6 +79,7 @@ class FakeDeterministicLLMService:
                         "events": [
                             {
                                 "event_type": "injury",
+                                "evidence_quote": user_prompt.split('Text passage: ', 1)[-1].split('\nKnown entities:', 1)[0],
                                 "participants": ["Tiêu Viêm", "Hải Ba Đông"],
                                 "summary": "Hải Ba Đông bị thương nhẹ khi phá trận pháp tại Mạc Gia",
                                 "locations": ["Mạc Gia"],
@@ -79,6 +95,7 @@ class FakeDeterministicLLMService:
                     "events": [
                         {
                             "event_type": "battle",
+                            "evidence_quote": user_prompt.split('Text passage: ', 1)[-1].split('\nKnown entities:', 1)[0],
                             "participants": ["Tiêu Viêm", "Hải Ba Đông"],
                             "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
                             "locations": ["Sa mạc Tháp Qua Nhĩ"],

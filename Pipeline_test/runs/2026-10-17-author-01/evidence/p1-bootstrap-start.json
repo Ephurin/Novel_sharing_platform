@@ -1,0 +1,54 @@
+{
+  "time": "2026-10-17T22:58:53.580006+07:00",
+  "channel": "PUBLIC_API",
+  "method": "POST",
+  "path": "/ai/story-brains/bootstrap/from-manuscript",
+  "request": {
+    "novel_id": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+    "revisions": [
+      {
+        "chapter_id": "2991c50d-2dc1-46d0-b996-93e6c8caecd2",
+        "revision_id": "d373c4ca-080a-47e9-9629-d7dcd766b045",
+        "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b"
+      },
+      {
+        "chapter_id": "ed487a4d-e03b-4168-8045-64f86aedacf0",
+        "revision_id": "d0a73413-6ee4-4011-87e6-117d7df41c52",
+        "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45"
+      },
+      {
+        "chapter_id": "5bfa9b59-995c-48eb-ab78-adfb9ef5f3d9",
+        "revision_id": "e0f4b022-0456-416f-a459-02d94b7bf918",
+        "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717"
+      },
+      {
+        "chapter_id": "0c29393d-3b16-4ddb-bef8-e5c60af2f154",
+        "revision_id": "441ff0f6-b3ca-4937-ab4d-4afb29f42371",
+        "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf"
+      },
+      {
+        "chapter_id": "4a19e69b-8098-4706-9aec-dfec63587177",
+        "revision_id": "f93bb1e2-4da0-4e1b-97b2-8494bbad2853",
+        "content_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321"
+      }
+    ],
+    "locale": "vi-VN",
+    "options": {
+      "extract_world_rules": true,
+      "build_embeddings": false,
+      "require_review_for_all": true
+    }
+  },
+  "status": 202,
+  "latency_ms": 125,
+  "response": {
+    "success": true,
+    "data": {
+      "job_id": "a3218759-98a6-57bd-9d97-944d266ebd6c",
+      "story_brain_id": "8bfd205f-c055-45e4-beda-e81a24b7854b",
+      "status": "queued"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

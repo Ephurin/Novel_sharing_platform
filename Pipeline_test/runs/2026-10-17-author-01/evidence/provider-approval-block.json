@@ -1,0 +1,8 @@
+{
+  "time": "2026-10-17T22:57:06.968135+07:00",
+  "action": "POST public /ai/copilot/suggestions; manuscript-derived smoke",
+  "execution": "REJECTED_BEFORE_PROCESS_CREATION",
+  "reason": "Auto-review requires explicit private payload + destination authorization for sending manuscript-derived text to Google Gemini",
+  "provider_generation_calls": 0,
+  "next": "Await explicit user confirmation; no bypass"
+}

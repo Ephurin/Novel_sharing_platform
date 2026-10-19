@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-18T22:58:12.357853+07:00",
+  "web": "http://localhost:18080",
+  "asset": "/assets/index-DmTkjYXE.js",
+  "author_proposals_route": true,
+  "repair_ui_in_bundle": true,
+  "facts_ui_in_bundle": true,
+  "hashes": {
+    "ai-service/application/revision_analysis_service.py": {
+      "sha256": "5f1f5af0145d64e331645ff7b1ed13d31412a47478e451b51c7b381caaf190cb",
+      "matches": true
+    },
+    "ai-service/services/prose_facts.py": {
+      "sha256": "8154978bb624afd728d2688c145637041501b6aa73fe1a9d6fa043aa0b2785e4",
+      "matches": true
+    },
+    "ai-service/services/source_grounding.py": {
+      "sha256": "b2f8d2d7c5e199844b78c6babaaa8d0e9a566b2234c7f7736016f9e79cfddb04",
+      "matches": true
+    },
+    "ai-service/core/llm_service.py": {
+      "sha256": "68116bd5aeae58c4b055b3b42fb39cc194d245cfb085f60f5b1d9cd564ed752f",
+      "matches": true
+    },
+    "ai-service/domain/projection.py": {
+      "sha256": "546dadf22fbba1df01ed526436cd6726c7a63287f8db33f48c42edf355f64570",
+      "matches": true
+    },
+    "backend/src/modules/ai/ai-gateway.controller.ts": {
+      "sha256": "277e032927c6084ece938eb4a9fcb84640934d2b68e00765be9a773d64163316",
+      "matches": true
+    }
+  },
+  "queue_and_running_counts": [
+    "accepted|26",
+    "pending|65",
+    "rejected|2",
+    "0"
+  ],
+  "generation_calls": 0,
+  "live_ui": "NOT_RUN",
+  "real_provider_extraction": "NOT_RUN"
+}

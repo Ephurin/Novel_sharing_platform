@@ -1,0 +1,6 @@
+chapter_number,title,revision_id,canonical_words,objective_met,continuity_ok,point_of_view_ok,prose_score_0_4,pacing_score_0_4,payoff_ids,issues,reviewer,full_chapter_read,verdict,evidence
+1,Chương 1 — Bến trở về,d373c4ca-080a-47e9-9629-d7dcd766b045,1216,True,SEED_REVIEW_ONLY,True,,,,,SELF_REVIEW_ONLY,True,IMPORTED_COMPLETE_SEED,evidence/final-ch01-readback.json
+2,Chương 2 — Lần đọc thứ nhất,d0a73413-6ee4-4011-87e6-117d7df41c52,1005,True,SEED_REVIEW_ONLY,True,,,,,SELF_REVIEW_ONLY,True,IMPORTED_COMPLETE_SEED,evidence/final-ch02-readback.json
+3,Chương 3 — Hai nơi treo một quả chuông,e0f4b022-0456-416f-a459-02d94b7bf918,995,True,SEED_REVIEW_ONLY,True,,,,,SELF_REVIEW_ONLY,True,IMPORTED_COMPLETE_SEED,evidence/final-ch03-readback.json
+4,Chương 4 — Bản đồ không có tiếng nước,441ff0f6-b3ca-4937-ab4d-4afb29f42371,957,True,SEED_REVIEW_ONLY,True,,,,,SELF_REVIEW_ONLY,True,IMPORTED_COMPLETE_SEED,evidence/final-ch04-readback.json
+5,Chương 5 — Ba tiếng gõ,f93bb1e2-4da0-4e1b-97b2-8494bbad2853,574,False,SEED_REVIEW_ONLY,True,,,,,SELF_REVIEW_ONLY,True,PARTIAL_SEED_NOT_COMPLETED,evidence/final-ch05-readback.json

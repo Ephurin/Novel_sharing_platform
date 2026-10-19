@@ -6,6 +6,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from core.exceptions import EntityExtractionError
+from core.structured_call import call_structured
 from core.structured_outputs import EntityExtractionOutput, ExtractedEntity, PipelineMetadata
 
 
@@ -55,14 +56,18 @@ class EntityPipeline:
         system_prompt = (
             "You are an expert fantasy novel analyst. Extract all named entities from the text. "
             "Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. "
-            "Return only a JSON array using this schema: "
-            '[{"phrase":"Tiêu Viêm","entity":"PER","score":9.5}]. '
-            "Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords."
+            "Return only a JSON object using this schema: "
+            '{"entities":[{"phrase":"Tiêu Viêm","entity":"PER","score":9.5,"initial_status":"Unknown"}]}. '
+            "initial_status is Alive, Dead or Unknown: only explicit life/death evidence may set it; "
+            "include status_quote as an exact source quote supporting any non-Unknown status, otherwise empty. "
+            "remember characters mentioned as already dead. Non-person entities use Unknown. "
+            "Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords. "
+            "Do not mistake verbs for object names."
         )
         user_prompt = f"Text to analyze:\n\n{normalized_text}"
 
         try:
-            raw_output = llm_service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+            raw_output = call_structured(llm_service, operation="entity_extraction", system_prompt=system_prompt, user_prompt=user_prompt)
         except Exception as exc:
             raise EntityExtractionError(f"provider call failed: {exc}") from exc
 
@@ -120,5 +125,7 @@ class EntityPipeline:
             except (TypeError, ValueError) as exc:
                 raise EntityExtractionError(f"entity score at index {index} must be numeric") from exc
 
-            normalized.append({"phrase": phrase, "entity": entity_type, "score": score})
+            normalized.append({"phrase": phrase, "entity": entity_type, "score": score,
+                               "initial_status": item.get("initial_status", "Unknown"),
+                               "status_quote": item.get("status_quote", "")})
         return normalized

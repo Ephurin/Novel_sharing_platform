@@ -1,0 +1,18 @@
+{
+  "novel_id": "46642ff1-5bac-4513-98fd-ffe1be6cb318",
+  "tested_operation": "check_consistency",
+  "contradiction_test": {
+    "injected_text": "Mai Linh ngồi cùng cha mình là Mai Lâm, hai cha con cùng trò chuyện vui vẻ tại trạm Bốn.",
+    "findings": [
+      {
+        "description": "Mai Lâm is recorded as dead in the approved narrative memory, so he cannot be alive and talking with Mai Linh.",
+        "evidence": "Mai Linh ngồi cùng cha mình là Mai Lâm, hai cha con cùng trò chuyện vui vẻ tại trạm Bốn.",
+        "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4"
+      }
+    ]
+  },
+  "fixed_test": {
+    "corrected_text": "Mai Linh ngồi một mình tại trạm Bốn, nhớ về người cha Mai Lâm đã qua đời trong trận lũ mười bảy năm trước.",
+    "findings": []
+  }
+}

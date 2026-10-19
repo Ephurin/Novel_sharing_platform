@@ -1,0 +1,17 @@
+[
+  {
+    "url": "http://localhost:4000/api/v1/health",
+    "status": 200,
+    "body": "{\"success\":true,\"data\":{\"status\":\"OK\",\"service\":\"ephurin-backend\"},\"error\":null,\"meta\":{}}"
+  },
+  {
+    "url": "http://localhost:8000/health",
+    "status": 200,
+    "body": "{\"status\":\"ok\"}"
+  },
+  {
+    "url": "http://localhost:8080",
+    "status": 200,
+    "body": "<!doctype html>\r\n<html lang=\"en\">\r\n  <head>\r\n    <meta charset=\"UTF-8\" />\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\r\n    <title>Ephurin Author IDE</title>\r\n    <!--"
+  }
+]

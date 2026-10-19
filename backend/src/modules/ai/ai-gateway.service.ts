@@ -46,6 +46,8 @@ export class AIGatewayService {
 
     if (options.userId) {
       headers['X-User-Id'] = options.userId;
+      headers['X-Author-Id'] = options.userId;
+      headers['X-Actor-Id'] = options.userId;
     }
 
     try {

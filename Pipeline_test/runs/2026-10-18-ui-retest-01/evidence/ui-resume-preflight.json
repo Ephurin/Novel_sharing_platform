@@ -1,0 +1,19 @@
+{
+  "time": "2026-10-18T17:33:53.640135+07:00",
+  "memory_route": true,
+  "idea_mode": {
+    "type": "string",
+    "pattern": "^(extract|blueprint)$",
+    "title": "Mode",
+    "default": "extract"
+  },
+  "backend_health": {
+    "success": true,
+    "data": {
+      "status": "OK",
+      "service": "ephurin-backend"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

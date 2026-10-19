@@ -1,3 +1,5 @@
+import { approveAutonomousMemory, objectiveIsComplete } from './autonomous-memory.service.js';
+import { withAutonomousRunLock } from './autonomous-run.repository.js';
 import crypto from 'node:crypto';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
@@ -6,6 +8,8 @@ import { getPostgresPool } from '../../core/database/postgres.js';
 import { aiGatewayService } from './ai-gateway.service.js';
 import { assertNovelOwnership } from './ai-gateway.controller.js';
 import { acceptDraft } from '../novels/chapter-revisions.service.js';
+import { findOutboxEventByRevisionAndType } from '../novels/outbox.repository.js';
+import { assertCurrentProposalEvidence } from './proposal-evidence.service.js';
 import { processOutboxOnce } from '../../jobs/outbox-processor.js';
 import {
   createChapter,
@@ -62,6 +66,31 @@ export class AutonomousControllerService {
 
     await assertNovelOwnership(auth.userId, auth.role, input.novel_id);
 
+    if (!input.plan_id) {
+      try {
+        const active = await aiGatewayService.forwardRequest<{ plan_id: string }>({ method: 'GET',
+          path: `/v1/story-plans/by-novel/${input.novel_id}/active`, userId: auth.userId });
+        input = { ...input, plan_id: active.plan_id };
+      } catch (error) {
+        if (!(error instanceof AppError) || error.code !== 'PLAN_NOT_FOUND') throw error;
+        const chapters = await listChaptersByNovelId(input.novel_id);
+        const nextChapter = Math.max(0, ...chapters.map(c => c.chapterNumber)) + 1;
+        const suggested = await aiGatewayService.forwardRequest<{ events: { title: string; description: string; target_chapter: number; min_words: number; ending: boolean }[] }>({
+          method: 'POST', path: `/v1/story-brains/${input.novel_id}/author-operation`, userId: auth.userId,
+          body: { operation: 'suggest_events', instruction: `Create a complete plan through a resolved ending. Start at chapter ${nextChapter}.` } });
+        if (!suggested.events.length || !suggested.events.at(-1)?.ending || suggested.events.some(e => e.target_chapter < nextChapter)) {
+          throw new AppError(422, 'INVALID_AUTOMATIC_PLAN', 'Generated plan must continue the draft and include an ending');
+        }
+        const plan = await aiGatewayService.forwardRequest<{ plan_id: string }>({ method: 'POST', path: '/v1/story-plans', userId: auth.userId,
+          body: { novel_id: input.novel_id, source_outline: 'Automatically planned for full auto',
+            objectives: suggested.events.map((e, i) => ({ order_index: i + 1, title: e.title, description: e.description,
+              target_chapter: e.target_chapter, objective_type: e.ending ? 'ending' : 'chapter_goal',
+              metadata: { min_words: e.min_words, is_terminal: e.ending } })) } });
+        await aiGatewayService.forwardRequest({ method: 'POST', path: `/v1/story-plans/${plan.plan_id}/activate`,
+          queryParams: { novel_id: input.novel_id }, body: {}, userId: auth.userId });
+        input = { ...input, plan_id: plan.plan_id };
+      }
+    }
     return await aiGatewayService.forwardRequest<AutonomousRunDto>({
       method: 'POST',
       path: '/v1/autonomous/runs',
@@ -108,6 +137,10 @@ export class AutonomousControllerService {
   }
 
   async stepRun(auth: AuthContext, runId: string, options?: StepOptions): Promise<AutonomousRunDto> {
+    return withAutonomousRunLock(runId, () => this.stepRunLocked(auth, runId, options));
+  }
+
+  private async stepRunLocked(auth: AuthContext, runId: string, options?: StepOptions): Promise<AutonomousRunDto> {
     const run = await this.getRun(auth, runId);
     await assertNovelOwnership(auth.userId, auth.role, run.novel_id);
 
@@ -161,7 +194,7 @@ export class AutonomousControllerService {
       return await aiGatewayService.forwardRequest<AutonomousRunDto>({
         method: 'PATCH',
         path: `/v1/autonomous/runs/${runId}`,
-        body: { status: 'completed', stop_reason: 'all_objectives_completed' },
+        body: { status: 'stopped', stop_reason: 'no_pending_objectives_requires_review' },
         userId: auth.userId,
       });
     }
@@ -214,14 +247,16 @@ export class AutonomousControllerService {
     let isAlreadyAccepted = false;
     let genJob: any = null;
 
-    if (latestRev.sourceType === 'AI_DRAFT_ACCEPT' && latestRev.sourceGenerationId) {
+    if (latestRev.sourceType === 'AI_DRAFT_ACCEPT' && latestRev.sourceGenerationId && latestRev.revisionId !== run.last_accepted_revision_id && eligibleObj.status === 'in_progress') {
       try {
         const existingJob = await aiGatewayService.forwardRequest<any>({
           method: 'GET',
           path: `/internal/v1/writing/generations/${latestRev.sourceGenerationId}`,
           userId: auth.userId,
         });
-        if (existingJob && existingJob.status === 'completed') {
+        if (existingJob && existingJob.status === 'completed'
+          && typeof existingJob.idempotency_key === 'string'
+          && existingJob.idempotency_key.startsWith(`auto-${run.run_id}-`)) {
           genJob = existingJob;
           isAlreadyAccepted = true;
         }
@@ -240,9 +275,9 @@ export class AutonomousControllerService {
         content_hash: latestRev.contentHash,
         operation: 'continuation',
         selection: {
-          start: latestRev.content.length,
-          end: latestRev.content.length,
-          cursor: latestRev.content.length,
+          start: Array.from(latestRev.content).length,
+          end: Array.from(latestRev.content).length,
+          cursor: Array.from(latestRev.content).length,
         },
         instruction: `Thực hiện mục tiêu cốt truyện: ${eligibleObj.title}. ${eligibleObj.description}`,
         expected_brain_version: run.last_brain_version,
@@ -332,9 +367,9 @@ export class AutonomousControllerService {
     const qualityGatePassed =
       isJobCompleted &&
       isValidationPassed &&
-      isPatchValid &&
+      (isAlreadyAccepted || isPatchValid) &&
       isDraftNonEmpty &&
-      isBrainFresh &&
+      (isAlreadyAccepted || isBrainFresh) &&
       !isSimulatedFailure;
 
     if (!qualityGatePassed) {
@@ -360,6 +395,8 @@ export class AutonomousControllerService {
     }
 
     // Quality Gate Passed: Accept draft via production acceptDraft() with Crash/Recovery check
+    const currentRun = await this.getRun(auth, runId);
+    if (currentRun.status !== 'running') return currentRun;
     let acceptResult: any = null;
     if (isAlreadyAccepted) {
       acceptResult = { revision: latestRev };
@@ -369,51 +406,34 @@ export class AutonomousControllerService {
       });
     }
 
-    // Process outbox to advance Story Brain
-    await processOutboxOnce(10);
-
-    // Scoped auto-acceptance: strictly accept only proposals originating from this accepted revision
+    // Persisted analysis completion is required; an empty queue alone is ambiguous.
     try {
-      const queue = await aiGatewayService.forwardRequest<any[]>({
-        method: 'GET',
-        path: `/v1/story-brains/${run.novel_id}/review-queue`,
-        userId: auth.userId,
-      });
-
-      const acceptedRevId = acceptResult.revision.revisionId;
-      const relevantProposals = (Array.isArray(queue) ? queue : []).filter((p: any) => {
-        if (!Array.isArray(p.evidence)) return false;
-        return p.evidence.some((ev: any) => ev && ev.revision_id === acceptedRevId);
-      });
-
-      if (relevantProposals.length > 0) {
-        const groupIds = Array.from(new Set(relevantProposals.map(p => p.dependency_group_id).filter(Boolean)));
-        let currentBv = run.last_brain_version;
-        for (const gid of groupIds) {
-          const groupProposals = relevantProposals.filter(p => p.dependency_group_id === gid);
-          try {
-            const acceptRes: any = await aiGatewayService.forwardRequest({
-              method: 'POST',
-              path: `/v1/proposal-groups/${gid}/accept`,
-              body: {
-                proposal_ids: groupProposals.map(p => p.proposal_id),
-                expected_brain_version: currentBv,
-                reason: 'autonomous_loop_auto_advance',
-              },
-              userId: auth.userId,
-            });
-            if (acceptRes?.brain_version) {
-              currentBv = acceptRes.brain_version;
-            } else {
-              currentBv += 1;
-            }
-          } catch (accErr) {
-            console.warn(`[AutonomousController] Auto-accept group ${gid} note:`, accErr);
-          }
-        }
+      await processOutboxOnce(10);
+      const analysis = await findOutboxEventByRevisionAndType(undefined, acceptResult.revision.revisionId, 'INCREMENTAL_ANALYSIS');
+      if (analysis && ['PENDING', 'PROCESSING'].includes(analysis.status)) {
+        return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,
+          body: { stop_reason: 'waiting_for_memory_extraction', current_objective_id: currentObjectiveId,
+            current_chapter_id: targetChapter.chapterId, last_generation_id: genJob.job_id }, userId: auth.userId });
       }
-    } catch (queueErr) {
-      console.warn('[AutonomousController] Review queue auto-advance warning:', queueErr);
+      if (!analysis || analysis.status !== 'COMPLETED') throw new Error('Analysis has not completed');
+      await approveAutonomousMemory(acceptResult.revision.revisionId, {
+        analysisStatus: async () => analysis.status,
+        brainVersion: async () => (await aiGatewayService.forwardRequest<{ brain_version: number }>({ method: 'GET',
+          path: `/v1/story-brains/by-novel/${run.novel_id}`, userId: auth.userId })).brain_version,
+        proposals: () => aiGatewayService.forwardRequest({ method: 'GET',
+          path: `/v1/story-brains/${run.novel_id}/review-queue`, userId: auth.userId }),
+        assertCurrent: ids => assertCurrentProposalEvidence(run.novel_id, ids, auth.userId),
+        accept: async (gid, ids, version) => (await aiGatewayService.forwardRequest<{ brain_version: number }>({ method: 'POST',
+          path: `/v1/proposal-groups/${gid}/accept`, body: { proposal_ids: ids,
+            expected_brain_version: version, reason: 'autonomous_loop_auto_advance' }, userId: auth.userId })).brain_version,
+      });
+    } catch {
+      const retries = run.current_retries + 1;
+      return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,
+        body: { status: retries >= run.max_retries_per_objective ? 'failed' : 'running',
+          stop_reason: 'memory_update_incomplete', current_retries: retries,
+          current_objective_id: currentObjectiveId, current_chapter_id: targetChapter.chapterId,
+          last_generation_id: genJob.job_id }, userId: auth.userId });
     }
 
     // Fetch advanced Story Brain version
@@ -423,6 +443,24 @@ export class AutonomousControllerService {
       userId: auth.userId,
     });
     const updatedBrainVersion = Number(brainRes?.brain_version || brainRes?.metadata?.brain_version || run.last_brain_version);
+
+    const terminal = eligibleObj.metadata?.is_terminal === true || ['ending', 'terminal'].includes(eligibleObj.objective_type)
+      || !objectives.some(o => o.objective_id !== currentObjectiveId && ['pending', 'in_progress'].includes(o.status));
+    const minWords = Number(eligibleObj.metadata?.min_words ?? 1000);
+    const achieved = await objectiveIsComplete(acceptResult.revision.content, minWords, terminal, () =>
+      aiGatewayService.forwardRequest<{ achieved: boolean; ending_resolved: boolean }>({ method: 'POST',
+        path: `/v1/story-brains/${run.novel_id}/author-operation`, userId: auth.userId,
+        body: { operation: 'evaluate_objective', content: acceptResult.revision.content,
+          revision_id: acceptResult.revision.revisionId, objective: `${eligibleObj.title}: ${eligibleObj.description}` } }));
+    if (!achieved) {
+      const exhausted = run.current_iteration + 1 >= run.max_iterations;
+      return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,
+        body: { current_iteration: run.current_iteration + 1, current_retries: 0,
+          current_objective_id: currentObjectiveId, current_chapter_id: targetChapter.chapterId,
+          last_generation_id: genJob.job_id, last_accepted_revision_id: acceptResult.revision.revisionId,
+          last_brain_version: updatedBrainVersion, status: exhausted ? 'stopped' : 'running',
+          stop_reason: exhausted ? 'max_iterations_reached' : 'objective_needs_more_prose' }, userId: auth.userId });
+    }
 
     // Advance Plan Progress: mark current objective completed
     await aiGatewayService.forwardRequest({
@@ -446,7 +484,7 @@ export class AutonomousControllerService {
     let nextStatus: 'running' | 'completed' | 'stopped' = 'running';
     let stopReason: string | null = null;
 
-    if (isTerminal) {
+    if (isTerminal && remainingObjectives.length === 0) {
       nextStatus = 'completed';
       stopReason = 'terminal_objective_completed';
     } else if (remainingObjectives.length === 0) {

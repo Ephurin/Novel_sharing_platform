@@ -16,6 +16,7 @@ class NarrativeApplicationService:
 
     def get_story_brain_summary(self, story_id: str) -> dict[str, Any]:
         brain = self._repository.get_story_brain(story_id)
+        from domain.canon_identity import active_events
         return {
             "id": brain.metadata.get("brain_id", story_id),
             "novel_id": story_id,
@@ -24,7 +25,7 @@ class NarrativeApplicationService:
             "baseline_revision_id": brain.metadata.get("baseline_revision_id"),
             "counts": {
                 "entities": len(brain.entities),
-                "events": len(brain.events),
+                "events": len(active_events(brain.events)),
                 "pending_proposals": sum(
                     item.status == ProposalStatus.PENDING for item in brain.proposals
                 ),
@@ -50,7 +51,7 @@ class NarrativeApplicationService:
             raise ProjectionError("Event has already been superseded")
         group_id, proposal_id = str(uuid.uuid4()), str(uuid.uuid4())
         orig_chapter = getattr(original, "chapter", None) or original.metadata.get("chapter_number") or original.metadata.get("chapter")
-        payload = {"chapter": orig_chapter, **replacement, "event_id": proposal_id, "supersedes_id": event_id}
+        payload = {"chapter": orig_chapter, **replacement, "event_id": proposal_id, "supersedes_id": event_id, "source_type": "author"}
         proposals = [NarrativeProposal(proposal_id=proposal_id, proposal_type="event", payload=payload,
             dependency_group_id=group_id, expected_brain_version=expected_brain_version,
             evidence=tuple(original.metadata.get("evidence", [])))]
@@ -176,12 +177,14 @@ class NarrativeApplicationService:
         proposal_ids: list[str],
         expected_brain_version: int,
         reason: str | None = None,
+        edited_payloads: dict[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         return self._repository.accept_proposal_group(
             story_id,
             proposal_ids,
             expected_brain_version,
             reason=reason,
+            edited_payloads=edited_payloads,
         )
 
     def accept_proposal_group_by_ids(
@@ -190,7 +193,10 @@ class NarrativeApplicationService:
         proposal_ids: list[str],
         expected_brain_version: int,
         reason: str | None = None,
+        edited_payloads: dict[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
+        if not set(edited_payloads or {}).issubset(proposal_ids):
+            raise ValueError("Edits must belong to selected proposals")
         located = [self._repository.locate_proposal(item) for item in proposal_ids]
         story_ids = {story_id for story_id, _ in located}
         if len(story_ids) != 1:
@@ -198,7 +204,7 @@ class NarrativeApplicationService:
         if any(proposal.dependency_group_id != group_id for _, proposal in located):
             raise ValueError("Proposal does not belong to dependency group")
         return self.accept_proposal_group(
-            story_ids.pop(), proposal_ids, expected_brain_version, reason
+            story_ids.pop(), proposal_ids, expected_brain_version, reason, edited_payloads
         )
 
     def accept_proposal_by_id(

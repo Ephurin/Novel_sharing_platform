@@ -1,0 +1,81 @@
+.................................F...................................... [ 22%]
+........................................................................ [ 45%]
+........................................................................ [ 68%]
+.....................................................................ss. [ 90%]
+.............................                                            [100%]
+================================== FAILURES ===================================
+_ test_stale_reconciliation_cannot_insert_after_other_group_changes_canon[sql] _
+
+repo = <infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x00000216DD4E5070>
+
+    def test_stale_reconciliation_cannot_insert_after_other_group_changes_canon(repo):
+        proposals, ids, _ = candidates(repo)
+        # Use extracted proposals to activate the transactional canon-base guard.
+        proposals = [replace(p, analysis_run_id=str(uuid.uuid4())) for p in proposals]
+        planned = reconcile_proposals(repo.get_story_brain('story'), proposals, 1, 'text', ComparisonLLM({
+            'decisions': [{'proposal_id': p.proposal_id, 'action': 'reuse', 'target_id': i, 'reason': 'same'} for p, i in zip(proposals, ids)]}))
+        extra = proposal('event', {'event_type': 'departure', 'summary': 'Minh left', 'participants': ['Minh']}, 2, 'extra')
+        repo.save_proposals('story', [extra])
+>       repo.accept_proposal_group('story', [extra.proposal_id], 2)
+
+tests\test_canon_revision_reconciliation.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+infrastructure\postgres_narrative_repository.py:520: in accept_proposal_group
+    validate_reconciliation_base([self._to_proposal(p) for p in proposals], base_events, base_facts)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+proposals = [NarrativeProposal(proposal_id='17433f3c-873d-4013-97ec-dab384c4a436', proposal_type='event', payload={'chapter_number...b\u1ebfn.'},), confidence=None, expected_brain_version=2, status=<ProposalStatus.PENDING: 'pending'>, decision_reason=None)]
+events = [NarrativeEvent(event_id='bd42077b-207d-4322-8adb-6ca380445961', event_type='meeting', participants=('Minh', 'Lan'), s...4deadbd-da30-4baf-90b8-8e25cc84a0c0', 'chapter_number': 1, 'start': 0, 'end': 24, 'quote': 'Minh g\u1eb7p Lan t\u1ea1i b\u1ebfn.'}]})]
+facts = [{'chapter_number': 1, 'fact_id': 'aaa29c84-9345-4494-be65-a3ef7bb1d180', 'fact_key': 'age', 'fact_value': 19, ...}]
+
+    def validate_reconciliation_base(proposals, events, facts):
+        """Called under the repository brain lock before any group writes."""
+        for proposal in proposals:
+            if proposal.proposal_type not in {'event', 'fact'} or not proposal.analysis_run_id:
+                continue
+            if proposal.payload.get('source_type') == 'author':
+                continue
+            chapter = (proposal.evidence[0] if proposal.evidence else {}).get('chapter_number') or proposal.payload.get('chapter_number')
+            if chapter is None:
+                continue
+            current = sorted([e.event_id for e in active_events(events) if e.chapter == chapter] +
+                [str(f.get('fact_id') or f.get('id')) for f in active_facts(facts) if f.get('chapter_number') == chapter])
+            expected = proposal.payload.get('reconciliation_base_ids')
+            if (expected is None and current) or (expected is not None and sorted(expected) != current):
+>               raise ProjectionError('Canon changed after analysis. Reanalyse this saved revision before approval.')
+E               domain.projection.ProjectionError: Canon changed after analysis. Reanalyse this saved revision before approval.
+
+domain\canon_identity.py:61: ProjectionError
+============================== warnings summary ===============================
+main.py:164
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:164: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+main.py:169
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:169: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_canon_revision_reconciliation.py::test_stale_reconciliation_cannot_insert_after_other_group_changes_canon[sql]
+1 failed, 314 passed, 2 skipped, 42 deselected, 4 warnings in 12.30s

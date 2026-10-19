@@ -1,0 +1,56 @@
+{
+  "time": "2026-10-17T23:03:26.263172+07:00",
+  "channel": "PUBLIC_API",
+  "method": "GET",
+  "path": "/ai/story-brains/2bb31f80-4a5c-4eba-a5b9-6d936fd76986/context-preview?chapter_number=5&character_name=Mai+Linh&token_budget=6000",
+  "request": null,
+  "status": 200,
+  "latency_ms": 16,
+  "response": {
+    "success": true,
+    "data": {
+      "brain_version": 1,
+      "entities": [],
+      "current_states": [],
+      "recent_events": [],
+      "semantic_memories": [],
+      "world_rules": [],
+      "author_constraints": [],
+      "token_budget": {
+        "used": 46,
+        "maximum": 6000,
+        "estimated_before": 46,
+        "budget_overflow": false,
+        "protected_overflow": false,
+        "packing_version": "context-budget-v1",
+        "estimator_version": "utf8-json-bytes-3-v1",
+        "deduplicated_semantic_count": 0,
+        "dropped_artifact_count": 0
+      },
+      "context_summary": {
+        "entity_ids": [],
+        "event_ids": [],
+        "fact_ids": [],
+        "cutoff_chapter": 5,
+        "recent_scope_participant_entity_ids": [],
+        "recent_scope_participant_identity": [
+          "normalized-event-participants-v1"
+        ],
+        "semantic_memory_ids": [],
+        "context_packing_version": [
+          "context-budget-v1"
+        ],
+        "context_token_estimator_version": "[REDACTED]",
+        "dropped_entity_ids": [],
+        "dropped_event_ids": [],
+        "dropped_fact_ids": [],
+        "dropped_semantic_memory_ids": [],
+        "deduplicated_semantic_memory_ids": []
+      },
+      "planning_context": null,
+      "current_objective": null
+    },
+    "error": null,
+    "meta": {}
+  }
+}

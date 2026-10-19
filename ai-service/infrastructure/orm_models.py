@@ -180,6 +180,8 @@ class FactRecord(Base):
     fact_type: Mapped[str] = mapped_column(String(40), nullable=False)
     fact_key: Mapped[str] = mapped_column(String(100), nullable=False)
     fact_value: Mapped[Any] = mapped_column(JSON_TYPE, nullable=False)
+    supersedes_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
+    is_retired: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=text('false'))
     source_type: Mapped[str] = mapped_column(String(20), nullable=False, default="AI")
     confirmation_status: Mapped[str] = mapped_column(String(20), nullable=False, default="confirmed")
     confidence: Mapped[Decimal | None] = mapped_column(Numeric(5, 4))

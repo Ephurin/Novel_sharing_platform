@@ -1,0 +1,4 @@
+{"level":30,"time":1792307210015,"pid":22712,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection ready"}
+{"check":"SAVED_CHAPTER_REAL_PG_MONGO","passed":true,"cases":["prebaseline_save_no_extraction","bootstrap_snapshot_no_incremental_job","active_save_enqueues","identical_save_deduplicates","stale_proposal_blocked","mongo_readback_matches","worker_never_approves","auto_memory_failure_blocks_progress","auto_resume_does_not_duplicate_prose","auto_unachieved_objective_continues","auto_resolved_ending_completes","auto_never_publishes","extraction_status_readback","worker_scan_query","concurrent_step_lock_released"],"novel_id":"c4f1d21c-bddf-4281-9b27-a4a9c5254a45"}
+{"level":30,"time":1792307210610,"pid":22712,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+{"level":30,"time":1792307210620,"pid":22712,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}

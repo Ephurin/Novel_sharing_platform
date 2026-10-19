@@ -36,6 +36,7 @@ services:
       PORT: 8000
       NARRATIVE_REPOSITORY: postgres
       LLM_PROVIDER: ${LLM_PROVIDER:-fake}
+      LLM_STRUCTURED_MAX_TOKENS: ${LLM_STRUCTURED_MAX_TOKENS:-8192}
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/ephurin
       PLATFORM_API_BASE_URL: http://backend:4000
       PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-test-token}

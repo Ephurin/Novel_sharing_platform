@@ -1,0 +1,40 @@
+{
+  "checked_at": "2026-10-18T17:14:06.726481+07:00",
+  "fingerprints": {
+    "backend/src/modules/ai/autonomous-controller.service.ts": {
+      "source": "29b781024e83127b89d90417aef5d42dc51ddb47f9bc8d88aa842cd55b5186fc",
+      "runtime": "29b781024e83127b89d90417aef5d42dc51ddb47f9bc8d88aa842cd55b5186fc",
+      "match": true
+    },
+    "backend/src/jobs/autonomous-processor.ts": {
+      "source": "070056999f5914657e3346ef12600890ee6fa536e731672ca74561edfb418890",
+      "runtime": "070056999f5914657e3346ef12600890ee6fa536e731672ca74561edfb418890",
+      "match": true
+    },
+    "ai-service/api/narrative_routes.py": {
+      "source": "72197f3d455a29c5781cf06171edbea2b9d32075b59ea0d89f2c26a7e2532594",
+      "runtime": "72197f3d455a29c5781cf06171edbea2b9d32075b59ea0d89f2c26a7e2532594",
+      "match": true
+    },
+    "ai-service/application/author_workflow.py": {
+      "source": "9b9e5c33e962c7547f394fb2f267c21d96a11146df3a2fb1715870404aa6bfd9",
+      "runtime": "9b9e5c33e962c7547f394fb2f267c21d96a11146df3a2fb1715870404aa6bfd9",
+      "match": true
+    }
+  },
+  "database_checks": [
+    "0009_autonomous_runs",
+    "vector|0.8.6",
+    "0"
+  ],
+  "containers": [
+    "ephurin-ui-retest-web-1 Up 2 minutes 127.0.0.1:18080->80/tcp",
+    "ephurin-ui-retest-backend-1 Up 2 minutes 127.0.0.1:14000->4000/tcp",
+    "ephurin-ui-retest-ai-service-1 Up 2 minutes (healthy) 127.0.0.1:18000->8000/tcp",
+    "ephurin-ui-retest-postgres-1 Up 2 minutes (healthy) 127.0.0.1:55432->5432/tcp",
+    "ephurin-ui-retest-mongodb-1 Up 2 minutes (healthy) 127.0.0.1:57017->27017/tcp"
+  ],
+  "ui_automation": "BLOCKED_TOOL_INITIALIZATION_OS_ERROR_3",
+  "generation_calls": 0,
+  "demo_application_services": "STOPPED; existing running autonomous job found; demo DB services restored"
+}

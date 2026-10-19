@@ -1,0 +1,402 @@
+[
+  {
+    "trace_id": "3450abae-2835-4709-a14d-68b6f5289054",
+    "operation": "entity_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a",
+      "revision_id": "60541649-d04b-4fa2-80c3-2abe3fbe79f8",
+      "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+      "analysis_run_id": "dc343684-e09f-4e45-9af8-768f660be59c"
+    },
+    "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660",
+    "input_sha256": "c315023f018dcb2f1fac935340ec0fce5d49768dea250711cba0a0a67915228d",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "SaHUaojKFZHfosUPvonxEQ",
+    "response_sha256": "006d33b7b9aec75fce8da989828cca8369a167b63159243e32cd1fd2ea44926c",
+    "response_characters": 1195,
+    "usage": {
+      "prompt_token_count": 1691,
+      "candidates_token_count": 479,
+      "total_token_count": 2170
+    }
+  },
+  {
+    "trace_id": "12eaafe0-50c5-423a-a145-28e0bcc084fe",
+    "operation": "event_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a",
+      "revision_id": "60541649-d04b-4fa2-80c3-2abe3fbe79f8",
+      "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+      "analysis_run_id": "dc343684-e09f-4e45-9af8-768f660be59c"
+    },
+    "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2",
+    "input_sha256": "d63a8baeb8f22788edb02b6be4a40399ca982b6b941b956ab38e81f6c126b254",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "S6HUao_DDYCG1e8P56bR-Qw",
+    "response_sha256": "20f2178cb777c77e1f66acce23ed50041e6157610975b751084a421767d36f97",
+    "response_characters": 1399,
+    "usage": {
+      "prompt_token_count": 1737,
+      "candidates_token_count": 373,
+      "total_token_count": 2110
+    }
+  },
+  {
+    "trace_id": "c5cf28ad-135c-45cc-a324-2cd42c678da3",
+    "operation": "state_transition_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a",
+      "revision_id": "60541649-d04b-4fa2-80c3-2abe3fbe79f8",
+      "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+      "analysis_run_id": "dc343684-e09f-4e45-9af8-768f660be59c"
+    },
+    "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74",
+    "input_sha256": "efba62f54995ab56d4124e2c671baeb47ea739e6ef1b32327df9bff7481a546e",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "TKHUataIL9Su2roPjpHG6QI",
+    "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623",
+    "response_characters": 23,
+    "usage": {
+      "prompt_token_count": 189,
+      "candidates_token_count": 9,
+      "total_token_count": 198
+    }
+  },
+  {
+    "trace_id": "47007881-4877-4f7c-a70b-1404f0b19df2",
+    "operation": "state_transition_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "57d56c84-7b75-491e-9876-d8e255e2e63a",
+      "revision_id": "60541649-d04b-4fa2-80c3-2abe3fbe79f8",
+      "content_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+      "analysis_run_id": "dc343684-e09f-4e45-9af8-768f660be59c"
+    },
+    "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74",
+    "input_sha256": "20e4bd4784bd21192261e6486664effae0fd9a928a4e6bd4ca58cf77147e5e68",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "TaHUaoGFJO2x1e8P7dXt6AE",
+    "response_sha256": "83bccbbb15d664561cf9e747a7f502a585f4031eadcf5acb9b3a5fd0dabcdbc4",
+    "response_characters": 196,
+    "usage": {
+      "prompt_token_count": 204,
+      "candidates_token_count": 69,
+      "total_token_count": 273
+    }
+  },
+  {
+    "trace_id": "acf89d5b-3c4d-4502-a653-e78c4a122631",
+    "operation": "entity_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af",
+      "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33",
+      "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+      "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"
+    },
+    "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660",
+    "input_sha256": "a251509a95a545a01973505dcd980030beb25096a154c9bae5606f4b9a2abc1e",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "TqHUaoybL-fprfcPiN__iAk",
+    "response_sha256": "ee27edb3cec068f0cc38a1b352bb9ca20b5268ec81458d594588162cafbb29a0",
+    "response_characters": 511,
+    "usage": {
+      "prompt_token_count": 1425,
+      "candidates_token_count": 213,
+      "total_token_count": 1638
+    }
+  },
+  {
+    "trace_id": "f4e75463-e92a-4142-a64c-597df872a6e2",
+    "operation": "event_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af",
+      "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33",
+      "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+      "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"
+    },
+    "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2",
+    "input_sha256": "3a4a8d1a72bccfe91d559dd211b60122e13a7ae58cebb7838241764a536d2c96",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "UKHUarhu4uHV7w-n04uIBQ",
+    "response_sha256": "13adac1f2e9246c8be1ebb04893ca0bc5427680a666d64f407c0653965dd2c72",
+    "response_characters": 1665,
+    "usage": {
+      "prompt_token_count": 1437,
+      "candidates_token_count": 504,
+      "total_token_count": 1941
+    }
+  },
+  {
+    "trace_id": "42925316-74a9-482d-976f-1c036baea641",
+    "operation": "entity_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af",
+      "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33",
+      "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+      "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"
+    },
+    "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660",
+    "input_sha256": "a251509a95a545a01973505dcd980030beb25096a154c9bae5606f4b9a2abc1e",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "r6HUapbuGPbt2roP5ciXyAQ",
+    "response_sha256": "66abb2005900479bb2b951a7ef1f7cb25c23c96529f0158266418821abc21e8f",
+    "response_characters": 2378,
+    "usage": {
+      "prompt_token_count": 1425,
+      "candidates_token_count": 948,
+      "total_token_count": 2373
+    }
+  },
+  {
+    "trace_id": "5d3116ba-ce2c-4253-a384-c5eb8c35fd76",
+    "operation": "event_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af",
+      "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33",
+      "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+      "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"
+    },
+    "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2",
+    "input_sha256": "ec64890d75d41e25241de0a7bfe7e650c022f406265e1d7c712046fe0ceb59d1",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "sqHUatHXEPno2roP6s6umAM",
+    "response_sha256": "47bd53d7452045b18d1301f120105672af71b11848b4079b889620465e29ab72",
+    "response_characters": 805,
+    "usage": {
+      "prompt_token_count": 1510,
+      "candidates_token_count": 253,
+      "total_token_count": 1763
+    }
+  },
+  {
+    "trace_id": "227129f9-9ad7-43d7-9b66-d712252cb498",
+    "operation": "state_transition_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "783d81e6-9a26-4c9b-b48a-e5d5e4f408af",
+      "revision_id": "0e449ea7-579a-4992-b640-b2a10ce1ca33",
+      "content_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+      "analysis_run_id": "48cae3f1-2dbd-405f-ae05-ff8ee2419d4b"
+    },
+    "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74",
+    "input_sha256": "2c99abc678cdd4c89a2eb05c2af2528cc4b83d7febfceec8ac75bd68e866a687",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "s6HUasugLrrf9tMP4NLyCA",
+    "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623",
+    "response_characters": 23,
+    "usage": {
+      "prompt_token_count": 248,
+      "candidates_token_count": 9,
+      "total_token_count": 257
+    }
+  },
+  {
+    "trace_id": "d288c2c2-774d-4e6d-bb0c-76eca4c978f8",
+    "operation": "entity_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa",
+      "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005",
+      "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+      "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"
+    },
+    "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660",
+    "input_sha256": "adb3d5a3fab0de8546cf47cdab437da707e7c71407e06383e96fb7a2ebf9726a",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "tKHUas33K-2x1e8P7dXt6AE",
+    "response_sha256": "2dcd1c37c65bbd101bf31354cd68b62fb8395f56b639342a2573f84bb444b2c2",
+    "response_characters": 676,
+    "usage": {
+      "prompt_token_count": 1428,
+      "candidates_token_count": 279,
+      "total_token_count": 1707
+    }
+  },
+  {
+    "trace_id": "1368f15e-7cfa-4382-9f84-9b0ae704095b",
+    "operation": "event_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa",
+      "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005",
+      "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+      "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"
+    },
+    "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2",
+    "input_sha256": "7568a0a3acd21b827355e1feaa7ef815e0305aa72d3c661a31b39d055c65f985",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "tqHUatnRIo3J2roPpvjR-AI",
+    "response_sha256": "5416e14c7d48e199c0592e9da41614dab5efd26b16dc3500838470d78a3f6507",
+    "response_characters": 1565,
+    "usage": {
+      "prompt_token_count": 1443,
+      "candidates_token_count": 512,
+      "total_token_count": 1955
+    }
+  },
+  {
+    "trace_id": "59937f46-dd2f-46e2-934c-a9ecf63670e8",
+    "operation": "state_transition_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa",
+      "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005",
+      "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+      "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"
+    },
+    "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74",
+    "input_sha256": "e4b33f867d5cf34c494178087998e3da7c8826f7eaf494c0041437b10449279b",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "uKHUauKFKevR1e8PmbatoA4",
+    "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623",
+    "response_characters": 23,
+    "usage": {
+      "prompt_token_count": 194,
+      "candidates_token_count": 9,
+      "total_token_count": 203
+    }
+  },
+  {
+    "trace_id": "9785dd86-513f-4183-a5a6-e45f54ac439e",
+    "operation": "state_transition_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa",
+      "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005",
+      "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+      "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"
+    },
+    "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74",
+    "input_sha256": "0332528e9cd27b2e78ddb30d25a24c121d10dc798807b2af3ead05fe541b616d",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "uaHUaszpF4XLrfcP5duO6AY",
+    "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623",
+    "response_characters": 23,
+    "usage": {
+      "prompt_token_count": 184,
+      "candidates_token_count": 9,
+      "total_token_count": 193
+    }
+  },
+  {
+    "trace_id": "e8f5ef86-7297-4231-91a3-d49db7b08d94",
+    "operation": "state_transition_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "094ea587-c8b3-4c17-850c-9933ee6978aa",
+      "revision_id": "61d4f9c1-fa54-4445-a2ec-d3a0b273f005",
+      "content_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+      "analysis_run_id": "5c076bfe-4a3f-4051-851e-ea28d82fb5d8"
+    },
+    "system_prompt_sha256": "13098967a12c3a00eea443a473490feaf3aec45a460304021c47f1fe34ff5d74",
+    "input_sha256": "7ca7f265b1c6435367dfe23254e36d47a44863f85987924e66288e24388c3841",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "uqHUaryPBv65vr0P9ZzrsQ8",
+    "response_sha256": "02645dc70ab86ab349fbc984e9067209912ec106f72fc2c62326784f2b3e1623",
+    "response_characters": 23,
+    "usage": {
+      "prompt_token_count": 188,
+      "candidates_token_count": 9,
+      "total_token_count": 197
+    }
+  },
+  {
+    "trace_id": "30055bd4-39ec-4327-b59c-6097848a8afe",
+    "operation": "entity_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "91a25305-aae7-4d6a-8869-4a52e34e0b9c",
+      "revision_id": "b4b9da1f-08d1-4441-90b4-ec0ffc7d7fd2",
+      "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+      "analysis_run_id": "53f5fd58-2403-4d84-96f4-037b0451acbf"
+    },
+    "system_prompt_sha256": "10fd387ec2149b869b4e4152ce2af00bb7b10f0f3018fe0f796b0c9aa3237660",
+    "input_sha256": "05e30b3962af8a9341c63950839397ae4dad231c7387eabd4899b860b21cc6a6",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "uqHUauexN6njrfcPhK68qAk",
+    "response_sha256": "7e5044880b8fd56a95cd49137a1d53d3c8795fc0d860bd97dc89f30475c22632",
+    "response_characters": 2280,
+    "usage": {
+      "prompt_token_count": 1335,
+      "candidates_token_count": 911,
+      "total_token_count": 2246
+    }
+  },
+  {
+    "trace_id": "b2736745-d5b7-4e7e-8027-0a9a363e2a72",
+    "operation": "event_extraction",
+    "source": {
+      "novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+      "chapter_id": "91a25305-aae7-4d6a-8869-4a52e34e0b9c",
+      "revision_id": "b4b9da1f-08d1-4441-90b4-ec0ffc7d7fd2",
+      "content_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+      "analysis_run_id": "53f5fd58-2403-4d84-96f4-037b0451acbf"
+    },
+    "system_prompt_sha256": "252c1a98ec26749a4a9ab01ddbeece030620741a2b18f39c739d699a8ff13ad2",
+    "input_sha256": "055312341cd960a2a9c1af0545d4248ec1ccfc38569970f1e9557f4eaa397c7e",
+    "max_output_tokens": 8192,
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "finish_reason": "STOP",
+    "response_id": "vaHUasqXCs7NrfcPsYOguQM",
+    "response_sha256": "34a4e0f506d8f18ed1eb0dfd02322ecb97ef73ce4e5e473765ab50da78d66664",
+    "response_characters": 1642,
+    "usage": {
+      "prompt_token_count": 1419,
+      "candidates_token_count": 542,
+      "total_token_count": 1961
+    }
+  }
+]

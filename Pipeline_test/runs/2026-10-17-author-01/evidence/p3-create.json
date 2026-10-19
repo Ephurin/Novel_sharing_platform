@@ -1,0 +1,35 @@
+{
+  "time": "2026-10-17T23:01:32.049009+07:00",
+  "channel": "PUBLIC_API",
+  "method": "POST",
+  "path": "/novels",
+  "request": {
+    "title": "P3 probe — 2026-10-17-author-01",
+    "synopsis": "Dự án probe controller riêng, cùng năm chương seed và không trộn vào bản chính.",
+    "tags": [
+      "pipeline-test",
+      "P3"
+    ]
+  },
+  "status": 201,
+  "latency_ms": 31,
+  "response": {
+    "success": true,
+    "data": {
+      "novelId": "2bb31f80-4a5c-4eba-a5b9-6d936fd76986",
+      "authorId": "86c6646a-5c29-478e-89bb-74c7a9326ce0",
+      "title": "P3 probe — 2026-10-17-author-01",
+      "slug": "p3-probe-2026-10-17-author-01-ab6f5eb3",
+      "synopsis": "Dự án probe controller riêng, cùng năm chương seed và không trộn vào bản chính.",
+      "coverImageUrl": null,
+      "status": "DRAFT",
+      "serialStatus": "ONGOING",
+      "ageRating": "TEEN",
+      "likesCount": 0,
+      "viewsCount": 0,
+      "chaptersCount": 0
+    },
+    "error": null,
+    "meta": {}
+  }
+}

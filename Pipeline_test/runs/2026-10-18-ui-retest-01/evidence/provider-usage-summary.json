@@ -1,0 +1,19 @@
+{
+  "captured_at": "2026-10-18T22:37:53.641200+07:00",
+  "structured_responses": 27,
+  "usage": {
+    "prompt_token_count": 21901,
+    "candidates_token_count": 7572,
+    "total_token_count": 29473
+  },
+  "models": [
+    "models/gemini-3.5-flash-lite"
+  ],
+  "finish_reasons": {
+    "STOP": 27
+  },
+  "cost_usd": null,
+  "fallback_key_rotation": "NOT_VERIFIED",
+  "raw_response_text": "NOT_CAPTURED; trace hashes and parsed proposals retained",
+  "prose_generation_calls": 0
+}

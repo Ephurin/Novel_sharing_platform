@@ -18,7 +18,7 @@ def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
 
 
 def validate_payload(kind, payload):
-    required = {"event": ("event_type", "summary"),
+    required = {"entity": ("canonical_name", "entity_type"), "event": ("event_type", "summary"),
                 "state_transition": ("entity_id", "attribute_key"),
                 "fact": ("fact_key",)}.get(kind, ())
     for key in required:
@@ -33,6 +33,14 @@ def validate_payload(kind, payload):
             raise ProjectionError("Chapter must be a positive integer")
     if kind == "fact" and "fact_value" not in payload:
         raise ProjectionError("Fact requires fact_value")
+    if kind == "fact" and payload.get("subject_entity_id") is not None and not isinstance(payload["subject_entity_id"], str):
+        raise ProjectionError("Fact subject must be an entity ID")
+    if kind == "fact" and payload.get("subject_entity_id") and payload.get("fact_key") == "status":
+        if payload.get("fact_value") not in ("Alive", "Dead", "Unknown"):
+            raise ProjectionError("Status must be Alive, Dead or Unknown")
+    if kind == "entity" and "initial_status" in payload:
+        if payload["initial_status"] not in ("Alive", "Dead", "Unknown"):
+            raise ProjectionError("Entity initial_status must be Alive, Dead or Unknown")
 
 
 def transition_from_payload(transition_id, payload, entities, events, facts):
@@ -55,6 +63,8 @@ def transition_from_payload(transition_id, payload, entities, events, facts):
     value = payload["new_value"]
     if key == "health" and (type(value) not in (int, float) or not 0 <= value <= 100):
         raise ProjectionError("Health must be a number between 0 and 100")
+    if key == "status" and value not in ("Alive", "Dead", "Unknown"):
+        raise ProjectionError("Status must be Alive, Dead or Unknown")
     return {"transition_id": transition_id, "entity_id": entity_id,
             "event_id": event_id, "fact_id": fact_id, "attribute_key": key,
             "new_value": deepcopy(value)}
@@ -80,7 +90,8 @@ def project(entities, facts, events, transitions) -> dict[str, Any]:
         active = event.event_id
         while active in replacements:
             active = replacements[active]
-        ordered.append(active)
+        if not by_id[active].metadata.get('is_retired'):
+            ordered.append(active)
     entity_ids = {str(e.entity_id) for e in entities}
     states, provenance = {}, {}
     seen = set()
@@ -90,10 +101,13 @@ def project(entities, facts, events, transitions) -> dict[str, Any]:
         if identity in seen:
             raise ProjectionError("A source may change each entity attribute only once; use an event correction")
         seen.add(identity)
+    from domain.canon_identity import active_facts
+    live_facts = active_facts(facts)
+    live_fact_ids = {str(f.get('fact_id') or f.get('id')) for f in live_facts}
     locked = {(f.get("subject_entity_id"), f.get("fact_key")): f["fact_value"]
               for f in facts if f.get("is_locked")}
     # Facts are applied only through transitions, so every attribute has provenance.
-    sequence = [t for t in transitions if t.get("fact_id")]
+    sequence = [t for t in transitions if str(t.get("fact_id")) in live_fact_ids]
     for event_id in ordered:
         sequence.extend(t for t in transitions if t.get("event_id") == event_id)
     for t in sequence:
@@ -115,9 +129,13 @@ def project(entities, facts, events, transitions) -> dict[str, Any]:
         for target, relation in relations.items():
             if not isinstance(relation, str) or not relation:
                 raise ProjectionError("Relationship type must be a nonempty string")
-            relationships.append({"subject_entity_id": entity_id,
-                                  "object_entity_id": resolve_entity(target, entities),
-                                  "relation": relation, **provenance[entity_id]["active_relationships"]})
+            try:
+                target_entity_id = resolve_entity(target, entities)
+                relationships.append({"subject_entity_id": entity_id,
+                                      "object_entity_id": target_entity_id,
+                                      "relation": relation, **provenance[entity_id]["active_relationships"]})
+            except ProjectionError:
+                continue
     relationships.sort(key=lambda r: (r["subject_entity_id"], r["object_entity_id"], r["relation"]))
     return {"entities": states, "provenance": provenance, "relationships": relationships,
             "projection_version": 1}

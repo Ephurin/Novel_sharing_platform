@@ -2,7 +2,12 @@ import json
 import logging
 import os
 import re
+import hashlib
+import time
+import uuid
 from typing import Any
+
+from core.structured_call import extraction_source, structured_request
 
 
 class LLMServiceError(RuntimeError):
@@ -25,11 +30,15 @@ class LLMService:
         temperature: float = 0.7,
         max_tokens: int = 512,
         timeout_seconds: int = 30,
+        structured_max_tokens: int = 8192,
     ) -> None:
         self.provider = provider.lower().strip()
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.timeout_seconds = timeout_seconds
+        if structured_max_tokens < 1:
+            raise ValueError("structured_max_tokens must be positive")
+        self.structured_max_tokens = structured_max_tokens
         self.base_url = (base_url or os.getenv("LLM_BASE_URL") or os.getenv("CUSTOM_LLM_URL") or "").strip()
         self.fallback_provider = (fallback_provider or os.getenv("LLM_FALLBACK_PROVIDER") or "").lower().strip()
         self.fallback_model = ""
@@ -42,9 +51,12 @@ class LLMService:
             )
             self.fallback_provider = self.fallback_provider or "openai"
             if self.fallback_provider == "openai":
+                default_fb_model = "gpt-4o-mini"
+                if "generativelanguage.googleapis.com" in self.base_url:
+                    default_fb_model = "gemini-3.5-flash-lite"
                 self.fallback_model = self._normalize_model(
-                    fallback_model or os.getenv("OPENAI_MODEL") or os.getenv("LLM_FALLBACK_MODEL") or "gpt-4o-mini",
-                    "gpt-4o-mini",
+                    fallback_model or os.getenv("OPENAI_MODEL") or os.getenv("LLM_FALLBACK_MODEL") or default_fb_model,
+                    default_fb_model,
                     is_gemini=False,
                 )
                 self.fallback_api_key = self._normalize_api_key(
@@ -190,6 +202,52 @@ class LLMService:
 
         raise LLMServiceError("LLM extraction output is not valid structured JSON")
 
+    def _call_structured(self, *, operation: str, system_prompt: str, user_prompt: str) -> str:
+        trace = {
+            "trace_id": str(uuid.uuid4()), "operation": operation,
+            "source": extraction_source.get(),
+            "system_prompt_sha256": hashlib.sha256(system_prompt.encode("utf-8")).hexdigest(),
+            "input_sha256": hashlib.sha256(user_prompt.encode("utf-8")).hexdigest(),
+            "max_output_tokens": self.structured_max_tokens,
+        }
+        token = structured_request.set(trace)
+        start = time.monotonic()
+        try:
+            raw = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+            try:
+                json.loads(raw)
+            except (TypeError, json.JSONDecodeError) as exc:
+                raise LLMServiceError(f"STRUCTURED_OUTPUT_INVALID_JSON trace_id={trace['trace_id']}") from exc
+            return raw
+        except Exception as exc:
+            logger.warning("structured_call_failed %s", json.dumps({
+                **trace, "error_type": type(exc).__name__,
+                "elapsed_ms": round((time.monotonic() - start) * 1000),
+            }))
+            raise
+        finally:
+            structured_request.reset(token)
+
+    def _record_structured_response(self, response: Any, text: str, *, provider: str, model: str, finish: Any) -> None:
+        trace = structured_request.get()
+        if trace is None:
+            return
+        reason = str(getattr(finish, "value", finish) or "UNKNOWN")
+        usage = getattr(response, "usage_metadata", None) or getattr(response, "usage", None)
+        usage_fields = ("prompt_token_count", "candidates_token_count", "total_token_count",
+                        "prompt_tokens", "completion_tokens", "total_tokens")
+        logger.info("structured_provider_response %s", json.dumps({
+            **trace, "provider": provider, "model": model, "finish_reason": reason,
+            "response_id": getattr(response, "response_id", None) or getattr(response, "id", None),
+            "response_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+            "response_characters": len(text),
+            "usage": {key: getattr(usage, key) for key in usage_fields if isinstance(getattr(usage, key, None), int)},
+        }))
+        if reason.upper() in {"MAX_TOKENS", "LENGTH"}:
+            raise LLMServiceError(f"STRUCTURED_OUTPUT_TRUNCATED trace_id={trace['trace_id']}")
+        if reason.upper() not in {"STOP", "UNKNOWN"}:
+            raise LLMServiceError(f"STRUCTURED_OUTPUT_INCOMPLETE trace_id={trace['trace_id']} finish={reason}")
+
     def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
         if not self.api_key:
             raise LLMServiceError(f"Missing API key for provider '{self.provider}'")
@@ -223,38 +281,64 @@ class LLMService:
         merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
 
         for model_name in self._gemini_model_candidates():
-            try:
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=merged_prompt,
-                    config={
+            for attempt in range(4):
+                try:
+                    structured = structured_request.get()
+                    config = {
                         "temperature": self.temperature,
-                        "max_output_tokens": self.max_tokens,
-                    },
-                )
-                text = self._extract_gemini_text(response)
-                if text:
-                    self.model = model_name
-                    return text
+                        "max_output_tokens": structured["max_output_tokens"] if structured else self.max_tokens,
+                    }
+                    if structured:
+                        config["response_mime_type"] = "application/json"
+                        if structured["operation"] == "event_extraction":
+                            from core.structured_outputs import NarrativeEventOutput
+                            from pydantic import BaseModel
+                            class EventBatch(BaseModel):
+                                events: list[NarrativeEventOutput]
+                            config["response_json_schema"] = EventBatch.model_json_schema()
+                        elif structured["operation"] in {"prose_fact_extraction", "prose_fact_coverage"}:
+                            from services.prose_facts import ProseFacts
+                            config["response_json_schema"] = ProseFacts.model_json_schema()
+                        elif structured['operation'] == 'canon_reconciliation':
+                            from services.canon_reconciliation import CanonComparison
+                            config['response_json_schema'] = CanonComparison.model_json_schema()
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=merged_prompt,
+                        config=config,
+                    )
+                    text = self._extract_gemini_text(response)
+                    candidates = getattr(response, "candidates", None) or []
+                    self._record_structured_response(response, text, provider="gemini", model=model_name,
+                                                     finish=getattr(candidates[0], "finish_reason", None) if candidates else None)
+                    if text:
+                        self.model = model_name
+                        return text
 
-                last_error = RuntimeError("Gemini returned empty response")
-            except Exception as exc:
-                last_error = exc
-                message = str(exc).lower()
-                # Retry other model aliases when configured model is deprecated or unavailable.
-                if "not found" in message or "not supported" in message:
-                    continue
-                raise LLMServiceError(f"Gemini request failed: {exc}") from exc
+                    last_error = RuntimeError("Gemini returned empty response")
+                except Exception as exc:
+                    last_error = exc
+                    message = str(exc).lower()
+                    if self._is_quota_error(exc):
+                        if attempt < 3:
+                            sleep_s = (attempt + 1) * 3
+                            logger.warning("Gemini 429 quota hit on %s (attempt %d/4). Sleeping %ds...", model_name, attempt + 1, sleep_s)
+                            time.sleep(sleep_s)
+                            continue
+                    # Retry other model aliases when configured model is deprecated or unavailable.
+                    if "not found" in message or "not supported" in message:
+                        break
+                    raise LLMServiceError(f"Gemini request failed: {exc}") from exc
 
         raise LLMServiceError(f"Gemini request failed: {last_error}")
 
     def _gemini_model_candidates(self) -> list[str]:
         candidates = [
             self.model,
-            "models/gemini-1.5-flash",
-            "models/gemini-1.5-flash-latest",
-            "models/gemini-1.5-pro",
+            "models/gemini-3.5-flash-lite",
+            "models/gemini-3.5-flash",
             "models/gemini-2.0-flash",
+            "models/gemini-1.5-flash",
         ]
         seen: set[str] = set()
         result: list[str] = []
@@ -297,6 +381,8 @@ class LLMService:
 
         key = self._normalize_api_key(api_key_override) if api_key_override is not None else self.api_key
         model_name = model_override or self.model
+        if "generativelanguage.googleapis.com" in (self.base_url or "") and model_name in {"gpt-4o-mini", "models/gpt-4o-mini"}:
+            model_name = "gemini-3.5-flash-lite"
         if not key:
             raise LLMServiceError("OpenAI fallback is enabled but OPENAI_API_KEY is missing")
 
@@ -310,14 +396,17 @@ class LLMService:
             response = client.chat.completions.create(
                 model=model_name,
                 temperature=self.temperature,
-                max_tokens=self.max_tokens,
+                max_tokens=(structured_request.get() or {}).get("max_output_tokens", self.max_tokens),
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
                 response_format={"type": "json_object"},
             )
-            return response.choices[0].message.content or ""
+            text = response.choices[0].message.content or ""
+            self._record_structured_response(response, text, provider="openai-compatible", model=model_name,
+                                             finish=getattr(response.choices[0], "finish_reason", None))
+            return text
         except Exception as exc:
             raise LLMServiceError(f"OpenAI request failed: {exc}") from exc
 
@@ -332,7 +421,11 @@ class LLMService:
     @staticmethod
     def _is_quota_error(exc: Exception) -> bool:
         message = str(exc).lower()
-        return "quota" in message or "rate limit" in message or "429" in message
+        if 'structured_output_' in message:
+            return False
+        status = getattr(exc, 'status_code', None) or getattr(exc, 'code', None)
+        return status in (429, '429') or bool(re.search(r'(?<![a-z0-9])429(?![a-z0-9])', message)) or any(
+            term in message for term in ('quota', 'rate limit', 'resource_exhausted'))
 
     @staticmethod
     def _generate_local_suggestions(current_text: str) -> list[str]:

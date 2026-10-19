@@ -1,0 +1,1822 @@
+{
+  "story_id": "46642ff1-5bac-4513-98fd-ffe1be6cb318",
+  "entities": [
+    {
+      "name": "Mai Linh",
+      "entity_id": "d5b41ef9-5ea6-4735-a4b4-81000a8aab9d",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Mai Lâm",
+      "entity_id": "b1368ee4-2815-4aee-8699-3acda0c231c7",
+      "entity_type": "PER",
+      "status": "Dead",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "bà Yên",
+      "entity_id": "538ace40-f6d6-4d33-ace4-aaaeb812d865",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "An",
+      "entity_id": "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Ông Hòa",
+      "entity_id": "df81bfc8-c92a-4510-a7f1-8d2478c80afc",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Chợ Giữa",
+      "entity_id": "c61c26ee-e9e3-4e8e-834a-d79393ef0b08",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Cồn Vân",
+      "entity_id": "96fbe5c5-a4c2-47fa-8c86-b99b74f27bd3",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Duy",
+      "entity_id": "6672bb63-292e-4281-b8c5-72ef99402bb9",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Đồi Bắc",
+      "entity_id": "14848cd0-1c5a-4923-8de1-55f06e39888c",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Bãi Dưới",
+      "entity_id": "eb05a31d-5df2-41dc-bd79-9e777c0fbdcd",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Phòng lưu trữ âm thanh đô thị",
+      "entity_id": "808f82ef-73cd-4af1-9022-fea907063a82",
+      "entity_type": "ORG",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "bà Sâm",
+      "entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Ban công trình",
+      "entity_id": "80d45f5d-a419-4e3a-9e8c-9fa3c0743b83",
+      "entity_type": "ORG",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Kho gốm",
+      "entity_id": "403be656-241d-4024-a919-dfd17f6f972c",
+      "entity_type": "ORG",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "trạm Bốn",
+      "entity_id": "7f4f4993-c3bb-446c-b97d-cc2baea65785",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Linh",
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "part of the floor with light",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Nguyễn Vũ",
+      "entity_id": "29356147-4012-481e-b810-416e50d7dcb6",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Vũ",
+      "entity_id": "129e256d-b419-49a4-8d1e-4ee5bdeca2e0",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "máy ghi âm",
+      "entity_id": "8069bf93-b8fa-449e-8bb7-5651e443058c",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "mảnh gốm",
+      "entity_id": "85b99c0c-817a-4862-aeab-335a1a9e6be3",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "chuông",
+      "entity_id": "3377d8e2-5ad3-42c7-9d9e-c58f4fac937f",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "cần cẩu",
+      "entity_id": "08eff571-bd02-4c41-86a4-cc8502fb7251",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "va li",
+      "entity_id": "8f53ca63-a9de-45da-8435-4ebec1453abb",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "tai nghe",
+      "entity_id": "2c26b9fc-3783-468a-be90-6be75d708131",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "micro",
+      "entity_id": "9de9c36a-9bb7-4611-ab2d-ea133c14c5c8",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "thuyền",
+      "entity_id": "4b869919-d094-4143-a1cd-60430b50004a",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "thước",
+      "entity_id": "1fa3f513-ffcb-4ac9-84cb-d578abbf5878",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Điện thoại",
+      "entity_id": "f73b7d2c-f97c-4350-a791-8e8b61e6cf88",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "bản đồ",
+      "entity_id": "39089ad3-30b1-4748-a456-cbe21cf46c5f",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "CV-04",
+      "entity_id": "f6bd4233-1456-4b34-9331-b6744f1b4625",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "nhánh tây",
+      "entity_id": "fc7789de-cede-4577-ba2c-92280224270f",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "cha",
+      "entity_id": "5cc7e64c-1ccf-4090-99d7-2635a921c3a3",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "mẹ",
+      "entity_id": "c794b198-28a2-4571-a931-55760e07ffc8",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "vòng đồng",
+      "entity_id": "46fd7d1b-0cc0-4bbc-bb9f-27a9e22b93ac",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "hộp dụng cụ kim loại",
+      "entity_id": "b27843c0-cd65-48f3-a1d3-7bf4db3fcd53",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "quạt",
+      "entity_id": "37b89380-583e-447f-8894-5de2e2720378",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "bộ ổn áp",
+      "entity_id": "4b8d700f-23cb-46e4-ab82-1514b200032b",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "bộ nguồn dự phòng",
+      "entity_id": "41d2894a-0634-42e7-b740-8de8bcfdb97f",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "mã CV-04",
+      "entity_id": "569960d5-873f-4bfe-b345-7ac47ae3f0df",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "máy",
+      "entity_id": "657d5884-54f8-484a-b1a9-58cdafb23e0a",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "máy phát",
+      "entity_id": "040e50f8-7462-483e-8b08-c4d2e404c28a",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "ổ lưu",
+      "entity_id": "f6f675b0-675e-4dd9-b33b-77387440de15",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "túi chống ẩm",
+      "entity_id": "2a539964-8a21-4da2-8289-3d44bf8fe302",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "khăn mềm",
+      "entity_id": "8444ffd7-2c17-498e-9489-eeb25178bbf7",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "bóng đèn",
+      "entity_id": "a452dcce-a033-4b9f-b4f1-0cc52643643c",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  ],
+  "aliases": [],
+  "mentions": [],
+  "facts": [
+    {
+      "fact_id": "f91a53b9-004b-48b5-bb3d-a96c7f501eb2",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "flood_history_years_ago",
+      "fact_value": {
+        "value": 17,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "fact_id": "87e534eb-a89f-4076-b8c1-d6fd071f755a",
+      "subject_entity_id": "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "fact_type": "narrative_fact",
+      "fact_key": "age",
+      "fact_value": 19,
+      "is_locked": false
+    },
+    {
+      "fact_id": "ef032515-f8b0-4998-94f4-276c12423025",
+      "subject_entity_id": "b1368ee4-2815-4aee-8699-3acda0c231c7",
+      "fact_type": "narrative_fact",
+      "fact_key": "status",
+      "fact_value": "Dead",
+      "is_locked": false
+    },
+    {
+      "fact_id": "74353279-7370-4a83-8f0b-c407128061ea",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "flood_death_toll",
+      "fact_value": {
+        "value": 23,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "fact_id": "ff05770d-1cd4-43e8-a91e-91b3f899593c",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "contract_duration_days",
+      "fact_value": {
+        "value": 12,
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "fact_id": "22047f75-6818-4120-8df0-03c5d49e2492",
+      "subject_entity_id": "96fbe5c5-a4c2-47fa-8c86-b99b74f27bd3",
+      "fact_type": "narrative_fact",
+      "fact_key": "weather",
+      "fact_value": "không mưa",
+      "is_locked": false
+    },
+    {
+      "fact_id": "1aca4054-7628-44cb-b011-dab8b8dd09bb",
+      "subject_entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "fact_type": "narrative_fact",
+      "fact_key": "kho_duration_days",
+      "fact_value": 12,
+      "is_locked": false
+    },
+    {
+      "fact_id": "662104f7-bc60-4564-b578-4132087d879d",
+      "subject_entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "fact_type": "narrative_fact",
+      "fact_key": "kho_current_day",
+      "fact_value": 2,
+      "is_locked": false
+    },
+    {
+      "fact_id": "191e645d-f106-474e-8daa-887cea852deb",
+      "subject_entity_id": "29356147-4012-481e-b810-416e50d7dcb6",
+      "fact_type": "narrative_fact",
+      "fact_key": "funding_proposal_signer",
+      "fact_value": true,
+      "is_locked": false
+    },
+    {
+      "fact_id": "24622064-5c6a-442f-b6ae-100d7f993a21",
+      "subject_entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "fact_type": "narrative_fact",
+      "fact_key": "cháo_hành",
+      "fact_value": false,
+      "is_locked": false
+    },
+    {
+      "fact_id": "d91a93da-daf3-4a9b-bb38-48ad6cff505a",
+      "subject_entity_id": "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "fact_type": "narrative_fact",
+      "fact_key": "vá_áo_mưa",
+      "fact_value": true,
+      "is_locked": false
+    },
+    {
+      "fact_id": "2d88d165-dc6e-4d5a-948f-af9b1255dbb7",
+      "subject_entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "fact_type": "narrative_fact",
+      "fact_key": "trực_trạm_Bốn",
+      "fact_value": true,
+      "is_locked": false
+    },
+    {
+      "fact_id": "69b3e1c3-6dd9-4205-bfec-7b4ea1122d10",
+      "subject_entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "fact_type": "narrative_fact",
+      "fact_key": "danh_sách_treo_tường",
+      "fact_value": 23,
+      "is_locked": false
+    },
+    {
+      "fact_id": "b7e1aefb-fbd2-45f0-8e43-8a3a70941c57",
+      "subject_entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "fact_type": "narrative_fact",
+      "fact_key": "danh_sách_sai_tên",
+      "fact_value": 3,
+      "is_locked": false
+    },
+    {
+      "fact_id": "f74a3256-4b9d-486f-82ca-f9daa70e4288",
+      "subject_entity_id": "538ace40-f6d6-4d33-ace4-aaaeb812d865",
+      "fact_type": "narrative_fact",
+      "fact_key": "thời_gian_bố_vắng",
+      "fact_value": 17,
+      "is_locked": false
+    },
+    {
+      "fact_id": "bd057d9f-7da1-4aef-8697-769fd9894fc4",
+      "subject_entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "fact_type": "narrative_fact",
+      "fact_key": "tai_nghe_status",
+      "fact_value": "tháo một bên",
+      "is_locked": false
+    },
+    {
+      "fact_id": "3fa9cb85-1c1c-426b-bf48-46e4a19a0f9d",
+      "subject_entity_id": "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "fact_type": "narrative_fact",
+      "fact_key": "activity",
+      "fact_value": "buộc lại thuyền",
+      "is_locked": false
+    },
+    {
+      "fact_id": "6117b1f4-cfef-4d50-8034-5b3e69147a06",
+      "subject_entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "fact_type": "narrative_fact",
+      "fact_key": "location",
+      "fact_value": "trạm Bốn, nhánh tây",
+      "is_locked": false
+    },
+    {
+      "fact_id": "55c6ad0d-d647-47a0-9c6d-45f2bc3f0bfa",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "statement",
+      "fact_value": {
+        "value": "đó không phải cửa xuống phòng máy",
+        "subject": "bà Sâm",
+        "certainty": "reported"
+      },
+      "is_locked": false
+    },
+    {
+      "fact_id": "bab06eb1-473f-413b-89d6-dbd29f2c77a3",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "age",
+      "fact_value": {
+        "value": "ngoài ba mươi",
+        "subject": "Duy",
+        "certainty": "reported"
+      },
+      "is_locked": false
+    },
+    {
+      "fact_id": "921109f2-afb2-49ad-b5fb-e776714bd30b",
+      "subject_entity_id": "6672bb63-292e-4281-b8c5-72ef99402bb9",
+      "fact_type": "narrative_fact",
+      "fact_key": "hearing_impairment",
+      "fact_value": "Tai trái không nghe",
+      "is_locked": false
+    },
+    {
+      "fact_id": "4bbfc188-db47-4726-88ba-cd65ba4cdfb7",
+      "subject_entity_id": "6672bb63-292e-4281-b8c5-72ef99402bb9",
+      "fact_type": "narrative_fact",
+      "fact_key": "impairment_duration_years",
+      "fact_value": 4,
+      "is_locked": false
+    },
+    {
+      "fact_id": "fcf2d82b-2c37-41ea-8e21-78acc4f3f8d7",
+      "subject_entity_id": "46fd7d1b-0cc0-4bbc-bb9f-27a9e22b93ac",
+      "fact_type": "narrative_fact",
+      "fact_key": "origin",
+      "fact_value": "bộ chuẩn của trạm Bốn",
+      "is_locked": false
+    },
+    {
+      "fact_id": "a8ff6115-1736-43e7-962e-3a7ab2ab728b",
+      "subject_entity_id": "569960d5-873f-4bfe-b345-7ac47ae3f0df",
+      "fact_type": "narrative_fact",
+      "fact_key": "preservation_limit_touches",
+      "fact_value": 3,
+      "is_locked": false
+    },
+    {
+      "fact_id": "568369ff-048a-41ce-9c76-358e07b90f34",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "voice_recognition_hypothesis",
+      "fact_value": {
+        "value": "Giọng trong bản ghi có thể là cha cô",
+        "subject": "Linh",
+        "certainty": "hypothesis"
+      },
+      "is_locked": false
+    }
+  ],
+  "relations": [],
+  "events": [
+    {
+      "event_id": "bfbb93a8-e986-59c5-84bf-4406899f4d31",
+      "event_type": "arrival",
+      "participants": [
+        "Mai Linh"
+      ],
+      "summary": "Mai Linh arrives back at the city by ferry after eleven years.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh arrives back at the city by ferry after eleven years.",
+        "evidence": [
+          {
+            "end": 184,
+            "quote": "Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+            "start": 51,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "arrival",
+        "consequences": [
+          "Mai Linh returns to her hometown."
+        ],
+        "participants": [
+          "Mai Linh"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "db9c32c3-e006-5990-afc0-13d30a9d8576",
+      "event_type": "meeting",
+      "participants": [
+        "Mai Linh",
+        "An"
+      ],
+      "summary": "An meets Mai Linh at the dock and greets her on behalf of her mother.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "An meets Mai Linh at the dock and greets her on behalf of her mother.",
+        "evidence": [
+          {
+            "end": 1508,
+            "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+            "start": 1443,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "meeting",
+        "consequences": [
+          "An carries Mai Linh's luggage toward the boat."
+        ],
+        "participants": [
+          "Mai Linh",
+          "An"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "628034da-28a5-5978-9aaa-cdceff9df5e8",
+      "event_type": "meeting",
+      "participants": [
+        "Mai Linh",
+        "Ông Hòa"
+      ],
+      "summary": "Ông Hòa greets Mai Linh at the ceramic warehouse / audio archive room.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Ông Hòa greets Mai Linh at the ceramic warehouse / audio archive room.",
+        "evidence": [
+          {
+            "end": 2774,
+            "quote": "Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút.",
+            "start": 2712,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "Kho gốm"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "Mai Linh meets Ông Hòa at the archive."
+        ],
+        "participants": [
+          "Mai Linh",
+          "Ông Hòa"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "223eea03-929c-5dc9-a4d0-bd8df4f4be06",
+      "event_type": "signing_contract",
+      "participants": [
+        "Mai Linh",
+        "Ông Hòa"
+      ],
+      "summary": "Mai Linh signs a twelve-day contract with Ông Hòa to inspect audio and ceramic fragments.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh signs a twelve-day contract with Ông Hòa to inspect audio and ceramic fragments.",
+        "evidence": [
+          {
+            "end": 3435,
+            "quote": "Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày.",
+            "start": 3388,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "Kho gốm"
+        ],
+        "event_type": "signing_contract",
+        "consequences": [
+          "Mai Linh officially undertakes the archival inspection project."
+        ],
+        "participants": [
+          "Mai Linh",
+          "Ông Hòa"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "4ca0c892-515f-50e9-bb33-85d5765cebb8",
+      "event_type": "request",
+      "participants": [
+        "Mai Linh",
+        "Ông Hòa"
+      ],
+      "summary": "Mai Linh asks Ông Hòa to show her the records for station Four first.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh asks Ông Hòa to show her the records for station Four first.",
+        "evidence": [
+          {
+            "end": 5026,
+            "quote": "“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.",
+            "start": 4983,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+            "revision_id": "046a3f75-6082-4f3f-ab8f-5123ead024d4",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "Kho gốm"
+        ],
+        "event_type": "request",
+        "consequences": [
+          "Ông Hòa retrieves the key for the station Four records."
+        ],
+        "participants": [
+          "Mai Linh",
+          "Ông Hòa"
+        ],
+        "chapter_number": 1
+      }
+    },
+    {
+      "event_id": "bd0c0976-3537-551d-ba8d-0a20f779e4e9",
+      "event_type": "meeting",
+      "participants": [
+        "Duy",
+        "Linh"
+      ],
+      "summary": "Duy and Linh meet at the foot of North Hill before their tasks.",
+      "chapter": 4,
+      "metadata": {
+        "chapter": 4,
+        "summary": "Duy and Linh meet at the foot of North Hill before their tasks.",
+        "evidence": [
+          {
+            "end": 157,
+            "quote": "Duy chờ Linh ở chân Đồi Bắc.",
+            "start": 129,
+            "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+            "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+            "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [
+          "Đồi Bắc"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "They begin walking together toward their meeting."
+        ],
+        "participants": [
+          "Duy",
+          "Linh"
+        ],
+        "chapter_number": 4
+      }
+    },
+    {
+      "event_id": "822f7c72-ad2d-5f43-8c16-3d60c230d1e5",
+      "event_type": "meeting",
+      "participants": [
+        "Nguyễn Vũ",
+        "Linh",
+        "Duy"
+      ],
+      "summary": "Nguyễn Vũ meets Linh and Duy in a meeting room to discuss warehouse conditions and survey plans.",
+      "chapter": 4,
+      "metadata": {
+        "chapter": 4,
+        "summary": "Nguyễn Vũ meets Linh and Duy in a meeting room to discuss warehouse conditions and survey plans.",
+        "evidence": [
+          {
+            "end": 629,
+            "quote": "Nguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố.",
+            "start": 562,
+            "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+            "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+            "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [
+          "Cồn Vân"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "A survey permit is discussed and eventually signed with conditions."
+        ],
+        "participants": [
+          "Nguyễn Vũ",
+          "Linh",
+          "Duy"
+        ],
+        "chapter_number": 4
+      }
+    },
+    {
+      "event_id": "5f1812d8-5fb0-5128-8fd7-671a12a0ba14",
+      "event_type": "agreement",
+      "participants": [
+        "Nguyễn Vũ",
+        "Duy",
+        "Linh"
+      ],
+      "summary": "The survey permit is signed under specific restrictions regarding water gates and sealed compartments.",
+      "chapter": 4,
+      "metadata": {
+        "chapter": 4,
+        "summary": "The survey permit is signed under specific restrictions regarding water gates and sealed compartments.",
+        "evidence": [
+          {
+            "end": 2531,
+            "quote": "Giấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng.",
+            "start": 2402,
+            "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+            "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+            "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [
+          "Cồn Vân"
+        ],
+        "event_type": "agreement",
+        "consequences": [
+          "Duy and Linh obtain conditional permission to carry out their work."
+        ],
+        "participants": [
+          "Nguyễn Vũ",
+          "Duy",
+          "Linh"
+        ],
+        "chapter_number": 4
+      }
+    },
+    {
+      "event_id": "4b08ac52-e0a7-5e5b-b486-a475feb8842e",
+      "event_type": "investigation",
+      "participants": [
+        "Duy",
+        "Linh",
+        "An"
+      ],
+      "summary": "Duy and Linh arrive at Station Four to conduct their survey, aided by An outside.",
+      "chapter": 4,
+      "metadata": {
+        "chapter": 4,
+        "summary": "Duy and Linh arrive at Station Four to conduct their survey, aided by An outside.",
+        "evidence": [
+          {
+            "end": 3303,
+            "quote": "Trạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi.",
+            "start": 3240,
+            "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+            "chapter_id": "32db1eac-3228-4056-8c12-f74a7f0d22eb",
+            "revision_id": "8911e253-0ee1-4b2f-b994-4d8bca467c3e",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [
+          "trạm Bốn"
+        ],
+        "event_type": "investigation",
+        "consequences": [
+          "They discover unexpected water movement and a knocking sound from below."
+        ],
+        "participants": [
+          "Duy",
+          "Linh",
+          "An"
+        ],
+        "chapter_number": 4
+      }
+    },
+    {
+      "event_id": "bc6d4d7a-dbc8-5c4f-9541-66c9674e0bb0",
+      "event_type": "conversation",
+      "participants": [
+        "bà Sâm",
+        "Linh"
+      ],
+      "summary": "Linh meets Bà Sâm at her porridge stall and they converse about porridge orders.",
+      "chapter": 3,
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh meets Bà Sâm at her porridge stall and they converse about porridge orders.",
+        "evidence": [
+          {
+            "end": 244,
+            "quote": "Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.\n\n“Không hành, phải không?” bà hỏi.",
+            "start": 158,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+            "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [],
+        "event_type": "conversation",
+        "consequences": [
+          "Bà Sâm serves porridge without spring onions."
+        ],
+        "participants": [
+          "bà Sâm",
+          "Linh"
+        ],
+        "chapter_number": 3
+      }
+    },
+    {
+      "event_id": "3b7c0794-d550-5787-8d7b-da07e9d2b5a0",
+      "event_type": "interview",
+      "participants": [
+        "bà Sâm",
+        "Linh"
+      ],
+      "summary": "Linh records an interview with Bà Sâm regarding the history of a bell.",
+      "chapter": 3,
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh records an interview with Bà Sâm regarding the history of a bell.",
+        "evidence": [
+          {
+            "end": 1729,
+            "quote": "Linh xin phép bật máy. Bà Sâm đồng ý, rồi nói lại chậm rãi, giữ nguyên cả câu “ta không ký”.",
+            "start": 1637,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+            "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [],
+        "event_type": "interview",
+        "consequences": [
+          "Linh records Bà Sâm's statement about the bell's relocation."
+        ],
+        "participants": [
+          "bà Sâm",
+          "Linh"
+        ],
+        "chapter_number": 3
+      }
+    },
+    {
+      "event_id": "d3976045-8bea-5864-a366-6e5f14121e2e",
+      "event_type": "reunion",
+      "participants": [
+        "bà Yên",
+        "Linh"
+      ],
+      "summary": "Linh returns home and reunites with her mother, Bà Yên.",
+      "chapter": 3,
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh returns home and reunites with her mother, Bà Yên.",
+        "evidence": [
+          {
+            "end": 2736,
+            "quote": "Mẹ cô từ bếp đi ra, lau tay vào vạt áo, nhìn con từ đầu đến chân.\n\n“Gầy hơn ảnh.”",
+            "start": 2655,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+            "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [],
+        "event_type": "reunion",
+        "consequences": [
+          "Linh has dinner with her mother and discusses various topics while avoiding mentioning her father initially."
+        ],
+        "participants": [
+          "bà Yên",
+          "Linh"
+        ],
+        "chapter_number": 3
+      }
+    },
+    {
+      "event_id": "61f658c5-a8cb-5c8a-af9b-d8671e48a058",
+      "event_type": "phone_call",
+      "participants": [
+        "Linh",
+        "Duy"
+      ],
+      "summary": "Linh calls Duy from the porch after dinner to discuss finding documents about the bell.",
+      "chapter": 3,
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh calls Duy from the porch after dinner to discuss finding documents about the bell.",
+        "evidence": [
+          {
+            "end": 4009,
+            "quote": "Sau bữa cơm, cô ra hiên gọi Duy. Anh nghe máy sau ba hồi chuông.",
+            "start": 3945,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "1f5a1a59-1c45-4a0e-98d7-532f456a7684",
+            "revision_id": "22fe72de-3597-41e1-9520-1fc6452f653a",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [],
+        "event_type": "phone_call",
+        "consequences": [
+          "Duy agrees to look for the records and invites Linh to go to the station with him."
+        ],
+        "participants": [
+          "Linh",
+          "Duy"
+        ],
+        "chapter_number": 3
+      }
+    },
+    {
+      "event_id": "78bf3cd7-b21b-5f54-abc9-7f13f42458f1",
+      "event_type": "security_precaution",
+      "participants": [
+        "Duy",
+        "Linh"
+      ],
+      "summary": "Duy secures the door with a wedge and warning rope and tells Linh to step back into the light.",
+      "chapter": 5,
+      "metadata": {
+        "chapter": 5,
+        "summary": "Duy secures the door with a wedge and warning rope and tells Linh to step back into the light.",
+        "evidence": [
+          {
+            "end": 133,
+            "quote": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+            "start": 0,
+            "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+            "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+            "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+            "chapter_number": 5
+          }
+        ],
+        "locations": [],
+        "event_type": "security_precaution",
+        "consequences": [
+          "Linh moves back to the lighted part of the floor",
+          "The door is physically secured"
+        ],
+        "participants": [
+          "Duy",
+          "Linh"
+        ],
+        "chapter_number": 5
+      }
+    },
+    {
+      "event_id": "8eb17707-4bf2-501b-9e51-ada4278f8187",
+      "event_type": "communication",
+      "participants": [
+        "An",
+        "Duy"
+      ],
+      "summary": "An ties up the boat outside and asks Duy if they should inform ba Sâm, to which Duy eventually agrees to ask a specific question.",
+      "chapter": 5,
+      "metadata": {
+        "chapter": 5,
+        "summary": "An ties up the boat outside and asks Duy if they should inform ba Sâm, to which Duy eventually agrees to ask a specific question.",
+        "evidence": [
+          {
+            "end": 699,
+            "quote": "Ngoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.",
+            "start": 603,
+            "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+            "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+            "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+            "chapter_number": 5
+          }
+        ],
+        "locations": [],
+        "event_type": "communication",
+        "consequences": [
+          "Duy decides to have An ask ba Sâm about the white crank"
+        ],
+        "participants": [
+          "An",
+          "Duy"
+        ],
+        "chapter_number": 5
+      }
+    },
+    {
+      "event_id": "bb7b2408-2c9e-58ed-9660-834d32fe0d6a",
+      "event_type": "investigation",
+      "participants": [
+        "Duy",
+        "Linh"
+      ],
+      "summary": "Duy inspects a weld along the wall using a flashlight and a ruler without touching it directly, while Linh observes.",
+      "chapter": 5,
+      "metadata": {
+        "chapter": 5,
+        "summary": "Duy inspects a weld along the wall using a flashlight and a ruler without touching it directly, while Linh observes.",
+        "evidence": [
+          {
+            "end": 1161,
+            "quote": "Duy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào.",
+            "start": 1042,
+            "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+            "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+            "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+            "chapter_number": 5
+          }
+        ],
+        "locations": [],
+        "event_type": "investigation",
+        "consequences": [
+          "Duy and Linh examine the weld and notice color differences in the metal"
+        ],
+        "participants": [
+          "Duy",
+          "Linh"
+        ],
+        "chapter_number": 5
+      }
+    },
+    {
+      "event_id": "534ff886-5254-52da-9ab1-d185a1192a44",
+      "event_type": "documentation",
+      "participants": [
+        "Linh",
+        "Duy"
+      ],
+      "summary": "Linh takes a wide-angle photograph of the area including the door, ruler, warning rope, and Duy's hand.",
+      "chapter": 5,
+      "metadata": {
+        "chapter": 5,
+        "summary": "Linh takes a wide-angle photograph of the area including the door, ruler, warning rope, and Duy's hand.",
+        "evidence": [
+          {
+            "end": 1603,
+            "quote": "Linh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối.",
+            "start": 1498,
+            "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+            "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+            "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+            "chapter_number": 5
+          }
+        ],
+        "locations": [],
+        "event_type": "documentation",
+        "consequences": [
+          "Photographic evidence of the scene is captured"
+        ],
+        "participants": [
+          "Linh",
+          "Duy"
+        ],
+        "chapter_number": 5
+      }
+    },
+    {
+      "event_id": "998e2193-ba1e-539d-bf8b-166efab2925c",
+      "event_type": "phone_call",
+      "participants": [
+        "Duy",
+        "Linh",
+        "bà Sâm"
+      ],
+      "summary": "Duy receives a phone call from ba Sâm providing information that the spot is an auxiliary control point rather than an engine room entrance.",
+      "chapter": 5,
+      "metadata": {
+        "chapter": 5,
+        "summary": "Duy receives a phone call from ba Sâm providing information that the spot is an auxiliary control point rather than an engine room entrance.",
+        "evidence": [
+          {
+            "end": 1926,
+            "quote": "Điện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.",
+            "start": 1797,
+            "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+            "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+            "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+            "chapter_number": 5
+          }
+        ],
+        "locations": [],
+        "event_type": "phone_call",
+        "consequences": [
+          "Duy learns the door is an auxiliary control location for power outages"
+        ],
+        "participants": [
+          "Duy",
+          "Linh",
+          "bà Sâm"
+        ],
+        "chapter_number": 5
+      }
+    },
+    {
+      "event_id": "68c997c9-454a-55ba-9c87-d5470a71290e",
+      "event_type": "disturbance",
+      "participants": [
+        "Linh",
+        "Duy"
+      ],
+      "summary": "Four short knocks and dragging sounds echo from beneath the floor, causing Linh to alert Duy via her monitoring display.",
+      "chapter": 5,
+      "metadata": {
+        "chapter": 5,
+        "summary": "Four short knocks and dragging sounds echo from beneath the floor, causing Linh to alert Duy via her monitoring display.",
+        "evidence": [
+          {
+            "end": 2459,
+            "quote": "Từ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống.",
+            "start": 2325,
+            "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+            "chapter_id": "64f02e3a-a283-40d2-a8b0-3df2913cac84",
+            "revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36",
+            "chapter_number": 5
+          }
+        ],
+        "locations": [],
+        "event_type": "disturbance",
+        "consequences": [
+          "Linh shows the running logs to Duy as light patterns shift on her screen",
+          "Water reflection in the door gap starts rising"
+        ],
+        "participants": [
+          "Linh",
+          "Duy"
+        ],
+        "chapter_number": 5
+      }
+    },
+    {
+      "event_id": "b669fcc1-cc27-5a46-aab1-db0c72bd1611",
+      "event_type": "preparation",
+      "participants": [
+        "Linh",
+        "Duy",
+        "Ông Hòa"
+      ],
+      "summary": "Linh kiểm tra thiết bị trong kho gốm trong lúc chờ điện ổn định cùng với Duy và ông Hòa.",
+      "chapter": 2,
+      "metadata": {
+        "chapter": 2,
+        "summary": "Linh kiểm tra thiết bị trong kho gốm trong lúc chờ điện ổn định cùng với Duy và ông Hòa.",
+        "evidence": [
+          {
+            "end": 236,
+            "quote": "Linh đang cúi dưới bàn, kiểm tra bộ ổn áp. Cô ngẩng lên.",
+            "start": 180,
+            "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+            "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+            "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+            "chapter_number": 2
+          }
+        ],
+        "locations": [
+          "Kho gốm"
+        ],
+        "event_type": "preparation",
+        "consequences": [
+          "Chuẩn bị cho việc quét bản ghi âm"
+        ],
+        "participants": [
+          "Linh",
+          "Duy",
+          "Ông Hòa"
+        ],
+        "chapter_number": 2
+      }
+    },
+    {
+      "event_id": "089574fc-0131-523f-8289-ad3ebda4e53d",
+      "event_type": "audio_playback",
+      "participants": [
+        "Linh",
+        "Duy",
+        "Ông Hòa"
+      ],
+      "summary": "Nhóm của Linh phát hiện một đoạn ghi âm ngắn có giọng nói phát ra từ mảnh gốm.",
+      "chapter": 2,
+      "metadata": {
+        "chapter": 2,
+        "summary": "Nhóm của Linh phát hiện một đoạn ghi âm ngắn có giọng nói phát ra từ mảnh gốm.",
+        "evidence": [
+          {
+            "end": 2275,
+            "quote": "Ở giây thứ bốn mươi mốt có giọng đàn ông.",
+            "start": 2234,
+            "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+            "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+            "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+            "chapter_number": 2
+          }
+        ],
+        "locations": [
+          "Kho gốm"
+        ],
+        "event_type": "audio_playback",
+        "consequences": [
+          "Linh nhận ra giọng nói có thể thuộc về cha cô",
+          "Bản ghi được lưu lại để phân tích"
+        ],
+        "participants": [
+          "Linh",
+          "Duy",
+          "Ông Hòa"
+        ],
+        "chapter_number": 2
+      }
+    },
+    {
+      "event_id": "3ca79f97-e558-5823-b951-6a64933cd4da",
+      "event_type": "phone_call",
+      "participants": [
+        "Linh",
+        "mẹ"
+      ],
+      "summary": "Linh gọi điện thoại cho mẹ sau khi kết thúc công việc tại kho gốm.",
+      "chapter": 2,
+      "metadata": {
+        "chapter": 2,
+        "summary": "Linh gọi điện thoại cho mẹ sau khi kết thúc công việc tại kho gốm.",
+        "evidence": [
+          {
+            "end": 4431,
+            "quote": "Cô gọi mẹ. Đầu dây bên kia có tiếng kéo cắt lưới.",
+            "start": 4382,
+            "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+            "chapter_id": "d09c9fed-14a3-46e3-9bd6-483e777f725d",
+            "revision_id": "ab94b7a2-5cf5-42ad-9d5c-5aa122000520",
+            "chapter_number": 2
+          }
+        ],
+        "locations": [],
+        "event_type": "phone_call",
+        "consequences": [
+          "Trao đổi ngắn gọn về sự phát hiện bản ghi"
+        ],
+        "participants": [
+          "Linh",
+          "mẹ"
+        ],
+        "chapter_number": 2
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "transition_id": "84c231f4-4ced-5383-81f1-8560627f5272",
+      "entity_id": "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "event_id": null,
+      "fact_id": "87e534eb-a89f-4076-b8c1-d6fd071f755a",
+      "attribute_key": "age",
+      "new_value": 19
+    },
+    {
+      "transition_id": "ad6fc488-915d-5209-91e8-97edc2e40415",
+      "entity_id": "b1368ee4-2815-4aee-8699-3acda0c231c7",
+      "event_id": null,
+      "fact_id": "ef032515-f8b0-4998-94f4-276c12423025",
+      "attribute_key": "status",
+      "new_value": "Dead"
+    },
+    {
+      "transition_id": "8bb1c097-a912-57e5-bdba-5d1dd39f21b4",
+      "entity_id": "6672bb63-292e-4281-b8c5-72ef99402bb9",
+      "event_id": "5f1812d8-5fb0-5128-8fd7-671a12a0ba14",
+      "fact_id": null,
+      "attribute_key": "active_relationships",
+      "new_value": {
+        "survey permit": "conditional permission"
+      }
+    },
+    {
+      "transition_id": "8fc255b5-5459-5d2e-8007-73141376d445",
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "event_id": "5f1812d8-5fb0-5128-8fd7-671a12a0ba14",
+      "fact_id": null,
+      "attribute_key": "active_relationships",
+      "new_value": {
+        "survey permit": "conditional permission"
+      }
+    },
+    {
+      "transition_id": "b3a03180-951f-5ce6-aaca-1af3fb9b147f",
+      "entity_id": "96fbe5c5-a4c2-47fa-8c86-b99b74f27bd3",
+      "event_id": null,
+      "fact_id": "22047f75-6818-4120-8df0-03c5d49e2492",
+      "attribute_key": "weather",
+      "new_value": "không mưa"
+    },
+    {
+      "transition_id": "345a73d0-3f1b-5d1e-aef9-21d6897094c8",
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "event_id": null,
+      "fact_id": "1aca4054-7628-44cb-b011-dab8b8dd09bb",
+      "attribute_key": "kho_duration_days",
+      "new_value": 12
+    },
+    {
+      "transition_id": "eded2caf-827e-504f-92cd-2f7aa30f25ba",
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "event_id": null,
+      "fact_id": "662104f7-bc60-4564-b578-4132087d879d",
+      "attribute_key": "kho_current_day",
+      "new_value": 2
+    },
+    {
+      "transition_id": "8007786b-314e-53f7-bca0-0cba863b6b43",
+      "entity_id": "29356147-4012-481e-b810-416e50d7dcb6",
+      "event_id": null,
+      "fact_id": "191e645d-f106-474e-8daa-887cea852deb",
+      "attribute_key": "funding_proposal_signer",
+      "new_value": true
+    },
+    {
+      "transition_id": "dbc103e5-74b1-5a0d-8175-89ff7a0d2686",
+      "entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "event_id": null,
+      "fact_id": "24622064-5c6a-442f-b6ae-100d7f993a21",
+      "attribute_key": "cháo_hành",
+      "new_value": false
+    },
+    {
+      "transition_id": "443e503b-be26-5bc5-a4c3-3b9a32e580b1",
+      "entity_id": "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "event_id": null,
+      "fact_id": "d91a93da-daf3-4a9b-bb38-48ad6cff505a",
+      "attribute_key": "vá_áo_mưa",
+      "new_value": true
+    },
+    {
+      "transition_id": "ab1143ff-c009-553b-b8d7-16c222109911",
+      "entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "event_id": null,
+      "fact_id": "2d88d165-dc6e-4d5a-948f-af9b1255dbb7",
+      "attribute_key": "trực_trạm_Bốn",
+      "new_value": true
+    },
+    {
+      "transition_id": "9f5227f2-7159-5d2a-acec-5205a9bce990",
+      "entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "event_id": null,
+      "fact_id": "69b3e1c3-6dd9-4205-bfec-7b4ea1122d10",
+      "attribute_key": "danh_sách_treo_tường",
+      "new_value": 23
+    },
+    {
+      "transition_id": "8a38ed40-3351-5801-9316-6f48d7d25c49",
+      "entity_id": "a999441f-9e37-49c5-9e3b-fdb69f35294e",
+      "event_id": null,
+      "fact_id": "b7e1aefb-fbd2-45f0-8e43-8a3a70941c57",
+      "attribute_key": "danh_sách_sai_tên",
+      "new_value": 3
+    },
+    {
+      "transition_id": "78af0af9-5cd6-5b81-b827-5e78f9b4e913",
+      "entity_id": "538ace40-f6d6-4d33-ace4-aaaeb812d865",
+      "event_id": null,
+      "fact_id": "f74a3256-4b9d-486f-82ca-f9daa70e4288",
+      "attribute_key": "thời_gian_bố_vắng",
+      "new_value": 17
+    },
+    {
+      "transition_id": "00b9c546-97f3-5b73-a27d-0b09fedb7cef",
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "event_id": "78bf3cd7-b21b-5f54-abc9-7f13f42458f1",
+      "fact_id": null,
+      "attribute_key": "location",
+      "new_value": "part of the floor with light"
+    },
+    {
+      "transition_id": "9c05fe17-ad97-5964-a96d-61284d632c27",
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "event_id": null,
+      "fact_id": "bd057d9f-7da1-4aef-8697-769fd9894fc4",
+      "attribute_key": "tai_nghe_status",
+      "new_value": "tháo một bên"
+    },
+    {
+      "transition_id": "7636394b-b580-5bc8-959b-2e92df39f240",
+      "entity_id": "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce",
+      "event_id": null,
+      "fact_id": "3fa9cb85-1c1c-426b-bf48-46e4a19a0f9d",
+      "attribute_key": "activity",
+      "new_value": "buộc lại thuyền"
+    },
+    {
+      "transition_id": "2467d7df-ed11-5141-8118-0e705ed47253",
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "event_id": null,
+      "fact_id": "6117b1f4-cfef-4d50-8034-5b3e69147a06",
+      "attribute_key": "location",
+      "new_value": "trạm Bốn, nhánh tây"
+    },
+    {
+      "transition_id": "3e3c9cbd-befd-5140-a166-c2624492953e",
+      "entity_id": "068d46b0-cb9f-4b71-b37d-86d2e647048d",
+      "event_id": "3ca79f97-e558-5823-b951-6a64933cd4da",
+      "fact_id": null,
+      "attribute_key": "activity",
+      "new_value": "gọi điện thoại cho mẹ"
+    },
+    {
+      "transition_id": "823a0136-9d21-57cc-9df5-14b8f408d6ee",
+      "entity_id": "6672bb63-292e-4281-b8c5-72ef99402bb9",
+      "event_id": null,
+      "fact_id": "921109f2-afb2-49ad-b5fb-e776714bd30b",
+      "attribute_key": "hearing_impairment",
+      "new_value": "Tai trái không nghe"
+    },
+    {
+      "transition_id": "862a7398-2c1a-5b24-8549-9e57f6a62c9f",
+      "entity_id": "6672bb63-292e-4281-b8c5-72ef99402bb9",
+      "event_id": null,
+      "fact_id": "4bbfc188-db47-4726-88ba-cd65ba4cdfb7",
+      "attribute_key": "impairment_duration_years",
+      "new_value": 4
+    },
+    {
+      "transition_id": "3312c3e7-13b8-52a6-9f57-9fd3b45017a6",
+      "entity_id": "46fd7d1b-0cc0-4bbc-bb9f-27a9e22b93ac",
+      "event_id": null,
+      "fact_id": "fcf2d82b-2c37-41ea-8e21-78acc4f3f8d7",
+      "attribute_key": "origin",
+      "new_value": "bộ chuẩn của trạm Bốn"
+    },
+    {
+      "transition_id": "7b7c1496-e9e0-5bdc-840a-43157cc32f64",
+      "entity_id": "569960d5-873f-4bfe-b345-7ac47ae3f0df",
+      "event_id": null,
+      "fact_id": "a8ff6115-1736-43e7-962e-3a7ab2ab728b",
+      "attribute_key": "preservation_limit_touches",
+      "new_value": 3
+    }
+  ],
+  "current_state": {
+    "entities": {
+      "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce": {
+        "age": 19,
+        "activity": "buộc lại thuyền",
+        "vá_áo_mưa": true
+      },
+      "b1368ee4-2815-4aee-8699-3acda0c231c7": {
+        "status": "Dead"
+      },
+      "96fbe5c5-a4c2-47fa-8c86-b99b74f27bd3": {
+        "weather": "không mưa"
+      },
+      "068d46b0-cb9f-4b71-b37d-86d2e647048d": {
+        "activity": "gọi điện thoại cho mẹ",
+        "location": "part of the floor with light",
+        "kho_current_day": 2,
+        "tai_nghe_status": "tháo một bên",
+        "kho_duration_days": 12,
+        "active_relationships": {
+          "survey permit": "conditional permission"
+        }
+      },
+      "29356147-4012-481e-b810-416e50d7dcb6": {
+        "funding_proposal_signer": true
+      },
+      "a999441f-9e37-49c5-9e3b-fdb69f35294e": {
+        "cháo_hành": false,
+        "danh_sách_sai_tên": 3,
+        "trực_trạm_Bốn": true,
+        "danh_sách_treo_tường": 23
+      },
+      "538ace40-f6d6-4d33-ace4-aaaeb812d865": {
+        "thời_gian_bố_vắng": 17
+      },
+      "6672bb63-292e-4281-b8c5-72ef99402bb9": {
+        "hearing_impairment": "Tai trái không nghe",
+        "active_relationships": {
+          "survey permit": "conditional permission"
+        },
+        "impairment_duration_years": 4
+      },
+      "46fd7d1b-0cc0-4bbc-bb9f-27a9e22b93ac": {
+        "origin": "bộ chuẩn của trạm Bốn"
+      },
+      "569960d5-873f-4bfe-b345-7ac47ae3f0df": {
+        "preservation_limit_touches": 3
+      }
+    },
+    "provenance": {
+      "3eb9b4e3-6eec-4bed-aa5d-5518254e17ce": {
+        "age": {
+          "fact_id": "87e534eb-a89f-4076-b8c1-d6fd071f755a",
+          "event_id": null,
+          "transition_id": "84c231f4-4ced-5383-81f1-8560627f5272"
+        },
+        "activity": {
+          "fact_id": "3fa9cb85-1c1c-426b-bf48-46e4a19a0f9d",
+          "event_id": null,
+          "transition_id": "7636394b-b580-5bc8-959b-2e92df39f240"
+        },
+        "vá_áo_mưa": {
+          "fact_id": "d91a93da-daf3-4a9b-bb38-48ad6cff505a",
+          "event_id": null,
+          "transition_id": "443e503b-be26-5bc5-a4c3-3b9a32e580b1"
+        }
+      },
+      "b1368ee4-2815-4aee-8699-3acda0c231c7": {
+        "status": {
+          "fact_id": "ef032515-f8b0-4998-94f4-276c12423025",
+          "event_id": null,
+          "transition_id": "ad6fc488-915d-5209-91e8-97edc2e40415"
+        }
+      },
+      "96fbe5c5-a4c2-47fa-8c86-b99b74f27bd3": {
+        "weather": {
+          "fact_id": "22047f75-6818-4120-8df0-03c5d49e2492",
+          "event_id": null,
+          "transition_id": "b3a03180-951f-5ce6-aaca-1af3fb9b147f"
+        }
+      },
+      "068d46b0-cb9f-4b71-b37d-86d2e647048d": {
+        "activity": {
+          "fact_id": null,
+          "event_id": "3ca79f97-e558-5823-b951-6a64933cd4da",
+          "transition_id": "3e3c9cbd-befd-5140-a166-c2624492953e"
+        },
+        "location": {
+          "fact_id": null,
+          "event_id": "78bf3cd7-b21b-5f54-abc9-7f13f42458f1",
+          "transition_id": "00b9c546-97f3-5b73-a27d-0b09fedb7cef"
+        },
+        "kho_current_day": {
+          "fact_id": "662104f7-bc60-4564-b578-4132087d879d",
+          "event_id": null,
+          "transition_id": "eded2caf-827e-504f-92cd-2f7aa30f25ba"
+        },
+        "tai_nghe_status": {
+          "fact_id": "bd057d9f-7da1-4aef-8697-769fd9894fc4",
+          "event_id": null,
+          "transition_id": "9c05fe17-ad97-5964-a96d-61284d632c27"
+        },
+        "kho_duration_days": {
+          "fact_id": "1aca4054-7628-44cb-b011-dab8b8dd09bb",
+          "event_id": null,
+          "transition_id": "345a73d0-3f1b-5d1e-aef9-21d6897094c8"
+        },
+        "active_relationships": {
+          "fact_id": null,
+          "event_id": "5f1812d8-5fb0-5128-8fd7-671a12a0ba14",
+          "transition_id": "8fc255b5-5459-5d2e-8007-73141376d445"
+        }
+      },
+      "29356147-4012-481e-b810-416e50d7dcb6": {
+        "funding_proposal_signer": {
+          "fact_id": "191e645d-f106-474e-8daa-887cea852deb",
+          "event_id": null,
+          "transition_id": "8007786b-314e-53f7-bca0-0cba863b6b43"
+        }
+      },
+      "a999441f-9e37-49c5-9e3b-fdb69f35294e": {
+        "cháo_hành": {
+          "fact_id": "24622064-5c6a-442f-b6ae-100d7f993a21",
+          "event_id": null,
+          "transition_id": "dbc103e5-74b1-5a0d-8175-89ff7a0d2686"
+        },
+        "danh_sách_sai_tên": {
+          "fact_id": "b7e1aefb-fbd2-45f0-8e43-8a3a70941c57",
+          "event_id": null,
+          "transition_id": "8a38ed40-3351-5801-9316-6f48d7d25c49"
+        },
+        "trực_trạm_Bốn": {
+          "fact_id": "2d88d165-dc6e-4d5a-948f-af9b1255dbb7",
+          "event_id": null,
+          "transition_id": "ab1143ff-c009-553b-b8d7-16c222109911"
+        },
+        "danh_sách_treo_tường": {
+          "fact_id": "69b3e1c3-6dd9-4205-bfec-7b4ea1122d10",
+          "event_id": null,
+          "transition_id": "9f5227f2-7159-5d2a-acec-5205a9bce990"
+        }
+      },
+      "538ace40-f6d6-4d33-ace4-aaaeb812d865": {
+        "thời_gian_bố_vắng": {
+          "fact_id": "f74a3256-4b9d-486f-82ca-f9daa70e4288",
+          "event_id": null,
+          "transition_id": "78af0af9-5cd6-5b81-b827-5e78f9b4e913"
+        }
+      },
+      "6672bb63-292e-4281-b8c5-72ef99402bb9": {
+        "hearing_impairment": {
+          "fact_id": "921109f2-afb2-49ad-b5fb-e776714bd30b",
+          "event_id": null,
+          "transition_id": "823a0136-9d21-57cc-9df5-14b8f408d6ee"
+        },
+        "active_relationships": {
+          "fact_id": null,
+          "event_id": "5f1812d8-5fb0-5128-8fd7-671a12a0ba14",
+          "transition_id": "8bb1c097-a912-57e5-bdba-5d1dd39f21b4"
+        },
+        "impairment_duration_years": {
+          "fact_id": "4bbfc188-db47-4726-88ba-cd65ba4cdfb7",
+          "event_id": null,
+          "transition_id": "862a7398-2c1a-5b24-8549-9e57f6a62c9f"
+        }
+      },
+      "46fd7d1b-0cc0-4bbc-bb9f-27a9e22b93ac": {
+        "origin": {
+          "fact_id": "fcf2d82b-2c37-41ea-8e21-78acc4f3f8d7",
+          "event_id": null,
+          "transition_id": "3312c3e7-13b8-52a6-9f57-9fd3b45017a6"
+        }
+      },
+      "569960d5-873f-4bfe-b345-7ac47ae3f0df": {
+        "preservation_limit_touches": {
+          "fact_id": "a8ff6115-1736-43e7-962e-3a7ab2ab728b",
+          "event_id": null,
+          "transition_id": "7b7c1496-e9e0-5bdc-840a-43157cc32f64"
+        }
+      }
+    },
+    "relationships": [],
+    "projection_version": 1
+  },
+  "metadata": {
+    "brain_id": "2aedf642-1153-4c7b-ba76-b242f1f3b89d",
+    "brain_version": "6",
+    "status": "active",
+    "baseline_revision_id": "df5c3e78-bacc-4eab-823b-d6cd44992b36"
+  }
+}

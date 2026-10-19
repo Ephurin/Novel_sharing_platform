@@ -1,0 +1,8 @@
+{
+  "status": "APPROVED_BY_PRIOR_EXPLICIT_USER_MESSAGE",
+  "payload": "Pipeline_test manuscript, blueprint and generated prose",
+  "destination": "Google Gemini API",
+  "approved_unlimited_budget": true,
+  "provider_generation_calls_in_this_run": 0,
+  "credential_values_recorded": false
+}

@@ -1,0 +1,149 @@
+{
+  "time": "2026-10-17T23:03:26.209291+07:00",
+  "channel": "PUBLIC_API",
+  "method": "GET",
+  "path": "/ai/story-brains/38efd972-da60-4c19-a967-5ef8c62e230a/context-preview?chapter_number=1&character_name=B%C3%A3i+D%C6%B0%E1%BB%9Bi&token_budget=6000",
+  "request": null,
+  "status": 200,
+  "latency_ms": 32,
+  "response": {
+    "success": true,
+    "data": {
+      "brain_version": 2,
+      "entities": [
+        {
+          "entity_id": "b01000c8-5267-45c1-8b8d-ab778d292ef6",
+          "name": "Bãi Dưới",
+          "entity_type": "location",
+          "status": "Alive",
+          "location": "Unknown",
+          "is_locked": false
+        },
+        {
+          "entity_id": "af7f52b9-71a6-4de7-9710-9f4318bf59ea",
+          "name": "Cồn Vân",
+          "entity_type": "location",
+          "status": "Alive",
+          "location": "Unknown",
+          "is_locked": false
+        },
+        {
+          "entity_id": "ac30b01b-8cb5-4e59-8245-30fe7f16c9e7",
+          "name": "Mai Lâm",
+          "entity_type": "character",
+          "status": "Alive",
+          "location": "Unknown",
+          "is_locked": false
+        },
+        {
+          "entity_id": "6df52f75-bd2d-4023-a523-356e15db2572",
+          "name": "Nhân vật phục chế âm thanh",
+          "entity_type": "character",
+          "status": "Alive",
+          "location": "Unknown",
+          "is_locked": false
+        }
+      ],
+      "current_states": [
+        {
+          "entity_id": "b01000c8-5267-45c1-8b8d-ab778d292ef6",
+          "name": "Bãi Dưới",
+          "status": "Alive",
+          "location": "Unknown",
+          "state": {}
+        },
+        {
+          "entity_id": "af7f52b9-71a6-4de7-9710-9f4318bf59ea",
+          "name": "Cồn Vân",
+          "status": "Alive",
+          "location": "Unknown",
+          "state": {}
+        },
+        {
+          "entity_id": "ac30b01b-8cb5-4e59-8245-30fe7f16c9e7",
+          "name": "Mai Lâm",
+          "status": "Alive",
+          "location": "Unknown",
+          "state": {}
+        },
+        {
+          "entity_id": "6df52f75-bd2d-4023-a523-356e15db2572",
+          "name": "Nhân vật phục chế âm thanh",
+          "status": "Alive",
+          "location": "Unknown",
+          "state": {}
+        }
+      ],
+      "recent_events": [],
+      "semantic_memories": [],
+      "world_rules": [
+        {
+          "id": "3eb5d2f5-5c64-4652-80ce-0929355bd9e7",
+          "fact_type": "world_rule",
+          "fact_key": "world_rule_15f48c48eec8858f",
+          "fact_value": "Gốm thanh chỉ lưu âm đã xảy ra",
+          "is_locked": false
+        },
+        {
+          "id": "dcb17471-37c6-4e65-b181-2c1f4a0ece96",
+          "fact_type": "world_rule",
+          "fact_key": "world_rule_c7c5247bb6610913",
+          "fact_value": "Mai Lâm đã chết, không hồi sinh",
+          "is_locked": false
+        },
+        {
+          "id": "9ff56140-c0e8-4f7f-8fd0-cd06d8a779fd",
+          "fact_type": "world_rule",
+          "fact_key": "world_rule_f687977fd8043cc0",
+          "fact_value": "Kế hoạch tương lai không phải lịch sử canon",
+          "is_locked": false
+        }
+      ],
+      "author_constraints": [],
+      "token_budget": {
+        "used": 620,
+        "maximum": 6000,
+        "estimated_before": 620,
+        "budget_overflow": false,
+        "protected_overflow": false,
+        "packing_version": "context-budget-v1",
+        "estimator_version": "utf8-json-bytes-3-v1",
+        "deduplicated_semantic_count": 0,
+        "dropped_artifact_count": 0
+      },
+      "context_summary": {
+        "entity_ids": [
+          "b01000c8-5267-45c1-8b8d-ab778d292ef6",
+          "af7f52b9-71a6-4de7-9710-9f4318bf59ea",
+          "ac30b01b-8cb5-4e59-8245-30fe7f16c9e7",
+          "6df52f75-bd2d-4023-a523-356e15db2572"
+        ],
+        "event_ids": [],
+        "fact_ids": [
+          "3eb5d2f5-5c64-4652-80ce-0929355bd9e7",
+          "dcb17471-37c6-4e65-b181-2c1f4a0ece96",
+          "9ff56140-c0e8-4f7f-8fd0-cd06d8a779fd"
+        ],
+        "cutoff_chapter": 1,
+        "recent_scope_participant_entity_ids": [],
+        "recent_scope_participant_identity": [
+          "normalized-event-participants-v1"
+        ],
+        "semantic_memory_ids": [],
+        "context_packing_version": [
+          "context-budget-v1"
+        ],
+        "context_token_estimator_version": "[REDACTED]",
+        "dropped_entity_ids": [],
+        "dropped_event_ids": [],
+        "dropped_fact_ids": [],
+        "dropped_semantic_memory_ids": [],
+        "deduplicated_semantic_memory_ids": []
+      },
+      "planning_context": null,
+      "current_objective": null
+    },
+    "error": null,
+    "meta": {}
+  }
+}

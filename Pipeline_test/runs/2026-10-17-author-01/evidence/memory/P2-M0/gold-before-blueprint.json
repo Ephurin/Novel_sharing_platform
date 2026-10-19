@@ -1,0 +1,29 @@
+{
+  "time": "2026-10-17T22:59:53.554712+07:00",
+  "request_hash": "f92afc7383932be909deb2de2caf2667587fa150633a5c155cf92edbbe975985",
+  "author_supplied": {
+    "novel_id": "38efd972-da60-4c19-a967-5ef8c62e230a",
+    "idea": "Một người phục chế âm thanh trở về Cồn Vân điều tra lựa chọn của cha trong lũ cũ và ngăn thành phố lặp lại việc hy sinh Bãi Dưới.",
+    "outline": "Kế hoạch tương lai chưa xảy ra: điều tra vật chứng, đối chiếu nhân chứng, chống lũ công khai, công bố trách nhiệm và hậu quả.",
+    "locale": "vi-VN",
+    "preferences": {
+      "genre": [
+        "bí ẩn xã hội"
+      ],
+      "tone": "tiết chế",
+      "target_length": "long_form"
+    },
+    "author_constraints": [
+      "Mai Lâm đã chết, không hồi sinh",
+      "Gốm thanh chỉ lưu âm đã xảy ra",
+      "Kế hoạch tương lai không phải lịch sử canon"
+    ]
+  },
+  "expected_constraints": [
+    "Mai Lâm đã chết, không hồi sinh",
+    "Gốm thanh chỉ lưu âm đã xảy ra",
+    "Kế hoạch tương lai không phải lịch sử canon"
+  ],
+  "negative": "No historical assertion that future rescue/investigation/publication already occurred",
+  "origin_rule": "New blueprint inventions may be model_proposed; not prose extraction"
+}

@@ -1,0 +1,31 @@
+{
+  "time": "2026-10-17T23:03:26.068746+07:00",
+  "based_on": "Gold source/author inputs frozen before extraction; context preview only, no QA API",
+  "probes": [
+    [
+      "Mai Lâm còn sống không?",
+      "Mai Lâm",
+      "Dead; no Alive current state"
+    ],
+    [
+      "Gốm thanh có đọc tương lai không?",
+      "Gốm thanh",
+      "Only past sounds"
+    ],
+    [
+      "Outline đã xảy ra chưa?",
+      "Cồn Vân",
+      "Future plan is not historical canon"
+    ],
+    [
+      "Nhân vật chính có nghề gì?",
+      "Nhân vật phục chế âm thanh",
+      "Sound restorer; model generic identity accepted"
+    ],
+    [
+      "Đã cứu Bãi Dưới chưa?",
+      "Bãi Dưới",
+      "No completed rescue in history"
+    ]
+  ]
+}

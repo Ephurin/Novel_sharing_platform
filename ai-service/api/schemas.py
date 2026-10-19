@@ -28,6 +28,8 @@ class RevisionAnalysisOptions(BaseModel):
     extract_events: bool = True
     extract_state_transitions: bool = False
     extract_world_rules: bool = False
+    extract_prose_facts: bool = True
+    review_fact_coverage: bool = True
     check_consistency: bool = True
     build_embeddings: bool = False
 
@@ -57,6 +59,7 @@ class ProposalEditAcceptRequest(ProposalDecisionRequest):
 class ProposalGroupAcceptRequest(ProposalDecisionRequest):
     proposal_ids: list[str] = Field(..., min_length=1)
     reason: str | None = None
+    edited_payloads: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
 
 class CorrectionEventPayload(BaseModel):
@@ -109,6 +112,7 @@ class IdeaBootstrapRequest(BaseModel):
     locale: str = "vi-VN"
     preferences: IdeaBootstrapPreferences = Field(default_factory=IdeaBootstrapPreferences)
     author_constraints: list[str] = Field(default_factory=list)
+    mode: str = Field(default="extract", pattern="^(extract|blueprint)$")
 
 
 class StoryPlanObjectiveCreate(BaseModel):

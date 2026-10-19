@@ -1,0 +1,1283 @@
+F....................................................................... [ 24%]
+.............................F..........................F............... [ 48%]
+.....................................................F.F................ [ 72%]
+...................................................ss................... [ 96%]
+...........                                                              [100%]
+================================== FAILURES ===================================
+___________________ test_ai_pipe_01_p1_complete_closed_loop ___________________
+
+p1_environment = {'analysis_service': <application.revision_analysis_service.RevisionAnalysisService object at 0x000001D9B26473E0>, 'bo...t\u1ea1i M\u1ea1c Gia.', content_hash='7530e760aff8f8177dd27dc9a934ff1b9c6e21e1293656a643205dcbadad8eeb', chapter_number=2), ...}
+
+    def test_ai_pipe_01_p1_complete_closed_loop(p1_environment):
+        """
+        Executes the decisive Gate AI-PIPE-01 test:
+        IMPORT -> STORY BRAIN -> GENERATE -> ACCEPT -> PERSIST -> INCREMENTAL MEMORY UPDATE -> NEXT GENERATION OBSERVES UPDATED STATE
+        """
+        repo: InMemoryNarrativeRepository = p1_environment["repository"]
+        provider: MutableRevisionProvider = p1_environment["revision_provider"]
+        bootstrap: ManuscriptBootstrapService = p1_environment["bootstrap_service"]
+        analysis: RevisionAnalysisService = p1_environment["analysis_service"]
+        writing: WritingService = p1_environment["writing_service"]
+        ch1: RevisionContent = p1_environment["ch1_rev"]
+        ch2: RevisionContent = p1_environment["ch2_rev"]
+    
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # CHECKPOINT 1 & 2: Import manuscript through production-compatible path
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        revisions_input = [
+            {"chapter_id": ch1.chapter_id, "revision_id": ch1.revision_id, "content_hash": ch1.content_hash},
+            {"chapter_id": ch2.chapter_id, "revision_id": ch2.revision_id, "content_hash": ch2.content_hash},
+        ]
+    
+        job = bootstrap.start(
+            tenant_id=TENANT_ID,
+            novel_id=NOVEL_ID,
+            revisions=revisions_input,
+            locale="vi-VN",
+            options={
+                "extract_world_rules": True,
+                "extract_entities": True,
+                "extract_events": True,
+                "extract_state_transitions": True,
+                "require_review_for_all": True,
+                "build_embeddings": False,
+            },
+        )
+        assert job.status == "queued"
+        assert len(job.revisions) == 2
+    
+        processed_job = bootstrap.process(job.job_id)
+        assert processed_job.status == "waiting_review"
+        assert processed_job.stage == "review"
+        assert processed_job.progress_current == 2
+    
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # CHECKPOINT 3: Confirm immutable chapter/revision provenance exists
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        prov_ch1 = repo.get_revision_provenance(NOVEL_ID, ch1.revision_id)
+        prov_ch2 = repo.get_revision_provenance(NOVEL_ID, ch2.revision_id)
+        assert prov_ch1 is not None and prov_ch1["chapter_number"] == 1
+        assert prov_ch2 is not None and prov_ch2["chapter_number"] == 2
+    
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # CHECKPOINT 4: Confirm extraction produces real narrative structures/proposals
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        pending_proposals = repo.list_proposals(NOVEL_ID, status="pending")
+        assert len(pending_proposals) > 0
+    
+        proposal_types = {p.proposal_type for p in pending_proposals}
+        assert "entity" in proposal_types, "Entity extraction must produce entity proposals"
+        assert "fact" in proposal_types, "World rule extraction must produce fact proposals"
+        assert "event" in proposal_types, "Event extraction must produce event proposals"
+    
+        world_rules = [p for p in pending_proposals if p.proposal_type == "fact"]
+        assert any("Kh\xf4ng ai c\xf3 th\u1ec3 ph\xe1 v\u1ee1 phong \u1ea5n" in p.payload.get("fact_value", "") for p in world_rules)
+    
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # CHECKPOINT 5: Resolve/review proposals to activate Story Brain
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        queue = bootstrap.review_queue(NOVEL_ID)
+        assert len(queue) == len(pending_proposals)
+        # Review queue priorities: world_rules (80) >= events/entities (40-70)
+        assert queue[0]["review_priority"] >= queue[-1]["review_priority"]
+    
+        # Author accepts proposal groups
+        group_ids = list(dict.fromkeys(p.dependency_group_id for p in pending_proposals if p.dependency_group_id))
+        expected_version = 1
+        for gid in group_ids:
+            p_ids = [p.proposal_id for p in pending_proposals if p.dependency_group_id == gid]
+            res = repo.accept_proposal_group(NOVEL_ID, p_ids, expected_brain_version=expected_version)
+            expected_version = res["brain_version"]
+    
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # CHECKPOINT 6: Confirm Story Brain is active with concrete version
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        activated_summary = bootstrap.activate_baseline(NOVEL_ID, job.job_id)
+        assert activated_summary["status"] == "active"
+        brain = repo.get_story_brain(NOVEL_ID)
+        brain_version_baseline = int(brain.metadata.get("brain_version", "1"))
+        assert brain_version_baseline >= 1
+        assert brain.metadata.get("baseline_revision_id") == ch2.revision_id
+    
+        # Verify canonical entities are materialized
+        entity_names = [e.name for e in brain.entities]
+        assert "Ti�u Vi�m" in entity_names
+        assert "H\u1ea3i Ba \u0110\xf4ng" in entity_names
+    
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # CHECKPOINT 7: Request Context Preview for target Chapter 2
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        ctx_preview_before = writing.preview_context(
+            tenant_id=TENANT_ID,
+            story_id=NOVEL_ID,
+            chapter_number=2,
+        )
+        assert ctx_preview_before.brain_version == brain_version_baseline
+        assert any(e["name"] == "Ti�u Vi�m" for e in ctx_preview_before.entities)
+        assert any(e["name"] == "H\u1ea3i Ba \u0110\xf4ng" for e in ctx_preview_before.entities)
+        assert len(ctx_preview_before.world_rules) >= 1
+    
+        # Safe context hash before generation
+        raw_preview_json = json.dumps(
+            {
+                "brain_version": ctx_preview_before.brain_version,
+                "entities": sorted([e["name"] for e in ctx_preview_before.entities]),
+                "world_rules": sorted([r.get("fact_value", "") for r in ctx_preview_before.world_rules]),
+                "recent_events": [evt.get("summary", "") for evt in ctx_preview_before.recent_events],
+            },
+            sort_keys=True,
+        )
+        context_hash_before = sha256_text(raw_preview_json)
+    
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # CHECKPOINT 8, 9, 10: Start AI Writing generation & verify validations
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        gen_job = writing.start_generation(
+            tenant_id=TENANT_ID,
+            novel_id=NOVEL_ID,
+            chapter_id=ch2.chapter_id,
+            revision_id=ch2.revision_id,
+            content_hash=ch2.content_hash,
+            operation="continue",
+            selection={"cursor": len(ch2.content), "start": len(ch2.content), "end": len(ch2.content)},
+            instruction="Ti\u1ebfp t\u1ee5c \u0111o\u1ea1n k\u1ebft ch\u01b0\u01a1ng 2 t\u1ea1i M\u1ea1c Gia",
+            expected_brain_version=brain_version_baseline,
+            chapter_number=2,
+            idempotency_key="idemp-p1-gen-01",
+        )
+    
+        assert gen_job.status == "completed"
+        assert gen_job.validation_status == "passed"
+        assert gen_job.patch is not None
+        assert len(gen_job.validations) > 0
+        assert all(v.passed for v in gen_job.validations)
+        assert gen_job.brain_version_used == brain_version_baseline
+    
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # CHECKPOINT 11 & 12: Accept draft through canonical path & verify persistence
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # Emulate Node backend acceptDraft controller/service
+        assert gen_job.status == "completed" and gen_job.validation_status == "passed"
+        # Story brain version check
+        current_brain = repo.get_story_brain(NOVEL_ID)
+        assert int(current_brain.metadata.get("brain_version", "1")) <= gen_job.brain_version_used
+    
+        # Apply patch to Chapter 2 content
+        patch_dict = {"start": gen_job.patch.start, "end": gen_job.patch.end, "replacement": gen_job.patch.replacement}
+        new_ch2_content = apply_patch_to_content(ch2.content, patch_dict)
+        new_ch2_hash = sha256_text(new_ch2_content)
+        rev3_id = str(uuid.uuid4())
+    
+        # Simulated revision row in chapter_revisions
+        accepted_revision = RevisionContent(
+            revision_id=rev3_id,
+            novel_id=NOVEL_ID,
+            chapter_id=CH2_ID,
+            content=new_ch2_content,
+            content_hash=new_ch2_hash,
+            chapter_number=2,
+        )
+        provider.add_revision(accepted_revision)
+    
+        # Persistence invariants:
+        revision_record = {
+            "revision_id": rev3_id,
+            "chapter_id": CH2_ID,
+            "parent_revision_id": ch2.revision_id,
+            "content_hash": new_ch2_hash,
+            "source_type": "AI_DRAFT_ACCEPT",
+            "source_generation_id": gen_job.job_id,
+            "chapter_latest_revision_id": rev3_id,
+        }
+        assert revision_record["source_type"] == "AI_DRAFT_ACCEPT"
+        assert revision_record["source_generation_id"] == gen_job.job_id
+    
+        # Simulated Transactional Outbox event
+        outbox_event = {
+            "event_id": str(uuid.uuid4()),
+            "event_type": "INCREMENTAL_ANALYSIS",
+            "novel_id": NOVEL_ID,
+            "chapter_id": CH2_ID,
+            "revision_id": rev3_id,
+            "content_hash": new_ch2_hash,
+            "status": "PENDING",
+        }
+        assert outbox_event["event_type"] == "INCREMENTAL_ANALYSIS"
+    
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # CHECKPOINT 13 & 14: Process incremental analysis path & verify Story Brain update
+        # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        # Outbox processor handles event -> POST /v1/revisions/{rev3_id}/analyses
+        repo.record_revision_provenance(
+            story_id=NOVEL_ID,
+            chapter_id=CH2_ID,
+            revision_id=rev3_id,
+            chapter_number=2,
+        )
+    
+>       inc_result = analysis.analyze(
+            tenant_id=TENANT_ID,
+            novel_id=NOVEL_ID,
+            chapter_id=CH2_ID,
+            revision_id=rev3_id,
+            content_hash=new_ch2_hash,
+            operation="incremental_story_analysis",
+            idempotency_key=f"analysis-{rev3_id}",
+            options={
+                "extract_entities": True,
+                "extract_events": True,
+                "extract_state_transitions": False,
+                "extract_world_rules": False,
+            },
+        )
+
+tests\test_ai_pipe_01_p1_closed_loop.py:353: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+application\revision_analysis_service.py:336: in analyze
+    proposals = reconcile_proposals(replace(brain, facts=tuple(enriched)), proposals, chapter_number,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+brain = StoryBrain(story_id='10000000-0000-0000-0000-000000000001', entities=(NarrativeEntity(name='Ti�u Vi�m', entity_id='90c...}, metadata={'brain_version': '3', 'status': 'active', 'baseline_revision_id': '30000000-0000-0000-0000-000000000002'})
+proposals = [NarrativeProposal(proposal_id='a22fff98-0e54-5a8f-bb2b-cd21396bc6ce', proposal_type='entity', payload={'canonical_nam... x\u0103m.'},), confidence=0.8, expected_brain_version=3, status=<ProposalStatus.PENDING: 'pending'>, decision_reason=None)]
+chapter_number = 2
+content = 'Ti\xeau Vi\xeam v\xe0 H\u1ea3i Ba \u0110\xf4ng ph\xe1 tr\u1eadn ph\xe1p t\u1ea1i M\u1ea1c Gia.Ti\xeau Vi\xeam th\u1edf d\xe0i m\u1ed9t h\u01a1i, ch\u1eadm r\xe3i thu h\u1ed3i D\u1ecb H\u1ecfa, \xe1nh m\u1eaft nh\xecn v\u1ec1 ph\xeda ch\xe2n tr\u1eddi xa x\u0103m.'
+llm = <core.fake_llm.FakeDeterministicLLMService object at 0x000001D9B2647560>
+
+    def reconcile_proposals(brain, proposals, chapter_number, content, llm):
+        prior = {}
+        for e in active_events(brain.events):
+            if e.chapter == chapter_number:
+                prior[e.event_id] = {'kind': 'event', 'payload': {**e.metadata, 'summary': e.summary,
+                    'event_type': e.event_type, 'participants': list(e.participants)}}
+        for f in active_facts(brain.facts):
+            if f.get('chapter_number') == chapter_number:
+                prior[str(f.get('fact_id') or f.get('id'))] = {'kind': 'fact', 'payload': f}
+        candidates = {p.proposal_id: p for p in proposals if p.proposal_type in {'event', 'fact'}}
+        if not prior:
+            return [replace(p, payload={**p.payload, 'reconciliation_base_ids': []})
+                    if p.proposal_type in {'event', 'fact'} else p for p in proposals]
+        raw = call_structured(llm, operation='canon_reconciliation', system_prompt=(
+            'Compare extracted propositions against approved canon for ONE chapter revision. '
+            'Return a decision for EVERY candidate. reuse means the SAME real occurrence/proposition '
+            'is already recorded, even if summary, event_type or entity spelling differs. '
+            'replace means that same occurrence was actually changed by the author. new means a '
+            'distinct occurrence, including a genuinely repeated action at another time or position. '
+            'Do not merge merely because participants, action or attribute keys match. Use source '
+            'quotes, narrative time and context. One target may be matched only once. '
+            'removed_ids are approved occurrences explicitly removed from this revision, NOT merely '
+            'missed by extraction. Never retire an occurrence still supported by the source. '
+            'No future plans or guesses. Schema: ' + json.dumps(CanonComparison.model_json_schema())),
+            user_prompt=json.dumps({'source_text': content, 'approved': prior, 'candidates': [
+                {'proposal_id': p.proposal_id, 'kind': p.proposal_type, 'payload': p.payload, 'evidence': p.evidence}
+                for p in candidates.values()]}, ensure_ascii=False, default=str))
+>       result = CanonComparison.model_validate_json(raw)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for CanonComparison
+E       decisions
+E         Field required [type=missing, input_value={}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+
+services\canon_reconciliation.py:49: ValidationError
+------------------------------ Captured log call ------------------------------
+WARNING  fake-llm:fake_llm.py:136 Unrecognized prompt in Fake LLM, returning empty object
+__________ test_gemini_structured_budget_json_mode_and_source_trace ___________
+
+self = <core.llm_service.LLMService object at 0x000001D9B52D5B80>
+system_prompt = 'normal', user_prompt = 'normal'
+
+    def _call_gemini(self, system_prompt: str, user_prompt: str) -> str:
+        try:
+            from google import genai
+        except Exception as exc:
+            raise LLMServiceError("google-genai is not installed") from exc
+    
+        client = genai.Client(api_key=self.api_key)
+        last_error: Exception | None = None
+        merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
+    
+        for model_name in self._gemini_model_candidates():
+            for attempt in range(4):
+                try:
+                    structured = structured_request.get()
+                    config = {
+                        "temperature": self.temperature,
+                        "max_output_tokens": structured["max_output_tokens"] if structured else self.max_tokens,
+                    }
+                    if structured:
+                        config["response_mime_type"] = "application/json"
+                        if structured["operation"] == "event_extraction":
+                            from core.structured_outputs import NarrativeEventOutput
+                            from pydantic import BaseModel
+                            class EventBatch(BaseModel):
+                                events: list[NarrativeEventOutput]
+                            config["response_json_schema"] = EventBatch.model_json_schema()
+>                   elif structured["operation"] in {"prose_fact_extraction", "prose_fact_coverage"}:
+                         ^^^^^^^^^^^^^^^^^^^^^^^
+E                   TypeError: 'NoneType' object is not subscriptable
+
+core\llm_service.py:299: TypeError
+
+The above exception was the direct cause of the following exception:
+
+caplog = <_pytest.logging.LogCaptureFixture object at 0x000001D9B52D6990>
+
+    def test_gemini_structured_budget_json_mode_and_source_trace(caplog):
+        captured = []
+        response = SimpleNamespace(text='{"entities":[]}', candidates=[SimpleNamespace(finish_reason="STOP")],
+                                   response_id="provider-test-id", usage_metadata=SimpleNamespace(prompt_token_count=42))
+        service = LLMService(provider="gemini", api_key="test-key", model="test-model", structured_max_tokens=4096)
+        with patch.dict("sys.modules", {"google": SimpleNamespace(genai=fake_google(response, captured)), "google.genai": fake_google(response, captured)}), caplog.at_level("INFO"):
+            with source_scope(revision_id="revision-123", content_hash="a" * 64):
+                assert service._call_structured(operation="entity_extraction", system_prompt="JSON only", user_prompt="PRIVATE_MANUSCRIPT") == response.text
+>           service._call_llm(system_prompt="normal", user_prompt="normal")
+
+tests\test_m0_repairs.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+core\llm_service.py:257: in _call_llm
+    return self._call_gemini(system_prompt=system_prompt, user_prompt=user_prompt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <core.llm_service.LLMService object at 0x000001D9B52D5B80>
+system_prompt = 'normal', user_prompt = 'normal'
+
+    def _call_gemini(self, system_prompt: str, user_prompt: str) -> str:
+        try:
+            from google import genai
+        except Exception as exc:
+            raise LLMServiceError("google-genai is not installed") from exc
+    
+        client = genai.Client(api_key=self.api_key)
+        last_error: Exception | None = None
+        merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
+    
+        for model_name in self._gemini_model_candidates():
+            for attempt in range(4):
+                try:
+                    structured = structured_request.get()
+                    config = {
+                        "temperature": self.temperature,
+                        "max_output_tokens": structured["max_output_tokens"] if structured else self.max_tokens,
+                    }
+                    if structured:
+                        config["response_mime_type"] = "application/json"
+                        if structured["operation"] == "event_extraction":
+                            from core.structured_outputs import NarrativeEventOutput
+                            from pydantic import BaseModel
+                            class EventBatch(BaseModel):
+                                events: list[NarrativeEventOutput]
+                            config["response_json_schema"] = EventBatch.model_json_schema()
+                    elif structured["operation"] in {"prose_fact_extraction", "prose_fact_coverage"}:
+                            from services.prose_facts import ProseFacts
+                            config["response_json_schema"] = ProseFacts.model_json_schema()
+                    elif structured['operation'] == 'canon_reconciliation':
+                        from services.canon_reconciliation import CanonComparison
+                        config['response_json_schema'] = CanonComparison.model_json_schema()
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=merged_prompt,
+                        config=config,
+                    )
+                    text = self._extract_gemini_text(response)
+                    candidates = getattr(response, "candidates", None) or []
+                    self._record_structured_response(response, text, provider="gemini", model=model_name,
+                                                     finish=getattr(candidates[0], "finish_reason", None) if candidates else None)
+                    if text:
+                        self.model = model_name
+                        return text
+    
+                    last_error = RuntimeError("Gemini returned empty response")
+                except Exception as exc:
+                    last_error = exc
+                    message = str(exc).lower()
+                    if self._is_quota_error(exc) or "429" in message or "resource_exhausted" in message:
+                        if attempt < 3:
+                            sleep_s = (attempt + 1) * 3
+                            logger.warning("Gemini 429 quota hit on %s (attempt %d/4). Sleeping %ds...", model_name, attempt + 1, sleep_s)
+                            time.sleep(sleep_s)
+                            continue
+                    # Retry other model aliases when configured model is deprecated or unavailable.
+                    if "not found" in message or "not supported" in message:
+                        break
+>                   raise LLMServiceError(f"Gemini request failed: {exc}") from exc
+E                   core.llm_service.LLMServiceError: Gemini request failed: 'NoneType' object is not subscriptable
+
+core\llm_service.py:331: LLMServiceError
+------------------------------ Captured log call ------------------------------
+INFO     core.llm_service:llm_service.py:239 structured_provider_response {"trace_id": "e4a417ee-cc5d-4454-bace-b5728ba4c511", "operation": "entity_extraction", "source": {"revision_id": "revision-123", "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}, "system_prompt_sha256": "51dd0f9aee79db5bfaa1e0ed31b8c5e261db0aed1d5702c0c86e7475d9f951d0", "input_sha256": "f7b9a7827ad8e6d2d507e96a1a991b80f4baaca212a16269c2a007b9f9c82e5b", "max_output_tokens": 4096, "provider": "gemini", "model": "models/test-model", "finish_reason": "STOP", "response_id": "provider-test-id", "response_sha256": "8add43ad725ec5deef72e26db17a80850dc88f50e2aeb908d4e4913e5d976af5", "response_characters": 15, "usage": {"prompt_token_count": 42}}
+_ test_gemini_receives_schema_for_event_and_fact_batches[prose_fact_extraction-facts] _
+
+operation = 'prose_fact_extraction', field = 'facts'
+
+    @pytest.mark.parametrize('operation,field', [('event_extraction', 'events'), ('prose_fact_extraction', 'facts')])
+    def test_gemini_receives_schema_for_event_and_fact_batches(operation, field):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from core.llm_service import LLMService
+        from tests.test_m0_repairs import fake_google
+        captured = []
+        response = SimpleNamespace(text=json.dumps({field: []}), candidates=[SimpleNamespace(finish_reason='STOP')])
+        module = fake_google(response, captured)
+        service = LLMService(provider='gemini', api_key='test-key', model='test-model')
+        with patch.dict('sys.modules', {'google': SimpleNamespace(genai=module), 'google.genai': module}):
+            service._call_structured(operation=operation, system_prompt='schema', user_prompt='synthetic source')
+>       assert captured[0]['config']['response_json_schema']['properties'][field]['type'] == 'array'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'response_json_schema'
+
+tests\test_memory_grounding_repairs.py:140: KeyError
+____ RevisionAnalysisRouteTests.test_analyze_list_accept_and_reject_routes ____
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_utils.py", line 79, in collapse_excgroups
+  |     yield
+  |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 183, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 799, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\unittest\case.py", line 58, in testPartExecutor
+    |     yield
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\unittest\case.py", line 634, in run
+    |     self._callTestMethod(testMethod)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\unittest\case.py", line 589, in _callTestMethod
+    |     if method() is not None:
+    |        ^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\tests\test_revision_analysis_routes.py", line 72, in test_analyze_list_accept_and_reject_routes
+    |     analyzed = self.client.post(
+    |                ^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 552, in post
+    |     return super().post(
+    |            ^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1144, in post
+    |     return self.request(
+    |            ^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 451, in request
+    |     return super().request(
+    |            ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 825, in request
+    |     return self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 914, in send
+    |     response = self._send_handling_auth(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 942, in _send_handling_auth
+    |     response = self._send_handling_redirects(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 979, in _send_handling_redirects
+    |     response = self._send_single_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1014, in _send_single_request
+    |     response = transport.handle_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 354, in handle_request
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 351, in handle_request
+    |     portal.call(self.app, scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py", line 334, in call
+    |     return cast(T_Retval, self.start_task_soon(func, *args).result())
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 456, in result
+    |     return self.__get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    |     raise self._exception
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py", line 259, in _call_func
+    |     retval = await retval_or_awaitable
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\applications.py", line 113, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    |     self.gen.throw(value)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_utils.py", line 85, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py", line 158, in request_timing_middleware
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 78, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 75, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py", line 302, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py", line 215, in run_endpoint_function
+    |     return await run_in_threadpool(dependant.call, **values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\concurrency.py", line 38, in run_in_threadpool
+    |     return await anyio.to_thread.run_sync(func)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    |     return await get_async_backend().run_sync_in_worker_thread(
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    |     return await future
+    |            ^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    |     result = context.run(func, *args)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\api\narrative_routes.py", line 724, in analyze_revision
+    |     result = service.analyze(
+    |              ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\application\revision_analysis_service.py", line 305, in analyze
+    |     for fact in extract_prose_facts(revision.content, self._llm_service,
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\services\prose_facts.py", line 44, in extract_prose_facts
+    |     review = call_structured(llm, operation='prose_fact_coverage', system_prompt=(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\core\structured_call.py", line 25, in call_structured
+    |     return service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\tests\test_revision_analysis_routes.py", line 34, in _call_llm
+    |     return self.responses.pop(0)
+    |            ^^^^^^^^^^^^^^^^^^^^^
+    | IndexError: pop from empty list
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\tests\test_revision_analysis_routes.py", line 72, in test_analyze_list_accept_and_reject_routes
+    analyzed = self.client.post(
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 552, in post
+    return super().post(
+           ^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1144, in post
+    return self.request(
+           ^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 451, in request
+    return super().request(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 354, in handle_request
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 351, in handle_request
+    portal.call(self.app, scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py", line 334, in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py", line 259, in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py", line 158, in request_timing_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py", line 215, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\concurrency.py", line 38, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\api\narrative_routes.py", line 724, in analyze_revision
+    result = service.analyze(
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\application\revision_analysis_service.py", line 305, in analyze
+    for fact in extract_prose_facts(revision.content, self._llm_service,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\services\prose_facts.py", line 44, in extract_prose_facts
+    review = call_structured(llm, operation='prose_fact_coverage', system_prompt=(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\core\structured_call.py", line 25, in call_structured
+    return service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\tests\test_revision_analysis_routes.py", line 34, in _call_llm
+    return self.responses.pop(0)
+           ^^^^^^^^^^^^^^^^^^^^^
+IndexError: pop from empty list
+
+During handling of the above exception, another exception occurred:
+
+self = <tests.test_revision_analysis_routes.RevisionAnalysisRouteTests testMethod=test_analyze_list_accept_and_reject_routes>
+
+    def test_analyze_list_accept_and_reject_routes(self) -> None:
+>       analyzed = self.client.post(
+            "/v1/revisions/revision-route/analyses",
+            headers=self.headers,
+            json={
+                "novel_id": "novel-route",
+                "chapter_id": "chapter-route",
+                "content_hash": self.content_hash,
+                "options": {"extract_entities": True, "extract_events": True},
+            },
+        )
+
+tests\test_revision_analysis_routes.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py:552: in post
+    return super().post(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:1144: in post
+    return self.request(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py:451: in request
+    return super().request(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py:354: in handle_request
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py:351: in handle_request
+    portal.call(self.app, scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py:334: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py:259: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_utils.py:85: in collapse_excgroups
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+main.py:158: in request_timing_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py:159: in call_next
+    raise app_exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:736: in app
+    await route.handle(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:290: in handle
+    await self.app(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:78: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:75: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:302: in app
+    raw_response = await run_endpoint_function(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:215: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\concurrency.py:38: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py:2518: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py:1002: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+api\narrative_routes.py:724: in analyze_revision
+    result = service.analyze(
+application\revision_analysis_service.py:305: in analyze
+    for fact in extract_prose_facts(revision.content, self._llm_service,
+services\prose_facts.py:44: in extract_prose_facts
+    review = call_structured(llm, operation='prose_fact_coverage', system_prompt=(
+core\structured_call.py:25: in call_structured
+    return service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <tests.test_revision_analysis_routes.FakeLLMService object at 0x000001D9B5941CA0>
+system_prompt = 'Review coverage of extracted atomic narrative facts against the original prose. Return only missing facts, not repeti...defs/ProseFact"}, "title": "Facts", "type": "array"}}, "required": ["facts"], "title": "ProseFacts", "type": "object"}'
+user_prompt = '{"source_text": "Minh b\u01b0\u1edbc v\xe0o th\xe0nh.", "known_entities": ["Minh"], "extracted": []}'
+
+    def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
+>       return self.responses.pop(0)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: pop from empty list
+
+tests\test_revision_analysis_routes.py:34: IndexError
+_ RevisionAnalysisRouteTests.test_reject_endpoint_does_not_materialize_entity _
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_utils.py", line 79, in collapse_excgroups
+  |     yield
+  |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 183, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 799, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\unittest\case.py", line 58, in testPartExecutor
+    |     yield
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\unittest\case.py", line 634, in run
+    |     self._callTestMethod(testMethod)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\unittest\case.py", line 589, in _callTestMethod
+    |     if method() is not None:
+    |        ^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\tests\test_revision_analysis_routes.py", line 109, in test_reject_endpoint_does_not_materialize_entity
+    |     self.client.post(
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 552, in post
+    |     return super().post(
+    |            ^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1144, in post
+    |     return self.request(
+    |            ^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 451, in request
+    |     return super().request(
+    |            ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 825, in request
+    |     return self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 914, in send
+    |     response = self._send_handling_auth(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 942, in _send_handling_auth
+    |     response = self._send_handling_redirects(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 979, in _send_handling_redirects
+    |     response = self._send_single_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1014, in _send_single_request
+    |     response = transport.handle_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 354, in handle_request
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 351, in handle_request
+    |     portal.call(self.app, scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py", line 334, in call
+    |     return cast(T_Retval, self.start_task_soon(func, *args).result())
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 456, in result
+    |     return self.__get_result()
+    |            ^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    |     raise self._exception
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py", line 259, in _call_func
+    |     retval = await retval_or_awaitable
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\applications.py", line 113, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    |     self.gen.throw(value)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_utils.py", line 85, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py", line 158, in request_timing_middleware
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 78, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 75, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py", line 302, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py", line 215, in run_endpoint_function
+    |     return await run_in_threadpool(dependant.call, **values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\concurrency.py", line 38, in run_in_threadpool
+    |     return await anyio.to_thread.run_sync(func)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    |     return await get_async_backend().run_sync_in_worker_thread(
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    |     return await future
+    |            ^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    |     result = context.run(func, *args)
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\api\narrative_routes.py", line 724, in analyze_revision
+    |     result = service.analyze(
+    |              ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\application\revision_analysis_service.py", line 305, in analyze
+    |     for fact in extract_prose_facts(revision.content, self._llm_service,
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\services\prose_facts.py", line 44, in extract_prose_facts
+    |     review = call_structured(llm, operation='prose_fact_coverage', system_prompt=(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\core\structured_call.py", line 25, in call_structured
+    |     return service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\tests\test_revision_analysis_routes.py", line 34, in _call_llm
+    |     return self.responses.pop(0)
+    |            ^^^^^^^^^^^^^^^^^^^^^
+    | IndexError: pop from empty list
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\tests\test_revision_analysis_routes.py", line 109, in test_reject_endpoint_does_not_materialize_entity
+    self.client.post(
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 552, in post
+    return super().post(
+           ^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1144, in post
+    return self.request(
+           ^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 451, in request
+    return super().request(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 354, in handle_request
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py", line 351, in handle_request
+    portal.call(self.app, scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py", line 334, in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py", line 259, in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py", line 158, in request_timing_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py", line 215, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\concurrency.py", line 38, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\api\narrative_routes.py", line 724, in analyze_revision
+    result = service.analyze(
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\application\revision_analysis_service.py", line 305, in analyze
+    for fact in extract_prose_facts(revision.content, self._llm_service,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\services\prose_facts.py", line 44, in extract_prose_facts
+    review = call_structured(llm, operation='prose_fact_coverage', system_prompt=(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\core\structured_call.py", line 25, in call_structured
+    return service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\tests\test_revision_analysis_routes.py", line 34, in _call_llm
+    return self.responses.pop(0)
+           ^^^^^^^^^^^^^^^^^^^^^
+IndexError: pop from empty list
+
+During handling of the above exception, another exception occurred:
+
+self = <tests.test_revision_analysis_routes.RevisionAnalysisRouteTests testMethod=test_reject_endpoint_does_not_materialize_entity>
+
+    def test_reject_endpoint_does_not_materialize_entity(self) -> None:
+>       self.client.post(
+            "/v1/revisions/revision-route/analyses",
+            headers=self.headers,
+            json={
+                "novel_id": "novel-route",
+                "chapter_id": "chapter-route",
+                "content_hash": self.content_hash,
+                "options": {"extract_entities": True, "extract_events": True},
+            },
+        )
+
+tests\test_revision_analysis_routes.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py:552: in post
+    return super().post(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:1144: in post
+    return self.request(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py:451: in request
+    return super().request(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py:354: in handle_request
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\testclient.py:351: in handle_request
+    portal.call(self.app, scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py:334: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\from_thread.py:259: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_utils.py:85: in collapse_excgroups
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+main.py:158: in request_timing_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py:159: in call_next
+    raise app_exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:736: in app
+    await route.handle(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:290: in handle
+    await self.app(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:78: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\routing.py:75: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:302: in app
+    raw_response = await run_endpoint_function(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:215: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\starlette\concurrency.py:38: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\to_thread.py:63: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py:2518: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\anyio\_backends\_asyncio.py:1002: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+api\narrative_routes.py:724: in analyze_revision
+    result = service.analyze(
+application\revision_analysis_service.py:305: in analyze
+    for fact in extract_prose_facts(revision.content, self._llm_service,
+services\prose_facts.py:44: in extract_prose_facts
+    review = call_structured(llm, operation='prose_fact_coverage', system_prompt=(
+core\structured_call.py:25: in call_structured
+    return service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <tests.test_revision_analysis_routes.FakeLLMService object at 0x000001D9B5A43D40>
+system_prompt = 'Review coverage of extracted atomic narrative facts against the original prose. Return only missing facts, not repeti...defs/ProseFact"}, "title": "Facts", "type": "array"}}, "required": ["facts"], "title": "ProseFacts", "type": "object"}'
+user_prompt = '{"source_text": "Minh b\u01b0\u1edbc v\xe0o th\xe0nh.", "known_entities": ["Minh"], "extracted": []}'
+
+    def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
+>       return self.responses.pop(0)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: pop from empty list
+
+tests\test_revision_analysis_routes.py:34: IndexError
+============================== warnings summary ===============================
+main.py:164
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:164: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+main.py:169
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:169: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_ai_pipe_01_p1_closed_loop.py::test_ai_pipe_01_p1_complete_closed_loop
+FAILED tests/test_m0_repairs.py::test_gemini_structured_budget_json_mode_and_source_trace
+FAILED tests/test_memory_grounding_repairs.py::test_gemini_receives_schema_for_event_and_fact_batches[prose_fact_extraction-facts]
+FAILED tests/test_revision_analysis_routes.py::RevisionAnalysisRouteTests::test_analyze_list_accept_and_reject_routes
+FAILED tests/test_revision_analysis_routes.py::RevisionAnalysisRouteTests::test_reject_endpoint_does_not_materialize_entity
+5 failed, 292 passed, 2 skipped, 42 deselected, 4 warnings in 13.62s

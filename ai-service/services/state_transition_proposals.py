@@ -1,4 +1,5 @@
 """Generate reviewable state changes; the LLM never mutates canonical state."""
+from core.structured_call import call_structured
 import json
 import uuid
 from typing import Any
@@ -23,13 +24,14 @@ def generate_state_transition_proposals(event: NarrativeProposal, llm_service) -
     if not participants:
         return []
     try:
-        raw = llm_service._call_llm(
+        raw = call_structured(llm_service, operation="state_transition_extraction",
             system_prompt=(
                 "Extract only state changes explicitly supported by this event. Return JSON with a transitions array. "
                 "Each item has entity (exact participant name), attribute_key, new_value and confidence (0..1). "
                 "Health is numeric 0..100. active_relationships is a mapping of entity names to relationship types. "
-                "Do not invent defaults or infer changes without evidence. Preserve original proper nouns."),
-            user_prompt=json.dumps(event.payload, ensure_ascii=False))
+                "Use the original source quotes to verify the event summary. Reported or hypothetical claims "
+                "must not change confirmed state. Do not invent defaults or infer changes without evidence. Preserve original proper nouns."),
+            user_prompt=json.dumps({"event": event.payload, "source_quotes": [e.get("quote") for e in event.evidence if e.get("quote")]}, ensure_ascii=False))
         changes = [TransitionOutput.model_validate(item) for item in _parse_items(raw, "transitions")]
     except (ValidationError, ValueError) as exc:
         raise StateExtractionError(f"Invalid transition output: {exc}") from exc

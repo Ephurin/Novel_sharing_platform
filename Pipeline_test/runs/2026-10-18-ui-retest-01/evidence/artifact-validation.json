@@ -1,0 +1,11 @@
+{
+  "artifact_integrity": "PASS",
+  "scope": "Report/evidence consistency only, not UI/product acceptance",
+  "run_status": "BLOCKED",
+  "short_loop_rows": 11,
+  "screenshots": 1,
+  "new_canonical_chapters": 0,
+  "provider_generation_calls": 0,
+  "evidence_files": 15,
+  "screenshot_sha256": "02e3f9873716506d8e5af2571fb98514f0766b4f2f0e8b9cadb735181b435740"
+}

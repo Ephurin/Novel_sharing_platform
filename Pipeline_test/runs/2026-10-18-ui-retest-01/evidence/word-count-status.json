@@ -1,0 +1,11 @@
+{
+  "status": "NOT_RUN",
+  "reason": "No novel imported/exported in this run",
+  "canonical_words": null,
+  "new_written_words": 0,
+  "fixture_source_words": 4747,
+  "target_words": 100000,
+  "accepted_min": 95000,
+  "accepted_max": 105000,
+  "prior_run_words_not_attributed": true
+}

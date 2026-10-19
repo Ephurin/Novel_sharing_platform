@@ -1,0 +1,36 @@
+{
+  "time": "2026-10-17T22:59:39.964294+07:00",
+  "channel": "PUBLIC_API",
+  "method": "POST",
+  "path": "/novels",
+  "request": {
+    "title": "P2 idea probe — 2026-10-17-author-01",
+    "synopsis": "Dự án kiểm thử idea bootstrap độc lập, không dùng làm bản truyện chính.",
+    "genre": "Bí ẩn xã hội",
+    "tags": [
+      "pipeline-test",
+      "P2"
+    ]
+  },
+  "status": 201,
+  "latency_ms": 32,
+  "response": {
+    "success": true,
+    "data": {
+      "novelId": "38efd972-da60-4c19-a967-5ef8c62e230a",
+      "authorId": "86c6646a-5c29-478e-89bb-74c7a9326ce0",
+      "title": "P2 idea probe — 2026-10-17-author-01",
+      "slug": "p2-idea-probe-2026-10-17-author-01-da074952",
+      "synopsis": "Dự án kiểm thử idea bootstrap độc lập, không dùng làm bản truyện chính.",
+      "coverImageUrl": null,
+      "status": "DRAFT",
+      "serialStatus": "ONGOING",
+      "ageRating": "TEEN",
+      "likesCount": 0,
+      "viewsCount": 0,
+      "chaptersCount": 0
+    },
+    "error": null,
+    "meta": {}
+  }
+}

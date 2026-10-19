@@ -1,0 +1,5 @@
+{
+  "/v1/story-brains/{novel_id}/memory": false,
+  "/v1/story-brains/{novel_id}/author-operation": false,
+  "idea_mode_field_present": false
+}

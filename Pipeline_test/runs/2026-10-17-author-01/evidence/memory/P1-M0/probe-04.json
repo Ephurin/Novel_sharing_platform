@@ -1,0 +1,83 @@
+{
+  "time": "2026-10-17T23:03:26.040737+07:00",
+  "channel": "PUBLIC_API",
+  "method": "GET",
+  "path": "/ai/story-brains/8bfd205f-c055-45e4-beda-e81a24b7854b/context-preview?chapter_number=5&character_name=Tr%E1%BA%A7n+Duy&token_budget=6000",
+  "request": null,
+  "status": 200,
+  "latency_ms": 16,
+  "response": {
+    "success": true,
+    "data": {
+      "brain_version": 1,
+      "entities": [],
+      "current_states": [],
+      "recent_events": [],
+      "semantic_memories": [],
+      "world_rules": [],
+      "author_constraints": [],
+      "token_budget": {
+        "used": 293,
+        "maximum": 6000,
+        "estimated_before": 293,
+        "budget_overflow": false,
+        "protected_overflow": false,
+        "packing_version": "context-budget-v1",
+        "estimator_version": "utf8-json-bytes-3-v1",
+        "deduplicated_semantic_count": 0,
+        "dropped_artifact_count": 0
+      },
+      "context_summary": {
+        "entity_ids": [],
+        "event_ids": [],
+        "fact_ids": [],
+        "cutoff_chapter": 5,
+        "recent_scope_participant_entity_ids": [],
+        "recent_scope_participant_identity": [
+          "normalized-event-participants-v1"
+        ],
+        "plan_id": [
+          "3d04cbef-32dc-4a5e-89da-a1a31a49fa5e"
+        ],
+        "plan_version": [
+          "1"
+        ],
+        "active_objective_id": [
+          "9d99f036-f121-4527-b6f2-d1ef69c3cdf5"
+        ],
+        "active_objective_title": [
+          "Ba tiếng gõ"
+        ],
+        "semantic_memory_ids": [],
+        "context_packing_version": [
+          "context-budget-v1"
+        ],
+        "context_token_estimator_version": "[REDACTED]",
+        "dropped_entity_ids": [],
+        "dropped_event_ids": [],
+        "dropped_fact_ids": [],
+        "dropped_semantic_memory_ids": [],
+        "deduplicated_semantic_memory_ids": []
+      },
+      "planning_context": {
+        "plan_id": "3d04cbef-32dc-4a5e-89da-a1a31a49fa5e",
+        "plan_version": 1,
+        "status": "active",
+        "source_outline_hash": "f2f9ca25ba9ff3df5e84569b4284d8c9f54748ce06c5257c341e58d7264fc312",
+        "total_objectives": 36,
+        "active_objective_id": "9d99f036-f121-4527-b6f2-d1ef69c3cdf5"
+      },
+      "current_objective": {
+        "objective_id": "9d99f036-f121-4527-b6f2-d1ef69c3cdf5",
+        "order_index": 1,
+        "target_chapter": 5,
+        "objective_type": "chapter_goal",
+        "title": "Ba tiếng gõ",
+        "description": "Khảo sát tiếng gõ dưới trạm. Tiêu chí tác giả: Giải thích tiếng gõ bằng cơ cấu thật và phát hiện lối vận hành phụ. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+        "status": "pending"
+      }
+    },
+    "error": null,
+    "meta": {}
+  }
+}

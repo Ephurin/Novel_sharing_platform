@@ -1,0 +1,120 @@
+{
+  "fixture_id": "PT-CV-001",
+  "fixture_version": "1.0.0",
+  "task_revision": "1.2",
+  "run_id": "2026-10-18-ui-retest-01",
+  "status": "BLOCKED",
+  "mode": "UI_ONLY",
+  "started_at": "2026-10-18T16:47:55.726776+07:00",
+  "code_sha": "390b09fd043ec29db84519a9d195b59b76eec003",
+  "working_tree_dirty": true,
+  "fixture_manifest_sha256": "7abef96ba77bef7a8bd520207b7abc43c94e339f2c5d4a7f86dce87da96fa255",
+  "application_base_url": "http://localhost:14000/api/v1",
+  "author_account_id": null,
+  "main_novel_id": "06a979c5-b089-4648-a04e-81383aa7b119",
+  "p2_probe_novel_id": null,
+  "p3_probe_novel_id": null,
+  "runtime": {
+    "requested_generation_model": "gemini-3.5-flash-lite",
+    "observed_generation_model": null,
+    "bootstrap_provider": null,
+    "extraction_provider": null,
+    "embedding_provider_and_version": null,
+    "semantic_lane_enabled": null,
+    "context_routing_policy": null,
+    "output_token_limit": null,
+    "fallback_behavior": null
+  },
+  "budget": {
+    "approved_by": "user",
+    "approval_reference": "Prior explicit unlimited budget and Gemini fixture/blueprint/generated-prose authorization in this conversation",
+    "max_cost_usd": null,
+    "max_provider_calls": null,
+    "max_wall_clock_hours": null,
+    "consumed_cost_usd": null,
+    "consumed_provider_calls": 0,
+    "consumed_wall_clock_hours": 0,
+    "require_observable_call_or_time_cap": true,
+    "approval_status": "APPROVED_UNLIMITED_SUBJECT_TO_QUOTA",
+    "quota_per_api": {
+      "rpm": 15,
+      "tpm": 250000,
+      "rpd": 500,
+      "reported_independent_apis": 4,
+      "key_pool_verified": false
+    }
+  },
+  "timeouts": {
+    "generation_seconds": null,
+    "outbox_seconds": null,
+    "max_retries_per_action": 3
+  },
+  "target": {
+    "words": 100000,
+    "min_words": 95000,
+    "max_words": 105000,
+    "planned_chapters": 40
+  },
+  "memory_audit": {
+    "pipelines": [
+      "P1",
+      "P2",
+      "P3"
+    ],
+    "after_bootstrap_import": true,
+    "after_first_accepted_revision": true,
+    "every_completed_chapters": 10,
+    "deep_audit_every_chapters": 20,
+    "cumulative_audit_every_chapters": 50,
+    "at_run_end_including_early_stop": true,
+    "capture_before_manual_correction": true,
+    "require_extraction_provider_trace": true,
+    "minimum_sample_recall": 0.9,
+    "minimum_sample_precision": 0.95,
+    "required_critical_recall": 1.0,
+    "required_provenance_accuracy": 1.0,
+    "allowed_future_leaks": 0,
+    "allowed_stale_current_states": 0
+  },
+  "reviewer": {
+    "identity": null,
+    "independent": false,
+    "full_text_read": false
+  },
+  "notes": "UI_ONLY. No new project or fixture import. Existing prior-run editor viewed read-only for version evidence. Source repair dirty files not deployed: live OpenAPI lacks mode=extract and author-operation/memory routes; web bundle lacks new memory panel. Docker contexts timeout. Application migrations/runtime provider not verified. Native 5432 metadata is not asserted to be container DB. No code/DB/config mutation or API author writes; UI login/navigation only. Prior explicit Gemini transmission approval and unlimited budget persist.",
+  "data_transmission_approval": {
+    "approved": true,
+    "destination": "Google Gemini API",
+    "payload": "Pipeline_test manuscript, blueprint and generated prose",
+    "reference": "Explicit user approval preceding this retest request",
+    "approval_gate_for_this_run": "No test payload attempted"
+  },
+  "ended_at": "2026-10-18T16:50:55.298680+07:00",
+  "rollout": {
+    "at": "2026-10-18T17:14:06.726481+07:00",
+    "status": "ENVIRONMENT_READY_UI_NOT_RUN",
+    "compose_project": "ephurin-ui-retest",
+    "web_url": "http://localhost:18080",
+    "backend_url": "http://localhost:14000/api/v1",
+    "ai_url": "http://localhost:18000",
+    "evidence": [
+      "evidence/rollout-preflight.json",
+      "evidence/rollout-runtime.json"
+    ]
+  },
+  "previous_application_base_url": "http://localhost:4000/api/v1",
+  "web_base_url": "http://localhost:18080",
+  "runtime_web_url": "http://localhost:18080",
+  "model_observed": "models/gemini-3.5-flash-lite",
+  "structured_max_output_tokens_observed": 8192,
+  "provider_permission": "Explicit user permission for manuscript/blueprint/generated Pipeline_test prose to Google Gemini API; budget unlimited subject rate limits.",
+  "provider_usage": {
+    "prompt_token_count": 21901,
+    "candidates_token_count": 7572,
+    "total_token_count": 29473
+  },
+  "prose_generation_calls": 0,
+  "semantic_lane": "NOT_ASSESSED",
+  "fallback_rotation": "NOT_VERIFIED",
+  "updated_at": "2026-10-18T22:37:53.641200+07:00"
+}

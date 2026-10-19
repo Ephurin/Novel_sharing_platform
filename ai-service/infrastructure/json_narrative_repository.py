@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from domain.confidence import validate_confidence
+
 import uuid
 from dataclasses import asdict, replace
 from typing import Any
@@ -184,6 +186,8 @@ class JsonNarrativeRepository:
     def save_proposals(
         self, story_id: str, proposals: list[NarrativeProposal]
     ) -> list[NarrativeProposal]:
+        for proposal in proposals:
+            validate_confidence(proposal.confidence)
         kb = self._manager.load_kb(story_id)
         saved = {str(item.get("proposal_id")): item for item in kb.proposals}
         for proposal in proposals:

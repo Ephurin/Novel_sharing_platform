@@ -46,8 +46,8 @@ class EntityPipelineTests(unittest.TestCase):
         self.assertEqual(
             result,
             [
-                {"phrase": "Minh", "entity": "PER", "score": 9.5, "label": "PER"},
-                {"phrase": "Hắc Thành", "entity": "LOC", "score": 7.5, "label": "LOC"},
+                {"phrase": "Minh", "entity": "PER", "score": 9.5, "label": "PER", "initial_status": "Unknown", "status_quote": ""},
+                {"phrase": "Hắc Thành", "entity": "LOC", "score": 7.5, "label": "LOC", "initial_status": "Unknown", "status_quote": ""},
             ],
         )
 

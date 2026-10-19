@@ -1,0 +1,50 @@
+{
+  "run_id": "2026-10-18-independent-01",
+  "updated_at": "2026-10-19T13:08:00+07:00",
+  "status": "PARTIAL_AUDITED",
+  "main_novel_id": "46642ff1-5bac-4513-98fd-ffe1be6cb318",
+  "current_chapter_number": 1,
+  "current_chapter_id": "940bbdee-fa51-4bb7-8996-4aca4a3dc505",
+  "latest_canonical_revision_id": "6212307d-fb36-43f7-8e6e-d42dac617ae5",
+  "latest_content_hash": "2e7fedafb40ce4dd59f9a6c122db8f12b951d8c9a942c68a9760d4779159fe7f",
+  "brain_version": 7,
+  "plan_id": "6bde4330-6495-422f-9214-44170d30151e",
+  "plan_version": 1,
+  "objective_id": "4ca59d84-717e-4d80-bd58-f505c71c21ee",
+  "autonomous_run_id": null,
+  "last_generation_id": null,
+  "pending_jobs": [],
+  "pending_accept_idempotency_key": null,
+  "canonical_word_count": 4796,
+  "completed_chapters_by_content_review": [1, 2, 3, 4, 5],
+  "unresolved_issue_ids": [
+    "MEM-DUPLICATE-001",
+    "MEM-CRITICAL-001",
+    "CTX-COVERAGE-001"
+  ],
+  "memory_audit": {
+    "completed_audit_ids_by_pipeline": {
+      "P1": [
+        "M0",
+        "M-FIRST"
+      ],
+      "P2": [],
+      "P3": []
+    },
+    "next_due_by_pipeline": {
+      "P1": "M10",
+      "P2": "M0",
+      "P3": "M0"
+    },
+    "pending_audit_ids": [],
+    "unresolved_issue_ids": [
+      "MEM-DUPLICATE-001",
+      "MEM-CRITICAL-001",
+      "CTX-COVERAGE-001"
+    ],
+    "resume_rule": "Gate P1 remains PARTIAL / NOT_ACCEPTED. S09 FAIL for canon duplication (MEM-DUPLICATE-001). G06/G07/G13 missing from extraction (MEM-CRITICAL-001). Context preview 4k contains no events/facts in tested case (CTX-COVERAGE-001). Regression suite documented in REGRESSION_CASES.md."
+  },
+  "last_action_log_row": "ACT-S11-01",
+  "next_action": "Address open issues (MEM-DUPLICATE-001, MEM-CRITICAL-001, CTX-COVERAGE-001) against acceptance criteria in REGRESSION_CASES.md before re-testing.",
+  "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth."
+}

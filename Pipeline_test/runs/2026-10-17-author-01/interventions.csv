@@ -1,0 +1,2 @@
+intervention_id,time_iso,chapter_number,kind,reason,requested_change,channel,revision_before,revision_after,estimated_words_changed,measurement_method,author_minutes,issue_id,evidence
+I001,2026-10-17T23:09:11.173294+07:00,,PROPOSAL_REVIEW_NOT_PROSE_EDIT,Three duplicate constraint proposals; retain model world-rule records,"Reject duplicate author_constraint records, accept eight reviewed records",PUBLIC_API,,,0,No chapter prose write after seed import; only proposal decisions,,P2-001,evidence/p2-reject-duplicate-1.json; evidence/p2-accept-reviewed-group.json
