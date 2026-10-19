@@ -8,6 +8,7 @@ import type { CreateNovelInput, ListNovelsInput, UpdateNovelInput } from './nove
 import {
   createNovel as createNovelRow,
   findNovelById,
+  getNovelUnlockEarnings,
   listNovels as listNovelRows,
   listNovelsByAuthor,
   publishNovel,
@@ -83,6 +84,12 @@ export async function getNovel(novelId: string) {
   }
 
   return novel;
+}
+
+export async function getNovelEarnings(auth: AuthContext, novelId: string) {
+  const novel = await getNovel(novelId);
+  assertNovelOwner(novel, auth);
+  return { unlockCoins: await getNovelUnlockEarnings(novelId) };
 }
 
 export async function updateNovel(auth: AuthContext, novelId: string, input: UpdateNovelInput) {

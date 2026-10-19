@@ -29,7 +29,7 @@ export const getPublicProfileController: RequestHandler = async (request, respon
 
 export const getAuthorProfileController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await getAuthorProfile(String(request.params.authorId));
+    const result = await getAuthorProfile(String(request.params.authorId), request.auth?.userId);
     response.json(successResponse(result));
   } catch (error) {
     next(error);

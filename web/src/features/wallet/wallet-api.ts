@@ -2,7 +2,6 @@ import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 
 export type Wallet = {
   walletId: string;
-  userId: string;
   coinsBalance: number;
   lockedCoins: number;
 };
@@ -13,6 +12,8 @@ export type WalletTransaction = {
   status: string;
   amountCoins: number;
   description?: string | null;
+  direction: 'IN' | 'OUT';
+  metadata?: { message?: string | null; bankAccountLabel?: string | null } | null;
   createdAt: string;
 };
 
@@ -22,9 +23,30 @@ export async function getWallet() {
 }
 
 export async function listTransactions() {
-  const response = await apiClient.get<ApiEnvelope<WalletTransaction[]>>('/wallet/transactions', {
-    params: { page: 1, limit: 20 }
-  });
+  const transactions: WalletTransaction[] = [];
+  let page = 1;
+  while (true) {
+    const response = await apiClient.get<ApiEnvelope<WalletTransaction[]>>('/wallet/transactions', {
+      params: { page, limit: 100 }
+    });
+    transactions.push(...response.data.data);
+    if (page >= Number(response.data.meta.totalPages ?? 1)) return transactions;
+    page += 1;
+  }
+}
+
+export type WalletEarnings = {
+  totalEarnedCoins: number;
+  daily: Array<{ day: string; amountCoins: number; unlockCoins: number; donateCoins: number }>;
+};
+
+export async function getWalletEarnings() {
+  const response = await apiClient.get<ApiEnvelope<WalletEarnings>>('/wallet/earnings');
+  return response.data.data;
+}
+
+export async function listDepositPackages() {
+  const response = await apiClient.get<ApiEnvelope<Array<{ code: 'COIN_100' | 'COIN_500' | 'COIN_1000' | 'COIN_5000'; amountCoins: number }>>>('/wallet/deposit-packages');
   return response.data.data;
 }
 

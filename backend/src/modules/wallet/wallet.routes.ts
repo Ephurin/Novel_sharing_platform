@@ -7,6 +7,8 @@ import {
   createWithdrawRequestController,
   donateController,
   getTransactionsController,
+  getEarningsController,
+  listDepositPackagesController,
   getWalletController,
   unlockChapterController
 } from './wallet.controller.js';
@@ -24,6 +26,8 @@ export const walletRoutes = Router();
 export const walletResourceRoutes = Router();
 
 walletRoutes.get('/me', requireAuth, getWalletController);
+walletRoutes.get('/earnings', requireAuth, getEarningsController);
+walletRoutes.get('/deposit-packages', listDepositPackagesController);
 walletRoutes.get('/transactions', requireAuth, validateRequest(walletTransactionsSchema), getTransactionsController);
 walletRoutes.post('/deposit-sessions', requireAuth, validateRequest(createDepositSessionSchema), createDepositSessionController);
 walletRoutes.post('/mock-webhook/deposit-success', validateRequest(mockDepositSuccessSchema), completeMockDepositController);

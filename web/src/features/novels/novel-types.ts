@@ -13,6 +13,9 @@ export type Novel = {
   likesCount: number;
   viewsCount: number;
   chaptersCount: number;
+  genre: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ChapterStatus = 'DRAFT' | 'PENDING_MODERATION' | 'PUBLISHED' | 'REJECTED' | 'ARCHIVED';
@@ -27,6 +30,7 @@ export type Chapter = {
   isVip: boolean;
   priceCoins: number;
   status: ChapterStatus;
+  updatedAt: string;
   draft?: {
     title: string;
     content: string;

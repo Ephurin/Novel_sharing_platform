@@ -15,6 +15,7 @@ import {
   findActiveAuthorWallet,
   findPublishedChapterForUnlock,
   findWalletByUserId,
+  getAuthorEarnings,
   listTransactions,
   unlockChapter as unlockChapterRow
 } from './wallet.repository.js';
@@ -38,6 +39,10 @@ export async function getWallet(auth: AuthContext) {
     coinsBalance: wallet.coinsBalance,
     lockedCoins: wallet.lockedCoins
   };
+}
+
+export async function getEarnings(auth: AuthContext) {
+  return getAuthorEarnings(auth.userId);
 }
 
 export async function getTransactions(auth: AuthContext, input: WalletTransactionsInput) {

@@ -1,3 +1,4 @@
+import { AuthorTheme } from '../shared/components/AuthorTheme';
 import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
 import { AuthorIdeShell } from './layout/AuthorIdeShell';
 import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
@@ -51,7 +52,7 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-          <AuthorWritingIde />
+          <AuthorTheme><AuthorWritingIde /></AuthorTheme>
         </RoleGuard>
       </AuthGate>
     )
@@ -61,7 +62,7 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-          <ManuscriptImportPage />
+          <AuthorTheme><ManuscriptImportPage /></AuthorTheme>
         </RoleGuard>
       </AuthGate>
     )
@@ -71,7 +72,7 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-          <AuthorStoryContextPage />
+          <AuthorTheme><AuthorStoryContextPage /></AuthorTheme>
         </RoleGuard>
       </AuthGate>
     )
@@ -81,7 +82,7 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-          <AuthorProjectsPage />
+          <AuthorTheme><AuthorProjectsPage /></AuthorTheme>
         </RoleGuard>
       </AuthGate>
     )
@@ -91,7 +92,7 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-          <AuthorProjectsPage />
+          <AuthorTheme><AuthorProjectsPage /></AuthorTheme>
         </RoleGuard>
       </AuthGate>
     )
@@ -101,7 +102,7 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-          <AuthorNovelMetadataPage />
+          <AuthorTheme><AuthorNovelMetadataPage /></AuthorTheme>
         </RoleGuard>
       </AuthGate>
     )
@@ -120,7 +121,7 @@ export const router = createBrowserRouter([
     path: '/author/profile',
     element: (
       <AuthGate>
-        <AuthorProfilePage />
+        <AuthorTheme><AuthorProfilePage /></AuthorTheme>
       </AuthGate>
     )
   },
@@ -128,7 +129,7 @@ export const router = createBrowserRouter([
     path: '/authors/:authorId',
     element: (
       <AuthGate>
-        <AuthorProfilePage />
+        <AuthorTheme><AuthorProfilePage /></AuthorTheme>
       </AuthGate>
     )
   },
@@ -136,7 +137,7 @@ export const router = createBrowserRouter([
     path: '/wallet',
     element: (
       <AuthGate>
-        <WalletPage />
+        <AuthorTheme><WalletPage /></AuthorTheme>
       </AuthGate>
     )
   },
@@ -182,7 +183,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/authors/:authorId',
-        element: <AuthorProfilePage />
+        element: <AuthorTheme><AuthorProfilePage /></AuthorTheme>
       },
       {
         path: '/admin',

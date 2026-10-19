@@ -1,5 +1,6 @@
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
+import { slugify } from '../../core/utils/slug.js';
 import type { CreateNovelInput, ListNovelsInput, UpdateNovelInput } from './novels.schemas.js';
 
 type DbClient = Pick<PoolClient, 'query'>;
@@ -19,6 +20,9 @@ export type NovelRecord = {
   likesCount: number;
   viewsCount: number;
   chaptersCount: number;
+  genre: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 function mapNovel(row: QueryResultRow): NovelRecord {
@@ -34,8 +38,27 @@ function mapNovel(row: QueryResultRow): NovelRecord {
     ageRating: row.age_rating,
     likesCount: row.likes_count,
     viewsCount: row.views_count,
-    chaptersCount: row.chapters_count
+    chaptersCount: row.chapters_count,
+    genre: row.genre ?? null,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
   };
+}
+
+export async function listGenres() {
+  const result = await getPostgresPool().query('select name from genres order by name asc');
+  return result.rows.map((row) => row.name as string);
+}
+
+export async function getNovelUnlockEarnings(novelId: string) {
+  const result = await getPostgresPool().query(
+    `select coalesce(sum(tx.amount_coins), 0)::bigint as total
+     from transactions tx
+     join chapters c on c.chapter_id = tx.reference_id
+     where c.novel_id = $1 and tx.type = 'UNLOCK' and tx.status = 'SUCCESS'`,
+    [novelId]
+  );
+  return Number(result.rows[0]?.total ?? 0);
 }
 
 export async function createNovel(
@@ -55,15 +78,16 @@ export async function createNovel(
     [input.authorId, input.title, input.slug, input.synopsis, input.coverImageUrl ?? null, input.genreId]
   );
 
-  return mapNovel(result.rows[0]);
+  return { ...mapNovel(result.rows[0]), genre: input.genre ?? null };
 }
 
 export async function findNovelById(novelId: string) {
   const result = await getPostgresPool().query(
     `
-      select *
-      from novels
-      where novel_id = $1 and deleted_at is null
+      select n.*, g.name as genre
+      from novels n
+      left join genres g on g.genre_id = n.genre_id
+      where n.novel_id = $1 and n.deleted_at is null
       limit 1
     `,
     [novelId]
@@ -79,12 +103,13 @@ export async function listNovels(input: ListNovelsInput) {
 
   const dataResult = await getPostgresPool().query(
     `
-      select *
-      from novels
-      where deleted_at is null
-        and status = $1
-        and ($2::text is null or title ilike $2 or synopsis ilike $2)
-      order by updated_at desc
+      select n.*, g.name as genre
+      from novels n
+      left join genres g on g.genre_id = n.genre_id
+      where n.deleted_at is null
+        and n.status = $1
+        and ($2::text is null or n.title ilike $2 or n.synopsis ilike $2)
+      order by n.updated_at desc
       limit $3 offset $4
     `,
     [status, search, input.limit, offset]
@@ -113,13 +138,14 @@ export async function listNovelsByAuthor(authorId: string, input: ListNovelsInpu
 
   const dataResult = await getPostgresPool().query(
     `
-      select *
-      from novels
-      where deleted_at is null
-        and author_id = $1
-        and ($2::novel_status is null or status = $2)
-        and ($3::text is null or title ilike $3 or synopsis ilike $3)
-      order by updated_at desc
+      select n.*, g.name as genre
+      from novels n
+      left join genres g on g.genre_id = n.genre_id
+      where n.deleted_at is null
+        and n.author_id = $1
+        and ($2::novel_status is null or n.status = $2)
+        and ($3::text is null or n.title ilike $3 or n.synopsis ilike $3)
+      order by n.updated_at desc
       limit $4 offset $5
     `,
     [authorId, input.status ?? null, search, input.limit, offset]
@@ -222,7 +248,7 @@ export async function upsertGenre(client: DbClient, genreName: string | undefine
     return null;
   }
 
-  const slug = genreName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const slug = slugify(genreName);
   const result = await client.query(
     `
       insert into genres (name, slug)

@@ -15,6 +15,7 @@ export type ChapterRecord = {
   isVip: boolean;
   priceCoins: number;
   status: ChapterStatus;
+  updatedAt: string;
 };
 
 function mapChapter(row: QueryResultRow): ChapterRecord {
@@ -27,7 +28,8 @@ function mapChapter(row: QueryResultRow): ChapterRecord {
     wordCount: row.word_count,
     isVip: row.is_vip,
     priceCoins: row.price_coins,
-    status: row.status
+    status: row.status,
+    updatedAt: row.updated_at
   };
 }
 

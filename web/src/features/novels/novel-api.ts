@@ -1,20 +1,36 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import type { Chapter, Novel } from './novel-types';
 
-export async function listMyNovels(input: { searchQuery?: string; status?: Novel['status'] | 'ALL' } = {}) {
-  const response = await apiClient.get<ApiEnvelope<Novel[]>>('/novels/me', {
-    params: {
-      q: input.searchQuery || undefined,
-      status: input.status && input.status !== 'ALL' ? input.status : undefined,
-      page: 1,
-      limit: 50
-    }
-  });
+export async function listGenres() {
+  const response = await apiClient.get<ApiEnvelope<string[]>>('/novels/genres');
   return response.data.data;
+}
+
+export async function listMyNovels(input: { searchQuery?: string; status?: Novel['status'] | 'ALL' } = {}) {
+  const novels: Novel[] = [];
+  let page = 1;
+  while (true) {
+    const response = await apiClient.get<ApiEnvelope<Novel[]>>('/novels/me', {
+      params: {
+        q: input.searchQuery || undefined,
+        status: input.status && input.status !== 'ALL' ? input.status : undefined,
+        page,
+        limit: 100
+      }
+    });
+    novels.push(...response.data.data);
+    if (page >= Number(response.data.meta.totalPages ?? 1)) return novels;
+    page += 1;
+  }
 }
 
 export async function getNovel(novelId: string) {
   const response = await apiClient.get<ApiEnvelope<Novel>>(`/novels/${novelId}`);
+  return response.data.data;
+}
+
+export async function getNovelEarnings(novelId: string) {
+  const response = await apiClient.get<ApiEnvelope<{ unlockCoins: number }>>(`/novels/${novelId}/earnings`);
   return response.data.data;
 }
 

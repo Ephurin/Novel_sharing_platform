@@ -37,12 +37,17 @@ function mapTransaction(row: QueryResultRow) {
     referenceType: row.reference_type,
     referenceId: row.reference_id,
     metadata: row.metadata,
+    direction: row.type === 'DEPOSIT' || row.counterparty_wallet_id === row.viewer_wallet_id ? 'IN' : 'OUT',
     createdAt: row.created_at
   };
 }
 
 export function getDepositAmount(packageCode: CreateDepositSessionInput['packageCode']) {
   return depositPackages[packageCode];
+}
+
+export function listDepositPackages() {
+  return Object.entries(depositPackages).map(([code, amountCoins]) => ({ code, amountCoins }));
 }
 
 export async function findWalletByUserId(userId: string) {
@@ -64,9 +69,9 @@ export async function listTransactions(userId: string, input: WalletTransactions
   const offset = (input.page - 1) * input.limit;
   const dataResult = await getPostgresPool().query(
     `
-      select tx.*
+      select tx.*, w.wallet_id as viewer_wallet_id
       from transactions tx
-      join wallets w on w.wallet_id = tx.wallet_id
+      join wallets w on w.wallet_id in (tx.wallet_id, tx.counterparty_wallet_id)
       where w.user_id = $1
         and ($2::transaction_type is null or tx.type = $2)
         and ($3::transaction_status is null or tx.status = $3)
@@ -79,7 +84,7 @@ export async function listTransactions(userId: string, input: WalletTransactions
     `
       select count(*)::int as total
       from transactions tx
-      join wallets w on w.wallet_id = tx.wallet_id
+      join wallets w on w.wallet_id in (tx.wallet_id, tx.counterparty_wallet_id)
       where w.user_id = $1
         and ($2::transaction_type is null or tx.type = $2)
         and ($3::transaction_status is null or tx.status = $3)
@@ -90,6 +95,41 @@ export async function listTransactions(userId: string, input: WalletTransactions
   return {
     items: dataResult.rows.map(mapTransaction),
     totalItems: countResult.rows[0]?.total ?? 0
+  };
+}
+
+export async function getAuthorEarnings(userId: string) {
+  const result = await getPostgresPool().query(
+    `
+      select date_trunc('day', tx.created_at)::date as day,
+             sum(tx.amount_coins)::bigint as amount,
+             coalesce(sum(tx.amount_coins) filter (where tx.type = 'UNLOCK'), 0)::bigint as unlock_amount,
+             coalesce(sum(tx.amount_coins) filter (where tx.type = 'DONATE'), 0)::bigint as donate_amount
+      from transactions tx
+      join wallets w on w.wallet_id = tx.counterparty_wallet_id
+      where w.user_id = $1
+        and tx.type in ('UNLOCK', 'DONATE')
+        and tx.status = 'SUCCESS'
+        and tx.created_at >= current_date - interval '364 days'
+      group by 1
+      order by 1
+    `,
+    [userId]
+  );
+  const totalResult = await getPostgresPool().query(
+    `
+      select coalesce(sum(tx.amount_coins), 0)::bigint as total
+      from transactions tx
+      join wallets w on w.wallet_id = tx.counterparty_wallet_id
+      where w.user_id = $1
+        and tx.type in ('UNLOCK', 'DONATE')
+        and tx.status = 'SUCCESS'
+    `,
+    [userId]
+  );
+  return {
+    totalEarnedCoins: Number(totalResult.rows[0]?.total ?? 0),
+    daily: result.rows.map((row) => ({ day: row.day, amountCoins: Number(row.amount), unlockCoins: Number(row.unlock_amount), donateCoins: Number(row.donate_amount) }))
   };
 }
 

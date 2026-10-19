@@ -7,8 +7,10 @@ import {
   createNovelController,
   deleteNovelController,
   getNovelController,
+  getNovelEarningsController,
   listMyNovelsController,
   listNovelsController,
+  listGenresController,
   submitNovelPublishController,
   updateNovelController
 } from './novels.controller.js';
@@ -24,9 +26,11 @@ export const novelsRoutes = Router();
 const requireAuthor = [requireAuth, requireRoles(['AUTHOR', 'ADMIN'])];
 
 novelsRoutes.get('/', validateRequest(listNovelsSchema), listNovelsController);
+novelsRoutes.get('/genres', listGenresController);
 novelsRoutes.get('/me', ...requireAuthor, validateRequest(listNovelsSchema), listMyNovelsController);
 novelsRoutes.post('/', ...requireAuthor, validateRequest(createNovelSchema), createNovelController);
 novelsRoutes.get('/:novelId/chapters', validateRequest(chapterNovelIdParamSchema), listChaptersController);
+novelsRoutes.get('/:novelId/earnings', ...requireAuthor, validateRequest(novelIdParamSchema), getNovelEarningsController);
 novelsRoutes.post('/:novelId/chapters', ...requireAuthor, validateRequest(createChapterSchema), createChapterController);
 novelsRoutes.get('/:novelId', validateRequest(novelIdParamSchema), getNovelController);
 novelsRoutes.patch('/:novelId', ...requireAuthor, validateRequest(updateNovelSchema), updateNovelController);

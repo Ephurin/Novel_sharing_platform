@@ -1,3 +1,4 @@
+import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -17,40 +18,6 @@ import {
   type ParsedChapterItem,
   type ReviewProposal
 } from './manuscript-import-api';
-
-const DEFAULT_SAMPLE_TEXT = `Chương 49: Bức thư tay chưa gửi
-Mùa thu năm ấy đến muộn hơn thường lệ. Những cơn gió bấc đầu mùa không vội vã ùa về mà chỉ lảng vảng quanh những mái ngói rêu phong của phố Hàng Bè, để lại một làn sương mỏng manh bám riết trên mặt hồ Hoàn Kiếm mỗi sớm tinh mơ.
-
-“Nếu bức thư này không thể đến tay người nhận trước tiết sương giáng, thì có lẽ những kỷ niệm của mùa hoa sữa năm ấy cũng nên để gió cuốn đi...”
-
-Mai Linh gấp bức thư giấy bổi lại làm tư, đặt cạnh nghiên mực Tàu đã khô phân nửa. Ngoài hiên, tiếng rao của người bán cốm Vòng len lỏi qua từng con ngõ hẹp, thoang thoảng hương lá sen già gợi nhớ về một lời ước hẹn chưa tròn mười năm trước. Tiếng chuông xe đạp lách cách xa dần rồi tắt hẳn trong màn mưa bụi mịt mùng.
-
-Chương 50: Đêm giao mùa phố Hàng Gai
-Màn đêm buông xuống rất nhanh khi tiết trời chuyển lạnh. Phố Hàng Gai thắp lên những ánh đèn lồng lụa vàng óng ả, hắt bóng người qua lại thành những vệt dài đổ nghiêng trên nền gạch ẩm.
-
-Mai Linh khẽ kéo vạt áo len mỏng, bước nhanh qua bậc thềm gỗ kêu cót két của quán trà cũ. Trong góc quán, hương trầm thoảng hương nhài quấn quýt mùi trà mạn sen Tây Hồ đã pha đến nước thứ ba. Người đàn ông ngồi đối diện không nói gì, chỉ im lặng nhìn tách trà đang bốc khói.
-
-“Anh đã chờ ở đây bao lâu rồi?” — cô khẽ hỏi, giọng như chìm vào tiếng mưa tí tách ngoài mái hiên.
-
-Chương 51: Tiếng còi tàu từ mạn Long Biên
-Đêm càng về khuya, không gian Hà Nội càng tĩnh lặng đến lạ thường. Từ mạn cầu Long Biên, một hồi còi tàu xé toạc màn sương đặc quánh, vọng về từng nhịp sắt gõ đều đặn trên những thanh dầm thép trăm năm tuổi.
-
-Ký ức của những năm tháng cũ dường như cũng theo tiếng còi tàu ấy mà sống dậy. Đó là những ngày nắng đỏ gay gắt bên bãi bồi sông Hồng, những trang bản thảo viết dở phủ đầy bụi than, và lời hứa về một ngày tái ngộ khi cả hai đã hoàn thành tâm nguyện của đời mình.
-
-Chương 52: Gặp lại dưới hiên chùa
-Sáng hôm sau, mưa đã tạnh nhưng trời vẫn bảng lảng mây xám. Dưới mái hiên cong của ngôi chùa cổ nằm nép mình sau rặng nhãn già phố Quán Sứ, tiếng mõ điểm đều từng hồi thanh thản.
-
-Hai người đứng cách nhau vài bước chân, cách một làn hương trầm thoang thoảng và mười năm xa cách không tin tức. Không có nước mắt, cũng chẳng có lời oán trách, chỉ có nụ cười khẽ chạm vào nhau như chiếc lá vàng vừa đáp nhẹ xuống sân gạch đỏ.
-
-Chương 53: [Chưa có tên]
-Người ta thường nói, thời gian có thể chữa lành mọi vết thương, nhưng cũng có thể biến những kỷ niệm sâu đậm nhất thành một nỗi niềm tiếc nuối khôn nguôi.
-
-Khi đi qua góc phố Chân Cầm, nơi cây bàng cổ thụ bắt đầu trút những chiếc lá đỏ rực đầu tiên, Mai Linh bất chợt dừng bước. Cô nhìn lên căn gác nhỏ với khung cửa sổ sơn xanh đã tróc sơn, nhớ về những buổi chiều hai người cùng ngồi nghe tiếng dương cầm vọng ra từ một lớp học nhạc gần đó.
-
-Chương 54: Tách trà sen ngõ Yên Thái
-Ngõ Yên Thái nhỏ hẹp chỉ vừa hai chiếc xe đạp tránh nhau, nhưng lại là nơi lưu giữ thứ hương vị trà sen tinh tế bậc nhất kinh kỳ. Mỗi búp sen được ướp kỳ công từ lúc trời chưa rạng, ấp ủ từng giọt sương mai tinh khiết.
-
-Họ ngồi bên chiếc bàn gỗ mộc mạc, nâng chén trà thơm ngát mà ngỡ như vừa bước qua một giấc mộng dài. Những câu chuyện của mười năm trước dần được khơi lại, bình thản và nhẹ nhàng như làn khói mỏng tan dần vào không trung mùa đông.`;
 
 export function ManuscriptImportPage() {
   const { novelId = '' } = useParams();
@@ -76,12 +43,12 @@ export function ManuscriptImportPage() {
   const startingChapterNumber = existingChapterCount + 1;
 
   // Stepper state (1: Upload, 2: Analyze & Preview, 3: Confirm Import)
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(2);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   // File state
-  const [fileName, setFileName] = useState('gio_thoang_qua_pho_co_tap2.docx');
-  const [fileSizeStr, setFileSizeStr] = useState('428 KB');
-  const [rawText, setRawText] = useState(DEFAULT_SAMPLE_TEXT);
+  const [fileName, setFileName] = useState('');
+  const [fileSizeStr, setFileSizeStr] = useState('');
+  const [rawText, setRawText] = useState('');
   const [pasteModalOpen, setPasteModalOpen] = useState(false);
   const [tempPasteText, setTempPasteText] = useState('');
 
@@ -168,7 +135,6 @@ export function ManuscriptImportPage() {
     () => parsedChapters.reduce((acc, c) => acc + c.wordCount, 0),
     [parsedChapters]
   );
-  const estimatedReadingMinutes = Math.max(1, Math.round(totalWords / 300));
   const invalidChaptersCount = useMemo(
     () => parsedChapters.filter((c) => !c.isValid).length,
     [parsedChapters]
@@ -386,101 +352,30 @@ export function ManuscriptImportPage() {
 
   if (novelQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-[#f7f6f2] flex flex-col items-center justify-center gap-3">
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-3">
         <div className="w-8 h-8 border-3 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm font-medium text-stone-500">Đang tải thông tin tác phẩm...</p>
+        <p className="text-body font-medium text-stone-500">Đang tải thông tin tác phẩm...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f6f2] font-body-md text-stone-800 antialiased selection:bg-indigo-100 selection:text-indigo-900 flex flex-col">
+    <div className="min-h-screen bg-surface font-body-md text-stone-800 antialiased selection:bg-primary-100 selection:text-primary-900 flex flex-col">
       {/* ──────────────────────────────────────────
           1. Fixed Top Header Navigation Bar
          ────────────────────────────────────────── */}
-      <header className="fixed top-0 w-full z-50 bg-[#faf9f6]/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-stone-200/80">
-        <div className="h-14 max-w-7xl mx-auto px-4 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-4 lg:gap-6">
-            <Link to="/author" className="flex items-center gap-1.5" data-path="tong-quan">
-              <span className="material-symbols-outlined text-primary-600 text-[26px]">menu_book</span>
-              <span className="font-headline-sm text-[17px] text-primary-600 tracking-tight font-bold">StoryCraft</span>
-              <span className="font-label-sm text-[11px] uppercase tracking-wider text-stone-500 bg-stone-100 border border-stone-200/80 px-1.5 py-0.5 rounded font-semibold">
-                Văn Hoa
-              </span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-1 ml-2">
-              <Link
-                to="/author"
-                className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition-colors"
-                data-path="tong-quan"
-              >
-                Tổng quan
-              </Link>
-              <Link
-                to="/author"
-                className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-primary-600 font-semibold bg-stone-100/90 border border-stone-200/60 transition-colors"
-                data-path="tac-pham"
-              >
-                Tác phẩm
-              </Link>
-              <Link
-                to="/wallet"
-                className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition-colors"
-                data-path="vi-va-doanh-thu"
-              >
-                Ví &amp; doanh thu
-              </Link>
-              <Link
-                to="/author/profile"
-                className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition-colors"
-                data-path="trang-tac-gia"
-              >
-                Trang tác giả
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              to={`/author/ide?novelId=${novelId}`}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary-600 text-white font-label-md text-label-md hover:bg-primary-700 shadow-2xs transition-all active:scale-95 font-medium cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[17px]">edit_square</span>
-              <span>Viết chương mới</span>
-            </Link>
-            <Link
-              to="/notifications"
-              aria-label="Thông báo"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-stone-500 hover:bg-stone-100 hover:text-stone-900 transition-colors relative"
-            >
-              <span className="material-symbols-outlined text-[20px]">notifications</span>
-            </Link>
-            <div className="flex items-center gap-2 pl-1 border-l border-stone-200">
-              <div className="w-7 h-7 rounded-full bg-primary-600/10 text-primary-700 flex items-center justify-center font-bold text-xs uppercase">
-                {user?.displayName?.charAt(0) || user?.username?.charAt(0) || 'A'}
-              </div>
-              <div className="hidden sm:flex flex-col text-left">
-                <span className="font-label-md text-[13px] text-stone-900 font-semibold leading-none">
-                  {user?.displayName || user?.username || 'Tác giả'}
-                </span>
-                <span className="font-label-sm text-[11px] text-stone-500 leading-tight">
-                  @{user?.username || 'author'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AuthorNavbar />
 
       {/* ──────────────────────────────────────────
           Main Content Container
          ────────────────────────────────────────── */}
-      <main className="w-full flex-1 pt-14 pb-16">
+      <main className="w-full flex-1 pt-0 pb-16">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-5 flex flex-col gap-5">
           {/* Breadcrumb & Back Link */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
             <nav
               aria-label="Breadcrumb"
-              className="flex items-center gap-1.5 text-xs text-stone-500 flex-wrap"
+              className="flex items-center gap-1.5 text-meta text-stone-500 flex-wrap"
             >
               <Link to="/author" className="hover:text-primary-600 transition-colors">
                 Bảng làm việc
@@ -501,7 +396,7 @@ export function ManuscriptImportPage() {
             </nav>
             <Link
               to={`/author/novels/${novelId}`}
-              className="inline-flex items-center gap-1.5 text-xs text-primary-600 hover:text-primary-700 transition-colors group font-medium"
+              className="inline-flex items-center gap-1.5 text-meta text-primary-600 hover:text-primary-700 transition-colors group font-medium"
             >
               <span className="material-symbols-outlined text-[16px] group-hover:-translate-x-0.5 transition-transform">
                 arrow_back
@@ -517,22 +412,19 @@ export function ManuscriptImportPage() {
                 <h1 className="font-headline-sm text-2xl font-bold text-stone-900 tracking-tight">
                   Nhập bản thảo
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-primary-600 text-[12px] font-medium shadow-2xs">
-                  <span className="material-symbols-outlined text-[14px]">auto_stories</span>
+                <span title={novel?.title} className="sc-import-target inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-primary-600 text-meta font-medium shadow-2xs">
+                  <span className="material-symbols-outlined text-body">auto_stories</span>
                   <span>
                     Tác phẩm đích: <strong className="font-semibold text-stone-800">{novel?.title}</strong>{' '}
                     • (Đã có {existingChapterCount} chương)
                   </span>
                 </span>
               </div>
-              <p className="text-xs text-stone-500">
-                Tải lên bản thảo có sẵn, tự động tách chương thông minh và nhập trực tiếp vào tác phẩm.
-              </p>
             </div>
             {currentStep === 3 && (
               <button
                 onClick={() => navigate(`/author/novels/${novelId}`)}
-                className="px-3 py-1.5 rounded-lg bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-semibold shadow-2xs transition-colors self-start md:self-auto"
+                className="px-3 py-1.5 rounded-lg bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 text-meta font-semibold shadow-2xs transition-colors self-start md:self-auto"
               >
                 Về trang tác phẩm
               </button>
@@ -553,22 +445,22 @@ export function ManuscriptImportPage() {
                 }`}
               >
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-meta font-bold shrink-0 ${
                     currentStep === 1
                       ? 'bg-white/20 text-white'
                       : 'bg-primary-600/10 text-primary-600'
                   }`}
                 >
                   {parsedChapters.length > 0 ? (
-                    <span className="material-symbols-outlined text-[14px]">check</span>
+                    <span className="material-symbols-outlined text-body">check</span>
                   ) : (
                     '1'
                   )}
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-semibold truncate">1. Tải bản thảo</span>
+                  <span className="text-meta font-semibold truncate">1. Tải bản thảo</span>
                   <span
-                    className={`text-[11px] truncate ${
+                    className={`text-meta truncate ${
                       currentStep === 1 ? 'text-white/80' : 'text-stone-500'
                     }`}
                   >
@@ -588,7 +480,7 @@ export function ManuscriptImportPage() {
                 }`}
               >
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-meta font-bold shrink-0 ${
                     currentStep === 2
                       ? 'bg-white/20 text-white'
                       : 'bg-stone-200 text-stone-700'
@@ -597,9 +489,9 @@ export function ManuscriptImportPage() {
                   2
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-semibold truncate">2. Phân tích &amp; Xem trước</span>
+                  <span className="text-meta font-semibold truncate">2. Phân tích &amp; Xem trước</span>
                   <span
-                    className={`text-[11px] truncate ${
+                    className={`text-meta truncate ${
                       currentStep === 2 ? 'text-white/80' : 'text-stone-500'
                     }`}
                   >
@@ -620,7 +512,7 @@ export function ManuscriptImportPage() {
                 }`}
               >
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-meta font-bold shrink-0 ${
                     currentStep === 3
                       ? 'bg-white/20 text-white'
                       : 'bg-stone-200 text-stone-700'
@@ -629,9 +521,9 @@ export function ManuscriptImportPage() {
                   3
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-semibold truncate">3. Xác nhận &amp; Story Brain</span>
+                  <span className="text-meta font-semibold truncate">3. Xác nhận &amp; Story Brain</span>
                   <span
-                    className={`text-[11px] truncate ${
+                    className={`text-meta truncate ${
                       currentStep === 3 ? 'text-white/80' : 'text-stone-500'
                     }`}
                   >
@@ -651,13 +543,13 @@ export function ManuscriptImportPage() {
               {/* Selected File Card */}
               <div className="bg-white rounded-xl p-4 shadow-2xs border border-stone-200 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                  <span className="text-meta uppercase tracking-wider text-stone-500 font-bold">
                     Tệp bản thảo
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  {rawText && <span className="inline-flex items-center gap-1 text-meta text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     Sẵn sàng tách
-                  </span>
+                  </span>}
                 </div>
 
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-stone-50 border border-stone-100">
@@ -666,17 +558,13 @@ export function ManuscriptImportPage() {
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
                     <span
-                      className="text-xs font-semibold text-stone-900 truncate"
+                      className="text-meta font-semibold text-stone-900 truncate"
                       title={fileName}
                     >
-                      {fileName}
+                      {fileName || 'Chưa chọn tệp hoặc dán bản thảo'}
                     </span>
-                    <div className="flex items-center gap-1.5 text-[11px] text-stone-500 mt-0.5">
-                      <span>{fileSizeStr}</span>
-                      <span>•</span>
-                      <span>UTF-8</span>
-                      <span>•</span>
-                      <span className="text-emerald-700 font-medium">An toàn</span>
+                    <div className="flex items-center gap-1.5 text-meta text-stone-500 mt-0.5">
+                      {fileSizeStr && <span>{fileSizeStr}</span>}
                     </div>
                   </div>
                 </div>
@@ -686,14 +574,14 @@ export function ManuscriptImportPage() {
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileUpload}
-                  accept=".txt,.md,.json,.docx,.doc"
+                  accept=".txt,.md,.json"
                   className="hidden"
                 />
                 <div className="flex items-center gap-2 pt-1">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex-1 py-1.5 px-3 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-1 py-1.5 px-3 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-meta font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[15px]">file_upload</span>
                     <span>Tải tệp khác</span>
@@ -704,7 +592,7 @@ export function ManuscriptImportPage() {
                       setTempPasteText(rawText);
                       setPasteModalOpen(true);
                     }}
-                    className="py-1.5 px-3 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-xs font-medium transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                    className="py-1.5 px-3 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-meta font-medium transition-colors flex items-center justify-center gap-1 cursor-pointer"
                     title="Dán hoặc sửa trực tiếp văn bản"
                   >
                     <span className="material-symbols-outlined text-[15px]">content_paste</span>
@@ -714,11 +602,11 @@ export function ManuscriptImportPage() {
               </div>
 
               {/* Regex & Splitting Config Card */}
-              <div className="bg-white rounded-xl p-4 shadow-2xs border border-stone-200 flex flex-col gap-4">
+              <details className="bg-white rounded-xl p-4 shadow-2xs border border-stone-200"><summary className="cursor-pointer text-body font-semibold text-stone-800">Cấu hình nâng cao</summary><div className="flex flex-col gap-4 mt-4">
                 <div className="flex items-center justify-between pb-2 border-b border-stone-100">
                   <div className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-primary-600 text-[18px]">tune</span>
-                    <h2 className="text-xs font-bold text-stone-900">Cấu hình tách chương</h2>
+                    <h2 className="text-meta font-bold text-stone-900">Cấu hình tách chương</h2>
                   </div>
                   <button
                     type="button"
@@ -727,7 +615,7 @@ export function ManuscriptImportPage() {
                       setAppliedRegex(defaultRegex);
                       showToast('Đã khôi phục quy tắc tách mặc định!');
                     }}
-                    className="text-[11px] text-primary-600 hover:underline font-medium cursor-pointer"
+                    className="text-meta text-primary-600 hover:underline font-medium cursor-pointer"
                   >
                     Khôi phục mặc định
                   </button>
@@ -736,10 +624,10 @@ export function ManuscriptImportPage() {
                 {/* Regex Input */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-semibold text-stone-700">
+                    <label className="text-meta font-semibold text-stone-700">
                       Quy tắc nhận diện (Regex)
                     </label>
-                    <span className="text-stone-500 text-[11px] font-medium">
+                    <span className="text-stone-500 text-meta font-medium">
                       Khớp {parsedChapters.length} vị trí
                     </span>
                   </div>
@@ -749,7 +637,7 @@ export function ManuscriptImportPage() {
                       spellCheck={false}
                       value={regexInput}
                       onChange={(e) => setRegexInput(e.target.value)}
-                      className="flex-1 bg-stone-50 text-stone-900 font-mono text-xs rounded-lg px-2.5 py-1.5 border border-stone-200 focus:outline-none focus:bg-white focus:border-primary-600 focus:ring-1 focus:ring-primary-600"
+                      className="flex-1 bg-stone-50 text-stone-900 font-mono text-meta rounded-lg px-2.5 py-1.5 border border-stone-200 focus:outline-none focus:bg-white focus:border-primary-600 focus:ring-1 focus:ring-primary-600"
                     />
                     <button
                       type="button"
@@ -757,9 +645,9 @@ export function ManuscriptImportPage() {
                         setAppliedRegex(regexInput);
                         showToast(`Đã áp dụng quy tắc tách: ${regexInput}`);
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-2xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                      className="px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
                     >
-                      <span className="material-symbols-outlined text-[14px]">play_arrow</span>
+                      <span className="material-symbols-outlined text-body">play_arrow</span>
                       <span>Áp dụng</span>
                     </button>
                   </div>
@@ -767,7 +655,7 @@ export function ManuscriptImportPage() {
 
                 {/* Common Presets */}
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[11px] text-stone-500 font-medium">Mẫu quy tắc phổ biến:</span>
+                  <span className="text-meta text-stone-500 font-medium">Mẫu quy tắc phổ biến:</span>
                   <div className="flex flex-wrap gap-1.5">
                     {[
                       {
@@ -795,7 +683,7 @@ export function ManuscriptImportPage() {
                           setAppliedRegex(preset.pattern);
                           showToast(`Đã chọn mẫu: ${preset.label}`);
                         }}
-                        className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors cursor-pointer border ${
+                        className={`px-2 py-0.5 rounded text-meta font-mono transition-colors cursor-pointer border ${
                           appliedRegex === preset.pattern
                             ? 'bg-primary-600 text-white border-primary-600 font-semibold'
                             : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
@@ -809,7 +697,7 @@ export function ManuscriptImportPage() {
 
                 {/* Text Normalization Options */}
                 <div className="pt-2 border-t border-stone-100 flex flex-col gap-2.5">
-                  <span className="text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                  <span className="text-meta uppercase tracking-wider text-stone-500 font-bold">
                     Chuẩn hóa văn bản đầu vào
                   </span>
                   <label className="flex items-start gap-2.5 cursor-pointer group">
@@ -820,10 +708,10 @@ export function ManuscriptImportPage() {
                       className="mt-0.5 w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
                     />
                     <div className="flex flex-col">
-                      <span className="text-xs text-stone-800 group-hover:text-primary-600 font-medium transition-colors">
+                      <span className="text-meta text-stone-800 group-hover:text-primary-600 font-medium transition-colors">
                         Chuẩn hóa dấu câu tiếng Việt
                       </span>
-                      <span className="text-[11px] text-stone-500">
+                      <span className="text-meta text-stone-500">
                         Ngoặc kép cong “...”, ba chấm …, khoảng trắng dấu thanh.
                       </span>
                     </div>
@@ -836,10 +724,10 @@ export function ManuscriptImportPage() {
                       className="mt-0.5 w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
                     />
                     <div className="flex flex-col">
-                      <span className="text-xs text-stone-800 group-hover:text-primary-600 font-medium transition-colors">
+                      <span className="text-meta text-stone-800 group-hover:text-primary-600 font-medium transition-colors">
                         Loại bỏ dòng trống dư thừa
                       </span>
-                      <span className="text-[11px] text-stone-500">
+                      <span className="text-meta text-stone-500">
                         Gộp nhiều ngắt dòng liên tiếp thành đoạn văn chuẩn.
                       </span>
                     </div>
@@ -852,10 +740,10 @@ export function ManuscriptImportPage() {
                       className="mt-0.5 w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
                     />
                     <div className="flex flex-col">
-                      <span className="text-xs text-stone-800 group-hover:text-primary-600 font-medium transition-colors">
+                      <span className="text-meta text-stone-800 group-hover:text-primary-600 font-medium transition-colors">
                         Bảo lưu định dạng thoại
                       </span>
-                      <span className="text-[11px] text-stone-500">
+                      <span className="text-meta text-stone-500">
                         Bảo lưu gạch đầu dòng đối thoại và in nghiêng nội tâm.
                       </span>
                     </div>
@@ -872,17 +760,17 @@ export function ManuscriptImportPage() {
                       className="mt-0.5 w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
                     />
                     <div className="flex flex-col">
-                      <span className="text-xs text-stone-800 group-hover:text-primary-600 font-semibold transition-colors flex items-center gap-1">
+                      <span className="text-meta text-stone-800 group-hover:text-primary-600 font-semibold transition-colors flex items-center gap-1">
                         <span className="material-symbols-outlined text-[15px] text-primary-600">psychology</span>
                         Kích hoạt Story Brain AI
                       </span>
-                      <span className="text-[11px] text-stone-500">
+                      <span className="text-meta text-stone-500">
                         Tự động trích xuất thực thể, bối cảnh thế giới và tạo hàng đợi đối chiếu AI.
                       </span>
                     </div>
                   </label>
                 </div>
-              </div>
+              </div></details>
             </div>
 
             {/* ──────────────────────────────────────────
@@ -895,37 +783,36 @@ export function ManuscriptImportPage() {
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-primary-600 text-[18px]">splitscreen</span>
-                      <span className="text-xs font-bold text-stone-900">
+                      <span className="text-meta font-bold text-stone-900">
                         {parsedChapters.length} chương được phát hiện
                       </span>
                     </div>
                     <span className="text-stone-300 hidden sm:inline">•</span>
-                    <div className="flex items-center gap-1 text-stone-500 text-xs">
+                    <div className="flex items-center gap-1 text-stone-500 text-meta">
                       <span className="material-symbols-outlined text-[16px]">notes</span>
                       <span>
-                        {totalWords.toLocaleString()} từ (~{estimatedReadingMinutes} phút đọc)
+                        {totalWords.toLocaleString()} từ
                       </span>
                     </div>
                     <span className="text-stone-300 hidden sm:inline">•</span>
-                    <div className="flex items-center gap-1 text-stone-500 text-xs">
+                    <div className="flex items-center gap-1 text-stone-500 text-meta">
                       <span className="material-symbols-outlined text-[16px]">forward</span>
                       <span>
                         Nối tiếp:{' '}
                         <strong className="text-stone-800 font-semibold">
-                          Chương {startingChapterNumber} → C.{' '}
-                          {startingChapterNumber + parsedChapters.length - 1}
+                          {parsedChapters.length > 0 ? `Chương ${startingChapterNumber}–${startingChapterNumber + parsedChapters.length - 1}` : `Từ chương ${startingChapterNumber}`}
                         </strong>
                       </span>
                     </div>
                   </div>
                   {invalidChaptersCount > 0 ? (
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 font-medium text-[11px] border border-amber-200">
-                      <span className="material-symbols-outlined text-[14px] text-amber-600">warning</span>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 font-medium text-meta border border-amber-200">
+                      <span className="material-symbols-outlined text-body text-amber-600">warning</span>
                       <span>{invalidChaptersCount} cần kiểm tra (tiêu đề chưa rõ)</span>
                     </div>
                   ) : (
-                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-medium border border-emerald-200">
-                      <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-meta font-medium border border-emerald-200">
+                      <span className="material-symbols-outlined text-body">check_circle</span>
                       <span>Tất cả hợp lệ</span>
                     </div>
                   )}
@@ -947,13 +834,13 @@ export function ManuscriptImportPage() {
                         onChange={handleSelectAll}
                         className="w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
                       />
-                      <span className="text-xs font-semibold text-stone-800">
+                      <span className="text-meta font-semibold text-stone-800">
                         Chọn tất cả ({selectedChapterIds.length} / {parsedChapters.length} chương)
                       </span>
                     </label>
                     <span className="text-stone-300">•</span>
-                    <span className="text-[11px] text-stone-500 flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[14px]">edit_note</span>
+                    <span className="text-meta text-stone-500 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-body">edit_note</span>
                       Nhấp vào ô tiêu đề để sửa nhanh
                     </span>
                   </div>
@@ -961,7 +848,7 @@ export function ManuscriptImportPage() {
                     <button
                       type="button"
                       onClick={handleAutoRenumber}
-                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-stone-100 text-stone-700 text-xs border border-stone-200 transition-colors flex items-center gap-1 cursor-pointer font-medium"
+                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-stone-100 text-stone-700 text-meta border border-stone-200 transition-colors flex items-center gap-1 cursor-pointer font-medium"
                     >
                       <span className="material-symbols-outlined text-[15px]">format_list_numbered</span>
                       <span>Đánh lại số thứ tự</span>
@@ -971,9 +858,9 @@ export function ManuscriptImportPage() {
 
                 {/* Table */}
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
+                  <table className="w-full min-w-[900px] text-left border-collapse">
                     <thead>
-                      <tr className="bg-stone-100/70 text-[11px] text-stone-500 uppercase tracking-wider border-b border-stone-200 font-semibold">
+                      <tr className="bg-stone-100/70 text-meta text-stone-500 uppercase tracking-wider border-b border-stone-200 font-semibold">
                         <th className="py-2 px-3 w-10 text-center">Chọn</th>
                         <th className="py-2 px-2 w-12 text-center">Tệp</th>
                         <th className="py-2 px-2 w-16 text-center">Đích</th>
@@ -983,7 +870,7 @@ export function ManuscriptImportPage() {
                         <th className="py-2 px-3 w-24 text-center">Thao tác</th>
                       </tr>
                     </thead>
-                    <tbody className="text-xs text-stone-800 divide-y divide-stone-100">
+                    <tbody className="text-meta text-stone-800 divide-y divide-stone-100">
                       {paginatedChapters.map((ch, idx) => {
                         const isSelected = selectedChapterIds.includes(ch.id);
                         const isCurrentPreview = activePreviewChapter?.id === ch.id;
@@ -993,7 +880,7 @@ export function ManuscriptImportPage() {
                             key={ch.id}
                             className={`transition-colors ${
                               isCurrentPreview
-                                ? 'bg-indigo-50/60'
+                                ? 'bg-primary-50/60'
                                 : isSelected
                                 ? 'hover:bg-stone-50/70'
                                 : 'opacity-60 hover:opacity-100 hover:bg-stone-50/50'
@@ -1007,11 +894,11 @@ export function ManuscriptImportPage() {
                                 className="w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
                               />
                             </td>
-                            <td className="py-2 px-2 text-center font-mono text-stone-400 text-[11px]">
+                            <td className="py-2 px-2 text-center font-mono text-stone-400 text-meta">
                               #{String(ch.sourceIndex).padStart(2, '0')}
                             </td>
                             <td className="py-2 px-2 text-center">
-                              <span className="px-1.5 py-0.5 rounded bg-primary-600/10 text-primary-700 font-semibold text-[11px]">
+                              <span className="px-1.5 py-0.5 rounded bg-primary-600/10 text-primary-700 font-semibold text-meta">
                                 C. {ch.targetNumber}
                               </span>
                             </td>
@@ -1021,7 +908,7 @@ export function ManuscriptImportPage() {
                                   type="text"
                                   value={ch.title}
                                   onChange={(e) => handleUpdateTitle(ch.id, e.target.value)}
-                                  className={`w-full px-2 py-1 rounded text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-primary-600 ${
+                                  className={`w-full px-2 py-1 rounded text-meta transition-colors focus:outline-none focus:ring-1 focus:ring-primary-600 ${
                                     !ch.isValid
                                       ? 'bg-amber-50/80 border border-amber-300 text-amber-900 font-semibold'
                                       : 'bg-transparent hover:bg-white focus:bg-white border border-transparent hover:border-stone-200 focus:border-primary-600'
@@ -1034,17 +921,17 @@ export function ManuscriptImportPage() {
                                 )}
                               </div>
                             </td>
-                            <td className="py-2 px-3 text-right font-mono text-stone-600 text-[11px]">
+                            <td className="py-2 px-3 text-right font-mono text-stone-600 text-meta">
                               {ch.wordCount.toLocaleString()} từ
                             </td>
                             <td className="py-2 px-3 text-center">
                               {ch.isValid ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-meta font-semibold border border-emerald-200">
                                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                   Hợp lệ
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[11px] font-semibold border border-amber-200">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-meta font-semibold border border-amber-200">
                                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                   {ch.validationMessage || 'Chưa rõ tên'}
                                 </span>
@@ -1052,15 +939,15 @@ export function ManuscriptImportPage() {
                             </td>
                             <td className="py-2 px-3 text-center">
                               {isCurrentPreview ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] text-primary-600 font-bold">
-                                  <span className="material-symbols-outlined text-[14px]">visibility</span>
+                                <span className="inline-flex items-center gap-1 text-meta text-primary-600 font-bold">
+                                  <span className="material-symbols-outlined text-body">visibility</span>
                                   Đang xem
                                 </span>
                               ) : (
                                 <button
                                   type="button"
                                   onClick={() => setPreviewChapterId(ch.id)}
-                                  className="text-stone-500 hover:text-primary-600 text-[11px] font-medium transition-colors cursor-pointer"
+                                  className="text-stone-500 hover:text-primary-600 text-meta font-medium transition-colors cursor-pointer"
                                 >
                                   Xem thử
                                 </button>
@@ -1071,7 +958,7 @@ export function ManuscriptImportPage() {
                       })}
                       {parsedChapters.length === 0 && (
                         <tr>
-                          <td colSpan={7} className="py-8 text-center text-stone-500 text-xs">
+                          <td colSpan={7} className="py-8 text-center text-stone-500 text-meta">
                             Chưa tìm thấy chương nào theo quy tắc hiện tại. Hãy kiểm tra lại regex hoặc dán nội dung.
                           </td>
                         </tr>
@@ -1081,7 +968,7 @@ export function ManuscriptImportPage() {
                 </div>
 
                 {/* Pagination */}
-                <div className="p-2.5 px-4 bg-stone-50/80 flex items-center justify-between text-[11px] text-stone-500 border-t border-stone-200">
+                <div className="p-2.5 px-4 bg-stone-50/80 flex items-center justify-between text-meta text-stone-500 border-t border-stone-200">
                   <span>
                     Hiển thị {paginatedChapters.length} / {parsedChapters.length} chương phát hiện
                   </span>
@@ -1117,22 +1004,22 @@ export function ManuscriptImportPage() {
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-stone-100">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-primary-600"></span>
-                      <span className="text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                      <span className="text-meta uppercase tracking-wider text-stone-500 font-bold">
                         Trích đoạn xem trước thực tế
                       </span>
-                      <span className="px-2 py-0.5 rounded bg-stone-100 text-primary-600 text-xs font-semibold">
+                      <span className="px-2 py-0.5 rounded bg-stone-100 text-primary-600 text-meta font-semibold">
                         {activePreviewChapter.title}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-stone-400 text-xs">
+                    <div className="flex items-center gap-2 text-stone-400 text-meta">
                       <span className="material-symbols-outlined text-[15px]">text_format</span>
-                      <span className="text-[11px]">Phông chữ Merriweather (16px)</span>
+                      <span className="text-meta">Phông chữ Merriweather (16px)</span>
                     </div>
                   </div>
 
-                  <article className="p-5 bg-[#faf9f6] rounded-lg border border-stone-100 flex flex-col gap-3 max-w-[760px] mx-auto w-full font-serif">
+                  <article className="p-5 bg-surface-subtle rounded-lg border border-stone-100 flex flex-col gap-3 max-w-[760px] mx-auto w-full font-serif">
                     <header className="text-center pb-2">
-                      <span className="text-[11px] tracking-widest text-stone-400 uppercase font-sans">
+                      <span className="text-meta tracking-widest text-stone-400 uppercase font-sans">
                         Chương đích: C. {activePreviewChapter.targetNumber}
                       </span>
                       <h3 className="text-lg font-bold text-stone-900 mt-1">
@@ -1159,7 +1046,7 @@ export function ManuscriptImportPage() {
                     </div>
                   </article>
 
-                  <div className="flex items-center justify-between text-stone-500 text-[11px] pt-1">
+                  <div className="flex items-center justify-between text-stone-500 text-meta pt-1">
                     <span>
                       Đang xem trích đoạn đầu của{' '}
                       <strong className="text-stone-700">{activePreviewChapter.title}</strong> (
@@ -1186,12 +1073,12 @@ export function ManuscriptImportPage() {
                     info
                   </span>
                   <div className="flex flex-col">
-                    <p className="text-xs text-stone-600 leading-relaxed">
+                    <p className="text-meta text-stone-600 leading-relaxed">
                       Các chương sau khi nhập sẽ được lưu ở trạng thái{' '}
                       <strong className="text-stone-900">Bản nháp (Draft)</strong> trong tác phẩm{' '}
                       <strong>{novel?.title}</strong>. Tác phẩm của bạn hoàn toàn an toàn và không tự động xuất bản.
                     </p>
-                    <span className="text-[11px] text-primary-600 font-semibold mt-0.5">
+                    <span className="text-meta text-primary-600 font-semibold mt-0.5">
                       Đã chọn {selectedChapterIds.length} chương •{' '}
                       {invalidChaptersCount > 0
                         ? `${invalidChaptersCount} chương cần lưu ý`
@@ -1204,7 +1091,7 @@ export function ManuscriptImportPage() {
                   <button
                     type="button"
                     onClick={() => setCurrentStep(1)}
-                    className="flex-1 md:flex-initial px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 text-xs font-semibold transition-colors cursor-pointer"
+                    className="flex-1 md:flex-initial px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 text-meta font-semibold transition-colors cursor-pointer"
                   >
                     Quay lại
                   </button>
@@ -1212,7 +1099,7 @@ export function ManuscriptImportPage() {
                     type="button"
                     disabled={isImporting || selectedChapterIds.length === 0}
                     onClick={handleConfirmImport}
-                    className="flex-1 md:flex-initial px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="flex-1 md:flex-initial px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {isImporting ? (
                       <>
@@ -1239,12 +1126,12 @@ export function ManuscriptImportPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary-600 text-[20px]">psychology</span>
-                      <span className="text-xs font-bold text-stone-900">
+                      <span className="text-meta font-bold text-stone-900">
                         Story Brain Job #{job.job_id.slice(0, 8)}
                       </span>
                     </div>
                     <span
-                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                      className={`text-meta font-semibold px-2 py-0.5 rounded-full ${
                         job.status === 'completed'
                           ? 'bg-emerald-50 text-emerald-700'
                           : job.status === 'failed'
@@ -1264,12 +1151,12 @@ export function ManuscriptImportPage() {
                     ></div>
                   </div>
 
-                  <span className="text-xs text-stone-500">
+                  <span className="text-meta text-stone-500">
                     {job.progress.current}/{job.progress.total} chương • Giai đoạn:{' '}
                     <strong className="text-stone-700">{job.progress.stage}</strong>
                   </span>
                   {job.error?.message && (
-                    <div className="p-2.5 rounded-lg bg-rose-50 text-rose-700 text-xs border border-rose-200">
+                    <div className="p-2.5 rounded-lg bg-rose-50 text-rose-700 text-meta border border-rose-200">
                       {job.error.message}
                     </div>
                   )}
@@ -1282,7 +1169,7 @@ export function ManuscriptImportPage() {
                   <div className="flex items-center justify-between pb-2 border-b border-stone-100">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-amber-600 text-[20px]">rule</span>
-                      <h3 className="text-xs font-bold text-stone-900">
+                      <h3 className="text-meta font-bold text-stone-900">
                         Hàng đợi duyệt đề xuất Story Brain ({reviewGroups.length} nhóm)
                       </h3>
                     </div>
@@ -1290,7 +1177,7 @@ export function ManuscriptImportPage() {
                       type="button"
                       disabled={reviewGroups.length > 0 || activateMutation.isPending}
                       onClick={() => activateMutation.mutate()}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-xs font-semibold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-meta font-semibold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-[15px]">verified</span>
                       <span>Kích hoạt Story Brain Baseline</span>
@@ -1298,7 +1185,7 @@ export function ManuscriptImportPage() {
                   </div>
 
                   {reviewGroups.length === 0 ? (
-                    <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-center text-xs text-emerald-800">
+                    <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-center text-meta text-emerald-800">
                       Tất cả các đề xuất đối chiếu đã được duyệt! Bạn có thể kích hoạt baseline ngay bây giờ.
                     </div>
                   ) : (
@@ -1310,17 +1197,17 @@ export function ManuscriptImportPage() {
                         >
                           <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
+                              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-meta font-bold">
                                 Ưu tiên {Math.max(...proposals.map((p) => p.review_priority))}
                               </span>
-                              <span className="px-2 py-0.5 rounded-full bg-stone-200 text-stone-700 text-[11px]">
+                              <span className="px-2 py-0.5 rounded-full bg-stone-200 text-stone-700 text-meta">
                                 {proposals[0].review_reason}
                               </span>
                             </div>
-                            <span className="text-xs font-semibold text-stone-900">
+                            <span className="text-meta font-semibold text-stone-900">
                               {proposals.map((p) => p.proposal_type).join(', ')}
                             </span>
-                            <pre className="text-[11px] font-mono bg-white p-2 rounded border border-stone-200 overflow-x-auto text-stone-700">
+                            <pre className="text-meta font-mono bg-white p-2 rounded border border-stone-200 overflow-x-auto text-stone-700">
                               {JSON.stringify(
                                 proposals.map((p) => p.payload),
                                 null,
@@ -1332,14 +1219,14 @@ export function ManuscriptImportPage() {
                             <button
                               type="button"
                               onClick={() => acceptMutation.mutate({ groupId, proposals })}
-                              className="px-2.5 py-1 rounded bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold transition-colors cursor-pointer"
+                              className="px-2.5 py-1 rounded bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold transition-colors cursor-pointer"
                             >
                               Chấp nhận
                             </button>
                             <button
                               type="button"
                               onClick={() => rejectMutation.mutate(proposals)}
-                              className="px-2.5 py-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-medium border border-rose-200 transition-colors cursor-pointer"
+                              className="px-2.5 py-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 text-meta font-medium border border-rose-200 transition-colors cursor-pointer"
                             >
                               Từ chối
                             </button>
@@ -1359,12 +1246,12 @@ export function ManuscriptImportPage() {
           Direct Text / Manuscript Paste Modal
          ────────────────────────────────────────── */}
       {pasteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-stone-200 max-w-2xl w-full p-5 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
+        <AuthorDialog onClose={() => setPasteModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-xl shadow-sm border border-stone-200 max-w-2xl w-full p-5 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-2 border-b border-stone-100">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary-600 text-[22px]">edit_note</span>
-                <h3 className="text-sm font-bold text-stone-900">Dán hoặc chỉnh sửa văn bản bản thảo</h3>
+                <h3 className="text-body font-bold text-stone-900">Dán hoặc chỉnh sửa văn bản bản thảo</h3>
               </div>
               <button
                 type="button"
@@ -1374,7 +1261,7 @@ export function ManuscriptImportPage() {
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
-            <p className="text-xs text-stone-500">
+            <p className="text-meta text-stone-500">
               Dán toàn bộ nội dung bản thảo hoặc các chương tại đây. Bộ phân tích sẽ tự động tách chương theo quy tắc nhận diện.
             </p>
             <textarea
@@ -1382,17 +1269,17 @@ export function ManuscriptImportPage() {
               value={tempPasteText}
               onChange={(e) => setTempPasteText(e.target.value)}
               placeholder="Dán nội dung bản thảo tại đây... (Ví dụ: Chương 1: ..., Chương 2: ...)"
-              className="w-full bg-stone-50 border border-stone-200 rounded-lg p-3 font-mono text-xs text-stone-800 focus:outline-none focus:bg-white focus:border-primary-600 focus:ring-1 focus:ring-primary-600"
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg p-3 font-mono text-meta text-stone-800 focus:outline-none focus:bg-white focus:border-primary-600 focus:ring-1 focus:ring-primary-600"
             />
             <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-              <span className="text-xs text-stone-400">
+              <span className="text-meta text-stone-400">
                 {tempPasteText.length.toLocaleString()} ký tự
               </span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setPasteModalOpen(false)}
-                  className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-medium cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-meta font-medium cursor-pointer"
                 >
                   Hủy
                 </button>
@@ -1405,21 +1292,21 @@ export function ManuscriptImportPage() {
                     setPasteModalOpen(false);
                     showToast('Đã cập nhật nội dung bản thảo từ văn bản vừa dán!');
                   }}
-                  className="px-4 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold cursor-pointer shadow-2xs"
+                  className="px-4 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold cursor-pointer shadow-2xs"
                 >
                   Áp dụng &amp; Phân tích
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </div></AuthorDialog>
       )}
 
       {/* ──────────────────────────────────────────
           Toast Feedback Notification
          ────────────────────────────────────────── */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 bg-stone-900 text-white text-xs font-medium px-4 py-2.5 rounded-lg shadow-xl animate-in slide-in-from-bottom-2 duration-200">
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 bg-stone-900 text-white text-meta font-medium px-4 py-2.5 rounded-lg shadow-sm animate-in  duration-200">
           <span className="material-symbols-outlined text-[18px] text-emerald-400">info</span>
           <span>{toastMessage}</span>
         </div>

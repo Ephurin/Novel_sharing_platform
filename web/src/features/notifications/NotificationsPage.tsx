@@ -31,7 +31,7 @@ export function NotificationsPage() {
     <Box>
       <Group justify="space-between" mb="lg">
         <Box>
-          <Title order={2}>Notifications</Title>
+          <Title order={1}>Notifications</Title>
           <Text c="dimmed">MVP inbox for persisted notifications and device-token registration.</Text>
         </Box>
         <Badge variant="light">{statusMessage}</Badge>
@@ -68,7 +68,7 @@ export function NotificationsPage() {
               <Box>
                 <Group gap="xs">
                   <Text fw={700}>{notification.title}</Text>
-                  <Badge size="sm" color={notification.status === 'UNREAD' ? 'violet' : 'gray'}>
+                  <Badge size="sm" color={notification.status === 'UNREAD' ? undefined : 'gray'}>
                     {notification.status}
                   </Badge>
                   <Badge size="sm" variant="outline">

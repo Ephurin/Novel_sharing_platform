@@ -54,8 +54,8 @@ export async function updateMySettings(auth: AuthContext, input: UpdateSettingsI
   return getMySettings(auth);
 }
 
-export async function getAuthorProfile(authorId: string) {
-  const profile = await findAuthorProfileById(authorId);
+export async function getAuthorProfile(authorId: string, viewerId?: string) {
+  const profile = await findAuthorProfileById(authorId, viewerId);
 
   if (!profile) {
     throw new AppError(404, 'NOT_FOUND_001', 'Resource not found');

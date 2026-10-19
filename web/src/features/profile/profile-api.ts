@@ -24,8 +24,10 @@ export type AuthorProfile = {
   displayName: string | null;
   avatarUrl: string | null;
   bio: string | null;
+  joinedAt: string;
   followersCount: number;
-  novels: Array<Pick<ReaderNovel, 'novelId' | 'title' | 'status' | 'likesCount' | 'chaptersCount'>>;
+  isFollowing: boolean;
+  novels: Array<Pick<ReaderNovel, 'novelId' | 'title' | 'status' | 'likesCount' | 'viewsCount' | 'chaptersCount' | 'coverImageUrl' | 'genre' | 'serialStatus'>>;
 };
 
 export async function getMyProfile() {
