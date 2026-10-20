@@ -13,6 +13,7 @@ export type WalletTransaction = {
   amountCoins: number;
   description?: string | null;
   direction: 'IN' | 'OUT';
+  balanceChangeCoins: number;
   metadata?: { message?: string | null; bankAccountLabel?: string | null } | null;
   createdAt: string;
 };
@@ -36,6 +37,8 @@ export async function listTransactions() {
 }
 
 export type WalletEarnings = {
+  asOfDay: string;
+  timeZone: string;
   totalEarnedCoins: number;
   daily: Array<{ day: string; amountCoins: number; unlockCoins: number; donateCoins: number }>;
 };

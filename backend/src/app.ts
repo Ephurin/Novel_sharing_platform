@@ -1,3 +1,4 @@
+import { novelEngagementRoutes } from './modules/interactions/novel-engagement.routes.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import express from 'express';
@@ -67,6 +68,7 @@ export function createApp() {
   app.use(`${env.API_PREFIX}`, commentsRoutes);
   app.use(`${env.API_PREFIX}`, notificationRoutes);
   app.use(`${env.API_PREFIX}`, socialRoutes);
+  app.use(`${env.API_PREFIX}`, novelEngagementRoutes);
   app.use(`${env.API_PREFIX}`, walletResourceRoutes);
 
   // Internal server-to-server endpoints (e.g. AI Service)

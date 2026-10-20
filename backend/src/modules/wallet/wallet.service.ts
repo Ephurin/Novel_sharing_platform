@@ -79,7 +79,7 @@ export async function unlockVipChapter(auth: AuthContext, chapterId: string) {
   if (!chapter) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
-  if (!chapter.is_vip || chapter.price_coins <= 0) {
+  if (chapter.author_id === auth.userId || !chapter.is_vip || chapter.price_coins <= 0) {
     return {
       chapterId,
       unlocked: true,

@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { createNovel, listGenres, listMyNovels } from '../novels/novel-api';
+import { RetainedHeight } from '../../shared/components/RetainedHeight';
+import { sortProjects, type ProjectSort } from './project-sorting';
 import type { Novel, NovelStatus } from '../novels/novel-types';
 
 function formatTimeAgo(dateStr?: string) {
@@ -30,6 +32,7 @@ export function AuthorProjectsPage() {
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatusTab, setSelectedStatusTab] = useState<'ALL' | 'ONGOING' | 'COMPLETED' | 'DRAFT'>('ALL');
+  const [sortOrder, setSortOrder] = useState<ProjectSort>('updated');
   const [selectedGenre, setSelectedGenre] = useState<string>('ALL');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeMenuNovelId, setActiveMenuNovelId] = useState<string | null>(null);
@@ -79,7 +82,7 @@ export function AuthorProjectsPage() {
 
   // Filtered Projects
   const filteredProjects = useMemo(() => {
-    return projects.filter((project) => {
+    return sortProjects(projects.filter((project) => {
       // 1. Text Search
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -99,12 +102,12 @@ export function AuthorProjectsPage() {
 
       // 3. Genre Filter
       if (selectedGenre !== 'ALL') {
-        if (project.genre !== selectedGenre) return false;
+        if (project.genre !== selectedGenre && !project.genres?.includes(selectedGenre)) return false;
       }
 
       return true;
-    });
-  }, [projects, searchQuery, selectedStatusTab, selectedGenre]);
+    }), sortOrder);
+  }, [projects, searchQuery, selectedStatusTab, selectedGenre, sortOrder]);
 
   // Status Counts for Pills
   const counts = useMemo(() => {
@@ -290,9 +293,17 @@ export function AuthorProjectsPage() {
                   {filteredProjects.length} tác phẩm
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 text-meta text-stone-500">
-                <span>Sắp xếp: Mới cập nhật</span>
-                <span className="material-symbols-outlined text-[16px]">swap_vert</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <label htmlFor="project-sort" className="text-form-label text-stone-500">Sắp xếp</label>
+                <select id="project-sort" value={sortOrder} onChange={event => setSortOrder(event.target.value as ProjectSort)} className="bg-white border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700">
+                  <option value="updated">Mới cập nhật</option>
+                  <option value="created-desc">Mới tạo</option>
+                  <option value="created-asc">Tạo lâu nhất</option>
+                  <option value="title-asc">Tên A–Z</option>
+                  <option value="title-desc">Tên Z–A</option>
+                  <option value="views">Lượt đọc nhiều nhất</option>
+                  <option value="chapters">Số chương nhiều nhất</option>
+                </select>
               </div>
             </div>
 
@@ -433,6 +444,7 @@ export function AuthorProjectsPage() {
               </div>
             )}
 
+            <RetainedHeight key={viewMode} retain={Boolean(searchQuery.trim() || selectedStatusTab !== 'ALL' || selectedGenre !== 'ALL')}>
             {/* Empty State */}
             {!projectsQuery.isLoading && !projectsQuery.isError && filteredProjects.length === 0 && (
               <div className="p-12 bg-white rounded-xl border border-stone-200/80 flex flex-col items-center justify-center text-center gap-3">
@@ -531,7 +543,7 @@ export function AuthorProjectsPage() {
 
                             <div className="flex items-center gap-1 text-meta text-stone-400">
                               <span className="material-symbols-outlined text-table">update</span>
-                              <span className="truncate">Cập nhật: {formatTimeAgo((project as any).updatedAt || (project as any).createdAt)}</span>
+                              <span className="truncate">{project.latestChapter ? `Ch. ${project.latestChapter.chapterNumber}: ${project.latestChapter.title} · Sửa` : 'Cập nhật:'} {formatTimeAgo(project.latestChapter?.updatedAt ?? project.updatedAt)}</span>
                             </div>
                           </div>
                         </div>
@@ -677,7 +689,7 @@ export function AuthorProjectsPage() {
                             </span>
                             <span>•</span>
                             <span>
-                              Cập nhật: {formatTimeAgo((project as any).updatedAt || (project as any).createdAt)}
+                              {project.latestChapter ? `Ch. ${project.latestChapter.chapterNumber}: ${project.latestChapter.title} · Sửa` : 'Cập nhật:'} {formatTimeAgo(project.latestChapter?.updatedAt ?? project.updatedAt)}
                             </span>
                           </div>
                         </div>
@@ -712,6 +724,7 @@ export function AuthorProjectsPage() {
                 })}
               </div>
             )}
+            </RetainedHeight>
           </section>
 
         </div>

@@ -27,6 +27,9 @@ function mapWallet(row: QueryResultRow) {
 }
 
 function mapTransaction(row: QueryResultRow) {
+  const incoming = row.type === 'DEPOSIT' || row.counterparty_wallet_id === row.viewer_wallet_id;
+  const selfTransfer = row.wallet_id === row.counterparty_wallet_id;
+  const affectsBalance = row.status === 'SUCCESS' || (row.type === 'WITHDRAW' && row.status === 'PENDING');
   return {
     transactionId: row.transaction_id,
     walletId: row.wallet_id,
@@ -37,7 +40,8 @@ function mapTransaction(row: QueryResultRow) {
     referenceType: row.reference_type,
     referenceId: row.reference_id,
     metadata: row.metadata,
-    direction: row.type === 'DEPOSIT' || row.counterparty_wallet_id === row.viewer_wallet_id ? 'IN' : 'OUT',
+    direction: incoming ? 'IN' : 'OUT',
+    balanceChangeCoins: !affectsBalance || selfTransfer ? 0 : (incoming ? 1 : -1) * row.amount_coins,
     createdAt: row.created_at
   };
 }
@@ -75,7 +79,7 @@ export async function listTransactions(userId: string, input: WalletTransactions
       where w.user_id = $1
         and ($2::transaction_type is null or tx.type = $2)
         and ($3::transaction_status is null or tx.status = $3)
-      order by tx.created_at desc
+      order by tx.created_at desc, tx.transaction_id desc
       limit $4 offset $5
     `,
     [userId, input.type ?? null, input.status ?? null, input.limit, offset]
@@ -98,38 +102,39 @@ export async function listTransactions(userId: string, input: WalletTransactions
   };
 }
 
+// Calendar days are reported in the product timezone, independent of the DB session.
 export async function getAuthorEarnings(userId: string) {
   const result = await getPostgresPool().query(
     `
-      select date_trunc('day', tx.created_at)::date as day,
-             sum(tx.amount_coins)::bigint as amount,
-             coalesce(sum(tx.amount_coins) filter (where tx.type = 'UNLOCK'), 0)::bigint as unlock_amount,
-             coalesce(sum(tx.amount_coins) filter (where tx.type = 'DONATE'), 0)::bigint as donate_amount
-      from transactions tx
-      join wallets w on w.wallet_id = tx.counterparty_wallet_id
-      where w.user_id = $1
-        and tx.type in ('UNLOCK', 'DONATE')
-        and tx.status = 'SUCCESS'
-        and tx.created_at >= current_date - interval '364 days'
-      group by 1
-      order by 1
-    `,
-    [userId]
-  );
-  const totalResult = await getPostgresPool().query(
-    `
-      select coalesce(sum(tx.amount_coins), 0)::bigint as total
-      from transactions tx
-      join wallets w on w.wallet_id = tx.counterparty_wallet_id
-      where w.user_id = $1
-        and tx.type in ('UNLOCK', 'DONATE')
-        and tx.status = 'SUCCESS'
+      with incoming as (
+        select tx.amount_coins, tx.type,
+               (tx.created_at at time zone 'Asia/Bangkok')::date as day
+        from transactions tx
+        join wallets w on w.wallet_id = tx.counterparty_wallet_id
+        where w.user_id = $1 and tx.wallet_id <> w.wallet_id
+          and tx.type in ('UNLOCK', 'DONATE') and tx.status = 'SUCCESS'
+      ), daily as (
+        select day, sum(amount_coins)::bigint as amount,
+               coalesce(sum(amount_coins) filter (where type = 'UNLOCK'), 0)::bigint as unlock_amount,
+               coalesce(sum(amount_coins) filter (where type = 'DONATE'), 0)::bigint as donate_amount
+        from incoming group by day
+      )
+      select to_char((now() at time zone 'Asia/Bangkok')::date, 'YYYY-MM-DD') as as_of_day,
+             (select coalesce(sum(amount_coins), 0)::bigint from incoming) as total,
+             coalesce((select json_agg(json_build_object(
+               'day', to_char(day, 'YYYY-MM-DD'), 'amountCoins', amount,
+               'unlockCoins', unlock_amount, 'donateCoins', donate_amount
+             ) order by day) from daily
+               where day >= (now() at time zone 'Asia/Bangkok')::date - 729
+                 and day <= (now() at time zone 'Asia/Bangkok')::date), '[]'::json) as daily
     `,
     [userId]
   );
   return {
-    totalEarnedCoins: Number(totalResult.rows[0]?.total ?? 0),
-    daily: result.rows.map((row) => ({ day: row.day, amountCoins: Number(row.amount), unlockCoins: Number(row.unlock_amount), donateCoins: Number(row.donate_amount) }))
+    asOfDay: result.rows[0].as_of_day as string,
+    timeZone: 'Asia/Bangkok',
+    totalEarnedCoins: Number(result.rows[0].total),
+    daily: result.rows[0].daily as Array<{ day: string; amountCoins: number; unlockCoins: number; donateCoins: number }>
   };
 }
 

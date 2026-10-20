@@ -10,6 +10,15 @@ body {
   color: #131b2e;
 }
 
+/* Reserve the scrollbar lane when searches or disclosures change page height. */
+html {
+  scrollbar-gutter: stable;
+}
+
+@supports not (scrollbar-gutter: stable) {
+  html { overflow-y: scroll; }
+}
+
 .auth-shell {
   min-height: 100%;
   display: grid;

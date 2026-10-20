@@ -1,3 +1,6 @@
+import { NovelReviews } from '../reader/NovelReviews';
+import { TagsInput } from '@mantine/core';
+import { getNovelStatistics } from '../novels/novel-statistics-api';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -6,6 +9,7 @@ import { useAuthStore } from '../auth/useAuthStore';
 import {
   getNovel,
   getNovelEarnings,
+  listGenres,
   listChapters,
   updateNovel,
   submitNovelPublish,
@@ -37,11 +41,22 @@ export function AuthorNovelMetadataPage() {
     enabled: Boolean(novelId)
   });
 
+  const statisticsQuery = useQuery({
+    queryKey: ['novel-statistics', novelId, user?.userId ?? 'guest'],
+    queryFn: () => getNovelStatistics(novelId),
+    enabled: Boolean(novelId)
+  });
+
+  const genresQuery = useQuery({ queryKey: ['novel-genres'], queryFn: listGenres });
+
   // State: Modals
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [reviewsOpen, setReviewsOpen] = useState(false);
   const [titleInput, setTitleInput] = useState('');
   const [synopsisInput, setSynopsisInput] = useState('');
   const [coverInput, setCoverInput] = useState('');
+  const [authorNoteInput, setAuthorNoteInput] = useState('');
+  const [genresInput, setGenresInput] = useState<string[]>([]);
 
   const [newChapterModalOpen, setNewChapterModalOpen] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState('');
@@ -55,7 +70,7 @@ export function AuthorNovelMetadataPage() {
   const [accessFilter, setAccessFilter] = useState<'ALL' | 'FREE' | 'VIP'>('ALL');
   const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 5;
 
   // Feedback Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -67,12 +82,14 @@ export function AuthorNovelMetadataPage() {
 
   // Populate edit fields
   useEffect(() => {
-    if (novelQuery.data) {
+    if (novelQuery.data && !editModalOpen) {
       setTitleInput(novelQuery.data.title || '');
       setSynopsisInput(novelQuery.data.synopsis || '');
       setCoverInput(novelQuery.data.coverImageUrl || '');
+      setAuthorNoteInput(novelQuery.data.authorNote ?? '');
+      setGenresInput(novelQuery.data.genres ?? (novelQuery.data.genre ? [novelQuery.data.genre] : []));
     }
-  }, [novelQuery.data]);
+  }, [novelQuery.data, editModalOpen]);
 
   // Mutations
   const updateMutation = useMutation({
@@ -80,12 +97,17 @@ export function AuthorNovelMetadataPage() {
       updateNovel(novelId, {
         title: titleInput,
         synopsis: synopsisInput,
+        authorNote: authorNoteInput.trim() || null,
+        genres: genresInput,
         coverImageUrl: coverInput.trim() || null
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
       await queryClient.invalidateQueries({ queryKey: ['author-projects'] });
       setEditModalOpen(false);
+      await queryClient.invalidateQueries({ queryKey: ['novel-genres'] });
+      await queryClient.invalidateQueries({ queryKey: ['author-profile'] });
+      await queryClient.invalidateQueries({ queryKey: ['reader-novel', novelId] });
       showToast('Đã lưu cập nhật thông tin tác phẩm thành công!');
     },
     onError: (err: any) => {
@@ -151,6 +173,7 @@ export function AuthorNovelMetadataPage() {
 
   // Paginated chapters
   const totalPages = Math.ceil(filteredChapters.length / pageSize) || 1;
+  useEffect(() => setCurrentPage(page => Math.min(page, totalPages)), [totalPages]);
   const paginatedChapters = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredChapters.slice(start, start + pageSize);
@@ -306,138 +329,46 @@ export function AuthorNovelMetadataPage() {
 
           {/* Main Workstation Layout */}
           <div className="max-w-7xl mx-auto px-4 lg:px-8 w-full mt-4 flex flex-col gap-4">
-            {/* Novel Header Card: Editorial Master Presentation */}
-            <div className="w-full bg-white rounded-xl p-5 lg:p-6 shadow-2xs border border-stone-200/80 relative">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 lg:gap-7">
-                {/* Book Cover & Novel Info (Left & Middle) */}
-                <div className="flex flex-col sm:flex-row items-start gap-5 flex-1 min-w-0">
-                  {/* Scaled-down Book Cover (w-36 ~144px, aspect-[2/3]) */}
-                  <div className="relative group w-32 sm:w-36 aspect-[2/3] rounded-xl overflow-hidden shadow-xs bg-stone-900 shrink-0 border border-stone-200">
-                    {coverImage ? <img alt={novel.title} className="w-full h-full object-cover  transition-transform duration-500" src={coverImage} /> : <div className="w-full h-full flex items-center justify-center p-4 text-center font-serif text-white">{novel.title}</div>}
-                    <div className="absolute top-2 left-2 flex gap-1">
-                      <span className="bg-stone-900/80 backdrop-blur-xs text-white font-label-sm text-meta px-1.5 py-0.5 rounded font-semibold shadow-xs">
-                        {ageRatingLabel}
-                      </span>
-                    </div>
-                    <div className="absolute bottom-2 left-2 right-2">
-                      <span className="inline-flex items-center gap-1.5 bg-emerald-600/90 text-white font-label-sm text-meta px-2 py-0.5 rounded-full backdrop-blur-xs justify-center w-full font-medium shadow-xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                        <span>{serialStatusLabel}</span>
-                      </span>
-                    </div>
+            <section className="sc-novel-overview" aria-label="Thông tin tác phẩm">
+              <div className="sc-novel-identity">
+                <button type="button" className="sc-novel-cover" onClick={() => setEditModalOpen(true)} aria-label="Đổi ảnh bìa" title="Đổi ảnh bìa">
+                  {coverImage ? <img src={coverImage} alt={novel.title} /> : <span>{novel.title}</span>}
+                </button>
+                <div className="sc-novel-description">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <span className={`sc-novel-status ${novel.status === 'PUBLISHED' ? 'sc-novel-status-public' : ''}`}>{novel.status === 'PUBLISHED' ? serialStatusLabel : novel.status === 'PENDING_MODERATION' ? 'Chờ duyệt' : novel.status === 'REJECTED' ? 'Từ chối' : 'Bản nháp'}</span>
+                    <span className="text-meta text-stone-500">{ageRatingLabel}</span>
                   </div>
-
-                  {/* Central Novel Metadata & Synopsis */}
-                  <div className="flex flex-col justify-center min-w-0 flex-1 py-0.5">
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <span className="font-label-sm text-meta uppercase tracking-wider text-primary-700 font-bold bg-primary-50 border border-primary-200/70 px-2 py-0.5 rounded">
-                        {novel.genre || 'Chưa phân loại'}
-                      </span>
-                      <span className="text-stone-300">•</span>
-                      <span className="font-label-md text-label-md text-stone-500">
-                        Tác giả:{' '}
-                        <strong className="text-stone-900 font-semibold">
-                          {user?.displayName || user?.username || 'Tác giả'}
-                        </strong>
-                      </span>
-                    </div>
-                    <h1 className="text-page-title text-stone-900 mb-1.5">
-                      {novel.title}
-                    </h1>
-                    {novel.synopsis && <details className="mb-2.5 text-body text-stone-600"><summary className="cursor-pointer text-meta font-medium">Giới thiệu tác phẩm</summary><p className="mt-2 whitespace-pre-wrap">{novel.synopsis}</p></details>}
-                    <div className="flex items-center gap-3.5 text-stone-500 font-label-sm text-meta flex-wrap">
-                      <span className="inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[15px] text-stone-400">calendar_today</span>
-                        <span>Khởi tạo: {new Date(novel.createdAt).toLocaleDateString('vi-VN')}</span>
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-primary-600 font-medium">
-                        <span className="material-symbols-outlined text-[15px]">history</span>
-                        <span>Cập nhật: {new Date(novel.updatedAt).toLocaleString('vi-VN')}</span>
-                      </span>
-                      <button
-                        onClick={() => setEditModalOpen(true)}
-                        className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-label-sm text-meta transition-colors ml-1 cursor-pointer font-medium"
-                        type="button"
-                      >
-                        <span className="material-symbols-outlined text-[15px]">photo_camera</span>
-                        <span>Đổi ảnh bìa</span>
-                      </button>
-                    </div>
+                  <h1 className="text-page-title text-stone-900 mb-2">{novel.title}</h1>
+                  <div className="flex flex-wrap items-center gap-2 mb-2 text-body">
+                    <span className="text-stone-500">Thể loại:</span>
+                    {(novel.genres?.length ? novel.genres : novel.genre ? [novel.genre] : []).map(genre => <span key={genre} className="sc-genre-tag">{genre}</span>)}
+                    {!novel.genres?.length && !novel.genre && <span className="text-stone-500">Chưa phân loại</span>}
                   </div>
-                </div>
-
-                {/* Right Side: 3-Metric Statistics Row & Dedicated Action Buttons */}
-                <div className="flex flex-col gap-3.5 w-full lg:w-auto shrink-0">
-                  {/* Horizontal Statistics Row (3 balanced metric cards) */}
-                  <div className="grid grid-cols-3 gap-2.5 min-w-full sm:min-w-[320px]">
-                    <div className="py-2.5 px-3.5 rounded-xl bg-surface-subtle border border-stone-200/80 text-center flex flex-col justify-center shadow-2xs">
-                      <div className="text-stone-500 font-label-sm text-meta mb-0.5 whitespace-nowrap">
-                        Tổng chương
-                      </div>
-                      <div className="font-headline-sm text-[20px] text-stone-900 font-bold leading-tight">
-                        {chapters.length}
-                      </div>
-                    </div>
-                    <div className="py-2.5 px-3.5 rounded-xl bg-surface-subtle border border-stone-200/80 text-center flex flex-col justify-center shadow-2xs">
-                      <div className="text-stone-500 font-label-sm text-meta mb-0.5 whitespace-nowrap">
-                        Lượt đọc
-                      </div>
-                      <div className="font-headline-sm text-[20px] text-primary-600 font-bold leading-tight">
-                        {(novel.viewsCount ?? 0).toLocaleString('vi-VN')}
-                      </div>
-                    </div>
-                    <div className="py-2.5 px-3.5 rounded-xl bg-surface-subtle border border-stone-200/80 text-center flex flex-col justify-center shadow-2xs">
-                      <div className="text-stone-500 font-label-sm text-meta mb-0.5 whitespace-nowrap">
-                        Doanh thu
-                      </div>
-                      <div className="font-headline-sm text-[20px] text-primary-600 font-bold leading-tight whitespace-nowrap">
-                        {earningsQuery.isLoading ? '…' : earningsQuery.isError ? 'Không tải được' : (earningsQuery.data?.unlockCoins ?? 0).toLocaleString('vi-VN')}{' '}
-                        <span className="text-meta font-normal text-stone-500">Xu</span>
-                      </div>
-                    </div>
+                  <p className="text-body text-stone-500 mb-2">Tác giả: <Link className="text-stone-800 font-medium hover:underline" to={`/authors/${novel.authorId}`}>{user?.displayName || user?.username || 'Tác giả'}</Link></p>
+                  <p className="sc-novel-synopsis text-body text-stone-600">{novel.synopsis}</p>
+                  <div className="flex flex-wrap items-center gap-2 mt-3">
+                    <button type="button" onClick={() => setEditModalOpen(true)} className="sc-button sc-button-soft"><span className="material-symbols-outlined" aria-hidden="true">edit</span>Chỉnh sửa thông tin</button>
+                    <Link className="sc-button sc-button-soft" to={`/author/context/${novelId}`}><span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>Cẩm nang</Link>
                   </div>
-
-                  {/* Clean Spacious Actions Row aligned right */}
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => setEditModalOpen(true)}
-                      className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-stone-100 hover:bg-stone-200/80 border border-stone-200/70 text-stone-800 font-label-md text-label-md transition-colors font-medium whitespace-nowrap cursor-pointer"
-                      type="button"
-                    >
-                      <span className="material-symbols-outlined text-[17px] text-stone-500">edit</span>
-                      <span>Chỉnh sửa thông tin</span>
-                    </button>
-                    <Link
-                      to={`/author/context/${novelId}`}
-                      className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-stone-100 hover:bg-stone-200/80 border border-stone-200/70 text-stone-800 font-label-md text-label-md transition-colors font-medium whitespace-nowrap"
-                    >
-                      <span className="material-symbols-outlined text-[17px] text-primary-600">auto_stories</span>
-                      <span>Cẩm nang</span>
-                    </Link>
-                    <button
-                      onClick={() => submitPublishMutation.mutate()}
-                      disabled={
-                        submitPublishMutation.isPending ||
-                        novel.status === 'PUBLISHED' ||
-                        novel.status === 'PENDING_MODERATION'
-                      }
-                      title={
-                        novel.status === 'PUBLISHED'
-                          ? 'Truyện đã xuất bản'
-                          : novel.status === 'PENDING_MODERATION'
-                          ? 'Đang chờ duyệt'
-                          : 'Gửi duyệt toàn bộ tác phẩm'
-                      }
-                      className="p-2 rounded-lg bg-stone-100 hover:bg-stone-200/80 border border-stone-200/70 text-stone-600 hover:text-stone-900 transition-colors flex items-center justify-center cursor-pointer disabled:opacity-40"
-                      type="button"
-                      aria-label="Gửi duyệt tác phẩm"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">more_vert</span>
-                    </button>
-                  </div>
+                  <p className="text-meta text-stone-500 mt-2">Khởi tạo: {new Date(novel.createdAt).toLocaleDateString('vi-VN')} · Cập nhật: {new Date(novel.updatedAt).toLocaleString('vi-VN')}</p>
                 </div>
               </div>
-            </div>
+              <dl className="sc-novel-metrics">
+                <div><dt>Tổng chương</dt><dd>{chaptersQuery.isPending ? '…' : chaptersQuery.isError ? '—' : chapters.length}</dd></div>
+                <div><dt>Lượt đọc</dt><dd>{novel.viewsCount.toLocaleString('vi-VN')}</dd></div>
+                <div><dt>Doanh thu</dt><dd>{earningsQuery.isPending ? '…' : earningsQuery.isError ? '—' : earningsQuery.data.unlockCoins.toLocaleString('vi-VN')} <span className="text-meta font-normal">Xu</span></dd></div>
+                <div><dt>Đánh giá</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.ratingAverage === null ? 'Chưa có' : statisticsQuery.data.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}</dd><button type="button" className="sc-review-link text-meta" onClick={() => setReviewsOpen(true)} aria-haspopup="dialog">Đọc đánh giá</button></div>
+                <div><dt>Theo dõi</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.followersCount.toLocaleString('vi-VN')}</dd></div>
+                <div><dt>Tổng số từ</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.totalWords.toLocaleString('vi-VN')}</dd></div>
+              </dl>
+              {statisticsQuery.isError && <button type="button" onClick={() => void statisticsQuery.refetch()} className="text-meta text-red-700">Không tải được thống kê · Thử lại</button>}
+              {earningsQuery.isError && <button type="button" onClick={() => void earningsQuery.refetch()} className="text-meta text-red-700">Không tải được doanh thu · Thử lại</button>}
+              <div className="sc-author-note">
+                <h2 className="text-section-title mb-2">Lời tác giả</h2>
+                {novel.authorNote ? <p className="text-body text-stone-600 whitespace-pre-wrap break-words">{novel.authorNote}</p> : <button type="button" onClick={() => setEditModalOpen(true)} className="text-body text-stone-500 hover:text-stone-800">Thêm lời nhắn dành cho độc giả</button>}
+              </div>
+            </section>
 
             {/* Chapter Management Workstation Section */}
             <div className="w-full bg-white rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden flex flex-col">
@@ -579,9 +510,10 @@ export function AuthorNovelMetadataPage() {
                 </div>
               </div>
 
+
               {/* Decluttered 8-Column Chapter Table */}
               <div className="w-full overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[950px]">
+                <table className="w-full text-left border-collapse min-w-[950px] sc-chapter-table">
                   <thead>
                     <tr className="bg-surface-subtle text-stone-500 font-label-sm text-meta uppercase tracking-wider border-b border-stone-200">
                       <th className="py-2.5 px-3.5 w-10 text-center">
@@ -664,13 +596,7 @@ export function AuthorNovelMetadataPage() {
                             >
                               Mở Studio
                             </button>
-                            <Link
-                              to={`/author/novels/${novelId}/chapters/${chapter.chapterId}`}
-                              className="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors inline-flex items-center"
-                              title="Tùy chọn khác"
-                            >
-                              <span className="material-symbols-outlined text-[17px]">more_vert</span>
-                            </Link>
+
                           </div>
                         </td>
                       </tr>
@@ -678,11 +604,14 @@ export function AuthorNovelMetadataPage() {
 
                     {paginatedChapters.length === 0 && (
                       <tr>
-                        <td colSpan={7} className="py-12 text-center text-stone-400 italic">
+                        <td colSpan={7} className="py-3 text-center text-stone-400 italic">
                           Không tìm thấy chương truyện nào phù hợp với bộ lọc hiện tại.
                         </td>
                       </tr>
                     )}
+                    {Array.from({ length: Math.max(0, pageSize - Math.max(1, paginatedChapters.length)) }, (_, index) => (
+                      <tr key={`empty-${index}`} aria-hidden="true"><td colSpan={7}>&nbsp;</td></tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -776,18 +705,32 @@ export function AuthorNovelMetadataPage() {
       {/* ──────────────────────────────────────────
           BEGIN: Modal Chỉnh Sửa Thông Tin Tác Phẩm
          ────────────────────────────────────────── */}
+      {reviewsOpen && (
+        <AuthorDialog onClose={() => setReviewsOpen(false)}>
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <div className="w-full max-w-2xl bg-white p-6">
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <h2 className="text-section font-bold">Đánh giá của độc giả</h2>
+                <button type="button" className="sc-icon-button" onClick={() => setReviewsOpen(false)} aria-label="Đóng đánh giá"><span className="material-symbols-outlined" aria-hidden="true">close</span></button>
+              </div>
+              <NovelReviews key={novelId} novelId={novelId} />
+            </div>
+          </div>
+        </AuthorDialog>
+      )}
+
       {editModalOpen && (
         <AuthorDialog onClose={() => setEditModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-sm border border-stone-200 w-full max-w-lg p-5 animate-in fade-in zoom-in-95 duration-200">
+          <div className="sc-novel-edit-dialog bg-white rounded-xl shadow-sm border border-stone-200 animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+            <div className="sc-novel-edit-header flex items-center justify-between border-b border-stone-100">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center">
                   <span className="material-symbols-outlined text-[18px]">edit_square</span>
                 </div>
                 <div>
                   <h3 className="text-body font-bold text-stone-900">Chỉnh sửa thông tin tác phẩm</h3>
-                  <p className="text-meta text-stone-400">Cập nhật tiêu đề, ảnh bìa và lời giới thiệu</p>
+                  <p className="text-meta text-stone-400">Cập nhật thông tin, thể loại và lời tác giả</p>
                 </div>
               </div>
               <button
@@ -800,7 +743,7 @@ export function AuthorNovelMetadataPage() {
             </div>
 
             {/* Form */}
-            <div className="space-y-3.5 text-meta">
+            <div className="sc-novel-edit-fields text-body">
               <div>
                 <label className="block font-semibold text-stone-800 mb-1">Tiêu đề tác phẩm</label>
                 <input
@@ -832,6 +775,13 @@ export function AuthorNovelMetadataPage() {
                 </div>
               </div>
 
+              <TagsInput className="sc-novel-edit-genres" label="Thể loại" description="Chọn hoặc nhập tối đa 5 thể loại." placeholder="Chọn hoặc nhập thể loại" data={genresQuery.data ?? []} value={genresInput} onChange={setGenresInput} maxTags={5} maxLength={100} clearable comboboxProps={{ withinPortal: false }} />
+              <div>
+                <label htmlFor="novel-author-note" className="block font-semibold text-stone-800 mb-1">Lời tác giả</label>
+                <textarea id="novel-author-note" rows={8} maxLength={5000} value={authorNoteInput} onChange={event => setAuthorNoteInput(event.target.value)} placeholder="Lời nhắn dành cho độc giả…" className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-body" />
+                <p className="text-meta text-stone-500">Tối đa 5.000 ký tự.</p>
+              </div>
+
               <div>
                 <label className="block font-semibold text-stone-800 mb-1">Lời giới thiệu (Synopsis)</label>
                 <textarea
@@ -845,7 +795,7 @@ export function AuthorNovelMetadataPage() {
             </div>
 
             {/* Actions */}
-            <div className="mt-5 pt-3 border-t border-stone-100 flex items-center justify-between">
+            <div className="sc-novel-edit-footer border-t border-stone-100 flex flex-wrap items-center justify-between gap-3">
               <button
                 onClick={() => submitPublishMutation.mutate()}
                 disabled={

@@ -11,6 +11,7 @@ import {
   publishChapter,
   submitChapterForPublish,
   updateChapterMetadata,
+  touchChapterUpdatedAt,
   updateChapterPricing
 } from './chapters.repository.js';
 import { findDraftChapterByChapterId, upsertDraftChapter } from './draft-chapters.repository.js';
@@ -179,6 +180,7 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
       wordCount,
       autosave: input.autosave
     });
+    if (isPublishedDraftUpdate) await touchChapterUpdatedAt(chapterId);
   }
 
   return {

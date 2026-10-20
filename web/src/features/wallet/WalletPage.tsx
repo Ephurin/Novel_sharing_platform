@@ -10,54 +10,12 @@ import {
   getWalletEarnings,
   listDepositPackages,
   listTransactions,
-  type WalletTransaction,
-  type WalletEarnings
+  type WalletTransaction
 } from './wallet-api';
+import { makeChart, type PeriodType } from './wallet-earnings';
 import { useAuthStore } from '../auth/useAuthStore';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { LoadingState, ErrorState } from '../../shared/components/PageStates';
-
-type PeriodType = '7' | '30' | '365';
-
-type ChartDataPoint = {
-  label: string;
-  amount: number;
-  heightPercent: number;
-  highlight?: boolean;
-};
-
-function makeChart(earnings: WalletEarnings, period: PeriodType) {
-  const days = Number(period);
-  const bucketCount = period === '7' ? 7 : period === '30' ? 6 : 12;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const start = new Date(today);
-  start.setDate(start.getDate() - days + 1);
-  const amounts = Array.from({ length: bucketCount }, () => 0);
-  let unlockCoins = 0;
-  let donateCoins = 0;
-  for (const entry of earnings.daily) {
-    const day = new Date(`${String(entry.day).slice(0, 10)}T00:00:00`);
-    const offset = Math.floor((day.getTime() - start.getTime()) / 86400000);
-    if (offset < 0 || offset >= days) continue;
-    const bucket = Math.min(bucketCount - 1, Math.floor(offset * bucketCount / days));
-    amounts[bucket] += entry.amountCoins;
-    unlockCoins += entry.unlockCoins;
-    donateCoins += entry.donateCoins;
-  }
-  const maxAmount = Math.max(1, ...amounts);
-  const points: ChartDataPoint[] = amounts.map((amount, index) => {
-    const bucketDay = new Date(start);
-    bucketDay.setDate(start.getDate() + Math.floor(index * days / bucketCount));
-    return {
-      label: bucketDay.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
-      amount,
-      heightPercent: amount / maxAmount * 100,
-      highlight: index === bucketCount - 1
-    };
-  });
-  return { points, total: unlockCoins + donateCoins, unlockCoins, donateCoins, maxAmount };
-}
 
 interface DisplayTransaction {
   id: string;
@@ -72,6 +30,7 @@ interface DisplayTransaction {
   detail: string;
   amount: number;
   isPositive: boolean;
+  balanceChangeCoins: number;
   status: 'done' | 'pending' | 'failed';
   statusLabel: string;
   code: string;
@@ -182,19 +141,19 @@ export function WalletPage() {
         iconColor = 'text-success';
       } else if (isWithdraw) {
         category = 'withdraw';
-        categoryLabel = 'Rút tiền về ngân hàng';
+        categoryLabel = 'Rút Xu mô phỏng';
         icon = 'north_east';
         iconBg = 'bg-danger-bg';
         iconColor = 'text-danger';
       } else if (isTip) {
         category = 'tip';
-        categoryLabel = 'Độc giả ủng hộ';
+        categoryLabel = isPositive ? 'Nhận ủng hộ' : 'Ủng hộ tác giả';
         icon = 'favorite';
         iconBg = 'bg-primary-50';
         iconColor = 'text-primary-800';
       } else if (isUnlock) {
         category = 'vip';
-        categoryLabel = 'Mở khóa chương VIP';
+        categoryLabel = isPositive ? 'Doanh thu mở khóa' : 'Mở khóa chương VIP';
         icon = 'menu_book';
         iconBg = 'bg-primary-fixed';
         iconColor = 'text-primary';
@@ -222,9 +181,10 @@ export function WalletPage() {
         icon,
         iconBg,
         iconColor,
-        title: isWithdraw ? 'Lệnh rút tiền về ngân hàng' : isDeposit ? 'Nạp Xu vào ví' : isTip ? (isPositive ? 'Nhận ủng hộ' : 'Ủng hộ tác giả') : isUnlock ? (isPositive ? 'Doanh thu mở khóa' : 'Mở khóa chương') : 'Giao dịch ví',
+        title: isWithdraw ? 'Yêu cầu rút Xu mô phỏng' : isDeposit ? 'Nạp Xu vào ví' : isTip ? (isPositive ? 'Nhận ủng hộ' : 'Ủng hộ tác giả') : isUnlock ? (isPositive ? 'Doanh thu mở khóa' : 'Mở khóa chương') : 'Giao dịch ví',
         detail: t.metadata?.bankAccountLabel || t.metadata?.message || t.description || `Mã: ${t.transactionId.substring(0, 8)}`,
         amount: Math.abs(t.amountCoins),
+        balanceChangeCoins: t.balanceChangeCoins,
         isPositive,
         status: statusMap[t.status] || 'failed',
         statusLabel: t.status === 'COMPLETED' || t.status === 'SUCCESS' ? 'Hoàn tất' : t.status === 'PENDING' ? 'Đang xử lý' : t.status,
@@ -262,7 +222,7 @@ export function WalletPage() {
     });
   }, [combinedTransactions, searchQuery, filterType, filterStatus, filterDateRange]);
 
-  const currentChart = useMemo(() => makeChart(earningsQuery.data ?? { totalEarnedCoins: 0, daily: [] }, chartPeriod), [earningsQuery.data, chartPeriod]);
+  const currentChart = useMemo(() => makeChart(earningsQuery.data ?? { asOfDay: new Date().toISOString().slice(0, 10), timeZone: 'Asia/Bangkok', totalEarnedCoins: 0, daily: [] }, chartPeriod), [earningsQuery.data, chartPeriod]);
   const displayedTransactions = filteredTransactions.slice((currentPage - 1) * 10, currentPage * 10);
   const transactionPages = Math.max(1, Math.ceil(filteredTransactions.length / 10));
 
@@ -321,6 +281,8 @@ export function WalletPage() {
 
               </section>
 
+              <p className="text-body text-on-surface-variant">Ví thử nghiệm: nạp/rút Xu mô phỏng, không thanh toán hoặc chuyển tiền thật.</p>
+
               {/* 2. Balance Cards Row */}
               <section className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-stretch">
                 {/* Card 1: Số dư khả dụng */}
@@ -363,7 +325,7 @@ export function WalletPage() {
                       className="w-full inline-flex items-center justify-center gap-1.5 bg-primary hover:bg-primary-container text-on-primary font-label-md text-meta py-2 px-3 rounded-lg shadow-sm hover:shadow-sm transform   transition-all font-semibold"
                     >
                       <span className="material-symbols-outlined text-[16px]">payments</span>
-                      <span>Yêu cầu rút tiền</span>
+                      <span>Yêu cầu rút Xu mô phỏng</span>
                     </button>
                   </div>
                 </div>
@@ -471,12 +433,17 @@ export function WalletPage() {
                                 : 'hover:text-on-surface'
                             }`}
                           >
-                            {period === '7' ? '7 ngày' : period === '30' ? '30 ngày' : '12 tháng'}
+                            {period === '7' ? '7 ngày' : period === '30' ? '30 ngày' : '365 ngày'}
                           </button>
                         ))}
                       </div>
                     </div>
 
+                    <p className="text-meta text-outline">
+                      Kỳ trước: {currentChart.previousTotal.toLocaleString('vi-VN')} Xu · {currentChart.previousTotal > 0
+                        ? `Thay đổi ${((currentChart.total - currentChart.previousTotal) / currentChart.previousTotal * 100).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%`
+                        : 'Chưa có tỷ lệ tăng trưởng'}
+                    </p>
                     {/* Chart Visualization */}
                     <div className="w-full pt-2 pb-1">
                       <div className="relative w-full h-44 flex flex-col justify-end">
@@ -507,9 +474,9 @@ export function WalletPage() {
                         {/* Bars Cluster */}
                         <div className="relative pl-8 pr-1 h-36 flex items-end justify-between gap-2 sm:gap-3.5 z-10">
                           {currentChart.points.map((pt, idx) => (
-                            <div key={idx} className="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer">
+                            <div key={idx} tabIndex={0} aria-label={`${pt.label}: ${pt.amount.toLocaleString('vi-VN')} Xu`} className="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer">
                               {/* Hover Tooltip */}
-                              <div className="absolute -top-7 px-2 py-0.5 bg-inverse-surface text-inverse-on-surface font-label-sm text-meta rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-sm z-20">
+                              <div className="absolute -top-7 px-2 py-0.5 bg-inverse-surface text-inverse-on-surface font-label-sm text-meta rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-sm z-20">
                                 {pt.label}: {pt.amount.toLocaleString('vi-VN')} Xu
                               </div>
                               <div
@@ -601,7 +568,7 @@ export function WalletPage() {
                           <p className="font-semibold text-meta tracking-wide text-white">{bankHolder || 'Chưa nhập chủ tài khoản'}</p>
                         </div>
                         <div className="flex items-center gap-1 text-meta text-emerald-100">
-                          <span>Văn Hoa Payout</span>
+                          <span>Ví mô phỏng</span>
                           <span className="material-symbols-outlined text-table">shield</span>
                         </div>
                       </div>
@@ -633,7 +600,7 @@ export function WalletPage() {
                       className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-meta transition-all shadow-xs"
                     >
                       <span className="material-symbols-outlined text-[16px] text-outline">credit_card</span>
-                      <span>Quản lý tài khoản ngân hàng</span>
+                      <span>Nhập thông tin yêu cầu rút</span>
                     </button>
                   </div>
                 </div>
@@ -676,7 +643,7 @@ export function WalletPage() {
                         <option value="all">Tất cả loại giao dịch</option>
                         <option value="vip">Doanh thu chương VIP</option>
                         <option value="tip">Độc giả ủng hộ / Tip</option>
-                        <option value="withdraw">Rút tiền về ngân hàng</option>
+                        <option value="withdraw">Rút Xu mô phỏng</option>
                         <option value="deposit">Nạp Xu vào ví</option>
                       </select>
                       <span className="material-symbols-outlined absolute right-1.5 top-1/2 -translate-y-1/2 text-[15px] pointer-events-none text-outline">
@@ -760,11 +727,11 @@ export function WalletPage() {
                             </td>
                             <td
                               className={`py-2.5 px-3.5 text-right font-bold whitespace-nowrap text-body ${
-                                tx.isPositive ? 'text-success' : 'text-danger'
+                                tx.balanceChangeCoins === 0 ? 'text-outline' : tx.isPositive ? 'text-success' : 'text-danger'
                               }`}
                             >
-                              {tx.isPositive ? '+' : '-'}
-                              {tx.amount.toLocaleString('vi-VN')}{' '}
+                              {tx.balanceChangeCoins === 0 ? '' : tx.isPositive ? '+' : '-'}
+                              <span className={tx.balanceChangeCoins === 0 ? 'line-through' : ''}>{tx.amount.toLocaleString('vi-VN')}</span>{' '}
                               <span className="text-meta font-normal text-outline">Xu</span>
                             </td>
                             <td className="py-2.5 px-3.5 text-center whitespace-nowrap">
@@ -834,10 +801,10 @@ export function WalletPage() {
             <div className="flex items-start justify-between">
               <div className="flex flex-col">
                 <h3 className="text-base text-on-surface font-bold">
-                  Yêu cầu rút tiền về ngân hàng
+                  Yêu cầu rút Xu mô phỏng
                 </h3>
                 <p className="text-meta text-outline">
-                  Gửi yêu cầu rút Xu về tài khoản ngân hàng bạn nhập
+                  Yêu cầu chỉ dùng để mô phỏng, không chuyển tiền qua ngân hàng.
                 </p>
               </div>
               <button
@@ -885,7 +852,7 @@ export function WalletPage() {
                     type="number"
                     min={100}
                     max={availableBalance}
-                    step={100}
+                    step={1}
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(Number(e.target.value) || 0)}
                     className="w-full pl-3 pr-14 py-2 rounded-lg bg-surface-container-lowest ring-1 ring-outline-variant focus:ring-2 focus:ring-primary outline-none text-base text-on-surface font-bold transition-all"
@@ -904,7 +871,7 @@ export function WalletPage() {
 
                 <div className="flex items-center gap-1.5 text-meta text-outline mt-0.5">
                   <span className="material-symbols-outlined text-table">info</span>
-                  <span>Tối thiểu 100 Xu. 1 Xu = 100 VNĐ.</span>
+                  <span>Tối thiểu 100 Xu. Không quy đổi thành tiền thật.</span>
                 </div>
               </div>
 

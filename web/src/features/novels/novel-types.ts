@@ -6,6 +6,8 @@ export type Novel = {
   title: string;
   slug: string;
   synopsis: string;
+  authorNote: string | null;
+  genres: string[];
   coverImageUrl: string | null;
   status: NovelStatus;
   serialStatus: 'ONGOING' | 'COMPLETED' | 'HIATUS';
@@ -13,7 +15,15 @@ export type Novel = {
   likesCount: number;
   viewsCount: number;
   chaptersCount: number;
+  genreId: string | null;
   genre: string | null;
+  latestChapter?: {
+    chapterId: string;
+    chapterNumber: number;
+    title: string;
+    status: ChapterStatus;
+    updatedAt: string;
+  } | null;
   createdAt: string;
   updatedAt: string;
 };

@@ -1,9 +1,13 @@
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { slugify } from '../../core/utils/slug.js';
 import type { CreateNovelInput, ListNovelsInput, UpdateNovelInput } from './novels.schemas.js';
 
 type DbClient = Pick<PoolClient, 'query'>;
+
+const genresProjection = `(select array_agg(gg.name order by (ng.genre_id = n.genre_id) desc, gg.name)
+  from novel_genres ng join genres gg on gg.genre_id = ng.genre_id where ng.novel_id = n.novel_id)`;
 
 export type NovelStatus = 'DRAFT' | 'PENDING_MODERATION' | 'PUBLISHED' | 'REJECTED';
 
@@ -13,6 +17,8 @@ export type NovelRecord = {
   title: string;
   slug: string;
   synopsis: string;
+  authorNote: string | null;
+  genres: string[];
   coverImageUrl: string | null;
   status: NovelStatus;
   serialStatus: 'ONGOING' | 'COMPLETED' | 'HIATUS';
@@ -20,7 +26,15 @@ export type NovelRecord = {
   likesCount: number;
   viewsCount: number;
   chaptersCount: number;
+  genreId: string | null;
   genre: string | null;
+  latestChapter?: {
+    chapterId: string;
+    chapterNumber: number;
+    title: string;
+    status: string;
+    updatedAt: string;
+  } | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -32,6 +46,8 @@ function mapNovel(row: QueryResultRow): NovelRecord {
     title: row.title,
     slug: row.slug,
     synopsis: row.synopsis,
+    authorNote: row.author_note ?? null,
+    genres: row.genres?.length ? row.genres : row.genre ? [row.genre] : [],
     coverImageUrl: row.cover_image_url,
     status: row.status,
     serialStatus: row.serial_status,
@@ -39,7 +55,9 @@ function mapNovel(row: QueryResultRow): NovelRecord {
     likesCount: row.likes_count,
     viewsCount: row.views_count,
     chaptersCount: row.chapters_count,
+    genreId: row.genre_id ?? null,
     genre: row.genre ?? null,
+    ...(row.latest_chapter !== undefined ? { latestChapter: row.latest_chapter } : {}),
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -55,7 +73,10 @@ export async function getNovelUnlockEarnings(novelId: string) {
     `select coalesce(sum(tx.amount_coins), 0)::bigint as total
      from transactions tx
      join chapters c on c.chapter_id = tx.reference_id
-     where c.novel_id = $1 and tx.type = 'UNLOCK' and tx.status = 'SUCCESS'`,
+     join novels n on n.novel_id = c.novel_id
+     join wallets w on w.user_id = n.author_id and w.wallet_id = tx.counterparty_wallet_id
+     where c.novel_id = $1 and tx.type = 'UNLOCK' and tx.status = 'SUCCESS'
+       and tx.reference_type = 'CHAPTER' and tx.wallet_id <> w.wallet_id`,
     [novelId]
   );
   return Number(result.rows[0]?.total ?? 0);
@@ -71,20 +92,22 @@ export async function createNovel(
 ) {
   const result = await client.query(
     `
-      insert into novels (author_id, title, slug, synopsis, cover_image_url, genre_id)
-      values ($1, $2, $3, $4, $5, $6)
+      insert into novels (author_id, title, slug, synopsis, cover_image_url, genre_id, author_note)
+      values ($1, $2, $3, $4, $5, $6, $7)
       returning *
     `,
-    [input.authorId, input.title, input.slug, input.synopsis, input.coverImageUrl ?? null, input.genreId]
+    [input.authorId, input.title, input.slug, input.synopsis, input.coverImageUrl ?? null, input.genreId, input.authorNote ?? null]
   );
 
-  return { ...mapNovel(result.rows[0]), genre: input.genre ?? null };
+  const names = input.genres ?? (input.genre ? [input.genre] : []);
+  const metadata = await writeNovelGenres(client, result.rows[0].novel_id, names);
+  return { ...mapNovel(result.rows[0]), genre: metadata.genres[0] ?? null, genres: metadata.genres };
 }
 
 export async function findNovelById(novelId: string) {
   const result = await getPostgresPool().query(
     `
-      select n.*, g.name as genre
+      select n.*, g.name as genre, ${genresProjection} as genres
       from novels n
       left join genres g on g.genre_id = n.genre_id
       where n.novel_id = $1 and n.deleted_at is null
@@ -103,7 +126,7 @@ export async function listNovels(input: ListNovelsInput) {
 
   const dataResult = await getPostgresPool().query(
     `
-      select n.*, g.name as genre
+      select n.*, g.name as genre, ${genresProjection} as genres
       from novels n
       left join genres g on g.genre_id = n.genre_id
       where n.deleted_at is null
@@ -138,9 +161,19 @@ export async function listNovelsByAuthor(authorId: string, input: ListNovelsInpu
 
   const dataResult = await getPostgresPool().query(
     `
-      select n.*, g.name as genre
+      select n.*, g.name as genre, ${genresProjection} as genres, recent.latest_chapter
       from novels n
       left join genres g on g.genre_id = n.genre_id
+      left join lateral (
+        select json_build_object(
+          'chapterId', c.chapter_id, 'chapterNumber', c.chapter_number,
+          'title', c.title, 'status', c.status, 'updatedAt', c.updated_at
+        ) as latest_chapter
+        from chapters c
+        where c.novel_id = n.novel_id and c.deleted_at is null
+        order by c.updated_at desc, c.chapter_id desc
+        limit 1
+      ) recent on true
       where n.deleted_at is null
         and n.author_id = $1
         and ($2::novel_status is null or n.status = $2)
@@ -170,21 +203,46 @@ export async function listNovelsByAuthor(authorId: string, input: ListNovelsInpu
 }
 
 export async function updateNovel(novelId: string, input: UpdateNovelInput) {
-  const result = await getPostgresPool().query(
-    `
-      update novels
-      set
-        title = coalesce($2, title),
-        synopsis = coalesce($3, synopsis),
-        cover_image_url = coalesce($4, cover_image_url),
-        updated_at = now()
-      where novel_id = $1 and deleted_at is null
-      returning *
-    `,
-    [novelId, input.title, input.synopsis, input.coverImageUrl]
-  );
+  return withPostgresTransaction(async (client) => {
+    const existing = await client.query('select novel_id from novels where novel_id = $1 and deleted_at is null for update', [novelId]);
+    if (!existing.rows[0]) return null;
+    const changingGenres = input.genres !== undefined || input.genre !== undefined;
+    const names = input.genres ?? (input.genre ? [input.genre] : []);
+    const metadata = changingGenres ? await writeNovelGenres(client, novelId, names) : null;
+    const result = await client.query(
+      `
+        update novels
+        set title = coalesce($2, title), synopsis = coalesce($3, synopsis),
+            cover_image_url = case when $5 then $4 else cover_image_url end,
+            genre_id = case when $7 then $6::uuid else genre_id end,
+            author_note = case when $9 then $8 else author_note end,
+            updated_at = now()
+        where novel_id = $1 and deleted_at is null
+        returning novel_id
+      `,
+      [novelId, input.title, input.synopsis, input.coverImageUrl ?? null,
+        input.coverImageUrl !== undefined, metadata?.genreId ?? null, changingGenres,
+        input.authorNote?.trim() || null, input.authorNote !== undefined]
+    );
+    if (!result.rows[0]) return null;
+    const updated = await client.query(`select n.*, g.name as genre, ${genresProjection} as genres
+      from novels n left join genres g on g.genre_id = n.genre_id where n.novel_id = $1`, [novelId]);
+    return mapNovel(updated.rows[0]);
+  });
+}
 
-  return result.rows[0] ? mapNovel(result.rows[0]) : null;
+async function writeNovelGenres(client: DbClient, novelId: string, values: string[]) {
+  const names = [...new Map(values.map(name => [slugify(name.trim()), name.trim()])).values()];
+  const genreIds: string[] = [];
+  for (const name of names) {
+    const id = await upsertGenre(client, name);
+    if (id && !genreIds.includes(id)) genreIds.push(id);
+  }
+  await client.query('delete from novel_genres where novel_id = $1', [novelId]);
+  if (genreIds.length) {
+    await client.query('insert into novel_genres (novel_id, genre_id) select $1, unnest($2::uuid[]) on conflict do nothing', [novelId, genreIds]);
+  }
+  return { genreId: genreIds[0] ?? null, genres: names };
 }
 
 export async function softDeleteNovel(novelId: string) {

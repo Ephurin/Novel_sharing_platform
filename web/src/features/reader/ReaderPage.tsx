@@ -1,3 +1,4 @@
+import { NovelEngagement } from './NovelEngagement';
 import {
   Alert,
   Badge,
@@ -275,6 +276,7 @@ export function ReaderNovelDetailPage() {
               <Badge variant="outline">{novel?.status ?? novel?.serialStatus ?? 'Published'}</Badge>
               <Badge variant="outline">{novel?.chaptersCount ?? chapters.length} chapters</Badge>
             </Group>
+            {novel && <NovelEngagement novelId={novelId} authorId={novel.authorId} />}
             <Text c="dimmed">{novel?.synopsis ?? 'No synopsis.'}</Text>
             {interactionNotice ? <Alert color="blue">{interactionNotice}</Alert> : null}
             <Group>

@@ -192,3 +192,11 @@ export async function rejectChapterPublication(chapterId: string) {
 
   return result.rows[0] ? mapChapter(result.rows[0]) : null;
 }
+
+// Draft prose lives in MongoDB; keep PostgreSQL activity summaries current.
+export async function touchChapterUpdatedAt(chapterId: string) {
+  await getPostgresPool().query(
+    'update chapters set updated_at = now() where chapter_id = $1 and deleted_at is null',
+    [chapterId]
+  );
+}

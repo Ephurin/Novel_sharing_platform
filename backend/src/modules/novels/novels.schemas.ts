@@ -19,6 +19,8 @@ export const createNovelSchema = z.object({
   body: z.object({
     title: z.string().min(1).max(255),
     synopsis: z.string().min(10),
+    authorNote: z.string().trim().max(5000).nullable().optional(),
+    genres: z.array(z.string().trim().min(1).max(100)).max(5).optional(),
     genre: z.string().max(100).optional(),
     tags: z.array(z.string().min(1).max(100)).default([]),
     coverImageUrl: z.string().url().nullable().optional()
@@ -30,6 +32,8 @@ export const updateNovelSchema = z.object({
   body: z.object({
     title: z.string().min(1).max(255).optional(),
     synopsis: z.string().min(10).optional(),
+    authorNote: z.string().trim().max(5000).nullable().optional(),
+    genres: z.array(z.string().trim().min(1).max(100)).max(5).optional(),
     genre: z.string().max(100).nullable().optional(),
     tags: z.array(z.string().min(1).max(100)).optional(),
     coverImageUrl: z.string().url().nullable().optional()

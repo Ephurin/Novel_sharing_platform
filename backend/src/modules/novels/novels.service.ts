@@ -35,7 +35,7 @@ function makeUniqueSlug(title: string) {
 
 export async function createNovel(auth: AuthContext, input: CreateNovelInput) {
   return withPostgresTransaction(async (client) => {
-    const genreId = await upsertGenre(client, input.genre);
+    const genreId = await upsertGenre(client, input.genres !== undefined ? input.genres[0] : input.genre);
 
     return createNovelRow(client, {
       ...input,

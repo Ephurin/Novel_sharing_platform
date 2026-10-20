@@ -127,11 +127,16 @@ export function AuthorWritingIde() {
   // UI Interactive Panels & Modals State
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches);
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  const toggleAiDrawer = () => {
+    if (!aiDrawerOpen && window.matchMedia('(max-width: 1200px)').matches) setSidebarOpen(false);
+    setAiDrawerOpen(open => !open);
+  };
   const [storyBibleOpen, setStoryBibleOpen] = useState(false);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null);
   const [focusMode, setFocusMode] = useState(false);
+  const [formatToolbarVisible, setFormatToolbarVisible] = useState(true);
 
   // Rich Typography & Manuscript Formatting State
   const [fontOption, setFontOption] = useState<FontOption>(() => {
@@ -274,14 +279,15 @@ export function AuthorWritingIde() {
     }
   }, [chapterQuery.data]);
 
-  // Auto-resize textarea to fit content seamlessly without nested scrollbars
+  // The outer workspace scrolls; the manuscript and textarea keep their full height.
   const adjustHeight = () => {
     const el = editorRef.current;
-    if (el) {
-      el.style.height = '0px';
-      const scrollHeight = el.scrollHeight;
-      el.style.height = `${Math.max(520, scrollHeight)}px`;
-    }
+    if (!el) return;
+    const viewport = el.closest<HTMLElement>('.sc-editor-workspace');
+    const scrollTop = viewport?.scrollTop ?? 0;
+    el.style.height = 'auto';
+    el.style.height = `${Math.max(520, Math.ceil(el.scrollHeight) + 2)}px`;
+    if (viewport) viewport.scrollTop = scrollTop;
   };
 
   useEffect(() => {
@@ -289,8 +295,22 @@ export function AuthorWritingIde() {
   }, [content, fontOption, fontSize, lineHeight, textAlign, paragraphIndent]);
 
   useEffect(() => {
+    const editor = editorRef.current;
+    let width = -1;
+    const observer = new ResizeObserver(entries => {
+      const nextWidth = entries[0]?.contentRect.width ?? 0;
+      if (Math.abs(nextWidth - width) < 1) return;
+      width = nextWidth;
+      adjustHeight();
+    });
+    if (editor) observer.observe(editor);
     window.addEventListener('resize', adjustHeight);
-    return () => window.removeEventListener('resize', adjustHeight);
+    document.fonts.addEventListener('loadingdone', adjustHeight);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', adjustHeight);
+      document.fonts.removeEventListener('loadingdone', adjustHeight);
+    };
   }, []);
 
   // Persist formatting preferences in localStorage
@@ -382,30 +402,6 @@ export function AuthorWritingIde() {
     setTimeout(() => {
       textarea.focus();
       const pos = start + prefix.length;
-      textarea.setSelectionRange(pos, pos);
-      adjustHeight();
-    }, 10);
-  };
-
-  const insertSceneBreak = () => {
-    const textarea = editorRef.current;
-    const breakSnippet = '\n\n✦ ✦ ✦\n\n';
-    if (!textarea) {
-      const newContent = content + breakSnippet;
-      setContent(newContent);
-      triggerAutosave(title, newContent, isVip, priceCoins);
-      return;
-    }
-
-    const start = textarea.selectionStart;
-    const currentVal = textarea.value;
-    const newContent = currentVal.substring(0, start) + breakSnippet + currentVal.substring(start);
-    setContent(newContent);
-    triggerAutosave(title, newContent, isVip, priceCoins);
-
-    setTimeout(() => {
-      textarea.focus();
-      const pos = start + breakSnippet.length;
       textarea.setSelectionRange(pos, pos);
       adjustHeight();
     }, 10);
@@ -657,6 +653,17 @@ export function AuthorWritingIde() {
           {/* Secondary Tools Group */}
           <div className="flex items-center bg-stone-100/70 p-0.5 rounded-lg border border-stone-200/80">
             <button
+              onClick={() => setFormatToolbarVisible((visible) => !visible)}
+              aria-label={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
+              aria-expanded={formatToolbarVisible}
+              aria-controls="studio-format-toolbar"
+              title={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-stone-500 text-[15px]">text_format</span>
+            </button>
+            <button
               onClick={() => setStoryBibleOpen(true)}
               className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
               title="Cẩm nang thế giới truyện (Story Bible)"
@@ -682,7 +689,9 @@ export function AuthorWritingIde() {
 
           {/* AI Assistant Toggle Button */}
           <button
-            onClick={() => setAiDrawerOpen((prev: boolean) => !prev)}
+            onClick={toggleAiDrawer}
+            aria-expanded={aiDrawerOpen}
+            aria-controls="studio-ai-panel"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-meta font-semibold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200/90 transition-all shadow-2xs "
             title="Mở trợ lý sáng tác AI"
             type="button"
@@ -783,7 +792,7 @@ export function AuthorWritingIde() {
       {/* ──────────────────────────────────────────
           BEGIN: MainWorkspace
          ────────────────────────────────────────── */}
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
           <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-10 select-none relative">
@@ -905,25 +914,10 @@ export function AuthorWritingIde() {
         {/* ──────────────────────────────────────────
             BEGIN: ManuscriptWritingArea
            ────────────────────────────────────────── */}
-        <main className="sc-editor-workspace flex-1 overflow-y-auto flex flex-col items-center bg-surface relative select-text">
-          {/* Floating Exit Button for Focus Mode */}
-          {focusMode && (
-            <div className="fixed top-3 right-4 z-50">
-              <button
-                onClick={() => setFocusMode(false)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-sm border border-stone-200 text-meta text-stone-700 hover:text-stone-900 hover:bg-white transition-all font-medium"
-                title="Thoát chế độ tập trung"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[15px]">fullscreen_exit</span>
-                <span>Thoát tập trung</span>
-              </button>
-            </div>
-          )}
-
+        <main className="sc-editor-workspace flex-1 min-h-0 overflow-y-auto flex flex-col items-center bg-surface relative select-text">
           {/* Sticky Formatting Toolbar with Frosted-Glass Backdrop */}
-          {!focusMode && (
-            <div className="sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-6 shrink-0 shadow-2xs">
+          {formatToolbarVisible && (
+            <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-6 shrink-0 shadow-2xs">
               <div className="bg-white/95 border border-stone-200/90 rounded-xl shadow-xs py-1 px-2.5 flex items-center flex-wrap gap-1 max-w-4xl text-meta text-stone-700 select-none">
                 {/* 1. Font Family Dropdown */}
                 <div className="relative" ref={fontDropdownRef}>
@@ -1210,20 +1204,13 @@ export function AuthorWritingIde() {
                   —
                 </button>
 
-                <button
-                  onClick={insertSceneBreak}
-                  className="px-2 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-meta tracking-widest transition-colors font-medium"
-                  title="Chèn dấu phân cảnh / chuyển đoạn (✦ ✦ ✦)"
-                  type="button"
-                >
-                  ✦ ✦ ✦
-                </button>
+
               </div>
             </div>
           )}
 
           {/* Centered Manuscript Page */}
-          <article className="w-full max-w-3xl bg-white rounded-xl shadow-sm border border-stone-200/70 py-12 px-8 md:px-16 mb-24 transition-all">
+          <article className="sc-manuscript-page w-full max-w-3xl shrink-0 bg-white rounded-xl shadow-sm border border-stone-200/70">
             {/* Editable Chapter Title Header */}
             <div className="mb-8 pb-5 border-b border-stone-100">
               <input
@@ -1260,36 +1247,17 @@ export function AuthorWritingIde() {
                   textAlign: textAlign,
                   textIndent: paragraphIndent ? '2.5rem' : '0'
                 }}
-                className="sc-manuscript w-full border-none p-0 text-stone-800 bg-transparent focus:ring-0 focus:outline-none placeholder-stone-300 selection:bg-primary-100 selection:text-primary-900 transition-all"
+                className="sc-manuscript w-full border-none p-0 text-stone-800 bg-transparent focus:ring-0 focus:outline-none placeholder-stone-300 selection:bg-primary-100 selection:text-primary-900"
               />
             </div>
           </article>
         </main>
 
         {/* ──────────────────────────────────────────
-            BEGIN: Floating AI Edge Trigger
-           ────────────────────────────────────────── */}
-        {!aiDrawerOpen && (
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20">
-            <button
-              onClick={() => setAiDrawerOpen(true)}
-              className="bg-white border-l border-t border-b border-stone-200/90 text-stone-600 hover:text-primary-600 hover:bg-stone-50 py-3 px-2 rounded-l-xl shadow-sm flex flex-col items-center gap-1.5 transition-all text-meta font-semibold  group"
-              title="Mở trợ lý AI đồng sáng tác"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-[17px] text-primary-600  transition-transform fill-icon">
-                auto_awesome
-              </span>
-              <span className="[writing-mode:vertical-rl] tracking-wider text-stone-700 text-meta">Trợ lý AI</span>
-            </button>
-          </div>
-        )}
-
-        {/* ──────────────────────────────────────────
-            BEGIN: AI Drawer Panel
+            BEGIN: Docked AI Assistant
            ────────────────────────────────────────── */}
         {aiDrawerOpen && (
-          <aside className="fixed inset-y-0 right-0 w-80 md:w-96 bg-white border-l border-stone-200 shadow-sm flex flex-col z-40 select-none animate-in  duration-200">
+          <aside id="studio-ai-panel" aria-label="Trợ lý sáng tác AI" className="sc-ai-panel bg-white border-l border-stone-200 flex flex-col select-none">
             {/* Drawer Header */}
             <div className="h-14 border-b border-stone-200 px-4 flex items-center justify-between bg-stone-50/80">
               <div className="flex items-center gap-2">
@@ -1363,7 +1331,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* AI Suggestion Display */}
-            <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-meta select-text">
+            <div className="sc-ai-results flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3.5 text-meta select-text">
               {isGeneratingAi && (
                 <div className="p-4 rounded-xl bg-primary-50/70 border border-primary-200 flex flex-col items-center justify-center gap-2 text-primary-700">
                   <span className="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></span>

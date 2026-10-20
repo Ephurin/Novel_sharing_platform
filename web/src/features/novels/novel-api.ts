@@ -38,6 +38,8 @@ export async function createNovel(input: {
   title: string;
   synopsis: string;
   genre?: string;
+  genres?: string[];
+  authorNote?: string | null;
   tags?: string[];
   coverImageUrl?: string | null;
 }) {
@@ -46,6 +48,9 @@ export async function createNovel(input: {
 }
 
 export async function updateNovel(novelId: string, input: {
+  genre?: string | null;
+  genres?: string[];
+  authorNote?: string | null;
   title?: string;
   synopsis?: string;
   coverImageUrl?: string | null;

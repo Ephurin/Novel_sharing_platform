@@ -96,7 +96,7 @@ export async function findAuthorProfileById(authorId: string, viewerId?: string)
     return null;
   }
 
-  const [followersResult, novelsResult, followingResult] = await Promise.all([
+  const [followersResult, novelsResult, followingResult, totalsResult] = await Promise.all([
     getPostgresPool().query('select count(*)::int as total from follows where author_id = $1', [authorId]),
     getPostgresPool().query(
       `
@@ -113,7 +113,17 @@ export async function findAuthorProfileById(authorId: string, viewerId?: string)
     ),
     viewerId
       ? getPostgresPool().query('select 1 from follows where follower_id = $1 and author_id = $2', [viewerId, authorId])
-      : Promise.resolve({ rowCount: 0 })
+      : Promise.resolve({ rowCount: 0 }),
+    getPostgresPool().query(
+      `select
+         (select coalesce(sum(n.views_count), 0)::bigint from novels n
+          where n.author_id = $1 and n.status = 'PUBLISHED' and n.deleted_at is null) as total_views,
+         (select coalesce(sum(c.word_count), 0)::bigint
+          from chapters c join novels n on n.novel_id = c.novel_id
+          where n.author_id = $1 and n.status = 'PUBLISHED' and n.deleted_at is null
+            and c.status = 'PUBLISHED' and c.deleted_at is null) as total_words`,
+      [authorId]
+    )
   ]);
 
   const profile = profileResult.rows[0];
@@ -125,6 +135,8 @@ export async function findAuthorProfileById(authorId: string, viewerId?: string)
     avatarUrl: profile.avatar_url,
     bio: profile.bio,
     joinedAt: profile.created_at,
+    totalViews: Number(totalsResult.rows[0]?.total_views ?? 0),
+    totalWords: Number(totalsResult.rows[0]?.total_words ?? 0),
     followersCount: followersResult.rows[0]?.total ?? 0,
     isFollowing: Boolean(followingResult.rowCount),
     novels: novelsResult.rows.map((row) => ({

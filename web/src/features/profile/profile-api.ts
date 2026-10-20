@@ -25,6 +25,8 @@ export type AuthorProfile = {
   avatarUrl: string | null;
   bio: string | null;
   joinedAt: string;
+  totalViews: number;
+  totalWords: number;
   followersCount: number;
   isFollowing: boolean;
   novels: Array<Pick<ReaderNovel, 'novelId' | 'title' | 'status' | 'likesCount' | 'viewsCount' | 'chaptersCount' | 'coverImageUrl' | 'genre' | 'serialStatus'>>;

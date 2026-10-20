@@ -16,7 +16,7 @@ export function AuthorProfilePage() {
 
   // Author query (if authorId exists)
   const authorQuery = useQuery({
-    queryKey: ['author-profile', authorId || currentUser?.userId],
+    queryKey: ['author-profile', authorId || currentUser?.userId, currentUser?.userId ?? 'guest'],
     queryFn: () => getAuthorProfile(authorId || currentUser?.userId || ''),
     enabled: Boolean(authorId || currentUser?.userId)
   });
@@ -29,6 +29,7 @@ export function AuthorProfilePage() {
   });
 
   // Interactive States
+  const [bioExpanded, setBioExpanded] = useState(false);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [supportAmount, setSupportAmount] = useState(20);
   const [supportMessage, setSupportMessage] = useState('');
@@ -50,6 +51,7 @@ export function AuthorProfilePage() {
       setSupportMessage('');
       await queryClient.invalidateQueries({ queryKey: ['wallet'] });
       await queryClient.invalidateQueries({ queryKey: ['wallet-transactions'] });
+      await queryClient.invalidateQueries({ queryKey: ['wallet-earnings'] });
       showToast('Ủng hộ tác giả thành công.');
     },
     onError: (error) => showToast(getApiErrorMessage(error), true)
@@ -67,14 +69,16 @@ export function AuthorProfilePage() {
   const displayFollowers = author?.followersCount ?? 0;
   const availableCoins = walletQuery.data?.coinsBalance ?? 0;
   const displayNovels = author?.novels ?? [];
-  const totalReads = displayNovels.reduce((sum, novel) => sum + (novel.viewsCount ?? 0), 0);
+  const totalReads = author?.totalViews ?? 0;
   const isOwnProfile = Boolean(currentUser?.userId && currentUser.userId === targetAuthorId);
 
-  const handleShare = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(new URL(`/authors/${targetAuthorId}`, window.location.origin).href);
+      showToast(`Đã sao chép liên kết hồ sơ tác giả ${authorName}!`);
+    } catch {
+      showToast('Không sao chép được liên kết. Vui lòng thử lại.', true);
     }
-    showToast(`Đã sao chép liên kết hồ sơ tác giả ${authorName}!`);
   };
 
   if (!targetAuthorId) return <ErrorState error={new Error('Cần đăng nhập hoặc chọn tác giả để xem hồ sơ.')} />;
@@ -172,13 +176,21 @@ export function AuthorProfilePage() {
               </div>
             </div>
 
-            {/* Short Bio */}
-            <div className="mt-3.5 pt-2.5 border-t border-stone-100">
-              {author?.bio && <details className="text-body text-stone-700"><summary className="cursor-pointer">Giới thiệu tác giả</summary><p className="mt-2 whitespace-pre-wrap">{author.bio}</p></details>}
-            </div>
+            {/* Keep the biography footprint stable while its text is collapsed. */}
+            {author?.bio && (
+              <div className="mt-3.5 pt-2.5 border-t border-stone-100">
+                <button type="button" aria-expanded={bioExpanded} aria-controls="author-bio" onClick={() => setBioExpanded(expanded => !expanded)} className="inline-flex items-center gap-1 text-body text-stone-700">
+                  <span className="material-symbols-outlined" aria-hidden="true">{bioExpanded ? 'arrow_drop_down' : 'arrow_right'}</span>
+                  <span>Giới thiệu tác giả</span>
+                </button>
+                <div id="author-bio" aria-hidden={!bioExpanded} className={`sc-author-bio ${bioExpanded ? '' : 'sc-author-bio-collapsed'}`}>
+                  <p className="text-body text-stone-700 whitespace-pre-wrap">{author.bio}</p>
+                </div>
+              </div>
+            )}
 
             {/* Public Inline Stats */}
-            <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center gap-3 text-meta text-stone-600">
+            <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-wrap items-center gap-3 text-meta text-stone-600">
               <span className="font-medium">
                 <strong className="font-bold text-stone-900">{displayFollowers.toLocaleString('vi-VN')}</strong> người theo dõi
               </span>
@@ -233,6 +245,7 @@ export function AuthorProfilePage() {
           </div>
         </section>
 
+        <p className="text-meta text-stone-500">{(author?.totalWords ?? 0).toLocaleString('vi-VN')} chữ đã xuất bản</p>
         {author?.joinedAt && <p className="text-meta text-stone-500">Tham gia {new Date(author.joinedAt).toLocaleDateString('vi-VN')}</p>}
       </main>
 
