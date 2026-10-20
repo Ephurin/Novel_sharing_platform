@@ -198,7 +198,7 @@ export async function resolveModerationReview(
       await resolveCommentUserReport(auth, resolved, input.reason);
     } else {
       const commentStatus: CommentStatus = resolved.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
-      await updateCommentModerationStatus(resolved.target_id, commentStatus, resolved.review_id);
+      await updateCommentModerationStatus(resolved.target_id, commentStatus, resolved.review_id, resolved.review_id);
     }
   }
 

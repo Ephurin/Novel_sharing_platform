@@ -311,6 +311,7 @@ export function AuthorNovelMetadataPage() {
                 <span className="text-stone-900 font-semibold truncate max-w-[160px] sm:max-w-[280px] md:max-w-md">{novel.title}</span>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
+                <Link to={`/author/novels/${novelId}/comments`} className="sc-button sc-button-soft" title="Bình luận độc giả"><span className="material-symbols-outlined" aria-hidden="true">forum</span><span className="hidden sm:inline">Bình luận</span></Link>
                 <Link
                   to={`/public/novels/${novelId}`}
                   target="_blank"

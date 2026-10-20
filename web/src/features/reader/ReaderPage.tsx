@@ -1,3 +1,4 @@
+import { CommentsSection } from './CommentsSection';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { NovelEngagement } from './NovelEngagement';
 import {
@@ -24,15 +25,12 @@ import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client'
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import {
   addToLibrary,
-  createComment,
-  deleteComment,
   followAuthor,
   getHistoryForNovel,
   getReadingPreferences,
   getReaderChapter,
   getReaderNovel,
   likeNovel,
-  listComments,
   listHistory,
   listLibrary,
   removeFromLibrary,
@@ -43,10 +41,8 @@ import {
   unlikeNovel,
   unlockVipChapter,
   unfollowAuthor,
-  updateComment,
   type ReadingPreferences,
   type ReaderChapter,
-  type ReaderComment,
   type ReaderNovel
 } from './reader-api';
 
@@ -341,6 +337,7 @@ export function ReaderNovelDetailPage() {
           ))}
         </Stack>
       </Paper>
+      <CommentsSection kind="novel" id={novelId} />
     </Box>
   );
 }
@@ -420,6 +417,7 @@ export function PublicReaderNovelDetailPage() {
           ))}
         </Stack>
       </Paper>
+      <CommentsSection kind="novel" id={novelId} />
     </Box>
   );
 }
@@ -427,7 +425,6 @@ export function PublicReaderNovelDetailPage() {
 export function ReaderChapterPage() {
   const { chapterId = '' } = useParams();
   const queryClient = useQueryClient();
-  const [commentContent, setCommentContent] = useState('');
   const preferencesQuery = useQuery({ queryKey: ['reading-preferences'], queryFn: getReadingPreferences });
   const chapterQuery = useQuery({
     queryKey: ['reader-chapter', chapterId],
@@ -439,11 +436,6 @@ export function ReaderChapterPage() {
     queryKey: ['reader-novel', chapterQuery.data?.novelId],
     queryFn: () => getReaderNovel(chapterQuery.data?.novelId ?? ''),
     enabled: Boolean(chapterQuery.data?.novelId)
-  });
-  const commentsQuery = useQuery({
-    queryKey: ['reader-comments', chapterId],
-    queryFn: () => listComments(chapterId),
-    enabled: Boolean(chapterId)
   });
   const syncHistoryMutation = useMutation({
     mutationFn: (input: { novelId: string; chapterId: string }) => syncHistory(input),
@@ -457,17 +449,6 @@ export function ReaderChapterPage() {
   });
   const reportMutation = useMutation({
     mutationFn: () => reportContent({ targetType: 'CHAPTER', targetId: chapterId, reason: 'Reader report' })
-  });
-  const commentMutation = useMutation({
-    mutationFn: () => createComment(chapterId, commentContent),
-    onSuccess: async () => {
-      setCommentContent('');
-      await queryClient.invalidateQueries({ queryKey: ['reader-comments', chapterId] });
-    }
-  });
-  const deleteCommentMutation = useMutation({
-    mutationFn: deleteComment,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reader-comments', chapterId] })
   });
   const preferencesMutation = useMutation({
     mutationFn: saveReadingPreferences,
@@ -569,38 +550,7 @@ export function ReaderChapterPage() {
         </Text>
       </Paper>
 
-      <Paper p="md" withBorder>
-        <Title order={4} mb="sm">
-          Comments
-        </Title>
-        <Textarea
-          label="Add comment"
-          value={commentContent}
-          onChange={(event) => setCommentContent(event.currentTarget.value)}
-          minRows={3}
-          mb="sm"
-        />
-        <Button loading={commentMutation.isPending} disabled={!commentContent.trim()} onClick={() => commentMutation.mutate()} mb="md">
-          Submit comment
-        </Button>
-
-        {commentsQuery.isLoading ? <LoadingState label="Loading comments..." /> : null}
-        {commentsQuery.isError ? <ErrorState error={commentsQuery.error} onRetry={() => void commentsQuery.refetch()} /> : null}
-        {!commentsQuery.isLoading && !commentsQuery.isError && !commentsQuery.data?.length ? (
-          <EmptyState description="No approved comments yet." />
-        ) : null}
-        <Stack gap="xs">
-          {(commentsQuery.data ?? []).map((comment) => (
-            <CommentCard
-              key={comment.commentId}
-              comment={comment}
-              chapterId={chapterId}
-              deleting={deleteCommentMutation.isPending}
-              onDelete={() => deleteCommentMutation.mutate(comment.commentId)}
-            />
-          ))}
-        </Stack>
-      </Paper>
+      <CommentsSection kind="chapter" id={chapterId} />
     </Box>
   );
 }
@@ -612,11 +562,6 @@ export function PublicReaderChapterPage() {
     queryFn: () => getReaderChapter(chapterId),
     enabled: Boolean(chapterId),
     retry: false
-  });
-  const commentsQuery = useQuery({
-    queryKey: ['public-reader-comments', chapterId],
-    queryFn: () => listComments(chapterId),
-    enabled: Boolean(chapterId)
   });
   const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
 
@@ -668,29 +613,7 @@ export function PublicReaderChapterPage() {
         </Text>
       </Paper>
 
-      <Paper p="md" withBorder>
-        <Group justify="space-between" mb="sm">
-          <Title order={4}>Public Comments</Title>
-          <Button component={Link} to="/login" size="xs" variant="light">
-            Login to comment/report
-          </Button>
-        </Group>
-        {commentsQuery.isLoading ? <LoadingState label="Loading comments..." /> : null}
-        {commentsQuery.isError ? <ErrorState error={commentsQuery.error} onRetry={() => void commentsQuery.refetch()} /> : null}
-        {!commentsQuery.isLoading && !commentsQuery.isError && !commentsQuery.data?.length ? (
-          <EmptyState description="No approved comments yet." />
-        ) : null}
-        <Stack gap="xs">
-          {(commentsQuery.data ?? []).map((comment) => (
-            <Paper key={comment.commentId} p="sm" withBorder>
-              <Badge size="xs" variant="outline">
-                {comment.status}
-              </Badge>
-              <Text mt={6}>{comment.content}</Text>
-            </Paper>
-          ))}
-        </Stack>
-      </Paper>
+      <CommentsSection kind="chapter" id={chapterId} />
     </Box>
   );
 }
@@ -751,87 +674,6 @@ function ReadingPreferencesPanel({
         Save preferences
       </Button>
     </SimpleGrid>
-  );
-}
-
-function CommentCard({
-  comment,
-  chapterId,
-  deleting,
-  onDelete
-}: {
-  comment: ReaderComment;
-  chapterId: string;
-  deleting: boolean;
-  onDelete: () => void;
-}) {
-  const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
-  const [content, setContent] = useState(comment.content);
-  const updateMutation = useMutation({
-    mutationFn: () => updateComment({ commentId: comment.commentId, content }),
-    onSuccess: async () => {
-      setIsEditing(false);
-      await queryClient.invalidateQueries({ queryKey: ['reader-comments', chapterId] });
-    }
-  });
-  const reportMutation = useMutation({
-    mutationFn: () =>
-      reportContent({
-        targetType: 'COMMENT',
-        targetId: comment.commentId,
-        reason: 'Reader report',
-        description: 'Reader reported this comment from the chapter comment list.'
-      })
-  });
-
-  return (
-    <Paper p="sm" withBorder>
-      <Group justify="space-between" align="flex-start">
-        <Box flex={1}>
-          <Badge size="xs" variant="outline">
-            {comment.status}
-          </Badge>
-          {isEditing ? (
-            <Textarea mt="xs" value={content} onChange={(event) => setContent(event.currentTarget.value)} minRows={2} />
-          ) : (
-            <Text mt={6}>{comment.content}</Text>
-          )}
-        </Box>
-        <Group gap="xs">
-          {isEditing ? (
-            <Button size="compact-xs" loading={updateMutation.isPending} disabled={!content.trim()} onClick={() => updateMutation.mutate()}>
-              Save
-            </Button>
-          ) : (
-            <Button size="compact-xs" variant="subtle" onClick={() => setIsEditing(true)}>
-              Edit
-            </Button>
-          )}
-          <Button size="compact-xs" color="red" variant="subtle" loading={deleting} onClick={onDelete}>
-            Delete
-          </Button>
-          <Button size="compact-xs" color="orange" variant="subtle" loading={reportMutation.isPending} onClick={() => reportMutation.mutate()}>
-            Report
-          </Button>
-        </Group>
-      </Group>
-      {updateMutation.isError ? (
-        <Alert color="red" mt="sm">
-          {getApiErrorMessage(updateMutation.error)}
-        </Alert>
-      ) : null}
-      {reportMutation.isSuccess ? (
-        <Alert color="yellow" mt="sm">
-          Comment report submitted.
-        </Alert>
-      ) : null}
-      {reportMutation.isError ? (
-        <Alert color="red" mt="sm">
-          {getApiErrorMessage(reportMutation.error)}
-        </Alert>
-      ) : null}
-    </Paper>
   );
 }
 

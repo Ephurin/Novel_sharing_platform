@@ -54,8 +54,19 @@ export type ReadingPreferences = {
 };
 
 export type ReaderComment = {
+  parentCommentId: string | null;
+  repliesCount: number;
+  isAuthor: boolean;
+  canDelete: boolean;
+  canReply: boolean;
+  chapterTitle: string | null;
+  chapterNumber: number | null;
   commentId: string;
-  chapterId: string;
+  chapterId: string | null;
+  novelId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  updatedAt: string;
   userId: string;
   paragraphOffset: number | null;
   content: string;

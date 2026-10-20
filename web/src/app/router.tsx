@@ -1,3 +1,4 @@
+import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorTheme } from '../shared/components/AuthorTheme';
 import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
@@ -97,6 +98,10 @@ export const router = createBrowserRouter([
         </RoleGuard>
       </AuthGate>
     )
+  },
+  {
+    path: '/author/novels/:novelId/comments',
+    element: <AuthGate><RoleGuard roles={['AUTHOR', 'ADMIN']}><AuthorTheme><AuthorNovelCommentsPage /></AuthorTheme></RoleGuard></AuthGate>
   },
   {
     path: '/author/novels/:novelId/reviews',
