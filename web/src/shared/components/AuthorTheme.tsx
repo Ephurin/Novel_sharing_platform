@@ -1,4 +1,5 @@
-import { FocusTrap, MantineProvider, createTheme, Menu, useComputedColorScheme } from '@mantine/core';
+import { ThemeControl } from './ThemeControl';
+import { FocusTrap, Menu, useComputedColorScheme } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, type PropsWithChildren } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -6,26 +7,8 @@ import { logout } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import '../../theme/storycraft.css';
 
-const authorTheme = createTheme({
-  primaryColor: 'orange',
-  fontFamily: '"Be Vietnam Pro", system-ui, sans-serif',
-  defaultRadius: 'md',
-  headings: {
-    fontFamily: '"Be Vietnam Pro", system-ui, sans-serif',
-    sizes: {
-      h1: { fontSize: '24px', lineHeight: '32px', fontWeight: '700' },
-      h2: { fontSize: '18px', lineHeight: '26px', fontWeight: '600' },
-      h3: { fontSize: '16px', lineHeight: '24px', fontWeight: '600' }
-    }
-  }
-});
-
-export function AuthorTheme({ children, colorScheme = 'light', className = '' }: PropsWithChildren<{ colorScheme?: 'light' | 'dark' | 'auto'; className?: string }>) {
-  return <MantineProvider theme={authorTheme} defaultColorScheme={colorScheme} forceColorScheme={colorScheme === 'auto' ? undefined : colorScheme}><AuthorThemeSurface className={className}>{children}</AuthorThemeSurface></MantineProvider>;
-}
-
-function AuthorThemeSurface({ children, className }: PropsWithChildren<{ className: string }>) {
-  const colorScheme = useComputedColorScheme('light');
+export function AuthorTheme({ children, className = '' }: PropsWithChildren<{ className?: string }>) {
+  const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: false });
   return <div className={`sc-author-theme ${className}`} data-sc-color-scheme={colorScheme}>{children}</div>;
 }
 
@@ -100,6 +83,7 @@ export function AuthorNavbar() {
           <NavLink to="/author/profile" className="sc-nav-link">Trang tác giả</NavLink>
         </nav>
         <div className="sc-navbar-actions">
+          <ThemeControl />
           {location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
           <Link to="/notifications" className="sc-icon-button" aria-label="Thông báo"><span className="material-symbols-outlined">notifications</span></Link>
           <Menu position="bottom-end" withinPortal={false}>

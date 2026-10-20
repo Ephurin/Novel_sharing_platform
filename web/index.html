@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="/theme-init.js"></script>
     <title>StoryCraft — Văn Hoa</title>
     <!-- Google Fonts: Diverse literary serif & modern sans-serif fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -70,6 +71,11 @@
   ]
 },
             colors: {
+  'cover-fallback': 'var(--sc-cover-fallback)',
+  ...Object.fromEntries([
+    ['emerald', 'success'], ['green', 'success'], ['teal', 'success'],
+    ['amber', 'warning'], ['yellow', 'warning'], ['red', 'danger'], ['rose', 'danger']
+  ].map(([name, token]) => [name, Object.fromEntries([50,100,200,300,400,500,600,700,800,900,950].map(shade => [shade, 'var(--sc-' + token + (shade < 300 ? '-bg' : '') + ')']))])),
   "primary": {
     "50": "rgb(var(--sc-primary-soft-rgb) / <alpha-value>)",
     "100": "rgb(var(--sc-primary-soft-rgb) / <alpha-value>)",
@@ -85,7 +91,7 @@
     "DEFAULT": "rgb(var(--sc-primary-rgb) / <alpha-value>)"
   },
   "primary-container": "rgb(var(--sc-primary-hover-rgb) / <alpha-value>)",
-  "on-primary": "rgb(var(--sc-text-rgb) / <alpha-value>)",
+  "on-primary": "rgb(var(--sc-on-primary-rgb) / <alpha-value>)",
   "primary-fixed": "rgb(var(--sc-primary-soft-rgb) / <alpha-value>)",
   "primary-fixed-dim": "rgb(var(--sc-primary-soft-rgb) / <alpha-value>)",
   "on-primary-container": "rgb(var(--sc-primary-text-rgb) / <alpha-value>)",
@@ -156,7 +162,7 @@
       /* Theme scrollbar styling */
       * {
         scrollbar-width: thin;
-        scrollbar-color: #dcd8ce transparent;
+        scrollbar-color: var(--sc-border) transparent;
       }
       ::-webkit-scrollbar {
         width: 7px;
@@ -166,11 +172,11 @@
         background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background: #dcd8ce;
+        background: var(--sc-border);
         border-radius: 9999px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #a8a29e;
+        background: var(--sc-text-muted);
       }
 
       .manuscript-body {

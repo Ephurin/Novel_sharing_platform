@@ -278,7 +278,7 @@ export function WritingAssistantPanel({
     <Paper className="assistant-panel" radius={0} p="md" withBorder>
       <Group justify="space-between" mb="xs">
         <Group gap="xs">
-          <IconBrain size={20} color="#7950f2" />
+          <IconBrain size={20} color="var(--sc-primary-text)" />
           <Text fw={700}>Writing Copilot (P6)</Text>
         </Group>
         <Badge variant="light" color="violet">Loop v1</Badge>
@@ -376,7 +376,7 @@ export function WritingAssistantPanel({
 
         {/* Diff & Validation Preview Card */}
         {job && job.status?.toLowerCase() === 'completed' && (
-          <Paper p="sm" withBorder style={{ backgroundColor: 'var(--mantine-color-dark-8, #1a1b1e)' }}>
+          <Paper p="sm" withBorder style={{ backgroundColor: 'var(--sc-surface-subtle)' }}>
             <Group justify="space-between" mb="xs">
               <Text size="sm" fw={700}>Bản thảo đề xuất (Diff Preview)</Text>
               <Badge color={isValid ? 'teal' : 'red'}>

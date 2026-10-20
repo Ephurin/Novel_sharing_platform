@@ -140,8 +140,8 @@ follow state, novel summaries and nullable metadata updates.
 - The existing reviews API now sorts globally before pagination and includes
   the average of text reviews in metadata. Existing score-only statistics keep
   their previous meaning. No schema changes or review-edit permission added.
-- Light/Dark uses Mantine's saved/system preference. Scoped dark tokens apply
-  only to this new route; existing author pages retain their light default.
+- Light/Dark now uses the shared application-wide preference and semantic tokens.
+  See `docs/Implementation/dark-mode.md` for the global rollout.
 - Verified with TypeScript for both projects, 48 backend tests (including real
   PostgreSQL review sorting across pages), and 6 frontend tests. Docker backend
   and web were rebuilt and restarted with demo seeding disabled.

@@ -83,6 +83,6 @@ computed across all visible reviews with text, not just the current page.
 Score-only ratings remain included in the statistics endpoint, but are excluded
 from this review-list average and total. Empty review sets return null average.
 
-The page reuses AuthorTheme, AuthorNavbar, NovelReviews and PageStates. AuthorTheme
-still defaults to light on existing routes; this route opts into Mantine's
-persisted color preference/system color scheme with scoped dark StoryCraft tokens.
+The page reuses AuthorTheme, AuthorNavbar, NovelReviews and PageStates. It now
+shares the application-wide Light/Dark/System preference and semantic StoryCraft
+tokens; see `docs/Implementation/dark-mode.md` for theme behavior.

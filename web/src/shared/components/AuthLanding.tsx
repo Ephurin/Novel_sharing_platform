@@ -1,3 +1,4 @@
+import { ThemeControl } from './ThemeControl';
 import { Alert, Box, Button, Group, Paper, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { IconBrain } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -40,6 +41,7 @@ export function AuthLanding() {
     <Box className="auth-shell">
       <Paper p="xl" withBorder className="auth-card">
         <Group gap="sm" mb="lg">
+          <ThemeControl />
           <IconBrain size={22} />
           <Title order={3}>Ephurin Web</Title>
         </Group>

@@ -89,7 +89,7 @@ export function AuthorProfilePage() {
     <div className="min-h-screen flex flex-col bg-surface text-stone-800 antialiased selection:bg-primary-100 selection:text-primary-900">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-stone-900 text-white px-4 py-3 rounded-xl shadow-sm text-meta font-medium border border-stone-800 animate-in fade-in  duration-300">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-cover-fallback text-white px-4 py-3 rounded-xl shadow-sm text-meta font-medium border border-stone-800 animate-in fade-in  duration-300">
           <span className={`material-symbols-outlined text-[18px] ${toastMessage.isError ? 'text-red-400' : 'text-emerald-400'}`}>{toastMessage.isError ? 'error' : 'check_circle'}</span>
           <span>{toastMessage.text}</span>
         </div>
@@ -112,7 +112,7 @@ export function AuthorProfilePage() {
         </nav>
 
         {/* 2. Minimalist Author Profile Header */}
-        <section className="bg-white rounded-2xl border border-stone-200/80 shadow-xs overflow-hidden">
+        <section className="bg-surface-container-lowest rounded-2xl border border-stone-200/80 shadow-xs overflow-hidden">
           {/* Profile Info Bar Overlapping Banner */}
           <div className="p-5 sm:p-6 relative">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -220,7 +220,7 @@ export function AuthorProfilePage() {
             {displayNovels.map((novel) => (
               <Link key={novel.novelId} to={`/reader/novels/${novel.novelId}`} className="group flex flex-col">
                 <div
-                  className="block relative aspect-[2/3] w-full rounded-r-xl rounded-l-xs overflow-hidden transition-all duration-300  bg-stone-900 shadow-none group-hover:shadow-none"
+                  className="block relative aspect-[2/3] w-full rounded-r-xl rounded-l-xs overflow-hidden transition-all duration-300  bg-cover-fallback shadow-none group-hover:shadow-none"
                 >
                   {/* Book Art Image */}
                   {novel.coverImageUrl ? <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover  transition-transform duration-500 brightness-[0.92] contrast-[1.05]" /> : <div className="w-full h-full flex items-center justify-center text-white text-center p-4 font-serif">{novel.title}</div>}
@@ -250,7 +250,7 @@ export function AuthorProfilePage() {
       </main>
 
       {/* 5. Compact Literary Footer */}
-      <footer className="mt-8 border-t border-stone-200 bg-white/80 py-6 px-4 sm:px-8 text-meta text-stone-500">
+      <footer className="mt-8 border-t border-stone-200 bg-surface-container-lowest/80 py-6 px-4 sm:px-8 text-meta text-stone-500">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="font-serif font-bold text-stone-800">StoryCraft Văn Hoa</span>
@@ -277,7 +277,7 @@ export function AuthorProfilePage() {
       {/* 6. Support Author Modal */}
       {supportModalOpen && (
         <AuthorDialog onClose={() => setSupportModalOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-sm border border-stone-200 w-full max-w-md p-5 overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200 w-full max-w-md p-5 overflow-hidden animate-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <div className="flex items-center gap-2.5">
@@ -319,7 +319,7 @@ export function AuthorProfilePage() {
                     className={`py-1.5 rounded-lg border font-semibold text-center transition-all ${
                       supportAmount === amt
                         ? 'border-primary-600 bg-primary-50/80 font-bold text-primary-600'
-                        : 'border-stone-200 hover:border-primary-600 hover:text-primary-600 bg-white'
+                        : 'border-stone-200 hover:border-primary-600 hover:text-primary-600 bg-surface-container-lowest'
                     }`}
                   >
                     {amt} Xu
@@ -447,9 +447,9 @@ export function MyProfilePage() {
   if (profileQuery.isError) return <ErrorState error={profileQuery.error} onRetry={() => void profileQuery.refetch()} />;
 
   return (
-    <div className="min-h-screen bg-surface py-8 px-4 sm:px-6 lg:px-8 text-stone-800">
+    <div className="sc-author-theme min-h-screen bg-surface py-8 px-4 sm:px-6 lg:px-8 text-stone-800">
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-stone-900 text-white px-4 py-2.5 rounded-xl text-meta font-medium shadow-sm">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-cover-fallback text-white px-4 py-2.5 rounded-xl text-meta font-medium shadow-sm">
           <span className="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span>
           <span>{toastMessage}</span>
         </div>
@@ -473,7 +473,7 @@ export function MyProfilePage() {
         {/* Profile Card & Settings Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Card 1: Thông tin hiển thị */}
-          <div className="bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs space-y-4">
+          <div className="bg-surface-container-lowest rounded-2xl border border-stone-200/80 p-5 shadow-xs space-y-4">
             <h2 className="font-serif font-bold text-body text-stone-900 pb-2 border-b border-stone-100 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary-600 text-[18px]">person</span>
               Thông tin hiển thị
@@ -538,7 +538,7 @@ export function MyProfilePage() {
           </div>
 
           {/* Card 2: Thiết lập hệ thống */}
-          <div className="bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs space-y-4">
+          <div className="bg-surface-container-lowest rounded-2xl border border-stone-200/80 p-5 shadow-xs space-y-4">
             <h2 className="font-serif font-bold text-body text-stone-900 pb-2 border-b border-stone-100 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary-600 text-[18px]">settings</span>
               Thiết lập tài khoản
@@ -574,7 +574,7 @@ export function MyProfilePage() {
                 type="button"
                 disabled={settingsMutation.isPending}
                 onClick={() => settingsMutation.mutate()}
-                className="w-full py-2 rounded-lg bg-stone-800 hover:bg-stone-900 text-white font-semibold text-meta transition-colors shadow-xs disabled:opacity-50"
+                className="w-full py-2 rounded-lg bg-cover-fallback hover:bg-cover-fallback text-white font-semibold text-meta transition-colors shadow-xs disabled:opacity-50"
               >
                 {settingsMutation.isPending ? 'Đang lưu...' : 'Lưu cài đặt'}
               </button>

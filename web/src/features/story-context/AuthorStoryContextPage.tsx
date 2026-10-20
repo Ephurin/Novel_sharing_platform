@@ -480,7 +480,7 @@ export function AuthorStoryContextPage() {
             className={`px-4 py-2.5 rounded-xl shadow-sm border text-meta font-semibold flex items-center gap-2 ${
               notice.type === 'error'
                 ? 'bg-red-50 border-red-200 text-red-800'
-                : 'bg-primary-900 border-primary-800 text-white'
+                : 'bg-cover-fallback border-primary-800 text-white'
             }`}
           >
             <span className="material-symbols-outlined text-[17px]">
@@ -534,7 +534,7 @@ export function AuthorStoryContextPage() {
               </div>
               <button
                 onClick={handleExportBible}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white hover:bg-stone-50 text-stone-700 font-medium text-meta border border-stone-200 shadow-2xs transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-stone-50 text-stone-700 font-medium text-meta border border-stone-200 shadow-2xs transition-colors"
                 type="button"
                 title="Tải toàn bộ Story Bible dưới dạng file JSON"
               >
@@ -561,8 +561,8 @@ export function AuthorStoryContextPage() {
             onClick={() => setActiveTab('characters')}
             className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-all whitespace-nowrap ${
               activeTab === 'characters'
-                ? 'bg-white text-primary-700 shadow-2xs border border-stone-200/60'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
+                ? 'bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-surface-container-lowest/50'
             }`}
             type="button"
           >
@@ -577,8 +577,8 @@ export function AuthorStoryContextPage() {
             onClick={() => setActiveTab('relationships')}
             className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-all whitespace-nowrap ${
               activeTab === 'relationships'
-                ? 'bg-white text-primary-700 shadow-2xs border border-stone-200/60'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
+                ? 'bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-surface-container-lowest/50'
             }`}
             type="button"
           >
@@ -593,8 +593,8 @@ export function AuthorStoryContextPage() {
             onClick={() => setActiveTab('timeline')}
             className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-all whitespace-nowrap ${
               activeTab === 'timeline'
-                ? 'bg-white text-primary-700 shadow-2xs border border-stone-200/60'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
+                ? 'bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-surface-container-lowest/50'
             }`}
             type="button"
           >
@@ -609,8 +609,8 @@ export function AuthorStoryContextPage() {
             onClick={() => setActiveTab('summaries')}
             className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-all whitespace-nowrap ${
               activeTab === 'summaries'
-                ? 'bg-white text-primary-700 shadow-2xs border border-stone-200/60'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
+                ? 'bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-surface-container-lowest/50'
             }`}
             type="button"
           >
@@ -628,7 +628,7 @@ export function AuthorStoryContextPage() {
         {activeTab === 'characters' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Rail: Character Directory List (lg: col-span-4) */}
-            <div className="lg:col-span-4 flex flex-col gap-3.5 bg-white rounded-xl p-4 border border-stone-200/80 shadow-xs">
+            <div className="lg:col-span-4 flex flex-col gap-3.5 bg-surface-container-lowest rounded-xl p-4 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[16px] text-stone-400">
@@ -639,7 +639,7 @@ export function AuthorStoryContextPage() {
                     value={characterSearch}
                     onChange={(e) => setCharacterSearch(e.target.value)}
                     placeholder="Tìm nhân vật, tính cách..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-meta bg-stone-50 rounded-lg text-stone-800 placeholder:text-stone-400 border border-stone-200 focus:outline-none focus:border-primary-500 focus:bg-white transition-colors"
+                    className="w-full pl-8 pr-2.5 py-1.5 text-meta bg-stone-50 rounded-lg text-stone-800 placeholder:text-stone-400 border border-stone-200 focus:outline-none focus:border-primary-500 focus:bg-surface-container-lowest transition-colors"
                   />
                 </div>
                 <button
@@ -721,7 +721,7 @@ export function AuthorStoryContextPage() {
                       className={`p-2.5 rounded-xl border transition-all cursor-pointer relative ${
                         isSelected
                           ? 'bg-primary-50/70 border-primary-300 shadow-2xs'
-                          : 'bg-white border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
+                          : 'bg-surface-container-lowest border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
                       }`}
                     >
                       {isSelected && (
@@ -773,7 +773,7 @@ export function AuthorStoryContextPage() {
             </div>
 
             {/* Right Editor: Detailed Character Inspector (lg: col-span-8) */}
-            <div className="lg:col-span-8 flex flex-col gap-5 bg-white rounded-xl p-5 sm:p-7 border border-stone-200/80 shadow-xs">
+            <div className="lg:col-span-8 flex flex-col gap-5 bg-surface-container-lowest rounded-xl p-5 sm:p-7 border border-stone-200/80 shadow-xs">
               {/* Character Identity Header Card */}
               <div className="flex flex-col md:flex-row items-start justify-between gap-4 bg-stone-50/70 border border-stone-200/80 rounded-xl p-4">
                 <div className="flex items-center gap-4">
@@ -891,7 +891,7 @@ export function AuthorStoryContextPage() {
                       value={characterForm.name}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCharacterForm({ ...characterForm, name: e.target.value })}
                       placeholder="Ví dụ: Trần Hoàng Vũ, Lê Thu Thảo..."
-                      className="p-2 text-meta rounded-lg bg-white border border-stone-200 focus:outline-none focus:border-primary-500 font-medium text-stone-900"
+                      className="p-2 text-meta rounded-lg bg-surface-container-lowest border border-stone-200 focus:outline-none focus:border-primary-500 font-medium text-stone-900"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -901,7 +901,7 @@ export function AuthorStoryContextPage() {
                     <select
                       value={characterForm.role}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCharacterForm({ ...characterForm, role: e.target.value as CharacterRole })}
-                      className="p-2 text-meta rounded-lg bg-white border border-stone-200 focus:outline-none focus:border-primary-500 font-medium text-stone-800"
+                      className="p-2 text-meta rounded-lg bg-surface-container-lowest border border-stone-200 focus:outline-none focus:border-primary-500 font-medium text-stone-800"
                     >
                       {characterRoles.map((r) => (
                         <option key={r.value} value={r.value}>
@@ -934,7 +934,7 @@ export function AuthorStoryContextPage() {
                       value={characterCustomTitle}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCharacterCustomTitle(e.target.value)}
                       placeholder="Ví dụ: Nam chính, Nữ chính, Sư phụ, Đại Boss, Quân sư, Kẻ thù truyền kiếp, Chưởng môn..."
-                      className="p-2 text-meta rounded-lg bg-white border border-stone-200 focus:outline-none focus:border-primary-500 font-medium text-stone-900"
+                      className="p-2 text-meta rounded-lg bg-surface-container-lowest border border-stone-200 focus:outline-none focus:border-primary-500 font-medium text-stone-900"
                     />
 
                     {/* Quick preset chips based on role */}
@@ -948,7 +948,7 @@ export function AuthorStoryContextPage() {
                           className={`px-2 py-0.5 rounded text-meta font-medium transition-colors border ${
                             characterCustomTitle === title
                               ? 'bg-primary-600 text-white border-primary-600 font-bold'
-                              : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-100 hover:text-stone-900'
+                              : 'bg-surface-container-lowest text-stone-600 border-stone-200 hover:bg-stone-100 hover:text-stone-900'
                           }`}
                         >
                           {title}
@@ -974,7 +974,7 @@ export function AuthorStoryContextPage() {
                     value={characterForm.description ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCharacterForm({ ...characterForm, description: e.target.value })}
                     placeholder="Dáng người gầy cao, mắt sâu, bàn tay thon dài có vết mực. Thường mặc áo dạ màu xanh rêu, quàng khăn len mỡ gà..."
-                    className="p-3 text-meta rounded-lg bg-white border border-stone-200 focus:outline-none focus:border-primary-500 text-stone-800 leading-relaxed"
+                    className="p-3 text-meta rounded-lg bg-surface-container-lowest border border-stone-200 focus:outline-none focus:border-primary-500 text-stone-800 leading-relaxed"
                   />
                 </div>
               </div>
@@ -994,7 +994,7 @@ export function AuthorStoryContextPage() {
                     value={characterForm.personality ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCharacterForm({ ...characterForm, personality: e.target.value })}
                     placeholder="Trầm tĩnh, kiệm lời, lịch thiệp theo lối Tràng An cũ. Mặc cảm tội lỗi về biến cố năm xưa, dằn vặt giữa níu giữ quá khứ và đô thị hóa..."
-                    className="p-3 text-meta rounded-lg bg-white border border-stone-200 focus:outline-none focus:border-primary-500 text-stone-800 leading-relaxed"
+                    className="p-3 text-meta rounded-lg bg-surface-container-lowest border border-stone-200 focus:outline-none focus:border-primary-500 text-stone-800 leading-relaxed"
                   />
                 </div>
               </div>
@@ -1021,7 +1021,7 @@ export function AuthorStoryContextPage() {
                     placeholder={`"Khi AI viết lời thoại của ${
                       characterForm.name || 'nhân vật'
                     }: Giữ nhịp điệu nói chậm rãi, từ ngữ gãy gọn cổ kính. Không để bộc phát cơn giận bằng la hét mà thể hiện qua cử chỉ bóp chặt mẩu phấn..."`}
-                    className="p-3 text-meta rounded-lg bg-white border border-primary-200 focus:outline-none focus:border-primary-500 text-stone-800 leading-relaxed font-mono"
+                    className="p-3 text-meta rounded-lg bg-surface-container-lowest border border-primary-200 focus:outline-none focus:border-primary-500 text-stone-800 leading-relaxed font-mono"
                   />
                 </div>
               </div>
@@ -1088,7 +1088,7 @@ export function AuthorStoryContextPage() {
         {activeTab === 'relationships' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Rail: Relationship List (lg: col-span-5) */}
-            <div className="lg:col-span-5 flex flex-col gap-3.5 bg-white rounded-xl p-4 border border-stone-200/80 shadow-xs">
+            <div className="lg:col-span-5 flex flex-col gap-3.5 bg-surface-container-lowest rounded-xl p-4 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-stone-100">
                 <div className="flex items-center gap-1.5 font-bold text-meta text-stone-800 uppercase tracking-wider">
                   <span className="material-symbols-outlined text-[17px] text-primary-600">hub</span>
@@ -1124,7 +1124,7 @@ export function AuthorStoryContextPage() {
                       className={`p-3 rounded-xl border transition-all cursor-pointer relative ${
                         isSelected
                           ? 'bg-primary-50/70 border-primary-300 shadow-2xs'
-                          : 'bg-white border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
+                          : 'bg-surface-container-lowest border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
@@ -1153,7 +1153,7 @@ export function AuthorStoryContextPage() {
             </div>
 
             {/* Right Form: Relationship Inspector (lg: col-span-7) */}
-            <div className="lg:col-span-7 flex flex-col gap-4 bg-white rounded-xl p-5 border border-stone-200/80 shadow-xs">
+            <div className="lg:col-span-7 flex flex-col gap-4 bg-surface-container-lowest rounded-xl p-5 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between pb-3 border-b border-stone-100">
                 <h3 className="font-bold text-body text-stone-900">
                   {isCreatingRelationship || !selectedRelationshipId ? 'Thiết lập mối quan hệ mới' : 'Chỉnh sửa mối quan hệ'}
@@ -1211,7 +1211,7 @@ export function AuthorStoryContextPage() {
                   value={relationshipForm.relationshipType}
                   onChange={(e) => setRelationshipForm({ ...relationshipForm, relationshipType: e.target.value })}
                   placeholder="Ví dụ: Bằng hữu tri kỷ, Kẻ thù truyền kiếp, Sư đồ, Kình địch thương trường..."
-                  className="p-2 text-meta rounded-lg border border-stone-200 bg-white text-stone-800 font-medium"
+                  className="p-2 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800 font-medium"
                 />
               </div>
 
@@ -1222,7 +1222,7 @@ export function AuthorStoryContextPage() {
                   value={relationshipForm.description ?? ''}
                   onChange={(e) => setRelationshipForm({ ...relationshipForm, description: e.target.value })}
                   placeholder="Mối quan hệ phát triển từ biến cố năm 1991, có sự tin cậy nhưng giấu kín bí mật về cuốn sổ..."
-                  className="p-3 text-meta rounded-lg border border-stone-200 bg-white text-stone-800 leading-relaxed"
+                  className="p-3 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800 leading-relaxed"
                 />
               </div>
 
@@ -1251,7 +1251,7 @@ export function AuthorStoryContextPage() {
         {activeTab === 'timeline' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Rail: Timeline Events Feed (lg: col-span-5) */}
-            <div className="lg:col-span-5 flex flex-col gap-3.5 bg-white rounded-xl p-4 border border-stone-200/80 shadow-xs">
+            <div className="lg:col-span-5 flex flex-col gap-3.5 bg-surface-container-lowest rounded-xl p-4 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-stone-100">
                 <div className="flex items-center gap-1.5 font-bold text-meta text-stone-800 uppercase tracking-wider">
                   <span className="material-symbols-outlined text-[17px] text-primary-600">timeline</span>
@@ -1289,7 +1289,7 @@ export function AuthorStoryContextPage() {
                         className={`p-3 rounded-xl border transition-all cursor-pointer relative ${
                           isSelected
                             ? 'bg-primary-50/70 border-primary-300 shadow-2xs'
-                            : 'bg-white border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
+                            : 'bg-surface-container-lowest border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
@@ -1316,7 +1316,7 @@ export function AuthorStoryContextPage() {
             </div>
 
             {/* Right Form: Timeline Event Inspector (lg: col-span-7) */}
-            <div className="lg:col-span-7 flex flex-col gap-4 bg-white rounded-xl p-5 border border-stone-200/80 shadow-xs">
+            <div className="lg:col-span-7 flex flex-col gap-4 bg-surface-container-lowest rounded-xl p-5 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between pb-3 border-b border-stone-100">
                 <h3 className="font-bold text-body text-stone-900">
                   {isCreatingTimeline || !selectedEventId ? 'Thêm mốc sự kiện mới' : 'Chỉnh sửa sự kiện Timeline'}
@@ -1341,7 +1341,7 @@ export function AuthorStoryContextPage() {
                     value={timelineForm.title}
                     onChange={(e) => setTimelineForm({ ...timelineForm, title: e.target.value })}
                     placeholder="Ví dụ: Đêm giao thừa năm 1991, Gặp gỡ tại quán trà..."
-                    className="p-2 text-meta rounded-lg border border-stone-200 bg-white text-stone-800 font-medium"
+                    className="p-2 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800 font-medium"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -1350,7 +1350,7 @@ export function AuthorStoryContextPage() {
                     type="number"
                     value={timelineForm.eventOrder}
                     onChange={(e) => setTimelineForm({ ...timelineForm, eventOrder: parseInt(e.target.value, 10) || 1 })}
-                    className="p-2 text-meta rounded-lg border border-stone-200 bg-white text-stone-800 font-medium"
+                    className="p-2 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800 font-medium"
                   />
                 </div>
               </div>
@@ -1378,7 +1378,7 @@ export function AuthorStoryContextPage() {
                   value={timelineForm.summary}
                   onChange={(e) => setTimelineForm({ ...timelineForm, summary: e.target.value })}
                   placeholder="Mô tả sự kiện diễn ra ở đâu, ai tham gia, hậu quả hoặc bước ngoặt câu chuyện mang lại..."
-                  className="p-3 text-meta rounded-lg border border-stone-200 bg-white text-stone-800 leading-relaxed"
+                  className="p-3 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800 leading-relaxed"
                 />
               </div>
 
@@ -1402,7 +1402,7 @@ export function AuthorStoryContextPage() {
         {activeTab === 'summaries' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Rail: Summaries List (lg: col-span-5) */}
-            <div className="lg:col-span-5 flex flex-col gap-3.5 bg-white rounded-xl p-4 border border-stone-200/80 shadow-xs">
+            <div className="lg:col-span-5 flex flex-col gap-3.5 bg-surface-container-lowest rounded-xl p-4 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-stone-100">
                 <div className="flex items-center gap-1.5 font-bold text-meta text-stone-800 uppercase tracking-wider">
                   <span className="material-symbols-outlined text-[17px] text-primary-600">menu_book</span>
@@ -1434,7 +1434,7 @@ export function AuthorStoryContextPage() {
                       className={`p-3 rounded-xl border transition-all cursor-pointer relative ${
                         isSelected
                           ? 'bg-primary-50/70 border-primary-300 shadow-2xs'
-                          : 'bg-white border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
+                          : 'bg-surface-container-lowest border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
@@ -1463,7 +1463,7 @@ export function AuthorStoryContextPage() {
             </div>
 
             {/* Right Form: Summary Inspector (lg: col-span-7) */}
-            <div className="lg:col-span-7 flex flex-col gap-4 bg-white rounded-xl p-5 border border-stone-200/80 shadow-xs">
+            <div className="lg:col-span-7 flex flex-col gap-4 bg-surface-container-lowest rounded-xl p-5 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between pb-3 border-b border-stone-100">
                 <h3 className="font-bold text-body text-stone-900">
                   {isCreatingSummary || !selectedSummaryId ? 'Thêm bản tóm tắt mới' : 'Chỉnh sửa bản tóm tắt'}
@@ -1502,7 +1502,7 @@ export function AuthorStoryContextPage() {
                       value={summaryForm.arcName ?? ''}
                       onChange={(e) => setSummaryForm({ ...summaryForm, arcName: e.target.value })}
                       placeholder="Ví dụ: Hồi I - Mùa đông ngõ Yên Thái..."
-                      className="p-2 text-meta rounded-lg border border-stone-200 bg-white text-stone-800 font-medium"
+                      className="p-2 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800 font-medium"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -1513,7 +1513,7 @@ export function AuthorStoryContextPage() {
                       onChange={(e) =>
                         setSummaryForm({ ...summaryForm, startChapterNumber: parseInt(e.target.value, 10) || null })
                       }
-                      className="p-2 text-meta rounded-lg border border-stone-200 bg-white text-stone-800"
+                      className="p-2 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -1524,7 +1524,7 @@ export function AuthorStoryContextPage() {
                       onChange={(e) =>
                         setSummaryForm({ ...summaryForm, endChapterNumber: parseInt(e.target.value, 10) || null })
                       }
-                      className="p-2 text-meta rounded-lg border border-stone-200 bg-white text-stone-800"
+                      className="p-2 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800"
                     />
                   </div>
                 </div>
@@ -1555,7 +1555,7 @@ export function AuthorStoryContextPage() {
                   value={summaryForm.summary}
                   onChange={(e) => setSummaryForm({ ...summaryForm, summary: e.target.value })}
                   placeholder="Tóm tắt ngắn gọn các sự kiện trọng tâm, tâm lý nhân vật và sự chuyển biến của mạch truyện..."
-                  className="p-3 text-meta rounded-lg border border-stone-200 bg-white text-stone-800 leading-relaxed"
+                  className="p-3 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800 leading-relaxed"
                 />
               </div>
 
@@ -1577,7 +1577,7 @@ export function AuthorStoryContextPage() {
       {/* ──────────────────────────────────────────
           5. Minimal Modern Footer
          ────────────────────────────────────────── */}
-      <footer className="w-full bg-white border-t border-stone-200/70 py-6 mt-12 text-meta text-stone-500">
+      <footer className="w-full bg-surface-container-lowest border-t border-stone-200/70 py-6 mt-12 text-meta text-stone-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-stone-800">Ephurin StoryCraft Văn Hoa</span>

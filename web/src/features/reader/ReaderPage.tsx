@@ -1,3 +1,4 @@
+import { ThemeControl } from '../../shared/components/ThemeControl';
 import { NovelEngagement } from './NovelEngagement';
 import {
   Alert,
@@ -16,7 +17,7 @@ import {
   Title
 } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
@@ -840,8 +841,8 @@ function buildReaderStyle(preferences?: ReadingPreferences) {
       ? '#f8fafc'
       : preferences?.background === 'SEPIA'
         ? '#2f261c'
-        : '#111827';
-  const color = preferences?.background === 'LIGHT' ? '#111827' : preferences?.background === 'SEPIA' ? '#f5e6c8' : '#f8fafc';
+        : preferences?.background === 'DARK' ? 'var(--sc-reader-dark-bg)' : 'var(--sc-surface)';
+  const color = preferences?.background === 'LIGHT' ? '#111827' : preferences?.background === 'SEPIA' ? '#f5e6c8' : preferences?.background === 'DARK' ? 'var(--sc-reader-dark-text)' : 'var(--sc-text)';
 
   return {
     background,
@@ -922,13 +923,14 @@ export function ReaderHistoryPage() {
 }
 
 function ReaderHeader({ title, description, actions }: { title: string; description: string; actions?: ReactNode }) {
+  const publicPage = useLocation().pathname.startsWith('/public');
   return (
     <Group justify="space-between" mb="lg">
       <Box>
         <Title order={2}>{title}</Title>
         <Text c="dimmed">{description}</Text>
       </Box>
-      {actions}
+      <Group gap="xs">{actions}{publicPage && <ThemeControl />}</Group>
     </Group>
   );
 }

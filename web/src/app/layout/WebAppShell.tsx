@@ -1,3 +1,4 @@
+import { ThemeControl } from '../../shared/components/ThemeControl';
 import { Badge, Box, Button, Group, NavLink, Stack, Text } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { NavLink as RouterNavLink, Outlet, useNavigate } from 'react-router-dom';
@@ -52,6 +53,7 @@ export function WebAppShell() {
           <Badge variant="light">Official Web MVP</Badge>
         </Group>
         <Group gap="xs">
+          <ThemeControl />
           <Badge size="sm" variant="outline">
             {user?.role ?? 'GUEST'}
           </Badge>

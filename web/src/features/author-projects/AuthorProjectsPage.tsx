@@ -227,7 +227,7 @@ export function AuthorProjectsPage() {
           {/* Compact Overview Statistics (3 Cards, Single Row) */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Card 1: Tổng tác phẩm */}
-            <div className="bg-white rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
+            <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
               <div className="flex flex-col gap-1">
                 <span className="text-meta text-stone-500 uppercase tracking-wider font-semibold">
                   Tổng tác phẩm
@@ -246,7 +246,7 @@ export function AuthorProjectsPage() {
             </div>
 
             {/* Card 2: Tổng lượt đọc */}
-            <div className="bg-white rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
+            <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
               <div className="flex flex-col gap-1">
                 <span className="text-meta text-stone-500 uppercase tracking-wider font-semibold">
                   Tổng lượt đọc
@@ -264,7 +264,7 @@ export function AuthorProjectsPage() {
             </div>
 
             {/* Card 3: Chương đã xuất bản */}
-            <div className="bg-white rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
+            <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
               <div className="flex flex-col gap-1">
                 <span className="text-meta text-stone-500 uppercase tracking-wider font-semibold">
                   Chương đã xuất bản
@@ -295,7 +295,7 @@ export function AuthorProjectsPage() {
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <label htmlFor="project-sort" className="text-form-label text-stone-500">Sắp xếp</label>
-                <select id="project-sort" value={sortOrder} onChange={event => setSortOrder(event.target.value as ProjectSort)} className="bg-white border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700">
+                <select id="project-sort" value={sortOrder} onChange={event => setSortOrder(event.target.value as ProjectSort)} className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700">
                   <option value="updated">Mới cập nhật</option>
                   <option value="created-desc">Mới tạo</option>
                   <option value="created-asc">Tạo lâu nhất</option>
@@ -308,7 +308,7 @@ export function AuthorProjectsPage() {
             </div>
 
             {/* Filter Toolbar Row */}
-            <div className="bg-white rounded-xl px-3 py-2.5 shadow-2xs border border-stone-200/80 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div className="bg-surface-container-lowest rounded-xl px-3 py-2.5 shadow-2xs border border-stone-200/80 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
               {/* Search Input */}
               <div className="relative flex-1 min-w-[220px]">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-[18px]">
@@ -319,7 +319,7 @@ export function AuthorProjectsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Tìm kiếm tác phẩm theo tên..."
-                  className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-stone-50/80 text-meta text-stone-900 placeholder:text-stone-400 border border-stone-200/80 focus:outline-none focus:bg-white focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
+                  className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-stone-50/80 text-meta text-stone-900 placeholder:text-stone-400 border border-stone-200/80 focus:outline-none focus:bg-surface-container-lowest focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
                 />
               </div>
 
@@ -399,7 +399,7 @@ export function AuthorProjectsPage() {
                     onClick={() => setViewMode('grid')}
                     className={`p-1 rounded-md cursor-pointer transition-colors ${
                       viewMode === 'grid'
-                        ? 'bg-white text-primary-600 shadow-xs'
+                        ? 'bg-surface-container-lowest text-primary-600 shadow-xs'
                         : 'text-stone-400 hover:text-stone-700'
                     }`}
                     title="Lưới"
@@ -411,7 +411,7 @@ export function AuthorProjectsPage() {
                     onClick={() => setViewMode('list')}
                     className={`p-1 rounded-md cursor-pointer transition-colors ${
                       viewMode === 'list'
-                        ? 'bg-white text-primary-600 shadow-xs'
+                        ? 'bg-surface-container-lowest text-primary-600 shadow-xs'
                         : 'text-stone-400 hover:text-stone-700'
                     }`}
                     title="Danh sách"
@@ -424,14 +424,14 @@ export function AuthorProjectsPage() {
 
             {/* Loading / Error States */}
             {projectsQuery.isLoading && (
-              <div className="p-12 bg-white rounded-xl border border-stone-200/80 flex flex-col items-center justify-center gap-3">
+              <div className="p-12 bg-surface-container-lowest rounded-xl border border-stone-200/80 flex flex-col items-center justify-center gap-3">
                 <div className="w-7 h-7 border-3 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-meta text-stone-500">Đang tải danh sách tác phẩm...</p>
               </div>
             )}
 
             {projectsQuery.isError && (
-              <div className="p-8 bg-white rounded-xl border border-rose-200 flex flex-col items-center justify-center gap-2 text-center">
+              <div className="p-8 bg-surface-container-lowest rounded-xl border border-rose-200 flex flex-col items-center justify-center gap-2 text-center">
                 <span className="material-symbols-outlined text-rose-500 text-3xl">error</span>
                 <p className="text-meta font-semibold text-stone-800">Không thể tải danh sách tác phẩm</p>
                 <button
@@ -447,7 +447,7 @@ export function AuthorProjectsPage() {
             <RetainedHeight key={viewMode} retain={Boolean(searchQuery.trim() || selectedStatusTab !== 'ALL' || selectedGenre !== 'ALL')}>
             {/* Empty State */}
             {!projectsQuery.isLoading && !projectsQuery.isError && filteredProjects.length === 0 && (
-              <div className="p-12 bg-white rounded-xl border border-stone-200/80 flex flex-col items-center justify-center text-center gap-3">
+              <div className="p-12 bg-surface-container-lowest rounded-xl border border-stone-200/80 flex flex-col items-center justify-center text-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
                   <span className="material-symbols-outlined text-[28px]">menu_book</span>
                 </div>
@@ -490,7 +490,7 @@ export function AuthorProjectsPage() {
                   return (
                     <article
                       key={project.novelId}
-                      className="sc-novel-card bg-white rounded-xl p-3.5 shadow-2xs hover:shadow-sm border border-stone-200/90 transition-all flex flex-col justify-between h-full group"
+                      className="sc-novel-card bg-surface-container-lowest rounded-xl p-3.5 shadow-2xs hover:shadow-sm border border-stone-200/90 transition-all flex flex-col justify-between h-full group"
                     >
                       <div className="flex gap-3.5 items-start">
                         {/* Left: Compact vertical novel cover (approx 96px wide, fixed 2:3 aspect ratio) */}
@@ -594,7 +594,7 @@ export function AuthorProjectsPage() {
                           </button>
 
                           {isMenuOpen && (
-                            <div className="absolute right-0 bottom-full mb-1.5 w-44 bg-white rounded-lg shadow-sm border border-stone-200 py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
+                            <div className="absolute right-0 bottom-full mb-1.5 w-44 bg-surface-container-lowest rounded-lg shadow-sm border border-stone-200 py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
                               <Link
                                 to={`/author/context/${project.novelId}`}
                                 className="w-full px-3 py-1.5 text-left text-meta text-stone-700 hover:bg-stone-50 hover:text-primary-600 flex items-center gap-2 transition-colors"
@@ -634,7 +634,7 @@ export function AuthorProjectsPage() {
 
             {/* Novel Cards: List View */}
             {viewMode === 'list' && (
-              <div className="bg-white rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden divide-y divide-stone-100">
+              <div className="bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden divide-y divide-stone-100">
                 {filteredProjects.map((project) => {
                   const cover = project.coverImageUrl;
                   const statusLabel =
@@ -735,7 +735,7 @@ export function AuthorProjectsPage() {
          ────────────────────────────────────────── */}
       {createModalOpen && (
         <AuthorDialog onClose={() => setCreateModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-stone-200/80 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+          <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200/80 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
             <div className="px-5 py-4 bg-surface-subtle border-b border-primary-50/70 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -771,7 +771,7 @@ export function AuthorProjectsPage() {
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="Tên tác phẩm"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-meta text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-primary-600 focus:bg-white border-0 transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-meta text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-primary-600 focus:bg-surface-container-lowest border-0 transition-colors"
                 />
                 <p className="text-meta text-stone-500">
                   Vui lòng nhập tên tác phẩm (tối thiểu 2 ký tự)
@@ -799,7 +799,7 @@ export function AuthorProjectsPage() {
                 </button>
 
                 {isGenreDropdownOpen && (
-                  <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-white rounded-xl shadow-sm border border-stone-200/90 py-1.5 max-h-56 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200/90 py-1.5 max-h-56 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
                     {genres.map((genre) => (
                       <button
                         key={genre}
@@ -837,7 +837,7 @@ export function AuthorProjectsPage() {
                   value={newSynopsis}
                   onChange={(e) => setNewSynopsis(e.target.value)}
                   placeholder="Giới thiệu tác phẩm"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-meta text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-primary-600 focus:bg-white border-0 resize-none transition-colors leading-relaxed"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-meta text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-primary-600 focus:bg-surface-container-lowest border-0 resize-none transition-colors leading-relaxed"
                 />
               </div>
 
@@ -923,7 +923,7 @@ export function AuthorProjectsPage() {
                     <button
                       type="button"
                       onClick={() => coverInputRef.current?.click()}
-                      className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700 text-meta font-medium shadow-2xs transition-colors cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-stone-50 border border-stone-200/80 text-stone-700 text-meta font-medium shadow-2xs transition-colors cursor-pointer"
                     >
                       Chọn ảnh
                     </button>
@@ -970,7 +970,7 @@ export function AuthorProjectsPage() {
           Toast Notification
          ────────────────────────────────────────── */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-stone-900 text-white text-meta font-medium px-4 py-2.5 rounded-lg shadow-sm animate-in  duration-200">
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-cover-fallback text-white text-meta font-medium px-4 py-2.5 rounded-lg shadow-sm animate-in  duration-200">
           <span className="material-symbols-outlined text-[17px] text-emerald-400">check_circle</span>
           <span>{toastMessage}</span>
         </div>

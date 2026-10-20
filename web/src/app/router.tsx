@@ -103,7 +103,7 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
-          <AuthorTheme colorScheme="auto" className="sc-reviews-theme"><AuthorNovelReviewsPage /></AuthorTheme>
+          <AuthorTheme className="sc-reviews-theme"><AuthorNovelReviewsPage /></AuthorTheme>
         </RoleGuard>
       </AuthGate>
     )

@@ -293,7 +293,7 @@ export function AuthorNovelMetadataPage() {
       <main className="w-full pt-0 bg-surface flex-1">
         <div className="flex flex-col w-full pb-14">
           {/* Top Breadcrumb & Quick Action Bar (Compact Scale) */}
-          <div className="w-full bg-white border-b border-stone-200/80 shadow-2xs">
+          <div className="w-full bg-surface-container-lowest border-b border-stone-200/80 shadow-2xs">
             <div className="max-w-7xl mx-auto px-4 lg:px-8 py-1.5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-1.5 text-meta text-stone-500 min-w-0">
                 <Link
@@ -369,9 +369,9 @@ export function AuthorNovelMetadataPage() {
             </section>
 
             {/* Chapter Management Workstation Section */}
-            <div className="w-full bg-white rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden flex flex-col">
+            <div className="w-full bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden flex flex-col">
               {/* Clean Tabs Navigation */}
-              <div className="flex items-center px-6 bg-white border-b border-stone-200/80">
+              <div className="flex items-center px-6 bg-surface-container-lowest border-b border-stone-200/80">
                 <button
                   onClick={() => {
                     setActiveTab('all');
@@ -420,7 +420,7 @@ export function AuthorNovelMetadataPage() {
               </div>
 
               {/* Streamlined Chapter Toolbar */}
-              <div className="p-3.5 bg-white flex flex-col sm:flex-row items-center justify-between gap-2.5 border-b border-stone-200/80">
+              <div className="p-3.5 bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-2.5 border-b border-stone-200/80">
                 <div className="flex items-center gap-2 flex-1 w-full sm:w-auto flex-wrap">
                   {/* Search Box */}
                   <div className="relative min-w-[240px] flex-1 sm:flex-initial">
@@ -538,7 +538,7 @@ export function AuthorNovelMetadataPage() {
                       <tr
                         key={chapter.chapterId}
                         className={`hover:bg-surface-subtle/60 transition-colors ${
-                          chapter.status === 'ARCHIVED' ? 'opacity-65 bg-stone-50/50' : 'bg-white'
+                          chapter.status === 'ARCHIVED' ? 'opacity-65 bg-stone-50/50' : 'bg-surface-container-lowest'
                         }`}
                       >
                         <td className="py-3 px-3.5 text-center">
@@ -615,7 +615,7 @@ export function AuthorNovelMetadataPage() {
               </div>
 
               {/* Clean Minimal Pagination Footer */}
-              <div className="p-3.5 bg-white flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-stone-200/80">
+              <div className="p-3.5 bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-stone-200/80">
                 <span className="text-stone-500 font-label-sm text-meta">
                   Hiển thị{' '}
                   <strong className="text-stone-900 font-semibold">
@@ -667,7 +667,7 @@ export function AuthorNovelMetadataPage() {
       {/* ──────────────────────────────────────────
           BEGIN: Footer (Preserved HTML Structure, IDE Warm Colors)
          ────────────────────────────────────────── */}
-      <footer className="w-full bg-white border-t border-stone-200/80 shadow-none mt-auto">
+      <footer className="w-full bg-surface-container-lowest border-t border-stone-200/80 shadow-none mt-auto">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-meta">
           <div className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-primary-600 text-[18px]">auto_stories</span>
@@ -705,7 +705,7 @@ export function AuthorNovelMetadataPage() {
          ────────────────────────────────────────── */}
       {editModalOpen && (
         <AuthorDialog onClose={() => setEditModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="sc-novel-edit-dialog bg-white rounded-xl shadow-sm border border-stone-200 animate-in fade-in zoom-in-95 duration-200">
+          <div className="sc-novel-edit-dialog bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="sc-novel-edit-header flex items-center justify-between border-b border-stone-100">
               <div className="flex items-center gap-2">
@@ -819,7 +819,7 @@ export function AuthorNovelMetadataPage() {
          ────────────────────────────────────────── */}
       {newChapterModalOpen && (
         <AuthorDialog onClose={() => setNewChapterModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-sm border border-stone-200 w-full max-w-sm p-5 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 w-full max-w-sm p-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-3.5">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center">
@@ -905,7 +905,7 @@ export function AuthorNovelMetadataPage() {
          ────────────────────────────────────────── */}
       {toastMessage && (
         <div className="fixed bottom-5 right-5 z-50 animate-in fade-in  duration-300">
-          <div className="flex items-center gap-2 bg-stone-900 text-white px-3.5 py-2 rounded-xl shadow-sm text-meta font-medium border border-stone-800">
+          <div className="flex items-center gap-2 bg-cover-fallback text-white px-3.5 py-2 rounded-xl shadow-sm text-meta font-medium border border-stone-800">
             <span className="material-symbols-outlined text-emerald-400 text-[16px]">check_circle</span>
             <span>{toastMessage}</span>
           </div>

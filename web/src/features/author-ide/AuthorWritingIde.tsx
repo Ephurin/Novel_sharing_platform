@@ -1,3 +1,4 @@
+import { ThemeControl } from '../../shared/components/ThemeControl';
 import { AuthorDialog } from '../../shared/components/AuthorTheme';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -651,6 +652,7 @@ export function AuthorWritingIde() {
           </div>
 
           {/* Secondary Tools Group */}
+          <ThemeControl />
           <div className="flex items-center bg-stone-100/70 p-0.5 rounded-lg border border-stone-200/80">
             <button
               onClick={() => setFormatToolbarVisible((visible) => !visible)}
@@ -658,14 +660,14 @@ export function AuthorWritingIde() {
               aria-expanded={formatToolbarVisible}
               aria-controls="studio-format-toolbar"
               title={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
               type="button"
             >
               <span className="material-symbols-outlined text-stone-500 text-[15px]">text_format</span>
             </button>
             <button
               onClick={() => setStoryBibleOpen(true)}
-              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
+              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
               title="Cẩm nang thế giới truyện (Story Bible)"
               type="button"
             >
@@ -674,7 +676,7 @@ export function AuthorWritingIde() {
             </button>
             <button
               onClick={() => setFocusMode((prev: boolean) => !prev)}
-              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
+              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
               title="Chế độ tập trung (Zen Mode)"
               type="button"
             >
@@ -716,7 +718,7 @@ export function AuthorWritingIde() {
           BEGIN: Chapter Settings Subheader Bar
          ────────────────────────────────────────── */}
       {!focusMode && (
-        <section className="h-11 border-b border-stone-200/80 bg-white/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
+        <section className="h-11 border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
           {/* Left: Sidebar toggle & Publication Status */}
           <div className="flex items-center gap-3">
             <button
@@ -747,7 +749,7 @@ export function AuthorWritingIde() {
                 onClick={() => handleAccessChange('free')}
                 className={`px-2.5 py-1 rounded-md text-meta transition-colors ${
                   !isVip
-                    ? 'font-semibold bg-white text-stone-900 shadow-2xs border border-stone-200/60'
+                    ? 'font-semibold bg-surface-container-lowest text-stone-900 shadow-2xs border border-stone-200/60'
                     : 'font-medium text-stone-600 hover:text-stone-900'
                 }`}
                 type="button"
@@ -758,7 +760,7 @@ export function AuthorWritingIde() {
                 onClick={() => handleAccessChange('vip')}
                 className={`px-2.5 py-1 rounded-md text-meta flex items-center gap-1 transition-all ${
                   isVip
-                    ? 'font-semibold bg-white text-primary-700 shadow-2xs border border-stone-200/60'
+                    ? 'font-semibold bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
                     : 'font-medium text-stone-600 hover:text-stone-900'
                 }`}
                 type="button"
@@ -779,7 +781,7 @@ export function AuthorWritingIde() {
                     max={999}
                     value={priceCoins}
                     onChange={(e) => handlePriceChange(parseInt(e.target.value, 10))}
-                    className="w-12 h-6 text-center text-meta font-semibold rounded border-stone-300 bg-white py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
+                    className="w-12 h-6 text-center text-meta font-semibold rounded border-stone-300 bg-surface-container-lowest py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
                   />
                   <span className="text-meta font-semibold text-amber-700">Xu</span>
                 </div>
@@ -827,7 +829,7 @@ export function AuthorWritingIde() {
                   value={chapterSearch}
                   onChange={(e) => setChapterSearch(e.target.value)}
                   placeholder="Tìm kiếm chương..."
-                  className="w-full bg-white text-meta pl-8 pr-2.5 py-1.5 rounded-lg border border-stone-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 placeholder-stone-400"
+                  className="w-full bg-surface-container-lowest text-meta pl-8 pr-2.5 py-1.5 rounded-lg border border-stone-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 placeholder-stone-400"
                 />
               </div>
             </div>
@@ -837,7 +839,7 @@ export function AuthorWritingIde() {
               <button
                 onClick={() => createChapterMutation.mutate()}
                 disabled={createChapterMutation.isPending}
-                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 text-meta font-semibold rounded-lg border border-dashed border-stone-300 bg-white/70 hover:bg-white hover:border-primary-400 text-stone-700 hover:text-primary-600 transition-all shadow-2xs group"
+                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 text-meta font-semibold rounded-lg border border-dashed border-stone-300 bg-surface-container-lowest/70 hover:bg-surface-container-lowest hover:border-primary-400 text-stone-700 hover:text-primary-600 transition-all shadow-2xs group"
                 type="button"
               >
                 <span className="material-symbols-outlined text-[16px] text-stone-500 group-hover:text-primary-600">
@@ -918,7 +920,7 @@ export function AuthorWritingIde() {
           {/* Sticky Formatting Toolbar with Frosted-Glass Backdrop */}
           {formatToolbarVisible && (
             <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-6 shrink-0 shadow-2xs">
-              <div className="bg-white/95 border border-stone-200/90 rounded-xl shadow-xs py-1 px-2.5 flex items-center flex-wrap gap-1 max-w-4xl text-meta text-stone-700 select-none">
+              <div className="bg-surface-container-lowest/95 border border-stone-200/90 rounded-xl shadow-xs py-1 px-2.5 flex items-center flex-wrap gap-1 max-w-4xl text-meta text-stone-700 select-none">
                 {/* 1. Font Family Dropdown */}
                 <div className="relative" ref={fontDropdownRef}>
                   <button
@@ -938,7 +940,7 @@ export function AuthorWritingIde() {
 
                   {/* Dropdown Menu */}
                   {fontDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1.5 w-80 bg-white rounded-xl shadow-sm border border-stone-200 py-2 px-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="absolute top-full left-0 mt-1.5 w-80 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 py-2 px-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
                       <div className="px-2.5 py-1 mb-1 border-b border-stone-100 flex items-center justify-between">
                         <span className="text-meta font-bold uppercase tracking-wider text-stone-400">
                           Phông chữ soạn thảo ({AVAILABLE_FONTS.length})
@@ -1018,7 +1020,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setFontSize((prev) => Math.max(13, prev - 1))}
                     disabled={fontSize <= 13}
-                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-white text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
+                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
                     title="Giảm cỡ chữ (A-)"
                     type="button"
                   >
@@ -1030,7 +1032,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setFontSize((prev) => Math.min(28, prev + 1))}
                     disabled={fontSize >= 28}
-                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-white text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
+                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
                     title="Tăng cỡ chữ (A+)"
                     type="button"
                   >
@@ -1045,7 +1047,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setTextAlign('justify')}
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'justify' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+                      textAlign === 'justify' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
                     title="Căn đều hai bên (Chuẩn sách xuất bản)"
                     type="button"
@@ -1055,7 +1057,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setTextAlign('left')}
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'left' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+                      textAlign === 'left' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
                     title="Căn trái"
                     type="button"
@@ -1065,7 +1067,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setTextAlign('center')}
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'center' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+                      textAlign === 'center' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
                     title="Căn giữa (Thơ, tiêu đề phụ, lời đề từ)"
                     type="button"
@@ -1075,7 +1077,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setTextAlign('right')}
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'right' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+                      textAlign === 'right' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
                     title="Căn phải (Ký tên, ngày tháng, xuất xứ)"
                     type="button"
@@ -1100,7 +1102,7 @@ export function AuthorWritingIde() {
                   </button>
 
                   {spacingDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1.5 w-48 bg-white rounded-xl shadow-sm border border-stone-200 p-1.5 z-50 animate-in fade-in duration-100">
+                    <div className="absolute top-full left-0 mt-1.5 w-48 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 p-1.5 z-50 animate-in fade-in duration-100">
                       <div className="px-2 py-1 text-meta font-bold text-stone-400 uppercase tracking-wider">
                         Giãn dòng bản thảo
                       </div>
@@ -1210,7 +1212,7 @@ export function AuthorWritingIde() {
           )}
 
           {/* Centered Manuscript Page */}
-          <article className="sc-manuscript-page w-full max-w-3xl shrink-0 bg-white rounded-xl shadow-sm border border-stone-200/70">
+          <article className="sc-manuscript-page w-full max-w-3xl shrink-0 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200/70">
             {/* Editable Chapter Title Header */}
             <div className="mb-8 pb-5 border-b border-stone-100">
               <input
@@ -1257,7 +1259,7 @@ export function AuthorWritingIde() {
             BEGIN: Docked AI Assistant
            ────────────────────────────────────────── */}
         {aiDrawerOpen && (
-          <aside id="studio-ai-panel" aria-label="Trợ lý sáng tác AI" className="sc-ai-panel bg-white border-l border-stone-200 flex flex-col select-none">
+          <aside id="studio-ai-panel" aria-label="Trợ lý sáng tác AI" className="sc-ai-panel bg-surface-container-lowest border-l border-stone-200 flex flex-col select-none">
             {/* Drawer Header */}
             <div className="h-14 border-b border-stone-200 px-4 flex items-center justify-between bg-stone-50/80">
               <div className="flex items-center gap-2">
@@ -1280,7 +1282,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Context Scope Selector */}
-            <div className="px-3 py-2 border-b border-stone-100 bg-white flex items-center justify-between text-meta">
+            <div className="px-3 py-2 border-b border-stone-100 bg-surface-container-lowest flex items-center justify-between text-meta">
               <span className="text-stone-500 font-medium">Phạm vi ngữ cảnh:</span>
               <select
                 value={aiScope}
@@ -1301,28 +1303,28 @@ export function AuthorWritingIde() {
               <div className="grid grid-cols-2 gap-1.5">
                 <button
                   onClick={() => handleGenerateAi('Viết tiếp phân cảnh này tự nhiên bám sát giọng văn')}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
                   type="button"
                 >
                   <span>✍️</span> <span>Viết tiếp</span>
                 </button>
                 <button
                   onClick={() => handleGenerateAi('Gọt giũa và nâng tầm đoạn văn, giàu hình ảnh biểu cảm hơn')}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
                   type="button"
                 >
                   <span>✨</span> <span>Gọt giũa văn phong</span>
                 </button>
                 <button
                   onClick={() => handleGenerateAi('Mô tả ngoại cảnh và không gian xung quanh sâu sắc')}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
                   type="button"
                 >
                   <span>🎨</span> <span>Mô tả ngoại cảnh</span>
                 </button>
                 <button
                   onClick={() => handleGenerateAi('Gợi ý bước ngoặt và tình tiết bất ngờ tiếp theo cho cốt truyện')}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5"
                   type="button"
                 >
                   <span>💡</span> <span>Gợi ý ý tưởng</span>
@@ -1345,7 +1347,7 @@ export function AuthorWritingIde() {
                     <span className="uppercase tracking-wide">Gợi ý từ AI Copilot</span>
                     <span className="bg-primary-100 px-1.5 py-0.2 rounded text-meta">{aiSuggestionTone}</span>
                   </div>
-                  <p className="font-serif text-table leading-relaxed italic text-stone-700 bg-white/70 p-2.5 rounded-lg border border-primary-100/60 whitespace-pre-wrap">
+                  <p className="font-serif text-table leading-relaxed italic text-stone-700 bg-surface-container-lowest/70 p-2.5 rounded-lg border border-primary-100/60 whitespace-pre-wrap">
                     {aiSuggestion}
                   </p>
                   <div className="mt-3 grid grid-cols-2 gap-1.5 font-sans pt-1">
@@ -1358,7 +1360,7 @@ export function AuthorWritingIde() {
                     </button>
                     <button
                       onClick={() => insertAiText('replace')}
-                      className="px-2 py-1.5 rounded bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 font-medium text-meta text-center transition-all"
+                      className="px-2 py-1.5 rounded bg-surface-container-lowest border border-stone-200 text-stone-700 hover:bg-stone-50 font-medium text-meta text-center transition-all"
                       type="button"
                     >
                       Thay thế nội dung
@@ -1381,7 +1383,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Prompt Input Footer */}
-            <div className="p-3 border-t border-stone-200 bg-white">
+            <div className="p-3 border-t border-stone-200 bg-surface-container-lowest">
               <div className="relative">
                 <textarea
                   value={aiInstruction}
@@ -1418,7 +1420,7 @@ export function AuthorWritingIde() {
         <AuthorDialog onClose={() => setStoryBibleOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div
             style={{ height: '620px', maxHeight: '88vh' }}
-            className="bg-white rounded-2xl shadow-sm border border-stone-200/90 w-full max-w-3xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
+            className="bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200/90 w-full max-w-3xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
           >
             {/* Header */}
             <div className="h-16 border-b border-stone-200 px-6 flex items-center justify-between bg-stone-50/90 shrink-0">
@@ -1439,7 +1441,7 @@ export function AuthorWritingIde() {
                   to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
                   target="_blank"
                   rel="noreferrer"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-meta text-stone-700 hover:text-stone-900 hover:bg-white font-medium shadow-xs transition-colors"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-meta text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest font-medium shadow-xs transition-colors"
                   title="Mở toàn màn hình để thêm/sửa nhân vật, thiết lập chi tiết"
                 >
                   <span className="material-symbols-outlined text-[15px] text-primary-600">open_in_new</span>
@@ -1457,7 +1459,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Tabs */}
-            <div className="px-6 border-b border-stone-200 flex items-center gap-6 text-meta font-semibold bg-white text-stone-500 shrink-0">
+            <div className="px-6 border-b border-stone-200 flex items-center gap-6 text-meta font-semibold bg-surface-container-lowest text-stone-500 shrink-0">
               <button
                 onClick={() => setStoryBibleTab('characters')}
                 className={`py-3.5 flex items-center gap-1.5 transition-colors ${
@@ -1535,7 +1537,7 @@ export function AuthorWritingIde() {
                       return (
                         <div
                           key={c.characterId}
-                          className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 hover:shadow-xs transition-all flex flex-col justify-between gap-2.5"
+                          className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 hover:shadow-xs transition-all flex flex-col justify-between gap-2.5"
                         >
                           <div className="flex items-start gap-3">
                             <span className="w-11 h-11 rounded-full bg-stone-100 border border-stone-200 shrink-0 shadow-2xs flex items-center justify-center font-bold text-stone-600" aria-label={c.name}>{c.name.slice(0, 1).toUpperCase()}</span>
@@ -1597,7 +1599,7 @@ export function AuthorWritingIde() {
                 <>
                   <div className="space-y-2.5">
                     {relationshipsQuery.data?.map((r: CharacterRelationship) => (
-                      <div key={r.relationshipId} className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 transition-colors">
+                      <div key={r.relationshipId} className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 transition-colors">
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="font-bold text-stone-900 text-meta flex items-center gap-1.5">
                             <span className="text-primary-700">{r.sourceCharacterName}</span>
@@ -1626,7 +1628,7 @@ export function AuthorWritingIde() {
                 <>
                   <div className="space-y-2.5">
                     {timelineQuery.data?.map((ev: StoryTimelineEvent) => (
-                      <div key={ev.eventId} className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 transition-colors">
+                      <div key={ev.eventId} className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 transition-colors">
                         <div className="flex items-center gap-2 font-bold text-stone-900 mb-1">
                           <span className="w-5 h-5 rounded-full bg-stone-100 border border-stone-200 text-meta flex items-center justify-center text-stone-600 font-mono">
                             #{ev.eventOrder}
@@ -1651,7 +1653,7 @@ export function AuthorWritingIde() {
                 <>
                   <div className="space-y-2.5">
                     {plotSummariesQuery.data?.map((s: PlotSummary) => (
-                      <div key={s.summaryId} className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 transition-colors">
+                      <div key={s.summaryId} className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 transition-colors">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="material-symbols-outlined text-[16px] text-primary-600">bookmark</span>
                           <span className="font-bold text-stone-900 text-meta">{s.arcName || 'Tóm tắt phân cảnh'}</span>
@@ -1705,7 +1707,7 @@ export function AuthorWritingIde() {
          ────────────────────────────────────────── */}
       {publishModalOpen && (
         <AuthorDialog onClose={() => setPublishModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-sm border border-stone-200 w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
               <div className="flex items-center gap-2.5">
@@ -1811,7 +1813,7 @@ export function AuthorWritingIde() {
          ────────────────────────────────────────── */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 animate-in fade-in  duration-300">
-          <div className="flex items-center gap-2.5 bg-stone-900 text-white px-4 py-2.5 rounded-xl shadow-sm text-meta font-medium border border-stone-800">
+          <div className="flex items-center gap-2.5 bg-cover-fallback text-white px-4 py-2.5 rounded-xl shadow-sm text-meta font-medium border border-stone-800">
             <span className="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span>
             <span>{toastMessage}</span>
           </div>

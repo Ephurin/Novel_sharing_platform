@@ -538,8 +538,8 @@ export function WalletPage() {
 
                     {/* Stylized Emerald Bank Card */}
                     <div className="sc-bank-card relative overflow-hidden rounded-xl p-4 flex flex-col justify-between min-h-[160px]">
-                      <div className="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-white/5 pointer-events-none"></div>
-                      <div className="absolute -right-2 top-0 w-20 h-20 rounded-full bg-white/5 pointer-events-none"></div>
+                      <div className="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-surface-container-lowest/5 pointer-events-none"></div>
+                      <div className="absolute -right-2 top-0 w-20 h-20 rounded-full bg-surface-container-lowest/5 pointer-events-none"></div>
 
                       <div className="flex items-start justify-between relative z-10">
                         <div className="flex flex-col">
@@ -548,7 +548,7 @@ export function WalletPage() {
                           </span>
                           <span className="font-semibold text-body tracking-tight">{bankName || 'Chưa nhập ngân hàng'}</span>
                         </div>
-                        <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-xs">
+                        <div className="w-7 h-7 rounded-full bg-surface-container-lowest/10 flex items-center justify-center backdrop-blur-xs">
                           <span className="material-symbols-outlined text-white text-[16px]">contactless</span>
                         </div>
                       </div>
