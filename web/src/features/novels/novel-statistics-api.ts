@@ -42,7 +42,9 @@ export type NovelReview = {
   updatedAt: string;
 };
 
-export async function listNovelReviews(novelId: string, page = 1) {
-  const response = await apiClient.get<ApiEnvelope<NovelReview[]>>(`/novels/${novelId}/reviews`, { params: { page, limit: 5 } });
-  return { items: response.data.data, totalItems: Number(response.data.meta.totalItems ?? 0), totalPages: Number(response.data.meta.totalPages ?? 0) };
+export type ReviewSort = 'newest' | 'oldest' | 'highest' | 'lowest';
+
+export async function listNovelReviews(novelId: string, page = 1, sort: ReviewSort = 'newest') {
+  const response = await apiClient.get<ApiEnvelope<NovelReview[]>>(`/novels/${novelId}/reviews`, { params: { page, limit: 5, sort } });
+  return { items: response.data.data, ratingAverage: typeof response.data.meta.ratingAverage === 'number' ? response.data.meta.ratingAverage : null, totalItems: Number(response.data.meta.totalItems ?? 0), totalPages: Number(response.data.meta.totalPages ?? 0) };
 }

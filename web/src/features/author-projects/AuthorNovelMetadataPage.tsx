@@ -1,4 +1,3 @@
-import { NovelReviews } from '../reader/NovelReviews';
 import { TagsInput } from '@mantine/core';
 import { getNovelStatistics } from '../novels/novel-statistics-api';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
@@ -51,7 +50,6 @@ export function AuthorNovelMetadataPage() {
 
   // State: Modals
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [reviewsOpen, setReviewsOpen] = useState(false);
   const [titleInput, setTitleInput] = useState('');
   const [synopsisInput, setSynopsisInput] = useState('');
   const [coverInput, setCoverInput] = useState('');
@@ -358,7 +356,7 @@ export function AuthorNovelMetadataPage() {
                 <div><dt>Tổng chương</dt><dd>{chaptersQuery.isPending ? '…' : chaptersQuery.isError ? '—' : chapters.length}</dd></div>
                 <div><dt>Lượt đọc</dt><dd>{novel.viewsCount.toLocaleString('vi-VN')}</dd></div>
                 <div><dt>Doanh thu</dt><dd>{earningsQuery.isPending ? '…' : earningsQuery.isError ? '—' : earningsQuery.data.unlockCoins.toLocaleString('vi-VN')} <span className="text-meta font-normal">Xu</span></dd></div>
-                <div><dt>Đánh giá</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.ratingAverage === null ? 'Chưa có' : statisticsQuery.data.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}</dd><button type="button" className="sc-review-link text-meta" onClick={() => setReviewsOpen(true)} aria-haspopup="dialog">Đọc đánh giá</button></div>
+                <div><dt>Đánh giá</dt><dd><Link className="sc-rating-metric" to={`/author/novels/${novelId}/reviews`} title="Xem đánh giá độc giả" aria-label="Xem đánh giá độc giả">{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.ratingAverage === null ? 'Chưa có' : statisticsQuery.data.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}<span className="material-symbols-outlined" aria-hidden="true">chevron_right</span></Link></dd></div>
                 <div><dt>Theo dõi</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.followersCount.toLocaleString('vi-VN')}</dd></div>
                 <div><dt>Tổng số từ</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.totalWords.toLocaleString('vi-VN')}</dd></div>
               </dl>
@@ -705,20 +703,6 @@ export function AuthorNovelMetadataPage() {
       {/* ──────────────────────────────────────────
           BEGIN: Modal Chỉnh Sửa Thông Tin Tác Phẩm
          ────────────────────────────────────────── */}
-      {reviewsOpen && (
-        <AuthorDialog onClose={() => setReviewsOpen(false)}>
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <div className="w-full max-w-2xl bg-white p-6">
-              <div className="flex items-center justify-between gap-4 mb-4">
-                <h2 className="text-section font-bold">Đánh giá của độc giả</h2>
-                <button type="button" className="sc-icon-button" onClick={() => setReviewsOpen(false)} aria-label="Đóng đánh giá"><span className="material-symbols-outlined" aria-hidden="true">close</span></button>
-              </div>
-              <NovelReviews key={novelId} novelId={novelId} />
-            </div>
-          </div>
-        </AuthorDialog>
-      )}
-
       {editModalOpen && (
         <AuthorDialog onClose={() => setEditModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="sc-novel-edit-dialog bg-white rounded-xl shadow-sm border border-stone-200 animate-in fade-in zoom-in-95 duration-200">

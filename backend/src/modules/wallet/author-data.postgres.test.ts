@@ -197,6 +197,19 @@ test('author ledger, public profile and project summaries', {
     assert.equal(averaged.myReview, 'Another reader review');
     const reviewsPage = await readNovelReviews(novel, 1, 1);
     assert.equal(reviewsPage.meta.totalItems, 2);
+    assert.equal(reviewsPage.meta.ratingAverage, 8.5);
+    // Sort before pagination; the average includes all text reviews.
+    await pool.query("update novel_ratings set updated_at = '2026-01-01' where novel_id = $1 and user_id = $2", [novel, reader]);
+    await pool.query("update novel_ratings set updated_at = '2026-01-02' where novel_id = $1 and user_id = $2", [novel, otherAuth.userId]);
+    for (const [sort, expected] of [['newest', [7, 10]], ['oldest', [10, 7]], ['highest', [10, 7]], ['lowest', [7, 10]]] as const) {
+      const first = await readNovelReviews(novel, 1, 1, undefined, sort);
+      const second = await readNovelReviews(novel, 2, 1, undefined, sort);
+      assert.deepEqual([first.data[0].score, second.data[0].score], expected);
+      assert.equal(first.meta.ratingAverage, 8.5);
+    }
+    await updateNovelEngagement(otherAuth, novel, { score: 7, review: null });
+    assert.equal((await readNovelReviews(novel, 1, 5)).meta.ratingAverage, 10);
+    await updateNovelEngagement(otherAuth, novel, { score: 7, review: 'Another reader review' });
     assert.equal(reviewsPage.meta.totalPages, 2);
     assert.equal(reviewsPage.data.length, 1);
     assert.notEqual(reviewsPage.data[0].userId, (await readNovelReviews(novel, 2, 1)).data[0].userId);
@@ -269,10 +282,14 @@ test('author ledger, public profile and project summaries', {
       assert.equal(data.myRating, null);
       assert.equal(data.myReview, null);
       assert.equal(data.isFollowing, false);
+      const invalidSort = await fetch(`${base}/reviews?sort=unknown`);
+      assert.equal(invalidSort.status, 400);
+      await invalidSort.json();
       const publicReviews = await fetch(`${base}/reviews?page=1&limit=5`);
       assert.equal(publicReviews.status, 200);
-      const reviewData = await publicReviews.json() as { data: Array<{ score: number; review: string; userId: string }>; meta: { totalItems: number } };
+      const reviewData = await publicReviews.json() as { data: Array<{ score: number; review: string; userId: string }>; meta: { totalItems: number; ratingAverage: number | null } };
       assert.equal(reviewData.meta.totalItems, 1);
+      assert.equal(reviewData.meta.ratingAverage, 9);
       assert.equal(reviewData.data[0].review, 'Review via HTTP');
       assert.equal(reviewData.data[0].score, 9);
       assert.equal(reviewData.data[0].userId, reader);

@@ -52,7 +52,15 @@ export async function isActiveReader(userId: string) {
   return result.rowCount === 1;
 }
 
-export async function listNovelReviews(novelId: string, page: number, limit: number) {
+export type ReviewSort = 'newest' | 'oldest' | 'highest' | 'lowest';
+const reviewOrder: Record<ReviewSort, string> = {
+  newest: 'r.updated_at desc, r.user_id asc',
+  oldest: 'r.updated_at asc, r.user_id asc',
+  highest: 'r.score desc, r.updated_at desc, r.user_id asc',
+  lowest: 'r.score asc, r.updated_at desc, r.user_id asc'
+};
+
+export async function listNovelReviews(novelId: string, page: number, limit: number, sort: ReviewSort = 'newest') {
   const [data, count] = await Promise.all([
     getPostgresPool().query(`select r.user_id, r.score, r.review_text, r.created_at, r.updated_at,
         coalesce(p.display_name, u.username) as display_name, p.avatar_url
@@ -60,8 +68,8 @@ export async function listNovelReviews(novelId: string, page: number, limit: num
       left join user_profiles p on p.user_id = u.user_id
       where r.novel_id = $1 and r.review_text is not null
         and u.role = 'READER' and u.status = 'ACTIVE' and u.deleted_at is null
-      order by r.updated_at desc, r.user_id asc limit $2 offset $3`, [novelId, limit, (page - 1) * limit]),
-    getPostgresPool().query(`select count(*)::int as total from novel_ratings r
+      order by ${reviewOrder[sort]} limit $2 offset $3`, [novelId, limit, (page - 1) * limit]),
+    getPostgresPool().query(`select count(*)::int as total, avg(r.score)::float8 as average from novel_ratings r
       join users u on u.user_id = r.user_id where r.novel_id = $1 and r.review_text is not null
         and u.role = 'READER' and u.status = 'ACTIVE' and u.deleted_at is null`, [novelId])
   ]);
@@ -69,6 +77,7 @@ export async function listNovelReviews(novelId: string, page: number, limit: num
     items: data.rows.map(row => ({ userId: row.user_id as string, displayName: row.display_name as string,
       avatarUrl: row.avatar_url as string | null, score: row.score as number,
       review: row.review_text as string, createdAt: row.created_at, updatedAt: row.updated_at })),
-    totalItems: count.rows[0].total as number
+    totalItems: count.rows[0].total as number,
+    ratingAverage: count.rows[0].average as number | null
   };
 }

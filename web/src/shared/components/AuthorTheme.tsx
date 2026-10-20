@@ -1,4 +1,4 @@
-import { FocusTrap, MantineProvider, createTheme, Menu } from '@mantine/core';
+import { FocusTrap, MantineProvider, createTheme, Menu, useComputedColorScheme } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, type PropsWithChildren } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -20,8 +20,13 @@ const authorTheme = createTheme({
   }
 });
 
-export function AuthorTheme({ children }: PropsWithChildren) {
-  return <MantineProvider theme={authorTheme} forceColorScheme="light"><div className="sc-author-theme">{children}</div></MantineProvider>;
+export function AuthorTheme({ children, colorScheme = 'light', className = '' }: PropsWithChildren<{ colorScheme?: 'light' | 'dark' | 'auto'; className?: string }>) {
+  return <MantineProvider theme={authorTheme} defaultColorScheme={colorScheme} forceColorScheme={colorScheme === 'auto' ? undefined : colorScheme}><AuthorThemeSurface className={className}>{children}</AuthorThemeSurface></MantineProvider>;
+}
+
+function AuthorThemeSurface({ children, className }: PropsWithChildren<{ className: string }>) {
+  const colorScheme = useComputedColorScheme('light');
+  return <div className={`sc-author-theme ${className}`} data-sc-color-scheme={colorScheme}>{children}</div>;
 }
 
 export function AuthorDialog({ children, onClose }: PropsWithChildren<{ onClose: () => void }>) {

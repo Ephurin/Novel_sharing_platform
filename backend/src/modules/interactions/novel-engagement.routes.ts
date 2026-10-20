@@ -1,3 +1,4 @@
+import type { ReviewSort } from './novel-engagement.repository.js';
 import { Router, type RequestHandler } from 'express';
 import { z } from 'zod';
 import { optionalAuth, requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
@@ -10,9 +11,10 @@ export const novelRatingSchema = novelIdParamSchema.extend({ body: z.object({
   score: z.number().int().min(1).max(10),
   review: z.string().trim().min(1).max(2000).nullable().optional()
 }) });
-const listReviewsSchema = novelIdParamSchema.extend({ query: z.object({
+export const listReviewsSchema = novelIdParamSchema.extend({ query: z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(50).default(10)
+  limit: z.coerce.number().int().positive().max(50).default(10),
+  sort: z.enum(['newest', 'oldest', 'highest', 'lowest']).default('newest')
 }) });
 export const novelEngagementRoutes = Router();
 
@@ -31,8 +33,8 @@ const change: RequestHandler = async (request, response, next) => {
 novelEngagementRoutes.get('/novels/:novelId/statistics', optionalAuth, validateRequest(novelIdParamSchema), read);
 novelEngagementRoutes.get('/novels/:novelId/reviews', optionalAuth, validateRequest(listReviewsSchema), async (request, response, next) => {
   try {
-    const { page, limit } = request.query as unknown as { page: number; limit: number };
-    const result = await readNovelReviews(String(request.params.novelId), page, limit, request.auth);
+    const { page, limit, sort } = request.query as unknown as { page: number; limit: number; sort: ReviewSort };
+    const result = await readNovelReviews(String(request.params.novelId), page, limit, request.auth, sort);
     response.json(successResponse(result.data, result.meta));
   } catch (error) { next(error); }
 });

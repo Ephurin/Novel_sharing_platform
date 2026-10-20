@@ -1,3 +1,4 @@
+import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorTheme } from '../shared/components/AuthorTheme';
 import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
 import { AuthorIdeShell } from './layout/AuthorIdeShell';
@@ -93,6 +94,16 @@ export const router = createBrowserRouter([
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN']}>
           <AuthorTheme><AuthorProjectsPage /></AuthorTheme>
+        </RoleGuard>
+      </AuthGate>
+    )
+  },
+  {
+    path: '/author/novels/:novelId/reviews',
+    element: (
+      <AuthGate>
+        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+          <AuthorTheme colorScheme="auto" className="sc-reviews-theme"><AuthorNovelReviewsPage /></AuthorTheme>
         </RoleGuard>
       </AuthGate>
     )

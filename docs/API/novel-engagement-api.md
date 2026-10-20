@@ -67,3 +67,22 @@ breaker. Reviews contain plain text, which clients should render as text.
 
 Schema: migrations `012_novel_engagement.sql` and `013_novel_review_text.sql`.
 Each reader has at most one follow and one score/review per novel.
+
+### Reader reviews page
+
+The author route is `/author/novels/:novelId/reviews`. Only the novel owner or
+an admin can access its management view; it has no reader-review edit actions.
+
+The existing GET reviews endpoint accepts `sort=newest|oldest|highest|lowest`
+(default `newest`). Ordering is applied in PostgreSQL before pagination,
+with user ID as a deterministic tie breaker. Newest/oldest use the last review
+update date, consistent with the date displayed on each review.
+
+Response metadata additionally includes `ratingAverage: number | null`,
+computed across all visible reviews with text, not just the current page.
+Score-only ratings remain included in the statistics endpoint, but are excluded
+from this review-list average and total. Empty review sets return null average.
+
+The page reuses AuthorTheme, AuthorNavbar, NovelReviews and PageStates. AuthorTheme
+still defaults to light on existing routes; this route opts into Mantine's
+persisted color preference/system color scheme with scoped dark StoryCraft tokens.

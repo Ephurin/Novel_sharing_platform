@@ -129,3 +129,24 @@ Tests cover incoming/outgoing transfers, duplicate unlocks, own-author access,
 pending/rejected/approved withdrawals, balance reconciliation, recipient
 isolation, date boundaries, historical earnings, public draft exclusion,
 follow state, novel summaries and nullable metadata updates.
+
+## Dedicated reader reviews page
+
+- Route: `/author/novels/:novelId/reviews`, guarded for AUTHOR/ADMIN and the
+  selected novel owner. The Novel Manager rating metric links directly to it;
+  the earlier review dialog and redundant link below the score are removed.
+- Reuses AuthorTheme, AuthorNavbar, NovelReviews, PageStates, existing auth,
+  React Query and the shared Axios client. No dependencies were added.
+- The existing reviews API now sorts globally before pagination and includes
+  the average of text reviews in metadata. Existing score-only statistics keep
+  their previous meaning. No schema changes or review-edit permission added.
+- Light/Dark uses Mantine's saved/system preference. Scoped dark tokens apply
+  only to this new route; existing author pages retain their light default.
+- Verified with TypeScript for both projects, 48 backend tests (including real
+  PostgreSQL review sorting across pages), and 6 frontend tests. Docker backend
+  and web were rebuilt and restarted with demo seeding disabled.
+- Chrome checks covered direct route/navigation/back navigation, desktop 1440px,
+  tablet 768px, mobile 390px, Light/Dark, real sample data, missing avatars,
+  loading, empty, network error, unavailable average, long reviews and pagination.
+  Synthetic state fixtures were intercepted only in the isolated QA browser;
+  no fixtures were persisted to application data.

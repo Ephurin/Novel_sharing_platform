@@ -1,3 +1,4 @@
+import type { ReviewSort } from './novel-engagement.repository.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { findNovelById } from '../novels/novels.repository.js';
@@ -25,8 +26,8 @@ export async function updateNovelEngagement(auth: AuthContext, novelId: string, 
   return readNovelStatistics(novelId, auth);
 }
 
-export async function readNovelReviews(novelId: string, page: number, limit: number, auth?: AuthContext) {
+export async function readNovelReviews(novelId: string, page: number, limit: number, auth?: AuthContext, sort: ReviewSort = 'newest') {
   await readNovelStatistics(novelId, auth);
-  const result = await listNovelReviews(novelId, page, limit);
-  return { data: result.items, meta: { page, limit, totalItems: result.totalItems, totalPages: Math.ceil(result.totalItems / limit) } };
+  const result = await listNovelReviews(novelId, page, limit, sort);
+  return { data: result.items, meta: { page, limit, ratingAverage: result.ratingAverage, totalItems: result.totalItems, totalPages: Math.ceil(result.totalItems / limit) } };
 }
