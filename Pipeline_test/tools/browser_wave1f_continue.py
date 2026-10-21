@@ -1,12 +1,13 @@
 """Continue the NEW Wave1F novel after verified S03; writes remain browser-only."""
 import json,re,time,hashlib
+from pathlib import Path
 from urllib.parse import urlparse,parse_qs
 from Pipeline_test.tools.browser_author_driver import now
 
 BODY='Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.'
 CONTRADICTION='Giọng trong bản ghi đã được xác minh ngay từ lần quét đầu tiên, không cần mẫu đối chứng.'
 
-def execute_remaining(session,project):
+def execute_remaining(session,project, *, resume_source=None):
     page=session.page;out=session.evidence_dir;base='/api/v1/ai/story-brains/'+session.novel_id
     def save(name,value):
         (out/(name+'.json')).write_text(json.dumps(value,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -17,61 +18,74 @@ def execute_remaining(session,project):
             'reviews':session.read(base+'/entity-reviews'),'brain':session.read('/api/v1/ai/story-brains/by-novel/'+session.novel_id)}
         save(label,data);return data
     def open_memory():page.get_by_title('Bộ nhớ, trích xuất và định hướng tiểu thuyết',exact=True).click()
-    action('ACT-S04-RELOAD','navigate','page.reload()',lambda:page.reload())
-    action('ACT-S04-OPEN','click','Memory drawer',open_memory)
-    before=state('S04-approved-after-reload')
-    assert before['brain']['status']=='active' and not before['proposals']
-    for tab,kind in [('Nhân vật','PER'),('Địa danh','LOC'),('Vật phẩm','ITEM'),('Sự kiện',None),('Dữ kiện',None)]:
-        action('ACT-S04-TAB-'+str(len(session.actions)),'click','tab: '+tab,lambda tab=tab:page.get_by_role('tab',name=tab,exact=True).click())
-        if kind:
-            for entity in before['memory']['entities']:
-                if entity['entity_type']==kind:assert page.get_by_text(entity['name'],exact=True).first.is_visible()
-    save('S04-context-after-reload',session.read(base+'/context-preview?chapter_number=5'))
-    action('ACT-S05-PLAN-TAB','click','Định hướng',lambda:page.get_by_role('tab',name='Định hướng',exact=True).click())
-    action('ACT-S05-DIRECTION','fill','Định hướng mong muốn (tùy chọn)',lambda:page.get_by_label('Định hướng mong muốn (tùy chọn)').fill('Lập hai gợi ý tương lai; chưa coi kế hoạch là việc đã xảy ra.'))
-    def suggest():
-        with page.expect_response(lambda r:'/author-operation' in r.url and r.request.method=='POST') as response:
-            page.get_by_role('button',name='Gợi ý event tiếp theo',exact=True).click()
-        save('S05-suggestions-http',{'status':response.value.status,'body':response.value.json()})
-        if not response.value.ok:raise RuntimeError('S05_SUGGESTION_ROUTE_FAILED')
-    action('ACT-S05-SUGGEST','click','Gợi ý event tiếp theo',suggest)
-    page.get_by_label('Sự kiện dự kiến',exact=True).first.wait_for()
-    assert page.get_by_label('Sự kiện dự kiến',exact=True).count()==2
-    action('ACT-S05-EDIT','fill','First Sự kiện dự kiến',lambda:page.get_by_label('Sự kiện dự kiến',exact=True).first.fill('Kiểm tra micro có đối chứng — tác giả chỉnh'))
-    action('ACT-S05-REJECT','click','Second Bỏ gợi ý',lambda:page.get_by_role('button',name='Bỏ gợi ý',exact=True).nth(1).click())
-    assert state('S05-after-edit-reject')['memory']==before['memory']
-    def plan():
-        with page.expect_response(lambda r:'/story-plans' in r.url and r.request.method=='POST') as response:
-            page.get_by_role('button',name='Xác nhận và lưu định hướng',exact=True).click()
-        save('S06-plan-http',{'status':response.value.status,'body':response.value.json()})
-        if not response.value.ok:raise RuntimeError('S06_PLAN_SAVE_REJECTED')
-    action('ACT-S06-SAVE','click','Xác nhận và lưu định hướng',plan)
-    actual_plan=session.read('/api/v1/ai/story-plans/by-novel/'+session.novel_id+'/active');save('S06-active-plan',actual_plan)
-    assert len(actual_plan['objectives'])==1
-    assert state('S06-after-plan')['memory']==before['memory'],'Future plan leaked into official history'
-    # Close drawer and add a short sixth chapter. No manual snapshot or extraction API.
-    action('ACT-S07-CLOSE','press','Escape',lambda:page.keyboard.press('Escape'))
-    def add():
-        with page.expect_response(lambda r:'/novels/'+session.novel_id+'/chapters' in r.url and r.request.method=='POST') as response:
-            page.get_by_role('button',name='Thêm chương mới').click()
-        cid=response.value.json()['data']['chapterId'];page.wait_for_url(re.compile('.*chapterId='+cid+'.*'))
-    action('ACT-S07-ADD','click','Thêm chương mới',add)
-    cid=parse_qs(urlparse(page.url).query)['chapterId'][0]
-    action('ACT-S07-TITLE','fill','chapter title',lambda:page.get_by_placeholder('Đặt tiêu đề chương tại đây...').fill('Chương 6 — Thẻ ghi kiểm tra'))
-    action('ACT-S07-WRITE','fill','ordinary editor prose',lambda:page.get_by_placeholder('Bắt đầu câu từ chương truyện của bạn tại đây...').fill(BODY))
-    def wait_saved(expected):
-        deadline=time.monotonic()+25
-        while time.monotonic()<deadline:
-            chapter=session.read('/api/v1/chapters/'+cid)
-            revs=session.read('/api/v1/chapters/'+cid+'/revisions')
-            if chapter.get('draft',{}).get('content')==expected and revs and revs[0]['content']==expected:return chapter,revs[0]
-            page.wait_for_timeout(250)
-        raise RuntimeError('NORMAL_EDITOR_SAVE_REVISION_NOT_OBSERVED')
-    chapter,revision=wait_saved(BODY)
-    assert revision['contentHash']==hashlib.sha256(BODY.encode()).hexdigest()
-    save('S07-normal-save-source',{'captured_at':now(),'chapter':chapter,'revision':revision,
-        'expected_body':BODY,'source_type':'AUTHOR_UI_NEW_PROSE','no_snapshot_api':True,
-        'extraction_status':session.read(base+'/extraction-status')})
+    if resume_source:
+        source_path=Path(resume_source).resolve()
+        owned=(Path.cwd()/'Pipeline_test/runs'/session.run_id).resolve()
+        if not source_path.is_relative_to(owned):raise RuntimeError('FOREIGN_INCREMENTAL_CHECKPOINT')
+        previous_source=json.loads(source_path.read_text(encoding='utf-8'))
+        revision=previous_source['revision'];cid=revision['chapterId']
+        if revision['novelId']!=session.novel_id or revision['createdBy']!=session.user_id:raise RuntimeError('SOURCE_OWNER_MISMATCH')
+        current=session.read('/api/v1/chapters/'+cid+'/revisions')
+        if not current or current[0]['revisionId']!=revision['revisionId'] or current[0]['contentHash']!=revision['contentHash']:
+            raise RuntimeError('STALE_INCREMENTAL_RESUME_CHECKPOINT')
+        action('ACT-S08-RESUME-NAV','navigate','owned chapter revision',lambda:page.goto(session.base_url+'/author/ide?novelId='+session.novel_id+'&chapterId='+cid))
+        before=state('S08-resume-official-before-review')
+    else:
+        action('ACT-S04-RELOAD','navigate','page.reload()',lambda:page.reload())
+        action('ACT-S04-OPEN','click','Memory drawer',open_memory)
+        before=state('S04-approved-after-reload')
+        assert before['brain']['status']=='active' and not before['proposals']
+        for tab,kind in [('Nhân vật','PER'),('Địa danh','LOC'),('Vật phẩm','ITEM'),('Sự kiện',None),('Dữ kiện',None)]:
+            action('ACT-S04-TAB-'+str(len(session.actions)),'click','tab: '+tab,lambda tab=tab:page.get_by_role('tab',name=tab,exact=True).click())
+            if kind:
+                for entity in before['memory']['entities']:
+                    if entity['entity_type']==kind:assert page.get_by_text(entity['name'],exact=True).first.is_visible()
+        save('S04-context-after-reload',session.read(base+'/context-preview?chapter_number=5'))
+        action('ACT-S05-PLAN-TAB','click','Định hướng',lambda:page.get_by_role('tab',name='Định hướng',exact=True).click())
+        action('ACT-S05-DIRECTION','fill','Định hướng mong muốn (tùy chọn)',lambda:page.get_by_label('Định hướng mong muốn (tùy chọn)').fill('Lập hai gợi ý tương lai; chưa coi kế hoạch là việc đã xảy ra.'))
+        def suggest():
+            with page.expect_response(lambda r:'/author-operation' in r.url and r.request.method=='POST') as response:
+                page.get_by_role('button',name='Gợi ý event tiếp theo',exact=True).click()
+            save('S05-suggestions-http',{'status':response.value.status,'body':response.value.json()})
+            if not response.value.ok:raise RuntimeError('S05_SUGGESTION_ROUTE_FAILED')
+        action('ACT-S05-SUGGEST','click','Gợi ý event tiếp theo',suggest)
+        page.get_by_label('Sự kiện dự kiến',exact=True).first.wait_for()
+        assert page.get_by_label('Sự kiện dự kiến',exact=True).count()==2
+        action('ACT-S05-EDIT','fill','First Sự kiện dự kiến',lambda:page.get_by_label('Sự kiện dự kiến',exact=True).first.fill('Kiểm tra micro có đối chứng — tác giả chỉnh'))
+        action('ACT-S05-REJECT','click','Second Bỏ gợi ý',lambda:page.get_by_role('button',name='Bỏ gợi ý',exact=True).nth(1).click())
+        assert state('S05-after-edit-reject')['memory']==before['memory']
+        def plan():
+            with page.expect_response(lambda r:'/story-plans' in r.url and r.request.method=='POST') as response:
+                page.get_by_role('button',name='Xác nhận và lưu định hướng',exact=True).click()
+            save('S06-plan-http',{'status':response.value.status,'body':response.value.json()})
+            if not response.value.ok:raise RuntimeError('S06_PLAN_SAVE_REJECTED')
+        action('ACT-S06-SAVE','click','Xác nhận và lưu định hướng',plan)
+        actual_plan=session.read('/api/v1/ai/story-plans/by-novel/'+session.novel_id+'/active');save('S06-active-plan',actual_plan)
+        assert len(actual_plan['objectives'])==1
+        assert state('S06-after-plan')['memory']==before['memory'],'Future plan leaked into official history'
+        # Close drawer and add a short sixth chapter. No manual snapshot or extraction API.
+        action('ACT-S07-CLOSE','press','Escape',lambda:page.keyboard.press('Escape'))
+        def add():
+            with page.expect_response(lambda r:'/novels/'+session.novel_id+'/chapters' in r.url and r.request.method=='POST') as response:
+                page.get_by_role('button',name='Thêm chương mới').click()
+            cid=response.value.json()['data']['chapterId'];page.wait_for_url(re.compile('.*chapterId='+cid+'.*'))
+        action('ACT-S07-ADD','click','Thêm chương mới',add)
+        cid=parse_qs(urlparse(page.url).query)['chapterId'][0]
+        action('ACT-S07-TITLE','fill','chapter title',lambda:page.get_by_placeholder('Đặt tiêu đề chương tại đây...').fill('Chương 6 — Thẻ ghi kiểm tra'))
+        action('ACT-S07-WRITE','fill','ordinary editor prose',lambda:page.get_by_placeholder('Bắt đầu câu từ chương truyện của bạn tại đây...').fill(BODY))
+        def wait_saved(expected):
+            deadline=time.monotonic()+25
+            while time.monotonic()<deadline:
+                chapter=session.read('/api/v1/chapters/'+cid)
+                revs=session.read('/api/v1/chapters/'+cid+'/revisions')
+                if chapter.get('draft',{}).get('content')==expected and revs and revs[0]['content']==expected:return chapter,revs[0]
+                page.wait_for_timeout(250)
+            raise RuntimeError('NORMAL_EDITOR_SAVE_REVISION_NOT_OBSERVED')
+        chapter,revision=wait_saved(BODY)
+        assert revision['contentHash']==hashlib.sha256(BODY.encode()).hexdigest()
+        save('S07-normal-save-source',{'captured_at':now(),'chapter':chapter,'revision':revision,
+            'expected_body':BODY,'source_type':'AUTHOR_UI_NEW_PROSE','no_snapshot_api':True,
+            'extraction_status':session.read(base+'/extraction-status')})
     action('ACT-S08-OPEN','click','Memory drawer',open_memory)
     deadline=time.monotonic()+40;review=None
     while time.monotonic()<deadline:
@@ -83,7 +97,9 @@ def execute_remaining(session,project):
         state('S08-BLOCKED');raise RuntimeError('S08_FRESH_REVISION_HITL_NOT_OBSERVED')
     save('M-FIRST-raw',review)
     action('ACT-S08-REVIEW-TAB','click','Chờ duyệt',lambda:page.get_by_role('tab',name=re.compile('^Chờ duyệt')).click())
-    title=page.get_by_text(re.compile('^Chương '+re.escape(cid)+r' · '));card=title.locator('xpath=ancestor::div[contains(@class,"mantine-Card-root")][1]')
+    title=page.get_by_text(re.compile('^Bản lưu: '+re.escape(revision['revisionId'])+r'\.'))
+    title.wait_for(timeout=15000)
+    card=title.locator('xpath=ancestor::div[contains(@class,"mantine-Card-root")][1]')
     action('ACT-S08-BULK','click','Use checked machine decisions',lambda:card.get_by_role('button',name='Dùng các quyết định LLM đã kiểm tra (trừ chưa rõ)',exact=True).click())
     for i,surface in enumerate(sorted({c['surface'] for c in review['candidates'] if any(d['candidate_id']==c['candidate_id'] and d['verdict']=='unresolved' for d in review['decisions'])})):
         group=card.get_by_text(re.compile('^'+re.escape(surface)+r' · .*unresolved$')).locator('..')

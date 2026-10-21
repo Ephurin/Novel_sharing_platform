@@ -63,11 +63,15 @@ class BrowserActionSession:
         if not response.ok:raise RuntimeError('Read-only server readback failed: '+str(response.status))
         return response.json()['data']
 
-    def canonical_readback(self):
+    def canonical_readback(self, *, chapter_ids=None):
         observed_from=now()
         novel=self.read('/api/v1/novels/'+self.novel_id)
         if novel.get('authorId') != self.user_id:raise RuntimeError('NOVEL_OWNER_MISMATCH')
         chapters=self.read('/api/v1/novels/'+self.novel_id+'/chapters')
+        if chapter_ids is not None:
+            if len(chapter_ids)!=5 or len(set(chapter_ids))!=5:raise RuntimeError('EXACT_SEED_CHAPTER_SCOPE_REQUIRED')
+            by_id={c['chapterId']:c for c in chapters}
+            chapters=[by_id[cid] for cid in chapter_ids]
         result=[]
         for chapter in chapters:
             cid=chapter['chapterId'];revisions=self.read('/api/v1/chapters/'+cid+'/revisions')
@@ -187,7 +191,7 @@ def sanitize_trace(source,dest, secrets=()):
             output.writestr(name,data)
 
 
-def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=False, project=None, wave1f=False, continue_wave1f_from=None):
+def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=False, project=None, wave1f=False, continue_wave1f_from=None, resume_wave1f_source=None):
     from playwright.sync_api import sync_playwright
     session=BrowserActionSession(run_id,evidence_dir,base_url)
     failure=None;chapters=[]
@@ -230,11 +234,11 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
                 previous=json.loads(checkpoint.read_text(encoding='utf-8'))
                 if previous['status']!='S03_S04_OFFLINE_PASS':raise RuntimeError('S03_NOT_COMPLETE')
                 session.novel_id=previous['brain']['novel_id']
-                chapters=session.canonical_readback() # validates author and all five immutable seed revisions before writes
+                chapters=session.canonical_readback(chapter_ids=[row['chapter_id'] for row in previous['checkpoint_matrix']]) # exact original seed scope, never silently truncate current chapters
                 session.source_manifest=[{k:v for k,v in parse_fixture_chapter(i).items() if k!='body'} for i in range(1,6)]
                 page.goto(base_url+'/author/ide?novelId='+session.novel_id+'&chapterId='+chapters[-1]['chapterId'])
                 from Pipeline_test.tools.browser_wave1f_continue import execute_remaining
-                execute_remaining(session,project)
+                execute_remaining(session,project,resume_source=resume_wave1f_source)
             else:
                 execute_browser_s01_import_path(session,author_user=email)
                 execute_browser_s02_entity_review_path(session,session.novel_id)
@@ -298,12 +302,12 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();parser.add_argument('--run-id',required=True)
     parser.add_argument('--evidence-dir',required=True);parser.add_argument('--base-url',required=True)
-    parser.add_argument('--human-review',action='store_true');parser.add_argument('--project');parser.add_argument('--wave1f',action='store_true');parser.add_argument('--continue-wave1f-from')
+    parser.add_argument('--human-review',action='store_true');parser.add_argument('--project');parser.add_argument('--wave1f',action='store_true');parser.add_argument('--continue-wave1f-from');parser.add_argument('--resume-wave1f-source')
     args=parser.parse_args()
     if Path(args.evidence_dir).exists() and any(Path(args.evidence_dir).iterdir()):
         raise SystemExit('EXISTING_EVIDENCE_REPLAY_FORBIDDEN: use a new attempt directory; no author writes performed')
     try:
-        result=run_browser(args.run_id,args.evidence_dir,args.base_url,os.environ['WAVE1D_AUTHOR_EMAIL'],os.environ['WAVE1D_AUTHOR_PASSWORD'],human_review=args.human_review,project=args.project,wave1f=args.wave1f,continue_wave1f_from=args.continue_wave1f_from)
+        result=run_browser(args.run_id,args.evidence_dir,args.base_url,os.environ['WAVE1D_AUTHOR_EMAIL'],os.environ['WAVE1D_AUTHOR_PASSWORD'],human_review=args.human_review,project=args.project,wave1f=args.wave1f,continue_wave1f_from=args.continue_wave1f_from,resume_wave1f_source=args.resume_wave1f_source)
     except Exception as exc:
         result={'status':'BLOCKED_BROWSER_RUNTIME','reason':str(exc),'real_provider_live_ui':'NOT_RUN'}
         Path(args.evidence_dir).mkdir(parents=True,exist_ok=True)

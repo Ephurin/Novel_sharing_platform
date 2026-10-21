@@ -108,8 +108,8 @@ def validate_browser_evidence(response_evidence, action_id, novel_id, run_dir=No
             group_ids = {e.get('callId') for e in groups}
             actions = [e for e in events if e.get('type') == 'before' and
                        e.get('parentId') in group_ids and
-                       (e.get('method', '').lower() in ('click', 'fill', 'goto', 'reload', 'setinputfiles', 'press') or
-                        any(word in str(e.get('apiName', '')).lower() for word in ('click', 'fill', 'goto', 'reload', 'setinputfiles', 'press')))]
+                       (e.get('method', '').lower() in ('click', 'fill', 'goto', 'reload', 'setinputfiles', 'press', 'keyboardpress') or
+                        any(word in str(e.get('apiName', '')).lower() for word in ('click', 'fill', 'goto', 'reload', 'setinputfiles', 'press', 'keyboardpress')))]
             completed = {e.get('callId') for e in events if e.get('type') == 'after' and not e.get('error')}
             if not groups or not any(e.get('callId') in completed for e in actions) or not network:
                 raise ValueError('Static/missing browser execution trace or network readback')
