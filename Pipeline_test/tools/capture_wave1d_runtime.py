@@ -4,7 +4,7 @@ from pathlib import Path
 
 def docker(*args):return subprocess.check_output(['docker',*args],text=True).strip()
 def capture(project,output):
-    if not project.startswith(('p1-wave1d-', 'p1-wave1e-', 'p1-wave1f-')):raise ValueError('Owned namespace required')
+    if not project.startswith(('p1-wave1d-', 'p1-wave1e-', 'p1-wave1f-', 'p1-wave1g-')):raise ValueError('Owned namespace required')
     ids=docker('ps','-q','--filter','label=com.docker.compose.project='+project).splitlines()
     assert len(ids)==7
     services=[];by_service={}

@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 const env = process.env;
 const project = env.WAVE1D_PROJECT;
 const db = new URL(env.DATABASE_URL);
-if (!/^p1-wave1[def]-[a-z0-9-]+$/.test(project || '') || db.hostname !== 'postgres' ||
+if (!/^p1-wave1[defg]-[a-z0-9-]+$/.test(project || '') || db.hostname !== 'postgres' ||
     db.pathname !== '/' + project.replaceAll('-', '_') || env.BUDGET_GUARD_MODE !== 'proxy') {
   throw Error('Refusing to seed a database outside the new owned offline Compose project');
 }

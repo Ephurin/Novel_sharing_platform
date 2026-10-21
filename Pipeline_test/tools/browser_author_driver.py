@@ -191,7 +191,10 @@ def sanitize_trace(source,dest, secrets=()):
             output.writestr(name,data)
 
 
-def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=False, project=None, wave1f=False, continue_wave1f_from=None, resume_wave1f_source=None):
+def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=False, project=None, wave1f=False, continue_wave1f_from=None, resume_wave1f_source=None, wave1g_s09=False):
+    if wave1g_s09 and (not re.fullmatch(r'p1-wave1g-[a-z0-9-]+',project or '') or
+                       'wave1g' not in run_id or wave1f or human_review or continue_wave1f_from):
+        raise ValueError('Fresh isolated Wave1G S09 diagnostic only; incompatible modes forbidden')
     from playwright.sync_api import sync_playwright
     session=BrowserActionSession(run_id,evidence_dir,base_url)
     failure=None;chapters=[]
@@ -243,6 +246,9 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
                 execute_browser_s01_import_path(session,author_user=email)
                 execute_browser_s02_entity_review_path(session,session.novel_id)
                 chapters=session.canonical_readback()
+                if wave1g_s09:
+                    from Pipeline_test.tools.browser_wave1g_s09 import execute_s09_red
+                    execute_s09_red(session)
                 if wave1f:
                     from Pipeline_test.tools.browser_wave1f import execute_wave1f
                     execute_wave1f(session,project)
@@ -265,7 +271,7 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
                  'canonical_readback_observation':session.canonical_readback_time,
                  'source_to_canonical':[{**source,'chapter_id':chapter['chapterId'],
                      'revision_id':chapter['latestRevisionId'],'readback_body_sha256':chapter['contentHash']}
-                     for source,chapter in zip(session.source_manifest,chapters)],'readback_scope':'seed_import_snapshot_before_workflow' if wave1f else 'final_post_run_readback',
+                     for source,chapter in zip(session.source_manifest,chapters)],'readback_scope':'seed_import_snapshot_before_workflow' if (wave1f or wave1g_s09) else 'final_post_run_readback',
                  'captured_at':now()}
         (session.evidence_dir/'source-to-canonical-manifest.json').write_text(
             json.dumps(mapping,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -276,7 +282,7 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
                       novel_id=session.novel_id,chapters=chapters,
                       captured_at=getattr(session,'canonical_readback_time',{}).get('finished_at'),
                       observation=getattr(session,'canonical_readback_time',{}),packaged_at=now(),
-                      readback_scope='seed_import_snapshot_before_workflow' if wave1f else ('final_post_run_readback' if failure is None else 'last_successful_canonical_readback_before_failure'),
+                      readback_scope='seed_import_snapshot_before_workflow' if (wave1f or wave1g_s09) else ('final_post_run_readback' if failure is None else 'last_successful_canonical_readback_before_failure'),
                       action_finished_at=action['finished_at'])
         rb=session.evidence_dir/(aid+'.readback.json');rb.write_text(json.dumps(readback,ensure_ascii=False),encoding='utf-8')
         files={'screenshot':aid+'.png','dom':aid+'.dom.txt','trace':'browser.trace.zip','session':'browser-session.json','readback':rb.name}
@@ -291,7 +297,7 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
     result={'status':browser_outcome(failure,checks,human_review=human_review,human_result=human_result),
         'reason':failure,'evidence_checks':checks,'session_id':session.session_id,'novel_id':session.novel_id,
         'user_id':session.user_id,'actions':len(session.actions),'real_provider_live_ui':'NOT_RUN',
-       'readback_scope':'seed_import_snapshot_before_workflow' if wave1f else 'final_post_run_readback','source_conversion_rule':CONVERSION_RULE_VERSION,
+       'readback_scope':'seed_import_snapshot_before_workflow' if (wave1f or wave1g_s09) else 'final_post_run_readback','source_conversion_rule':CONVERSION_RULE_VERSION,
        's01_status':('VERIFIED_SEED_SOURCE_FROM_PRIOR_PHASE' if continue_wave1f_from else 'OFFLINE_BROWSER_UI_SMOKE_PASS') if len(chapters)==5 else 'BLOCKED',
        's02_status':'VERIFIED_COMPLETED_S03_FROM_PRIOR_PHASE' if continue_wave1f_from else 'CHECKPOINT_OBSERVED' if (session.evidence_dir/'s02-entity-checkpoint.readback.json').exists() else 'BLOCKED',
        'human_review_requested':human_review}
@@ -302,12 +308,12 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();parser.add_argument('--run-id',required=True)
     parser.add_argument('--evidence-dir',required=True);parser.add_argument('--base-url',required=True)
-    parser.add_argument('--human-review',action='store_true');parser.add_argument('--project');parser.add_argument('--wave1f',action='store_true');parser.add_argument('--continue-wave1f-from');parser.add_argument('--resume-wave1f-source')
+    parser.add_argument('--human-review',action='store_true');parser.add_argument('--project');parser.add_argument('--wave1f',action='store_true');parser.add_argument('--continue-wave1f-from');parser.add_argument('--resume-wave1f-source');parser.add_argument('--wave1g-s09',action='store_true')
     args=parser.parse_args()
     if Path(args.evidence_dir).exists() and any(Path(args.evidence_dir).iterdir()):
         raise SystemExit('EXISTING_EVIDENCE_REPLAY_FORBIDDEN: use a new attempt directory; no author writes performed')
     try:
-        result=run_browser(args.run_id,args.evidence_dir,args.base_url,os.environ['WAVE1D_AUTHOR_EMAIL'],os.environ['WAVE1D_AUTHOR_PASSWORD'],human_review=args.human_review,project=args.project,wave1f=args.wave1f,continue_wave1f_from=args.continue_wave1f_from,resume_wave1f_source=args.resume_wave1f_source)
+        result=run_browser(args.run_id,args.evidence_dir,args.base_url,os.environ['WAVE1D_AUTHOR_EMAIL'],os.environ['WAVE1D_AUTHOR_PASSWORD'],human_review=args.human_review,project=args.project,wave1f=args.wave1f,continue_wave1f_from=args.continue_wave1f_from,resume_wave1f_source=args.resume_wave1f_source,wave1g_s09=args.wave1g_s09)
     except Exception as exc:
         result={'status':'BLOCKED_BROWSER_RUNTIME','reason':str(exc),'real_provider_live_ui':'NOT_RUN'}
         Path(args.evidence_dir).mkdir(parents=True,exist_ok=True)
