@@ -1,5 +1,7 @@
 # ACTIVE GEMINI TASK — P1 live functional acceptance (Wave 1)
 
+> **ACTIVE RESUME NOTICE — 2026-10-21:** The project owner has now explicitly approved a **maximum of 200 application-provider attempts, USD 5.00, and 2 hours elapsed wall-clock** for the **P1** live run only. Read and execute [P1_LIVE_RESUME_APPROVED_2026-10-21.md](P1_LIVE_RESUME_APPROVED_2026-10-21.md) **first**, together with [GPT-6 independent preflight review](reviews/2026-10-21-p1-preflight-gpt6/REVIEW.md). That directive supersedes only the old missing-budget-approval block below; **provider=fake, incomplete metering, unsafe networking/credentials and missing gold linkage are still blockers until fixed**. Execute on `codex/ai-copilot-pipeline-test` only. Do not advance P2/P3 or the 100k novel in this wave. Preserve original preflight evidence and other branches/stack data.
+
 **Assigned:** Gemini 3.8 running inside Antigravity as a **testing/execution agent**.  
 **Writer/extractor under test:** Gemini 3.5 Flash-Lite through the product's Google AI Studio API, not the Antigravity agent. They have **separate sessions and no shared memory**.  
 **Repository:** `Ephurin/Novel_sharing_platform`  
