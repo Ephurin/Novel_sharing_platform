@@ -288,8 +288,8 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
         'reason':failure,'evidence_checks':checks,'session_id':session.session_id,'novel_id':session.novel_id,
         'user_id':session.user_id,'actions':len(session.actions),'real_provider_live_ui':'NOT_RUN',
        'readback_scope':'seed_import_snapshot_before_workflow' if wave1f else 'final_post_run_readback','source_conversion_rule':CONVERSION_RULE_VERSION,
-       's01_status':'OFFLINE_BROWSER_UI_SMOKE_PASS' if len(chapters)==5 else 'BLOCKED',
-       's02_status':'CHECKPOINT_OBSERVED' if (session.evidence_dir/'s02-entity-checkpoint.readback.json').exists() else 'BLOCKED',
+       's01_status':('VERIFIED_SEED_SOURCE_FROM_PRIOR_PHASE' if continue_wave1f_from else 'OFFLINE_BROWSER_UI_SMOKE_PASS') if len(chapters)==5 else 'BLOCKED',
+       's02_status':'VERIFIED_COMPLETED_S03_FROM_PRIOR_PHASE' if continue_wave1f_from else 'CHECKPOINT_OBSERVED' if (session.evidence_dir/'s02-entity-checkpoint.readback.json').exists() else 'BLOCKED',
        'human_review_requested':human_review}
     (session.evidence_dir/'browser-result.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     return result

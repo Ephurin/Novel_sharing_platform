@@ -30,7 +30,7 @@ def execute_remaining(session,project):
     action('ACT-S05-PLAN-TAB','click','Định hướng',lambda:page.get_by_role('tab',name='Định hướng',exact=True).click())
     action('ACT-S05-DIRECTION','fill','Định hướng mong muốn (tùy chọn)',lambda:page.get_by_label('Định hướng mong muốn (tùy chọn)').fill('Lập hai gợi ý tương lai; chưa coi kế hoạch là việc đã xảy ra.'))
     def suggest():
-        with page.expect_response(lambda r:'/operations' in r.url and r.request.method=='POST') as response:
+        with page.expect_response(lambda r:'/author-operation' in r.url and r.request.method=='POST') as response:
             page.get_by_role('button',name='Gợi ý event tiếp theo',exact=True).click()
         save('S05-suggestions-http',{'status':response.value.status,'body':response.value.json()})
         if not response.value.ok:raise RuntimeError('S05_SUGGESTION_ROUTE_FAILED')
