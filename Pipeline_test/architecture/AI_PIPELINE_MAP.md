@@ -1,5 +1,7 @@
 # AI pipeline — map nguồn và tiêu chí đóng lỗi
 
+> **HISTORICAL GENERATED SNAPSHOT (2026-10-20).** This file's `[ok]`/`[mixed]`/`[bad]` flags and issue statuses were produced from `94d5072 + working tree`, not the newer Wave 1B/1C/1D code. They are **not** current live UI/provider acceptance. Current behavioral source is [WORKFLOW_CONTRACT.md v1.4](../WORKFLOW_CONTRACT.md); see [CURRENT_DELTA_2026-10-21.md](CURRENT_DELTA_2026-10-21.md) and [current architecture](../../ai-service/docs/ARCHITECTURE.md). Preserve historical evidence rather than silently changing old status flags. Regenerate only after independent Wave 1D evidence review.
+
 Snapshot: 2026-10-20T22:59:06.422946+07:00; HEAD 94d5072a5e1bacc1534d84b4ca49ee97c6cfec7f + working tree.
 
 Canonical author workflow: input, revision, extraction, review, canon, context, writing, autonomous control, acceptance; platform publish shown as boundary. Legacy endpoints not individually inventoried.
