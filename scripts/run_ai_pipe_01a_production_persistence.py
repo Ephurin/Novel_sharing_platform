@@ -537,40 +537,89 @@ def run_pipeline(
         # ─────────────────────────────────────────────────────────────────────
         cur.execute(
             """
-            SELECT id, dependency_group_id, proposal_type, status, expected_brain_version
-            FROM narrative.proposals WHERE novel_id = %s AND status = 'pending'
+            SELECT id, dependency_group_id, proposal_type, status, expected_brain_version, evidence
+            FROM narrative.proposals
+            WHERE novel_id = %s
+            ORDER BY materialization_order, id
             """,
             (novel_id,),
         )
-        inc_proposals = cur.fetchall()
-        assert len(inc_proposals) > 0, "No pending incremental proposals created from accepted revision"
+        all_novel_proposals = cur.fetchall()
+        inc_proposals = []
+        for proposal in all_novel_proposals:
+            evidence = proposal[5] or []
+            if any(
+                isinstance(item, dict)
+                and str(item.get("revision_id", "")) == accepted_revision_id
+                for item in evidence
+            ):
+                inc_proposals.append(proposal)
 
-        inc_gid = str(inc_proposals[0][1])
-        inc_pids = [str(p[0]) for p in inc_proposals if str(p[1]) == inc_gid]
-        expected_inc_v = int(inc_proposals[0][4])
-
-        inc_acc_res = httpx.post(
-            f"{backend_url}/ai/proposal-groups/{inc_gid}/accept",
-            json={"proposal_ids": inc_pids, "expected_brain_version": expected_inc_v},
-            headers=headers,
-            timeout=10.0,
+        assert len(inc_proposals) > 0, (
+            "No revision-scoped incremental proposals found for accepted revision "
+            f"{accepted_revision_id}"
         )
-        assert inc_acc_res.status_code == 200, f"Incremental proposal accept failed: {inc_acc_res.text}"
+
+        pending_by_group: dict[str, list[str]] = {}
+        accepted_count = 0
+        observed_statuses: set[str] = set()
+        for proposal in inc_proposals:
+            proposal_id = str(proposal[0])
+            group_id = str(proposal[1])
+            status = str(proposal[3])
+            observed_statuses.add(status)
+            if status == "pending":
+                pending_by_group.setdefault(group_id, []).append(proposal_id)
+            elif status == "accepted":
+                accepted_count += 1
+
+        # New fail-closed outbox semantics auto-materialize relevant proposals
+        # before marking the event COMPLETED. Keep legacy compatibility for older
+        # behavior where the runner itself still needs to accept pending groups.
+        manually_accepted_count = 0
+        for group_id, proposal_ids in pending_by_group.items():
+            cur.execute("SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
+            expected_inc_v = int(cur.fetchone()[0])
+            inc_acc_res = httpx.post(
+                f"{backend_url}/ai/proposal-groups/{group_id}/accept",
+                json={"proposal_ids": proposal_ids, "expected_brain_version": expected_inc_v},
+                headers=headers,
+                timeout=10.0,
+            )
+            assert inc_acc_res.status_code == 200, (
+                f"Incremental proposal accept failed for group {group_id}: {inc_acc_res.text}"
+            )
+            manually_accepted_count += len(proposal_ids)
 
         cur.execute("SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
         advanced_version = int(cur.fetchone()[0])
         assert advanced_version > baseline_brain_version, (
             f"Story Brain version did not advance: was {baseline_brain_version}, now {advanced_version}"
         )
+        assert accepted_count + manually_accepted_count == len(inc_proposals), (
+            "Incremental proposals ended in unexpected statuses: "
+            f"{sorted(observed_statuses)}"
+        )
 
+        materialization_mode = (
+            "outbox_auto_materialized"
+            if accepted_count == len(inc_proposals)
+            else "runner_completed_pending_groups"
+        )
         record_cp(
             12,
             "Incremental Proposals & Story Brain Update",
             "PASS",
-            f"Accepted {len(inc_pids)} incremental proposals; Story Brain advanced to version {advanced_version}",
+            (
+                f"Verified {len(inc_proposals)} revision-scoped incremental proposals "
+                f"({materialization_mode}); Story Brain advanced to version {advanced_version}"
+            ),
             {
-                "proposals_count": len(inc_pids),
-                "dependency_group_id": inc_gid,
+                "proposals_count": len(inc_proposals),
+                "proposal_statuses": sorted(observed_statuses),
+                "accepted_before_runner": accepted_count,
+                "accepted_by_runner": manually_accepted_count,
+                "materialization_mode": materialization_mode,
                 "brain_version_before": baseline_brain_version,
                 "brain_version_after": advanced_version,
             },

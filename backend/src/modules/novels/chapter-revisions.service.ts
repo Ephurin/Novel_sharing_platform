@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
+import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { env } from '../../core/config/env.js';
@@ -61,10 +62,29 @@ export function applyPatchToContent(
   return before + patch.replacement + after;
 }
 
+async function checkStoryBrainActive(novelId: string): Promise<boolean> {
+  const pool = getPostgresPool();
+  try {
+    const res = await pool.query(
+      `SELECT status, baseline_revision_id FROM narrative.story_brains WHERE novel_id = $1`,
+      [novelId]
+    );
+    if (res.rows.length === 0) {
+      return false;
+    }
+    return res.rows[0].status === 'active' && Boolean(res.rows[0].baseline_revision_id);
+  } catch (err: any) {
+    if (err?.code === '42P01') {
+      return false;
+    }
+    throw err;
+  }
+}
+
 export async function createSnapshot(
   auth: AuthContext,
   chapterId: string,
-  input?: { content?: string }
+  input?: { content?: string; purpose?: 'AUTHOR_SNAPSHOT' | 'MANUSCRIPT_BOOTSTRAP' }
 ): Promise<ChapterRevisionRecord> {
   const chapter = await findChapterById(chapterId);
   if (!chapter) {
@@ -72,6 +92,19 @@ export async function createSnapshot(
   }
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
+
+  const purpose = input?.purpose ?? 'AUTHOR_SNAPSHOT';
+
+  if (purpose === 'MANUSCRIPT_BOOTSTRAP') {
+    const isBrainActive = await checkStoryBrainActive(chapter.novelId);
+    if (isBrainActive) {
+      throw new AppError(
+        409,
+        'CANNOT_BOOTSTRAP_ACTIVE_STORY_BRAIN',
+        'Cannot create bootstrap snapshot for a novel with an active Story Brain baseline'
+      );
+    }
+  }
 
   // Content priority: explicit input > draft content in MongoDB > published content in SQL > empty
   let content = input?.content;
@@ -82,6 +115,7 @@ export async function createSnapshot(
 
   const contentHash = sha256(content);
   const wordCount = countWords(content);
+  const sourceType = purpose === 'MANUSCRIPT_BOOTSTRAP' ? 'BOOTSTRAP' : 'AUTHOR_MANUAL';
 
   const revision = await withPostgresTransaction(async (client) => {
     await lockChapterForUpdate(client, chapterId);
@@ -95,27 +129,32 @@ export async function createSnapshot(
       contentHash,
       content,
       wordCount,
-      sourceType: 'AUTHOR_MANUAL',
+      sourceType,
       createdBy: auth.userId
     });
 
     await updateChapterLatestRevision(client, chapterId, record.revisionId, wordCount);
 
-    // Transactional Outbox for incremental analysis
-    await insertOutboxEvent(client, {
-      eventType: 'INCREMENTAL_ANALYSIS',
-      novelId: chapter.novelId,
-      chapterId,
-      revisionId: record.revisionId,
-      contentHash,
-      createdBy: auth.userId,
-      payload: { operation: 'incremental_story_analysis' }
-    });
+    // Only enqueue INCREMENTAL_ANALYSIS for ordinary author snapshots (NOT bootstrap-owned pre-baseline revisions)
+    if (purpose === 'AUTHOR_SNAPSHOT') {
+      await insertOutboxEvent(client, {
+        eventType: 'INCREMENTAL_ANALYSIS',
+        novelId: chapter.novelId,
+        chapterId,
+        revisionId: record.revisionId,
+        contentHash,
+        createdBy: auth.userId,
+        payload: { operation: 'incremental_story_analysis' }
+      });
+    }
 
     return record;
   });
 
-  triggerImmediateProcessing();
+  // A checkpoint must not overwrite an actively edited MongoDB draft.
+  if (purpose === 'AUTHOR_SNAPSHOT') {
+    triggerImmediateProcessing();
+  }
 
   return revision;
 }

@@ -1,0 +1,104 @@
+{
+  "gate": "AI-PIPE-01B",
+  "timestamp": "2026-10-14T06:57:40Z",
+  "execution_mode": "REAL_BROWSER_AUTOMATION_CDP",
+  "browser": "Microsoft Edge 155 (Headless Chrome/155.0.0.0)",
+  "checkpoints": {
+    "Browser-A": {
+      "name": "Authentication & Author IDE Navigation",
+      "status": "PASS",
+      "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "evidence_artifact": "browser-login-dashboard.png, browser-writing-ide.png",
+      "notes": "Real browser completed /login -> /author -> /author/ide with author session active and rendered chapter editor."
+    },
+    "Browser-B": {
+      "name": "Manual Editor Autosave & Persistence",
+      "status": "PASS",
+      "evidence_artifact": "browser-manual-autosave.png",
+      "readback_verified": true,
+      "fake_ai_revisions": 0,
+      "notes": "Browser textarea edit triggered debounced autosave, verified upon full browser reload. DB verified zero AI revisions created."
+    },
+    "Browser-C": {
+      "name": "AI Generation Reject / Dismiss",
+      "status": "PASS",
+      "evidence_artifact": "browser-ai-candidate.png, browser-ai-reject.png",
+      "latest_revision_id_unchanged": true,
+      "brain_version_unchanged": true,
+      "notes": "Browser UI triggered generation, candidate was displayed and dismissed. DB verified revision and Story Brain remained unchanged."
+    },
+    "Browser-D": {
+      "name": "AI Draft Accept & Canonical Persistence",
+      "status": "PASS",
+      "accepted_revision_id": "47b02732-73e5-435f-9eb5-ffb4ecd1fc06",
+      "source_generation_id": "f56ab4d8-8aba-5915-8116-6e0d42c3461d",
+      "chapters_latest_revision_id": "47b02732-73e5-435f-9eb5-ffb4ecd1fc06",
+      "outbox_event_id": "9bd3aa85-321f-492a-b0ce-afb60b77670f",
+      "evidence_artifact": "browser-ai-accept.png",
+      "notes": "Browser click invoked acceptDraftRevision. DB verified AI_DRAFT_ACCEPT revision, pointer advance, and INCREMENTAL_ANALYSIS outbox event."
+    },
+    "Browser-E": {
+      "name": "Story Brain Version Advancement & Feedback Loop",
+      "status": "PASS",
+      "brain_version_before": 22,
+      "brain_version_after": 23,
+      "second_browser_request_id": "25136.516",
+      "expected_brain_version": 23,
+      "observed_brain_version": 23,
+      "outbox_status": "COMPLETED",
+      "evidence_artifact": "browser-feedback-context.png",
+      "notes": "Transactional outbox reached COMPLETED, Story Brain advanced N -> N+1. Browser generation #2 initiated from UI observed expected_brain_version == advanced version."
+    },
+    "Browser-F": {
+      "name": "Story Bible Mutation & IDE Panel Consistency",
+      "status": "PASS",
+      "evidence_artifact": "browser-story-bible.png",
+      "character_verified": "Browser Arthur 9f76, Browser Guinevere 6a17",
+      "relationship_verified": "Browser Arthur 9f76 -> Browser Guinevere 6a17 (Hộ vệ trung thành)",
+      "timeline_event_verified": "Hội thề Ashenhold 6c24",
+      "plot_summary_verified": "Đại chiến Ashenhold bùng nổ, Browser Arthur 9f76 sát cánh cùng Browser Guinevere 6a17 bảo vệ kinh đô.",
+      "mutation_mode": "UI_DOM",
+      "notes": "All 4 Story Bible surfaces (Character A/B, Relationship, Timeline Event, Plot Summary) mutated via 100% UI DOM form controls. Verified after page reload and confirmed across all 4 tabs in IDE Story Bible modal."
+    },
+    "Browser-G": {
+      "name": "Novel Metadata Save & Ownership Negative",
+      "status": "PASS",
+      "evidence_artifact": "browser-novel-metadata.png",
+      "mutation_mode": "100% UI DOM form modal",
+      "synopsis_updated": "Bản hùng ca Ashenhold [Cập nhật qua UI thật lúc 1791961119]",
+      "security_negative": {
+        "classification": "API_SECURITY",
+        "forbidden_status": 403,
+        "notes": "Non-owner mutation rejected with HTTP 403 Forbidden."
+      },
+      "notes": "Novel synopsis modified via UI modal, confirmed persisted upon reload. Non-owner update blocked with HTTP 403 (API_SECURITY)."
+    },
+    "Browser-H": {
+      "name": "Chapter Lifecycle & VIP Publishing",
+      "status": "PASS",
+      "chapter_id": "e5099536-1249-4705-892e-a1316108d8e7",
+      "status_in_db": "PUBLISHED",
+      "is_vip": true,
+      "price_coins": 8,
+      "mutation_mode": "100% UI DOM controls in IDE",
+      "evidence_artifact": "browser-chapter-lifecycle.png",
+      "notes": "Created new chapter in IDE via UI, edited title/content, set VIP price=8 coins, validated autosave and switch-away preservation, submitted publish modal -> DB verified PUBLISHED/PENDING_MODERATION status."
+    }
+  },
+  "verdict": "MAIN_UI_E2E_PASS",
+  "lineage": {
+    "tested_code_sha": "474b04fbc6173cfc847e06bf4e522211adf6f4d5",
+    "tested_main_sha": "5432a20a93852cc6c4a403fa03e0ed46117f5f36",
+    "branch": "astra/ai-pipe-01b-main-e2e-repair",
+    "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+    "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+    "accepted_revision_id": "47b02732-73e5-435f-9eb5-ffb4ecd1fc06",
+    "source_generation_id": "f56ab4d8-8aba-5915-8116-6e0d42c3461d",
+    "outbox_event_id": "9bd3aa85-321f-492a-b0ce-afb60b77670f",
+    "brain_version_before": 22,
+    "brain_version_after": 23,
+    "second_browser_request_id": "25136.516",
+    "new_chapter_id": "e5099536-1249-4705-892e-a1316108d8e7"
+  }
+}

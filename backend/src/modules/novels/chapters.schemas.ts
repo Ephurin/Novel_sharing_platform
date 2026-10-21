@@ -16,7 +16,7 @@ export const createChapterSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
     title: z.string().min(1).max(100),
-    content: z.string(),
+    content: z.string().default(''),
     clientRequestId: z.string().min(1).max(128).optional(),
     isVip: z.boolean().default(false),
     priceCoins: z.number().int().min(0).default(0)

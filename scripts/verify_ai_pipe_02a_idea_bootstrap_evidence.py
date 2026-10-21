@@ -107,7 +107,7 @@ def validate(evidence: dict[str, Any]) -> list[str]:
 
     # Checkpoint 8: Context preview
     cp8 = cp_map.get(8, {})
-    require(cp8.get("details", {}).get("brain_version") == 2, "cp8_brain_version_mismatch")
+    require(cp8.get("details", {}).get("brain_version", 0) >= 2, "cp8_brain_version_below_bootstrap_baseline")
 
     # Checkpoint 9: AI Writing Generation
     cp9 = cp_map.get(9, {})
@@ -125,7 +125,11 @@ def validate(evidence: dict[str, Any]) -> list[str]:
     # Checkpoint 11: Outbox Dispatch & Brain Advancement
     cp11 = cp_map.get(11, {})
     require(cp11.get("details", {}).get("outbox_status") == "COMPLETED", "cp11_outbox_not_completed")
-    require(cp11.get("details", {}).get("story_brain_version", 0) >= 3, "cp11_brain_not_advanced")
+    require(
+        cp11.get("details", {}).get("story_brain_version", 0)
+        > cp8.get("details", {}).get("brain_version", 0),
+        "cp11_brain_not_advanced",
+    )
 
     # Checkpoint 12: Second Context Preview
     cp12 = cp_map.get(12, {})

@@ -1,5 +1,6 @@
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import type {
   ContentControlCheckInput,
@@ -16,6 +17,7 @@ import {
   listActiveFilterRules,
   listReviews as listReviewRows,
   listReportsForReview,
+  findOpenReportByReporter,
   resolveReportsForReview,
   resolveReview as resolveReviewRow
 } from './content-control.repository.js';
@@ -23,12 +25,15 @@ import { createModerationEvidence, findModerationEvidence } from './moderation-e
 import type { MatchedRule, ModerationStatus, ModerationTargetType } from './content-control.types.js';
 import {
   findCommentById,
+  findCommentRecordById,
   softDeleteComment,
   updateCommentModerationStatus,
   type CommentStatus
 } from '../interactions/comments.repository.js';
+import { findReadableChapter } from '../reading/reading.repository.js';
 import { createNotification } from '../interactions/notifications.repository.js';
 import { publishNovel, rejectNovelPublication } from '../novels/novels.repository.js';
+import { findNovelById } from '../novels/novels.repository.js';
 import { findChapterById, publishChapter, rejectChapterPublication } from '../novels/chapters.repository.js';
 import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
 
@@ -61,7 +66,7 @@ export async function checkContent(input: ContentControlCheckInput & { publicati
     } as const;
   }
 
-  const existingReview = await findOpenReview(input.targetType, input.targetId, 'KEYWORD_FILTER');
+  const existingReview = await findOpenReview(input.targetType, input.targetId, undefined, 'KEYWORD_FILTER');
   if (existingReview) {
     if (input.publicationSnapshot && !existingReview.submitted_content) {
       const attached = await getPostgresPool().query("update moderation_reviews set submitted_content=coalesce(submitted_content,$2::jsonb) where review_id=$1 and status='PENDING' returning submitted_content", [existingReview.review_id,input.publicationSnapshot]);
@@ -104,26 +109,69 @@ export async function checkContent(input: ContentControlCheckInput & { publicati
 }
 
 export async function createUserReport(auth: AuthContext, input: CreateReportInput) {
-  const existingReview = await findOpenReview(input.targetType, input.targetId);
-  const review =
-    existingReview ??
-    (await createModerationReview({
-      targetType: input.targetType,
-      targetId: input.targetId,
-      source: 'USER_REPORT'
-    }));
+  if (input.targetType === 'COMMENT') {
+    const comment = await findCommentRecordById(input.targetId);
+    if (!comment) {
+      throw new AppError(404, 'CONTENT_001', 'Comment not found');
+    }
+    if (comment.deletedAt !== null || comment.status !== 'APPROVED') {
+      throw new AppError(404, 'CONTENT_001', 'Comment not found');
+    }
+    if (comment.chapterId) {
+      if (!await findReadableChapter(comment.chapterId)) {
+        throw new AppError(404, 'CONTENT_001', 'Content not found');
+      }
+    } else {
+      const novel = await findNovelById(comment.novelId);
+      if (!novel || novel.status !== 'PUBLISHED') {
+        throw new AppError(404, 'CONTENT_001', 'Content not found');
+      }
+    }
+  }
 
-  const report = await createReportRow({
-    ...input,
-    reporterId: auth.userId,
-    reviewId: review.review_id
-  });
+  try {
+    return await withPostgresTransaction(async (client) => {
+      const existingOpenReport = await findOpenReportByReporter(auth.userId, input.targetType, input.targetId, client);
+      if (existingOpenReport) {
+        throw new AppError(409, 'REPORT_001', 'An open report already exists for this content');
+      }
 
-  return {
-    reportId: report.report_id,
-    moderationReviewId: review.review_id,
-    status: 'PENDING'
-  };
+      const existingReview = await findOpenReview(input.targetType, input.targetId, client, 'USER_REPORT');
+      const review =
+        existingReview ??
+        (await createModerationReview(
+          {
+            targetType: input.targetType,
+            targetId: input.targetId,
+            source: 'USER_REPORT'
+          },
+          client
+        ));
+
+      const report = await createReportRow(
+        {
+          ...input,
+          reporterId: auth.userId,
+          reviewId: review.review_id
+        },
+        client
+      );
+
+      return {
+        reportId: report.report_id,
+        moderationReviewId: review.review_id,
+        status: 'PENDING'
+      };
+    });
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    if (error?.code === '23505') {
+      throw new AppError(409, 'REPORT_001', 'An open report already exists for this content');
+    }
+    throw error;
+  }
 }
 
 export async function listModerationReviews(input: ListReviewsInput) {

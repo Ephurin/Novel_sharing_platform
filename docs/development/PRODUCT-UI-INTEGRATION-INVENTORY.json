@@ -1,0 +1,2443 @@
+{
+  "timestamp": "2026-10-15T02:50:36Z",
+  "surfaces": [
+    {
+      "route": "/login",
+      "identity": "anonymous",
+      "rendered": {
+        "url": "/login",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Ephurin Web"
+        ],
+        "bodySnippet": "Ephurin Web\nEmail or username\nPassword\nLogin\nSwitch to register\nBrowse public library as guest\n\nOAuth callback is intentionally not wired in this MVP phase.",
+        "buttons": [
+          "Login",
+          "Switch to register",
+          "Browse public library as guest"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "<redacted>",
+            "type": "password"
+          }
+        ],
+        "links": [],
+        "cardCount": 1
+      },
+      "api_requests": [],
+      "screenshot": "anon-01-login.png"
+    },
+    {
+      "route": "/public",
+      "identity": "anonymous",
+      "rendered": {
+        "url": "/public",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Ephurin Public Library"
+        ],
+        "bodySnippet": "Ephurin Public Library\n\nBrowse published stories as a guest. Login when you want to save, comment, unlock VIP, or report.\n\nLogin\nMy Reader Home\nSearch\nGenre\nTag\nAshenhold - Sample Story\n\nBy Reader 03 Author\n\nONGOING\n\nA sample fantasy novel used for local reader and author workflow testing. It follows Kael Draven after the fall of Ashenhold, with published chapters available for search, detail, chapter reading, history, library, and interaction checks.\n\n10 CHAPTERS\n0 LIKES\n1 VIEWS\nOpen detail\nTha",
+        "buttons": [],
+        "inputs": [
+          {
+            "placeholder": "Title, synopsis...",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "text"
+          }
+        ],
+        "links": [
+          {
+            "text": "Login",
+            "href": "/login"
+          },
+          {
+            "text": "My Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Open detail",
+            "href": "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "Open detail",
+            "href": "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+          }
+        ],
+        "cardCount": 3
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/search?page=1&limit=20&sort=updatedAt&order=desc",
+          "requestId": "13892.483"
+        }
+      ],
+      "screenshot": "anon-02-public-library.png"
+    },
+    {
+      "route": "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "identity": "anonymous",
+      "rendered": {
+        "url": "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Ashenhold - Sample Story"
+        ],
+        "bodySnippet": "Ashenhold - Sample Story\n\nBy Reader 03 Author\n\nPublic library\nLogin for library/comment/report\nFANTASY\nONGOING\n10 CHAPTERS\n\nA sample fantasy novel used for local reader and author workflow testing. It follows Kael Draven after the fall of Ashenhold, with published chapters available for search, detail, chapter reading, history, library, and interaction checks.\n\nLibrary, like, follow, comment, report, history sync, and VIP unlock are protected actions. Login to use them.\nPublic Stats\n1 VIEWS\n0 LI",
+        "buttons": [
+          "Read first free chapter"
+        ],
+        "inputs": [],
+        "links": [
+          {
+            "text": "Public library",
+            "href": "/public"
+          },
+          {
+            "text": "Login for library/comment/report",
+            "href": "/login"
+          },
+          {
+            "text": "Read",
+            "href": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db"
+          },
+          {
+            "text": "Read",
+            "href": "/public/chapters/4332c8ab-b251-4cc0-ac91-329844c73501"
+          },
+          {
+            "text": "Read",
+            "href": "/public/chapters/667a2512-a046-4775-b41e-9b9d7e283880"
+          },
+          {
+            "text": "Read",
+            "href": "/public/chapters/ccb10a72-ce54-471e-b74e-2a2a4962a05e"
+          },
+          {
+            "text": "Read",
+            "href": "/public/chapters/69cfb8d6-49db-4d0a-8f10-9e36e52b5853"
+          },
+          {
+            "text": "Read",
+            "href": "/public/chapters/ec0f5295-c4dc-4c85-9429-5a8b813f9bfa"
+          },
+          {
+            "text": "Read",
+            "href": "/public/chapters/111ab376-6c55-4215-8fc3-242b57ba9a4b"
+          },
+          {
+            "text": "Read",
+            "href": "/public/chapters/72021191-d589-4df4-a948-8dc25f313a2b"
+          }
+        ],
+        "cardCount": 13
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.614"
+        }
+      ],
+      "screenshot": "anon-03-public-novel-detail.png"
+    },
+    {
+      "route": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "identity": "anonymous",
+      "rendered": {
+        "url": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Ch. 1: Chương 1: Tàn Tro Của Ashenhold"
+        ],
+        "bodySnippet": "Ch. 1: Chương 1: Tàn Tro Của Ashenhold\n\nGuest free-chapter reading. Login to save progress, comment, report, or unlock VIP chapters.\n\nNovel detail\nLogin\n\n# Chương 1: Tàn Tro Của Ashenhold\r\n\r\nBầu trời phía trên Ashenhold không còn mang sắc xanh của hy vọng. Thay vào đó, nó là một tấm màn xám xịt của khói và tàn tro, bị xé toạc bởi những tia chớp tím ngắt của ma thuật hắc ám. Order of the Black Sun đã đến. Chúng không mang theo lời cảnh báo, chỉ mang theo cái chết.\r\n\r\nKael Draven, người đời vẫn gọ",
+        "buttons": [],
+        "inputs": [],
+        "links": [
+          {
+            "text": "Novel detail",
+            "href": "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "Login",
+            "href": "/login"
+          },
+          {
+            "text": "Login to comment/report",
+            "href": "/login"
+          }
+        ],
+        "cardCount": 3
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+          "requestId": "13892.745"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db/comments?page=1&limit=20",
+          "requestId": "13892.746"
+        }
+      ],
+      "screenshot": "anon-04-public-chapter-reader.png"
+    },
+    {
+      "route": "/reader",
+      "identity": "reader",
+      "rendered": {
+        "url": "/reader",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Reader Home"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nREADER\n\nreader04\n\nLogout\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nReader Home\n\nBrowse published novels, then open detail or continue reading.\n\nSearch published novels\nGenre\nTag\nStory status\nSort\nOrder\nAshenhold - Sample Story\n\nBy Reader 03 Author\n\nONGOING\n\nA sample fantasy novel used for local reader and author workflow testing. It follows Kael Draven after the fall of Ashenhold, with published chapters available f",
+        "buttons": [
+          "Logout"
+        ],
+        "inputs": [
+          {
+            "placeholder": "Title, synopsis, genre...",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "fantasy, romance...",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "slow-burn...",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "Any",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "hidden"
+          }
+        ],
+        "links": [
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          },
+          {
+            "text": "Open detail",
+            "href": "/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "Open detail",
+            "href": "/reader/novels/451e1280-214c-4500-980b-34b9af0989eb"
+          }
+        ],
+        "cardCount": 3
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.1748"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "057CE5584489E01D54228A4D7E63B126"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/reading/search?page=1&limit=20&sort=updatedAt&order=desc",
+          "requestId": "68D15BCC5F9B0FDA0516C8DCEF62FD39"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/search?page=1&limit=20&sort=updatedAt&order=desc",
+          "requestId": "13892.1749"
+        }
+      ],
+      "screenshot": "reader-01-home.png"
+    },
+    {
+      "route": "/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "identity": "reader",
+      "rendered": {
+        "url": "/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Ashenhold - Sample Story"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nREADER\n\nreader04\n\nLogout\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nAshenhold - Sample Story\n\nBy Reader 03 Author\n\nBack to Reader\nFANTASY\nONGOING\n10 CHAPTERS\n\nA sample fantasy novel used for local reader and author workflow testing. It follows Kael Draven after the fall of Ashenhold, with published chapters available for search, detail, chapter reading, history, library, and interaction checks.\n\nAdd library\nLike\nUnli",
+        "buttons": [
+          "Logout",
+          "Add library",
+          "Like",
+          "Unlike",
+          "Follow",
+          "Unfollow",
+          "Report",
+          "Start reading",
+          "Read first"
+        ],
+        "inputs": [],
+        "links": [
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          },
+          {
+            "text": "Back to Reader",
+            "href": "/reader"
+          },
+          {
+            "text": "Author profile",
+            "href": "/authors/51ca9a66-d798-4f6c-8518-11c085678e4f"
+          },
+          {
+            "text": "Read",
+            "href": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db"
+          },
+          {
+            "text": "Read",
+            "href": "/reader/chapters/4332c8ab-b251-4cc0-ac91-329844c73501"
+          }
+        ],
+        "cardCount": 13
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.1880"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/reading/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "646CC7A63914EB9759013B9C1331F169"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/reading/history/me/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "1AC71BC631D677AA46AF065CAA5D790D"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.1881"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/history/me/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.1882"
+        }
+      ],
+      "screenshot": "reader-02-novel-detail.png"
+    },
+    {
+      "route": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "identity": "reader",
+      "rendered": {
+        "url": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Ch. 1: Chương 1: Tàn Tro Của Ashenhold"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nREADER\n\nreader04\n\nLogout\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nCh. 1: Chương 1: Tàn Tro Của Ashenhold\n\nFree published chapter\n\nNovel detail\nPrevious\nNext\nSync history\nReport\nReading Preferences\n\nSaved to `reading_preferences` and applied immediately to the chapter body.\n\nSYNCED\nFont family\nFont size\nBackground\nLine height\nSave preferences\n\n# Chương 1: Tàn Tro Của Ashenhold\r\n\r\nBầu trời phía trên Ashenhold không c",
+        "buttons": [
+          "Logout",
+          "Sync history",
+          "Report",
+          "Save preferences",
+          "Submit comment"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "System",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "system-ui",
+            "type": "hidden"
+          },
+          {
+            "placeholder": "",
+            "value": "18",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "Light",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "LIGHT",
+            "type": "hidden"
+          }
+        ],
+        "links": [
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          },
+          {
+            "text": "Novel detail",
+            "href": "/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "Previous",
+            "href": "/reader/chapters/"
+          },
+          {
+            "text": "Next",
+            "href": "/reader/chapters/4332c8ab-b251-4cc0-ac91-329844c73501"
+          }
+        ],
+        "cardCount": 4
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.2013"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/reading/preferences/me",
+          "requestId": "DBA56002B4BE0CA1D1A9E5EF6B94C107"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/reading/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+          "requestId": "46C443A394A40EF9E1AF0587EEE9D7C5"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db/comments?page=1&limit=20",
+          "requestId": "9818093E83A0BFF2D21933FF2583DEBC"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/preferences/me",
+          "requestId": "13892.2014"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+          "requestId": "13892.2015"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db/comments?page=1&limit=20",
+          "requestId": "13892.2016"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/reading/history/me",
+          "requestId": "4C74161D181A64A3C63BE542D9733852"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.2017"
+        },
+        {
+          "method": "PUT",
+          "url": "http://localhost:4000/api/v1/reading/history/me",
+          "requestId": "13892.2018"
+        }
+      ],
+      "screenshot": "reader-03-chapter-reader.png"
+    },
+    {
+      "route": "/reader/library",
+      "identity": "reader",
+      "rendered": {
+        "url": "/reader/library",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Library"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nREADER\n\nreader04\n\nLogout\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nLibrary\n\nYour saved novels.\n\nNothing here yet\n\nYour library is empty.",
+        "buttons": [
+          "Logout"
+        ],
+        "inputs": [],
+        "links": [
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          }
+        ],
+        "cardCount": 1
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.2149"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "2A20B3EA865ACBCD0173B0264B72B83F"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/reading/library/me?page=1&limit=20",
+          "requestId": "DBCAC336E07343D5F34D3E97A97A724B"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/library/me?page=1&limit=20",
+          "requestId": "13892.2150"
+        }
+      ],
+      "screenshot": "reader-04-library.png"
+    },
+    {
+      "route": "/reader/history",
+      "identity": "reader",
+      "rendered": {
+        "url": "/reader/history",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Reading History"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nREADER\n\nreader04\n\nLogout\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nReading History\n\nResume recent reading progress.\n\nAshenhold - Sample Story\n\nCh. 1: Chương 1: Tàn Tro Của Ashenhold\n\nContinue",
+        "buttons": [
+          "Logout"
+        ],
+        "inputs": [],
+        "links": [
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          },
+          {
+            "text": "Continue",
+            "href": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db"
+          }
+        ],
+        "cardCount": 1
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.2281"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/reading/history/me?page=1&limit=20",
+          "requestId": "0CEFB31EA650536FC96B939AEF4FCB58"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/reading/history/me?page=1&limit=20",
+          "requestId": "13892.2282"
+        }
+      ],
+      "screenshot": "reader-05-history.png"
+    },
+    {
+      "route": "/wallet",
+      "identity": "reader",
+      "rendered": {
+        "url": "/wallet",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Mock Wallet"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nREADER\n\nreader04\n\nLogout\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nMock Wallet\n\nGraduation-project wallet flow with mock deposit and reviewable transactions.\n\nWALLET UI READY\nBalance\n\n1000 coins\n\nLocked: 0\n\nMock package\nDeposit mock coins\nVIP Unlock\nVIP Chapter ID\nUnlock chapter\nDonate Author\nAuthor user ID\nCoins\nDonate\nWithdraw\n\nAuthor/Admin only. Minimum 100 coins; requested coins are locked until Admin review.\n\nC",
+        "buttons": [
+          "Logout",
+          "Deposit mock coins",
+          "Unlock chapter",
+          "Donate",
+          "Request withdraw"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "COIN_500",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "COIN_500",
+            "type": "hidden"
+          },
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "100",
+            "type": "text"
+          }
+        ],
+        "links": [
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          }
+        ],
+        "cardCount": 6
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.2413"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/wallet/me",
+          "requestId": "7E67D6BDBC64F68AE5DB8DBE999B8B86"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/wallet/transactions?page=1&limit=20",
+          "requestId": "6ACB074AD65F830EBD295F21B14DFCA3"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/wallet/me",
+          "requestId": "13892.2414"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/wallet/transactions?page=1&limit=20",
+          "requestId": "13892.2415"
+        }
+      ],
+      "screenshot": "reader-06-wallet.png"
+    },
+    {
+      "route": "/notifications",
+      "identity": "reader",
+      "rendered": {
+        "url": "/notifications",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Notifications"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nREADER\n\nreader04\n\nLogout\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nNotifications\n\nMVP inbox for persisted notifications and device-token registration.\n\nNOTIFICATIONS UI READY\nALL\nUNREAD\nREAD\nMock web push token\nRegister device\nNothing here yet\n\nNo notifications yet. Backend storage is ready; domain event creation can be wired later.",
+        "buttons": [
+          "Logout",
+          "Register device"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "ALL",
+            "type": "radio"
+          },
+          {
+            "placeholder": "",
+            "value": "UNREAD",
+            "type": "radio"
+          },
+          {
+            "placeholder": "",
+            "value": "READ",
+            "type": "radio"
+          },
+          {
+            "placeholder": "",
+            "value": "web-token-1792032675046",
+            "type": "text"
+          }
+        ],
+        "links": [
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          }
+        ],
+        "cardCount": 2
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.2546"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "4B436DCB3356451F1878BB94D57D6AC8"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/notifications?page=1&limit=20",
+          "requestId": "D3607738CAD0BE101120AEB489355F31"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/notifications?page=1&limit=20",
+          "requestId": "13892.2548"
+        }
+      ],
+      "screenshot": "reader-07-notifications.png"
+    },
+    {
+      "route": "/profile/me",
+      "identity": "reader",
+      "rendered": {
+        "url": "/profile/me",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "My Profile"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nREADER\n\nreader04\n\nLogout\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nMy Profile\n\nManage display profile and account-level settings.\n\nREADER\n\nreader04\n\n077e20a2-e26d-466a-bf3a-1811d037df50\n\nDisplay name\nAvatar URL\nBio\nSave profile\nSettings\nLanguage\nEnable notifications\nSave settings",
+        "buttons": [
+          "Logout",
+          "Save profile",
+          "Save settings"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "Reader 04 Reader",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "vi",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "on",
+            "type": "checkbox"
+          }
+        ],
+        "links": [
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          }
+        ],
+        "cardCount": 2
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.2679"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/users/me/profile",
+          "requestId": "B392AC00659651974F707104747A6A76"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/users/me/settings",
+          "requestId": "D5A974E884DD9B45F849708ADE2ED60F"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/users/me/profile",
+          "requestId": "13892.2680"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/users/me/settings",
+          "requestId": "13892.2681"
+        }
+      ],
+      "screenshot": "reader-08-profile.png"
+    },
+    {
+      "route": "/authors/51ca9a66-d798-4f6c-8518-11c085678e4f",
+      "identity": "reader",
+      "rendered": {
+        "url": "/authors/51ca9a66-d798-4f6c-8518-11c085678e4f",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Reader 03 Author",
+          "Published Novels"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nREADER\n\nreader04\n\nLogout\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nReader 03 Author\n\n0 followers\n\nReader Home\n\nDemo author account for Docker/system testing.\n\nPublished Novels\nAshenhold - Sample Story\nPUBLISHED\n10 CHAPTERS\n0 LIKES\nOpen novel\nThanh Van Sword Path - Sample Story\nPUBLISHED\n3 CHAPTERS\n0 LIKES\nOpen novel",
+        "buttons": [
+          "Logout"
+        ],
+        "inputs": [],
+        "links": [
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          },
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Open novel",
+            "href": "/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "Open novel",
+            "href": "/reader/novels/451e1280-214c-4500-980b-34b9af0989eb"
+          }
+        ],
+        "cardCount": 3
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.2813"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/authors/51ca9a66-d798-4f6c-8518-11c085678e4f/profile",
+          "requestId": "46BCFE582DA58565838AD46E38593C65"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/authors/51ca9a66-d798-4f6c-8518-11c085678e4f/profile",
+          "requestId": "13892.2814"
+        }
+      ],
+      "screenshot": "reader-09-author-profile.png"
+    },
+    {
+      "route": "/author",
+      "identity": "author",
+      "rendered": {
+        "url": "/author",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Writing Projects"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nAUTHOR\n\nreader03\n\nLogout\nWriting Projects\nAuthor IDE\nReader Home\nLibrary\nHistory\nWallet\nNotifications\nProfile\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nWriting Projects\n\nManage your novel projects before opening one in the Author IDE.\n\nSwitch to Reader\nNew Project\nSearch projects\nStatus\nAshenhold - Sample Story\n\nA sample fantasy novel used for local reader and author workflow testing. It follows Kael Draven after the fall of Ashenhold, with published chapters available fo",
+        "buttons": [
+          "Logout",
+          "Switch to Reader",
+          "New Project",
+          "Open in IDE",
+          "Metadata",
+          "Cẩm nang",
+          "Import",
+          "Open in IDE",
+          "Metadata",
+          "Cẩm nang"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "All projects",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "ALL",
+            "type": "hidden"
+          }
+        ],
+        "links": [
+          {
+            "text": "Writing Projects",
+            "href": "/author"
+          },
+          {
+            "text": "Author IDE",
+            "href": "/author/ide"
+          },
+          {
+            "text": "Reader Home",
+            "href": "/reader"
+          },
+          {
+            "text": "Library",
+            "href": "/reader/library"
+          },
+          {
+            "text": "History",
+            "href": "/reader/history"
+          },
+          {
+            "text": "Wallet",
+            "href": "/wallet"
+          },
+          {
+            "text": "Notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Profile",
+            "href": "/profile/me"
+          }
+        ],
+        "cardCount": 20
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.3337"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "A6F82216BD16E38CF5344C021C0DEB49"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/me?page=1&limit=50",
+          "requestId": "7179B63D2BA6397F8680270764D4BB0C"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/me?page=1&limit=50",
+          "requestId": "13892.3338"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/chapters",
+          "requestId": "09418ADB86799D4DBFB327C87B3E6A89"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/chapters",
+          "requestId": "13892.3339"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/3babb4a1-8c44-4ef5-8448-3699d7b7c694/chapters",
+          "requestId": "74DE916842CAC01FFE639CF2261D2FE5"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/3babb4a1-8c44-4ef5-8448-3699d7b7c694/chapters",
+          "requestId": "13892.3340"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/451e1280-214c-4500-980b-34b9af0989eb/chapters",
+          "requestId": "BF5BA93C2FECC238097DC1C218B2055C"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/451e1280-214c-4500-980b-34b9af0989eb/chapters",
+          "requestId": "13892.3341"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/1cb5a593-1dd2-4ff8-bd17-97484c293c07/chapters",
+          "requestId": "13892.3342"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/fe86acfb-04e1-4fa3-9d4f-49c6487aa978/chapters",
+          "requestId": "13892.3343"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/cc3e6a08-0c9a-41ac-be81-5fafc5965f47/chapters",
+          "requestId": "13892.3344"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/abe7ac74-af70-42c6-95f5-8aa6e66d25ba/chapters",
+          "requestId": "13892.3345"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/0444207c-4187-4878-8ea1-9808c32d3297/chapters",
+          "requestId": "13892.3346"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/8c25672f-e403-478e-9b19-f275000dabae/chapters",
+          "requestId": "13892.3347"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/f261d669-3c6a-40cb-92af-711464deb850/chapters",
+          "requestId": "13892.3348"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/7c071a7b-671e-4f59-a0eb-22171c00c6cb/chapters",
+          "requestId": "13892.3349"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/9ccefb09-4d11-4a9f-8c8d-9afa8a0c4b61/chapters",
+          "requestId": "13892.3350"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/28eaa43e-2804-46f1-a52a-4e465e5cae4d/chapters",
+          "requestId": "13892.3351"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/61b902dc-ec4c-4d12-bf6f-e7d0d0e59afe/chapters",
+          "requestId": "13892.3352"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/7f98b41a-3ba6-4b33-a037-34246d74a4ef/chapters",
+          "requestId": "13892.3353"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/44f9f302-1bd6-412f-b14e-68a744a50903/chapters",
+          "requestId": "13892.3354"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/033b87f6-2112-494f-94cb-f6feabe8317a/chapters",
+          "requestId": "13892.3355"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/b9e49911-192e-48a6-bf5a-8dc7f005457a/chapters",
+          "requestId": "13892.3356"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/8b46f203-37fc-46c9-a2b9-20c849b50af4/chapters",
+          "requestId": "13892.3357"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/1cb5a593-1dd2-4ff8-bd17-97484c293c07/chapters",
+          "requestId": "442CF3DA7603184332E7018CE381A62D"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/fe86acfb-04e1-4fa3-9d4f-49c6487aa978/chapters",
+          "requestId": "8CAEDDF7CD353BE14FA855C08BE4C174"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/cc3e6a08-0c9a-41ac-be81-5fafc5965f47/chapters",
+          "requestId": "811458645508E0C82B9BC8FD015F8E10"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/abe7ac74-af70-42c6-95f5-8aa6e66d25ba/chapters",
+          "requestId": "02A3BAAD6178BCB5F6AC92184ACEBB22"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/0444207c-4187-4878-8ea1-9808c32d3297/chapters",
+          "requestId": "91ABF2B37DA638C313F1E3713B015D63"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/8c25672f-e403-478e-9b19-f275000dabae/chapters",
+          "requestId": "3A6B1200EA71F4913AB35FDA44C9305B"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/f261d669-3c6a-40cb-92af-711464deb850/chapters",
+          "requestId": "0141BC79D7C94B60A17E7F0C3A474C9B"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/7c071a7b-671e-4f59-a0eb-22171c00c6cb/chapters",
+          "requestId": "5A5B7B9122A74CBBE39578AE3AD0102A"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/9ccefb09-4d11-4a9f-8c8d-9afa8a0c4b61/chapters",
+          "requestId": "357FF5FDBE6159E1D42ED28E397E8088"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/28eaa43e-2804-46f1-a52a-4e465e5cae4d/chapters",
+          "requestId": "EB54E4EB883E5975A17BCEC97B04AB3E"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/61b902dc-ec4c-4d12-bf6f-e7d0d0e59afe/chapters",
+          "requestId": "44EDAB5E66644E7C375696CCDA3313B3"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/7f98b41a-3ba6-4b33-a037-34246d74a4ef/chapters",
+          "requestId": "EDC2632C39102E46BC9F7EB00BFC9A85"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/44f9f302-1bd6-412f-b14e-68a744a50903/chapters",
+          "requestId": "FBA17AD7BA20E8469D72204A0371B5C8"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/033b87f6-2112-494f-94cb-f6feabe8317a/chapters",
+          "requestId": "F6E8546891E7618D58A7EE96F1E50461"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/b9e49911-192e-48a6-bf5a-8dc7f005457a/chapters",
+          "requestId": "A3A62A70F025EED7C8FB6134354474AA"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/8b46f203-37fc-46c9-a2b9-20c849b50af4/chapters",
+          "requestId": "509423D872B21E972DE71324593C0697"
+        }
+      ],
+      "screenshot": "author-01-projects.png"
+    },
+    {
+      "route": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "identity": "author",
+      "rendered": {
+        "url": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Ashenhold - Sample Story"
+        ],
+        "bodySnippet": "menu_book\nStoryCraft\nVĂN HOA\nTổng quan\nTác phẩm\nVí & doanh thu\nTrang tác giả\nedit_note\nViết tiếp\nnotifications\nR\narrow_back\nBàn làm việc\n/\nTác phẩm của tôi\n/\nAshenhold - Sample Story\nopen_in_new\nXem trang độc giả\nfile_upload\nNhập bản thảo (Bulk Import)\nadd\nViết chương mới\n16+\nĐang ra\nVĂN HỌC ĐÔ THỊ\n•\nTác giả: Reader 03 Author\nAshenhold - Sample Story\n\n“A sample fantasy novel used for local reader and author workflow testing. It follows Kael Draven after the fall of Ashenhold, with published chap",
+        "buttons": [
+          "edit_note\nViết tiếp",
+          "add\nViết chương mới",
+          "photo_camera\nĐổi ảnh bìa",
+          "edit\nChỉnh sửa thông tin",
+          "more_vert",
+          "Danh sách chương\n10",
+          "Phát hành & Thu phí",
+          "Lịch sử & Báo cáo",
+          "add\n+ Thêm chương",
+          "Mở Studio"
+        ],
+        "inputs": [
+          {
+            "placeholder": "Tìm kiếm số chương, tên chương...",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "on",
+            "type": "checkbox"
+          },
+          {
+            "placeholder": "",
+            "value": "on",
+            "type": "checkbox"
+          },
+          {
+            "placeholder": "",
+            "value": "on",
+            "type": "checkbox"
+          },
+          {
+            "placeholder": "",
+            "value": "on",
+            "type": "checkbox"
+          }
+        ],
+        "links": [
+          {
+            "text": "menu_book\nStoryCraft\nVĂN HOA",
+            "href": "/author"
+          },
+          {
+            "text": "Tổng quan",
+            "href": "/author"
+          },
+          {
+            "text": "Tác phẩm",
+            "href": "/author"
+          },
+          {
+            "text": "Ví & doanh thu",
+            "href": "/wallet"
+          },
+          {
+            "text": "Trang tác giả",
+            "href": "/profile/me"
+          },
+          {
+            "text": "notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "R",
+            "href": "/profile/me"
+          },
+          {
+            "text": "arrow_back\nBàn làm việc",
+            "href": "/author"
+          },
+          {
+            "text": "Tác phẩm của tôi",
+            "href": "/author"
+          },
+          {
+            "text": "open_in_new\nXem trang độc giả",
+            "href": "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          }
+        ],
+        "cardCount": 0
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.3488"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "1D4806C0223C6C6E57024927B0640070"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.3489"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/chapters",
+          "requestId": "13892.3490"
+        }
+      ],
+      "screenshot": "author-02-novel-metadata.png"
+    },
+    {
+      "route": "/author/context/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "identity": "author",
+      "rendered": {
+        "url": "/author/context/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Cẩm Nang Thế Giới (Story Bible)",
+          "Elara Windrider"
+        ],
+        "bodySnippet": "auto_stories\nEphurin StoryCraft\nCẨM NANG TÁC GIẢ\nTác phẩm của tôi\nChi tiết truyện\nCẩm nang thế giới\nedit_square\nVào IDE soạn thảo\ndashboard\nTác phẩm\n/\nAshenhold - Sample Story\n/\nCẩm nang thế giới\nCẩm Nang Thế Giới (Story Bible)\narrow_back\nQuay lại Quản lý\nauto_awesome\n5 hồ sơ đã nạp vào AI Copilot\ndownload\nXuất file Bible\nsync\n✦ Đồng bộ AI Copilot\n\nQuản lý hồ sơ nhân vật, thiết lập mối quan hệ tương hỗ và dòng thời gian nhằm đảm bảo tính nhất quán mạch lạc cho tác phẩm \"Ashenhold - Sample Story\"",
+        "buttons": [
+          "download\nXuất file Bible",
+          "sync\n✦ Đồng bộ AI Copilot",
+          "group\nNhân vật\n5",
+          "hub\nMối quan hệ\n4",
+          "timeline\nDòng thời gian (Timeline)\n10",
+          "menu_book\nTóm tắt hồi (Plot Summaries)\n13",
+          "person_add",
+          "Tất cả (5)",
+          "Tuyến chính",
+          "Tuyến phụ"
+        ],
+        "inputs": [
+          {
+            "placeholder": "Tìm nhân vật, tính cách...",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "Ví dụ: Trần Hoàng Vũ, Lê Thu Thảo...",
+            "value": "Elara Windrider",
+            "type": "text"
+          },
+          {
+            "placeholder": "Ví dụ: Nam chính, Nữ chính, Sư phụ, Đại Boss, Quân sư, Kẻ thù truyền kiếp, Chưởng môn...",
+            "value": "",
+            "type": "text"
+          }
+        ],
+        "links": [
+          {
+            "text": "auto_stories\nEphurin StoryCraft\nCẨM NANG TÁC GIẢ",
+            "href": "/author"
+          },
+          {
+            "text": "Tác phẩm của tôi",
+            "href": "/author"
+          },
+          {
+            "text": "Chi tiết truyện",
+            "href": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "edit_square\nVào IDE soạn thảo",
+            "href": "/author/ide?novelId=81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "dashboard\nTác phẩm",
+            "href": "/author"
+          },
+          {
+            "text": "Ashenhold - Sample Story",
+            "href": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "arrow_back\nQuay lại Quản lý",
+            "href": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          }
+        ],
+        "cardCount": 0
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.3623"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/characters",
+          "requestId": "BAAA6AF8736D1CFD281F633328C8E7D9"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/character-relationships",
+          "requestId": "CD3461CCEA645A437DA1B10196E7997F"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/timeline-events",
+          "requestId": "C25B9A8A1497F4A0722AAB516BB18D89"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/plot-summaries",
+          "requestId": "BF9BA80C1E9B7DBD4B489309E5A72D84"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.3625"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/chapters",
+          "requestId": "13892.3626"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/characters",
+          "requestId": "13892.3627"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/character-relationships",
+          "requestId": "13892.3628"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/timeline-events",
+          "requestId": "13892.3629"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/plot-summaries",
+          "requestId": "13892.3630"
+        }
+      ],
+      "screenshot": "author-03-story-context.png"
+    },
+    {
+      "route": "/author/import/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "identity": "author",
+      "rendered": {
+        "url": "/author/import/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Nhập bản thảo",
+          "Cấu hình tách chương",
+          "Chương 49: Bức thư tay chưa gửi"
+        ],
+        "bodySnippet": "menu_book\nStoryCraft\nVĂN HOA\nTổng quan\nTác phẩm\nVí & doanh thu\nTrang tác giả\nedit_square\nViết chương mới\nnotifications\nR\nReader 03 Author\n@reader03\nBảng làm việc\nchevron_right\nTác phẩm của tôi\nchevron_right\nAshenhold - Sample Story\nchevron_right\nNhập bản thảo\narrow_back\nQuay lại Quản lý tác phẩm\nNhập bản thảo\nauto_stories\nTác phẩm đích: Ashenhold - Sample Story • (Đã có 10 chương)\n\nTải lên bản thảo có sẵn, tự động tách chương thông minh và nhập trực tiếp vào tác phẩm.\n\ncheck\n1. Tải bản thảo\ngio_",
+        "buttons": [
+          "check\n1. Tải bản thảo\ngio_thoang_qua_pho_co_tap2.docx",
+          "2\n2. Phân tích & Xem trước\n6 chương phát hiện • 1 cần xem",
+          "3\n3. Xác nhận & Story Brain\nLưu bản nháp & Huấn luyện AI",
+          "file_upload\nTải tệp khác",
+          "content_paste\nDán chữ",
+          "Khôi phục mặc định",
+          "play_arrow\nÁp dụng",
+          "Chương \\d+:?.*",
+          "Hồi \\d+:?.*",
+          "Chapter \\d+[:\\-]?.*"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "file"
+          },
+          {
+            "placeholder": "",
+            "value": "/(?:Chương|Hồi|Chapter|Phần)\\s+\\d+[:\\s\\.\\-—]?.*(?=\\n|$)/gm",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "on",
+            "type": "checkbox"
+          },
+          {
+            "placeholder": "",
+            "value": "on",
+            "type": "checkbox"
+          },
+          {
+            "placeholder": "",
+            "value": "on",
+            "type": "checkbox"
+          }
+        ],
+        "links": [
+          {
+            "text": "menu_book\nStoryCraft\nVĂN HOA",
+            "href": "/author"
+          },
+          {
+            "text": "Tổng quan",
+            "href": "/author"
+          },
+          {
+            "text": "Tác phẩm",
+            "href": "/author"
+          },
+          {
+            "text": "Ví & doanh thu",
+            "href": "/wallet"
+          },
+          {
+            "text": "Trang tác giả",
+            "href": "/profile/me"
+          },
+          {
+            "text": "edit_square\nViết chương mới",
+            "href": "/author/ide?novelId=81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "notifications",
+            "href": "/notifications"
+          },
+          {
+            "text": "Bảng làm việc",
+            "href": "/author"
+          },
+          {
+            "text": "Tác phẩm của tôi",
+            "href": "/author"
+          },
+          {
+            "text": "Ashenhold - Sample Story",
+            "href": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          }
+        ],
+        "cardCount": 0
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.3768"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "4C18B32978450C78CFA785103B81BC69"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "B4963C811583B5D348ADE672A1EA1683"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/chapters",
+          "requestId": "0CAF79B168145DCC2EC2008345FEE92A"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/ai/story-brains/by-novel/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "8BD3E492623A53C18560C1AC3DB26BBE"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.3769"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/chapters",
+          "requestId": "13892.3770"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/ai/story-brains/by-novel/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.3771"
+        }
+      ],
+      "screenshot": "author-04-manuscript-import.png"
+    },
+    {
+      "route": "/author/ide",
+      "identity": "author",
+      "rendered": {
+        "url": "/author/ide?novelId=81b923d7-5507-48ea-9a84-5303fd1de5f4&chapterId=c660bede-0493-4a46-97f2-6d01c8ddd3db",
+        "title": "Ephurin Author IDE",
+        "headers": [],
+        "bodySnippet": "arrow_back\nTủ truyện\nAshenhold - Sample Story\n/\nChương 1: Tàn Tro Của Ashenhold\nĐã lưu • 09:51\ndescription\n453 từ\n•\n~2 phút\nmenu_book\nCẩm nang\nfullscreen\nTập trung\nauto_awesome\nAI Hỗ trợ viết\nXuất bản chương\nsend\nview_sidebar\nTrạng thái:\nPUBLISHED\n• Tác phẩm: Ashenhold - Sample Story\nMiễn phí\nstars\nChương VIP ✦\nMỤC LỤC CHƯƠNG\n10\n\nTruyện: Ashenhold - Sample Story\n\nfirst_page\nsearch\nadd_circle\nThêm chương mới\nCHƯƠNG 1\nĐã đăng\n\nChương 1: Tàn Tro Của Ashenhold\n\n743 từ\nĐang mở\nCHƯƠNG 2\nĐã đăng\n\nChươn",
+        "buttons": [
+          "menu_book\nCẩm nang",
+          "fullscreen\nTập trung",
+          "auto_awesome\nAI Hỗ trợ viết",
+          "Xuất bản chương\nsend",
+          "view_sidebar",
+          "Miễn phí",
+          "stars\nChương VIP ✦",
+          "first_page",
+          "add_circle\nThêm chương mới",
+          "text_fields\nMerriweather\nexpand_more"
+        ],
+        "inputs": [
+          {
+            "placeholder": "Tìm kiếm chương...",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "Đặt tiêu đề chương tại đây...",
+            "value": "Chương 1: Tàn Tro Của Ashenhold",
+            "type": "text"
+          }
+        ],
+        "links": [
+          {
+            "text": "arrow_back\nTủ truyện",
+            "href": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          }
+        ],
+        "cardCount": 0
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.3903"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/novels/me?page=1&limit=50",
+          "requestId": "710AB064EC3B4438EF6EC684836DFE97"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+          "requestId": "AAD3DF4A7176C66BF6AD213B20AACAF6"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/me?page=1&limit=50",
+          "requestId": "13892.3904"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.3905"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4/chapters",
+          "requestId": "13892.3906"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+          "requestId": "13892.3907"
+        }
+      ],
+      "screenshot": "author-05-writing-ide.png"
+    },
+    {
+      "route": "/admin",
+      "identity": "admin",
+      "rendered": {
+        "url": "/admin",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Admin Console",
+          "Admin Overview"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nADMIN\n\nreader02\n\nLogout\nAdmin\nNovels\nUsers\nTaxonomy\nModeration\nWithdraws\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nAdmin Console\n\nDashboard, users, taxonomy, moderation and withdraw review.\n\nADMIN API\nOpen moderation queue\n\nUsers\n\n3\n\nNovels\n\n19\n\nPending moderation\n\n0\n\nMock revenue\n\n0\n\nAdmin Overview\n\nUse the left sidebar to open Users, Taxonomy, Moderation, and Withdraws. User reports are handled inside Moderation Queue with the source filter.",
+        "buttons": [
+          "Logout"
+        ],
+        "inputs": [],
+        "links": [
+          {
+            "text": "Admin",
+            "href": "/admin"
+          },
+          {
+            "text": "Novels",
+            "href": "/admin/novels"
+          },
+          {
+            "text": "Users",
+            "href": "/admin/users"
+          },
+          {
+            "text": "Taxonomy",
+            "href": "/admin/taxonomy"
+          },
+          {
+            "text": "Moderation",
+            "href": "/admin/moderation"
+          },
+          {
+            "text": "Withdraws",
+            "href": "/admin/withdraws"
+          },
+          {
+            "text": "Open moderation queue",
+            "href": "/admin/moderation"
+          }
+        ],
+        "cardCount": 5
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.4168"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "A2D63E8F7F273CEF0E84032B4A3E690F"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/dashboard/stats",
+          "requestId": "060B525729F0B12656123B38E42B7B7D"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/users?page=1&limit=20",
+          "requestId": "82F57A5EC599403BD2396FBD4EA101ED"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/taxonomy",
+          "requestId": "248DE8199E8568D76573E444EF6242F5"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/moderation/reviews?page=1&limit=20",
+          "requestId": "FE15BBFED10920F524F4276E32609455"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/withdraw-requests?status=PENDING&page=1&limit=20",
+          "requestId": "D499800271BF39C75AC50FB22915B772"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/dashboard/stats",
+          "requestId": "13892.4169"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/users?page=1&limit=20",
+          "requestId": "13892.4170"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/taxonomy",
+          "requestId": "13892.4171"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/moderation/reviews?page=1&limit=20",
+          "requestId": "13892.4172"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/withdraw-requests?status=PENDING&page=1&limit=20",
+          "requestId": "13892.4173"
+        }
+      ],
+      "screenshot": "admin-01-overview.png"
+    },
+    {
+      "route": "/admin/users",
+      "identity": "admin",
+      "rendered": {
+        "url": "/admin/users",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Admin Console"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nADMIN\n\nreader02\n\nLogout\nAdmin\nNovels\nUsers\nTaxonomy\nModeration\nWithdraws\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nAdmin Console\n\nDashboard, users, taxonomy, moderation and withdraw review.\n\nADMIN API\nOpen moderation queue\n\nUsers\n\n3\n\nNovels\n\n19\n\nPending moderation\n\n0\n\nMock revenue\n\n0\n\nSearch users\nUser\tRole\tStatus\tAction\nreader04\tREADER\tACTIVE\t\nLock\n\nreader03\tAUTHOR\tACTIVE\t\nLock\n\nreader02\tADMIN\tACTIVE\t\nLock",
+        "buttons": [
+          "Logout",
+          "Lock",
+          "Lock",
+          "Lock"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "text"
+          }
+        ],
+        "links": [
+          {
+            "text": "Admin",
+            "href": "/admin"
+          },
+          {
+            "text": "Novels",
+            "href": "/admin/novels"
+          },
+          {
+            "text": "Users",
+            "href": "/admin/users"
+          },
+          {
+            "text": "Taxonomy",
+            "href": "/admin/taxonomy"
+          },
+          {
+            "text": "Moderation",
+            "href": "/admin/moderation"
+          },
+          {
+            "text": "Withdraws",
+            "href": "/admin/withdraws"
+          },
+          {
+            "text": "Open moderation queue",
+            "href": "/admin/moderation"
+          }
+        ],
+        "cardCount": 5
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.4304"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/dashboard/stats",
+          "requestId": "13892.4305"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/users?page=1&limit=20",
+          "requestId": "13892.4306"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/taxonomy",
+          "requestId": "13892.4307"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/moderation/reviews?page=1&limit=20",
+          "requestId": "13892.4308"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/withdraw-requests?status=PENDING&page=1&limit=20",
+          "requestId": "13892.4309"
+        }
+      ],
+      "screenshot": "admin-02-users.png"
+    },
+    {
+      "route": "/admin/novels",
+      "identity": "admin",
+      "rendered": {
+        "url": "/admin/novels",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Admin Novel Management"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nADMIN\n\nreader02\n\nLogout\nAdmin\nNovels\nUsers\nTaxonomy\nModeration\nWithdraws\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nAdmin Novel Management\n\nInspect platform novels and soft-remove records when needed.\n\nSOFT REMOVE + RESTORE\nSearch\nStatus\nRemoved records\nNovel\tAuthor\tStatus\tChapters\tRemoved\tAction\n\n\nAshenhold - Sample Story\n\nA sample fantasy novel used for local reader and author workflow testing. It follows Kael Draven after the fall of Ashenhold, with published chapters a",
+        "buttons": [
+          "Logout"
+        ],
+        "inputs": [
+          {
+            "placeholder": "Title, synopsis, author...",
+            "value": "",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "Any",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "hidden"
+          },
+          {
+            "placeholder": "",
+            "value": "Hide removed",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "false",
+            "type": "hidden"
+          }
+        ],
+        "links": [
+          {
+            "text": "Admin",
+            "href": "/admin"
+          },
+          {
+            "text": "Novels",
+            "href": "/admin/novels"
+          },
+          {
+            "text": "Users",
+            "href": "/admin/users"
+          },
+          {
+            "text": "Taxonomy",
+            "href": "/admin/taxonomy"
+          },
+          {
+            "text": "Moderation",
+            "href": "/admin/moderation"
+          },
+          {
+            "text": "Withdraws",
+            "href": "/admin/withdraws"
+          },
+          {
+            "text": "Detail",
+            "href": "/admin/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+          },
+          {
+            "text": "Detail",
+            "href": "/admin/novels/3babb4a1-8c44-4ef5-8448-3699d7b7c694"
+          },
+          {
+            "text": "Detail",
+            "href": "/admin/novels/451e1280-214c-4500-980b-34b9af0989eb"
+          },
+          {
+            "text": "Detail",
+            "href": "/admin/novels/1cb5a593-1dd2-4ff8-bd17-97484c293c07"
+          }
+        ],
+        "cardCount": 2
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.4440"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/novels?includeDeleted=false&page=1&limit=50",
+          "requestId": "597847E523BCF912BC8B2549ACC4C96E"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/novels?includeDeleted=false&page=1&limit=50",
+          "requestId": "13892.4441"
+        }
+      ],
+      "screenshot": "admin-03-novels.png"
+    },
+    {
+      "route": "/admin/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "identity": "admin",
+      "rendered": {
+        "url": "/admin/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Ashenhold - Sample Story"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nADMIN\n\nreader02\n\nLogout\nAdmin\nNovels\nUsers\nTaxonomy\nModeration\nWithdraws\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nAshenhold - Sample Story\n\nOwned by reader03 · reader03@example.com\n\nBack to Novels\nRemove Novel\n\nStatus\n\nPUBLISHED\n\nChapters\n\n10\n\nViews\n\n3\n\nRemoved\n\nNo\n\nSynopsis\n\nA sample fantasy novel used for local reader and author workflow testing. It follows Kael Draven after the fall of Ashenhold, with published chapters available for search, detail, chapter reading, h",
+        "buttons": [
+          "Logout",
+          "Remove Novel"
+        ],
+        "inputs": [],
+        "links": [
+          {
+            "text": "Admin",
+            "href": "/admin"
+          },
+          {
+            "text": "Novels",
+            "href": "/admin/novels"
+          },
+          {
+            "text": "Users",
+            "href": "/admin/users"
+          },
+          {
+            "text": "Taxonomy",
+            "href": "/admin/taxonomy"
+          },
+          {
+            "text": "Moderation",
+            "href": "/admin/moderation"
+          },
+          {
+            "text": "Withdraws",
+            "href": "/admin/withdraws"
+          },
+          {
+            "text": "Back to Novels",
+            "href": "/admin/novels"
+          }
+        ],
+        "cardCount": 6
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.4572"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "0C19392394CED7ED994059B812FBC066"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "2E6539D09DBCFA77F07AEED5CA752C3C"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "requestId": "13892.4573"
+        }
+      ],
+      "screenshot": "admin-04-novel-detail.png"
+    },
+    {
+      "route": "/admin/taxonomy",
+      "identity": "admin",
+      "rendered": {
+        "url": "/admin/taxonomy",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Admin Console"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nADMIN\n\nreader02\n\nLogout\nAdmin\nNovels\nUsers\nTaxonomy\nModeration\nWithdraws\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nAdmin Console\n\nDashboard, users, taxonomy, moderation and withdraw review.\n\nADMIN API\nOpen moderation queue\n\nUsers\n\n3\n\nNovels\n\n19\n\nPending moderation\n\n0\n\nMock revenue\n\n0\n\nNew genre/tag name\nAdd genre\nAdd tag\n\nGenres\n\nCULTIVATION\nFANTASY\nVĂN HỌC\n\nTags\n\nCULTIVATION\nFANTASY\nSAMPLE\nTEST-STORY",
+        "buttons": [
+          "Logout",
+          "Add genre",
+          "Add tag"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "text"
+          }
+        ],
+        "links": [
+          {
+            "text": "Admin",
+            "href": "/admin"
+          },
+          {
+            "text": "Novels",
+            "href": "/admin/novels"
+          },
+          {
+            "text": "Users",
+            "href": "/admin/users"
+          },
+          {
+            "text": "Taxonomy",
+            "href": "/admin/taxonomy"
+          },
+          {
+            "text": "Moderation",
+            "href": "/admin/moderation"
+          },
+          {
+            "text": "Withdraws",
+            "href": "/admin/withdraws"
+          },
+          {
+            "text": "Open moderation queue",
+            "href": "/admin/moderation"
+          }
+        ],
+        "cardCount": 5
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.4704"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/dashboard/stats",
+          "requestId": "0D20A513A848D5769CC1D55538CF2905"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/users?page=1&limit=20",
+          "requestId": "C54D0DD01F1D42506E98D5D9AD169AA8"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/taxonomy",
+          "requestId": "DC19F5B36DCE59803728987FC35C3296"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/moderation/reviews?page=1&limit=20",
+          "requestId": "E2976001819E0E8C40F15775801D1167"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/withdraw-requests?status=PENDING&page=1&limit=20",
+          "requestId": "82D5496C7486959C562E8DF90677D545"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/dashboard/stats",
+          "requestId": "13892.4705"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/users?page=1&limit=20",
+          "requestId": "13892.4706"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/taxonomy",
+          "requestId": "13892.4707"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/moderation/reviews?page=1&limit=20",
+          "requestId": "13892.4708"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/withdraw-requests?status=PENDING&page=1&limit=20",
+          "requestId": "13892.4709"
+        }
+      ],
+      "screenshot": "admin-05-taxonomy.png"
+    },
+    {
+      "route": "/admin/moderation",
+      "identity": "admin",
+      "rendered": {
+        "url": "/admin/moderation",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Moderation Queue"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nADMIN\n\nreader02\n\nLogout\nAdmin\nNovels\nUsers\nTaxonomy\nModeration\nWithdraws\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nModeration Queue\n\nInspect review targets, keyword evidence, and user-report items before resolving them.\n\nBack to Admin\nTarget type\nStatus\nSource\nNothing here yet\n\nNo moderation reviews match the current filters.",
+        "buttons": [
+          "Logout"
+        ],
+        "inputs": [
+          {
+            "placeholder": "",
+            "value": "Any",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "",
+            "type": "hidden"
+          },
+          {
+            "placeholder": "",
+            "value": "Pending",
+            "type": "text"
+          },
+          {
+            "placeholder": "",
+            "value": "PENDING",
+            "type": "hidden"
+          },
+          {
+            "placeholder": "",
+            "value": "Any",
+            "type": "text"
+          }
+        ],
+        "links": [
+          {
+            "text": "Admin",
+            "href": "/admin"
+          },
+          {
+            "text": "Novels",
+            "href": "/admin/novels"
+          },
+          {
+            "text": "Users",
+            "href": "/admin/users"
+          },
+          {
+            "text": "Taxonomy",
+            "href": "/admin/taxonomy"
+          },
+          {
+            "text": "Moderation",
+            "href": "/admin/moderation"
+          },
+          {
+            "text": "Withdraws",
+            "href": "/admin/withdraws"
+          },
+          {
+            "text": "Back to Admin",
+            "href": "/admin"
+          }
+        ],
+        "cardCount": 2
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.4840"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/admin/moderation/reviews?status=PENDING&page=1&limit=20",
+          "requestId": "09D3455F827D5A4D819E3E3CD2F8E45F"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/moderation/reviews?status=PENDING&page=1&limit=20",
+          "requestId": "13892.4841"
+        }
+      ],
+      "screenshot": "admin-06-moderation.png"
+    },
+    {
+      "route": "/admin/withdraws",
+      "identity": "admin",
+      "rendered": {
+        "url": "/admin/withdraws",
+        "title": "Ephurin Author IDE",
+        "headers": [
+          "Admin Console"
+        ],
+        "bodySnippet": "Ephurin\n\nOFFICIAL WEB MVP\nADMIN\n\nreader02\n\nLogout\nAdmin\nNovels\nUsers\nTaxonomy\nModeration\nWithdraws\n\nAI Copilot: Sẵn sàng trong Author IDE\n\nAdmin Console\n\nDashboard, users, taxonomy, moderation and withdraw review.\n\nADMIN API\nOpen moderation queue\n\nUsers\n\n3\n\nNovels\n\n19\n\nPending moderation\n\n0\n\nMock revenue\n\n0\n\nNothing here yet\n\nNo pending withdraw requests are waiting right now.",
+        "buttons": [
+          "Logout"
+        ],
+        "inputs": [],
+        "links": [
+          {
+            "text": "Admin",
+            "href": "/admin"
+          },
+          {
+            "text": "Novels",
+            "href": "/admin/novels"
+          },
+          {
+            "text": "Users",
+            "href": "/admin/users"
+          },
+          {
+            "text": "Taxonomy",
+            "href": "/admin/taxonomy"
+          },
+          {
+            "text": "Moderation",
+            "href": "/admin/moderation"
+          },
+          {
+            "text": "Withdraws",
+            "href": "/admin/withdraws"
+          },
+          {
+            "text": "Open moderation queue",
+            "href": "/admin/moderation"
+          }
+        ],
+        "cardCount": 5
+      },
+      "api_requests": [
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "13892.4972"
+        },
+        {
+          "method": "OPTIONS",
+          "url": "http://localhost:4000/api/v1/auth/me",
+          "requestId": "48D3513F657DF9600F8D3A6139023DB1"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/dashboard/stats",
+          "requestId": "13892.4973"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/users?page=1&limit=20",
+          "requestId": "13892.4974"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/taxonomy",
+          "requestId": "13892.4975"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/moderation/reviews?page=1&limit=20",
+          "requestId": "13892.4976"
+        },
+        {
+          "method": "GET",
+          "url": "http://localhost:4000/api/v1/admin/withdraw-requests?status=PENDING&page=1&limit=20",
+          "requestId": "13892.4977"
+        }
+      ],
+      "screenshot": "admin-07-withdraws.png"
+    }
+  ]
+}

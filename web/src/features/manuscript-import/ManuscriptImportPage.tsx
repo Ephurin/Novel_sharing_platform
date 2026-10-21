@@ -1,8 +1,7 @@
-import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { getNovel, listChapters } from '../novels/novel-api';
 import {
@@ -16,6 +15,7 @@ import {
   parseManuscriptChapters,
   normalizeManuscriptText,
   importChaptersBatch,
+  type BootstrapRevisionInput,
   type ParsedChapterItem,
   type ReviewProposal
 } from './manuscript-import-api';
@@ -43,8 +43,13 @@ export function ManuscriptImportPage() {
   const existingChapterCount = chaptersQuery.data?.length ?? 0;
   const startingChapterNumber = existingChapterCount + 1;
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryJobId = searchParams.get('jobId');
+  const queryStep = Number(searchParams.get('step'));
   // Stepper state (1: Upload, 2: Analyze & Preview, 3: Confirm Import)
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(
+    queryStep === 1 || queryStep === 2 || queryStep === 3 ? queryStep : queryJobId ? 3 : 1
+  );
 
   // File state
   const [fileName, setFileName] = useState('');
@@ -87,7 +92,7 @@ export function ManuscriptImportPage() {
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
 
   // Story Brain Job & Review State
-  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(queryJobId);
 
   const jobQuery = useQuery({
     queryKey: ['manuscript-bootstrap-job', jobId],
@@ -242,6 +247,7 @@ export function ManuscriptImportPage() {
     },
     onSuccess: (result) => {
       setJobId(result.job_id);
+      setSearchParams({ jobId: result.job_id, step: '3' });
       showToast('Đã bắt đầu phân tích Story Brain AI! Đang tiến hành quét các chương...');
     },
     onError: (err: any) => {
@@ -296,8 +302,8 @@ export function ManuscriptImportPage() {
     setImportProgress({ current: 0, total: toImport.length });
 
     try {
-      // 1. Batch create chapters in Novel DB
-      const createdChapters = await importChaptersBatch(
+      // 1. Batch create chapters in Novel DB with canonical snapshot revisions
+      const importedResults = await importChaptersBatch(
         novelId,
         toImport.map((c) => ({
           title: c.title.trim(),
@@ -310,13 +316,14 @@ export function ManuscriptImportPage() {
 
       await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
       await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
-      showToast(`Đã nhập thành công ${createdChapters.length} chương vào tác phẩm!`);
+      showToast(`Đã nhập thành công ${importedResults.length} chương vào tác phẩm!`);
 
-      // 2. If Story Brain AI enabled, trigger AI bootstrap with revision data
-      if (enableStoryBrainAi && createdChapters.length > 0) {
-        const revisions = await Promise.all(createdChapters.map(async (ch: any, index: number) => {
-          const revision = (await apiClient.post<ApiEnvelope<{ revisionId: string; contentHash: string }>>('/chapters/' + ch.chapterId + '/revisions/snapshot', { content: toImport[index].content })).data.data;
-          return { chapter_id: ch.chapterId, revision_id: revision.revisionId, content_hash: revision.contentHash };
+      // 2. If Story Brain AI enabled, trigger AI bootstrap with canonical revision provenance
+      if (enableStoryBrainAi && importedResults.length > 0) {
+        const revisions: BootstrapRevisionInput[] = importedResults.map((item) => ({
+          chapter_id: item.chapter.chapterId,
+          revision_id: item.revision.revisionId,
+          content_hash: item.revision.contentHash
         }));
         try {
           await startBootstrapMutation.mutateAsync(revisions);
@@ -352,9 +359,9 @@ export function ManuscriptImportPage() {
 
   if (novelQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-3">
+      <div className="min-h-screen bg-[#f7f6f2] flex flex-col items-center justify-center gap-3">
         <div className="w-8 h-8 border-3 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-body font-medium text-stone-500">Đang tải thông tin tác phẩm...</p>
+        <p className="text-sm font-medium text-stone-500">Đang tải thông tin tác phẩm...</p>
       </div>
     );
   }

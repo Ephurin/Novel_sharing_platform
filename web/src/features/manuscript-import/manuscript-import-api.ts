@@ -204,21 +204,78 @@ export function parseManuscriptChapters(
   return items;
 }
 
+export interface ImportedChapterResult {
+  chapter: {
+    chapterId: string;
+    novelId: string;
+    title: string;
+    chapterNumber: number;
+    wordCount: number;
+    isVip: boolean;
+    priceCoins: number;
+  };
+  revision: {
+    revisionId: string;
+    contentHash: string;
+    chapterId: string;
+    novelId: string;
+    wordCount: number;
+  };
+}
+
 export async function importChaptersBatch(
   novelId: string,
   chapters: Array<{ title: string; content: string; isVip?: boolean; priceCoins?: number }>,
-  onProgress?: (current: number, total: number) => void
-) {
-  const created: any[] = [];
+  onProgress?: (current: number, total: number, stage?: string) => void
+): Promise<ImportedChapterResult[]> {
+  const results: ImportedChapterResult[] = [];
   for (let i = 0; i < chapters.length; i++) {
     const ch = chapters[i];
     const fingerprint = new TextEncoder().encode(JSON.stringify([novelId, i, ch.title, ch.content]));
     const clientRequestId = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', fingerprint)), byte => byte.toString(16).padStart(2, '0')).join('');
-    const response = await apiClient.post<ApiEnvelope<any>>(`/novels/${novelId}/chapters`, { ...ch, clientRequestId });
-    created.push(response.data.data);
     if (onProgress) {
-      onProgress(i + 1, chapters.length);
+      onProgress(i, chapters.length, `Đang tạo chương ${i + 1}/${chapters.length}: ${ch.title}`);
+    }
+
+    // 1. Persist chapter
+    let chapterData: any;
+    try {
+      const response = await apiClient.post<ApiEnvelope<any>>(`/novels/${novelId}/chapters`, {
+        title: ch.title,
+        content: ch.content,
+        clientRequestId,
+        isVip: ch.isVip ?? false,
+        priceCoins: ch.priceCoins ?? 0
+      });
+      chapterData = response.data.data;
+    } catch (err: any) {
+      throw new Error(`Lỗi khi tạo chương "${ch.title}": ${err?.message || 'Không thể tạo chương'}`);
+    }
+
+    if (onProgress) {
+      onProgress(i, chapters.length, `Đang tạo snapshot revision cho chương: ${ch.title}`);
+    }
+
+    // 2. Create canonical immutable revision snapshot
+    let revisionData: any;
+    try {
+      const snapResponse = await apiClient.post<ApiEnvelope<any>>(
+        `/chapters/${chapterData.chapterId}/revisions/snapshot`,
+        { content: ch.content, purpose: 'MANUSCRIPT_BOOTSTRAP' }
+      );
+      revisionData = snapResponse.data.data;
+    } catch (err: any) {
+      throw new Error(`Lỗi khi tạo snapshot revision cho chương "${ch.title}" (${chapterData.chapterId}): ${err?.message || 'Không thể tạo snapshot'}`);
+    }
+
+    results.push({
+      chapter: chapterData,
+      revision: revisionData
+    });
+
+    if (onProgress) {
+      onProgress(i + 1, chapters.length, `Đã hoàn tất chương ${i + 1}/${chapters.length}`);
     }
   }
-  return created;
+  return results;
 }

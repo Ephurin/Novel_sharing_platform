@@ -18,7 +18,7 @@ test('author workflow: draft privacy, conflicts, revisions, idempotent imports, 
     const pg=await import('../../core/database/postgres.js'), mongo=await import('../../core/database/mongo.js');
     closePostgres=pg.disconnectPostgres; closeMongo=mongo.disconnectMongo; dropMongo=()=>mongo.getMongoDatabase().dropDatabase();
     const pool=pg.getPostgresPool();
-    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','007_wallet_transactions','008_authoring_context','009_chapter_revisions','010_analysis_outbox','011_outbox_claim_token','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
+    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','007_wallet_transactions','008_authoring_context','009_chapter_revisions','010_analysis_outbox','011_outbox_claim_token','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
     const author=randomUUID(),reader=randomUUID(),other=randomUUID(),admin=randomUUID(),outsider=randomUUID();
     for(const [id,role] of [[author,'AUTHOR'],[reader,'READER'],[other,'READER'],[admin,'ADMIN'],[outsider,'AUTHOR']]) {
       await pool.query(`insert into users (user_id,email,username,password_hash,role) values ($1::uuid,$2,$1::text,'hash',$3)`,[id,id+'@test.invalid',role]);
@@ -59,6 +59,11 @@ test('author workflow: draft privacy, conflicts, revisions, idempotent imports, 
     assert.equal((await req(dp+'/submit-publish','POST',{},authorToken)).status,409);
     assert.equal((await req(dp+'/revisions/snapshot','POST',{content:'historical prose'},authorToken)).status,201);
     assert.equal((await req(dp,'GET',undefined,authorToken)).body.data.draft.content,'');
+    const bootstrap = await req(dp+'/revisions/snapshot','POST',{content:'bootstrap provenance',purpose:'MANUSCRIPT_BOOTSTRAP'},authorToken);
+    assert.equal(bootstrap.status,201);
+    assert.equal((await req(dp,'GET',undefined,authorToken)).body.data.draft.content,'');
+    assert.equal((await pool.query('select source_type from chapter_revisions where revision_id=$1',[bootstrap.body.data.revisionId])).rows[0].source_type,'BOOTSTRAP');
+    assert.equal((await pool.query('select count(*)::int as total from revision_outbox_events where revision_id=$1',[bootstrap.body.data.revisionId])).rows[0].total,0);
     assert.equal((await req(dp+'/revisions','GET',undefined,outsiderToken)).status,403);
     const payload={title:'Imported',content:'Import test',clientRequestId:'batch-one'};
     const imported=await req(cp,'POST',payload,authorToken);assert.equal(imported.status,201);
