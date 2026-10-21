@@ -22,6 +22,8 @@ def execute_wave1f(session,project):
         return title.locator('xpath=ancestor::div[contains(@class,"mantine-Card-root")][1]')
     action('ACT-S03-OPEN','click','tab: Chờ duyệt',lambda:page.get_by_role('tab',name=re.compile('^Chờ duyệt')).click())
     initial=snapshot('M0-00-before-human');assert not initial['memory']['entities']
+    job_id=page.evaluate('(novelId)=>localStorage.getItem("ephurin-bootstrap-"+novelId)',session.novel_id)
+    source_chapters=session.read('/api/v1/novels/'+session.novel_id+'/chapters')
     handled=set()
     for index in range(1,6):
         deadline=time.monotonic()+40;review=None
@@ -32,6 +34,7 @@ def execute_wave1f(session,project):
             page.wait_for_timeout(300)
         if not review:
             snapshot(f'S03-CH{index}-BLOCKED');raise RuntimeError(f'S03_CHAPTER_{index}_ENTITY_GATE_NOT_REACHED')
+        assert review['chapter_id']==source_chapters[index-1]['chapterId'],'BOOTSTRAP_SKIPPED_CHAPTER'
         raw=snapshot(f'S03-CH{index}-01-raw');save(f'S03-CH{index}-machine',review)
         ids={c['candidate_id'] for c in review['candidates']}
         counts=Counter(d['verdict'] for d in review['decisions'])
@@ -64,6 +67,16 @@ def execute_wave1f(session,project):
         matrix.append({'chapter_number':index,'chapter_id':review['chapter_id'],'revision_id':review['revision_id'],
             'analysis_run_id':review['analysis_run_id'],'raw_counts':dict(counts),'freeze_status':'entities_reviewed','continue':'UI_HTTP_ACCEPTED'})
         save('five-chapter-checkpoint-matrix',matrix)
+        job=session.read('/api/v1/ai/jobs/'+job_id)
+        save(f'S03-CH{index}-bootstrap-before-resume',job)
+        if job['status']=='waiting_entity_review':
+            def resume_bootstrap():
+                with page.expect_response(lambda r:'/jobs/'+job_id+'/resume' in r.url and r.request.method=='POST') as response:
+                    page.get_by_role('button',name='Tiếp tục trích xuất từ chương chưa xong',exact=True).click()
+                save(f'S03-CH{index}-bootstrap-resume-http',{'status':response.value.status,'body':response.value.json()})
+                if not response.value.ok:raise RuntimeError('PRODUCT_BOOTSTRAP_RESUME_REJECTED')
+            action(f'ACT-S03-CH{index}-RESUME-BOOTSTRAP','click','Tiếp tục trích xuất từ chương chưa xong',resume_bootstrap)
+
     # Wait for the actual bootstrap job to reach canon review; never mark all imported chapters processed by assumption.
     job_id=page.evaluate('(novelId)=>localStorage.getItem("ephurin-bootstrap-"+novelId)',session.novel_id)
     deadline=time.monotonic()+45
