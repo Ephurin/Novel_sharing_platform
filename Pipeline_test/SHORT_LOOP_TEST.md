@@ -1,6 +1,6 @@
 # Vòng P1 ngắn — gate trước bài 100k
 
-Đọc WORKFLOW_CONTRACT.md revision1.3 trước; với human-review mode đọc thêm
+Đọc WORKFLOW_CONTRACT.md revision1.4 trước; với human-review mode đọc thêm
 GEMINI_HUMAN_ENTITY_REVIEW_RETEST.md. Tạo run/project mới; giữ evidence cũ. Dùng UI
 cho hành động tác giả, API read-only để kiểm chứng. Thiếu UI ghi BLOCKED tại bước
 đó; API diagnostic có thể chạy riêng nhưng không thay verdict UI. Không xuất bản.
@@ -21,11 +21,13 @@ kiểm tra quyền/ngân sách hiện hành, không suy điều kiện sẵn sà
 | S10 | Chạy consistency checking với chi tiết mâu thuẫn được cài có chủ đích trong nháp | Báo đúng bằng chứng; sửa nháp qua UI, lưu và kiểm tra lại; không sửa DB để che lỗi |
 | S11 | Tải lại trang và tiếp tục viết | Memory/context/tab thống nhất; audit M-FIRST và final; chương vẫn là nháp |
 
-Không bắt buộc hoàn thành 100k ở vòng này. Ghi word count thực; không sửa gold
-để phù hợp output. Sau PASS vòng P1, chạy riêng nhánh ý tưởng thô và full auto:
-kiểm tra có/không có định hướng; P3 chỉ tự duyệt canon sau human entity gate khi
-bật mode mới, ghi P3 có can thiệp thay vì fully autonomous; không publish,
-memory lỗi thì không âm thầm completed và truyện hoàn thành theo tiêu chí nội dung.
+Không bắt buộc hoàn thành 100k ở vòng P1 này. Ghi word count thực; không sửa gold
+để phù hợp output. Sau PASS vòng P1, chạy P2 idea→first chapter và P3 controller
+probe (có/không định hướng); khi flag ON P3 chờ human entity gate, không claim
+unattended. **Gate cuối P3 bắt buộc** là `P3_HITL_CONTROLLER_100K` trên run mới,
+truyện hoàn chỉnh 100.000–105.000 từ từ canonical readback, với memory/ending/
+continuity/quality và mức can thiệp được audit. Không publish, không âm thầm
+completed khi memory còn lỗi. Xem WORKFLOW_CONTRACT.md v1.4.
 
 Mẫu ghi kết quả mỗi bước:
 
