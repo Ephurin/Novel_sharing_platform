@@ -2,14 +2,20 @@
 
 Các ngưỡng dưới đây là tiêu chí task đặt trước, không phải kết quả đã đo. Không chỉnh ngưỡng sau khi thấy đầu ra để làm pass.
 
+## Phạm vi và nguồn chuẩn v1.4
+
+`WORKFLOW_CONTRACT.md` revision 1.4 ngày 2026-10-21 quy định **bài 100.000 từ là gate cuối P3 bắt buộc**, sau P1 UI S01–S11, P2 setup→first chapter và P3 functional controller probe. Kết quả chỉ áp dụng cho **run mới theo v1.4**; các ngưỡng 95–105k trong report/task đời trước phải giữ nguyên như lịch sử, không sửa hồi tố.
+
+Rubric/chứng cứ dưới đây áp dụng riêng cho P3 HITL; hoàn toàn tự động là **claim độc lập**, chưa có policy entity/canon thay thế human gate được nghiệm thu. Các benchmark đối chứng cần cùng model, seed, budget và điều kiện can thiệp hoặc phải công khai confounder; không tuyên bố vượt trội khi chưa đo.
+
 ## Sáu verdict độc lập
 
 | Trục | PASS cần gì |
 |---|---|
-| Artifact completion | 95–105k từ bằng cùng bộ đếm; đủ truyện có kết thúc; nguồn từ canonical revisions; giữ seed hoặc có sửa tác giả được khai báo |
+| Artifact completion | **P3 terminal v1.4: 100.000–105.000 từ** theo cùng NFC/whitespace counter; đủ truyện có kết thúc; nguồn canonical revisions có hashes; không lấy bản assisted dưới 100k, outline hoặc job completed thay artifact P3 |
 | Pipeline functionality | Các gate bắt buộc trong phạm vi chạy có evidence, gồm narrative memory M0/M-FIRST/10/20/50/final áp dụng cho từng P1/P2/P3; không mất dữ liệu, duplicate acceptance hoặc bypass làm sai kết quả |
 | UI coverage | Hành trình được khai báo UI-only có thể hoàn tất bằng UI; hybrid luôn ghi PARTIAL nếu phải dùng API cho chức năng tác giả |
-| Autonomy | Chỉ áp dụng AUTONOMOUS_100K: tạo đủ truyện đạt yêu cầu mà không có sửa/accept thủ công thay controller trong run |
+| Controller autonomy / unattended | **P3_HITL_CONTROLLER_100K:** controller điều phối generation/accept/memory nhưng được phép dừng human entity review, mọi intervention phải đo riêng; **P3_UNATTENDED_AUTONOMOUS_100K:** verdict zero-intervention chỉ nếu policy riêng được phê duyệt và run thực không có can thiệp nội dung |
 | Literary quality | Toàn văn được đọc, các hard gates đạt và rubric đạt ngưỡng |
 | Review independence | Người/agent reviewer khác thực hiện review toàn văn và ghi danh tính/phiên; tự review là SELF_REVIEW_ONLY |
 
@@ -72,4 +78,4 @@ Mỗi issue ghi subsystem, expected/actual, repro, input IDs, observed evidence,
 - `COMPLETED_WITH_ISSUES`: có truyện đủ độ dài nhưng chất lượng/vận hành còn lỗi cần sửa.
 - `PARTIAL` / `BLOCKED`: thiếu truyện hoàn chỉnh hoặc gặp giới hạn không vượt được.
 
-Full UI PASS và autonomous PASS chỉ được ghi nếu thực sự chạy chế độ tương ứng. P1/P2/P3 probe PASS không đủ để kết luận autonomous 100k PASS.
+Full UI PASS chỉ khi thao tác tác giả thực hiện qua UI thật và có trace/readback. P1/P2/P3 probe PASS không đủ cho **P3 mandatory 100k**. P3 HITL 100k không đồng nghĩa fully unattended, và fully unattended cần run/policy độc lập.
