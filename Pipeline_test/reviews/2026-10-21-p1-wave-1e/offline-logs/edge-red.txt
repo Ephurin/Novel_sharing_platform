@@ -1,0 +1,47 @@
+.FFF.                                                                    [100%]
+================================== FAILURES ===================================
+_ test_empty_title_label_or_duplicate_leading_heading_rejected[# Ch\u01b0\u01a1ng 1 \u2014   \n\nV\u0103n b\u1ea3n h\u1ee3p l\u1ec7.\n] _
+
+tmp_path = WindowsPath('C:/Users/Laptop/OneDrive/Documents/testproject/Pipeline_test/reviews/2026-10-21-p1-wave-1e/offline-logs/pytest-edge-red/test_empty_title_label_or_dupl0')
+source = '# Chương 1 —   \n\nVăn bản hợp lệ.\n'
+
+    @pytest.mark.parametrize('source',[
+        '# Chương 1 —   \n\nVăn bản hợp lệ.\n',
+        '# Chương 1 — Tiêu đề\n\n# Chương 1 — Trùng tiêu đề\n\nVăn bản.\n',
+    ])
+    def test_empty_title_label_or_duplicate_leading_heading_rejected(tmp_path,source):
+        (tmp_path/'ch01.md').write_text(source,encoding='utf-8')
+>       with pytest.raises(ValueError):parse_fixture_chapter(1,tmp_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+Pipeline_test\tests\test_wave1e_functional.py:31: Failed
+_ test_empty_title_label_or_duplicate_leading_heading_rejected[# Ch\u01b0\u01a1ng 1 \u2014 Ti\xeau \u0111\u1ec1\n\n# Ch\u01b0\u01a1ng 1 \u2014 Tr\xf9ng ti\xeau \u0111\u1ec1\n\nV\u0103n b\u1ea3n.\n] _
+
+tmp_path = WindowsPath('C:/Users/Laptop/OneDrive/Documents/testproject/Pipeline_test/reviews/2026-10-21-p1-wave-1e/offline-logs/pytest-edge-red/test_empty_title_label_or_dupl1')
+source = '# Chương 1 — Tiêu đề\n\n# Chương 1 — Trùng tiêu đề\n\nVăn bản.\n'
+
+    @pytest.mark.parametrize('source',[
+        '# Chương 1 —   \n\nVăn bản hợp lệ.\n',
+        '# Chương 1 — Tiêu đề\n\n# Chương 1 — Trùng tiêu đề\n\nVăn bản.\n',
+    ])
+    def test_empty_title_label_or_duplicate_leading_heading_rejected(tmp_path,source):
+        (tmp_path/'ch01.md').write_text(source,encoding='utf-8')
+>       with pytest.raises(ValueError):parse_fixture_chapter(1,tmp_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+Pipeline_test\tests\test_wave1e_functional.py:31: Failed
+______________ test_unknown_declared_normalization_fails_closed _______________
+
+    def test_unknown_declared_normalization_fails_closed():
+        chapters=make_gold_chapters();chapters[0]['conversion_rule_version']='unknown-v999'
+>       assert not verify_manuscript_gold_hashes(chapters,expected_novel_id='wave1d-novel',expected_owner_id='wave1d-author')[0]
+E       assert not True
+
+Pipeline_test\tests\test_wave1e_functional.py:35: AssertionError
+=========================== short test summary info ===========================
+FAILED Pipeline_test/tests/test_wave1e_functional.py::test_empty_title_label_or_duplicate_leading_heading_rejected[# Ch\u01b0\u01a1ng 1 \u2014   \n\nV\u0103n b\u1ea3n h\u1ee3p l\u1ec7.\n]
+FAILED Pipeline_test/tests/test_wave1e_functional.py::test_empty_title_label_or_duplicate_leading_heading_rejected[# Ch\u01b0\u01a1ng 1 \u2014 Ti\xeau \u0111\u1ec1\n\n# Ch\u01b0\u01a1ng 1 \u2014 Tr\xf9ng ti\xeau \u0111\u1ec1\n\nV\u0103n b\u1ea3n.\n]
+FAILED Pipeline_test/tests/test_wave1e_functional.py::test_unknown_declared_normalization_fails_closed
+3 failed, 2 passed in 0.42s

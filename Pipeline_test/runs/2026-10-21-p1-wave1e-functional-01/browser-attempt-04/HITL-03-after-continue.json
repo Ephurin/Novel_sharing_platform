@@ -1,0 +1,1573 @@
+{
+  "readback_started_at": "2026-10-21T14:32:15.463515+00:00",
+  "after_action_id": "ACT-HITL-CONTINUE",
+  "action_finished_at": "2026-10-21T14:32:12.040056+00:00",
+  "run_id": "2026-10-21-p1-wave1e-functional-01",
+  "session_id": "eb09a914-e90e-47a7-8cda-d73ec527f730",
+  "novel_id": "474f3432-a9d7-4600-8bac-69857b7174fd",
+  "user_id": "f133cd92-4aa2-4010-b39a-3575432836dd",
+  "readback_scope": "immediate_phase_readback",
+  "reviews": [],
+  "memory": {
+    "story_id": "474f3432-a9d7-4600-8bac-69857b7174fd",
+    "entities": [],
+    "aliases": [],
+    "mentions": [],
+    "facts": [],
+    "relations": [],
+    "events": [],
+    "transitions": [],
+    "current_state": {
+      "entities": {},
+      "provenance": {},
+      "relationships": [],
+      "projection_version": 1
+    },
+    "metadata": {
+      "brain_id": "afc633e3-9edd-4328-9c54-a0985d01ead8",
+      "brain_version": "1",
+      "status": "importing",
+      "baseline_revision_id": null
+    }
+  },
+  "proposals": [
+    {
+      "proposal_id": "b332ff26-7fa2-58e7-9d20-4aca55e90f17",
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "PER",
+        "candidate_ids": [
+          "d58c274a8a43518d12ebc70a",
+          "d95290f4a7c47ecdd580952b",
+          "6dd226fd38f880957a028bae",
+          "1f525f394bbe9f3c21f34233"
+        ],
+        "canonical_name": "Mai Linh",
+        "initial_status": "Unknown",
+        "normalized_name": "mai linh",
+        "entity_candidate_policy": "entity-human-review-v1"
+      },
+      "analysis_run_id": "792f246a-74cd-4448-83d0-b98e140599c7",
+      "dependency_group_id": "cea2a8ab-3e88-5af7-a27c-31df69a394a1",
+      "materialization_order": 0,
+      "evidence": [
+        {
+          "end": 59,
+          "quote": "Mai Linh",
+          "start": 51,
+          "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+          "revision_id": "e4f6b7ae-a4e3-4a4c-83ae-8e2463afca19"
+        }
+      ],
+      "confidence": 0.7,
+      "expected_brain_version": 1,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 40,
+      "review_reason": "standard_review"
+    },
+    {
+      "proposal_id": "7abf9176-c315-54a9-9a3c-a394f00c5a8c",
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "ITEM",
+        "candidate_ids": [
+          "f8dccf6751b094e2d0dc3332"
+        ],
+        "canonical_name": "CV-04",
+        "initial_status": "Unknown",
+        "normalized_name": "cv-04",
+        "entity_candidate_policy": "entity-human-review-v1"
+      },
+      "analysis_run_id": "792f246a-74cd-4448-83d0-b98e140599c7",
+      "dependency_group_id": "cea2a8ab-3e88-5af7-a27c-31df69a394a1",
+      "materialization_order": 1,
+      "evidence": [
+        {
+          "end": 4174,
+          "quote": "CV-04",
+          "start": 4169,
+          "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+          "revision_id": "e4f6b7ae-a4e3-4a4c-83ae-8e2463afca19"
+        }
+      ],
+      "confidence": 0.7,
+      "expected_brain_version": 1,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 40,
+      "review_reason": "standard_review"
+    },
+    {
+      "proposal_id": "da48ef0b-aabd-5170-9d40-c692c43231c0",
+      "proposal_type": "alias",
+      "payload": {
+        "alias": "Linh",
+        "entity_name": "Mai Linh",
+        "identity_quote": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đ"
+      },
+      "analysis_run_id": "792f246a-74cd-4448-83d0-b98e140599c7",
+      "dependency_group_id": "cea2a8ab-3e88-5af7-a27c-31df69a394a1",
+      "materialization_order": 2,
+      "evidence": [
+        {
+          "end": 59,
+          "quote": "Linh",
+          "start": 55,
+          "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+          "chapter_id": "4dff1a60-bd51-449e-9919-175834556d29",
+          "revision_id": "e4f6b7ae-a4e3-4a4c-83ae-8e2463afca19",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.7,
+      "expected_brain_version": 1,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 40,
+      "review_reason": "standard_review"
+    }
+  ],
+  "receipt_offset": 33,
+  "receipts_scope": "current_browser_attempt_only",
+  "receipts": [
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "0e1080daa3e3a884099ec2a01af2787dab110ac109619dca57343e4d45d27ff2",
+      "dispatch_id": "38227bd9-d861-4ac9-b4ca-483c232d40eb",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593117.240633,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"entities\": []}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "38227bd9-d861-4ac9-b4ca-483c232d40eb"
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "50c3618ea733d2165c99a1cc19dffd36c8026fa1c8cce346a6ad8738425c99c3",
+      "dispatch_id": "1d1d28c2-301f-4e76-8d63-24272b3c6e46",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593117.3037126,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"entities\": []}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "1d1d28c2-301f-4e76-8d63-24272b3c6e46"
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "9fe5ca2a83a30b7b8a38581bcf51b0dc0625471346cbc3317099a020a650366a",
+      "dispatch_id": "93795f25-68b8-4141-87a6-b10477e0fbc2",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "EntityDecision": {
+            "additionalProperties": false,
+            "properties": {
+              "candidate_id": {
+                "description": "Exact candidate_id from the request.",
+                "title": "Candidate Id",
+                "type": "string"
+              },
+              "verdict": {
+                "description": "Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.",
+                "enum": [
+                  "entity",
+                  "not_entity",
+                  "unresolved"
+                ],
+                "title": "Verdict",
+                "type": "string"
+              },
+              "entity_type": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "PER",
+                      "LOC",
+                      "ORG",
+                      "ITEM",
+                      "SKILL"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.",
+                "title": "Entity Type"
+              },
+              "canonical_name": {
+                "default": "",
+                "description": "Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Name",
+                "type": "string"
+              },
+              "canonical_entity_id": {
+                "default": "",
+                "description": "Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Entity Id",
+                "type": "string"
+              },
+              "identity_quote": {
+                "default": "",
+                "description": "Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Identity Quote",
+                "type": "string"
+              },
+              "initial_status": {
+                "default": "Unknown",
+                "description": "Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.",
+                "enum": [
+                  "Alive",
+                  "Dead",
+                  "Unknown"
+                ],
+                "title": "Initial Status",
+                "type": "string"
+              },
+              "status_quote": {
+                "default": "",
+                "description": "Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Status Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              },
+              "reason": {
+                "description": "Linguistic context reason for this verdict.",
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "candidate_id",
+              "verdict",
+              "reason"
+            ],
+            "title": "EntityDecision",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/$defs/EntityDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "title": "EntityDecisionBatch",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593117.3994155,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"decisions\": [{\"candidate_id\": \"d08e3a3c34440bcb1cc0707a\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"48905d4d545ac7bfd0f20498\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"d58c274a8a43518d12ebc70a\", \"verdict\": \"entity\", \"canonical_name\": \"Mai Linh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"d95290f4a7c47ecdd580952b\", \"verdict\": \"entity\", \"canonical_name\": \"Mai Linh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"identity_quote\": \"Chi\\u1ebfc ph\\u00e0 ch\\u1ea1m b\\u1ebfn b\\u1eb1ng m\\u1ed9t ti\\u1ebfng th\\u1edf d\\u00e0i c\\u1ee7a s\\u1eaft. Mai Linh nh\\u1eadn ra \\u00e2m thanh \\u1ea5y tr\\u01b0\\u1edbc khi nh\\u1eadn ra th\\u00e0nh ph\\u1ed1. \\u1ede tu\\u1ed5i hai m\\u01b0\\u01a1i ch\\u00edn, c\\u00f4 v\\u1eabn nh\\u1edb m\\u1ed9t ti\\u1ebfng \\u0111\\u1ed9ng c\\u0169 d\\u1ec5 h\\u01a1n nh\\u1edb \\u0111\\u01b0\\u1eddng v\\u1ec1 nh\\u00e0.\\n\\nM\\u01b0\\u1eddi m\\u1ed9t n\\u0103m tr\\u01b0\\u1edbc, c\\u1ea7u d\\u1eabn c\\u00f2n c\\u00f3 m\\u1ed9t thanh th\\u00e9p l\\u1ecfng. M\\u1ed7i l\\u1ea7n b\\u00e1nh xe \\u0111\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline alias fixture: source context mentions Mai Linh and Linh; not model-quality evidence\"}, {\"candidate_id\": \"0cf89671e374b2d7a2a341de\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"23969e3e129ad1483aa038ac\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"aeb5e5852f56d7b499dc804c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"8acbefd92238448cf07bf636\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"eeb1b9e8e2cf8787c2cd5000\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"b24d3bf636d495c89cef4909\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"acbc814ff6f66865f7f9226c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"3cbfbccea13a8fd76fa41d11\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"c10036dea9fb2ada8baba0eb\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"25180afce411fe5128967af4\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"e79a3e0b6aa801cbd8bb4d83\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"62b7d1f9115adc1f58c21078\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"fcf1ceb3228237ec5f6ebf88\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"763bdca903c8c214118b656e\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"b33a52d6f50a6eff6db7ee23\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"a3d53e2ebb1dcc2c1ac4e768\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"4d72f2093925b8146d2daefa\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"56755bea263764d5960c24cc\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"4e288eb2e231ac997080575d\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"a4cfb5cce1c768f29b6eda13\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}]}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "93795f25-68b8-4141-87a6-b10477e0fbc2"
+      },
+      "operation": "entity_verification"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "2eaaecbaf897fa8d65ad027fbbd2284fe801e5972b45215a10828da2b3c2ea1d",
+      "dispatch_id": "3862e4d1-b5ac-431a-a15d-c565bab312fe",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "EntityDecision": {
+            "additionalProperties": false,
+            "properties": {
+              "candidate_id": {
+                "description": "Exact candidate_id from the request.",
+                "title": "Candidate Id",
+                "type": "string"
+              },
+              "verdict": {
+                "description": "Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.",
+                "enum": [
+                  "entity",
+                  "not_entity",
+                  "unresolved"
+                ],
+                "title": "Verdict",
+                "type": "string"
+              },
+              "entity_type": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "PER",
+                      "LOC",
+                      "ORG",
+                      "ITEM",
+                      "SKILL"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.",
+                "title": "Entity Type"
+              },
+              "canonical_name": {
+                "default": "",
+                "description": "Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Name",
+                "type": "string"
+              },
+              "canonical_entity_id": {
+                "default": "",
+                "description": "Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Entity Id",
+                "type": "string"
+              },
+              "identity_quote": {
+                "default": "",
+                "description": "Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Identity Quote",
+                "type": "string"
+              },
+              "initial_status": {
+                "default": "Unknown",
+                "description": "Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.",
+                "enum": [
+                  "Alive",
+                  "Dead",
+                  "Unknown"
+                ],
+                "title": "Initial Status",
+                "type": "string"
+              },
+              "status_quote": {
+                "default": "",
+                "description": "Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Status Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              },
+              "reason": {
+                "description": "Linguistic context reason for this verdict.",
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "candidate_id",
+              "verdict",
+              "reason"
+            ],
+            "title": "EntityDecision",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/$defs/EntityDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "title": "EntityDecisionBatch",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593117.474358,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"decisions\": [{\"candidate_id\": \"06fe634b158ba457ae173d87\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"922f075b62de2aa7df7a408c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"ed554be2499c4c3bd6729a2f\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"39e7726bcb610ba2a4d810ff\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"6dd226fd38f880957a028bae\", \"verdict\": \"entity\", \"canonical_name\": \"Mai Linh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"1f525f394bbe9f3c21f34233\", \"verdict\": \"entity\", \"canonical_name\": \"Mai Linh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"identity_quote\": \"u. V\\u1ea1ch m\\u1edbi nh\\u1ea5t c\\u00f2n b\\u00f3ng.\\n\\nM\\u1ed9t c\\u1eadu giao h\\u00e0ng ng\\u1ed3i tr\\u00ean th\\u00f9ng c\\u00e1 r\\u1ed7ng, t\\u1ea5m bi\\u1ec3n vi\\u1ebft t\\u00ean c\\u00f4 d\\u1ef1ng c\\u1ea1nh \\u0111\\u1ea7u g\\u1ed1i. C\\u1eadu m\\u1eb7c \\u00e1o m\\u01b0a m\\u00e0u cam \\u0111\\u00e3 b\\u1ea1c \\u1edf vai, \\u0111\\u00f4i gi\\u00e0y bu\\u1ed9c b\\u1eb1ng hai m\\u00e0u d\\u00e2y kh\\u00e1c nhau.\\n\\n\\u201cCh\\u1ecb Mai Linh? Ch\\u00e1u b\\u00e0 Y\\u00ean?\\u201d\\n\\n\\u201cCon b\\u00e0 Y\\u00ean.\\u201d\\n\\n\\u201cEm bi\\u1ebft. B\\u00e0 S\\u00e2m d\\u1eb7n ph\\u1ea3i h\\u1ecfi nh\\u01b0 th\\u1ebf \\u0111\\u1ec3 ch\\u1ecb s\\u1eeda. Ng\\u01b0\\u1eddi kh\\u00e1c s\\u1ebd ch\\u1ec9 g\\u1eadt.\\u201d\\n\\nC\\u1eadu \\u0111\\u1ee9ng l\\u00ean, t\\u1ef1 gi\\u1edbi thi\\u1ec7u l\\u00e0 An, m\\u01b0\\u1eddi ch\\u00edn tu\\u1ed5i, r\\u1ed3i \\u0111\\u00f3n va li. C\\u00f4 kh\\u00f4ng \\u0111\\u01b0a ngay. An ch\\u1ec9 c\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline alias fixture: source context mentions Mai Linh and Linh; not model-quality evidence\"}, {\"candidate_id\": \"ec457d25b5ad5996fc6206a2\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"9cc0a50ff3ccf347bfb0e504\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"323fe5dc9b7d5370d26fd74b\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"60ae9ebdd5baa7100a50c8a7\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"489f8ce2f545f4dde6952b77\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"3375d9ff39b0141d06812d6c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"5a84862b75a7e0326d152076\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"a85b4a80bf9b92e9bece9eac\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"4bf10fb84718116265369ea7\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"c65b1c575bf59d4282958fa5\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"47df15501f19a29fcbd19f59\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"943f371ad9b5b59d85469e74\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"d6bd683c9f3322652c608f43\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"5626dfa2b2068fbd441ccd48\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"aebfa2643e512db4d5fa4be8\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"05526e9fb9a18c521b40dfd7\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"51c8561ff01f1c51f58288d7\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"ffd46bb2e017732801273cee\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}]}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "3862e4d1-b5ac-431a-a15d-c565bab312fe"
+      },
+      "operation": "entity_verification"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "0c980b3a6543ce460ca38ee8305f45bca5712064ff89e27dbb31dd5fbbf55276",
+      "dispatch_id": "8cc8063a-1310-480b-a0b4-84b7e3d76f14",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "EntityDecision": {
+            "additionalProperties": false,
+            "properties": {
+              "candidate_id": {
+                "description": "Exact candidate_id from the request.",
+                "title": "Candidate Id",
+                "type": "string"
+              },
+              "verdict": {
+                "description": "Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.",
+                "enum": [
+                  "entity",
+                  "not_entity",
+                  "unresolved"
+                ],
+                "title": "Verdict",
+                "type": "string"
+              },
+              "entity_type": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "PER",
+                      "LOC",
+                      "ORG",
+                      "ITEM",
+                      "SKILL"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.",
+                "title": "Entity Type"
+              },
+              "canonical_name": {
+                "default": "",
+                "description": "Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Name",
+                "type": "string"
+              },
+              "canonical_entity_id": {
+                "default": "",
+                "description": "Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Entity Id",
+                "type": "string"
+              },
+              "identity_quote": {
+                "default": "",
+                "description": "Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Identity Quote",
+                "type": "string"
+              },
+              "initial_status": {
+                "default": "Unknown",
+                "description": "Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.",
+                "enum": [
+                  "Alive",
+                  "Dead",
+                  "Unknown"
+                ],
+                "title": "Initial Status",
+                "type": "string"
+              },
+              "status_quote": {
+                "default": "",
+                "description": "Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Status Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              },
+              "reason": {
+                "description": "Linguistic context reason for this verdict.",
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "candidate_id",
+              "verdict",
+              "reason"
+            ],
+            "title": "EntityDecision",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/$defs/EntityDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "title": "EntityDecisionBatch",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593117.5662029,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"decisions\": [{\"candidate_id\": \"9fb8578bf53f1057dd7570d8\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"5cbf65cb5efe641a8718146a\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"6a1acd863a48fc79a5f741a9\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"d626482fcb93ef84bac88aff\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"9aa99f59c4850603c3c36be0\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"9aa76bd6aefab6142a50077d\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"437652de23f4766dfef3823f\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"baf974f23fd8aa2719e56852\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"9f2dc40a15d939d6d388c940\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"903b35bef561193959be4a07\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"339fa41b78043d3b71be4dfc\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"1749d3037abf07928d7a7d92\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"25fcf51c31ee287a54a67952\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"f90da6db77e490a7deab3843\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"ce8e502e9df45fc8cab5859c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"8f410edd4fff3410be4022e1\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"e91592a685221d22155b7c36\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"8521373d363e07743e60402d\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"f8c4490bcb1071309d7e3973\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"38a4ca1887a3f75cfb6ec782\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"7f471464731dd61eabfbe13e\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"b008a26f0d7b8c9bb1f321f2\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"cc5692c386e42483d4d77b81\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"14a50e428c6a12a2f8e1a5cc\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}]}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "8cc8063a-1310-480b-a0b4-84b7e3d76f14"
+      },
+      "operation": "entity_verification"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "d60d355e34bf5d4cd1ee468810c3bf2c8ee38fb97beee4e9e3c270a0d9fdbf88",
+      "dispatch_id": "3f4d8ccd-3a66-4248-bb93-0eb4e3385b23",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "EntityDecision": {
+            "additionalProperties": false,
+            "properties": {
+              "candidate_id": {
+                "description": "Exact candidate_id from the request.",
+                "title": "Candidate Id",
+                "type": "string"
+              },
+              "verdict": {
+                "description": "Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.",
+                "enum": [
+                  "entity",
+                  "not_entity",
+                  "unresolved"
+                ],
+                "title": "Verdict",
+                "type": "string"
+              },
+              "entity_type": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "PER",
+                      "LOC",
+                      "ORG",
+                      "ITEM",
+                      "SKILL"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.",
+                "title": "Entity Type"
+              },
+              "canonical_name": {
+                "default": "",
+                "description": "Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Name",
+                "type": "string"
+              },
+              "canonical_entity_id": {
+                "default": "",
+                "description": "Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Entity Id",
+                "type": "string"
+              },
+              "identity_quote": {
+                "default": "",
+                "description": "Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Identity Quote",
+                "type": "string"
+              },
+              "initial_status": {
+                "default": "Unknown",
+                "description": "Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.",
+                "enum": [
+                  "Alive",
+                  "Dead",
+                  "Unknown"
+                ],
+                "title": "Initial Status",
+                "type": "string"
+              },
+              "status_quote": {
+                "default": "",
+                "description": "Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Status Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              },
+              "reason": {
+                "description": "Linguistic context reason for this verdict.",
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "candidate_id",
+              "verdict",
+              "reason"
+            ],
+            "title": "EntityDecision",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/$defs/EntityDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "title": "EntityDecisionBatch",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593117.6443272,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"decisions\": [{\"candidate_id\": \"001a8d46cf0b3f8d304e477b\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"97da340ad756b7cdf2f9de6a\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"3cf5d0ea073724a50a4961dd\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"c03702c020751fadac847c63\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"db972a25f9d60a82a55d62e2\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"6226190949bcb26e4c7a2846\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"d0b239c9a7bdca505f6f77be\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"fd64f0b1d5339f0529f2f073\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"8a0b9b96528e62ddce39658b\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"b0abedce85e39989aae63712\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"e33621b183c6498ad7c80453\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"508f350811b9aa7a0efdc453\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"adab522c741230b287583399\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"ad51a21eb76f3023772b8f85\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"c63696b266f9726a8a467c8e\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"628430a7f398b7b41bb87ca9\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"33e8f8d09f772e24ec236790\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"a7142f2c29cd6a3c91a07dcc\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"1f4365f82a4595564747c453\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"93aa100e24b1da08cb61e384\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"4ea7b592479467ee6d6435bc\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"4b0e77a882b0a6eb518d8229\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"8079c0d46beca562a40c7ea2\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"13f3dcf373624627dccd9ec5\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}]}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "3f4d8ccd-3a66-4248-bb93-0eb4e3385b23"
+      },
+      "operation": "entity_verification"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "6fc682c71e116541451901f63236c3d9c87764f98e09c727569e3fc3f96a15c6",
+      "dispatch_id": "9f37d1d5-6878-4a46-a880-78e0c257079f",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "EntityDecision": {
+            "additionalProperties": false,
+            "properties": {
+              "candidate_id": {
+                "description": "Exact candidate_id from the request.",
+                "title": "Candidate Id",
+                "type": "string"
+              },
+              "verdict": {
+                "description": "Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.",
+                "enum": [
+                  "entity",
+                  "not_entity",
+                  "unresolved"
+                ],
+                "title": "Verdict",
+                "type": "string"
+              },
+              "entity_type": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "PER",
+                      "LOC",
+                      "ORG",
+                      "ITEM",
+                      "SKILL"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.",
+                "title": "Entity Type"
+              },
+              "canonical_name": {
+                "default": "",
+                "description": "Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Name",
+                "type": "string"
+              },
+              "canonical_entity_id": {
+                "default": "",
+                "description": "Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Entity Id",
+                "type": "string"
+              },
+              "identity_quote": {
+                "default": "",
+                "description": "Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Identity Quote",
+                "type": "string"
+              },
+              "initial_status": {
+                "default": "Unknown",
+                "description": "Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.",
+                "enum": [
+                  "Alive",
+                  "Dead",
+                  "Unknown"
+                ],
+                "title": "Initial Status",
+                "type": "string"
+              },
+              "status_quote": {
+                "default": "",
+                "description": "Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Status Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              },
+              "reason": {
+                "description": "Linguistic context reason for this verdict.",
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "candidate_id",
+              "verdict",
+              "reason"
+            ],
+            "title": "EntityDecision",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/$defs/EntityDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "title": "EntityDecisionBatch",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593117.7344825,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"decisions\": [{\"candidate_id\": \"b1dc2b28191499addc845914\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"b8e279fb7aad16a8c8d31541\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"ed923427c2889827142eff7f\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"261e7cd9b3f1a01ba730a316\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"8079340ca3146d91f9c15c41\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"560b7980666f031de9a6b8cf\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"cb2ff19dce685f64d3b50918\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"b3d6ea1b1474c183fc7ae892\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"b27541ad2d2a690fd50f91b4\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"c405b9530900611fc439ffb1\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"d7fd793f374b485d65ca1a5f\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"f330910b78aa8042ecc677c5\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"0335633c71b5b58dc2af8bf7\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"a4ac3cd1dc87330250a9363d\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"e09cde039a8d91ec987adebf\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"315315be6c67a5c4d0da7309\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"401b16bc1a0e4b5efb3ed070\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"a0343a887f18d040d519fea1\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"574d8bc37f1c3477598d2d55\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"a3e3240054acf65446cfeada\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"80f2307605708f1fbd92afe2\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"6f1d6406f88dbdca220d13df\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"efee1923e48459c04a525558\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"3ca733e2836dab961f4010a0\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}]}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "9f37d1d5-6878-4a46-a880-78e0c257079f"
+      },
+      "operation": "entity_verification"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "11943dd8d771821de3403efdf4e465344c9446875749c3eb59fdfb82ffb15967",
+      "dispatch_id": "751c244a-c06d-472c-80ca-859605f9d6b0",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "EntityDecision": {
+            "additionalProperties": false,
+            "properties": {
+              "candidate_id": {
+                "description": "Exact candidate_id from the request.",
+                "title": "Candidate Id",
+                "type": "string"
+              },
+              "verdict": {
+                "description": "Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.",
+                "enum": [
+                  "entity",
+                  "not_entity",
+                  "unresolved"
+                ],
+                "title": "Verdict",
+                "type": "string"
+              },
+              "entity_type": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "PER",
+                      "LOC",
+                      "ORG",
+                      "ITEM",
+                      "SKILL"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.",
+                "title": "Entity Type"
+              },
+              "canonical_name": {
+                "default": "",
+                "description": "Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Name",
+                "type": "string"
+              },
+              "canonical_entity_id": {
+                "default": "",
+                "description": "Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Entity Id",
+                "type": "string"
+              },
+              "identity_quote": {
+                "default": "",
+                "description": "Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Identity Quote",
+                "type": "string"
+              },
+              "initial_status": {
+                "default": "Unknown",
+                "description": "Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.",
+                "enum": [
+                  "Alive",
+                  "Dead",
+                  "Unknown"
+                ],
+                "title": "Initial Status",
+                "type": "string"
+              },
+              "status_quote": {
+                "default": "",
+                "description": "Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Status Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              },
+              "reason": {
+                "description": "Linguistic context reason for this verdict.",
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "candidate_id",
+              "verdict",
+              "reason"
+            ],
+            "title": "EntityDecision",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/$defs/EntityDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "title": "EntityDecisionBatch",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593117.823122,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"decisions\": [{\"candidate_id\": \"3d7183037b2d4718e69489ce\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"b083818c65dfeb342c835de5\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"f8dccf6751b094e2d0dc3332\", \"verdict\": \"entity\", \"canonical_name\": \"CV-04\", \"entity_type\": \"ORG\", \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline injected type mistake: author must correct source-supported ceramic item to ITEM\"}, {\"candidate_id\": \"ea655b5244465283c8718b4a\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"286bccf38ead300e46f188b1\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"299df0d38dd860232a48cc76\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"457169c18d1d257b5f605b4b\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"e0b5e38bffa316ba119f5563\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"6452dadc518c02db656ba196\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"cc96daa2f2fc3451464c6de7\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"b7abf75da8791c175491b87b\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"ad030b16a99af42042fc0599\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"2ffedc9b517fc7700e7898ad\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"68ac0e1f3f38b6bad55aa732\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"ee84763066fd21bbdfbdea56\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"6868826e06efa779b6656038\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"5017ca0132fb305ad85cccb6\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"17374e0e22cf310ef878d7d7\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"662da15ef6606889602dfce8\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"9e2f5c46b0200cf9220e78dc\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"29a11fd41365c3ee6c381e13\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"9839a6d978f28e8b9f78b76d\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"9c2753ab615ed606d742fa85\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"a7113b2bd1bfe3d85dcaf175\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}]}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "751c244a-c06d-472c-80ca-859605f9d6b0"
+      },
+      "operation": "entity_verification"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "7b8402365a4cea198ffbcf1d1775555f27294c9f5047a39022c5cf83ef2b229b",
+      "dispatch_id": "0bc28206-4d5f-4759-8846-2e6d783fa52d",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "EntityDecision": {
+            "additionalProperties": false,
+            "properties": {
+              "candidate_id": {
+                "description": "Exact candidate_id from the request.",
+                "title": "Candidate Id",
+                "type": "string"
+              },
+              "verdict": {
+                "description": "Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.",
+                "enum": [
+                  "entity",
+                  "not_entity",
+                  "unresolved"
+                ],
+                "title": "Verdict",
+                "type": "string"
+              },
+              "entity_type": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "PER",
+                      "LOC",
+                      "ORG",
+                      "ITEM",
+                      "SKILL"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.",
+                "title": "Entity Type"
+              },
+              "canonical_name": {
+                "default": "",
+                "description": "Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Name",
+                "type": "string"
+              },
+              "canonical_entity_id": {
+                "default": "",
+                "description": "Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Entity Id",
+                "type": "string"
+              },
+              "identity_quote": {
+                "default": "",
+                "description": "Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Identity Quote",
+                "type": "string"
+              },
+              "initial_status": {
+                "default": "Unknown",
+                "description": "Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.",
+                "enum": [
+                  "Alive",
+                  "Dead",
+                  "Unknown"
+                ],
+                "title": "Initial Status",
+                "type": "string"
+              },
+              "status_quote": {
+                "default": "",
+                "description": "Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Status Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              },
+              "reason": {
+                "description": "Linguistic context reason for this verdict.",
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "candidate_id",
+              "verdict",
+              "reason"
+            ],
+            "title": "EntityDecision",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/$defs/EntityDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "title": "EntityDecisionBatch",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593117.9012766,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"decisions\": [{\"candidate_id\": \"1291ab4bd32b2adf112833b4\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"168c4cffb2c47446dab71826\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"1e0b58d0ab6bce61e5f72611\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"f0c08b0102f59177134efe13\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"696970d05e96f8dc8a297080\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"bdf32708f497268b9ee5bb5a\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"d5a19e536a8654214ae22430\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"317906eb3371a91cc3fbcb06\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"8516836a41e9af3139cf811a\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"205665a75d0f374849b6db2c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"39676bd218ea6413162dbb6f\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"f3591af4d54e899fb3a2f381\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}, {\"candidate_id\": \"9f1f07bc3300002c0d9008da\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"86b99581cab97d9d3ee553d7\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"d7d3eeb269c4cd729561390b\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"4c60445395ba98edae799a3c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"cbe9b95932b4326320c84117\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"be52957220350f6609d8198d\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"f873ba47e118eb5fff2dcbcf\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"462c19f834efe3b8174ed057\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"ab209e6a535aee1d77c71b1c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"0880a2391670b0a5b9aee68d\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Explicit offline scenario: negative candidate, not a semantic model verdict\"}, {\"candidate_id\": \"37c867d21c2de188fa495a3d\", \"verdict\": \"unresolved\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"Offline ambiguity branch requires explicit author resolution\"}]}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "0bc28206-4d5f-4759-8846-2e6d783fa52d"
+      },
+      "operation": "entity_verification"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "3cc97b946e798c5a529e3fe57aa0aa53199ed3cbca5313a876ece743514bb208",
+      "dispatch_id": "31aa40e6-f979-4165-b28b-4e5967b08375",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "NarrativeEventOutput": {
+            "additionalProperties": false,
+            "properties": {
+              "evidence_quote": {
+                "default": "",
+                "title": "Evidence Quote",
+                "type": "string"
+              },
+              "participants": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Participants",
+                "type": "array"
+              },
+              "locations": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Locations",
+                "type": "array"
+              },
+              "event_type": {
+                "minLength": 1,
+                "title": "Event Type",
+                "type": "string"
+              },
+              "summary": {
+                "minLength": 1,
+                "title": "Summary",
+                "type": "string"
+              },
+              "emotion_tags": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Emotion Tags",
+                "type": "array"
+              },
+              "consequences": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Consequences",
+                "type": "array"
+              },
+              "importance_score": {
+                "default": 0.5,
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "title": "Importance Score",
+                "type": "number"
+              }
+            },
+            "required": [
+              "event_type",
+              "summary"
+            ],
+            "title": "NarrativeEventOutput",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/$defs/NarrativeEventOutput"
+            },
+            "title": "Events",
+            "type": "array"
+          }
+        },
+        "required": [
+          "events"
+        ],
+        "title": "EventBatch",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593131.6695552,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"events\": []}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "31aa40e6-f979-4165-b28b-4e5967b08375"
+      },
+      "operation": "events"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "883e23f9aa51b4822347cd24bf3a335f828469ce17c05e795cce110704e46b4a",
+      "dispatch_id": "684745c2-f5ac-4550-90cf-9122947da76f",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "ProseFact": {
+            "additionalProperties": false,
+            "properties": {
+              "subject": {
+                "default": "",
+                "title": "Subject",
+                "type": "string"
+              },
+              "fact_key": {
+                "maxLength": 100,
+                "minLength": 1,
+                "title": "Fact Key",
+                "type": "string"
+              },
+              "fact_value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ],
+                "title": "Fact Value"
+              },
+              "certainty": {
+                "enum": [
+                  "confirmed",
+                  "reported",
+                  "hypothesis",
+                  "proposed"
+                ],
+                "title": "Certainty",
+                "type": "string"
+              },
+              "quote": {
+                "minLength": 1,
+                "title": "Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              }
+            },
+            "required": [
+              "fact_key",
+              "fact_value",
+              "certainty",
+              "quote"
+            ],
+            "title": "ProseFact",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "facts": {
+            "items": {
+              "$ref": "#/$defs/ProseFact"
+            },
+            "title": "Facts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "facts"
+        ],
+        "title": "ProseFacts",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593131.7450902,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"facts\": []}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "684745c2-f5ac-4550-90cf-9122947da76f"
+      },
+      "operation": "facts"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "7fd228002dd924a2da134a908055a15172ac04a502063aac75d86fda41d5964f",
+      "dispatch_id": "e807d99d-1e00-40f1-a9b8-f0a3b322f57f",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "ProseFact": {
+            "additionalProperties": false,
+            "properties": {
+              "subject": {
+                "default": "",
+                "title": "Subject",
+                "type": "string"
+              },
+              "fact_key": {
+                "maxLength": 100,
+                "minLength": 1,
+                "title": "Fact Key",
+                "type": "string"
+              },
+              "fact_value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ],
+                "title": "Fact Value"
+              },
+              "certainty": {
+                "enum": [
+                  "confirmed",
+                  "reported",
+                  "hypothesis",
+                  "proposed"
+                ],
+                "title": "Certainty",
+                "type": "string"
+              },
+              "quote": {
+                "minLength": 1,
+                "title": "Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              }
+            },
+            "required": [
+              "fact_key",
+              "fact_value",
+              "certainty",
+              "quote"
+            ],
+            "title": "ProseFact",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "facts": {
+            "items": {
+              "$ref": "#/$defs/ProseFact"
+            },
+            "title": "Facts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "facts"
+        ],
+        "title": "ProseFacts",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "scenario": "wave1e-mixed-v1",
+      "received_at": 1792593131.8263624,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"facts\": []}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 10,
+          "candidatesTokenCount": 10,
+          "totalTokenCount": 20
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "e807d99d-1e00-40f1-a9b8-f0a3b322f57f"
+      },
+      "operation": "facts"
+    }
+  ],
+  "captured_at": "2026-10-21T14:32:18.960611+00:00"
+}

@@ -1,0 +1,35 @@
+{
+  "action_id": "ACT-HITL-CONTINUE",
+  "action_kind": "click",
+  "selector": "button: 3. Ti\u1ebfp t\u1ee5c tr\u00edch xu\u1ea5t event/fact",
+  "started_at": "2026-10-21T14:24:34.852511+00:00",
+  "finished_at": "2026-10-21T14:24:35.464953+00:00",
+  "application_url": "http://127.0.0.1:33459/author/ide?novelId=a495812b-8c64-4f03-9cad-922ae8b8eee8&chapterId=64303071-a021-4bab-904d-e503d44880d1",
+  "run_id": "2026-10-21-p1-wave1e-functional-01",
+  "session_id": "4d4ad016-5cdc-414d-99f7-cfd14d376fcf",
+  "user_id": "f133cd92-4aa2-4010-b39a-3575432836dd",
+  "novel_id": "a495812b-8c64-4f03-9cad-922ae8b8eee8",
+  "channel": "OFFLINE_BROWSER_UI_SMOKE",
+  "artifacts": {
+    "screenshot": {
+      "path": "ACT-HITL-CONTINUE.png",
+      "sha256": "21944d169b5e33d6f40d367cd94585e5597e7a2f0550148b9273dec808a7e3fa"
+    },
+    "dom": {
+      "path": "ACT-HITL-CONTINUE.dom.txt",
+      "sha256": "eb2924de863e5ceaf800f967bbf168ab704fb55f67c2da2288e9026e7d669ab0"
+    },
+    "trace": {
+      "path": "browser.trace.zip",
+      "sha256": "7e62497a3bc9d19923919d773f21266d8ce65fe3a46ae76410e1f223b5bedb0c"
+    },
+    "session": {
+      "path": "browser-session.json",
+      "sha256": "2c98aadcc54de4939e6907819a4bddca48e63bed95bce705aa1a5f021774901e"
+    },
+    "readback": {
+      "path": "ACT-HITL-CONTINUE.readback.json",
+      "sha256": "2b2bccb6c31e518a5314e077834c1ebb5a98c2920c2864cc9ffbb6d58882518f"
+    }
+  }
+}

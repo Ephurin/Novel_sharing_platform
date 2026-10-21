@@ -1,0 +1,35 @@
+{
+  "action_id": "ACT-HITL-OPEN",
+  "action_kind": "click",
+  "selector": "tab: Ch\u1edd duy\u1ec7t",
+  "started_at": "2026-10-21T14:38:07.397514+00:00",
+  "finished_at": "2026-10-21T14:38:08.493248+00:00",
+  "application_url": "http://127.0.0.1:33459/author/ide?novelId=7192eef7-8fbb-404d-9a2a-02bc9e386a35&chapterId=65cdbb22-ac97-41f0-b0d1-d001350c4195",
+  "run_id": "2026-10-21-p1-wave1e-functional-01",
+  "session_id": "4d69ecda-c51c-4952-8750-d5a48a68ce2d",
+  "user_id": "f133cd92-4aa2-4010-b39a-3575432836dd",
+  "novel_id": "7192eef7-8fbb-404d-9a2a-02bc9e386a35",
+  "channel": "OFFLINE_BROWSER_UI_SMOKE",
+  "artifacts": {
+    "screenshot": {
+      "path": "ACT-HITL-OPEN.png",
+      "sha256": "4815daa7e4b294acc4fb3aa70a993108b95c4c17e92f515da800f73336ffcbc3"
+    },
+    "dom": {
+      "path": "ACT-HITL-OPEN.dom.txt",
+      "sha256": "ed2aba7f5b834055b9d02234d4c5cb757b7ff41d9830eeb4cf3bd4c3b88204ac"
+    },
+    "trace": {
+      "path": "browser.trace.zip",
+      "sha256": "0c7be25cdb5b9f2fb0523ae9dc8c1ac9ab48e47140d3df1f1091d8172cd91168"
+    },
+    "session": {
+      "path": "browser-session.json",
+      "sha256": "7e61941cf2cb83a6a0ff6646911e71f60c6f7a32639f92cb4be56add4fca4f1b"
+    },
+    "readback": {
+      "path": "ACT-HITL-OPEN.readback.json",
+      "sha256": "f84f6b789bbe2b7698b75740b1992882eff05b6ca2e99ba6419df90ef03cdf4a"
+    }
+  }
+}

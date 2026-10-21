@@ -1,0 +1,1 @@
+{"project": "p1-wave1e-20261021-functional-01", "containers": 7, "main_ledger_calls": 33, "fake_receipts": 33, "live_authorized": false}

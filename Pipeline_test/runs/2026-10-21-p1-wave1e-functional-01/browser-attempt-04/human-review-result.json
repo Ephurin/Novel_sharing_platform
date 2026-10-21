@@ -1,0 +1,25 @@
+{
+  "status": "OFFLINE_HUMAN_ENTITY_REVIEW_PASS",
+  "captured_at": "2026-10-21T14:32:18.963619+00:00",
+  "analysis_run_id": "792f246a-74cd-4448-83d0-b98e140599c7",
+  "chapter_id": "4dff1a60-bd51-449e-9919-175834556d29",
+  "revision_id": "e4f6b7ae-a4e3-4a4c-83ae-8e2463afca19",
+  "machine_verdict_counts": {
+    "not_entity": 148,
+    "entity": 5,
+    "unresolved": 14
+  },
+  "source_supported_aliases": 2,
+  "unresolved_resolved_by_author_rejection": [
+    "An",
+    "Linh"
+  ],
+  "author_type_correction": "CV-04 ORG -> ITEM",
+  "event_fact_before_review": 0,
+  "event_fact_only_after_checkpoint": true,
+  "official_memory_unchanged": true,
+  "pending_proposals": 3,
+  "remaining_chapters": "Not reviewed in this bounded chapter-1 HITL probe",
+  "real_model_entity_quality": "NOT_TESTED",
+  "external_provider_calls": 0
+}

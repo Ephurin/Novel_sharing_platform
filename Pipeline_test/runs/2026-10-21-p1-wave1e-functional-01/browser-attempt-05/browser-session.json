@@ -1,0 +1,10 @@
+{
+  "session_id": "4d69ecda-c51c-4952-8750-d5a48a68ce2d",
+  "run_id": "2026-10-21-p1-wave1e-functional-01",
+  "browser_version": "156.0.8078.4",
+  "started_at": "2026-10-21T14:37:48.172024+00:00",
+  "login_observed": true,
+  "user_id": "f133cd92-4aa2-4010-b39a-3575432836dd",
+  "login_trace_excluded_for_credentials": true,
+  "finished_at": "2026-10-21T14:38:25.326666+00:00"
+}

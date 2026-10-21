@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "resources": [
+    {
+      "project": "p1-wave1d-20261021-offline-01",
+      "ledger_matches_frozen_readback": true,
+      "main_calls": 200,
+      "fake_receipts": 224,
+      "writes_or_restarts": 0
+    },
+    {
+      "project": "p1-wave1d-20261021-browser-01",
+      "ledger_matches_frozen_readback": true,
+      "main_calls": 30,
+      "fake_receipts": 30,
+      "writes_or_restarts": 0
+    }
+  ]
+}

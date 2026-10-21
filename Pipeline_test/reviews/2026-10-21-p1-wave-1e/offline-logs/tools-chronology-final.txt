@@ -1,0 +1,71 @@
+...F.................................................................... [ 68%]
+.....................ssss........                                        [100%]
+================================== FAILURES ===================================
+_______ test_client_tickets_never_dispatch_even_if_well_named[invented] _______
+
+stack = ('http://127.0.0.1:15380', <Pipeline_test.tools.budget_gateway.AuthoritativeBudgetLedger object at 0x000001F14AE8CE60>, [], <http.server.ThreadingHTTPServer object at 0x000001F14AE8CBC0>)
+ticket = 'invented'
+
+    @pytest.mark.parametrize('ticket', ['invented','stolen','reused','expired','old-run'])
+    def test_client_tickets_never_dispatch_even_if_well_named(stack,ticket):
+        url, ledger, received, _=stack
+>       assert post(url+'/v1/chat/completions',body(),{'X-Budget-Ticket':ticket})[0]==403
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pipeline_test\tests\test_cross_container_budget_gate.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+Pipeline_test\tests\test_cross_container_budget_gate.py:38: in post
+    with urllib.request.urlopen(req, timeout=5) as res: return res.status, json.load(res)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py:215: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py:515: in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py:532: in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py:492: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py:1373: in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py:1348: in do_open
+    r = h.getresponse()
+        ^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\http\client.py:1430: in getresponse
+    response.begin()
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\http\client.py:331: in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\http\client.py:292: in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <socket.SocketIO object at 0x000001F14ADAF0D0>
+b = <memory at 0x000001F14ADEDA80>
+
+    def readinto(self, b):
+        """Read up to len(b) bytes into the writable buffer *b* and return
+        the number of bytes read.  If the socket is non-blocking and no bytes
+        are available, None is returned.
+    
+        If *b* is non-empty, a 0 return value indicates that the connection
+        was shutdown at the other end.
+        """
+        self._checkClosed()
+        self._checkReadable()
+        if self._timeout_occurred:
+            raise OSError("cannot read from timed out object")
+        while True:
+            try:
+>               return self._sock.recv_into(b)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+E               ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\socket.py:720: ConnectionAbortedError
+=========================== short test summary info ===========================
+FAILED Pipeline_test/tests/test_cross_container_budget_gate.py::test_client_tickets_never_dispatch_even_if_well_named[invented]
+1 failed, 100 passed, 4 skipped in 58.45s

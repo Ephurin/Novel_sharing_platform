@@ -1,0 +1,183 @@
+{
+  "verdict": "P1_WAVE_1E_READY_FOR_INDEPENDENT_REVIEW",
+  "executor": "Codex",
+  "tested_source_commit": "b5fa332e85dc328100fba93c5b696fac2e80dbee",
+  "S01": "OFFLINE_BROWSER_UI_SMOKE_PASS",
+  "S02": "OFFLINE_CHECKPOINT_AND_MIXED_HUMAN_ENTITY_REVIEW_PASS",
+  "HITL_scope": "chapter 1 only; remaining chapters and canon activation not accepted",
+  "browser": {
+    "status": "OFFLINE_BROWSER_UI_SMOKE",
+    "reason": null,
+    "evidence_checks": [
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ],
+      [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    ],
+    "session_id": "4d69ecda-c51c-4952-8750-d5a48a68ce2d",
+    "novel_id": "7192eef7-8fbb-404d-9a2a-02bc9e386a35",
+    "user_id": "f133cd92-4aa2-4010-b39a-3575432836dd",
+    "actions": 25,
+    "real_provider_live_ui": "NOT_RUN",
+    "readback_scope": "final_post_run_readback",
+    "source_conversion_rule": "markdown-h1-title-body-nfc-lf-v1",
+    "s01_status": "OFFLINE_BROWSER_UI_SMOKE_PASS",
+    "s02_status": "CHECKPOINT_OBSERVED",
+    "human_review_requested": true
+  },
+  "human_review": {
+    "status": "OFFLINE_HUMAN_ENTITY_REVIEW_PASS",
+    "captured_at": "2026-10-21T14:38:24.063233+00:00",
+    "analysis_run_id": "5460f6ca-1381-4466-851f-d182679fb5d6",
+    "chapter_id": "e3e9f6d8-e68c-4a21-9368-318c0b36fd44",
+    "revision_id": "6425e6b5-87f1-43d9-bfcc-692cfea50ccb",
+    "machine_verdict_counts": {
+      "not_entity": 148,
+      "entity": 5,
+      "unresolved": 14
+    },
+    "source_supported_aliases": 2,
+    "unresolved_resolved_by_author_rejection": [
+      "An",
+      "Linh"
+    ],
+    "author_type_correction": "CV-04 ORG -> ITEM",
+    "event_fact_before_review": 0,
+    "event_fact_only_after_checkpoint": true,
+    "official_memory_unchanged": true,
+    "pending_proposals": 3,
+    "remaining_chapters": "Not reviewed in this bounded chapter-1 HITL probe",
+    "real_model_entity_quality": "NOT_TESTED",
+    "external_provider_calls": 0
+  },
+  "regressions": {
+    "targeted_baseline": {
+      "passed": 52
+    },
+    "edge_red": {
+      "failed": 3,
+      "passed": 2
+    },
+    "edge_green": {
+      "passed": 57
+    },
+    "final_tools": {
+      "passed": 101,
+      "skipped": 4,
+      "failed": 0
+    },
+    "ai_service": {
+      "passed": 407,
+      "skipped": 2,
+      "deselected": 42
+    },
+    "backend": {
+      "passed": 62
+    }
+  },
+  "paid_cost_engineering": "DEFERRED_PER_OWNER_PRIORITY",
+  "paid_cost_proof": "BUDGET_COST_HARD_CAP_UNPROVEN_FOR_PAID_TIER",
+  "specific_project_free_tier": "UNVERIFIED_OFFLINE_ONLY",
+  "external_provider_calls": 0,
+  "full_P1_S03_S11": "NOT_ACCEPTED",
+  "35_gold_quality_audit": "NOT_RUN",
+  "P2": "NOT_RUN",
+  "P3": "NOT_RUN",
+  "100k": "NOT_RUN"
+}

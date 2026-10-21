@@ -1,0 +1,3 @@
+# Keep new Wave1E evidence byte-exact across Git checkouts.
+Pipeline_test/runs/2026-10-21-p1-wave1e-functional-01/** -text
+Pipeline_test/reviews/2026-10-21-p1-wave-1e/offline-logs/** -text

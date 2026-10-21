@@ -1,0 +1,35 @@
+{
+  "action_id": "ACT-HITL-KEEP",
+  "action_kind": "click",
+  "selector": "Mai Linh / Gi\u1eef entity",
+  "started_at": "2026-10-21T14:32:04.459230+00:00",
+  "finished_at": "2026-10-21T14:32:05.052611+00:00",
+  "application_url": "http://127.0.0.1:33459/author/ide?novelId=474f3432-a9d7-4600-8bac-69857b7174fd&chapterId=6017dec1-5374-479b-8e68-9eb259f0e959",
+  "run_id": "2026-10-21-p1-wave1e-functional-01",
+  "session_id": "eb09a914-e90e-47a7-8cda-d73ec527f730",
+  "user_id": "f133cd92-4aa2-4010-b39a-3575432836dd",
+  "novel_id": "474f3432-a9d7-4600-8bac-69857b7174fd",
+  "channel": "OFFLINE_BROWSER_UI_SMOKE",
+  "artifacts": {
+    "screenshot": {
+      "path": "ACT-HITL-KEEP.png",
+      "sha256": "0e0aa1f3d82b653be6f2bac7376e1f1bc166b5d863bf428a25d88bd5e895cafb"
+    },
+    "dom": {
+      "path": "ACT-HITL-KEEP.dom.txt",
+      "sha256": "3d776a00b2478b0b3178d7fc285b960010f955ad3681d2ee99268dd1f7cd4cbc"
+    },
+    "trace": {
+      "path": "browser.trace.zip",
+      "sha256": "ba65097a4c8ab47f3260a1b98d0e64b57f94255be195f6cae1f4eb07b216343b"
+    },
+    "session": {
+      "path": "browser-session.json",
+      "sha256": "52dc8e755884ef21a03e6fdc83752ea5e946c81b083c0b9f7811248ee0b15b17"
+    },
+    "readback": {
+      "path": "ACT-HITL-KEEP.readback.json",
+      "sha256": "f77ee29bc4a71ea14bfcba607a42ca1140d6d7b5f08594dd8044d2b7ecb7bd32"
+    }
+  }
+}

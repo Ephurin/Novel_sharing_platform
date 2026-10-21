@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "earlier_calls": 33,
+  "final_calls": 57,
+  "deadline_unchanged": true,
+  "earlier_call_history_retained_verbatim": true,
+  "ledger_reset": false
+}

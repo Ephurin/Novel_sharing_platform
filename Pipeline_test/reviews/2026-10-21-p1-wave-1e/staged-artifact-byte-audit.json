@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "new_run_artifacts_checked": 558,
+  "captured_bytes_equal_staged_git_blobs": true,
+  "checkout_attribute_scope": "New Wave1E run and new Wave1E raw logs only; no frozen input or historic evidence renormalization.",
+  "existing_input_checkout_portability": "Pre-existing raw-source checksum/newline convention retained; not repaired by changing frozen fixture bytes.",
+  "byte_exact_input_snapshots_included": 11
+}
