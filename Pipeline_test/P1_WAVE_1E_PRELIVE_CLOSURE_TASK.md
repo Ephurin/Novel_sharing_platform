@@ -1,0 +1,64 @@
+# ACTIVE TESTING AGENT TASK — P1 Wave 1E pre-live closure (OFFLINE ONLY)
+
+**Assigned:** 2026-10-21 (Asia/Bangkok). **Allowed branch:** `codex/ai-copilot-pipeline-test` **ONLY**. **Wave 1D executed source SHA:** `dea20421c612a79aa0534e74341c311ef60de772`.  
+**Read FIRST:** `Pipeline_test/reviews/2026-10-21-p1-wave-1e/INDEPENDENT_WAVE_1D_VERDICT.md`; then `Pipeline_test/reviews/2026-10-21-p1-wave-1d/GEMINI_WAVE_1D_REPORT.md`, `Pipeline_test/WORKFLOW_CONTRACT.md` **v1.4**, `AGENT_GUIDE.md`, `SHORT_LOOP_TEST.md`, `API_ADAPTER.md`, and `P1_WAVE_1D_INTEGRATION_REPAIR_TASK.md`. Wave 1D report calls its executor **Codex**; do not falsely relabel past author/executor. Current task may be executed by Gemini in Antigravity or another coding agent; commit/evidence must identify the actual executor.
+**This is NOT a P1 live retest.** Objectives: (1) correct title/body mapping and hashes, (2) resolve real-provider pricing/cost admission blockers with verifiable bounds **offline**, (3) optionally exercise positive/negative HITL decisions via actual browser and fake upstream. End with evidence for GPT-6 independent review.
+
+## A. Absolute safety / isolation
+
+- Check `git branch --show-current`, `git status --porcelain`, `git rev-parse HEAD`; fetch and fast-forward safely only if worktree is clean/understood. Never reset/clean unknown changes, force push, rebase, merge, open PR or push elsewhere. `main`, `UI`, other stacks/branches/databases or outboxes not in scope.
+- **ZERO real external provider calls** (Google Gemini, OpenAI, embedding etc.), including probes/smoke, retries and leaked background work. Historical P1 live approval `200 attempts, USD $5, 2 hours` expired 2026-10-21 12:47:52 UTC+7. Wave 1D uses synthetic fake upstream and this task grants **no renewed live authorization**. Never flip `offline_only` to false or initialize a live ledger using old permission.
+- Historical `2026-10-21-gemini-p1-live-01`, Wave 1D completed/failure runs, 224 and 30 recorded fake receipts, all their ledgers/volumes and 35 narrative assertion gold are **immutable test evidence**. No overwrite, deletion, Docker `down -v`, project-wide purge, wallet reset, reused run IDs, manual DB repair to improve score or changing source fixture files.
+- For any executed offline browser/integration tests, use **new unique isolated Compose projects/DB/volumes**, locally untracked required secrets, fake upstream, blocked external provider egress and identifiable author account. Prove ownership and independent run fixture integrity before writes. If Docker/browser unavailable, report NOT_RUN honestly.
+- A 100k novel is mandatory **later P3 terminal acceptance**, not this wave. P1 S03–S11, P2 and P3 overall remain unaccepted until independent evidence.
+
+## B. P0 — Fix S01 source heading/body mapping (WE-01)
+
+Current `Pipeline_test/tools/browser_author_driver.py` loads `chNN.md` verbatim into **body**, sets generated `Wave1D chapter N` as title. `Pipeline_test/tools/provenance.py::verify_manuscript_gold_hashes()` validates SHA256 over the entire Markdown file, so tests green-light a known mismatch with `AGENT_GUIDE.md` (“tiêu đề tách khỏi body”) and `API_ADAPTER.md` (“bỏ dòng tiêu đề Markdown”).
+
+**Patch narrowly:**
+1. Add a **shared deterministic** `parse_fixture_chapter`/equivalent in test tooling that extracts the first exact Markdown H1 as canonical chapter **title** and removes **only** the leading H1 separator (plus documented separating blank lines) from the persisted **body**. Preserve all remaining prose verbatim, including Vietnamese punctuation/newlines except explicit versioned CRLF/NFC handling. Do **not** mutate frozen `input/manuscript/chNN.md`. Reject empty/malformed headers, wrong chapter number, empty prose, duplicate first-page ambiguity.
+2. Browser driver uses the parsed **real chapter title** and **prose-only body** via actual Playwright controls; no author-write HTTP bypass. Source filename hash remains `source_file_sha256` distinct from derived canonical body hash. Record parser version, source file SHA256, persisted body SHA256 and exact title per chapter in run manifest.
+3. `verify_manuscript_gold_hashes()` checks chapter title, chapterNumber/order, owner/novel ID, revision ID/hash and **canonical body-only content** for all 5 chapters. It must fail closed on missing hash, unknown normalization, duplicate chapters/IDs, changed title, absent revision or heading leaked into the body. Do not assume the SHA256 of a file with H1 is equal to API content hash for a body without H1.
+4. Rework deterministic offline tests: RED old `Wave1D chapter` + H1-in-body shape, GREEN title/body correct and hashes, mixed NFC/CRLF, other H1 later in prose, missing heading, stale revision, empty body, wrong order. Preserve old Wave 1D browser evidence as historical: **do not retroactively relabel it to S01 contract PASS**.
+5. If safe with owned local resources, run a new Playwright S01→S02 fake-upstream smoke with 5 chapters, immutable revision readback, trace screenshot, extracted source/body hash pair, and actual S02 UI gate. Final `OFFLINE_BROWSER_UI_SMOKE_PASS` only if source→title/body→canonical revision mapping checks out.
+
+**Acceptance:** every chapter's saved title/body and revision content are audited against a documented source transform, not only byte-for-byte whole-file equality.
+
+## C. P0 — Price-aware hard cost cap design and offline enforcement (WE-02)
+
+**Official verified source (as of 2026-10-21):** `https://ai.google.dev/gemini-api/docs/pricing`, exact `gemini-3.5-flash-lite`, **Standard paid** tariff: `USD $0.30/1M input tokens` (text/image/video/audio), `USD $2.50/1M output tokens including thinking tokens`. This is from the published list; tier actually charged and Google AI Studio account applicability remain **UNVERIFIED**. Prices and terms can change. Cached input, context cache storage, tools/grounding, audio/image, multiple candidates and separate API operations must be separately bounded or disabled. Do not borrow older Gemini 3.1/2.5 tariff.
+
+**Do not just change 1/4 to 0.30/2.50 and claim hard cap.** Implement/describe a narrow **test-only** versioned `pricing_policy` and a defensible pre-dispatch upper bound or fail closed:
+1. Version exact provider/model/route/tier, price source and retrieved date; effective model must be traced, alias/fallback changes rejected unless separately priced. Record actual billed cost as `UNKNOWN` unless a trustworthy billing record exists; usage metadata != invoice.
+2. Reject unsupported billable variants (unpriced tools, grounding, caching/storage, multimodal/streaming, model discovery billing unknown, embeddings, hidden automatic SDK retries or aliases, excessive prompts/output); or price worst-case *all* enabled categories. Preserve actual SDK request schema/structured output compatibility. Policy change must be explicit, reviewed and audited; no unbounded operator setting.
+3. Budget reserve before **every** network attempt (incl failed/timeout/retry), with durable single shared ledger, **outstanding worst-case liabilities** held until safe settlement. Prove text prompt token worst-case from an authoritative/provider-supported method or defensible conservative bound with safety margin that includes internal overhead and hidden thinking billables; `len(UTF8 wire)+4096` is not by itself proof. Reject if unproven.
+4. Cost cap (\leq USD $5) and stronger admission cutoff (\leq $4.50), (\leq 200) calls, deadline (\leq 2h) **starting from first accepted live attempt** must apply concurrently and survive restart. Actual provider prices and account tier must be rechecked at future user-approved live cutover; this task does not grant authorization. Never automatically charge cost differences above reserved upper bound or silently free uncertain liability.
+5. Offline tests: calls at 200/201, near cost threshold with 2+ concurrent in-flight requests, max output/thinking count, large multibyte Vietnamese body, pricing missing/changed, output exceeds reserved liability, 429/5xx/timeouts/retries, resume/restart, disallowed embedding/fallback/grounding/tool route, billing unknown, model mismatch. Explicitly assert **zero network dispatch** after denial and ledger/receipt agreement.
+6. Do **not** enable real upstream/paid call path during this task. If exact hard cap still cannot be justified from official spec and tested invariant, keep `BUDGET_COST_HARD_CAP_UNPROVEN` and present least invasive options (e.g. much stricter per-request bound/conservative quota, account-side spend alert as an extra guard not a replacement) for reviewer decision.
+
+**Acceptance:** a documented price **source** + a separately proven or explicitly **UNPROVEN** pre-dispatch max liability. Any synthetic-only amount clearly labeled; no false approval.
+
+## D. P1 — Positive, mixed verdict Human Entity Review offline browser path (WE-03)
+
+Wave 1D fake upstream intentionally returned **170 `not_entity` decisions out of 170 candidate surfaces in chapter 1**; that proves checkpoint routing only, not full human review or model quality. If safe and within narrow time scope:
+- Add a **new, explicit deterministic fake fixture** with source-supported positive canonical entity(ies), valid aliases (e.g. `Linh` ↔ `Mai Linh` only when matching source), negative `Chương` and `unresolved` without fabricated canon. All candidate IDs/quotes must match the frozen source and verifier schema.
+- Through real browser on new isolated project, keep/reject/correct at least one valid and one negative item, continue to `entities_reviewed`, and verify event/fact begins **only after** inventory freezes and group remains proposal until canon approval. If UI missing, record route/DOM and `BLOCKED_UI_MISSING`; **no writable API rescue** or false claim.
+- Preserve raw model(fake) response and post-human inventory separately; inspect M0 architecture/invariants, but do not infer 35 narrative assertion accuracy from a scripted fake.
+
+If implementing real UI review requires unrelated FE refactor, keep it **separate finding**, not a reason to silently edit frontend across branches. The fake positive-flow test is **additional diagnostic**, not a substitute for real provider S02 or all S01–S11.
+
+## E. P1 — Per-action evidence chronology (WE-04)
+
+Current browser driver writes **identical final chapter snapshots** into all `ACT-*.readback.json` after the browser session finishes. Label these `final_post_run_readback` unless actual immediate readback is performed. For new run capture per-action readback (before/after) with real timestamps for actions whose persisted state matters, then final revision manifest. Assert cross-action state/novel/account consistency without inventing before-state and without rewriting earlier traces.
+
+## F. Evidence deliverables and end gate
+
+Commit scoped source/test harness changes only on branch; no P1 product code changes unless a documented separate product defect requires a distinct approval. Write `Pipeline_test/reviews/2026-10-21-p1-wave-1e/EXECUTOR_WAVE_1E_REPORT.md`, `validation.json`, precise commands with actual exit codes, offline test logs and new run manifests, exact tested commit SHA, fixture hash provenance, price-policy and billing assumptions, UI screenshots/trace/readback (sanitized), ledger/fake upstream receipts, and blockers. Keep old Wave 1D and old live reports unmodified.
+
+**Final verdict**:
+- `P1_WAVE_1E_READY_FOR_INDEPENDENT_REVIEW` only if fixture mapping/coverage passes and all claims are accurately scoped; price may remain `COST_HARD_CAP_UNPROVEN` but this must **block live authorization**.
+- `P1_WAVE_1E_BLOCKED:<specific>` if a P0 requirement not met. Do not mark P1 acceptance, real-provider S02, 35-gold recall, P2/P3 or 100k PASS.
+- STOP with zero new external AI provider calls and return branch SHA, changed paths, tests, fake vs real provider distinction, budget policy status and next concrete blocker. Reviewer must approve further steps, and user must explicitly approve a fresh **live time/budget window** before real AI Studio activity.
+
+**Important:** no claim that a price lookup alone satisfies a hard cap. Don't switch `offline_only=False` in committed live configuration. Provenance, auditability and fail-closed behavior take priority over superficial test completion.
