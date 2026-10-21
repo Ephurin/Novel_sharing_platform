@@ -1,5 +1,7 @@
 # Architecture Decision Records
 
+> **Architecture source guidance (2026-10-21):** The accepted ADR decisions below remain in force as historical design decisions, but are **not a runtime PASS claim**. Product behavior and mandatory P3 100,000-word HITL acceptance are governed by [WORKFLOW_CONTRACT.md revision 1.4](../../Pipeline_test/WORKFLOW_CONTRACT.md); the current source-inspected topology lives in [ARCHITECTURE.md](ARCHITECTURE.md), with legacy prototype archived separately. The P3 unattended entity-approval policy has **not** been accepted; do not infer it from ADR-008/auto-orchestration text. Review each implementation with exact SHA and evidence.
+
 > Status: Accepted baseline. Các ADR bên dưới đã được author/product owner chấp nhận ngày 2026-08-27.
 
 ## ADR-001 — Narrative Memory là bounded context riêng
