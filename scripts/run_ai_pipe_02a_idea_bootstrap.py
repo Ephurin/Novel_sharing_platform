@@ -314,6 +314,36 @@ def run_pipeline(
             },
         )
 
+        # Stabilize the canonical snapshot's transactional outbox before
+        # starting assisted generation. With fail-closed auto-materialization,
+        # a manual snapshot may legitimately advance Story Brain asynchronously.
+        base_snapshot_outbox_status = None
+        for _ in range(30):
+            cur.execute(
+                """
+                SELECT status FROM revision_outbox_events
+                WHERE revision_id = %s AND event_type = 'INCREMENTAL_ANALYSIS'
+                """,
+                (base_rev_id,),
+            )
+            snapshot_outbox_row = cur.fetchone()
+            if snapshot_outbox_row and snapshot_outbox_row[0] == "COMPLETED":
+                base_snapshot_outbox_status = snapshot_outbox_row[0]
+                break
+            time.sleep(1.0)
+
+        assert base_snapshot_outbox_status == "COMPLETED", (
+            "Canonical snapshot incremental-analysis outbox did not complete"
+        )
+        cur.execute(
+            "SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s",
+            (novel_id,),
+        )
+        writing_brain_version = int(cur.fetchone()[0])
+        assert writing_brain_version >= 2, (
+            f"Story Brain regressed below accepted bootstrap baseline: {writing_brain_version}"
+        )
+
         # ─────────────────────────────────────────────────────────────────
         # Checkpoint 07: Direct PostgreSQL Schema Assertions (No Ad-hoc Store)
         # ─────────────────────────────────────────────────────────────────
@@ -342,7 +372,8 @@ def run_pipeline(
         brain_row = cur.fetchone()
         assert brain_row is not None, "Story Brain record not found in PostgreSQL"
         assert brain_row[0] == "active"
-        assert brain_row[1] == 2
+        assert int(brain_row[1]) == writing_brain_version
+        assert writing_brain_version >= 2
         assert pg_ent_count > 0, "Expected entities persisted in PostgreSQL"
         assert pg_fact_count > 0, "Expected facts persisted in PostgreSQL"
 
@@ -350,12 +381,12 @@ def run_pipeline(
             7,
             "Direct PostgreSQL Schema Verification",
             "PASS",
-            f"Verified narrative schema: {pg_ent_count} entities, {pg_fact_count} facts, brain_version={brain_row[1]}",
+            f"Verified narrative schema: {pg_ent_count} entities, {pg_fact_count} facts, brain_version={writing_brain_version}",
             {
                 "pg_entities": pg_ent_count,
                 "pg_facts": pg_fact_count,
                 "brain_status": brain_row[0],
-                "brain_version": brain_row[1],
+                "brain_version": writing_brain_version,
             },
         )
 
@@ -366,7 +397,7 @@ def run_pipeline(
         ctx_res = httpx.get(ctx_url, headers=headers, timeout=15.0)
         assert ctx_res.status_code == 200, f"Expected 200, got {ctx_res.status_code}: {ctx_res.text}"
         ctx_data = ctx_res.json()["data"]
-        assert ctx_data["brain_version"] == 2
+        assert ctx_data["brain_version"] == writing_brain_version
         assert len(ctx_data["entities"]) > 0 or len(ctx_data["world_rules"]) > 0
 
         record_cp(
@@ -393,7 +424,7 @@ def run_pipeline(
             "content_hash": chap1_hash,
             "operation": "continue",
             "instruction": "Kael ngước nhìn bức tường Ashenhold đã sụp đổ, siết chặt thanh đoản kiếm rỉ sét.",
-            "expected_brain_version": 2,
+            "expected_brain_version": writing_brain_version,
             "selection": {"start": len(chap1_content), "end": len(chap1_content), "cursor": len(chap1_content)},
             "idempotency_key": gen_idempotency_key,
         }
@@ -502,36 +533,21 @@ def run_pipeline(
         assert outbox_event_id is not None, "INCREMENTAL_ANALYSIS outbox event not found"
         assert outbox_terminal_status == "COMPLETED", f"Outbox event did not complete: {outbox_row[1] if outbox_row else None}"
 
-        # Fetch pending incremental proposals created from the accepted revision
-        cur.execute(
-            """
-            SELECT id, dependency_group_id, proposal_type, status, expected_brain_version
-            FROM narrative.proposals WHERE novel_id = %s AND status = 'pending'
-            """,
-            (novel_id,),
-        )
-        inc_proposals = cur.fetchall()
-        if inc_proposals:
-            inc_gid = str(inc_proposals[0][1])
-            inc_pids = [str(p[0]) for p in inc_proposals if str(p[1]) == inc_gid]
-            expected_inc_v = int(inc_proposals[0][4])
-
-            inc_acc_res = httpx.post(
-                f"{backend_url}/ai/proposal-groups/{inc_gid}/accept",
-                json={"proposal_ids": inc_pids, "expected_brain_version": expected_inc_v},
-                headers=headers,
-                timeout=15.0,
-            )
-            assert inc_acc_res.status_code == 200, f"Incremental proposal accept failed ({inc_acc_res.status_code}): {inc_acc_res.text}"
-
-        # Query updated brain version from PostgreSQL
+        # Fail-closed outbox semantics materialize all revision-scoped
+        # proposals before the event can reach COMPLETED. Observe the resulting
+        # canonical Story Brain directly instead of manually accepting pending
+        # proposals in the validation runner.
         cur.execute(
             """
             SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s
             """,
             (novel_id,),
         )
-        updated_brain_ver = cur.fetchone()[0]
+        updated_brain_ver = int(cur.fetchone()[0])
+        assert updated_brain_ver > writing_brain_version, (
+            "Accepted draft did not advance Story Brain after COMPLETED outbox: "
+            f"{writing_brain_version} -> {updated_brain_ver}"
+        )
 
         record_cp(
             11,
@@ -541,6 +557,7 @@ def run_pipeline(
             {
                 "outbox_event_id": outbox_event_id,
                 "outbox_status": "COMPLETED",
+                "brain_version_before": writing_brain_version,
                 "story_brain_version": updated_brain_ver,
             },
         )

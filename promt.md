@@ -1,66 +1,171 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
-> This file is intentionally short. It contains only the current canonical state, architecture invariants, ownership rules, and the next executable gate.
->
-> Historical implementation/review details belong in `docs/development/*report.md`, evidence JSON, PR history, and Git history. Do not append stale phase logs back into this file.
+## 1. Canonical Status — 2026-10-16
 
-## 1. Canonical Status — 2026-10-11
-
-The three backend authoring pipelines are CI-closed.
+All three authoring pipelines are closed on backend/system acceptance, and P1 browser acceptance is now closed on the refactored Author UI.
 
 ```text
-AI-PIPE-01A  P1 Import -> Story Brain -> Assisted Writing     CI_PASS / MERGED
-AI-PIPE-01B  P1 Browser/UI System E2E                         PENDING_FINAL_UI_REFACTOR
+AI-PIPE-01A  P1 production persistence loop                 CI_PASS / MERGED
+AI-PIPE-01B  P1 final browser/UI system E2E                 CI_PASS / MERGED
 
-AI-PIPE-02A  Idea / World-Bible bootstrap                     CI_PASS / MERGED
-AI-PIPE-02B  Durable outline / Story Plan                     CI_PASS / MERGED
+AI-PIPE-02A  Idea / World-Bible bootstrap                   CI_PASS / MERGED
+AI-PIPE-02B  Durable outline / Story Plan                   CI_PASS / MERGED
 
-AI-PIPE-03A  Full-auto bounded autonomous controller          CI_PASS / MERGED
+AI-PIPE-03A  Bounded autonomous controller                  CI_PASS / MERGED
+
+MANUSCRIPT-IMPORT-UI  Canonical import -> Story Brain -> P1   CI_PASS / MERGED
+AUTHOR-PUBLISH-MODERATION  Author -> Admin -> Public lifecycle   CI_PASS / MERGED
+READER-DISCOVERY-STATE     Discovery/library/history lifecycle    CI_PASS / MERGED
+READER-SOCIAL-COMMENT-PREF Social/comment/preferences lifecycle    CI_PASS / MERGED
+COMMENT-USER-REPORT-MODERATION  Reader report/Admin decision/notifications CI_PASS / MERGED
+
+P1_OVERALL_SYSTEM_PASS
 ```
 
-Important merged milestones:
+Accepted milestones:
 
 ```text
 PR #39  AI-PIPE-01A  merged
 PR #40  AI-PIPE-02A  merged
 PR #41  AI-PIPE-02B  merged
-PR #42  AI-PIPE-03A  merged SHA a760600507ace97daeff2e951921235e8f74fa16
+PR #42  AI-PIPE-03A  merged
+PR #45  AI-PIPE-01B  merged
+PR #46  MANUSCRIPT-IMPORT-UI  merged
+PR #47  AUTHOR-PUBLISH-MODERATION  merged
+PR #48  READER-DISCOVERY-STATE  merged
+PR #49  READER-SOCIAL-COMMENT-PREF  merged
+PR #50  COMMENT-USER-REPORT-MODERATION  merged
 ```
 
-Accepted AI-PIPE-03A PR head:
+AI-PIPE-01B remote closure:
 
 ```text
-3228d85559a72a9650e0954b33ff47916fd6ccf9
+browser-tested product SHA:
+474b04fbc6173cfc847e06bf4e522211adf6f4d5
+
+evidence payload:
+9d75b91be6fc8f76899416a3d1d6faa629c9075b
+
+evidence lineage seal:
+2e1fb9b5747e4dfc0c4a3bef2cab54d55d47f269
+
+accepted PR head:
+3356de5ded6061dd6447e191b70e59ec48498488
+
+P7 Semantic Memory Foundation:
+run #125 / 38527368867 / PASS
+
+P8 Cutover and Migration:
+run #122 / 38527368972 / PASS
+
+merge:
+ff1ddb2430f342ba4221e442c2976ec481ad99a0
 ```
 
-Final PR checks:
+Canonical report:
 
 ```text
-P8 Cutover and Migration       38150084372  PASS
-P7 Semantic Memory Foundation  38150084376  PASS
-Evaluation Pilot Harness       38150084364  PASS
-Defense Demo Contract          38150084378  PASS
+docs/development/AI-PIPE-01B-MAIN-E2E-report.md
 ```
 
-Canonical main handoff commit after P3 closure:
+Manuscript Import remote closure:
 
 ```text
-610fad8cfef3bc4cac80e7cf5ad17cde24c01cdc
+tested code:
+66f94e22980b2c10cf3e2e93523e31f6582def60
+
+evidence payload:
+9771996f92b19076ebd081421c25e6aad033b9d7
+
+lineage seal / accepted PR head:
+d73e6d138e27892f3eec71d627dae2aeaa3f2c55
+
+P7 Semantic Memory Foundation:
+run #126 / 38670492688 / PASS
+
+P8 Cutover and Migration:
+run #123 / 38670492674 / PASS
+
+merge:
+ff1d47b59ca995af32b068163599cefdcc158db8
+
+report:
+docs/development/MANUSCRIPT-IMPORT-UI-E2E-report.md
 ```
 
-Post-handoff Evaluation:
+Author Publish / Moderation remote closure:
 
 ```text
-38150430186  PASS
+tested code:
+6c9a196a7eeb86cb48a5de363b9274ca1eaa6128
+
+accepted PR head / evidence commit:
+2833a68f3d6b2e6b4026ac51cc5932388de64888
+
+P7 Semantic Memory Foundation:
+run #127 / 38694642827 / PASS
+
+P8 Cutover and Migration:
+run #124 / 38694642777 / PASS
+
+merge:
+b7c9d4ea284ea8bf1eb135b6e876d7679ea8b18a
+
+report:
+docs/development/AUTHOR-PUBLISH-ADMIN-MODERATION-E2E-report.md
 ```
 
-Do not reopen P1/P2/P3 backend architecture unless a concrete regression or newly approved scope appears.
+Reader Discovery / Reading State remote closure:
+
+```text
+tested code:
+97ef253b544cba9376ed9b491cd3064c05c56647
+
+accepted PR head / evidence commit:
+089c1f57cb7ed8632cbd00d8b2d3e2bfa4122cb1
+
+P7 Semantic Memory Foundation:
+run #128 / 38699170011 / PASS
+
+P8 Cutover and Migration:
+run #125 / 38699169981 / PASS
+
+merge:
+8badd3361c8368aa351fcff249cf9c4d919685ac
+
+report:
+docs/development/READER-DISCOVERY-READING-STATE-E2E-report.md
+```
+
+Reader Social / Comment / Preferences remote closure:
+
+```text
+tested code:
+0b2c53f7fb4a1af6e601763ebe4bf654192a44ff
+
+accepted PR head / evidence commit:
+fcfe3f078929e6df0f0bdade02e90ab3e91aa7ba
+
+P7 Semantic Memory Foundation:
+run #129 / 38707250887 / PASS
+
+P8 Cutover and Migration:
+run #126 / 38707250954 / PASS
+
+merge:
+9e79b65c16a9c7776eefeadc3904660011e174a6
+
+report:
+docs/development/READER-SOCIAL-COMMENT-PREFERENCES-E2E-report.md
+```
+
+Do not reopen P1/P2/P3, Manuscript Import, Author Publish/Moderation, Reader Discovery/Reading State, or Reader Social/Comment/Preferences architecture without a concrete regression or explicitly approved new scope.
 
 ---
 
 ## 2. Canonical Architecture
 
-All project entry paths converge on the same Story Brain + Writing Loop.
+All authoring entry paths converge on the same Story Brain and P1 writing loop.
 
 ```text
 Imported manuscript
@@ -72,14 +177,15 @@ Imported manuscript
   P1 Writing Loop
         |
         +--> generate
-        +--> validate
-        +--> author/auto decision
+        +--> deterministic validation
+        +--> author / controller decision
         +--> acceptDraft
         +--> immutable revision
         +--> transactional outbox
         +--> incremental analysis
+        +--> revision-scoped proposal materialization
         +--> Story Brain update
-        +--> next context sees new state
+        +--> next context/generation sees new state
 
 
 Idea / premise
@@ -125,27 +231,38 @@ Core invariant:
 FUTURE PLAN != HISTORICAL CANON
 ```
 
-Planning state may contain intended future beats. It must not be treated as already-happened historical fact.
-
 Do not create:
 - a second writer;
 - a second Story Brain;
-- a P3-only narrative memory;
-- ad-hoc JSON persistence for production planning/controller state.
+- a P3-only memory store;
+- ad-hoc JSON persistence for production Story Plan/controller state.
+
+### Outbox invariant
+
+For `INCREMENTAL_ANALYSIS`:
+
+```text
+accepted/snapshot revision
+ -> incremental analysis
+ -> proposals scoped by evidence[].revision_id
+ -> required proposal groups materialize
+ -> Story Brain advances OR legitimate explicit no-op
+ -> only then outbox may become COMPLETED
+```
+
+Materialization failure must fail closed and preserve retry/idempotency semantics.
 
 ---
 
 ## 3. Fixed Technical Policies
 
-Production/default context routing remains:
+Production/default context routing:
 
 ```text
 CONTEXT_ROUTING_POLICY=legacy-v1
 ```
 
-Do not globally enable `balanced-scope-v1` without a separate accepted architecture change.
-
-Embedding remains:
+Embedding:
 
 ```text
 gemini-embedding-2
@@ -159,17 +276,19 @@ Demo/default generation model:
 gemini-3.5-flash-lite
 ```
 
-Manual alternative when explicitly needed:
+Manual alternative when explicitly required:
 
 ```text
 gemini-3.1-flash-lite
 ```
 
-Do not automatically fall back to Gemini 3.8. Flash-Lite is used primarily for quota/demo feasibility, not because it is assumed to have the best literary quality.
+Do not automatically fall back to Gemini 3.8.
 
-Primary acceptance/system gates should prefer fake/deterministic LLM unless a real-provider seam is explicitly being tested.
+Flash-Lite is the demo/default primarily for quota feasibility, not because it is assumed to provide the highest literary quality.
 
-P8-05 destructive cleanup remains blocked pending stability.
+Primary acceptance/system gates should prefer fake/deterministic LLM unless a real-provider seam is explicitly under test.
+
+P8-05 destructive cleanup remains blocked pending the separately defined stability boundary.
 
 ---
 
@@ -178,429 +297,130 @@ P8-05 destructive cleanup remains blocked pending stability.
 ### Gemini / Antigravity — LOCAL OWNER
 
 Gemini handles:
-- inspect/modify code locally;
-- Docker / Docker Compose;
-- PostgreSQL / pgvector;
-- local unit/integration/system tests;
-- browser automation when available locally;
+- local code inspection and implementation;
+- Docker / Compose;
+- PostgreSQL / pgvector / MongoDB;
+- local unit, integration and system tests;
+- local browser automation;
 - deterministic/fake LLM;
 - bounded real-provider calls only when explicitly required;
-- implementation defects;
-- local evidence/report updates;
-- commit/push working branch.
+- local evidence/report generation;
+- commit/push on the assigned working branch.
 
-Gemini completion boundary:
+Gemini stops at:
 
 ```text
 LOCAL_PASS_CI_PENDING
 ```
 
-Gemini must not claim GitHub Actions PASS, PR checks PASS, mergeability, merged state, or remote cleanup without direct GitHub evidence.
+unless a newer directive explicitly assigns a different boundary.
 
 ### ChatGPT — GITHUB / REMOTE ACCEPTANCE OWNER
 
 ChatGPT handles:
-- inspect remote branch/head/diff;
-- review implementation and evidence lineage;
-- create/update PR;
-- inspect GitHub Actions jobs/logs;
-- distinguish LOCAL_PASS from CI_PASS;
-- fix GitHub-only workflow/wiring issues when appropriate;
-- merge only after required remote checks are green;
-- update canonical report / this handoff on main.
+- remote branch/head/diff review;
+- PR creation/update;
+- GitHub Actions inspection and logs;
+- CI-only test/wiring repair where appropriate;
+- merge decision;
+- canonical report/handoff closure on `main`.
 
-Status vocabulary:
-
-```text
-LOCAL_PASS
-LOCAL_PASS_CI_PENDING
-CI_PASS
-MERGED
-NOT_EXECUTED
-BLOCKED
-PENDING_UI_REFACTOR
-PARTIAL
-MOCK_ONLY
-```
-
-Never collapse local PASS into CI PASS.
+Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-# 5. ACTIVE TASK — AI-PIPE-01B CURRENT-UI PREFLIGHT
+## 5. ACTIVE EXECUTION DIRECTIVE — WALLET/VIP E2E ACCEPTANCE HARNESS HARDENING
 
-The UI is not final, but current mockup/implementation already exists.
+Gate: `READER-WALLET-VIP-UNLOCK-E2E`
+Work on EXISTING branch: `astra/reader-wallet-vip-unlock-e2e`
+Last reviewed branch head / evidence commit: `bf7bccc2720e8975dcc6c43f142e30bcc0db876d`
+Prior tested product/test/runner code SHA: `5a0a77a0f196f7e0bbfa11739451b93b8de8ed2e`
+Main before this directive: `864dfabdf05be30e1e745b09312058425aff09d7`
+Remote reviewer verdict: `LOCAL_PASS_WITH_REVIEW_BLOCKERS / NOT_READY_FOR_PR`.
 
-Do not wait for the final refactor before testing.
+**Scope:** narrow safety/evidence hardening ONLY. The virtual coin product flow has browser Wallet-A..J local PASS, 12 wallet PostgreSQL invariants, 11 DB guard tests, web/backend typecheck/build PASS. No PR. Preserve the backend security hardening already implemented (authenticated mock completion + deposit owner check + production refusal), existing UI logic, transaction semantics and screenshots unless rerunning changes those.
 
-The current task is a **preflight browser/system audit of the existing UI** so backend/UI contract drift is discovered before the final refactor.
+### 0 — Sync + bound the work
 
-This is NOT final AI-PIPE-01B acceptance.
-
-Recommended working branch:
-
-```text
-astra/ai-pipe-01b-current-ui-preflight
+```bash
+git fetch origin
+git checkout astra/reader-wallet-vip-unlock-e2e
+git pull --ff-only
+git merge origin/main
+git rev-parse HEAD
+git status --porcelain
 ```
 
-If the branch does not exist, create it from current `main`.
+Record `FINAL_SYNCED_MAIN_SHA`. Do not create a new branch, PR, or merge. Focus on:
+- `scripts/run_reader_wallet_vip_unlock_e2e.py`
+- `backend/src/modules/wallet/wallet.postgres.test.ts`
+- report/evidence/screenshot files for this gate.
+Only modify production code if an independently reproducible contract problem is exposed. No real payments, external banking, withdrawals, donations, Wallet UI redesign, Story Brain, or Wallet business-model changes.
 
-## 5.1 Objective
+### P0-A — Validation FAIL must never yield final PASS
 
-Test the current UI against the backend pipelines already closed above.
+Confirmed runner source (`run_reader_wallet_vip_unlock_e2e.py`, approx. lines 718–733 and 1330) appends `run_command(...)` results but never verifies every command PASS before later writing `evidence['verdict'] = 'READER_WALLET_VIP_UNLOCK_PASS'`.
 
-Target correlation:
+Implement a single fail-closed validation gate which checks ALL command exit codes + status, then rejects before browser with machine-readable `FAILED_VALIDATION` (or a specific failed command). The final overall PASS must be computed from observed validation, checkpoints, sentinel verification, and confirmed teardown: never assigned unconditionally inside the browser block.
 
-```text
-browser action
- -> frontend route/component
- -> Node API
- -> AI service
- -> PostgreSQL
- -> Story Brain / Story Plan state
- -> generation
- -> reject/edit/accept
- -> persisted revision
- -> incremental memory update
- -> next browser/generation observes updated state
-```
+Prove **negative fault injection** without touching real databases: intentionally make one validation command return nonzero and show runner emits nonzero exit, correctly names failed command, persists failure evidence, and DOES NOT claim PASS. Then rerun normal passing sequence to restore actual acceptance.
 
-The purpose is to lock the real UI/backend contract before refactor.
+### P0-B — test fixture teardown must not erase unrelated sentinels
 
-Do not redesign or refactor the UI as part of this gate.
+Confirmed `backend/src/modules/wallet/wallet.postgres.test.ts`: sentinel_chapter_unlock is inserted using `[sUserId, vipChapterId, sTxId]` (approx. 238–251), BUT `after()` performs `DELETE FROM chapter_unlocks WHERE chapter_id = $1` on `trackedChapterIds` (approx. line 261). That erases the sentinel entitlement before its own exact-ID teardown. The test verifies sentinel in invariant 12 BEFORE teardown; it does not prove preservation throughout teardown.
+
+Fix by tracking EACH run-owned chapter_unlock (user_id, chapter_id), deleting only those exact pairs. Avoid broad deletes by chapter_id and broad account/wallet-based deletion where precise entity IDs are feasible. Preserve cross-user sentinel on same chapter until an explicit post-cleanup assertion rereads its stable hash; only then may the sentinel harness itself delete exactly that sentinel. Set teardown errors to test FAIL rather than `catch { /* ignore cleanup errors */ }`. Use try/finally around suite-owned entities and close DB connections even on failure.
+
+Where deleting a parent chapter requires deleting a sentinel entitlement first due to FK, use a dedicated **persistent fixture chapter NOT marked owned for the tested-chapter teardown**, or record and compare sentinel before/after product-cleanup, then explicitly remove the sentinel with harness ownership before dropping its parent. Document the order. Never claim that a destroyed sentinel survived cleanup.
+
+### P1-A — provisioning and teardown must cover early failure
+
+Runner currently creates PostgreSQL at lines ~495–508 and Mongo marker at ~510–512 OUTSIDE the execution `try/finally` beginning around line 532. If Mongo creation fails after PostgreSQL creation, owned PG DB can be orphaned.
+
+Move the lifetime boundary to include all initial provisioning and execution, with external opt-in required before ANY mutation and affirmative ownership flags set only after success. Handle partial-creation failures safely; no pre-create DROP; never touch a pre-existing DB. Confirm PostgreSQL and MongoDB preflight/CRUD/cleanup refer to the same resolved server (do not rely solely on string prefix).
+
+After cleanup: requery actual `pg_database` and Mongo listDatabases to prove exact run-owned DB names are absent. Capture `postgres_deleted_verified`, `mongo_deleted_verified`, cleanup errors, and safe server identity in evidence. Check `subprocess.run(...).returncode` and actual DB readback (don't print 'Dropped cleanly' just because shell launched). Any failure means overall verdict FAIL. Do not hide cleanup exceptions or execute broad cleanup.
+
+### P1-B — complete Wallet-J browser isolation
+
+Wallet-J currently only logs out, proves anonymous VIP access 402, and verifies guest free chapter 200. The distinct-reader scenario is currently tested only in backend invariant 11, not in real browser.
+
+Using rendered login/logout, log in as a **second fixture READER who has never unlocked VIP**, navigate to the same VIP chapter and verify 402/no content leak; then explicitly log out and verify anonymous 402 + free 200. Correlate second reader's absence of entitlement and absence of debits. Screenshots/JSON must reflect the actually executed steps.
+
+### P1-C — complete local regression manifest
+
+Add isolated full backend `npm test` to recorded validation, with external opt-in and test DB URLs pointed to the verified same disposable DB. Ensure 12 wallet invariants and any other DB-mutating suite stay isolated. Fail closed if npm test cannot safely run. Separately keep web typecheck/build, backend typecheck/build, 11 guard tests, 12 wallet PostgreSQL tests, Wallet-A..J browser and sentinel stages.
+
+Do not write 'full backend suite PASS' when only the focused 12 tests ran. Keep production `NODE_ENV=production` mock completion blocked; do not bypass this to make a demo pass. Do not claim auth/ledger controls are sufficient for real money.
+
+### P1-D — keep truthful source and evidence lineage
+
+After fixing code/runner, commit + push actual tested code first; record `FINAL_TESTED_CODE_SHA`. Rerun entire isolated validation/browser manifest on exactly that tree, including fault-injection FAIL check, teardown fault check and actual DB disappearance readbacks.
+
+Reseal only real results in:
+- `docs/development/READER-WALLET-VIP-UNLOCK-E2E-report.md`
+- `docs/development/READER-WALLET-VIP-UNLOCK-E2E/reader-wallet-vip-unlock-e2e-evidence.json`
+- 10 Wallet-A..J screenshots when the browser flow was genuinely rerun.
+
+Evidence must include: `tested_main_sha`, `tested_code_sha`, `validation_records` with nonzero test injection captured separately, `negative_harness_tests`, `db_creation_ownership`, `db_cleanup_verification`, `sentinel_preservation` before/after *test teardown* and after browser, `checkpoints` including second-reader steps, and precise verdict. No passwords, JWT, cookies, raw credential-bearing URLs or unrelated user data. Do not convert hashes into hardcoded expected PASS fields.
+
+### Stop & handoff
+
+Require:
+- Behind main = 0, clean local worktree and pushed code/evidence commit lineage.
+- Both P0 issues fixed and negative failure tests truly executed.
+- Early-provision failure cleans up owned resources safely.
+- Teardown proves both DBs absent and no unrelated sentinels deleted.
+- Wallet-J second-reader browser boundary + guest/free chapter PASS.
+- Full local regression + 12 wallet invariants + 11 guard + Wallet-A..J PASS.
+- `READER_WALLET_VIP_UNLOCK_PASS / LOCAL_PASS_CI_PENDING` ONLY if every requirement really passes.
+
+Otherwise explicitly report `LOCAL_BLOCKED` with failing commands and preserve diagnostic evidence. Gemini STOPS after push; ChatGPT owns review, PR, P7/P8 CI, merge and the next Development History closure record. No new feature gate.
 
 ---
+## 6. Reporting Discipline
 
-## 5.2 Trace First
-
-Before running browser tests, inspect:
-
-1. current frontend implementation;
-2. current mockup-only surfaces;
-3. routing/navigation;
-4. auth/session implementation;
-5. Author IDE route;
-6. import flow;
-7. Story Brain review/activation UI;
-8. generation preview/reject/edit/accept UI;
-9. existing Playwright/Cypress/browser E2E tooling;
-10. any frontend state still mocked locally instead of loaded from backend.
-
-Classify every relevant UI step as exactly one of:
-
-```text
-REAL_BACKEND_BOUND
-MOCK_ONLY
-PARTIAL
-BROKEN_CONTRACT
-NOT_IMPLEMENTED
-```
-
-Do not treat a Figma/Stitch/static mock screen as implemented browser functionality.
-
----
-
-## 5.3 Required Current-UI Browser Flow
-
-Use a disposable novel fixture.
-
-Attempt this flow through the current UI:
-
-```text
-Login as AUTHOR
- -> import manuscript
- -> observe extraction/bootstrap
- -> resolve review state where exposed
- -> confirm Story Brain active
- -> open Author IDE / chapter
- -> request AI generation
- -> inspect returned draft
- -> reject one generation
- -> prove canonical revision did NOT change
- -> generate again
- -> edit if supported
- -> accept generation
- -> prove immutable revision persisted
- -> refresh/reopen chapter
- -> prove accepted content persists
- -> allow/process incremental analysis
- -> prove Story Brain version advances
- -> request next context/generation
- -> prove updated Story Brain/context is observed
-```
-
-If one UI step is absent but its backend path exists:
-
-```text
-UI_GAP / BACKEND_REUSABLE
-```
-
-Do not bypass that missing UI step through an API and then call the browser checkpoint PASS.
-
----
-
-## 5.4 Browser ↔ Backend Correlation
-
-For the same browser flow, record sanitized identifiers:
-
-```text
-tenant / user role
-novel_id
-chapter_id
-generation_id
-accepted_revision_id
-Story Brain version before
-Story Brain version after
-Story Plan / objective ID when relevant
-```
-
-Browser evidence and database/backend evidence must refer to the same generation/revision lineage.
-
-Do not record:
-- API keys;
-- JWTs;
-- passwords;
-- fixture secrets;
-- full private manuscript text;
-- full generated drafts.
-
-Prefer IDs, hashes, counts, statuses and short safe snippets.
-
----
-
-## 5.5 Mandatory Negative Cases
-
-### A. Reject generation
-
-Prove:
-
-```text
-reject
- -> no accepted canonical revision
- -> chapter latest revision unchanged
- -> Story Brain canon unchanged
-```
-
-### B. Refresh after accept
-
-Prove:
-
-```text
-accept
- -> persisted revision
- -> refresh/reopen
- -> same accepted content/revision remains visible
-```
-
-### C. Browser/API error
-
-The UI must not display success when the backend request fails.
-
-### D. Authorization
-
-A non-owner must not be able to mutate another author's novel.
-
-### E. Mock-state detection
-
-If the UI shows data not sourced from backend state, mark that surface:
-
-```text
-MOCK_ONLY
-```
-
-Do not silently count it as system evidence.
-
----
-
-## 5.6 UI Contract Audit
-
-Specifically check for drift introduced by the now-closed P1/P2/P3 backend work:
-
-- API route prefixes;
-- auth/session propagation;
-- generation request/response shape;
-- generation status enum values;
-- Story Brain/context preview response shape;
-- revision acceptance payload;
-- revision persistence/readback;
-- Story Plan/current objective schema if exposed;
-- autonomous run schema if exposed;
-- loading/error/success states;
-- stale frontend assumptions about old endpoints;
-- browser/mobile boundary through the Node gateway.
-
-Classify every mismatch as one of:
-
-```text
-UI_DEFECT
-API_CONTRACT_DRIFT
-BACKEND_REGRESSION
-TEST_ENVIRONMENT_ISSUE
-MOCK_ONLY_LIMITATION
-```
-
-Do not change backend production contracts merely to fit stale mock UI without first proving the backend is wrong.
-
----
-
-## 5.7 Implementation Rule
-
-Default behavior for this gate:
-
-```text
-INSPECT + TEST + REPORT
-```
-
-Do not start a UI refactor.
-
-Small test-harness changes are allowed when required to run browser automation.
-
-If a real defect blocks the preflight:
-1. classify it;
-2. implement the smallest scoped repair;
-3. add a regression test;
-4. rerun affected browser/system checkpoints;
-5. record exact code SHA and evidence lineage.
-
-Do not make unrelated product changes.
-
----
-
-## 5.8 Evidence
-
-Create:
-
-```text
-docs/development/AI-PIPE-01B-CURRENT-UI-PREFLIGHT-report.md
-docs/development/AI-PIPE-01B-CURRENT-UI-PREFLIGHT/
-```
-
-The report should contain a matrix:
-
-```text
-Browser checkpoint
-UI implementation
-Backend/API reached
-DB/state evidence
-Status
-Notes
-```
-
-Allowed checkpoint statuses:
-
-```text
-PASS
-FAIL
-PARTIAL
-MOCK_ONLY
-NOT_IMPLEMENTED
-BLOCKED
-```
-
-Record:
-- exact branch;
-- exact clean CODE_SHA if code changes are required;
-- browser tooling/version;
-- Compose profile;
-- database backend;
-- provider used;
-- routing policy;
-- exact commands;
-- sanitized correlation IDs;
-- screenshots only when useful and free of secrets;
-- PASS/FAIL/PARTIAL per checkpoint.
-
-If no production code changes are required, evidence may reference the tested main/branch SHA rather than inventing a code commit.
-
----
-
-## 5.9 Preflight Verdict
-
-The current-UI preflight may end only with one of:
-
-```text
-CURRENT_UI_PREFLIGHT_PASS
-CURRENT_UI_PREFLIGHT_PARTIAL
-CURRENT_UI_PREFLIGHT_FAIL
-```
-
-Even if every current-UI checkpoint passes, final status remains:
-
-```text
-AI-PIPE-01B FINAL BROWSER ACCEPTANCE = PENDING_UI_REFACTOR
-```
-
-because final acceptance must be rerun on the refactored UI.
-
-A strong current-UI result means the refactor team has a proven browser/API contract to preserve.
-
----
-
-## 5.10 Gemini / Codex Use
-
-Preferred order:
-
-```text
-Gemini / Antigravity
- -> local Docker + browser preflight + implementation fixes if necessary
- -> produce evidence/report
- -> push LOCAL_PASS_CI_PENDING when code changes exist
-
-Codex
- -> optional independent browser/UI audit against the same scenario
- -> focus on contract drift, missing UI surfaces and independent reproduction
-```
-
-Do not have both agents independently redesign the same UI.
-
-If Codex/Gemini cannot operate a real browser in the current environment, they must say so and downgrade the affected checkpoints rather than simulating browser evidence.
-
----
-
-# 6. FINAL LATE GATE — AI-PIPE-01B REFACTORED-UI ACCEPTANCE
-
-When the team declares the refactored UI ready, rerun the proven browser scenario on the final UI.
-
-Required final flow:
-
-```text
-AUTHOR login
- -> import manuscript
- -> extraction/review
- -> Story Brain active
- -> Author IDE
- -> generate
- -> reject/edit and prove canon unchanged
- -> generate again
- -> accept
- -> refresh/reopen and prove persistence
- -> Story Brain update
- -> next generation observes updated state
-```
-
-Final P1 rule:
-
-```text
-AI-PIPE-01 structural/backend loop PASS
-+ AI-PIPE-01A production persistence PASS
-+ AI-PIPE-01B final browser E2E PASS
-= P1_OVERALL_SYSTEM_PASS
-```
-
-Until then:
-
-```text
-P1 backend/system      PASS
-P2 backend/system      PASS
-P3 backend/system      PASS
-P1 final browser E2E   PENDING_UI_REFACTOR
-```
-
----
-
-## 7. Reporting Discipline
-
-Always separate:
+Always distinguish:
 
 ```text
 structural/system correctness
@@ -611,10 +431,10 @@ UI completeness
 
 Do not infer one from another.
 
-Do not claim browser PASS from API-only evidence.
+Historical implementation/review transcripts belong in:
+- `docs/development/*report.md`;
+- evidence JSON;
+- PR history;
+- Git history.
 
-Do not claim CI PASS from local tests.
-
-Do not claim final UI acceptance from the current pre-refactor UI.
-
-Do not append old phase transcripts back into this file.
+Keep this file limited to current canonical state, architecture invariants, ownership, and the next executable gate.

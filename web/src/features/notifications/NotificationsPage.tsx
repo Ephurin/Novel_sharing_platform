@@ -63,7 +63,7 @@ export function NotificationsPage() {
           <EmptyState description="No notifications yet. Backend storage is ready; domain event creation can be wired later." />
         ) : null}
         {!notificationsQuery.isLoading && !notificationsQuery.isError ? (notificationsQuery.data ?? []).map((notification) => (
-          <Paper key={notification.notificationId} p="md" withBorder>
+          <Paper key={notification.notificationId} p="md" withBorder data-testid={`notification-card-${notification.notificationId}`}>
             <Group justify="space-between">
               <Box>
                 <Group gap="xs">
@@ -71,7 +71,7 @@ export function NotificationsPage() {
                   <Badge size="sm" color={notification.status === 'UNREAD' ? undefined : 'gray'}>
                     {notification.status}
                   </Badge>
-                  <Badge size="sm" variant="outline">
+                  <Badge size="sm" variant="outline" data-testid={`notification-type-${notification.type}`}>
                     {notification.type}
                   </Badge>
                 </Group>

@@ -79,6 +79,7 @@ export function ReaderPage() {
           placeholder="Title, synopsis, genre..."
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.currentTarget.value)}
+          data-testid="reader-search-input"
         />
         <SimpleGrid cols={{ base: 1, md: 4 }} mt="md">
           <TextInput
@@ -277,22 +278,26 @@ export function ReaderNovelDetailPage() {
             <Text c="dimmed">{novel?.synopsis ?? 'No synopsis.'}</Text>
             {interactionNotice ? <Alert color="blue">{interactionNotice}</Alert> : null}
             <Group>
-              <Button loading={addLibraryMutation.isPending} onClick={() => addLibraryMutation.mutate()}>
+              <Button
+                loading={addLibraryMutation.isPending}
+                onClick={() => addLibraryMutation.mutate()}
+                data-testid="reader-add-library-btn"
+              >
                 Add library
               </Button>
-              <Button variant="light" loading={likeMutation.isPending} onClick={() => likeMutation.mutate()}>
+              <Button variant="light" loading={likeMutation.isPending} onClick={() => likeMutation.mutate()} data-testid="reader-like-btn">
                 Like
               </Button>
-              <Button variant="light" loading={unlikeMutation.isPending} onClick={() => unlikeMutation.mutate()}>
+              <Button variant="light" loading={unlikeMutation.isPending} onClick={() => unlikeMutation.mutate()} data-testid="reader-unlike-btn">
                 Unlike
               </Button>
-              <Button variant="light" loading={followMutation.isPending} disabled={!novel?.authorId} onClick={() => followMutation.mutate()}>
+              <Button variant="light" loading={followMutation.isPending} disabled={!novel?.authorId} onClick={() => followMutation.mutate()} data-testid="reader-follow-btn">
                 Follow
               </Button>
               <Button component={Link} to={`/authors/${novel?.authorId ?? ''}`} variant="light" disabled={!novel?.authorId}>
                 Author profile
               </Button>
-              <Button variant="light" loading={unfollowMutation.isPending} disabled={!novel?.authorId} onClick={() => unfollowMutation.mutate()}>
+              <Button variant="light" loading={unfollowMutation.isPending} disabled={!novel?.authorId} onClick={() => unfollowMutation.mutate()} data-testid="reader-unfollow-btn">
                 Unfollow
               </Button>
               <Button color="red" variant="light" loading={reportMutation.isPending} onClick={() => reportMutation.mutate()}>
@@ -644,6 +649,7 @@ function ReadingPreferencesPanel({
         ]}
         value={draft.fontFamily ?? 'system-ui'}
         onChange={(value) => setDraft((current) => ({ ...current, fontFamily: value }))}
+        data-testid="reader-pref-font-family"
       />
       <NumberInput
         label="Font size"
@@ -651,6 +657,7 @@ function ReadingPreferencesPanel({
         max={40}
         value={draft.fontSize}
         onChange={(value) => setDraft((current) => ({ ...current, fontSize: Number(value) || current.fontSize }))}
+        data-testid="reader-pref-font-size"
       />
       <Select
         label="Background"
@@ -661,6 +668,7 @@ function ReadingPreferencesPanel({
         ]}
         value={draft.background}
         onChange={(value) => setDraft((current) => ({ ...current, background: (value ?? 'DARK') as ReadingPreferences['background'] }))}
+        data-testid="reader-pref-background"
       />
       <NumberInput
         label="Line height"
@@ -669,8 +677,9 @@ function ReadingPreferencesPanel({
         step={0.1}
         value={draft.lineHeight}
         onChange={(value) => setDraft((current) => ({ ...current, lineHeight: Number(value) || current.lineHeight }))}
+        data-testid="reader-pref-line-height"
       />
-      <Button mt="xl" loading={saving} onClick={() => onSave(draft)}>
+      <Button mt="xl" loading={saving} onClick={() => onSave(draft)} data-testid="reader-save-preferences-btn">
         Save preferences
       </Button>
     </SimpleGrid>
@@ -723,7 +732,14 @@ export function ReaderLibraryPage() {
             key={novel.novelId}
             novel={novel}
             extraAction={
-              <Button size="xs" color="red" variant="light" loading={removeMutation.isPending} onClick={() => removeMutation.mutate(novel.novelId)}>
+              <Button
+                size="xs"
+                color="red"
+                variant="light"
+                loading={removeMutation.isPending}
+                onClick={() => removeMutation.mutate(novel.novelId)}
+                data-testid={`reader-remove-library-${novel.novelId}`}
+              >
                 Remove
               </Button>
             }
@@ -753,7 +769,11 @@ export function ReaderHistoryPage() {
                   Ch. {item.chapter.chapterNumber}: {item.chapter.title}
                 </Text>
               </Box>
-              <Button component={Link} to={`/reader/chapters/${item.chapterId}`}>
+              <Button
+                component={Link}
+                to={`/reader/chapters/${item.chapterId}`}
+                data-testid={`reader-history-continue-${item.chapterId}`}
+              >
                 Continue
               </Button>
             </Group>
@@ -799,7 +819,12 @@ function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNo
           <Badge variant="outline">{novel.viewsCount ?? 0} views</Badge>
         </Group>
         <Group>
-          <Button component={Link} to={`${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`} size="xs">
+          <Button
+            component={Link}
+            to={`${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`}
+            size="xs"
+            data-testid={`novel-open-detail-${novel.novelId}`}
+          >
             Open detail
           </Button>
           {extraAction}
@@ -823,7 +848,12 @@ function ChapterRow({ chapter, publicMode = false }: { chapter: ReaderChapter; p
         </Box>
         <Group gap="xs">
           {chapter.isVip ? <Badge color="yellow">VIP {chapter.priceCoins}</Badge> : <Badge color="green">Free</Badge>}
-          <Button component={Link} to={`${publicMode ? '/public' : '/reader'}/chapters/${chapter.chapterId}`} size="xs">
+          <Button
+            component={Link}
+            to={`${publicMode ? '/public' : '/reader'}/chapters/${chapter.chapterId}`}
+            size="xs"
+            data-testid={`read-chapter-${chapter.chapterId}`}
+          >
             Read
           </Button>
         </Group>

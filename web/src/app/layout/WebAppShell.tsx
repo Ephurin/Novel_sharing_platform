@@ -21,6 +21,7 @@ const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: '/admin/users', label: 'Users', roles: ['ADMIN'] },
   { to: '/admin/taxonomy', label: 'Taxonomy', roles: ['ADMIN'] },
   { to: '/admin/moderation', label: 'Moderation', roles: ['ADMIN'] },
+  { to: '/admin/reports', label: 'User Reports', roles: ['ADMIN'] },
   { to: '/admin/withdraws', label: 'Withdraws', roles: ['ADMIN'] }
 ];
 
@@ -60,7 +61,12 @@ export function WebAppShell() {
           <Text size="sm" c="dimmed">
             {user?.username ?? 'session restored'}
           </Text>
-          <Button size="xs" variant="subtle" onClick={() => void handleLogout()}>
+          <Button
+            size="xs"
+            variant="subtle"
+            data-testid="shell-logout-btn"
+            onClick={() => void handleLogout()}
+          >
             Logout
           </Button>
         </Group>

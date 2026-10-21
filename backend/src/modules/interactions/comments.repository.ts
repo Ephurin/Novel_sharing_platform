@@ -116,6 +116,10 @@ export async function findCommentById(commentId: string) {
   return collection().findOne({ commentId, deletedAt: null });
 }
 
+export async function findCommentRecordById(commentId: string) {
+  return collection().findOne({ commentId });
+}
+
 export async function updateCommentContent(commentId: string, content: string) {
   await collection().updateOne(
     { commentId, deletedAt: null },

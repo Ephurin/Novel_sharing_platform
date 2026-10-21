@@ -349,6 +349,16 @@ export function AuthorNovelMetadataPage() {
                   <div className="flex flex-wrap items-center gap-2 mt-3">
                     <button type="button" onClick={() => setEditModalOpen(true)} className="sc-button sc-button-soft"><span className="material-symbols-outlined" aria-hidden="true">edit</span>Chỉnh sửa thông tin</button>
                     <Link className="sc-button sc-button-soft" to={`/author/context/${novelId}`}><span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>Cẩm nang</Link>
+                    <button
+                      type="button"
+                      onClick={() => submitPublishMutation.mutate()}
+                      disabled={submitPublishMutation.isPending || novel.status === 'PUBLISHED' || novel.status === 'PENDING_MODERATION'}
+                      className="sc-button sc-button-primary disabled:opacity-40"
+                      data-testid="submit-publish-btn"
+                    >
+                      <span className="material-symbols-outlined" aria-hidden="true">publish</span>
+                      {submitPublishMutation.isPending ? 'Đang gửi...' : 'Gửi duyệt'}
+                    </button>
                   </div>
                   <p className="text-meta text-stone-500 mt-2">Khởi tạo: {new Date(novel.createdAt).toLocaleDateString('vi-VN')} · Cập nhật: {new Date(novel.updatedAt).toLocaleString('vi-VN')}</p>
                 </div>
@@ -790,6 +800,7 @@ export function AuthorNovelMetadataPage() {
                 }
                 className="px-3 py-1.5 rounded-lg border border-primary-200 bg-primary-50 text-primary-700 text-meta font-semibold hover:bg-primary-100 transition-colors disabled:opacity-40 cursor-pointer"
                 type="button"
+                data-testid="modal-submit-publish-btn"
               >
                 {submitPublishMutation.isPending ? 'Đang gửi...' : 'Gửi duyệt toàn truyện'}
               </button>

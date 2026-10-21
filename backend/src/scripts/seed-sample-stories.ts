@@ -86,6 +86,13 @@ const demoUsers = [
     role: 'READER',
     displayName: 'Reader 04 Reader',
     walletCoins: 1000
+  },
+  {
+    email: 'reader05@example.com',
+    username: 'reader05',
+    role: 'READER',
+    displayName: 'Reader 05 Reader',
+    walletCoins: 1000
   }
 ] as const;
 
