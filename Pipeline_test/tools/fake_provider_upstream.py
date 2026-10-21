@@ -62,6 +62,12 @@ class FakeHandler(BaseHTTPRequestHandler):
                 elif 'events' in props: output = {'events': []}
                 elif 'facts' in props: output = {'facts': []}
                 else: output = {'entities': []}
+                if self.scenario == 'wave1f-grounded-v1':
+                    try:
+                        from .fake_wave1f_scenario import output as wave1f_output
+                    except ImportError:
+                        from fake_wave1f_scenario import output as wave1f_output
+                    output=wave1f_output(props,text)
                 content = json.dumps(output)
             else: content = 'Separate fake upstream response.'
             result = {'candidates': [{'content': {'role': 'model', 'parts': [{'text': content}]},
@@ -80,7 +86,7 @@ class FakeHandler(BaseHTTPRequestHandler):
                  'dispatch_id': self.headers['X-Gateway-Dispatch-Id'], 'client': self.headers['X-Gateway-Client'],
                  'native_schema': config.get('responseJsonSchema'), 'output_limit': config.get('maxOutputTokens', config.get('max_tokens')),
                  'upstream_auth_valid': True}
-        if self.scenario == 'wave1e-mixed-v1':
+        if self.scenario in ('wave1e-mixed-v1','wave1f-grounded-v1'):
             entry.update(scenario=self.scenario,received_at=time.time(),response=result,
                          operation=('entity_verification' if 'decisions' in config.get('responseJsonSchema',{}).get('properties',{}) else
                                     'events' if 'events' in config.get('responseJsonSchema',{}).get('properties',{}) else

@@ -187,7 +187,7 @@ def sanitize_trace(source,dest, secrets=()):
             output.writestr(name,data)
 
 
-def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=False, project=None):
+def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=False, project=None, wave1f=False):
     from playwright.sync_api import sync_playwright
     session=BrowserActionSession(run_id,evidence_dir,base_url)
     failure=None;chapters=[]
@@ -219,12 +219,15 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
         session_info={'session_id':session.session_id,'run_id':run_id,'browser_version':browser.version,
                       'started_at':now(),'login_observed':True,'user_id':session.user_id,'login_trace_excluded_for_credentials':True}
         try:
-            if human_review:
+            if human_review or wave1f:
                 from Pipeline_test.tools.browser_human_entity_review import receipts
                 session.receipt_offset=len(receipts(project))
             execute_browser_s01_import_path(session,author_user=email)
             execute_browser_s02_entity_review_path(session,session.novel_id)
             chapters=session.canonical_readback()
+            if wave1f:
+                from Pipeline_test.tools.browser_wave1f import execute_wave1f
+                execute_wave1f(session,project)
             if human_review:
                 from Pipeline_test.tools.browser_human_entity_review import execute_human_review
                 execute_human_review(session,project)
@@ -281,12 +284,12 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();parser.add_argument('--run-id',required=True)
     parser.add_argument('--evidence-dir',required=True);parser.add_argument('--base-url',required=True)
-    parser.add_argument('--human-review',action='store_true');parser.add_argument('--project')
+    parser.add_argument('--human-review',action='store_true');parser.add_argument('--project');parser.add_argument('--wave1f',action='store_true')
     args=parser.parse_args()
     if Path(args.evidence_dir).exists() and any(Path(args.evidence_dir).iterdir()):
         raise SystemExit('EXISTING_EVIDENCE_REPLAY_FORBIDDEN: use a new attempt directory; no author writes performed')
     try:
-        result=run_browser(args.run_id,args.evidence_dir,args.base_url,os.environ['WAVE1D_AUTHOR_EMAIL'],os.environ['WAVE1D_AUTHOR_PASSWORD'],human_review=args.human_review,project=args.project)
+        result=run_browser(args.run_id,args.evidence_dir,args.base_url,os.environ['WAVE1D_AUTHOR_EMAIL'],os.environ['WAVE1D_AUTHOR_PASSWORD'],human_review=args.human_review,project=args.project,wave1f=args.wave1f)
     except Exception as exc:
         result={'status':'BLOCKED_BROWSER_RUNTIME','reason':str(exc),'real_provider_live_ui':'NOT_RUN'}
         Path(args.evidence_dir).mkdir(parents=True,exist_ok=True)

@@ -5,7 +5,7 @@ from datetime import datetime,timezone
 
 def now():return datetime.now(timezone.utc).isoformat()
 def receipts(project):
-    if not re.fullmatch(r'p1-wave1e-[a-z0-9-]+',project or ''):raise RuntimeError('NEW_WAVE1E_PROJECT_REQUIRED')
+    if not re.fullmatch(r'p1-wave1[ef]-[a-z0-9-]+',project or ''):raise RuntimeError('NEW_WAVE1E_PROJECT_REQUIRED')
     ids=subprocess.check_output(['docker','ps','-q','--filter','label=com.docker.compose.project='+project,
         '--filter','label=com.docker.compose.service=fake-upstream'],text=True).splitlines()
     if len(ids)!=1:raise RuntimeError('OWNED_FAKE_UPSTREAM_REQUIRED')
