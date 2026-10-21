@@ -1,5 +1,11 @@
 # PROMPT HANDOFF: Tiếp tục nhiệm vụ P1 Live (S01–S11)
 
+> [!TIP]
+> **Lệnh tự hủy sau khi tiếp nhận:**  
+> Toàn bộ nội dung prompt này đã được kết hợp vĩnh viễn vào tài liệu chính [`NEXT_REVIEW.md`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/Pipeline_test/runs/2026-10-21-gemini-p1-live-01/NEXT_REVIEW.md).  
+> Để tránh làm rác thư mục run, sau khi đọc xong và bắt đầu ca làm việc, hãy chạy lệnh tự hủy:  
+> `rm -f Pipeline_test/runs/2026-10-21-gemini-p1-live-01/HANDOFF_PROMPT.md`
+
 Dành cho coding agent tiếp nhận nhiệm vụ trên branch `codex/ai-copilot-pipeline-test`.
 
 ---
