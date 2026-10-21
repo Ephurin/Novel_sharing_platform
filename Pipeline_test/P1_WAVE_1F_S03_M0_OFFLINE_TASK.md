@@ -1,4 +1,6 @@
-# ACTIVE CODEX TASK — P1 Wave 1F: S03 Canon Activation / M0 and Functional Continuity (OFFLINE)
+# SUPPLEMENTARY WAVE 1F REVIEW CHECKLIST — S03 Canon / M0 (OFFLINE)
+
+> **NOT THE ACTIVE EXECUTION TASK.** The single authoritative Codex instruction is [P1_WAVE_1F_OFFLINE_WORKFLOW_COMPLETION_TASK.md](P1_WAVE_1F_OFFLINE_WORKFLOW_COMPLETION_TASK.md), referenced by [ACTIVE_GEMINI_TASK.md](ACTIVE_GEMINI_TASK.md). This document is a supplementary S03/M0 checklist created after the active task, to assist source/evidence review **without changing or competing with its priorities**. Where the documents differ, follow the authoritative active task and [WORKFLOW_CONTRACT.md v1.4](WORKFLOW_CONTRACT.md). It does not authorize provider calls.
 
 **Assigned:** 2026-10-21 (Asia/Bangkok). **Branch ONLY:** `codex/ai-copilot-pipeline-test`. **Reviewed documentation HEAD:** `0daf0483aa45a8d9064159e43f977583414c069d`. **Last source execution SHA:** `b5fa332e85dc328100fba93c5b696fac2e80dbee`; latest evidence/report SHA `4b607b5eb4246a51feadc016cc954efdfd02540d`.
 **Executor:** Codex (or actual execution agent; identify truthfully). **Do not change provider billing code for its own sake.**
