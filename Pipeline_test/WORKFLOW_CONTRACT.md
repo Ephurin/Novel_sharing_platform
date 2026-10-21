@@ -1,9 +1,16 @@
-# AI pipeline — source of truth, revision 1.3, 2026-10-20
+# AI pipeline — source of truth, revision 1.4, 2026-10-21
 
 Đây là **tài liệu chuẩn mô tả hành vi đã thống nhất của ba use case P1/P2/P3**.
 Nguồn: `../promt_.md`, các xác nhận trong hội thoại và quyết định bổ sung human
 in the loop ngày2026-10-20. Khi hướng dẫn test hoặc tài liệu thiết kế cũ khác tài
 liệu này, áp dụng contract này; không sửa hồi tố báo cáo/evidence cũ.
+
+## Changelog và phạm vi thay đổi v1.4
+
+- **v1.4 (2026-10-21):** xác định **tiểu thuyết 100.000 từ là acceptance cuối bắt buộc của P3**, thay vì một stress test tùy chọn; phân tách P3 có Human Entity Review và P3 unattended; làm rõ phép đếm, bằng chứng và đối chứng. Các sửa đổi là **quy tắc cho run mới**, không đánh PASS hồi tố cho bất kỳ run cũ nào.
+- **v1.3 (2026-10-20):** chốt entity-before-event/fact, human checkpoint, P1/P2/P3 và chứng cứ E2E.
+
+**Quyền sở hữu tiêu chí:** user yêu cầu bản dài 100.000 từ là gate cuối P3. Chế độ P3 hiện được kiểm thử chính thức là **P3_HITL_CONTROLLER_100K** khi cờ human-review bật. Một tuyên bố `UNATTENDED_AUTONOMOUS_100K` chỉ được xem xét khi có policy xác minh entity/canon riêng được phê duyệt và kiểm chứng; không tắt HITL âm thầm để đổi nhãn thành fully autonomous.
 
 ## Phạm vi và thứ tự tham chiếu
 
@@ -124,10 +131,19 @@ Sau human review + continue downstream, controller mới được duyệt canon 
 tục từ revision đã accept, không viết lại/chèn trùng. Outbox `COMPLETED` có thể chỉ
 là giao việc thành công, không chứng minh event/fact analysis đã hoàn tất.
 
-Vì có can thiệp bắt buộc, run này phải ghi **P3 có human entity review**, không
+Vì có can thiệp bắt buộc, run này phải ghi **P3_HITL_CONTROLLER**, không
 được gọi là fully autonomous/no-intervention PASS. Khi flag OFF, cơ chế auto-review
 legacy là kết quả riêng; contract này chưa bổ sung policy tự thay human entity
 review trong mode mới. Controller chỉ lưu nháp, không có quyền tự xuất bản.
+
+### Hai tuyên bố P3 phải tách biệt
+
+| Chế độ | Quy tắc entity/canon | Claim hợp lệ |
+|---|---|---|
+| **P3_HITL_CONTROLLER_100K** — nghiệm thu dài bắt buộc | Với flag ON, dừng tại `waiting_for_entity_review`; tác giả duyệt entity; controller chỉ duyệt canon sau checkpoint hợp lệ | Chứng minh controller có thể tổ chức hoàn thành truyện dài **có can thiệp định lượng tại các gate**; không tuyên bố zero-intervention |
+| **P3_UNATTENDED_AUTONOMOUS_100K** — benchmark/tính năng riêng, chưa có chính sách thay thế được chấp nhận | Chỉ khi có chính sách tự quyết định entity/canon riêng, versioned và được audit (hoặc có cấu hình legacy được tuyên bố riêng); không tái diễn giải kết quả HITL | Chỉ tuyên bố hoàn toàn tự động khi có run thật không có intervention nội dung sau khởi tạo, đầy đủ evidence và quy trình review độc lập |
+
+Hai chế độ dùng **run ID, dataset instance và verdict riêng**; một bản assisted không thể chứng minh unattended. P1/P2 là gate chức năng trước P3; không lấy P1/P2 hoặc P3 probe ngắn thay cho artifact 100.000 từ của P3.
 
 ## Quy tắc viết, kế hoạch và hoàn thành
 
@@ -137,8 +153,24 @@ review trong mode mới. Controller chỉ lưu nháp, không có quyền tự xu
   tự viết/lưu. Consistency findings phải cho xem nguồn và quyết định, không tự sửa
   lịch sử để che mâu thuẫn trong chương mới.
 - Hoàn thành dựa trên nội dung, cốt truyện/kết thúc và tiêu chí khai báo; không chỉ
-  job thành công, đủ chữ hoặc hết objectives. Bài dài yêu cầu95–105k từ thực đọc
-  lại từ sản phẩm; đây không phải yêu cầu cho mọi lần dùng copilot.
+  job thành công, đủ chữ hoặc hết objectives. **Gate cuối P3 là một tiểu thuyết
+  hoàn chỉnh có ít nhất 100.000 và không quá 105.000 đơn vị đếm từ** trên *canonical
+  revision readback* (theo NFC và whitespace-counter hiện hành); không tính
+  outline, metadata, report, draft đã reject hoặc prose chưa được lưu. Đây là mục tiêu
+  riêng P3, không buộc vòng P1/P2 ngắn đạt độ dài đó. Band 95.000–105.000 của
+  task assisted đời trước là tiêu chí lịch sử, **không đủ để PASS gate P3 v1.4**
+  nếu dưới 100.000. Kết thúc thật, continuity, payoff, memory, provenance và
+  literary review độc lập vẫn bắt buộc.
+
+## Quy trình nghiệm thu theo thứ tự và so sánh đối chứng
+
+1. **P1:** chạy S01–S11 trên UI thật, provider thật có phê duyệt, raw extraction → human review → official canon → context, M0 và M-FIRST; test API write chỉ là kênh chẩn đoán.
+2. **P2:** bắt đầu từ setup/idea explicit, review baseline, lưu/accept chương đầu và audit M-FIRST; không lấy blueprint creativity hoặc manuscript import thay P2.
+3. **P3 functional:** controller nhiều objective, human gate (nếu ON), resume/idempotency, không tự publish, đủ narrative memory trước advance; kiểm tra cả có/không có plan.
+4. **P3 terminal long run:** trên dự án tách biệt, hoàn thành truyện `P3_HITL_CONTROLLER_100K` đạt **100.000–105.000** từ readback với thực tế ending; export theo revision manifest + hash, M0/M-FIRST/10/20/50 (nếu tới mốc)/FINAL; đo sự can thiệp, chi phí, gọi provider và độ ổn định. Không thay gate bằng một probe ngắn.
+5. **Đối chứng học thuật:** cùng seed, cùng model/config và ràng buộc budget tối đa có thể so sánh, cùng quy tắc intervention và bộ rubric/gold đã khóa trước kết quả. Đối chứng không có Story Brain hoặc hệ khác phải ghi rõ mọi khác biệt điều kiện. Báo kết quả cả run thất bại, không mặc định Ephurin vượt trội; full-book blind review phải được thực hiện độc lập. `P3_HITL` không so trực tiếp với `P3_UNATTENDED` mà không tách biến can thiệp.
+
+Mỗi giai đoạn cần quyết định PASS/BLOCKED dựa trên run ID, tested SHA, mô hình **thực dùng**, source/hash, loại evidence và dữ liệu replay được; snapshot kiến trúc hoặc fake test không đủ nâng verdict live.
 
 ## Cách chứng minh
 
