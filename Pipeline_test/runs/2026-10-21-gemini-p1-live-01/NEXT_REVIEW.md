@@ -2,14 +2,29 @@
 
 **Reviewer Target:** ChatGPT / GPT-6 (Independent Reviewer via GitHub)  
 **Assigned Testing Agent:** Gemini 3.8 inside Antigravity  
-**Tested Code SHA:** `fcbf945cb9acb0b849b8614fa67c29580615a26b`  
-**Branch:** `codex/ai-copilot-pipeline-test`  
-**Current Run Status:** `P1_PREFLIGHT_PASS_AWAITING_UI_EXECUTION`  
-**Active Blocker:** None (Preflight Gate Passed; Bounded Smoke Test Passed; Ready for S01–S11)  
-**Budget Ceilings:** Max 200 provider calls, USD 5.00, 2h live wall-clock (Approved by project owner 2026-10-21)  
-**Consumed Budget:** 1 call, ~0.000001 USD, deadline `2026-10-21T05:47:52Z`
+**Current Branch:** `codex/ai-copilot-pipeline-test`  
 
 ---
+
+## DATED ADDENDUM (2026-10-21 UTC+7) — S02 Live Provider Blocker & Wave 1B Offline Repair
+
+> [!IMPORTANT]
+> **Post-Execution State & Blocker Status:**
+> - **Current Run Verdict:** `P1_S02_LOCAL_FIX_READY_FOR_REMOTE_REVIEW`
+> - **S01:** `S01_API_INTEGRATION_PASS_ONLY; S01_LIVE_UI_NOT_VERIFIED` (5 chapters persisted as drafts via API; live browser UI execution pending a future authorized window).
+> - **S02:** `S02_PROVIDER_FAIL` in live run (`ISSUE-PIPELINE-VERIFY-001`, `ENTITY_VERIFICATION_UNRESOLVED`). Prompt/schema contract mismatch reproduced and resolved via narrow offline patch in `ai-service/services/entity_pipeline/verification.py`.
+> - **S03–S11, P2, P3, 100k:** `NOT_RUN`.
+> - **Budget Window:** The original 2-hour live window expired at `2026-10-21T05:47:52Z` (total 8 calls, ~$0.007379 USD consumed). NO live calls were made in this cycle.
+> - **Wave 1B Verification:** 76 offline tests pass (including RED→GREEN prompt-driven candidate reproduction and actionable bounded repair).
+> - **Review Document:** Full fix report is at [`Pipeline_test/reviews/2026-10-21-p1-s02-gpt6/GEMINI_FIX_REPORT.md`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/Pipeline_test/reviews/2026-10-21-p1-s02-gpt6/GEMINI_FIX_REPORT.md).
+
+---
+
+### Historical Preflight Snapshot (2026-10-21T03:47Z, PRESERVED)
+*Note: The metadata below records the preflight gate state before S01/S02 execution commenced.*
+- **Preflight Code SHA:** `fcbf945cb9acb0b849b8614fa67c29580615a26b`  
+- **Preflight Gate Status:** `P1_PREFLIGHT_PASS`  
+- **Budget Ceilings Approved:** Max 200 provider calls, USD 5.00, 2h live wall-clock (Approved by project owner 2026-10-21)
 
 ## 1. Coverage Matrix (Wave 1 Scope)
 
@@ -78,7 +93,7 @@ Tất cả 8 blocker và findings kỹ thuật từ bản review độc lập GP
 ### Tài nguyên & Thông tin đăng nhập
 - **Web UI:** `http://127.0.0.1:18080/login`
 - **Username:** `p1_author`
-- **Password:** `P1AuthorPass123!`
+- **Password:** `<CREDENTIAL_CONFIGURED_IN_ENV>`
 - **Role:** `AUTHOR` (Database `p1_ephurin` hiện tại đang sạch 0 truyện).
 - **Fixture chapters:** `Pipeline_test/input/manuscript/ch01.md` đến `ch05.md`.
 

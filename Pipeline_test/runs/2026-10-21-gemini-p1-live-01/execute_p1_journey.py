@@ -37,8 +37,8 @@ API_BASE = "http://127.0.0.1:14000/api/v1"
 AI_SERVICE_BASE = "http://127.0.0.1:18000"
 WEB_BASE = "http://127.0.0.1:18080"
 
-AUTHOR_USER = "p1_author"
-AUTHOR_PASS = "P1AuthorPass123!"
+AUTHOR_USER = os.getenv("AUTHOR_USER", "p1_author")
+AUTHOR_PASS = os.getenv("AUTHOR_PASSWORD", "P1AuthorPass123!")
 
 guard = BudgetGuard(state_file=RUN_DIR / "budget_state.json")
 
@@ -146,6 +146,18 @@ def record_action(
     result: str = "SUCCESS",
     issue_id: str = "",
 ):
+    # Methodological guard: do not claim LIVE_UI without browser session evidence
+    if channel == "LIVE_UI":
+        is_browser_evidence = (
+            response_evidence.endswith(".png")
+            or response_evidence.endswith(".html")
+            or "browser" in response_evidence.lower()
+            or "dom" in response_evidence.lower()
+        )
+        if not is_browser_evidence:
+            print(f"[GUARD] Action {action_id} lacks browser DOM/screenshot evidence. Channel '{channel}' corrected to 'LIVE_API'.")
+            channel = "LIVE_API"
+
     actions_file = RUN_DIR / "actions.csv"
     time_iso = datetime.now(timezone.utc).isoformat()
     row = [
@@ -175,7 +187,7 @@ def record_action(
     with open(actions_file, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(row)
-    print(f"[ACTION] Logged {action_id}: {action} -> {result}")
+    print(f"[ACTION] Logged {action_id} ({channel}): {action} -> {result}")
 
 def main():
     print("=" * 70)
@@ -190,7 +202,7 @@ def main():
     print(f"[AUTH] Logged in as {AUTHOR_USER} (userId={user_id})")
 
     # =========================================================================
-    # S01: Create novel & import chapters 1-5
+    # S01: Create novel & import chapters 1-5 (with replay guard)
     # =========================================================================
     print("\n--- STEP S01: Create Novel & Import Manuscript (ch01..ch05) ---")
     novel_payload = {
@@ -198,54 +210,99 @@ def main():
         "genre": "Đô thị / Tình cảm",
         "synopsis": "Hành trình trở về phố cổ của Mai Linh sau nhiều năm xa cách và những ký ức trạm Bốn.",
     }
-    novel_resp = api_request("POST", "/novels", novel_payload, token=token)
-    novel_id = novel_resp["data"]["novelId"]
-    print(f"[S01] Novel created: novel_id={novel_id}")
 
-    chapters_imported = []
-    chapter_files = [
-        ("ch01.md", 1, "Chương 1 — Bến trở về"),
-        ("ch02.md", 2, "Chương 2 — Lần đọc thứ nhất"),
-        ("ch03.md", 3, "Chương 3 — Hai nơi treo một quả chuông"),
-        ("ch04.md", 4, "Chương 4 — Bản đồ không có tiếng nước"),
-        ("ch05.md", 5, "Chương 5 — Ba tiếng gõ"),
-    ]
+    # Replay protection: inspect checkpoint and existing novel state first
+    checkpoint_file = RUN_DIR / "checkpoint.json"
+    novel_id = None
+    existing_chapters = []
+    if checkpoint_file.exists():
+        try:
+            with open(checkpoint_file, "r", encoding="utf-8") as f:
+                ckpt_data = json.load(f)
+                novel_id = ckpt_data.get("main_novel_id")
+        except Exception as e:
+            print(f"[WARN] Could not parse checkpoint.json: {e}")
 
-    for fname, ch_num, default_title in chapter_files:
-        fpath = FIXTURE_DIR / fname
-        content = fpath.read_text(encoding="utf-8")
-        first_line = content.splitlines()[0] if content else ""
-        title = first_line.lstrip("#").strip() if first_line.startswith("#") else default_title
+    # Also query server for novel if not found in checkpoint
+    if not novel_id:
+        try:
+            novels_resp = api_request("GET", "/novels", token=token)
+            for n in novels_resp.get("data", []):
+                if n.get("title") == novel_payload["title"]:
+                    novel_id = n.get("novelId") or n.get("id")
+                    break
+        except Exception as e:
+            print(f"[WARN] Error querying existing novels: {e}")
 
-        # Create chapter
-        ch_resp = api_request(
-            "POST",
-            f"/novels/{novel_id}/chapters",
-            {"title": title, "content": content, "isVip": False, "priceCoins": 0},
-            token=token,
-        )
-        chapter_id = ch_resp["data"]["chapterId"]
+    if novel_id:
+        try:
+            ch_list_resp = api_request("GET", f"/novels/{novel_id}/chapters", token=token)
+            existing_chapters = ch_list_resp.get("data", [])
+        except Exception:
+            existing_chapters = []
 
-        # Create revision snapshot
-        snap_resp = api_request(
-            "POST",
-            f"/chapters/{chapter_id}/revisions/snapshot",
-            {"content": content, "purpose": "MANUSCRIPT_BOOTSTRAP"},
-            token=token,
-        )
-        rev_id = snap_resp["data"]["revisionId"]
-        c_hash = snap_resp["data"]["contentHash"]
-        word_count = snap_resp["data"].get("wordCount", len(content.split()))
+    if novel_id and len(existing_chapters) == 5:
+        print(f"[S01] REPLAY GUARD: Novel {novel_id} already exists with {len(existing_chapters)} chapters. Resuming non-destructively without duplicate POSTs.")
+        chapters_imported = [
+            {
+                "chapter_number": ch.get("chapterNumber", idx + 1),
+                "chapter_id": ch.get("chapterId") or ch.get("id"),
+                "revision_id": ch.get("latestRevisionId") or ch.get("revisionId", ""),
+                "content_hash": ch.get("contentHash", ""),
+                "title": ch.get("title", ""),
+                "word_count": ch.get("wordCount", 0),
+            }
+            for idx, ch in enumerate(existing_chapters)
+        ]
+    else:
+        novel_resp = api_request("POST", "/novels", novel_payload, token=token)
+        novel_id = novel_resp["data"]["novelId"]
+        print(f"[S01] Novel created: novel_id={novel_id}")
 
-        chapters_imported.append({
-            "chapter_number": ch_num,
-            "chapter_id": chapter_id,
-            "revision_id": rev_id,
-            "content_hash": c_hash,
-            "title": title,
-            "word_count": word_count,
-        })
-        print(f"[S01] Imported ch{ch_num:02d}: chapter_id={chapter_id} rev_id={rev_id} words={word_count}")
+        chapters_imported = []
+        chapter_files = [
+            ("ch01.md", 1, "Chương 1 — Bến trở về"),
+            ("ch02.md", 2, "Chương 2 — Lần đọc thứ nhất"),
+            ("ch03.md", 3, "Chương 3 — Hai nơi treo một quả chuông"),
+            ("ch04.md", 4, "Chương 4 — Bản đồ không có tiếng nước"),
+            ("ch05.md", 5, "Chương 5 — Ba tiếng gõ"),
+        ]
+
+        for fname, ch_num, default_title in chapter_files:
+            fpath = FIXTURE_DIR / fname
+            content = fpath.read_text(encoding="utf-8")
+            first_line = content.splitlines()[0] if content else ""
+            title = first_line.lstrip("#").strip() if first_line.startswith("#") else default_title
+
+            # Create chapter
+            ch_resp = api_request(
+                "POST",
+                f"/novels/{novel_id}/chapters",
+                {"title": title, "content": content, "isVip": False, "priceCoins": 0},
+                token=token,
+            )
+            chapter_id = ch_resp["data"]["chapterId"]
+
+            # Create revision snapshot
+            snap_resp = api_request(
+                "POST",
+                f"/chapters/{chapter_id}/revisions/snapshot",
+                {"content": content, "purpose": "MANUSCRIPT_BOOTSTRAP"},
+                token=token,
+            )
+            rev_id = snap_resp["data"]["revisionId"]
+            c_hash = snap_resp["data"]["contentHash"]
+            word_count = snap_resp["data"].get("wordCount", len(content.split()))
+
+            chapters_imported.append({
+                "chapter_number": ch_num,
+                "chapter_id": chapter_id,
+                "revision_id": rev_id,
+                "content_hash": c_hash,
+                "title": title,
+                "word_count": word_count,
+            })
+            print(f"[S01] Imported ch{ch_num:02d}: chapter_id={chapter_id} rev_id={rev_id} words={word_count}")
 
     # Readback verification
     readback_chapters = api_request("GET", f"/novels/{novel_id}/chapters", token=token)["data"]
@@ -266,6 +323,7 @@ def main():
         "canon_entities_count": len(initial_memory.get("entities", [])),
         "canon_events_count": len(initial_memory.get("events", [])),
         "canon_facts_count": len(initial_memory.get("facts", [])),
+        "channel": "LIVE_API",
         "status": "PASS",
     }
     with open(EVIDENCE_DIR / "s01-import-readback.json", "w", encoding="utf-8") as f:
@@ -274,7 +332,7 @@ def main():
     record_action(
         action_id="ACT-S01-01",
         phase="P1",
-        channel="LIVE_UI",
+        channel="LIVE_API",
         novel_id=novel_id,
         chapter_number=5,
         objective_id="S01",
@@ -372,7 +430,7 @@ def main():
     record_action(
         action_id="ACT-S02-01",
         phase="P1",
-        channel="LIVE_UI",
+        channel="LIVE_API",
         novel_id=novel_id,
         chapter_number=1,
         objective_id="S02",

@@ -56,6 +56,15 @@
     "resume_rule": "Finish due memory audit before next generation; read server revisions and analysis status first."
   },
   "last_action_log_row": "S01 PASS (Novel created, 5 chapters imported, readback verified). S02 BLOCKED (Candidate verification failed with ENTITY_VERIFICATION_UNRESOLVED due to system prompt vs validator mismatch on real Gemini 3.5 Flash-Lite). Evidence: evidence/s02-verification-unresolved-reproduction.json.",
-  "next_action": "Independent GPT-6 review of ISSUE-PIPELINE-VERIFY-001 blocker reproduction, followed by approved fix in services/entity_pipeline/verification.py prompt/repair loop.",
-  "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth."
+  "next_action": "Independent GPT-6 review of ISSUE-PIPELINE-VERIFY-001 blocker reproduction and Wave 1B offline repair report, followed by owner authorization for a new live window.",
+  "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth.",
+  "wave_1b_repair": {
+    "status": "P1_S02_LOCAL_FIX_READY_FOR_REMOTE_REVIEW",
+    "updated_at": "2026-10-21T13:30:00+07:00",
+    "fix_scope": "Verdict-specific schema/prompt and actionable repair contract in ai-service/services/entity_pipeline/verification.py",
+    "offline_regression": "76/76 entity tests pass (including prompt-driven RED->GREEN defect demonstration)",
+    "budget_guard_status": "Hard atomic pre-dispatch reservation tested (7/7 fault-injection tests pass); wall-clock expired at 2026-10-21T05:47:52Z; live calls halted",
+    "s01_classification": "S01_API_INTEGRATION_PASS_ONLY; S01_LIVE_UI_NOT_VERIFIED",
+    "next_action": "Independent GPT-6 remote review on GitHub; no live provider calls or UI rerun in this cycle."
+  }
 }

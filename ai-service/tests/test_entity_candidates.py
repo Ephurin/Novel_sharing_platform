@@ -282,3 +282,270 @@ def test_feature_flag_defaults_off_and_is_opt_in():
         assert not Settings.from_env().entity_candidate_verification_enabled
     with patch.dict(os.environ, {'ENTITY_CANDIDATE_VERIFICATION_ENABLED': 'true'}, clear=True):
         assert Settings.from_env().entity_candidate_verification_enabled
+
+
+class PromptDrivenVerifier:
+    """
+    Simulates real provider (Gemini Flash-Lite) adherence to system prompts and repair instructions:
+    - Under legacy prompt (or when forced), it sets canonical_name=surface for negative candidates.
+    - Under repaired prompt (or when given actionable repair), it clears canonical_name='' for negative candidates.
+    - Accurately models negative surfaces ('Chương', 'Bến', 'Chiếc'), 'an toàn', valid aliases, and unresolved.
+    """
+    model = 'prompt-driven-verifier'
+
+    def __init__(self, *, force_legacy_prompt=False, force_legacy_repair=False):
+        self.calls = []
+        self.force_legacy_prompt = force_legacy_prompt
+        self.force_legacy_repair = force_legacy_repair
+
+    def _call_structured(self, *, operation, system_prompt, user_prompt):
+        self.calls.append({'operation': operation, 'system_prompt': system_prompt, 'user_prompt': user_prompt})
+        assert operation == 'entity_candidate_verification'
+        request = json.loads(user_prompt)
+        repair_instruction = request.get('repair_instruction', '')
+
+        legacy_prompt = self.force_legacy_prompt or ('canonical_name MUST be empty string' not in system_prompt)
+        actionable_repair = not self.force_legacy_repair and ('canonical_name = \'\'' in repair_instruction)
+
+        decisions = []
+        for c in request['candidates']:
+            surface = c['surface']
+            context = c['context'][c['start'] - c['context_start']:].casefold()
+
+            if surface == 'Mai Linh':
+                decisions.append({
+                    'candidate_id': c['candidate_id'],
+                    'verdict': 'entity',
+                    'canonical_name': 'Mai Linh',
+                    'entity_type': 'PER',
+                    'canonical_entity_id': next((e['entity_id'] for e in request['known_entities'] if e['name'] == 'Mai Linh'), ''),
+                    'confidence': 0.95,
+                    'reason': 'Known character Mai Linh in context',
+                })
+            elif surface == 'Linh' and 'linh là tên gọi của mai linh' in c['context'].casefold():
+                decisions.append({
+                    'candidate_id': c['candidate_id'],
+                    'verdict': 'entity',
+                    'canonical_name': 'Mai Linh',
+                    'entity_type': 'PER',
+                    'canonical_entity_id': next((e['entity_id'] for e in request['known_entities'] if e['name'] == 'Mai Linh'), ''),
+                    'identity_quote': 'Linh là tên gọi của Mai Linh.',
+                    'confidence': 0.9,
+                    'reason': 'Alias for Mai Linh grounded by verbatim quote',
+                })
+            elif surface == 'trạm Bốn':
+                decisions.append({
+                    'candidate_id': c['candidate_id'],
+                    'verdict': 'entity',
+                    'canonical_name': 'trạm Bốn',
+                    'entity_type': 'LOC',
+                    'confidence': 0.9,
+                    'reason': 'Named outpost location',
+                })
+            elif surface == 'An' and not context.startswith('an toàn') and 'mơ hồ' in context:
+                # Ambiguous occurrence -> unresolved
+                can_name = surface if (legacy_prompt and not actionable_repair) else ''
+                decisions.append({
+                    'candidate_id': c['candidate_id'],
+                    'verdict': 'unresolved',
+                    'canonical_name': can_name,
+                    'canonical_entity_id': '',
+                    'entity_type': None,
+                    'initial_status': 'Unknown',
+                    'status_quote': '',
+                    'confidence': 0.5,
+                    'reason': 'Ambiguous identity without contextual certainty',
+                })
+            else:
+                # Negative candidate: common nouns ('Chương', 'Bến', 'Chiếc') or 'an' in 'an toàn'
+                if legacy_prompt and not actionable_repair:
+                    decisions.append({
+                        'candidate_id': c['candidate_id'],
+                        'verdict': 'not_entity',
+                        'canonical_name': surface,
+                        'entity_type': None,
+                        'confidence': 0.95,
+                        'reason': 'Common noun or phrase; retained surface per legacy prompt wording',
+                    })
+                else:
+                    decisions.append({
+                        'candidate_id': c['candidate_id'],
+                        'verdict': 'not_entity',
+                        'canonical_name': '',
+                        'canonical_entity_id': '',
+                        'entity_type': None,
+                        'initial_status': 'Unknown',
+                        'status_quote': '',
+                        'confidence': 0.95,
+                        'reason': 'Common noun or phrase; identity cleared per negative verdict contract',
+                    })
+        return json.dumps({'decisions': decisions}, ensure_ascii=False)
+
+
+def test_regression_demonstrates_red_under_legacy_prompt_contract():
+    """
+    RED DEMONSTRATION: Under the legacy prompt and generic repair instruction,
+    negative candidates ('Chương', 'Bến', 'Chiếc') return canonical_name=surface,
+    failing _validate() on both attempts and raising ENTITY_VERIFICATION_UNRESOLVED.
+    """
+    text = 'Chương 1 — Bến trở về. Chiếc thuyền dừng lại.'
+    llm = PromptDrivenVerifier(force_legacy_prompt=True, force_legacy_repair=True)
+    saved_audit = []
+
+    with pytest.raises(AnalysisOutputError) as exc_info:
+        extract(text, llm, audit_sink=lambda a: saved_audit.append(json.loads(json.dumps(a))))
+
+    assert exc_info.value.code == 'ENTITY_VERIFICATION_UNRESOLVED'
+    assert exc_info.value.attempts == 2
+    assert len(llm.calls) == 2
+    assert saved_audit[-1]['status'] == 'failed'
+    # Confirm that candidates included the reproduction surfaces
+    surfaces = {c['surface'] for c in saved_audit[-1]['candidates']}
+    assert {'Chương', 'Bến', 'Chiếc'} <= surfaces
+
+
+def test_regression_demonstrates_green_under_repaired_prompt_contract():
+    """
+    GREEN DEMONSTRATION: Under the repaired prompt, negative candidates
+    ('Chương', 'Bến', 'Chiếc') return canonical_name='' on attempt 1,
+    passing validation with 0 retries.
+    """
+    text = 'Chương 1 — Bến trở về. Chiếc thuyền dừng lại.'
+    llm = PromptDrivenVerifier()
+    saved_audit = []
+
+    result = extract(text, llm, audit_sink=lambda a: saved_audit.append(json.loads(json.dumps(a))))
+
+    assert result.audit['status'] == 'completed'
+    assert len(llm.calls) == 1
+    assert result.entities == []
+    # Verify decisions for negative candidates have canonical_name == ''
+    for d in result.audit['decisions']:
+        assert d['verdict'] == 'not_entity'
+        assert d['canonical_name'] == ''
+        assert d['canonical_entity_id'] == ''
+        assert d['entity_type'] is None
+
+
+def test_actionable_bounded_repair_fixes_defective_initial_response():
+    """
+    Tests that if attempt 1 exhibits the real-world Flash-Lite defect (setting canonical_name=surface
+    on negative candidates), the actionable repair instruction explicitly guides attempt 2
+    to clear canonical_name='', passing _validate() without turning not_entity into entity.
+    """
+    text = 'Chương 1 — Bến trở về.'
+    llm = PromptDrivenVerifier(force_legacy_prompt=True, force_legacy_repair=False)
+    saved_audit = []
+
+    result = extract(text, llm, audit_sink=lambda a: saved_audit.append(json.loads(json.dumps(a))))
+
+    assert result.audit['status'] == 'completed'
+    assert len(llm.calls) == 2
+    # Verify attempt 2 received actionable repair instruction
+    attempt_2_request = json.loads(llm.calls[1]['user_prompt'])
+    assert 'ACTIONABLE CORRECTION REQUIRED' in attempt_2_request['repair_instruction']
+    assert "canonical_name = ''" in attempt_2_request['repair_instruction']
+    assert 'DO NOT change verdict to \'entity\'' in attempt_2_request['repair_instruction']
+    # Verify final decisions maintain not_entity with cleared canonical_name
+    for d in result.audit['decisions']:
+        assert d['verdict'] == 'not_entity'
+        assert d['canonical_name'] == ''
+
+
+def test_comprehensive_negative_surfaces_an_toan_and_alias():
+    """
+    Tests full scenario with:
+    - Negative surfaces: 'Chương', 'Bến', 'Chiếc'
+    - False positive 'An' in 'an toàn'
+    - Known entity 'Mai Linh'
+    - Valid alias 'Linh -> Mai Linh' with exact context quote
+    - Outpost 'trạm Bốn' (LOC)
+    """
+    text = 'Chương 1 — Bến trở về. Đi cho an toàn. Mai Linh gặp Linh ở trạm Bốn. Linh là tên gọi của Mai Linh. Chiếc vòng vẫn còn.'
+    known = [{'entity_id': 'ml-uuid-01', 'name': 'Mai Linh', 'entity_type': 'PER'}]
+    llm = PromptDrivenVerifier()
+
+    result = extract(text, llm, known_entities=known)
+
+    assert result.audit['status'] == 'completed'
+    assert {e['phrase'] for e in result.entities} == {'Mai Linh', 'trạm Bốn'}
+    assert {a['alias'] for a in result.aliases} == {'Linh'}
+    assert result.aliases[0]['identity_quote'] == 'Linh là tên gọi của Mai Linh.'
+
+    # Check negative decisions
+    decisions_by_cand = {d['candidate_id']: d for d in result.audit['decisions']}
+    candidates_by_id = {c['candidate_id']: c for c in result.audit['candidates']}
+
+    for cand_id, d in decisions_by_cand.items():
+        c = candidates_by_id[cand_id]
+        if c['surface'] in {'Chương', 'Bến', 'Chiếc'}:
+            assert d['verdict'] == 'not_entity'
+            assert d['canonical_name'] == ''
+        elif c['surface'].casefold() == 'an':
+            # 'An' in 'an toàn' must be not_entity
+            assert d['verdict'] == 'not_entity'
+            assert d['canonical_name'] == ''
+
+
+def test_unresolved_candidate_clears_identity_fields_and_stops_promotion():
+    """
+    Tests that an ambiguous candidate marked 'unresolved' must have cleared identity fields
+    and is never promoted to entities or aliases.
+    """
+    text = 'Một người tên An mơ hồ xuất hiện.'
+    llm = PromptDrivenVerifier()
+
+    result = extract(text, llm)
+
+    assert result.audit['status'] == 'completed'
+    assert result.entities == []
+    assert result.aliases == []
+    assert result.audit['counts'].get('unresolved', 0) >= 1
+    unresolved_decisions = [d for d in result.audit['decisions'] if d['verdict'] == 'unresolved']
+    for d in unresolved_decisions:
+        assert d['canonical_name'] == ''
+        assert d['canonical_entity_id'] == ''
+        assert d['entity_type'] is None
+        assert d['initial_status'] == 'Unknown'
+
+
+@pytest.mark.parametrize('bad_mutation', [
+    'missing_candidate_id',
+    'not_entity_with_entity_type',
+    'not_entity_with_initial_status',
+    'entity_with_invalid_type',
+    'forged_alias_quote',
+])
+def test_malformed_batches_still_fail_closed_under_repaired_validator(bad_mutation):
+    """
+    Proves that _validate() remains strictly fail-closed: malformed or illegal payloads
+    are never accepted and fail after bounded repair.
+    """
+    class MalformedVerifier(PromptDrivenVerifier):
+        def _call_structured(self, **kwargs):
+            raw = super()._call_structured(**kwargs)
+            data = json.loads(raw)
+            if bad_mutation == 'missing_candidate_id':
+                data['decisions'].pop()
+            elif bad_mutation == 'not_entity_with_entity_type':
+                neg = next(d for d in data['decisions'] if d['verdict'] == 'not_entity')
+                neg['entity_type'] = 'PER'
+            elif bad_mutation == 'not_entity_with_initial_status':
+                neg = next(d for d in data['decisions'] if d['verdict'] == 'not_entity')
+                neg['initial_status'] = 'Alive'
+            elif bad_mutation == 'entity_with_invalid_type':
+                ent = next(d for d in data['decisions'] if d['verdict'] == 'entity')
+                ent['entity_type'] = 'DEMON'
+            elif bad_mutation == 'forged_alias_quote':
+                alias = next(d for d in data['decisions'] if d.get('identity_quote'))
+                alias['identity_quote'] = 'Linh chính là Mai Linh nhưng câu này không có trong bài.'
+            return json.dumps(data, ensure_ascii=False)
+
+    text = 'Mai Linh gặp Linh ở trạm Bốn. Linh là tên gọi của Mai Linh. Chiếc thuyền dừng lại.'
+    known = [{'entity_id': 'ml-uuid-01', 'name': 'Mai Linh', 'entity_type': 'PER'}]
+
+    with pytest.raises(AnalysisOutputError) as exc_info:
+        extract(text, MalformedVerifier(), known_entities=known)
+
+    assert exc_info.value.code == 'ENTITY_VERIFICATION_UNRESOLVED'
+
