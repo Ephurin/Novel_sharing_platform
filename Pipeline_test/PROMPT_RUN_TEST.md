@@ -112,8 +112,7 @@ API ghi hoặc fake provider rồi báo UI/real-LLM PASS.
   không dùng số records thay coverage, không dùng sửa tay để xóa lỗi raw output.
 - Mặc định bắt đầu short loops. Chỉ mở bài dài khi các gate cần thiết đã đạt,
   không còn blocker nghiêm trọng và đủ ngân sách được cấp. Lượt đầy đủ phải cho
-  ra một tiểu thuyết95.000–105.000 từ thực, hoàn chỉnh cốt truyện, đọc lại từ dữ
-  liệu sản phẩm; không dùng outline, tóm tắt hoặc lặp văn để bù độ dài.
+  ra tiểu thuyết **P3_HITL_CONTROLLER_100K bắt buộc 100.000–105.000 từ thực**, hoàn chỉnh cốt truyện, đọc lại từ canonical revisions của sản phẩm; không dùng outline, tóm tắt hoặc lặp văn để bù độ dài. Đây là P3 terminal acceptance, không phải điều kiện cho P1/P2 ngắn; HITL không đồng nghĩa fully unattended. Đối chứng/budget áp dụng theo `P3_100K_EVALUATION_PROTOCOL.md`.
 - Audit riêng từng pipeline tại M0, M-FIRST, mỗi10 chương; sâu tại20/50 và final
   theo lịch task. Không tới mốc ghi NOT_RUN/NOT_APPLICABLE đúng kế hoạch; probe
   ngắn không có coverage bài dài. Đánh giá consistency, continuity, kết thúc,
