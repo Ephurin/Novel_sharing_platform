@@ -16,6 +16,13 @@ def decisions(request):
     return {'decisions':out}
 
 def output(props,text):
+    if 'Suggest future events' in text:
+        return {'events':[{'title':'Kiểm tra micro trước cửa Bốn','description':'Kế hoạch tương lai: kiểm tra micro, chưa khẳng định đã thực hiện.','target_chapter':6,'min_words':50,'ending':False},
+                          {'title':'Đối chiếu hồ sơ','description':'Kế hoạch chờ tác giả lựa chọn, chưa phải lịch sử.','target_chapter':7,'min_words':50,'ending':False}]}
+    if 'findings' in props:
+        data=json.loads(text.rsplit('\n\n',1)[-1]);quote='Giọng trong bản ghi đã được xác minh ngay từ lần quét đầu tiên, không cần mẫu đối chứng.'
+        return {'findings':[{'description':'FAKE_PROVIDER_OUTPUT: scripted conflict with recorded unverified voice attribution','evidence':quote,'revision_id':data['revision_id']}] if quote in data['draft'] else []}
+
     if 'decisions' in props:return decisions(json.loads(text.rsplit('\n\n',1)[-1]))
     if 'events' in props:
         source=text.split('Text passage: ',1)[1].split('\nKnown entities:',1)[0]
@@ -28,5 +35,7 @@ def output(props,text):
         facts=[{'subject':'','fact_key':'observed_scene','fact_value':quote,'certainty':'confirmed','quote':quote,'confidence':.8}]
         belief='“Ghi là chị nhận ra giọng giống ông. Ta cần một mẫu đối chứng.”'
         if belief in source:facts.append({'subject':'','fact_key':'unverified_voice_attribution','fact_value':'Linh nhận ra giọng giống cha, cần mẫu đối chứng; chưa xác minh danh tính','certainty':'reported','quote':belief,'confidence':.8})
+        note='Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.'
+        if note in source:facts.append({'subject':'','fact_key':'micro_check_note','fact_value':'Mai Linh đặt thẻ giấy kiểm tra micro cạnh máy thu; chưa thực hiện kế hoạch','certainty':'confirmed','quote':note,'confidence':.8})
         return {'facts':facts}
     return {'entities':[]}

@@ -91,6 +91,9 @@ class FakeHandler(BaseHTTPRequestHandler):
                          operation=('entity_verification' if 'decisions' in config.get('responseJsonSchema',{}).get('properties',{}) else
                                     'events' if 'events' in config.get('responseJsonSchema',{}).get('properties',{}) else
                                     'facts' if 'facts' in config.get('responseJsonSchema',{}).get('properties',{}) else 'discovery'))
+        if self.scenario == 'wave1f-grounded-v1':
+            if 'Suggest future events' in text:entry['operation']='plan_suggestions'
+            if 'findings' in config.get('responseJsonSchema',{}).get('properties',{}):entry['operation']='consistency'
         with self.lock:
             self.received.append(entry)
             if self.log_path:
