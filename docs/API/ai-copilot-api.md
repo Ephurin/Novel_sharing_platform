@@ -1,5 +1,7 @@
 # AI & Writing Copilot API
 
+> **Scope warning (2026-10-21):** This file documents a historical **Platform AI suggestion/classification/style API subset**, not the full Narrative Memory P1/P2/P3 route contract. Do **not** infer all current Human Entity Review/Story Brain/Autonomous endpoints from this list. Source-inspected Node/FastAPI routes and state semantics: [CURRENT_API_IMPLEMENTATION_MATRIX.md](../../ai-service/docs/CURRENT_API_IMPLEMENTATION_MATRIX.md). Accepted product workflow: [WORKFLOW_CONTRACT.md v1.4](../../Pipeline_test/WORKFLOW_CONTRACT.md). Endpoint presence is not live E2E acceptance.
+
 Related SRS: `docs/SRS/ai-intelligence-service.md`
 
 ## Resource Summary
