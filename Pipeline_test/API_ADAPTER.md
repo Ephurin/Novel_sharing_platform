@@ -1,5 +1,7 @@
 # Adapter cho ứng dụng hiện có
 
+> **Updated doc precedence (2026-10-21):** This adapter was originally inspected at `af20712` and documents API access; it is **not** the source of truth for P1 UI E2E. Read [WORKFLOW_CONTRACT.md v1.4](WORKFLOW_CONTRACT.md) first and [current API matrix](../ai-service/docs/CURRENT_API_IMPLEMENTATION_MATRIX.md) for source-inspected Node/FastAPI routes. The terminal 100,000–105,000-word novel is a **P3_HITL_CONTROLLER_100K acceptance** run, not a generic API integration smoke. Historical API write examples below are diagnostic/hybrid only and cannot establish `LIVE_UI`.
+
 **Revision 1.2:** adapter mô tả khả năng API, không định nghĩa luồng sản phẩm.
 Ưu tiên `WORKFLOW_CONTRACT.md`. Trong vòng `SHORT_LOOP_TEST.md`, dùng API
 read-only để đối chiếu; mutation API chỉ được ghi như test kỹ thuật riêng, không
