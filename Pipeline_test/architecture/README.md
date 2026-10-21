@@ -1,8 +1,10 @@
 # Bản đồ AI pipeline
 
-Nguồn chuẩn mô tả hành vi P1/P2/P3 là [WORKFLOW_CONTRACT.md revision1.3](../WORKFLOW_CONTRACT.md). Bản đồ là snapshot đối chiếu code/evidence và vấn đề, không thay thế contract.
+Nguồn chuẩn mô tả hành vi P1/P2/P3 là [WORKFLOW_CONTRACT.md revision1.4](../WORKFLOW_CONTRACT.md). Bản đồ là snapshot đối chiếu code/evidence và vấn đề, không thay thế contract.
 
-Đã cập nhật luồng human review: danh sách tăng cường → duyệt entity → event/fact. X có implementation opt-in, mặc định OFF; X05/X06 vẫn là thiết kế. Xem `../runs/2026-10-20-human-entity-review/REPORT.md`; chưa có live PASS cho luồng mới.
+**Snapshot/limitations:** This map was generated from source around **2026-10-20 (HEAD `94d5072` + working tree)**. It is a **historical map**, not an accurate 2026-10-21 current status after Wave 1B/1C/1D. Do not take `[ok]` labels as latest or as LIVE_UI/real-provider PASS. See [Current architecture](../../ai-service/docs/ARCHITECTURE.md) and [2026-10-21 delta](CURRENT_DELTA_2026-10-21.md).
+
+Human review branch shown in the snapshot: hints → review entity → event/fact; implementation opt-in, feature flag OFF by default. X05/X06 are proposals. Historical `2026-10-20-human-entity-review` report and previous `2026-10-21-gemini-p1-live-01` failed provider S02 are distinct run evidence; latest Wave 1B/1C offline patches do **not** prove live acceptance.
 
 - **Mở xem độc lập:** `ai-pipeline-map-standalone.html` — mở bằng trình duyệt, chọn khối và mở từng bước. Không cần backend/AI hoặc gọi provider.
 - **Đọc toàn bộ dưới dạng văn bản:** `AI_PIPELINE_MAP.md`.
