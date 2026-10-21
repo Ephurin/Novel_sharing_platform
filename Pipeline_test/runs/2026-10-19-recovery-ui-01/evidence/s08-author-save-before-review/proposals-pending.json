@@ -1,0 +1,1658 @@
+[
+  {
+    "proposal_id": "c88eed86-5971-586f-b662-3626482d21f1",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Duy",
+      "initial_status": "Unknown",
+      "normalized_name": "duy"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 0,
+    "evidence": [
+      {
+        "end": 3,
+        "quote": "Duy",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "b962931b-bede-5e92-a049-a4d345171aa7",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Duy",
+      "initial_status": "Alive",
+      "normalized_name": "duy"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 0,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "a470bf4a-ac67-5bed-b2a2-f67f5addbee9",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "linh"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 1,
+    "evidence": [
+      {
+        "end": 53,
+        "quote": "Linh",
+        "start": 49,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "a869567e-b942-52b4-97cd-9eca315ae1f4",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Linh",
+      "initial_status": "Alive",
+      "normalized_name": "linh"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 1,
+    "evidence": [
+      {
+        "end": 106,
+        "quote": "Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị.",
+        "start": 49,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "3b233ec6-c327-5270-bb61-141cabe1a7f0",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Unknown",
+      "normalized_name": "an"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 2,
+    "evidence": [
+      {
+        "end": 109,
+        "quote": "An",
+        "start": 107,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "a1d18021-8b5a-5f60-9aaa-dfb6f2067265",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Alive",
+      "normalized_name": "an"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 2,
+    "evidence": [
+      {
+        "end": 131,
+        "quote": "An giữ thuyền ngoài sân.",
+        "start": 107,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "db45660f-93cc-5fbe-8dba-bc0e7102de7c",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "trạm Bốn",
+      "initial_status": "Unknown",
+      "normalized_name": "trạm bốn"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 3,
+    "evidence": [
+      {
+        "end": 24,
+        "quote": "trạm Bốn",
+        "start": 16,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "2862d991-bd64-5988-8a44-1a4f24157282",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Mai Linh",
+      "initial_status": "Alive",
+      "normalized_name": "mai linh"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 3,
+    "evidence": [
+      {
+        "end": 562,
+        "quote": "Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro.",
+        "start": 493,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "fd9df8d9-3fcf-5717-a184-6b7c432e887d",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "máy ghi",
+      "initial_status": "Unknown",
+      "normalized_name": "máy ghi"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 4,
+    "evidence": [
+      {
+        "end": 65,
+        "quote": "máy ghi",
+        "start": 58,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "a87fa2b9-b6f2-5acd-ab1d-44d85c8cd928",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "trạm Bốn",
+      "initial_status": "Unknown",
+      "normalized_name": "trạm bốn"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 4,
+    "evidence": [
+      {
+        "end": 24,
+        "quote": "trạm Bốn",
+        "start": 16,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "6349e301-ccde-5a63-b2a2-0c5fd17d6e35",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "thuyền",
+      "initial_status": "Unknown",
+      "normalized_name": "thuyền"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 5,
+    "evidence": [
+      {
+        "end": 120,
+        "quote": "thuyền",
+        "start": 114,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "607f7db1-daf4-58cd-8143-94e1bff8cc6f",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "chiếc vỏ ốc xoắn màu tím tro",
+      "initial_status": "Unknown",
+      "normalized_name": "chiếc vỏ ốc xoắn màu tím tro"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 5,
+    "evidence": [
+      {
+        "end": 561,
+        "quote": "chiếc vỏ ốc xoắn màu tím tro",
+        "start": 533,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "beac587b-7f91-568d-a183-b929848ce47b",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "tệp âm thanh",
+      "initial_status": "Unknown",
+      "normalized_name": "tệp âm thanh"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 6,
+    "evidence": [
+      {
+        "end": 88,
+        "quote": "tệp âm thanh",
+        "start": 76,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "3276a632-770f-5385-bf63-fdc5552a2d35",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "trạm bơm số Hai",
+      "initial_status": "Unknown",
+      "normalized_name": "trạm bơm số hai"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 6,
+    "evidence": [
+      {
+        "end": 864,
+        "quote": "trạm bơm số Hai",
+        "start": 849,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "832da9ad-23e2-5d80-b950-3bc3d181f0cd",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "bản ghi",
+      "initial_status": "Unknown",
+      "normalized_name": "bản ghi"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 7,
+    "evidence": [
+      {
+        "end": 152,
+        "quote": "bản ghi",
+        "start": 145,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "aa007519-25bb-584b-a734-50e1c7843986",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "máy ghi",
+      "initial_status": "Unknown",
+      "normalized_name": "máy ghi"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 7,
+    "evidence": [
+      {
+        "end": 65,
+        "quote": "máy ghi",
+        "start": 58,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "57ae439e-947f-5110-b918-133bf1d67ba0",
+    "proposal_type": "event",
+    "payload": {
+      "chapter": 6,
+      "summary": "Duy signals the group to leave station Bốn as water levels continue to rise.",
+      "locations": [
+        "trạm Bốn"
+      ],
+      "event_type": "Departure",
+      "consequences": [
+        "The group prepares to leave the station."
+      ],
+      "participants": [
+        "Duy",
+        "Linh",
+        "An"
+      ],
+      "chapter_number": 6,
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 8,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 0.8,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "3089c16c-87d9-5bab-8289-642ac944245e",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "thuyền",
+      "initial_status": "Unknown",
+      "normalized_name": "thuyền"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 8,
+    "evidence": [
+      {
+        "end": 120,
+        "quote": "thuyền",
+        "start": 114,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "1faf02e3-7895-5513-a813-6218c0d22dc7",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "ra hiệu rời trạm Bốn",
+      "subject_name": "Duy",
+      "chapter_number": 6,
+      "subject_entity_name": "Duy",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 9,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "069b6feb-6461-5940-88bf-8f23da07a3dd",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "bản ghi",
+      "initial_status": "Unknown",
+      "normalized_name": "bản ghi"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 9,
+    "evidence": [
+      {
+        "end": 152,
+        "quote": "bản ghi",
+        "start": 145,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "a3593941-2468-5785-a026-d3fba931b055",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị",
+      "subject_name": "Linh",
+      "chapter_number": 6,
+      "subject_entity_name": "Linh",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 10,
+    "evidence": [
+      {
+        "end": 106,
+        "quote": "Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị.",
+        "start": 49,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "21aabc78-c974-5203-8af1-6b2298aae642",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "túi vải đen",
+      "initial_status": "Unknown",
+      "normalized_name": "túi vải đen"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 10,
+    "evidence": [
+      {
+        "end": 648,
+        "quote": "túi vải đen",
+        "start": 637,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "50d9f44a-a1ea-523e-be56-2a6b3086516e",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "giữ thuyền ngoài sân",
+      "subject_name": "An",
+      "chapter_number": 6,
+      "subject_entity_name": "An",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 11,
+    "evidence": [
+      {
+        "end": 131,
+        "quote": "An giữ thuyền ngoài sân.",
+        "start": 107,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "477f3f63-2c86-5c72-a6ee-415c5e2268f2",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "túi chống ẩm",
+      "initial_status": "Unknown",
+      "normalized_name": "túi chống ẩm"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 11,
+    "evidence": [
+      {
+        "end": 894,
+        "quote": "túi chống ẩm",
+        "start": 882,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "c67dfb5c-ef8a-5a56-bda2-114f70c8bc4f",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "knowledge_status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "chưa biết vật gì đã tạo ra tiếng gõ dưới sàn",
+      "subject_name": "Họ",
+      "chapter_number": 6,
+      "subject_entity_name": "Họ",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 12,
+    "evidence": [
+      {
+        "end": 199,
+        "quote": "Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.",
+        "start": 132,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "395e97b0-f31e-5280-9a29-9dbc4c59c256",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "tệp âm thanh",
+      "initial_status": "Unknown",
+      "normalized_name": "tệp âm thanh"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 12,
+    "evidence": [
+      {
+        "end": 88,
+        "quote": "tệp âm thanh",
+        "start": 76,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.8,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "e8b24051-0270-5564-9483-b5a3d3f2e8d2",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "tiếp tục dâng",
+      "subject_name": "nước",
+      "chapter_number": 6,
+      "subject_entity_name": "nước",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 13,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "9f9a6c6f-cf5d-58db-9400-d7456718eda3",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "hộp dụng cụ",
+      "initial_status": "Unknown",
+      "normalized_name": "hộp dụng cụ"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 13,
+    "evidence": [
+      {
+        "end": 245,
+        "quote": "hộp dụng cụ",
+        "start": 234,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.8,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "4c8b20a6-4bb9-550c-b3d6-eac479e6afe7",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "mang theo bản ghi",
+      "subject_name": "Họ",
+      "chapter_number": 6,
+      "subject_entity_name": "Họ",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 14,
+    "evidence": [
+      {
+        "end": 199,
+        "quote": "Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.",
+        "start": 132,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "c9c7f868-c0b5-5d46-92ff-37779bffa0d5",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "hồ sơ",
+      "initial_status": "Unknown",
+      "normalized_name": "hồ sơ"
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 14,
+    "evidence": [
+      {
+        "end": 740,
+        "quote": "hồ sơ",
+        "start": 735,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335"
+      }
+    ],
+    "confidence": 0.8,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "8eea02e4-6b52-5b02-b7c7-ca0f53c8d098",
+    "proposal_type": "event",
+    "payload": {
+      "chapter": 6,
+      "summary": "Duy, Linh và An rời trạm Bốn bằng thuyền khi nước dâng lên.",
+      "locations": [
+        "trạm Bốn"
+      ],
+      "event_type": "departure",
+      "consequences": [
+        "Họ rời khỏi trạm Bốn",
+        "Thiết bị ghi âm được cất đi"
+      ],
+      "participants": [
+        "Duy",
+        "Linh",
+        "An"
+      ],
+      "chapter_number": 6,
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 15,
+    "evidence": [
+      {
+        "end": 131,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng. Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị. An giữ thuyền ngoài sân.",
+        "start": 0,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 0.8,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "32d36d03-2a8f-5f81-84c1-9db9d6b7d1fe",
+    "proposal_type": "event",
+    "payload": {
+      "chapter": 6,
+      "summary": "Mai Linh nhặt được một chiếc vỏ ốc xoắn màu tím tro ở bờ kè và cho An xem trước khi cất vào túi.",
+      "locations": [
+        "bờ kè"
+      ],
+      "event_type": "discovery",
+      "consequences": [
+        "Mai Linh sở hữu chiếc vỏ ốc xoắn"
+      ],
+      "participants": [
+        "Mai Linh",
+        "An",
+        "Duy"
+      ],
+      "chapter_number": 6,
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 16,
+    "evidence": [
+      {
+        "end": 658,
+        "quote": "Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro. Cô đặt nó trong lòng bàn tay cho An nhìn. Sau đó Linh cất chiếc vỏ ốc vào túi vải đen của mình.",
+        "start": 493,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 0.6,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "b451c7cf-a7a6-5d96-a0a5-b9ff8919273d",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "Rời đi",
+      "subject_name": "trạm Bốn",
+      "chapter_number": 6,
+      "subject_entity_name": "trạm Bốn",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 17,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "cf95a45c-b7fd-52cc-b1ac-808846d2b9a9",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị",
+      "subject_name": "Linh",
+      "chapter_number": 6,
+      "subject_entity_name": "Linh",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 18,
+    "evidence": [
+      {
+        "end": 106,
+        "quote": "Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị.",
+        "start": 49,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "4b1080dc-4536-5d10-a43f-429e390e7dde",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "giữ thuyền ngoài sân",
+      "subject_name": "An",
+      "chapter_number": 6,
+      "subject_entity_name": "An",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 19,
+    "evidence": [
+      {
+        "end": 131,
+        "quote": "An giữ thuyền ngoài sân.",
+        "start": 107,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "1ef13066-1377-51d8-be1e-e735a16f05e3",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "nguồn tiếng gõ",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "chưa biết vật gì đã tạo ra tiếng gõ dưới sàn",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "subject_name": "",
+      "chapter_number": 6,
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 20,
+    "evidence": [
+      {
+        "end": 199,
+        "quote": "Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.",
+        "start": 132,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "4f7fab52-3198-5518-9a24-d2963e67f700",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "thu dây cảnh báo và đóng nắp hộp dụng cụ",
+      "subject_name": "Duy",
+      "chapter_number": 6,
+      "subject_entity_name": "Duy",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 21,
+    "evidence": [
+      {
+        "end": 246,
+        "quote": "Duy thu dây cảnh báo và đóng nắp hộp dụng cụ.",
+        "start": 201,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "4357628a-9e82-58c1-9867-70f58318e8a9",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "location",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "bờ kè",
+      "subject_name": "Mai Linh",
+      "chapter_number": 6,
+      "subject_entity_name": "Mai Linh",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 22,
+    "evidence": [
+      {
+        "end": 562,
+        "quote": "Đến bờ kè, cả ba nghỉ một lát. Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro.",
+        "start": 462,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "44eab7b9-6fa6-534e-b8c2-0bb130de9ddc",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "color",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "tím tro",
+      "subject_name": "chiếc vỏ ốc xoắn màu tím tro",
+      "chapter_number": 6,
+      "subject_entity_name": "chiếc vỏ ốc xoắn màu tím tro",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 23,
+    "evidence": [
+      {
+        "end": 562,
+        "quote": "Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro.",
+        "start": 493,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "1a158f69-e76a-58ec-aaee-722ba11dfbc9",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "shape",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "ốc xoắn",
+      "subject_name": "chiếc vỏ ốc xoắn màu tím tro",
+      "chapter_number": 6,
+      "subject_entity_name": "chiếc vỏ ốc xoắn màu tím tro",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 24,
+    "evidence": [
+      {
+        "end": 562,
+        "quote": "Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro.",
+        "start": 493,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "c6ac5fea-06cc-52b0-bd69-98af6f6629a6",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "possessor",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "Linh",
+      "subject_name": "chiếc vỏ ốc xoắn màu tím tro",
+      "chapter_number": 6,
+      "subject_entity_name": "chiếc vỏ ốc xoắn màu tím tro",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 25,
+    "evidence": [
+      {
+        "end": 658,
+        "quote": "Sau đó Linh cất chiếc vỏ ốc vào túi vải đen của mình.",
+        "start": 605,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "c26dd472-3411-5b8c-aad7-317b4e3a3d69",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "statement",
+      "certainty": "reported",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "Ngày mai mới hỏi chuyện hồ sơ",
+        "subject": "Linh",
+        "certainty": "reported"
+      },
+      "subject_name": "Linh",
+      "chapter_number": 6,
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 26,
+    "evidence": [
+      {
+        "end": 752,
+        "quote": "“Ngày mai mới hỏi chuyện hồ sơ,” Linh nói.",
+        "start": 710,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "a0794d34-00ad-5f63-8e36-64ca6dde57b5",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "visit_status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "Chưa tới",
+      "subject_name": "trạm bơm số Hai",
+      "chapter_number": 6,
+      "subject_entity_name": "trạm bơm số Hai",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 27,
+    "evidence": [
+      {
+        "end": 865,
+        "quote": "Họ chưa tới trạm bơm số Hai.",
+        "start": 837,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "8fbbd897-4702-508e-84dd-c4ee31c4b72c",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "location",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "túi chống ẩm của Linh",
+      "subject_name": "bản ghi",
+      "chapter_number": 6,
+      "subject_entity_name": "bản ghi",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 28,
+    "evidence": [
+      {
+        "end": 947,
+        "quote": "Bản ghi ở trong túi chống ẩm của Linh, còn nguồn tiếng gõ vẫn chưa được xác định.",
+        "start": 866,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "6ac69952-b375-565e-858a-a5e7c81a336e",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "chờ Linh ra tới phần sân khô rồi mới bước lên thuyền",
+      "subject_name": "Duy",
+      "chapter_number": 6,
+      "subject_entity_name": "Duy",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 29,
+    "evidence": [
+      {
+        "end": 304,
+        "quote": "Anh chờ Linh ra tới phần sân khô rồi mới bước lên thuyền.",
+        "start": 247,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "96831155-53bd-5a68-bab9-839c7ea54a66",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "không ai đề nghị mở thêm cánh cửa",
+      "subject_name": "Cánh cửa",
+      "chapter_number": 6,
+      "subject_entity_name": "Cánh cửa",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 30,
+    "evidence": [
+      {
+        "end": 339,
+        "quote": "Không ai đề nghị mở thêm cánh cửa.",
+        "start": 305,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "e354e461-6a69-5142-a44c-997a4f31acab",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "chống sào để mạn thuyền tránh bậc đá",
+      "subject_name": "An",
+      "chapter_number": 6,
+      "subject_entity_name": "An",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 31,
+    "evidence": [
+      {
+        "end": 380,
+        "quote": "An chống sào để mạn thuyền tránh bậc đá.",
+        "start": 340,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "5872b055-1801-5533-b3dd-c0dd550eb947",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "vẫn theo sau khi rời trạm",
+      "subject_name": "Tiếng nước",
+      "chapter_number": 6,
+      "subject_entity_name": "Tiếng nước",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 32,
+    "evidence": [
+      {
+        "end": 460,
+        "quote": "Khi họ rời trạm, tiếng nước vẫn theo sau như một câu hỏi chưa có người trả lời.",
+        "start": 381,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "699a6f94-abb8-5534-a0c0-54226c7c390e",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "nghỉ một lát đến bờ kè",
+      "subject_name": "Cả ba",
+      "chapter_number": 6,
+      "subject_entity_name": "Cả ba",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 33,
+    "evidence": [
+      {
+        "end": 492,
+        "quote": "Đến bờ kè, cả ba nghỉ một lát.",
+        "start": 462,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "c995c5ed-2cac-500f-a03e-510569a82215",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "đặt vỏ ốc trong lòng bàn tay cho An nhìn",
+      "subject_name": "Mai Linh",
+      "chapter_number": 6,
+      "subject_entity_name": "Mai Linh",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 34,
+    "evidence": [
+      {
+        "end": 604,
+        "quote": "Cô đặt nó trong lòng bàn tay cho An nhìn.",
+        "start": 563,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "c8a297aa-ce51-55d9-b657-d0dbb572b92f",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "color",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "đen",
+      "subject_name": "Túi vải",
+      "chapter_number": 6,
+      "subject_entity_name": "Túi vải",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 35,
+    "evidence": [
+      {
+        "end": 658,
+        "quote": "Sau đó Linh cất chiếc vỏ ốc vào túi vải đen của mình.",
+        "start": 605,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "efafdc11-2794-5392-91fb-05dd3afb38f9",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "đứng chờ cạnh thuyền, không chạm vào máy ghi",
+      "subject_name": "Duy",
+      "chapter_number": 6,
+      "subject_entity_name": "Duy",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 36,
+    "evidence": [
+      {
+        "end": 708,
+        "quote": "Duy đứng chờ cạnh thuyền, không chạm vào máy ghi.",
+        "start": 659,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "17e37a39-b31c-5394-9e34-90746d8b0542",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "statement",
+      "certainty": "reported",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "Hôm nay chúng ta chỉ biết đã nghe gì và đứng ở đâu",
+        "subject": "Linh",
+        "certainty": "reported"
+      },
+      "subject_name": "Linh",
+      "chapter_number": 6,
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 37,
+    "evidence": [
+      {
+        "end": 806,
+        "quote": "“Hôm nay chúng ta chỉ biết đã nghe gì và đứng ở đâu.”",
+        "start": 753,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "239724ed-0125-5b6e-aa0a-268d7fe51596",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "gật đầu rồi buộc lại dây",
+      "subject_name": "An",
+      "chapter_number": 6,
+      "subject_entity_name": "An",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 38,
+    "evidence": [
+      {
+        "end": 836,
+        "quote": "An gật đầu rồi buộc lại dây.",
+        "start": 808,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "c8e7e35a-4ae6-5fe2-badd-8eba20b71990",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "vẫn chưa được xác định",
+      "subject_name": "Nguồn tiếng gõ",
+      "chapter_number": 6,
+      "subject_entity_name": "Nguồn tiếng gõ",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 39,
+    "evidence": [
+      {
+        "end": 947,
+        "quote": "Bản ghi ở trong túi chống ẩm của Linh, còn nguồn tiếng gõ vẫn chưa được xác định.",
+        "start": 866,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  }
+]

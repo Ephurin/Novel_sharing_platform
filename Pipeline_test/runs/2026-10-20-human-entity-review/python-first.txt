@@ -1,0 +1,43 @@
+.................F.FF......                                              [100%]
+================================== FAILURES ===================================
+_ test_revision_uses_verified_occurrence_and_persists_audit_without_canon_write _
+
+    def test_revision_uses_verified_occurrence_and_persists_audit_without_canon_write():
+        repository, analysis, args = service('\u0110i cho an to\xe0n. An t\u1edbi tr\u1ea1m B\u1ed1n.', Verifier())
+        result = analysis.analyze(**args)
+>       an = next(p for p in result.proposals if p.payload.get('canonical_name') == 'An')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests\test_entity_candidates.py:211: StopIteration
+_ test_bad_or_unresolved_verification_stops_before_event_fact_or_partial_proposals[unresolved] _
+
+mode = 'unresolved'
+
+    @pytest.mark.parametrize('mode', ['malformed', 'unresolved'])
+    def test_bad_or_unresolved_verification_stops_before_event_fact_or_partial_proposals(mode):
+        llm = Verifier(malformed=mode == 'malformed', unresolved=mode == 'unresolved')
+        repository, analysis, args = service('An t\u1edbi tr\u1ea1m B\u1ed1n.', llm)
+        args['options'] = {'extract_events': True, 'extract_prose_facts': True}
+>       with pytest.raises(AnalysisOutputError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'domain.errors.AnalysisOutputError'>
+
+tests\test_entity_candidates.py:225: Failed
+___ test_alias_names_flow_to_event_and_fact_canonical_subjects_then_review ____
+
+    def test_alias_names_flow_to_event_and_fact_canonical_subjects_then_review():
+        llm = Verifier({'Mai Linh': ('Mai Linh', 'PER'), 'Linh': ('Mai Linh', 'PER')})
+        repository, analysis, args = service('Linh l\xe0 t\xean g\u1ecdi c\u1ee7a Mai Linh. Linh t\u1edbi kho.', llm)
+        args['options'] = {'extract_events': True, 'extract_prose_facts': True}
+        result = analysis.analyze(**args)
+>       event = next(p for p in result.proposals if p.proposal_type == 'event')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+tests\test_entity_candidates.py:237: StopIteration
+=========================== short test summary info ===========================
+FAILED tests/test_entity_candidates.py::test_revision_uses_verified_occurrence_and_persists_audit_without_canon_write
+FAILED tests/test_entity_candidates.py::test_bad_or_unresolved_verification_stops_before_event_fact_or_partial_proposals[unresolved]
+FAILED tests/test_entity_candidates.py::test_alias_names_flow_to_event_and_fact_canonical_subjects_then_review
+3 failed, 24 passed in 6.40s

@@ -1,0 +1,42 @@
+[
+  {
+    "chapter_number": 1,
+    "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+    "title": "Chương 1 — Bến trở về",
+    "status": "DRAFT",
+    "content": null,
+    "word_count": 1216
+  },
+  {
+    "chapter_number": 2,
+    "chapter_id": "51878bae-e04c-444a-a293-c61282b74bda",
+    "title": "Chương 2 — Lần đọc thứ nhất",
+    "status": "DRAFT",
+    "content": null,
+    "word_count": 1005
+  },
+  {
+    "chapter_number": 3,
+    "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+    "title": "Chương 3 — Hai nơi treo một quả chuông",
+    "status": "DRAFT",
+    "content": null,
+    "word_count": 995
+  },
+  {
+    "chapter_number": 4,
+    "chapter_id": "ca807382-f461-4d96-bf53-1b3349f57cdd",
+    "title": "Chương 4 — Bản đồ không có tiếng nước",
+    "status": "DRAFT",
+    "content": null,
+    "word_count": 957
+  },
+  {
+    "chapter_number": 5,
+    "chapter_id": "f7d1cd49-6042-4119-9641-d696bbf0dc9d",
+    "title": "Chương 5 — Ba tiếng gõ",
+    "status": "DRAFT",
+    "content": null,
+    "word_count": 574
+  }
+]

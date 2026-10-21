@@ -1,0 +1,123 @@
+Browser tab: 3, Title: "Ephurin Author IDE", URL: "http://localhost:18080/author/ide?novelId=7d03320e-94c3-4913-a31f-a6eeef8af0dc&chapterId=1ad6c541-1079-4d46-8019-9a0f5e765a9a".
+1 AXWebArea Ephurin Author IDE, URL: localhost:18080/author/ide?novelId=7d03320e-94c3-4913-a31f-a6eeef8af0dc&chapterId=1ad6c541-1079-4d46-8019-9a0f5e765a9a
+	2 container root
+		3 container
+			4 link Description: arrow_back Tủ truyện, Help: Quay lại danh sách tác phẩm, Value: localhost:18080/author/novels/7d03320e-94c3-4913-a31f-a6eeef8af0dc
+			5 container Breadcrumb
+				6 text Untitled Novel
+				7 text /
+				8 text Chương 6 — Rút khỏi trạm Bốn
+			120 text Đã lưu •  07:19 description 45  từ • ~ 1  phút
+			10 button menu_book Bộ nhớ truyện, Help: Bộ nhớ, trích xuất và định hướng tiểu thuyết
+				11 text menu_book
+				12 text Bộ nhớ truyện
+			13 button fullscreen Tập trung, Help: Chế độ tập trung (Zen Mode)
+				14 text fullscreen
+				15 text Tập trung
+			16 button auto_awesome AI Hỗ trợ viết, Help: Mở trợ lý sáng tác AI
+				17 text auto_awesome
+				18 text AI Hỗ trợ viết
+			19 button Xuất bản chương send
+				20 text Xuất bản chương
+				21 text send
+		22 container
+			23 button view_sidebar, Help: Đóng/Mở thanh danh sách chương
+			24 text Trạng thái: DRAFT • Tác phẩm: 
+			25 text Untitled Novel
+			26 button Miễn phí
+			27 button stars Chương VIP ✦
+				28 text stars
+				29 text Chương VIP ✦
+		30 container
+			31 button Bộ nhớ · Trích xuất · Chờ duyệt
+			32 text MỤC LỤC CHƯƠNG 6
+			33 text Truyện: Untitled Novel
+			34 button first_page, Help: Thu gọn danh sách
+			35 container
+				36 text search
+				37 text field (settable)
+			38 button add_circle Thêm chương mới
+				39 text add_circle
+				40 text Thêm chương mới
+			41 container
+				42 text CHƯƠNG  1 Bản nháp
+				43 text Chương 1 — Bến trở về
+				44 text 1,216 từ CHƯƠNG  2 Bản nháp
+				45 text Chương 2 — Lần đọc thứ nhất
+				46 text 1,005 từ CHƯƠNG  3 Bản nháp
+				47 text Chương 3 — Hai nơi treo một quả chuông
+				48 text 995 từ CHƯƠNG  4 Bản nháp
+				49 text Chương 4 — Bản đồ không có tiếng nước
+				50 text 957 từ CHƯƠNG  5 Bản nháp
+				51 text Chương 5 — Ba tiếng gõ
+				52 text 574 từ
+				88 text CHƯƠNG  6 Bản nháp
+				89 text Chương 6 — Rút khỏi trạm Bốn
+				90 text 45 từ Đang mở
+			53 container
+				54 button text_fields Merriweather expand_more, Help: Đổi kiểu chữ (7 phông chữ Việt hóa)
+					55 text text_fields
+					56 text Merriweather
+					57 text expand_more
+				58 container Cỡ chữ
+					59 button A-, Help: Giảm cỡ chữ (A-)
+					60 text 17
+					61 button A+, Help: Tăng cỡ chữ (A+)
+				62 button format_align_justify, Help: Căn đều hai bên (Chuẩn sách xuất bản)
+				63 button format_align_left, Help: Căn trái
+				64 button format_align_center, Help: Căn giữa (Thơ, tiêu đề phụ, lời đề từ)
+				65 button format_align_right, Help: Căn phải (Ký tên, ngày tháng, xuất xứ)
+				66 button format_line_spacing 2.15x expand_more, Help: Khoảng cách giãn dòng (Line-height)
+					67 text format_line_spacing
+					68 text 2.15
+					69 text x
+					70 text expand_more
+				71 button format_indent_increase Thụt dòng, Help: Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)
+					72 text format_indent_increase
+					73 text Thụt dòng
+				74 button format_bold, Help: In đậm (**văn bản**)
+				75 button format_italic, Help: In nghiêng (*văn bản*)
+				76 button format_underlined, Help: Gạch chân (<u>văn bản</u>)
+				77 button strikethrough_s, Help: Gạch ngang (~~văn bản~~)
+				78 button “”, Help: Trích dẫn lời thoại “...”
+				79 button —, Help: Gạch đầu dòng lời thoại (— )
+				80 button ✦ ✦ ✦, Help: Chèn dấu phân cảnh / chuyển đoạn (✦ ✦ ✦)
+			81 container
+				82 text field (settable) Chương 6 — Rút khỏi trạm Bốn
+				83 text Đã lưu: 07:19 • Untitled Novel • Chương số  6
+				84 text entry area (settable) Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng. Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị. An giữ thuyền ngoài sân. Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.
+			91 text auto_awesome
+			92 heading Trợ lý sáng tác AI • Ephurin, Value: 3
+				93 text Trợ lý sáng tác AI • Ephurin
+			94 text Context-Aware LLM & Story Bible
+			95 button close, Help: Đóng trợ lý
+			96 text Phạm vi ngữ cảnh:
+			97 pop up button (collapsed, settable) Value: Story Bible (Nhân vật & Sự kiện), Secondary Actions: Expand
+				98 menu
+					99 Đoạn văn vừa viết
+					100 Toàn bộ chương hiện tại
+					101 (selected) Story Bible (Nhân vật & Sự kiện)
+			102 text TÁC VỤ VĂN HỌC NHANH
+			103 button ✍️ Viết tiếp
+				104 text ✍️
+				121 text Viết tiếp
+			106 button ✨ Gọt giũa văn phong
+				107 text ✨
+				122 text Gọt giũa văn phong
+			109 button 🎨 Mô tả ngoại cảnh
+				110 text 🎨
+				123 text Mô tả ngoại cảnh
+			112 button 💬 Viết hội thoại
+				113 text 💬
+				124 text Viết hội thoại
+			125 container
+				126 text BẢN THẢO AI (CANONICAL P1) Đã kiểm định nhất quán • P1 Loop {
+  "draft_text": "Duy thu dọn các thiết bị đo đạc, cuộn lại đoạn dây cáp nhỏ rồi nhét vào chiếc hộp dụng cụ kim loại. Tiếng nước từ chân tường vẫn róc rách dâng cao, ngậm vào những bậc thang gạch thẫm màu. Anh ra hiệu cho Linh, cả hai bước ra khỏi cửa trạm Bốn, khép hờ tấm chắn sắt rỉ sét mà không khóa chặt. An nổ máy chiếc xuồng nhỏ neo sát bậc thềm, nước bắn tung tóe vào mạn thuyền khi động cơ gầm lên một tiếng ngắn rồi đều đều nhịp.\n\nTrên xuồng, họ lướt dọc theo nhánh tây hướng về phía bờ kè cũ. Trời không mưa nhưng hơi nước bốc lên đặc quánh, phủ một lớp sương mờ đục trên mặt sông đang dâng. Duy ôm cuộn bản đồ bọc ni lông trong lòng, mắt nhìn thẳng vào dải đất xám xịt phía trước. Linh ngồi phía đuôi xuồng, tay bám nhẹ vào thành mạn gỗ ẩm ướt. Cô không mở máy ghi âm, cũng không nhắc lại những vệt sóng bất thường trên màn hình lúc nãy; bản ghi ngày thứ hai đã được lưu trữ an toàn trong túi chống ẩm dưới chân cô.\n\nKhi xuồng cập vào đoạn bờ kè đá hộc, An tắt máy để thuyền trôi theo quán tính vào sát mép nước. Mai Linh bước lên bờ trước, giày dính đầy bùn đất sẫm màu của vùng triều lên. Cô đi chậm dọc theo chân tường chắn sóng dài ngút tầm mắt, nơi những đám rêu xanh mướt bám dày đặc vào các thớ đá. Giữa những hốc đá ngập nước lấp xấp, cô khựng lại, cúi người nhặt một chiếc vỏ ốc xoắn nhỏ có sắc tím tro đặc biệt. Bề mặt vỏ nhẵn thín, lạnh ngắt dưới đầu ngón tay. Cô ngắm nghía nó trong giây lát rồi cẩn thận cất vào chiếc túi vải đen đeo sườn, đoạn tiếp bước theo Duy hướng về phía con đường mòn dẫn ngược lên thị trấn.",
+  "explanation": "Tiếp tục chương 6 theo đúng các ràng buộc: Duy và Linh rút khỏi trạm Bốn, bảo toàn bản ghi, duy trì nhịp điều tra
+				127 button Chấp nhận bản thảo
+				128 button Từ chối / Bỏ qua
+			117 container
+				118 text entry area (settable) Viết tiếp khoảng 600 từ cho chương 6 từ đoạn đang có, theo hướng rút khỏi trạm Bốn an toàn và bảo toàn bản ghi. Dùng các nhân vật đã có trong bộ nhớ, giữ nhịp điều tra chậm, chưa kết luận nguồn tiếng gõ. Thêm một cảnh ngắn ở bờ kè: Mai Linh nhặt một chiếc vỏ ốc xoắn màu tím tro rồi cất vào túi vải đen. Chưa tới trạm bơm số Hai, chưa nhận hồ sơ hay phong bì. Chỉ trả văn xuôi truyện, không phân tích hay tóm tắt.
+				119 button send, Help: Gửi yêu cầu
+
+The focused UI element is 1 AXWebArea Ephurin Author IDE, URL: localhost:18080/author/ide?novelId=7d03320e-94c3-4913-a31f-a6eeef8af0dc&chapterId=1ad6c541-1079-4d46-8019-9a0f5e765a9a

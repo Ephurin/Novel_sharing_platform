@@ -1,0 +1,10 @@
+{
+  "run_id": "2026-10-20-human-entity-review",
+  "status": "READY_FOR_ISOLATED_LIVE_RETEST",
+  "implemented": true,
+  "offline_validation": "PASS_TARGETED_FULL_BACKEND_NOT_GREEN",
+  "runtime_deployed": false,
+  "next": "Follow Pipeline_test/GEMINI_HUMAN_ENTITY_REVIEW_RETEST.md on a NEW isolated stack; migrate0012; opt-in flag; test P1/P2/P3 entity gates before S01-S11/35gold/long-run.",
+  "do_not_resume_old_outboxes": true,
+  "long_run_100k": "NOT_RUN"
+}

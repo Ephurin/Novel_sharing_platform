@@ -1,0 +1,423 @@
+{
+  "reviewer": "Codex developer/retester (not independent)",
+  "method": "Explicit manual assertion judgments; deterministic ID/span checks only for evidence linkage",
+  "raw_counts": {
+    "PASS": 15,
+    "FAIL": 16,
+    "PARTIAL": 4
+  },
+  "expected_n": 35,
+  "critical_expected_n": 35,
+  "structural_span_hash_valid_n": 187,
+  "structural_checked_n": 187,
+  "semantic_provenance_accuracy": "NOT_AGGREGATED",
+  "reviewed_counts": {
+    "PASS": 13,
+    "FAIL": 19,
+    "PARTIAL": 2,
+    "PASS_AFTER_AUTHOR_WORDING": 1
+  },
+  "raw_gold_gate": "FAIL",
+  "items": [
+    {
+      "item_id": "G01",
+      "assertion": "Linh 29 tuổi",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "aa54dd2c-ffed-5b19-b8aa-f2a76d293e7c"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "f290b36b-b37a-4aec-9eda-7dde131e5d43"
+      ],
+      "rationale": "Mai Linh age 29 is explicit."
+    },
+    {
+      "item_id": "G02",
+      "assertion": "Linh trở về sau 11 năm",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "b2d85e2b-f121-57fd-a221-eb7f38c63e2f"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "6d78e265-2944-4e32-9443-3262145121e2"
+      ],
+      "rationale": "Eleven-year absence is represented."
+    },
+    {
+      "item_id": "G03",
+      "assertion": "Lũ cũ xảy ra 17 năm trước",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "fa390415-4686-5723-9005-77df66ec72ff"
+      ],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "Flood marker refers to the flood 17 years earlier; subject is unresolved."
+    },
+    {
+      "item_id": "G04",
+      "assertion": "Có 23 người chết trong lũ",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "fe93ad4d-8ed3-5d85-997b-2def8a4f5430"
+      ],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "23 flood victims is explicit; subject is unresolved."
+    },
+    {
+      "item_id": "G05",
+      "assertion": "Mai Lâm đã chết trong lũ",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "38939d70-0063-54e4-b49d-2d8df088b700"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "16205e2e-10a3-44ae-82cb-7b028062c849"
+      ],
+      "rationale": "Mai Lam explicitly Dead, not a default Alive state."
+    },
+    {
+      "item_id": "G06",
+      "assertion": "CV-04 có cạnh sơn xanh",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No proposition records the painted blue edge of CV-04."
+    },
+    {
+      "item_id": "G07",
+      "assertion": "CV-04 có vết nứt cong hình móc",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No proposition records the curved hook-shaped crack of CV-04."
+    },
+    {
+      "item_id": "G08",
+      "assertion": "CV-04 đã quét một lần",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "Playback is represented but a durable scan_count=1 proposition is absent."
+    },
+    {
+      "item_id": "G09",
+      "assertion": "Mỗi lần quét làm mất phổ cao",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "0ca33305-f3e6-51f5-ae6d-33e9bc2335a9"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "e8cedc5a-10b6-458d-a68b-8bdc473b0ed9"
+      ],
+      "rationale": "Each read loses more high-frequency spectrum."
+    },
+    {
+      "item_id": "G10",
+      "assertion": "Giới hạn bảo tồn đề nghị ba lần quét",
+      "raw_verdict": "PARTIAL",
+      "raw_proposal_ids": [
+        "eba8dbd4-b3c2-5b5d-bdd1-c214058bf2c8"
+      ],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "Value 3 retained, but the recommended/proposed qualifier is lost; rejected in review."
+    },
+    {
+      "item_id": "G11",
+      "assertion": "Bản ghi có câu mở cửa Bốn",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "b1f769dd-e178-5251-9592-8e169df24f3b"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "9994fcd1-9e02-4686-a4de-1be25d9828c8"
+      ],
+      "rationale": "The recording contains Open Gate Four; not an executed command."
+    },
+    {
+      "item_id": "G12",
+      "assertion": "Linh cho rằng giọng giống cha, chưa xác minh",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "0bd310da-3cf1-5c1d-b394-48983b8ca3d0"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "8ff52d74-38d4-4526-bf25-2a09210d8a9c"
+      ],
+      "rationale": "Linh thinks the voice may be her father; hypothesis preserved."
+    },
+    {
+      "item_id": "G13",
+      "assertion": "Chuông chưa chứng minh thời gian/vị trí",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No explicit limit on what the bell proves about time/location."
+    },
+    {
+      "item_id": "G14",
+      "assertion": "Duy không nghe tai trái",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "8e602f4d-6bb5-5e65-aa19-f1b0460effd9"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "6e3bdcc7-dfb8-468a-8ebb-36461558b4e5"
+      ],
+      "rationale": "Duy left-ear hearing loss is explicit."
+    },
+    {
+      "item_id": "G15",
+      "assertion": "Duy dùng tai phải và dụng cụ",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No chapter-2 assertion preserves the full right-ear/instrument compensation."
+    },
+    {
+      "item_id": "G16",
+      "assertion": "Hai ổ lưu dữ liệu đã thu",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No two-storage-drives proposition."
+    },
+    {
+      "item_id": "G17",
+      "assertion": "Một ổ niêm trong tủ ông Hòa",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No sealed drive in Hoa cabinet proposition."
+    },
+    {
+      "item_id": "G18",
+      "assertion": "Một ổ trong túi chống ẩm Linh",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No separate drive in Linh moisture-proof bag proposition."
+    },
+    {
+      "item_id": "G19",
+      "assertion": "Vòng chuẩn đồng có khía tam giác",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "1b83c77a-122a-5ba4-ba49-2a92f71bf220"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "01940bc7-af99-4535-b0d1-7faef7c74e42"
+      ],
+      "rationale": "Triangular notch retained on the copper ring, including identity in subject name."
+    },
+    {
+      "item_id": "G20",
+      "assertion": "Vòng chuẩn được Duy cất trong hộp dụng cụ",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "Toolbox location alone does not state that Duy stores the ring inside it."
+    },
+    {
+      "item_id": "G21",
+      "assertion": "Sâm kể chuông được chuyển sau lũ; chưa có hồ sơ",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [
+        "7d15916f-465a-5eb4-adb7-fcfa652d59ff",
+        "b63d2be3-229e-5553-9e7c-960f50828522"
+      ],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "Sam account promoted to confirmed bell history without attribution; rejected in review."
+    },
+    {
+      "item_id": "G22",
+      "assertion": "Yên giấu sổ bọc vải dưới ghế",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [
+        "83c90ccd-3015-5692-9e02-1195185c04f1"
+      ],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "Conflates observed hidden notebook with unverified market-book explanation; rejected."
+    },
+    {
+      "item_id": "G23",
+      "assertion": "Linh thấy sổ nhưng chưa đọc",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No explicit Linh saw but has not read notebook assertion."
+    },
+    {
+      "item_id": "G24",
+      "assertion": "Vũ cho phép khảo sát có điều kiện",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "Meeting/discussion is present but conditional survey permission is not."
+    },
+    {
+      "item_id": "G25",
+      "assertion": "Không vận hành cửa nước khi khảo sát",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No durable restriction against operating the water gate."
+    },
+    {
+      "item_id": "G26",
+      "assertion": "Không xuống khoang kín",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No durable restriction against entering the sealed compartment."
+    },
+    {
+      "item_id": "G27",
+      "assertion": "Động cơ Vũ chưa chứng minh",
+      "raw_verdict": "FAIL",
+      "raw_proposal_ids": [],
+      "reviewed_verdict": "FAIL",
+      "record_ids": [],
+      "rationale": "No explicit uncertainty about Vu willingness to tell everything."
+    },
+    {
+      "item_id": "G28",
+      "assertion": "Bản đồ đánh dấu ống bịt nhưng hiện trường có âm",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "ec5196ac-ada5-5bdb-9858-df91664e3b79",
+        "6e0caf3b-cd3d-5285-984f-668afa624bdc",
+        "5ee08e31-cc9a-53cf-ae85-4be899a494d0"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "c2be071f-5480-47af-b3ba-3ebfeffb2997",
+        "38709de7-8a86-4705-be49-34c316fd4a85",
+        "0b64a323-f7ab-4f5b-86af-40abe56ae685"
+      ],
+      "rationale": "Map marking and observed sound are separately qualified; no physical blockage is established."
+    },
+    {
+      "item_id": "G29",
+      "assertion": "Ngày hai, buổi sáng trạm Bốn",
+      "raw_verdict": "PARTIAL",
+      "raw_proposal_ids": [
+        "d5d29415-9734-502a-929a-fc1ee3e82330"
+      ],
+      "reviewed_verdict": "PARTIAL",
+      "record_ids": [
+        "7a226c44-1ab7-47b2-9f52-dd14aa9141ec"
+      ],
+      "rationale": "Day two/Station Four/west branch retained; morning qualifier is not explicit in stored proposition."
+    },
+    {
+      "item_id": "G30",
+      "assertion": "An giữ thuyền ngoài trạm",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "4070ae11-ca68-5c1f-96fe-413ee446b90e",
+        "8bc71941-8daa-5dab-81ba-ff724a2e2eaf"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "4070ae11-ca68-5c1f-96fe-413ee446b90e",
+        "44451a5a-162b-41f5-9815-1c96eb0c1efe"
+      ],
+      "rationale": "An ties the boat outside."
+    },
+    {
+      "item_id": "G31",
+      "assertion": "Linh và Duy quan sát sàn trên, chưa xuống khoang",
+      "raw_verdict": "PARTIAL",
+      "raw_proposal_ids": [
+        "1fab813c-7027-5aa9-a47e-0dad54ce88dd"
+      ],
+      "reviewed_verdict": "PARTIAL",
+      "record_ids": [
+        "aa8e69ef-52cc-497d-bbfb-af4a552a5368"
+      ],
+      "rationale": "Linh upper-floor/not-descended state retained; Duy is not independently bound to that state."
+    },
+    {
+      "item_id": "G32",
+      "assertion": "Chưa có bằng chứng có người dưới khoang",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "6abdfef6-fbe4-5f45-8a5a-d330ee8fe739"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "57062b26-0b18-4b24-a0ee-155cfdca971e"
+      ],
+      "rationale": "Confirmed fact about Duy lack of evidence, not an assertion that nobody is below."
+    },
+    {
+      "item_id": "G33",
+      "assertion": "Linh nghe ba tiếng gõ ngắn và tiếng thứ tư dài",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "5bcc3024-82d9-524c-b514-9942f3c8a095",
+        "1438b48e-02c8-5b92-8084-8a407cfed20b"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "e271c7bd-febc-4d80-b3c8-ac8f68d6769c",
+        "e8ba2e8d-36c7-4935-980d-3d560e1ed705"
+      ],
+      "rationale": "Three short knocks followed by a fourth long sound are explicit."
+    },
+    {
+      "item_id": "G34",
+      "assertion": "Nguồn tiếng gõ chưa xác định",
+      "raw_verdict": "PARTIAL",
+      "raw_proposal_ids": [
+        "5bcc3024-82d9-524c-b514-9942f3c8a095",
+        "1438b48e-02c8-5b92-8084-8a407cfed20b"
+      ],
+      "reviewed_verdict": "PASS_AFTER_AUTHOR_WORDING",
+      "record_ids": [
+        "e271c7bd-febc-4d80-b3c8-ac8f68d6769c",
+        "e8ba2e8d-36c7-4935-980d-3d560e1ed705"
+      ],
+      "rationale": "Unknown placeholder is unresolved; explicit unknown-source wording is supplied by author review."
+    },
+    {
+      "item_id": "G35",
+      "assertion": "Mực nước khe cửa bắt đầu lên",
+      "raw_verdict": "PASS",
+      "raw_proposal_ids": [
+        "0cba063c-cb13-505a-ad58-45e3b29d88e1"
+      ],
+      "reviewed_verdict": "PASS",
+      "record_ids": [
+        "0c1d4e18-521a-4a93-b09c-1f0c5eab016a"
+      ],
+      "rationale": "Reflecting waterline in the door gap begins rising."
+    }
+  ]
+}

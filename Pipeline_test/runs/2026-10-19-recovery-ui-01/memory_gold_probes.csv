@@ -1,0 +1,71 @@
+audit_id,item_id,budget,query,expected,verdict,packed_ids,json_paths,context_file
+P1-M0,G01,4000,character=Linh; chapter_cutoff=5 (inclusive),Linh 29 tuổi,PASS,f290b36b-b37a-4aec-9eda-7dde131e5d43,/current_states/1/state-or-field/age,evidence/m0-after-review/context-4000.json
+P1-M0,G01,8192,character=Linh; chapter_cutoff=5 (inclusive),Linh 29 tuổi,PASS,f290b36b-b37a-4aec-9eda-7dde131e5d43,/world_rules/14;/current_states/1/state-or-field/age,evidence/m0-after-review/context-8192.json
+P1-M0,G02,4000,character=Linh; chapter_cutoff=5 (inclusive),Linh trở về sau 11 năm,PASS,6d78e265-2944-4e32-9443-3262145121e2,/current_states/1/state-or-field/absence_duration_years,evidence/m0-after-review/context-4000.json
+P1-M0,G02,8192,character=Linh; chapter_cutoff=5 (inclusive),Linh trở về sau 11 năm,PASS,6d78e265-2944-4e32-9443-3262145121e2,/current_states/1/state-or-field/absence_duration_years,evidence/m0-after-review/context-8192.json
+P1-M0,G03,4000,character=Linh; chapter_cutoff=5 (inclusive),Lũ cũ xảy ra 17 năm trước,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G03,8192,character=Linh; chapter_cutoff=5 (inclusive),Lũ cũ xảy ra 17 năm trước,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G04,4000,character=Linh; chapter_cutoff=5 (inclusive),Có 23 người chết trong lũ,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G04,8192,character=Linh; chapter_cutoff=5 (inclusive),Có 23 người chết trong lũ,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G05,4000,character=Linh; chapter_cutoff=5 (inclusive),Mai Lâm đã chết trong lũ,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G05,8192,character=Linh; chapter_cutoff=5 (inclusive),Mai Lâm đã chết trong lũ,PASS,16205e2e-10a3-44ae-82cb-7b028062c849,/current_states/9/state-or-field/status,evidence/m0-after-review/context-8192.json
+P1-M0,G06,4000,character=Linh; chapter_cutoff=5 (inclusive),CV-04 có cạnh sơn xanh,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G06,8192,character=Linh; chapter_cutoff=5 (inclusive),CV-04 có cạnh sơn xanh,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G07,4000,character=Linh; chapter_cutoff=5 (inclusive),CV-04 có vết nứt cong hình móc,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G07,8192,character=Linh; chapter_cutoff=5 (inclusive),CV-04 có vết nứt cong hình móc,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G08,4000,character=Linh; chapter_cutoff=5 (inclusive),CV-04 đã quét một lần,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G08,8192,character=Linh; chapter_cutoff=5 (inclusive),CV-04 đã quét một lần,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G09,4000,character=Linh; chapter_cutoff=5 (inclusive),Mỗi lần quét làm mất phổ cao,PASS,e8cedc5a-10b6-458d-a68b-8bdc473b0ed9,/current_states/5/state-or-field/ảnh hưởng của việc chạm đầu đọc,evidence/m0-after-review/context-4000.json
+P1-M0,G09,8192,character=Linh; chapter_cutoff=5 (inclusive),Mỗi lần quét làm mất phổ cao,PASS,e8cedc5a-10b6-458d-a68b-8bdc473b0ed9,/current_states/5/state-or-field/ảnh hưởng của việc chạm đầu đọc,evidence/m0-after-review/context-8192.json
+P1-M0,G10,4000,character=Linh; chapter_cutoff=5 (inclusive),Giới hạn bảo tồn đề nghị ba lần quét,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G10,8192,character=Linh; chapter_cutoff=5 (inclusive),Giới hạn bảo tồn đề nghị ba lần quét,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G11,4000,character=Linh; chapter_cutoff=5 (inclusive),Bản ghi có câu mở cửa Bốn,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G11,8192,character=Linh; chapter_cutoff=5 (inclusive),Bản ghi có câu mở cửa Bốn,DROPPED,,,evidence/m0-after-review/context-8192.json
+P1-M0,G12,4000,character=Linh; chapter_cutoff=5 (inclusive),"Linh cho rằng giọng giống cha, chưa xác minh",DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G12,8192,character=Linh; chapter_cutoff=5 (inclusive),"Linh cho rằng giọng giống cha, chưa xác minh",DROPPED,,,evidence/m0-after-review/context-8192.json
+P1-M0,G13,4000,character=Linh; chapter_cutoff=5 (inclusive),Chuông chưa chứng minh thời gian/vị trí,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G13,8192,character=Linh; chapter_cutoff=5 (inclusive),Chuông chưa chứng minh thời gian/vị trí,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G14,4000,character=Linh; chapter_cutoff=5 (inclusive),Duy không nghe tai trái,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G14,8192,character=Linh; chapter_cutoff=5 (inclusive),Duy không nghe tai trái,PASS,6e3bdcc7-dfb8-468a-8ebb-36461558b4e5,/current_states/8/state-or-field/khuyết tật tai,evidence/m0-after-review/context-8192.json
+P1-M0,G15,4000,character=Linh; chapter_cutoff=5 (inclusive),Duy dùng tai phải và dụng cụ,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G15,8192,character=Linh; chapter_cutoff=5 (inclusive),Duy dùng tai phải và dụng cụ,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G16,4000,character=Linh; chapter_cutoff=5 (inclusive),Hai ổ lưu dữ liệu đã thu,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G16,8192,character=Linh; chapter_cutoff=5 (inclusive),Hai ổ lưu dữ liệu đã thu,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G17,4000,character=Linh; chapter_cutoff=5 (inclusive),Một ổ niêm trong tủ ông Hòa,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G17,8192,character=Linh; chapter_cutoff=5 (inclusive),Một ổ niêm trong tủ ông Hòa,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G18,4000,character=Linh; chapter_cutoff=5 (inclusive),Một ổ trong túi chống ẩm Linh,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G18,8192,character=Linh; chapter_cutoff=5 (inclusive),Một ổ trong túi chống ẩm Linh,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G19,4000,character=Linh; chapter_cutoff=5 (inclusive),Vòng chuẩn đồng có khía tam giác,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G19,8192,character=Linh; chapter_cutoff=5 (inclusive),Vòng chuẩn đồng có khía tam giác,DROPPED,,,evidence/m0-after-review/context-8192.json
+P1-M0,G20,4000,character=Linh; chapter_cutoff=5 (inclusive),Vòng chuẩn được Duy cất trong hộp dụng cụ,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G20,8192,character=Linh; chapter_cutoff=5 (inclusive),Vòng chuẩn được Duy cất trong hộp dụng cụ,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G21,4000,character=Linh; chapter_cutoff=5 (inclusive),Sâm kể chuông được chuyển sau lũ; chưa có hồ sơ,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G21,8192,character=Linh; chapter_cutoff=5 (inclusive),Sâm kể chuông được chuyển sau lũ; chưa có hồ sơ,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G22,4000,character=Linh; chapter_cutoff=5 (inclusive),Yên giấu sổ bọc vải dưới ghế,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G22,8192,character=Linh; chapter_cutoff=5 (inclusive),Yên giấu sổ bọc vải dưới ghế,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G23,4000,character=Linh; chapter_cutoff=5 (inclusive),Linh thấy sổ nhưng chưa đọc,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G23,8192,character=Linh; chapter_cutoff=5 (inclusive),Linh thấy sổ nhưng chưa đọc,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G24,4000,character=Linh; chapter_cutoff=5 (inclusive),Vũ cho phép khảo sát có điều kiện,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G24,8192,character=Linh; chapter_cutoff=5 (inclusive),Vũ cho phép khảo sát có điều kiện,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G25,4000,character=Linh; chapter_cutoff=5 (inclusive),Không vận hành cửa nước khi khảo sát,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G25,8192,character=Linh; chapter_cutoff=5 (inclusive),Không vận hành cửa nước khi khảo sát,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G26,4000,character=Linh; chapter_cutoff=5 (inclusive),Không xuống khoang kín,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G26,8192,character=Linh; chapter_cutoff=5 (inclusive),Không xuống khoang kín,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G27,4000,character=Linh; chapter_cutoff=5 (inclusive),Động cơ Vũ chưa chứng minh,UPSTREAM_GAP,,,evidence/m0-after-review/context-4000.json
+P1-M0,G27,8192,character=Linh; chapter_cutoff=5 (inclusive),Động cơ Vũ chưa chứng minh,UPSTREAM_GAP,,,evidence/m0-after-review/context-8192.json
+P1-M0,G28,4000,character=Linh; chapter_cutoff=5 (inclusive),Bản đồ đánh dấu ống bịt nhưng hiện trường có âm,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G28,8192,character=Linh; chapter_cutoff=5 (inclusive),Bản đồ đánh dấu ống bịt nhưng hiện trường có âm,DROPPED,38709de7-8a86-4705-be49-34c316fd4a85,/current_states/8/state-or-field/observation,evidence/m0-after-review/context-8192.json
+P1-M0,G29,4000,character=Linh; chapter_cutoff=5 (inclusive),"Ngày hai, buổi sáng trạm Bốn",UPSTREAM_GAP,7a226c44-1ab7-47b2-9f52-dd14aa9141ec,/world_rules/5;/current_states/0/state-or-field/record_entry,evidence/m0-after-review/context-4000.json
+P1-M0,G29,8192,character=Linh; chapter_cutoff=5 (inclusive),"Ngày hai, buổi sáng trạm Bốn",UPSTREAM_GAP,7a226c44-1ab7-47b2-9f52-dd14aa9141ec,/world_rules/5;/current_states/0/state-or-field/record_entry,evidence/m0-after-review/context-8192.json
+P1-M0,G30,4000,character=Linh; chapter_cutoff=5 (inclusive),An giữ thuyền ngoài trạm,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G30,8192,character=Linh; chapter_cutoff=5 (inclusive),An giữ thuyền ngoài trạm,DROPPED,,,evidence/m0-after-review/context-8192.json
+P1-M0,G31,4000,character=Linh; chapter_cutoff=5 (inclusive),"Linh và Duy quan sát sàn trên, chưa xuống khoang",UPSTREAM_GAP,aa8e69ef-52cc-497d-bbfb-af4a552a5368,/world_rules/0;/current_states/0/state-or-field/location,evidence/m0-after-review/context-4000.json
+P1-M0,G31,8192,character=Linh; chapter_cutoff=5 (inclusive),"Linh và Duy quan sát sàn trên, chưa xuống khoang",UPSTREAM_GAP,aa8e69ef-52cc-497d-bbfb-af4a552a5368,/world_rules/0;/current_states/0/state-or-field/location,evidence/m0-after-review/context-8192.json
+P1-M0,G32,4000,character=Linh; chapter_cutoff=5 (inclusive),Chưa có bằng chứng có người dưới khoang,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G32,8192,character=Linh; chapter_cutoff=5 (inclusive),Chưa có bằng chứng có người dưới khoang,PASS,57062b26-0b18-4b24-a0ee-155cfdca971e,/current_states/8/state-or-field/hypothesis,evidence/m0-after-review/context-8192.json
+P1-M0,G33,4000,character=Linh; chapter_cutoff=5 (inclusive),Linh nghe ba tiếng gõ ngắn và tiếng thứ tư dài,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G33,8192,character=Linh; chapter_cutoff=5 (inclusive),Linh nghe ba tiếng gõ ngắn và tiếng thứ tư dài,DROPPED,,,evidence/m0-after-review/context-8192.json
+P1-M0,G34,4000,character=Linh; chapter_cutoff=5 (inclusive),Nguồn tiếng gõ chưa xác định,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G34,8192,character=Linh; chapter_cutoff=5 (inclusive),Nguồn tiếng gõ chưa xác định,DROPPED,,,evidence/m0-after-review/context-8192.json
+P1-M0,G35,4000,character=Linh; chapter_cutoff=5 (inclusive),Mực nước khe cửa bắt đầu lên,DROPPED,,,evidence/m0-after-review/context-4000.json
+P1-M0,G35,8192,character=Linh; chapter_cutoff=5 (inclusive),Mực nước khe cửa bắt đầu lên,DROPPED,,,evidence/m0-after-review/context-8192.json

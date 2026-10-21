@@ -1,0 +1,40 @@
+{
+  "plan_id": "0547761e-c1a1-4e80-84c7-f974fde1ca11",
+  "novel_id": "7d03320e-94c3-4913-a31f-a6eeef8af0dc",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "plan_version": 1,
+  "status": "active",
+  "objectives": [
+    {
+      "objective_id": "c2238c77-0933-4aa5-8b0b-47f9181935d0",
+      "order_index": 1,
+      "title": "Rút khỏi trạm Bốn để bảo toàn bản ghi",
+      "description": "Duy và Linh rời trạm Bốn an toàn khi nước dâng. Giữ bản ghi và ghi nhận điều đã quan sát; nguồn tiếng gõ vẫn chưa xác định. Không kết thúc bí ẩn tại chương này.",
+      "target_chapter": 6,
+      "objective_type": "chapter_goal",
+      "status": "pending",
+      "metadata": {
+        "min_words": 1000,
+        "is_terminal": false
+      }
+    },
+    {
+      "objective_id": "9b4da1b5-bcd1-47c7-a100-6886f4c6be82",
+      "order_index": 2,
+      "title": "Hành Trình Đến Trạm Bơm Số Hai Cùng An",
+      "description": "An và Linh chèo thuyền qua các con kênh nhỏ để đến trạm bơm số Hai nhằm tìm kiếm bộ hồ sơ lưu trữ cũ liên quan đến các nhánh ống bị bịt kín. Mục tiêu đo lường: Khám phá tủ tài liệu cũ tại trạm bơm, tìm ra bản vẽ thiết kế gốc năm năm trước, mang lại mốc manh mối quan trọng về người vận hành trước đây.",
+      "target_chapter": 7,
+      "objective_type": "chapter_goal",
+      "status": "pending",
+      "metadata": {
+        "min_words": 1000,
+        "is_terminal": false
+      }
+    }
+  ],
+  "source_outline": "Đề xuất 3 diễn biến cho chương 6–8, tiếp sau cảnh nước bắt đầu dâng ở trạm Bốn. Một diễn biến đưa An và Linh tới trạm bơm số Hai để tìm hồ sơ; một diễn biến liên quan phong bì niêm phong màu đỏ dự kiến được trao sau đó. Giữ mạch điều tra chậm và không tự xác nhận nguồn tiếng gõ. Đây chỉ là kế hoạch tương lai.",
+  "source_outline_hash": "0f7fb11cf300fcc8dcfae1f109cc5ae0d08617cb0aecb475cc205c116c1a1ee5",
+  "idempotency_key": null,
+  "input_hash": "020202fd0bc01a49133a819fd0b3f08b6dd465e7e629911fd172eea69a6c42f2",
+  "created_by": "9c595f00-050d-4d2d-9f38-ce4d577a00c6"
+}

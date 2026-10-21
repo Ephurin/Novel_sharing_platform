@@ -1,0 +1,1317 @@
+{
+  "brain_version": 6,
+  "entities": [
+    {
+      "entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "name": "Linh",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "quan sát từ sàn trên, chưa xuống khoang",
+      "is_locked": false
+    },
+    {
+      "entity_id": "6be8fe67-9063-4948-8d5d-6c3f5982eac7",
+      "name": "Mai Linh",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "pottery archive storage room",
+      "is_locked": false
+    },
+    {
+      "entity_id": "645e94fb-6242-4e4c-9535-42f082f7307e",
+      "name": "An",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "be80368d-e229-4b97-95c4-aa7f3c8d1a4d",
+      "name": "Bà Yên",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "fbef0fd6-dfda-4702-acd9-beb7d1fbdd5a",
+      "name": "Bãi Dưới",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "ce2fe46a-be54-4211-9f23-1cf6ab8c1415",
+      "name": "CV-04",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "090b2f44-3ade-4599-8cd0-0963d48485ef",
+      "name": "Chợ Giữa",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "a3a53d20-813f-444f-ba9b-23082649bc6c",
+      "name": "Cồn Vân",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "60289285-98f6-4d3f-b4fe-1d376eaa1f4e",
+      "name": "Duy",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "ba667295-ebd8-4775-b6d4-db3c06e940c4",
+      "name": "Mai Lâm",
+      "entity_type": "PER",
+      "status": "Dead",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "9ef0440f-7354-4f49-b3f6-200aad719a0e",
+      "name": "Nguyễn Vũ",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "2e14f99a-a83a-419c-b330-c734396980dd",
+      "name": "Vũ",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "17b311e2-5174-4ce7-b380-f8c5f0130dc7",
+      "name": "bà Sâm",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "223289ec-50e1-4abf-bf0f-2b744cb58538",
+      "name": "băng dính",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "2cfade39-e2c7-4aff-905e-807559207459",
+      "name": "bộ nguồn dự phòng",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    }
+  ],
+  "current_states": [
+    {
+      "entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "name": "Linh",
+      "status": "Unknown",
+      "location": "quan sát từ sàn trên, chưa xuống khoang",
+      "state": {
+        "action": "giơ tay để Duy nhìn thấy rồi chỉ xuống bản ghi đang chạy",
+        "location": "quan sát từ sàn trên, chưa xuống khoang",
+        "observation": "bốn vệt sáng hiện ra trên màn hình",
+        "record_entry": "ngày hai, trạm Bốn, nhánh tây",
+        "photograph_content": "chụp cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối",
+        "storage_allotted_days": 12,
+        "storage_current_day": 2,
+        "standing_position": "bên phải Duy",
+        "storage_issues_reported": "mái dột, điện và các mảnh gốm chưa sao",
+        "ghế ngồi": "ghế thấp"
+      }
+    },
+    {
+      "entity_id": "6be8fe67-9063-4948-8d5d-6c3f5982eac7",
+      "name": "Mai Linh",
+      "status": "Alive",
+      "location": "pottery archive storage room",
+      "state": {
+        "age": 29,
+        "absence_duration_years": 11,
+        "relation_to_ba_yen": "con",
+        "location": "pottery archive storage room",
+        "activity": "signing contract"
+      }
+    },
+    {
+      "entity_id": "645e94fb-6242-4e4c-9535-42f082f7307e",
+      "name": "An",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "action": "đi ra chỗ có sóng",
+        "vá áo mưa": "bằng băng dính trong",
+        "ý định": "muốn nghe tiếng còi của chiếc phà cũ một lần trước khi rời thành phố",
+        "age": 19,
+        "raincoat_color": "cam"
+      }
+    },
+    {
+      "entity_id": "be80368d-e229-4b97-95c4-aa7f3c8d1a4d",
+      "name": "Bà Yên",
+      "status": "Alive",
+      "location": "Unknown",
+      "state": {
+        "thời gian bố đi": 17,
+        "last_text_message": "Cá nguội thì hấp lại được."
+      }
+    },
+    {
+      "entity_id": "fbef0fd6-dfda-4702-acd9-beb7d1fbdd5a",
+      "name": "Bãi Dưới",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "ce2fe46a-be54-4211-9f23-1cf6ab8c1415",
+      "name": "CV-04",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "ảnh hưởng của việc chạm đầu đọc": "phần phổ cao mất thêm"
+      }
+    },
+    {
+      "entity_id": "090b2f44-3ade-4599-8cd0-0963d48485ef",
+      "name": "Chợ Giữa",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "a3a53d20-813f-444f-ba9b-23082649bc6c",
+      "name": "Cồn Vân",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "weather": "không mưa"
+      }
+    },
+    {
+      "entity_id": "60289285-98f6-4d3f-b4fe-1d376eaa1f4e",
+      "name": "Duy",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "action": "cất máy, đứng lên rất chậm",
+        "hypothesis": "chưa có lý do để đặt một người vào khoảng tối",
+        "object_inspection": "soi đèn dọc một đường hàn và lấy thước thay vì chạm vào",
+        "door_action": "không mở cửa thêm",
+        "instruction": "hỏi bà tay quay trắng có nối với khoang phụ phía tây không và dặn chỉ hỏi đừng để bà tự đến đây",
+        "physical_reaction": "điện thoại rung, quay tai phải về phía máy, mắt vẫn nhìn khe cửa",
+        "phone_answer": "Vâng. Cháu chưa chạm.",
+        "object_location": "cuộn bản đồ đang nằm trên bệ cửa sổ",
+        "carrying": "chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông",
+        "tool_marking": "vết khía tam giác",
+        "ring_location": "không ở trong xe",
+        "observation": "nghe dòng chảy ở phía tường trạm tuần trước",
+        "tuổi": "khoảng ngoài ba mươi",
+        "khuyết tật tai": "Tai trái không nghe",
+        "thời gian bị tai trái không nghe": 4,
+        "trang phục": "áo công nhân có một đường chỉ tự vá ở khuỷu"
+      }
+    },
+    {
+      "entity_id": "ba667295-ebd8-4775-b6d4-db3c06e940c4",
+      "name": "Mai Lâm",
+      "status": "Dead",
+      "location": "Unknown",
+      "state": {
+        "status": "Dead"
+      }
+    },
+    {
+      "entity_id": "9ef0440f-7354-4f49-b3f6-200aad719a0e",
+      "name": "Nguyễn Vũ",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "clothing": "áo sơ mi xắn tay",
+        "desk_items": "ba điện thoại và một cốc trà đã nguội",
+        "action_on_name": "đứng dậy khi nghe tên Linh",
+        "fund_request_signer": "chính mình ký đề nghị kinh phí"
+      }
+    },
+    {
+      "entity_id": "2e14f99a-a83a-419c-b330-c734396980dd",
+      "name": "Vũ",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "17b311e2-5174-4ce7-b380-f8c5f0130dc7",
+      "name": "bà Sâm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "cháo hành": "không cho hành",
+        "đóng góp việc chuyển chuông": "không ký",
+        "trạm Bốn": "từng trực ở đó",
+        "danh sách trên tường": "có ba tên viết sai",
+        "ngón tay": "khớp to, móng cắt sát"
+      }
+    },
+    {
+      "entity_id": "223289ec-50e1-4abf-bf0f-2b744cb58538",
+      "name": "băng dính",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "2cfade39-e2c7-4aff-905e-807559207459",
+      "name": "bộ nguồn dự phòng",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    }
+  ],
+  "recent_events": [
+    {
+      "event_id": "f398112d-4686-5a84-a535-ec406f11883b",
+      "narrative_order": 5120,
+      "chapter_number": 4,
+      "event_type": "meeting",
+      "summary": "Duy waits for Linh at the foot of North Hill.",
+      "participants": [
+        "Duy",
+        "Linh"
+      ],
+      "metadata": {
+        "chapter": 4,
+        "summary": "Duy waits for Linh at the foot of North Hill.",
+        "evidence": [
+          {
+            "end": 157,
+            "quote": "Duy chờ Linh ở chân Đồi Bắc.",
+            "start": 129,
+            "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+            "chapter_id": "ca807382-f461-4d96-bf53-1b3349f57cdd",
+            "revision_id": "0cf5cc37-4701-4041-a5e8-e040f9836cbb",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [
+          "Đồi Bắc",
+          "Cồn Vân"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "They begin their journey and conversation."
+        ],
+        "participants": [
+          "Duy",
+          "Linh"
+        ],
+        "chapter_number": 4,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "35dc2817-ddbc-5399-ab27-db4bf058bcf9",
+      "narrative_order": 6144,
+      "chapter_number": 4,
+      "event_type": "meeting",
+      "summary": "Nguyen Vu receives Linh and Duy in a meeting room to discuss warehouse conditions and the survey.",
+      "participants": [
+        "Nguyễn Vũ",
+        "Linh",
+        "Duy"
+      ],
+      "metadata": {
+        "chapter": 4,
+        "summary": "Nguyen Vu receives Linh and Duy in a meeting room to discuss warehouse conditions and the survey.",
+        "evidence": [
+          {
+            "end": 629,
+            "quote": "Nguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố.",
+            "start": 562,
+            "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+            "chapter_id": "ca807382-f461-4d96-bf53-1b3349f57cdd",
+            "revision_id": "0cf5cc37-4701-4041-a5e8-e040f9836cbb",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [
+          "phòng họp"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "A survey permit is signed with specific conditions."
+        ],
+        "participants": [
+          "Nguyễn Vũ",
+          "Linh",
+          "Duy"
+        ],
+        "chapter_number": 4,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "8581ac2b-f15e-5440-9ae7-adb6b2b2be7f",
+      "narrative_order": 7168,
+      "chapter_number": 4,
+      "event_type": "meeting",
+      "summary": "An meets Duy and Linh at the foot of the hill with a boat and hot water.",
+      "participants": [
+        "An",
+        "Duy",
+        "Linh"
+      ],
+      "metadata": {
+        "chapter": 4,
+        "summary": "An meets Duy and Linh at the foot of the hill with a boat and hot water.",
+        "evidence": [
+          {
+            "end": 2972,
+            "quote": "An đón họ dưới chân đồi.",
+            "start": 2948,
+            "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+            "chapter_id": "ca807382-f461-4d96-bf53-1b3349f57cdd",
+            "revision_id": "0cf5cc37-4701-4041-a5e8-e040f9836cbb",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [
+          "chân đồi"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "They receive messages from Ba Sam regarding the white crank."
+        ],
+        "participants": [
+          "An",
+          "Duy",
+          "Linh"
+        ],
+        "chapter_number": 4,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "58cec1b6-b1ae-5848-9690-20a055f29c11",
+      "narrative_order": 8192,
+      "chapter_number": 4,
+      "event_type": "discovery",
+      "summary": "Duy and Linh hear a knocking sound from the darkness below while inspecting Station Four.",
+      "participants": [
+        "Duy",
+        "Linh"
+      ],
+      "metadata": {
+        "chapter": 4,
+        "summary": "Duy and Linh hear a knocking sound from the darkness below while inspecting Station Four.",
+        "evidence": [
+          {
+            "end": 4193,
+            "quote": "Trong khoảng tối bên dưới, có một tiếng gõ.",
+            "start": 4150,
+            "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+            "chapter_id": "ca807382-f461-4d96-bf53-1b3349f57cdd",
+            "revision_id": "0cf5cc37-4701-4041-a5e8-e040f9836cbb",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [
+          "trạm Bốn"
+        ],
+        "event_type": "discovery",
+        "consequences": [
+          "Heightened suspicion about water flow and the sealed areas."
+        ],
+        "participants": [
+          "Duy",
+          "Linh"
+        ],
+        "chapter_number": 4,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "b08656c0-c1c2-53bd-8af3-a3185d8e4bf3",
+      "narrative_order": 9216,
+      "chapter_number": 3,
+      "event_type": "meeting",
+      "summary": "Linh visits Bà Sâm at her porridge stall in a narrow alley.",
+      "participants": [
+        "Bà Sâm",
+        "Linh"
+      ],
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh visits Bà Sâm at her porridge stall in a narrow alley.",
+        "evidence": [
+          {
+            "end": 33,
+            "quote": "Bà Sâm bán cháo ở chỗ con hẻm hẹp",
+            "start": 0,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+            "revision_id": "fe088e21-444c-44a1-8b36-aa3d301ecffd",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [
+          "hẻm hẹp"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "Linh sits down to order porridge and talk with Bà Sâm."
+        ],
+        "participants": [
+          "Bà Sâm",
+          "Linh"
+        ],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "ad217f06-53a3-558e-b0c3-53a988a54f07",
+      "narrative_order": 10240,
+      "chapter_number": 3,
+      "event_type": "interview",
+      "summary": "Linh interviews Bà Sâm about the funeral home bell and station Bốn, and Bà Sâm recounts historical details.",
+      "participants": [
+        "Linh",
+        "Bà Sâm"
+      ],
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh interviews Bà Sâm about the funeral home bell and station Bốn, and Bà Sâm recounts historical details.",
+        "evidence": [
+          {
+            "end": 1124,
+            "quote": "Linh đặt máy ghi âm lên bàn nhưng chưa bật.",
+            "start": 1081,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+            "revision_id": "fe088e21-444c-44a1-8b36-aa3d301ecffd",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [
+          "hẻm hẹp"
+        ],
+        "event_type": "interview",
+        "consequences": [
+          "Bà Sâm grants permission to record her statements."
+        ],
+        "participants": [
+          "Linh",
+          "Bà Sâm"
+        ],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "147630af-672c-5ed3-b13b-c07fca0c3e87",
+      "narrative_order": 11264,
+      "chapter_number": 3,
+      "event_type": "reunion",
+      "summary": "Linh returns home and has a meal with her mother, Bà Yên.",
+      "participants": [
+        "Linh",
+        "Bà Yên"
+      ],
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh returns home and has a meal with her mother, Bà Yên.",
+        "evidence": [
+          {
+            "end": 2549,
+            "quote": "Nhà mẹ ở cuối một ngõ có giàn bầu.",
+            "start": 2515,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+            "revision_id": "fe088e21-444c-44a1-8b36-aa3d301ecffd",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [
+          "nhà mẹ"
+        ],
+        "event_type": "reunion",
+        "consequences": [
+          "A brief conversation touches upon Linh's father, leading to tension."
+        ],
+        "participants": [
+          "Linh",
+          "Bà Yên"
+        ],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "8c6706e2-81df-55c7-9143-6e56c5e5ecdf",
+      "narrative_order": 12288,
+      "chapter_number": 3,
+      "event_type": "phone_call",
+      "summary": "Linh calls Duy from the porch after dinner to discuss checking official records the next day.",
+      "participants": [
+        "Linh",
+        "Duy"
+      ],
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh calls Duy from the porch after dinner to discuss checking official records the next day.",
+        "evidence": [
+          {
+            "end": 3977,
+            "quote": "Sau bữa cơm, cô ra hiên gọi Duy.",
+            "start": 3945,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+            "revision_id": "fe088e21-444c-44a1-8b36-aa3d301ecffd",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [
+          "hiên nhà"
+        ],
+        "event_type": "phone_call",
+        "consequences": [
+          "Duy agrees to go to the construction board and visit the station with Linh."
+        ],
+        "participants": [
+          "Linh",
+          "Duy"
+        ],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "ce2be89e-3c8d-5a93-92e3-a45de1e7270e",
+      "narrative_order": 13312,
+      "chapter_number": 1,
+      "event_type": "arrival",
+      "summary": "Mai Linh arrives back at the city by ferry at age twenty-nine.",
+      "participants": [
+        "Mai Linh"
+      ],
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh arrives back at the city by ferry at age twenty-nine.",
+        "evidence": [
+          {
+            "end": 184,
+            "quote": "Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+            "start": 51,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+            "revision_id": "a4120e44-95e5-4a9a-9865-b54f7ff79398",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "arrival",
+        "consequences": [
+          "Mai Linh returns to her hometown after eleven years away."
+        ],
+        "participants": [
+          "Mai Linh"
+        ],
+        "chapter_number": 1,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "e3cdf34c-eb04-5bd1-8343-00b64c355149",
+      "narrative_order": 14336,
+      "chapter_number": 1,
+      "event_type": "meeting",
+      "summary": "An meets Mai Linh at the dock with a delivery sign and helps carry her suitcase.",
+      "participants": [
+        "Mai Linh",
+        "An"
+      ],
+      "metadata": {
+        "chapter": 1,
+        "summary": "An meets Mai Linh at the dock with a delivery sign and helps carry her suitcase.",
+        "evidence": [
+          {
+            "end": 1508,
+            "quote": "Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li.",
+            "start": 1443,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+            "revision_id": "a4120e44-95e5-4a9a-9865-b54f7ff79398",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "meeting",
+        "consequences": [
+          "An leads Mai Linh to a small boat to avoid road construction."
+        ],
+        "participants": [
+          "Mai Linh",
+          "An"
+        ],
+        "chapter_number": 1,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "92fd24c7-4aa9-585a-b910-28b4aaf0be44",
+      "narrative_order": 15360,
+      "chapter_number": 1,
+      "event_type": "meeting",
+      "summary": "Mai Linh is greeted by Mr. Hòa at the pottery archive storage room.",
+      "participants": [
+        "Mai Linh",
+        "ông Hòa"
+      ],
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh is greeted by Mr. Hòa at the pottery archive storage room.",
+        "evidence": [
+          {
+            "end": 2774,
+            "quote": "Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút.",
+            "start": 2712,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+            "revision_id": "a4120e44-95e5-4a9a-9865-b54f7ff79398",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "meeting",
+        "consequences": [
+          "Mr. Hòa presents a twelve-day contract and an uncatalogued wooden box from Station Four."
+        ],
+        "participants": [
+          "Mai Linh",
+          "ông Hòa"
+        ],
+        "chapter_number": 1,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "10300440-135e-5157-9310-2985c2ce223d",
+      "narrative_order": 16384,
+      "chapter_number": 1,
+      "event_type": "signing contract",
+      "summary": "Mai Linh signs the twelve-day archive inspection contract given by Mr. Hòa.",
+      "participants": [
+        "Mai Linh",
+        "ông Hòa"
+      ],
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh signs the twelve-day archive inspection contract given by Mr. Hòa.",
+        "evidence": [
+          {
+            "end": 3860,
+            "quote": "Cô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra.",
+            "start": 3748,
+            "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+            "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+            "revision_id": "a4120e44-95e5-4a9a-9865-b54f7ff79398",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "signing contract",
+        "consequences": [
+          "Mai Linh officially begins her archive inspection work."
+        ],
+        "participants": [
+          "Mai Linh",
+          "ông Hòa"
+        ],
+        "chapter_number": 1,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "5721b313-f2e9-5b2c-822b-ff3140d5f24d",
+      "narrative_order": 17408,
+      "chapter_number": 2,
+      "event_type": "inspection",
+      "summary": "Linh checks the voltage stabilizer under the table.",
+      "participants": [
+        "Linh"
+      ],
+      "metadata": {
+        "chapter": 2,
+        "summary": "Linh checks the voltage stabilizer under the table.",
+        "evidence": [
+          {
+            "end": 236,
+            "quote": "Linh đang cúi dưới bàn, kiểm tra bộ ổn áp. Cô ngẩng lên.",
+            "start": 180,
+            "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+            "chapter_id": "51878bae-e04c-444a-a293-c61282b74bda",
+            "revision_id": "feb6ffe7-903a-4575-bdf3-915b6042df25",
+            "chapter_number": 2
+          }
+        ],
+        "locations": [],
+        "event_type": "inspection",
+        "consequences": [
+          "Prepared the equipment for testing."
+        ],
+        "participants": [
+          "Linh"
+        ],
+        "chapter_number": 2,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "f4ce3899-176f-57aa-bb9a-74c2a3b70907",
+      "narrative_order": 18432,
+      "chapter_number": 2,
+      "event_type": "audio_playback",
+      "summary": "The group listens to the recorded audio playback, revealing an unidentified male voice saying 'Open Gate Four'.",
+      "participants": [
+        "Linh",
+        "Duy",
+        "Ông Hòa"
+      ],
+      "metadata": {
+        "chapter": 2,
+        "summary": "The group listens to the recorded audio playback, revealing an unidentified male voice saying 'Open Gate Four'.",
+        "evidence": [
+          {
+            "end": 2424,
+            "quote": "Ở giây thứ bốn mươi mốt có giọng đàn ông.\n\nKhông phải một câu đầy đủ. Trước đó, một đoạn âm bị vỡ thành tiếng sạn. Sau đó, ai đó ho. Nhưng ở giữa, bốn tiếng đứng rất gần nhau:\n\n“Mở cửa Bốn.”",
+            "start": 2234,
+            "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+            "chapter_id": "51878bae-e04c-444a-a293-c61282b74bda",
+            "revision_id": "feb6ffe7-903a-4575-bdf3-915b6042df25",
+            "chapter_number": 2
+          }
+        ],
+        "locations": [],
+        "event_type": "audio_playback",
+        "consequences": [
+          "Linh suspects the voice might belong to her father.",
+          "They decide to record the event and look for a reference sample."
+        ],
+        "participants": [
+          "Linh",
+          "Duy",
+          "Ông Hòa"
+        ],
+        "chapter_number": 2,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "dc9b075e-1806-5f75-a92d-0170538e5c20",
+      "narrative_order": 19456,
+      "chapter_number": 2,
+      "event_type": "phone_call",
+      "summary": "Linh calls her mother to tell her about the recording found at Station Four.",
+      "participants": [
+        "Linh",
+        "mẹ"
+      ],
+      "metadata": {
+        "chapter": 2,
+        "summary": "Linh calls her mother to tell her about the recording found at Station Four.",
+        "evidence": [
+          {
+            "end": 4431,
+            "quote": "Cô gọi mẹ. Đầu dây bên kia có tiếng kéo cắt lưới.",
+            "start": 4382,
+            "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+            "chapter_id": "51878bae-e04c-444a-a293-c61282b74bda",
+            "revision_id": "feb6ffe7-903a-4575-bdf3-915b6042df25",
+            "chapter_number": 2
+          }
+        ],
+        "locations": [],
+        "event_type": "phone_call",
+        "consequences": [
+          "Informed her mother about the discovery."
+        ],
+        "participants": [
+          "Linh",
+          "mẹ"
+        ],
+        "chapter_number": 2,
+        "reconciliation_base_ids": []
+      }
+    }
+  ],
+  "semantic_memories": [],
+  "world_rules": [
+    {
+      "id": "aa8e69ef-52cc-497d-bbfb-af4a552a5368",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "location",
+      "fact_value": "quan sát từ sàn trên, chưa xuống khoang",
+      "is_locked": false
+    },
+    {
+      "id": "1d883e92-a6ba-48ba-a01e-f65b008423e0",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "action",
+      "fact_value": "tháo tai nghe một bên",
+      "is_locked": false
+    },
+    {
+      "id": "98e72ddb-76f0-46f7-b154-2136fe8c7da8",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "action",
+      "fact_value": "đặt micro gần chân cửa, không luồn qua khe",
+      "is_locked": false
+    },
+    {
+      "id": "99be5db0-e2cf-495e-a826-0b9c2103619b",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "observation",
+      "fact_value": "tiếng nước thành một dải thấp trên màn hình",
+      "is_locked": false
+    },
+    {
+      "id": "d0ecb053-3de2-4fa5-8fe7-050da7330150",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "observation",
+      "fact_value": "âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều",
+      "is_locked": false
+    },
+    {
+      "id": "7a226c44-1ab7-47b2-9f52-dd14aa9141ec",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "record_entry",
+      "fact_value": "ngày hai, trạm Bốn, nhánh tây",
+      "is_locked": false
+    },
+    {
+      "id": "88bda022-8746-4309-9d7a-63e5d6d1a4a6",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "photograph_content",
+      "fact_value": "chụp cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối",
+      "is_locked": false
+    },
+    {
+      "id": "835d959c-43ae-4c67-a094-eded9a3368a1",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "observation",
+      "fact_value": "bốn vệt sáng hiện ra trên màn hình",
+      "is_locked": false
+    },
+    {
+      "id": "1d33a85a-fc7f-4c94-8757-a03dfb71a688",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "action",
+      "fact_value": "giơ tay để Duy nhìn thấy rồi chỉ xuống bản ghi đang chạy",
+      "is_locked": false
+    },
+    {
+      "id": "fb8b5209-fbc3-4d6c-99cd-5f3b56c3a06a",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "storage_allotted_days",
+      "fact_value": 12,
+      "is_locked": false
+    },
+    {
+      "id": "810b5a76-ea1c-4efb-98c7-66a5eaf66562",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "storage_current_day",
+      "fact_value": 2,
+      "is_locked": false
+    },
+    {
+      "id": "3e97d9e2-26c6-48a0-ac8a-05d81271df4d",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "standing_position",
+      "fact_value": "bên phải Duy",
+      "is_locked": false
+    },
+    {
+      "id": "c2c3df2e-99e2-4a82-bf97-cf7cb3413c96",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "storage_issues_reported",
+      "fact_value": "mái dột, điện và các mảnh gốm chưa sao",
+      "is_locked": false
+    },
+    {
+      "id": "44c666a9-b9bd-4707-8128-aa59edf92035",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "subject_name": "Linh",
+      "fact_key": "ghế ngồi",
+      "fact_value": "ghế thấp",
+      "is_locked": false
+    },
+    {
+      "id": "f290b36b-b37a-4aec-9eda-7dde131e5d43",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "6be8fe67-9063-4948-8d5d-6c3f5982eac7",
+      "subject_name": "Mai Linh",
+      "fact_key": "age",
+      "fact_value": 29,
+      "is_locked": false
+    }
+  ],
+  "author_constraints": [],
+  "token_budget": {
+    "used": 8150,
+    "maximum": 8192,
+    "estimated_before": 18384,
+    "budget_overflow": false,
+    "protected_overflow": false,
+    "packing_version": "context-budget-v2-diverse",
+    "estimator_version": "utf8-json-bytes-3-v1",
+    "deduplicated_semantic_count": 0,
+    "dropped_artifact_count": 105
+  },
+  "context_summary": {
+    "entity_ids": [
+      "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "6be8fe67-9063-4948-8d5d-6c3f5982eac7",
+      "645e94fb-6242-4e4c-9535-42f082f7307e",
+      "be80368d-e229-4b97-95c4-aa7f3c8d1a4d",
+      "fbef0fd6-dfda-4702-acd9-beb7d1fbdd5a",
+      "ce2fe46a-be54-4211-9f23-1cf6ab8c1415",
+      "090b2f44-3ade-4599-8cd0-0963d48485ef",
+      "a3a53d20-813f-444f-ba9b-23082649bc6c",
+      "60289285-98f6-4d3f-b4fe-1d376eaa1f4e",
+      "ba667295-ebd8-4775-b6d4-db3c06e940c4",
+      "9ef0440f-7354-4f49-b3f6-200aad719a0e",
+      "2e14f99a-a83a-419c-b330-c734396980dd",
+      "17b311e2-5174-4ce7-b380-f8c5f0130dc7",
+      "223289ec-50e1-4abf-bf0f-2b744cb58538",
+      "2cfade39-e2c7-4aff-905e-807559207459"
+    ],
+    "event_ids": [
+      "f398112d-4686-5a84-a535-ec406f11883b",
+      "35dc2817-ddbc-5399-ab27-db4bf058bcf9",
+      "8581ac2b-f15e-5440-9ae7-adb6b2b2be7f",
+      "58cec1b6-b1ae-5848-9690-20a055f29c11",
+      "b08656c0-c1c2-53bd-8af3-a3185d8e4bf3",
+      "ad217f06-53a3-558e-b0c3-53a988a54f07",
+      "147630af-672c-5ed3-b13b-c07fca0c3e87",
+      "8c6706e2-81df-55c7-9143-6e56c5e5ecdf",
+      "ce2be89e-3c8d-5a93-92e3-a45de1e7270e",
+      "e3cdf34c-eb04-5bd1-8343-00b64c355149",
+      "92fd24c7-4aa9-585a-b910-28b4aaf0be44",
+      "10300440-135e-5157-9310-2985c2ce223d",
+      "5721b313-f2e9-5b2c-822b-ff3140d5f24d",
+      "f4ce3899-176f-57aa-bb9a-74c2a3b70907",
+      "dc9b075e-1806-5f75-a92d-0170538e5c20"
+    ],
+    "fact_ids": [
+      "aa8e69ef-52cc-497d-bbfb-af4a552a5368",
+      "1d883e92-a6ba-48ba-a01e-f65b008423e0",
+      "98e72ddb-76f0-46f7-b154-2136fe8c7da8",
+      "99be5db0-e2cf-495e-a826-0b9c2103619b",
+      "d0ecb053-3de2-4fa5-8fe7-050da7330150",
+      "7a226c44-1ab7-47b2-9f52-dd14aa9141ec",
+      "88bda022-8746-4309-9d7a-63e5d6d1a4a6",
+      "835d959c-43ae-4c67-a094-eded9a3368a1",
+      "1d33a85a-fc7f-4c94-8757-a03dfb71a688",
+      "fb8b5209-fbc3-4d6c-99cd-5f3b56c3a06a",
+      "810b5a76-ea1c-4efb-98c7-66a5eaf66562",
+      "3e97d9e2-26c6-48a0-ac8a-05d81271df4d",
+      "c2c3df2e-99e2-4a82-bf97-cf7cb3413c96",
+      "44c666a9-b9bd-4707-8128-aa59edf92035",
+      "f290b36b-b37a-4aec-9eda-7dde131e5d43"
+    ],
+    "cutoff_chapter": 5,
+    "requested_character": "Linh",
+    "recent_scope_participant_entity_ids": [
+      "66c77eb2-da9d-4652-9e3b-ab8e12587a31",
+      "6be8fe67-9063-4948-8d5d-6c3f5982eac7",
+      "bb0dbaa6-01fd-42c2-82f6-971ec79a9861",
+      "60289285-98f6-4d3f-b4fe-1d376eaa1f4e",
+      "bd16ad16-95fc-4cb9-ac37-9e990b1bb508"
+    ],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "query_text": "",
+    "semantic_memory_ids": [],
+    "context_packing_version": [
+      "context-budget-v2-diverse"
+    ],
+    "context_token_estimator_version": [
+      "utf8-json-bytes-3-v1"
+    ],
+    "dropped_entity_ids": [
+      "a2483d8c-11f7-43c9-8ec9-5eb058b7e5c9",
+      "783a9f23-f046-42f2-97a2-7320f9b370cc",
+      "3238058d-89a8-42b9-8bf4-03afe152451b",
+      "02a234fb-3233-412e-b484-5177c8fbd8df",
+      "298de92d-f127-4dde-8b69-20f621104da6",
+      "1f0346de-7077-40ad-8b5b-87be23e44d07",
+      "b7514893-921e-4cc3-9a29-6a60c5f421ee",
+      "bd16ad16-95fc-4cb9-ac37-9e990b1bb508",
+      "5abb2651-5c9b-49a6-8b56-0a830c72ad32",
+      "293c43c4-7737-47b3-942c-95e74fc7edf1",
+      "f0b6a086-dcf4-4f27-9465-988fdb0af5d9",
+      "e6870246-9fdc-413e-a985-f4053776f6f6",
+      "4353764b-0446-44b0-a842-9349db29f33d",
+      "59b3ee94-bb01-4108-a821-a45836682936",
+      "183eb4ce-c527-4fb8-83fb-257f19f55d4d",
+      "5a29cc84-1099-460d-b60b-498355ef4bfc",
+      "66c77eb2-da9d-4652-9e3b-ab8e12587a31",
+      "74b886db-cd30-47d2-8a2b-a2cb3d261d1c"
+    ],
+    "dropped_event_ids": [
+      "67e89c14-ef24-5790-bde8-a9016456224f",
+      "fa5723fb-0f6d-5418-854a-c2155341d7c2",
+      "613d1af6-660e-5eef-93bc-57ccbe54598d",
+      "4070ae11-ca68-5c1f-96fe-413ee446b90e"
+    ],
+    "dropped_fact_ids": [
+      "6d78e265-2944-4e32-9443-3262145121e2",
+      "49687955-4bf9-4479-ab14-a46035cfa35d",
+      "52fe3588-e7ff-44ca-9cf9-4ed9b2fd5216",
+      "aab6719a-0f76-435f-9c22-a8aebc4cb201",
+      "8ff52d74-38d4-4526-bf25-2a09210d8a9c",
+      "16205e2e-10a3-44ae-82cb-7b028062c849",
+      "b2c54b4f-1111-4427-8acd-660dcd8cc5f4",
+      "3540cdac-84f5-43fb-bd11-c1c458d4bb8a",
+      "57062b26-0b18-4b24-a0ee-155cfdca971e",
+      "44451a5a-162b-41f5-9815-1c96eb0c1efe",
+      "a96b81bd-0615-49d3-86b3-b2076808b800",
+      "aeae96ed-e8ec-4ba6-9d86-6ef82bcadc19",
+      "025d7418-eac6-410a-b2fc-339c4b599847",
+      "10ee91d3-82e2-4897-b447-6d29d610d0f0",
+      "9742d935-8e6c-4ee0-a766-5ce997b68acd",
+      "0f7f3b4b-cacd-42ec-a4cc-e04d189e5449",
+      "ab978e64-c791-4e2d-96d5-2e86fd6f57de",
+      "07d6937f-a864-4596-8668-403bf66aba83",
+      "b4f6b629-4b6f-4bf7-92c1-c60dac050e33",
+      "b22407e7-abfd-4dd3-8b96-2701484d73ff",
+      "b59119d0-b937-48f2-b941-50847414ca2c",
+      "87235c1f-e52c-4200-bb9b-2ca2e0bbe59a",
+      "95225359-9735-4210-b398-7f9d287f54b1",
+      "c9234efd-4585-4572-8325-8c2cfe22754a",
+      "e271c7bd-febc-4d80-b3c8-ac8f68d6769c",
+      "e8ba2e8d-36c7-4935-980d-3d560e1ed705",
+      "0c1d4e18-521a-4a93-b09c-1f0c5eab016a",
+      "756f2657-9804-4794-a8f7-bb0a8901e7cf",
+      "3d4e0eb0-6d03-41d7-8f61-d2cd855972e2",
+      "6af3577c-0d43-41c0-a893-14b815208c9f",
+      "68e49e98-0491-49e6-80bf-35bdb73009d9",
+      "9fab2eae-426b-409b-b5fc-897536b779a0",
+      "bb541c8c-70ef-4d46-8903-b7a8c7dac0f6",
+      "3643ee33-3a87-4a7a-b9c0-feaac6d3879b",
+      "c7d22fe0-9063-4bc4-9571-19eee1a9d05a",
+      "e1fd0713-f61f-41cd-9f74-120ca719f424",
+      "dc11932a-ca8d-4db8-ad4c-39448035253a",
+      "de6c5cb7-bbe8-4795-8aa1-72b0c9756a66",
+      "5f7d749d-17f6-403e-b966-0097c516f249",
+      "c2be071f-5480-47af-b3ba-3ebfeffb2997",
+      "3817c9e3-7a55-4412-a31c-1641fe7fb78e",
+      "38709de7-8a86-4705-be49-34c316fd4a85",
+      "3413ce54-f444-450c-91a0-0b2dcdb2dd07",
+      "88562a2e-4c64-4026-bc9e-88562b42a923",
+      "33b2911a-29f3-4f5a-9a50-bd6fe443ed7f",
+      "c81a4f59-472a-4994-88cd-9f20f0cfa21d",
+      "3216aa05-27c6-4e28-9828-9b5784b59abf",
+      "a891d8d3-af6e-43a3-b8fc-f9c06fbeb25f",
+      "12d2e6f7-0314-47a3-a0ef-a3315cfe2780",
+      "0b64a323-f7ab-4f5b-86af-40abe56ae685",
+      "fe6f634e-f48e-4beb-b0d7-a00881a91859",
+      "4623de02-0947-456d-a088-3be108cceba9",
+      "a949bede-3341-4cba-a7d8-3cd1ca764ed9",
+      "71c46e8c-5799-4990-8479-44a9b8daa11f",
+      "927ecdc5-e093-461e-b9f5-fa4eb3e6d6d0",
+      "70390f8a-c271-46f2-9301-59fcce71afd5",
+      "5983d673-df6d-47e8-9382-9e9b469ef149",
+      "7746a97e-c743-42eb-b841-1aeea86b9760",
+      "822e67ad-6af5-4496-9d6c-1c2fa34f5aa6",
+      "34224c5c-0519-419d-a7b8-b168de51dd23",
+      "5d0e597f-a833-4057-b1c8-9a37a229b7d9",
+      "348bf0e1-4d20-43cd-bdca-27f66d28b9ca",
+      "fc47d98b-f25e-4dfa-9adb-ccd230cc8f5e",
+      "f608a12a-3c43-4209-a5fe-049ed416b2f4",
+      "8bdcd5b6-eb89-44f8-89c7-cce006ce4155",
+      "ef4575ab-b69d-443c-a3a7-2b1bf81a8211",
+      "a73eb6af-6d4d-4a1e-8159-bd3da21b03a8",
+      "75d1f65e-b7f7-46bb-8ca2-0bb8ce8d01af",
+      "8b0bd802-ff35-4189-9913-898af8f28a15",
+      "2f2b26f8-6273-41dc-9eef-3064a6062a74",
+      "71d7344b-ee5b-4dc6-afb2-5d1f71cf7da4",
+      "6e3bdcc7-dfb8-468a-8ebb-36461558b4e5",
+      "62e741e9-d953-49a9-a5ee-0d5e68647828",
+      "01940bc7-af99-4535-b0d1-7faef7c74e42",
+      "8a90c7b2-aaad-4267-a4f6-ad7e2b416e5b",
+      "c7f59fa6-c60c-4c3b-97c0-8e6f680b8f39",
+      "afbe6167-b9e6-4318-a7f3-e129edf2daf9",
+      "e93251d3-e745-4a6c-9f19-9cee006fcba5",
+      "e8cedc5a-10b6-458d-a68b-8bdc473b0ed9",
+      "f349d8ee-dc69-40c0-a4f4-606e8198c725",
+      "9994fcd1-9e02-4686-a4de-1be25d9828c8",
+      "4241bd7a-5406-4a1d-b125-d38ae3d2fc9e",
+      "98f4f96f-a03c-4fc9-865c-18ea715ec176"
+    ],
+    "dropped_semantic_memory_ids": [],
+    "deduplicated_semantic_memory_ids": [],
+    "selection_policy": [
+      "query-relevance-diverse-whole-artifacts-v2"
+    ],
+    "drop_reasons": {
+      "a2483d8c-11f7-43c9-8ec9-5eb058b7e5c9": "out_of_budget_after_relevance_ordering",
+      "783a9f23-f046-42f2-97a2-7320f9b370cc": "out_of_budget_after_relevance_ordering",
+      "3238058d-89a8-42b9-8bf4-03afe152451b": "out_of_budget_after_relevance_ordering",
+      "02a234fb-3233-412e-b484-5177c8fbd8df": "out_of_budget_after_relevance_ordering",
+      "298de92d-f127-4dde-8b69-20f621104da6": "out_of_budget_after_relevance_ordering",
+      "1f0346de-7077-40ad-8b5b-87be23e44d07": "out_of_budget_after_relevance_ordering",
+      "b7514893-921e-4cc3-9a29-6a60c5f421ee": "out_of_budget_after_relevance_ordering",
+      "bd16ad16-95fc-4cb9-ac37-9e990b1bb508": "out_of_budget_after_relevance_ordering",
+      "5abb2651-5c9b-49a6-8b56-0a830c72ad32": "out_of_budget_after_relevance_ordering",
+      "293c43c4-7737-47b3-942c-95e74fc7edf1": "out_of_budget_after_relevance_ordering",
+      "f0b6a086-dcf4-4f27-9465-988fdb0af5d9": "out_of_budget_after_relevance_ordering",
+      "e6870246-9fdc-413e-a985-f4053776f6f6": "out_of_budget_after_relevance_ordering",
+      "4353764b-0446-44b0-a842-9349db29f33d": "out_of_budget_after_relevance_ordering",
+      "59b3ee94-bb01-4108-a821-a45836682936": "out_of_budget_after_relevance_ordering",
+      "183eb4ce-c527-4fb8-83fb-257f19f55d4d": "out_of_budget_after_relevance_ordering",
+      "5a29cc84-1099-460d-b60b-498355ef4bfc": "out_of_budget_after_relevance_ordering",
+      "66c77eb2-da9d-4652-9e3b-ab8e12587a31": "out_of_budget_after_relevance_ordering",
+      "74b886db-cd30-47d2-8a2b-a2cb3d261d1c": "out_of_budget_after_relevance_ordering",
+      "6d78e265-2944-4e32-9443-3262145121e2": "out_of_budget_after_relevance_ordering",
+      "49687955-4bf9-4479-ab14-a46035cfa35d": "out_of_budget_after_relevance_ordering",
+      "52fe3588-e7ff-44ca-9cf9-4ed9b2fd5216": "out_of_budget_after_relevance_ordering",
+      "aab6719a-0f76-435f-9c22-a8aebc4cb201": "out_of_budget_after_relevance_ordering",
+      "8ff52d74-38d4-4526-bf25-2a09210d8a9c": "out_of_budget_after_relevance_ordering",
+      "16205e2e-10a3-44ae-82cb-7b028062c849": "out_of_budget_after_relevance_ordering",
+      "b2c54b4f-1111-4427-8acd-660dcd8cc5f4": "out_of_budget_after_relevance_ordering",
+      "3540cdac-84f5-43fb-bd11-c1c458d4bb8a": "out_of_budget_after_relevance_ordering",
+      "57062b26-0b18-4b24-a0ee-155cfdca971e": "out_of_budget_after_relevance_ordering",
+      "44451a5a-162b-41f5-9815-1c96eb0c1efe": "out_of_budget_after_relevance_ordering",
+      "a96b81bd-0615-49d3-86b3-b2076808b800": "out_of_budget_after_relevance_ordering",
+      "aeae96ed-e8ec-4ba6-9d86-6ef82bcadc19": "out_of_budget_after_relevance_ordering",
+      "025d7418-eac6-410a-b2fc-339c4b599847": "out_of_budget_after_relevance_ordering",
+      "10ee91d3-82e2-4897-b447-6d29d610d0f0": "out_of_budget_after_relevance_ordering",
+      "9742d935-8e6c-4ee0-a766-5ce997b68acd": "out_of_budget_after_relevance_ordering",
+      "0f7f3b4b-cacd-42ec-a4cc-e04d189e5449": "out_of_budget_after_relevance_ordering",
+      "ab978e64-c791-4e2d-96d5-2e86fd6f57de": "out_of_budget_after_relevance_ordering",
+      "07d6937f-a864-4596-8668-403bf66aba83": "out_of_budget_after_relevance_ordering",
+      "b4f6b629-4b6f-4bf7-92c1-c60dac050e33": "out_of_budget_after_relevance_ordering",
+      "b22407e7-abfd-4dd3-8b96-2701484d73ff": "out_of_budget_after_relevance_ordering",
+      "b59119d0-b937-48f2-b941-50847414ca2c": "out_of_budget_after_relevance_ordering",
+      "87235c1f-e52c-4200-bb9b-2ca2e0bbe59a": "out_of_budget_after_relevance_ordering",
+      "95225359-9735-4210-b398-7f9d287f54b1": "out_of_budget_after_relevance_ordering",
+      "c9234efd-4585-4572-8325-8c2cfe22754a": "out_of_budget_after_relevance_ordering",
+      "e271c7bd-febc-4d80-b3c8-ac8f68d6769c": "out_of_budget_after_relevance_ordering",
+      "e8ba2e8d-36c7-4935-980d-3d560e1ed705": "out_of_budget_after_relevance_ordering",
+      "0c1d4e18-521a-4a93-b09c-1f0c5eab016a": "out_of_budget_after_relevance_ordering",
+      "756f2657-9804-4794-a8f7-bb0a8901e7cf": "out_of_budget_after_relevance_ordering",
+      "3d4e0eb0-6d03-41d7-8f61-d2cd855972e2": "out_of_budget_after_relevance_ordering",
+      "6af3577c-0d43-41c0-a893-14b815208c9f": "out_of_budget_after_relevance_ordering",
+      "68e49e98-0491-49e6-80bf-35bdb73009d9": "out_of_budget_after_relevance_ordering",
+      "9fab2eae-426b-409b-b5fc-897536b779a0": "out_of_budget_after_relevance_ordering",
+      "bb541c8c-70ef-4d46-8903-b7a8c7dac0f6": "out_of_budget_after_relevance_ordering",
+      "3643ee33-3a87-4a7a-b9c0-feaac6d3879b": "out_of_budget_after_relevance_ordering",
+      "c7d22fe0-9063-4bc4-9571-19eee1a9d05a": "out_of_budget_after_relevance_ordering",
+      "e1fd0713-f61f-41cd-9f74-120ca719f424": "out_of_budget_after_relevance_ordering",
+      "dc11932a-ca8d-4db8-ad4c-39448035253a": "out_of_budget_after_relevance_ordering",
+      "de6c5cb7-bbe8-4795-8aa1-72b0c9756a66": "out_of_budget_after_relevance_ordering",
+      "5f7d749d-17f6-403e-b966-0097c516f249": "out_of_budget_after_relevance_ordering",
+      "c2be071f-5480-47af-b3ba-3ebfeffb2997": "out_of_budget_after_relevance_ordering",
+      "3817c9e3-7a55-4412-a31c-1641fe7fb78e": "out_of_budget_after_relevance_ordering",
+      "38709de7-8a86-4705-be49-34c316fd4a85": "out_of_budget_after_relevance_ordering",
+      "3413ce54-f444-450c-91a0-0b2dcdb2dd07": "out_of_budget_after_relevance_ordering",
+      "88562a2e-4c64-4026-bc9e-88562b42a923": "out_of_budget_after_relevance_ordering",
+      "33b2911a-29f3-4f5a-9a50-bd6fe443ed7f": "out_of_budget_after_relevance_ordering",
+      "c81a4f59-472a-4994-88cd-9f20f0cfa21d": "out_of_budget_after_relevance_ordering",
+      "3216aa05-27c6-4e28-9828-9b5784b59abf": "out_of_budget_after_relevance_ordering",
+      "a891d8d3-af6e-43a3-b8fc-f9c06fbeb25f": "out_of_budget_after_relevance_ordering",
+      "12d2e6f7-0314-47a3-a0ef-a3315cfe2780": "out_of_budget_after_relevance_ordering",
+      "0b64a323-f7ab-4f5b-86af-40abe56ae685": "out_of_budget_after_relevance_ordering",
+      "fe6f634e-f48e-4beb-b0d7-a00881a91859": "out_of_budget_after_relevance_ordering",
+      "4623de02-0947-456d-a088-3be108cceba9": "out_of_budget_after_relevance_ordering",
+      "a949bede-3341-4cba-a7d8-3cd1ca764ed9": "out_of_budget_after_relevance_ordering",
+      "71c46e8c-5799-4990-8479-44a9b8daa11f": "out_of_budget_after_relevance_ordering",
+      "927ecdc5-e093-461e-b9f5-fa4eb3e6d6d0": "out_of_budget_after_relevance_ordering",
+      "70390f8a-c271-46f2-9301-59fcce71afd5": "out_of_budget_after_relevance_ordering",
+      "5983d673-df6d-47e8-9382-9e9b469ef149": "out_of_budget_after_relevance_ordering",
+      "7746a97e-c743-42eb-b841-1aeea86b9760": "out_of_budget_after_relevance_ordering",
+      "822e67ad-6af5-4496-9d6c-1c2fa34f5aa6": "out_of_budget_after_relevance_ordering",
+      "34224c5c-0519-419d-a7b8-b168de51dd23": "out_of_budget_after_relevance_ordering",
+      "5d0e597f-a833-4057-b1c8-9a37a229b7d9": "out_of_budget_after_relevance_ordering",
+      "348bf0e1-4d20-43cd-bdca-27f66d28b9ca": "out_of_budget_after_relevance_ordering",
+      "fc47d98b-f25e-4dfa-9adb-ccd230cc8f5e": "out_of_budget_after_relevance_ordering",
+      "f608a12a-3c43-4209-a5fe-049ed416b2f4": "out_of_budget_after_relevance_ordering",
+      "8bdcd5b6-eb89-44f8-89c7-cce006ce4155": "out_of_budget_after_relevance_ordering",
+      "ef4575ab-b69d-443c-a3a7-2b1bf81a8211": "out_of_budget_after_relevance_ordering",
+      "a73eb6af-6d4d-4a1e-8159-bd3da21b03a8": "out_of_budget_after_relevance_ordering",
+      "75d1f65e-b7f7-46bb-8ca2-0bb8ce8d01af": "out_of_budget_after_relevance_ordering",
+      "8b0bd802-ff35-4189-9913-898af8f28a15": "out_of_budget_after_relevance_ordering",
+      "2f2b26f8-6273-41dc-9eef-3064a6062a74": "out_of_budget_after_relevance_ordering",
+      "71d7344b-ee5b-4dc6-afb2-5d1f71cf7da4": "out_of_budget_after_relevance_ordering",
+      "6e3bdcc7-dfb8-468a-8ebb-36461558b4e5": "out_of_budget_after_relevance_ordering",
+      "62e741e9-d953-49a9-a5ee-0d5e68647828": "out_of_budget_after_relevance_ordering",
+      "01940bc7-af99-4535-b0d1-7faef7c74e42": "out_of_budget_after_relevance_ordering",
+      "8a90c7b2-aaad-4267-a4f6-ad7e2b416e5b": "out_of_budget_after_relevance_ordering",
+      "c7f59fa6-c60c-4c3b-97c0-8e6f680b8f39": "out_of_budget_after_relevance_ordering",
+      "afbe6167-b9e6-4318-a7f3-e129edf2daf9": "out_of_budget_after_relevance_ordering",
+      "e93251d3-e745-4a6c-9f19-9cee006fcba5": "out_of_budget_after_relevance_ordering",
+      "e8cedc5a-10b6-458d-a68b-8bdc473b0ed9": "out_of_budget_after_relevance_ordering",
+      "f349d8ee-dc69-40c0-a4f4-606e8198c725": "out_of_budget_after_relevance_ordering",
+      "9994fcd1-9e02-4686-a4de-1be25d9828c8": "out_of_budget_after_relevance_ordering",
+      "4241bd7a-5406-4a1d-b125-d38ae3d2fc9e": "out_of_budget_after_relevance_ordering",
+      "98f4f96f-a03c-4fc9-865c-18ea715ec176": "out_of_budget_after_relevance_ordering",
+      "67e89c14-ef24-5790-bde8-a9016456224f": "out_of_budget_after_relevance_ordering",
+      "fa5723fb-0f6d-5418-854a-c2155341d7c2": "out_of_budget_after_relevance_ordering",
+      "613d1af6-660e-5eef-93bc-57ccbe54598d": "out_of_budget_after_relevance_ordering",
+      "4070ae11-ca68-5c1f-96fe-413ee446b90e": "out_of_budget_after_relevance_ordering"
+    }
+  },
+  "planning_context": null,
+  "current_objective": null
+}

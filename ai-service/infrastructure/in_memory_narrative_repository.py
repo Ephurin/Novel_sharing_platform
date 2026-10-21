@@ -31,6 +31,8 @@ class InMemoryNarrativeRepository:
     def __init__(self) -> None:
         self._brains: dict[str, StoryBrain] = {}
         self._analysis_runs: dict[str, AnalysisRun] = {}
+        self._entity_candidate_audits: dict[tuple[str, str], dict] = {}
+        self._entity_guidance: dict[str, dict] = {}
         self._bootstrap_jobs: dict[str, BootstrapJob] = {}
         self._writing_jobs: dict[str, WritingGenerationJob] = {}
         self._revision_provenance: dict[tuple[str, str], int] = {}
@@ -43,6 +45,29 @@ class InMemoryNarrativeRepository:
                 story_id=story_id, metadata={"brain_version": "1", "status": "active"}
             )
         return self._brains[story_id]
+
+    def get_entity_guidance(self, story_id: str) -> dict:
+        from copy import deepcopy
+        return deepcopy(self._entity_guidance.get(story_id, {'version': 0, 'entries': []}))
+
+    def list_entity_reviews(self, story_id: str) -> list[dict]:
+        from copy import deepcopy
+        return [deepcopy(a) for (s, _), a in self._entity_candidate_audits.items()
+                if s == story_id and a.get('status') in {'waiting_entity_review', 'entities_reviewed'}]
+
+    def save_entity_guidance(self, story_id: str, guidance: dict, expected_version: int) -> dict:
+        from copy import deepcopy
+        if self.get_entity_guidance(story_id)['version'] != expected_version:
+            raise OptimisticLockError('Reload entity guidance')
+        value = {**deepcopy(guidance), 'version': expected_version + 1}
+        self._entity_guidance[story_id] = value
+        return deepcopy(value)
+
+    def get_entity_registry(self, story_id: str) -> dict:
+        brain = self.get_story_brain(story_id)
+        return {'entities': [{'entity_id': e.entity_id, 'name': e.name, 'entity_type': e.entity_type}
+                             for e in brain.entities],
+                'aliases': [{'alias': a.alias, 'entity_id': a.entity_id} for a in brain.aliases]}
 
     def list_entities(self, story_id: str) -> list[NarrativeEntity]:
         return list(self.get_story_brain(story_id).entities)
@@ -297,6 +322,7 @@ class InMemoryNarrativeRepository:
                 transitions.append(transition)
                 artifact_ids.append(proposal.proposal_id)
             elif proposal.proposal_type == "alias":
+                payload['entity_id'] = resolve_entity(payload.get('entity_id') or payload.get('entity_name', ''), list(entities))
                 alias_id = str(
                     uuid.uuid5(
                         uuid.NAMESPACE_URL,
@@ -440,6 +466,16 @@ class InMemoryNarrativeRepository:
         )
         self._analysis_runs[idempotency_key] = run
         return run
+
+    def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None:
+        from copy import deepcopy
+        if expected_version is not None and (self._entity_candidate_audits.get((story_id, run_id)) or {}).get('review_version') != expected_version:
+            raise OptimisticLockError('Entity checkpoint changed')
+        self._entity_candidate_audits[(story_id, run_id)] = deepcopy(audit)
+
+    def get_entity_candidate_audit(self, story_id: str, run_id: str) -> dict | None:
+        from copy import deepcopy
+        return deepcopy(self._entity_candidate_audits.get((story_id, run_id)))
 
     def get_related_entities(
         self, story_id: str, entity_name: str, limit: int = 10

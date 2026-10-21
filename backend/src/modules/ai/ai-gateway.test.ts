@@ -4,6 +4,25 @@ import { AIGatewayService } from './ai-gateway.service.js';
 import { AppError } from '../../core/errors/app-error.js';
 
 describe('Node.js AI Gateway Service (P6.5 Hardening)', () => {
+  test('reanalysis idempotency key survives HTTP forwarding and retries', async () => {
+    const originalFetch = globalThis.fetch;
+    const keys: string[] = [];
+    globalThis.fetch = (async (_url: unknown, init: RequestInit) => {
+      const key = new Headers(init.headers).get('Idempotency-Key');
+      if (!key) return new Response(JSON.stringify({ detail: 'Idempotency-Key required' }), { status: 422 });
+      keys.push(key);
+      return new Response(JSON.stringify({ data: { deduplicated: keys.length === 2 } }), { status: 202 });
+    }) as typeof fetch;
+    try {
+      const gateway = new AIGatewayService();
+      const request = { method: 'POST' as const, path: '/v1/revisions/rev/analyses',
+        idempotencyKey: 'author-reanalysis:author:novel:rev:action-1', body: { revision_id: 'rev' } };
+      assert.equal((await gateway.forwardRequest(request)).deduplicated, false);
+      assert.equal((await gateway.forwardRequest(request)).deduplicated, true);
+      await gateway.forwardRequest({ ...request, idempotencyKey: 'author-reanalysis:author:novel:rev:action-2' });
+      assert.deepEqual(keys, [request.idempotencyKey, request.idempotencyKey, 'author-reanalysis:author:novel:rev:action-2']);
+    } finally { globalThis.fetch = originalFetch; }
+  });
   test('AIGatewayService forwards headers with tenant, user, and service token', async () => {
     let capturedUrl = '';
     let capturedHeaders: Record<string, string> = {};

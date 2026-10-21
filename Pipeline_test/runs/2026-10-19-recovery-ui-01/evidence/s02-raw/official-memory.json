@@ -1,0 +1,22 @@
+{
+  "story_id": "7d03320e-94c3-4913-a31f-a6eeef8af0dc",
+  "entities": [],
+  "aliases": [],
+  "mentions": [],
+  "facts": [],
+  "relations": [],
+  "events": [],
+  "transitions": [],
+  "current_state": {
+    "entities": {},
+    "provenance": {},
+    "relationships": [],
+    "projection_version": 1
+  },
+  "metadata": {
+    "brain_id": "de108a05-c06e-4dca-8592-b5b465a44278",
+    "brain_version": "1",
+    "status": "importing",
+    "baseline_revision_id": null
+  }
+}

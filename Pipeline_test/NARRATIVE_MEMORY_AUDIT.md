@@ -1,6 +1,6 @@
 # Gate narrative memory cho P1, P2 và P3
 
-Task revision 1.1. Áp dụng cho mọi run mới; fixture văn học PT-CV-001 v1.0.0 không đổi. Mục tiêu: xác định **LLM có thực sự trích xuất thông tin từ nội dung mới, thông tin ấy có được lưu đúng và có dùng được ở lượt viết tiếp hay không**. Tăng brain_version, số entities hoặc job COMPLETED không đủ để PASS.
+Theo WORKFLOW_CONTRACT.md revision1.3; lịch audit của task vẫn giữ nguyên. Áp dụng cho mọi run mới; fixture văn học PT-CV-001 v1.0.0 không đổi. Mục tiêu: xác định **LLM có thực sự trích xuất thông tin từ nội dung mới, thông tin ấy có được lưu đúng và có dùng được ở lượt viết tiếp hay không**. Tăng brain_version, số entities hoặc job COMPLETED không đủ để PASS.
 
 ## Lịch bắt buộc
 
@@ -18,10 +18,10 @@ Task mặc định 40 chương: chạy M0, M-FIRST, 10, 20, 30, 40 và final; **
 | Pipeline | M0 | M-FIRST | 10/20/50 và final |
 |---|---|---|---|
 | P1 | Manuscript → extraction proposals → tác giả review → persisted narrative memory | Revision viết tiếp đầu tiên → outbox/analysis → proposals → memory mới | Áp dụng trên main novel |
-| P2 | Idea/constraints → blueprint đề xuất → review → baseline; đối chiếu phần tác giả cung cấp với phần model sáng tạo được duyệt | Văn xuôi chương đầu được accept → incremental extraction; đây mới là bằng chứng trích xuất từ chương cho P2 | Áp dụng nếu P2 được chạy thành truyện dài; probe ngắn vẫn có M0/M-FIRST/final |
-| P3 | Audit baseline kế thừa trước khi controller bắt đầu; không ghi công controller đã trích xuất baseline nếu do P1/P2 tạo | Accepted revision đầu tiên của controller → analysis → auto-accept → memory | Áp dụng trên autonomous long run; probe ngắn audit cuối, không mượn mốc 10/20 của main để báo P3 đạt |
+| P2 | Setup + optional hints → entities explicit → review → baseline; blueprint sáng tạo chỉ khi chọn rõ mode riêng | Văn xuôi chương đầu được accept → incremental extraction; đây mới là bằng chứng trích xuất từ chương cho P2 | Áp dụng nếu P2 được chạy thành truyện dài; probe ngắn vẫn có M0/M-FIRST/final |
+| P3 | Audit baseline kế thừa trước khi controller bắt đầu; không ghi công controller đã trích xuất baseline nếu do P1/P2 tạo | Accepted revision đầu tiên → human entity gate khi flag ON → event/fact → controller duyệt canon → memory | Áp dụng trên autonomous long run; probe ngắn audit cuối, không mượn mốc 10/20 của main để báo P3 đạt |
 
-P2 bootstrap tạo world bible có thể đề xuất chi tiết mới hợp lệ. Gắn `author_supplied`, `model_proposed`, `author_accepted`; không tính mọi sáng tạo blueprint là hallucination. Tuy nhiên tương lai trong outline vẫn không được coi là sự kiện lịch sử. Tách verdict bootstrap generation khỏi verdict extraction từ prose.
+P2 UI mode=extract không tự thêm chi tiết mới; API mode=blueprint riêng có thể đề xuất world bible mới. Gắn `author_supplied`, `model_proposed`, `author_accepted`; không tính mọi sáng tạo blueprint là hallucination. Tuy nhiên tương lai trong outline vẫn không được coi là sự kiện lịch sử. Tách verdict bootstrap generation khỏi verdict extraction từ prose.
 
 ## 1. Đóng băng nguồn và lập đáp án độc lập
 
@@ -48,7 +48,7 @@ Lưu từng lớp riêng trong `evidence/memory/<pipeline>-<checkpoint-id>/`:
 4. **Sau review/auto-accept:** proposal accepted/rejected/edited, IDs record đã materialize, brain version và delta so với checkpoint trước. Tách kết quả gốc khỏi kết quả sau tác giả sửa; sửa thành công không xóa lỗi extractor.
 5. **Context/retrieval:** truy vấn và IDs thực được trả về, final packed context, thời gian/cutoff, phiên bản và kết quả đối chiếu.
 
-P3 có thể auto-accept trước khi tester đọc queue. Dùng audit history/persisted proposals/trace sẵn có để thu hồi dữ liệu nguyên gốc nếu được phép; không giả vờ snapshot sau auto-accept là trước accept. Nếu không quan sát được raw stage, đánh dấu OBSERVABILITY_GAP và raw-extraction quality NOT_ASSESSED. Việc tạm dừng giữa các `/step` để đọc evidence là quan sát; sửa memory thủ công trong autonomous run là can thiệp và phải làm thay đổi claim.
+P3 không được auto-accept entity checkpoint trong human-review mode; lưu machine/author entity decisions và mức can thiệp riêng. Sau checkpoint, controller có thể auto-accept canon trước khi tester đọc queue. Dùng audit history/persisted proposals/trace sẵn có để thu hồi dữ liệu nguyên gốc nếu được phép; không giả vờ snapshot sau auto-accept là trước accept. Nếu không quan sát được raw stage, đánh dấu OBSERVABILITY_GAP và raw-extraction quality NOT_ASSESSED. Việc tạm dừng giữa các `/step` để đọc evidence là quan sát; sửa memory thủ công trong autonomous run là can thiệp và phải làm thay đổi claim.
 
 Chỉ đọc qua UI/public API hoặc diagnostics read-only đã được cấp quyền. Nếu API chỉ trả counts/summary, không dùng nó thay bản ghi chi tiết. Ghi gap, đề xuất bổ sung observability ở công việc riêng. Nếu cần structured memory export chưa có, gate tương ứng BLOCKED/NOT_ASSESSED, không lách bằng ghi DB.
 

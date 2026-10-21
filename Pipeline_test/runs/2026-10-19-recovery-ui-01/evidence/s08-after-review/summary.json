@@ -1,0 +1,34 @@
+{
+  "checked_at": "2026-10-20T21:09:17.917823+07:00",
+  "novel_id": "7d03320e-94c3-4913-a31f-a6eeef8af0dc",
+  "phase": "s08-after-review",
+  "author_writes": 0,
+  "provider_calls": 0,
+  "official-memory.json": {
+    "entities": 42,
+    "aliases": 0,
+    "mentions": 0,
+    "facts": 120,
+    "relations": 0,
+    "events": 21,
+    "transitions": 85
+  },
+  "active-plan.json": {
+    "objectives": 2
+  },
+  "proposals-pending.json": 0,
+  "proposals-accepted.json": 213,
+  "proposals-rejected.json": 29,
+  "revision_count": 6,
+  "revision_words": 4963,
+  "context-4000": {
+    "entities": 7,
+    "recent_events": 6,
+    "world_rules": 9
+  },
+  "context-8192": {
+    "entities": 15,
+    "recent_events": 14,
+    "world_rules": 16
+  }
+}

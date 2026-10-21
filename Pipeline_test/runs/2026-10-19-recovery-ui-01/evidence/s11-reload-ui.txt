@@ -1,0 +1,110 @@
+- banner:
+  - link "arrow_back Tủ truyện":
+    - /url: /author/novels/7d03320e-94c3-4913-a31f-a6eeef8af0dc
+    - generic: arrow_back
+    - generic: Tủ truyện
+  - navigation "Breadcrumb":
+    - generic: Untitled Novel
+    - generic: /
+    - generic "Chương 6 — Rút khỏi trạm Bốn"
+  - button "menu_book":
+    - generic: menu_book
+  - button "fullscreen":
+    - generic: fullscreen
+  - button "auto_awesome AI Hỗ trợ viết":
+    - generic: auto_awesome
+    - generic: AI Hỗ trợ viết
+  - button "Xuất bản chương send":
+    - generic: Xuất bản chương
+    - generic: send
+- button "view_sidebar":
+  - generic: view_sidebar
+- generic: "Trạng thái:"
+- generic: DRAFT
+- button "Miễn phí"
+- button "stars Chương VIP ✦":
+  - generic: stars
+  - generic: Chương VIP ✦
+- complementary:
+  - button "Bộ nhớ · Trích xuất · Chờ duyệt"
+  - generic: Mục lục chương
+  - generic: "6"
+  - paragraph: "Truyện: Untitled Novel"
+  - button "first_page":
+    - generic: first_page
+  - generic: search
+  - textbox "Tìm kiếm chương..."
+  - button "add_circle Thêm chương mới":
+    - generic: add_circle
+    - generic: Thêm chương mới
+  - navigation:
+    - generic: CHƯƠNG 1
+    - generic: Bản nháp
+    - paragraph: Chương 1 — Bến trở về
+    - generic: 1,216 từ
+    - generic: CHƯƠNG 2
+    - generic: Bản nháp
+    - paragraph: Chương 2 — Lần đọc thứ nhất
+    - generic: 1,005 từ
+    - generic: CHƯƠNG 3
+    - generic: Bản nháp
+    - paragraph: Chương 3 — Hai nơi treo một quả chuông
+    - generic: 995 từ
+    - generic: CHƯƠNG 4
+    - generic: Bản nháp
+    - paragraph: Chương 4 — Bản đồ không có tiếng nước
+    - generic: 957 từ
+    - generic: CHƯƠNG 5
+    - generic: Bản nháp
+    - paragraph: Chương 5 — Ba tiếng gõ
+    - generic: 574 từ
+    - generic: CHƯƠNG 6
+    - generic: Bản nháp
+    - paragraph: Chương 6 — Rút khỏi trạm Bốn
+    - generic: 231 từ
+    - generic: Đang mở
+- main:
+  - button "text_fields Merriweather expand_more":
+    - generic: text_fields
+    - generic: Merriweather
+    - generic: expand_more
+  - generic "Cỡ chữ":
+    - button "A-"
+    - generic: "17"
+    - button "A+"
+  - button "format_align_justify":
+    - generic: format_align_justify
+  - button "format_align_left":
+    - generic: format_align_left
+  - button "format_align_center":
+    - generic: format_align_center
+  - button "format_align_right":
+    - generic: format_align_right
+  - button "format_line_spacing 2.15x expand_more":
+    - generic: format_line_spacing
+    - generic: 2.15x
+    - generic: expand_more
+  - button "format_indent_increase":
+    - generic: format_indent_increase
+  - button "format_bold":
+    - generic: format_bold
+  - button "format_italic":
+    - generic: format_italic
+  - button "format_underlined":
+    - generic: format_underlined
+  - button "strikethrough_s":
+    - generic: strikethrough_s
+  - button "“”"
+  - button "—"
+  - button "✦ ✦ ✦"
+  - article:
+    - textbox "Đặt tiêu đề chương tại đây...": Chương 6 — Rút khỏi trạm Bốn
+    - generic: "Đã lưu: 21:20"
+    - generic: •
+    - generic: Untitled Novel
+    - generic: •
+    - generic: Chương số 6
+    - textbox "Bắt đầu câu từ chương truyện của bạn tại đây...": Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng. Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị. An giữ thuyền ngoài sân. Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn. Duy thu dây cảnh báo và đóng nắp hộp dụng cụ. Anh chờ Linh ra tới phần sân khô rồi mới bước lên thuyền. Không ai đề nghị mở thêm cánh cửa. An chống sào để mạn thuyền tránh bậc đá. Khi họ rời trạm, tiếng nước vẫn theo sau như một câu hỏi chưa có người trả lời. Đến bờ kè, cả ba nghỉ một lát. Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro. Cô đặt nó trong lòng bàn tay cho An nhìn. Sau đó Linh cất chiếc vỏ ốc vào túi vải đen của mình. Duy đứng chờ cạnh thuyền, không chạm vào máy ghi. “Ngày mai mới hỏi chuyện hồ sơ,” Linh nói. “Hôm nay chúng ta chỉ biết đã nghe gì và đứng ở đâu.” An gật đầu rồi buộc lại dây. Họ chưa tới trạm bơm số Hai. Bản ghi ở trong túi chống ẩm của Linh, còn nguồn tiếng gõ vẫn chưa được xác định. Linh buộc túi vải đen bằng một sợi dây nâu. An mới mười chín tuổi.
+- button "auto_awesome Trợ lý AI":
+  - generic: auto_awesome
+  - generic: Trợ lý AI

@@ -1,0 +1,112 @@
+{
+  "run_id": "2026-10-19-recovery-ui-01",
+  "updated_at": "2026-10-20T21:25:12.594046+07:00",
+  "status": "PARTIAL_GATE_FAILED",
+  "main_novel_id": "7d03320e-94c3-4913-a31f-a6eeef8af0dc",
+  "current_chapter_number": 6,
+  "current_chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+  "latest_canonical_revision_id": "2472bd86-54cc-4af6-8f23-ee1d8ccb978d",
+  "latest_content_hash": "32fe5d0039667e3d5989d17f1a81ba558d540e1001de5fc2e2bc7e72a7ce77ab",
+  "brain_version": 7,
+  "plan_id": "0547761e-c1a1-4e80-84c7-f974fde1ca11",
+  "plan_version": 1,
+  "objective_id": null,
+  "autonomous_run_id": null,
+  "last_generation_id": "e0816aaf-ad19-4d44-984b-d8c0ceba155f",
+  "pending_jobs": [
+    {
+      "event_id": "d14b0197-5214-4ad0-929e-a9dcff6bc68d",
+      "revision_id": "be0f3df8-f750-41ad-a92d-4daf51d8667b",
+      "status": "PENDING",
+      "retry_count": 1,
+      "last_error": "AI service returned HTTP 422: {\"detail\":{\"code\":\"CANON_RECONCILIATION_UNRESOLVED\",\"message\":\"Invalid canon reconciliation target or kind; reanalyse the saved revision after checking canon.\",\"attempts\":3,\"retryable\":true}}",
+      "created_at": "2026-10-20T14:13:49.006845+00:00",
+      "updated_at": "2026-10-20T14:17:56.315791+00:00"
+    },
+    {
+      "event_id": "413df16d-069e-4d5b-9913-7585d624cf87",
+      "revision_id": "ef7ea540-78b9-4bb5-a784-3b7a05a7b03a",
+      "status": "PROCESSING",
+      "retry_count": 1,
+      "last_error": "AI service returned HTTP 502: {\"detail\":\"Gemini request failed: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}\"}",
+      "created_at": "2026-10-20T14:12:13.111119+00:00",
+      "updated_at": "2026-10-20T14:17:59.739883+00:00"
+    },
+    {
+      "event_id": "37cc89b9-788f-4e6f-bb80-865269da1a3d",
+      "revision_id": "9f0c799d-288a-4bc9-82bb-3c659bd75bf8",
+      "status": "PROCESSING",
+      "retry_count": 0,
+      "last_error": null,
+      "created_at": "2026-10-20T14:16:29.457461+00:00",
+      "updated_at": "2026-10-20T14:17:59.739883+00:00"
+    },
+    {
+      "event_id": "6887df51-dcc1-489e-a2cc-a94a55783573",
+      "revision_id": "2472bd86-54cc-4af6-8f23-ee1d8ccb978d",
+      "status": "PENDING",
+      "retry_count": 0,
+      "last_error": null,
+      "created_at": "2026-10-20T14:20:44.337701+00:00",
+      "updated_at": "2026-10-20T14:20:44.337701+00:00"
+    },
+    {
+      "event_id": "9e85fe7a-5d75-46b2-9626-1a860ac5c2b6",
+      "revision_id": "661bc1ed-9907-491a-85bd-16b813e80299",
+      "status": "PENDING",
+      "retry_count": 2,
+      "last_error": "AI service returned HTTP 422: {\"detail\":{\"code\":\"CANON_RECONCILIATION_UNRESOLVED\",\"message\":\"Invalid canon reconciliation target or kind; reanalyse the saved revision after checking canon.\",\"attempts\":3,\"retryable\":true}}",
+      "created_at": "2026-10-20T14:11:58.543869+00:00",
+      "updated_at": "2026-10-20T14:20:48.258918+00:00"
+    }
+  ],
+  "pending_accept_idempotency_key": null,
+  "canonical_word_count": 4992,
+  "completed_chapters_by_content_review": [],
+  "unresolved_issue_ids": [
+    "MEM-CRITICAL-001",
+    "EXTRACT-SUBJECT-UNRESOLVED-001",
+    "REVIEW-EDITS-RESET-001",
+    "WRITE-INVALID-JSON-001",
+    "EXTRACT-ROLE-CONFUSION-001",
+    "PROVIDER-503-001",
+    "REANALYSIS-LIVE-UNRESOLVED-001"
+  ],
+  "memory_audit": {
+    "completed_audit_ids_by_pipeline": {
+      "P1": [
+        "P1-M0",
+        "P1-M-FIRST",
+        "P1-FINAL"
+      ],
+      "P2": [],
+      "P3": []
+    },
+    "next_due_by_pipeline": {
+      "P1": "RETEST_FAILED_GATES_BEFORE_M10",
+      "P2": "M0_NOT_RUN",
+      "P3": "M0_NOT_RUN"
+    },
+    "pending_audit_ids": [],
+    "unresolved_issue_ids": [
+      "MEM-CRITICAL-001",
+      "REANALYSIS-LIVE-UNRESOLVED-001"
+    ],
+    "resume_rule": "Finish due memory audit before next generation; read server revisions and analysis status first."
+  },
+  "last_action_log_row": "UI-014",
+  "next_action": "Fix writing output validation, unresolved extraction subjects/review edit loss and reconciliation quality. Read PostgreSQL current state before restarting isolated workers; never approve the injected age-40 revision. P2/P3/100k remain NOT_RUN.",
+  "resume_rule": "Read evidence/stopped-checkpoint.json. PROCESSING is persisted state at stop. Restart only isolated ai-service/backend if resuming this run, then inspect lease recovery/latest revision and review groups by source revision; no direct DB rescue.",
+  "current_step": "S11_CLOSEOUT",
+  "s01_verdict": "PASS_DRAFT_READBACK",
+  "s02_verdict": "PASS_FUNCTIONAL_FAIL_QUALITY",
+  "provider_calls_observed_this_run": 104,
+  "pending_proposal_count": 0,
+  "s09_verdict": "PARTIAL_UNFINISHED_EXTRACTION",
+  "s10_verdict": "PASS_AFTER_PROVIDER_RETRY",
+  "s11_verdict": "PASS_SAVE_RELOAD_FAIL_MEMORY_FRESHNESS",
+  "services_intentionally_stopped": [
+    "ephurin-ui-retest-backend-1",
+    "ephurin-ui-retest-ai-service-1"
+  ]
+}

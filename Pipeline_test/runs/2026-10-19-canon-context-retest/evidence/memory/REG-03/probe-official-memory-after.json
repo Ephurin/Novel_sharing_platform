@@ -1,0 +1,399 @@
+{
+  "story_id": "2e0e9175-4093-4462-b37f-59e8ef7a13f1",
+  "entities": [
+    {
+      "name": "An",
+      "entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Hòa",
+      "entity_id": "7b528d10-795f-45d7-b255-98e6af84bd47",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "chìa khóa đồng",
+      "entity_id": "9e64077b-6e46-4d1b-ac8d-2a91b2add58e",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "kho vật tư",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "kho vật tư",
+      "entity_id": "7f6ef912-3011-4967-b777-ffaa5a02794e",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "trạm bơm",
+      "entity_id": "81b6f6d6-ff4e-49de-b688-fa24fa69d092",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  ],
+  "aliases": [],
+  "mentions": [],
+  "facts": [
+    {
+      "fact_id": "43527fcf-5a16-4f7b-99a4-23d67d8d10fb",
+      "subject_entity_id": "9e64077b-6e46-4d1b-ac8d-2a91b2add58e",
+      "fact_type": "narrative_fact",
+      "fact_key": "material",
+      "fact_value": "đồng",
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "072cfef4-c004-4922-8592-cdce88fda33f",
+      "source_start": 84,
+      "source_end": 140,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "c4918586-7de8-4284-91c9-b3bd95c8394e",
+      "subject_entity_id": "9e64077b-6e46-4d1b-ac8d-2a91b2add58e",
+      "fact_type": "narrative_fact",
+      "fact_key": "location",
+      "fact_value": "kho vật tư",
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "072cfef4-c004-4922-8592-cdce88fda33f",
+      "source_start": 84,
+      "source_end": 140,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "cb434fa1-7023-4215-bb4b-d369acfb2079",
+      "subject_entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "fact_type": "narrative_fact",
+      "fact_key": "possession",
+      "fact_value": "chìa khóa đồng",
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "072cfef4-c004-4922-8592-cdce88fda33f",
+      "source_start": 76,
+      "source_end": 140,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "dded2eb4-7be6-4e15-929e-c538822953d7",
+      "subject_entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "fact_type": "narrative_fact",
+      "fact_key": "contract_type",
+      "fact_value": "kiểm định trạm bơm",
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "072cfef4-c004-4922-8592-cdce88fda33f",
+      "source_start": 0,
+      "source_end": 75,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "a12d1d10-4627-4580-bbcc-19baa1d7bc60",
+      "subject_entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "fact_type": "narrative_fact",
+      "fact_key": "contract_partner",
+      "fact_value": "ông Hòa",
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "072cfef4-c004-4922-8592-cdce88fda33f",
+      "source_start": 0,
+      "source_end": 75,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "8bc5b55e-3586-4de1-b121-d3123075bca5",
+      "subject_entity_id": "7b528d10-795f-45d7-b255-98e6af84bd47",
+      "fact_type": "narrative_fact",
+      "fact_key": "action",
+      "fact_value": "trao chìa khóa cho An",
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "072cfef4-c004-4922-8592-cdce88fda33f",
+      "source_start": 76,
+      "source_end": 140,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "2cb8f93f-d553-4a2b-a15e-36c4c7d14893",
+      "subject_entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "fact_type": "narrative_fact",
+      "fact_key": "contract",
+      "fact_value": "ký hợp đồng kiểm định trạm bơm với ông Hòa trong thời hạn mười lăm ngày",
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "1ca62f4d-e71d-4d16-bdc8-806122f5bb87",
+      "source_start": 0,
+      "source_end": 75,
+      "supersedes_id": "edbe4bbf-48f5-42cf-a8b4-c8e0d0c46a4b",
+      "is_retired": false
+    }
+  ],
+  "relations": [],
+  "events": [
+    {
+      "event_id": "955aebb2-ca06-5f04-a9c0-d1aaeca8b9a4",
+      "event_type": "Ký hợp đồng",
+      "participants": [],
+      "summary": "An ký hợp đồng kiểm định trạm bơm với ông Hòa trong thời hạn mười hai ngày.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "An ký hợp đồng kiểm định trạm bơm với ông Hòa trong thời hạn mười hai ngày.",
+        "evidence": [
+          {
+            "end": 75,
+            "quote": "An ký hợp đồng kiểm định trạm bơm với ông Hòa trong thời hạn mười hai ngày.",
+            "start": 0,
+            "text_hash": "ece9a68bc6d8984ae172ec0d74eb3bfe21e5f8e47e0393a6dab34dfc5fae768d",
+            "chapter_id": "9295eeb3-efdd-40c9-83be-ea4983b883b7",
+            "revision_id": "072cfef4-c004-4922-8592-cdce88fda33f",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "Ký hợp đồng",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 1,
+        "reconciliation_base_ids": [],
+        "narrative_order": 1024
+      }
+    },
+    {
+      "event_id": "d46e8f91-3304-51e2-bf6d-c28e6ba48c31",
+      "event_type": "Trao vật phẩm",
+      "participants": [],
+      "summary": "Ông Hòa trao cho An chiếc chìa khóa đồng của kho vật tư.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Ông Hòa trao cho An chiếc chìa khóa đồng của kho vật tư.",
+        "evidence": [
+          {
+            "end": 140,
+            "quote": "ông Hòa trao cho An chiếc chìa khóa đồng của kho vật tư.",
+            "start": 84,
+            "text_hash": "ece9a68bc6d8984ae172ec0d74eb3bfe21e5f8e47e0393a6dab34dfc5fae768d",
+            "chapter_id": "9295eeb3-efdd-40c9-83be-ea4983b883b7",
+            "revision_id": "072cfef4-c004-4922-8592-cdce88fda33f",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "Trao vật phẩm",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 1,
+        "reconciliation_base_ids": [],
+        "narrative_order": 2048
+      }
+    },
+    {
+      "event_id": "7a65725f-d030-51d7-921c-6c2b001596e4",
+      "event_type": "contract_signing",
+      "participants": [
+        "An",
+        "Hòa"
+      ],
+      "summary": "An signed a contract to inspect the pumping station with Mr. Hoa for a duration of fifteen days.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "An signed a contract to inspect the pumping station with Mr. Hoa for a duration of fifteen days.",
+        "evidence": [
+          {
+            "end": 75,
+            "quote": "An ký hợp đồng kiểm định trạm bơm với ông Hòa trong thời hạn mười lăm ngày.",
+            "start": 0,
+            "text_hash": "20b806124655c6eb604c2fff177fa61f3c8daf0727685c8a9c9558263fe5b2ab",
+            "chapter_id": "9295eeb3-efdd-40c9-83be-ea4983b883b7",
+            "revision_id": "1ca62f4d-e71d-4d16-bdc8-806122f5bb87",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [
+          "trạm bơm"
+        ],
+        "event_type": "contract_signing",
+        "consequences": [
+          "A fifteen-day inspection contract was established between An and Hoa for the pumping station."
+        ],
+        "participants": [
+          "An",
+          "Hòa"
+        ],
+        "supersedes_id": "955aebb2-ca06-5f04-a9c0-d1aaeca8b9a4",
+        "chapter_number": 1,
+        "reconciliation_reason": "The contract duration was changed by the author from 12 days to 15 days.",
+        "reconciliation_base_ids": [
+          "43527fcf-5a16-4f7b-99a4-23d67d8d10fb",
+          "8bc5b55e-3586-4de1-b121-d3123075bca5",
+          "955aebb2-ca06-5f04-a9c0-d1aaeca8b9a4",
+          "a12d1d10-4627-4580-bbcc-19baa1d7bc60",
+          "c4918586-7de8-4284-91c9-b3bd95c8394e",
+          "cb434fa1-7023-4215-bb4b-d369acfb2079",
+          "d46e8f91-3304-51e2-bf6d-c28e6ba48c31",
+          "dded2eb4-7be6-4e15-929e-c538822953d7",
+          "edbe4bbf-48f5-42cf-a8b4-c8e0d0c46a4b"
+        ],
+        "original_narrative_order": 1024,
+        "narrative_order": 1024
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "transition_id": "dfdf78ec-2afe-5644-b566-94c3bfaf21b5",
+      "entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "event_id": null,
+      "fact_id": "edbe4bbf-48f5-42cf-a8b4-c8e0d0c46a4b",
+      "attribute_key": "contract_duration",
+      "new_value": 12
+    },
+    {
+      "transition_id": "c8bd5204-89e5-500f-b1d5-a6db57b53d1b",
+      "entity_id": "9e64077b-6e46-4d1b-ac8d-2a91b2add58e",
+      "event_id": null,
+      "fact_id": "43527fcf-5a16-4f7b-99a4-23d67d8d10fb",
+      "attribute_key": "material",
+      "new_value": "đồng"
+    },
+    {
+      "transition_id": "3f4d4c70-adf1-5ec7-a58b-d2c063802364",
+      "entity_id": "9e64077b-6e46-4d1b-ac8d-2a91b2add58e",
+      "event_id": null,
+      "fact_id": "c4918586-7de8-4284-91c9-b3bd95c8394e",
+      "attribute_key": "location",
+      "new_value": "kho vật tư"
+    },
+    {
+      "transition_id": "14a18015-6155-5940-9249-eed96ff0be64",
+      "entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "event_id": null,
+      "fact_id": "cb434fa1-7023-4215-bb4b-d369acfb2079",
+      "attribute_key": "possession",
+      "new_value": "chìa khóa đồng"
+    },
+    {
+      "transition_id": "c348b18b-0e9f-5c66-939d-35fe066755b5",
+      "entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "event_id": null,
+      "fact_id": "dded2eb4-7be6-4e15-929e-c538822953d7",
+      "attribute_key": "contract_type",
+      "new_value": "kiểm định trạm bơm"
+    },
+    {
+      "transition_id": "39e9b7d0-2473-52ca-9c7b-3cb6fa569c74",
+      "entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "event_id": null,
+      "fact_id": "a12d1d10-4627-4580-bbcc-19baa1d7bc60",
+      "attribute_key": "contract_partner",
+      "new_value": "ông Hòa"
+    },
+    {
+      "transition_id": "829f2c90-fc6f-5f68-80a5-508a48d321b6",
+      "entity_id": "7b528d10-795f-45d7-b255-98e6af84bd47",
+      "event_id": null,
+      "fact_id": "8bc5b55e-3586-4de1-b121-d3123075bca5",
+      "attribute_key": "action",
+      "new_value": "trao chìa khóa cho An"
+    },
+    {
+      "transition_id": "e9e01184-81b0-54a6-8974-a52d135ee696",
+      "entity_id": "0155586f-baa0-4a5e-b40f-631a303a09ab",
+      "event_id": null,
+      "fact_id": "2cb8f93f-d553-4a2b-a15e-36c4c7d14893",
+      "attribute_key": "contract",
+      "new_value": "ký hợp đồng kiểm định trạm bơm với ông Hòa trong thời hạn mười lăm ngày"
+    }
+  ],
+  "current_state": {
+    "entities": {
+      "9e64077b-6e46-4d1b-ac8d-2a91b2add58e": {
+        "location": "kho vật tư",
+        "material": "đồng"
+      },
+      "0155586f-baa0-4a5e-b40f-631a303a09ab": {
+        "contract": "ký hợp đồng kiểm định trạm bơm với ông Hòa trong thời hạn mười lăm ngày",
+        "possession": "chìa khóa đồng",
+        "contract_type": "kiểm định trạm bơm",
+        "contract_partner": "ông Hòa"
+      },
+      "7b528d10-795f-45d7-b255-98e6af84bd47": {
+        "action": "trao chìa khóa cho An"
+      }
+    },
+    "provenance": {
+      "9e64077b-6e46-4d1b-ac8d-2a91b2add58e": {
+        "location": {
+          "fact_id": "c4918586-7de8-4284-91c9-b3bd95c8394e",
+          "event_id": null,
+          "transition_id": "3f4d4c70-adf1-5ec7-a58b-d2c063802364"
+        },
+        "material": {
+          "fact_id": "43527fcf-5a16-4f7b-99a4-23d67d8d10fb",
+          "event_id": null,
+          "transition_id": "c8bd5204-89e5-500f-b1d5-a6db57b53d1b"
+        }
+      },
+      "0155586f-baa0-4a5e-b40f-631a303a09ab": {
+        "contract": {
+          "fact_id": "2cb8f93f-d553-4a2b-a15e-36c4c7d14893",
+          "event_id": null,
+          "transition_id": "e9e01184-81b0-54a6-8974-a52d135ee696"
+        },
+        "possession": {
+          "fact_id": "cb434fa1-7023-4215-bb4b-d369acfb2079",
+          "event_id": null,
+          "transition_id": "14a18015-6155-5940-9249-eed96ff0be64"
+        },
+        "contract_type": {
+          "fact_id": "dded2eb4-7be6-4e15-929e-c538822953d7",
+          "event_id": null,
+          "transition_id": "c348b18b-0e9f-5c66-939d-35fe066755b5"
+        },
+        "contract_partner": {
+          "fact_id": "a12d1d10-4627-4580-bbcc-19baa1d7bc60",
+          "event_id": null,
+          "transition_id": "39e9b7d0-2473-52ca-9c7b-3cb6fa569c74"
+        }
+      },
+      "7b528d10-795f-45d7-b255-98e6af84bd47": {
+        "action": {
+          "fact_id": "8bc5b55e-3586-4de1-b121-d3123075bca5",
+          "event_id": null,
+          "transition_id": "829f2c90-fc6f-5f68-80a5-508a48d321b6"
+        }
+      }
+    },
+    "relationships": [],
+    "projection_version": 1
+  },
+  "metadata": {
+    "brain_id": "8e3f4e62-7f22-4cd0-990d-718ef6073ec3",
+    "brain_version": "3",
+    "status": "active",
+    "baseline_revision_id": "072cfef4-c004-4922-8592-cdce88fda33f"
+  }
+}

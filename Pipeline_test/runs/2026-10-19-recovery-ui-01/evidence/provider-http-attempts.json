@@ -1,0 +1,522 @@
+[
+  {
+    "log_time": "2026-10-20 00:04:32,008",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:34,941",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:37,490",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:40,779",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:41,893",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:42,612",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:43,976",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:44,902",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:47,867",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:49,950",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:52,044",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:54,221",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:56,728",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:57,600",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:58,738",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:04:59,816",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:02,070",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:02,449",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:05:07,569",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:07,922",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:05:13,243",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:13,643",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:05:16,890",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:05:23,212",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:05:35,417",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:36,939",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:37,827",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:38,621",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:39,557",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:40,441",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:42,091",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:46,486",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:51,917",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:57,575",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:58,382",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:05:59,180",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:00,077",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:00,936",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:02,413",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:02,786",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:06:06,017",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:06:14,244",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:16,423",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:16,762",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:06:20,034",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:06:26,309",
+    "provider": "gemini",
+    "http_status": 429
+  },
+  {
+    "log_time": "2026-10-20 00:06:41,569",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:42,465",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:43,438",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:44,110",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:06:45,030",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:16:10,091",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:18:32,631",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:18:33,564",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:18:34,361",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:18:35,128",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:19:15,660",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:19:16,768",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:19:18,157",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:19:18,353",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:19:20,370",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:21:54,091",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:21:55,729",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:21:58,707",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 00:22:01,339",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:12:22,634",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:13:03,266",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:13:17,968",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:13:54,479",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:14:12,270",
+    "provider": "gemini",
+    "http_status": 503
+  },
+  {
+    "log_time": "2026-10-20 14:14:41,892",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:14:44,100",
+    "provider": "gemini",
+    "http_status": 503
+  },
+  {
+    "log_time": "2026-10-20 14:15:07,312",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:15:21,485",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:15:30,036",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:15:44,004",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:16:03,922",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:16:10,835",
+    "provider": "gemini",
+    "http_status": 503
+  },
+  {
+    "log_time": "2026-10-20 14:16:19,785",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:16:23,021",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:16:58,974",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:17:09,165",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:17:23,685",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:17:26,837",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:17:42,851",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:17:56,309",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:18:08,940",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:18:20,003",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:18:31,858",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:18:32,706",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:18:47,402",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:18:51,435",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:19:01,555",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:19:11,008",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:19:28,237",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:19:34,998",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:19:44,912",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:19:59,182",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:20:25,297",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:20:48,250",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:21:12,878",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:21:23,534",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:21:37,572",
+    "provider": "gemini",
+    "http_status": 200
+  },
+  {
+    "log_time": "2026-10-20 14:22:07,895",
+    "provider": "gemini",
+    "http_status": 200
+  }
+]

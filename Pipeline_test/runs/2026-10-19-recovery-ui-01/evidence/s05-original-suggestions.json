@@ -1,0 +1,98 @@
+[
+  {
+    "checked": null,
+    "tag": "TEXTAREA",
+    "type": "textarea",
+    "value": "Đề xuất 3 diễn biến cho chương 6–8, tiếp sau cảnh nước bắt đầu dâng ở trạm Bốn. Một diễn biến đưa An và Linh tới trạm bơm số Hai để tìm hồ sơ; một diễn biến liên quan phong bì niêm phong màu đỏ dự kiến được trao sau đó. Giữ mạch điều tra chậm và không tự xác nhận nguồn tiếng gõ. Đây chỉ là kế hoạch tương lai."
+  },
+  {
+    "checked": null,
+    "tag": "INPUT",
+    "type": "text",
+    "value": "Phản ứng tại Trạm Bốn và Quyết Định Rời Đi"
+  },
+  {
+    "checked": null,
+    "tag": "TEXTAREA",
+    "type": "textarea",
+    "value": "Duy và Linh đối phó với mực nước dâng qua khe cửa tại trạm Bốn, ghi nhận dữ liệu âm thanh tiếp theo mà vẫn giữ sự thận trọng về nguồn gốc tiếng gõ. Mục tiêu đo lường: Hoàn thành việc thu thập mẫu âm thanh, đóng gói thiết bị an toàn và quyết định rút lui tạm thời trước khi triều lên cao hơn, mang lại kết quả là thông tin mới cho nhật ký điều tra."
+  },
+  {
+    "checked": null,
+    "tag": "INPUT",
+    "type": "text",
+    "value": "6"
+  },
+  {
+    "checked": null,
+    "tag": "INPUT",
+    "type": "text",
+    "value": "1000"
+  },
+  {
+    "checked": false,
+    "tag": "INPUT",
+    "type": "checkbox",
+    "value": "on"
+  },
+  {
+    "checked": null,
+    "tag": "INPUT",
+    "type": "text",
+    "value": "Hành Trình Đến Trạm Bơm Số Hai Cùng An"
+  },
+  {
+    "checked": null,
+    "tag": "TEXTAREA",
+    "type": "textarea",
+    "value": "An và Linh chèo thuyền qua các con kênh nhỏ để đến trạm bơm số Hai nhằm tìm kiếm bộ hồ sơ lưu trữ cũ liên quan đến các nhánh ống bị bịt kín. Mục tiêu đo lường: Khám phá tủ tài liệu cũ tại trạm bơm, tìm ra bản vẽ thiết kế gốc năm năm trước, mang lại mốc manh mối quan trọng về người vận hành trước đây."
+  },
+  {
+    "checked": null,
+    "tag": "INPUT",
+    "type": "text",
+    "value": "7"
+  },
+  {
+    "checked": null,
+    "tag": "INPUT",
+    "type": "text",
+    "value": "1000"
+  },
+  {
+    "checked": false,
+    "tag": "INPUT",
+    "type": "checkbox",
+    "value": "on"
+  },
+  {
+    "checked": null,
+    "tag": "INPUT",
+    "type": "text",
+    "value": "Trao Phong Bì Niêm Phong Màu Đỏ Và Khép Lại Chuyến Điều Tra"
+  },
+  {
+    "checked": null,
+    "tag": "TEXTAREA",
+    "type": "textarea",
+    "value": "Nguyễn Vũ gặp lại Linh và Duy để bàn giao một phong bì niêm phong màu đỏ chứa tài liệu lịch sử mật cuối cùng liên quan đến quyết định bịt nhánh tây của trạm Bốn. Mục tiêu đo lường: Giải mã toàn bộ thông tin trong phong bì, làm sáng tỏ bí ẩn về những người từng trực trạm trước đây, và khép lại chuyến khảo sát mười hai ngày của Linh trong sự tĩnh lặng của thành phố."
+  },
+  {
+    "checked": null,
+    "tag": "INPUT",
+    "type": "text",
+    "value": "8"
+  },
+  {
+    "checked": null,
+    "tag": "INPUT",
+    "type": "text",
+    "value": "1000"
+  },
+  {
+    "checked": true,
+    "tag": "INPUT",
+    "type": "checkbox",
+    "value": "on"
+  }
+]

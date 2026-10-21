@@ -1,0 +1,394 @@
+FACT
+
+Duy · action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 23–133 · “Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.”
+
+Loại đề xuất
+FACT
+
+Duy · hypothesis · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 337–390 · “anh chưa có lý do để đặt một người vào khoảng tối đó.”
+
+Loại đề xuất
+FACT
+
+Linh · action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 392–446 · “Linh tháo tai nghe một bên để vẫn nghe được tiếng Duy.”
+
+Loại đề xuất
+FACT
+
+An · action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 603–633 · “Ngoài sân, An buộc lại thuyền.”
+
+Loại đề xuất
+FACT
+
+Linh · location · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 852–933 · “ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”.”
+
+Loại đề xuất
+FACT
+
+Duy · object_inspection · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 1042–1161 · “Duy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào.”
+
+Loại đề xuất
+FACT
+
+· physical_attribute · hypothesis
+
+physical_attribute: {
+  "value": "Phần kim loại có màu khác đoạn phía trên",
+  "subject": "",
+  "certainty": "hypothesis"
+}
+
+Nguồn: bản lưu a9d96995 · vị trí 1162–1268 · “Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp xúc với không khí hơn.”
+
+Loại đề xuất
+FACT
+
+· physical_attribute · confirmed
+
+physical_attribute: {
+  "value": "vệt mảnh nằm sát bản lề với dấu số bị che",
+  "subject": "",
+  "certainty": "confirmed"
+}
+
+Nguồn: bản lưu a9d96995 · vị trí 1343–1440 · “một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.”
+
+Loại đề xuất
+FACT
+
+bà Sâm · statement · reported
+
+statement: {
+  "value": "cửa không phải là cửa xuống phòng máy mà là chỗ người vận hành đứng khi đường chính mất điện",
+  "subject": "bà Sâm",
+  "certainty": "reported"
+}
+
+Nguồn: bản lưu a9d96995 · vị trí 1963–2064 · “Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”
+
+Loại đề xuất
+FACT
+
+Duy · door_action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 0–22 · “Duy không mở cửa thêm.”
+
+Loại đề xuất
+FACT
+
+Duy · action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 23–133 · “Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.”
+
+Loại đề xuất
+FACT
+
+Duy · instruction · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 23–133 · “Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.”
+
+Loại đề xuất
+FACT
+
+Duy · hypothesis · hypothesis
+
+hypothesis: {
+  "value": "triều đổi đủ làm áp lực khác đi nếu bên dưới còn nối với kênh",
+  "subject": "Duy",
+  "certainty": "hypothesis"
+}
+
+Nguồn: bản lưu a9d96995 · vị trí 136–202 · “Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.”
+
+Loại đề xuất
+FACT
+
+Linh · action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 447–493 · “Cô đặt micro gần chân cửa, không luồn qua khe.”
+
+Loại đề xuất
+FACT
+
+Linh · observation · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 494–539 · “Trên màn hình, tiếng nước thành một dải thấp.”
+
+Loại đề xuất
+FACT
+
+Linh · observation · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 540–601 · “Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.”
+
+Loại đề xuất
+FACT
+
+An · action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 634–674 · “Cậu gọi vào hỏi có cần báo bà Sâm không.”
+
+Loại đề xuất
+FACT
+
+Duy · instruction · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 701–794 · ““Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.””
+
+Loại đề xuất
+FACT
+
+An · action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 796–817 · “An đi ra chỗ có sóng.”
+
+Loại đề xuất
+FACT
+
+Linh · record_entry · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 818–882 · “Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây.”
+
+Loại đề xuất
+FACT
+
+Linh · photograph_content · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 1533–1603 · “Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối.”
+
+Loại đề xuất
+FACT
+
+Duy · physical_reaction · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 1797–1870 · “Điện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa.”
+
+Loại đề xuất
+FACT
+
+Duy · phone_answer · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 1904–1927 · ““Vâng. Cháu chưa chạm.””
+
+Loại đề xuất
+FACT
+
+Duy · action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 1929–1960 · “Anh cất máy, đứng lên rất chậm.”
+
+Loại đề xuất
+FACT
+
+Duy · object_location · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 2124–2169 · “Anh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ.”
+
+Loại đề xuất
+FACT
+
+Unknown · sound · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 2325–2363 · “Từ dưới sàn vang lên ba tiếng gõ ngắn.”
+
+Loại đề xuất
+FACT
+
+Unknown · sound · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 2380–2459 · “Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống.”
+
+Loại đề xuất
+FACT
+
+Linh · observation · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 2460–2496 · “Trên màn hình, bốn vệt sáng hiện ra.”
+
+Loại đề xuất
+FACT
+
+Linh · action · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 2520–2581 · “Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy.”
+
+Loại đề xuất
+FACT
+
+Unknown · observation · confirmed
+
+Thực thể của dữ kiện (tên chính xác)
+Nội dung được trích xuất
+
+Nguồn: bản lưu a9d96995 · vị trí 2583–2636 · “Trong khe cửa, đường nước phản sáng bắt đầu dịch lên.”
+
+Loại đề xuất
+EVENT
+Nội dung được trích xuất
+Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+Địa điểm xảy ra (ngăn cách bằng dấu phẩy)
+
+Nguồn: bản lưu a9d96995 · vị trí 0–133 · “Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.”
+
+Loại đề xuất
+EVENT
+Nội dung được trích xuất
+Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+Địa điểm xảy ra (ngăn cách bằng dấu phẩy)
+
+Nguồn: bản lưu a9d96995 · vị trí 603–699 · “Ngoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.”
+
+Loại đề xuất
+EVENT
+Nội dung được trích xuất
+Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+Địa điểm xảy ra (ngăn cách bằng dấu phẩy)
+
+Nguồn: bản lưu a9d96995 · vị trí 1498–1603 · “Linh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối.”
+
+Loại đề xuất
+ENTITY
+Tên được trích xuất
+Trạng thái ban đầu (Alive / Dead / Unknown)
+
+Nguồn: bản lưu a9d96995 · vị trí 0–3 · “Duy”
+
+Loại đề xuất
+ENTITY
+Tên được trích xuất
+Trạng thái ban đầu (Alive / Dead / Unknown)
+
+Nguồn: bản lưu a9d96995 · vị trí 100–104 · “Linh”
+
+Loại đề xuất
+ENTITY
+Tên được trích xuất
+Trạng thái ban đầu (Alive / Dead / Unknown)
+
+Nguồn: bản lưu a9d96995 · vị trí 614–616 · “An”
+
+Loại đề xuất
+ENTITY
+Tên được trích xuất
+Trạng thái ban đầu (Alive / Dead / Unknown)
+
+Nguồn: bản lưu a9d96995 · vị trí 661–667 · “bà Sâm”
+
+Loại đề xuất
+ENTITY
+Tên được trích xuất
+Trạng thái ban đầu (Alive / Dead / Unknown)
+
+Nguồn: bản lưu a9d96995 · vị trí 1020–1025 · “CV-04”
+
+Loại đề xuất
+ENTITY
+Tên được trích xuất
+Trạng thái ban đầu (Alive / Dead / Unknown)
+
+Nguồn: bản lưu a9d96995 · vị trí 862–870 · “trạm Bốn”
+
+Loại đề xuất
+ENTITY
+Tên được trích xuất
+Trạng thái ban đầu (Alive / Dead / Unknown)
+
+Nguồn: bản lưu a9d96995 · vị trí 872–881 · “nhánh tây”
+
+Loại đề xuất
+EVENT
+Nội dung được trích xuất
+Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+Địa điểm xảy ra (ngăn cách bằng dấu phẩy)
+
+Nguồn: bản lưu a9d96995 · vị trí 2325–2363 · “Từ dưới sàn vang lên ba tiếng gõ ngắn.”
+
+Loại đề xuất
+Duyệt nhóm đã kiểm tra

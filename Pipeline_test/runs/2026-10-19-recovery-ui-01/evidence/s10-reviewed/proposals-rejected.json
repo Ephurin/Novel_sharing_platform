@@ -1,0 +1,887 @@
+[
+  {
+    "proposal_id": "c88eed86-5971-586f-b662-3626482d21f1",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Duy",
+      "initial_status": "Unknown",
+      "normalized_name": "duy"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 0,
+    "evidence": [
+      {
+        "end": 3,
+        "quote": "Duy",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "a470bf4a-ac67-5bed-b2a2-f67f5addbee9",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "linh"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 1,
+    "evidence": [
+      {
+        "end": 53,
+        "quote": "Linh",
+        "start": 49,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "3b233ec6-c327-5270-bb61-141cabe1a7f0",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Unknown",
+      "normalized_name": "an"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 2,
+    "evidence": [
+      {
+        "end": 109,
+        "quote": "An",
+        "start": 107,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "db45660f-93cc-5fbe-8dba-bc0e7102de7c",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "trạm Bốn",
+      "initial_status": "Unknown",
+      "normalized_name": "trạm bốn"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 3,
+    "evidence": [
+      {
+        "end": 24,
+        "quote": "trạm Bốn",
+        "start": 16,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "7ee13c95-dedc-5c96-a86b-4c1c3fb8c5d2",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Unknown",
+      "normalized_name": "an"
+    },
+    "analysis_run_id": "5ebb412c-c456-458e-b2f5-93a048f0d547",
+    "dependency_group_id": "bc0d5c17-4620-563e-9139-de2a12379159",
+    "materialization_order": 4,
+    "evidence": [
+      {
+        "end": 2880,
+        "quote": "an",
+        "start": 2878,
+        "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+        "revision_id": "0cf5cc37-4701-4041-a5e8-e040f9836cbb"
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "fd9df8d9-3fcf-5717-a184-6b7c432e887d",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "máy ghi",
+      "initial_status": "Unknown",
+      "normalized_name": "máy ghi"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 4,
+    "evidence": [
+      {
+        "end": 65,
+        "quote": "máy ghi",
+        "start": 58,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "6349e301-ccde-5a63-b2a2-0c5fd17d6e35",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "thuyền",
+      "initial_status": "Unknown",
+      "normalized_name": "thuyền"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 5,
+    "evidence": [
+      {
+        "end": 120,
+        "quote": "thuyền",
+        "start": 114,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "beac587b-7f91-568d-a183-b929848ce47b",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "tệp âm thanh",
+      "initial_status": "Unknown",
+      "normalized_name": "tệp âm thanh"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 6,
+    "evidence": [
+      {
+        "end": 88,
+        "quote": "tệp âm thanh",
+        "start": 76,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "832da9ad-23e2-5d80-b950-3bc3d181f0cd",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "bản ghi",
+      "initial_status": "Unknown",
+      "normalized_name": "bản ghi"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 7,
+    "evidence": [
+      {
+        "end": 152,
+        "quote": "bản ghi",
+        "start": 145,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "57ae439e-947f-5110-b918-133bf1d67ba0",
+    "proposal_type": "event",
+    "payload": {
+      "chapter": 6,
+      "summary": "Duy signals the group to leave station Bốn as water levels continue to rise.",
+      "locations": [
+        "trạm Bốn"
+      ],
+      "event_type": "Departure",
+      "consequences": [
+        "The group prepares to leave the station."
+      ],
+      "participants": [
+        "Duy",
+        "Linh",
+        "An"
+      ],
+      "chapter_number": 6,
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 8,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 0.8,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "1faf02e3-7895-5513-a813-6218c0d22dc7",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "ra hiệu rời trạm Bốn",
+      "subject_name": "Duy",
+      "chapter_number": 6,
+      "subject_entity_name": "Duy",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 9,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "a3593941-2468-5785-a026-d3fba931b055",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị",
+      "subject_name": "Linh",
+      "chapter_number": 6,
+      "subject_entity_name": "Linh",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 10,
+    "evidence": [
+      {
+        "end": 106,
+        "quote": "Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị.",
+        "start": 49,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "50d9f44a-a1ea-523e-be56-2a6b3086516e",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "giữ thuyền ngoài sân",
+      "subject_name": "An",
+      "chapter_number": 6,
+      "subject_entity_name": "An",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 11,
+    "evidence": [
+      {
+        "end": 131,
+        "quote": "An giữ thuyền ngoài sân.",
+        "start": 107,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "c67dfb5c-ef8a-5a56-bda2-114f70c8bc4f",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "knowledge_status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "chưa biết vật gì đã tạo ra tiếng gõ dưới sàn",
+      "subject_name": "Họ",
+      "chapter_number": 6,
+      "subject_entity_name": "Họ",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 12,
+    "evidence": [
+      {
+        "end": 199,
+        "quote": "Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.",
+        "start": 132,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "e8b24051-0270-5564-9483-b5a3d3f2e8d2",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "tiếp tục dâng",
+      "subject_name": "nước",
+      "chapter_number": 6,
+      "subject_entity_name": "nước",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 13,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "4c8b20a6-4bb9-550c-b3d6-eac479e6afe7",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "mang theo bản ghi",
+      "subject_name": "Họ",
+      "chapter_number": 6,
+      "subject_entity_name": "Họ",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 14,
+    "evidence": [
+      {
+        "end": 199,
+        "quote": "Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.",
+        "start": 132,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "b451c7cf-a7a6-5d96-a0a5-b9ff8919273d",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "Rời đi",
+      "subject_name": "trạm Bốn",
+      "chapter_number": 6,
+      "subject_entity_name": "trạm Bốn",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "5341935a-5677-45c9-99b6-2a32001498f1",
+    "dependency_group_id": "fffd73d4-3021-5745-881a-805d256a0423",
+    "materialization_order": 17,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "c3a86f78b3e9bab3cbb1ccbfcddcb76b298e8536bcabaf445be79e487ee0e257",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "8f39c4ed-f23d-5a79-8a5a-86088a683299",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "túi áo quảng cáo",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "có tờ quảng cáo tuyển người làm ở một xưởng máy ven biển",
+      "subject_name": "Linh",
+      "chapter_number": 3,
+      "subject_entity_name": "Linh",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "ea98e09f-32ba-4fe7-89bd-69f8efa0748c",
+    "dependency_group_id": "97f23d20-74b6-5a86-bc87-15676296b21a",
+    "materialization_order": 18,
+    "evidence": [
+      {
+        "end": 854,
+        "quote": "Linh thấy trong túi áo cậu có tờ quảng cáo tuyển người làm ở một xưởng máy ven biển.",
+        "start": 770,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+        "revision_id": "fe088e21-444c-44a1-8b36-aa3d301ecffd",
+        "chapter_number": 3
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "7d15916f-465a-5eb4-adb7-fcfa652d59ff",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "vị trí cũ",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "từng treo ở bờ kênh phía nam",
+      "subject_name": "chuông nhà tang lễ",
+      "chapter_number": 3,
+      "subject_entity_name": "chuông nhà tang lễ",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "ea98e09f-32ba-4fe7-89bd-69f8efa0748c",
+    "dependency_group_id": "97f23d20-74b6-5a86-bc87-15676296b21a",
+    "materialization_order": 19,
+    "evidence": [
+      {
+        "end": 1374,
+        "quote": "Bà kể chuông từng treo ở bờ kênh phía nam, sau lũ mới chuyển lên nhà tang lễ hiện tại.",
+        "start": 1288,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+        "revision_id": "fe088e21-444c-44a1-8b36-aa3d301ecffd",
+        "chapter_number": 3
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "eba8dbd4-b3c2-5b5d-bdd1-c214058bf2c8",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "giới hạn bảo tồn đọc",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 3,
+      "subject_name": "CV-04",
+      "chapter_number": 2,
+      "subject_entity_name": "CV-04",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "e06065db-be43-4d97-8c35-59f67fa25ff2",
+    "dependency_group_id": "8c271042-c033-5b3b-a4f8-ae1fb2363624",
+    "materialization_order": 24,
+    "evidence": [
+      {
+        "end": 1575,
+        "quote": "Ba lần đã là giới hạn bảo tồn đề nghị cho loại này.",
+        "start": 1524,
+        "text_hash": "b71336aae2d225345b7b67e190d7d2a46c7a4607ab80d23f299c4c875be7ff45",
+        "chapter_id": "51878bae-e04c-444a-a293-c61282b74bda",
+        "revision_id": "feb6ffe7-903a-4575-bdf3-915b6042df25",
+        "chapter_number": 2
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "418b9159-06fb-5496-99bf-d6db1391a10c",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "relation_to_ba_yen",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "cháu",
+      "subject_name": "An",
+      "chapter_number": 1,
+      "subject_entity_name": "An",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "d8065a8c-bb27-4d8f-b65e-a0ccc000c780",
+    "dependency_group_id": "b4b6a18a-0565-569a-b35d-0f273030129f",
+    "materialization_order": 26,
+    "evidence": [
+      {
+        "end": 1351,
+        "quote": "“Chị Mai Linh? Cháu bà Yên?”",
+        "start": 1323,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+        "revision_id": "a4120e44-95e5-4a9a-9865-b54f7ff79398",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "20c0369b-57f6-571f-8d71-d2242810f734",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "instruction_given_to_an",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "nhắc An hỏi Linh có phải con bà Yên không để sửa lại",
+      "subject_name": "bà Sâm",
+      "chapter_number": 1,
+      "subject_entity_name": "bà Sâm",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "d8065a8c-bb27-4d8f-b65e-a0ccc000c780",
+    "dependency_group_id": "b4b6a18a-0565-569a-b35d-0f273030129f",
+    "materialization_order": 27,
+    "evidence": [
+      {
+        "end": 1440,
+        "quote": "Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.",
+        "start": 1378,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+        "revision_id": "a4120e44-95e5-4a9a-9865-b54f7ff79398",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "831f8d9e-91c6-53d0-9506-9e009afc3d9f",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "height_relative_to_man",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "nam_cao_vai",
+      "subject_name": "flood_line",
+      "chapter_number": 1,
+      "subject_entity_name": "flood_line",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "d8065a8c-bb27-4d8f-b65e-a0ccc000c780",
+    "dependency_group_id": "b4b6a18a-0565-569a-b35d-0f273030129f",
+    "materialization_order": 28,
+    "evidence": [
+      {
+        "end": 1014,
+        "quote": "vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao.",
+        "start": 939,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+        "revision_id": "a4120e44-95e5-4a9a-9865-b54f7ff79398",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "fa390415-4686-5723-9005-77df66ec72ff",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "years_ago",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 17,
+      "subject_name": "flood_line",
+      "chapter_number": 1,
+      "subject_entity_name": "flood_line",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "d8065a8c-bb27-4d8f-b65e-a0ccc000c780",
+    "dependency_group_id": "b4b6a18a-0565-569a-b35d-0f273030129f",
+    "materialization_order": 29,
+    "evidence": [
+      {
+        "end": 1014,
+        "quote": "vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao.",
+        "start": 939,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+        "revision_id": "a4120e44-95e5-4a9a-9865-b54f7ff79398",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "b63d2be3-229e-5553-9e7c-960f50828522",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "lịch sử di dời",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "sau lũ mới chuyển lên nhà tang lễ hiện tại bằng cần cẩu của đội công trình",
+      "subject_name": "chuông nhà tang lễ",
+      "chapter_number": 3,
+      "subject_entity_name": "chuông nhà tang lễ",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "ea98e09f-32ba-4fe7-89bd-69f8efa0748c",
+    "dependency_group_id": "97f23d20-74b6-5a86-bc87-15676296b21a",
+    "materialization_order": 30,
+    "evidence": [
+      {
+        "end": 1453,
+        "quote": "sau lũ mới chuyển lên nhà tang lễ hiện tại. Móng cũ sụt, người ta dùng một chiếc cần cẩu của đội công trình đưa chuông đi.",
+        "start": 1331,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+        "revision_id": "fe088e21-444c-44a1-8b36-aa3d301ecffd",
+        "chapter_number": 3
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "fe93ad4d-8ed3-5d85-997b-2def8a4f5430",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "total_victims",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 23,
+      "subject_name": "lu_lut",
+      "chapter_number": 1,
+      "subject_entity_name": "lu_lut",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "d8065a8c-bb27-4d8f-b65e-a0ccc000c780",
+    "dependency_group_id": "b4b6a18a-0565-569a-b35d-0f273030129f",
+    "materialization_order": 32,
+    "evidence": [
+      {
+        "end": 3343,
+        "quote": "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "start": 3273,
+        "text_hash": "84f7a98b254d92ef8ad95f45a8890d1ab326dbb60e329f18a2284eeaeaa51e3b",
+        "chapter_id": "16854980-f0fc-4829-900e-c3b1e8dbc4ef",
+        "revision_id": "a4120e44-95e5-4a9a-9865-b54f7ff79398",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "cc5c48c0-bea3-5e63-8128-e9b91562a1a0",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "số lượng người",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": 23,
+      "subject_name": "danh sách",
+      "chapter_number": 3,
+      "subject_entity_name": "danh sách",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "ea98e09f-32ba-4fe7-89bd-69f8efa0748c",
+    "dependency_group_id": "97f23d20-74b6-5a86-bc87-15676296b21a",
+    "materialization_order": 32,
+    "evidence": [
+      {
+        "end": 2338,
+        "quote": "Hai mươi ba người.",
+        "start": 2320,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+        "revision_id": "fe088e21-444c-44a1-8b36-aa3d301ecffd",
+        "chapter_number": 3
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "83c90ccd-3015-5692-9e02-1195185c04f1",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "gói vải xám",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "buộc dây dưới mặt ghế chứa sổ tiền chợ cũ với bìa sổ vàng",
+      "subject_name": "Bà Yên",
+      "chapter_number": 3,
+      "subject_entity_name": "Bà Yên",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "ea98e09f-32ba-4fe7-89bd-69f8efa0748c",
+    "dependency_group_id": "97f23d20-74b6-5a86-bc87-15676296b21a",
+    "materialization_order": 33,
+    "evidence": [
+      {
+        "end": 3879,
+        "quote": "Một góc bìa sổ lộ ra, giấy đã vàng. Bà Yên nhận ra ánh nhìn của con, đẩy ghế trở lại bằng chân.\n\n“Sổ tiền chợ cũ,” bà nói.",
+        "start": 3757,
+        "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+        "chapter_id": "fd6ac04c-1d1d-4ec2-92c3-51d6af10773d",
+        "revision_id": "fe088e21-444c-44a1-8b36-aa3d301ecffd",
+        "chapter_number": 3
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  },
+  {
+    "proposal_id": "a638eaba-c2d8-5c36-9ca7-35df6d7f1074",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "statement",
+      "certainty": "hypothesis",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "bản đồ không ghi liệu lối điều khiển phụ có phải là lối điều khiển phụ hay không",
+        "subject": "Duy",
+        "certainty": "hypothesis"
+      },
+      "subject_name": "Duy",
+      "chapter_number": 5,
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "a813a7fa-fc52-41c1-ac7d-f680d1247fa0",
+    "dependency_group_id": "db3fd0d3-8346-5342-8d7f-71d73093c007",
+    "materialization_order": 35,
+    "evidence": [
+      {
+        "end": 2122,
+        "quote": "“Có thể. Bản này không ghi.”",
+        "start": 2094,
+        "text_hash": "e9291c815661b8300c09a2ea5ad13fec573de127874a270a59a9df57cbadb321",
+        "chapter_id": "f7d1cd49-6042-4119-9641-d696bbf0dc9d",
+        "revision_id": "a9d96995-a2e5-4e5a-9125-2af1bef2e09a",
+        "chapter_number": 5
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 1,
+    "status": "rejected",
+    "decision_reason": "Rejected during manuscript import"
+  }
+]

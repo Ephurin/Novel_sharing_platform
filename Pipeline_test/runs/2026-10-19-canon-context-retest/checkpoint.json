@@ -1,39 +1,31 @@
 {
   "run_id": "2026-10-19-canon-context-retest",
-  "updated_at": null,
-  "status": "NOT_STARTED",
-  "main_novel_id": null,
-  "current_chapter_number": 5,
-  "current_chapter_id": null,
-  "latest_canonical_revision_id": null,
-  "latest_content_hash": null,
-  "brain_version": null,
-  "plan_id": null,
-  "plan_version": null,
-  "objective_id": null,
-  "autonomous_run_id": null,
-  "last_generation_id": null,
-  "pending_jobs": [],
-  "pending_accept_idempotency_key": null,
-  "canonical_word_count": null,
-  "completed_chapters_by_content_review": [],
-  "unresolved_issue_ids": [],
-  "memory_audit": {
-    "completed_audit_ids_by_pipeline": {
-      "P1": [],
-      "P2": [],
-      "P3": []
-    },
-    "next_due_by_pipeline": {
-      "P1": "M0",
-      "P2": "M0",
-      "P3": "M0"
-    },
-    "pending_audit_ids": [],
-    "unresolved_issue_ids": [],
-    "resume_rule": "Finish due memory audit before next generation; read server revisions and analysis status first."
+  "updated_at": "2026-10-19T23:00:00+07:00",
+  "status": "COMPLETED_WITH_ISSUES",
+  "main_novel_id": "735c3109-c0be-4512-96cf-da7382ce8d56",
+  "probe_novel_id": "2e0e9175-4093-4462-b37f-59e8ef7a13f1",
+  "current_chapter_number": 7,
+  "canonical_word_count": 4887,
+  "brain_version": 8,
+  "probe_brain_version": 3,
+  "regression_verdicts": {
+    "REG-01": "PASS",
+    "REG-02": "PARTIAL (Dedup PASS, LLM Recall FAIL -> MEM-CRITICAL-001 OPEN)",
+    "REG-03": "PASS",
+    "REG-04": "PASS",
+    "REG-05": "PASS",
+    "REG-06": "PARTIAL (Temporal Separation PASS, Re-analysis BLOCKED/FAIL -> AI-GATEWAY-422, EXTRACT-RECONCILE-COLLISION-001 OPEN)"
   },
-  "last_action_log_row": null,
-  "next_action": "Complete preflight and import the unchanged fixture through the application.",
-  "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth."
+  "unresolved_issue_ids": [
+    "MEM-CRITICAL-001",
+    "AI-GATEWAY-422",
+    "EXTRACT-RECONCILE-COLLISION-001",
+    "EXTRACT-GROUNDING-AMBIGUOUS-001"
+  ],
+  "resolved_issue_ids": [
+    "MEM-DUPLICATE-001",
+    "CTX-COVERAGE-001"
+  ],
+  "p1_gate_verdict": "PARTIAL_REPAIRED_WITH_NEW_DEFECTS",
+  "next_action": "Engineering team must fix AI Gateway Idempotency-Key forwarding and reconcile claims collision before P2/P3 rollout."
 }

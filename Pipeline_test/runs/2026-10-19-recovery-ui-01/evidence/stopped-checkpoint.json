@@ -1,0 +1,86 @@
+{
+  "checked_at": "2026-10-20T21:23:23.779750+07:00",
+  "novel_id": "7d03320e-94c3-4913-a31f-a6eeef8af0dc",
+  "outbox": [
+    {
+      "event_id": "1528c26a-8ab8-470e-8884-d07d4319c357",
+      "revision_id": "e52e6e86-9f04-4733-8e34-72609cc8f1b7",
+      "status": "COMPLETED",
+      "retry_count": 0,
+      "last_error": null,
+      "created_at": "2026-10-20T00:18:31.831282+00:00",
+      "updated_at": "2026-10-20T00:18:35.133925+00:00"
+    },
+    {
+      "event_id": "27b99d83-74d9-4fb1-ae19-dc832ffe3589",
+      "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+      "status": "COMPLETED",
+      "retry_count": 0,
+      "last_error": null,
+      "created_at": "2026-10-20T00:19:14.023923+00:00",
+      "updated_at": "2026-10-20T00:19:20.428734+00:00"
+    },
+    {
+      "event_id": "47d0665a-8bed-4d7d-a0ca-d703c5395a6d",
+      "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+      "status": "COMPLETED",
+      "retry_count": 0,
+      "last_error": null,
+      "created_at": "2026-10-20T00:21:51.551166+00:00",
+      "updated_at": "2026-10-20T00:22:01.402933+00:00"
+    },
+    {
+      "event_id": "d14b0197-5214-4ad0-929e-a9dcff6bc68d",
+      "revision_id": "be0f3df8-f750-41ad-a92d-4daf51d8667b",
+      "status": "PENDING",
+      "retry_count": 1,
+      "last_error": "AI service returned HTTP 422: {\"detail\":{\"code\":\"CANON_RECONCILIATION_UNRESOLVED\",\"message\":\"Invalid canon reconciliation target or kind; reanalyse the saved revision after checking canon.\",\"attempts\":3,\"retryable\":true}}",
+      "created_at": "2026-10-20T14:13:49.006845+00:00",
+      "updated_at": "2026-10-20T14:17:56.315791+00:00"
+    },
+    {
+      "event_id": "413df16d-069e-4d5b-9913-7585d624cf87",
+      "revision_id": "ef7ea540-78b9-4bb5-a784-3b7a05a7b03a",
+      "status": "PROCESSING",
+      "retry_count": 1,
+      "last_error": "AI service returned HTTP 502: {\"detail\":\"Gemini request failed: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}\"}",
+      "created_at": "2026-10-20T14:12:13.111119+00:00",
+      "updated_at": "2026-10-20T14:17:59.739883+00:00"
+    },
+    {
+      "event_id": "37cc89b9-788f-4e6f-bb80-865269da1a3d",
+      "revision_id": "9f0c799d-288a-4bc9-82bb-3c659bd75bf8",
+      "status": "PROCESSING",
+      "retry_count": 0,
+      "last_error": null,
+      "created_at": "2026-10-20T14:16:29.457461+00:00",
+      "updated_at": "2026-10-20T14:17:59.739883+00:00"
+    },
+    {
+      "event_id": "6887df51-dcc1-489e-a2cc-a94a55783573",
+      "revision_id": "2472bd86-54cc-4af6-8f23-ee1d8ccb978d",
+      "status": "PENDING",
+      "retry_count": 0,
+      "last_error": null,
+      "created_at": "2026-10-20T14:20:44.337701+00:00",
+      "updated_at": "2026-10-20T14:20:44.337701+00:00"
+    },
+    {
+      "event_id": "9e85fe7a-5d75-46b2-9626-1a860ac5c2b6",
+      "revision_id": "661bc1ed-9907-491a-85bd-16b813e80299",
+      "status": "PENDING",
+      "retry_count": 2,
+      "last_error": "AI service returned HTTP 422: {\"detail\":{\"code\":\"CANON_RECONCILIATION_UNRESOLVED\",\"message\":\"Invalid canon reconciliation target or kind; reanalyse the saved revision after checking canon.\",\"attempts\":3,\"retryable\":true}}",
+      "created_at": "2026-10-20T14:11:58.543869+00:00",
+      "updated_at": "2026-10-20T14:20:48.258918+00:00"
+    }
+  ],
+  "pending_proposals": [],
+  "services_intentionally_stopped": [
+    "ephurin-ui-retest-backend-1",
+    "ephurin-ui-retest-ai-service-1"
+  ],
+  "reason": "End failed gate retest without unobserved background provider retries; no volumes reset/deleted",
+  "resume": "Read checkpoint first. docker start ephurin-ui-retest-ai-service-1 ephurin-ui-retest-backend-1",
+  "warning": "PROCESSING labels are persisted state at worker stop, not proof a worker is currently executing."
+}

@@ -37,6 +37,31 @@ class JsonNarrativeRepository:
         self._story_plans: dict[str, StoryPlan] = {}
         self._autonomous_runs: dict[str, AutonomousRun] = {}
 
+    def get_entity_guidance(self, story_id: str) -> dict:
+        from copy import deepcopy
+        return deepcopy(self._manager.load_kb(story_id).entity_guidance or {'version': 0, 'entries': []})
+
+    def list_entity_reviews(self, story_id: str) -> list[dict]:
+        from copy import deepcopy
+        return [deepcopy(a) for a in self._manager.load_kb(story_id).entity_candidate_audits.values()
+                if a.get('status') in {'waiting_entity_review', 'entities_reviewed'}]
+
+    def save_entity_guidance(self, story_id: str, guidance: dict, expected_version: int) -> dict:
+        from copy import deepcopy
+        kb = self._manager.load_kb(story_id)
+        if kb.entity_guidance.get('version', 0) != expected_version:
+            raise OptimisticLockError('Reload entity guidance')
+        kb.entity_guidance = {**deepcopy(guidance), 'version': expected_version + 1}
+        self._manager.save_narrative_kb(story_id, kb)
+        return deepcopy(kb.entity_guidance)
+
+    def get_entity_registry(self, story_id: str) -> dict:
+        # JSON is a single document; PostgreSQL uses skinny bulk queries instead.
+        brain = self.get_story_brain(story_id)
+        return {'entities': [{'entity_id': e.entity_id, 'name': e.name, 'entity_type': e.entity_type}
+                             for e in brain.entities],
+                'aliases': [{'alias': a.alias, 'entity_id': a.entity_id} for a in brain.aliases]}
+
     def get_story_brain(self, story_id: str) -> StoryBrain:
         kb = self._manager.load_kb(story_id)
         proposals = tuple(self._proposal_from_dict(item) for item in kb.proposals)
@@ -339,6 +364,18 @@ class JsonNarrativeRepository:
         self, story_id: str, entity_name: str, limit: int = 10
     ) -> list[dict[str, str]]:
         return self._manager.adapter_get_related_entities(story_id, entity_name, limit)
+
+    def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None:
+        from copy import deepcopy
+        kb = self._manager.load_kb(story_id)
+        if expected_version is not None and (kb.entity_candidate_audits.get(run_id) or {}).get('review_version') != expected_version:
+            raise OptimisticLockError('Entity checkpoint changed')
+        kb.entity_candidate_audits[run_id] = deepcopy(audit)
+        self._manager.save_narrative_kb(story_id, kb)
+
+    def get_entity_candidate_audit(self, story_id: str, run_id: str) -> dict | None:
+        from copy import deepcopy
+        return deepcopy(self._manager.load_kb(story_id).entity_candidate_audits.get(run_id))
 
     def get_story_context(self, story_id: str, character_name: str, limit: int = 50) -> str:
         return self._manager.adapter_get_story_context(story_id, character_name, limit)

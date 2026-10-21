@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-20T07:04:22.951830+07:00",
+  "checks": {
+    "ai-service/services/source_grounding.py": {
+      "source": "c24a3585f0834b3fde105b29a89ef9a15487e383e89e5573b78b88e03d8ba0f8",
+      "runtime": "c24a3585f0834b3fde105b29a89ef9a15487e383e89e5573b78b88e03d8ba0f8",
+      "previous_runtime": "c24a3585f0834b3fde105b29a89ef9a15487e383e89e5573b78b88e03d8ba0f8"
+    },
+    "ai-service/services/canon_reconciliation.py": {
+      "source": "34b939b764eeba0ca02ff1773dcc531e3acc410cc045468db466df1dae662f4b",
+      "runtime": "34b939b764eeba0ca02ff1773dcc531e3acc410cc045468db466df1dae662f4b",
+      "previous_runtime": "34b939b764eeba0ca02ff1773dcc531e3acc410cc045468db466df1dae662f4b"
+    },
+    "ai-service/domain/errors.py": {
+      "source": "dd5c5976bbbfd6ffa6f73f3011b7b618550a3ba20aab63f431f01f2a7c08e0ec",
+      "runtime": "dd5c5976bbbfd6ffa6f73f3011b7b618550a3ba20aab63f431f01f2a7c08e0ec",
+      "previous_runtime": "dd5c5976bbbfd6ffa6f73f3011b7b618550a3ba20aab63f431f01f2a7c08e0ec"
+    },
+    "ai-service/api/narrative_routes.py": {
+      "source": "60f154e9e8109c49b22d0533177bdccc92cde5132dc3339b330678928ce44282",
+      "runtime": "60f154e9e8109c49b22d0533177bdccc92cde5132dc3339b330678928ce44282",
+      "previous_runtime": "60f154e9e8109c49b22d0533177bdccc92cde5132dc3339b330678928ce44282"
+    },
+    "backend/src/modules/ai/ai-gateway.controller.ts": {
+      "source": "bd3cc839b64d91be10f3063333e812f639e4156069b23da55ac1a36cebfed1c5",
+      "runtime": "bd3cc839b64d91be10f3063333e812f639e4156069b23da55ac1a36cebfed1c5",
+      "previous_runtime": "bd3cc839b64d91be10f3063333e812f639e4156069b23da55ac1a36cebfed1c5"
+    },
+    "backend/src/modules/ai/ai-gateway.service.ts": {
+      "source": "116d8425fbe3f79d844c085193dc57b15fd9e462f5baf7e8fc81b6c19ae112f6",
+      "runtime": "116d8425fbe3f79d844c085193dc57b15fd9e462f5baf7e8fc81b6c19ae112f6",
+      "previous_runtime": "116d8425fbe3f79d844c085193dc57b15fd9e462f5baf7e8fc81b6c19ae112f6"
+    }
+  },
+  "web_asset": "/assets/index-B2EtgbgQ.js",
+  "engine_recovered_by": "user manually launched Docker after runtime socket folders were backed up",
+  "provider_calls_in_check": 0
+}

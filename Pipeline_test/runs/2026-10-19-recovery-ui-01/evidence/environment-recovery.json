@@ -1,0 +1,13 @@
+{
+  "recorded_at": "2026-10-20T07:00:54.697723+07:00",
+  "result": "FAILED_ENGINE_STARTUP",
+  "reason": "Windows cannot access newly encountered AF_UNIX runtime endpoints; Docker aborts startup",
+  "volumes_modified": false,
+  "runtime_backups": [
+    "C:/Users/Laptop/AppData/Local/Docker/run-stale-20261020-recovery",
+    "C:/Users/Laptop/AppData/Local/Docker/run-stale2-20261020",
+    "C:/Users/Laptop/AppData/Local/docker-secrets-engine-stale-20261020"
+  ],
+  "native_window_tool_error": "failed to write kernel assets: system cannot find path (os error 3)",
+  "upstream_reference": "https://github.com/docker/for-win/issues/15064"
+}

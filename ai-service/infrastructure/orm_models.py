@@ -47,6 +47,7 @@ class StoryBrainRecord(Base):
     baseline_revision_id: Mapped[uuid.UUID | None] = mapped_column(Uuid)
     brain_version: Mapped[int] = mapped_column(BigInteger, nullable=False, default=1)
     schema_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    entity_guidance: Mapped[dict | None] = mapped_column(JSON_TYPE, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -340,6 +341,7 @@ class AnalysisRunRecord(Base):
     pipeline_version: Mapped[str] = mapped_column(String(50), nullable=False)
     model_name: Mapped[str | None] = mapped_column(String(100))
     prompt_version: Mapped[str | None] = mapped_column(String(50))
+    entity_candidate_audit: Mapped[dict[str, Any] | None] = mapped_column(JSON_TYPE)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

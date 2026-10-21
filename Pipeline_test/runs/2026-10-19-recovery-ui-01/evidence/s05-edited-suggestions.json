@@ -1,0 +1,57 @@
+[
+  {
+    "tag": "TEXTAREA",
+    "type": "textarea",
+    "value": "Đề xuất 3 diễn biến cho chương 6–8, tiếp sau cảnh nước bắt đầu dâng ở trạm Bốn. Một diễn biến đưa An và Linh tới trạm bơm số Hai để tìm hồ sơ; một diễn biến liên quan phong bì niêm phong màu đỏ dự kiến được trao sau đó. Giữ mạch điều tra chậm và không tự xác nhận nguồn tiếng gõ. Đây chỉ là kế hoạch tương lai."
+  },
+  {
+    "tag": "INPUT",
+    "type": "text",
+    "value": "Rút khỏi trạm Bốn để bảo toàn bản ghi"
+  },
+  {
+    "tag": "TEXTAREA",
+    "type": "textarea",
+    "value": "Duy và Linh rời trạm Bốn an toàn khi nước dâng. Giữ bản ghi và ghi nhận điều đã quan sát; nguồn tiếng gõ vẫn chưa xác định. Không kết thúc bí ẩn tại chương này."
+  },
+  {
+    "tag": "INPUT",
+    "type": "text",
+    "value": "6"
+  },
+  {
+    "tag": "INPUT",
+    "type": "text",
+    "value": "1000"
+  },
+  {
+    "tag": "INPUT",
+    "type": "checkbox",
+    "value": "on"
+  },
+  {
+    "tag": "INPUT",
+    "type": "text",
+    "value": "Hành Trình Đến Trạm Bơm Số Hai Cùng An"
+  },
+  {
+    "tag": "TEXTAREA",
+    "type": "textarea",
+    "value": "An và Linh chèo thuyền qua các con kênh nhỏ để đến trạm bơm số Hai nhằm tìm kiếm bộ hồ sơ lưu trữ cũ liên quan đến các nhánh ống bị bịt kín. Mục tiêu đo lường: Khám phá tủ tài liệu cũ tại trạm bơm, tìm ra bản vẽ thiết kế gốc năm năm trước, mang lại mốc manh mối quan trọng về người vận hành trước đây."
+  },
+  {
+    "tag": "INPUT",
+    "type": "text",
+    "value": "7"
+  },
+  {
+    "tag": "INPUT",
+    "type": "text",
+    "value": "1000"
+  },
+  {
+    "tag": "INPUT",
+    "type": "checkbox",
+    "value": "on"
+  }
+]

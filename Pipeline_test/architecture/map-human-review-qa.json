@@ -1,0 +1,77 @@
+{
+  "phases": [
+    {
+      "label": "A · Nguồn vào P1 / P2",
+      "heading": "41 heading A · Nguồn vào · P1 / P2, Value: 3, ID: selected-phase-heading",
+      "steps": 8
+    },
+    {
+      "label": "B · Lưu → revision",
+      "heading": "41 heading B · Lưu chương · revision · outbox, Value: 3, ID: selected-phase-heading",
+      "steps": 7
+    },
+    {
+      "label": "C · Extract nội dung",
+      "heading": "41 heading C · Extraction nội dung · nhiều lượt LLM, Value: 3, ID: selected-phase-heading",
+      "steps": 13
+    },
+    {
+      "label": "D · Canon → review",
+      "heading": "41 heading D · Đối chiếu canon · review · quyết định, Value: 3, ID: selected-phase-heading",
+      "steps": 9
+    },
+    {
+      "label": "E · Memory → context",
+      "heading": "41 heading E · Memory · embeddings · context, Value: 3, ID: selected-phase-heading",
+      "steps": 8
+    },
+    {
+      "label": "F · Plan → viết → accept",
+      "heading": "41 heading F · Định hướng · viết · kiểm tra · accept, Value: 3, ID: selected-phase-heading",
+      "steps": 11
+    },
+    {
+      "label": "G · P3 · Full auto",
+      "heading": "41 heading G · P3 · Full auto orchestration, Value: 3, ID: selected-phase-heading",
+      "steps": 9
+    },
+    {
+      "label": "H · Đánh giá → kết quả",
+      "heading": "41 heading H · Kiểm thử · hoàn thành · xuất bản boundary, Value: 3, ID: selected-phase-heading",
+      "steps": 6
+    },
+    {
+      "label": "J · Provider / vận hành",
+      "heading": "41 heading J · Provider · hạ tầng · quan sát lỗi, Value: 3, ID: selected-phase-heading",
+      "steps": 5
+    },
+    {
+      "label": "X · Ứng viên / duyệt entity",
+      "heading": "41 heading X · Ứng viên · tác giả duyệt entity, Value: 3, ID: selected-phase-heading",
+      "steps": 11
+    }
+  ],
+  "widths": [
+    {
+      "overflow": false,
+      "rootWidth": 674,
+      "scrollWidth": 674,
+      "viewport": 674,
+      "host_viewport_width": 736
+    },
+    {
+      "overflow": false,
+      "rootWidth": 258,
+      "scrollWidth": 258,
+      "viewport": 258,
+      "host_viewport_width": 320
+    }
+  ],
+  "errors": [],
+  "nodes": 87,
+  "issues": 24,
+  "scope": "Map UI only; no application/provider E2E",
+  "fragment_sha256": "099c90485cfada65af46d4bbec097059b69db9210f3ee64385c11c2c64925191",
+  "standalone_sha256": "d2c38389ab6741e11a2f3135020778fbe9acaaaef64a793892ac4982ad45f53e",
+  "total_steps_checked": 87
+}

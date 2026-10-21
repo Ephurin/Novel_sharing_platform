@@ -1,0 +1,2826 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Ai Pipeline Map</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+
+</head>
+<body>
+<iframe id="codex-visualization" sandbox="allow-scripts" referrerpolicy="no-referrer" title="Ai Pipeline Map" data-srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot; data-visualize-standalone&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Ai Pipeline Map&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 16px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans:
+    -apple-system-body, ui-sans-serif, -apple-system, system-ui, &quot;Segoe UI&quot;,
+    Helvetica, &quot;Apple Color Emoji&quot;, Arial, sans-serif, &quot;Segoe UI Emoji&quot;,
+    &quot;Segoe UI Symbol&quot;;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 8px);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  -webkit-font-smoothing: antialiased;
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-weight: var(--font-weight-normal);
+}
+
+.cursor-interaction {
+  cursor: var(--cursor-interaction, pointer);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+  text-underline-offset: 2px;
+  font-weight: inherit;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+.table {
+  font-family: var(--font-sans);
+}
+
+h1 {
+  font-size: calc(var(--font-size-base) * 1.5);
+  line-height: 1.3333333333;
+}
+
+h2 {
+  font-size: calc(var(--font-size-base) * 1.25);
+  line-height: 1.4;
+}
+h3 {
+  font-size: calc(var(--font-size-base) * 1.125);
+  line-height: 1.5555555556;
+}
+h4 {
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+h5,
+h6 {
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+b,
+strong,
+th {
+  font-weight: 600;
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+pre,
+pre code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: calc(var(--font-size-base) * 0.875);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-family: var(--font-sans);
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+.table :is(th, td):not(:last-child) {
+  padding-inline-end: calc(var(--font-size-base) * 1.5);
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead :is(th, td) {
+  border-bottom-color: var(--border-strong, var(--input));
+  padding-block: calc(var(--font-size-base) / 2);
+  line-height: var(--font-size-base);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+.table tbody :is(th, td) {
+  padding-block: calc(var(--font-size-base) * 0.625);
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 8px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+.widget {
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  box-shadow: 0 0 0 0.5px var(--border-strong, var(--border));
+  color: var(--foreground);
+  background: var(--background);
+}
+
+#widget &gt; :not(.card, .widget, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  border: 1px solid var(--border);
+  corner-shape: var(--corner-shape);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-sans);
+  padding: 5px 12px;
+  border-color: color-mix(
+    in oklab,
+    light-dark(var(--primary-foreground), var(--foreground)) 5%,
+    transparent
+  );
+  border-radius: var(--radius-2xl);
+  color: light-dark(var(--primary-foreground), var(--foreground));
+  background: light-dark(var(--foreground), var(--popover));
+  box-shadow: 0 8px 18px rgb(15 23 42 / 20%);
+  letter-spacing: -0.15px;
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  color: color-mix(in srgb, var(--foreground) 40%, var(--muted-foreground));
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-family: var(--font-sans);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1;
+}
+
+small,
+.text-small {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+/* Match inline alignment without overriding a containing flex or grid layout. */
+.btn,
+.nav-link,
+.form-control,
+.form-select,
+.form-range,
+.form-check {
+  vertical-align: middle;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: inherit;
+  font-family: var(--font-sans);
+  height: fit-content;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding-inline: var(--control-spacing, 12px);
+  border-color: transparent;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.btn {
+  border-color: var(--border);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-link:not(:disabled):not([aria-disabled=&quot;true&quot;]):hover {
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.btn-primary {
+  border-color: var(--border);
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: border-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: border-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--muted-foreground);
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+/* Shared preview chrome; product styles stay inside each variant. */
+.viz-dotted-background {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--foreground) 14%, transparent) 0.8px,
+    transparent 0.8px
+  );
+  background-position: center;
+  background-size: 16px 16px;
+}
+
+.viz-carousel {
+  position: relative;
+  min-width: 0;
+}
+
+.viz-carousel:has(&gt; .viz-carousel-controls) {
+  min-height: calc(60px + var(--viz-carousel-picker-height, 0px));
+  padding-bottom: 60px;
+}
+
+.viz-carousel &gt; [data-variant][hidden] {
+  display: none !important;
+}
+
+.viz-carousel &gt; [data-variant] {
+  isolation: isolate;
+}
+
+.viz-carousel-controls {
+  --viz-carousel-hover: light-dark(
+    color-mix(in srgb, var(--foreground) 5.4%, transparent),
+    color-mix(in srgb, var(--foreground) 7.8%, transparent)
+  );
+  position: absolute;
+  z-index: 2;
+  bottom: 8px;
+  left: 50%;
+  display: flex;
+  width: max-content;
+  /* Leave room for the host&#x27;s design-controls launcher at the trailing edge. */
+  max-width: calc(100% - 96px);
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  /* Match the settings dropdown chrome independently of the content font size. */
+  font-size: 13px;
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+/* Keep authored mockup button styles out of the shared carousel chrome. */
+.viz-carousel-controls button,
+.viz-carousel-picker &gt; summary {
+  display: flex !important;
+  height: auto !important;
+  min-height: 30px;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px;
+  padding: 0 6px !important;
+  -webkit-app-region: no-drag;
+  border: 0 !important;
+  border-radius: 14px !important;
+  color: inherit !important;
+  background: transparent !important;
+  font: inherit !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.viz-carousel-controls &gt; button,
+.viz-carousel-picker &gt; summary {
+  position: relative;
+  isolation: isolate;
+}
+
+.viz-carousel-controls &gt; button {
+  --icon-size: 16px;
+  width: 30px !important;
+  padding: 0 !important;
+}
+
+.viz-carousel-picker &gt; summary {
+  padding-inline: 12px !important;
+}
+
+.viz-carousel-controls .viz-carousel-caret {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  margin: 0;
+  color: inherit;
+  transform: rotate(180deg);
+}
+
+.viz-carousel-controls &gt; button &gt; svg,
+.viz-carousel-controls .viz-carousel-caret,
+.viz-carousel-count {
+  opacity: 0.5;
+}
+
+.viz-carousel-controls &gt; button::before,
+.viz-carousel-picker &gt; summary::before {
+  position: absolute;
+  z-index: -1;
+  inset: 3px;
+  border-radius: 12px;
+  content: &quot;&quot;;
+  pointer-events: none;
+}
+
+.viz-carousel-controls &gt; button:hover::before,
+.viz-carousel-picker &gt; summary:hover::before {
+  background: var(--viz-carousel-hover);
+}
+
+.viz-carousel-controls &gt; button,
+.viz-carousel-controls [data-lucide],
+.viz-carousel-controls .lucide {
+  flex-shrink: 0;
+}
+
+.viz-carousel-picker {
+  min-width: 0;
+}
+
+.viz-carousel-picker &gt; summary {
+  min-width: 0;
+  list-style: none;
+}
+
+.viz-carousel-picker &gt; summary::-webkit-details-marker {
+  display: none;
+}
+
+.viz-carousel-count {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.viz-carousel-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viz-carousel-options {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  left: 0;
+  display: flex;
+  max-height: 240px;
+  flex-direction: column;
+  gap: 2px;
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  box-shadow: 0 4px 12px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 25%));
+}
+
+.viz-carousel-options &gt; button {
+  border-radius: max(0px, calc(var(--radius-lg) - 5px)) !important;
+  width: 100% !important;
+  min-height: 28px;
+  justify-content: flex-start !important;
+  padding: 4px 8px !important;
+  font-size: var(--font-size-small) !important;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.viz-carousel-options &gt; [aria-current=&quot;true&quot;],
+.viz-carousel-options &gt; button:hover {
+  background: var(--viz-carousel-hover) !important;
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled=&quot;true&quot;] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding-inline: calc(4px + var(--control-spacing, 12px) / 2);
+  border-color: var(--input);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--popover) 96%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.4285714286;
+}
+.form-control:is(
+  [type=&quot;file&quot;],
+  [type=&quot;date&quot;],
+  [type=&quot;datetime-local&quot;],
+  [type=&quot;month&quot;],
+  [type=&quot;week&quot;],
+  [type=&quot;color&quot;]
+) {
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  line-height: 18px;
+}
+.form-control:is(
+  [type=&quot;date&quot;],
+  [type=&quot;datetime-local&quot;],
+  [type=&quot;month&quot;],
+  [type=&quot;week&quot;]
+) {
+  padding-inline: var(--control-spacing, 12px);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+  padding: 0;
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+  min-height: calc(10px + 2 * var(--control-spacing, 12px));
+  padding-inline: var(--control-spacing, 12px);
+  margin-inline-end: var(--control-spacing, 12px);
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  resize: vertical;
+  min-height: 96px;
+  padding: 8px 10px;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: none;
+}
+.form-control:disabled {
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  opacity: 1;
+}
+.form-control[aria-invalid=&quot;true&quot;] {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 20%, transparent);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: fit-content;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  margin: 0;
+  /* The secondary icon role is 14px at compact density and 16px at web density. */
+  --icon-size: calc(10px + var(--control-spacing, 12px) / 2);
+  /* Settings dropdowns retain a 12px inset and a 4px text-to-chevron gap. */
+  padding: 0 calc(16px + var(--icon-size)) 0 12px;
+  outline: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    );
+  background-position:
+    calc(100% - 12px - var(--icon-size) / 2) 50%,
+    calc(100% - 12px - var(--icon-size) * 0.18) 50%;
+  background-repeat: no-repeat;
+  background-size: calc(var(--icon-size) * 0.32) calc(var(--icon-size) * 0.32);
+  cursor: var(--cursor-interaction, default);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.form-select option {
+  color: var(--popover-foreground);
+  background-color: var(--popover);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.form-select:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+.form-select:disabled {
+  opacity: 0.4;
+}
+
+.form-check {
+  display: flex;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  corner-shape: round;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  width: calc(10px + var(--control-spacing, 12px) / 2);
+  height: calc(10px + var(--control-spacing, 12px) / 2);
+  border-color: var(--border-strong, var(--input));
+  border-radius: calc(var(--radius-sm) / 2);
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:is(:checked, :indeterminate) {
+  border-color: var(--border-strong, var(--input));
+  background-color: color-mix(in srgb, var(--popover) 96%, transparent);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+  background-color: var(--foreground);
+}
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:indeterminate::before {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 65%;
+  height: 6.65%;
+  margin: auto;
+  border-radius: var(--radius-full);
+  background: var(--foreground);
+  mask: none;
+  content: &quot;&quot;;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  border-radius: var(--radius-full);
+  width: 16px;
+  height: 16px;
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--input);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 0;
+  background: radial-gradient(
+    circle,
+    var(--primary-foreground) 0 3px,
+    var(--foreground) 3px
+  );
+  box-shadow: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:focus-visible {
+  border-color: var(--ring);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+.form-check:not(.form-switch) .form-check-input[type=&quot;radio&quot;]:disabled,
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;radio&quot;]:disabled
+  + .form-check-label {
+  opacity: 0.5;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+  border-color: #fff;
+  background: #fff;
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--blue);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+  outline: none;
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  accent-color: var(--primary);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  outline: none;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: transparent;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  margin-top: -9px;
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Outline the native track and thumb, preserving the larger input hit area. */
+.form-range:focus-visible::-webkit-slider-runnable-track {
+  outline: 2px auto Highlight;
+  outline-color: -webkit-focus-ring-color;
+}
+
+.form-range::-moz-range-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid Highlight;
+  outline-offset: 2px;
+}
+
+.form-range:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed=&quot;true&quot;],
+  [aria-selected=&quot;true&quot;],
+  .is-selected
+) {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--blue);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.viz-carousel-controls :is(button, summary):focus-visible {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: 2px !important;
+}
+
+/* Web recipes are the default, including on renderers without inline style queries. */
+@supports (border-radius: if(style(--corner-shape: round): 1px; else: 2px)) {
+  /* Match the host&#x27;s proportional text-sm scale at every text preference. */
+  .tooltip,
+  .viz-badge,
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    font-size: if(
+      style(--corner-shape: round): round(
+          nearest,
+          calc(var(--font-size-base) * 14 / 16),
+          1px
+        );
+        else: round(nearest, calc(var(--font-size-base) * 13 / 14), 1px)
+    );
+  }
+
+  .btn,
+  .nav-link,
+  .form-select {
+    border-radius: if(
+      style(--corner-shape: round): var(--radius-full); else: var(--radius-lg)
+    );
+  }
+
+  .form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+    border-radius: if(
+      style(--corner-shape: round): calc(var(--radius-sm) / 2);
+        else: calc(var(--radius-lg) * 0.4)
+    );
+  }
+
+  .tooltip {
+    font-weight: if(
+      style(--corner-shape: round): 600; else: var(--font-weight-normal)
+    );
+  }
+}
+
+@media (pointer: coarse) {
+  .viz-carousel:has(&gt; .viz-carousel-controls) {
+    min-height: calc(76px + var(--viz-carousel-picker-height, 0px));
+    padding-bottom: 76px;
+  }
+
+  .btn,
+  .nav-link,
+  .viz-carousel-controls button,
+  .viz-carousel-picker &gt; summary,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+  .form-control:is(
+    [type=&quot;file&quot;],
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;week&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;color&quot;]
+  ) {
+    height: 44px;
+    min-height: 44px;
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+
+  .form-control[type=&quot;file&quot;]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type=&quot;color&quot;] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;week&quot;]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: &quot;&quot;;
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;script type=&quot;application/json&quot; id=&quot;codex-visualization-widget-state&quot;&gt;__CODEX_VISUALIZATION_WIDGET_STATE__&lt;/script&gt;
+&lt;script&gt;(() =&gt; {
+  const root = document.documentElement;
+  const mediaQuery = globalThis.matchMedia(&quot;(prefers-color-scheme: dark)&quot;);
+  const apply = Reflect.apply;
+  const isArray = Array.isArray;
+  const hasOwn = Object.hasOwn;
+  const parentWindow = globalThis.parent;
+  const stringify = JSON.stringify;
+  const parse = JSON.parse;
+  const encode = TextEncoder.prototype.encode.bind(new TextEncoder());
+  const initialStateElement = document.getElementById(
+    &quot;codex-visualization-widget-state&quot;,
+  );
+  const initialGlobals = parse(initialStateElement?.textContent ?? &quot;{}&quot;);
+  initialStateElement?.remove();
+  /** @type {Record&lt;string, unknown&gt; | null} */
+  let state = initialGlobals.widgetState ?? null;
+  const statePersistence = initialGlobals.statePersistence ?? &quot;none&quot;;
+  let nextStateRequestId = 0;
+  /** @type {Map&lt;number, { resolve: () =&gt; void; reject: (error: Error) =&gt; void; timeout: ReturnType&lt;typeof globalThis.setTimeout&gt;; serializedState: string }&gt;} */
+  const pendingStateWrites = new Map();
+  const persistenceError = () =&gt;
+    Object.assign(
+      new Error(&quot;The host could not persist the widget state update&quot;),
+      {
+        code: -32000,
+        data: { code: &quot;widget_state_persistence_failed&quot;, retryable: false },
+      },
+    );
+  /**
+   * @param {object} prototype
+   * @param {string} property
+   */
+  const getPrototypeGetter = (prototype, property) =&gt; {
+    // oxlint-disable-next-line typescript/unbound-method -- invoked through captured Reflect.apply
+    const getter = Object.getOwnPropertyDescriptor(prototype, property)?.get;
+    if (getter == null) {
+      throw new Error(`Missing ${property} getter`);
+    }
+    return getter;
+  };
+  const getMessageData = getPrototypeGetter(MessageEvent.prototype, &quot;data&quot;);
+  const getMessagePorts = getPrototypeGetter(MessageEvent.prototype, &quot;ports&quot;);
+  const getMessageSource = getPrototypeGetter(MessageEvent.prototype, &quot;source&quot;);
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const addHostMessageListener = MessagePort.prototype.addEventListener;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const postHostMessage = MessagePort.prototype.postMessage;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const startHostPort = MessagePort.prototype.start;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const stopMessagePropagation = Event.prototype.stopImmediatePropagation;
+  /** @type {MessagePort | null} */
+  let hostPort = null;
+  const postToHost = (type, payload) =&gt; {
+    if (hostPort != null) {
+      apply(postHostMessage, hostPort, [{ type, ...payload }]);
+    }
+  };
+  const openExternal = ({ href }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;open-external&quot;, { href });
+    }
+  };
+  const sendFollowUpMessage = ({ context, prompt, title }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;follow-up&quot;, { context, prompt, title });
+    }
+    return Promise.resolve();
+  };
+  /**
+   * @param {Record&lt;string, unknown&gt; | ((previous: Record&lt;string, unknown&gt; | null) =&gt; Record&lt;string, unknown&gt;)} next
+   * @returns {Promise&lt;void&gt;}
+   */
+  const setWidgetState = async (next) =&gt; {
+    const nextState = typeof next === &quot;function&quot; ? next(state) : next;
+    if (
+      nextState == null ||
+      typeof nextState !== &quot;object&quot; ||
+      isArray(nextState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const inputState = stringify(
+      nextState,
+      (_key, /** @type {unknown} */ value) =&gt; {
+        if (
+          typeof value === &quot;undefined&quot; ||
+          typeof value === &quot;function&quot; ||
+          typeof value === &quot;symbol&quot; ||
+          (typeof value === &quot;number&quot; &amp;&amp; !Number.isFinite(value))
+        ) {
+          throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+        }
+        return value;
+      },
+    );
+    const parsedState = parse(inputState);
+    if (
+      parsedState == null ||
+      typeof parsedState !== &quot;object&quot; ||
+      isArray(parsedState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const storedState = {
+      modelContent: null,
+      privateContent: null,
+      ...parsedState,
+    };
+    const serializedState = stringify(storedState);
+    if (encode(serializedState).length &gt; 16 * 1024) {
+      throw new TypeError(
+        &quot;Widget state must be a JSON object of at most 16 KiB&quot;,
+      );
+    }
+    if (
+      hasOwn(storedState, &quot;imageIds&quot;) &amp;&amp;
+      (!isArray(storedState.imageIds) ||
+        storedState.imageIds.some(
+          (/** @type {unknown} */ id) =&gt; typeof id !== &quot;string&quot;,
+        ))
+    ) {
+      throw new TypeError(&quot;Widget state imageIds must be an array of strings&quot;);
+    }
+    if (storedState.imageIds?.length &gt; 0) {
+      throw Object.assign(
+        new TypeError(&quot;Visualization state does not support image attachments&quot;),
+        { code: -32602, data: { code: &quot;images_unsupported&quot; } },
+      );
+    }
+    state = storedState;
+    globalThis.openai.widgetState = state;
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: { widgetState: state } },
+      }),
+    );
+    if (statePersistence === &quot;none&quot;) {
+      throw persistenceError();
+    }
+    const id = ++nextStateRequestId;
+    return new Promise((resolve, reject) =&gt; {
+      const timeout = globalThis.setTimeout(() =&gt; {
+        pendingStateWrites.delete(id);
+        reject(persistenceError());
+      }, 30_000);
+      pendingStateWrites.set(id, { resolve, reject, timeout, serializedState });
+      postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+    });
+  };
+  const syncTheme = () =&gt; {
+    const theme = mediaQuery.matches ? &quot;dark&quot; : &quot;light&quot;;
+    root.dataset.theme = theme;
+    globalThis.openai = {
+      ...globalThis.openai,
+      openExternal,
+      sendFollowUpMessage,
+      setWidgetState,
+      theme,
+      visualizationStyleVariables: {},
+      visualizationTheme: theme,
+      widgetState: state,
+      statePersistence,
+      stateModelContext: &quot;none&quot;,
+    };
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: globalThis.openai },
+      }),
+    );
+  };
+  const sendHeight = () =&gt; {
+    postToHost(&quot;height&quot;, {
+      height: Math.ceil(
+        Math.max(
+          document.body.scrollHeight,
+          document.body.getBoundingClientRect().height,
+        ),
+      ),
+    });
+  };
+
+  globalThis.addEventListener(
+    &quot;message&quot;,
+    (event) =&gt; {
+      const data = apply(getMessageData, event, []);
+      const ports = apply(getMessagePorts, event, []);
+      const source = apply(getMessageSource, event, []);
+      if (
+        hostPort != null ||
+        source !== parentWindow ||
+        typeof data !== &quot;object&quot; ||
+        data?.type !== &quot;codex-visualization-initialize&quot; ||
+        !isArray(ports) ||
+        ports.length !== 1
+      ) {
+        return;
+      }
+      apply(stopMessagePropagation, event, []);
+      const nextHostPort = ports[0];
+      try {
+        apply(addHostMessageListener, nextHostPort, [
+          &quot;message&quot;,
+          (event) =&gt; {
+            const data = apply(getMessageData, event, []);
+            if (typeof data === &quot;object&quot; &amp;&amp; data?.type === &quot;measure&quot;) {
+              sendHeight();
+            } else if (
+              typeof data === &quot;object&quot; &amp;&amp;
+              data?.type === &quot;widget-state-result&quot;
+            ) {
+              /** @type {unknown} */
+              const id = data.id;
+              if (typeof id !== &quot;number&quot;) {
+                return;
+              }
+              const pending = pendingStateWrites.get(id);
+              if (pending != null) {
+                pendingStateWrites.delete(id);
+                globalThis.clearTimeout(pending.timeout);
+                if (data.ok === true) {
+                  pending.resolve();
+                } else {
+                  pending.reject(persistenceError());
+                }
+              }
+            }
+          },
+        ]);
+        apply(startHostPort, nextHostPort, []);
+      } catch {
+        return;
+      }
+      hostPort = nextHostPort;
+      for (const [id, { serializedState }] of pendingStateWrites) {
+        postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+      }
+      sendHeight();
+    },
+    { capture: true },
+  );
+  document.currentScript?.remove();
+  mediaQuery.addEventListener(&quot;change&quot;, syncTheme);
+  globalThis.addEventListener(&quot;click&quot;, (event) =&gt; {
+    if (event.defaultPrevented) {
+      return;
+    }
+    let element = null;
+    if (event.target instanceof globalThis.Element) {
+      element = event.target;
+    } else if (event.target instanceof globalThis.Node) {
+      element = event.target.parentElement;
+    }
+    const link = element?.closest(&quot;a[href]&quot;);
+    const href = link?.getAttribute(&quot;href&quot;);
+    if (href == null) {
+      return;
+    }
+    if (href.startsWith(&quot;#&quot;)) {
+      let id;
+      try {
+        id = decodeURIComponent(href.slice(1));
+      } catch {
+        return;
+      }
+      const target = id.length === 0 ? root : document.getElementById(id);
+      if (
+        target == null ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      event.preventDefault();
+      postToHost(&quot;scroll-to&quot;, {
+        top: target.getBoundingClientRect().top + globalThis.scrollY,
+      });
+      return;
+    }
+    event.preventDefault();
+    openExternal({ href });
+  });
+  new ResizeObserver(sendHeight).observe(document.body);
+  syncTheme();
+})();
+&lt;/script&gt;
+&lt;div id=&quot;ai-pipeline-audit-map&quot;&gt;
+  &lt;h2&gt;AI pipeline · P1 / P2 / P3&lt;/h2&gt;
+  &lt;div class=&quot;map-meta text-small&quot; data-meta&gt;&lt;/div&gt;
+  &lt;div class=&quot;map-legend text-small&quot; aria-label=&quot;Chú giải bằng chứng&quot;&gt;
+    &lt;span&gt;&lt;i class=&quot;dot ok&quot;&gt;&lt;/i&gt;Chức năng đã thấy · phạm vi giới hạn&lt;/span&gt;
+    &lt;span&gt;&lt;i class=&quot;dot bad&quot;&gt;&lt;/i&gt;Lỗi đã tái hiện&lt;/span&gt;
+    &lt;span&gt;&lt;i class=&quot;dot mixed&quot;&gt;&lt;/i&gt;Một phần / giới hạn từ code&lt;/span&gt;
+    &lt;span&gt;&lt;i class=&quot;dot code&quot;&gt;&lt;/i&gt;Có code · chưa chứng minh live&lt;/span&gt;
+    &lt;span&gt;&lt;i class=&quot;dot proposal&quot;&gt;&lt;/i&gt;Đề xuất · chưa triển khai&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;entry-lanes&quot; aria-label=&quot;Ba luồng đầu vào&quot;&gt;
+    &lt;div&gt;&lt;button class=&quot;btn&quot; type=&quot;button&quot; data-jump=&quot;A01&quot;&gt;P1 · Bản thảo có sẵn&lt;/button&gt;&lt;div class=&quot;text-small&quot;&gt;Import → review → viết tiếp&lt;/div&gt;&lt;/div&gt;
+    &lt;div&gt;&lt;button class=&quot;btn&quot; type=&quot;button&quot; data-jump=&quot;A05&quot;&gt;P2 · Ý tưởng / thiết lập&lt;/button&gt;&lt;div class=&quot;text-small&quot;&gt;Extract setup → chương đầu&lt;/div&gt;&lt;/div&gt;
+    &lt;div&gt;&lt;button class=&quot;btn&quot; type=&quot;button&quot; data-jump=&quot;G01&quot;&gt;P3 · Full auto&lt;/button&gt;&lt;div class=&quot;text-small&quot;&gt;Dừng tại entity gate khi bật human review&lt;/div&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;master-map&quot; aria-label=&quot;Sơ đồ tổng quan; chọn một khối để xem tất cả bước bên trong&quot;&gt;
+    &lt;svg class=&quot;master-wires&quot; aria-hidden=&quot;true&quot;&gt;&lt;/svg&gt;
+    &lt;div class=&quot;phase-grid&quot; data-phase-grid&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;text-small flow-boundary&quot;&gt;Vòng viết: F → B → C → D → E → F. Flag ON: C → X (tác giả duyệt entity) → C (event/fact). Flag OFF: legacy. G điều phối; J dùng chung. X05/X06 còn là đề xuất.&lt;/div&gt;
+  &lt;hr&gt;
+  &lt;section data-selected-phase aria-labelledby=&quot;selected-phase-heading&quot;&gt;
+    &lt;h3 id=&quot;selected-phase-heading&quot;&gt;&lt;/h3&gt;
+    &lt;div class=&quot;text-small&quot; data-phase-scope&gt;&lt;/div&gt;
+    &lt;div class=&quot;step-map&quot;&gt;
+      &lt;svg class=&quot;step-wires&quot; aria-hidden=&quot;true&quot;&gt;&lt;/svg&gt;
+      &lt;div data-steps&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+  &lt;hr&gt;
+  &lt;details class=&quot;registry&quot;&gt;
+    &lt;summary class=&quot;cursor-interaction&quot;&gt;Toàn bộ vấn đề · bằng chứng · điều kiện đề xuất để đóng&lt;/summary&gt;
+    &lt;div data-registry&gt;&lt;/div&gt;
+  &lt;/details&gt;
+  &lt;div class=&quot;text-small map-footer&quot;&gt;15/35 là assertions gold, không phải entity recall. P2/P3 và 100k chưa chạy trong run nguồn. Bản đồ không chứng minh đã tìm hết mọi defect.&lt;/div&gt;
+  &lt;div class=&quot;sr-only&quot; aria-live=&quot;polite&quot; data-announcement&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;style&gt;
+ #ai-pipeline-audit-map { color:var(--foreground); width:100%; }
+ #ai-pipeline-audit-map .map-meta { margin-bottom:12px; padding-right:90px; overflow-wrap:anywhere; }
+ #ai-pipeline-audit-map .map-legend { display:flex; flex-wrap:wrap; gap:8px 16px; margin-bottom:20px; }
+ #ai-pipeline-audit-map .map-legend span { display:inline-flex; align-items:center; gap:6px; }
+ #ai-pipeline-audit-map .dot { display:inline-block; width:9px; height:9px; border-radius:50%; flex-shrink:0; background:var(--viz-series-3); }
+ #ai-pipeline-audit-map .dot.ok { background:var(--viz-series-1); }
+ #ai-pipeline-audit-map .dot.bad { background:var(--viz-series-2); }
+ #ai-pipeline-audit-map .dot.mixed { background:var(--viz-series-3); }
+ #ai-pipeline-audit-map .dot.code { background:var(--muted-foreground); }
+ #ai-pipeline-audit-map .dot.proposal { background:var(--viz-series-4); border-radius:0; }
+ #ai-pipeline-audit-map .entry-lanes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:24px; }
+ #ai-pipeline-audit-map .entry-lanes&gt;div { text-align:center; min-width:0; }
+ #ai-pipeline-audit-map .master-map,#ai-pipeline-audit-map .step-map { position:relative; }
+ #ai-pipeline-audit-map .master-wires,#ai-pipeline-audit-map .step-wires { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+ #ai-pipeline-audit-map .phase-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:36px 16px; position:relative; }
+ #ai-pipeline-audit-map .phase-box { min-width:0; }
+ #ai-pipeline-audit-map .phase-note { margin-top:5px; color:var(--muted-foreground); text-align:center; }
+ #ai-pipeline-audit-map .phase-A { grid-column:1 / 4; grid-row:1; }
+ #ai-pipeline-audit-map .phase-B { grid-column:1;grid-row:2; }
+ #ai-pipeline-audit-map .phase-C { grid-column:2;grid-row:2; }
+ #ai-pipeline-audit-map .phase-D { grid-column:3;grid-row:2; }
+ #ai-pipeline-audit-map .phase-G { grid-column:1;grid-row:3; }
+ #ai-pipeline-audit-map .phase-E { grid-column:2;grid-row:3; }
+ #ai-pipeline-audit-map .phase-F { grid-column:3;grid-row:3; }
+ #ai-pipeline-audit-map .phase-J { grid-column:1;grid-row:4; }
+ #ai-pipeline-audit-map .phase-H { grid-column:2;grid-row:4; }
+ #ai-pipeline-audit-map .phase-X { grid-column:3;grid-row:4; }
+ #ai-pipeline-audit-map .flow-boundary { margin-top:20px; }
+ #ai-pipeline-audit-map .step-map { padding-left:44px; margin:20px 0; }
+ #ai-pipeline-audit-map .step { position:relative; margin:0 0 18px; padding:0 0 8px; border-bottom:1px solid var(--border); }
+ #ai-pipeline-audit-map .step summary { display:list-item; overflow-wrap:anywhere; padding:4px 0; }
+ #ai-pipeline-audit-map .step-label { font-weight:500; }
+ #ai-pipeline-audit-map .step-status { display:inline-flex; align-items:center; gap:6px; margin-left:8px; }
+ #ai-pipeline-audit-map .step-issues { margin:3px 0 6px; overflow-wrap:anywhere; }
+ #ai-pipeline-audit-map .connections { display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin:4px 0; }
+ #ai-pipeline-audit-map .detail-body { padding:8px 0 10px; }
+ #ai-pipeline-audit-map dl { margin:0; }
+ #ai-pipeline-audit-map dt { font-weight:500; margin-top:10px; }
+ #ai-pipeline-audit-map dd { margin:3px 0 0; overflow-wrap:anywhere; }
+ #ai-pipeline-audit-map .issue-detail { margin:12px 0; padding-left:12px; border-left:2px solid var(--border); }
+ #ai-pipeline-audit-map .issue-detail summary { font-weight:500; }
+ #ai-pipeline-audit-map .source-line { overflow-wrap:anywhere; margin-top:12px; }
+ #ai-pipeline-audit-map .registry&gt;summary { font-weight:500; }
+ #ai-pipeline-audit-map .map-footer { margin-top:20px; color:var(--muted-foreground); }
+ #ai-pipeline-audit-map .wire { fill:none; stroke:var(--border); stroke-width:1.5; }
+ #ai-pipeline-audit-map .wire-proposal { stroke-dasharray:5 4; }
+ @media(max-width:520px) {
+   #ai-pipeline-audit-map .entry-lanes { grid-template-columns:1fr; gap:14px; }
+   #ai-pipeline-audit-map .phase-grid { grid-template-columns:1fr; gap:26px; }
+   #ai-pipeline-audit-map .phase-box { grid-column:auto;grid-row:auto; }
+   #ai-pipeline-audit-map .step-map { padding-left:28px; }
+   #ai-pipeline-audit-map .step-status { display:flex; margin:5px 0 0; }
+ }
+&lt;/style&gt;
+&lt;script type=&quot;application/json&quot; id=&quot;ai-pipeline-audit-data&quot;&gt;{&quot;title&quot;: &quot;AI pipeline · P1 / P2 / P3&quot;, &quot;reviewed_at&quot;: &quot;2026-10-20T22:59:06.422946+07:00&quot;, &quot;code_sha&quot;: &quot;94d5072a5e1bacc1534d84b4ca49ee97c6cfec7f&quot;, &quot;scope&quot;: &quot;Canonical author workflow: input, revision, extraction, review, canon, context, writing, autonomous control, acceptance; platform publish shown as boundary. Legacy endpoints not individually inventoried.&quot;, &quot;run&quot;: &quot;2026-10-19-recovery-ui-01 + 2026-10-20-human-entity-review (offline)&quot;, &quot;phases&quot;: [{&quot;id&quot;: &quot;A&quot;, &quot;title&quot;: &quot;Nguồn vào · P1 / P2&quot;, &quot;scope&quot;: &quot;Hai nhánh đầu vào; P3 vào vòng G sau khi có brain/baseline&quot;, &quot;source&quot;: &quot;ai-service/application/bootstrap_service.py&quot;}, {&quot;id&quot;: &quot;B&quot;, &quot;title&quot;: &quot;Lưu chương · revision · outbox&quot;, &quot;scope&quot;: &quot;P1/P2 sau baseline và AI accept; nguồn bền vững trước extraction&quot;, &quot;source&quot;: &quot;backend/src/modules/novels/chapter-revisions.service.ts&quot;}, {&quot;id&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Extraction nội dung · nhiều lượt LLM&quot;, &quot;scope&quot;: &quot;Flag ON: discovery entity chia đoạn và human gate X trước event/fact; event/fact/coverage vẫn toàn chương. Flag OFF: legacy.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;}, {&quot;id&quot;: &quot;D&quot;, &quot;title&quot;: &quot;Đối chiếu canon · review · quyết định&quot;, &quot;scope&quot;: &quot;Canon comparison trước persist; human approval mặc định, auto approval chỉ P3&quot;, &quot;source&quot;: &quot;ai-service/services/canon_reconciliation.py&quot;}, {&quot;id&quot;: &quot;E&quot;, &quot;title&quot;: &quot;Memory · embeddings · context&quot;, &quot;scope&quot;: &quot;Canon là nguồn; semantic memories là dữ liệu dẫn xuất, không thay thế canon&quot;, &quot;source&quot;: &quot;ai-service/application/writing_service.py&quot;}, {&quot;id&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Định hướng · viết · kiểm tra · accept&quot;, &quot;scope&quot;: &quot;Vòng tác giả dùng chung P1/P2, P3 gọi cùng các service&quot;, &quot;source&quot;: &quot;ai-service/application/writing_service.py&quot;}, {&quot;id&quot;: &quot;G&quot;, &quot;title&quot;: &quot;P3 · Full auto orchestration&quot;, &quot;scope&quot;: &quot;Có code nhưng recovery run P3 NOT_RUN; không dùng quyền publish&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-controller.service.ts&quot;}, {&quot;id&quot;: &quot;H&quot;, &quot;title&quot;: &quot;Kiểm thử · hoàn thành · xuất bản boundary&quot;, &quot;scope&quot;: &quot;Acceptance của task, không đồng nhất với job completed&quot;, &quot;source&quot;: &quot;Pipeline_test/AGENT_GUIDE.md&quot;}, {&quot;id&quot;: &quot;J&quot;, &quot;title&quot;: &quot;Provider · hạ tầng · quan sát lỗi&quot;, &quot;scope&quot;: &quot;Các bước dùng chung, không phải một phase chỉ chạy cuối cùng&quot;, &quot;source&quot;: &quot;ai-service/core/structured_call.py&quot;}, {&quot;id&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Ứng viên · tác giả duyệt entity&quot;, &quot;scope&quot;: &quot;Có implementation opt-in; mặc định OFF. X05/X06 vẫn là thiết kế. Chưa có live provider retest cho luồng mới.&quot;, &quot;source&quot;: &quot;ai-service/application/entity_review_service.py&quot;}], &quot;nodes&quot;: [{&quot;id&quot;: &quot;A01&quot;, &quot;phase&quot;: &quot;A&quot;, &quot;title&quot;: &quot;P1 · Nhập/chọn bản thảo&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Chương nháp hoặc đã xuất bản&quot;, &quot;outgoing&quot;: &quot;Draft chương; chưa phải memory&quot;, &quot;control&quot;: &quot;UI lưu; import không tự đồng nghĩa extraction&quot;, &quot;issues&quot;: [&quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Readback khớp fixture và đúng thứ tự chương.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/AuthorMemoryPanel.tsx&quot;, &quot;next&quot;: [&quot;A02&quot;]}, {&quot;id&quot;: &quot;A02&quot;, &quot;phase&quot;: &quot;A&quot;, &quot;title&quot;: &quot;Bấm trích xuất lần đầu&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Các chương đã lưu&quot;, &quot;outgoing&quot;: &quot;Revision manifest cho bootstrap&quot;, &quot;control&quot;: &quot;UI snapshot purpose=MANUSCRIPT_BOOTSTRAP từng chương; hash và IDs&quot;, &quot;issues&quot;: [&quot;CHUNKING-GAP&quot;], &quot;gate&quot;: &quot;Chỉ lấy nội dung đã lưu; không trùng generic outbox bootstrap.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/AuthorMemoryPanel.tsx&quot;, &quot;next&quot;: [&quot;A03&quot;]}, {&quot;id&quot;: &quot;A03&quot;, &quot;phase&quot;: &quot;A&quot;, &quot;title&quot;: &quot;Tạo job nhập bản thảo&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Novel/revision IDs, options&quot;, &quot;outgoing&quot;: &quot;Job queued; brain importing&quot;, &quot;control&quot;: &quot;Validate limit/source, identity/idempotency; lưu job durable&quot;, &quot;issues&quot;: [&quot;OBSERVABILITY&quot;], &quot;gate&quot;: &quot;Restart/resume tiếp tục đúng chương, không nhập lại chương completed.&quot;, &quot;source&quot;: &quot;ai-service/application/bootstrap_service.py&quot;, &quot;next&quot;: [&quot;A04&quot;]}, {&quot;id&quot;: &quot;A04&quot;, &quot;phase&quot;: &quot;A&quot;, &quot;title&quot;: &quot;Lần lượt phân tích từng chương&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Immutable revision manifest&quot;, &quot;outgoing&quot;: &quot;Proposal groups mỗi revision&quot;, &quot;control&quot;: &quot;Lần lượt từng revision; flagON dừng waiting_entity_review trước event/fact, resume giữ chương/checkpoint; scene_count chỉ đếm.&quot;, &quot;issues&quot;: [&quot;CHUNKING-GAP&quot;, &quot;ENTITY-HITL&quot;, &quot;STATE-OPTIONS&quot;], &quot;gate&quot;: &quot;Đủ toàn bộ chương; schema success tách semantic coverage.&quot;, &quot;source&quot;: &quot;ai-service/application/bootstrap_service.py&quot;, &quot;next&quot;: [&quot;C01&quot;]}, {&quot;id&quot;: &quot;A05&quot;, &quot;phase&quot;: &quot;A&quot;, &quot;title&quot;: &quot;P2 · Nhập ý tưởng/thiết lập&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Setup, constraints; outline/preferences tùy mode&quot;, &quot;outgoing&quot;: &quot;Nguồn setup riêng&quot;, &quot;control&quot;: &quot;UI gọi mode=extract; backend còn blueprint mode&quot;, &quot;issues&quot;: [&quot;P2-UNTESTED&quot;], &quot;gate&quot;: &quot;Không biến future outline thành history.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/AuthorMemoryPanel.tsx&quot;, &quot;next&quot;: [&quot;A06&quot;, &quot;A07&quot;]}, {&quot;id&quot;: &quot;A06&quot;, &quot;phase&quot;: &quot;A&quot;, &quot;title&quot;: &quot;Extract setup đã cung cấp&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Idea + constraints + optional guidance&quot;, &quot;outgoing&quot;: &quot;Tên nhân vật/địa danh explicit&quot;, &quot;control&quot;: &quot;Hints hỗ trợ tìm tên; nguồn setup mới chứng minh presence; không invent event/rule. P2 vẫn entity proposals → review, không phải chunk pipeline của revision.&quot;, &quot;issues&quot;: [&quot;P2-UNTESTED&quot;, &quot;ENTITY-COVERAGE&quot;], &quot;gate&quot;: &quot;Tách prior death/uncertain; preservation các trường setup; P2 live riêng.&quot;, &quot;source&quot;: &quot;ai-service/application/bootstrap_service.py&quot;, &quot;next&quot;: [&quot;A08&quot;]}, {&quot;id&quot;: &quot;A07&quot;, &quot;phase&quot;: &quot;A&quot;, &quot;title&quot;: &quot;Blueprint generation tùy API mode&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Idea/outline/preferences/constraints&quot;, &quot;outgoing&quot;: &quot;Premise/world rules/entities đề xuất&quot;, &quot;control&quot;: &quot;Chỉ nhánh mode=blueprint; có đường fallback nếu cấu hình cho phép&quot;, &quot;issues&quot;: [&quot;P2-UNTESTED&quot;, &quot;OBSERVABILITY&quot;], &quot;gate&quot;: &quot;Phân biệt invented/author-supplied; UI extract không được chạy nhầm nhánh này.&quot;, &quot;source&quot;: &quot;ai-service/application/bootstrap_service.py&quot;, &quot;next&quot;: [&quot;A08&quot;]}, {&quot;id&quot;: &quot;A08&quot;, &quot;phase&quot;: &quot;A&quot;, &quot;title&quot;: &quot;Setup proposals → review → baseline&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Entities + premise/constraints/facts theo mode&quot;, &quot;outgoing&quot;: &quot;Brain đã duyệt; còn thiếu prose đầu tiên&quot;, &quot;control&quot;: &quot;Setup không có chapter quote như P1; lưu provenance dạng nguồn idea&quot;, &quot;issues&quot;: [&quot;P2-UNTESTED&quot;], &quot;gate&quot;: &quot;Duyệt xong mở writing chương đầu; kiểm tra M0/M-FIRST riêng.&quot;, &quot;source&quot;: &quot;ai-service/application/bootstrap_service.py&quot;, &quot;next&quot;: [&quot;D06&quot;, &quot;F01&quot;]}, {&quot;id&quot;: &quot;B01&quot;, &quot;phase&quot;: &quot;B&quot;, &quot;title&quot;: &quot;Editor và autosave&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Title/content/access fields&quot;, &quot;outgoing&quot;: &quot;PATCH draft sau debounce&quot;, &quot;control&quot;: &quot;UI debounce1200ms; save serial theo chapter; owner/auth&quot;, &quot;issues&quot;: [&quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Expired session có lỗi rõ; UI đã lưu phải khớp server.&quot;, &quot;source&quot;: &quot;web/src/features/author-ide/AuthorWritingIde.tsx&quot;, &quot;next&quot;: [&quot;B02&quot;]}, {&quot;id&quot;: &quot;B02&quot;, &quot;phase&quot;: &quot;B&quot;, &quot;title&quot;: &quot;Lưu draft Mongo + metadata&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;PATCH nội dung tác giả&quot;, &quot;outgoing&quot;: &quot;Draft version và chapter metadata&quot;, &quot;control&quot;: &quot;Owner check; draft và published content phân biệt&quot;, &quot;issues&quot;: [&quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Đọc draft thật, không coi PostgreSQL content null là mất văn.&quot;, &quot;source&quot;: &quot;backend/src/modules/novels/chapters.service.ts&quot;, &quot;next&quot;: [&quot;B03&quot;]}, {&quot;id&quot;: &quot;B03&quot;, &quot;phase&quot;: &quot;B&quot;, &quot;title&quot;: &quot;Brain active + baseline?&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Novel brain state&quot;, &quot;outgoing&quot;: &quot;Có→snapshot tự động; chưa→chỉ draft&quot;, &quot;control&quot;: &quot;snapshotSavedChapter chỉ chạy khi active và có baseline_revision_id&quot;, &quot;issues&quot;: [&quot;P2-UNTESTED&quot;], &quot;gate&quot;: &quot;Import đầu cần explicit bootstrap; sau baseline save content tự phân tích.&quot;, &quot;source&quot;: &quot;backend/src/modules/novels/chapter-revisions.service.ts&quot;, &quot;next&quot;: [&quot;B04&quot;]}, {&quot;id&quot;: &quot;B04&quot;, &quot;phase&quot;: &quot;B&quot;, &quot;title&quot;: &quot;Chốt revision và content hash&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Nội dung nguồn chuẩn&quot;, &quot;outgoing&quot;: &quot;Immutable revision/latest pointer&quot;, &quot;control&quot;: &quot;Hash/no-op dedup; transaction/lock; bootstrap purpose riêng&quot;, &quot;issues&quot;: [&quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Hash/Unicode đúng; hai saves không mất head; cùng body không nhân revision.&quot;, &quot;source&quot;: &quot;backend/src/modules/novels/chapter-revisions.service.ts&quot;, &quot;next&quot;: [&quot;B05&quot;]}, {&quot;id&quot;: &quot;B05&quot;, &quot;phase&quot;: &quot;B&quot;, &quot;title&quot;: &quot;Ghi durable outbox&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Revision mới sau active&quot;, &quot;outgoing&quot;: &quot;INCREMENTAL_ANALYSIS event&quot;, &quot;control&quot;: &quot;Revision/event uniqueness; trigger worker; AI accept có source_generation_id&quot;, &quot;issues&quot;: [&quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Crash sau commit vẫn còn job; không tạo canon trước review.&quot;, &quot;source&quot;: &quot;backend/src/modules/novels/chapter-revisions.service.ts&quot;, &quot;next&quot;: [&quot;B06&quot;]}, {&quot;id&quot;: &quot;B06&quot;, &quot;phase&quot;: &quot;B&quot;, &quot;title&quot;: &quot;Worker claim + gọi analysis&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Pending outbox; claim token/lease&quot;, &quot;outgoing&quot;: &quot;HTTP analysis; completed hoặc retry&quot;, &quot;control&quot;: &quot;Tick5s; một batch handler; Idempotency-Key=analysis-revision; max_retries mặc định5&quot;, &quot;issues&quot;: [&quot;PROVIDER-503-001&quot;, &quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Stale claim không overwrite; retry/backoff/recovery quan sát được.&quot;, &quot;source&quot;: &quot;backend/src/jobs/outbox-processor.ts&quot;, &quot;next&quot;: [&quot;C01&quot;, &quot;J04&quot;]}, {&quot;id&quot;: &quot;B07&quot;, &quot;phase&quot;: &quot;B&quot;, &quot;title&quot;: &quot;Mongo sync fallback khi cần&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Revision đã commit nhưng draft sync lỗi&quot;, &quot;outgoing&quot;: &quot;MONGO_DRAFT_SYNC retry&quot;, &quot;control&quot;: &quot;Conditional sync tránh đè draft tác giả mới hơn&quot;, &quot;issues&quot;: [&quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Fault injection sync lỗi; phục hồi không mất newer draft.&quot;, &quot;source&quot;: &quot;backend/src/modules/novels/chapter-revisions.service.ts&quot;, &quot;next&quot;: [&quot;B02&quot;]}, {&quot;id&quot;: &quot;C01&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Đọc revision, kiểm tra hash&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Tenant/novel/chapter/revision/hash&quot;, &quot;outgoing&quot;: &quot;Prose và provenance chuẩn&quot;, &quot;control&quot;: &quot;Không đọc editor mutable; SHA256/ownership/source_scope&quot;, &quot;issues&quot;: [&quot;SNAPSHOT-GAP&quot;, &quot;OBSERVABILITY&quot;], &quot;gate&quot;: &quot;Wrong source/hash bị từ chối; call trace gắn đúng revision.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;next&quot;: [&quot;C02&quot;]}, {&quot;id&quot;: &quot;C02&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Analysis run và khóa idempotency&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Operation/options/key/input hash&quot;, &quot;outgoing&quot;: &quot;Run/group IDs hoặc proposals đã có&quot;, &quot;control&quot;: &quot;Nếu run đã có proposals thì trả deduplicated; manual reanalyse key mới&quot;, &quot;issues&quot;: [&quot;GATEWAY-KEY&quot;], &quot;gate&quot;: &quot;Retry action không duplicate; reanalysis mới phản ánh canon mới.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;next&quot;: [&quot;C13&quot;]}, {&quot;id&quot;: &quot;C03&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Legacy: LLM trích entity toàn chương&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;TOÀN prose chương&quot;, &quot;outgoing&quot;: &quot;PER/LOC/ORG/ITEM/SKILL + confidence/status&quot;, &quot;control&quot;: &quot;Chỉ đường flagOFF; một lượt LLM + parse/schema/score; flagON đi X08→X01→X02→X03→X09.&quot;, &quot;issues&quot;: [&quot;ENTITY-COVERAGE&quot;, &quot;ENTITY-HOMONYM&quot;, &quot;CHUNKING-GAP&quot;], &quot;gate&quot;: &quot;Gold entity/mention riêng, đo omission và false positives.&quot;, &quot;source&quot;: &quot;ai-service/services/entity_pipeline/pipeline.py&quot;, &quot;next&quot;: [&quot;C04&quot;]}, {&quot;id&quot;: &quot;C04&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Ground tên và status&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Tên/quote status từ LLM&quot;, &quot;outgoing&quot;: &quot;Entity proposals có evidence&quot;, &quot;control&quot;: &quot;Legacy dùng find_mention; human-review dùng verified occurrence offsets. Status không Unknown phải có quote; entity vẫn proposal, chưa canon.&quot;, &quot;issues&quot;: [&quot;ENTITY-HOMONYM&quot;, &quot;GROUNDING-GUARD&quot;], &quot;gate&quot;: &quot;Xét occurrence/context, không gắn An vào an toàn; status có nguồn.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;next&quot;: [&quot;C05&quot;]}, {&quot;id&quot;: &quot;C05&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Tạo danh sách known entities&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Legacy proposals hoặc inventory đã được tác giả review&quot;, &quot;outgoing&quot;: &quot;Names cấp cho event/fact extractor&quot;, &quot;control&quot;: &quot;FlagON chỉ names/aliases đã review; unknown downstream mở lại entity gate, không tự sinh entity; registry không query từng tên.&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;, &quot;EXTRACT-SUBJECT-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Tên sai không lan xuống facts/events; alias/canonical IDs rõ.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;next&quot;: [&quot;C06&quot;]}, {&quot;id&quot;: &quot;C06&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;LLM trích sự kiện&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;TOÀN prose + known entity names&quot;, &quot;outgoing&quot;: &quot;Event/participants/location/summary/consequences&quot;, &quot;control&quot;: &quot;Schema; significant events involving supplied entities; quote grounding; quote lỗi có thể skip event&quot;, &quot;issues&quot;: [&quot;MEM-CRITICAL-001&quot;, &quot;GROUNDING-GUARD&quot;], &quot;gate&quot;: &quot;Event bỏ qua được thống kê; participants có mặt thật; negation/report preserved.&quot;, &quot;source&quot;: &quot;ai-service/services/event_summarizer.py&quot;, &quot;next&quot;: [&quot;C07&quot;, &quot;X10&quot;]}, {&quot;id&quot;: &quot;C07&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;LLM trích atomic facts&quot;, &quot;state&quot;: &quot;bad&quot;, &quot;incoming&quot;: &quot;TOÀN prose + names&quot;, &quot;outgoing&quot;: &quot;Subject/key/value/certainty/quote&quot;, &quot;control&quot;: &quot;Tuổi/số lượng/identity/possession/limits/history; typed values&quot;, &quot;issues&quot;: [&quot;MEM-CRITICAL-001&quot;, &quot;EXTRACT-ROLE-CONFUSION-001&quot;, &quot;EXTRACT-SUBJECT-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Đúng subject/certainty/knowledge boundary; mọi critical assertion có evidence.&quot;, &quot;source&quot;: &quot;ai-service/services/prose_facts.py&quot;, &quot;next&quot;: [&quot;C08&quot;, &quot;X10&quot;]}, {&quot;id&quot;: &quot;C08&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;LLM rà facts còn thiếu&quot;, &quot;state&quot;: &quot;bad&quot;, &quot;incoming&quot;: &quot;TOÀN prose + extracted facts&quot;, &quot;outgoing&quot;: &quot;Bổ sung facts thiếu, không lặp&quot;, &quot;control&quot;: &quot;review_fact_coverage; cùng chuỗi provider, không phải reviewer độc lập&quot;, &quot;issues&quot;: [&quot;MEM-CRITICAL-001&quot;, &quot;ENTITY-COVERAGE&quot;], &quot;gate&quot;: &quot;Coverage đủ theo gold; không gọi bước này là entity coverage review.&quot;, &quot;source&quot;: &quot;ai-service/services/prose_facts.py&quot;, &quot;next&quot;: [&quot;C09&quot;]}, {&quot;id&quot;: &quot;C09&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Ground facts + loại trùng exact&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Fact quote + original prose&quot;, &quot;outgoing&quot;: &quot;Span/hash/quote chuẩn; distinct facts&quot;, &quot;control&quot;: &quot;Exact/unique whitespace match; tối đa2 quote repairs; unresolved fact fail analysis&quot;, &quot;issues&quot;: [&quot;GROUNDING-GUARD&quot;, &quot;MEM-CRITICAL-001&quot;], &quot;gate&quot;: &quot;Unicode offsets và unique span; cùng nghĩa khác câu chưa được coi auto dedup.&quot;, &quot;source&quot;: &quot;ai-service/services/source_grounding.py&quot;, &quot;next&quot;: [&quot;C10&quot;]}, {&quot;id&quot;: &quot;C10&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Đóng gói proposals và certainty&quot;, &quot;state&quot;: &quot;bad&quot;, &quot;incoming&quot;: &quot;Entities/events/facts; optional explicit rules&quot;, &quot;outgoing&quot;: &quot;Group cùng analysis/source/version&quot;, &quot;control&quot;: &quot;Confirmed+subject có subject_entity_name; uncertain value giữ attribution; regex Luật:/Rule: tùy option&quot;, &quot;issues&quot;: [&quot;EXTRACT-SUBJECT-UNRESOLVED-001&quot;, &quot;EXTRACT-ROLE-CONFUSION-001&quot;], &quot;gate&quot;: &quot;Resolve subject trước materialize; không nâng hypothesis thành state.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;next&quot;: [&quot;D01&quot;]}, {&quot;id&quot;: &quot;C11&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;LLM trích state transitions tùy mode&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Event mới/thay đổi + event source quotes&quot;, &quot;outgoing&quot;: &quot;State-transition proposals cùng group&quot;, &quot;control&quot;: &quot;Bootstrap bật; incremental default tắt; skip reuse/retired events&quot;, &quot;issues&quot;: [&quot;STATE-OPTIONS&quot;, &quot;EXTRACT-ROLE-CONFUSION-001&quot;], &quot;gate&quot;: &quot;Đồng nhất contract mode; không suy diễn defaults; chỉ participant chính xác.&quot;, &quot;source&quot;: &quot;ai-service/services/state_transition_proposals.py&quot;, &quot;next&quot;: [&quot;C12&quot;]}, {&quot;id&quot;: &quot;C12&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Lưu proposals cuối analysis&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Toàn nhóm đã qua reconciliation/transition&quot;, &quot;outgoing&quot;: &quot;Pending proposals trong DB&quot;, &quot;control&quot;: &quot;save_proposals ở cuối; upstream unresolved không lưu partial group&quot;, &quot;issues&quot;: [&quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Fault ở giữa không để partial canon/proposals; success rỗng có lý do.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;next&quot;: [&quot;D05&quot;]}, {&quot;id&quot;: &quot;D01&quot;, &quot;phase&quot;: &quot;D&quot;, &quot;title&quot;: &quot;Lấy canon cũ của cùng chương&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Active approved facts/events + source cũ&quot;, &quot;outgoing&quot;: &quot;Approved targets và evidence so sánh&quot;, &quot;control&quot;: &quot;Không có prior cùng chương thì đánh dấu empty base, bỏ qua LLM comparison&quot;, &quot;issues&quot;: [&quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Không nhầm occurrence từ chương khác; provenance cũ giữ được.&quot;, &quot;source&quot;: &quot;ai-service/services/canon_reconciliation.py&quot;, &quot;next&quot;: [&quot;D02&quot;]}, {&quot;id&quot;: &quot;D02&quot;, &quot;phase&quot;: &quot;D&quot;, &quot;title&quot;: &quot;LLM chọn new / reuse / replace / remove&quot;, &quot;state&quot;: &quot;bad&quot;, &quot;incoming&quot;: &quot;Current prose + candidates + prior targets&quot;, &quot;outgoing&quot;: &quot;Decision cho từng event/fact candidate&quot;, &quot;control&quot;: &quot;Phải đủ mỗi candidate; reuse cùng occurrence; remove không vì missed extraction&quot;, &quot;issues&quot;: [&quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;, &quot;MEM-CRITICAL-001&quot;], &quot;gate&quot;: &quot;Repeated action distinct không merge nhầm; same occurrence không nhân đôi.&quot;, &quot;source&quot;: &quot;ai-service/services/canon_reconciliation.py&quot;, &quot;next&quot;: [&quot;D03&quot;]}, {&quot;id&quot;: &quot;D03&quot;, &quot;phase&quot;: &quot;D&quot;, &quot;title&quot;: &quot;Validate decision + bounded repair&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Decision IDs/type/target claims&quot;, &quot;outgoing&quot;: &quot;Valid mapping hoặc actionable422 attempts3&quot;, &quot;control&quot;: &quot;Many-reuse cùng target được phép; conflicting replace/reuse/removed bị chặn&quot;, &quot;issues&quot;: [&quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Không tự đổi invalid comparison thành new; tests guard và live feature tách verdict.&quot;, &quot;source&quot;: &quot;ai-service/services/canon_reconciliation.py&quot;, &quot;next&quot;: [&quot;C11&quot;, &quot;C12&quot;, &quot;J04&quot;]}, {&quot;id&quot;: &quot;D04&quot;, &quot;phase&quot;: &quot;D&quot;, &quot;title&quot;: &quot;Phân tích lại qua UI/gateway&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Latest saved revision + thao tác mới&quot;, &quot;outgoing&quot;: &quot;Analysis mới theo canon hiện tại&quot;, &quot;control&quot;: &quot;Key scoped/hash; retry cùng action giữ key; content saved required&quot;, &quot;issues&quot;: [&quot;GATEWAY-KEY&quot;, &quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Không thiếu header; key đúng scope; nguyên nhân error hiển thị actionable.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/ai-gateway.controller.ts&quot;, &quot;next&quot;: [&quot;C01&quot;]}, {&quot;id&quot;: &quot;D05&quot;, &quot;phase&quot;: &quot;D&quot;, &quot;title&quot;: &quot;Hiện queue / quote / revision / reuse&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Pending proposals; extraction status&quot;, &quot;outgoing&quot;: &quot;Nhóm chờ review, tách official tabs&quot;, &quot;control&quot;: &quot;Queue0 không có nghĩa extraction COMPLETED; hiển thị outbox status&quot;, &quot;issues&quot;: [&quot;SNAPSHOT-GAP&quot;, &quot;PROVIDER-503-001&quot;], &quot;gate&quot;: &quot;Nhóm và nguồn cũ/mới rõ; không UI success khi latest analysis còn pending.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/AuthorMemoryPanel.tsx&quot;, &quot;next&quot;: [&quot;D06&quot;]}, {&quot;id&quot;: &quot;D06&quot;, &quot;phase&quot;: &quot;D&quot;, &quot;title&quot;: &quot;Tác giả sửa / loại / duyệt nhóm&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Payload/quote + quyết định tác giả&quot;, &quot;outgoing&quot;: &quot;Decision audit + edited payloads&quot;, &quot;control&quot;: &quot;Chỉ xóa staged edits của nhóm vừa approve, giữ nhóm khác; numeric/object edit vẫn cần live retest.&quot;, &quot;issues&quot;: [&quot;REVIEW-EDITS-RESET-001&quot;, &quot;EXTRACT-SUBJECT-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Giữ edits nhóm khác; sửa typed facts an toàn; ghi riêng raw/corrected.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/AuthorMemoryPanel.tsx&quot;, &quot;next&quot;: [&quot;D07&quot;]}, {&quot;id&quot;: &quot;D07&quot;, &quot;phase&quot;: &quot;D&quot;, &quot;title&quot;: &quot;Guard stale source và version&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Proposal IDs + expected brain version&quot;, &quot;outgoing&quot;: &quot;Accept hoặc409 conflict/stale&quot;, &quot;control&quot;: &quot;Gateway kiểm source latest; repo lock/version/reconciliation-base refs&quot;, &quot;issues&quot;: [&quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Stale group bị chặn đã live; hoàn tất overlapped saves/dedup regression.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/proposal-evidence.service.ts&quot;, &quot;next&quot;: [&quot;D08&quot;]}, {&quot;id&quot;: &quot;D08&quot;, &quot;phase&quot;: &quot;D&quot;, &quot;title&quot;: &quot;Materialize trong transaction&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Approved group, edited values&quot;, &quot;outgoing&quot;: &quot;Entities/facts/events/transitions + decisions&quot;, &quot;control&quot;: &quot;Entity normalized-name reuse; canon reuse không insert; replace giữ history; projection resolve subject&quot;, &quot;issues&quot;: [&quot;EXTRACT-SUBJECT-UNRESOLVED-001&quot;, &quot;ENTITY-COVERAGE&quot;], &quot;gate&quot;: &quot;Unknown/ambiguous subject không partial commit; rollback và feedback sửa được.&quot;, &quot;source&quot;: &quot;ai-service/infrastructure/postgres_narrative_repository.py&quot;, &quot;next&quot;: [&quot;D09&quot;, &quot;E01&quot;]}, {&quot;id&quot;: &quot;D09&quot;, &quot;phase&quot;: &quot;D&quot;, &quot;title&quot;: &quot;Baseline active / brain version tăng&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Các nhóm đã review; bootstrap job&quot;, &quot;outgoing&quot;: &quot;Baseline revision và active brain&quot;, &quot;control&quot;: &quot;Bootstrap chỉ activate sau required review; incremental approval tăng version&quot;, &quot;issues&quot;: [&quot;MEM-CRITICAL-001&quot;], &quot;gate&quot;: &quot;Active không đồng nghĩa semantic quality PASS; M0 audit trước generate.&quot;, &quot;source&quot;: &quot;ai-service/application/bootstrap_service.py&quot;, &quot;next&quot;: [&quot;E01&quot;]}, {&quot;id&quot;: &quot;E01&quot;, &quot;phase&quot;: &quot;E&quot;, &quot;title&quot;: &quot;Official structured memory&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Canon + projection sau duyệt&quot;, &quot;outgoing&quot;: &quot;Entities/aliases/facts/events/current states&quot;, &quot;control&quot;: &quot;Pending không dùng làm truth; active/superseded history phân biệt&quot;, &quot;issues&quot;: [&quot;MEM-CRITICAL-001&quot;, &quot;ENTITY-COVERAGE&quot;], &quot;gate&quot;: &quot;Đối chiếu source assertions, alias và current-state order; reload còn dữ liệu.&quot;, &quot;source&quot;: &quot;ai-service/domain/projection.py&quot;, &quot;next&quot;: [&quot;E02&quot;, &quot;E04&quot;]}, {&quot;id&quot;: &quot;E02&quot;, &quot;phase&quot;: &quot;E&quot;, &quot;title&quot;: &quot;Derived event chunks + embeddings&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Approved active event summaries&quot;, &quot;outgoing&quot;: &quot;Memory chunks/vectors theo version/hash&quot;, &quot;control&quot;: &quot;Refresh nền nếu materializer enabled; reuse embedding hash; retire derived chunks&quot;, &quot;issues&quot;: [&quot;SEMANTIC-UNVERIFIED&quot;], &quot;gate&quot;: &quot;Failure không giả vờ semantic ready; rebuild đúng; đây không phải chunk prose extraction.&quot;, &quot;source&quot;: &quot;ai-service/application/semantic_memory_service.py&quot;, &quot;next&quot;: [&quot;E03&quot;]}, {&quot;id&quot;: &quot;E03&quot;, &quot;phase&quot;: &quot;E&quot;, &quot;title&quot;: &quot;Semantic retrieve + hybrid ranking&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Instruction/selected text query + cutoff&quot;, &quot;outgoing&quot;: &quot;Ranked memories + retrieval/fallback trace&quot;, &quot;control&quot;: &quot;Tenant/cutoff filter; vector version; optional hybrid; fallback rõ&quot;, &quot;issues&quot;: [&quot;SEMANTIC-UNVERIFIED&quot;, &quot;CONTEXT-COVERAGE&quot;], &quot;gate&quot;: &quot;Trace candidates/retrieved vs selected; future/other-tenant không rò.&quot;, &quot;source&quot;: &quot;ai-service/application/semantic_retriever.py&quot;, &quot;next&quot;: [&quot;E05&quot;]}, {&quot;id&quot;: &quot;E04&quot;, &quot;phase&quot;: &quot;E&quot;, &quot;title&quot;: &quot;Lấy structured context theo cutoff&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Chapter/character + approved memory&quot;, &quot;outgoing&quot;: &quot;Entities/states/recent events/rules/plans&quot;, &quot;control&quot;: &quot;Cutoff và active canon; plans/current objective giữ trường riêng&quot;, &quot;issues&quot;: [&quot;CONTEXT-COVERAGE&quot;, &quot;MEM-CRITICAL-001&quot;], &quot;gate&quot;: &quot;Temporal/knowledge boundaries, plan không thành history; cutoff5/6 khác request.&quot;, &quot;source&quot;: &quot;ai-service/application/writing_service.py&quot;, &quot;next&quot;: [&quot;E03&quot;, &quot;E05&quot;]}, {&quot;id&quot;: &quot;E05&quot;, &quot;phase&quot;: &quot;E&quot;, &quot;title&quot;: &quot;Chọn legacy pack hoặc balanced scope&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Structured package + semantic signals&quot;, &quot;outgoing&quot;: &quot;Scoped package/routing path&quot;, &quot;control&quot;: &quot;Balanced chỉ khi đủ policy/signals, default request shape; fallback legacy khi không eligible&quot;, &quot;issues&quot;: [&quot;CONTEXT-COVERAGE&quot;, &quot;SEMANTIC-UNVERIFIED&quot;], &quot;gate&quot;: &quot;Log effective routing; không áp kết quả fixed4k probe cho mọi generation.&quot;, &quot;source&quot;: &quot;ai-service/application/writing_service.py&quot;, &quot;next&quot;: [&quot;E06&quot;]}, {&quot;id&quot;: &quot;E06&quot;, &quot;phase&quot;: &quot;E&quot;, &quot;title&quot;: &quot;Token packing và budget tiers&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Scoped artifacts và budget&quot;, &quot;outgoing&quot;: &quot;Whole selected artifacts + dropped IDs/estimates&quot;, &quot;control&quot;: &quot;Legacy default12000; balanced thử12/16/20/24k full-fit, quá24k thì fail&quot;, &quot;issues&quot;: [&quot;CONTEXT-COVERAGE&quot;], &quot;gate&quot;: &quot;Query-specific critical context không bị bỏ âm thầm; estimator không phải billed token.&quot;, &quot;source&quot;: &quot;ai-service/application/context_budget.py&quot;, &quot;next&quot;: [&quot;E07&quot;]}, {&quot;id&quot;: &quot;E07&quot;, &quot;phase&quot;: &quot;E&quot;, &quot;title&quot;: &quot;Đóng prompt context và context hash&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Selected context + brain version&quot;, &quot;outgoing&quot;: &quot;Payload đưa writing LLM + trace IDs/hash&quot;, &quot;control&quot;: &quot;Hash exact packed context; selected/dropped/route metadata&quot;, &quot;issues&quot;: [&quot;OBSERVABILITY&quot;, &quot;CONTEXT-COVERAGE&quot;], &quot;gate&quot;: &quot;Chứng minh prompt đã gửi, tách context preview với actual request; che secrets.&quot;, &quot;source&quot;: &quot;ai-service/application/writing_service.py&quot;, &quot;next&quot;: [&quot;F05&quot;]}, {&quot;id&quot;: &quot;E08&quot;, &quot;phase&quot;: &quot;E&quot;, &quot;title&quot;: &quot;Memory tabs + reload + audit&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Official DB/context + source gold&quot;, &quot;outgoing&quot;: &quot;M0/M-FIRST/FINAL findings&quot;, &quot;control&quot;: &quot;35 gold đã audit;70 rows trên2 context requests; không independent review&quot;, &quot;issues&quot;: [&quot;MEM-CRITICAL-001&quot;, &quot;CONTEXT-COVERAGE&quot;], &quot;gate&quot;: &quot;Mỗi checkpoint có raw/persisted/context/provenance và issue IDs; không count-only.&quot;, &quot;source&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/MEMORY_AUDIT.md&quot;, &quot;next&quot;: [&quot;H02&quot;]}, {&quot;id&quot;: &quot;F01&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Gợi ý future events từ canon&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Approved memory + direction&quot;, &quot;outgoing&quot;: &quot;Future suggestions, chưa thành history&quot;, &quot;control&quot;: &quot;author_operation suggest_events; không lấy pending proposals&quot;, &quot;issues&quot;: [&quot;P2-UNTESTED&quot;], &quot;gate&quot;: &quot;P1 đã sửa1/bỏ1; canon count không tăng do gợi ý.&quot;, &quot;source&quot;: &quot;ai-service/application/author_workflow.py&quot;, &quot;next&quot;: [&quot;F02&quot;]}, {&quot;id&quot;: &quot;F02&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Tác giả chỉnh/lưu/activate plan&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Selected future events + target/min words/ending&quot;, &quot;outgoing&quot;: &quot;Versioned plan/objectives&quot;, &quot;control&quot;: &quot;Có UI add/drop/edit; active run hạn chế sửa plan&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;], &quot;gate&quot;: &quot;Plan version và current objective bền sau reload; chưa thành fact đã xảy ra.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/author-memory-api.ts&quot;, &quot;next&quot;: [&quot;F03&quot;]}, {&quot;id&quot;: &quot;F03&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Yêu cầu viết / sửa / tiếp diễn&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Instruction/style/constraints + selection/revision&quot;, &quot;outgoing&quot;: &quot;Writing job queued&quot;, &quot;control&quot;: &quot;Saved-source/hash/idempotency; pin expected brain/version; offset selection&quot;, &quot;issues&quot;: [&quot;WRITE-INVALID-JSON-001&quot;, &quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Chỉ dùng revision tương ứng nội dung editor; no-op/duplicate action xử lý đúng.&quot;, &quot;source&quot;: &quot;ai-service/application/writing_service.py&quot;, &quot;next&quot;: [&quot;F04&quot;]}, {&quot;id&quot;: &quot;F04&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Recheck brain + chuẩn bị context&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Queued writing job&quot;, &quot;outgoing&quot;: &quot;Pinned context hoặc STALE_BRAIN_VERSION&quot;, &quot;control&quot;: &quot;Không dùng brain mới âm thầm; query từ instruction+selected text&quot;, &quot;issues&quot;: [&quot;CONTEXT-COVERAGE&quot;, &quot;OBSERVABILITY&quot;], &quot;gate&quot;: &quot;Thay memory khi job chờ phải conflict; đủ trace source/request.&quot;, &quot;source&quot;: &quot;ai-service/application/writing_service.py&quot;, &quot;next&quot;: [&quot;E04&quot;]}, {&quot;id&quot;: &quot;F05&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;LLM sinh draft + patch&quot;, &quot;state&quot;: &quot;bad&quot;, &quot;incoming&quot;: &quot;Selected prose + packed memory + instructions&quot;, &quot;outgoing&quot;: &quot;Draft text/patch/model info&quot;, &quot;control&quot;: &quot;Writing có nhánh unstructured; parse JSON thất bại có thể fallback raw&quot;, &quot;issues&quot;: [&quot;WRITE-INVALID-JSON-001&quot;, &quot;PROVIDER-503-001&quot;, &quot;OBSERVABILITY&quot;], &quot;gate&quot;: &quot;Invalid/truncated output fail-closed, không nhận JSON envelope thành prose.&quot;, &quot;source&quot;: &quot;ai-service/core/llm_service.py&quot;, &quot;next&quot;: [&quot;F06&quot;]}, {&quot;id&quot;: &quot;F06&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Validation draft và patch&quot;, &quot;state&quot;: &quot;bad&quot;, &quot;incoming&quot;: &quot;Draft/patch + context&quot;, &quot;outgoing&quot;: &quot;Validation list/status, completed job&quot;, &quot;control&quot;: &quot;Bounds/empty + dead-action/world-rule heuristics; không phải full literary verifier&quot;, &quot;issues&quot;: [&quot;WRITE-INVALID-JSON-001&quot;, &quot;VALIDATION-SCOPE&quot;], &quot;gate&quot;: &quot;Parse/finish/schema/patch/semantic checks có verdict riêng; Unicode offsets; no false assurance.&quot;, &quot;source&quot;: &quot;ai-service/application/writing_service.py&quot;, &quot;next&quot;: [&quot;F07&quot;]}, {&quot;id&quot;: &quot;F07&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;UI xem / bỏ / chấp nhận AI draft&quot;, &quot;state&quot;: &quot;bad&quot;, &quot;incoming&quot;: &quot;Completed job + validations&quot;, &quot;outgoing&quot;: &quot;Reject hoặc accept request&quot;, &quot;control&quot;: &quot;Run đã reject output lỗi; accept branch của run NOT_RUN&quot;, &quot;issues&quot;: [&quot;WRITE-INVALID-JSON-001&quot;, &quot;VALIDATION-SCOPE&quot;], &quot;gate&quot;: &quot;Không accept khi output invalid; wording nói đúng validator đã chạy.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/WritingAssistantPanel.tsx&quot;, &quot;next&quot;: [&quot;F08&quot;]}, {&quot;id&quot;: &quot;F08&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Server verify rồi apply patch&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Generation ID, latest chapter revision&quot;, &quot;outgoing&quot;: &quot;AI_DRAFT_ACCEPT revision + source_generation_id&quot;, &quot;control&quot;: &quot;Fetch trusted generation; validation/freshness/chapter/bounds/no-op/idempotency guards&quot;, &quot;issues&quot;: [&quot;WRITE-INVALID-JSON-001&quot;, &quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Fault injection + live valid accept; same generation không apply2lần; lỗi parse không lọt server.&quot;, &quot;source&quot;: &quot;backend/src/modules/novels/chapter-revisions.service.ts&quot;, &quot;next&quot;: [&quot;B05&quot;, &quot;F09&quot;]}, {&quot;id&quot;: &quot;F09&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Extraction sau lưu → review memory&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Manual save hoặc accepted AI revision&quot;, &quot;outgoing&quot;: &quot;New pending proposals → updated canon&quot;, &quot;control&quot;: &quot;Chung B/C/D; P1 human review, P3 auto review&quot;, &quot;issues&quot;: [&quot;MEM-CRITICAL-001&quot;, &quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Latest prose phản ánh vào memory; không nhầm author text với AI output.&quot;, &quot;source&quot;: &quot;ai-service/application/writing_service.py&quot;, &quot;next&quot;: [&quot;B01&quot;, &quot;E08&quot;]}, {&quot;id&quot;: &quot;F10&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Consistency check riêng&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Saved draft + approved memory&quot;, &quot;outgoing&quot;: &quot;Findings quote + revision ID, không sửa canon&quot;, &quot;control&quot;: &quot;Ground findings bằng exact quote/revision; run An40→19 đã positive/negative pass&quot;, &quot;issues&quot;: [&quot;PROVIDER-503-001&quot;, &quot;VALIDATION-SCOPE&quot;], &quot;gate&quot;: &quot;Không báo quá khả năng; test thêm negation/reported/alias/temporal contradictions.&quot;, &quot;source&quot;: &quot;ai-service/application/author_workflow.py&quot;, &quot;next&quot;: [&quot;B01&quot;]}, {&quot;id&quot;: &quot;F11&quot;, &quot;phase&quot;: &quot;F&quot;, &quot;title&quot;: &quot;Tác giả đề xuất sửa memory/history&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Source revision/quote hoặc event correction&quot;, &quot;outgoing&quot;: &quot;Reviewable correction proposal&quot;, &quot;control&quot;: &quot;Không sửa DB trực tiếp; source/quote/expected version; replacement giữ history&quot;, &quot;issues&quot;: [&quot;EXTRACT-SUBJECT-UNRESOLVED-001&quot;, &quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Sai canon sửa qua UI và reproject không che contradiction nguồn.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/AuthorMemoryRepair.tsx&quot;, &quot;next&quot;: [&quot;D05&quot;]}, {&quot;id&quot;: &quot;G01&quot;, &quot;phase&quot;: &quot;G&quot;, &quot;title&quot;: &quot;Bật full auto + tìm/tạo plan&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Active brain + optional plan&quot;, &quot;outgoing&quot;: &quot;Durable autonomous run/plan&quot;, &quot;control&quot;: &quot;Nếu thiếu plan: suggest through ending, validate future chapter, save/activate&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;], &quot;gate&quot;: &quot;Có/không có direction đều có live paths; không ép người dùng nhập plan.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-controller.service.ts&quot;, &quot;next&quot;: [&quot;G02&quot;]}, {&quot;id&quot;: &quot;G02&quot;, &quot;phase&quot;: &quot;G&quot;, &quot;title&quot;: &quot;Server worker / run lease / stop guard&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Run running + ownership&quot;, &quot;outgoing&quot;: &quot;Một step serialized hoặc terminal return&quot;, &quot;control&quot;: &quot;Max iterations/retries; durable progress; stop kiểm lại trước accept&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;, &quot;PROVIDER-503-001&quot;], &quot;gate&quot;: &quot;Rời browser vẫn tiến triển; crash/stop không duplicate, restart lease đúng.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-controller.service.ts&quot;, &quot;next&quot;: [&quot;G03&quot;]}, {&quot;id&quot;: &quot;G03&quot;, &quot;phase&quot;: &quot;G&quot;, &quot;title&quot;: &quot;Pin plan version, chọn objective&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Sorted objectives/current status&quot;, &quot;outgoing&quot;: &quot;Pending/in_progress objective&quot;, &quot;control&quot;: &quot;Plan conflict409; hết objectives không tự suy hoàn tất nếu chưa review&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;], &quot;gate&quot;: &quot;Không skip objective hoặc âm thầm theo plan mới.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-controller.service.ts&quot;, &quot;next&quot;: [&quot;G04&quot;]}, {&quot;id&quot;: &quot;G04&quot;, &quot;phase&quot;: &quot;G&quot;, &quot;title&quot;: &quot;Chọn/tạo chương và phục hồi accept&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Objective target chapter + latest revision&quot;, &quot;outgoing&quot;: &quot;Chapter/revision + possible existing gen&quot;, &quot;control&quot;: &quot;Crash recovery kiểm sourceGenerationId, last accepted revision&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;, &quot;SNAPSHOT-GAP&quot;], &quot;gate&quot;: &quot;Đã accept nhưng crash không generate/accept lại cùng prose.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-controller.service.ts&quot;, &quot;next&quot;: [&quot;F03&quot;, &quot;G05&quot;]}, {&quot;id&quot;: &quot;G05&quot;, &quot;phase&quot;: &quot;G&quot;, &quot;title&quot;: &quot;Đợi writing và quality gate&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Writing job/patch/version&quot;, &quot;outgoing&quot;: &quot;Accept allowed hoặc bounded retry&quot;, &quot;control&quot;: &quot;Completed + validation passed + patch nonempty/no-op/bounds + brain freshness&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;, &quot;WRITE-INVALID-JSON-001&quot;], &quot;gate&quot;: &quot;Guard không đủ nếu writing đã mislabeled passed; test parse failure xuyên fullauto.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-controller.service.ts&quot;, &quot;next&quot;: [&quot;F08&quot;, &quot;G06&quot;]}, {&quot;id&quot;: &quot;G06&quot;, &quot;phase&quot;: &quot;G&quot;, &quot;title&quot;: &quot;Đợi extraction thật hoàn tất&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Accepted revision + outbox&quot;, &quot;outgoing&quot;: &quot;Wait / failure / COMPLETED analysis&quot;, &quot;control&quot;: &quot;Kiểm tra outbox delivery và entity checkpoint riêng. waiting_for_entity_review: giữ objective, không tăng retries/advance, break loop; sau human continue mới tiếp tục auto.&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;, &quot;ENTITY-HITL&quot;], &quot;gate&quot;: &quot;Fault memory step: giữ objective, recover không viết lại.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-controller.service.ts&quot;, &quot;next&quot;: [&quot;G07&quot;, &quot;X09&quot;]}, {&quot;id&quot;: &quot;G07&quot;, &quot;phase&quot;: &quot;G&quot;, &quot;title&quot;: &quot;Auto-approve đúng revision&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Proposal groups của accepted revision&quot;, &quot;outgoing&quot;: &quot;Advanced brain hoặc memory_update_incomplete&quot;, &quot;control&quot;: &quot;Chỉ P3; current source check; expected version qua từng group&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;, &quot;MEM-CRITICAL-001&quot;, &quot;EXTRACT-SUBJECT-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Auto không có sửa tay cứu; wrong source và semantic wrong không silently accepted.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-memory.service.ts&quot;, &quot;next&quot;: [&quot;G08&quot;]}, {&quot;id&quot;: &quot;G08&quot;, &quot;phase&quot;: &quot;G&quot;, &quot;title&quot;: &quot;Đánh giá objective theo prose&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Actual prose + min_words + objective&quot;, &quot;outgoing&quot;: &quot;achieved + ending_resolved&quot;, &quot;control&quot;: &quot;Word floor trước LLM; terminal cần ending_resolved=true&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;, &quot;FINAL-QUALITY&quot;], &quot;gate&quot;: &quot;Outline/lời hứa/lặp không đạt; đủ chữ chưa đủ kết thúc.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-memory.service.ts&quot;, &quot;next&quot;: [&quot;G09&quot;]}, {&quot;id&quot;: &quot;G09&quot;, &quot;phase&quot;: &quot;G&quot;, &quot;title&quot;: &quot;Advance hoặc viết thêm / stop&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Objective evaluation + remaining objectives&quot;, &quot;outgoing&quot;: &quot;Updated run/checkpoint/stop reason&quot;, &quot;control&quot;: &quot;Chưa đạt→same objective thêm prose; đạt→complete objective; bounds/terminal quyết định&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;, &quot;FINAL-QUALITY&quot;], &quot;gate&quot;: &quot;Terminal semantic gate và total manuscript acceptance độc lập; no infinite loop.&quot;, &quot;source&quot;: &quot;backend/src/modules/ai/autonomous-controller.service.ts&quot;, &quot;next&quot;: [&quot;G03&quot;, &quot;H01&quot;]}, {&quot;id&quot;: &quot;H01&quot;, &quot;phase&quot;: &quot;H&quot;, &quot;title&quot;: &quot;S01–S11 và gate vòng ngắn&quot;, &quot;state&quot;: &quot;bad&quot;, &quot;incoming&quot;: &quot;UI actions + source/evidence&quot;, &quot;outgoing&quot;: &quot;Step verdict + blockers&quot;, &quot;control&quot;: &quot;Run hiện PARTIAL_GATE_FAILED; S09 unfinished; S10 pass sau retry&quot;, &quot;issues&quot;: [&quot;MEM-CRITICAL-001&quot;, &quot;WRITE-INVALID-JSON-001&quot;, &quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Sửa blockers rồi run mới, giữ gold/evidence cũ; không API write cứu UI.&quot;, &quot;source&quot;: &quot;Pipeline_test/AGENT_GUIDE.md&quot;, &quot;next&quot;: [&quot;H02&quot;]}, {&quot;id&quot;: &quot;H02&quot;, &quot;phase&quot;: &quot;H&quot;, &quot;title&quot;: &quot;M0 / M-FIRST /10/20/50/FINAL&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Raw proposals/canon/context/manifest&quot;, &quot;outgoing&quot;: &quot;Memory audit riêng cho P1/P2/P3&quot;, &quot;control&quot;: &quot;Recovery có M0/M-FIRST/FINAL;10/20/50 và P2/P3 NOT_RUN&quot;, &quot;issues&quot;: [&quot;MEM-CRITICAL-001&quot;, &quot;SEMANTIC-UNVERIFIED&quot;], &quot;gate&quot;: &quot;Đủ source→raw→persisted→packed trace; critical/uncertainty/provenance đúng; đo entity riêng.&quot;, &quot;source&quot;: &quot;Pipeline_test/AGENT_GUIDE.md&quot;, &quot;next&quot;: [&quot;H03&quot;]}, {&quot;id&quot;: &quot;H03&quot;, &quot;phase&quot;: &quot;H&quot;, &quot;title&quot;: &quot;Đọc và đánh giá bản thảo cuối&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Prose thực + blueprint/objectives&quot;, &quot;outgoing&quot;: &quot;Completeness/literary/continuity judgments&quot;, &quot;control&quot;: &quot;Không lấy completed jobs, objective count hoặc số chữ làm toàn bộ verdict&quot;, &quot;issues&quot;: [&quot;FINAL-QUALITY&quot;], &quot;gate&quot;: &quot;95–105k theo test; ending/payoffs/POV/pacing/repetition/knowledge audited độc lập.&quot;, &quot;source&quot;: &quot;Pipeline_test/AGENT_GUIDE.md&quot;, &quot;next&quot;: [&quot;H04&quot;]}, {&quot;id&quot;: &quot;H04&quot;, &quot;phase&quot;: &quot;H&quot;, &quot;title&quot;: &quot;Export readback + attribution&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Latest saved revisions&quot;, &quot;outgoing&quot;: &quot;Text files + SHA256/word counts/lineage&quot;, &quot;control&quot;: &quot;Test tooling export; không khẳng định product có full-book export UI&quot;, &quot;issues&quot;: [&quot;FINAL-QUALITY&quot;, &quot;OBSERVABILITY&quot;], &quot;gate&quot;: &quot;Mọi file khớp source bytes; AI/manual attribution rõ; không ghép output chưa accept.&quot;, &quot;source&quot;: &quot;Pipeline_test/AGENT_GUIDE.md&quot;, &quot;next&quot;: [&quot;H05&quot;]}, {&quot;id&quot;: &quot;H05&quot;, &quot;phase&quot;: &quot;H&quot;, &quot;title&quot;: &quot;Báo cáo/checkpoint/issues + quyết định&quot;, &quot;state&quot;: &quot;ok&quot;, &quot;incoming&quot;: &quot;Evidence và kết quả thực&quot;, &quot;outgoing&quot;: &quot;PASS/PARTIAL/FAIL, resume chính xác&quot;, &quot;control&quot;: &quot;5 outbox unfinished; backend/AI riêng đã dừng, không reset DB&quot;, &quot;issues&quot;: [&quot;OPS-RECOVERED&quot;, &quot;PROVIDER-503-001&quot;], &quot;gate&quot;: &quot;Không ghi NOT_RUN thành PASS; resolved guard khác feature success; reviewer độc lập rõ.&quot;, &quot;source&quot;: &quot;Pipeline_test/AGENT_GUIDE.md&quot;, &quot;next&quot;: [&quot;H06&quot;]}, {&quot;id&quot;: &quot;H06&quot;, &quot;phase&quot;: &quot;H&quot;, &quot;title&quot;: &quot;Publish là hành động tác giả riêng&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Tác giả chủ động chọn xuất bản&quot;, &quot;outgoing&quot;: &quot;Moderation/published platform state&quot;, &quot;control&quot;: &quot;Fullauto chỉ draft; publish ngoài quyền tự duyệt memory&quot;, &quot;issues&quot;: [&quot;P3-UNTESTED&quot;], &quot;gate&quot;: &quot;Kiểm chứng không publish trong mọi AI/test path; không cần publish để đạt test.&quot;, &quot;source&quot;: &quot;backend/src/modules/novels/chapters.service.ts&quot;, &quot;next&quot;: []}, {&quot;id&quot;: &quot;J01&quot;, &quot;phase&quot;: &quot;J&quot;, &quot;title&quot;: &quot;Preflight stack/source/schema/auth&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Code fingerprint/ports/migrations/provider&quot;, &quot;outgoing&quot;: &quot;Môi trường ready hoặc blocked&quot;, &quot;control&quot;: &quot;Đối chiếu source/schema/config; luồng mới cần migration0011/0012; không restart stack cũ có5 durable retries chưa xử lý.&quot;, &quot;issues&quot;: [&quot;OPS-RECOVERED&quot;], &quot;gate&quot;: &quot;Read-only preflight trước run; provider health không đồng nghĩa mọi call sẽ200.&quot;, &quot;source&quot;: &quot;Pipeline_test/runs/2026-10-19-reanalysis-recovery/REPORT.md&quot;, &quot;next&quot;: [&quot;A01&quot;, &quot;A05&quot;, &quot;G01&quot;]}, {&quot;id&quot;: &quot;J02&quot;, &quot;phase&quot;: &quot;J&quot;, &quot;title&quot;: &quot;Structured call/schema/trace&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Operation/system/user/source scope&quot;, &quot;outgoing&quot;: &quot;Provider response + metadata&quot;, &quot;control&quot;: &quot;Source/hash/model/finish/usage tracing; validate schemas tại từng service&quot;, &quot;issues&quot;: [&quot;OBSERVABILITY&quot;, &quot;PROVIDER-503-001&quot;], &quot;gate&quot;: &quot;Malformed/truncated/timeout phân loại; tất cả writing/extraction có source trace.&quot;, &quot;source&quot;: &quot;ai-service/core/structured_call.py&quot;, &quot;next&quot;: [&quot;J03&quot;]}, {&quot;id&quot;: &quot;J03&quot;, &quot;phase&quot;: &quot;J&quot;, &quot;title&quot;: &quot;Định tuyến model/limits/fallback&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Requested model/provider + config&quot;, &quot;outgoing&quot;: &quot;Effective model và output&quot;, &quot;control&quot;: &quot;Runtime Gemini flash-lite observed cho extraction; fallback phụ thuộc config&quot;, &quot;issues&quot;: [&quot;OBSERVABILITY&quot;, &quot;PROVIDER-503-001&quot;], &quot;gate&quot;: &quot;Không silent simulated success; output-limit/model change được report đúng.&quot;, &quot;source&quot;: &quot;ai-service/core/llm_service.py&quot;, &quot;next&quot;: [&quot;J04&quot;]}, {&quot;id&quot;: &quot;J04&quot;, &quot;phase&quot;: &quot;J&quot;, &quot;title&quot;: &quot;Repair tại chỗ và retry outbox&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Schema/grounding/reconciliation/provider error&quot;, &quot;outgoing&quot;: &quot;Repair / delayed retry / terminal failure&quot;, &quot;control&quot;: &quot;Quote max2 repairs; canon3 total; outbox max5 mặc định; backoff riêng&quot;, &quot;issues&quot;: [&quot;PROVIDER-503-001&quot;, &quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;], &quot;gate&quot;: &quot;Semantic invalid không bắn lại tốn phí vô hạn; counters/traces không lẫn.&quot;, &quot;source&quot;: &quot;ai-service/core/structured_call.py&quot;, &quot;next&quot;: [&quot;J05&quot;, &quot;B06&quot;]}, {&quot;id&quot;: &quot;J05&quot;, &quot;phase&quot;: &quot;J&quot;, &quot;title&quot;: &quot;Ngân sách / cancel / durable resume&quot;, &quot;state&quot;: &quot;mixed&quot;, &quot;incoming&quot;: &quot;Jobs/calls/time/stop request&quot;, &quot;outgoing&quot;: &quot;Checkpoint với source/version/queue&quot;, &quot;control&quot;: &quot;104 HTTP responses observed; stop2 isolated services để không retry ngầm&quot;, &quot;issues&quot;: [&quot;OBSERVABILITY&quot;, &quot;OPS-RECOVERED&quot;, &quot;P3-UNTESTED&quot;], &quot;gate&quot;: &quot;Cap quan sát được; stop không publish/mất data; lần resume đọc DB trạng thái thật.&quot;, &quot;source&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/checkpoint.json&quot;, &quot;next&quot;: []}, {&quot;id&quot;: &quot;X01&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Chia đoạn cho entity discovery&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Prose gốc + paragraph/whitespace boundaries&quot;, &quot;outgoing&quot;: &quot;Chunks khoảng4000 ký tự, overlap256; absolute Unicode offsets&quot;, &quot;control&quot;: &quot;Tối đa32 chunks; chỉ discovery chia đoạn, không phải event/fact&quot;, &quot;issues&quot;: [&quot;CHUNKING-GAP&quot;, &quot;ENTITY-HITL&quot;], &quot;gate&quot;: &quot;Unicode/overlap/cap đã có offline tests; live source dài chưa chạy.&quot;, &quot;source&quot;: &quot;ai-service/services/entity_pipeline/candidates.py&quot;, &quot;next&quot;: [&quot;X02&quot;]}, {&quot;id&quot;: &quot;X02&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Gom ứng viên recall cao + tên tăng cường&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Chunks + canonical registry/aliases + hints + patterns + LLM discovery&quot;, &quot;outgoing&quot;: &quot;Occurrences có offsets/context/origins; tên vắng không thành mention&quot;, &quot;control&quot;: &quot;Tên/danh xưng/mã; max1024 candidates; vượt cap fail rõ; registry bulk2 queries, không query từng tên&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;, &quot;ENTITY-COVERAGE&quot;], &quot;gate&quot;: &quot;Đo recall và chi phí với gold riêng; hints sai/vắng không tạo sự kiện.&quot;, &quot;source&quot;: &quot;ai-service/services/entity_pipeline/candidates.py&quot;, &quot;next&quot;: [&quot;X03&quot;]}, {&quot;id&quot;: &quot;X03&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;LLM xét từng occurrence có ngữ cảnh&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Candidate + context + known IDs + guidance không phải chứng cứ&quot;, &quot;outgoing&quot;: &quot;entity / not_entity / unresolved + reason, alias/status quote&quot;, &quot;control&quot;: &quot;Batch24; đúng1 quyết định mỗi ID; tối đa2 attempts/batch; không auto materialize xung đột danh tính&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;, &quot;ENTITY-HOMONYM&quot;], &quot;gate&quot;: &quot;Offline negative control An/an toàn và malformed PASS; cần live kiểm precision/recall.&quot;, &quot;source&quot;: &quot;ai-service/services/entity_pipeline/verification.py&quot;, &quot;next&quot;: [&quot;X09&quot;]}, {&quot;id&quot;: &quot;X04&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Đóng băng inventory đã duyệt&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Tất cả occurrence đã được tác giả quyết định + canonical registry&quot;, &quot;outgoing&quot;: &quot;entities_reviewed; identity/alias/type/spans, source hash và guidance/review version&quot;, &quot;control&quot;: &quot;Không unresolved; alias phải có bằng chứng; canonical ID/type phải khớp; chặn merge sai và identity lạ&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;, &quot;ENTITY-COVERAGE&quot;], &quot;gate&quot;: &quot;Tiếp tục dùng checkpoint, không gọi lại entity LLM; nguồn cũ bị gateway409.&quot;, &quot;source&quot;: &quot;ai-service/application/entity_review_service.py&quot;, &quot;next&quot;: [&quot;C04&quot;, &quot;X10&quot;]}, {&quot;id&quot;: &quot;X05&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Extract event/fact theo chunks&quot;, &quot;state&quot;: &quot;proposal&quot;, &quot;incoming&quot;: &quot;Verified entity inventory + context-overlap&quot;, &quot;outgoing&quot;: &quot;Grounded source-bound assertions&quot;, &quot;control&quot;: &quot;Dùng inventory chung; giữ modality/subject; đoạn phụ trợ không thành event mới&quot;, &quot;issues&quot;: [&quot;CANDIDATE-PROPOSAL&quot;, &quot;MEM-CRITICAL-001&quot;], &quot;gate&quot;: &quot;Cross-chunk coreference, repeated scenes và knowledge constraints có gold.&quot;, &quot;source&quot;: &quot;ai-service/application/entity_review_service.py&quot;, &quot;next&quot;: [&quot;X06&quot;]}, {&quot;id&quot;: &quot;X06&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Hợp nhất/dedup + coverage audit&quot;, &quot;state&quot;: &quot;proposal&quot;, &quot;incoming&quot;: &quot;Chunk results + absolute spans&quot;, &quot;outgoing&quot;: &quot;One chapter proposal inventory&quot;, &quot;control&quot;: &quot;Dedup occurrence/meaning, không chỉ exact text; rà lại source coverage&quot;, &quot;issues&quot;: [&quot;CANDIDATE-PROPOSAL&quot;, &quot;CHUNKING-GAP&quot;], &quot;gate&quot;: &quot;So sánh cùng35 gold + entity gold trước/sau; đo chi phí/latency, không chỉ count.&quot;, &quot;source&quot;: &quot;ai-service/application/entity_review_service.py&quot;, &quot;next&quot;: [&quot;D01&quot;]}, {&quot;id&quot;: &quot;X07&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Rollout có cờ và regression gates&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Candidate/verified results + offline tests + live benchmark chưa chạy&quot;, &quot;outgoing&quot;: &quot;Flag OFF mặc định; cần migration0011/0012 và isolated retest&quot;, &quot;control&quot;: &quot;ENTITY_CANDIDATE_VERIFICATION_ENABLED=true mới bật gate cho revision; legacy endpoints không tự đổi&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;, &quot;P2-UNTESTED&quot;, &quot;P3-UNTESTED&quot;], &quot;gate&quot;: &quot;S01–S11 +35 gold, M0/10/20/50 và 100k chưa được mở chỉ vì unit tests PASS.&quot;, &quot;source&quot;: &quot;Pipeline_test/GEMINI_HUMAN_ENTITY_REVIEW_RETEST.md&quot;, &quot;next&quot;: [&quot;C13&quot;]}, {&quot;id&quot;: &quot;X08&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Danh sách tăng cường tùy chọn&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Tác giả nhập tên; API hỗ trợ type/alias/notes và hint/declared&quot;, &quot;outgoing&quot;: &quot;Guidance version riêng, không vào approved memory/context&quot;, &quot;control&quot;: &quot;UI mỗi dòng1 tên; optimistic version; tối đa256 entries/512 names; tên chỉ là chỉ dẫn tìm kiếm&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;], &quot;gate&quot;: &quot;Tên sai/vắng không tạo entity/occurrence/event; mất cập nhật bị409.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/EntityExtractionReview.tsx&quot;, &quot;next&quot;: [&quot;X01&quot;, &quot;X11&quot;]}, {&quot;id&quot;: &quot;X09&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Dừng để tác giả duyệt entity&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Inventory + machine decisions + source offsets/context&quot;, &quot;outgoing&quot;: &quot;waiting_entity_review; chưa extract event/fact, chưa lưu partial proposals&quot;, &quot;control&quot;: &quot;Nhóm cùng tên/identity/verdict; xem từng occurrence; giữ/loại/sửa type/name/alias; unresolved bắt buộc xử lý&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;], &quot;gate&quot;: &quot;P1 job dừng đúng chương; P3 không approve/advance; đủ decision mới freeze.&quot;, &quot;source&quot;: &quot;web/src/features/ai-copilot/EntityExtractionReview.tsx&quot;, &quot;next&quot;: [&quot;X04&quot;, &quot;X10&quot;]}, {&quot;id&quot;: &quot;X10&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Bổ sung tên hoặc gặp identity mới&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Guidance version đổi hoặc event/fact nhắc identity ngoài inventory&quot;, &quot;outgoing&quot;: &quot;Quay lại checkpoint entity; giữ quyết định còn hợp lệ&quot;, &quot;control&quot;: &quot;Hint đổi: rerun riêng entity, không chạy event/fact; ID/context/machine decision còn khớp mới giữ author decision; downstream unknown không tự tạo&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;], &quot;gate&quot;: &quot;Source/hash/novel/policy/version độc lập; không mất review hợp lệ sau reload, không lưu group dở.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;next&quot;: [&quot;X01&quot;, &quot;X09&quot;]}, {&quot;id&quot;: &quot;X11&quot;, &quot;phase&quot;: &quot;X&quot;, &quot;title&quot;: &quot;Tác giả trực tiếp khai báo entity&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Tên + loại do tác giả xác nhận; không cần quote chương&quot;, &quot;outgoing&quot;: &quot;Proposal source_type=author_declaration, initial_status Unknown&quot;, &quot;control&quot;: &quot;Duyệt qua queue bình thường mới thành canon; không gắn chapter occurrence/event; tên đã có yêu cầu correction riêng&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;], &quot;gate&quot;: &quot;Không overwrite/auto-merge entity đã duyệt; sau approve registry hỗ trợ LLM normalization bằng proposal.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;next&quot;: [&quot;D05&quot;]}, {&quot;id&quot;: &quot;C13&quot;, &quot;phase&quot;: &quot;C&quot;, &quot;title&quot;: &quot;Chọn đường legacy hay human review&quot;, &quot;state&quot;: &quot;code&quot;, &quot;incoming&quot;: &quot;Flag + extract_entities option + immutable revision&quot;, &quot;outgoing&quot;: &quot;OFF→legacy; ON→entity review gate&quot;, &quot;control&quot;: &quot;Mặc định OFF; UI báo rõ khi server chưa bật. P2 setup có hints và review entity riêng; P1/P3 revision dùng gate X&quot;, &quot;issues&quot;: [&quot;ENTITY-HITL&quot;], &quot;gate&quot;: &quot;Migrations/code/config phải đồng bộ; outbox delivered không đồng nghĩa downstream analysis completed.&quot;, &quot;source&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;next&quot;: [&quot;C03&quot;, &quot;X08&quot;]}], &quot;issues&quot;: {&quot;MEM-CRITICAL-001&quot;: {&quot;id&quot;: &quot;MEM-CRITICAL-001&quot;, &quot;title&quot;: &quot;Bỏ sót hoặc sai nghĩa facts gold&quot;, &quot;kind&quot;: &quot;live&quot;, &quot;detail&quot;: &quot;35 assertions gồm facts/events/uncertainty, KHÔNG phải 35 entities. Raw:15 PASS/16 FAIL/4 PARTIAL. Sau review:13 PASS/19 FAIL/2 PARTIAL/1 author wording. Chưa đo precision toàn187 proposals.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/m0-gold-manual.json&quot;, &quot;close&quot;: &quot;Retest cùng35 gold cố định; critical assertions đúng nội dung/certainty/provenance; báo raw và sau sửa riêng, không dùng đếm records làm recall.&quot;}, &quot;ENTITY-COVERAGE&quot;: {&quot;id&quot;: &quot;ENTITY-COVERAGE&quot;, &quot;title&quot;: &quot;Chưa chứng minh entity recall và alias&quot;, &quot;kind&quot;: &quot;mixed&quot;, &quot;detail&quot;: &quot;Đã có candidate inventory/chunk discovery/verification + human gate dưới flagOFF. Chưa đo live candidate recall/verified recall/alias precision; không suy ra coverage từ số records hoặc15/35 gold.&quot;, &quot;evidence&quot;: &quot;ai-service/services/entity_pipeline/pipeline.py; Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/m0-after-review/official-memory.json&quot;, &quot;close&quot;: &quot;Tạo gold entity/mention/alias riêng; đo candidate recall, verified recall và false merge; cover tên lạ, vật phẩm có mã và danh xưng.&quot;}, &quot;ENTITY-HOMONYM&quot;: {&quot;id&quot;: &quot;ENTITY-HOMONYM&quot;, &quot;title&quot;: &quot;An bị bám vào chữ “an” trong “an toàn”&quot;, &quot;kind&quot;: &quot;live&quot;, &quot;detail&quot;: &quot;Có span thật nhưng ngữ cảnh không phải người An; tác giả đã loại proposal tương ứng. Grounding hình thức không chứng minh nghĩa.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/s02-raw/proposals-pending.json&quot;, &quot;close&quot;: &quot;Negative control an toàn/an tâm không tạo mention của An; quyết định theo từng occurrence có offset/ngữ cảnh.&quot;}, &quot;EXTRACT-SUBJECT-UNRESOLVED-001&quot;: {&quot;id&quot;: &quot;EXTRACT-SUBJECT-UNRESOLVED-001&quot;, &quot;title&quot;: &quot;Subject không phân giải được&quot;, &quot;kind&quot;: &quot;live&quot;, &quot;detail&quot;: &quot;INVALID_PROJECTION với Unknown/generic subjects. M0 cần28 unique fact edits và3 numeric rejections; subject prompt chưa được ràng buộc đủ trước review.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/s03-applied-repairs-ui.json&quot;, &quot;close&quot;: &quot;Mọi confirmed subject có canonical ID hoặc trạng thái unresolved rõ; không tự tạo Unknown entity; numeric/general fact sửa được và không mất assertion.&quot;}, &quot;REVIEW-EDITS-RESET-001&quot;: {&quot;id&quot;: &quot;REVIEW-EDITS-RESET-001&quot;, &quot;title&quot;: &quot;Duyệt nhóm làm mất edits nhóm khác&quot;, &quot;kind&quot;: &quot;mixed&quot;, &quot;detail&quot;: &quot;Đã sửa code: approve nhómA chỉ xóa editsA. Chưa có live UI regression chứng minh giữ editsB qua refetch/reload; hạn chế typed editing vẫn còn.&quot;, &quot;evidence&quot;: &quot;web/src/features/ai-copilot/AuthorMemoryPanel.tsx; Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/s03-current-group-93.json&quot;, &quot;close&quot;: &quot;Hai nhóm cùng có edits; approve nhómA chỉ xóa editsA, editsB giữ nguyên sau refetch và có cơ chế tránh mất do reload.&quot;}, &quot;WRITE-INVALID-JSON-001&quot;: {&quot;id&quot;: &quot;WRITE-INVALID-JSON-001&quot;, &quot;title&quot;: &quot;JSON dang dở vẫn được coi là prose&quot;, &quot;kind&quot;: &quot;live&quot;, &quot;detail&quot;: &quot;Generation completed với JSON chưa đóng; parse fallback sang raw; UI ghi đã kiểm định và cho accept. Tester đã bỏ qua, không thực hiện accept bản lỗi.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/s07-generated-before-accept/writing-generations.json&quot;, &quot;close&quot;: &quot;Malformed/truncated/empty output phải failed có lý do, không accept được ở UI/server; output prose hợp lệ vẫn qua. Không khẳng định MAX_TOKENS khi thiếu finish-reason.&quot;}, &quot;EXTRACT-ROLE-CONFUSION-001&quot;: {&quot;id&quot;: &quot;EXTRACT-ROLE-CONFUSION-001&quot;, &quot;title&quot;: &quot;Nhầm vai trò và trạng thái&quot;, &quot;kind&quot;: &quot;live&quot;, &quot;detail&quot;: &quot;Nhóm người rời trạm bị chuyển thành trạm Bốn status=Rời đi; tác giả loại. Một số phát biểu chưa xác nhận bị nâng thành confirmed.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/s08-author-edits.json; Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/m0-gold-manual.json&quot;, &quot;close&quot;: &quot;Kiểm tra subject–predicate–value và certainty; station không nhận human action/life status; phủ định/đồn đoán không đổi confirmed state.&quot;}, &quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;: {&quot;id&quot;: &quot;REANALYSIS-LIVE-UNRESOLVED-001&quot;, &quot;title&quot;: &quot;Reconciliation không ra quyết định hợp lệ&quot;, &quot;kind&quot;: &quot;live&quot;, &quot;detail&quot;: &quot;UI và outbox trả CANON_RECONCILIATION_UNRESOLVED, attempts=3; canon target/kind không hợp lệ. Guard đã chặn partial group nhưng chức năng vẫn FAIL.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/reanalysis-result-ui.txt; Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/final/outbox.json&quot;, &quot;close&quot;: &quot;Reanalyse cùng revision ra nhóm đúng; many-reuse giữ IDs; replace/removed có nguồn; không đổi thành new để né lỗi; lỗi vẫn atomic/actionable.&quot;}, &quot;GROUNDING-GUARD&quot;: {&quot;id&quot;: &quot;GROUNDING-GUARD&quot;, &quot;title&quot;: &quot;Quote mơ hồ: guard đã sửa, live case chưa đủ&quot;, &quot;kind&quot;: &quot;mixed&quot;, &quot;detail&quot;: &quot;Unique span và bounded quote repair đã có test. Facts grounding unresolved làm fail analysis; event quote không ground được có thể bị bỏ qua, entity status có thể hạ Unknown.&quot;, &quot;evidence&quot;: &quot;ai-service/services/source_grounding.py; Pipeline_test/runs/2026-10-19-recovery-ui-01/../2026-10-19-reanalysis-recovery/REPORT.md&quot;, &quot;close&quot;: &quot;Quote lặp cần mở rộng ngữ cảnh đúng; bảo toàn Unicode offset/hash. Báo rõ số event bị bỏ qua, không coi schema success là coverage pass.&quot;}, &quot;GATEWAY-KEY&quot;: {&quot;id&quot;: &quot;GATEWAY-KEY&quot;, &quot;title&quot;: &quot;Reanalysis Idempotency-Key đã sửa&quot;, &quot;kind&quot;: &quot;mixed&quot;, &quot;detail&quot;: &quot;UI tạo khóa mới cho action, gateway scoped/hash và forward. Live đã qua gateway tới reconciliation; chưa có reanalysis thành công end-to-end.&quot;, &quot;evidence&quot;: &quot;backend/src/modules/ai/ai-gateway.controller.ts; Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/reanalysis-result-ui.txt&quot;, &quot;close&quot;: &quot;Retry cùng action không tạo duplicate; action phân tích lại mới có run mới đúng canon; route không thiếu header, không tràn chiều dài key.&quot;}, &quot;PROVIDER-503-001&quot;: {&quot;id&quot;: &quot;PROVIDER-503-001&quot;, &quot;title&quot;: &quot;Gemini quá tải và retry&quot;, &quot;kind&quot;: &quot;live&quot;, &quot;detail&quot;: &quot;503 high demand; consistency cần retry. Kết thúc run còn5 outbox unfinished; backend/AI stack test riêng đã được dừng có chủ đích.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/stopped-checkpoint.json; Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/provider-http-attempts.json&quot;, &quot;close&quot;: &quot;Phân loại provider/semantic/schema errors, retry có giới hạn và quan sát chi phí; restart đọc lease/state, không gọi lặp mù.&quot;}, &quot;CONTEXT-COVERAGE&quot;: {&quot;id&quot;: &quot;CONTEXT-COVERAGE&quot;, &quot;title&quot;: &quot;Context pack chưa chứng minh đủ thông tin cần thiết&quot;, &quot;kind&quot;: &quot;live&quot;, &quot;detail&quot;: &quot;70 hàng kiểm tra là35 assertions trên2 request cố định Linh/cutoff5, không phải70 retrieval calls. 4k:3 present/11 dropped/21 upstream gap;8192:6/8/21. Không yêu cầu pack tất cả gold cùng lúc.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/memory_probes.csv; Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/m0-after-review/&quot;, &quot;close&quot;: &quot;Mỗi tác vụ có expected/forbidden riêng; trace retrieved/selected/dropped và source version; phân biệt thiếu upstream với bị pack bỏ; kiểm chứng prompt thực.&quot;}, &quot;SEMANTIC-UNVERIFIED&quot;: {&quot;id&quot;: &quot;SEMANTIC-UNVERIFIED&quot;, &quot;title&quot;: &quot;Semantic/embedding chưa chứng minh live&quot;, &quot;kind&quot;: &quot;untested&quot;, &quot;detail&quot;: &quot;Code có derived event embeddings, retrieval và fallback. Run này chưa đủ bằng chứng query/candidate/rank/embedding version để kết luận semantic lane đạt.&quot;, &quot;evidence&quot;: &quot;ai-service/application/semantic_memory_service.py; ai-service/application/semantic_retriever.py&quot;, &quot;close&quot;: &quot;Backfill/update/retire embeddings, lỗi provider/fallback, cutoff và tenant isolation phải có live evidence; không đồng nhất semantic chunk với extraction chunk.&quot;}, &quot;STATE-OPTIONS&quot;: {&quot;id&quot;: &quot;STATE-OPTIONS&quot;, &quot;title&quot;: &quot;Bootstrap và incremental khác cấu hình&quot;, &quot;kind&quot;: &quot;gap&quot;, &quot;detail&quot;: &quot;Bootstrap bật state transitions; API incremental mặc định tắt. check_consistency/build_embeddings có schema nhưng RevisionAnalysisService không tự thực thi chỉ vì option=true.&quot;, &quot;evidence&quot;: &quot;ai-service/api/schemas.py; ai-service/application/revision_analysis_service.py&quot;, &quot;close&quot;: &quot;Thống nhất contract từng mode, trả effective options; có test execution trace, không ngầm hứa consistency từ một cờ chưa dùng.&quot;}, &quot;CHUNKING-GAP&quot;: {&quot;id&quot;: &quot;CHUNKING-GAP&quot;, &quot;title&quot;: &quot;Event/fact chưa chia nhỏ chương&quot;, &quot;kind&quot;: &quot;gap&quot;, &quot;detail&quot;: &quot;Entity discovery đã có overlap/absolute offsets dưới flag. Event/fact/coverage vẫn toàn chương; _split_scenes chỉ đếm. Chưa merge assertions theo chunk.&quot;, &quot;evidence&quot;: &quot;ai-service/application/bootstrap_service.py; ai-service/application/revision_analysis_service.py&quot;, &quot;close&quot;: &quot;Nếu bổ sung chunking: offset tuyệt đối, overlap dedup, ngữ cảnh nối đoạn và gold so sánh; không coi chunking tự động bảo đảm đủ entities/facts.&quot;}, &quot;P2-UNTESTED&quot;: {&quot;id&quot;: &quot;P2-UNTESTED&quot;, &quot;title&quot;: &quot;Luồng ý tưởng chưa retest live&quot;, &quot;kind&quot;: &quot;untested&quot;, &quot;detail&quot;: &quot;UI dùng mode=extract; backend còn mode=blueprint tạo nội dung mới. P2 NOT_RUN trong recovery run; không lấy P1 PASS cục bộ suy ra P2 PASS.&quot;, &quot;evidence&quot;: &quot;ai-service/application/bootstrap_service.py; Pipeline_test/WORKFLOW_CONTRACT.md&quot;, &quot;close&quot;: &quot;Đầu vào setup giữ ràng buộc, chỉ trích phần đã cung cấp; outline chưa thành lịch sử; duyệt/init→chương đầu→M-FIRST có evidence riêng.&quot;}, &quot;P3-UNTESTED&quot;: {&quot;id&quot;: &quot;P3-UNTESTED&quot;, &quot;title&quot;: &quot;Full auto chưa chứng minh toàn hành trình&quot;, &quot;kind&quot;: &quot;untested&quot;, &quot;detail&quot;: &quot;Controller có planning/generate/accept/auto-approve/evaluate/stop. Recovery run không chạy P3;0 pending proposals không đủ chứng minh extraction hoàn tất.&quot;, &quot;evidence&quot;: &quot;backend/src/modules/ai/autonomous-controller.service.ts; Pipeline_test/runs/2026-10-19-recovery-ui-01/REPORT.md&quot;, &quot;close&quot;: &quot;Nhiều objectives; lỗi memory không advance; crash/resume không sinh/accept trùng; stop/restart/terminal; không publish; 100k có content audit thật.&quot;}, &quot;VALIDATION-SCOPE&quot;: {&quot;id&quot;: &quot;VALIDATION-SCOPE&quot;, &quot;title&quot;: &quot;Kiểm định writing còn giới hạn&quot;, &quot;kind&quot;: &quot;gap&quot;, &quot;detail&quot;: &quot;Có patch offsets/empty check và quy tắc heuristic (dead action/world rules). Không tương đương full literary/semantic consistency; UI wording có thể nói quá mức đã kiểm tra.&quot;, &quot;evidence&quot;: &quot;ai-service/application/writing_service.py; web/src/features/ai-copilot/WritingAssistantPanel.tsx&quot;, &quot;close&quot;: &quot;Hiển thị validator nào đã chạy; tách parse/patch/consistency/literary verdict; kiểm tra Unicode, flashback, quote, negation; không gắn nhãn đã kiểm định chung.&quot;}, &quot;FINAL-QUALITY&quot;: {&quot;id&quot;: &quot;FINAL-QUALITY&quot;, &quot;title&quot;: &quot;Chưa hoàn thành hoặc đánh giá tiểu thuyết dài&quot;, &quot;kind&quot;: &quot;untested&quot;, &quot;detail&quot;: &quot;Run có4992 từ =4747 fixture +245 tác giả viết,6 drafts, không có chương mới hoàn chỉnh;100k/P2/P3 NOT_RUN. Không có literary score độc lập.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/REPORT.md; Pipeline_test/runs/2026-10-19-recovery-ui-01/revision_manifest.csv&quot;, &quot;close&quot;: &quot;95–105k theo task, ending/payoffs/continuity/POV/repetition kiểm tra; source attribution và independent review; word count hoặc completed jobs không đủ.&quot;}, &quot;SNAPSHOT-GAP&quot;: {&quot;id&quot;: &quot;SNAPSHOT-GAP&quot;, &quot;title&quot;: &quot;Save và memory có thể lệch thời điểm&quot;, &quot;kind&quot;: &quot;mixed&quot;, &quot;detail&quot;: &quot;Revision/outbox/provenance có guard. S08 stale proposal đã bị chặn. S09 saves chồng nhau chưa hoàn tất dedup; cuối run5 jobs chưa xong. Phiên auth hết hạn đã phải đăng nhập lại.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/s08-stale-rejection-ui.txt; Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/stopped-checkpoint.json&quot;, &quot;close&quot;: &quot;Save success có readback; latest revision eventual extraction; stale results không apply; duplicate/no-op save không tạo canon trùng; restart phục hồi lease có evidence.&quot;}, &quot;OBSERVABILITY&quot;: {&quot;id&quot;: &quot;OBSERVABILITY&quot;, &quot;title&quot;: &quot;Trace chưa phủ đều tất cả các call&quot;, &quot;kind&quot;: &quot;gap&quot;, &quot;detail&quot;: &quot;Structured traces có source/hash/model/finish/usage. Writing unstructured chưa có finish reason đủ chứng minh lỗi cắt.104 observed HTTP responses không phải tổng billed calls.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/provider-traces-progress.json; Pipeline_test/runs/2026-10-19-recovery-ui-01/REPORT.md&quot;, &quot;close&quot;: &quot;Trace xuyên UI→revision→analysis→proposal→canon→retrieval→generation; request/response hashes +model/effective options/usage/finish, che secrets, không log nguyên prose mặc định.&quot;}, &quot;CANDIDATE-PROPOSAL&quot;: {&quot;id&quot;: &quot;CANDIDATE-PROPOSAL&quot;, &quot;title&quot;: &quot;Event/fact chunk merge còn là đề xuất&quot;, &quot;kind&quot;: &quot;proposal&quot;, &quot;detail&quot;: &quot;Entity candidates/verification/human gate đã có code opt-in. Phần chưa triển khai: event/fact theo chunk, merge assertions/coreference cross-chunk và coverage audit độc lập.&quot;, &quot;evidence&quot;: &quot;ai-service/application/revision_analysis_service.py&quot;, &quot;close&quot;: &quot;Đo candidate recall và final precision/alias accuracy riêng; mỗi ứng viên có verdict; kiểm tra chunk boundaries/overlap, ambiguous names và chi phí trước rollout.&quot;}, &quot;OPS-RECOVERED&quot;: {&quot;id&quot;: &quot;OPS-RECOVERED&quot;, &quot;title&quot;: &quot;Docker đã phục hồi; test services đang dừng&quot;, &quot;kind&quot;: &quot;mixed&quot;, &quot;detail&quot;: &quot;Socket crash đã được người dùng phục hồi. Cuối run tester chủ động dừng backend/AI stack riêng để chặn retry ngầm; web/DB giữ lại. Đây không phải Engine hiện đang crash.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/evidence/stopped-checkpoint.json; Pipeline_test/runs/2026-10-19-recovery-ui-01/REPORT.md&quot;, &quot;close&quot;: &quot;Trước live test mới: runtime code fingerprint/migrations/schema/provider/ports/auth; chỉ resume jobs sau đọc checkpoint, không reset volumes hoặc khởi động nhầm stack cũ.&quot;}, &quot;ENTITY-HITL&quot;: {&quot;id&quot;: &quot;ENTITY-HITL&quot;, &quot;title&quot;: &quot;Human review đã có code, chưa live retest&quot;, &quot;kind&quot;: &quot;untested&quot;, &quot;detail&quot;: &quot;Luồng mới: optional guidance → candidate verification → tác giả accept/reject/edit → frozen inventory → event/fact → review canon. Offline tests không chứng minh đủ35 gold hoặc output100k. Flag mặc định OFF, cần migration0012 và deploy đồng bộ. P2 setup chỉ entities nhân vật/địa danh; event/fact vẫn fullchapter.&quot;, &quot;evidence&quot;: &quot;Pipeline_test/runs/2026-10-20-human-entity-review/REPORT.md&quot;, &quot;close&quot;: &quot;Isolated UI/provider test P1/P2/P3; thử tên thiếu/vắng/alias/homonym, reload/stale/version, resume không rediscovery, unknown downstream và audit35 gold. Chưa mở bài dài trước gate.&quot;}}, &quot;source_hashes&quot;: {&quot;Pipeline_test/AGENT_GUIDE.md&quot;: &quot;bfc96630f69304181958bd80a73be12c6883e0c721979b5e0a7cbc443ddbca4e&quot;, &quot;Pipeline_test/GEMINI_HUMAN_ENTITY_REVIEW_RETEST.md&quot;: &quot;2854606aadbcab8a2b4137cf978294d1f29c51d5d31f78984e6f5aa2bc56ee1b&quot;, &quot;Pipeline_test/runs/2026-10-19-reanalysis-recovery/REPORT.md&quot;: &quot;7384fc7203a712e82a2167e2841b9ed9c972d1517403ade4f9349e681a54b4a3&quot;, &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/MEMORY_AUDIT.md&quot;: &quot;ffda8e779f32b941633ac308ebe3d7e6f7dc5f31c284c765219deb734bc9cf82&quot;, &quot;Pipeline_test/runs/2026-10-19-recovery-ui-01/checkpoint.json&quot;: &quot;05e22edca54b4289a24209bdbd68a62980f0e7e455fbe0cd5069e4bbad20c9ee&quot;, &quot;ai-service/application/author_workflow.py&quot;: &quot;42e25d4796d7add716b20235b67b9923cb48d0765d67597d0df7fd60db036e4b&quot;, &quot;ai-service/application/bootstrap_service.py&quot;: &quot;0d43028d2fb2c5ad2f592ee70f623dec9573a0020883e9a6258da7216e221222&quot;, &quot;ai-service/application/context_budget.py&quot;: &quot;1b2d684ee797c0b2755ee82b655ab64212f3800073de0d885f8c573d69437d22&quot;, &quot;ai-service/application/entity_review_service.py&quot;: &quot;0b96a135dbec3a2915942fd02394d0a5891d90f9b5313965761df44305946d68&quot;, &quot;ai-service/application/revision_analysis_service.py&quot;: &quot;c371c8d23319fb89c72117c97a3b505d8cb6aedea336d25cbcf025e89fb198d1&quot;, &quot;ai-service/application/semantic_memory_service.py&quot;: &quot;ccb7689bfcd6c774149e212b8d42e6c19485f647898576fb7dee538b9b97fdb7&quot;, &quot;ai-service/application/semantic_retriever.py&quot;: &quot;d4c07b8ea974dfaace349a402c98c578b08bdd5cbad76c0ba37ff12a00813904&quot;, &quot;ai-service/application/writing_service.py&quot;: &quot;4340784f19595969fcc159f2155788d3ae65cd434ec20c85a8d9f72047e414ab&quot;, &quot;ai-service/core/llm_service.py&quot;: &quot;7f1889788a557d6b936d240c03489cc28467ebccc32ed5b49d849529f949e48d&quot;, &quot;ai-service/core/structured_call.py&quot;: &quot;337da74827c363a7aa8e5688c632b7979228b93cdba009e8e6f8bb6377c7c98a&quot;, &quot;ai-service/domain/projection.py&quot;: &quot;da11c30672b39a3b338946be9e4b9a37b1a75a9cf7fd809f191d0381a85e809f&quot;, &quot;ai-service/infrastructure/postgres_narrative_repository.py&quot;: &quot;cb8003026afeba53ebb644ee2ac3fca242932ad3bcdae9f9d0a04fecff6bc862&quot;, &quot;ai-service/services/canon_reconciliation.py&quot;: &quot;34b939b764eeba0ca02ff1773dcc531e3acc410cc045468db466df1dae662f4b&quot;, &quot;ai-service/services/entity_pipeline/candidates.py&quot;: &quot;956441356385b3a11ff57d4f03048bf04f35843c77f3ab7cf165f262245e2afc&quot;, &quot;ai-service/services/entity_pipeline/pipeline.py&quot;: &quot;8e8e661c43842273fdbeedf8b6bee45e00826f9cd72d3f508a83e2de7e5a97a1&quot;, &quot;ai-service/services/entity_pipeline/verification.py&quot;: &quot;11ca36c63424ba815ce4c7d5718f58b83ff62e9162cd4b982764766cc2642bdc&quot;, &quot;ai-service/services/event_summarizer.py&quot;: &quot;04a3adb9a3dd099b795ee701018aaacf230edff6fabc65de3beea51bce073354&quot;, &quot;ai-service/services/prose_facts.py&quot;: &quot;76b1f35dc65b0858b0b711166a52990ba69c3a54cbcd7af0484b65de33914d2e&quot;, &quot;ai-service/services/source_grounding.py&quot;: &quot;c24a3585f0834b3fde105b29a89ef9a15487e383e89e5573b78b88e03d8ba0f8&quot;, &quot;ai-service/services/state_transition_proposals.py&quot;: &quot;08900e78d08b931eea61c4d6d80136785107ac7288e95180943bcfa013a5a733&quot;, &quot;backend/src/jobs/outbox-processor.ts&quot;: &quot;2f31db17ba3d3a48df979fab176e227eec5582631303c53a4e69b75858619b60&quot;, &quot;backend/src/modules/ai/ai-gateway.controller.ts&quot;: &quot;a21328053f36038bc8956a5d4b779bd87caeb918c0f0e5f931513b750e0011d3&quot;, &quot;backend/src/modules/ai/autonomous-controller.service.ts&quot;: &quot;ac7e2ba729165392ee53e21e5ff7cc1ac1808c711846abe6c0c70b3d864a4cb5&quot;, &quot;backend/src/modules/ai/autonomous-memory.service.ts&quot;: &quot;6a1388271c1d68399294912c8e657919b6b88dd6c94a2e9383579dade1666f33&quot;, &quot;backend/src/modules/ai/proposal-evidence.service.ts&quot;: &quot;160376d894a079cc162a34186c50b951a266a06d7db84098eec29a18e7b28fcd&quot;, &quot;backend/src/modules/novels/chapter-revisions.service.ts&quot;: &quot;d29ab4c733bc97500f94b04a892760889d4b9223525abaaff5dbbbfff8279928&quot;, &quot;backend/src/modules/novels/chapters.service.ts&quot;: &quot;3d3bdd375d3d4ba6b921f90a1d01748e501c99bc8ca3995b9fa8dff6ea6b7a11&quot;, &quot;web/src/features/ai-copilot/AuthorMemoryPanel.tsx&quot;: &quot;c1f613a3daddd70b4557b275bd8763296519115c7314e967b48f3aeb296bbe62&quot;, &quot;web/src/features/ai-copilot/AuthorMemoryRepair.tsx&quot;: &quot;1091ea3dc077bf4b28eeb5b78163a69d63f230e168c895f09ab5a77e104bd814&quot;, &quot;web/src/features/ai-copilot/EntityExtractionReview.tsx&quot;: &quot;190c9708ba2f1628330a9bfde768f2b42869a7937659fc6da68b1acd4afa3137&quot;, &quot;web/src/features/ai-copilot/WritingAssistantPanel.tsx&quot;: &quot;18e6b45caa73b603c6705285881c3807941fff1c799751433d77a5d9610b00b1&quot;, &quot;web/src/features/ai-copilot/author-memory-api.ts&quot;: &quot;7c2c1ebc2531be42b7db4c7757762749372fb571c76bd097ad04943b14ca1a3f&quot;, &quot;web/src/features/author-ide/AuthorWritingIde.tsx&quot;: &quot;18f5bda382f7365771f3c1f74c89d67ba7080d657eb8e627a86be04ee4e3b3ea&quot;}}&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+ const root=document.getElementById(&#x27;ai-pipeline-audit-map&#x27;);
+ const data=JSON.parse(document.getElementById(&#x27;ai-pipeline-audit-data&#x27;).textContent);
+ const byId=new Map(data.nodes.map(n=&gt;[n.id,n]));
+ const byPhase=new Map(data.phases.map(p=&gt;[p.id,p]));
+ const labels={ok:&#x27;Chức năng đã thấy&#x27;,bad:&#x27;Lỗi tái hiện&#x27;,mixed:&#x27;Một phần / giới hạn&#x27;,code:&#x27;Chưa chứng minh live&#x27;,proposal:&#x27;Chưa triển khai&#x27;};
+ const kinds={live:&#x27;TÁI HIỆN&#x27;,gap:&#x27;GIỚI HẠN TỪ CODE&#x27;,untested:&#x27;CHƯA TEST LIVE&#x27;,mixed:&#x27;GUARD / MỘT PHẦN&#x27;,proposal:&#x27;ĐỀ XUẤT&#x27;};
+ let phase=&#x27;C&#x27;, selected=&#x27;C03&#x27;;
+ const saved=window.openai?.widgetState;
+ if(saved?.privateContent?.phase &amp;&amp; byPhase.has(saved.privateContent.phase))phase=saved.privateContent.phase;
+ if(saved?.privateContent?.node &amp;&amp; byId.has(saved.privateContent.node))selected=saved.privateContent.node;
+ function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
+ function pair(dl,key,value){dl.append(el(&#x27;dt&#x27;,null,key),el(&#x27;dd&#x27;,null,value));}
+ function save(){if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{phase,node:selected,issues:byId.get(selected)?.issues||[]},privateContent:{phase,node:selected}}).catch(()=&gt;{});}
+ function issueDetail(id){
+   const i=data.issues[id], d=el(&#x27;details&#x27;,&#x27;issue-detail&#x27;);
+   d.append(el(&#x27;summary&#x27;,&#x27;cursor-interaction&#x27;,id+&#x27; · &#x27;+i.title+&#x27; · &#x27;+kinds[i.kind]));
+   const dl=el(&#x27;dl&#x27;);pair(dl,&#x27;Quan sát / giới hạn&#x27;,i.detail);pair(dl,&#x27;Bằng chứng / nguồn&#x27;,i.evidence);pair(dl,&#x27;Điều kiện đề xuất để đóng&#x27;,i.close);d.append(dl);return d;
+ }
+ const notes={A:&#x27;P1/P2&#x27;,B:&#x27;lưu và phục hồi&#x27;,C:&#x27;extraction · flag routing&#x27;,D:&#x27;canon/review&#x27;,E:&#x27;context/memory&#x27;,F:&#x27;vòng viết ↩ B&#x27;,G:&#x27;dừng khi chờ human review&#x27;,H:&#x27;acceptance&#x27;,J:&#x27;dùng chung&#x27;,X:&#x27;opt-in · chưa live retest&#x27;};
+ const brief=Object.fromEntries(data.phases.map(p=&gt;[p.id,data.nodes.filter(n=&gt;n.phase===p.id).length+&#x27; bước · &#x27;+notes[p.id]]));
+ const short={A:&#x27;Nguồn vào P1 / P2&#x27;,B:&#x27;Lưu → revision&#x27;,C:&#x27;Extract nội dung&#x27;,D:&#x27;Canon → review&#x27;,E:&#x27;Memory → context&#x27;,F:&#x27;Plan → viết → accept&#x27;,G:&#x27;P3 · Full auto&#x27;,H:&#x27;Đánh giá → kết quả&#x27;,J:&#x27;Provider / vận hành&#x27;,X:&#x27;Ứng viên / duyệt entity&#x27;};
+ data.phases.forEach(p=&gt;{
+   const box=el(&#x27;div&#x27;,&#x27;phase-box phase-&#x27;+p.id);box.dataset.phase=p.id;
+   const b=el(&#x27;button&#x27;,&#x27;btn btn-block&#x27;,p.id+&#x27; · &#x27;+short[p.id]);b.type=&#x27;button&#x27;;b.dataset.selectPhase=p.id;
+   b.setAttribute(&#x27;aria-pressed&#x27;,String(phase===p.id));box.append(b,el(&#x27;div&#x27;,&#x27;phase-note text-small&#x27;,brief[p.id]));root.querySelector(&#x27;[data-phase-grid]&#x27;).append(box);
+ });
+ root.querySelector(&#x27;[data-meta]&#x27;).textContent=&#x27;Snapshot code &#x27;+data.code_sha.slice(0,8)+&#x27; + working tree · evidence run &#x27;+data.run+&#x27; · &#x27;+data.nodes.length+&#x27; bước / &#x27;+Object.keys(data.issues).length+&#x27; vấn đề &amp; giới hạn&#x27;;
+ data.issues &amp;&amp; Object.keys(data.issues).forEach(id=&gt;root.querySelector(&#x27;[data-registry]&#x27;).append(issueDetail(id)));
+ function render(scroll=false){
+   const p=byPhase.get(phase);root.querySelector(&#x27;#selected-phase-heading&#x27;).textContent=p.id+&#x27; · &#x27;+p.title;
+   root.querySelector(&#x27;[data-phase-scope]&#x27;).textContent=p.scope;
+   root.querySelectorAll(&#x27;[data-select-phase]&#x27;).forEach(b=&gt;b.setAttribute(&#x27;aria-pressed&#x27;,String(b.dataset.selectPhase===phase)));
+   const target=root.querySelector(&#x27;[data-steps]&#x27;);target.replaceChildren();
+   data.nodes.filter(n=&gt;n.phase===phase).forEach(n=&gt;{
+     const d=el(&#x27;details&#x27;,&#x27;step&#x27;);d.dataset.node=n.id;d.open=n.id===selected;
+     const summary=el(&#x27;summary&#x27;,&#x27;cursor-interaction&#x27;);
+     summary.setAttribute(&#x27;aria-label&#x27;,n.id+&#x27; · &#x27;+n.title+&#x27; · &#x27;+labels[n.state]);
+     summary.append(el(&#x27;span&#x27;,&#x27;step-label&#x27;,n.id+&#x27; · &#x27;+n.title));
+     const status=el(&#x27;span&#x27;,&#x27;step-status text-small&#x27;);const dot=el(&#x27;i&#x27;,&#x27;dot &#x27;+n.state);dot.setAttribute(&#x27;aria-hidden&#x27;,&#x27;true&#x27;);status.append(dot,document.createTextNode(labels[n.state]));summary.append(status);d.append(summary);
+     if(n.issues.length)d.append(el(&#x27;div&#x27;,&#x27;step-issues text-small&#x27;,&#x27;⚑ &#x27;+n.issues.join(&#x27; · &#x27;)));
+     const body=el(&#x27;div&#x27;,&#x27;detail-body&#x27;), dl=el(&#x27;dl&#x27;);
+     pair(dl,&#x27;Đầu vào&#x27;,n.incoming);pair(dl,&#x27;Đầu ra&#x27;,n.outgoing);pair(dl,&#x27;Xử lý / guard hiện tại&#x27;,n.control);pair(dl,&#x27;Điều kiện đề xuất để kiểm chứng xong bước này&#x27;,n.gate);body.append(dl);
+     n.issues.forEach(id=&gt;body.append(issueDetail(id)));
+     body.append(el(&#x27;div&#x27;,&#x27;source-line text-small&#x27;,&#x27;Nguồn: &#x27;+n.source));d.append(body);
+     let ignoreInitialOpen=d.open;
+     d.addEventListener(&#x27;toggle&#x27;,()=&gt;{if(ignoreInitialOpen){ignoreInitialOpen=false;schedule();return;}if(d.open){selected=n.id;save();root.querySelector(&#x27;[data-announcement]&#x27;).textContent=&#x27;Đang xem &#x27;+n.id+&#x27; &#x27;+n.title;}schedule();});
+     const connections=el(&#x27;div&#x27;,&#x27;connections text-small&#x27;);
+     if(n.next.length){connections.append(el(&#x27;span&#x27;,null,&#x27;→&#x27;));n.next.forEach(id=&gt;{const b=el(&#x27;button&#x27;,&#x27;btn btn-ghost&#x27;,id);b.type=&#x27;button&#x27;;b.dataset.jump=id;b.setAttribute(&#x27;aria-label&#x27;,&#x27;Tới &#x27;+id+&#x27; &#x27;+byId.get(id).title);b.dataset.tooltip=byId.get(id).title;connections.append(b);});}
+     target.append(d,connections);
+   });
+   root.querySelector(&#x27;[data-announcement]&#x27;).textContent=&#x27;Đang xem &#x27;+p.title;
+   schedule();if(scroll)root.querySelector(&#x27;[data-selected-phase]&#x27;).scrollIntoView({block:&#x27;start&#x27;});
+ }
+ root.addEventListener(&#x27;click&#x27;,event=&gt;{
+   const jump=event.target.closest(&#x27;[data-jump]&#x27;), button=event.target.closest(&#x27;[data-select-phase]&#x27;);
+   if(jump){selected=jump.dataset.jump;phase=byId.get(selected).phase;render(true);save();}
+   else if(button){phase=button.dataset.selectPhase;selected=data.nodes.find(n=&gt;n.phase===phase).id;render(true);save();}
+ });
+ function line(svg,path,proposal=false){const p=document.createElementNS(&#x27;http://www.w3.org/2000/svg&#x27;,&#x27;path&#x27;);p.setAttribute(&#x27;d&#x27;,path);p.setAttribute(&#x27;class&#x27;,&#x27;wire&#x27;+(proposal?&#x27; wire-proposal&#x27;:&#x27;&#x27;));p.setAttribute(&#x27;marker-end&#x27;,&#x27;url(#&#x27;+svg.dataset.marker+&#x27;)&#x27;);svg.append(p);}
+ function setupSvg(svg,id){svg.replaceChildren();svg.dataset.marker=id;const defs=document.createElementNS(&#x27;http://www.w3.org/2000/svg&#x27;,&#x27;defs&#x27;),marker=document.createElementNS(&#x27;http://www.w3.org/2000/svg&#x27;,&#x27;marker&#x27;);marker.setAttribute(&#x27;id&#x27;,id);marker.setAttribute(&#x27;viewBox&#x27;,&#x27;0 0 8 8&#x27;);marker.setAttribute(&#x27;refX&#x27;,&#x27;7&#x27;);marker.setAttribute(&#x27;refY&#x27;,&#x27;4&#x27;);marker.setAttribute(&#x27;markerWidth&#x27;,&#x27;6&#x27;);marker.setAttribute(&#x27;markerHeight&#x27;,&#x27;6&#x27;);marker.setAttribute(&#x27;orient&#x27;,&#x27;auto&#x27;);const path=document.createElementNS(&#x27;http://www.w3.org/2000/svg&#x27;,&#x27;path&#x27;);path.setAttribute(&#x27;d&#x27;,&#x27;M0 0 L8 4 L0 8&#x27;);path.setAttribute(&#x27;fill&#x27;,&#x27;var(--muted-foreground)&#x27;);marker.append(path);defs.append(marker);svg.append(defs);const r=svg.parentElement.getBoundingClientRect();svg.setAttribute(&#x27;viewBox&#x27;,&#x27;0 0 &#x27;+Math.max(1,r.width)+&#x27; &#x27;+Math.max(1,r.height));}
+ function draw(){
+   const master=root.querySelector(&#x27;.master-wires&#x27;);setupSvg(master,&#x27;pipeline-master-arrow&#x27;);const mr=master.parentElement.getBoundingClientRect();
+   const positions={};root.querySelectorAll(&#x27;.phase-box&#x27;).forEach(b=&gt;{const r=b.getBoundingClientRect();positions[b.dataset.phase]={left:r.left-mr.left,right:r.right-mr.left,top:r.top-mr.top,bottom:r.bottom-mr.top,x:r.left-mr.left+r.width/2,y:r.top-mr.top+r.height/2};});
+   [[&#x27;A&#x27;,&#x27;B&#x27;],[&#x27;B&#x27;,&#x27;C&#x27;],[&#x27;C&#x27;,&#x27;D&#x27;],[&#x27;D&#x27;,&#x27;E&#x27;],[&#x27;E&#x27;,&#x27;F&#x27;],[&#x27;F&#x27;,&#x27;H&#x27;]].forEach(([a,b])=&gt;{const s=positions[a],t=positions[b];if(Math.abs(s.y-t.y)&lt;30){const x1=s.x&lt;t.x?s.right:s.left,x2=s.x&lt;t.x?t.left:t.right;line(master,`M${x1} ${s.y} L${x2} ${t.y}`);}else{line(master,`M${s.x} ${s.bottom+2} C${s.x} ${(s.bottom+t.top)/2} ${t.x} ${(s.bottom+t.top)/2} ${t.x} ${t.top-3}`);}});
+   const svg=root.querySelector(&#x27;.step-wires&#x27;);setupSvg(svg,&#x27;pipeline-step-arrow&#x27;);const sr=svg.parentElement.getBoundingClientRect(), edgeIds=new Set(data.nodes.filter(n=&gt;n.phase===phase).map(n=&gt;n.id));
+   data.nodes.filter(n=&gt;n.phase===phase).forEach(n=&gt;n.next.filter(id=&gt;edgeIds.has(id)).forEach((id,k)=&gt;{const from=root.querySelector(&#x27;[data-node=&quot;&#x27;+n.id+&#x27;&quot;] summary&#x27;).getBoundingClientRect(),to=root.querySelector(&#x27;[data-node=&quot;&#x27;+id+&#x27;&quot;] summary&#x27;).getBoundingClientRect();const y1=from.top-sr.top+from.height/2,y2=to.top-sr.top+to.height/2,x1=from.left-sr.left-8,x2=to.left-sr.left-8,x=Math.max(3,x1-12-(k*8));line(svg,`M${x1} ${y1} H${x} V${y2} H${x2}`,n.state===&#x27;proposal&#x27;);}));
+ }
+ let pending=false;function schedule(){if(pending)return;pending=true;requestAnimationFrame(()=&gt;{pending=false;draw();});}
+ new ResizeObserver(schedule).observe(root);
+ window.addEventListener(&#x27;openai:set_globals&#x27;,event=&gt;{const state=event.detail?.globals?.widgetState?.privateContent;if(state?.phase&amp;&amp;byPhase.has(state.phase)){phase=state.phase;if(state.node&amp;&amp;byId.has(state.node))selected=state.node;render(false);}});
+ render();
+})();
+&lt;/script&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (event) =&gt; {
+    for (const target of event.composedPath()) {
+      if (target?.nodeType === Node.ELEMENT_NODE) {
+        const trigger = target.closest(&quot;[data-tooltip]&quot;);
+        if (trigger) return trigger;
+      }
+    }
+    return null;
+  };
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) =&gt; {
+    lastPointerWasTouch =
+      event.type === &quot;pointerdown&quot; &amp;&amp; event.pointerType === &quot;touch&quot;;
+  };
+  const handleTouchClick = (event) =&gt; {
+    const isTouch = event.pointerType === &quot;touch&quot; || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch &amp;&amp; activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() =&gt; {
+      if (activeTrigger === trigger &amp;&amp; !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) =&gt; {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handlers = {
+    pointerover: handlePointerOpen,
+    pointerdown: handlePointer,
+    pointercancel: handlePointer,
+    click: handleTouchClick,
+    pointerout: handleLeave,
+    focusin: handleFocusIn,
+    focusout: handleLeave,
+    keydown: handleKeyDown,
+    contextmenu: handleContextMenu,
+  };
+  const roots = new Map();
+  const handledEvents = new WeakSet();
+  const handleEvent = (event) =&gt; {
+    if (handledEvents.has(event)) return;
+    handledEvents.add(event);
+    handlers[event.type](event);
+  };
+  const discoverRoots = (node) =&gt; {
+    if (node.shadowRoot) listen(node.shadowRoot);
+    for (const element of node.querySelectorAll(&quot;*&quot;)) {
+      if (element.shadowRoot) listen(element.shadowRoot);
+    }
+  };
+  const listen = (root) =&gt; {
+    if (roots.has(root)) return;
+    for (const type of Object.keys(handlers)) root.addEventListener(type, handleEvent);
+    const observer = new window.MutationObserver((records) =&gt; {
+      for (const { addedNodes } of records) {
+        for (const node of addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) discoverRoots(node);
+        }
+      }
+      for (const [root, cleanup] of roots) {
+        if (root.host &amp;&amp; !root.host.isConnected) {
+          cleanup();
+          roots.delete(root);
+        }
+      }
+      if (activeTrigger &amp;&amp; !activeTrigger.isConnected) closeTooltip(false);
+    });
+    observer.observe(root, { childList: true, subtree: true });
+    roots.set(root, () =&gt; {
+      observer.disconnect();
+      for (const type of Object.keys(handlers)) root.removeEventListener(type, handleEvent);
+    });
+    discoverRoots(root);
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    for (const cleanup of roots.values()) cleanup();
+    roots.clear();
+    tooltip = null;
+  };
+
+  // Events between children of one shadow root never reach the document.
+  listen(document);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-tabs&quot;&gt;
+(() =&gt; {
+  const selector = &#x27;.nav[role=&quot;tablist&quot;] [role=&quot;tab&quot;]&#x27;;
+  const disabled = &#x27;:disabled,[aria-disabled=&quot;true&quot;]&#x27;;
+  const selectTab = (selected) =&gt; {
+    const panelId = selected.getAttribute(&quot;aria-controls&quot;);
+    for (const tab of selected.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;)) {
+      const active = tab === selected;
+      tab.classList.toggle(&quot;active&quot;, active);
+      tab.setAttribute(&quot;aria-selected&quot;, String(active));
+      const id = tab.getAttribute(&quot;aria-controls&quot;);
+      const panel = id &amp;&amp; document.getElementById(id);
+      if (panel != null) {
+        panel.hidden = id !== panelId;
+        if (!panel.hidden &amp;&amp; selected.id) {
+          panel.setAttribute(&quot;aria-labelledby&quot;, selected.id);
+        }
+      }
+    }
+  };
+  const interact = (event) =&gt; {
+    const tab = event.target?.closest?.(selector);
+    if (event.defaultPrevented || tab == null || tab.matches(disabled)) {
+      return;
+    }
+    if (event.type === &quot;click&quot;) {
+      selectTab(tab);
+      return;
+    }
+    const tabs = Array.from(
+      tab.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;),
+    ).filter((candidate) =&gt; !candidate.matches(disabled));
+    const current = tabs.indexOf(tab);
+    let next;
+    if (event.key === &quot;ArrowRight&quot; || event.key === &quot;ArrowDown&quot;) {
+      next = (current + 1) % tabs.length;
+    } else if (event.key === &quot;ArrowLeft&quot; || event.key === &quot;ArrowUp&quot;) {
+      next = (current + tabs.length - 1) % tabs.length;
+    } else if (event.key === &quot;Home&quot;) {
+      next = 0;
+    } else if (event.key === &quot;End&quot;) {
+      next = tabs.length - 1;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    tabs[next].focus();
+    selectTab(tabs[next]);
+  };
+
+  for (const list of document.querySelectorAll(&#x27;.nav[role=&quot;tablist&quot;]&#x27;)) {
+    const selected =
+      list.querySelector(&#x27;[role=&quot;tab&quot;][aria-selected=&quot;true&quot;]&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;].active&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;]&#x27;);
+    if (selected != null) {
+      selectTab(selected);
+    }
+  }
+  document.addEventListener(&quot;click&quot;, interact);
+  document.addEventListener(&quot;keydown&quot;, interact);
+  window.addEventListener(&quot;pagehide&quot;, () =&gt; {
+    document.removeEventListener(&quot;click&quot;, interact);
+    document.removeEventListener(&quot;keydown&quot;, interact);
+  }, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-carousel&quot;&gt;
+  (() =&gt; {
+    for (const root of document.querySelectorAll(&quot;.viz-carousel&quot;)) {
+      const panels = Array.from(
+        root.querySelectorAll(&quot;:scope &gt; [data-variant]&quot;),
+      );
+      if (panels.length === 0) {
+        continue;
+      }
+      root.setAttribute(&quot;role&quot;, &quot;group&quot;);
+      panels.forEach((panel, index) =&gt; {
+        panel.hidden = index !== 0;
+        panel.setAttribute(&quot;role&quot;, &quot;group&quot;);
+        if (!panel.hasAttribute(&quot;aria-label&quot;)) {
+          panel.setAttribute(&quot;aria-label&quot;, panel.dataset.variant);
+        }
+      });
+      root.dataset.activeVariant = panels[0].dataset.variant;
+      if (panels.length === 1) {
+        continue;
+      }
+
+      const controls = document.createElement(&quot;div&quot;);
+      controls.className = &quot;viz-carousel-controls&quot;;
+      // Portable copy of the settings dropdown&#x27;s legacy glyph; no 14px icon-package preset matches it.
+      // https://github.com/openai/openai/blob/master/codex/codex-apps/webview/src/icons/chevron.svg
+      controls.innerHTML = `
+      &lt;button type=&quot;button&quot; class=&quot;viz-carousel-previous cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;chevron-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+      &lt;details class=&quot;viz-carousel-picker&quot;&gt;
+        &lt;summary class=&quot;cursor-interaction&quot;&gt;
+          &lt;span class=&quot;viz-carousel-count tabular-nums&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;viz-carousel-name&quot;&gt;&lt;/span&gt;
+          &lt;svg class=&quot;viz-carousel-caret&quot; width=&quot;14&quot; height=&quot;14&quot; viewBox=&quot;0 0 20 21&quot; fill=&quot;none&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;
+            &lt;path d=&quot;M15.2793 7.71101C15.539 7.45131 15.961 7.45131 16.2207 7.71101C16.4804 7.97071 16.4804 8.39272 16.2207 8.65242L10.4707 14.4024C10.211 14.6621 9.78902 14.6621 9.52932 14.4024L3.77932 8.65242L3.69436 8.54792C3.52385 8.28979 3.55205 7.93828 3.77932 7.71101C4.00659 7.48374 4.3581 7.45554 4.61623 7.62605L4.72073 7.71101L10 12.9903L15.2793 7.71101Z&quot; fill=&quot;currentColor&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;0.6&quot; /&gt;
+          &lt;/svg&gt;
+        &lt;/summary&gt;
+        &lt;div class=&quot;viz-carousel-options&quot;&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;button type=&quot;button&quot; class=&quot;viz-carousel-next cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;chevron-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;`;
+      const previous = controls.querySelector(&quot;.viz-carousel-previous&quot;);
+      const next = controls.querySelector(&quot;.viz-carousel-next&quot;);
+      const picker = controls.querySelector(&quot;.viz-carousel-picker&quot;);
+      const summary = picker.querySelector(&quot;summary&quot;);
+      const count = controls.querySelector(&quot;.viz-carousel-count&quot;);
+      const name = controls.querySelector(&quot;.viz-carousel-name&quot;);
+      const options = controls.querySelector(&quot;.viz-carousel-options&quot;);
+      const status = document.createElement(&quot;span&quot;);
+      status.className = &quot;sr-only&quot;;
+      status.setAttribute(&quot;role&quot;, &quot;status&quot;);
+      status.setAttribute(&quot;aria-live&quot;, &quot;polite&quot;);
+      status.setAttribute(&quot;aria-atomic&quot;, &quot;true&quot;);
+      previous.setAttribute(
+        &quot;aria-label&quot;,
+        root.dataset.previousLabel ?? &quot;Previous variant&quot;,
+      );
+      next.setAttribute(&quot;aria-label&quot;, root.dataset.nextLabel ?? &quot;Next variant&quot;);
+
+      let active = 0;
+      let mousePointerId = null;
+      let summaryPointerHandled = false;
+      summary.addEventListener(&quot;pointerdown&quot;, (event) =&gt; {
+        summaryPointerHandled =
+          event.pointerType === &quot;mouse&quot; &amp;&amp; event.button === 0 &amp;&amp; !event.ctrlKey;
+        if (!summaryPointerHandled) {
+          return;
+        }
+        event.preventDefault();
+        summary.focus({ preventScroll: true });
+        picker.open = !picker.open;
+        mousePointerId = picker.open ? event.pointerId : null;
+      });
+      summary.addEventListener(&quot;click&quot;, (event) =&gt; {
+        if (summaryPointerHandled &amp;&amp; event.detail &gt; 0) {
+          event.preventDefault();
+        }
+      });
+      const choices = panels.map((panel, index) =&gt; {
+        const choice = document.createElement(&quot;button&quot;);
+        choice.type = &quot;button&quot;;
+        choice.className = &quot;cursor-interaction&quot;;
+        choice.textContent = panel.dataset.variant;
+        choice.addEventListener(&quot;click&quot;, () =&gt; {
+          select(index);
+          summary.focus();
+        });
+        choice.addEventListener(&quot;pointerup&quot;, (event) =&gt; {
+          if (
+            picker.open &amp;&amp;
+            event.pointerType === &quot;mouse&quot; &amp;&amp;
+            event.button === 0 &amp;&amp;
+            event.pointerId === mousePointerId
+          ) {
+            choice.click();
+          }
+        });
+        options.appendChild(choice);
+        return choice;
+      });
+      const select = (index) =&gt; {
+        const changed = active !== index;
+        active = index;
+        panels.forEach((panel, position) =&gt; {
+          panel.hidden = position !== active;
+          choices[position].setAttribute(
+            &quot;aria-current&quot;,
+            String(position === active),
+          );
+        });
+        root.dataset.activeVariant = panels[active].dataset.variant;
+        count.textContent = `${active + 1} / ${panels.length}`;
+        name.textContent = panels[active].dataset.variant;
+        picker.open = false;
+        mousePointerId = null;
+        if (changed) {
+          status.textContent = `${count.textContent}: ${name.textContent}`;
+        }
+      };
+      previous.addEventListener(&quot;click&quot;, () =&gt;
+        select((active + panels.length - 1) % panels.length),
+      );
+      next.addEventListener(&quot;click&quot;, () =&gt;
+        select((active + 1) % panels.length),
+      );
+      picker.addEventListener(&quot;keydown&quot;, (event) =&gt; {
+        if (event.key === &quot;Escape&quot; &amp;&amp; picker.open) {
+          event.preventDefault();
+          picker.open = false;
+          mousePointerId = null;
+          summary.focus();
+          return;
+        }
+        if (event.altKey || event.ctrlKey || event.metaKey) {
+          return;
+        }
+        const index = choices.indexOf(document.activeElement);
+        let nextIndex;
+        if (event.key === &quot;ArrowDown&quot;) {
+          nextIndex = index &lt; 0 ? active : (index + 1) % choices.length;
+        } else if (event.key === &quot;ArrowUp&quot;) {
+          nextIndex = index &lt; 0 ? active : (index + choices.length - 1) % choices.length;
+        } else if (picker.open &amp;&amp; event.key === &quot;Home&quot;) {
+          nextIndex = 0;
+        } else if (picker.open &amp;&amp; event.key === &quot;End&quot;) {
+          nextIndex = choices.length - 1;
+        } else {
+          return;
+        }
+        event.preventDefault();
+        picker.open = true;
+        choices[nextIndex].focus();
+      });
+      picker.addEventListener(&quot;focusout&quot;, (event) =&gt; {
+        if (!picker.contains(event.relatedTarget)) {
+          picker.open = false;
+          mousePointerId = null;
+        }
+      });
+      const dismiss = (event) =&gt; {
+        if (!summary.contains(event.target)) {
+          mousePointerId = null;
+        }
+        if (!picker.contains(event.target)) {
+          picker.open = false;
+        }
+      };
+      const endPointerSelection = () =&gt; {
+        mousePointerId = null;
+      };
+      const sizePicker = () =&gt; {
+        root.style.setProperty(
+          &quot;--viz-carousel-picker-height&quot;,
+          `${picker.open ? options.offsetHeight : 0}px`,
+        );
+      };
+      picker.addEventListener(&quot;toggle&quot;, sizePicker);
+      window.addEventListener(&quot;resize&quot;, sizePicker);
+      document.addEventListener(&quot;pointerdown&quot;, dismiss);
+      document.addEventListener(&quot;pointerup&quot;, endPointerSelection);
+      document.addEventListener(&quot;pointercancel&quot;, endPointerSelection);
+      window.addEventListener(&quot;blur&quot;, endPointerSelection);
+      window.addEventListener(
+        &quot;pagehide&quot;,
+        () =&gt; {
+          document.removeEventListener(&quot;pointerdown&quot;, dismiss);
+          document.removeEventListener(&quot;pointerup&quot;, endPointerSelection);
+          document.removeEventListener(&quot;pointercancel&quot;, endPointerSelection);
+          window.removeEventListener(&quot;blur&quot;, endPointerSelection);
+          window.removeEventListener(&quot;resize&quot;, sizePicker);
+        },
+        { once: true },
+      );
+      root.append(controls, status);
+      select(0);
+    }
+  })();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+
+<script>(() => {
+  const frame = document.getElementById("codex-visualization");
+  if (!(frame instanceof HTMLIFrameElement)) {
+    return;
+  }
+  const isShare = document.documentElement.classList.contains(
+    "visualization-share-root",
+  );
+  let viewportHeight = globalThis.innerHeight;
+  let sizeFingerprint = null;
+  let sizeWriteTimeout;
+  let lastSize = null;
+  let pendingSize = null;
+  const storageKey = `codex:visualization-widget-state-v2:${JSON.stringify([
+    globalThis.location.pathname,
+    globalThis.location.search,
+  ])}`;
+  const sizeStorageKey = `${storageKey}:share-size-v1`;
+  const parseState = (serializedState) => {
+    if (
+      typeof serializedState !== "string" ||
+      new TextEncoder().encode(serializedState).length > 16 * 1024
+    ) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    /** @type {unknown} */
+    const state = JSON.parse(serializedState);
+    if (
+      state == null ||
+      typeof state !== "object" ||
+      Array.isArray(state) ||
+      ("imageIds" in state &&
+        (!Array.isArray(state.imageIds) || state.imageIds.length > 0))
+    ) {
+      throw new TypeError("Widget state must be a JSON object");
+    }
+    const storedState = { modelContent: null, privateContent: null, ...state };
+    const canonicalState = JSON.stringify(
+      storedState,
+      (_key, /** @type {unknown} */ value) => {
+        if (typeof value === "number" && !Number.isFinite(value)) {
+          throw new TypeError("Widget state must contain finite numbers");
+        }
+        return value;
+      },
+    );
+    if (new TextEncoder().encode(canonicalState).length > 16 * 1024) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    return storedState;
+  };
+  let storage = null;
+  let state = null;
+  try {
+    const localStorage = globalThis.localStorage;
+    const probeKey = `${storageKey}:probe`;
+    localStorage.setItem(probeKey, "1");
+    localStorage.removeItem(probeKey);
+    storage = localStorage;
+    const savedState = storage.getItem(storageKey);
+    if (savedState != null) {
+      try {
+        state = parseState(savedState);
+      } catch {
+        // Invalid saved state does not disable future writes.
+      }
+    }
+  } catch {
+    storage = null;
+  }
+  const persistSize = () => {
+    globalThis.clearTimeout(sizeWriteTimeout);
+    if (pendingSize == null) {
+      return;
+    }
+    try {
+      storage?.setItem(sizeStorageKey, pendingSize);
+    } catch {
+      // A denied or full cache must not affect the visualization.
+    }
+    pendingSize = null;
+  };
+  if (isShare) {
+    globalThis.addEventListener("pagehide", persistSize);
+  }
+  const initialGlobals = {
+    widgetState: state,
+    statePersistence: storage == null ? "none" : "local",
+  };
+
+  const channel = new MessageChannel();
+  channel.port1.addEventListener("message", (event) => {
+    const data = event.data;
+    if (typeof data !== "object" || data == null) {
+      return;
+    }
+    if (data.type === "widget-state-write") {
+      if (!Number.isSafeInteger(data.id) || data.id <= 0) {
+        return;
+      }
+      let ok = false;
+      try {
+        if (storage != null) {
+          const state = parseState(data.state);
+          storage.setItem(storageKey, JSON.stringify(state));
+          ok = true;
+        }
+      } catch {
+        // Storage denial, quota limits, and invalid state return a failed receipt.
+      }
+      channel.port1.postMessage({
+        type: "widget-state-result",
+        id: data.id,
+        ok,
+      });
+      return;
+    }
+    if (data.type === "height") {
+      const height = data.height;
+      if (
+        typeof height !== "number" ||
+        !Number.isFinite(height) ||
+        height < 0
+      ) {
+        return;
+      }
+      if (height <= 10_000) {
+        const width = isShare && storage != null ? frame.clientWidth : null;
+        frame.style.height = Math.ceil(height) + "px";
+        if (isShare && storage != null) {
+          const size = JSON.stringify({
+            fingerprint: sizeFingerprint,
+            width,
+            viewportHeight: globalThis.innerHeight,
+            dark: globalThis.matchMedia("(prefers-color-scheme: dark)").matches,
+            scale: globalThis.devicePixelRatio,
+            height: Math.ceil(height),
+          });
+          if (size !== lastSize) {
+            lastSize = size;
+            pendingSize = size;
+            globalThis.clearTimeout(sizeWriteTimeout);
+            sizeWriteTimeout = globalThis.setTimeout(persistSize, 100);
+          }
+        }
+      }
+      if (isShare) {
+        // Keep unusually tall content accessible without accepting an unbounded height.
+        if (height > 10_000 && Number.parseFloat(frame.style.height) === 0) {
+          frame.style.removeProperty("height");
+        }
+        frame.scrolling = height > 10_000 ? "auto" : "no";
+        document.documentElement.classList.add("visualization-share-ready");
+      }
+      return;
+    }
+    if (data.type === "scroll-to") {
+      const top = data.top;
+      if (
+        typeof top === "number" &&
+        Number.isFinite(top) &&
+        top >= 0 &&
+        globalThis.navigator.userActivation?.isActive === true
+      ) {
+        globalThis.scrollTo({
+          top: Math.ceil(
+            globalThis.scrollY + frame.getBoundingClientRect().top + top,
+          ),
+        });
+      }
+      return;
+    }
+    if (data.type === "open-external") {
+      const rawHref = data.href;
+      if (typeof rawHref !== "string") {
+        return;
+      }
+      let href;
+      try {
+        const url = new URL(rawHref, document.baseURI);
+        if (url.protocol !== "https:") {
+          return;
+        }
+        href = url.href;
+      } catch {
+        return;
+      }
+      if (globalThis.navigator.userActivation?.isActive === true) {
+        const anchor = document.createElement("a");
+        anchor.href = href;
+        anchor.rel = "noopener noreferrer";
+        anchor.target = "_blank";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+      return;
+    }
+    if (data.type === "follow-up") {
+      const prompt = data.prompt;
+      if (
+        typeof prompt !== "string" ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      const title = data.title;
+      globalThis.prompt(typeof title === "string" ? title : prompt, prompt);
+    }
+  });
+  channel.port1.start();
+  const srcdoc = frame.dataset.srcdoc;
+  if (srcdoc == null) {
+    return;
+  }
+  globalThis.addEventListener("resize", () => {
+    const height = Number.parseFloat(frame.style.height);
+    if (!isShare && (!Number.isFinite(height) || height <= viewportHeight)) {
+      frame.style.removeProperty("height");
+    }
+    viewportHeight = globalThis.innerHeight;
+    channel.port1.postMessage({ type: "measure" });
+  });
+  frame.addEventListener(
+    "load",
+    () => {
+      frame.contentWindow?.postMessage(
+        { type: "codex-visualization-initialize" },
+        "*",
+        [channel.port2],
+      );
+    },
+    { once: true },
+  );
+  // Match the trusted bootstrap element, not the same text in an authored title.
+  const frameHtml = srcdoc.replace(
+    '<script type="application/json" id="codex-visualization-widget-state">__CODEX_VISUALIZATION_WIDGET_STATE__<\/script>',
+    () =>
+      '<script type="application/json" id="codex-visualization-widget-state">' +
+      JSON.stringify(initialGlobals).replaceAll("<", "\\u003c") +
+      "<\/script>",
+  );
+  if (isShare && storage != null) {
+    // Fingerprint the rendered document, including restored widget state, without
+    // storing its content. This is a layout cache, not a security identity.
+    let hash = 5381;
+    for (let index = 0; index < frameHtml.length; index += 1) {
+      hash = (hash * 33 + frameHtml.charCodeAt(index)) % 4_294_967_296;
+    }
+    sizeFingerprint = hash.toString(36);
+    try {
+      const size = JSON.parse(storage.getItem(sizeStorageKey) ?? "null");
+      if (
+        size?.fingerprint === sizeFingerprint &&
+        size.width === frame.clientWidth &&
+        size.viewportHeight === globalThis.innerHeight &&
+        size.dark ===
+          globalThis.matchMedia("(prefers-color-scheme: dark)").matches &&
+        size.scale === globalThis.devicePixelRatio &&
+        typeof size.height === "number" &&
+        Number.isFinite(size.height) &&
+        size.height >= 0 &&
+        size.height <= 10_000
+      ) {
+        frame.style.height = size.height + "px";
+      }
+    } catch {
+      // Ignore missing or invalid cache entries and measure the live frame.
+    }
+  }
+  frame.srcdoc = frameHtml;
+  delete frame.dataset.srcdoc;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+TAP version 13
+# [OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): AI service returned HTTP 503: {}
+# [OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): temporary extraction failure
+# Subtest: ordinary extraction persists proposals without reading or accepting them
+ok 1 - ordinary extraction persists proposals without reading or accepting them
+  ---
+  duration_ms: 18.6321
+  ...
+# Subtest: failed extraction remains retryable and never completes or approves
+ok 2 - failed extraction remains retryable and never completes or approves
+  ---
+  duration_ms: 2.4883
+  ...
+# Subtest: retry succeeds without materializing narrative memory
+ok 3 - retry succeeds without materializing narrative memory
+  ---
+  duration_ms: 0.4277
+  ...
+# Subtest: Node.js AI Gateway Service (P6.5 Hardening)
+    # Subtest: reanalysis idempotency key survives HTTP forwarding and retries
+    ok 1 - reanalysis idempotency key survives HTTP forwarding and retries
+      ---
+      duration_ms: 36.8379
+      ...
+    # Subtest: AIGatewayService forwards headers with tenant, user, and service token
+    ok 2 - AIGatewayService forwards headers with tenant, user, and service token
+      ---
+      duration_ms: 1.1037
+      ...
+    # Subtest: AIGatewayService builds query parameters correctly for context-preview
+    ok 3 - AIGatewayService builds query parameters correctly for context-preview
+      ---
+      duration_ms: 1.0297
+      ...
+    # Subtest: AIGatewayService propagates remote AI errors as AppError with correct status code
+    ok 4 - AIGatewayService propagates remote AI errors as AppError with correct status code
+      ---
+      duration_ms: 1.4334
+      ...
+    # Subtest: AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+    ok 5 - AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+      ---
+      duration_ms: 0.5164
+      ...
+    # Subtest: assertNovelOwnership enforces author access control with 403 FORBIDDEN
+    ok 6 - assertNovelOwnership enforces author access control with 403 FORBIDDEN
+      ---
+      duration_ms: 0.9395
+      ...
+    # Subtest: Canonical chapter cutoff derivation from DB record overrides client cutoff
+    ok 7 - Canonical chapter cutoff derivation from DB record overrides client cutoff
+      ---
+      duration_ms: 0.3461
+      ...
+    # Subtest: Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+    ok 8 - Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 1.1183
+      ...
+    # Subtest: Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+    ok 9 - Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+      ---
+      duration_ms: 2.5065
+      ...
+    # Subtest: Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+    ok 10 - Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 2.3322
+      ...
+    # Subtest: Story Brain freshness check fails closed with 503 when AI service is unavailable
+    ok 11 - Story Brain freshness check fails closed with 503 when AI service is unavailable
+      ---
+      duration_ms: 0.5199
+      ...
+    1..11
+ok 4 - Node.js AI Gateway Service (P6.5 Hardening)
+  ---
+  duration_ms: 51.9646
+  type: 'suite'
+  ...
+# Subtest: AI-PIPE-01B Author Writing IDE & Canonical P1 Loop Contract
+    # Subtest: Checkpoint B1: Manual autosave contract updates chapter draft without creating AI_DRAFT_ACCEPT revision or outbox event
+    ok 1 - Checkpoint B1: Manual autosave contract updates chapter draft without creating AI_DRAFT_ACCEPT revision or outbox event
+      ---
+      duration_ms: 1.1255
+      ...
+    # Subtest: Checkpoint B2: AI generation reject/dismiss leaves canon revision and Story Brain unchanged
+    ok 2 - Checkpoint B2: AI generation reject/dismiss leaves canon revision and Story Brain unchanged
+      ---
+      duration_ms: 0.2629
+      ...
+    # Subtest: Checkpoint B3: Canonical P1 writing generation and accept-draft contract
+    ok 3 - Checkpoint B3: Canonical P1 writing generation and accept-draft contract
+      ---
+      duration_ms: 27.1781
+      ...
+    # Subtest: Checkpoint B4: Story Brain closed-loop feedback advances version
+    ok 4 - Checkpoint B4: Story Brain closed-loop feedback advances version
+      ---
+      duration_ms: 1.135
+      ...
+    # Subtest: Checkpoint C: Story Bible context preview observes updated character/fact constraints
+    ok 5 - Checkpoint C: Story Bible context preview observes updated character/fact constraints
+      ---
+      duration_ms: 0.9494
+      ...
+    1..5
+ok 5 - AI-PIPE-01B Author Writing IDE & Canonical P1 Loop Contract
+  ---
+  duration_ms: 32.4355
+  type: 'suite'
+  ...
+# Subtest: Autonomous Controller Gateway & Contract Tests
+    # Subtest: Cross-author autonomous run access enforces 403 FORBIDDEN
+    ok 1 - Cross-author autonomous run access enforces 403 FORBIDDEN
+      ---
+      duration_ms: 40.6345
+      ...
+    # Subtest: Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+    ok 2 - Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+      ---
+      duration_ms: 1.258
+      ...
+    # Subtest: Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+    ok 3 - Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+      ---
+      duration_ms: 0.621
+      ...
+    # Subtest: Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+    ok 4 - Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+      ---
+      duration_ms: 0.3321
+      ...
+    # Subtest: Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+    ok 5 - Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+      ---
+      duration_ms: 0.1959
+      ...
+    # Subtest: Intentional completion gate terminates on terminal objective or all objectives done
+    ok 6 - Intentional completion gate terminates on terminal objective or all objectives done
+      ---
+      duration_ms: 0.3088
+      ...
+    1..6
+ok 6 - Autonomous Controller Gateway & Contract Tests
+  ---
+  duration_ms: 44.9845
+  type: 'suite'
+  ...
+# Subtest: empty queue cannot hide incomplete extraction
+ok 7 - empty queue cannot hide incomplete extraction
+  ---
+  duration_ms: 3.2323
+  ...
+# Subtest: only the generated revision is approved and fresh version is returned
+ok 8 - only the generated revision is approved and fresh version is returned
+  ---
+  duration_ms: 0.9612
+  ...
+# Subtest: delivered outbox and empty proposals cannot bypass author entity review
+ok 9 - delivered outbox and empty proposals cannot bypass author entity review
+  ---
+  duration_ms: 0.5193
+  ...
+# Subtest: an unrelated chapter checkpoint does not block this generated revision
+ok 10 - an unrelated chapter checkpoint does not block this generated revision
+  ---
+  duration_ms: 0.5548
+  ...
+# Subtest: approval failures and stale evidence propagate to the controller
+ok 11 - approval failures and stale evidence propagate to the controller
+  ---
+  duration_ms: 0.6903
+  ...
+# Subtest: short prose never completes even if the evaluator would approve it
+ok 12 - short prose never completes even if the evaluator would approve it
+  ---
+  duration_ms: 0.443
+  ...
+# Subtest: ending requires achieved objective and resolved ending
+ok 13 - ending requires achieved objective and resolved ending
+  ---
+  duration_ms: 0.5034
+  ...
+# Subtest: AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+    # Subtest: P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+    ok 1 - P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+      ---
+      duration_ms: 18.5551
+      ...
+    # Subtest: P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+    ok 2 - P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+      ---
+      duration_ms: 1.2795
+      ...
+    # Subtest: P1-Gateway: AI Writing generation creates queued job with pinned brain version
+    ok 3 - P1-Gateway: AI Writing generation creates queued job with pinned brain version
+      ---
+      duration_ms: 0.8021
+      ...
+    # Subtest: P1-Accept: Patch application and content hash update contract
+    ok 4 - P1-Accept: Patch application and content hash update contract
+      ---
+      duration_ms: 0.3622
+      ...
+    # Subtest: P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+    ok 5 - P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+      ---
+      duration_ms: 0.8657
+      ...
+    # Subtest: P2B-Gateway: Forward Story Plan creation, activation, and objective update
+    ok 6 - P2B-Gateway: Forward Story Plan creation, activation, and objective update
+      ---
+      duration_ms: 1.0943
+      ...
+    # Subtest: P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+    ok 7 - P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+      ---
+      duration_ms: 0.5045
+      ...
+    1..7
+ok 14 - AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ---
+  duration_ms: 25.0169
+  type: 'suite'
+  ...
+1..14
+# tests 39
+# suites 4
+# pass 39
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1152.5187

@@ -23,7 +23,7 @@ class ProseFacts(BaseModel):
     facts: list[ProseFact]
 
 
-def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False):
+def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False, verified_aliases=None):
     raw = call_structured(llm, operation="prose_fact_extraction", system_prompt=(
         "Extract atomic narrative facts directly from the prose, not just changes or named entities. "
         "Cover explicit historical deaths, disabilities, possession/storage, counts, limitations, "
@@ -38,7 +38,8 @@ def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False):
         "use status with value Dead/Alive only for explicit confirmed life status. "
         "fact_value is an atomic string, number or boolean. Return JSON matching: "
         + json.dumps(ProseFacts.model_json_schema(), ensure_ascii=False)),
-        user_prompt=json.dumps({"source_text": text, "known_entities": list(subjects)}, ensure_ascii=False))
+        user_prompt=json.dumps({"source_text": text, "known_entities": list(subjects),
+                                'verified_aliases': verified_aliases or {}}, ensure_ascii=False))
     result = ProseFacts.model_validate_json(raw)
     if review_coverage:
         review = call_structured(llm, operation='prose_fact_coverage', system_prompt=(
@@ -49,6 +50,7 @@ def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False):
             'hypothesis/proposed distinctions. Each fact needs an exact unique source quote. Schema: '
             + json.dumps(ProseFacts.model_json_schema(), ensure_ascii=False)),
             user_prompt=json.dumps({'source_text': text, 'known_entities': list(subjects),
+                                    'verified_aliases': verified_aliases or {},
                                     'extracted': [f.model_dump() for f in result.facts]}, ensure_ascii=False))
         result.facts.extend(ProseFacts.model_validate_json(review).facts)
     valid_facts = []

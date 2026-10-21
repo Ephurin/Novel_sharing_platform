@@ -1,0 +1,176 @@
+TAP version 13
+# Subtest: server worker processes saved running tasks without a browser request
+ok 1 - server worker processes saved running tasks without a browser request
+  ---
+  duration_ms: 2.5461
+  ...
+# Subtest: overlapping worker ticks do not launch duplicate steps
+ok 2 - overlapping worker ticks do not launch duplicate steps
+  ---
+  duration_ms: 0.3328
+  ...
+# [OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): AI service returned HTTP 503: {}
+# [OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): temporary extraction failure
+# Subtest: ordinary extraction persists proposals without reading or accepting them
+ok 3 - ordinary extraction persists proposals without reading or accepting them
+  ---
+  duration_ms: 27.5396
+  ...
+# Subtest: failed extraction remains retryable and never completes or approves
+ok 4 - failed extraction remains retryable and never completes or approves
+  ---
+  duration_ms: 4.6256
+  ...
+# Subtest: retry succeeds without materializing narrative memory
+ok 5 - retry succeeds without materializing narrative memory
+  ---
+  duration_ms: 0.6946
+  ...
+# Subtest: Node.js AI Gateway Service (P6.5 Hardening)
+    # Subtest: reanalysis idempotency key survives HTTP forwarding and retries
+    ok 1 - reanalysis idempotency key survives HTTP forwarding and retries
+      ---
+      duration_ms: 65.3341
+      ...
+    # Subtest: AIGatewayService forwards headers with tenant, user, and service token
+    ok 2 - AIGatewayService forwards headers with tenant, user, and service token
+      ---
+      duration_ms: 0.8423
+      ...
+    # Subtest: AIGatewayService builds query parameters correctly for context-preview
+    ok 3 - AIGatewayService builds query parameters correctly for context-preview
+      ---
+      duration_ms: 0.7287
+      ...
+    # Subtest: AIGatewayService propagates remote AI errors as AppError with correct status code
+    ok 4 - AIGatewayService propagates remote AI errors as AppError with correct status code
+      ---
+      duration_ms: 1.3144
+      ...
+    # Subtest: AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+    ok 5 - AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+      ---
+      duration_ms: 0.5445
+      ...
+    # Subtest: assertNovelOwnership enforces author access control with 403 FORBIDDEN
+    ok 6 - assertNovelOwnership enforces author access control with 403 FORBIDDEN
+      ---
+      duration_ms: 0.3554
+      ...
+    # Subtest: Canonical chapter cutoff derivation from DB record overrides client cutoff
+    ok 7 - Canonical chapter cutoff derivation from DB record overrides client cutoff
+      ---
+      duration_ms: 0.1333
+      ...
+    # Subtest: Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+    ok 8 - Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 1.0901
+      ...
+    # Subtest: Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+    ok 9 - Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+      ---
+      duration_ms: 1.5984
+      ...
+    # Subtest: Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+    ok 10 - Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 2.415
+      ...
+    # Subtest: Story Brain freshness check fails closed with 503 when AI service is unavailable
+    ok 11 - Story Brain freshness check fails closed with 503 when AI service is unavailable
+      ---
+      duration_ms: 0.5436
+      ...
+    1..11
+ok 6 - Node.js AI Gateway Service (P6.5 Hardening)
+  ---
+  duration_ms: 77.5883
+  type: 'suite'
+  ...
+# Subtest: Autonomous Controller Gateway & Contract Tests
+    # Subtest: Cross-author autonomous run access enforces 403 FORBIDDEN
+    ok 1 - Cross-author autonomous run access enforces 403 FORBIDDEN
+      ---
+      duration_ms: 64.26
+      ...
+    # Subtest: Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+    ok 2 - Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+      ---
+      duration_ms: 1.5097
+      ...
+    # Subtest: Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+    ok 3 - Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+      ---
+      duration_ms: 0.5068
+      ...
+    # Subtest: Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+    ok 4 - Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+      ---
+      duration_ms: 0.2451
+      ...
+    # Subtest: Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+    ok 5 - Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+      ---
+      duration_ms: 0.1246
+      ...
+    # Subtest: Intentional completion gate terminates on terminal objective or all objectives done
+    ok 6 - Intentional completion gate terminates on terminal objective or all objectives done
+      ---
+      duration_ms: 0.1976
+      ...
+    1..6
+ok 7 - Autonomous Controller Gateway & Contract Tests
+  ---
+  duration_ms: 68.5479
+  type: 'suite'
+  ...
+# Subtest: empty queue cannot hide incomplete extraction
+ok 8 - empty queue cannot hide incomplete extraction
+  ---
+  duration_ms: 8.8902
+  ...
+# Subtest: only the generated revision is approved and fresh version is returned
+ok 9 - only the generated revision is approved and fresh version is returned
+  ---
+  duration_ms: 0.853
+  ...
+# Subtest: approval failures and stale evidence propagate to the controller
+ok 10 - approval failures and stale evidence propagate to the controller
+  ---
+  duration_ms: 1.3216
+  ...
+# Subtest: short prose never completes even if the evaluator would approve it
+ok 11 - short prose never completes even if the evaluator would approve it
+  ---
+  duration_ms: 0.6332
+  ...
+# Subtest: ending requires achieved objective and resolved ending
+ok 12 - ending requires achieved objective and resolved ending
+  ---
+  duration_ms: 0.441
+  ...
+# Subtest: AI reconciliation supersession must still undergo source-head checks
+ok 13 - AI reconciliation supersession must still undergo source-head checks
+  ---
+  duration_ms: 0.7749
+  ...
+# Subtest: explicit author historical correction can retain original provenance
+ok 14 - explicit author historical correction can retain original provenance
+  ---
+  duration_ms: 0.1463
+  ...
+# Subtest: author correction cannot exempt unrelated extraction in the same selection
+ok 15 - author correction cannot exempt unrelated extraction in the same selection
+  ---
+  duration_ms: 0.1006
+  ...
+1..15
+# tests 30
+# suites 2
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8119.5254

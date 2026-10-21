@@ -36,6 +36,33 @@ class FakeLLMService:
 
 
 class RevisionAnalysisRouteTests(unittest.TestCase):
+    def test_candidate_audit_read_is_scoped_and_does_not_mutate_canon(self):
+        from api.deps import get_narrative_repository
+        import uuid
+        run_id = str(uuid.uuid4())
+        self.repository.save_entity_candidate_audit('novel-route', run_id,
+            {'status': 'completed', 'counts': {'candidates': 2, 'not_entity': 1, 'unresolved': 1}})
+        app.dependency_overrides[get_narrative_repository] = lambda: self.repository
+        path = f'/v1/story-brains/novel-route/entity-candidate-audits/{run_id}'
+        response = self.client.get(path, headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['data']['counts']['unresolved'], 1)
+        self.assertEqual(self.client.get(path.replace('novel-route', 'other'), headers=self.headers).status_code, 404)
+        self.assertEqual(self.repository.list_entities('novel-route'), [])
+
+    def test_unresolved_model_output_is_actionable_422_not_500(self):
+        from domain.errors import AnalysisOutputError
+        class Unresolved:
+            def analyze(self, **kwargs):
+                raise AnalysisOutputError('CANON_RECONCILIATION_UNRESOLVED',
+                    'Conflicting target; reanalyse the saved revision.', attempts=3)
+        app.dependency_overrides[get_revision_analysis_service] = lambda: Unresolved()
+        response = self.client.post('/v1/revisions/revision-route/analyses', headers=self.headers,
+            json={'novel_id': 'novel-route', 'chapter_id': 'chapter-route', 'content_hash': self.content_hash})
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.json()['detail']['code'], 'CANON_RECONCILIATION_UNRESOLVED')
+        self.assertEqual(response.json()['detail']['attempts'], 3)
+
     def setUp(self) -> None:
         content = "Minh bước vào thành."
         self.content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()

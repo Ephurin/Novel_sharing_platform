@@ -1,0 +1,56 @@
+[
+  {
+    "label": "An · relation_to_ba_yen · confirmed",
+    "at": "2026-10-20T00:09:28.232Z",
+    "channel": "UI",
+    "action": "reject"
+  },
+  {
+    "label": "bà Sâm · instruction_given_to_an · confirmed",
+    "at": "2026-10-20T00:09:29.620Z",
+    "channel": "UI",
+    "action": "reject"
+  },
+  {
+    "label": "Linh · túi áo quảng cáo · confirmed",
+    "at": "2026-10-20T00:09:30.873Z",
+    "channel": "UI",
+    "action": "reject"
+  },
+  {
+    "label": "chuông nhà tang lễ · vị trí cũ · confirmed",
+    "at": "2026-10-20T00:09:32.237Z",
+    "channel": "UI",
+    "action": "reject"
+  },
+  {
+    "label": "chuông nhà tang lễ · lịch sử di dời · confirmed",
+    "at": "2026-10-20T00:09:33.486Z",
+    "channel": "UI",
+    "action": "reject"
+  },
+  {
+    "label": "Bà Yên · gói vải xám · confirmed",
+    "at": "2026-10-20T00:09:34.614Z",
+    "channel": "UI",
+    "action": "reject"
+  },
+  {
+    "label": "Duy · statement · hypothesis",
+    "at": "2026-10-20T00:09:35.809Z",
+    "channel": "UI",
+    "action": "reject"
+  },
+  {
+    "label": "CV-04 · giới hạn bảo tồn đọc · confirmed",
+    "at": "2026-10-20T00:09:36.948Z",
+    "channel": "UI",
+    "action": "reject"
+  },
+  {
+    "label": "flood_line · height_relative_to_man · confirmed",
+    "at": "2026-10-20T00:09:38.124Z",
+    "channel": "UI",
+    "action": "reject"
+  }
+]

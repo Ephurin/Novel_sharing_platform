@@ -2,6 +2,14 @@ class NarrativeRepositoryError(Exception):
     pass
 
 
+class AnalysisOutputError(ValueError):
+    """Bounded model repair was exhausted; no partial proposals are persisted."""
+    def __init__(self, code: str, message: str, *, attempts: int):
+        super().__init__(message)
+        self.code = code
+        self.attempts = attempts
+
+
 class IdempotencyConflictError(NarrativeRepositoryError):
     pass
 

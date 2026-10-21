@@ -5,6 +5,7 @@ import hashlib
 import json
 import uuid
 from dataclasses import asdict, replace
+from domain.repositories import NarrativeRepository
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -720,6 +721,7 @@ def analyze_revision(
     idempotency_key: str = Header(..., alias="Idempotency-Key"),
     service: RevisionAnalysisService = Depends(get_revision_analysis_service),
 ):
+    from domain.errors import AnalysisOutputError
     try:
         result = service.analyze(
             tenant_id=tenant_id,
@@ -737,16 +739,113 @@ def analyze_revision(
         raise HTTPException(status_code=422, detail={"code": "CONTENT_HASH_MISMATCH"}) from exc
     except IdempotencyConflictError as exc:
         raise HTTPException(status_code=409, detail={"code": "IDEMPOTENCY_CONFLICT"}) from exc
+    except AnalysisOutputError as exc:
+        raise HTTPException(status_code=422, detail={"code": exc.code, "message": str(exc),
+            "attempts": exc.attempts, "retryable": True}) from exc
     return {
         "data": {
             "job_id": result.analysis_run.run_id,
             "analysis_run_id": result.analysis_run.run_id,
-            "status": "completed",
+            "status": result.status,
             "proposal_count": len(result.proposals),
             "deduplicated": result.deduplicated,
         },
         "meta": {"request_id": request_id, "schema_version": 1},
     }
+
+
+@router.get('/story-brains/{brain_id}/entity-candidate-audits/{analysis_run_id}')
+def entity_candidate_audit(
+    brain_id: str,
+    analysis_run_id: uuid.UUID,
+    request_id: str = Header(..., alias='X-Request-Id'),
+    repository: NarrativeRepository = Depends(get_narrative_repository),
+):
+    audit = repository.get_entity_candidate_audit(brain_id, str(analysis_run_id))
+    if audit is None:
+        raise HTTPException(404, detail={'code': 'ENTITY_CANDIDATE_AUDIT_NOT_FOUND'})
+    return {'data': audit, 'meta': {'request_id': request_id}}
+
+
+class EntityGuidanceRequest(BaseModel):
+    expected_version: int = Field(ge=0)
+    entries: list[dict] = Field(max_length=256)
+
+
+class EntityReviewRequest(BaseModel):
+    expected_version: int = Field(ge=1)
+    decisions: list[dict] = Field(max_length=1024)
+
+
+class AuthorEntityRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=255)
+    entity_type: Literal['PER', 'LOC', 'ITEM', 'ORG', 'SKILL']
+
+
+@router.post('/story-brains/{brain_id}/author-entities', status_code=201)
+def declare_author_entity(brain_id: str, payload: AuthorEntityRequest,
+                          service=Depends(get_revision_analysis_service)):
+    try:
+        return {'data': asdict(service.create_author_entity(brain_id, payload.name, payload.entity_type))}
+    except ValueError as exc:
+        raise HTTPException(422, detail={'code': 'INVALID_AUTHOR_ENTITY', 'message': str(exc)}) from exc
+
+
+@router.get('/story-brains/{brain_id}/entity-guidance')
+def get_entity_guidance(brain_id: str, repository=Depends(get_narrative_repository), settings=Depends(get_settings)):
+    return {'data': {**repository.get_entity_guidance(brain_id),
+                     'chapter_review_enabled': settings.entity_candidate_verification_enabled}}
+
+
+@router.post('/story-brains/{brain_id}/entity-guidance')
+def set_entity_guidance(brain_id: str, payload: EntityGuidanceRequest,
+                        repository=Depends(get_narrative_repository)):
+    from application.entity_review_service import save_guidance
+    try:
+        return {'data': save_guidance(repository, brain_id, payload.entries, payload.expected_version)}
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={'code': 'ENTITY_GUIDANCE_CHANGED'}) from exc
+    except ValueError as exc:
+        raise HTTPException(422, detail={'code': 'INVALID_ENTITY_GUIDANCE', 'message': str(exc)}) from exc
+
+
+@router.get('/story-brains/{brain_id}/entity-reviews')
+def list_entity_reviews(brain_id: str, repository=Depends(get_narrative_repository)):
+    return {'data': repository.list_entity_reviews(brain_id)}
+
+
+@router.post('/story-brains/{brain_id}/entity-reviews/{run_id}/review')
+def review_entity_checkpoint(brain_id: str, run_id: uuid.UUID, payload: EntityReviewRequest,
+        tenant_id: str = Header(..., alias='X-Tenant-Id'),
+        service=Depends(get_revision_analysis_service)):
+    try:
+        return {'data': service.review_entities(brain_id, str(run_id), tenant_id=tenant_id,
+            decisions=payload.decisions, expected_version=payload.expected_version)}
+    except KeyError as exc:
+        raise HTTPException(404, detail={'code': 'ENTITY_REVIEW_NOT_FOUND'}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={'code': 'ENTITY_REVIEW_CHANGED', 'message': str(exc)}) from exc
+    except ValueError as exc:
+        raise HTTPException(422, detail={'code': 'INVALID_ENTITY_REVIEW', 'message': str(exc)}) from exc
+
+
+@router.post('/story-brains/{brain_id}/entity-reviews/{run_id}/continue')
+def continue_entity_checkpoint(brain_id: str, run_id: uuid.UUID,
+        tenant_id: str = Header(..., alias='X-Tenant-Id'),
+        service=Depends(get_revision_analysis_service)):
+    from domain.errors import AnalysisOutputError
+    try:
+        result = service.continue_entity_review(brain_id, str(run_id), tenant_id=tenant_id)
+        return {'data': {'status': result.status, 'analysis_run_id': result.analysis_run.run_id,
+                         'proposal_count': len(result.proposals)}}
+    except KeyError as exc:
+        raise HTTPException(404, detail={'code': 'ENTITY_REVIEW_NOT_FOUND'}) from exc
+    except AnalysisOutputError as exc:
+        raise HTTPException(422, detail={'code': exc.code, 'message': str(exc)}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={'code': 'ENTITY_REVIEW_CHANGED', 'message': str(exc)}) from exc
+    except ContentHashMismatchError as exc:
+        raise HTTPException(422, detail={'code': 'CONTENT_HASH_MISMATCH'}) from exc
 
 
 @router.get("/story-brains/{brain_id}/proposals")

@@ -302,6 +302,9 @@ class LLMService:
                         elif structured['operation'] == 'canon_reconciliation':
                             from services.canon_reconciliation import CanonComparison
                             config['response_json_schema'] = CanonComparison.model_json_schema()
+                        elif structured['operation'] == 'entity_candidate_verification':
+                            from services.entity_pipeline.verification import EntityDecisionBatch
+                            config['response_json_schema'] = EntityDecisionBatch.model_json_schema()
                     response = client.models.generate_content(
                         model=model_name,
                         contents=merged_prompt,

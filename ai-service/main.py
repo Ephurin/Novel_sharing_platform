@@ -100,6 +100,7 @@ app.state.span_expander = SpanExpander()
 app.state.entity_pipeline = EntityPipeline(
     pipeline_version=settings.pipeline_version,
     prompt_version=settings.entity_prompt_version,
+    candidate_verification_enabled=settings.entity_candidate_verification_enabled,
 )
 
 try:

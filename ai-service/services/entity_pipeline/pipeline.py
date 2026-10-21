@@ -21,10 +21,26 @@ class EntityPipeline:
         ml_enabled: bool = False,
         pipeline_version: str = "entity-v1",
         prompt_version: str = "entity-extraction-v1",
+        candidate_verification_enabled: bool = False,
     ) -> None:
         self.ml_enabled = False
         self.pipeline_version = pipeline_version
         self.prompt_version = prompt_version
+        self.candidate_verification_enabled = candidate_verification_enabled
+        if candidate_verification_enabled:
+            self.pipeline_version = 'entity-human-review-v1'
+
+    def run_verified(self, text, *, llm_service, known_entities=(), known_aliases=(), audit_sink=None,
+                     guidance=(), defer_materialization=False):
+        """Canonical revision workflow; legacy extraction endpoints retain their contract."""
+        from services.entity_pipeline.verification import verify_entities
+        if llm_service is None:
+            raise EntityExtractionError('LLM provider is unavailable')
+        def discover(chunk, llm):
+            return self.run(chunk, llm_service=llm)
+        return verify_entities(text, llm_service, discover, known_entities=known_entities,
+                               known_aliases=known_aliases, audit_sink=audit_sink, guidance=guidance,
+                               defer_materialization=defer_materialization)
 
     def run(self, text: str, threshold: float = 0.0, llm_service: Any = None) -> list[dict[str, Any]]:
         result = self.run_with_metadata(text=text, threshold=threshold, llm_service=llm_service)

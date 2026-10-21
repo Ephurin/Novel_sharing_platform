@@ -1,0 +1,6 @@
+PASS test_two_reuse_claims_keep_one_canon_fact_and_both_review_decisions ()
+PASS test_conflicting_claims_repair_before_persisting (('replace', 'replace'),)
+PASS test_conflicting_claims_repair_before_persisting (('reuse', 'replace'),)
+PASS test_conflicting_claims_repair_before_persisting (('replace', 'reuse'),)
+PASS test_invalid_comparison_exhausts_bounded_repair_without_partial_canon ()
+5 real PostgreSQL recovery regressions passed. LLM outputs are stubs, not live-provider evidence.

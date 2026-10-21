@@ -1,0 +1,77 @@
+[
+  {
+    "at": "2026-10-20T00:24:22.642Z",
+    "revision_prefix": "8fd00551",
+    "text": "FACT\n\nDuy · action · confirmed\n\nThực thể của dữ kiện (tên chính xác)\nNội dung được trích xuất\n\nNguồn: bản lưu 8fd00551 · vị trí 0–48 · “Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:22.953Z",
+    "revision_prefix": "8fd00551",
+    "text": "FACT\n\nLinh · action · confirmed\n\nThực thể của dữ kiện (tên chính xác)\nNội dung được trích xuất\n\nNguồn: bản lưu 8fd00551 · vị trí 49–106 · “Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị.”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:23.322Z",
+    "revision_prefix": "8fd00551",
+    "text": "FACT\n\nAn · action · confirmed\n\nThực thể của dữ kiện (tên chính xác)\nNội dung được trích xuất\n\nNguồn: bản lưu 8fd00551 · vị trí 107–131 · “An giữ thuyền ngoài sân.”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:23.635Z",
+    "revision_prefix": "8fd00551",
+    "text": "FACT\n\nHọ · knowledge_status · confirmed\n\nThực thể của dữ kiện (tên chính xác)\nNội dung được trích xuất\n\nNguồn: bản lưu 8fd00551 · vị trí 132–199 · “Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:23.949Z",
+    "revision_prefix": "8fd00551",
+    "text": "FACT\n\nnước · status · confirmed\n\nThực thể của dữ kiện (tên chính xác)\nNội dung được trích xuất\n\nNguồn: bản lưu 8fd00551 · vị trí 0–48 · “Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:24.257Z",
+    "revision_prefix": "8fd00551",
+    "text": "FACT\n\nHọ · action · confirmed\n\nThực thể của dữ kiện (tên chính xác)\nNội dung được trích xuất\n\nNguồn: bản lưu 8fd00551 · vị trí 132–199 · “Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:35.203Z",
+    "revision_prefix": "8fd00551",
+    "text": "ENTITY\nTên được trích xuất\nTrạng thái ban đầu (Alive / Dead / Unknown)\n\nNguồn: bản lưu 8fd00551 · vị trí 0–3 · “Duy”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:35.534Z",
+    "revision_prefix": "8fd00551",
+    "text": "ENTITY\nTên được trích xuất\nTrạng thái ban đầu (Alive / Dead / Unknown)\n\nNguồn: bản lưu 8fd00551 · vị trí 49–53 · “Linh”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:35.905Z",
+    "revision_prefix": "8fd00551",
+    "text": "ENTITY\nTên được trích xuất\nTrạng thái ban đầu (Alive / Dead / Unknown)\n\nNguồn: bản lưu 8fd00551 · vị trí 107–109 · “An”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:36.230Z",
+    "revision_prefix": "8fd00551",
+    "text": "ENTITY\nTên được trích xuất\nTrạng thái ban đầu (Alive / Dead / Unknown)\n\nNguồn: bản lưu 8fd00551 · vị trí 16–24 · “trạm Bốn”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:36.554Z",
+    "revision_prefix": "8fd00551",
+    "text": "ENTITY\nTên được trích xuất\nTrạng thái ban đầu (Alive / Dead / Unknown)\n\nNguồn: bản lưu 8fd00551 · vị trí 58–65 · “máy ghi”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:36.882Z",
+    "revision_prefix": "8fd00551",
+    "text": "ENTITY\nTên được trích xuất\nTrạng thái ban đầu (Alive / Dead / Unknown)\n\nNguồn: bản lưu 8fd00551 · vị trí 114–120 · “thuyền”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:37.211Z",
+    "revision_prefix": "8fd00551",
+    "text": "ENTITY\nTên được trích xuất\nTrạng thái ban đầu (Alive / Dead / Unknown)\n\nNguồn: bản lưu 8fd00551 · vị trí 76–88 · “tệp âm thanh”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:37.532Z",
+    "revision_prefix": "8fd00551",
+    "text": "ENTITY\nTên được trích xuất\nTrạng thái ban đầu (Alive / Dead / Unknown)\n\nNguồn: bản lưu 8fd00551 · vị trí 145–152 · “bản ghi”\n\nLoại đề xuất"
+  },
+  {
+    "at": "2026-10-20T00:24:37.861Z",
+    "revision_prefix": "8fd00551",
+    "text": "EVENT\nNội dung được trích xuất\nNhân vật tham gia (ngăn cách bằng dấu phẩy)\nĐịa điểm xảy ra (ngăn cách bằng dấu phẩy)\n\nNguồn: bản lưu 8fd00551 · vị trí 0–48 · “Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.”\n\nLoại đề xuất"
+  }
+]

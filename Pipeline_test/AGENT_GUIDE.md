@@ -1,10 +1,15 @@
 # Hướng dẫn thực thi cho testing agent
 
-**Revision 1.2 — gate bắt buộc:** đọc `WORKFLOW_CONTRACT.md`,
+**Workflow revision1.3 — gate bắt buộc:** đọc `WORKFLOW_CONTRACT.md`,
 `WORKFLOW_GAP_AUDIT.md`, chạy `SHORT_LOOP_TEST.md` trước bài dài. Các thao tác
 snapshot/bootstrap API bên dưới là adapter cho kiểm thử kỹ thuật/hybrid, không
 thay bằng chứng tác giả lưu chương rồi tự có extraction. UI gate thiếu phải ghi
 BLOCKED; không mặc định dùng hybrid để vượt gate. Giữ evidence và verdict cũ.
+
+Human-review mode đọc thêm `GEMINI_HUMAN_ENTITY_REVIEW_RETEST.md`: optional hints
+→ tác giả duyệt entity → event/fact → duyệt canon. P3 phải chờ entity checkpoint,
+không auto-approve nó; ghi can thiệp và không báo fully autonomous. P2 UI mặc định
+extract setup explicit; blueprint sáng tạo là mode/API riêng, không thay PASS.
 
 ## 1. Preflight và định danh lượt chạy
 
@@ -41,7 +46,7 @@ Mặc định assisted hybrid thực hiện main novel cùng P2/P3 probe riêng.
 
 Trên **dự án phụ rỗng**, gửi idea/premise, preferences, constraints qua bootstrap-from-idea; đọc proposal, review, activate, tạo chương đầu và một generation + accept + readback. Đây là P2 smoke thật riêng biệt, không nhập lại idea lên Story Brain của main novel đang có bản thảo. Không cần tạo thêm truyện 100k trên dự án phụ.
 
-Chạy **P2-M0** trước/sau review blueprint, phân biệt author-supplied với model-proposed/author-accepted; không ghi blueprint generation là extraction từ prose. Sau chương đầu accept chạy **P2-M-FIRST** kiểm tra incremental LLM extraction thật và memory/context. Probe ngắn phải có final audit; nếu chạy P2 dài, áp dụng đầy đủ lịch 10/20/50. Ghi riêng P2 plan isolation trên main, không dùng nó thay bằng chứng P2 idea-run memory.
+Chạy **P2-M0** trước/sau review entities setup (hoặc blueprint khi chọn rõ mode đó), phân biệt author-supplied với model-proposed/author-accepted; không ghi blueprint generation là extraction từ prose. Sau chương đầu accept chạy **P2-M-FIRST** kiểm tra incremental LLM extraction thật và memory/context. Probe ngắn phải có final audit; nếu chạy P2 dài, áp dụng đầy đủ lịch 10/20/50. Ghi riêng P2 plan isolation trên main, không dùng nó thay bằng chứng P2 idea-run memory.
 
 Trên **main novel**, chuyển các dòng chương **5–40** trong `chapter_plan.csv` thành objectives của plan; chương 1–4 đã xong nằm ở ledger tác giả, không được controller viết lại. `target_chapter` phải là số chương thật. Ngày trong CSV là ngày tương đối trong truyện, không phải ngày test. Cột completion_criterion phải được tác giả đọc để đánh giá, không chỉ copy nhãn.
 

@@ -1,0 +1,54 @@
+.........................................................F.........      [100%]
+================================== FAILURES ===================================
+________________ test_event_cannot_use_invented_evidence_quote ________________
+tests\test_memory_grounding_repairs.py:124: in test_event_cannot_use_invented_evidence_quote
+    extract_narrative_events('Duy t\u1edbi kho.', [{'name': 'Duy'}], Responses({'events': [
+services\event_summarizer.py:83: in extract_narrative_events
+    _, _, resolved_quote = resolve_grounded_quote(
+services\source_grounding.py:168: in resolve_grounded_quote
+    raise AnalysisOutputError('EXTRACTION_GROUNDING_UNRESOLVED',
+E   domain.errors.AnalysisOutputError: Evidence quote is missing or ambiguous after bounded repair; reanalyse the saved revision.
+
+During handling of the above exception, another exception occurred:
+tests\test_memory_grounding_repairs.py:123: in test_event_cannot_use_invented_evidence_quote
+    with pytest.raises(ValueError, match='not present'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E    Regex: 'not present'
+E    Input: 'Evidence quote is missing or ambiguous after bounded repair; reanalyse the saved revision.'
+------------------------------ Captured log call ------------------------------
+WARNING  services.source_grounding:source_grounding.py:129 Quote repair attempt 1 failed: 
+WARNING  services.source_grounding:source_grounding.py:129 Quote repair attempt 2 failed:
+============================== warnings summary ===============================
+main.py:164
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:164: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+main.py:169
+  C:\Users\Laptop\OneDrive\Documents\testproject\ai-service\main.py:169: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_memory_grounding_repairs.py::test_event_cannot_use_invented_evidence_quote
+1 failed, 66 passed, 4 warnings in 4.75s

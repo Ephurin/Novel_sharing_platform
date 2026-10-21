@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { EntityExtractionReview } from './EntityExtractionReview';
 import { Alert, Badge, Button, Card, Checkbox, Drawer, Group, NumberInput, Stack, Tabs, Text, Textarea, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiErrorMessage, ApiClientError } from '../../shared/api/api-client';
@@ -7,7 +8,7 @@ import { listChapterRevisions } from './ai-copilot-api';
 import { AuthorMemoryRepair } from './AuthorMemoryRepair';
 import { acceptProposalGroup, activateBaseline, getBootstrapJob, getReviewQueue, getStoryBrainSummary,
   rejectProposal, resumeBootstrapJob, startManuscriptBootstrap } from '../manuscript-import/manuscript-import-api';
-import { getApprovedMemory, memoryGet, memoryPost, runAuthorOperation, saveFuturePlan,
+import { getApprovedMemory, memoryGet, memoryPost, reanalyseSavedChapter, runAuthorOperation, saveFuturePlan,
   type AutoRun, type AuthorPlan, type ConsistencyFinding, type FutureEvent, type MemoryEvent } from './author-memory-api';
 
 export function AuthorMemoryPanel({ novelId, chapterId, content, opened, onClose, saved }: {
@@ -105,13 +106,14 @@ export function AuthorMemoryPanel({ novelId, chapterId, content, opened, onClose
             <Text style={{ whiteSpace: 'pre-wrap' }}>{typeof fact.fact_value === 'string' ? fact.fact_value : JSON.stringify(fact.fact_value, null, 2)}</Text>
             <Text size="xs">Chương {String(fact.chapter_number ?? '—')} · Thực thể {String(fact.subject_entity_id ?? 'chung')}</Text></Card>)}</Stack></Tabs.Panel>
         <Tabs.Panel value="review" pt="md"><Stack>
+          <EntityExtractionReview novelId={novelId} disabled={pending} perform={perform} onContinued={refresh} />
           {brain.data && <AuthorMemoryRepair novelId={novelId} version={brain.data.brain_version}
             entities={memory.data?.entities ?? []} disabled={pending} perform={perform} />}
           <Text size="sm">Lưu chương sau khi kích hoạt bộ nhớ sẽ tự trích xuất. Duyệt các nhóm dưới đây để cập nhật bộ nhớ.</Text>
           <Button variant="light" disabled={pending || !saved} onClick={() => perform(async () => {
             const revisions = await listChapterRevisions(chapterId);
             if (!revisions[0]) throw new Error('Chưa có bản lưu để phân tích.');
-            await memoryPost(`/ai/story-brains/${novelId}/reanalyse`, { revision_id: revisions[0].revisionId });
+            await reanalyseSavedChapter(novelId, revisions[0].revisionId);
             setMessage('Đã phân tích lại bản lưu theo canon hiện tại. Kiểm tra nhóm mới; loại các nhóm cũ không còn dùng.');
           })}>Phân tích lại chương đang mở</Button>
           {extraction.data?.filter(e => e.status && e.status !== 'COMPLETED').map(e => <Alert key={e.chapter_id} color={e.status === 'FAILED' ? 'red' : 'blue'}>
@@ -125,11 +127,12 @@ export function AuthorMemoryPanel({ novelId, chapterId, content, opened, onClose
               await memoryPost(`/ai/proposal-groups/${id}/accept`, { proposal_ids: proposals.map(p => p.proposal_id),
                 expected_brain_version: brain.data!.brain_version, reason: 'Author reviewed in editor',
                 edited_payloads: Object.fromEntries(proposals.filter(p => edits[p.proposal_id]).map(p => [p.proposal_id, edits[p.proposal_id]])) });
-              setEdits({});
+              setEdits(previous => Object.fromEntries(Object.entries(previous)
+                .filter(([proposalId]) => !proposals.some(p => p.proposal_id === proposalId))));
             })}>Duyệt nhóm đã kiểm tra</Button>
           </Stack></Card>)}
           {!queue.data?.length && <Text>Không có đề xuất đang chờ.</Text>}
-          {job.data?.status === 'failed' && (
+          {job.data && ['failed', 'waiting_entity_review'].includes(job.data.status) && (
             <Alert color="red" title="Trích xuất gián đoạn">
               <Text size="sm">
                 Tiến trình trích xuất dừng lại tại chương {job.data.progress?.current ?? '?'}/{job.data.progress?.total ?? '?'}: {job.data.error?.message ?? ''}
@@ -198,6 +201,14 @@ export function AuthorMemoryPanel({ novelId, chapterId, content, opened, onClose
 
 function ProposalReview({ proposal, disabled, onReject, onEdit }: { proposal: { proposal_type: string; payload: Record<string, unknown>; evidence?: { revision_id?: string; start?: number; end?: number; quote?: string }[] }; disabled: boolean; onReject: () => void; onEdit: (payload: Record<string, unknown>) => void }) {
   const p = proposal.payload;
+  if (proposal.proposal_type === 'alias') return <Stack gap="xs">
+    <Badge>Tên gọi của cùng một thực thể · chờ duyệt</Badge>
+    <Text fw={600}>{String(p.alias ?? '')} → {String(p.entity_name ?? p.entity_id ?? '')}</Text>
+    <Text size="sm">Chỉ liên kết danh tính sau khi bạn duyệt. Nếu đây là hai người khác nhau, hãy loại đề xuất.</Text>
+    {typeof p.identity_quote === 'string' && <Text style={{ whiteSpace: 'pre-wrap' }}>“{p.identity_quote}”</Text>}
+    {proposal.evidence?.map((e, i) => <Text size="xs" key={i}>Bản lưu {e.revision_id?.slice(0, 8)} · vị trí {e.start}–{e.end} · “{e.quote}”</Text>)}
+    <Button variant="subtle" color="red" disabled={disabled} onClick={onReject}>Loại đề xuất</Button>
+  </Stack>;
   if (p.reuse_artifact_id) return <Stack gap="xs"><Badge>Đã có trong canon — giữ nguyên</Badge>
     <Text>{String(p.summary ?? p.fact_key ?? '')}: {typeof p.fact_value === 'string' ? p.fact_value : p.fact_value === undefined ? '' : JSON.stringify(p.fact_value)}</Text>
     <Text size="xs">Bản ghi {String(p.reuse_artifact_id)} · {String(p.reconciliation_reason ?? '')}</Text>

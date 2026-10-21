@@ -2,15 +2,21 @@ import type { EvidenceProposal } from './proposal-evidence.service.js';
 
 interface MemoryDependencies {
   analysisStatus: () => Promise<string | null>;
+  entityReviews: () => Promise<{ revision_id: string }[]>;
   brainVersion: () => Promise<number>;
   proposals: () => Promise<EvidenceProposal[]>;
   assertCurrent: (ids: string[]) => Promise<void>;
   accept: (group: string, ids: string[], version: number) => Promise<number>;
 }
 
+export class EntityReviewRequiredError extends Error {}
+
 // Kept separate from generation so a failed memory step can resume without writing again.
 export async function approveAutonomousMemory(revisionId: string, deps: MemoryDependencies) {
   if (await deps.analysisStatus() !== 'COMPLETED') throw new Error('Analysis has not completed');
+  if ((await deps.entityReviews()).some(r => r.revision_id === revisionId)) {
+    throw new EntityReviewRequiredError('Author entity review is required');
+  }
   let version = await deps.brainVersion();
   const relevant = (await deps.proposals()).filter(p => p.evidence?.some(e => e.revision_id === revisionId));
   for (const group of new Set(relevant.map(p => p.dependency_group_id))) {

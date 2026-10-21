@@ -1,0 +1,69 @@
+{
+  "checkedAt": "2026-10-20T14:49:25.261Z",
+  "navigation": [
+    {
+      "phase": "A · Nguồn vào P1 / P2",
+      "steps": 8,
+      "pass": true
+    },
+    {
+      "phase": "B · Lưu → revision",
+      "steps": 7,
+      "pass": true
+    },
+    {
+      "phase": "C · Extract nội dung",
+      "steps": 12,
+      "pass": true
+    },
+    {
+      "phase": "D · Canon → review",
+      "steps": 9,
+      "pass": true
+    },
+    {
+      "phase": "E · Memory → context",
+      "steps": 8,
+      "pass": true
+    },
+    {
+      "phase": "F · Plan → viết → accept",
+      "steps": 11,
+      "pass": true
+    },
+    {
+      "phase": "G · P3 · Full auto",
+      "steps": 9,
+      "pass": true
+    },
+    {
+      "phase": "H · Đánh giá → kết quả",
+      "steps": 6,
+      "pass": true
+    },
+    {
+      "phase": "J · Provider / vận hành",
+      "steps": 5,
+      "pass": true
+    },
+    {
+      "phase": "X · Ứng viên / chunking",
+      "steps": 7,
+      "pass": true
+    }
+  ],
+  "layout": [
+    {
+      "viewport": 736,
+      "bodyWidth": 674,
+      "scrollWidth": 674
+    },
+    {
+      "viewport": 320,
+      "bodyWidth": 258,
+      "scrollWidth": 258,
+      "clippedLabels": 0
+    }
+  ],
+  "consoleErrors": []
+}

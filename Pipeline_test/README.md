@@ -2,6 +2,19 @@
 
 Fixture ID: `PT-CV-001` · Fixture version: `1.0.0` · Task revision: `1.2` · Ngôn ngữ: tiếng Việt.
 
+**Chạy trên máy khác:** checkout nhánh `codex/ai-copilot-pipeline-test`, dùng
+[PROMPT_RUN_TEST.md](PROMPT_RUN_TEST.md) giao agent dựng môi trường và test;
+sau đó dùng [PROMPT_REVIEW_PIPELINE.md](PROMPT_REVIEW_PIPELINE.md) để đánh giá
+code/evidence theo contract và map. Prompt không phụ thuộc đường dẫn máy cũ;
+keys, `.env`, DB/volumes và browser session phải chuẩn bị cục bộ.
+
+**Nguồn chuẩn cho ba use case:** [WORKFLOW_CONTRACT.md revision1.3,2026-10-20](WORKFLOW_CONTRACT.md).
+P1 = bản thảo có sẵn; P2 = ý tưởng/thiết lập; P3 = controller tự động. Đã bổ sung
+optional hints → tác giả duyệt entity → event/fact; P3 phải chờ entity review khi
+bật mode mới và không được báo fully autonomous. Code mới opt-in, migration0012,
+chưa live retest: [hướng dẫn hiện hành](GEMINI_HUMAN_ENTITY_REVIEW_RETEST.md).
+Các bản sửa/môi trường bên dưới là lịch sử, không phải preflight của code hiện tại.
+
 **Bản sửa 2026-10-19:** xem [báo cáo canon/context](runs/2026-10-19-canon-context-repair/REPORT.md)
 và [hướng dẫn giao Gemini retest](GEMINI_RETEST_CANON_CONTEXT.md). Stack retest ở
 `http://localhost:18080`, migration `0010_fact_supersession`. Dùng project/run mới;

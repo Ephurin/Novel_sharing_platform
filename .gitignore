@@ -31,6 +31,8 @@ staticfiles/
 
 # Test and tooling caches
 .pytest_cache/
+.pytest_tmp/
+Pipeline_test/runs/**/pytest-*/
 .mypy_cache/
 .ruff_cache/
 .tox/

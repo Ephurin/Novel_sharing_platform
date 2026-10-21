@@ -1,0 +1,301 @@
+{
+  "edits": [
+    {
+      "proposal_id": "0c8be449-1a44-5af9-b72d-ec7e5f5923bc",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 38–127 · “Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.”",
+      "subject_before": "mặt kênh",
+      "subject_after": "",
+      "value_before": "phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật",
+      "value_after": "mặt kênh: phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "mặt kênh · flatness · confirmed"
+    },
+    {
+      "proposal_id": "68192be3-c40f-542f-99db-d0fdec1f065b",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 453–519 · “Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc.”",
+      "subject_before": "bậc thang",
+      "subject_after": "",
+      "value_before": "mới lát",
+      "value_after": "bậc thang: mới lát",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "bậc thang · condition · confirmed"
+    },
+    {
+      "proposal_id": "a19a0e01-b1ec-5093-921c-5b3649499ae2",
+      "source_label": "Nguồn: bản lưu fe088e21 · vị trí 2550–2625 · “Cánh cửa gỗ đã đổi khóa, nhưng mảnh kính vàng phía trên còn nguyên vết rạn.”",
+      "subject_before": "nhà mẹ",
+      "subject_after": "",
+      "value_before": "mảnh kính vàng phía trên còn nguyên vết rạn",
+      "value_after": "nhà mẹ: mảnh kính vàng phía trên còn nguyên vết rạn",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "nhà mẹ · kính cửa · confirmed"
+    },
+    {
+      "proposal_id": "764a67c3-1d68-5238-a409-9fe7f665f54d",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 453–519 · “Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc.”",
+      "subject_before": "chậu cây",
+      "subject_after": "",
+      "value_before": "không bị ngập gốc",
+      "value_after": "chậu cây: không bị ngập gốc",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "chậu cây · flood_status · confirmed"
+    },
+    {
+      "proposal_id": "c225ff03-91b3-590f-a783-17a7e9c5345a",
+      "source_label": "Nguồn: bản lưu fe088e21 · vị trí 22–87 · “con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau.”",
+      "subject_before": "hẻm",
+      "subject_after": "",
+      "value_before": "hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau",
+      "value_after": "hẻm: hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "hẻm · độ hẹp · confirmed"
+    },
+    {
+      "proposal_id": "316957b5-9ad2-5b01-b124-49b83ab56430",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 520–560 · “Trên cao, gió có mùi cỏ cắt thay vì bùn.”",
+      "subject_before": "gió",
+      "subject_after": "",
+      "value_before": "mùi cỏ cắt thay vì bùn",
+      "value_after": "gió: mùi cỏ cắt thay vì bùn",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "gió · scent · confirmed"
+    },
+    {
+      "proposal_id": "1a494e90-a941-5238-8c92-3d7063d38579",
+      "source_label": "Nguồn: bản lưu fe088e21 · vị trí 88–157 · “Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh.”",
+      "subject_before": "tường sau bếp",
+      "subject_after": "",
+      "value_before": "trắng hơn mọi thứ xung quanh",
+      "value_after": "tường sau bếp: trắng hơn mọi thứ xung quanh",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "tường sau bếp · mảng vôi mới · confirmed"
+    },
+    {
+      "proposal_id": "86910370-4fb2-5b18-ae2b-48c5dbffecc6",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 562–629 · “Nguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố.”",
+      "subject_before": "phòng họp",
+      "subject_after": "",
+      "value_before": "có cửa kính nhìn xuống thành phố",
+      "value_after": "phòng họp: có cửa kính nhìn xuống thành phố",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "phòng họp · window_feature · confirmed"
+    },
+    {
+      "proposal_id": "29fba804-aeed-5d7b-80c5-fe50e31e0c9f",
+      "source_label": "Nguồn: bản lưu fe088e21 · vị trí 855–886 · “Mép giấy đã được gấp nhiều lần.”",
+      "subject_before": "tờ quảng cáo",
+      "subject_after": "",
+      "value_before": "đã được gấp nhiều lần",
+      "value_after": "tờ quảng cáo: đã được gấp nhiều lần",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "tờ quảng cáo · mép giấy · confirmed"
+    },
+    {
+      "proposal_id": "ec5196ac-ada5-5bdb-9858-df91664e3b79",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 1076–1137 · “Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.”",
+      "subject_before": "bản đồ",
+      "subject_after": "",
+      "value_before": "kết thúc bằng nét gạch chéo và dòng đã bịt",
+      "value_after": "bản đồ: kết thúc bằng nét gạch chéo và dòng đã bịt",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "bản đồ · pipeline_branch_status · confirmed"
+    },
+    {
+      "proposal_id": "30b2a3d8-48a2-5f3f-9cee-44aa0c9c96cd",
+      "source_label": "Nguồn: bản lưu a4120e44 · vị trí 3436–3525 · “Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn.”",
+      "subject_before": "contract",
+      "subject_after": "",
+      "value_before": "Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn",
+      "value_after": "contract: Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "contract · purpose · confirmed"
+    },
+    {
+      "proposal_id": "d5debb11-0bb4-5ed5-8e3f-dbf639cf0848",
+      "source_label": "Nguồn: bản lưu feb6ffe7 · vị trí 2234–2275 · “Ở giây thứ bốn mươi mốt có giọng đàn ông.”",
+      "subject_before": "âm thanh trong bản ghi",
+      "subject_after": "",
+      "value_before": "giây thứ bốn mươi mốt",
+      "value_after": "âm thanh trong bản ghi: giây thứ bốn mươi mốt",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "âm thanh trong bản ghi · thời điểm xuất hiện giọng đàn ông · confirmed"
+    },
+    {
+      "proposal_id": "a032af8a-e17f-5d59-8d52-cf90f125748c",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 1139–1185 · ““Bản này sao từ hồ sơ sáu năm trước,” anh nói.”",
+      "subject_before": "bản đồ",
+      "subject_after": "",
+      "value_before": "sáu năm trước",
+      "value_after": "bản đồ: sáu năm trước",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "bản đồ · source_age · confirmed"
+    },
+    {
+      "proposal_id": "7033d0cc-dfcd-5857-b7a3-de4c32b9f441",
+      "source_label": "Nguồn: bản lưu a4120e44 · vị trí 4130–4175 · “Trên thẻ, ai đó viết lại bằng bút chì: CV-04.”",
+      "subject_before": "ceramic_fragment",
+      "subject_after": "",
+      "value_before": "CV-04",
+      "value_after": "ceramic_fragment: CV-04",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "ceramic_fragment · id_code · confirmed"
+    },
+    {
+      "proposal_id": "b1f769dd-e178-5251-9592-8e169df24f3b",
+      "source_label": "Nguồn: bản lưu feb6ffe7 · vị trí 2411–2424 · ““Mở cửa Bốn.””",
+      "subject_before": "âm thanh trong bản ghi",
+      "subject_after": "",
+      "value_before": "Mở cửa Bốn",
+      "value_after": "âm thanh trong bản ghi: Mở cửa Bốn",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "âm thanh trong bản ghi · nội dung giọng đàn ông · confirmed"
+    },
+    {
+      "proposal_id": "683ac892-1b26-53d1-b2a7-6982963bb95e",
+      "source_label": "Nguồn: bản lưu feb6ffe7 · vị trí 3216–3258 · “Có tiếng chuông ba nhịp, nhịp cuối bị hụt.”",
+      "subject_before": "chuông nhà tang lễ",
+      "subject_after": "",
+      "value_before": "chuông ba nhịp, nhịp cuối bị hụt",
+      "value_after": "chuông nhà tang lễ: chuông ba nhịp, nhịp cuối bị hụt",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "chuông nhà tang lễ · đặc điểm chuông · confirmed"
+    },
+    {
+      "proposal_id": "cc340f9b-baba-5f8f-a814-d6680efa7eb4",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 1363–1415 · “Linh thấy những ô màu cam đậm dần về phía cuối bảng.”",
+      "subject_before": "lịch triều",
+      "subject_after": "",
+      "value_before": "những ô màu cam đậm dần về phía cuối bảng",
+      "value_after": "lịch triều: những ô màu cam đậm dần về phía cuối bảng",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "lịch triều · screen_display · confirmed"
+    },
+    {
+      "proposal_id": "4a1065a2-d06d-5edc-bd2e-d85ceea1d360",
+      "source_label": "Nguồn: bản lưu a4120e44 · vị trí 5249–5290 · “Tin nhắn viết: Cá nguội thì hấp lại được.”",
+      "subject_before": "me_mai_linh",
+      "subject_after": "bà Yên",
+      "value_before": "Cá nguội thì hấp lại được.",
+      "value_after": "Cá nguội thì hấp lại được.",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "me_mai_linh · last_text_message · confirmed"
+    },
+    {
+      "proposal_id": "956938c5-ecc9-5505-bc62-bc35586df1de",
+      "source_label": "Nguồn: bản lưu a4120e44 · vị trí 2712–2774 · “Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút.”",
+      "subject_before": "ong_hoa",
+      "subject_after": "ông Hòa",
+      "value_before": "ao_so_mi_cai_lech_mot_nut",
+      "value_after": "ao_so_mi_cai_lech_mot_nut",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "ong_hoa · shirt_appearance · confirmed"
+    },
+    {
+      "proposal_id": "4accedb4-8c61-5faf-a967-03112b958b6e",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 1844–1897 · “Cô trả lời có một bản tại kho theo quy trình bảo tồn.”",
+      "subject_before": "bản sao CV-04",
+      "subject_after": "",
+      "value_before": "có một bản tại kho theo quy trình bảo tồn",
+      "value_after": "bản sao CV-04: có một bản tại kho theo quy trình bảo tồn",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "bản sao CV-04 · storage_location · confirmed"
+    },
+    {
+      "proposal_id": "4269bef9-bcce-5ae0-ae01-978d3e8f6942",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 3304–3347 · “Một tấm biển cấm vào nghiêng trên hàng rào.”",
+      "subject_before": "tấm biển cấm vào",
+      "subject_after": "",
+      "value_before": "nghiêng trên hàng rào",
+      "value_after": "tấm biển cấm vào: nghiêng trên hàng rào",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "tấm biển cấm vào · position · confirmed"
+    },
+    {
+      "proposal_id": "4a2afa6f-eb50-5aa0-acdc-9825e805e179",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 3348–3421 · “Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối.”",
+      "subject_before": "cỏ",
+      "subject_after": "",
+      "value_before": "mọc qua các rãnh thoát",
+      "value_after": "cỏ: mọc qua các rãnh thoát",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "cỏ · location_inside_station · confirmed"
+    },
+    {
+      "proposal_id": "5bcc3024-82d9-524c-b514-9942f3c8a095",
+      "source_label": "Nguồn: bản lưu a9d96995 · vị trí 2325–2363 · “Từ dưới sàn vang lên ba tiếng gõ ngắn.”",
+      "subject_before": "Unknown",
+      "subject_after": "",
+      "value_before": "ba tiếng gõ ngắn từ dưới sàn vang lên",
+      "value_after": "Âm thanh chưa xác định nguồn: ba tiếng gõ ngắn từ dưới sàn vang lên",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "Unknown · sound · confirmed"
+    },
+    {
+      "proposal_id": "13918aec-8885-5fdf-86ad-d207068eee00",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 3386–3421 · “còn vệt dầu cũ nằm cao hơn đầu gối.”",
+      "subject_before": "vệt dầu cũ",
+      "subject_after": "",
+      "value_before": "nằm cao hơn đầu gối",
+      "value_after": "vệt dầu cũ: nằm cao hơn đầu gối",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "vệt dầu cũ · height_location · confirmed"
+    },
+    {
+      "proposal_id": "1438b48e-02c8-5b92-8084-8a407cfed20b",
+      "source_label": "Nguồn: bản lưu a9d96995 · vị trí 2380–2459 · “Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống.”",
+      "subject_before": "Unknown",
+      "subject_after": "",
+      "value_before": "tiếng thứ tư kéo dài như một vật nặng bị kéo ngang thành ống một giây sau",
+      "value_after": "Âm thanh chưa xác định nguồn: tiếng thứ tư kéo dài như một vật nặng bị kéo ngang thành ống một giây sau",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "Unknown · sound · confirmed"
+    },
+    {
+      "proposal_id": "5ee08e31-cc9a-53cf-ae85-4be899a494d0",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 3608–3708 · “Từ phía nhánh ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh.”",
+      "subject_before": "âm thanh nhánh ống bị gạch chéo",
+      "subject_after": "",
+      "value_before": "âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh",
+      "value_after": "âm thanh nhánh ống bị gạch chéo: âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "âm thanh nhánh ống bị gạch chéo · acoustic_property · confirmed"
+    },
+    {
+      "proposal_id": "ae260a36-5a6a-5bf0-9c50-495d8939695e",
+      "source_label": "Nguồn: bản lưu 0cf5cc37 · vị trí 4106–4148 · “Cánh cửa mở được nửa gang tay rồi mắc lại.”",
+      "subject_before": "cửa thang phụ",
+      "subject_after": "",
+      "value_before": "mở được nửa gang tay rồi mắc lại",
+      "value_after": "cửa thang phụ: mở được nửa gang tay rồi mắc lại",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "cửa thang phụ · opening_constraint · confirmed"
+    },
+    {
+      "proposal_id": "0cba063c-cb13-505a-ad58-45e3b29d88e1",
+      "source_label": "Nguồn: bản lưu a9d96995 · vị trí 2583–2636 · “Trong khe cửa, đường nước phản sáng bắt đầu dịch lên.”",
+      "subject_before": "Unknown",
+      "subject_after": "",
+      "value_before": "đường nước phản sáng trong khe cửa bắt đầu dịch lên",
+      "value_after": "Khe cửa: đường nước phản sáng trong khe cửa bắt đầu dịch lên",
+      "reason": "Author UI correction of unresolved entity reference; self-contained general fact retained.",
+      "fact_label": "Unknown · observation · confirmed"
+    }
+  ],
+  "reject_uneditable_numeric": [
+    {
+      "id": "fa390415-4686-5723-9005-77df66ec72ff",
+      "label": "flood_line · years_ago · confirmed",
+      "reason": "Unresolved numeric subject cannot be rewritten as self-contained prose with current proposal editor; preserve raw snapshot."
+    },
+    {
+      "id": "fe93ad4d-8ed3-5d85-997b-2def8a4f5430",
+      "label": "lu_lut · total_victims · confirmed",
+      "reason": "Unresolved numeric subject cannot be rewritten as self-contained prose with current proposal editor; preserve raw snapshot."
+    },
+    {
+      "id": "cc5c48c0-bea3-5e63-8128-e9b91562a1a0",
+      "label": "danh sách · số lượng người · confirmed",
+      "reason": "Unresolved numeric subject cannot be rewritten as self-contained prose with current proposal editor; preserve raw snapshot."
+    }
+  ]
+}

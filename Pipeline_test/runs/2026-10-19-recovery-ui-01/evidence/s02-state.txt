@@ -1,0 +1,198 @@
+Browser tab: 1, Title: "Ephurin Author IDE", URL: "http://localhost:18080/author/ide?novelId=7d03320e-94c3-4913-a31f-a6eeef8af0dc&chapterId=16854980-f0fc-4829-900e-c3b1e8dbc4ef".
+1 AXWebArea Ephurin Author IDE, URL: localhost:18080/author/ide?novelId=7d03320e-94c3-4913-a31f-a6eeef8af0dc&chapterId=16854980-f0fc-4829-900e-c3b1e8dbc4ef
+	2 container
+		3 container root
+			4 container
+				5 link Description: arrow_back, Help: Quay lại danh sách tác phẩm, Value: localhost:18080/author/novels/7d03320e-94c3-4913-a31f-a6eeef8af0dc
+				6 container Breadcrumb
+					7 text Untitled Novel
+					8 text /
+					9 text Chương 1 — Bến trở về
+				10 button menu_book, Help: Bộ nhớ, trích xuất và định hướng tiểu thuyết
+				11 button fullscreen, Help: Chế độ tập trung (Zen Mode)
+				12 button auto_awesome, Help: Mở trợ lý sáng tác AI
+				13 button Xuất bản chương send
+					14 text Xuất bản chương
+					15 text send
+			16 container
+				17 button view_sidebar, Help: Đóng/Mở thanh danh sách chương
+				18 text DRAFT
+				19 button Miễn phí
+				20 button stars Chương VIP ✦
+					21 text stars
+					22 text Chương VIP ✦
+			23 container
+				24 button Bộ nhớ · Trích xuất · Chờ duyệt
+				25 text MỤC LỤC CHƯƠNG 5
+				26 text Truyện: Untitled Novel
+				27 button first_page, Help: Thu gọn danh sách
+				28 container
+					29 text search
+					30 text field (settable)
+				31 button add_circle Thêm chương mới
+					32 text add_circle
+					33 text Thêm chương mới
+				34 container
+					35 text CHƯƠNG  1 Bản nháp
+					36 text Chương 1 — Bến trở về
+					37 text 1,216 từ Đang mở CHƯƠNG  2 Bản nháp
+					38 text Chương 2 — Lần đọc thứ nhất
+					39 text 1,005 từ CHƯƠNG  3 Bản nháp
+					40 text Chương 3 — Hai nơi treo một quả chuông
+					41 text 995 từ CHƯƠNG  4 Bản nháp
+					42 text Chương 4 — Bản đồ không có tiếng nước
+					43 text 957 từ CHƯƠNG  5 Bản nháp
+					44 text Chương 5 — Ba tiếng gõ
+					45 text 574 từ
+				46 container
+					47 button text_fields Merriweather expand_more, Help: Đổi kiểu chữ (7 phông chữ Việt hóa)
+						48 text text_fields
+						49 text Merriweather
+						50 text expand_more
+					51 container Cỡ chữ
+						52 button A-, Help: Giảm cỡ chữ (A-)
+						53 text 17
+						54 button A+, Help: Tăng cỡ chữ (A+)
+					55 button format_align_justify, Help: Căn đều hai bên (Chuẩn sách xuất bản)
+					56 button format_align_left, Help: Căn trái
+					57 button format_align_center, Help: Căn giữa (Thơ, tiêu đề phụ, lời đề từ)
+					58 button format_align_right, Help: Căn phải (Ký tên, ngày tháng, xuất xứ)
+					59 button format_line_spacing 2.15x expand_more, Help: Khoảng cách giãn dòng (Line-height)
+						60 text format_line_spacing
+						61 text 2.15
+						62 text x
+						63 text expand_more
+					64 button format_indent_increase, Help: Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)
+					65 button format_bold, Help: In đậm (**văn bản**)
+					66 button format_italic, Help: In nghiêng (*văn bản*)
+					67 button format_underlined, Help: Gạch chân (<u>văn bản</u>)
+					68 button strikethrough_s, Help: Gạch ngang (~~văn bản~~)
+					69 button “”, Help: Trích dẫn lời thoại “...”
+					70 button —, Help: Gạch đầu dòng lời thoại (— )
+					71 button ✦ ✦ ✦, Help: Chèn dấu phân cảnh / chuyển đoạn (✦ ✦ ✦)
+				72 container
+					73 text field (settable) Chương 1 — Bến trở về
+					74 text Đã lưu: 06:54 • Untitled Novel • Chương số  1
+					75 text entry area (settable) Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.
+
+Mười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.
+
+Một người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.
+
+“Đừng kéo. Bến này phải bế đồ qua.”
+
+Linh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.
+
+Trên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.
+
+Một cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.
+
+“Chị Mai Linh? Cháu bà Yên?”
+
+“Con bà Yên.”
+
+“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”
+
+Cậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.
+
+“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”
+
+“Mẹ tôi nhờ em?”
+
+“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”
+
+Linh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.
+
+Thuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.
+
+An chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.
+
+“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”
+
+Linh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.
+
+Kho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.
+
+“Tôi tưởng cô sẽ mang máy.”
+
+“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”
+
+“Nó hoạt động theo cách riêng.”
+
+Ông tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.
+
+Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.
+
+Ông Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.
+
+“Vì sao đợi đến bây giờ?”
+
+Ông Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.
+
+“Vì đến bây giờ mới có tiền.”
+
+Cô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.
+
+“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”
+
+Linh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.
+
+“Đã đọc chưa?”
+
+“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”
+
+Ở góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.
+
+Ngày trước khi Bãi Dưới ngập.
+
+Ngoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.
+
+Ông Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác.
+
+Linh nhìn mười hai ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.
+
+“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.
+
+Ông Hòa lấy chìa khóa. Đến cửa, ông quay lại.
+
+“Cô có cần tôi gọi cho mẹ cô không?”
+
+Linh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.
+
+Tin nhắn viết: Cá nguội thì hấp lại được.
+
+Cô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiết.
+				76 button auto_awesome Trợ lý AI, Help: Mở trợ lý AI đồng sáng tác
+					77 text auto_awesome
+					78 text Trợ lý AI
+		79 container
+			80 container Bộ nhớ và định hướng tiểu thuyết
+				81 container
+					82 heading Bộ nhớ và định hướng tiểu thuyết, Value: 2, ID: mantine-4u5bga4xi-title
+						83 text Bộ nhớ và định hướng tiểu thuyết
+					84 button
+						85 image
+				86 container mantine-4u5bga4xi-body
+					87 container
+						88 text Bộ nhớ chính thức v 1  ·  active . Đề xuất chưa duyệt chưa được dùng làm sự thật.
+					101 text NETWORK_ERROR: Network Error
+					89 container mantine-fgut7fe9x
+						90 tab group
+							91 tab (selectable, settable, boolean) Chờ duyệt (0), Value: 0, ID: mantine-fgut7fe9x-tab-review
+							92 tab (selectable, settable, boolean) Nhân vật, Value: 0, ID: mantine-fgut7fe9x-tab-characters
+							93 tab (selectable, settable, boolean) Địa danh, Value: 0, ID: mantine-fgut7fe9x-tab-locations
+							94 tab (selectable, settable, boolean) Vật phẩm, Value: 0, ID: mantine-fgut7fe9x-tab-items
+							95 tab (selectable, settable, boolean) Sự kiện, Value: 0, ID: mantine-fgut7fe9x-tab-history
+							96 tab (selected, settable, boolean) Trích xuất, Value: 1, ID: mantine-fgut7fe9x-tab-setup
+							97 tab (selectable, settable, boolean) Định hướng, Value: 0, ID: mantine-fgut7fe9x-tab-plan
+							98 tab (selectable, settable, boolean) Full auto, Value: 0, ID: mantine-fgut7fe9x-tab-auto
+						99 tab group
+							100 tab (selectable, settable, boolean) Dữ kiện, Value: 0, ID: mantine-fgut7fe9x-tab-facts
+						102 container Description: Trích xuất, ID: mantine-fgut7fe9x-panel-setup
+							103 text Lần đầu: chọn chương đã lưu hoặc nhập thiết lập. Sau kích hoạt, các lần lưu chương tự tạo đề xuất.
+							104 button Trích xuất dữ liệu tiểu thuyết từ các chương đã lưu
+							105 text Ý tưởng / thiết lập ban đầu
+							106 text entry area (settable) Ý tưởng / thiết lập ban đầu, ID: mantine-xvfmu2f70
+							107 button (disabled) Trích xuất nhân vật và địa danh
+
+The focused UI element is 104 button Trích xuất dữ liệu tiểu thuyết từ các chương đã lưu

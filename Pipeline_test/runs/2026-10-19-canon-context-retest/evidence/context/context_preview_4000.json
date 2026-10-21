@@ -1,0 +1,869 @@
+{
+  "brain_version": 7,
+  "entities": [
+    {
+      "entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "name": "Linh",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "lùi về phần sàn có ánh sáng",
+      "is_locked": false
+    },
+    {
+      "entity_id": "75c8de12-88d4-4dac-af87-975251b93177",
+      "name": "Mai Linh",
+      "entity_type": "PER",
+      "status": "Alive",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "88b23072-a044-4a4a-97cf-0cf6ddd599fd",
+      "name": "An",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Ngoài sân",
+      "is_locked": false
+    },
+    {
+      "entity_id": "c656037c-1e98-4bd2-997b-04c16092becb",
+      "name": "Ban công trình",
+      "entity_type": "ORG",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "0fd966a6-3642-46df-ba41-86c115e08f2d",
+      "name": "Bãi Dưới",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "63317131-ae6d-4495-ba28-765f7370b81b",
+      "name": "CV-04",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "883b1a6e-f581-4551-8eb4-77e7803767c6",
+      "name": "Chợ Giữa",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    }
+  ],
+  "current_states": [
+    {
+      "entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "name": "Linh",
+      "status": "Unknown",
+      "location": "lùi về phần sàn có ánh sáng",
+      "state": {
+        "headphone_status": "tháo tai nghe một bên",
+        "observation_vantage_point": "quan sát từ sàn trên; chưa xuống khoang",
+        "location": "lùi về phần sàn có ánh sáng",
+        "microphone_placement": "đặt micro gần chân cửa, không luồn qua khe",
+        "screen_display": "tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều",
+        "number_under_paint": "dấu của một con số đã bị lớp sơn sau che gần hết",
+        "photo_composition": "Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối",
+        "screen_display_stripes": "bốn vệt sáng hiện ra",
+        "notification_action": "Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy",
+        "action": "kiểm tra mã CV-04 và chụp ảnh",
+        "recorded_data_storage": "hai ổ lưu cùng dữ liệu",
+        "vị trí đứng so với Duy": "bên phải",
+        "profession": "người phục chế",
+        "seating_posture": "đầu gối gần chạm mặt bàn khi ngồi ghế thấp",
+        "position": "illuminated part of the floor"
+      }
+    },
+    {
+      "entity_id": "75c8de12-88d4-4dac-af87-975251b93177",
+      "name": "Mai Linh",
+      "status": "Alive",
+      "location": "Unknown",
+      "state": {
+        "age": 29,
+        "absence_duration_years": 11,
+        "relation_to_mai_lam": "daughter",
+        "relation_to_ba_yen": "daughter"
+      }
+    },
+    {
+      "entity_id": "88b23072-a044-4a4a-97cf-0cf6ddd599fd",
+      "name": "An",
+      "status": "Unknown",
+      "location": "Ngoài sân",
+      "state": {
+        "location": "Ngoài sân",
+        "action": "buộc lại thuyền",
+        "question_balsam": "hỏi có cần báo bà Sâm không",
+        "age": 19,
+        "raincoat_color": "cam",
+        "job": "delivery person",
+        "shoe_description": "tied with two different colored laces",
+        "activity": "vá áo mưa bằng băng dính trong"
+      }
+    },
+    {
+      "entity_id": "c656037c-1e98-4bd2-997b-04c16092becb",
+      "name": "Ban công trình",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "0fd966a6-3642-46df-ba41-86c115e08f2d",
+      "name": "Bãi Dưới",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "63317131-ae6d-4495-ba28-765f7370b81b",
+      "name": "CV-04",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {
+        "limitation": "Ba lần đã là giới hạn bảo tồn đề nghị"
+      }
+    },
+    {
+      "entity_id": "883b1a6e-f581-4551-8eb4-77e7803767c6",
+      "name": "Chợ Giữa",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    }
+  ],
+  "recent_events": [
+    {
+      "event_id": "8283e1cb-cc73-5749-9789-5bb5de2d37b5",
+      "narrative_order": 15360,
+      "chapter_number": 4,
+      "event_type": "investigation",
+      "summary": "Duy and Linh inspect Station Four, where they detect sound from a supposedly blocked pipe and hear a tapping noise from below.",
+      "participants": [
+        "Duy",
+        "Linh"
+      ],
+      "metadata": {
+        "chapter": 4,
+        "summary": "Duy and Linh inspect Station Four, where they detect sound from a supposedly blocked pipe and hear a tapping noise from below.",
+        "evidence": [
+          {
+            "end": 3303,
+            "quote": "Trạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi.",
+            "start": 3240,
+            "text_hash": "29254bfa6bd8782110a668b9f74f37b7d43022ad472366a33f625f9a741775cf",
+            "chapter_id": "53d61d15-312e-4bb5-80ce-ef99d6817c68",
+            "revision_id": "8753b47a-2cd8-4770-a2d2-ea80347126ba",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [
+          "trạm Bốn"
+        ],
+        "event_type": "investigation",
+        "consequences": [
+          "They discover unexpected underground water flow and a tapping sound in the dark."
+        ],
+        "participants": [
+          "Duy",
+          "Linh"
+        ],
+        "chapter_number": 4,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "04bc238a-3aaa-5f77-97f6-d481b66c7c54",
+      "narrative_order": 16384,
+      "chapter_number": 3,
+      "event_type": "meeting",
+      "summary": "Linh comes to Bà Sâm's porridge stall and they discuss the history of the bell and past events.",
+      "participants": [
+        "Linh",
+        "Bà Sâm"
+      ],
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh comes to Bà Sâm's porridge stall and they discuss the history of the bell and past events.",
+        "evidence": [
+          {
+            "end": 209,
+            "quote": "Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+            "start": 158,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "e82e6ce7-2b3e-4111-ae9d-4956984481b2",
+            "revision_id": "bc49115a-4712-4abb-bf81-cbf48e14604d",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [
+          "quán cháo"
+        ],
+        "event_type": "meeting",
+        "consequences": [
+          "Linh learns about the relocation of the bell and Bà Sâm's past at station Four."
+        ],
+        "participants": [
+          "Linh",
+          "Bà Sâm"
+        ],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "6e81c0d0-982c-56e9-933c-14c22c5fa0c8",
+      "narrative_order": 17408,
+      "chapter_number": 3,
+      "event_type": "conversation",
+      "summary": "An sits by the stove fixing his raincoat and talks with Linh and Bà Sâm about leaving the city and the old ferry.",
+      "participants": [
+        "An",
+        "Linh",
+        "Bà Sâm"
+      ],
+      "metadata": {
+        "chapter": 3,
+        "summary": "An sits by the stove fixing his raincoat and talks with Linh and Bà Sâm about leaving the city and the old ferry.",
+        "evidence": [
+          {
+            "end": 457,
+            "quote": "An ngồi cạnh bếp, vá áo mưa bằng băng dính trong.",
+            "start": 408,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "e82e6ce7-2b3e-4111-ae9d-4956984481b2",
+            "revision_id": "bc49115a-4712-4abb-bf81-cbf48e14604d",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [
+          "quán cháo"
+        ],
+        "event_type": "conversation",
+        "consequences": [
+          "An reveals his desire to hear the ferry's horn before leaving."
+        ],
+        "participants": [
+          "An",
+          "Linh",
+          "Bà Sâm"
+        ],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "77db9297-6d22-555c-9672-e47539377c5d",
+      "narrative_order": 18432,
+      "chapter_number": 3,
+      "event_type": "interview",
+      "summary": "Linh asks for permission and turns on her audio recorder to interview Bà Sâm regarding the bell and station Four.",
+      "participants": [
+        "Linh",
+        "Bà Sâm"
+      ],
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh asks for permission and turns on her audio recorder to interview Bà Sâm regarding the bell and station Four.",
+        "evidence": [
+          {
+            "end": 1673,
+            "quote": "Linh xin phép bật máy. Bà Sâm đồng ý",
+            "start": 1637,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "e82e6ce7-2b3e-4111-ae9d-4956984481b2",
+            "revision_id": "bc49115a-4712-4abb-bf81-cbf48e14604d",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [
+          "quán cháo"
+        ],
+        "event_type": "interview",
+        "consequences": [
+          "Bà Sâm recounts her memories of the bell transfer and her time at station Four."
+        ],
+        "participants": [
+          "Linh",
+          "Bà Sâm"
+        ],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "c46526d6-eb80-59c0-b056-9bdc3ba386bc",
+      "narrative_order": 19456,
+      "chapter_number": 3,
+      "event_type": "return",
+      "summary": "Linh returns home and has a meal with her mother, where they briefly touch upon the subject of her father.",
+      "participants": [
+        "Linh",
+        "Mẹ"
+      ],
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh returns home and has a meal with her mother, where they briefly touch upon the subject of her father.",
+        "evidence": [
+          {
+            "end": 2549,
+            "quote": "Nhà mẹ ở cuối một ngõ có giàn bầu.",
+            "start": 2515,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "e82e6ce7-2b3e-4111-ae9d-4956984481b2",
+            "revision_id": "bc49115a-4712-4abb-bf81-cbf48e14604d",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [
+          "nhà mẹ"
+        ],
+        "event_type": "return",
+        "consequences": [
+          "Linh spots a suspicious gray cloth package hidden under a chair."
+        ],
+        "participants": [
+          "Linh",
+          "Mẹ"
+        ],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "36a573e5-07c8-5ff3-a997-3904f8a752a3",
+      "narrative_order": 20480,
+      "chapter_number": 3,
+      "event_type": "phone call",
+      "summary": "Linh calls Duy from the porch after dinner to discuss the bell records and plan a visit to station Four.",
+      "participants": [
+        "Linh",
+        "Duy"
+      ],
+      "metadata": {
+        "chapter": 3,
+        "summary": "Linh calls Duy from the porch after dinner to discuss the bell records and plan a visit to station Four.",
+        "evidence": [
+          {
+            "end": 3977,
+            "quote": "Sau bữa cơm, cô ra hiên gọi Duy.",
+            "start": 3945,
+            "text_hash": "b380dddddd2e0bc07339699a005b4e0ae4b34f496907e50b75701d9746b36717",
+            "chapter_id": "e82e6ce7-2b3e-4111-ae9d-4956984481b2",
+            "revision_id": "bc49115a-4712-4abb-bf81-cbf48e14604d",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [
+          "nhà mẹ"
+        ],
+        "event_type": "phone call",
+        "consequences": [
+          "Duy agrees to look for the minutes and invites Linh to go to the station with him the next morning."
+        ],
+        "participants": [
+          "Linh",
+          "Duy"
+        ],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    }
+  ],
+  "semantic_memories": [],
+  "world_rules": [
+    {
+      "id": "3f2c21f3-2181-45c5-b1d1-9d724148f933",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "subject_name": "Linh",
+      "fact_key": "location",
+      "fact_value": "lùi về phần sàn có ánh sáng",
+      "is_locked": false
+    },
+    {
+      "id": "188ebfaa-7149-44af-8cd2-78f9d34aba16",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "subject_name": "Linh",
+      "fact_key": "headphone_status",
+      "fact_value": "tháo tai nghe một bên",
+      "is_locked": false
+    },
+    {
+      "id": "f65eac6f-bbf7-4578-8c6a-b7f5f9f1ee4b",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "subject_name": "Linh",
+      "fact_key": "observation_vantage_point",
+      "fact_value": "quan sát từ sàn trên; chưa xuống khoang",
+      "is_locked": false
+    },
+    {
+      "id": "6c13f81c-03a4-480a-af42-36d5a3b74864",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "subject_name": "Linh",
+      "fact_key": "microphone_placement",
+      "fact_value": "đặt micro gần chân cửa, không luồn qua khe",
+      "is_locked": false
+    },
+    {
+      "id": "714570d9-8115-46c7-b4a8-780b1bc8ab26",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "subject_name": "Linh",
+      "fact_key": "screen_display",
+      "fact_value": "tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều",
+      "is_locked": false
+    },
+    {
+      "id": "9d7e46de-1ef9-4c07-9372-9d490cbe9afd",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "subject_name": "Linh",
+      "fact_key": "number_under_paint",
+      "fact_value": "dấu của một con số đã bị lớp sơn sau che gần hết",
+      "is_locked": false
+    },
+    {
+      "id": "ef0ca082-8c8e-4107-9090-1f8a41b139fb",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "subject_name": "Linh",
+      "fact_key": "photo_composition",
+      "fact_value": "Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối",
+      "is_locked": false
+    },
+    {
+      "id": "7e1af783-9752-48fe-96f3-3dc3d72e2427",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "subject_name": "Linh",
+      "fact_key": "screen_display_stripes",
+      "fact_value": "bốn vệt sáng hiện ra",
+      "is_locked": false
+    },
+    {
+      "id": "ad1ceb8a-5e7d-484b-857e-b57a996a5044",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": "75c8de12-88d4-4dac-af87-975251b93177",
+      "subject_name": "Mai Linh",
+      "fact_key": "age",
+      "fact_value": 29,
+      "is_locked": false
+    }
+  ],
+  "author_constraints": [],
+  "token_budget": {
+    "used": 3973,
+    "maximum": 4000,
+    "estimated_before": 23107,
+    "budget_overflow": false,
+    "protected_overflow": false,
+    "packing_version": "context-budget-v2-diverse",
+    "estimator_version": "utf8-json-bytes-3-v1",
+    "deduplicated_semantic_count": 0,
+    "dropped_artifact_count": 163
+  },
+  "context_summary": {
+    "entity_ids": [
+      "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "75c8de12-88d4-4dac-af87-975251b93177",
+      "88b23072-a044-4a4a-97cf-0cf6ddd599fd",
+      "c656037c-1e98-4bd2-997b-04c16092becb",
+      "0fd966a6-3642-46df-ba41-86c115e08f2d",
+      "63317131-ae6d-4495-ba28-765f7370b81b",
+      "883b1a6e-f581-4551-8eb4-77e7803767c6"
+    ],
+    "event_ids": [
+      "8283e1cb-cc73-5749-9789-5bb5de2d37b5",
+      "04bc238a-3aaa-5f77-97f6-d481b66c7c54",
+      "6e81c0d0-982c-56e9-933c-14c22c5fa0c8",
+      "77db9297-6d22-555c-9672-e47539377c5d",
+      "c46526d6-eb80-59c0-b056-9bdc3ba386bc",
+      "36a573e5-07c8-5ff3-a997-3904f8a752a3"
+    ],
+    "fact_ids": [
+      "3f2c21f3-2181-45c5-b1d1-9d724148f933",
+      "188ebfaa-7149-44af-8cd2-78f9d34aba16",
+      "f65eac6f-bbf7-4578-8c6a-b7f5f9f1ee4b",
+      "6c13f81c-03a4-480a-af42-36d5a3b74864",
+      "714570d9-8115-46c7-b4a8-780b1bc8ab26",
+      "9d7e46de-1ef9-4c07-9372-9d490cbe9afd",
+      "ef0ca082-8c8e-4107-9090-1f8a41b139fb",
+      "7e1af783-9752-48fe-96f3-3dc3d72e2427",
+      "ad1ceb8a-5e7d-484b-857e-b57a996a5044"
+    ],
+    "cutoff_chapter": 5,
+    "requested_character": "Linh",
+    "recent_scope_participant_entity_ids": [
+      "8ca1dc7e-96d2-456f-9381-2192f602d1b1",
+      "fb0d6266-5d6a-443e-8d13-1a7023bd80fc",
+      "88b23072-a044-4a4a-97cf-0cf6ddd599fd",
+      "1ef6243d-6c34-4ec4-b132-ff67ac43a24a",
+      "2941b8c3-0de9-4fb8-aa63-7e02a2d0136e"
+    ],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "query_text": "",
+    "semantic_memory_ids": [],
+    "context_packing_version": [
+      "context-budget-v2-diverse"
+    ],
+    "context_token_estimator_version": [
+      "utf8-json-bytes-3-v1"
+    ],
+    "dropped_entity_ids": [
+      "70e5effd-72d0-4f11-9cfc-dd2ccd3283ba",
+      "2941b8c3-0de9-4fb8-aa63-7e02a2d0136e",
+      "ee71a9b0-2d82-40de-aeb5-f8e11c8fb389",
+      "c3636607-d6af-4773-8810-9b08dcbc4afc",
+      "38b1a960-6841-45e4-8361-57d87ef4be19",
+      "1dc020a9-8c66-4631-acce-15825bb77f58",
+      "8bc3e97b-2152-4db1-9a97-d4543d7631eb",
+      "3f1cd967-a8dd-474d-a2b9-4f7a68ad2683",
+      "7f9364ef-ad2b-455a-9221-be7b5c12d313",
+      "8ca1dc7e-96d2-456f-9381-2192f602d1b1",
+      "f18ca7da-7b9c-4019-8d21-ed9ae5e02106",
+      "1b1a30d0-bcd3-48e9-ac4e-2851a06990de",
+      "65b23faf-521b-4151-ae04-1d0ab38f3b75",
+      "9df973c8-12f3-44fa-b1fc-3ef108324ba7",
+      "a5a161b1-d9cf-4284-a8b9-1cd335e8ae59",
+      "ec6bb6b4-1789-46c5-89d1-ec597ba4abbf",
+      "c7f23ecd-e735-4d9e-95a3-20a0274d9ed0",
+      "7dc9113c-83b6-4379-93c8-9db62dcd78e0",
+      "c14d1344-8275-4936-9b25-bef88d5aad5e",
+      "0eb063c7-e36b-44c3-8056-9642228e684d",
+      "dbc88069-7693-489e-882b-d5d747e1f1df",
+      "42e486b1-469d-4fb0-99f7-05d3d6dca973",
+      "cde69b8f-a1fe-4ae0-a225-75ebcabf22c3",
+      "ca3d5bfb-9d1a-4514-97b4-2ee32e4988b7",
+      "d0df5138-359e-4ae0-9ae5-5742a286b7a6",
+      "9335994f-5018-46a9-bb03-842303385a0d",
+      "bbc1c529-509f-414b-a752-7a205036ce71",
+      "3dd6a41b-a3f7-4050-b1e5-31a6d954c1a8",
+      "5762a059-cb62-43a9-9452-97a0423beff7",
+      "4410e3bf-a429-4a61-80f3-9a72bfb5ec66",
+      "4c1629eb-52c2-43c7-970c-a38f6a2cc172",
+      "07c3936a-2018-464d-9e5f-8a1a12b8e957",
+      "4f0ba0ee-a70b-4f88-9ded-c77b52c99d66",
+      "f02d9cac-f18e-4926-91bc-b3dee4720659",
+      "6ad8d67f-109b-4f6d-834b-62442348bd23",
+      "49eaf7f6-5cd1-4909-8aa6-f2f73db50064",
+      "04df155f-26c1-451a-abdb-e378d8c54d51",
+      "2bc080c1-cee3-4a85-9c58-e85f4d7c70d1",
+      "1ef6243d-6c34-4ec4-b132-ff67ac43a24a",
+      "319b414a-364c-4d73-bf5d-d46680388b5b",
+      "08a915f9-159d-4296-8d59-ef783b049f23",
+      "307833bc-9bca-4350-a95a-b3404fff138f",
+      "8ab3b83a-82bf-42b7-82ee-7f32e7347a28",
+      "ccf726bc-e696-487a-9f8c-a01682e77974",
+      "01b8b9d5-bdb4-48a7-9a3e-891ab24fc8dc",
+      "4eedea8d-d18b-4434-84f8-9c82586519b9",
+      "827784c3-16ed-457d-92f1-453c7d6cd10e",
+      "a1afdc32-1b02-481e-a155-e5a8f8ad796d",
+      "c2f78ab5-c2cb-4515-bd87-ab0b90a8a04d",
+      "33e9e2f0-e5bd-4363-b888-eace5275b211",
+      "752d8f16-f592-4b64-9898-874764dddfbf",
+      "8ac2adc6-1c28-4e45-bc37-9e7246d00ea4",
+      "ae1e897e-7654-4cb9-8d9b-179837f80da4",
+      "c8c9e37a-2eec-4629-a210-4796c1fa9cee",
+      "ce7e5cce-c79d-49e1-b2e9-96dc4553a0aa",
+      "00621b86-dcf3-4146-9729-f3b6da36e34d",
+      "0a8576aa-c300-4818-af51-6e82675cc4c9",
+      "c74e89b1-0d74-48af-947a-8cb4e4ae9607",
+      "8b9e1251-2e7a-43f2-b1b2-3b9669a5746e",
+      "8593b909-56c7-403a-8a34-f79bd803bf57",
+      "ceb17d42-fdba-433b-83be-183b381013e8",
+      "8c8cadd8-f40c-42a5-84bd-45bcb256db26",
+      "4cf30afc-6033-4b28-b10e-2d1edd5dc48c",
+      "23251762-953e-408e-a710-342281d6945a",
+      "f2f96d4c-08f1-4be1-8512-62b3475972d4",
+      "64a550c5-a3df-4b48-a9d4-d1bae5d4b98e",
+      "fd5c1485-ee43-43eb-b4af-84301d4e077e",
+      "6f24bd54-074c-4827-adaf-28a87dbaac34",
+      "d5e9c417-3320-4daa-a4c4-845c354d8a8a",
+      "f4de9316-5aa4-4391-9f20-df46ec5cd7d0",
+      "e8684caa-b9cd-401b-bc1b-a29b05c0dd96",
+      "c7f1c9fc-f652-4945-80e4-1512059b6f88",
+      "121ed547-682d-4262-9431-8a87df0f2ad0",
+      "e71aae98-90fa-4d54-9c57-af1d0d73bee6"
+    ],
+    "dropped_event_ids": [
+      "0ee76c80-4e34-5309-9743-f98b2cc5ef57",
+      "e57ad53d-afa2-5ccc-8489-316ed5ef9ce5",
+      "b25a5abc-64de-51e8-971d-10d9a8e8b06c",
+      "05ea7015-0e81-5db3-b4f0-09db56f0dd10",
+      "627a5515-6343-5e92-a2d2-8080d0a4471b",
+      "c1f6bf6f-102e-57dc-a3b4-7bc4fe7c74e0",
+      "da4b83fd-fc91-5317-b233-4fb59b5af4d6",
+      "466680d0-418f-5db5-9f1a-a4a8081000c6",
+      "73517dee-61ce-581b-92b9-0b3b70f9bb8e",
+      "188effef-3da0-5bcf-81b7-1a2ab90ab0ad",
+      "51f23cae-7fc7-5883-aa60-330f622f6037",
+      "9856e8d0-fba8-5693-bf40-1f90a0311c08",
+      "3c0125dc-9a33-5304-bec0-520b5a914051",
+      "a386430d-6922-567c-9595-5728de59e40b"
+    ],
+    "dropped_fact_ids": [
+      "7d1408d7-b16f-4194-9fcd-f5b487ebbe37",
+      "296d5210-7f48-4e75-99aa-8cfb45830d85",
+      "c9d86409-a79f-40cb-b87e-e1f11eb9576f",
+      "c9c02865-1f33-4130-ab7f-e1c6c6f152e9",
+      "dc14f454-e511-48fb-bc55-5e87eb60d40a",
+      "55f94b22-3003-4381-be51-78e4c6836422",
+      "eb535978-ed13-47fb-8825-4eb0fdd0aeeb",
+      "ff1cfce7-4ab6-4da7-ac4e-01e647d2cdf1",
+      "26299232-1e7a-435a-a879-bafec2934af9",
+      "9a274627-32c9-4ca3-9171-dd2b632123ee",
+      "4cabc7e9-74df-4ccc-9dae-41ff3f41937f",
+      "b7344d4a-4889-4d80-841f-c9c34f857a5a",
+      "37cfc08a-3489-48d8-8ddb-c053fd974bea",
+      "12f08ba1-79fe-42fd-99b8-bcf4f8446f57",
+      "c1d294c6-0fae-4577-80ca-d3b81b6b4408",
+      "97dde4d0-975a-4387-8cca-83552b253b79",
+      "4896c2cf-2bbb-4e95-9ef8-c5c1012a4023",
+      "498bab06-5bc8-42dc-83ac-51a59ca14dc7",
+      "411c7f0f-1758-4d8b-b3b6-98609303fb68",
+      "8eff6fe6-5a4c-4cdd-83ae-ac3425128dd3",
+      "8954ef40-e652-4f84-b5c8-38be1c2a6fd1",
+      "1648e9a3-6553-403d-abbb-88b3943a6232",
+      "579bf89f-7fce-4595-8ab3-e5c3896f5cdc",
+      "eb61144b-8e6a-43ee-ad54-796f24530dc2",
+      "9cc1136e-e638-4aee-838e-16074c052471",
+      "c078c30e-2774-4f54-9e59-6cde2cf12244",
+      "d166ff01-ae62-476f-b9ef-8d98b9d7f45d",
+      "8aaea7ac-4fb9-412d-a28b-8849aa5e9488",
+      "b67e253e-20df-4350-a345-090fb5eafeb8",
+      "fdd3bf42-b07c-4155-80ae-9378f724245f",
+      "37d3794e-7c81-4f16-b448-f6340619c17b",
+      "42974ff4-771f-4161-8c5b-70b9d01f6b45",
+      "9db8df3e-053b-43f5-9a6e-24ae24821fd8",
+      "336176aa-93ff-4fbc-b796-d5ae76c0ac3e",
+      "416ab852-d419-44a1-a926-35f52a54e7dc",
+      "512970af-9ff3-4686-89e5-c6653befe937",
+      "70a434fb-40b2-4fe4-a1bf-9f43a33421c7",
+      "bb027038-f162-4590-a384-59a5587afa86",
+      "fab547f4-03c8-4032-b426-6ef05653d865",
+      "1cccd1ca-af59-4865-b6f3-a4d99e68fd64",
+      "0d744ad1-438c-46fd-a25d-857381a94b56",
+      "3219ef48-5ca6-464d-8e2f-01ebe6c0b78a",
+      "207ac719-8afe-4319-b9a9-2de63e4be503",
+      "f3907dc1-f2d8-478e-a948-369e44cb7ea2",
+      "da92207a-c7fd-4ff0-a6c3-7b2513de9318",
+      "a211b6ad-be57-4451-ac3e-3d670aed058e",
+      "edcc578a-6291-40c0-80b4-1f0753222fbe",
+      "7d0988d2-fef0-400f-b10b-938cfa554f46",
+      "869157a1-fa10-45ad-96cf-0ff5ec1b67aa",
+      "1d8b3a86-09c9-40b5-b70e-e96cad7fd5b9",
+      "32cca85f-5134-4d0b-9cf3-ab7af73e3c3e",
+      "3ab739e4-a791-44ed-8f9b-d804b8221031",
+      "8e612f4f-84a1-4c37-8a2f-1fd1fce0f2f5",
+      "1f4f4884-77f2-41dc-a5d7-abcc258ee9c3",
+      "f1ffa7b4-fff4-47f2-b342-8590b9821552",
+      "d50c460a-2f67-4ee7-a894-754969451628",
+      "c8e358de-fda2-415c-8566-390b7d216e1a",
+      "fb80e950-1120-43b1-be6d-c9be8c6bbcab",
+      "f88f1bc0-bca7-4399-905f-525641ee2864",
+      "cc2d17df-1e20-48ed-9c36-b733ebd996bd",
+      "3b9b5a5b-7830-4b0b-8c99-26d9480450a2",
+      "10abaf0b-1500-41a5-9ba0-d79ce53eef91",
+      "97072ea0-ebf2-4bc0-8783-6e8f8ffc4f87",
+      "a8c9650b-0cc7-4384-b2ce-4bcdafef2871",
+      "d716100b-7ad5-4593-a357-a3194c7d608a",
+      "6d9f30a1-20dd-458c-a3cf-5c093c594d7a",
+      "595d232c-7520-4a5a-81a2-dfec5347d828",
+      "097d4782-9d76-44c8-b62e-7c687cbdce75",
+      "7ed004d5-20aa-40ea-811c-156b22c8ddf9",
+      "182a6f21-9d86-4d02-8102-5aaa316ea105",
+      "d258d97c-4597-44d9-8abd-7a6f8823af5a",
+      "7fd30f9a-6926-4012-88f4-7dc83a2e8f76",
+      "3c678fd4-0c1d-4af3-aa56-81c7aec95f23",
+      "84944cf2-b827-4033-8f78-25c6b9cc2e0b",
+      "dcfc79a6-a151-40d4-b34c-580cf5e863c0"
+    ],
+    "dropped_semantic_memory_ids": [],
+    "deduplicated_semantic_memory_ids": [],
+    "selection_policy": [
+      "query-relevance-diverse-whole-artifacts-v2"
+    ],
+    "drop_reasons": {
+      "70e5effd-72d0-4f11-9cfc-dd2ccd3283ba": "out_of_budget_after_relevance_ordering",
+      "2941b8c3-0de9-4fb8-aa63-7e02a2d0136e": "out_of_budget_after_relevance_ordering",
+      "ee71a9b0-2d82-40de-aeb5-f8e11c8fb389": "out_of_budget_after_relevance_ordering",
+      "c3636607-d6af-4773-8810-9b08dcbc4afc": "out_of_budget_after_relevance_ordering",
+      "38b1a960-6841-45e4-8361-57d87ef4be19": "out_of_budget_after_relevance_ordering",
+      "1dc020a9-8c66-4631-acce-15825bb77f58": "out_of_budget_after_relevance_ordering",
+      "8bc3e97b-2152-4db1-9a97-d4543d7631eb": "out_of_budget_after_relevance_ordering",
+      "3f1cd967-a8dd-474d-a2b9-4f7a68ad2683": "out_of_budget_after_relevance_ordering",
+      "7f9364ef-ad2b-455a-9221-be7b5c12d313": "out_of_budget_after_relevance_ordering",
+      "8ca1dc7e-96d2-456f-9381-2192f602d1b1": "out_of_budget_after_relevance_ordering",
+      "f18ca7da-7b9c-4019-8d21-ed9ae5e02106": "out_of_budget_after_relevance_ordering",
+      "1b1a30d0-bcd3-48e9-ac4e-2851a06990de": "out_of_budget_after_relevance_ordering",
+      "65b23faf-521b-4151-ae04-1d0ab38f3b75": "out_of_budget_after_relevance_ordering",
+      "9df973c8-12f3-44fa-b1fc-3ef108324ba7": "out_of_budget_after_relevance_ordering",
+      "a5a161b1-d9cf-4284-a8b9-1cd335e8ae59": "out_of_budget_after_relevance_ordering",
+      "ec6bb6b4-1789-46c5-89d1-ec597ba4abbf": "out_of_budget_after_relevance_ordering",
+      "c7f23ecd-e735-4d9e-95a3-20a0274d9ed0": "out_of_budget_after_relevance_ordering",
+      "7dc9113c-83b6-4379-93c8-9db62dcd78e0": "out_of_budget_after_relevance_ordering",
+      "c14d1344-8275-4936-9b25-bef88d5aad5e": "out_of_budget_after_relevance_ordering",
+      "0eb063c7-e36b-44c3-8056-9642228e684d": "out_of_budget_after_relevance_ordering",
+      "dbc88069-7693-489e-882b-d5d747e1f1df": "out_of_budget_after_relevance_ordering",
+      "42e486b1-469d-4fb0-99f7-05d3d6dca973": "out_of_budget_after_relevance_ordering",
+      "cde69b8f-a1fe-4ae0-a225-75ebcabf22c3": "out_of_budget_after_relevance_ordering",
+      "ca3d5bfb-9d1a-4514-97b4-2ee32e4988b7": "out_of_budget_after_relevance_ordering",
+      "d0df5138-359e-4ae0-9ae5-5742a286b7a6": "out_of_budget_after_relevance_ordering",
+      "9335994f-5018-46a9-bb03-842303385a0d": "out_of_budget_after_relevance_ordering",
+      "bbc1c529-509f-414b-a752-7a205036ce71": "out_of_budget_after_relevance_ordering",
+      "3dd6a41b-a3f7-4050-b1e5-31a6d954c1a8": "out_of_budget_after_relevance_ordering",
+      "5762a059-cb62-43a9-9452-97a0423beff7": "out_of_budget_after_relevance_ordering",
+      "4410e3bf-a429-4a61-80f3-9a72bfb5ec66": "out_of_budget_after_relevance_ordering",
+      "4c1629eb-52c2-43c7-970c-a38f6a2cc172": "out_of_budget_after_relevance_ordering",
+      "07c3936a-2018-464d-9e5f-8a1a12b8e957": "out_of_budget_after_relevance_ordering",
+      "4f0ba0ee-a70b-4f88-9ded-c77b52c99d66": "out_of_budget_after_relevance_ordering",
+      "f02d9cac-f18e-4926-91bc-b3dee4720659": "out_of_budget_after_relevance_ordering",
+      "6ad8d67f-109b-4f6d-834b-62442348bd23": "out_of_budget_after_relevance_ordering",
+      "49eaf7f6-5cd1-4909-8aa6-f2f73db50064": "out_of_budget_after_relevance_ordering",
+      "04df155f-26c1-451a-abdb-e378d8c54d51": "out_of_budget_after_relevance_ordering",
+      "2bc080c1-cee3-4a85-9c58-e85f4d7c70d1": "out_of_budget_after_relevance_ordering",
+      "1ef6243d-6c34-4ec4-b132-ff67ac43a24a": "out_of_budget_after_relevance_ordering",
+      "319b414a-364c-4d73-bf5d-d46680388b5b": "out_of_budget_after_relevance_ordering",
+      "08a915f9-159d-4296-8d59-ef783b049f23": "out_of_budget_after_relevance_ordering",
+      "307833bc-9bca-4350-a95a-b3404fff138f": "out_of_budget_after_relevance_ordering",
+      "8ab3b83a-82bf-42b7-82ee-7f32e7347a28": "out_of_budget_after_relevance_ordering",
+      "ccf726bc-e696-487a-9f8c-a01682e77974": "out_of_budget_after_relevance_ordering",
+      "01b8b9d5-bdb4-48a7-9a3e-891ab24fc8dc": "out_of_budget_after_relevance_ordering",
+      "4eedea8d-d18b-4434-84f8-9c82586519b9": "out_of_budget_after_relevance_ordering",
+      "827784c3-16ed-457d-92f1-453c7d6cd10e": "out_of_budget_after_relevance_ordering",
+      "a1afdc32-1b02-481e-a155-e5a8f8ad796d": "out_of_budget_after_relevance_ordering",
+      "c2f78ab5-c2cb-4515-bd87-ab0b90a8a04d": "out_of_budget_after_relevance_ordering",
+      "33e9e2f0-e5bd-4363-b888-eace5275b211": "out_of_budget_after_relevance_ordering",
+      "752d8f16-f592-4b64-9898-874764dddfbf": "out_of_budget_after_relevance_ordering",
+      "8ac2adc6-1c28-4e45-bc37-9e7246d00ea4": "out_of_budget_after_relevance_ordering",
+      "ae1e897e-7654-4cb9-8d9b-179837f80da4": "out_of_budget_after_relevance_ordering",
+      "c8c9e37a-2eec-4629-a210-4796c1fa9cee": "out_of_budget_after_relevance_ordering",
+      "ce7e5cce-c79d-49e1-b2e9-96dc4553a0aa": "out_of_budget_after_relevance_ordering",
+      "00621b86-dcf3-4146-9729-f3b6da36e34d": "out_of_budget_after_relevance_ordering",
+      "0a8576aa-c300-4818-af51-6e82675cc4c9": "out_of_budget_after_relevance_ordering",
+      "c74e89b1-0d74-48af-947a-8cb4e4ae9607": "out_of_budget_after_relevance_ordering",
+      "8b9e1251-2e7a-43f2-b1b2-3b9669a5746e": "out_of_budget_after_relevance_ordering",
+      "8593b909-56c7-403a-8a34-f79bd803bf57": "out_of_budget_after_relevance_ordering",
+      "ceb17d42-fdba-433b-83be-183b381013e8": "out_of_budget_after_relevance_ordering",
+      "8c8cadd8-f40c-42a5-84bd-45bcb256db26": "out_of_budget_after_relevance_ordering",
+      "4cf30afc-6033-4b28-b10e-2d1edd5dc48c": "out_of_budget_after_relevance_ordering",
+      "23251762-953e-408e-a710-342281d6945a": "out_of_budget_after_relevance_ordering",
+      "f2f96d4c-08f1-4be1-8512-62b3475972d4": "out_of_budget_after_relevance_ordering",
+      "64a550c5-a3df-4b48-a9d4-d1bae5d4b98e": "out_of_budget_after_relevance_ordering",
+      "fd5c1485-ee43-43eb-b4af-84301d4e077e": "out_of_budget_after_relevance_ordering",
+      "6f24bd54-074c-4827-adaf-28a87dbaac34": "out_of_budget_after_relevance_ordering",
+      "d5e9c417-3320-4daa-a4c4-845c354d8a8a": "out_of_budget_after_relevance_ordering",
+      "f4de9316-5aa4-4391-9f20-df46ec5cd7d0": "out_of_budget_after_relevance_ordering",
+      "e8684caa-b9cd-401b-bc1b-a29b05c0dd96": "out_of_budget_after_relevance_ordering",
+      "c7f1c9fc-f652-4945-80e4-1512059b6f88": "out_of_budget_after_relevance_ordering",
+      "121ed547-682d-4262-9431-8a87df0f2ad0": "out_of_budget_after_relevance_ordering",
+      "e71aae98-90fa-4d54-9c57-af1d0d73bee6": "out_of_budget_after_relevance_ordering",
+      "7d1408d7-b16f-4194-9fcd-f5b487ebbe37": "out_of_budget_after_relevance_ordering",
+      "296d5210-7f48-4e75-99aa-8cfb45830d85": "out_of_budget_after_relevance_ordering",
+      "c9d86409-a79f-40cb-b87e-e1f11eb9576f": "out_of_budget_after_relevance_ordering",
+      "c9c02865-1f33-4130-ab7f-e1c6c6f152e9": "out_of_budget_after_relevance_ordering",
+      "dc14f454-e511-48fb-bc55-5e87eb60d40a": "out_of_budget_after_relevance_ordering",
+      "55f94b22-3003-4381-be51-78e4c6836422": "out_of_budget_after_relevance_ordering",
+      "eb535978-ed13-47fb-8825-4eb0fdd0aeeb": "out_of_budget_after_relevance_ordering",
+      "ff1cfce7-4ab6-4da7-ac4e-01e647d2cdf1": "out_of_budget_after_relevance_ordering",
+      "26299232-1e7a-435a-a879-bafec2934af9": "out_of_budget_after_relevance_ordering",
+      "9a274627-32c9-4ca3-9171-dd2b632123ee": "out_of_budget_after_relevance_ordering",
+      "4cabc7e9-74df-4ccc-9dae-41ff3f41937f": "out_of_budget_after_relevance_ordering",
+      "b7344d4a-4889-4d80-841f-c9c34f857a5a": "out_of_budget_after_relevance_ordering",
+      "37cfc08a-3489-48d8-8ddb-c053fd974bea": "out_of_budget_after_relevance_ordering",
+      "12f08ba1-79fe-42fd-99b8-bcf4f8446f57": "out_of_budget_after_relevance_ordering",
+      "c1d294c6-0fae-4577-80ca-d3b81b6b4408": "out_of_budget_after_relevance_ordering",
+      "97dde4d0-975a-4387-8cca-83552b253b79": "out_of_budget_after_relevance_ordering",
+      "4896c2cf-2bbb-4e95-9ef8-c5c1012a4023": "out_of_budget_after_relevance_ordering",
+      "498bab06-5bc8-42dc-83ac-51a59ca14dc7": "out_of_budget_after_relevance_ordering",
+      "411c7f0f-1758-4d8b-b3b6-98609303fb68": "out_of_budget_after_relevance_ordering",
+      "8eff6fe6-5a4c-4cdd-83ae-ac3425128dd3": "out_of_budget_after_relevance_ordering",
+      "8954ef40-e652-4f84-b5c8-38be1c2a6fd1": "out_of_budget_after_relevance_ordering",
+      "1648e9a3-6553-403d-abbb-88b3943a6232": "out_of_budget_after_relevance_ordering",
+      "579bf89f-7fce-4595-8ab3-e5c3896f5cdc": "out_of_budget_after_relevance_ordering",
+      "eb61144b-8e6a-43ee-ad54-796f24530dc2": "out_of_budget_after_relevance_ordering",
+      "9cc1136e-e638-4aee-838e-16074c052471": "out_of_budget_after_relevance_ordering",
+      "c078c30e-2774-4f54-9e59-6cde2cf12244": "out_of_budget_after_relevance_ordering",
+      "d166ff01-ae62-476f-b9ef-8d98b9d7f45d": "out_of_budget_after_relevance_ordering",
+      "8aaea7ac-4fb9-412d-a28b-8849aa5e9488": "out_of_budget_after_relevance_ordering",
+      "b67e253e-20df-4350-a345-090fb5eafeb8": "out_of_budget_after_relevance_ordering",
+      "fdd3bf42-b07c-4155-80ae-9378f724245f": "out_of_budget_after_relevance_ordering",
+      "37d3794e-7c81-4f16-b448-f6340619c17b": "out_of_budget_after_relevance_ordering",
+      "42974ff4-771f-4161-8c5b-70b9d01f6b45": "out_of_budget_after_relevance_ordering",
+      "9db8df3e-053b-43f5-9a6e-24ae24821fd8": "out_of_budget_after_relevance_ordering",
+      "336176aa-93ff-4fbc-b796-d5ae76c0ac3e": "out_of_budget_after_relevance_ordering",
+      "416ab852-d419-44a1-a926-35f52a54e7dc": "out_of_budget_after_relevance_ordering",
+      "512970af-9ff3-4686-89e5-c6653befe937": "out_of_budget_after_relevance_ordering",
+      "70a434fb-40b2-4fe4-a1bf-9f43a33421c7": "out_of_budget_after_relevance_ordering",
+      "bb027038-f162-4590-a384-59a5587afa86": "out_of_budget_after_relevance_ordering",
+      "fab547f4-03c8-4032-b426-6ef05653d865": "out_of_budget_after_relevance_ordering",
+      "1cccd1ca-af59-4865-b6f3-a4d99e68fd64": "out_of_budget_after_relevance_ordering",
+      "0d744ad1-438c-46fd-a25d-857381a94b56": "out_of_budget_after_relevance_ordering",
+      "3219ef48-5ca6-464d-8e2f-01ebe6c0b78a": "out_of_budget_after_relevance_ordering",
+      "207ac719-8afe-4319-b9a9-2de63e4be503": "out_of_budget_after_relevance_ordering",
+      "f3907dc1-f2d8-478e-a948-369e44cb7ea2": "out_of_budget_after_relevance_ordering",
+      "da92207a-c7fd-4ff0-a6c3-7b2513de9318": "out_of_budget_after_relevance_ordering",
+      "a211b6ad-be57-4451-ac3e-3d670aed058e": "out_of_budget_after_relevance_ordering",
+      "edcc578a-6291-40c0-80b4-1f0753222fbe": "out_of_budget_after_relevance_ordering",
+      "7d0988d2-fef0-400f-b10b-938cfa554f46": "out_of_budget_after_relevance_ordering",
+      "869157a1-fa10-45ad-96cf-0ff5ec1b67aa": "out_of_budget_after_relevance_ordering",
+      "1d8b3a86-09c9-40b5-b70e-e96cad7fd5b9": "out_of_budget_after_relevance_ordering",
+      "32cca85f-5134-4d0b-9cf3-ab7af73e3c3e": "out_of_budget_after_relevance_ordering",
+      "3ab739e4-a791-44ed-8f9b-d804b8221031": "out_of_budget_after_relevance_ordering",
+      "8e612f4f-84a1-4c37-8a2f-1fd1fce0f2f5": "out_of_budget_after_relevance_ordering",
+      "1f4f4884-77f2-41dc-a5d7-abcc258ee9c3": "out_of_budget_after_relevance_ordering",
+      "f1ffa7b4-fff4-47f2-b342-8590b9821552": "out_of_budget_after_relevance_ordering",
+      "d50c460a-2f67-4ee7-a894-754969451628": "out_of_budget_after_relevance_ordering",
+      "c8e358de-fda2-415c-8566-390b7d216e1a": "out_of_budget_after_relevance_ordering",
+      "fb80e950-1120-43b1-be6d-c9be8c6bbcab": "out_of_budget_after_relevance_ordering",
+      "f88f1bc0-bca7-4399-905f-525641ee2864": "out_of_budget_after_relevance_ordering",
+      "cc2d17df-1e20-48ed-9c36-b733ebd996bd": "out_of_budget_after_relevance_ordering",
+      "3b9b5a5b-7830-4b0b-8c99-26d9480450a2": "out_of_budget_after_relevance_ordering",
+      "10abaf0b-1500-41a5-9ba0-d79ce53eef91": "out_of_budget_after_relevance_ordering",
+      "97072ea0-ebf2-4bc0-8783-6e8f8ffc4f87": "out_of_budget_after_relevance_ordering",
+      "a8c9650b-0cc7-4384-b2ce-4bcdafef2871": "out_of_budget_after_relevance_ordering",
+      "d716100b-7ad5-4593-a357-a3194c7d608a": "out_of_budget_after_relevance_ordering",
+      "6d9f30a1-20dd-458c-a3cf-5c093c594d7a": "out_of_budget_after_relevance_ordering",
+      "595d232c-7520-4a5a-81a2-dfec5347d828": "out_of_budget_after_relevance_ordering",
+      "097d4782-9d76-44c8-b62e-7c687cbdce75": "out_of_budget_after_relevance_ordering",
+      "7ed004d5-20aa-40ea-811c-156b22c8ddf9": "out_of_budget_after_relevance_ordering",
+      "182a6f21-9d86-4d02-8102-5aaa316ea105": "out_of_budget_after_relevance_ordering",
+      "d258d97c-4597-44d9-8abd-7a6f8823af5a": "out_of_budget_after_relevance_ordering",
+      "7fd30f9a-6926-4012-88f4-7dc83a2e8f76": "out_of_budget_after_relevance_ordering",
+      "3c678fd4-0c1d-4af3-aa56-81c7aec95f23": "out_of_budget_after_relevance_ordering",
+      "84944cf2-b827-4033-8f78-25c6b9cc2e0b": "out_of_budget_after_relevance_ordering",
+      "dcfc79a6-a151-40d4-b34c-580cf5e863c0": "out_of_budget_after_relevance_ordering",
+      "0ee76c80-4e34-5309-9743-f98b2cc5ef57": "out_of_budget_after_relevance_ordering",
+      "e57ad53d-afa2-5ccc-8489-316ed5ef9ce5": "out_of_budget_after_relevance_ordering",
+      "b25a5abc-64de-51e8-971d-10d9a8e8b06c": "out_of_budget_after_relevance_ordering",
+      "05ea7015-0e81-5db3-b4f0-09db56f0dd10": "out_of_budget_after_relevance_ordering",
+      "627a5515-6343-5e92-a2d2-8080d0a4471b": "out_of_budget_after_relevance_ordering",
+      "c1f6bf6f-102e-57dc-a3b4-7bc4fe7c74e0": "out_of_budget_after_relevance_ordering",
+      "da4b83fd-fc91-5317-b233-4fb59b5af4d6": "out_of_budget_after_relevance_ordering",
+      "466680d0-418f-5db5-9f1a-a4a8081000c6": "out_of_budget_after_relevance_ordering",
+      "73517dee-61ce-581b-92b9-0b3b70f9bb8e": "out_of_budget_after_relevance_ordering",
+      "188effef-3da0-5bcf-81b7-1a2ab90ab0ad": "out_of_budget_after_relevance_ordering",
+      "51f23cae-7fc7-5883-aa60-330f622f6037": "out_of_budget_after_relevance_ordering",
+      "9856e8d0-fba8-5693-bf40-1f90a0311c08": "out_of_budget_after_relevance_ordering",
+      "3c0125dc-9a33-5304-bec0-520b5a914051": "out_of_budget_after_relevance_ordering",
+      "a386430d-6922-567c-9595-5728de59e40b": "out_of_budget_after_relevance_ordering"
+    }
+  },
+  "planning_context": null,
+  "current_objective": null
+}

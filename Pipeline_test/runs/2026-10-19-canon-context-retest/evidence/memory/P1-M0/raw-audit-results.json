@@ -1,0 +1,623 @@
+{
+  "overall_recall": 0.5714285714285714,
+  "critical_recall": 0.5714285714285714,
+  "matched_count": 20,
+  "total_gold": 35,
+  "critical_matched": 20,
+  "total_critical": 35,
+  "items": [
+    {
+      "item_id": "G01",
+      "source_chapter": "1",
+      "memory_type": "entity",
+      "critical": true,
+      "source_excerpt": "Ở tuổi hai mươi chín",
+      "expected_assertion": "Linh 29 tuổi",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "b196f49f-6472-5d93-8003-bfae22942372",
+        "93c3eb68-d7dd-5d69-8865-2392f89810fe",
+        "466680d0-418f-5db5-9f1a-a4a8081000c6"
+      ],
+      "matching_proposal_types": [
+        "fact",
+        "entity",
+        "event"
+      ],
+      "sample_quote": [
+        "Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà."
+      ]
+    },
+    {
+      "item_id": "G02",
+      "source_chapter": "1",
+      "memory_type": "state",
+      "critical": true,
+      "source_excerpt": "Mười một năm trước",
+      "expected_assertion": "Linh trở về sau 11 năm",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "7e2451ec-ce0a-5bee-8561-f837a19beea5",
+        "febf7f62-6a78-5aeb-8616-b3d85a09a96d"
+      ],
+      "matching_proposal_types": [
+        "fact",
+        "fact"
+      ],
+      "sample_quote": [
+        "Mười một năm trước, cầu dẫn còn có một thanh thép lỏng.",
+        "Trên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao."
+      ]
+    },
+    {
+      "item_id": "G03",
+      "source_chapter": "1",
+      "memory_type": "event",
+      "critical": true,
+      "source_excerpt": "mười bảy năm trước",
+      "expected_assertion": "Lũ cũ xảy ra 17 năm trước",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "febf7f62-6a78-5aeb-8616-b3d85a09a96d"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Trên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao."
+      ]
+    },
+    {
+      "item_id": "G04",
+      "source_chapter": "1",
+      "memory_type": "event",
+      "critical": true,
+      "source_excerpt": "hai mươi ba người chết",
+      "expected_assertion": "Có 23 người chết trong lũ",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "105c4756-2ad6-5e11-848a-c934c0aa3956",
+        "068e9f9e-28ac-53ad-93a4-b08bae4558a2",
+        "9bc807c3-472a-5d71-93a9-cbdf369652ca",
+        "66ba16e1-671c-5744-abf3-700eddcbf6ee"
+      ],
+      "matching_proposal_types": [
+        "fact",
+        "fact",
+        "fact",
+        "entity"
+      ],
+      "sample_quote": [
+        "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy."
+      ]
+    },
+    {
+      "item_id": "G05",
+      "source_chapter": "1",
+      "memory_type": "state",
+      "critical": true,
+      "source_excerpt": "Mai Lâm, cha cô",
+      "expected_assertion": "Mai Lâm đã chết trong lũ",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "105c4756-2ad6-5e11-848a-c934c0aa3956",
+        "068e9f9e-28ac-53ad-93a4-b08bae4558a2",
+        "9bc807c3-472a-5d71-93a9-cbdf369652ca",
+        "66ba16e1-671c-5744-abf3-700eddcbf6ee"
+      ],
+      "matching_proposal_types": [
+        "fact",
+        "fact",
+        "fact",
+        "entity"
+      ],
+      "sample_quote": [
+        "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy.",
+        "Mai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy."
+      ]
+    },
+    {
+      "item_id": "G06",
+      "source_chapter": "1",
+      "memory_type": "item",
+      "critical": true,
+      "source_excerpt": "một cạnh phủ sơn xanh",
+      "expected_assertion": "CV-04 có cạnh sơn xanh",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G07",
+      "source_chapter": "1",
+      "memory_type": "item",
+      "critical": true,
+      "source_excerpt": "vết nứt cong như móc câu",
+      "expected_assertion": "CV-04 có vết nứt cong hình móc",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G08",
+      "source_chapter": "2",
+      "memory_type": "event",
+      "critical": true,
+      "source_excerpt": "Lần quét thứ nhất",
+      "expected_assertion": "CV-04 đã quét một lần",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G09",
+      "source_chapter": "2",
+      "memory_type": "fact",
+      "critical": true,
+      "source_excerpt": "phần phổ cao mất thêm",
+      "expected_assertion": "Mỗi lần quét làm mất phổ cao",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G10",
+      "source_chapter": "2",
+      "memory_type": "fact",
+      "critical": true,
+      "source_excerpt": "Ba lần đã là giới hạn",
+      "expected_assertion": "Giới hạn bảo tồn đề nghị ba lần quét",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "90804e25-db08-5ad8-9dee-79b8c8488fc0"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Ba lần đã là giới hạn bảo tồn đề nghị cho loại này."
+      ]
+    },
+    {
+      "item_id": "G11",
+      "source_chapter": "2",
+      "memory_type": "event",
+      "critical": true,
+      "source_excerpt": "Mở cửa Bốn.",
+      "expected_assertion": "Bản ghi có câu mở cửa Bốn",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "970b5231-c08e-57f4-bbf0-c76fcda505ef",
+        "627a5515-6343-5e92-a2d2-8080d0a4471b"
+      ],
+      "matching_proposal_types": [
+        "fact",
+        "event"
+      ],
+      "sample_quote": [
+        "“Mở cửa Bốn.”",
+        "Ở giây thứ bốn mươi mốt có giọng đàn ông.\n\nKhông phải một câu đầy đủ. Trước đó, một đoạn âm bị vỡ thành tiếng sạn. Sau đó, ai đó ho. Nhưng ở giữa, bốn tiếng đứng rất gần nhau:\n\n“Mở cửa Bốn.”\n\nLinh buông tay khỏi bàn.\n\nDuy nhìn cô, rồi nhìn đồng hồ. Anh không hỏi. Cô biết mình phải ghi tiếp: tiếng nói nam, khoảng cao độ, mức nhiễu, không kết luận danh tính. Những từ chuyên môn đứng sẵn trong đầu nhưng không đi ra được.\n\nGiọng ấy thấp hơn giọng cha cô nhớ. Hoặc trong trí nhớ, cha chỉ nói với một đứa trẻ nên giọng luôn mềm hơn. Cô nhớ ông gọi mình tránh xa mép kênh, nhớ cách ông kéo dài âm cuối khi chưa thực sự giận. Bốn tiếng vừa nghe không có âm cuối nào để bấu vào.\n\n“Có thể là cha tôi,” cô nói."
+      ]
+    },
+    {
+      "item_id": "G12",
+      "source_chapter": "2",
+      "memory_type": "certainty",
+      "critical": true,
+      "source_excerpt": "Ghi là chị nhận ra giọng giống ông",
+      "expected_assertion": "Linh cho rằng giọng giống cha, chưa xác minh",
+      "expected_certainty": "attributed/unverified",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G13",
+      "source_chapter": "2",
+      "memory_type": "certainty",
+      "critical": true,
+      "source_excerpt": "Cô viết ba chữ “nếu”",
+      "expected_assertion": "Chuông chưa chứng minh thời gian/vị trí",
+      "expected_certainty": "attributed/unverified",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G14",
+      "source_chapter": "2",
+      "memory_type": "state",
+      "critical": true,
+      "source_excerpt": "Tai trái tôi không nghe",
+      "expected_assertion": "Duy không nghe tai trái",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "c78419e3-95c5-5329-a662-8d7b3708e29b"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Tai trái tôi không nghe. Chị đứng bên này là được, không cần nói to."
+      ]
+    },
+    {
+      "item_id": "G15",
+      "source_chapter": "2",
+      "memory_type": "state",
+      "critical": true,
+      "source_excerpt": "Anh đặt ngón tay lên mặt bàn",
+      "expected_assertion": "Duy dùng tai phải và dụng cụ",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G16",
+      "source_chapter": "2",
+      "memory_type": "ownership",
+      "critical": true,
+      "source_excerpt": "hai ổ lưu cùng dữ liệu",
+      "expected_assertion": "Hai ổ lưu dữ liệu đã thu",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "b5f0f7a8-6e8c-5f8d-8eb0-30abaef9519f"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Đến cuối buổi, họ có hai ổ lưu cùng dữ liệu đã thu."
+      ]
+    },
+    {
+      "item_id": "G17",
+      "source_chapter": "2",
+      "memory_type": "ownership",
+      "critical": true,
+      "source_excerpt": "Một ổ được niêm trong tủ",
+      "expected_assertion": "Một ổ niêm trong tủ ông Hòa",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "627a5515-6343-5e92-a2d2-8080d0a4471b"
+      ],
+      "matching_proposal_types": [
+        "event"
+      ],
+      "sample_quote": [
+        "Ở giây thứ bốn mươi mốt có giọng đàn ông.\n\nKhông phải một câu đầy đủ. Trước đó, một đoạn âm bị vỡ thành tiếng sạn. Sau đó, ai đó ho. Nhưng ở giữa, bốn tiếng đứng rất gần nhau:\n\n“Mở cửa Bốn.”\n\nLinh buông tay khỏi bàn.\n\nDuy nhìn cô, rồi nhìn đồng hồ. Anh không hỏi. Cô biết mình phải ghi tiếp: tiếng nói nam, khoảng cao độ, mức nhiễu, không kết luận danh tính. Những từ chuyên môn đứng sẵn trong đầu nhưng không đi ra được.\n\nGiọng ấy thấp hơn giọng cha cô nhớ. Hoặc trong trí nhớ, cha chỉ nói với một đứa trẻ nên giọng luôn mềm hơn. Cô nhớ ông gọi mình tránh xa mép kênh, nhớ cách ông kéo dài âm cuối khi chưa thực sự giận. Bốn tiếng vừa nghe không có âm cuối nào để bấu vào.\n\n“Có thể là cha tôi,” cô nói."
+      ]
+    },
+    {
+      "item_id": "G18",
+      "source_chapter": "2",
+      "memory_type": "ownership",
+      "critical": true,
+      "source_excerpt": "ổ kia nằm trong túi chống ẩm",
+      "expected_assertion": "Một ổ trong túi chống ẩm Linh",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "d8c668c2-2996-56ee-bf72-d8eb572c2d7a"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Linh thấy trong túi áo cậu có tờ quảng cáo tuyển người làm ở một xưởng máy ven biển. Mép giấy đã được gấp nhiều lần."
+      ]
+    },
+    {
+      "item_id": "G19",
+      "source_chapter": "2",
+      "memory_type": "item",
+      "critical": true,
+      "source_excerpt": "vết khía hình tam giác",
+      "expected_assertion": "Vòng chuẩn đồng có khía tam giác",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "ab4bbe37-d37e-557c-b01f-c6b86fcd293c",
+        "0fe7cfc4-ac88-58f3-ae5f-b3b59d0f9dd1"
+      ],
+      "matching_proposal_types": [
+        "fact",
+        "fact"
+      ],
+      "sample_quote": [
+        "Anh lấy ra một vòng đồng mỏng. Trên mép có vết khía hình tam giác, nhỏ đến mức nếu không được chỉ, cô sẽ tưởng đó là chỗ sứt.",
+        "Duy mở hộp, đặt vòng chuẩn có vết khía tam giác sang ngăn bên trong để lấy đèn."
+      ]
+    },
+    {
+      "item_id": "G20",
+      "source_chapter": "2",
+      "memory_type": "ownership",
+      "critical": true,
+      "source_excerpt": "đặt lại trong hộp dụng cụ",
+      "expected_assertion": "Vòng chuẩn được Duy cất trong hộp dụng cụ",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G21",
+      "source_chapter": "3",
+      "memory_type": "certainty",
+      "critical": true,
+      "source_excerpt": "Ta chỉ thấy họ chuyển. Ta không ký.",
+      "expected_assertion": "Sâm kể chuông được chuyển sau lũ; chưa có hồ sơ",
+      "expected_certainty": "attributed/unverified",
+      "matched": true,
+      "matching_proposal_ids": [
+        "af884623-03cc-5c6c-9bba-c43eba238fa8"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Ta chỉ thấy họ chuyển. Ta không ký."
+      ]
+    },
+    {
+      "item_id": "G22",
+      "source_chapter": "3",
+      "memory_type": "ownership",
+      "critical": true,
+      "source_excerpt": "một gói vải xám buộc dây",
+      "expected_assertion": "Yên giấu sổ bọc vải dưới ghế",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "79cbb635-a2e5-5028-9644-72daf5d6ec75"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Khi bà kéo chiếc ghế sát tường ra, Linh thấy dưới mặt ghế có một gói vải xám buộc dây."
+      ]
+    },
+    {
+      "item_id": "G23",
+      "source_chapter": "3",
+      "memory_type": "state",
+      "critical": true,
+      "source_excerpt": "Một góc bìa sổ lộ ra",
+      "expected_assertion": "Linh thấy sổ nhưng chưa đọc",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G24",
+      "source_chapter": "4",
+      "memory_type": "event",
+      "critical": true,
+      "source_excerpt": "Giấy cho phép khảo sát được ký",
+      "expected_assertion": "Vũ cho phép khảo sát có điều kiện",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G25",
+      "source_chapter": "4",
+      "memory_type": "fact",
+      "critical": true,
+      "source_excerpt": "không vận hành cửa nước",
+      "expected_assertion": "Không vận hành cửa nước khi khảo sát",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "1494d4c8-7eaa-56f0-9570-e6a1b29a6020"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện."
+      ]
+    },
+    {
+      "item_id": "G26",
+      "source_chapter": "4",
+      "memory_type": "fact",
+      "critical": true,
+      "source_excerpt": "không xuống khoang kín",
+      "expected_assertion": "Không xuống khoang kín",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G27",
+      "source_chapter": "4",
+      "memory_type": "certainty",
+      "critical": true,
+      "source_excerpt": "Việc ông sẽ kể hết những gì biết thì tôi chưa biết",
+      "expected_assertion": "Động cơ Vũ chưa chứng minh",
+      "expected_certainty": "attributed/unverified",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G28",
+      "source_chapter": "4",
+      "memory_type": "certainty",
+      "critical": true,
+      "source_excerpt": "còn nghe dòng chảy ở phía này",
+      "expected_assertion": "Bản đồ đánh dấu ống bịt nhưng hiện trường có âm",
+      "expected_certainty": "attributed/unverified",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G29",
+      "source_chapter": "5",
+      "memory_type": "time",
+      "critical": true,
+      "source_excerpt": "ngày hai, trạm Bốn, nhánh tây",
+      "expected_assertion": "Ngày hai, buổi sáng trạm Bốn",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G30",
+      "source_chapter": "5",
+      "memory_type": "state",
+      "critical": true,
+      "source_excerpt": "Ngoài sân, An buộc lại thuyền",
+      "expected_assertion": "An giữ thuyền ngoài trạm",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "0d6595c9-9285-52c2-b304-6462fc795da3",
+        "88808643-fdaf-5f7c-afd0-dcea924360dd",
+        "a386430d-6922-567c-9595-5728de59e40b"
+      ],
+      "matching_proposal_types": [
+        "fact",
+        "fact",
+        "event"
+      ],
+      "sample_quote": [
+        "Ngoài sân, An buộc lại thuyền.",
+        "Ngoài sân, An buộc lại thuyền."
+      ]
+    },
+    {
+      "item_id": "G31",
+      "source_chapter": "5",
+      "memory_type": "state",
+      "critical": true,
+      "source_excerpt": "quan sát từ sàn trên; chưa xuống khoang",
+      "expected_assertion": "Linh và Duy quan sát sàn trên, chưa xuống khoang",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "7fcc301a-b442-5407-99bb-bf1909fcee8b"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Cô thêm “quan sát từ sàn trên; chưa xuống khoang”."
+      ]
+    },
+    {
+      "item_id": "G32",
+      "source_chapter": "5",
+      "memory_type": "certainty",
+      "critical": true,
+      "source_excerpt": "anh chưa có lý do để đặt một người",
+      "expected_assertion": "Chưa có bằng chứng có người dưới khoang",
+      "expected_certainty": "attributed/unverified",
+      "matched": false,
+      "matching_proposal_ids": [],
+      "matching_proposal_types": [],
+      "sample_quote": []
+    },
+    {
+      "item_id": "G33",
+      "source_chapter": "5",
+      "memory_type": "event",
+      "critical": true,
+      "source_excerpt": "ba tiếng gõ ngắn",
+      "expected_assertion": "Linh nghe ba tiếng gõ ngắn và tiếng thứ tư dài",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "b781bd65-5c59-54ba-aa42-f6d7d18c969d",
+        "188effef-3da0-5bcf-81b7-1a2ab90ab0ad",
+        "627a5515-6343-5e92-a2d2-8080d0a4471b"
+      ],
+      "matching_proposal_types": [
+        "fact",
+        "event",
+        "event"
+      ],
+      "sample_quote": [
+        "Từ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống.",
+        "Từ dưới sàn vang lên ba tiếng gõ ngắn."
+      ]
+    },
+    {
+      "item_id": "G34",
+      "source_chapter": "5",
+      "memory_type": "certainty",
+      "critical": true,
+      "source_excerpt": "như một vật nặng bị kéo ngang thành ống",
+      "expected_assertion": "Nguồn tiếng gõ chưa xác định",
+      "expected_certainty": "attributed/unverified",
+      "matched": true,
+      "matching_proposal_ids": [
+        "b781bd65-5c59-54ba-aa42-f6d7d18c969d"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Từ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống."
+      ]
+    },
+    {
+      "item_id": "G35",
+      "source_chapter": "5",
+      "memory_type": "event",
+      "critical": true,
+      "source_excerpt": "đường nước phản sáng bắt đầu dịch lên",
+      "expected_assertion": "Mực nước khe cửa bắt đầu lên",
+      "expected_certainty": "confirmed_in_prose",
+      "matched": true,
+      "matching_proposal_ids": [
+        "611480da-eb51-5fab-a8ac-28039a7e610c"
+      ],
+      "matching_proposal_types": [
+        "fact"
+      ],
+      "sample_quote": [
+        "Trong khe cửa, đường nước phản sáng bắt đầu dịch lên."
+      ]
+    }
+  ]
+}

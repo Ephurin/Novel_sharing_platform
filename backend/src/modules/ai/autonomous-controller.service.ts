@@ -1,4 +1,4 @@
-import { approveAutonomousMemory, objectiveIsComplete } from './autonomous-memory.service.js';
+import { approveAutonomousMemory, objectiveIsComplete, EntityReviewRequiredError } from './autonomous-memory.service.js';
 import { withAutonomousRunLock } from './autonomous-run.repository.js';
 import crypto from 'node:crypto';
 import { env } from '../../core/config/env.js';
@@ -418,6 +418,8 @@ export class AutonomousControllerService {
       if (!analysis || analysis.status !== 'COMPLETED') throw new Error('Analysis has not completed');
       await approveAutonomousMemory(acceptResult.revision.revisionId, {
         analysisStatus: async () => analysis.status,
+        entityReviews: () => aiGatewayService.forwardRequest<{ revision_id: string }[]>({ method: 'GET',
+          path: `/v1/story-brains/${run.novel_id}/entity-reviews`, userId: auth.userId }),
         brainVersion: async () => (await aiGatewayService.forwardRequest<{ brain_version: number }>({ method: 'GET',
           path: `/v1/story-brains/by-novel/${run.novel_id}`, userId: auth.userId })).brain_version,
         proposals: () => aiGatewayService.forwardRequest({ method: 'GET',
@@ -427,7 +429,12 @@ export class AutonomousControllerService {
           path: `/v1/proposal-groups/${gid}/accept`, body: { proposal_ids: ids,
             expected_brain_version: version, reason: 'autonomous_loop_auto_advance' }, userId: auth.userId })).brain_version,
       });
-    } catch {
+    } catch (error) {
+      if (error instanceof EntityReviewRequiredError) {
+        return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,
+          body: { stop_reason: 'waiting_for_entity_review', current_objective_id: currentObjectiveId,
+            current_chapter_id: targetChapter.chapterId, last_generation_id: genJob.job_id }, userId: auth.userId });
+      }
       const retries = run.current_retries + 1;
       return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,
         body: { status: retries >= run.max_retries_per_objective ? 'failed' : 'running',
@@ -525,7 +532,7 @@ export class AutonomousControllerService {
     while (currentRun.status === 'running' && iterations < maxSteps) {
       currentRun = await this.stepRun(auth, runId);
       iterations++;
-      if (currentRun.status !== 'running') {
+      if (currentRun.status !== 'running' || currentRun.stop_reason === 'waiting_for_entity_review') {
         break;
       }
     }

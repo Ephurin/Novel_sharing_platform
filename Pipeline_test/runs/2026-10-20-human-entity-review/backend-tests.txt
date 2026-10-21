@@ -1,0 +1,1080 @@
+
+> ephurin-backend@0.1.0 test
+> tsx --test "src/**/*.test.ts"
+
+TAP version 13
+# Subtest: Test Database Isolation Guard Rules (Negative and Positive Contract)
+    # Subtest: Rule 1: Missing external opt-in (EPHURIN_ALLOW_TEST_DB_MUTATIONS != "1") fails closed
+    ok 1 - Rule 1: Missing external opt-in (EPHURIN_ALLOW_TEST_DB_MUTATIONS != "1") fails closed
+      ---
+      duration_ms: 3.5276
+      ...
+    # Subtest: Rule 2: Ambient CI=true does NOT authorize mutations without opt-in
+    ok 2 - Rule 2: Ambient CI=true does NOT authorize mutations without opt-in
+      ---
+      duration_ms: 4.1049
+      ...
+    # Subtest: Rule 3: Ambient NODE_ENV=test does NOT authorize mutations without opt-in
+    ok 3 - Rule 3: Ambient NODE_ENV=test does NOT authorize mutations without opt-in
+      ---
+      duration_ms: 0.4426
+      ...
+    # Subtest: Rule 4: Ambient npm lifecycle script does NOT authorize mutations without opt-in
+    ok 4 - Rule 4: Ambient npm lifecycle script does NOT authorize mutations without opt-in
+      ---
+      duration_ms: 0.3339
+      ...
+    # Subtest: Rule 5: Default PostgreSQL database "ephurin" is REJECTED even with opt-in
+    ok 5 - Rule 5: Default PostgreSQL database "ephurin" is REJECTED even with opt-in
+      ---
+      duration_ms: 0.3432
+      ...
+    # Subtest: Rule 6: Production/system PostgreSQL databases (postgres, template0) are REJECTED even with opt-in
+    ok 6 - Rule 6: Production/system PostgreSQL databases (postgres, template0) are REJECTED even with opt-in
+      ---
+      duration_ms: 0.4084
+      ...
+    # Subtest: Rule 7: Default MongoDB database "ephurin" is REJECTED even with opt-in
+    ok 7 - Rule 7: Default MongoDB database "ephurin" is REJECTED even with opt-in
+      ---
+      duration_ms: 0.3033
+      ...
+    # Subtest: Rule 8: System MongoDB databases (admin, config, local) are REJECTED even with opt-in
+    ok 8 - Rule 8: System MongoDB databases (admin, config, local) are REJECTED even with opt-in
+      ---
+      duration_ms: 0.4304
+      ...
+    # Subtest: Rule 9: Expected test DB name mismatch is REJECTED
+    ok 9 - Rule 9: Expected test DB name mismatch is REJECTED
+      ---
+      duration_ms: 0.4283
+      ...
+    # Subtest: Rule 10: Approved isolated test database with opt-in PASSES
+    ok 10 - Rule 10: Approved isolated test database with opt-in PASSES
+      ---
+      duration_ms: 1.1913
+      ...
+    # Subtest: Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names
+    ok 11 - Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names
+      ---
+      duration_ms: 0.7159
+      ...
+    1..11
+ok 1 - Test Database Isolation Guard Rules (Negative and Positive Contract)
+  ---
+  duration_ms: 17.3383
+  type: 'suite'
+  ...
+# Subtest: server worker processes saved running tasks without a browser request
+ok 2 - server worker processes saved running tasks without a browser request
+  ---
+  duration_ms: 1.9549
+  ...
+# Subtest: overlapping worker ticks do not launch duplicate steps
+ok 3 - overlapping worker ticks do not launch duplicate steps
+  ---
+  duration_ms: 0.3632
+  ...
+# [OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): AI service returned HTTP 503: {}
+# [OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): temporary extraction failure
+# Subtest: ordinary extraction persists proposals without reading or accepting them
+ok 4 - ordinary extraction persists proposals without reading or accepting them
+  ---
+  duration_ms: 21.2444
+  ...
+# Subtest: failed extraction remains retryable and never completes or approves
+ok 5 - failed extraction remains retryable and never completes or approves
+  ---
+  duration_ms: 5.1572
+  ...
+# Subtest: retry succeeds without materializing narrative memory
+ok 6 - retry succeeds without materializing narrative memory
+  ---
+  duration_ms: 0.5317
+  ...
+# Subtest: AI Copilot LLM Provider Health Check
+    # Subtest: recognizes models with models/ prefix from Google OpenAI endpoint
+    ok 1 - recognizes models with models/ prefix from Google OpenAI endpoint
+      ---
+      duration_ms: 63.8586
+      ...
+    # Subtest: recognizes models without prefix from standard OpenAI endpoint
+    ok 2 - recognizes models without prefix from standard OpenAI endpoint
+      ---
+      duration_ms: 1.7744
+      ...
+    # Subtest: reports ready=false when configured model is absent
+    ok 3 - reports ready=false when configured model is absent
+      ---
+      duration_ms: 1.3913
+      ...
+    1..3
+ok 7 - AI Copilot LLM Provider Health Check
+  ---
+  duration_ms: 72.7495
+  type: 'suite'
+  ...
+# Subtest: Node.js AI Gateway Service (P6.5 Hardening)
+    # Subtest: reanalysis idempotency key survives HTTP forwarding and retries
+    ok 1 - reanalysis idempotency key survives HTTP forwarding and retries
+      ---
+      duration_ms: 44.5
+      ...
+    # Subtest: AIGatewayService forwards headers with tenant, user, and service token
+    ok 2 - AIGatewayService forwards headers with tenant, user, and service token
+      ---
+      duration_ms: 1.6328
+      ...
+    # Subtest: AIGatewayService builds query parameters correctly for context-preview
+    ok 3 - AIGatewayService builds query parameters correctly for context-preview
+      ---
+      duration_ms: 0.9361
+      ...
+    # Subtest: AIGatewayService propagates remote AI errors as AppError with correct status code
+    ok 4 - AIGatewayService propagates remote AI errors as AppError with correct status code
+      ---
+      duration_ms: 2.2092
+      ...
+    # Subtest: AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+    ok 5 - AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+      ---
+      duration_ms: 0.4195
+      ...
+    # Subtest: assertNovelOwnership enforces author access control with 403 FORBIDDEN
+    ok 6 - assertNovelOwnership enforces author access control with 403 FORBIDDEN
+      ---
+      duration_ms: 0.3733
+      ...
+    # Subtest: Canonical chapter cutoff derivation from DB record overrides client cutoff
+    ok 7 - Canonical chapter cutoff derivation from DB record overrides client cutoff
+      ---
+      duration_ms: 0.1656
+      ...
+    # Subtest: Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+    ok 8 - Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 0.999
+      ...
+    # Subtest: Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+    ok 9 - Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+      ---
+      duration_ms: 1.113
+      ...
+    # Subtest: Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+    ok 10 - Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 3.4678
+      ...
+    # Subtest: Story Brain freshness check fails closed with 503 when AI service is unavailable
+    ok 11 - Story Brain freshness check fails closed with 503 when AI service is unavailable
+      ---
+      duration_ms: 1.1246
+      ...
+    1..11
+ok 8 - Node.js AI Gateway Service (P6.5 Hardening)
+  ---
+  duration_ms: 61.2574
+  type: 'suite'
+  ...
+# Subtest: AI-PIPE-01B Author Writing IDE & Canonical P1 Loop Contract
+    # Subtest: Checkpoint B1: Manual autosave contract updates chapter draft without creating AI_DRAFT_ACCEPT revision or outbox event
+    ok 1 - Checkpoint B1: Manual autosave contract updates chapter draft without creating AI_DRAFT_ACCEPT revision or outbox event
+      ---
+      duration_ms: 1.2747
+      ...
+    # Subtest: Checkpoint B2: AI generation reject/dismiss leaves canon revision and Story Brain unchanged
+    ok 2 - Checkpoint B2: AI generation reject/dismiss leaves canon revision and Story Brain unchanged
+      ---
+      duration_ms: 0.3034
+      ...
+    # Subtest: Checkpoint B3: Canonical P1 writing generation and accept-draft contract
+    ok 3 - Checkpoint B3: Canonical P1 writing generation and accept-draft contract
+      ---
+      duration_ms: 33.662
+      ...
+    # Subtest: Checkpoint B4: Story Brain closed-loop feedback advances version
+    ok 4 - Checkpoint B4: Story Brain closed-loop feedback advances version
+      ---
+      duration_ms: 1.1448
+      ...
+    # Subtest: Checkpoint C: Story Bible context preview observes updated character/fact constraints
+    ok 5 - Checkpoint C: Story Bible context preview observes updated character/fact constraints
+      ---
+      duration_ms: 0.9539
+      ...
+    1..5
+ok 9 - AI-PIPE-01B Author Writing IDE & Canonical P1 Loop Contract
+  ---
+  duration_ms: 39.3142
+  type: 'suite'
+  ...
+# Subtest: Autonomous Controller Gateway & Contract Tests
+    # Subtest: Cross-author autonomous run access enforces 403 FORBIDDEN
+    ok 1 - Cross-author autonomous run access enforces 403 FORBIDDEN
+      ---
+      duration_ms: 81.8769
+      ...
+    # Subtest: Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+    ok 2 - Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+      ---
+      duration_ms: 1.2172
+      ...
+    # Subtest: Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+    ok 3 - Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+      ---
+      duration_ms: 0.5227
+      ...
+    # Subtest: Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+    ok 4 - Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+      ---
+      duration_ms: 0.3135
+      ...
+    # Subtest: Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+    ok 5 - Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+      ---
+      duration_ms: 0.1884
+      ...
+    # Subtest: Intentional completion gate terminates on terminal objective or all objectives done
+    ok 6 - Intentional completion gate terminates on terminal objective or all objectives done
+      ---
+      duration_ms: 0.3162
+      ...
+    1..6
+ok 10 - Autonomous Controller Gateway & Contract Tests
+  ---
+  duration_ms: 86.4845
+  type: 'suite'
+  ...
+# Subtest: empty queue cannot hide incomplete extraction
+ok 11 - empty queue cannot hide incomplete extraction
+  ---
+  duration_ms: 4.4529
+  ...
+# Subtest: only the generated revision is approved and fresh version is returned
+ok 12 - only the generated revision is approved and fresh version is returned
+  ---
+  duration_ms: 1.0077
+  ...
+# Subtest: approval failures and stale evidence propagate to the controller
+ok 13 - approval failures and stale evidence propagate to the controller
+  ---
+  duration_ms: 0.8922
+  ...
+# Subtest: short prose never completes even if the evaluator would approve it
+ok 14 - short prose never completes even if the evaluator would approve it
+  ---
+  duration_ms: 0.58
+  ...
+# Subtest: ending requires achieved objective and resolved ending
+ok 15 - ending requires achieved objective and resolved ending
+  ---
+  duration_ms: 0.5806
+  ...
+# Subtest: Phase D: Manuscript Import & Canonical Provenance Contract Tests
+    # Subtest: Checkpoint D1: Import never maps chapterId to revision_id
+    ok 1 - Checkpoint D1: Import never maps chapterId to revision_id
+      ---
+      duration_ms: 9.3134
+      ...
+    # Subtest: Checkpoint D2: Bootstrap never sends placeholder content_hash
+    ok 2 - Checkpoint D2: Bootstrap never sends placeholder content_hash
+      ---
+      duration_ms: 1.115
+      ...
+    # Subtest: Checkpoint D3: Canonical revision metadata is preserved per chapter
+    ok 3 - Checkpoint D3: Canonical revision metadata is preserved per chapter
+      ---
+      duration_ms: 0.8248
+      ...
+    # Subtest: Checkpoint D4: Malformed/failed revision provenance blocks bootstrap
+    ok 4 - Checkpoint D4: Malformed/failed revision provenance blocks bootstrap
+      ---
+      duration_ms: 2.7312
+      ...
+    # Subtest: Checkpoint D5: Partial chapter import is reported honestly
+    ok 5 - Checkpoint D5: Partial chapter import is reported honestly
+      ---
+      duration_ms: 0.5518
+      ...
+    # Subtest: Checkpoint D6: Story Brain bootstrap receives revisions in correct narrative order
+    ok 6 - Checkpoint D6: Story Brain bootstrap receives revisions in correct narrative order
+      ---
+      duration_ms: 0.5592
+      ...
+    # Subtest: Checkpoint D7: Proposal accept uses current brain_version
+    ok 7 - Checkpoint D7: Proposal accept uses current brain_version
+      ---
+      duration_ms: 0.3494
+      ...
+    # Subtest: Checkpoint D8: Rejected proposal is not materialized into canon
+    ok 8 - Checkpoint D8: Rejected proposal is not materialized into canon
+      ---
+      duration_ms: 2.8373
+      ...
+    # Subtest: Checkpoint D9: Vietnamese Unicode SHA-256 fixture matches backend contract
+    ok 9 - Checkpoint D9: Vietnamese Unicode SHA-256 fixture matches backend contract
+      ---
+      duration_ms: 1.147
+      ...
+    # Subtest: Checkpoint D10: Requirement A - Ordinary author snapshot creates INCREMENTAL_ANALYSIS outbox
+    ok 10 - Checkpoint D10: Requirement A - Ordinary author snapshot creates INCREMENTAL_ANALYSIS outbox
+      ---
+      duration_ms: 0.7993
+      ...
+    # Subtest: Checkpoint D11: Requirement B - Bootstrap-owned snapshot creates BOOTSTRAP revision without competing generic outbox event
+    ok 11 - Checkpoint D11: Requirement B - Bootstrap-owned snapshot creates BOOTSTRAP revision without competing generic outbox event
+      ---
+      duration_ms: 3.9914
+      ...
+    # Subtest: Checkpoint D12: Requirement C - Single bootstrap analysis lineage prevents duplicate proposal groups
+    ok 12 - Checkpoint D12: Requirement C - Single bootstrap analysis lineage prevents duplicate proposal groups
+      ---
+      duration_ms: 0.5276
+      ...
+    # Subtest: Checkpoint D13: Requirement D - Pre-baseline bootstrap proposals stay review-controlled and un-materialized by generic outbox
+    ok 13 - Checkpoint D13: Requirement D - Pre-baseline bootstrap proposals stay review-controlled and un-materialized by generic outbox
+      ---
+      duration_ms: 2.2597
+      ...
+    # Subtest: Checkpoint D14: Requirement E - Rejected bootstrap proposal stays rejected/non-canonical and target is not materialized
+    ok 14 - Checkpoint D14: Requirement E - Rejected bootstrap proposal stays rejected/non-canonical and target is not materialized
+      ---
+      duration_ms: 0.5505
+      ...
+    # Subtest: Checkpoint D15: Requirement F - After baseline activation, normal P1 AI_DRAFT_ACCEPT creates outbox and Story Brain advances
+    ok 15 - Checkpoint D15: Requirement F - After baseline activation, normal P1 AI_DRAFT_ACCEPT creates outbox and Story Brain advances
+      ---
+      duration_ms: 0.6511
+      ...
+    # Subtest: Checkpoint D16: Safety constraint - Active Story Brain rejects subsequent MANUSCRIPT_BOOTSTRAP snapshots
+    ok 16 - Checkpoint D16: Safety constraint - Active Story Brain rejects subsequent MANUSCRIPT_BOOTSTRAP snapshots
+      ---
+      duration_ms: 0.2999
+      ...
+    1..16
+ok 16 - Phase D: Manuscript Import & Canonical Provenance Contract Tests
+  ---
+  duration_ms: 30.995
+  type: 'suite'
+  ...
+# Subtest: AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+    # Subtest: P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+    ok 1 - P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+      ---
+      duration_ms: 27.3105
+      ...
+    # Subtest: P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+    ok 2 - P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+      ---
+      duration_ms: 1.8944
+      ...
+    # Subtest: P1-Gateway: AI Writing generation creates queued job with pinned brain version
+    ok 3 - P1-Gateway: AI Writing generation creates queued job with pinned brain version
+      ---
+      duration_ms: 1.17
+      ...
+    # Subtest: P1-Accept: Patch application and content hash update contract
+    ok 4 - P1-Accept: Patch application and content hash update contract
+      ---
+      duration_ms: 0.3337
+      ...
+    # Subtest: P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+    ok 5 - P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+      ---
+      duration_ms: 0.7962
+      ...
+    # Subtest: P2B-Gateway: Forward Story Plan creation, activation, and objective update
+    ok 6 - P2B-Gateway: Forward Story Plan creation, activation, and objective update
+      ---
+      duration_ms: 1.2431
+      ...
+    # Subtest: P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+    ok 7 - P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+      ---
+      duration_ms: 0.7086
+      ...
+    1..7
+ok 17 - AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ---
+  duration_ms: 35.3298
+  type: 'suite'
+  ...
+# Subtest: AI reconciliation supersession must still undergo source-head checks
+ok 18 - AI reconciliation supersession must still undergo source-head checks
+  ---
+  duration_ms: 1.2819
+  ...
+# Subtest: explicit author historical correction can retain original provenance
+ok 19 - explicit author historical correction can retain original provenance
+  ---
+  duration_ms: 0.286
+  ...
+# Subtest: author correction cannot exempt unrelated extraction in the same selection
+ok 20 - author correction cannot exempt unrelated extraction in the same selection
+  ---
+  duration_ms: 0.1711
+  ...
+# Subtest: Phase C: Author Publish -> Admin Moderation Lifecycle Invariants
+    # Subtest: Checkpoint 1: Reader/Author cannot access Admin moderation resolve route (403)
+    ok 1 - Checkpoint 1: Reader/Author cannot access Admin moderation resolve route (403)
+      ---
+      duration_ms: 2.1016
+      ...
+    # Subtest: Checkpoint 2 & 4: Submitting novel triggers moderation, returns reviewId, and does not produce duplicate open reviews
+    not ok 2 - Checkpoint 2 & 4: Submitting novel triggers moderation, returns reviewId, and does not produce duplicate open reviews
+      ---
+      duration_ms: 62.8279
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\author-publish-moderation-lifecycle.postgres.test.ts:9:1079'
+      failureType: 'testCodeFailure'
+      error: 'db already exists with different case already have: [Ephurin] trying to create [ephurin]'
+      code: 13297
+      name: 'MongoServerError'
+      stack: |-
+        InsertOneOperation.handleOk (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\insert.ts:79:13)
+        executeOperationWithRetries (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:267:26)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async executeOperation (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:127:12)
+        async Collection.insertOne (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\collection.ts:294:12)
+        async createModerationEvidence (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\moderation-evidence.repository.ts:15:18)
+        async checkContent (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\content-control.service.ts:76:22)
+        async submitPublish (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\novels\novels.service.ts:114:22)
+        async TestContext.<anonymous> (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\author-publish-moderation-lifecycle.postgres.test.ts:107:27)
+        async Test.run (node:internal/test_runner/test:980:9)
+      ...
+    # Subtest: Checkpoint 5: An unrelated pending review cannot satisfy approval of target novel
+    not ok 3 - Checkpoint 5: An unrelated pending review cannot satisfy approval of target novel
+      ---
+      duration_ms: 17.0937
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\author-publish-moderation-lifecycle.postgres.test.ts:9:1967'
+      failureType: 'testCodeFailure'
+      error: 'db already exists with different case already have: [Ephurin] trying to create [ephurin]'
+      code: 13297
+      name: 'MongoServerError'
+      stack: |-
+        InsertOneOperation.handleOk (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\insert.ts:79:13)
+        executeOperationWithRetries (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:267:26)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async executeOperation (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:127:12)
+        async Collection.insertOne (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\collection.ts:294:12)
+        async createModerationEvidence (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\moderation-evidence.repository.ts:15:18)
+        async checkContent (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\content-control.service.ts:76:22)
+        async submitPublish (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\novels\novels.service.ts:114:22)
+        async TestContext.<anonymous> (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\author-publish-moderation-lifecycle.postgres.test.ts:147:25)
+        async Test.run (node:internal/test_runner/test:980:9)
+      ...
+    # Subtest: Checkpoint 2: Resolving review approves novel; duplicate resolve fails closed with 409
+    not ok 4 - Checkpoint 2: Resolving review approves novel; duplicate resolve fails closed with 409
+      ---
+      duration_ms: 5.974
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\author-publish-moderation-lifecycle.postgres.test.ts:11:698'
+      failureType: 'testCodeFailure'
+      error: "Cannot read properties of undefined (reading 'review_id')"
+      code: 'ERR_TEST_FAILURE'
+      name: 'TypeError'
+      stack: |-
+        TestContext.<anonymous> (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\author-publish-moderation-lifecycle.postgres.test.ts:171:40)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:677:7)
+      ...
+# {"level":30,"time":1792511163828,"pid":16096,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+    # Subtest: Checkpoint 3: Already-PUBLISHED novel cannot be resubmitted through normal author publish flow (409)
+    not ok 5 - Checkpoint 3: Already-PUBLISHED novel cannot be resubmitted through normal author publish flow (409)
+      ---
+      duration_ms: 40.9587
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\author-publish-moderation-lifecycle.postgres.test.ts:11:1561'
+      failureType: 'testCodeFailure'
+      error: |-
+        The expression evaluated to a falsy value:
+        
+          pool.query(
+          `insert into novels (author_id, title, slug, synopsis, status)
+          values ($1, $2, $3, $4, 'DRAFT')
+          returning novel_id`,
+          [
+          authorId,
+          `E2E Moderation Lifecycle Deterministic ${timestamp}`,
+          `e2e-moderation-lifecycle-${timestamp}`,
+          `This novel contains the harassment test token for keyword moderation.`
+          ]
+          )
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        Object.<anonymous> (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\author-publish-moderation-lifecycle.postgres.test.ts:207:16)
+        expectedException (node:assert:808:17)
+        expectsError (node:assert:931:3)
+        Function.rejects (node:assert:996:3)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async TestContext.<anonymous> (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\author-publish-moderation-lifecycle.postgres.test.ts:202:5)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:677:7)
+      ...
+    1..5
+not ok 21 - Phase C: Author Publish -> Admin Moderation Lifecycle Invariants
+  ---
+  duration_ms: 237.7842
+  type: 'suite'
+  location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\author-publish-moderation-lifecycle.postgres.test.ts:1:480'
+  failureType: 'subtestsFailed'
+  error: '4 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# {"level":30,"time":1792511163830,"pid":16096,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+# {"level":30,"time":1792511163789,"pid":12580,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+# Subtest: Phase C: Comment User Report, Admin Moderation, and Notifications Invariants
+    # Subtest: Invariant 1: anonymous POST /reports -> 401
+    not ok 1 - Invariant 1: anonymous POST /reports -> 401
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:4790'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 2: non-Admin cannot access/resolve Admin moderation review -> 403
+    not ok 2 - Invariant 2: non-Admin cannot access/resolve Admin moderation review -> 403
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:5211'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 3: COMMENT report against nonexistent target fails closed (404)
+    not ok 3 - Invariant 3: COMMENT report against nonexistent target fails closed (404)
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:5708'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 4: COMMENT report against deleted target fails closed (404)
+    not ok 4 - Invariant 4: COMMENT report against deleted target fails closed (404)
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:6070'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 4b: COMMENT report against PENDING_MODERATION target fails closed (404)
+    not ok 5 - Invariant 4b: COMMENT report against PENDING_MODERATION target fails closed (404)
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:6540'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 4c: COMMENT report against REJECTED target fails closed (404)
+    not ok 6 - Invariant 4c: COMMENT report against REJECTED target fails closed (404)
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:7231'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 4d: COMMENT report on unpublished chapter/novel fails closed (404)
+    not ok 7 - Invariant 4d: COMMENT report on unpublished chapter/novel fails closed (404)
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:7901'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 5: same reporter cannot create multiple unresolved OPEN reports for same comment (409)
+    not ok 8 - Invariant 5: same reporter cannot create multiple unresolved OPEN reports for same comment (409)
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:8624'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 5b: concurrent same-reporter duplicate submits resolve to exactly one OPEN report and 409
+    not ok 9 - Invariant 5b: concurrent same-reporter duplicate submits resolve to exactly one OPEN report and 409
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:9528'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 6: two distinct reporters on same comment reuse ONE open moderation review and produce reportCount=2
+    not ok 10 - Invariant 6: two distinct reporters on same comment reuse ONE open moderation review and produce reportCount=2
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:10831'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 6b: concurrent distinct reporters on same comment atomically share review
+    not ok 11 - Invariant 6b: concurrent distinct reporters on same comment atomically share review
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:11705'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 7: approving USER_REPORT: review -> APPROVED, reports -> RESOLVED, comment -> DELETED
+    not ok 12 - Invariant 7: approving USER_REPORT: review -> APPROVED, reports -> RESOLVED, comment -> DELETED
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:12738'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 8: rejecting USER_REPORT: review -> REJECTED, reports -> REJECTED, comment remains APPROVED
+    not ok 13 - Invariant 8: rejecting USER_REPORT: review -> REJECTED, reports -> REJECTED, comment remains APPROVED
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:13699'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 9: approve notification types/payloads are correct for owner and reporter
+    not ok 14 - Invariant 9: approve notification types/payloads are correct for owner and reporter
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:14853'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 10: reject notification types/payloads are correct for owner and reporter
+    not ok 15 - Invariant 10: reject notification types/payloads are correct for owner and reporter
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:15982'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 11: duplicate resolve of resolved review -> 409
+    not ok 16 - Invariant 11: duplicate resolve of resolved review -> 409
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:16802'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Invariant 12: keyword-filter COMMENT moderation semantics remain unchanged
+    not ok 17 - Invariant 12: keyword-filter COMMENT moderation semantics remain unchanged
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:23:17108'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..17
+not ok 22 - Phase C: Comment User Report, Admin Moderation, and Notifications Invariants
+  ---
+  duration_ms: 193.6158
+  type: 'suite'
+  location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\content-control\\comment-user-report-admin-moderation.postgres.test.ts:1:947'
+  failureType: 'hookFailed'
+  error: 'Refusing database mutations: missing required external opt-in EPHURIN_ALLOW_TEST_DB_MUTATIONS=1. Ambient flags (NODE_ENV=test, CI=true, or npm test) do NOT grant mutation authorization.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    assertTestDatabaseIsolation (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\core\database\test-db-guard.ts:62:11)
+    validateTestDatabaseIsolation (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\core\database\test-db-guard.ts:121:3)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async SuiteContext.<anonymous> (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\content-control\comment-user-report-admin-moderation.postgres.test.ts:63:5)
+    async TestHook.run (node:internal/test_runner/test:980:9)
+    async Suite.runHook (node:internal/test_runner/test:898:9)
+    async Suite.run (node:internal/test_runner/test:1352:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# {"level":30,"time":1792511163790,"pid":12580,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+# Subtest: Phase C: Reader Social, Comment, and Preferences Invariants
+    # Subtest: Invariant 1: anonymous like/follow/comment mutations are rejected by auth (401)
+    ok 1 - Invariant 1: anonymous like/follow/comment mutations are rejected by auth (401)
+      ---
+      duration_ms: 1.6356
+      ...
+    # Subtest: Invariant 2: duplicate like -> 409 INTERACTION_001
+    ok 2 - Invariant 2: duplicate like -> 409 INTERACTION_001
+      ---
+      duration_ms: 11.7564
+      ...
+    # Subtest: Invariant 3: unlike without existing like -> 404 INTERACTION_002
+    ok 3 - Invariant 3: unlike without existing like -> 404 INTERACTION_002
+      ---
+      duration_ms: 3.6727
+      ...
+    # Subtest: Invariant 4: duplicate follow -> 409 INTERACTION_001
+    ok 4 - Invariant 4: duplicate follow -> 409 INTERACTION_001
+      ---
+      duration_ms: 5.7853
+      ...
+    # Subtest: Invariant 5: unfollow without existing follow -> 404 INTERACTION_002
+    ok 5 - Invariant 5: unfollow without existing follow -> 404 INTERACTION_002
+      ---
+      duration_ms: 2.4348
+      ...
+    # Subtest: Invariant 6: reader cannot edit/delete another user's comment -> 403 AUTH_008
+    not ok 6 - Invariant 6: reader cannot edit/delete another user's comment -> 403 AUTH_008
+      ---
+      duration_ms: 51.861
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\interactions\\reader-social-comment-preferences.postgres.test.ts:15:2827'
+      failureType: 'testCodeFailure'
+      error: 'db already exists with different case already have: [Ephurin] trying to create [ephurin]'
+      code: 13297
+      name: 'MongoServerError'
+      stack: |-
+        InsertOneOperation.handleOk (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\insert.ts:79:13)
+        executeOperationWithRetries (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:267:26)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async executeOperation (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:127:12)
+        async Collection.insertOne (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\collection.ts:294:12)
+        async createComment (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\comments.repository.ts:55:3)
+        async createComment (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\comments.service.ts:51:19)
+        async TestContext.<anonymous> (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\reader-social-comment-preferences.postgres.test.ts:223:21)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:677:7)
+      ...
+    # Subtest: Invariant 7: clean comment -> APPROVED without moderation review
+    not ok 7 - Invariant 7: clean comment -> APPROVED without moderation review
+      ---
+      duration_ms: 13.2308
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\interactions\\reader-social-comment-preferences.postgres.test.ts:15:3507'
+      failureType: 'testCodeFailure'
+      error: 'db already exists with different case already have: [Ephurin] trying to create [ephurin]'
+      code: 13297
+      name: 'MongoServerError'
+      stack: |-
+        InsertOneOperation.handleOk (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\insert.ts:79:13)
+        executeOperationWithRetries (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:267:26)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async executeOperation (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:127:12)
+        async Collection.insertOne (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\collection.ts:294:12)
+        async createComment (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\comments.repository.ts:55:3)
+        async createComment (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\comments.service.ts:51:19)
+        async TestContext.<anonymous> (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\reader-social-comment-preferences.postgres.test.ts:258:26)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:677:7)
+      ...
+    # Subtest: Invariant 8: filtered comment -> PENDING_MODERATION with review ID
+    not ok 8 - Invariant 8: filtered comment -> PENDING_MODERATION with review ID
+      ---
+      duration_ms: 5.4524
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\interactions\\reader-social-comment-preferences.postgres.test.ts:15:3826'
+      failureType: 'testCodeFailure'
+      error: 'db already exists with different case already have: [Ephurin] trying to create [ephurin]'
+      code: 13297
+      name: 'MongoServerError'
+      stack: |-
+        InsertOneOperation.handleOk (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\insert.ts:79:13)
+        executeOperationWithRetries (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:267:26)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async executeOperation (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:127:12)
+        async Collection.insertOne (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\collection.ts:294:12)
+        async createComment (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\comments.repository.ts:55:3)
+        async createComment (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\comments.service.ts:51:19)
+        async TestContext.<anonymous> (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\reader-social-comment-preferences.postgres.test.ts:266:29)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:677:7)
+      ...
+    # Subtest: Invariant 9: commenting on non-reader-visible/non-published chapter must fail closed (404)
+    ok 9 - Invariant 9: commenting on non-reader-visible/non-published chapter must fail closed (404)
+      ---
+      duration_ms: 2.5159
+      ...
+    # Subtest: Invariant 10: reading preferences are user-scoped
+    ok 10 - Invariant 10: reading preferences are user-scoped
+      ---
+      duration_ms: 5.305
+      ...
+# {"level":30,"time":1792511163874,"pid":20432,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+    1..10
+not ok 23 - Phase C: Reader Social, Comment, and Preferences Invariants
+  ---
+  duration_ms: 282.6607
+  type: 'suite'
+  location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\interactions\\reader-social-comment-preferences.postgres.test.ts:1:746'
+  failureType: 'subtestsFailed'
+  error: '3 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# {"level":30,"time":1792511163875,"pid":20432,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+# Subtest: Chapter Revisions & Patch Application
+    # Subtest: applyPatchToContent correctly applies insertion at cursor
+    ok 1 - applyPatchToContent correctly applies insertion at cursor
+      ---
+      duration_ms: 1.1605
+      ...
+    # Subtest: applyPatchToContent correctly replaces selection range
+    ok 2 - applyPatchToContent correctly replaces selection range
+      ---
+      duration_ms: 0.2744
+      ...
+    # Subtest: applyPatchToContent handles unicode code points without splitting multi-byte characters
+    ok 3 - applyPatchToContent handles unicode code points without splitting multi-byte characters
+      ---
+      duration_ms: 0.2068
+      ...
+    # Subtest: applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+    ok 4 - applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+      ---
+      duration_ms: 0.8735
+      ...
+    # Subtest: applyPatchToContent allows valid boundary edge cases (0 to length)
+    ok 5 - applyPatchToContent allows valid boundary edge cases (0 to length)
+      ---
+      duration_ms: 0.2161
+      ...
+    1..5
+ok 24 - Chapter Revisions & Patch Application
+  ---
+  duration_ms: 4.504
+  type: 'suite'
+  ...
+# {"level":30,"time":1792511162088,"pid":23868,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+# Subtest: Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)
+    # Subtest: Targeted Probe 1: Older draft is cleanly updated by accepted revision
+    not ok 1 - Targeted Probe 1: Older draft is cleanly updated by accepted revision
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:846'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync
+    not ok 2 - Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:1967'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId
+    not ok 3 - Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId
+      ---
+      duration_ms: 0
+      location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:3078'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 25 - Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)
+  ---
+  duration_ms: 153.0018
+  type: 'suite'
+  location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:302'
+  failureType: 'hookFailed'
+  error: 'db already exists with different case already have: [Ephurin] trying to create [ephurin]'
+  code: 13297
+  name: 'MongoServerError'
+  stack: |-
+    Connection.sendCommand (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\cmap\connection.ts:561:17)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Connection.command (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\cmap\connection.ts:634:22)
+    async Server.command (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\sdam\server.ts:351:21)
+    async executeOperationWithRetries (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:266:24)
+    async executeOperation (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\operations\execute_operation.ts:127:12)
+    async Collection.createIndex (C:\Users\Laptop\OneDrive\Documents\testproject\backend\node_modules\mongodb\src\collection.ts:640:21)
+    async ensureNotificationIndexes (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\modules\interactions\notifications.repository.ts:16:3)
+    async Promise.all (index 2)
+    async connectMongo (C:\Users\Laptop\OneDrive\Documents\testproject\backend\src\core\database\mongo.ts:26:3)
+  ...
+# Subtest: PostgreSQL Outbox Multi-Worker Lease Fencing Integration
+    # Subtest: Two concurrent PostgreSQL workers claim queue: exactly one worker claims active token
+    ok 1 - Two concurrent PostgreSQL workers claim queue: exactly one worker claims active token
+      ---
+      duration_ms: 218.5192
+      ...
+    # Subtest: Lease expiry and reclaim: stale worker token affects 0 rows, new active worker completes
+    ok 2 - Lease expiry and reclaim: stale worker token affects 0 rows, new active worker completes
+      ---
+      duration_ms: 29.9986
+      ...
+# {"level":30,"time":1792511160223,"pid":26300,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    1..2
+ok 26 - PostgreSQL Outbox Multi-Worker Lease Fencing Integration
+  ---
+  duration_ms: 704.0431
+  type: 'suite'
+  ...
+# Subtest: Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+    # Subtest: Exponential backoff for outbox retries is bounded by 300s
+    ok 1 - Exponential backoff for outbox retries is bounded by 300s
+      ---
+      duration_ms: 0.7546
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation preserves newer manual draft edits
+    ok 2 - Conditional MongoDB draft reconciliation preserves newer manual draft edits
+      ---
+      duration_ms: 1.0466
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation creates new draft if not found
+    ok 3 - Conditional MongoDB draft reconciliation creates new draft if not found
+      ---
+      duration_ms: 0.1684
+      ...
+    # Subtest: Accept-time brain version conflict rejects stale generation
+    ok 4 - Accept-time brain version conflict rejects stale generation
+      ---
+      duration_ms: 0.1777
+      ...
+    # Subtest: Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+    ok 5 - Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+      ---
+      duration_ms: 0.1926
+      ...
+    # Subtest: Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+    ok 6 - Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+      ---
+      duration_ms: 0.1867
+      ...
+    1..6
+ok 27 - Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ---
+  duration_ms: 3.4581
+  type: 'suite'
+  ...
+# [DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB sync failed for revision d3f8f9fa-1c87-4d61-9451-fbc0f5cf8cf1, queuing outbox event: db already exists with different case already have: [Ephurin] trying to create [ephurin]
+# Subtest: Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+    # Subtest: Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+    ok 1 - Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+      ---
+      duration_ms: 92.972
+      ...
+    # Subtest: Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL
+    ok 2 - Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL
+      ---
+      duration_ms: 3.6541
+      ...
+    # Subtest: Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS
+    ok 3 - Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS
+      ---
+      duration_ms: 5.8542
+      ...
+    # Subtest: Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion
+    ok 4 - Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion
+      ---
+      duration_ms: 9.7079
+      ...
+    # Subtest: Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision
+    ok 5 - Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision
+      ---
+      duration_ms: 3.4949
+      ...
+# {"level":30,"time":1792511162166,"pid":30180,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    1..5
+ok 28 - Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+  ---
+  duration_ms: 289.6994
+  type: 'suite'
+  ...
+# {"level":30,"time":1792511162171,"pid":30180,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+# Subtest: Phase C: Reader Discovery and Reading State Invariants
+    # Subtest: Invariant 1: anonymous POST /reading/library/me is rejected by auth (401)
+    ok 1 - Invariant 1: anonymous POST /reading/library/me is rejected by auth (401)
+      ---
+      duration_ms: 1.1358
+      ...
+    # Subtest: Invariant 2: duplicate Add library fails closed with existing conflict contract (409)
+    ok 2 - Invariant 2: duplicate Add library fails closed with existing conflict contract (409)
+      ---
+      duration_ms: 30.4702
+      ...
+    # Subtest: Invariant 3: removing a non-existent bookmark fails with existing not-found contract (404)
+    ok 3 - Invariant 3: removing a non-existent bookmark fails with existing not-found contract (404)
+      ---
+      duration_ms: 2.5195
+      ...
+    # Subtest: Invariant 4: history sync rejects mismatched novelId/chapterId (404)
+    ok 4 - Invariant 4: history sync rejects mismatched novelId/chapterId (404)
+      ---
+      duration_ms: 7.2989
+      ...
+    # Subtest: Invariant 5: history is user-scoped: another reader cannot satisfy/read back the target reader's state as their own
+    ok 5 - Invariant 5: history is user-scoped: another reader cannot satisfy/read back the target reader's state as their own
+      ---
+      duration_ms: 17.5753
+      ...
+    # Subtest: Invariant 6: non-published novel/chapter cannot be used to create accepted reader state (404)
+    ok 6 - Invariant 6: non-published novel/chapter cannot be used to create accepted reader state (404)
+      ---
+      duration_ms: 5.2805
+      ...
+# {"level":30,"time":1792511163827,"pid":7680,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    1..6
+ok 29 - Phase C: Reader Discovery and Reading State Invariants
+  ---
+  duration_ms: 232.5454
+  type: 'suite'
+  ...
+# Subtest: author workspace seed data
+    # Subtest: has the agreed size: 7 authors, 20 readers, 58 novels
+    ok 1 - has the agreed size: 7 authors, 20 readers, 58 novels
+      ---
+      duration_ms: 1.7009
+      ...
+    # Subtest: accounts have unique usernames and emails that fit the schema
+    ok 2 - accounts have unique usernames and emails that fit the schema
+      ---
+      duration_ms: 0.4326
+      ...
+    # Subtest: generation is deterministic
+    ok 3 - generation is deterministic
+      ---
+      duration_ms: 72.0186
+      ...
+    # Subtest: covers the novel and chapter states the author pages show
+    ok 4 - covers the novel and chapter states the author pages show
+      ---
+      duration_ms: 0.6364
+      ...
+    # Subtest: novels and chapters fit the schema
+    ok 5 - novels and chapters fit the schema
+      ---
+      duration_ms: 8.3155
+      ...
+    # Subtest: story context references existing characters and chapters
+    ok 6 - story context references existing characters and chapters
+      ---
+      duration_ms: 1.8006
+      ...
+    # Subtest: seedUuid is deterministic and UUID-shaped
+    ok 7 - seedUuid is deterministic and UUID-shaped
+      ---
+      duration_ms: 0.6796
+      ...
+    # Subtest: slugify strips Vietnamese diacritics
+    ok 8 - slugify strips Vietnamese diacritics
+      ---
+      duration_ms: 0.3149
+      ...
+    1..8
+ok 30 - author workspace seed data
+  ---
+  duration_ms: 88.0306
+  type: 'suite'
+  ...
+1..30
+# tests 139
+# suites 17
+# pass 112
+# fail 7
+# cancelled 20
+# skipped 0
+# todo 0
+# duration_ms 8035.2985

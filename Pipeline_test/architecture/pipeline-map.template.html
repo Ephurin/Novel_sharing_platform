@@ -1,0 +1,168 @@
+<div id="ai-pipeline-audit-map">
+  <h2>AI pipeline · P1 / P2 / P3</h2>
+  <div class="map-meta text-small" data-meta></div>
+  <div class="map-legend text-small" aria-label="Chú giải bằng chứng">
+    <span><i class="dot ok"></i>Chức năng đã thấy · phạm vi giới hạn</span>
+    <span><i class="dot bad"></i>Lỗi đã tái hiện</span>
+    <span><i class="dot mixed"></i>Một phần / giới hạn từ code</span>
+    <span><i class="dot code"></i>Có code · chưa chứng minh live</span>
+    <span><i class="dot proposal"></i>Đề xuất · chưa triển khai</span>
+  </div>
+  <div class="entry-lanes" aria-label="Ba luồng đầu vào">
+    <div><button class="btn" type="button" data-jump="A01">P1 · Bản thảo có sẵn</button><div class="text-small">Import → review → viết tiếp</div></div>
+    <div><button class="btn" type="button" data-jump="A05">P2 · Ý tưởng / thiết lập</button><div class="text-small">Extract setup → chương đầu</div></div>
+    <div><button class="btn" type="button" data-jump="G01">P3 · Full auto</button><div class="text-small">Dừng tại entity gate khi bật human review</div></div>
+  </div>
+  <div class="master-map" aria-label="Sơ đồ tổng quan; chọn một khối để xem tất cả bước bên trong">
+    <svg class="master-wires" aria-hidden="true"></svg>
+    <div class="phase-grid" data-phase-grid></div>
+  </div>
+  <div class="text-small flow-boundary">Vòng viết: F → B → C → D → E → F. Flag ON: C → X (tác giả duyệt entity) → C (event/fact). Flag OFF: legacy. G điều phối; J dùng chung. X05/X06 còn là đề xuất.</div>
+  <hr>
+  <section data-selected-phase aria-labelledby="selected-phase-heading">
+    <h3 id="selected-phase-heading"></h3>
+    <div class="text-small" data-phase-scope></div>
+    <div class="step-map">
+      <svg class="step-wires" aria-hidden="true"></svg>
+      <div data-steps></div>
+    </div>
+  </section>
+  <hr>
+  <details class="registry">
+    <summary class="cursor-interaction">Toàn bộ vấn đề · bằng chứng · điều kiện đề xuất để đóng</summary>
+    <div data-registry></div>
+  </details>
+  <div class="text-small map-footer">15/35 là assertions gold, không phải entity recall. P2/P3 và 100k chưa chạy trong run nguồn. Bản đồ không chứng minh đã tìm hết mọi defect.</div>
+  <div class="sr-only" aria-live="polite" data-announcement></div>
+</div>
+<style>
+ #ai-pipeline-audit-map { color:var(--foreground); width:100%; }
+ #ai-pipeline-audit-map .map-meta { margin-bottom:12px; padding-right:90px; overflow-wrap:anywhere; }
+ #ai-pipeline-audit-map .map-legend { display:flex; flex-wrap:wrap; gap:8px 16px; margin-bottom:20px; }
+ #ai-pipeline-audit-map .map-legend span { display:inline-flex; align-items:center; gap:6px; }
+ #ai-pipeline-audit-map .dot { display:inline-block; width:9px; height:9px; border-radius:50%; flex-shrink:0; background:var(--viz-series-3); }
+ #ai-pipeline-audit-map .dot.ok { background:var(--viz-series-1); }
+ #ai-pipeline-audit-map .dot.bad { background:var(--viz-series-2); }
+ #ai-pipeline-audit-map .dot.mixed { background:var(--viz-series-3); }
+ #ai-pipeline-audit-map .dot.code { background:var(--muted-foreground); }
+ #ai-pipeline-audit-map .dot.proposal { background:var(--viz-series-4); border-radius:0; }
+ #ai-pipeline-audit-map .entry-lanes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:24px; }
+ #ai-pipeline-audit-map .entry-lanes>div { text-align:center; min-width:0; }
+ #ai-pipeline-audit-map .master-map,#ai-pipeline-audit-map .step-map { position:relative; }
+ #ai-pipeline-audit-map .master-wires,#ai-pipeline-audit-map .step-wires { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+ #ai-pipeline-audit-map .phase-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:36px 16px; position:relative; }
+ #ai-pipeline-audit-map .phase-box { min-width:0; }
+ #ai-pipeline-audit-map .phase-note { margin-top:5px; color:var(--muted-foreground); text-align:center; }
+ #ai-pipeline-audit-map .phase-A { grid-column:1 / 4; grid-row:1; }
+ #ai-pipeline-audit-map .phase-B { grid-column:1;grid-row:2; }
+ #ai-pipeline-audit-map .phase-C { grid-column:2;grid-row:2; }
+ #ai-pipeline-audit-map .phase-D { grid-column:3;grid-row:2; }
+ #ai-pipeline-audit-map .phase-G { grid-column:1;grid-row:3; }
+ #ai-pipeline-audit-map .phase-E { grid-column:2;grid-row:3; }
+ #ai-pipeline-audit-map .phase-F { grid-column:3;grid-row:3; }
+ #ai-pipeline-audit-map .phase-J { grid-column:1;grid-row:4; }
+ #ai-pipeline-audit-map .phase-H { grid-column:2;grid-row:4; }
+ #ai-pipeline-audit-map .phase-X { grid-column:3;grid-row:4; }
+ #ai-pipeline-audit-map .flow-boundary { margin-top:20px; }
+ #ai-pipeline-audit-map .step-map { padding-left:44px; margin:20px 0; }
+ #ai-pipeline-audit-map .step { position:relative; margin:0 0 18px; padding:0 0 8px; border-bottom:1px solid var(--border); }
+ #ai-pipeline-audit-map .step summary { display:list-item; overflow-wrap:anywhere; padding:4px 0; }
+ #ai-pipeline-audit-map .step-label { font-weight:500; }
+ #ai-pipeline-audit-map .step-status { display:inline-flex; align-items:center; gap:6px; margin-left:8px; }
+ #ai-pipeline-audit-map .step-issues { margin:3px 0 6px; overflow-wrap:anywhere; }
+ #ai-pipeline-audit-map .connections { display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin:4px 0; }
+ #ai-pipeline-audit-map .detail-body { padding:8px 0 10px; }
+ #ai-pipeline-audit-map dl { margin:0; }
+ #ai-pipeline-audit-map dt { font-weight:500; margin-top:10px; }
+ #ai-pipeline-audit-map dd { margin:3px 0 0; overflow-wrap:anywhere; }
+ #ai-pipeline-audit-map .issue-detail { margin:12px 0; padding-left:12px; border-left:2px solid var(--border); }
+ #ai-pipeline-audit-map .issue-detail summary { font-weight:500; }
+ #ai-pipeline-audit-map .source-line { overflow-wrap:anywhere; margin-top:12px; }
+ #ai-pipeline-audit-map .registry>summary { font-weight:500; }
+ #ai-pipeline-audit-map .map-footer { margin-top:20px; color:var(--muted-foreground); }
+ #ai-pipeline-audit-map .wire { fill:none; stroke:var(--border); stroke-width:1.5; }
+ #ai-pipeline-audit-map .wire-proposal { stroke-dasharray:5 4; }
+ @media(max-width:520px) {
+   #ai-pipeline-audit-map .entry-lanes { grid-template-columns:1fr; gap:14px; }
+   #ai-pipeline-audit-map .phase-grid { grid-template-columns:1fr; gap:26px; }
+   #ai-pipeline-audit-map .phase-box { grid-column:auto;grid-row:auto; }
+   #ai-pipeline-audit-map .step-map { padding-left:28px; }
+   #ai-pipeline-audit-map .step-status { display:flex; margin:5px 0 0; }
+ }
+</style>
+<script type="application/json" id="ai-pipeline-audit-data">__PIPELINE_DATA__</script>
+<script>
+(() => {
+ const root=document.getElementById('ai-pipeline-audit-map');
+ const data=JSON.parse(document.getElementById('ai-pipeline-audit-data').textContent);
+ const byId=new Map(data.nodes.map(n=>[n.id,n]));
+ const byPhase=new Map(data.phases.map(p=>[p.id,p]));
+ const labels={ok:'Chức năng đã thấy',bad:'Lỗi tái hiện',mixed:'Một phần / giới hạn',code:'Chưa chứng minh live',proposal:'Chưa triển khai'};
+ const kinds={live:'TÁI HIỆN',gap:'GIỚI HẠN TỪ CODE',untested:'CHƯA TEST LIVE',mixed:'GUARD / MỘT PHẦN',proposal:'ĐỀ XUẤT'};
+ let phase='C', selected='C03';
+ const saved=window.openai?.widgetState;
+ if(saved?.privateContent?.phase && byPhase.has(saved.privateContent.phase))phase=saved.privateContent.phase;
+ if(saved?.privateContent?.node && byId.has(saved.privateContent.node))selected=saved.privateContent.node;
+ function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
+ function pair(dl,key,value){dl.append(el('dt',null,key),el('dd',null,value));}
+ function save(){if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{phase,node:selected,issues:byId.get(selected)?.issues||[]},privateContent:{phase,node:selected}}).catch(()=>{});}
+ function issueDetail(id){
+   const i=data.issues[id], d=el('details','issue-detail');
+   d.append(el('summary','cursor-interaction',id+' · '+i.title+' · '+kinds[i.kind]));
+   const dl=el('dl');pair(dl,'Quan sát / giới hạn',i.detail);pair(dl,'Bằng chứng / nguồn',i.evidence);pair(dl,'Điều kiện đề xuất để đóng',i.close);d.append(dl);return d;
+ }
+ const notes={A:'P1/P2',B:'lưu và phục hồi',C:'extraction · flag routing',D:'canon/review',E:'context/memory',F:'vòng viết ↩ B',G:'dừng khi chờ human review',H:'acceptance',J:'dùng chung',X:'opt-in · chưa live retest'};
+ const brief=Object.fromEntries(data.phases.map(p=>[p.id,data.nodes.filter(n=>n.phase===p.id).length+' bước · '+notes[p.id]]));
+ const short={A:'Nguồn vào P1 / P2',B:'Lưu → revision',C:'Extract nội dung',D:'Canon → review',E:'Memory → context',F:'Plan → viết → accept',G:'P3 · Full auto',H:'Đánh giá → kết quả',J:'Provider / vận hành',X:'Ứng viên / duyệt entity'};
+ data.phases.forEach(p=>{
+   const box=el('div','phase-box phase-'+p.id);box.dataset.phase=p.id;
+   const b=el('button','btn btn-block',p.id+' · '+short[p.id]);b.type='button';b.dataset.selectPhase=p.id;
+   b.setAttribute('aria-pressed',String(phase===p.id));box.append(b,el('div','phase-note text-small',brief[p.id]));root.querySelector('[data-phase-grid]').append(box);
+ });
+ root.querySelector('[data-meta]').textContent='Snapshot code '+data.code_sha.slice(0,8)+' + working tree · evidence run '+data.run+' · '+data.nodes.length+' bước / '+Object.keys(data.issues).length+' vấn đề & giới hạn';
+ data.issues && Object.keys(data.issues).forEach(id=>root.querySelector('[data-registry]').append(issueDetail(id)));
+ function render(scroll=false){
+   const p=byPhase.get(phase);root.querySelector('#selected-phase-heading').textContent=p.id+' · '+p.title;
+   root.querySelector('[data-phase-scope]').textContent=p.scope;
+   root.querySelectorAll('[data-select-phase]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.selectPhase===phase)));
+   const target=root.querySelector('[data-steps]');target.replaceChildren();
+   data.nodes.filter(n=>n.phase===phase).forEach(n=>{
+     const d=el('details','step');d.dataset.node=n.id;d.open=n.id===selected;
+     const summary=el('summary','cursor-interaction');
+     summary.setAttribute('aria-label',n.id+' · '+n.title+' · '+labels[n.state]);
+     summary.append(el('span','step-label',n.id+' · '+n.title));
+     const status=el('span','step-status text-small');const dot=el('i','dot '+n.state);dot.setAttribute('aria-hidden','true');status.append(dot,document.createTextNode(labels[n.state]));summary.append(status);d.append(summary);
+     if(n.issues.length)d.append(el('div','step-issues text-small','⚑ '+n.issues.join(' · ')));
+     const body=el('div','detail-body'), dl=el('dl');
+     pair(dl,'Đầu vào',n.incoming);pair(dl,'Đầu ra',n.outgoing);pair(dl,'Xử lý / guard hiện tại',n.control);pair(dl,'Điều kiện đề xuất để kiểm chứng xong bước này',n.gate);body.append(dl);
+     n.issues.forEach(id=>body.append(issueDetail(id)));
+     body.append(el('div','source-line text-small','Nguồn: '+n.source));d.append(body);
+     let ignoreInitialOpen=d.open;
+     d.addEventListener('toggle',()=>{if(ignoreInitialOpen){ignoreInitialOpen=false;schedule();return;}if(d.open){selected=n.id;save();root.querySelector('[data-announcement]').textContent='Đang xem '+n.id+' '+n.title;}schedule();});
+     const connections=el('div','connections text-small');
+     if(n.next.length){connections.append(el('span',null,'→'));n.next.forEach(id=>{const b=el('button','btn btn-ghost',id);b.type='button';b.dataset.jump=id;b.setAttribute('aria-label','Tới '+id+' '+byId.get(id).title);b.dataset.tooltip=byId.get(id).title;connections.append(b);});}
+     target.append(d,connections);
+   });
+   root.querySelector('[data-announcement]').textContent='Đang xem '+p.title;
+   schedule();if(scroll)root.querySelector('[data-selected-phase]').scrollIntoView({block:'start'});
+ }
+ root.addEventListener('click',event=>{
+   const jump=event.target.closest('[data-jump]'), button=event.target.closest('[data-select-phase]');
+   if(jump){selected=jump.dataset.jump;phase=byId.get(selected).phase;render(true);save();}
+   else if(button){phase=button.dataset.selectPhase;selected=data.nodes.find(n=>n.phase===phase).id;render(true);save();}
+ });
+ function line(svg,path,proposal=false){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',path);p.setAttribute('class','wire'+(proposal?' wire-proposal':''));p.setAttribute('marker-end','url(#'+svg.dataset.marker+')');svg.append(p);}
+ function setupSvg(svg,id){svg.replaceChildren();svg.dataset.marker=id;const defs=document.createElementNS('http://www.w3.org/2000/svg','defs'),marker=document.createElementNS('http://www.w3.org/2000/svg','marker');marker.setAttribute('id',id);marker.setAttribute('viewBox','0 0 8 8');marker.setAttribute('refX','7');marker.setAttribute('refY','4');marker.setAttribute('markerWidth','6');marker.setAttribute('markerHeight','6');marker.setAttribute('orient','auto');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M0 0 L8 4 L0 8');path.setAttribute('fill','var(--muted-foreground)');marker.append(path);defs.append(marker);svg.append(defs);const r=svg.parentElement.getBoundingClientRect();svg.setAttribute('viewBox','0 0 '+Math.max(1,r.width)+' '+Math.max(1,r.height));}
+ function draw(){
+   const master=root.querySelector('.master-wires');setupSvg(master,'pipeline-master-arrow');const mr=master.parentElement.getBoundingClientRect();
+   const positions={};root.querySelectorAll('.phase-box').forEach(b=>{const r=b.getBoundingClientRect();positions[b.dataset.phase]={left:r.left-mr.left,right:r.right-mr.left,top:r.top-mr.top,bottom:r.bottom-mr.top,x:r.left-mr.left+r.width/2,y:r.top-mr.top+r.height/2};});
+   [['A','B'],['B','C'],['C','D'],['D','E'],['E','F'],['F','H']].forEach(([a,b])=>{const s=positions[a],t=positions[b];if(Math.abs(s.y-t.y)<30){const x1=s.x<t.x?s.right:s.left,x2=s.x<t.x?t.left:t.right;line(master,`M${x1} ${s.y} L${x2} ${t.y}`);}else{line(master,`M${s.x} ${s.bottom+2} C${s.x} ${(s.bottom+t.top)/2} ${t.x} ${(s.bottom+t.top)/2} ${t.x} ${t.top-3}`);}});
+   const svg=root.querySelector('.step-wires');setupSvg(svg,'pipeline-step-arrow');const sr=svg.parentElement.getBoundingClientRect(), edgeIds=new Set(data.nodes.filter(n=>n.phase===phase).map(n=>n.id));
+   data.nodes.filter(n=>n.phase===phase).forEach(n=>n.next.filter(id=>edgeIds.has(id)).forEach((id,k)=>{const from=root.querySelector('[data-node="'+n.id+'"] summary').getBoundingClientRect(),to=root.querySelector('[data-node="'+id+'"] summary').getBoundingClientRect();const y1=from.top-sr.top+from.height/2,y2=to.top-sr.top+to.height/2,x1=from.left-sr.left-8,x2=to.left-sr.left-8,x=Math.max(3,x1-12-(k*8));line(svg,`M${x1} ${y1} H${x} V${y2} H${x2}`,n.state==='proposal');}));
+ }
+ let pending=false;function schedule(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;draw();});}
+ new ResizeObserver(schedule).observe(root);
+ window.addEventListener('openai:set_globals',event=>{const state=event.detail?.globals?.widgetState?.privateContent;if(state?.phase&&byPhase.has(state.phase)){phase=state.phase;if(state.node&&byId.has(state.node))selected=state.node;render(false);}});
+ render();
+})();
+</script>

@@ -1,0 +1,51 @@
+[
+  {
+    "event_id": "1528c26a-8ab8-470e-8884-d07d4319c357",
+    "revision_id": "e52e6e86-9f04-4733-8e34-72609cc8f1b7",
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "last_error": null
+  },
+  {
+    "event_id": "27b99d83-74d9-4fb1-ae19-dc832ffe3589",
+    "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "last_error": null
+  },
+  {
+    "event_id": "47d0665a-8bed-4d7d-a0ca-d703c5395a6d",
+    "revision_id": "836ef59f-5e9b-4b08-856d-7e9754331335",
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "last_error": null
+  },
+  {
+    "event_id": "9e85fe7a-5d75-46b2-9626-1a860ac5c2b6",
+    "revision_id": "661bc1ed-9907-491a-85bd-16b813e80299",
+    "status": "PENDING",
+    "retry_count": 1,
+    "last_error": "AI service returned HTTP 502: {\"detail\":\"Gemini request failed: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}\"}"
+  },
+  {
+    "event_id": "d14b0197-5214-4ad0-929e-a9dcff6bc68d",
+    "revision_id": "be0f3df8-f750-41ad-a92d-4daf51d8667b",
+    "status": "PROCESSING",
+    "retry_count": 0,
+    "last_error": null
+  },
+  {
+    "event_id": "413df16d-069e-4d5b-9913-7585d624cf87",
+    "revision_id": "ef7ea540-78b9-4bb5-a784-3b7a05a7b03a",
+    "status": "PENDING",
+    "retry_count": 1,
+    "last_error": "AI service returned HTTP 502: {\"detail\":\"Gemini request failed: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}\"}"
+  },
+  {
+    "event_id": "37cc89b9-788f-4e6f-bb80-865269da1a3d",
+    "revision_id": "9f0c799d-288a-4bc9-82bb-3c659bd75bf8",
+    "status": "PENDING",
+    "retry_count": 0,
+    "last_error": null
+  }
+]

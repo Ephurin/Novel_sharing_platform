@@ -6,6 +6,7 @@ function harness() {
   const accepted: string[] = [];
   return { accepted, deps: {
     analysisStatus: async () => 'COMPLETED', brainVersion: async () => 5,
+    entityReviews: async (): Promise<{ revision_id: string }[]> => [],
     proposals: async () => [
       { proposal_id: 'p1', dependency_group_id: 'g1', evidence: [{ revision_id: 'target' }] },
       { proposal_id: 'p2', dependency_group_id: 'other', evidence: [{ revision_id: 'unrelated' }] }],
@@ -23,6 +24,19 @@ test('empty queue cannot hide incomplete extraction', async () => {
 test('only the generated revision is approved and fresh version is returned', async () => {
   const h = harness(); assert.equal(await approveAutonomousMemory('target', h.deps), 6);
   assert.deepEqual(h.accepted, ['g1']);
+});
+
+test('delivered outbox and empty proposals cannot bypass author entity review', async () => {
+  const h = harness(); h.deps.entityReviews = async () => [{ revision_id: 'target' }];
+  h.deps.proposals = async () => [];
+  h.deps.brainVersion = async () => { throw new Error('must not reach canon approval'); };
+  await assert.rejects(approveAutonomousMemory('target', h.deps), /entity review is required/);
+  assert.deepEqual(h.accepted, []);
+});
+
+test('an unrelated chapter checkpoint does not block this generated revision', async () => {
+  const h = harness(); h.deps.entityReviews = async () => [{ revision_id: 'unrelated' }];
+  assert.equal(await approveAutonomousMemory('target', h.deps), 6);
 });
 test('approval failures and stale evidence propagate to the controller', async () => {
   const h = harness(); h.deps.assertCurrent = async () => { throw new Error('stale source'); };

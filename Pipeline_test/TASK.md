@@ -1,10 +1,12 @@
 # Nhiệm vụ giao cho testing agent
 
-**Revision 1.2:** đọc `WORKFLOW_CONTRACT.md` và chạy `SHORT_LOOP_TEST.md` trước
+**Task revision1.2; workflow cập nhật1.3:** đọc `WORKFLOW_CONTRACT.md` và chạy `SHORT_LOOP_TEST.md` trước
 bài dài bên dưới. Lưu chương phải tự extraction; không gọi snapshot/accept API
 thay bước đó rồi đánh PASS. Thiếu UI ghi gap/BLOCKED; hybrid là kết quả riêng.
 Đề xuất được lưu tạm nhưng chỉ dữ liệu duyệt mới là official memory. Full auto
-được tự duyệt và lưu nháp, không được xuất bản. Hướng dẫn này ưu tiên giả định cũ.
+được tự duyệt canon và lưu nháp sau các gate. Khi bật human-review mode, phải
+chờ tác giả duyệt entity trước event/fact; không gọi run đó là fully autonomous.
+Không được xuất bản. Contract1.3 ưu tiên các mô tả tự động hóa cũ.
 
 Bạn là người kiểm thử đóng vai một tác giả thực sự sử dụng AI-copilot để hoàn thành tiểu thuyết **Thành phố giữ lại tiếng mưa**. Dùng bộ task `Pipeline_test` tại root repository. Đây là kiểm thử năng lực sản phẩm; mọi văn xuôi mới tính vào kết quả phải được tạo hoặc sửa qua tính năng tác giả của ứng dụng và được lưu/readback thành công.
 

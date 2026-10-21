@@ -57,6 +57,7 @@ class Settings:
     context_routing_policy: str = "legacy-v1"
     service_auth_disabled: bool = False
     llm_structured_max_tokens: int = 8192
+    entity_candidate_verification_enabled: bool = False
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -146,6 +147,7 @@ class Settings:
             ),
             pipeline_version=(os.getenv("ENTITY_PIPELINE_VERSION", "entity-v1") or "").strip(),
             entity_prompt_version=(os.getenv("ENTITY_PROMPT_VERSION", "entity-extraction-v1") or "").strip(),
+            entity_candidate_verification_enabled=_env_bool('ENTITY_CANDIDATE_VERIFICATION_ENABLED', False),
             semantic_retrieval_enabled=_env_bool(
                 "SEMANTIC_RETRIEVAL_ENABLED",
                 embedding_provider != "none",

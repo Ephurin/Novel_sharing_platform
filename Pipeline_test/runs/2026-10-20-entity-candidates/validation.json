@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-10-20T22:21:54.369050+07:00",
+  "status": "OFFLINE_IMPLEMENTATION_VALIDATED_LIVE_NOT_RUN",
+  "python": "374 passed, 2 skipped, 42 deselected, 4 warnings in 14.69s",
+  "web_build": "PASS",
+  "feature_flag_default": false,
+  "live_provider": "NOT_RUN",
+  "live_ui": "NOT_RUN",
+  "postgres_migration": "NOT_RUN",
+  "sqlite_migration": "PASS_FRESH_AND_LEGACY_PRESERVATION",
+  "runtime_deployed": false,
+  "old_jobs_resumed": false,
+  "scope": "Canonical revision analysis; P2 setup and legacy extraction routes unchanged; event/fact chunking not implemented",
+  "source_hashes": {
+    "ai-service/services/entity_pipeline/candidates.py": "956441356385b3a11ff57d4f03048bf04f35843c77f3ab7cf165f262245e2afc",
+    "ai-service/services/entity_pipeline/verification.py": "7af6e1a0abbf012f66dd27b7675e89d6998484803662cfc0f2ab8021e6410e1a",
+    "ai-service/application/revision_analysis_service.py": "b2f1c092efd5855afe268857529e1951853f657af7bbf330def1f6847656bba2",
+    "ai-service/migrations/versions/0011_entity_candidate_audit.py": "6b19f6c572e857ff0327ed4d7cc44e6ab7574aa14d1a23c335c5cd2d9a23d082",
+    "web/src/features/ai-copilot/AuthorMemoryPanel.tsx": "cb921569dd691cdea8d61a11c9a51a11e52bddee2b6e91c589eddad878f3a37d"
+  }
+}

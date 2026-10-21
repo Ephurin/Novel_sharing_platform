@@ -1,0 +1,82 @@
+{
+  "fixture_id": "PT-CV-001",
+  "fixture_version": "1.0.0",
+  "task_revision": "1.1",
+  "run_id": "2026-10-19-recovery-ui-01",
+  "status": "PARTIAL_GATE_FAILED",
+  "mode": "UI_ONLY_AUTHOR_WRITES_WITH_READ_ONLY_VERIFICATION",
+  "started_at": "2026-10-19T23:36:29.100950+07:00",
+  "code_sha": "94d5072 plus recovery working tree",
+  "working_tree_dirty": true,
+  "fixture_manifest_sha256": "7abef96ba77bef7a8bd520207b7abc43c94e339f2c5d4a7f86dce87da96fa255",
+  "application_base_url": "http://localhost:18080",
+  "author_account_id": null,
+  "main_novel_id": "7d03320e-94c3-4913-a31f-a6eeef8af0dc",
+  "p2_probe_novel_id": null,
+  "p3_probe_novel_id": null,
+  "runtime": {
+    "requested_generation_model": null,
+    "observed_generation_model": null,
+    "bootstrap_provider": "gemini",
+    "extraction_provider": "gemini",
+    "embedding_provider_and_version": null,
+    "semantic_lane_enabled": null,
+    "context_routing_policy": null,
+    "output_token_limit": "Structured trace: 8192; writing not established",
+    "fallback_behavior": null,
+    "observed_extraction_model": "models/gemini-3.5-flash-lite"
+  },
+  "budget": {
+    "approved_by": null,
+    "approval_reference": "User selected repair and S01-S11 retest; existing synthetic-fixture Gemini test authorization",
+    "max_cost_usd": null,
+    "max_provider_calls": 200,
+    "max_wall_clock_hours": 2,
+    "consumed_cost_usd": null,
+    "consumed_provider_calls": 104,
+    "consumed_wall_clock_hours": null,
+    "require_observable_call_or_time_cap": true,
+    "notes": "104 observed HTTP response attempts at closeout, not billed call total; a killed in-flight request may be unobserved. Structured response records tracked separately. Workers intentionally stopped; cost UNKNOWN. Active duration not measured reliably; no wall-clock PASS claim."
+  },
+  "timeouts": {
+    "generation_seconds": null,
+    "outbox_seconds": null,
+    "max_retries_per_action": 3
+  },
+  "target": {
+    "words": 100000,
+    "min_words": 95000,
+    "max_words": 105000,
+    "planned_chapters": 40
+  },
+  "memory_audit": {
+    "pipelines": [
+      "P1",
+      "P2",
+      "P3"
+    ],
+    "after_bootstrap_import": true,
+    "after_first_accepted_revision": true,
+    "every_completed_chapters": 10,
+    "deep_audit_every_chapters": 20,
+    "cumulative_audit_every_chapters": 50,
+    "at_run_end_including_early_stop": true,
+    "capture_before_manual_correction": true,
+    "require_extraction_provider_trace": true,
+    "minimum_sample_recall": 0.9,
+    "minimum_sample_precision": 0.95,
+    "required_critical_recall": 1.0,
+    "required_provenance_accuracy": 1.0,
+    "allowed_future_leaks": 0,
+    "allowed_stale_current_states": 0
+  },
+  "reviewer": {
+    "identity": "Codex",
+    "independent": false,
+    "full_text_read": false
+  },
+  "notes": "Same synthetic fixture/provider scope. Stop at quota errors or time/call cap; do not run 100k. Independent=False because implementation and retest share reviewer.",
+  "resumed_at": "2026-10-20T06:55:52.122151+07:00",
+  "closed_at": "2026-10-20T21:25:12.594046+07:00",
+  "service_state": "Isolated backend/AI intentionally stopped after failed-gate evidence capture"
+}

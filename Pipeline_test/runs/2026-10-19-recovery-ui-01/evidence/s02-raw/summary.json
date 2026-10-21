@@ -1,0 +1,31 @@
+{
+  "checked_at": "2026-10-20T07:06:57.373282+07:00",
+  "novel_id": "7d03320e-94c3-4913-a31f-a6eeef8af0dc",
+  "phase": "s02-raw",
+  "author_writes": 0,
+  "provider_calls": 0,
+  "official-memory.json": {
+    "entities": 0,
+    "aliases": 0,
+    "mentions": 0,
+    "facts": 0,
+    "relations": 0,
+    "events": 0,
+    "transitions": 0
+  },
+  "proposals-pending.json": 187,
+  "proposals-accepted.json": 0,
+  "proposals-rejected.json": 0,
+  "revision_count": 5,
+  "revision_words": 4747,
+  "context-4000": {
+    "entities": 0,
+    "recent_events": 0,
+    "world_rules": 0
+  },
+  "context-8192": {
+    "entities": 0,
+    "recent_events": 0,
+    "world_rules": 0
+  }
+}

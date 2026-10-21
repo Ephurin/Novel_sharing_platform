@@ -24,6 +24,9 @@ import {
   extractionStatusController,
   authorMemoryProposalController,
   reanalyseSavedChapterController,
+  entityGuidanceController,
+  entityReviewController,
+  authorEntityController,
 } from './ai-gateway.controller.js';
 import {
   createAutonomousRunController,
@@ -39,6 +42,12 @@ export const aiGatewayRoutes = Router();
 // All AI operations require AUTHOR or ADMIN role
 aiGatewayRoutes.use(requireAuth, requireRoles(['AUTHOR', 'ADMIN']));
 aiGatewayRoutes.get('/story-brains/:novelId/memory', getApprovedMemoryController);
+aiGatewayRoutes.get('/story-brains/:novelId/entity-guidance', entityGuidanceController);
+aiGatewayRoutes.post('/story-brains/:novelId/entity-guidance', entityGuidanceController);
+aiGatewayRoutes.post('/story-brains/:novelId/author-entities', authorEntityController);
+aiGatewayRoutes.get('/story-brains/:novelId/entity-reviews', entityReviewController);
+aiGatewayRoutes.post('/story-brains/:novelId/entity-reviews/:runId/review', entityReviewController);
+aiGatewayRoutes.post('/story-brains/:novelId/entity-reviews/:runId/continue', entityReviewController);
 aiGatewayRoutes.post('/story-brains/:novelId/author-proposals', authorMemoryProposalController);
 aiGatewayRoutes.post('/story-brains/:novelId/reanalyse', reanalyseSavedChapterController);
 aiGatewayRoutes.get('/story-brains/:novelId/extraction-status', extractionStatusController);

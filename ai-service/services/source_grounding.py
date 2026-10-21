@@ -5,6 +5,7 @@ import re
 from typing import Any
 
 from core.structured_call import call_structured
+from domain.errors import AnalysisOutputError
 
 logger = logging.getLogger(__name__)
 
@@ -66,8 +67,9 @@ def resolve_grounded_quote(
     if words and len(words) >= 3:
         pattern = r"\s+".join(re.escape(w) for w in words)
         try:
-            m = re.search(pattern, text)
-            if m:
+            matches = list(re.finditer(pattern, text))
+            if len(matches) == 1:
+                m = matches[0]
                 start, end = m.span()
                 verbatim = text[start:end]
                 logger.info(
@@ -147,8 +149,9 @@ def resolve_grounded_quote(
             if len(seg_words) >= 3:
                 try:
                     pat = r"\s+".join(re.escape(w) for w in seg_words)
-                    m = re.search(pat, text)
-                    if m:
+                    matches = list(re.finditer(pat, text))
+                    if len(matches) == 1:
+                        m = matches[0]
                         start, end = m.span()
                         verbatim = text[start:end]
                         logger.info(
@@ -162,5 +165,7 @@ def resolve_grounded_quote(
             continue
 
     # 5. If everything failed, raise original ValueError
-    raise ValueError(f"Evidence quote is not present in the source revision: {quote_str[:60]}")
+    raise AnalysisOutputError('EXTRACTION_GROUNDING_UNRESOLVED',
+        'Evidence quote is not present or is ambiguous after bounded repair; reanalyse the saved revision.',
+        attempts=max_retries if llm_service is not None else 0)
 

@@ -65,6 +65,8 @@ class StoryKB(BaseModel):
     entities: Dict[str, KBEntity] = Field(default_factory=dict)
     entity_aliases: List[Dict[str, Any]] = Field(default_factory=list)
     entity_mentions: List[Dict[str, Any]] = Field(default_factory=list)
+    entity_candidate_audits: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+    entity_guidance: Dict[str, Any] = Field(default_factory=dict)
     facts: List[Dict[str, Any]] = Field(default_factory=list)
     state_transitions: List[Dict[str, Any]] = Field(default_factory=list)
     narrative_projection: Dict[str, Any] = Field(default_factory=dict)

@@ -1,0 +1,547 @@
+Browser tab: 3, Title: "Ephurin Author IDE", URL: "http://localhost:18080/author/ide?novelId=7d03320e-94c3-4913-a31f-a6eeef8af0dc&chapterId=1ad6c541-1079-4d46-8019-9a0f5e765a9a".
+1 AXWebArea Ephurin Author IDE, URL: localhost:18080/author/ide?novelId=7d03320e-94c3-4913-a31f-a6eeef8af0dc&chapterId=1ad6c541-1079-4d46-8019-9a0f5e765a9a
+	2 container
+		3 container root
+			4 container
+				5 link Description: arrow_back Tủ truyện, Help: Quay lại danh sách tác phẩm, Value: localhost:18080/author/novels/7d03320e-94c3-4913-a31f-a6eeef8af0dc
+				6 container Breadcrumb
+					7 text Untitled Novel
+					8 text /
+					9 text Chương 6 — Rút khỏi trạm Bốn
+				10 text Đã lưu •  07:21 description 216  từ • ~ 1  phút
+				11 button menu_book Bộ nhớ truyện, Help: Bộ nhớ, trích xuất và định hướng tiểu thuyết
+					12 text menu_book
+					13 text Bộ nhớ truyện
+				14 button fullscreen Tập trung, Help: Chế độ tập trung (Zen Mode)
+					15 text fullscreen
+					16 text Tập trung
+				17 button auto_awesome AI Hỗ trợ viết, Help: Mở trợ lý sáng tác AI
+					18 text auto_awesome
+					19 text AI Hỗ trợ viết
+				20 button Xuất bản chương send
+					21 text Xuất bản chương
+					22 text send
+			23 container
+				24 button view_sidebar, Help: Đóng/Mở thanh danh sách chương
+				25 text Trạng thái: DRAFT • Tác phẩm: 
+				26 text Untitled Novel
+				27 button Miễn phí
+				28 button stars Chương VIP ✦
+					29 text stars
+					30 text Chương VIP ✦
+			31 container
+				32 button Bộ nhớ · Trích xuất · Chờ duyệt
+				33 text MỤC LỤC CHƯƠNG 6
+				34 text Truyện: Untitled Novel
+				35 button first_page, Help: Thu gọn danh sách
+				36 container
+					37 text search
+					38 text field (settable)
+				39 button add_circle Thêm chương mới
+					40 text add_circle
+					41 text Thêm chương mới
+				42 container
+					43 text CHƯƠNG  1 Bản nháp
+					44 text Chương 1 — Bến trở về
+					45 text 1,216 từ CHƯƠNG  2 Bản nháp
+					46 text Chương 2 — Lần đọc thứ nhất
+					47 text 1,005 từ CHƯƠNG  3 Bản nháp
+					48 text Chương 3 — Hai nơi treo một quả chuông
+					49 text 995 từ CHƯƠNG  4 Bản nháp
+					50 text Chương 4 — Bản đồ không có tiếng nước
+					51 text 957 từ CHƯƠNG  5 Bản nháp
+					52 text Chương 5 — Ba tiếng gõ
+					53 text 574 từ
+					54 text CHƯƠNG  6 Bản nháp
+					55 text Chương 6 — Rút khỏi trạm Bốn
+					56 text 216 từ Đang mở
+				57 container
+					58 button text_fields Merriweather expand_more, Help: Đổi kiểu chữ (7 phông chữ Việt hóa)
+						59 text text_fields
+						60 text Merriweather
+						61 text expand_more
+					62 container Cỡ chữ
+						63 button A-, Help: Giảm cỡ chữ (A-)
+						64 text 17
+						65 button A+, Help: Tăng cỡ chữ (A+)
+					66 button format_align_justify, Help: Căn đều hai bên (Chuẩn sách xuất bản)
+					67 button format_align_left, Help: Căn trái
+					68 button format_align_center, Help: Căn giữa (Thơ, tiêu đề phụ, lời đề từ)
+					69 button format_align_right, Help: Căn phải (Ký tên, ngày tháng, xuất xứ)
+					70 button format_line_spacing 2.15x expand_more, Help: Khoảng cách giãn dòng (Line-height)
+						71 text format_line_spacing
+						72 text 2.15
+						73 text x
+						74 text expand_more
+					75 button format_indent_increase Thụt dòng, Help: Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)
+						76 text format_indent_increase
+						77 text Thụt dòng
+					78 button format_bold, Help: In đậm (**văn bản**)
+					79 button format_italic, Help: In nghiêng (*văn bản*)
+					80 button format_underlined, Help: Gạch chân (<u>văn bản</u>)
+					81 button strikethrough_s, Help: Gạch ngang (~~văn bản~~)
+					82 button “”, Help: Trích dẫn lời thoại “...”
+					83 button —, Help: Gạch đầu dòng lời thoại (— )
+					84 button ✦ ✦ ✦, Help: Chèn dấu phân cảnh / chuyển đoạn (✦ ✦ ✦)
+				85 container
+					86 text field (settable) Chương 6 — Rút khỏi trạm Bốn
+					87 text Đã lưu: 07:21 • Untitled Novel • Chương số  6
+					88 text entry area (settable) Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng. Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị. An giữ thuyền ngoài sân. Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.
+
+Duy thu dây cảnh báo và đóng nắp hộp dụng cụ. Anh chờ Linh ra tới phần sân khô rồi mới bước lên thuyền. Không ai đề nghị mở thêm cánh cửa. An chống sào để mạn thuyền tránh bậc đá. Khi họ rời trạm, tiếng nước vẫn theo sau như một câu hỏi chưa có người trả lời.
+
+Đến bờ kè, cả ba nghỉ một lát. Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro. Cô đặt nó trong lòng bàn tay cho An nhìn. Sau đó Linh cất chiếc vỏ ốc vào túi vải đen của mình. Duy đứng chờ cạnh thuyền, không chạm vào máy ghi.
+
+“Ngày mai mới hỏi chuyện hồ sơ,” Linh nói. “Hôm nay chúng ta chỉ biết đã nghe gì và đứng ở đâu.”
+
+An gật đầu rồi buộc lại dây. Họ chưa tới trạm bơm số Hai. Bản ghi ở trong túi chống ẩm của Linh, còn nguồn tiếng gõ vẫn chưa được xác định.
+				89 button auto_awesome Trợ lý AI, Help: Mở trợ lý AI đồng sáng tác
+					90 text auto_awesome
+					91 text Trợ lý AI
+		92 container
+			93 container Bộ nhớ và định hướng tiểu thuyết
+				94 container
+					95 heading Bộ nhớ và định hướng tiểu thuyết, Value: 2, ID: mantine-92xakabgq-title
+						96 text Bộ nhớ và định hướng tiểu thuyết
+					97 button
+						98 image
+				99 container mantine-92xakabgq-body
+					100 container
+						101 text Bộ nhớ chính thức v 6  ·  active . Đề xuất chưa duyệt chưa được dùng làm sự thật.
+					102 text STALE_PROPOSAL_EVIDENCE: Source chapter changed. Reject outdated proposals and review the latest extraction.
+					103 container mantine-ffs2jpl2m
+						104 tab group
+							105 tab (selected, settable, boolean) Chờ duyệt (55), Value: 1, ID: mantine-ffs2jpl2m-tab-review
+							106 tab (selectable, settable, boolean) Nhân vật, Value: 0, ID: mantine-ffs2jpl2m-tab-characters
+							107 tab (selectable, settable, boolean) Địa danh, Value: 0, ID: mantine-ffs2jpl2m-tab-locations
+							108 tab (selectable, settable, boolean) Vật phẩm, Value: 0, ID: mantine-ffs2jpl2m-tab-items
+							109 tab (selectable, settable, boolean) Sự kiện, Value: 0, ID: mantine-ffs2jpl2m-tab-history
+							110 tab (selectable, settable, boolean) Trích xuất, Value: 0, ID: mantine-ffs2jpl2m-tab-setup
+							111 tab (selectable, settable, boolean) Định hướng, Value: 0, ID: mantine-ffs2jpl2m-tab-plan
+							112 tab (selectable, settable, boolean) Full auto, Value: 0, ID: mantine-ffs2jpl2m-tab-auto
+						113 tab group
+							114 tab (selectable, settable, boolean) Dữ kiện, Value: 0, ID: mantine-ffs2jpl2m-tab-facts
+						115 container Description: Chờ duyệt (55), ID: mantine-ffs2jpl2m-panel-review
+							116 text Bổ sung hoặc thay thế dữ liệu trích xuất
+							117 text Tạo đề xuất từ bản lưu mới nhất. Nếu thay thế đề xuất sai, hãy loại đề xuất cũ riêng; dữ liệu đã duyệt không tự bị xóa.
+							118 text Chương nguồn
+							119 container
+								120 text field Chương nguồn, ID: mantine-n2dap308s
+								121 image
+							122 text Nội dung bản lưu (chọn và sao chép đoạn làm bằng chứng)
+							123 text entry area Nội dung bản lưu (chọn và sao chép đoạn làm bằng chứng), ID: mantine-v7hgtarob
+							124 text Trích dẫn nguyên văn, đủ dài để xác định duy nhất
+							125 text entry area (settable) Trích dẫn nguyên văn, đủ dài để xác định duy nhất, ID: mantine-bz31wk0a4
+							126 text Loại đề xuất
+							127 container
+								128 text field Loại đề xuất, Value: Dữ kiện / trạng thái, ID: mantine-teas7yf93
+								129 image
+							130 text Thuộc tính (ví dụ status, hearing, scan_count)
+							131 text field (settable) Thuộc tính (ví dụ status, hearing, scan_count), ID: mantine-73aqgvmtc
+							132 text Giá trị (status: Alive / Dead / Unknown)
+							133 text entry area (settable) Giá trị (status: Alive / Dead / Unknown), ID: mantine-i8tb3i15a
+							134 text Thực thể đã duyệt (bỏ trống với lời kể chưa xác nhận / quy tắc chung)
+							135 container
+								136 text field (settable) Thực thể đã duyệt (bỏ trống với lời kể chưa xác nhận / quy tắc chung), ID: mantine-0gjrcrfaw
+								137 image
+							138 text Kiểu giá trị
+							139 container
+								140 text field Kiểu giá trị, Value: Văn bản, ID: mantine-4nj7t8uk8
+								141 image
+							142 button (disabled) Tạo đề xuất để duyệt
+							143 text Lưu chương sau khi kích hoạt bộ nhớ sẽ tự trích xuất. Duyệt các nhóm dưới đây để cập nhật bộ nhớ.
+							144 button Phân tích lại chương đang mở
+							145 container
+								146 text FACT Duy  ·  action  ·  confirmed
+								147 text Thực thể của dữ kiện (tên chính xác)
+								148 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Duy, ID: mantine-2y7u799j6
+								149 text Nội dung được trích xuất
+								150 text entry area (settable) Nội dung được trích xuất, Value: ra hiệu rời trạm Bốn, ID: mantine-i1l2t0vmo
+								151 text Nguồn: bản lưu  8fd00551  · vị trí  0 – 48  · “Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.”
+								152 button Loại đề xuất
+								153 text FACT Linh  ·  action  ·  confirmed
+								154 text Thực thể của dữ kiện (tên chính xác)
+								155 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Linh, ID: mantine-psead4zy3
+								156 text Nội dung được trích xuất
+								157 text entry area (settable) Nội dung được trích xuất, Value: tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị, ID: mantine-9x7gjrtm1
+								158 text Nguồn: bản lưu  8fd00551  · vị trí  49 – 106  · “Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị.”
+								159 button Loại đề xuất
+								160 text FACT An  ·  action  ·  confirmed
+								161 text Thực thể của dữ kiện (tên chính xác)
+								162 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: An, ID: mantine-2aiwz9ylj
+								163 text Nội dung được trích xuất
+								164 text entry area (settable) Nội dung được trích xuất, Value: giữ thuyền ngoài sân, ID: mantine-qob9yty2g
+								165 text Nguồn: bản lưu  8fd00551  · vị trí  107 – 131  · “An giữ thuyền ngoài sân.”
+								166 button Loại đề xuất
+								167 text FACT Họ  ·  knowledge_status  ·  confirmed
+								168 text Thực thể của dữ kiện (tên chính xác)
+								169 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Họ, ID: mantine-feug6wrfb
+								170 text Nội dung được trích xuất
+								171 text entry area (settable) Nội dung được trích xuất, Value: chưa biết vật gì đã tạo ra tiếng gõ dưới sàn, ID: mantine-xvp6mob9c
+								172 text Nguồn: bản lưu  8fd00551  · vị trí  132 – 199  · “Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.”
+								173 button Loại đề xuất
+								174 text FACT nước  ·  status  ·  confirmed
+								175 text Thực thể của dữ kiện (tên chính xác)
+								176 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: nước, ID: mantine-8a8byfz1e
+								177 text Nội dung được trích xuất
+								178 text entry area (settable) Nội dung được trích xuất, Value: tiếp tục dâng, ID: mantine-gy9vuv8ll
+								179 text Nguồn: bản lưu  8fd00551  · vị trí  0 – 48  · “Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.”
+								180 button Loại đề xuất
+								181 text FACT Họ  ·  action  ·  confirmed
+								182 text Thực thể của dữ kiện (tên chính xác)
+								183 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Họ, ID: mantine-4fst0objo
+								184 text Nội dung được trích xuất
+								185 text entry area (settable) Nội dung được trích xuất, Value: mang theo bản ghi, ID: mantine-n5s6mjttx
+								186 text Nguồn: bản lưu  8fd00551  · vị trí  132 – 199  · “Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.”
+								187 button Loại đề xuất
+								188 text ENTITY
+								189 text Tên được trích xuất
+								190 text entry area (settable) Tên được trích xuất, Value: Duy, ID: mantine-bf971edps
+								191 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								192 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-8hnkapoqr
+								193 text Nguồn: bản lưu  8fd00551  · vị trí  0 – 3  · “Duy”
+								194 button Loại đề xuất
+								195 text ENTITY
+								196 text Tên được trích xuất
+								197 text entry area (settable) Tên được trích xuất, Value: Linh, ID: mantine-eqwx0xcb1
+								198 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								199 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-qkw3zb8yq
+								200 text Nguồn: bản lưu  8fd00551  · vị trí  49 – 53  · “Linh”
+								201 button Loại đề xuất
+								202 text ENTITY
+								203 text Tên được trích xuất
+								204 text entry area (settable) Tên được trích xuất, Value: An, ID: mantine-02t9v3q20
+								205 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								206 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-y4jj361ej
+								207 text Nguồn: bản lưu  8fd00551  · vị trí  107 – 109  · “An”
+								208 button Loại đề xuất
+								209 text ENTITY
+								210 text Tên được trích xuất
+								211 text entry area (settable) Tên được trích xuất, Value: trạm Bốn, ID: mantine-68yptfwg0
+								212 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								213 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-n4j868yki
+								214 text Nguồn: bản lưu  8fd00551  · vị trí  16 – 24  · “trạm Bốn”
+								215 button Loại đề xuất
+								216 text ENTITY
+								217 text Tên được trích xuất
+								218 text entry area (settable) Tên được trích xuất, Value: máy ghi, ID: mantine-mjotjnqt2
+								219 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								220 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-k1hftpe3o
+								221 text Nguồn: bản lưu  8fd00551  · vị trí  58 – 65  · “máy ghi”
+								222 button Loại đề xuất
+								223 text ENTITY
+								224 text Tên được trích xuất
+								225 text entry area (settable) Tên được trích xuất, Value: thuyền, ID: mantine-k9xfttqoq
+								226 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								227 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-30kme3gp7
+								228 text Nguồn: bản lưu  8fd00551  · vị trí  114 – 120  · “thuyền”
+								229 button Loại đề xuất
+								230 text ENTITY
+								231 text Tên được trích xuất
+								232 text entry area (settable) Tên được trích xuất, Value: tệp âm thanh, ID: mantine-4hbc91asz
+								233 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								234 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-lqjci289f
+								235 text Nguồn: bản lưu  8fd00551  · vị trí  76 – 88  · “tệp âm thanh”
+								236 button Loại đề xuất
+								237 text ENTITY
+								238 text Tên được trích xuất
+								239 text entry area (settable) Tên được trích xuất, Value: bản ghi, ID: mantine-qdx5m9mn9
+								240 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								241 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-emvqip13u
+								242 text Nguồn: bản lưu  8fd00551  · vị trí  145 – 152  · “bản ghi”
+								243 button Loại đề xuất
+								244 text EVENT
+								245 text Nội dung được trích xuất
+								246 text entry area (settable) Nội dung được trích xuất, Value: Duy signals the group to leave station Bốn as water levels continue to rise., ID: mantine-4t9ymlemb
+								247 text Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+								248 text field (settable) Nhân vật tham gia (ngăn cách bằng dấu phẩy), Value: Duy, Linh, An, ID: mantine-wqxekkkcb
+								249 text Địa điểm xảy ra (ngăn cách bằng dấu phẩy)
+								250 text field (settable) Địa điểm xảy ra (ngăn cách bằng dấu phẩy), Value: trạm Bốn, ID: mantine-8qpq1bihm
+								251 text Nguồn: bản lưu  8fd00551  · vị trí  0 – 48  · “Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.”
+								252 button Loại đề xuất
+								253 button Duyệt nhóm đã kiểm tra
+							254 container
+								255 text FACT trạm Bốn  ·  status  ·  confirmed
+								256 text Thực thể của dữ kiện (tên chính xác)
+								257 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: trạm Bốn, ID: mantine-tluyvomoy
+								258 text Nội dung được trích xuất
+								259 text entry area (settable) Nội dung được trích xuất, Value: Rời đi, ID: mantine-djj69tlc7
+								260 text Nguồn: bản lưu  836ef59f  · vị trí  0 – 48  · “Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.”
+								261 button Loại đề xuất
+								262 text FACT Linh  ·  action  ·  confirmed
+								263 text Thực thể của dữ kiện (tên chính xác)
+								264 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Linh, ID: mantine-5gtsqefyr
+								265 text Nội dung được trích xuất
+								266 text entry area (settable) Nội dung được trích xuất, Value: tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị, ID: mantine-29tqu92zu
+								267 text Nguồn: bản lưu  836ef59f  · vị trí  49 – 106  · “Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị.”
+								268 button Loại đề xuất
+								269 text FACT An  ·  action  ·  confirmed
+								270 text Thực thể của dữ kiện (tên chính xác)
+								271 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: An, ID: mantine-s8yq8msyh
+								272 text Nội dung được trích xuất
+								273 text entry area (settable) Nội dung được trích xuất, Value: giữ thuyền ngoài sân, ID: mantine-p7pfl8zey
+								274 text Nguồn: bản lưu  836ef59f  · vị trí  107 – 131  · “An giữ thuyền ngoài sân.”
+								275 button Loại đề xuất
+								276 text FACT ·  nguồn tiếng gõ  ·  confirmed nguồn tiếng gõ :  {
+  "value": "chưa biết vật gì đã tạo ra tiếng gõ dưới sàn",
+  "subject": "",
+  "certainty": "confirmed"
+} Nguồn: bản lưu  836ef59f  · vị trí  132 – 199  · “Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.”
+								277 button Loại đề xuất
+								278 text FACT Duy  ·  action  ·  confirmed
+								279 text Thực thể của dữ kiện (tên chính xác)
+								280 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Duy, ID: mantine-gzq58o9fc
+								281 text Nội dung được trích xuất
+								282 text entry area (settable) Nội dung được trích xuất, Value: thu dây cảnh báo và đóng nắp hộp dụng cụ, ID: mantine-3syz0gf3m
+								283 text Nguồn: bản lưu  836ef59f  · vị trí  201 – 246  · “Duy thu dây cảnh báo và đóng nắp hộp dụng cụ.”
+								284 button Loại đề xuất
+								285 text FACT Mai Linh  ·  location  ·  confirmed
+								286 text Thực thể của dữ kiện (tên chính xác)
+								287 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Mai Linh, ID: mantine-g7bt0rpo2
+								288 text Nội dung được trích xuất
+								289 text entry area (settable) Nội dung được trích xuất, Value: bờ kè, ID: mantine-dxi2ip8xa
+								290 text Nguồn: bản lưu  836ef59f  · vị trí  462 – 562  · “Đến bờ kè, cả ba nghỉ một lát. Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro.”
+								291 button Loại đề xuất
+								292 text FACT chiếc vỏ ốc xoắn màu tím tro  ·  color  ·  confirmed
+								293 text Thực thể của dữ kiện (tên chính xác)
+								294 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: chiếc vỏ ốc xoắn màu tím tro, ID: mantine-oy0fupey9
+								295 text Nội dung được trích xuất
+								296 text entry area (settable) Nội dung được trích xuất, Value: tím tro, ID: mantine-j7xyjvv72
+								297 text Nguồn: bản lưu  836ef59f  · vị trí  493 – 562  · “Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro.”
+								298 button Loại đề xuất
+								299 text FACT chiếc vỏ ốc xoắn màu tím tro  ·  shape  ·  confirmed
+								300 text Thực thể của dữ kiện (tên chính xác)
+								301 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: chiếc vỏ ốc xoắn màu tím tro, ID: mantine-usolxreoh
+								302 text Nội dung được trích xuất
+								303 text entry area (settable) Nội dung được trích xuất, Value: ốc xoắn, ID: mantine-evlo4w3ks
+								304 text Nguồn: bản lưu  836ef59f  · vị trí  493 – 562  · “Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro.”
+								305 button Loại đề xuất
+								306 text FACT chiếc vỏ ốc xoắn màu tím tro  ·  possessor  ·  confirmed
+								307 text Thực thể của dữ kiện (tên chính xác)
+								308 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: chiếc vỏ ốc xoắn màu tím tro, ID: mantine-rhotjnkab
+								309 text Nội dung được trích xuất
+								310 text entry area (settable) Nội dung được trích xuất, Value: Linh, ID: mantine-98bvpwazz
+								311 text Nguồn: bản lưu  836ef59f  · vị trí  605 – 658  · “Sau đó Linh cất chiếc vỏ ốc vào túi vải đen của mình.”
+								312 button Loại đề xuất
+								313 text FACT Linh  ·  statement  ·  reported statement :  {
+  "value": "Ngày mai mới hỏi chuyện hồ sơ",
+  "subject": "Linh",
+  "certainty": "reported"
+} Nguồn: bản lưu  836ef59f  · vị trí  710 – 752  · ““Ngày mai mới hỏi chuyện hồ sơ,” Linh nói.”
+								314 button Loại đề xuất
+								315 text FACT trạm bơm số Hai  ·  visit_status  ·  confirmed
+								316 text Thực thể của dữ kiện (tên chính xác)
+								317 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: trạm bơm số Hai, ID: mantine-ookqvnx6f
+								318 text Nội dung được trích xuất
+								319 text entry area (settable) Nội dung được trích xuất, Value: Chưa tới, ID: mantine-38z70wt5t
+								320 text Nguồn: bản lưu  836ef59f  · vị trí  837 – 865  · “Họ chưa tới trạm bơm số Hai.”
+								321 button Loại đề xuất
+								322 text FACT bản ghi  ·  location  ·  confirmed
+								323 text Thực thể của dữ kiện (tên chính xác)
+								324 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: bản ghi, ID: mantine-8bqj0px8c
+								325 text Nội dung được trích xuất
+								326 text entry area (settable) Nội dung được trích xuất, Value: túi chống ẩm của Linh, ID: mantine-gffd6fsx4
+								327 text Nguồn: bản lưu  836ef59f  · vị trí  866 – 947  · “Bản ghi ở trong túi chống ẩm của Linh, còn nguồn tiếng gõ vẫn chưa được xác định.”
+								328 button Loại đề xuất
+								329 text FACT Duy  ·  action  ·  confirmed
+								330 text Thực thể của dữ kiện (tên chính xác)
+								331 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Duy, ID: mantine-s1tux77g2
+								332 text Nội dung được trích xuất
+								333 text entry area (settable) Nội dung được trích xuất, Value: chờ Linh ra tới phần sân khô rồi mới bước lên thuyền, ID: mantine-geoqacq05
+								334 text Nguồn: bản lưu  836ef59f  · vị trí  247 – 304  · “Anh chờ Linh ra tới phần sân khô rồi mới bước lên thuyền.”
+								335 button Loại đề xuất
+								336 text FACT Cánh cửa  ·  action  ·  confirmed
+								337 text Thực thể của dữ kiện (tên chính xác)
+								338 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Cánh cửa, ID: mantine-rcvk0p0ta
+								339 text Nội dung được trích xuất
+								340 text entry area (settable) Nội dung được trích xuất, Value: không ai đề nghị mở thêm cánh cửa, ID: mantine-gs7jctv3f
+								341 text Nguồn: bản lưu  836ef59f  · vị trí  305 – 339  · “Không ai đề nghị mở thêm cánh cửa.”
+								342 button Loại đề xuất
+								343 text FACT An  ·  action  ·  confirmed
+								344 text Thực thể của dữ kiện (tên chính xác)
+								345 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: An, ID: mantine-q733g4ee8
+								346 text Nội dung được trích xuất
+								347 text entry area (settable) Nội dung được trích xuất, Value: chống sào để mạn thuyền tránh bậc đá, ID: mantine-c2ojlayfa
+								348 text Nguồn: bản lưu  836ef59f  · vị trí  340 – 380  · “An chống sào để mạn thuyền tránh bậc đá.”
+								349 button Loại đề xuất
+								350 text FACT Tiếng nước  ·  status  ·  confirmed
+								351 text Thực thể của dữ kiện (tên chính xác)
+								352 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Tiếng nước, ID: mantine-ao8w43wid
+								353 text Nội dung được trích xuất
+								354 text entry area (settable) Nội dung được trích xuất, Value: vẫn theo sau khi rời trạm, ID: mantine-xon2wit9b
+								355 text Nguồn: bản lưu  836ef59f  · vị trí  381 – 460  · “Khi họ rời trạm, tiếng nước vẫn theo sau như một câu hỏi chưa có người trả lời.”
+								356 button Loại đề xuất
+								357 text FACT Cả ba  ·  action  ·  confirmed
+								358 text Thực thể của dữ kiện (tên chính xác)
+								359 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Cả ba, ID: mantine-dud8x5tqz
+								360 text Nội dung được trích xuất
+								361 text entry area (settable) Nội dung được trích xuất, Value: nghỉ một lát đến bờ kè, ID: mantine-pglvb4ukv
+								362 text Nguồn: bản lưu  836ef59f  · vị trí  462 – 492  · “Đến bờ kè, cả ba nghỉ một lát.”
+								363 button Loại đề xuất
+								364 text FACT Mai Linh  ·  action  ·  confirmed
+								365 text Thực thể của dữ kiện (tên chính xác)
+								366 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Mai Linh, ID: mantine-85ya7pb0p
+								367 text Nội dung được trích xuất
+								368 text entry area (settable) Nội dung được trích xuất, Value: đặt vỏ ốc trong lòng bàn tay cho An nhìn, ID: mantine-ovm725uli
+								369 text Nguồn: bản lưu  836ef59f  · vị trí  563 – 604  · “Cô đặt nó trong lòng bàn tay cho An nhìn.”
+								370 button Loại đề xuất
+								371 text FACT Túi vải  ·  color  ·  confirmed
+								372 text Thực thể của dữ kiện (tên chính xác)
+								373 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Túi vải, ID: mantine-5isspjl9t
+								374 text Nội dung được trích xuất
+								375 text entry area (settable) Nội dung được trích xuất, Value: đen, ID: mantine-5kihzmltp
+								376 text Nguồn: bản lưu  836ef59f  · vị trí  605 – 658  · “Sau đó Linh cất chiếc vỏ ốc vào túi vải đen của mình.”
+								377 button Loại đề xuất
+								378 text FACT Duy  ·  action  ·  confirmed
+								379 text Thực thể của dữ kiện (tên chính xác)
+								380 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Duy, ID: mantine-q2ulb2z26
+								381 text Nội dung được trích xuất
+								382 text entry area (settable) Nội dung được trích xuất, Value: đứng chờ cạnh thuyền, không chạm vào máy ghi, ID: mantine-17vtqqzcy
+								383 text Nguồn: bản lưu  836ef59f  · vị trí  659 – 708  · “Duy đứng chờ cạnh thuyền, không chạm vào máy ghi.”
+								384 button Loại đề xuất
+								385 text FACT Linh  ·  statement  ·  reported statement :  {
+  "value": "Hôm nay chúng ta chỉ biết đã nghe gì và đứng ở đâu",
+  "subject": "Linh",
+  "certainty": "reported"
+} Nguồn: bản lưu  836ef59f  · vị trí  753 – 806  · ““Hôm nay chúng ta chỉ biết đã nghe gì và đứng ở đâu.””
+								386 button Loại đề xuất
+								387 text FACT An  ·  action  ·  confirmed
+								388 text Thực thể của dữ kiện (tên chính xác)
+								389 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: An, ID: mantine-jnsyx0jxb
+								390 text Nội dung được trích xuất
+								391 text entry area (settable) Nội dung được trích xuất, Value: gật đầu rồi buộc lại dây, ID: mantine-hybpugfb5
+								392 text Nguồn: bản lưu  836ef59f  · vị trí  808 – 836  · “An gật đầu rồi buộc lại dây.”
+								393 button Loại đề xuất
+								394 text FACT Nguồn tiếng gõ  ·  status  ·  confirmed
+								395 text Thực thể của dữ kiện (tên chính xác)
+								396 text field (settable) Thực thể của dữ kiện (tên chính xác), Value: Nguồn tiếng gõ, ID: mantine-gi3msqpm8
+								397 text Nội dung được trích xuất
+								398 text entry area (settable) Nội dung được trích xuất, Value: vẫn chưa được xác định, ID: mantine-jwql2rkti
+								399 text Nguồn: bản lưu  836ef59f  · vị trí  866 – 947  · “Bản ghi ở trong túi chống ẩm của Linh, còn nguồn tiếng gõ vẫn chưa được xác định.”
+								400 button Loại đề xuất
+								401 text EVENT
+								402 text Nội dung được trích xuất
+								403 text entry area (settable) Nội dung được trích xuất, Value: Mai Linh nhặt được một chiếc vỏ ốc xoắn màu tím tro ở bờ kè và cho An xem trước khi cất vào túi., ID: mantine-66o5zmftu
+								404 text Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+								405 text field (settable) Nhân vật tham gia (ngăn cách bằng dấu phẩy), Value: Mai Linh, An, Duy, ID: mantine-mbgi4vqw9
+								406 text Địa điểm xảy ra (ngăn cách bằng dấu phẩy)
+								407 text field (settable) Địa điểm xảy ra (ngăn cách bằng dấu phẩy), Value: bờ kè, ID: mantine-5piot7012
+								408 text Nguồn: bản lưu  836ef59f  · vị trí  493 – 658  · “Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro. Cô đặt nó trong lòng bàn tay cho An nhìn. Sau đó Linh cất chiếc vỏ ốc vào túi vải đen của mình.”
+								409 button Loại đề xuất
+								410 text ENTITY
+								411 text Tên được trích xuất
+								412 text entry area (settable) Tên được trích xuất, Value: Duy, ID: mantine-zv5qbulcp
+								413 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								414 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Alive, ID: mantine-uuuppkzaj
+								415 text Nguồn: bản lưu  836ef59f  · vị trí  0 – 48  · “Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.”
+								416 button Loại đề xuất
+								417 text ENTITY
+								418 text Tên được trích xuất
+								419 text entry area (settable) Tên được trích xuất, Value: Linh, ID: mantine-2ixdaktpa
+								420 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								421 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Alive, ID: mantine-g1wyfn9aq
+								422 text Nguồn: bản lưu  836ef59f  · vị trí  49 – 106  · “Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị.”
+								423 button Loại đề xuất
+								424 text ENTITY
+								425 text Tên được trích xuất
+								426 text entry area (settable) Tên được trích xuất, Value: An, ID: mantine-awiat1p8g
+								427 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								428 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Alive, ID: mantine-ju9hlqid9
+								429 text Nguồn: bản lưu  836ef59f  · vị trí  107 – 131  · “An giữ thuyền ngoài sân.”
+								430 button Loại đề xuất
+								431 text ENTITY
+								432 text Tên được trích xuất
+								433 text entry area (settable) Tên được trích xuất, Value: Mai Linh, ID: mantine-w5jm7x4ic
+								434 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								435 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Alive, ID: mantine-2b8r6gqle
+								436 text Nguồn: bản lưu  836ef59f  · vị trí  493 – 562  · “Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro.”
+								437 button Loại đề xuất
+								438 text ENTITY
+								439 text Tên được trích xuất
+								440 text entry area (settable) Tên được trích xuất, Value: trạm Bốn, ID: mantine-5n97dbipw
+								441 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								442 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-lghzmejjm
+								443 text Nguồn: bản lưu  836ef59f  · vị trí  16 – 24  · “trạm Bốn”
+								444 button Loại đề xuất
+								445 text ENTITY
+								446 text Tên được trích xuất
+								447 text entry area (settable) Tên được trích xuất, Value: chiếc vỏ ốc xoắn màu tím tro, ID: mantine-sn3w0nd2s
+								448 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								449 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-dvv2u3bas
+								450 text Nguồn: bản lưu  836ef59f  · vị trí  533 – 561  · “chiếc vỏ ốc xoắn màu tím tro”
+								451 button Loại đề xuất
+								452 text ENTITY
+								453 text Tên được trích xuất
+								454 text entry area (settable) Tên được trích xuất, Value: trạm bơm số Hai, ID: mantine-sgfz21f0l
+								455 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								456 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-ifmo094c9
+								457 text Nguồn: bản lưu  836ef59f  · vị trí  849 – 864  · “trạm bơm số Hai”
+								458 button Loại đề xuất
+								459 text ENTITY
+								460 text Tên được trích xuất
+								461 text entry area (settable) Tên được trích xuất, Value: máy ghi, ID: mantine-pmrrgg54x
+								462 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								463 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-vpey7e04n
+								464 text Nguồn: bản lưu  836ef59f  · vị trí  58 – 65  · “máy ghi”
+								465 button Loại đề xuất
+								466 text ENTITY
+								467 text Tên được trích xuất
+								468 text entry area (settable) Tên được trích xuất, Value: thuyền, ID: mantine-986i60i1a
+								469 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								470 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-ymk2cygte
+								471 text Nguồn: bản lưu  836ef59f  · vị trí  114 – 120  · “thuyền”
+								472 button Loại đề xuất
+								473 text ENTITY
+								474 text Tên được trích xuất
+								475 text entry area (settable) Tên được trích xuất, Value: bản ghi, ID: mantine-lfmb2tg3i
+								476 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								477 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-x092z4m2z
+								478 text Nguồn: bản lưu  836ef59f  · vị trí  145 – 152  · “bản ghi”
+								479 button Loại đề xuất
+								480 text ENTITY
+								481 text Tên được trích xuất
+								482 text entry area (settable) Tên được trích xuất, Value: túi vải đen, ID: mantine-7yb2vn3ma
+								483 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								484 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-fuctfulbb
+								485 text Nguồn: bản lưu  836ef59f  · vị trí  637 – 648  · “túi vải đen”
+								486 button Loại đề xuất
+								487 text ENTITY
+								488 text Tên được trích xuất
+								489 text entry area (settable) Tên được trích xuất, Value: túi chống ẩm, ID: mantine-cf6abz848
+								490 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								491 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-1kz8yzrhn
+								492 text Nguồn: bản lưu  836ef59f  · vị trí  882 – 894  · “túi chống ẩm”
+								493 button Loại đề xuất
+								494 text ENTITY
+								495 text Tên được trích xuất
+								496 text entry area (settable) Tên được trích xuất, Value: tệp âm thanh, ID: mantine-6ksk2se7y
+								497 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								498 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-l8qwkc2ec
+								499 text Nguồn: bản lưu  836ef59f  · vị trí  76 – 88  · “tệp âm thanh”
+								500 button Loại đề xuất
+								501 text ENTITY
+								502 text Tên được trích xuất
+								503 text entry area (settable) Tên được trích xuất, Value: hộp dụng cụ, ID: mantine-nntfvmigu
+								504 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								505 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-ic5izkyku
+								506 text Nguồn: bản lưu  836ef59f  · vị trí  234 – 245  · “hộp dụng cụ”
+								507 button Loại đề xuất
+								508 text ENTITY
+								509 text Tên được trích xuất
+								510 text entry area (settable) Tên được trích xuất, Value: hồ sơ, ID: mantine-403m6hplx
+								511 text Trạng thái ban đầu (Alive / Dead / Unknown)
+								512 text field (settable) Trạng thái ban đầu (Alive / Dead / Unknown), Value: Unknown, ID: mantine-tzr6pobwp
+								513 text Nguồn: bản lưu  836ef59f  · vị trí  735 – 740  · “hồ sơ”
+								514 button Loại đề xuất
+								515 text EVENT
+								516 text Nội dung được trích xuất
+								517 text entry area (settable) Nội dung được trích xuất, Value: Duy, Linh và An rời trạm Bốn bằng thuyền khi nước dâng lên., ID: mantine-d7crcdyzz
+								518 text Nhân vật tham gia (ngăn cách bằng dấu phẩy)
+								519 text field (settable) Nhân vật tham gia (ngăn cách bằng dấu phẩy), Value: Duy, Linh, An, ID: mantine-izc2c6yb2
+								520 text Địa điểm xảy ra (ngăn cách bằng dấu phẩy)
+								521 text field (settable) Địa điểm xảy ra (ngăn cách bằng dấu phẩy), Value: trạm Bốn, ID: mantine-pem86tos9
+								522 text Nguồn: bản lưu  836ef59f  · vị trí  0 – 131  · “Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng. Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị. An giữ thuyền ngoài sân.”
+								523 button Loại đề xuất
+								524 button Duyệt nhóm đã kiểm tra
+
+The focused UI element is 253 button Duyệt nhóm đã kiểm tra

@@ -1,0 +1,5 @@
+# Add only to a NEW isolated test stack; do not restart recovery run workers.
+services:
+  ai-service:
+    environment:
+      ENTITY_CANDIDATE_VERIFICATION_ENABLED: "true"

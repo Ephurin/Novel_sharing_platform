@@ -2,13 +2,18 @@
 
 Đây là nguồn tài liệu chuẩn cho module AI Writing Copilot trong Novel Sharing Platform. Bộ SRA/SRS của dự án chính được giữ nguyên tại `../../docs/SRA_doc/` và không trộn vào specification của Copilot.
 
+**Workflow hiện hành:** [WORKFLOW_CONTRACT.md revision1.3](../../Pipeline_test/WORKFLOW_CONTRACT.md)
+là nguồn chuẩn của P1/P2/P3 và human entity review. Khi các thiết kế lịch sử trong
+bộ docs này khác contract, ưu tiên contract; pipeline map là bản đối chiếu code/evidence.
+
 ## Bắt đầu từ đây
 
 | Tài liệu | Nội dung |
 |---|---|
 | [DEFENSE_QNA_HANDOVER.md](DEFENSE_QNA_HANDOVER.md) | 🎓 Sổ tay vấn đáp bảo vệ tốt nghiệp & bàn giao kỹ thuật |
 | [PRODUCT.md](PRODUCT.md) | Tầm nhìn, người dùng, phạm vi và ranh giới với Novel Platform |
-| [USE_CASES.md](USE_CASES.md) | Hai luồng khởi tạo Story Brain và vòng lặp sáng tác chính |
+| [Workflow contract](../../Pipeline_test/WORKFLOW_CONTRACT.md) | Source of truth P1/P2/P3, review gates và ranh giới tự động |
+| [USE_CASES.md](USE_CASES.md) | Dẫn đến contract hiện hành; phần UC-01/02/03 bên dưới là thiết kế lịch sử |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Kiến trúc hiện tại, dữ liệu, pipeline và kiến trúc đích |
 | [ROADMAP.md](ROADMAP.md) | Thứ tự phát triển và exit criteria |
 | [UX.md](UX.md) | Kiến trúc thông tin và nguyên tắc trải nghiệm viết |

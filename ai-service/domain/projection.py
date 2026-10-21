@@ -18,6 +18,11 @@ def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
 
 
 def validate_payload(kind, payload):
+    if kind == 'alias':
+        if not isinstance(payload.get('alias'), str) or not payload['alias'].strip():
+            raise ProjectionError('Alias requires a nonempty surface')
+        if not (payload.get('entity_id') or payload.get('entity_name')):
+            raise ProjectionError('Alias requires a canonical identity')
     required = {"entity": ("canonical_name", "entity_type"), "event": ("event_type", "summary"),
                 "state_transition": ("entity_id", "attribute_key"),
                 "fact": ("fact_key",)}.get(kind, ())

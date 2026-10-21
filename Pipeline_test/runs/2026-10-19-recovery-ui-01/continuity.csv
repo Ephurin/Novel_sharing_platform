@@ -1,0 +1,3 @@
+entry_id,chapter_number,revision_id,entity_or_object,event_or_state,certainty,known_by,source_excerpt,previous_entry_id,payoff_id,review_status
+CONT-SHELL,6,836ef59f-5e9b-4b08-856d-7e9754331335,Mai Linh / shell,Ash-purple spiral shell picked up and stored in black cloth bag,explicit_in_prose,,Mai Linh đi dọc mép đá và nhặt được một chiếc vỏ ốc xoắn màu tím tro.,,,PRESENT_AFTER_AUTHOR_REVIEW
+CONT-AGE,6,2472bd86-54cc-4af6-8f23-ee1d8ccb978d,An,age19 corrected from injected40,explicit_in_prose,,An mới mười chín tuổi.,,,CONSISTENCY_PASS; LATEST_EXTRACTION_UNFINISHED

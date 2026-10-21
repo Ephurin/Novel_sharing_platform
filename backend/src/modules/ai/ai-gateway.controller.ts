@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import { createHash, randomUUID } from 'node:crypto';
 import { aiGatewayService } from './ai-gateway.service.js';
 import { successResponse } from '../../core/response/response.js';
 import { AppError } from '../../core/errors/app-error.js';
@@ -7,6 +8,54 @@ import { findChapterById, type ChapterRecord } from '../novels/chapters.reposito
 import { assertCurrentProposalEvidence } from './proposal-evidence.service.js';
 import { listLatestChapterAnalysis } from '../novels/outbox.repository.js';
 import { findRevisionById, findLatestRevisionByChapterId } from '../novels/chapter-revisions.repository.js';
+
+export async function entityGuidanceController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({ method: req.method === 'GET' ? 'GET' : 'POST',
+      path: `/v1/story-brains/${novelId}/entity-guidance`, userId: req.auth!.userId,
+      ...(req.method === 'GET' ? {} : { body: req.body }) });
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function authorEntityController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({ method: 'POST',
+      path: `/v1/story-brains/${novelId}/author-entities`, body: req.body, userId: req.auth!.userId });
+    res.status(201).json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function entityReviewController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const base = `/v1/story-brains/${novelId}/entity-reviews`;
+    if (req.method === 'GET') {
+      res.json(successResponse(await aiGatewayService.forwardRequest({ method: 'GET', path: base,
+        userId: req.auth!.userId })));
+      return;
+    }
+    const runId = String(req.params.runId);
+    if (!/^[a-f0-9-]{36}$/i.test(runId)) throw new AppError(400, 'INVALID_RUN_ID', 'Invalid analysis run');
+    const audit = await aiGatewayService.forwardRequest<{ revision_id: string; chapter_id: string }>({ method: 'GET',
+      path: `/v1/story-brains/${novelId}/entity-candidate-audits/${runId}`, userId: req.auth!.userId });
+    const revision = await findRevisionById(undefined, audit.revision_id);
+    const head = revision && await findLatestRevisionByChapterId(undefined, revision.chapterId);
+    if (!revision || revision.novelId !== novelId || revision.chapterId !== audit.chapter_id ||
+        head?.revisionId !== revision.revisionId) {
+      throw new AppError(409, 'STALE_PROPOSAL_EVIDENCE', 'Chapter changed; extract the latest saved revision');
+    }
+    const action = req.path.endsWith('/review') ? 'review' : 'continue';
+    const data = await aiGatewayService.forwardRequest({ method: 'POST', path: `${base}/${runId}/${action}`,
+      body: req.body, userId: req.auth!.userId });
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
 
 export async function reanalyseSavedChapterController(req: Request, res: Response, next: NextFunction) {
   try {
@@ -17,8 +66,14 @@ export async function reanalyseSavedChapterController(req: Request, res: Respons
     if (!revision || revision.novelId !== novelId || head?.revisionId !== revision.revisionId) {
       throw new AppError(409, 'STALE_PROPOSAL_EVIDENCE', 'Select the latest saved revision of this novel');
     }
+    const requestKey = req.get('Idempotency-Key') || randomUUID();
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(requestKey)) {
+      throw new AppError(400, 'INVALID_IDEMPOTENCY_KEY', 'Use a request identifier of at most 128 characters');
+    }
     const data = await aiGatewayService.forwardRequest({ method: 'POST',
       path: `/v1/revisions/${revision.revisionId}/analyses`, userId: req.auth!.userId,
+      idempotencyKey: `author-reanalysis:${createHash('sha256')
+        .update(JSON.stringify([req.auth!.userId, novelId, revision.revisionId, requestKey])).digest('hex')}`,
       body: { novel_id: novelId, chapter_id: revision.chapterId, content_hash: revision.contentHash,
         operation: 'author_reanalysis', options: { extract_state_transitions: true } } });
     res.json(successResponse(data));

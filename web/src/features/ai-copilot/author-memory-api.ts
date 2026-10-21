@@ -16,6 +16,11 @@ export async function memoryPost<T>(path: string, body: unknown): Promise<T> {
   return (await apiClient.post<ApiEnvelope<T>>(path, body)).data.data;
 }
 export const getApprovedMemory = (novelId: string) => memoryGet<ApprovedMemory>(`/ai/story-brains/${novelId}/memory`);
+export async function reanalyseSavedChapter(novelId: string, revisionId: string) {
+  // A new author action gets a new key; HTTP/auth retries retain this config/key.
+  return (await apiClient.post(`/ai/story-brains/${novelId}/reanalyse`,
+    { revision_id: revisionId }, { headers: { 'Idempotency-Key': crypto.randomUUID() } })).data;
+}
 export const runAuthorOperation = <T,>(novelId: string, body: unknown) => memoryPost<T>(`/ai/story-brains/${novelId}/author-operation`, body);
 
 export async function saveFuturePlan(novelId: string, events: FutureEvent[], direction: string) {

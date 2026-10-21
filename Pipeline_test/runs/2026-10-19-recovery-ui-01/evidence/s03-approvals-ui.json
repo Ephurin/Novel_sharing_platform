@@ -1,0 +1,36 @@
+[
+  {
+    "at": "2026-10-20T00:14:14.297Z",
+    "channel": "UI",
+    "remaining": 93,
+    "reapplied_edits": [
+      "0c8be449-1a44-5af9-b72d-ec7e5f5923bc",
+      "68192be3-c40f-542f-99db-d0fdec1f065b",
+      "764a67c3-1d68-5238-a409-9fe7f665f54d",
+      "316957b5-9ad2-5b01-b124-49b83ab56430",
+      "86910370-4fb2-5b18-ae2b-48c5dbffecc6",
+      "ec5196ac-ada5-5bdb-9858-df91664e3b79",
+      "a032af8a-e17f-5d59-8d52-cf90f125748c",
+      "cc340f9b-baba-5f8f-a814-d6680efa7eb4",
+      "4accedb4-8c61-5faf-a967-03112b958b6e",
+      "4269bef9-bcce-5ae0-ae01-978d3e8f6942",
+      "4a2afa6f-eb50-5aa0-acdc-9825e805e179",
+      "13918aec-8885-5fdf-86ad-d207068eee00",
+      "5ee08e31-cc9a-53cf-ae85-4be899a494d0",
+      "ae260a36-5a6a-5bf0-9c50-495d8939695e"
+    ],
+    "version": "Bộ nhớ chính thức v3 · importing. Đề xuất chưa duyệt chưa được dùng làm sự thật."
+  },
+  {
+    "at": "2026-10-20T00:14:18.580Z",
+    "channel": "UI",
+    "remaining": 63,
+    "reapplied_edits": [
+      "a19a0e01-b1ec-5093-921c-5b3649499ae2",
+      "c225ff03-91b3-590f-a783-17a7e9c5345a",
+      "1a494e90-a941-5238-8c92-3d7063d38579",
+      "29fba804-aeed-5d7b-80c5-fe50e31e0c9f"
+    ],
+    "version": "Bộ nhớ chính thức v4 · importing. Đề xuất chưa duyệt chưa được dùng làm sự thật."
+  }
+]

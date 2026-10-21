@@ -75,6 +75,43 @@ class PostgresNarrativeRepository:
         self._tenant_id = uuid.UUID(str(tenant_id))
         self._actor_id = uuid.UUID(str(actor_id))
 
+    def get_entity_guidance(self, story_id: str) -> dict:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            brain = self._get_or_create_brain(session, self._novel_id(story_id))
+            return deepcopy(brain.entity_guidance or {'version': 0, 'entries': []})
+
+    def list_entity_reviews(self, story_id: str) -> list[dict]:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            rows = session.scalars(select(AnalysisRunRecord.entity_candidate_audit).where(
+                *self._scope(AnalysisRunRecord, self._novel_id(story_id)),
+                AnalysisRunRecord.entity_candidate_audit['status'].as_string().in_(
+                    ['waiting_entity_review', 'entities_reviewed']))).all()
+            return [deepcopy(a) for a in rows]
+
+    def save_entity_guidance(self, story_id: str, guidance: dict, expected_version: int) -> dict:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            brain = self._get_or_create_brain(session, self._novel_id(story_id))
+            session.refresh(brain, with_for_update=True)
+            if (brain.entity_guidance or {}).get('version', 0) != expected_version:
+                raise OptimisticLockError('Reload entity guidance')
+            brain.entity_guidance = {**deepcopy(guidance), 'version': expected_version + 1}
+            return deepcopy(brain.entity_guidance)
+
+    def get_entity_registry(self, story_id: str) -> dict:
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            entities = session.execute(select(EntityRecord.id, EntityRecord.canonical_name,
+                EntityRecord.entity_type).where(*self._scope(EntityRecord, novel_id))).all()
+            aliases = session.execute(select(EntityAliasRecord.alias, EntityAliasRecord.entity_id)
+                .join(EntityRecord, EntityRecord.id == EntityAliasRecord.entity_id)
+                .where(*self._scope(EntityRecord, novel_id))).all()
+            return {'entities': [{'entity_id': str(e.id), 'name': e.canonical_name,
+                                  'entity_type': e.entity_type} for e in entities],
+                    'aliases': [{'alias': a.alias, 'entity_id': str(a.entity_id)} for a in aliases]}
+
     def get_story_brain(self, story_id: str) -> StoryBrain:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
@@ -631,6 +668,8 @@ class PostgresNarrativeRepository:
                     session.flush()
                     artifact_ids.append(str(proposal.id))
                 elif proposal.proposal_type == "alias":
+                    entities, _, _, _ = self._projection_inputs(session, novel_id)
+                    payload['entity_id'] = resolve_entity(payload.get('entity_id') or payload.get('entity_name', ''), entities)
                     alias = EntityAliasRecord(
                         entity_id=uuid.UUID(str(payload["entity_id"])),
                         alias=str(payload["alias"]),
@@ -881,6 +920,26 @@ class PostgresNarrativeRepository:
                 pipeline_version=pipeline_version,
             )
             return self._to_analysis_run(record)
+
+    def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(select(AnalysisRunRecord).where(
+                AnalysisRunRecord.id == uuid.UUID(run_id),
+                *self._scope(AnalysisRunRecord, self._novel_id(story_id))).with_for_update())
+            if record is None:
+                raise KeyError(run_id)
+            if expected_version is not None and (record.entity_candidate_audit or {}).get('review_version') != expected_version:
+                raise OptimisticLockError('Entity checkpoint changed')
+            record.entity_candidate_audit = deepcopy(audit)
+
+    def get_entity_candidate_audit(self, story_id: str, run_id: str) -> dict | None:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(select(AnalysisRunRecord).where(
+                AnalysisRunRecord.id == uuid.UUID(run_id),
+                *self._scope(AnalysisRunRecord, self._novel_id(story_id))))
+            return deepcopy(record.entity_candidate_audit) if record else None
 
     def get_related_entities(
         self, story_id: str, entity_name: str, limit: int = 10

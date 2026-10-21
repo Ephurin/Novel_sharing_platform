@@ -1,0 +1,442 @@
+[
+  {
+    "proposal_id": "c88eed86-5971-586f-b662-3626482d21f1",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Duy",
+      "initial_status": "Unknown",
+      "normalized_name": "duy"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 0,
+    "evidence": [
+      {
+        "end": 3,
+        "quote": "Duy",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "a470bf4a-ac67-5bed-b2a2-f67f5addbee9",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "linh"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 1,
+    "evidence": [
+      {
+        "end": 53,
+        "quote": "Linh",
+        "start": 49,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "3b233ec6-c327-5270-bb61-141cabe1a7f0",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "canonical_name": "An",
+      "initial_status": "Unknown",
+      "normalized_name": "an"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 2,
+    "evidence": [
+      {
+        "end": 109,
+        "quote": "An",
+        "start": 107,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.95,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "db45660f-93cc-5fbe-8dba-bc0e7102de7c",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "canonical_name": "trạm Bốn",
+      "initial_status": "Unknown",
+      "normalized_name": "trạm bốn"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 3,
+    "evidence": [
+      {
+        "end": 24,
+        "quote": "trạm Bốn",
+        "start": 16,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "fd9df8d9-3fcf-5717-a184-6b7c432e887d",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "máy ghi",
+      "initial_status": "Unknown",
+      "normalized_name": "máy ghi"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 4,
+    "evidence": [
+      {
+        "end": 65,
+        "quote": "máy ghi",
+        "start": 58,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "6349e301-ccde-5a63-b2a2-0c5fd17d6e35",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "thuyền",
+      "initial_status": "Unknown",
+      "normalized_name": "thuyền"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 5,
+    "evidence": [
+      {
+        "end": 120,
+        "quote": "thuyền",
+        "start": 114,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.9,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "beac587b-7f91-568d-a183-b929848ce47b",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "tệp âm thanh",
+      "initial_status": "Unknown",
+      "normalized_name": "tệp âm thanh"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 6,
+    "evidence": [
+      {
+        "end": 88,
+        "quote": "tệp âm thanh",
+        "start": 76,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "832da9ad-23e2-5d80-b950-3bc3d181f0cd",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "canonical_name": "bản ghi",
+      "initial_status": "Unknown",
+      "normalized_name": "bản ghi"
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 7,
+    "evidence": [
+      {
+        "end": 152,
+        "quote": "bản ghi",
+        "start": 145,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4"
+      }
+    ],
+    "confidence": 0.85,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "57ae439e-947f-5110-b918-133bf1d67ba0",
+    "proposal_type": "event",
+    "payload": {
+      "chapter": 6,
+      "summary": "Duy signals the group to leave station Bốn as water levels continue to rise.",
+      "locations": [
+        "trạm Bốn"
+      ],
+      "event_type": "Departure",
+      "consequences": [
+        "The group prepares to leave the station."
+      ],
+      "participants": [
+        "Duy",
+        "Linh",
+        "An"
+      ],
+      "chapter_number": 6,
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 8,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 0.8,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "1faf02e3-7895-5513-a813-6218c0d22dc7",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "ra hiệu rời trạm Bốn",
+      "subject_name": "Duy",
+      "chapter_number": 6,
+      "subject_entity_name": "Duy",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 9,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "a3593941-2468-5785-a026-d3fba931b055",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị",
+      "subject_name": "Linh",
+      "chapter_number": 6,
+      "subject_entity_name": "Linh",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 10,
+    "evidence": [
+      {
+        "end": 106,
+        "quote": "Linh tắt máy ghi, kiểm tra tệp âm thanh rồi cất thiết bị.",
+        "start": 49,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "50d9f44a-a1ea-523e-be56-2a6b3086516e",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "giữ thuyền ngoài sân",
+      "subject_name": "An",
+      "chapter_number": 6,
+      "subject_entity_name": "An",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 11,
+    "evidence": [
+      {
+        "end": 131,
+        "quote": "An giữ thuyền ngoài sân.",
+        "start": 107,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "c67dfb5c-ef8a-5a56-bda2-114f70c8bc4f",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "knowledge_status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "chưa biết vật gì đã tạo ra tiếng gõ dưới sàn",
+      "subject_name": "Họ",
+      "chapter_number": 6,
+      "subject_entity_name": "Họ",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 12,
+    "evidence": [
+      {
+        "end": 199,
+        "quote": "Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.",
+        "start": 132,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "e8b24051-0270-5564-9483-b5a3d3f2e8d2",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "status",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "tiếp tục dâng",
+      "subject_name": "nước",
+      "chapter_number": 6,
+      "subject_entity_name": "nước",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 13,
+    "evidence": [
+      {
+        "end": 48,
+        "quote": "Duy ra hiệu rời trạm Bốn khi nước tiếp tục dâng.",
+        "start": 0,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  },
+  {
+    "proposal_id": "4c8b20a6-4bb9-550c-b3d6-eac479e6afe7",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "action",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": "mang theo bản ghi",
+      "subject_name": "Họ",
+      "chapter_number": 6,
+      "subject_entity_name": "Họ",
+      "reconciliation_base_ids": []
+    },
+    "analysis_run_id": "1c76fb74-8432-4336-a0cb-26b8e589fb0c",
+    "dependency_group_id": "0e8a5f4b-7cb4-5015-9247-8accf169432e",
+    "materialization_order": 14,
+    "evidence": [
+      {
+        "end": 199,
+        "quote": "Họ mang theo bản ghi, chưa biết vật gì đã tạo ra tiếng gõ dưới sàn.",
+        "start": 132,
+        "text_hash": "0cebacf66ef3250079f00310f3af64df809260507a50efb66d50dcc7a7ae9139",
+        "chapter_id": "1ad6c541-1079-4d46-8019-9a0f5e765a9a",
+        "revision_id": "8fd00551-eef6-4ade-942e-299cda2de0c4",
+        "chapter_number": 6
+      }
+    ],
+    "confidence": 1.0,
+    "expected_brain_version": 6,
+    "status": "pending",
+    "decision_reason": null
+  }
+]

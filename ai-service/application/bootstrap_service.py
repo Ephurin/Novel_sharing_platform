@@ -102,6 +102,7 @@ class ManuscriptBootstrapService:
         author_constraints = list(author_constraints or [])
 
         locale_norm = (locale or "vi-VN").strip().lower()
+        guidance = self._repository.get_entity_guidance(novel_id)
 
         identity = json.dumps(
             {
@@ -113,6 +114,7 @@ class ManuscriptBootstrapService:
                 "preferences": preferences,
                 "author_constraints": author_constraints,
                 "mode": mode,
+                "guidance_version": guidance["version"],
             },
             sort_keys=True,
         )
@@ -128,7 +130,7 @@ class ManuscriptBootstrapService:
         brain = self._repository.get_story_brain(novel_id)
         brain_version = int(brain.metadata.get("brain_version", "1"))
 
-        blueprint = self._generate_setup(idea, author_constraints) if mode == "extract" else self._generate_blueprint(
+        blueprint = self._generate_setup(idea, author_constraints, guidance["entries"]) if mode == "extract" else self._generate_blueprint(
             idea=idea,
             outline=outline,
             preferences=preferences,
@@ -281,7 +283,7 @@ class ManuscriptBootstrapService:
         )
         return self._repository.create_bootstrap_job(job)
 
-    def _generate_setup(self, idea: str, constraints: list[str]) -> dict[str, Any]:
+    def _generate_setup(self, idea: str, constraints: list[str], guidance=()) -> dict[str, Any]:
         if self._llm_service is None:
             raise ValueError("LLM is required for setup extraction")
         raw = call_structured(self._llm_service, operation="setup_extraction",
@@ -290,7 +292,8 @@ class ManuscriptBootstrapService:
                 'Return JSON {"entities":[{"name":"exact source name","entity_type":"character|location",'
                 '"score":9,"initial_status":"Alive|Dead|Unknown"}]}. '
                 "Use Dead only for explicitly established prior death, Unknown for uncertainty and locations."),
-            user_prompt=json.dumps({"setup": idea, "constraints": constraints}, ensure_ascii=False))
+            user_prompt=json.dumps({"setup": idea, "constraints": constraints, "author_guidance": list(guidance),
+                "guidance_policy": "Search hints only, never proof of source presence or future events"}, ensure_ascii=False))
         data = json.loads(raw)
         if not isinstance(data, dict) or not isinstance(data.get("entities"), list):
             raise ValueError("Invalid setup extraction output")
@@ -373,7 +376,8 @@ class ManuscriptBootstrapService:
                     chapter_id=item.chapter_id,
                     revision_id=item.revision_id,
                 )
-                scene_count += len(self._split_scenes(content.content))
+                if item.status != 'waiting_entity_review':
+                    scene_count += len(self._split_scenes(content.content))
                 result = self._analysis_service.analyze(
                     tenant_id=job.tenant_id,
                     novel_id=job.novel_id,
@@ -395,6 +399,12 @@ class ManuscriptBootstrapService:
                         "build_embeddings": bool(job.options.get("build_embeddings", False)),
                     },
                 )
+                if result.status == 'waiting_entity_review':
+                    revisions[index] = replace(item, status='waiting_entity_review',
+                                              analysis_run_id=result.analysis_run.run_id)
+                    return self._repository.save_bootstrap_job(replace(job,
+                        status='waiting_entity_review', stage='entity_review', revisions=tuple(revisions),
+                        result={'scene_count': scene_count, 'analysis_run_id': result.analysis_run.run_id}))
                 revisions[index] = replace(
                     item,
                     status="completed",

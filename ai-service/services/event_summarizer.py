@@ -54,6 +54,7 @@ def extract_narrative_events(
     user_prompt = (
         f"Text passage: {text.strip()}\n"
         f"Known entities: {', '.join(entity_names)}\n"
+        f"Verified name mappings: {json.dumps({e['raw_name']: e['normalized_name'] for e in approved_entities if e.get('raw_name') and e.get('normalized_name') and e['raw_name'] != e['normalized_name']}, ensure_ascii=False)}\n"
         "Extract narrative events."
     )
 

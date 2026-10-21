@@ -1,5 +1,13 @@
 # Use Cases — Story Brain Lifecycle
 
+> **Cập nhật2026-10-20 — nguồn chuẩn:** [WORKFLOW_CONTRACT.md revision1.3](../../Pipeline_test/WORKFLOW_CONTRACT.md).
+> Ba use case hiện tại: **P1 bản thảo có sẵn; P2 ý tưởng/thiết lập; P3 controller tự động**.
+> Cả P1/P3 và chapter revisions của P2 dùng optional hints → tác giả duyệt entity → event/fact khi bật human-review mode.
+> P2 setup vẫn extract entities explicit rồi review. P3 phải chờ human entity review, không được báo fully autonomous.
+> Phần dưới là **thiết kế lịch sử, không phải contract runtime hoặc bằng chứng triển khai**; UC-01/02/03 cũ không ánh xạ lần lượt với P1/P2/P3.
+> Các mô tả blueprint mặc định, planning còn hoãn, changed-spans-only và review sau toàn bộ extraction không được dùng để ghi đè contract mới.
+
+
 ## Tổng quan
 
 Sản phẩm có hai điểm khởi tạo Story Brain, nhưng chỉ có một vòng đời sáng tác trung tâm:
