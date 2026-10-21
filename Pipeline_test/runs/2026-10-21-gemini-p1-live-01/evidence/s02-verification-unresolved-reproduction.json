@@ -1,0 +1,62 @@
+{
+  "run_id": "2026-10-21-gemini-p1-live-01",
+  "step": "S02",
+  "status": "BLOCKED",
+  "blocker_issue_id": "ISSUE-PIPELINE-VERIFY-001",
+  "novel_id": "423695ca-8d8a-429d-9c80-c19b8ba27856",
+  "bootstrap_job_id": "5e39578d-435b-5d9e-aaf6-0e486fb9ab4c",
+  "error_type": "domain.errors.AnalysisOutputError",
+  "error_code": "ENTITY_VERIFICATION_UNRESOLVED",
+  "error_message": "Candidate decisions are incomplete or invalid after bounded repair.",
+  "root_cause_analysis": {
+    "module": "ai-service/services/entity_pipeline/verification.py",
+    "prompt_instruction": "canonical_name must be an exact known canonical name or a supplied surface.",
+    "validator_constraint": "_validate (line 135): if d.verdict != 'entity': if d.canonical_name: raise ValueError('Rejected/unresolved occurrence cannot carry a resolved identity or status')",
+    "mechanism": "When real Gemini 3.5 Flash-Lite evaluates negative candidates (e.g. 'Chương', 'Bến', 'Chiếc'), it sets verdict='not_entity' and retains canonical_name=candidate.surface as instructed by the system prompt. However, _validate() strictly rejects any non-entity decision carrying a non-empty canonical_name. The bounded repair prompt transmits only the ValueError message without clarifying that canonical_name must be empty ('') for non-entities. Gemini re-submits candidate surfaces, exhausting attempt 2 and raising ENTITY_VERIFICATION_UNRESOLVED.",
+    "why_mock_tests_passed": "Unit test test_entity_candidates.py in tests/ used a mock verifier returning hardcoded canonical_name='' for non-entities. Real LLM strictly followed prompt wording."
+  },
+  "provider_traces": {
+    "bootstrap_attempt_1_trace_id": "b27ac12d-d572-435a-b220-554a308fde66",
+    "bootstrap_attempt_2_repair_trace_id": "9f22d104-90be-4bec-a9f0-a6f687d90305",
+    "standalone_reproduction_trace_id": "14c45e11-e3b1-4e2e-86da-d5c2568163f0"
+  },
+  "sample_failing_decisions_observed": [
+    {
+      "candidate_id": "66d9ec2110b05e0bdb1e7e05",
+      "surface": "Chương",
+      "verdict": "not_entity",
+      "canonical_name": "Chương",
+      "entity_type": null,
+      "validation_failure": "Rejected/unresolved occurrence cannot carry a resolved identity or status"
+    },
+    {
+      "candidate_id": "d9c925900d0991aa78a4dc34",
+      "surface": "Bến",
+      "verdict": "not_entity",
+      "canonical_name": "Bến",
+      "entity_type": null,
+      "validation_failure": "Rejected/unresolved occurrence cannot carry a resolved identity or status"
+    },
+    {
+      "candidate_id": "ede343790f243f1deffed4c6",
+      "surface": "Chiếc",
+      "verdict": "not_entity",
+      "canonical_name": "Chiếc",
+      "entity_type": null,
+      "validation_failure": "Rejected/unresolved occurrence cannot carry a resolved identity or status"
+    }
+  ],
+  "sample_correct_entity_decision": {
+    "candidate_id": "405ae3e2850dd253ff933d9c",
+    "surface": "Linh",
+    "verdict": "entity",
+    "canonical_name": "Mai Linh",
+    "entity_type": "PER",
+    "identity_quote": "Linh cảm ơn."
+  },
+  "recommended_fix_for_subsequent_cycle": [
+    "1. Update system prompt in services/entity_pipeline/verification.py: 'For verdict entity, canonical_name must be an exact known canonical name or a supplied surface. For verdict not_entity or unresolved, canonical_name MUST be empty string \"\".'",
+    "2. In _validate() or repair prompt, include explicit hint: 'If verdict is not_entity or unresolved, set canonical_name to empty string \"\".'"
+  ],
+  "governance_compliance": "Section A.4 of P1_LIVE_RESUME_APPROVED_2026-10-21.md forbids modifying application logic during an active evidence run. The run stops at S02 and checkpoints as P1_BLOCKED for independent GPT-6 review."
+}

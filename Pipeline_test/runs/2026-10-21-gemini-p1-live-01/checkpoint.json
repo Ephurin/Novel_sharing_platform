@@ -1,27 +1,31 @@
 {
   "run_id": "2026-10-21-gemini-p1-live-01",
-  "updated_at": "2026-10-21T11:00:00+07:00",
-  "status": "P1_PREFLIGHT_PASS_AWAITING_UI_EXECUTION",
-  "blocker": "BLOCKED_BROWSER_AUTOMATION_DRIVER_404",
-  "blocker_details": "Playwright driver installation encountered 404 Not Found from AzureEdge CDN when initializing open_browser_url. Stack, database, real provider, and author account p1_author are fully ready.",
-  "main_novel_id": null,
+  "updated_at": "2026-10-21T12:00:00+07:00",
+  "status": "P1_BLOCKED:ENTITY_VERIFICATION_UNRESOLVED_REAL_PROVIDER_VALIDATION_MISMATCH",
+  "blocker": "ISSUE-PIPELINE-VERIFY-001",
+  "blocker_details": "At step S02, manuscript bootstrap on Chapter 1 failed during candidate verification with AnalysisOutputError('ENTITY_VERIFICATION_UNRESOLVED', 'Candidate decisions are incomplete or invalid after bounded repair.', attempts=2). Real Gemini 3.5 Flash-Lite followed system prompt instruction setting canonical_name=candidate.surface on not_entity verdicts (e.g. 'Chương', 'Bến'). However, verification._validate() strictly rejects non-entity decisions with non-empty canonical_name. The bounded repair prompt did not instruct the model to clear canonical_name, exhausting repair attempts. Per P1_LIVE_RESUME_APPROVED_2026-10-21.md Section A.4, application logic was NOT modified to force a pass; execution stopped and was checkpointed for independent review.",
+  "main_novel_id": "423695ca-8d8a-429d-9c80-c19b8ba27856",
   "author_account_id": "3949012f-b7ed-455f-a91a-6b95adda1fff",
   "author_username": "p1_author",
   "current_chapter_number": 5,
   "current_chapter_id": null,
-  "latest_canonical_revision_id": null,
+  "latest_canonical_revision_id": "68ae9998-1120-468d-8d4e-5bc30721240a",
   "latest_content_hash": null,
   "brain_version": null,
   "plan_id": null,
   "plan_version": null,
-  "objective_id": null,
+  "objective_id": "S02",
   "autonomous_run_id": null,
   "last_generation_id": null,
-  "pending_jobs": [],
+  "pending_jobs": [
+    "5e39578d-435b-5d9e-aaf6-0e486fb9ab4c"
+  ],
   "pending_accept_idempotency_key": null,
   "canonical_word_count": null,
   "completed_chapters_by_content_review": [],
-  "unresolved_issue_ids": [],
+  "unresolved_issue_ids": [
+    "ISSUE-PIPELINE-VERIFY-001"
+  ],
   "budget_status": {
     "approved_by": "project owner",
     "approval_reference": "User explicit P1 budget authorization in ChatGPT on 2026-10-21",
@@ -29,8 +33,8 @@
     "max_cost_usd": 5.0,
     "admission_cost_usd": 4.5,
     "max_wall_clock_hours": 2,
-    "consumed_provider_calls": 1,
-    "consumed_cost_usd": 0.000001,
+    "consumed_provider_calls": 8,
+    "consumed_cost_usd": 0.007379,
     "live_started_at": "2026-10-21T03:47:52.543771+00:00",
     "live_deadline_at": "2026-10-21T05:47:52.543771+00:00"
   },
@@ -46,10 +50,12 @@
       "P3": "M0"
     },
     "pending_audit_ids": [],
-    "unresolved_issue_ids": [],
+    "unresolved_issue_ids": [
+      "ISSUE-PIPELINE-VERIFY-001"
+    ],
     "resume_rule": "Finish due memory audit before next generation; read server revisions and analysis status first."
   },
-  "last_action_log_row": "Preflight gate passed: loopback ports verified (127.0.0.1:), real gemini-3.5-flash-lite connected, smoke test passed (HTTP 200, output: 'pong'), budget guard active (1 call, 0.000001 USD), account p1_author created.",
-  "next_action": "Execute S01–S11 author workflow from checkpoint: create novel 'Gió Thoảng Qua Phố Cổ', import ch01–ch05, enter hints, trigger bootstrap, human review entity candidates, continue to event/fact, activate baseline M0.",
+  "last_action_log_row": "S01 PASS (Novel created, 5 chapters imported, readback verified). S02 BLOCKED (Candidate verification failed with ENTITY_VERIFICATION_UNRESOLVED due to system prompt vs validator mismatch on real Gemini 3.5 Flash-Lite). Evidence: evidence/s02-verification-unresolved-reproduction.json.",
+  "next_action": "Independent GPT-6 review of ISSUE-PIPELINE-VERIFY-001 blocker reproduction, followed by approved fix in services/entity_pipeline/verification.py prompt/repair loop.",
   "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth."
 }

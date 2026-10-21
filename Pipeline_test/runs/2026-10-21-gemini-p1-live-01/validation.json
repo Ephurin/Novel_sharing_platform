@@ -1,11 +1,28 @@
 {
   "run_id": "2026-10-21-gemini-p1-live-01",
-  "status": "P1_PREFLIGHT_PASS_RESUMING",
-  "blocker": null,
-  "updated_at": "2026-10-21T03:48:00+00:00",
-  "head": "fcbf945cb9acb0b849b8614fa67c29580615a26b",
+  "status": "P1_BLOCKED",
+  "blocker": "ISSUE-PIPELINE-VERIFY-001",
+  "updated_at": "2026-10-21T05:00:00+00:00",
+  "head": "49a4633777452bf01b166baed8816c4c00ae300b",
   "working_tree_clean": false,
   "offline_preflight": "PASS",
+  "steps": {
+    "S01": {
+      "status": "PASS",
+      "action_id": "ACT-S01-01",
+      "evidence": "evidence/s01-import-readback.json"
+    },
+    "S02": {
+      "status": "BLOCKED",
+      "action_id": "ACT-S02-01",
+      "issue_id": "ISSUE-PIPELINE-VERIFY-001",
+      "evidence": "evidence/s02-verification-unresolved-reproduction.json"
+    },
+    "S03_to_S11": {
+      "status": "NOT_RUN",
+      "reason": "Execution paused at S02 blocker per P1_LIVE_RESUME_APPROVED_2026-10-21.md section A.4 (no silent app fixes)"
+    }
+  },
   "ai_service_full": {
     "passed": 397,
     "skipped": 2,
@@ -50,7 +67,7 @@
     "status": "PASS",
     "log": "evidence/runtime-verification.txt"
   },
-  "live_provider_calls": 1,
+  "live_provider_calls": 8,
   "live_calls_spend_authorization": "APPROVED_BY_PROJECT_OWNER_2026-10-21",
   "budget": {
     "approved_by": "project owner",
@@ -59,8 +76,8 @@
     "max_cost_usd": 5.0,
     "admission_cost_usd": 4.5,
     "max_wall_clock_hours": 2,
-    "consumed_provider_calls": 1,
-    "consumed_cost_usd": 0.000001,
+    "consumed_provider_calls": 8,
+    "consumed_cost_usd": 0.007379,
     "meter_status": "ACTIVE"
   },
   "source_hashes": {

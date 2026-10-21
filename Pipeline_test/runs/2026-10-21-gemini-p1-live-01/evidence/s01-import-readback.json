@@ -1,0 +1,51 @@
+{
+  "step": "S01",
+  "novel_id": "423695ca-8d8a-429d-9c80-c19b8ba27856",
+  "title": "Gió Thoảng Qua Phố Cổ",
+  "chapters_imported": [
+    {
+      "chapter_number": 1,
+      "chapter_id": "1da4c215-85e6-4eb2-8b01-be8977bc7c8e",
+      "revision_id": "bcd69ef7-667d-442c-809c-bafd9712664d",
+      "content_hash": "02096c1bd1ad214e1cd9edd8c8e2103b1468d597d79b7ac7af2067b6f9c6b543",
+      "title": "Chương 1 — Bến trở về",
+      "word_count": 1223
+    },
+    {
+      "chapter_number": 2,
+      "chapter_id": "8cab6b48-e6a3-4831-91ca-4aebf3377d0b",
+      "revision_id": "5df7b758-1314-40f4-8942-1d28ce0a2181",
+      "content_hash": "bfed7d0988dd6c7f33ae9625d9f16faa5e3dad04b9322a02d9f4f7cb603c4b8e",
+      "title": "Chương 2 — Lần đọc thứ nhất",
+      "word_count": 1013
+    },
+    {
+      "chapter_number": 3,
+      "chapter_id": "11386458-4668-44af-8ef0-ce4f5077a008",
+      "revision_id": "a6c253a5-ff4d-4017-80af-4879ad935415",
+      "content_hash": "a6c008b4297866a4125801d06329ce18a89211dc29515e7a81adfae83263626a",
+      "title": "Chương 3 — Hai nơi treo một quả chuông",
+      "word_count": 1005
+    },
+    {
+      "chapter_number": 4,
+      "chapter_id": "03759e68-78cc-47f1-9fef-427017a1d99d",
+      "revision_id": "5decd030-64a4-45b3-a220-6c7a5c9f7898",
+      "content_hash": "29d0c290d9cbc0fdf662b6e5a6446a30b3834cd06986453dbcbc2f8cf88544a2",
+      "title": "Chương 4 — Bản đồ không có tiếng nước",
+      "word_count": 967
+    },
+    {
+      "chapter_number": 5,
+      "chapter_id": "6d1f538f-0c4c-4726-8869-60b444f914a1",
+      "revision_id": "68ae9998-1120-468d-8d4e-5bc30721240a",
+      "content_hash": "7813a9eeea18df4b03ed60ba32a1646347b638f6bb7e37a1949c39d1f841dc33",
+      "title": "Chương 5 — Ba tiếng gõ",
+      "word_count": 581
+    }
+  ],
+  "canon_entities_count": 0,
+  "canon_events_count": 0,
+  "canon_facts_count": 0,
+  "status": "PASS"
+}
