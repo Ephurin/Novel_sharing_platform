@@ -14,6 +14,7 @@ from urllib.parse import urlparse, parse_qs
 import uuid
 import zipfile
 from Pipeline_test.tools.provenance import verify_manuscript_gold_hashes, validate_browser_evidence
+from Pipeline_test.tools.manuscript_fixture import parse_fixture_chapter, CONVERSION_RULE_VERSION
 
 FIXTURE_DIR = Path(__file__).resolve().parents[1] / 'input/manuscript'
 def now(): return datetime.now(timezone.utc).isoformat()
@@ -27,6 +28,7 @@ class BrowserActionSession:
         self.evidence_dir.mkdir(parents=True,exist_ok=True)
         self.session_id=str(uuid.uuid4());self.page=page;self.actions=[];self.novel_id=None;self.user_id=None
         self.token=None
+        self.source_manifest=[]
 
     def record_browser_step(self, *args, **kwargs):
         raise RuntimeError('SYNTHETIC_EVIDENCE_REMOVED: use perform() with an actual Playwright page')
@@ -86,17 +88,20 @@ def execute_browser_s01_import_path(session, novel_id=None, author_user=None):
                 cid=created.value.json()['data']['chapterId']
                 page.wait_for_url(re.compile('.*chapterId='+re.escape(cid)+'.*'))
             session.perform(f'ACT-S01-ADD-{index}','click','button: Thêm chương mới',add_and_wait)
-        source=(FIXTURE_DIR/f'ch{index:02d}.md').read_text(encoding='utf-8')
+        fixture=parse_fixture_chapter(index, fixture_dir=FIXTURE_DIR)
+        session.source_manifest.append({k:fixture[k] for k in ('chapter_number','title','source_file_sha256',
+                                     'canonical_body_sha256','conversion_rule_version')})
         def fill_and_wait():
-            page.get_by_placeholder('Đặt tiêu đề chương tại đây...').fill(f'Wave1D chapter {index}')
-            page.get_by_placeholder('Bắt đầu câu từ chương truyện của bạn tại đây...').fill(source)
+            page.get_by_placeholder('Đặt tiêu đề chương tại đây...').fill(fixture['title'])
+            page.get_by_placeholder('Bắt đầu câu từ chương truyện của bạn tại đây...').fill(fixture['body'])
             cid=parse_qs(urlparse(page.url).query)['chapterId'][0]
             deadline=time.monotonic()+30
             while time.monotonic()<deadline:
                 saved=session.read('/api/v1/chapters/'+cid)
-                if (saved.get('draft') or {}).get('content',saved.get('content'))==source:return
+                content=(saved.get('draft') or {}).get('content',saved.get('content'))
+                if content==fixture['body'] and saved.get('title')==fixture['title']:return
                 page.wait_for_timeout(200)
-            raise RuntimeError('UI_AUTOSAVE_READBACK_TIMEOUT')
+            raise RuntimeError('UI_TITLE_BODY_AUTOSAVE_READBACK_TIMEOUT')
         session.perform(f'ACT-S01-FILL-{index}','fill','textarea[placeholder="Bắt đầu câu từ chương truyện của bạn tại đây..."]',fill_and_wait)
     return {'status':'DRAFTS_SAVED_AWAITING_S02_CANONICAL_SNAPSHOT','novel_id':session.novel_id}
 
@@ -206,11 +211,19 @@ def run_browser(run_id,evidence_dir,base_url,email,password):
             session_info['finished_at']=now()
             (session.evidence_dir/'browser-session.json').write_text(json.dumps(session_info,indent=2),encoding='utf-8')
             browser.close()
+    if not failure and len(chapters)==5:
+        mapping={'run_id':run_id,'session_id':session.session_id,'novel_id':session.novel_id,
+                 'user_id':session.user_id,'conversion_rule_version':CONVERSION_RULE_VERSION,
+                 'source_to_canonical':session.source_manifest,'readback_scope':'final_post_run_readback',
+                 'captured_at':now()}
+        (session.evidence_dir/'source-to-canonical-manifest.json').write_text(
+            json.dumps(mapping,ensure_ascii=False,indent=2),encoding='utf-8')
     manifests=[]
     for action in session.actions:
         aid=action['action_id']
         readback=dict(run_id=run_id,session_id=session.session_id,action_id=aid,user_id=session.user_id,
-                      novel_id=session.novel_id,chapters=chapters,captured_at=now())
+                      novel_id=session.novel_id,chapters=chapters,captured_at=now(),
+                      readback_scope='final_post_run_readback',action_finished_at=action['finished_at'])
         rb=session.evidence_dir/(aid+'.readback.json');rb.write_text(json.dumps(readback,ensure_ascii=False),encoding='utf-8')
         files={'screenshot':aid+'.png','dom':aid+'.dom.txt','trace':'browser.trace.zip','session':'browser-session.json','readback':rb.name}
         manifest={**action,'run_id':run_id,'session_id':session.session_id,'user_id':session.user_id,
@@ -221,7 +234,8 @@ def run_browser(run_id,evidence_dir,base_url,email,password):
         expected_run_id=run_id,expected_user_id=session.user_id,expected_session_id=session.session_id) for m in manifests]
     result={'status':'BLOCKED_UI_MISSING_OR_INVALID_EVIDENCE' if failure or not checks or not all(c[0] for c in checks) else 'OFFLINE_BROWSER_UI_SMOKE',
         'reason':failure,'evidence_checks':checks,'session_id':session.session_id,'novel_id':session.novel_id,
-        'user_id':session.user_id,'actions':len(session.actions),'real_provider_live_ui':'NOT_RUN'}
+        'user_id':session.user_id,'actions':len(session.actions),'real_provider_live_ui':'NOT_RUN',
+       'readback_scope':'final_post_run_readback','source_conversion_rule':CONVERSION_RULE_VERSION}
     (session.evidence_dir/'browser-result.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     return result
 
