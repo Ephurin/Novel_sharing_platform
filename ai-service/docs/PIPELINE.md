@@ -1,5 +1,72 @@
 # Pipeline Diagrams — AI Writing Copilot
 
+> **Active workflow: [WORKFLOW_CONTRACT.md v1.4](../../Pipeline_test/WORKFLOW_CONTRACT.md) (2026-10-21).**  
+> **Current architecture:** [ARCHITECTURE.md](ARCHITECTURE.md), [source-inspected API matrix](CURRENT_API_IMPLEMENTATION_MATRIX.md).  
+> **Evidence boundary:** The diagrams in sections **1–8 below are historical UC-01/02/03 design diagrams**, not the present-tense implementation or a certificate of P1/P2/P3 live success. They predate the Human Entity Review checkpoint, P3 human suspension, Story Plan implementation and Phase-7 hybrid retrieval. In particular, **event/fact is not allowed before human entity approval** when the new feature flag is ON. The old "changed spans" and "no context yet" source mapping remains an archived historical comparison only.
+
+## 0. Current accepted flows (contract v1.4)
+
+### P1 — Existing manuscript, human review before event/fact
+
+```mermaid
+flowchart TD
+    A[Author UI imports chapters and saves immutable revisions] --> B[Explicit bootstrap / entity discovery]
+    B --> C[Occurrence verdicts + source offsets]
+    C --> D[waiting_entity_review]
+    D --> E[Author keep / reject / correct; optional hints rerun entity only]
+    E --> F[entities_reviewed frozen checkpoint]
+    F --> G[Event fact state extraction from reviewed entities]
+    G --> H[Canon proposal group review / source version guard]
+    H --> I[(Official Story Brain event history / projections)]
+    I --> J[Generate or author-write + save chapter revision]
+    J --> K[Durable outbox / incremental analysis]
+    K --> C
+```
+
+Author hints and machine decisions are not canon. Entity approval **freezes inventory** but cannot directly materialize official facts. Save of an ordinary author draft with active baseline must enqueue extraction for the **new revision**, not require a manual snapshot/write API in the test. S01–S11 must be performed via actual author UI for a `LIVE_UI` verdict.
+
+### P2 — Idea/setup explicit, creative blueprint optional
+
+```mermaid
+flowchart TD
+    A[Author-supplied setup and constraints] --> B{Mode?}
+    B -->|extract - standard UI| C[Extract explicitly mentioned characters and locations]
+    B -->|blueprint - separate creative mode| D[Model-proposed world bible / character suggestions]
+    C --> E[Author reviews setup entities]
+    D --> F[Author reviews and accepts model-proposed canon]
+    E --> G[Approved baseline M0]
+    F --> G
+    G --> H[Future Story Plan - not historical events]
+    H --> I[Generate first chapter / accept saved revision]
+    I --> J[Chapter entity review, event/fact, canon / M-FIRST]
+```
+
+P2 setup review and **P2 first prose revision** have different evidence: do not count setup extraction as chapter chunk discovery or future outline as occurred history.
+
+### P3 — Controller with human entity gate and mandatory terminal novel
+
+```mermaid
+flowchart TD
+    A[Approved baseline + optional plan] --> B[P3 chooses objective and builds actual packed context]
+    B --> C[Generate / validate / persist accepted draft revision]
+    C --> D[Outbox / actual analysis status]
+    D --> E{Human entity checkpoint?}
+    E -->|waiting_for_entity_review| F[Persist run + pause objective; author reviews entities]
+    F --> G[Continue revision event fact / canon]
+    E -->|No HITL pending| G
+    G --> H{Memory completed for exact revision?}
+    H -->|No / provider blocked| I[Bounded wait retry or stop, no objective advancement]
+    H -->|Yes| J[Evaluate objective against saved prose]
+    J -->|Not achieved| B
+    J -->|Achieved / next| K[Next objective or true terminal ending gate]
+    K -->|Continue| B
+    K -->|Book complete| L[P3_HITL_CONTROLLER_100K: 100,000-105,000 words + audits + blind review]
+```
+
+Controller cannot publish or auto-approve the entity checkpoint under flag ON. `P3_HITL_CONTROLLER_100K` has measured human reviews and is **not** `fully_unattended`. An unattended experiment requires an independently approved alternative entity/canon policy and **separate** run/verdict. Neither a probe nor an outbox `COMPLETED` satisfies book acceptance.
+
+## Historical diagrams preserved for traceability
+
 > Tài liệu trực quan hóa toàn bộ pipeline của hệ thống.
 > Đọc kết hợp với [ARCHITECTURE.md](ARCHITECTURE.md) (kiến trúc) và [USE_CASES.md](USE_CASES.md) (luồng nghiệp vụ).
 
@@ -466,7 +533,9 @@ stateDiagram-v2
 
 ---
 
-## Mapping Pipeline ↔ Code hiện tại ↔ Code đích
+## Historical mapping (prototype-era source claims — NOT current deployment)
+
+> This table remains unchanged as a historic snapshot. See [CURRENT_API_IMPLEMENTATION_MATRIX.md](CURRENT_API_IMPLEMENTATION_MATRIX.md) and [ARCHITECTURE.md](ARCHITECTURE.md) for source-backed current mapping.
 
 | Pipeline Stage | Code hiện tại | Code đích (IMPLEMENTATION_PLAN) |
 |---|---|---|
