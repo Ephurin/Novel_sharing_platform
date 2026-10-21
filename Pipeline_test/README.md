@@ -29,7 +29,7 @@ thấy qua code; chưa phải bằng chứng UI E2E. API hybrid không thay đư
 Bản sửa theo luồng đã thống nhất và bằng chứng regression nằm tại
 [workflow-repair/REPORT.md](runs/2026-10-18-workflow-repair/REPORT.md).
 
-Đây là một task kiểm thử có thể chạy lại, không phải báo cáo hệ thống đã pass. Chưa thực thi lượt test nào khi tạo bộ tài liệu này. Không cần tạo chat mới để sử dụng.
+Đây là một task kiểm thử có thể chạy lại, không phải báo cáo hệ thống đã pass. **Khi bộ fixture/template gốc được tạo thì chưa có test nào chạy; đến 2026-10-21 đã có nhiều lượt test lịch sử**, nhưng P1 S01–S11 chưa được nghiệm thu live UI và P2/P3/100k chưa PASS. Chỉ kết luận theo report/evidence của đúng SHA và run tương ứng. Không cần tạo chat mới để sử dụng.
 
 **Đầu ra nghiệm thu cuối bắt buộc của P3:** một tiểu thuyết hoàn chỉnh **100.000–105.000 từ**, đọc lại từ revision canonical đã lưu trong sản phẩm; gồm ending, provenance, narrative-memory audit, đánh giá độc lập và báo cáo mức can thiệp. Band 95.000–105.000 thuộc task assisted lịch sử, **không áp dụng làm P3 PASS v1.4**. Bản thảo đầu vào là phần mở đầu viết dở, **không phải nửa truyện 50.000 từ**. Không dùng dàn ý, tóm tắt hay lặp văn để bù độ dài.
 
