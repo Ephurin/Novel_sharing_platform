@@ -25,6 +25,8 @@ class BrowserActionSession:
         if urlparse(base_url).scheme != 'http' or urlparse(base_url).hostname not in {'localhost','127.0.0.1'}:
             raise ValueError('Only isolated loopback application URLs are allowed')
         self.run_id=run_id; self.evidence_dir=Path(evidence_dir); self.base_url=base_url.rstrip('/')
+        if self.evidence_dir.exists() and any(self.evidence_dir.iterdir()):
+            raise RuntimeError('EXISTING_EVIDENCE_REPLAY_FORBIDDEN')
         self.evidence_dir.mkdir(parents=True,exist_ok=True)
         self.session_id=str(uuid.uuid4());self.page=page;self.actions=[];self.novel_id=None;self.user_id=None
         self.token=None
@@ -44,6 +46,8 @@ class BrowserActionSession:
             (self.evidence_dir/(action_id+'.dom.txt')).write_text(self.page.locator('body').inner_text(),encoding='utf-8')
             self.actions.append(dict(action_id=action_id,action_kind=kind,selector=selector,
                 started_at=started,finished_at=now(),application_url=self.page.url))
+            with (self.evidence_dir/'actions.jsonl').open('a',encoding='utf-8') as stream:
+                stream.write(json.dumps(self.actions[-1],ensure_ascii=False)+'\n')
         finally:self.page.context.tracing.group_end()
 
     def read(self, path):
@@ -99,7 +103,13 @@ def execute_browser_s01_import_path(session, novel_id=None, author_user=None):
             while time.monotonic()<deadline:
                 saved=session.read('/api/v1/chapters/'+cid)
                 content=(saved.get('draft') or {}).get('content',saved.get('content'))
-                if content==fixture['body'] and saved.get('title')==fixture['title']:return
+                if content==fixture['body'] and saved.get('title')==fixture['title']:
+                    (session.evidence_dir/f'ACT-S01-FILL-{index}.immediate-draft.json').write_text(
+                        json.dumps({'captured_at':now(),'run_id':session.run_id,'session_id':session.session_id,
+                                    'user_id':session.user_id,'novel_id':session.novel_id,
+                                    'readback_scope':'observed_during_action_after_autosave',
+                                    'chapter':saved},ensure_ascii=False,indent=2),encoding='utf-8')
+                    return
                 page.wait_for_timeout(200)
             raise RuntimeError('UI_TITLE_BODY_AUTOSAVE_READBACK_TIMEOUT')
         session.perform(f'ACT-S01-FILL-{index}','fill','textarea[placeholder="Bắt đầu câu từ chương truyện của bạn tại đây..."]',fill_and_wait)
@@ -167,10 +177,10 @@ def sanitize_trace(source,dest, secrets=()):
             output.writestr(name,data)
 
 
-def run_browser(run_id,evidence_dir,base_url,email,password):
+def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=False, project=None):
     from playwright.sync_api import sync_playwright
     session=BrowserActionSession(run_id,evidence_dir,base_url)
-    failure=None
+    failure=None;chapters=[]
     with sync_playwright() as playwright:
         browser=playwright.chromium.launch(headless=True)
         context=browser.new_context(viewport={'width':1280,'height':900})
@@ -202,8 +212,11 @@ def run_browser(run_id,evidence_dir,base_url,email,password):
             execute_browser_s01_import_path(session,author_user=email)
             execute_browser_s02_entity_review_path(session,session.novel_id)
             chapters=session.canonical_readback()
+            if human_review:
+                from Pipeline_test.tools.browser_human_entity_review import execute_human_review
+                execute_human_review(session,project)
         except Exception as exc:
-            failure=str(exc);chapters=[]
+            failure=str(exc)
             session.page.screenshot(path=str(session.evidence_dir/'BLOCKED_UI.png'))
         finally:
             context.tracing.stop(path=str(private/'browser.trace.raw.zip'))
@@ -211,10 +224,12 @@ def run_browser(run_id,evidence_dir,base_url,email,password):
             session_info['finished_at']=now()
             (session.evidence_dir/'browser-session.json').write_text(json.dumps(session_info,indent=2),encoding='utf-8')
             browser.close()
-    if not failure and len(chapters)==5:
+    if len(chapters)==5:
         mapping={'run_id':run_id,'session_id':session.session_id,'novel_id':session.novel_id,
                  'user_id':session.user_id,'conversion_rule_version':CONVERSION_RULE_VERSION,
-                 'source_to_canonical':session.source_manifest,'readback_scope':'final_post_run_readback',
+                 'source_to_canonical':[{**source,'chapter_id':chapter['chapterId'],
+                     'revision_id':chapter['latestRevisionId'],'readback_body_sha256':chapter['contentHash']}
+                     for source,chapter in zip(session.source_manifest,chapters)],'readback_scope':'final_post_run_readback',
                  'captured_at':now()}
         (session.evidence_dir/'source-to-canonical-manifest.json').write_text(
             json.dumps(mapping,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -235,7 +250,10 @@ def run_browser(run_id,evidence_dir,base_url,email,password):
     result={'status':'BLOCKED_UI_MISSING_OR_INVALID_EVIDENCE' if failure or not checks or not all(c[0] for c in checks) else 'OFFLINE_BROWSER_UI_SMOKE',
         'reason':failure,'evidence_checks':checks,'session_id':session.session_id,'novel_id':session.novel_id,
         'user_id':session.user_id,'actions':len(session.actions),'real_provider_live_ui':'NOT_RUN',
-       'readback_scope':'final_post_run_readback','source_conversion_rule':CONVERSION_RULE_VERSION}
+       'readback_scope':'final_post_run_readback','source_conversion_rule':CONVERSION_RULE_VERSION,
+       's01_status':'OFFLINE_BROWSER_UI_SMOKE_PASS' if len(chapters)==5 else 'BLOCKED',
+       's02_status':'CHECKPOINT_OBSERVED' if (session.evidence_dir/'s02-entity-checkpoint.readback.json').exists() else 'BLOCKED',
+       'human_review_requested':human_review}
     (session.evidence_dir/'browser-result.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     return result
 
@@ -243,9 +261,12 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();parser.add_argument('--run-id',required=True)
     parser.add_argument('--evidence-dir',required=True);parser.add_argument('--base-url',required=True)
+    parser.add_argument('--human-review',action='store_true');parser.add_argument('--project')
     args=parser.parse_args()
+    if Path(args.evidence_dir).exists() and any(Path(args.evidence_dir).iterdir()):
+        raise SystemExit('EXISTING_EVIDENCE_REPLAY_FORBIDDEN: use a new attempt directory; no author writes performed')
     try:
-        result=run_browser(args.run_id,args.evidence_dir,args.base_url,os.environ['WAVE1D_AUTHOR_EMAIL'],os.environ['WAVE1D_AUTHOR_PASSWORD'])
+        result=run_browser(args.run_id,args.evidence_dir,args.base_url,os.environ['WAVE1D_AUTHOR_EMAIL'],os.environ['WAVE1D_AUTHOR_PASSWORD'],human_review=args.human_review,project=args.project)
     except Exception as exc:
         result={'status':'BLOCKED_BROWSER_RUNTIME','reason':str(exc),'real_provider_live_ui':'NOT_RUN'}
         Path(args.evidence_dir).mkdir(parents=True,exist_ok=True)

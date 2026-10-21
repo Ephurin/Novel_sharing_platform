@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 import zipfile
 
-from Pipeline_test.tools.manuscript_fixture import FIXTURE_DIR, parse_fixture_chapter
+from Pipeline_test.tools.manuscript_fixture import FIXTURE_DIR, parse_fixture_chapter, CONVERSION_RULE_VERSION
 
 
 def verify_manuscript_gold_hashes(chapters, fixture_dir=None, *, expected_novel_id=None, expected_owner_id=None):
@@ -32,6 +32,9 @@ def verify_manuscript_gold_hashes(chapters, fixture_dir=None, *, expected_novel_
             fixture = parse_fixture_chapter(index, fixture_dir=fixture_dir or FIXTURE_DIR)
         except (ValueError, UnicodeError, OSError) as exc:
             return False, f'Chapter {index} invalid source fixture: {exc}'
+        for record in (chapter, revision):
+            if record.get('conversion_rule_version',CONVERSION_RULE_VERSION) != CONVERSION_RULE_VERSION:
+                return False, f'Chapter {index} unknown source normalization'
         expected_hash = fixture['canonical_body_sha256']
         server_hash = chapter.get('contentHash') or chapter.get('latestRevisionHash')
         if chapter.get('title') != fixture['title']:

@@ -13,6 +13,7 @@ class FakeHandler(BaseHTTPRequestHandler):
     lock = threading.Lock()
     expected_key = 'fake-upstream-only'
     log_path = None
+    scenario = 'wave1d-negative-only'
 
     def reply(self, status, body):
         data = json.dumps(body).encode()
@@ -52,6 +53,12 @@ class FakeHandler(BaseHTTPRequestHandler):
                     request = json.loads(text.split('\n\n')[-1])
                     output = {'decisions': [{'candidate_id': c['candidate_id'], 'verdict': 'not_entity',
                         'reason': 'Offline deterministic fixture, not a quality verdict'} for c in request['candidates']]}
+                    if self.scenario == 'wave1e-mixed-v1':
+                        try:
+                            from .fake_entity_scenario import mixed_decisions
+                        except ImportError:
+                            from fake_entity_scenario import mixed_decisions
+                        output = mixed_decisions(request)
                 elif 'events' in props: output = {'events': []}
                 elif 'facts' in props: output = {'facts': []}
                 else: output = {'entities': []}
@@ -73,6 +80,11 @@ class FakeHandler(BaseHTTPRequestHandler):
                  'dispatch_id': self.headers['X-Gateway-Dispatch-Id'], 'client': self.headers['X-Gateway-Client'],
                  'native_schema': config.get('responseJsonSchema'), 'output_limit': config.get('maxOutputTokens', config.get('max_tokens')),
                  'upstream_auth_valid': True}
+        if self.scenario == 'wave1e-mixed-v1':
+            entry.update(scenario=self.scenario,received_at=time.time(),response=result,
+                         operation=('entity_verification' if 'decisions' in config.get('responseJsonSchema',{}).get('properties',{}) else
+                                    'events' if 'events' in config.get('responseJsonSchema',{}).get('properties',{}) else
+                                    'facts' if 'facts' in config.get('responseJsonSchema',{}).get('properties',{}) else 'discovery'))
         with self.lock:
             self.received.append(entry)
             if self.log_path:
@@ -87,14 +99,14 @@ class FakeHandler(BaseHTTPRequestHandler):
     def log_message(self, *args): pass
 
 
-def start_fake_upstream(port=0, host='127.0.0.1', log_path=None, expected_key='fake-upstream-only'):
+def start_fake_upstream(port=0, host='127.0.0.1', log_path=None, expected_key='fake-upstream-only', scenario='wave1d-negative-only'):
     class Handler(FakeHandler): pass
-    Handler.received = []; Handler.log_path = log_path; Handler.expected_key = expected_key
+    Handler.received = []; Handler.log_path = log_path; Handler.expected_key = expected_key; Handler.scenario = scenario
     server = ThreadingHTTPServer((host, port), Handler)
     thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
     return server, thread, Handler.received
 
 
 if __name__ == '__main__':
-    server, thread, _ = start_fake_upstream(18091, '0.0.0.0', os.getenv('FAKE_REQUEST_LOG'), os.environ['OFFLINE_UPSTREAM_KEY'])
+    server, thread, _ = start_fake_upstream(18091, '0.0.0.0', os.getenv('FAKE_REQUEST_LOG'), os.environ['OFFLINE_UPSTREAM_KEY'], os.getenv('FAKE_SCENARIO','wave1d-negative-only'))
     thread.join()

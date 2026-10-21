@@ -40,8 +40,10 @@ def parse_fixture_chapter(index: int, fixture_dir: str | Path | None = None) -> 
         raise ValueError("Fixture heading chapter number does not match filename")
     title = heading.group(1)
     body = normalized[heading.end():]
-    if not title.strip() or not body.strip():
+    if not title.split(" — ",1)[1].strip() or not body.strip():
         raise ValueError("Fixture chapter title/body must not be empty")
+    if body.startswith("# Chương "):
+        raise ValueError("Ambiguous duplicate leading chapter heading")
     return {
         "chapter_number": index,
         "title": title,

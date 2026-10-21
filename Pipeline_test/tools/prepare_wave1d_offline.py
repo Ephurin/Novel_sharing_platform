@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def prepare(project, run_id):
-    if not re.fullmatch(r'p1-wave1d-[a-z0-9-]+', project): raise ValueError('Unique p1-wave1d project required')
-    if not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', run_id) or 'wave1d' not in run_id.lower():
+    if not re.fullmatch(r'p1-wave1[de]-[a-z0-9-]+', project): raise ValueError('Unique p1-wave1d project required')
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', run_id) or not any(w in run_id.lower() for w in ('wave1d','wave1e')):
         raise ValueError('New Wave1D run ID required')
     run = ROOT / 'Pipeline_test/runs' / run_id
     env_file = ROOT / 'Pipeline_test/tools' / ('.env.' + project)
