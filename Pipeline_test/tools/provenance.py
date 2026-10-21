@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 import zipfile
 
-FIXTURE_DIR = Path(__file__).resolve().parents[1] / 'input/manuscript'
+from Pipeline_test.tools.manuscript_fixture import FIXTURE_DIR, parse_fixture_chapter
 
 
 def verify_manuscript_gold_hashes(chapters, fixture_dir=None, *, expected_novel_id=None, expected_owner_id=None):
@@ -28,15 +28,20 @@ def verify_manuscript_gold_hashes(chapters, fixture_dir=None, *, expected_novel_
         if (revision.get('revisionId') != rid or revision.get('chapterId') != cid or
             revision.get('novelId') != expected_novel_id or not isinstance(revision.get('content'), str)):
             return False, f'Chapter {index} canonical readback missing or stale revision'
-        expected_content = (Path(fixture_dir or FIXTURE_DIR) / f'ch{index:02d}.md').read_text(encoding='utf-8')
-        expected_hash = hashlib.sha256(expected_content.encode()).hexdigest()
+        try:
+            fixture = parse_fixture_chapter(index, fixture_dir=fixture_dir or FIXTURE_DIR)
+        except (ValueError, UnicodeError, OSError) as exc:
+            return False, f'Chapter {index} invalid source fixture: {exc}'
+        expected_hash = fixture['canonical_body_sha256']
         server_hash = chapter.get('contentHash') or chapter.get('latestRevisionHash')
+        if chapter.get('title') != fixture['title']:
+            return False, f'Chapter {index} fixture title mismatch'
         if not server_hash or not revision.get('contentHash'):
             return False, f'Chapter {index} missing canonical content hash'
         if (server_hash != expected_hash or revision['contentHash'] != expected_hash or
-            revision['content'] != expected_content or hashlib.sha256(revision['content'].encode()).hexdigest() != expected_hash):
+            revision['content'] != fixture['body'] or hashlib.sha256(revision['content'].encode('utf-8')).hexdigest() != expected_hash):
             return False, f'Chapter {index} content hash mismatch'
-    return True, 'All 5 chapters match gold fixture hashes and canonical owner/revision readback'
+    return True, 'All 5 chapters match gold fixture hashes after heading-to-body conversion and canonical owner/revision readback'
 
 
 def validate_browser_evidence(response_evidence, action_id, novel_id, run_dir=None, *, expected_run_id=None,
