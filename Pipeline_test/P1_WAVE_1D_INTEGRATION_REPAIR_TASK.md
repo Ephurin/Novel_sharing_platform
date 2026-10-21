@@ -1,7 +1,7 @@
 # ACTIVE GEMINI TASK — P1 Wave 1D Integration Repair (OFFLINE ONLY)
 
 **Agent:** Gemini 3.8 in Antigravity. **Allowed branch ONLY:** `codex/ai-copilot-pipeline-test`. **Baseline reviewed source SHA:** `3a511b7277b0202e548fd8752c1211a67e501cf1`.  
-**New authoritative review:** `Pipeline_test/reviews/2026-10-21-p1-wave-1d/INDEPENDENT_FINDINGS.md`. **READ FIRST**, along with `Pipeline_test/WORKFLOW_CONTRACT.md` revision 1.3, `SHORT_LOOP_TEST.md`, `GEMINI_HUMAN_ENTITY_REVIEW_RETEST.md`, and `Pipeline_test/reviews/2026-10-21-p1-wave-1c/GEMINI_WAVE_1C_REPORT.md`.  
+**New authoritative review:** `Pipeline_test/reviews/2026-10-21-p1-wave-1d/INDEPENDENT_FINDINGS.md`. **READ FIRST**, along with `Pipeline_test/WORKFLOW_CONTRACT.md` revision 1.4 (docs synced 2026-10-21; no change to Wave 1D offline-only authorization), `SHORT_LOOP_TEST.md`, `GEMINI_HUMAN_ENTITY_REVIEW_RETEST.md`, and `Pipeline_test/reviews/2026-10-21-p1-wave-1c/GEMINI_WAVE_1C_REPORT.md`.  
 **Old failed live run:** `Pipeline_test/runs/2026-10-21-gemini-p1-live-01/` — never replay writes or destroy old data.
 **Mission:** make the actual S01–S02 *application integration* testable and the provider guard enforceable, without claiming E2E from fake scripts. End at **`P1_WAVE_1D_READY_FOR_GPT6_REVIEW` or `P1_WAVE_1D_BLOCKED:<exact_reason>`**. This is still NOT `P1_PASS`.
 
