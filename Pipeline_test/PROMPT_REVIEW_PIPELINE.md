@@ -18,7 +18,7 @@ cảnh đã chạy test, gọi đây là self-review; không giả danh independ
 
 ### 1. Xác định chuẩn và phiên bản
 
-- `Pipeline_test/WORKFLOW_CONTRACT.md` là source of truth P1/P2/P3.
+- `Pipeline_test/WORKFLOW_CONTRACT.md` **revision 1.4** là source of truth P1/P2/P3; terminal P3 yêu cầu **100.000–105.000 từ** trên canonical revisions, HITL có can thiệp định lượng và fully unattended là claim riêng. Đối chiếu [P3_100K_EVALUATION_PROTOCOL.md](P3_100K_EVALUATION_PROTOCOL.md) khi chấm artifact dài.
 - Đọc `Pipeline_test/architecture/README.md`, `AI_PIPELINE_MAP.md`,
   `pipeline-map-data.json`; map là snapshot implementation/issues/evidence.
   Đối chiếu commit/working tree/hash với source thực và run. Dùng contract tại
