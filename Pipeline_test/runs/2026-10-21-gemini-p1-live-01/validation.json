@@ -1,0 +1,73 @@
+{
+  "run_id": "2026-10-21-gemini-p1-live-01",
+  "status": "P1_BLOCKED",
+  "blocker": "LIVE_PROVIDER_BLOCKED_BUDGET",
+  "updated_at": "2026-10-21T03:14:02.550083+00:00",
+  "head": "fcbf945cb9acb0b849b8614fa67c29580615a26b",
+  "working_tree_clean": true,
+  "offline_preflight": "PASS",
+  "ai_service_full": {
+    "passed": 397,
+    "skipped": 2,
+    "deselected": 42,
+    "log": "evidence/python-tests.txt"
+  },
+  "final_entity_audit_regression": {
+    "passed": 66,
+    "log": "evidence/audit-regression.txt"
+  },
+  "backend_targeted": {
+    "passed": 26,
+    "failed": 0,
+    "log": "evidence/backend-targeted-tests.txt"
+  },
+  "backend_typecheck": "PASS",
+  "web_build": "PASS_WITH_EXISTING_WARNINGS",
+  "runtime_deployed_isolated": true,
+  "application_db_migrated": true,
+  "schema_verification": {
+    "story_brains_entity_guidance": "JSONB",
+    "analysis_runs_entity_candidate_audit": "JSONB",
+    "status": "PASS",
+    "log": "evidence/schema-verification.txt"
+  },
+  "runtime_verification": {
+    "entity_candidate_verification_enabled": true,
+    "pipeline_version": "entity-human-review-v1",
+    "candidate_collector_policy": "entity-candidates-v1",
+    "ports": {
+      "postgres": 25432,
+      "mongodb": 27018,
+      "ai_service": 18000,
+      "backend": 14000,
+      "web": 18080
+    },
+    "status": "PASS",
+    "log": "evidence/runtime-verification.txt"
+  },
+  "live_provider_calls": 0,
+  "live_calls_spend_authorization": "MISSING_EXPLICIT_BUDGET_CAP",
+  "source_hashes": {
+    "ai-service/application/entity_review_service.py": "0b96a135dbec3a2915942fd02394d0a5891d90f9b5313965761df44305946d68",
+    "ai-service/application/revision_analysis_service.py": "faa88526d70b49546982bfbce3d3cc136bf15a349d09a8bea83ac333323da660",
+    "ai-service/application/bootstrap_service.py": "f6e179658f84200b37011c23df96407ec6da072959675ed55a82d32a55414aac",
+    "ai-service/services/entity_pipeline/verification.py": "11ca36c63424ba815ce4c7d5718f58b83ff62e9162cd4b982764766cc2642bdc",
+    "ai-service/services/entity_pipeline/pipeline.py": "8e8e661c43842273fdbeedf8b6bee45e00826f9cd72d3f508a83e2de7e5a97a1",
+    "ai-service/services/entity_pipeline/candidates.py": "956441356385b3a11ff57d4f03048bf04f35843c77f3ab7cf165f262245e2afc",
+    "ai-service/services/prose_facts.py": "76b1f35dc65b0858b0b711166a52990ba69c3a54cbcd7af0484b65de33914d2e",
+    "ai-service/infrastructure/orm_models.py": "c79664e93436c6f993f0a4dfb1a1aeaf830ab1187bfdd24e648133f381026823",
+    "ai-service/infrastructure/postgres_narrative_repository.py": "b6e6c677911fadf8f3281a395e2e2035409475e754c9fb169b3af4a8daa1499b",
+    "ai-service/infrastructure/in_memory_narrative_repository.py": "baef891223794d0684214fcf0a596fcb6cc3df7d385d6fe475577576942f442e",
+    "ai-service/infrastructure/json_narrative_repository.py": "d1e4695165763b6c8e651880cceafba5d306a21279384cfda5854e7db1c3a164",
+    "ai-service/domain/repositories.py": "a0518d6dfb11b13a5917b1a47c6d0609dfc4de1fc396e40fe1f915347aaffc62",
+    "ai-service/core/story_kb_manager.py": "26f3924b37996b74f57e8b0540dbe06346f514203431a06690b028f1bf24e5e2",
+    "ai-service/api/narrative_routes.py": "657e7757ef3dabc8ae06c20e2eca957d0d782ca7ffa95e06177d25b9d7fdd022",
+    "ai-service/migrations/versions/0012_entity_guidance.py": "f4068778d63b8a0dfa387665c7e07d32f7f63a7924acec5d7a635cbcfd415c3d",
+    "backend/src/modules/ai/ai-gateway.controller.ts": "f3be651cc0e446e3cbc47206d54e1b9da8292edcd7ed65f764345e4c74df892e",
+    "backend/src/modules/ai/ai-gateway.routes.ts": "4e0e97159a16c829c0a2a87bebb55c9d5ee23afbfbc24186606637861fce3e69",
+    "backend/src/modules/ai/autonomous-controller.service.ts": "6375997f3f0415f3dc7bca5a0d44cd44d9cf8be3e23128fb1d3ff5395b508515",
+    "backend/src/modules/ai/autonomous-memory.service.ts": "6a1388271c1d68399294912c8e657919b6b88dd6c94a2e9383579dade1666f33",
+    "web/src/features/ai-copilot/AuthorMemoryPanel.tsx": "9ff1255da74c0d6835d107487a2740c020e7f55856c0d894943cd1a0335421ff",
+    "web/src/features/ai-copilot/EntityExtractionReview.tsx": "190c9708ba2f1628330a9bfde768f2b42869a7937659fc6da68b1acd4afa3137"
+  }
+}

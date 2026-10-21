@@ -1,0 +1,8 @@
+AI Service Health: {'status': 'ok'}
+AI Service Entity Guidance: {'data': {'version': 0, 'entries': [], 'chapter_review_enabled': True}}
+Backend Health: {'success': True, 'data': {'status': 'OK', 'service': 'ephurin-backend'}, 'error': None, 'meta': {}}
+Web Status: HTTP 200
+Pipeline Version: entity-human-review-v1
+Candidate Collector Policy: entity-candidates-v1
+ENTITY_CANDIDATE_VERIFICATION_ENABLED: True
+VERIFICATION: PASS

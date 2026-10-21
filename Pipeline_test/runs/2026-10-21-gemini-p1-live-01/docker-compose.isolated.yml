@@ -1,0 +1,106 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: p1-live-01-postgres
+    environment:
+      POSTGRES_DB: p1_ephurin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "25432:5432"
+    volumes:
+      - p1_live_01_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d p1_ephurin" ]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  mongodb:
+    image: mongo:7
+    container_name: p1-live-01-mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - p1_live_01_mongodb_data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  ai-service:
+    build:
+      context: ../../../ai-service
+      dockerfile: Dockerfile
+    container_name: p1-live-01-ai-service
+    environment:
+      APP_ENV: production
+      PORT: 8000
+      NARRATIVE_REPOSITORY: postgres
+      LLM_PROVIDER: fake
+      LLM_MODEL: gemini-3.5-flash-lite
+      LLM_STRUCTURED_MAX_TOKENS: 8192
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/p1_ephurin
+      PLATFORM_API_BASE_URL: http://backend:4000
+      PLATFORM_SERVICE_TOKEN: test-token-p1-live-01
+      ENTITY_CANDIDATE_VERIFICATION_ENABLED: "true"
+      CONTEXT_ROUTING_POLICY: legacy-v1
+    ports:
+      - "18000:8000"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8000/health || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ../../../
+      dockerfile: backend/Dockerfile
+    container_name: p1-live-01-backend
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      API_PREFIX: /api/v1
+      WEB_ORIGIN: http://localhost:18080
+      DB_CONNECT_ON_START: "true"
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/p1_ephurin
+      MONGODB_URI: mongodb://mongodb:27017/p1_ephurin
+      JWT_ACCESS_SECRET: p1-live-01-demo-access-secret-isolated
+      JWT_REFRESH_SECRET: p1-live-01-demo-refresh-secret-isolated
+      JWT_ACCESS_EXPIRES_SECONDS: 3600
+      JWT_REFRESH_EXPIRES_DAYS: 7
+      REFRESH_TOKEN_COOKIE_NAME: ephurin_p1_refresh_token
+      RUN_MIGRATIONS: "true"
+      RUN_DEMO_SEED: "false"
+      AI_SERVICE_URL: http://ai-service:8000
+      PLATFORM_SERVICE_TOKEN: test-token-p1-live-01
+    ports:
+      - "14000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ../../../
+      dockerfile: web/Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    container_name: p1-live-01-web
+    ports:
+      - "18080:80"
+    depends_on:
+      - backend
+
+volumes:
+  p1_live_01_postgres_data:
+  p1_live_01_mongodb_data:

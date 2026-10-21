@@ -1,0 +1,5 @@
+DATABASE_URL: postgresql://postgres:***@localhost:25432/p1_ephurin
+MIGRATION_HEAD: 0012_entity_guidance
+story_brains.entity_guidance: JSONB
+analysis_runs.entity_candidate_audit: JSONB
+VERIFICATION: PASS
