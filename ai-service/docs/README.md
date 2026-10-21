@@ -2,7 +2,7 @@
 
 Đây là nguồn tài liệu chuẩn cho module AI Writing Copilot trong Novel Sharing Platform. Bộ SRA/SRS của dự án chính được giữ nguyên tại `../../docs/SRA_doc/` và không trộn vào specification của Copilot.
 
-**Workflow hiện hành:** [WORKFLOW_CONTRACT.md revision1.3](../../Pipeline_test/WORKFLOW_CONTRACT.md)
+**Workflow hiện hành:** [WORKFLOW_CONTRACT.md revision1.4](../../Pipeline_test/WORKFLOW_CONTRACT.md)
 là nguồn chuẩn của P1/P2/P3 và human entity review. Khi các thiết kế lịch sử trong
 bộ docs này khác contract, ưu tiên contract; pipeline map là bản đối chiếu code/evidence.
 
@@ -14,7 +14,9 @@ bộ docs này khác contract, ưu tiên contract; pipeline map là bản đối
 | [PRODUCT.md](PRODUCT.md) | Tầm nhìn, người dùng, phạm vi và ranh giới với Novel Platform |
 | [Workflow contract](../../Pipeline_test/WORKFLOW_CONTRACT.md) | Source of truth P1/P2/P3, review gates và ranh giới tự động |
 | [USE_CASES.md](USE_CASES.md) | Dẫn đến contract hiện hành; phần UC-01/02/03 bên dưới là thiết kế lịch sử |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Kiến trúc hiện tại, dữ liệu, pipeline và kiến trúc đích |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Kiến trúc tích hợp hiện tại theo reviewed source SHA, ranh giới dữ liệu, HITL, retrieval và hạn chế chưa nghiệm thu |
+| [ARCHITECTURE_PROTOTYPE_LEGACY.md](ARCHITECTURE_PROTOTYPE_LEGACY.md) | Thiết kế prototype cũ được lưu riêng; **không phải hiện trạng** |
+| [CURRENT_API_IMPLEMENTATION_MATRIX.md](CURRENT_API_IMPLEMENTATION_MATRIX.md) | Ánh xạ route Node gateway ↔ FastAPI và job/review states theo source SHA; chưa chứng minh E2E |
 | [ROADMAP.md](ROADMAP.md) | Thứ tự phát triển và exit criteria |
 | [UX.md](UX.md) | Kiến trúc thông tin và nguyên tắc trải nghiệm viết |
 | [PIPELINE.md](PIPELINE.md) | Sơ đồ hóa toàn bộ pipeline: bootstrap, import, writing loop, analysis, generation |
@@ -50,12 +52,12 @@ Các lựa chọn queue implementation và embedding model/dimension được c�
 
 ## Nguồn sự thật
 
-1. Code trong `web-ui/` và `ai-service/` quyết định hành vi hiện tại.
-2. `ARCHITECTURE.md` mô tả kiến trúc đã thống nhất.
-3. `ROADMAP.md` là backlog định hướng duy nhất.
-4. `ADRS.md` ghi quyết định đã được chấp nhận trước khi implementation.
-5. Khi code thay đổi API, schema hoặc pipeline, cập nhật tài liệu liên quan trong cùng thay đổi.
+1. `../../Pipeline_test/WORKFLOW_CONTRACT.md` v1.4 quy định **hành vi sản phẩm/acceptance** P1→P2→P3, P3 100k bắt buộc và chính sách HITL; không dùng những UC cũ thay contract.
+2. `ADRS.md` và `STATE_PROJECTION.md` ghi **quyết định kiến trúc đã chấp nhận**; bản mẫu cũ vẫn là lịch sử.
+3. Code `../../web/src/`, `../../backend/src/`, `../` quyết định **đường implementation tại đúng SHA**; `ARCHITECTURE.md` và API matrix ghi phạm vi được soi source, không tự chứng minh live.
+4. `../../Pipeline_test/architecture/AI_PIPELINE_MAP.md` là **snapshot 2026-10-20**, không được coi current sau Wave 1B–1D nếu chưa tái tạo.
+5. Báo cáo `runs/*` và review độc lập chứng minh **đúng phạm vi lần chạy**; cập nhật tài liệu liên quan cùng thay đổi code, giữ nguyên evidence lịch sử.
 
 ## Phạm vi repo
 
-Repo tập trung vào authoring IDE và Story Brain: entity, event, world state, consistency, retrieval và writing assistance. Authentication, publishing, reader experience, community, moderation vận hành và payment thuộc Novel Platform bên ngoài.
+Module AI Copilot tập trung vào Author IDE và Story Brain: entity, event, world state, consistency, retrieval và writing assistance. Trong cùng repository hiện có Platform Node API sở hữu authentication, novel/chapter/revisions, publishing, reader/community/moderation/payment; AI domain không sở hữu các nghiệp vụ Platform này. Không đồng nhất ranh giới bounded context với ranh giới repository.
