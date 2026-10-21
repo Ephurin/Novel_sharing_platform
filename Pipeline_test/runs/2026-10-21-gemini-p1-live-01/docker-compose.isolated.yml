@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "25432:5432"
+      - "127.0.0.1:25432:5432"
     volumes:
       - p1_live_01_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -20,7 +20,7 @@ services:
     image: mongo:7
     container_name: p1-live-01-mongodb
     ports:
-      - "27018:27017"
+      - "127.0.0.1:27018:27017"
     volumes:
       - p1_live_01_mongodb_data:/data/db
     healthcheck:
@@ -38,8 +38,13 @@ services:
       APP_ENV: production
       PORT: 8000
       NARRATIVE_REPOSITORY: postgres
-      LLM_PROVIDER: fake
+      LLM_ENABLED: "true"
+      LLM_PROVIDER: gemini
       LLM_MODEL: gemini-3.5-flash-lite
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      LLM_BASE_URL: ""
+      LLM_FALLBACK_PROVIDER: ""
+      LLM_LOCAL_FALLBACK: "false"
       LLM_STRUCTURED_MAX_TOKENS: 8192
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/p1_ephurin
       PLATFORM_API_BASE_URL: http://backend:4000
@@ -47,7 +52,7 @@ services:
       ENTITY_CANDIDATE_VERIFICATION_ENABLED: "true"
       CONTEXT_ROUTING_POLICY: legacy-v1
     ports:
-      - "18000:8000"
+      - "127.0.0.1:18000:8000"
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8000/health || exit 1" ]
       interval: 5s
@@ -79,8 +84,11 @@ services:
       RUN_DEMO_SEED: "false"
       AI_SERVICE_URL: http://ai-service:8000
       PLATFORM_SERVICE_TOKEN: test-token-p1-live-01
+      AI_LLM_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
+      AI_LLM_API_KEY: ${GEMINI_API_KEY}
+      AI_LLM_MODEL: gemini-3.5-flash-lite
     ports:
-      - "14000:4000"
+      - "127.0.0.1:14000:4000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -97,7 +105,7 @@ services:
         VITE_API_BASE_URL: /api/v1
     container_name: p1-live-01-web
     ports:
-      - "18080:80"
+      - "127.0.0.1:18080:80"
     depends_on:
       - backend
 

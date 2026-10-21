@@ -1,0 +1,32 @@
+{
+  "max_calls": 200,
+  "max_cost_usd": 5.0,
+  "admission_cost_usd": 4.5,
+  "max_wall_clock_seconds": 7200,
+  "approval_reference": "User explicit P1 budget authorization in ChatGPT on 2026-10-21",
+  "approved_by": "project owner",
+  "live_started_at": "2026-10-21T03:47:52.543771+00:00",
+  "live_deadline_at": "2026-10-21T05:47:52.543771+00:00",
+  "total_calls": 1,
+  "successful_calls": 1,
+  "failed_calls": 0,
+  "total_prompt_tokens": 5,
+  "total_candidate_tokens": 2,
+  "estimated_cost_usd": 1e-06,
+  "status": "ACTIVE",
+  "stop_reason": null,
+  "call_history": [
+    {
+      "call_index": 1,
+      "timestamp": "2026-10-21T03:47:52.543771+00:00",
+      "provider": "gemini",
+      "model": "models/gemini-3.5-flash-lite",
+      "operation": "smoke_preflight",
+      "prompt_tokens": 5,
+      "candidate_tokens": 2,
+      "cost_usd": 1e-06,
+      "status": "SUCCESS",
+      "error": null
+    }
+  ]
+}

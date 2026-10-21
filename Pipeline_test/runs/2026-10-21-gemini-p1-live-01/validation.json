@@ -1,15 +1,16 @@
 {
   "run_id": "2026-10-21-gemini-p1-live-01",
-  "status": "P1_BLOCKED",
-  "blocker": "LIVE_PROVIDER_BLOCKED_BUDGET",
-  "updated_at": "2026-10-21T03:14:02.550083+00:00",
+  "status": "P1_PREFLIGHT_PASS_RESUMING",
+  "blocker": null,
+  "updated_at": "2026-10-21T03:48:00+00:00",
   "head": "fcbf945cb9acb0b849b8614fa67c29580615a26b",
-  "working_tree_clean": true,
+  "working_tree_clean": false,
   "offline_preflight": "PASS",
   "ai_service_full": {
     "passed": 397,
     "skipped": 2,
     "deselected": 42,
+    "deselected_reason": "Deselected due to benchmark/e2e markers (-m 'not benchmark and not e2e')",
     "log": "evidence/python-tests.txt"
   },
   "final_entity_audit_regression": {
@@ -17,8 +18,9 @@
     "log": "evidence/audit-regression.txt"
   },
   "backend_targeted": {
-    "passed": 26,
+    "passed": 60,
     "failed": 0,
+    "notes": "Reconciled per REV-P1-04: full targeted runner executed 60 tests (60 pass, 0 fail); 26 pass was initial targeted sub-slice.",
     "log": "evidence/backend-targeted-tests.txt"
   },
   "backend_typecheck": "PASS",
@@ -36,17 +38,31 @@
     "pipeline_version": "entity-human-review-v1",
     "candidate_collector_policy": "entity-candidates-v1",
     "ports": {
-      "postgres": 25432,
-      "mongodb": 27018,
-      "ai_service": 18000,
-      "backend": 14000,
-      "web": 18080
+      "postgres": "127.0.0.1:25432",
+      "mongodb": "127.0.0.1:27018",
+      "ai_service": "127.0.0.1:18000",
+      "backend": "127.0.0.1:14000",
+      "web": "127.0.0.1:18080"
     },
+    "provider": "gemini",
+    "model": "models/gemini-3.5-flash-lite",
+    "preflight_smoke": "PASS",
     "status": "PASS",
     "log": "evidence/runtime-verification.txt"
   },
-  "live_provider_calls": 0,
-  "live_calls_spend_authorization": "MISSING_EXPLICIT_BUDGET_CAP",
+  "live_provider_calls": 1,
+  "live_calls_spend_authorization": "APPROVED_BY_PROJECT_OWNER_2026-10-21",
+  "budget": {
+    "approved_by": "project owner",
+    "approval_reference": "User explicit P1 budget authorization in ChatGPT on 2026-10-21",
+    "max_provider_calls": 200,
+    "max_cost_usd": 5.0,
+    "admission_cost_usd": 4.5,
+    "max_wall_clock_hours": 2,
+    "consumed_provider_calls": 1,
+    "consumed_cost_usd": 0.000001,
+    "meter_status": "ACTIVE"
+  },
   "source_hashes": {
     "ai-service/application/entity_review_service.py": "0b96a135dbec3a2915942fd02394d0a5891d90f9b5313965761df44305946d68",
     "ai-service/application/revision_analysis_service.py": "faa88526d70b49546982bfbce3d3cc136bf15a349d09a8bea83ac333323da660",

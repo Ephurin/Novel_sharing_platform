@@ -1,7 +1,10 @@
-AI Service Health: {'status': 'ok'}
-AI Service Entity Guidance: {'data': {'version': 0, 'entries': [], 'chapter_review_enabled': True}}
-Backend Health: {'success': True, 'data': {'status': 'OK', 'service': 'ephurin-backend'}, 'error': None, 'meta': {}}
-Web Status: HTTP 200
+AI Service Health: HTTP 200
+Backend Health: HTTP 200
+Backend AI Provider: HTTP 200 (ready: true, model: gemini-3.5-flash-lite)
+Web Health: HTTP 200
+Loopback Isolation: VERIFIED (127.0.0.1:18080, 127.0.0.1:14000, 127.0.0.1:18000, 127.0.0.1:25432, 127.0.0.1:27018)
+AI Service Provider: gemini (models/gemini-3.5-flash-lite, real Google AI Studio)
+Smoke Test: PASS (output: pong, duration: 1.595s)
 Pipeline Version: entity-human-review-v1
 Candidate Collector Policy: entity-candidates-v1
 ENTITY_CANDIDATE_VERIFICATION_ENABLED: True

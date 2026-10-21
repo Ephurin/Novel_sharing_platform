@@ -1,9 +1,12 @@
 {
   "run_id": "2026-10-21-gemini-p1-live-01",
-  "updated_at": "2026-10-21T10:14:00+07:00",
-  "status": "P1_BLOCKED",
-  "blocker": "LIVE_PROVIDER_BLOCKED_BUDGET",
+  "updated_at": "2026-10-21T11:00:00+07:00",
+  "status": "P1_PREFLIGHT_PASS_AWAITING_UI_EXECUTION",
+  "blocker": "BLOCKED_BROWSER_AUTOMATION_DRIVER_404",
+  "blocker_details": "Playwright driver installation encountered 404 Not Found from AzureEdge CDN when initializing open_browser_url. Stack, database, real provider, and author account p1_author are fully ready.",
   "main_novel_id": null,
+  "author_account_id": "3949012f-b7ed-455f-a91a-6b95adda1fff",
+  "author_username": "p1_author",
   "current_chapter_number": 5,
   "current_chapter_id": null,
   "latest_canonical_revision_id": null,
@@ -18,7 +21,19 @@
   "pending_accept_idempotency_key": null,
   "canonical_word_count": null,
   "completed_chapters_by_content_review": [],
-  "unresolved_issue_ids": ["ISSUE-BUDGET-001"],
+  "unresolved_issue_ids": [],
+  "budget_status": {
+    "approved_by": "project owner",
+    "approval_reference": "User explicit P1 budget authorization in ChatGPT on 2026-10-21",
+    "max_provider_calls": 200,
+    "max_cost_usd": 5.0,
+    "admission_cost_usd": 4.5,
+    "max_wall_clock_hours": 2,
+    "consumed_provider_calls": 1,
+    "consumed_cost_usd": 0.000001,
+    "live_started_at": "2026-10-21T03:47:52.543771+00:00",
+    "live_deadline_at": "2026-10-21T05:47:52.543771+00:00"
+  },
   "memory_audit": {
     "completed_audit_ids_by_pipeline": {
       "P1": [],
@@ -31,10 +46,10 @@
       "P3": "M0"
     },
     "pending_audit_ids": [],
-    "unresolved_issue_ids": ["ISSUE-BUDGET-001"],
+    "unresolved_issue_ids": [],
     "resume_rule": "Finish due memory audit before next generation; read server revisions and analysis status first."
   },
-  "last_action_log_row": "Isolated preflight, Docker stack, and database migrations verified.",
-  "next_action": "Awaiting explicit budget cap / spend authorization to trigger live Google AI Studio API calls.",
+  "last_action_log_row": "Preflight gate passed: loopback ports verified (127.0.0.1:), real gemini-3.5-flash-lite connected, smoke test passed (HTTP 200, output: 'pong'), budget guard active (1 call, 0.000001 USD), account p1_author created.",
+  "next_action": "Execute S01–S11 author workflow from checkpoint: create novel 'Gió Thoảng Qua Phố Cổ', import ch01–ch05, enter hints, trigger bootstrap, human review entity candidates, continue to event/fact, activate baseline M0.",
   "resume_rule": "Read server state before retrying any pending write; this file is not canonical truth."
 }

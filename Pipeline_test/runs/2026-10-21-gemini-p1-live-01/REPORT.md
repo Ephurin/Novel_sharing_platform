@@ -13,24 +13,32 @@
 
 ## 1. Kết quả chính & Trạng thái nghiệm thu
 
-- **Overall verdict:** **`P1_BLOCKED`** (Điểm dừng bảo vệ an toàn ngân sách: **`LIVE_PROVIDER_BLOCKED_BUDGET`**)
+- **Overall verdict:** **`P1_PREFLIGHT_PASS_AWAITING_UI_EXECUTION`** (Preflight Gate Passed; 8 Review Findings Closed; Bounded Smoke Test Passed)
+- **Live Resume Addendum:** Xem chi tiết tại [`LIVE_RESUME_REPORT.md`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/Pipeline_test/runs/2026-10-21-gemini-p1-live-01/LIVE_RESUME_REPORT.md) và [`REVIEW_FINDINGS_CLOSURE.md`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/Pipeline_test/runs/2026-10-21-gemini-p1-live-01/REVIEW_FINDINGS_CLOSURE.md)
+- **Handoff Prompt:** Xem [`HANDOFF_PROMPT.md`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/Pipeline_test/runs/2026-10-21-gemini-p1-live-01/HANDOFF_PROMPT.md) để tiếp tục thực thi chính xác từ điểm này.
 - **Offline Preflight & Schema Validation:** **`PASS`** (Toàn bộ test suite offline, regression, typecheck, web build và migration head đều đạt)
-- **Isolated Runtime Stack:** **`PASS`** (Đã khởi tạo và kiểm chứng stack Docker cô lập hoàn toàn trên port mới, database mới, volume mới)
-- **Live Provider Execution (S01–S11):** **`BLOCKED`** tại cổng Provider Guard theo mục 2, điều 52 của `ACTIVE_GEMINI_TASK.md` do chưa có định mức trần (budget cap / max calls / max USD) được chỉ định tường minh trong phiên này.
-- **P2 (Idea Bootstrap) / P3 (Autonomous Loop) / Bài 100k từ:** **`NOT_RUN`** (Tuyệt đối không chạy ngoài phạm vi Wave 1).
+- **Isolated Runtime Stack & Loopback:** **`PASS`** (Tất cả 5 container đã bind chặt chẽ `127.0.0.1:`, DB `p1_ephurin` sạch)
+- **Real Provider & Smoke Test:** **`PASS`** (`gemini-3.5-flash-lite` qua Google AI Studio API, HTTP 200 `pong`, latency 1.595s)
+- **Budget Guard Metering:** **`PASS`** (Trần 200 calls, USD 5.00, 2h; tiêu thụ: 1 call, 0.000001 USD)
+- **Frozen Gold Materialization:** **`PASS`** (35 narrative assertions G01–G35 và `gold_manifest.json` đã nạp đầy đủ)
+- **Live Provider Execution (S01–S11):** **`READY_TO_EXECUTE`** (Tài khoản `p1_author` sẵn sàng, bàn giao cho coding agent thực thi S01–S11)
+- **P2 / P3 / 100k:** **`NOT_RUN`** (Ngoài phạm vi Wave 1)
 
 | Trục đánh giá | Verdict | Evidence | Ghi chú |
 |---|---|---|---|
 | Git & Fixture Preflight | **PASS** | `Pipeline_test/tools/task_tool.py verify` | SHA `ddef699f35dea11c0659860d8988663ee76856bd1f39f95a70bb89d4befd52eb` |
-| AI Service Test Suite | **PASS** | `evidence/python-tests.txt` | 397 passed, 2 skipped, 42 deselected, 6 subtests passed |
+| AI Service Test Suite | **PASS** | `evidence/python-tests.txt` | 397 passed, 2 skipped, 42 deselected (do filter benchmark/e2e) |
 | Entity Audit Regression | **PASS** | `evidence/audit-regression.txt` | 66 passed (candidates, guidance, optimistic locking, recovery) |
-| Backend Targeted Tests | **PASS** | `evidence/backend-targeted-tests.txt` | 26 passed, 0 failed (gateway, outbox, autonomous guard) |
+| Backend Targeted Tests | **PASS** | `evidence/backend-targeted-tests.txt` | 60 passed, 0 failed (đã đối chiếu đầy đủ theo REV-P1-04) |
 | Backend Typecheck | **PASS** | `evidence/backend-typecheck.txt` | `tsc -p tsconfig.json --noEmit` exit 0 |
 | Web Production Build | **PASS** | `evidence/web-build.txt` | `tsc -b && vite build` built in 7.18s, dist/ tạo thành công |
 | Isolated Database Migration | **PASS** | `evidence/schema-verification.txt` | Alembic `0012_entity_guidance` head, backend 001–012 applied |
 | Schema Column Verification | **PASS** | `evidence/schema-verification.txt` | `story_brains.entity_guidance` (JSONB) & `analysis_runs.entity_candidate_audit` (JSONB) |
-| Runtime Flag Verification | **PASS** | `evidence/runtime-verification.txt` | `entity_candidate_verification_enabled: True`, pipeline `entity-human-review-v1`, policy `entity-candidates-v1` |
-| Live Provider Calls (S01–S11) | **BLOCKED** | `run_config.json`, `checkpoint.json` | `LIVE_PROVIDER_BLOCKED_BUDGET` |
+| Runtime Flag & Loopback | **PASS** | `evidence/runtime-verification.txt` | Loopback `127.0.0.1:` cho cả 5 ports, provider `gemini-3.5-flash-lite` |
+| Bounded Provider Smoke | **PASS** | `evidence/provider-smoke.json` | Google AI Studio real call, HTTP 200, output: `pong` (1.595s) |
+| Frozen Gold Materialization | **PASS** | `evidence/gold_manifest.json`, `memory_items.csv` | 35 assertions G01–G35 hash `e9e5bb778841bd4e5eb4a0444268a1acc01512860b8ace3c56332d61d5881d0b` |
+| Review Findings Closure | **PASS** | `REVIEW_FINDINGS_CLOSURE.md` | 8 finding REV-P1-01..08 đã CLOSED, REV-P1-09 sẵn sàng S01–S11 |
+| Live P1 Execution (S01–S11) | **AWAITING_EXECUTION** | `HANDOFF_PROMPT.md`, `checkpoint.json` | Sẵn sàng cho coding agent kế tiếp thực thi |
 
 ---
 

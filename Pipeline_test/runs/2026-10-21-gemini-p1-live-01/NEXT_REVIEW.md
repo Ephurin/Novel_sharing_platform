@@ -41,9 +41,14 @@
 * **Tài nguyên cũ được bảo toàn nguyên vẹn:**
   * Toàn bộ dữ liệu tại `Pipeline_test/runs/2026-10-19-recovery-ui-01/` và 5 outbox cũ không bị restart hay sửa đổi.
   * Các volume và container khác trên hệ thống không bị ảnh hưởng.
-* **Teardown Command (khi kết thúc toàn bộ testing):**
+* **Teardown Command & Safety Notice (Superseded per REV-P1-08):**
+  > [!CAUTION]
+  > **BLANKET `docker compose down -v` IS STRICTLY PROHIBITED** per `ACTIVE_GEMINI_TASK.md` and `REV-P1-08`.
+  > Scoped project naming alone does not authorize blanket volume destruction.
+  > Final cleanup must only stop containers and verify run ownership individually. Volumes must be preserved until independent audit review is complete.
   ```sh
-  docker compose -p p1-live-01 -f Pipeline_test/runs/2026-10-21-gemini-p1-live-01/docker-compose.isolated.yml down -v
+  # Stop containers without removing volumes:
+  docker compose -p p1-live-01 -f Pipeline_test/runs/2026-10-21-gemini-p1-live-01/docker-compose.isolated.yml stop
   ```
 
 ---

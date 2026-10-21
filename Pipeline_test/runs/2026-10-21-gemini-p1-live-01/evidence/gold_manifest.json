@@ -1,0 +1,134 @@
+{
+  "run_id": "2026-10-21-gemini-p1-live-01",
+  "source_fixture": "PT-CV-001 v1.0.0",
+  "chapters_in_scope": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "narrative_assertions_count": 35,
+  "memory_items_sha256": "e9e5bb778841bd4e5eb4a0444268a1acc01512860b8ace3c56332d61d5881d0b",
+  "entities_canon_gold": [
+    {
+      "name": "Mai Linh",
+      "aliases": [
+        "Linh"
+      ],
+      "type": "PER",
+      "notes": "29 tuổi, con gái Mai Lâm, trở về sau 11 năm"
+    },
+    {
+      "name": "Mai Lâm",
+      "aliases": [
+        "cha cô"
+      ],
+      "type": "PER",
+      "notes": "Cha Linh, chết trong lũ 17 năm trước"
+    },
+    {
+      "name": "Duy",
+      "aliases": [],
+      "type": "PER",
+      "notes": "Khảo sát viên, điếc tai trái, nghe bằng tai phải và dụng cụ"
+    },
+    {
+      "name": "An",
+      "aliases": [],
+      "type": "PER",
+      "notes": "Người lái thuyền tại trạm Bốn"
+    },
+    {
+      "name": "Yên",
+      "aliases": [],
+      "type": "PER",
+      "notes": "Nhân vật giấu sổ bọc vải xám dưới ghế"
+    },
+    {
+      "name": "Vũ",
+      "aliases": [],
+      "type": "PER",
+      "notes": "Ký giấy phép khảo sát có điều kiện"
+    },
+    {
+      "name": "Sâm",
+      "aliases": [],
+      "type": "PER",
+      "notes": "Kể lại việc chuyển chuông sau lũ"
+    },
+    {
+      "name": "Hòa",
+      "aliases": [],
+      "type": "PER",
+      "notes": "Giữ tủ niêm phong 1 ổ lưu dữ liệu"
+    },
+    {
+      "name": "CV-04",
+      "aliases": [
+        "chuông CV-04"
+      ],
+      "type": "ITEM",
+      "notes": "Khối cộng hưởng, vết nứt hình móc câu, cạnh sơn xanh"
+    },
+    {
+      "name": "Vòng chuẩn đồng",
+      "aliases": [
+        "vòng chuẩn"
+      ],
+      "type": "ITEM",
+      "notes": "Có vết khía hình tam giác, trong hộp dụng cụ Duy"
+    },
+    {
+      "name": "Trạm Bốn",
+      "aliases": [],
+      "type": "LOC",
+      "notes": "Trạm cửa nước, nơi khảo sát"
+    },
+    {
+      "name": "Khoang kín",
+      "aliases": [],
+      "type": "LOC",
+      "notes": "Khu vực dưới trạm, bị cấm xuống"
+    },
+    {
+      "name": "Nhánh tây",
+      "aliases": [],
+      "type": "LOC",
+      "notes": "Nhánh sông nơi đặt trạm Bốn"
+    }
+  ],
+  "negative_control_occurrences": [
+    {
+      "surface": "an toàn",
+      "context": "Đi cho an toàn",
+      "expected_verdict": "not_entity",
+      "reason": "Common noun phrase, not character An"
+    },
+    {
+      "surface": "An toàn",
+      "context": "An toàn là trên hết",
+      "expected_verdict": "not_entity",
+      "reason": "Capitalized safety motto, not character An"
+    },
+    {
+      "surface": "thuyền",
+      "context": "buộc lại thuyền",
+      "expected_verdict": "not_entity",
+      "reason": "Common vehicle"
+    },
+    {
+      "surface": "kho",
+      "context": "tới kho",
+      "expected_verdict": "not_entity",
+      "reason": "Common location noun"
+    }
+  ],
+  "explicit_alias_rules": [
+    {
+      "mention": "Linh",
+      "canonical_target": "Mai Linh",
+      "establishing_quote": "Linh là tên gọi của Mai Linh."
+    }
+  ]
+}
