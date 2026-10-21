@@ -1,0 +1,34 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "data": {
+      "proposal_ids": [
+        "8f1c6525-6b8a-50ba-af27-514565c1ca26",
+        "89cc1d0f-cc51-5e8e-b6c4-ce23d804b21c",
+        "6403b232-5182-512f-bf92-09f428f77b23",
+        "360c9aca-7c39-540d-9b4b-17c62afc0843",
+        "4b804156-a46a-50ff-b896-7805a1801f75",
+        "4d869639-f858-5146-b103-e9f957f3162a",
+        "424ba028-500a-56fb-871a-5b2cfc568084",
+        "4fa798c6-f8d9-5023-968f-2f43e03fb4fd",
+        "20fe9afc-44d5-5d16-8ce7-0bc4d845083c"
+      ],
+      "canonical_artifact_ids": [
+        "a433c4d5-4a3e-4c8d-9521-70fd85e77fff",
+        "caa815b8-efdb-4b7f-a3a8-07b1168d8ce5",
+        "e9db8911-137f-4e79-8982-70c14161ec5f",
+        "ea6006ca-b19e-47ab-af8d-97cd2324876b",
+        "10df55f9-f230-4b04-bb87-91b02796b1b4",
+        "5057317b-00f3-4f56-9dec-2f0c75032168",
+        "05d44608-b57f-4ba6-9c2d-8171c731539f",
+        "89cc1d0f-cc51-5e8e-b6c4-ce23d804b21c",
+        "7a0f5595-1d4c-41f2-ac0a-24840b2eddff"
+      ],
+      "brain_version": 4,
+      "status": "accepted"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

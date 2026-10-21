@@ -1,0 +1,14 @@
+{
+  "source": "Actual sanitized Playwright network response",
+  "request_url": "http://127.0.0.1:47567/api/v1/ai/story-brains/5999e846-0165-4a10-92b4-c8d3f0b5ef4a/entity-reviews/7a83aefe-3781-4043-a1f9-ef0f9cf9b3c3/review",
+  "status": 409,
+  "body": {
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "STALE_PROPOSAL_EVIDENCE",
+      "message": "Chapter changed; extract the latest saved revision"
+    },
+    "meta": {}
+  }
+}

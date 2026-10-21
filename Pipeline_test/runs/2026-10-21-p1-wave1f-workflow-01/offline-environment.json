@@ -1,0 +1,18 @@
+{
+  "project": "p1-wave1f-20261021-workflow-01",
+  "run_id": "2026-10-21-p1-wave1f-workflow-01",
+  "env_file": "Pipeline_test\\tools\\.env.p1-wave1f-20261021-workflow-01",
+  "ports": {
+    "WAVE1D_WEB_PORT": "47567",
+    "WAVE1D_BACKEND_PORT": "47568",
+    "WAVE1D_AI_PORT": "47569",
+    "WAVE1D_GATE_PORT": "47570",
+    "WAVE1D_FAKE_PORT": "47571"
+  },
+  "env_sha256": "17ec0bd6e9c9c9bf209ae8af555e3b6a2fcdecdad9efa876063e2a2abf092c4a",
+  "source_head": "52d7fb9f88365643e96f84dcc49ee2e5e0f4aab3",
+  "runtime_started": false,
+  "container_ownership": "NOT_YET_OBSERVED",
+  "external_provider_calls": 0,
+  "mode": "OFFLINE_FAKE_UPSTREAM_ONLY"
+}

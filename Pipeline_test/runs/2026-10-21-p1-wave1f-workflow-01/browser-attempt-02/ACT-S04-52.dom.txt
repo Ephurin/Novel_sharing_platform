@@ -1,0 +1,120 @@
+arrow_backTủ truyện
+Untitled Novel/Chương 5 — Ba tiếng gõ
+Đã lưu • 22:13
+description574 từ•~2 phút
+menu_bookBộ nhớ truyệnfullscreenTập trung
+auto_awesomeAI Hỗ trợ viếtXuất bản chươngsend
+view_sidebar
+Trạng thái:
+DRAFT
+• Tác phẩm: Untitled Novel
+Miễn phístarsChương VIP ✦
+Bộ nhớ · Trích xuất · Chờ duyệt
+Mục lục chương5
+
+Truyện: Untitled Novel
+
+first_page
+search
+add_circleThêm chương mới
+CHƯƠNG 1
+Bản nháp
+
+Chương 1 — Bến trở về
+
+1,216 từ
+CHƯƠNG 2
+Bản nháp
+
+Chương 2 — Lần đọc thứ nhất
+
+1,005 từ
+CHƯƠNG 3
+Bản nháp
+
+Chương 3 — Hai nơi treo một quả chuông
+
+995 từ
+CHƯƠNG 4
+Bản nháp
+
+Chương 4 — Bản đồ không có tiếng nước
+
+957 từ
+CHƯƠNG 5
+Bản nháp
+
+Chương 5 — Ba tiếng gõ
+
+574 từĐang mở
+text_fieldsMerriweatherexpand_more
+A-17A+
+format_align_justifyformat_align_leftformat_align_centerformat_align_right
+format_line_spacing2.15xexpand_more
+format_indent_increaseThụt dòng
+format_boldformat_italicformat_underlinedstrikethrough_s“”—✦ ✦ ✦
+Đã lưu: 22:13•Untitled Novel•Chương số 5
+auto_awesomeTrợ lý AI
+Bộ nhớ và định hướng tiểu thuyết
+
+Bộ nhớ chính thức v6 · active. Đề xuất chưa duyệt chưa được dùng làm sự thật.
+
+Chờ duyệt (0)
+Nhân vật
+Địa danh
+Vật phẩm
+Sự kiện
+Trích xuất
+Định hướng
+Full auto
+Dữ kiện
+
+observed_scene
+
+{
+  "value": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+  "subject": "",
+  "certainty": "confirmed"
+}
+
+Chương 5 · Thực thể chung
+
+unverified_voice_attribution
+
+{
+  "value": "Linh nhận ra giọng giống cha, cần mẫu đối chứng; chưa xác minh danh tính",
+  "subject": "",
+  "certainty": "reported"
+}
+
+Chương 2 · Thực thể chung
+
+observed_scene
+
+{
+  "value": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+  "subject": "",
+  "certainty": "confirmed"
+}
+
+Chương 3 · Thực thể chung
+
+observed_scene
+
+{
+  "value": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+  "subject": "",
+  "certainty": "confirmed"
+}
+
+Chương 4 · Thực thể chung
+
+observed_scene
+
+{
+  "value": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+  "subject": "",
+  "certainty": "confirmed"
+}
+
+Chương 1 · Thực thể chung

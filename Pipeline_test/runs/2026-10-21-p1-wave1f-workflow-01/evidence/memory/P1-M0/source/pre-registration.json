@@ -1,0 +1,11 @@
+{
+  "frozen_at": "2026-10-21T15:04:11.969377+00:00",
+  "expected_narrative_assertions": 35,
+  "source": "Frozen historical narrative assertions and C01-C15, not entity recall labels",
+  "cutoff": 5,
+  "complete_chapters": 4,
+  "chapter_5": "partial",
+  "before_new_fake_requests": true,
+  "quality_metrics": "NOT_ASSESSED_FAKE_PROVIDER",
+  "expected_sha256": "8a60e4affd8307e830ebefa12cd9c1cd1a1f30368ae2ae2a3933430c0702735c"
+}

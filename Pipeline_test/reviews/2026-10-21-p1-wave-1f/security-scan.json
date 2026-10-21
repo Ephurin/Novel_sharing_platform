@@ -1,0 +1,7 @@
+{
+  "files": 638,
+  "zip_contents_checked": true,
+  "credential_and_jwt_findings": 0,
+  "git_blob_byte_hashes": "PASS for captured evidence",
+  "excluded": "env files, .eval-private, pytest temp; manifest excludes itself, security-scan.json and normalized .gitattributes"
+}

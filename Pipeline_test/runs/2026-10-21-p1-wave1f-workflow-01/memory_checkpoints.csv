@@ -1,0 +1,8 @@
+checkpoint,status,evidence,scope
+M0_SOURCE,PASS,evidence/memory/P1-M0/source/pre-registration.json,"35 frozen narrative assertions, not entity count"
+M0_RAW,PASS_FUNCTIONAL,browser-attempt-02/M0-01-pending-canon.json,52 scripted proposals; 52 exact evidence spans; official memory empty
+M0_HUMAN,PASS_FUNCTIONAL,browser-attempt-02/five-chapter-checkpoint-matrix.json,all five entity gates and real canon accept/reject
+M0_OFFICIAL,PASS_FUNCTIONAL,browser-attempt-02/M0-02-approved-baseline.json,"15 entities,1 alias,5 events,5 facts; brain_version6"
+M0_CONTEXT,PASS_FUNCTIONAL,browser-attempt-02/M0-03-context.json,cutoff5 preview; semantic quality NOT_ASSESSED
+M-FIRST,PASS_FUNCTIONAL,browser-incremental-resume-01/M-FIRST-approved.json,new source review and micro_check_note; accuracy POST_HOC_DIAGNOSTIC
+M-FINAL,NOT_RUN,browser-incremental-resume-01/S09-debounce-readback.json,S09 mandatory blocker; no S11 audit

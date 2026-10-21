@@ -1,0 +1,10 @@
+{
+  "session_id": "7cf945c7-8419-404f-9e49-4c518ace4022",
+  "run_id": "2026-10-21-p1-wave1f-workflow-01",
+  "browser_version": "156.0.8078.4",
+  "started_at": "2026-10-21T15:27:48.586080+00:00",
+  "login_observed": true,
+  "user_id": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+  "login_trace_excluded_for_credentials": true,
+  "finished_at": "2026-10-21T15:28:28.168119+00:00"
+}

@@ -1,0 +1,41 @@
+chapter,title,day,seed_state,objective,completion_criterion
+1,Bến trở về,1,complete,Linh trở về và nhận nhiệm vụ kho gốm thanh,Linh nhận hộp CV-04 và lý do phải ở lại
+2,Lần đọc thứ nhất,1,complete,Đọc mảnh CV-04 với Duy,Có câu mở cửa Bốn nhưng chưa kết luận tội của Lâm
+3,Hai nơi treo một quả chuông,1,complete,Gặp Sâm và Yên để đối chiếu ký ức,Chuông di chuyển và quyển sổ giấu kín được gieo
+4,Bản đồ không có tiếng nước,2,complete,Xin quyền khảo sát và tìm tuyến ống cũ,Nhóm có quyền vào trạm và thấy sai lệch bản đồ
+5,Ba tiếng gõ,2,partial,Khảo sát tiếng gõ dưới trạm,Giải thích tiếng gõ bằng cơ cấu thật và phát hiện lối vận hành phụ
+6,Người giữ chìa khóa,2,none,Thuyết phục Sâm tham gia khảo sát,Sâm có điều kiện riêng và đưa thông tin kiểm chứng được
+7,Dấu hàn mới,3,none,Đối chiếu bản đồ với hiện trường,Chứng minh có thay đổi sau lũ nhưng chưa biết người ra lệnh
+8,Bản sao không biết nói dối,3,none,Kiểm tra giới hạn của âm thanh đã sao,Linh chấp nhận bản sao không thể khôi phục âm chưa thu
+9,Danh sách thiếu một ca,3,none,Tìm hồ sơ trực trạm,Có khoảng trống giao ca và nguồn hồ sơ độc lập
+10,Cơn mưa thử,3,none,Mưa nhỏ làm lộ nguy cơ hiện tại,Nhóm giúp dân và thấy hậu quả của thông tin chậm
+11,Cái giá của lần đọc thứ hai,4,none,Quyết định quét CV-04 lần hai,Thu thêm dữ kiện nhưng mất phổ cao được ghi nhận
+12,Tám mươi ba dấu chấm,4,none,Tìm dấu vết công nhân đường hầm,Con số 83 xuất hiện như giả thuyết có nguồn
+13,Người đã rời Bãi Dưới,4,none,Gặp người sống sót ngoài thành phố,Lời chứng xác nhận cứu người nhưng còn sai lệch thời gian
+14,Quyển sổ dưới ghế,5,none,Yên cho Linh đọc sổ giao ca,Có bằng chứng sơ bộ khoảng trống báo động và xung đột mẹ con
+15,Một chữ ký còn sống,5,none,Đối chiếu chữ ký Vũ với lịch vận hành,Vai trò phê duyệt của Vũ có căn cứ độc lập
+16,Hai bản tin cùng một giờ,5,none,So hai nguồn báo động,Phân biệt giờ phát với giờ nhận và bác suy luận đơn giản
+17,Người cha không nguyên vẹn,6,none,Xác nhận Lâm đã mở cửa để cứu công nhân,Linh từ bỏ mục tiêu minh oan tuyệt đối nhưng chưa công bố vội
+18,Đường nước dành cho ai,6,none,Phân tích phương án chống lũ hiện tại,Thấy Bãi Dưới lại chịu rủi ro tập trung
+19,Lá thư không gửi,6,none,Yên giải thích việc im lặng,Linh hiểu động cơ mà không xóa trách nhiệm của mẹ
+20,Cuộc họp không có ghế,7,none,Đưa người dân vào cuộc bàn phương án,Xung đột lợi ích cụ thể và thất bại thương lượng đầu tiên
+21,Những bản sao được chia,7,none,Phân phối chứng cứ đã xác minh,Bản sao có người nhận và hash trước khi kho gặp nạn
+22,Sơ đồ của Duy,7,none,Xây phương án vận hành phân tán,Có đánh đổi thực tế và các điều kiện chưa đạt
+23,An chọn một chuyến đi,8,none,An tổ chức mạng thuyền và thông báo,An có lựa chọn riêng với tổn thất cơ hội rời thành phố
+24,Tên của người đã chết,8,none,Kiểm tra vai trò Quách và danh sách nạn nhân,Không đổ hết lỗi lên người chết và giữ đúng 23 tên
+25,Đối chất dưới mái tôn,8,none,Đối chất Vũ bằng chuỗi chứng cứ,Vũ thừa nhận phần đã có chứng cứ nhưng còn tranh chấp trách nhiệm
+26,Một phương án không sạch sẽ,9,none,Thử giải pháp trong giới hạn an toàn,Một nhánh thất bại tạo yêu cầu sửa thực tế
+27,Chỗ trống trên thuyền,9,none,Diễn tập sơ tán có kiểm đếm,Phát hiện hộ bị bỏ sót và sửa cơ chế thông báo
+28,Lần đọc cuối cùng,9,none,Cân nhắc và thực hiện lần quét thứ ba nếu cần,CV-04 không thể phục hồi thêm và bằng chứng không phụ thuộc phép màu
+29,Nước đến trước lịch,10,none,Mực nước lên sớm buộc kích hoạt phương án,Mọi bên biết rủi ro và có phân công rõ
+30,Cánh cửa phải mở bằng tay,10,none,Vận hành gặp sự cố tại nhánh phụ,Sâm và Duy dùng kỹ năng đã gieo cùng hỗ trợ tập thể
+31,Tiếng gọi qua mái nhà,10,none,Mạng thông báo của An chịu thử thách,Cứu hộ có kiểm đếm và không bỏ nhóm yếu thế ngoài cảnh
+32,Kho lưu trữ ngập trước,11,none,Linh chọn cứu người thay vì giữ toàn bộ kho,Mất mát gốm thật và bản sao tồn tại nhờ chuẩn bị trước
+33,Người ký lệnh mới,11,none,Vũ phải chọn công khai rủi ro,Vũ hỗ trợ cứu hộ nhưng bằng chứng trách nhiệm vẫn được giữ
+34,Bên kia đỉnh triều,12,none,Phối hợp qua cao điểm lũ,Thành phố thoát nguy chính nhờ phương án đã chuẩn bị và có thiệt hại
+35,Những người trở về,12,none,Kiểm đếm sau lũ và nhìn nhận tổn thất,Không tuyên bố thắng trước khi kiểm tra người và hậu quả
+36,Bản ghi không được cắt,13,none,Linh công bố toàn bộ chuỗi chứng cứ,Bao gồm lựa chọn của Lâm và im lặng của Yên
+37,Phiên điều trần,30,none,Theo dõi trách nhiệm công khai,Vũ sống và bị đình chỉ còn cơ chế được điều tra
+38,Một bữa cơm chưa hòa giải,35,none,Giải quyết bước đầu quan hệ Linh và Yên,Có hành động sửa chữa nhưng không tha thứ tức thì
+39,Hai mươi ba cái tên,180,none,Trở lại thành phố sau sáu tháng,Đủ 23 tên cùng cơ chế giám sát mới và lựa chọn tương lai của An
+40,Tiếng mưa còn lại,181,none,Khép hành trình Linh và lời hứa toàn truyện,Các tuyến chính khép lại có dư âm và không thêm twist phủ định canon

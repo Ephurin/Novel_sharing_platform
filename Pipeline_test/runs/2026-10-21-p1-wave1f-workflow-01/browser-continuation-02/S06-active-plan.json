@@ -1,0 +1,27 @@
+{
+  "plan_id": "ce2f15fe-97a5-4f1e-ade9-04a2c7e71333",
+  "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "plan_version": 1,
+  "status": "active",
+  "objectives": [
+    {
+      "objective_id": "88547f91-df1a-4c17-a877-40818b5797d0",
+      "order_index": 1,
+      "title": "Kiểm tra micro có đối chứng — tác giả chỉnh",
+      "description": "Kế hoạch tương lai: kiểm tra micro, chưa khẳng định đã thực hiện.",
+      "target_chapter": 6,
+      "objective_type": "chapter_goal",
+      "status": "pending",
+      "metadata": {
+        "min_words": 50,
+        "is_terminal": false
+      }
+    }
+  ],
+  "source_outline": "Lập hai gợi ý tương lai; chưa coi kế hoạch là việc đã xảy ra.",
+  "source_outline_hash": "e8697abb1289895148a3f9be5ec42a0b6b6e553efb2671433e23552d55590cbf",
+  "idempotency_key": null,
+  "input_hash": "b326eaba8a51ef18286253672ded7a2587e1f4a6f5001d4076cdab07219f9642",
+  "created_by": "c029c248-f324-42bd-bd4c-11c2f3f99e77"
+}

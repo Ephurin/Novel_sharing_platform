@@ -1,0 +1,82 @@
+{
+  "captured_at": "2026-10-21T15:27:56.811326+00:00",
+  "chapter": {
+    "chapterId": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+    "novelId": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+    "title": "Chương 6 — Thẻ ghi kiểm tra",
+    "chapterNumber": 6,
+    "content": null,
+    "wordCount": 36,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "draft": {
+      "title": "Chương 6 — Thẻ ghi kiểm tra",
+      "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+      "wordCount": 36,
+      "version": 4,
+      "autosave": true,
+      "updatedAt": "2026-10-21T15:27:56.759Z"
+    }
+  },
+  "revision": {
+    "revisionId": "da241a91-e9aa-40bd-9c90-c9a1601b1aef",
+    "novelId": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+    "chapterId": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+    "parentRevisionId": "c003a142-adcf-45f9-a59e-3e9a0c6f0bd3",
+    "contentHash": "44886ea51288b7e5a0c71f9118886788f15f3bda34666525aeb87f652c327735",
+    "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+    "wordCount": 36,
+    "sourceType": "AUTHOR_MANUAL",
+    "sourceGenerationId": null,
+    "createdBy": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+    "createdAt": "2026-10-21T15:27:56.753Z"
+  },
+  "expected_body": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+  "source_type": "AUTHOR_UI_NEW_PROSE",
+  "no_snapshot_api": true,
+  "extraction_status": [
+    {
+      "chapter_id": "d9e0789f-bc78-4198-8e95-65ba67478800",
+      "chapter_number": 1,
+      "revision_id": "8af9bf0b-4f6e-4cb2-a38c-e1649ebf415c",
+      "status": null,
+      "retry_count": null
+    },
+    {
+      "chapter_id": "0224ab80-6810-4549-b3c5-31f2982b9638",
+      "chapter_number": 2,
+      "revision_id": "0c1ed814-6102-4fd7-bb02-d041a3cac70e",
+      "status": null,
+      "retry_count": null
+    },
+    {
+      "chapter_id": "90457844-aef1-40b2-885c-e8ed07523d3d",
+      "chapter_number": 3,
+      "revision_id": "2f14d8dc-2fa5-4a90-a582-0feb11a9303d",
+      "status": null,
+      "retry_count": null
+    },
+    {
+      "chapter_id": "0fadde33-20a7-451e-bd05-4fcaeda6658b",
+      "chapter_number": 4,
+      "revision_id": "6dcfca05-10a5-4d2d-8537-7cfb658c0ab6",
+      "status": null,
+      "retry_count": null
+    },
+    {
+      "chapter_id": "6ec2cbb6-b264-48ee-a222-d317973f9577",
+      "chapter_number": 5,
+      "revision_id": "102b427c-765e-464d-ae4b-9c681fb61a82",
+      "status": null,
+      "retry_count": null
+    },
+    {
+      "chapter_id": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+      "chapter_number": 6,
+      "revision_id": "da241a91-e9aa-40bd-9c90-c9a1601b1aef",
+      "status": "PROCESSING",
+      "retry_count": 0
+    }
+  ]
+}

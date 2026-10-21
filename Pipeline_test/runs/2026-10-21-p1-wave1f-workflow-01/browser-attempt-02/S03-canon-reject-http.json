@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "data": {
+      "proposal_id": "169db409-9de2-5f3e-8b1f-a6931babe3bd",
+      "status": "rejected"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

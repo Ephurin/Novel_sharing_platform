@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "data": {
+      "events": [
+        {
+          "title": "Kiểm tra micro trước cửa Bốn",
+          "description": "Kế hoạch tương lai: kiểm tra micro, chưa khẳng định đã thực hiện.",
+          "target_chapter": 6,
+          "min_words": 50,
+          "ending": false
+        },
+        {
+          "title": "Đối chiếu hồ sơ",
+          "description": "Kế hoạch chờ tác giả lựa chọn, chưa phải lịch sử.",
+          "target_chapter": 7,
+          "min_words": 50,
+          "ending": false
+        }
+      ]
+    },
+    "error": null,
+    "meta": {}
+  }
+}

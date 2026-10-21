@@ -1,0 +1,66 @@
+{
+  "captured_at": "2026-10-21T15:32:09.723503+00:00",
+  "expected_body": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+  "temporary_body": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.\nDÒNG NHÁP TẠM — KHÔNG ĐƯỢC LƯU SAU KHI HOÀN TÁC.",
+  "editor_value": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+  "chapter": {
+    "chapterId": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+    "novelId": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+    "title": "Chương 6 — Thẻ ghi kiểm tra",
+    "chapterNumber": 6,
+    "content": null,
+    "wordCount": 47,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "draft": {
+      "title": "Chương 6 — Thẻ ghi kiểm tra",
+      "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.\nDÒNG NHÁP TẠM — KHÔNG ĐƯỢC LƯU SAU KHI HOÀN TÁC.",
+      "wordCount": 47,
+      "version": 6,
+      "autosave": true,
+      "updatedAt": "2026-10-21T15:32:08.307Z"
+    }
+  },
+  "revisions": [
+    {
+      "revisionId": "737c2025-d940-44b7-b3d5-7ea31b112123",
+      "novelId": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+      "chapterId": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+      "parentRevisionId": "da241a91-e9aa-40bd-9c90-c9a1601b1aef",
+      "contentHash": "068989616d1748d0aa28e256bcac0af7563456edf36823e1a80a004735d94ecb",
+      "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.\nDÒNG NHÁP TẠM — KHÔNG ĐƯỢC LƯU SAU KHI HOÀN TÁC.",
+      "wordCount": 47,
+      "sourceType": "AUTHOR_MANUAL",
+      "sourceGenerationId": null,
+      "createdBy": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+      "createdAt": "2026-10-21T15:32:08.302Z"
+    },
+    {
+      "revisionId": "da241a91-e9aa-40bd-9c90-c9a1601b1aef",
+      "novelId": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+      "chapterId": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+      "parentRevisionId": "c003a142-adcf-45f9-a59e-3e9a0c6f0bd3",
+      "contentHash": "44886ea51288b7e5a0c71f9118886788f15f3bda34666525aeb87f652c327735",
+      "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+      "wordCount": 36,
+      "sourceType": "AUTHOR_MANUAL",
+      "sourceGenerationId": null,
+      "createdBy": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+      "createdAt": "2026-10-21T15:27:56.753Z"
+    },
+    {
+      "revisionId": "c003a142-adcf-45f9-a59e-3e9a0c6f0bd3",
+      "novelId": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+      "chapterId": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+      "parentRevisionId": null,
+      "contentHash": "55632c1275bb7d3342dc1a17143c4ff19dcbb992953534b6d56b291a10334a33",
+      "content": "Khởi đầu bản thảo mới...",
+      "wordCount": 5,
+      "sourceType": "AUTHOR_MANUAL",
+      "sourceGenerationId": null,
+      "createdBy": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+      "createdAt": "2026-10-21T15:27:55.307Z"
+    }
+  ]
+}

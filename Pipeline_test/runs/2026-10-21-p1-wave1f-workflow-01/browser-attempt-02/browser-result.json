@@ -1,0 +1,228 @@
+{
+  "status": "OFFLINE_BROWSER_UI_SMOKE",
+  "reason": null,
+  "evidence_checks": [
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ]
+  ],
+  "session_id": "badac238-e489-4b50-8c2e-8cfaef90eea6",
+  "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+  "user_id": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+  "actions": 53,
+  "real_provider_live_ui": "NOT_RUN",
+  "readback_scope": "final_post_run_readback",
+  "source_conversion_rule": "markdown-h1-title-body-nfc-lf-v1",
+  "s01_status": "OFFLINE_BROWSER_UI_SMOKE_PASS",
+  "s02_status": "CHECKPOINT_OBSERVED",
+  "human_review_requested": false
+}

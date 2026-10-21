@@ -1,0 +1,38 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "data": {
+      "proposal_ids": [
+        "20076a3e-9217-5483-a118-54c2960ab734",
+        "2653c051-fc27-5f81-bfef-643ba8d18a26",
+        "82906b13-ed5e-50f5-b750-f1142f54cfa0",
+        "5859429a-a8dc-5aac-9a6b-68ba498c6acf",
+        "63c31354-b5fe-552b-b8ec-46c9e5dcef2e",
+        "2ac08567-2ad2-5caa-9bff-29d6b0359245",
+        "00454748-fdde-5579-aaf2-2cdb7617ee25",
+        "9a9112fa-a8fa-545e-bdcd-91ed997fce3f",
+        "ddfed671-970e-549d-8939-fc5b66226a73",
+        "0cae74a8-b37e-5d72-bfc7-8b566010790d",
+        "52fa147c-7140-5663-932c-c157853dbc16"
+      ],
+      "canonical_artifact_ids": [
+        "8f226514-a7d6-4833-a78a-fb24e3d02b7e",
+        "05d44608-b57f-4ba6-9c2d-8171c731539f",
+        "e9db8911-137f-4e79-8982-70c14161ec5f",
+        "5e066e10-258d-438b-97c3-47f5c3658852",
+        "573a6796-0025-4412-a6c8-38a45c4bad97",
+        "9da2861f-089c-4326-9765-2b838d6a7d13",
+        "10df55f9-f230-4b04-bb87-91b02796b1b4",
+        "ea6006ca-b19e-47ab-af8d-97cd2324876b",
+        "caa815b8-efdb-4b7f-a3a8-07b1168d8ce5",
+        "2653c051-fc27-5f81-bfef-643ba8d18a26",
+        "526669b5-f82d-41c2-8c59-f86216755fe1"
+      ],
+      "brain_version": 5,
+      "status": "accepted"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

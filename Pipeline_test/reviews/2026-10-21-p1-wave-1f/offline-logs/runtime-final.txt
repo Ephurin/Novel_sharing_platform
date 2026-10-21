@@ -1,0 +1,1 @@
+{"project": "p1-wave1f-20261021-workflow-01", "containers": 7, "main_ledger_calls": 76, "fake_receipts": 76, "live_authorized": false}

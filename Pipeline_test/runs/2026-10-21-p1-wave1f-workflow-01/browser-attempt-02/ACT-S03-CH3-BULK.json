@@ -1,0 +1,35 @@
+{
+  "action_id": "ACT-S03-CH3-BULK",
+  "action_kind": "click",
+  "selector": "Use checked machine verdicts except unresolved",
+  "started_at": "2026-10-21T15:14:05.239949+00:00",
+  "finished_at": "2026-10-21T15:14:06.244763+00:00",
+  "application_url": "http://127.0.0.1:47567/author/ide?novelId=5999e846-0165-4a10-92b4-c8d3f0b5ef4a&chapterId=6ec2cbb6-b264-48ee-a222-d317973f9577",
+  "run_id": "2026-10-21-p1-wave1f-workflow-01",
+  "session_id": "badac238-e489-4b50-8c2e-8cfaef90eea6",
+  "user_id": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+  "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+  "channel": "OFFLINE_BROWSER_UI_SMOKE",
+  "artifacts": {
+    "screenshot": {
+      "path": "ACT-S03-CH3-BULK.png",
+      "sha256": "97c6d26cfc42de494d9749a768d6e229180883a8a2e73ba3d9c1bff6fea7c0e8"
+    },
+    "dom": {
+      "path": "ACT-S03-CH3-BULK.dom.txt",
+      "sha256": "b5b63924583574000e46d42bc9b97a4865da3edc2c05a50092e75944da840bd5"
+    },
+    "trace": {
+      "path": "browser.trace.zip",
+      "sha256": "f24c87b4852d92e3d6092879fe7775ccefbe5e7605301e87eba708bd45beb992"
+    },
+    "session": {
+      "path": "browser-session.json",
+      "sha256": "0d20b6787d95b5b46c8c4ded943a9b6ab9028951d2017e732671530e59de1f51"
+    },
+    "readback": {
+      "path": "ACT-S03-CH3-BULK.readback.json",
+      "sha256": "856835d555dfe0ed6d693e32d925d85bbcdcd5a96272c6630a18431c44349252"
+    }
+  }
+}

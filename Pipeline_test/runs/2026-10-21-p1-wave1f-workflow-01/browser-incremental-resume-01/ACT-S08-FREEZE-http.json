@@ -1,0 +1,358 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "data": {
+      "chunks": [
+        {
+          "end": 161,
+          "start": 0
+        }
+      ],
+      "counts": {
+        "entity": 3,
+        "candidates": 5,
+        "not_entity": 2
+      },
+      "policy": "entity-candidates-v1",
+      "status": "entities_reviewed",
+      "aliases": [
+        {
+          "alias": "Linh",
+          "entity_name": "Mai Linh",
+          "entity_id": "892c4fe6-2784-4c93-976b-eb394a358381",
+          "start": 4,
+          "end": 8,
+          "confidence": 0.7,
+          "identity_quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo."
+        }
+      ],
+      "request": {
+        "options": {
+          "extract_events": true,
+          "build_embeddings": false,
+          "extract_entities": true,
+          "check_consistency": true,
+          "extract_prose_facts": true,
+          "extract_world_rules": false,
+          "review_fact_coverage": true,
+          "extract_state_transitions": false
+        },
+        "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+        "operation": "incremental_story_analysis",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "chapter_id": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+        "revision_id": "da241a91-e9aa-40bd-9c90-c9a1601b1aef",
+        "content_hash": "44886ea51288b7e5a0c71f9118886788f15f3bda34666525aeb87f652c327735",
+        "idempotency_key": "analysis-da241a91-e9aa-40bd-9c90-c9a1601b1aef"
+      },
+      "entities": [
+        {
+          "phrase": "Mai Linh",
+          "entity": "PER",
+          "score": 7,
+          "initial_status": "Unknown",
+          "status_quote": "",
+          "verified_start": 0,
+          "verified_end": 8,
+          "canonical_entity_id": "892c4fe6-2784-4c93-976b-eb394a358381",
+          "candidate_ids": [
+            "17fccb064d249629fa0c5ebe",
+            "39e0db6f39d5ea71e172ee0a"
+          ]
+        },
+        {
+          "phrase": "Duy",
+          "entity": "PER",
+          "score": 7,
+          "initial_status": "Unknown",
+          "status_quote": "",
+          "verified_start": 114,
+          "verified_end": 117,
+          "canonical_entity_id": "05d44608-b57f-4ba6-9c2d-8171c731539f",
+          "candidate_ids": [
+            "09e1b617521cc3efb0d7d204"
+          ]
+        }
+      ],
+      "decisions": [
+        {
+          "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "c11b027223a98d1546a51bdc",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+          "verdict": "entity",
+          "confidence": 0.7,
+          "entity_type": "PER",
+          "candidate_id": "17fccb064d249629fa0c5ebe",
+          "status_quote": "",
+          "canonical_name": "Mai Linh",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": "892c4fe6-2784-4c93-976b-eb394a358381"
+        },
+        {
+          "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+          "verdict": "entity",
+          "confidence": 0.7,
+          "entity_type": "PER",
+          "candidate_id": "39e0db6f39d5ea71e172ee0a",
+          "status_quote": "",
+          "canonical_name": "Mai Linh",
+          "identity_quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+          "initial_status": "Unknown",
+          "canonical_entity_id": "892c4fe6-2784-4c93-976b-eb394a358381"
+        },
+        {
+          "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "2068a64df7a8e0c6d2a3ae1f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+          "verdict": "entity",
+          "confidence": 0.7,
+          "entity_type": "PER",
+          "candidate_id": "09e1b617521cc3efb0d7d204",
+          "status_quote": "",
+          "canonical_name": "Duy",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": "05d44608-b57f-4ba6-9c2d-8171c731539f"
+        }
+      ],
+      "candidates": [
+        {
+          "end": 3,
+          "start": 0,
+          "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Mai",
+          "context_end": 161,
+          "candidate_id": "c11b027223a98d1546a51bdc",
+          "context_start": 0
+        },
+        {
+          "end": 8,
+          "start": 0,
+          "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+          "origins": [
+            "approved_name_or_alias",
+            "author_guidance",
+            "capitalized_sequence"
+          ],
+          "surface": "Mai Linh",
+          "context_end": 161,
+          "candidate_id": "17fccb064d249629fa0c5ebe",
+          "context_start": 0
+        },
+        {
+          "end": 8,
+          "start": 4,
+          "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+          "origins": [
+            "approved_name_or_alias",
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 161,
+          "candidate_id": "39e0db6f39d5ea71e172ee0a",
+          "context_start": 0
+        },
+        {
+          "end": 63,
+          "start": 61,
+          "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 161,
+          "candidate_id": "2068a64df7a8e0c6d2a3ae1f",
+          "context_start": 0
+        },
+        {
+          "end": 117,
+          "start": 114,
+          "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+          "origins": [
+            "approved_name_or_alias",
+            "capitalized_token"
+          ],
+          "surface": "Duy",
+          "context_end": 161,
+          "candidate_id": "09e1b617521cc3efb0d7d204",
+          "context_start": 0
+        }
+      ],
+      "chapter_id": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+      "revision_id": "da241a91-e9aa-40bd-9c90-c9a1601b1aef",
+      "source_hash": "44886ea51288b7e5a0c71f9118886788f15f3bda34666525aeb87f652c327735",
+      "chapter_number": 6,
+      "known_entities": [
+        {
+          "name": "Duy",
+          "entity_id": "05d44608-b57f-4ba6-9c2d-8171c731539f",
+          "entity_type": "PER"
+        },
+        {
+          "name": "Linh",
+          "entity_id": "e9db8911-137f-4e79-8982-70c14161ec5f",
+          "entity_type": "PER"
+        },
+        {
+          "name": "Sâm",
+          "entity_id": "caa815b8-efdb-4b7f-a3a8-07b1168d8ce5",
+          "entity_type": "PER"
+        },
+        {
+          "name": "Bốn",
+          "entity_id": "10df55f9-f230-4b04-bb87-91b02796b1b4",
+          "entity_type": "LOC"
+        },
+        {
+          "name": "CV-04",
+          "entity_id": "ea6006ca-b19e-47ab-af8d-97cd2324876b",
+          "entity_type": "ITEM"
+        },
+        {
+          "name": "Bà Sâm",
+          "entity_id": "a433c4d5-4a3e-4c8d-9521-70fd85e77fff",
+          "entity_type": "PER"
+        },
+        {
+          "name": "Hòa",
+          "entity_id": "77980e68-59a6-46ee-91e9-5a32073499a6",
+          "entity_type": "PER"
+        },
+        {
+          "name": "Bãi Dưới",
+          "entity_id": "d3dd6b42-e472-4f09-8852-9a28c1d34149",
+          "entity_type": "LOC"
+        },
+        {
+          "name": "Yên",
+          "entity_id": "5057317b-00f3-4f56-9dec-2f0c75032168",
+          "entity_type": "PER"
+        },
+        {
+          "name": "Cồn Vân",
+          "entity_id": "8f226514-a7d6-4833-a78a-fb24e3d02b7e",
+          "entity_type": "LOC"
+        },
+        {
+          "name": "Đồi Bắc",
+          "entity_id": "5e066e10-258d-438b-97c3-47f5c3658852",
+          "entity_type": "LOC"
+        },
+        {
+          "name": "Nguyễn Vũ",
+          "entity_id": "573a6796-0025-4412-a6c8-38a45c4bad97",
+          "entity_type": "PER"
+        },
+        {
+          "name": "Vũ",
+          "entity_id": "9da2861f-089c-4326-9765-2b838d6a7d13",
+          "entity_type": "PER"
+        },
+        {
+          "name": "Mai Linh",
+          "entity_id": "892c4fe6-2784-4c93-976b-eb394a358381",
+          "entity_type": "PER"
+        },
+        {
+          "name": "Mai Lâm",
+          "entity_id": "2f16c95e-7b19-4d4b-85e5-219bf11fa0bc",
+          "entity_type": "PER"
+        }
+      ],
+      "review_version": 2,
+      "analysis_policy": "entity-human-review-v1",
+      "analysis_run_id": "9b449e62-e8ba-499c-ac76-bc101290cfb7",
+      "guidance_version": 1,
+      "reviewed_decisions": [
+        {
+          "candidate_id": "c11b027223a98d1546a51bdc",
+          "verdict": "not_entity",
+          "entity_type": null,
+          "canonical_name": "",
+          "canonical_entity_id": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "status_quote": "",
+          "confidence": 0.7,
+          "reason": "Author accepted suggested decision"
+        },
+        {
+          "candidate_id": "17fccb064d249629fa0c5ebe",
+          "verdict": "entity",
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "canonical_entity_id": "892c4fe6-2784-4c93-976b-eb394a358381",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "status_quote": "",
+          "confidence": 0.7,
+          "reason": "Author accepted suggested decision"
+        },
+        {
+          "candidate_id": "39e0db6f39d5ea71e172ee0a",
+          "verdict": "entity",
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "canonical_entity_id": "892c4fe6-2784-4c93-976b-eb394a358381",
+          "identity_quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+          "initial_status": "Unknown",
+          "status_quote": "",
+          "confidence": 0.7,
+          "reason": "Author accepted suggested decision"
+        },
+        {
+          "candidate_id": "2068a64df7a8e0c6d2a3ae1f",
+          "verdict": "not_entity",
+          "entity_type": null,
+          "canonical_name": "",
+          "canonical_entity_id": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "status_quote": "",
+          "confidence": 0.7,
+          "reason": "Author accepted suggested decision"
+        },
+        {
+          "candidate_id": "09e1b617521cc3efb0d7d204",
+          "verdict": "entity",
+          "entity_type": "PER",
+          "canonical_name": "Duy",
+          "canonical_entity_id": "05d44608-b57f-4ba6-9c2d-8171c731539f",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "status_quote": "",
+          "confidence": 0.7,
+          "reason": "Author accepted suggested decision"
+        }
+      ],
+      "unanchored_discoveries": []
+    },
+    "error": null,
+    "meta": {}
+  }
+}

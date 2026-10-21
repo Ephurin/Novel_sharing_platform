@@ -1,0 +1,5 @@
+id,status,issue,resolution
+H01,FIXED_HARNESS,Explicit bootstrap Resume required after entity Continue,c4b8f82; attempt02 completed five chapters
+H02,FIXED_HARNESS,Wrong suggestion response predicate and reload trace validator,ce34bed; continuation02 S05 passed
+H03,FIXED_HARNESS,UI selected obsolete revision card; real backend returned 409,34fff04; bind exact revision and resume owned source; stale guard PASS
+WF1F-S09-001,OPEN_PRODUCT_DEFECT,Undo before debounce leaves stale timer; stale draft/revision persisted,S09_PATCH_PROPOSAL.md only; no product modification

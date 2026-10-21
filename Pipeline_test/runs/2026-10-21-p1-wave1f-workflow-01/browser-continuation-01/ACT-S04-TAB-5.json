@@ -1,0 +1,35 @@
+{
+  "action_id": "ACT-S04-TAB-5",
+  "action_kind": "click",
+  "selector": "tab: S\u1ef1 ki\u1ec7n",
+  "started_at": "2026-10-21T15:25:47.798398+00:00",
+  "finished_at": "2026-10-21T15:25:47.934570+00:00",
+  "application_url": "http://127.0.0.1:47567/author/ide?novelId=5999e846-0165-4a10-92b4-c8d3f0b5ef4a&chapterId=6ec2cbb6-b264-48ee-a222-d317973f9577",
+  "run_id": "2026-10-21-p1-wave1f-workflow-01",
+  "session_id": "30c86762-5360-402a-89c0-fc5146ce86c0",
+  "user_id": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+  "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+  "channel": "OFFLINE_BROWSER_UI_SMOKE",
+  "artifacts": {
+    "screenshot": {
+      "path": "ACT-S04-TAB-5.png",
+      "sha256": "4b17dca85ece0b0eacd552770d070867310550510cafb649157ce40dad620b4b"
+    },
+    "dom": {
+      "path": "ACT-S04-TAB-5.dom.txt",
+      "sha256": "68ca705186cfbea084ede06410e23d005c8bb6620a2ae370338d9177a15ad4f7"
+    },
+    "trace": {
+      "path": "browser.trace.zip",
+      "sha256": "be2cc7b284b1ce6adeb691ef4c2fd93e004f36a5d60ef11cf80c1dfb2533c8f3"
+    },
+    "session": {
+      "path": "browser-session.json",
+      "sha256": "b90a81c2151a1a1379411d94336528fb5fbc80650095a98bceca126bae7112a0"
+    },
+    "readback": {
+      "path": "ACT-S04-TAB-5.readback.json",
+      "sha256": "7af95d72eca3063067329c311983ffc3d9ca97afe3910f40f897c10d4e23a619"
+    }
+  }
+}

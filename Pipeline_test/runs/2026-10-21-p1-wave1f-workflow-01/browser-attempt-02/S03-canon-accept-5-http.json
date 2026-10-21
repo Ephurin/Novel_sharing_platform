@@ -1,0 +1,46 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "data": {
+      "proposal_ids": [
+        "fa4f69db-7875-54ea-999e-753a5b81eaca",
+        "af3289bf-2f52-51d5-9fdc-436adbb2d830",
+        "0692243c-c9cc-5180-bc88-4565710f1d2f",
+        "5fb90ed6-275f-5d59-9a2e-7b30e35fb6e8",
+        "ca228af7-903b-57f2-89a7-cb88b0c16647",
+        "bdd8ea10-268f-5ec4-aafa-64d0b96cf473",
+        "df7da9de-9ea5-5a48-87e6-6eeb917fdaa4",
+        "9c20e194-7915-59c9-8109-bdbbb6d42929",
+        "84543776-d35b-5024-8717-39f86090cc4e",
+        "51ae89f1-3504-5b31-8af2-dbb8acb49798",
+        "d466a306-f81f-5424-a0c1-2de0e0a4d1e2",
+        "8900def8-e6cc-5c6a-bb59-6aeb38692de1",
+        "f3003a33-3ae5-53bc-9988-03ace3c47c58",
+        "a211f29f-71c1-5b2d-9578-67a959759c4c",
+        "6e1865eb-4877-55c1-8501-0b799ee9b274"
+      ],
+      "canonical_artifact_ids": [
+        "892c4fe6-2784-4c93-976b-eb394a358381",
+        "e9db8911-137f-4e79-8982-70c14161ec5f",
+        "5057317b-00f3-4f56-9dec-2f0c75032168",
+        "a433c4d5-4a3e-4c8d-9521-70fd85e77fff",
+        "caa815b8-efdb-4b7f-a3a8-07b1168d8ce5",
+        "8f226514-a7d6-4833-a78a-fb24e3d02b7e",
+        "5e066e10-258d-438b-97c3-47f5c3658852",
+        "77980e68-59a6-46ee-91e9-5a32073499a6",
+        "2f16c95e-7b19-4d4b-85e5-219bf11fa0bc",
+        "10df55f9-f230-4b04-bb87-91b02796b1b4",
+        "ea6006ca-b19e-47ab-af8d-97cd2324876b",
+        "d3dd6b42-e472-4f09-8852-9a28c1d34149",
+        "4eb5cd48-4d8a-447d-a006-5df481f2aa7e",
+        "af3289bf-2f52-51d5-9fdc-436adbb2d830",
+        "37d95c9f-ad69-4f9b-b73f-8db3f28c3bb0"
+      ],
+      "brain_version": 6,
+      "status": "accepted"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

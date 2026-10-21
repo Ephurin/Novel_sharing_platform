@@ -1,0 +1,15 @@
+[
+  {
+    "chapter_number": 1,
+    "chapter_id": "342fa429-2acf-4411-94e2-171a2dfc65ef",
+    "revision_id": "0f287dd4-d0b4-45e3-87ee-d94b82a3f18a",
+    "analysis_run_id": "54e95d1f-d8f4-401b-a837-1f9e604c7319",
+    "raw_counts": {
+      "not_entity": 130,
+      "entity": 33,
+      "unresolved": 4
+    },
+    "freeze_status": "entities_reviewed",
+    "continue": "UI_HTTP_ACCEPTED"
+  }
+]

@@ -1,0 +1,73 @@
+{
+  "job_id": "3c0fd68b-2a7d-5635-9cf0-51c8e4449e23",
+  "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "revisions": [
+    {
+      "chapter_id": "d9e0789f-bc78-4198-8e95-65ba67478800",
+      "revision_id": "8af9bf0b-4f6e-4cb2-a38c-e1649ebf415c",
+      "content_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+      "status": "completed",
+      "proposal_count": 15,
+      "analysis_run_id": "229c1f1c-a397-4702-9901-cc12b056d329",
+      "chapter_number": null
+    },
+    {
+      "chapter_id": "0224ab80-6810-4549-b3c5-31f2982b9638",
+      "revision_id": "0c1ed814-6102-4fd7-bb02-d041a3cac70e",
+      "content_hash": "48ea6a60c4e604370efc18db1b7baeebd48f93109d2d14fb19c9f4f8dcc2b404",
+      "status": "waiting_entity_review",
+      "proposal_count": 0,
+      "analysis_run_id": "dd1e34bd-b763-4123-bde9-da70b14bc5ab",
+      "chapter_number": null
+    },
+    {
+      "chapter_id": "90457844-aef1-40b2-885c-e8ed07523d3d",
+      "revision_id": "2f14d8dc-2fa5-4a90-a582-0feb11a9303d",
+      "content_hash": "5d866c2959a38c410d47c05c79ce0da0952cc2b3f2bd5b202122703d008345ac",
+      "status": "pending",
+      "proposal_count": 0,
+      "analysis_run_id": null,
+      "chapter_number": null
+    },
+    {
+      "chapter_id": "0fadde33-20a7-451e-bd05-4fcaeda6658b",
+      "revision_id": "6dcfca05-10a5-4d2d-8537-7cfb658c0ab6",
+      "content_hash": "19539200da6e5b436e3b042a12f806bbbb7f6efcec4466a308969badeaa0932b",
+      "status": "pending",
+      "proposal_count": 0,
+      "analysis_run_id": null,
+      "chapter_number": null
+    },
+    {
+      "chapter_id": "6ec2cbb6-b264-48ee-a222-d317973f9577",
+      "revision_id": "102b427c-765e-464d-ae4b-9c681fb61a82",
+      "content_hash": "6549fdfb9c1ff5a5cca74b8b77f09adff8ea67699944ade84c0de788c8a4c0c5",
+      "status": "pending",
+      "proposal_count": 0,
+      "analysis_run_id": null,
+      "chapter_number": null
+    }
+  ],
+  "locale": "vi-VN",
+  "options": {
+    "build_embeddings": false,
+    "extract_world_rules": true,
+    "require_review_for_all": true
+  },
+  "status": "waiting_entity_review",
+  "progress_current": 1,
+  "stage": "entity_review",
+  "result": {
+    "scene_count": 93,
+    "analysis_run_id": "dd1e34bd-b763-4123-bde9-da70b14bc5ab"
+  },
+  "error": null,
+  "type": "bootstrap",
+  "progress": {
+    "current": 1,
+    "total": 5,
+    "unit": "chapter",
+    "stage": "entity_review"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "action_id": "ACT-S08-RESUME-NAV",
+  "action_kind": "navigate",
+  "selector": "owned chapter revision",
+  "started_at": "2026-10-21T15:32:03.245433+00:00",
+  "finished_at": "2026-10-21T15:32:03.652819+00:00",
+  "application_url": "http://127.0.0.1:47567/author/ide?novelId=5999e846-0165-4a10-92b4-c8d3f0b5ef4a&chapterId=23a185a6-5c4e-4d7e-b97a-060f598e109b",
+  "run_id": "2026-10-21-p1-wave1f-workflow-01",
+  "session_id": "aaf6d337-1618-4fd4-812f-146dc0703509",
+  "user_id": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+  "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+  "channel": "OFFLINE_BROWSER_UI_SMOKE",
+  "artifacts": {
+    "screenshot": {
+      "path": "ACT-S08-RESUME-NAV.png",
+      "sha256": "459f8fcdd40ca3651b7afe95e312bc08542ed27c189d3a9ebe22ff8d4e3c2e18"
+    },
+    "dom": {
+      "path": "ACT-S08-RESUME-NAV.dom.txt",
+      "sha256": "f36187914e4a0eb69249e13a20c06017fe6d502bd50418f3611d62e54640a310"
+    },
+    "trace": {
+      "path": "browser.trace.zip",
+      "sha256": "fa3ef243b4b40a5caf5e659cf22a0566244bc3bc1524002e53caecfc43b4bd55"
+    },
+    "session": {
+      "path": "browser-session.json",
+      "sha256": "3aaa0310726c3d98da62714d2559c73b9c60ed91fc7e366cf70fa46cf01ebcbe"
+    },
+    "readback": {
+      "path": "ACT-S08-RESUME-NAV.readback.json",
+      "sha256": "0131674f1c3acc88a7bb47b9d839aee0b2546442a3067003fc018eaf447f78ee"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "data": {
+      "status": "completed",
+      "analysis_run_id": "9b449e62-e8ba-499c-ac76-bc101290cfb7",
+      "proposal_count": 5
+    },
+    "error": null,
+    "meta": {}
+  }
+}

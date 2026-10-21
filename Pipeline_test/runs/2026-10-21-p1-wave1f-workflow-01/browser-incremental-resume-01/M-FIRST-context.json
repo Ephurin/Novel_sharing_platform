@@ -1,0 +1,602 @@
+{
+  "brain_version": 7,
+  "entities": [
+    {
+      "entity_id": "a433c4d5-4a3e-4c8d-9521-70fd85e77fff",
+      "name": "Bà Sâm",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "d3dd6b42-e472-4f09-8852-9a28c1d34149",
+      "name": "Bãi Dưới",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "10df55f9-f230-4b04-bb87-91b02796b1b4",
+      "name": "Bốn",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "ea6006ca-b19e-47ab-af8d-97cd2324876b",
+      "name": "CV-04",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "8f226514-a7d6-4833-a78a-fb24e3d02b7e",
+      "name": "Cồn Vân",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "05d44608-b57f-4ba6-9c2d-8171c731539f",
+      "name": "Duy",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "77980e68-59a6-46ee-91e9-5a32073499a6",
+      "name": "Hòa",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "e9db8911-137f-4e79-8982-70c14161ec5f",
+      "name": "Linh",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "892c4fe6-2784-4c93-976b-eb394a358381",
+      "name": "Mai Linh",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "2f16c95e-7b19-4d4b-85e5-219bf11fa0bc",
+      "name": "Mai Lâm",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "573a6796-0025-4412-a6c8-38a45c4bad97",
+      "name": "Nguyễn Vũ",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "caa815b8-efdb-4b7f-a3a8-07b1168d8ce5",
+      "name": "Sâm",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "9da2861f-089c-4326-9765-2b838d6a7d13",
+      "name": "Vũ",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "5057317b-00f3-4f56-9dec-2f0c75032168",
+      "name": "Yên",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    },
+    {
+      "entity_id": "5e066e10-258d-438b-97c3-47f5c3658852",
+      "name": "Đồi Bắc",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "is_locked": false
+    }
+  ],
+  "current_states": [
+    {
+      "entity_id": "a433c4d5-4a3e-4c8d-9521-70fd85e77fff",
+      "name": "Bà Sâm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "d3dd6b42-e472-4f09-8852-9a28c1d34149",
+      "name": "Bãi Dưới",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "10df55f9-f230-4b04-bb87-91b02796b1b4",
+      "name": "Bốn",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "ea6006ca-b19e-47ab-af8d-97cd2324876b",
+      "name": "CV-04",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "8f226514-a7d6-4833-a78a-fb24e3d02b7e",
+      "name": "Cồn Vân",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "05d44608-b57f-4ba6-9c2d-8171c731539f",
+      "name": "Duy",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "77980e68-59a6-46ee-91e9-5a32073499a6",
+      "name": "Hòa",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "e9db8911-137f-4e79-8982-70c14161ec5f",
+      "name": "Linh",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "892c4fe6-2784-4c93-976b-eb394a358381",
+      "name": "Mai Linh",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "2f16c95e-7b19-4d4b-85e5-219bf11fa0bc",
+      "name": "Mai Lâm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "573a6796-0025-4412-a6c8-38a45c4bad97",
+      "name": "Nguyễn Vũ",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "caa815b8-efdb-4b7f-a3a8-07b1168d8ce5",
+      "name": "Sâm",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "9da2861f-089c-4326-9765-2b838d6a7d13",
+      "name": "Vũ",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "5057317b-00f3-4f56-9dec-2f0c75032168",
+      "name": "Yên",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    },
+    {
+      "entity_id": "5e066e10-258d-438b-97c3-47f5c3658852",
+      "name": "Đồi Bắc",
+      "status": "Unknown",
+      "location": "Unknown",
+      "state": {}
+    }
+  ],
+  "recent_events": [
+    {
+      "event_id": "c423460e-da5e-557a-8723-c19c383c246d",
+      "narrative_order": 1024,
+      "chapter_number": 5,
+      "event_type": "observation",
+      "summary": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+      "participants": [],
+      "metadata": {
+        "chapter": 5,
+        "summary": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+        "evidence": [
+          {
+            "end": 133,
+            "quote": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+            "start": 0,
+            "text_hash": "6549fdfb9c1ff5a5cca74b8b77f09adff8ea67699944ade84c0de788c8a4c0c5",
+            "chapter_id": "6ec2cbb6-b264-48ee-a222-d317973f9577",
+            "revision_id": "102b427c-765e-464d-ae4b-9c681fb61a82",
+            "chapter_number": 5
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 5,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "0fb42d2c-f54a-5ce2-b6f2-b323d9aab703",
+      "narrative_order": 2048,
+      "chapter_number": 2,
+      "event_type": "observation",
+      "summary": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+      "participants": [],
+      "metadata": {
+        "chapter": 2,
+        "summary": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+        "evidence": [
+          {
+            "end": 130,
+            "quote": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+            "start": 0,
+            "text_hash": "48ea6a60c4e604370efc18db1b7baeebd48f93109d2d14fb19c9f4f8dcc2b404",
+            "chapter_id": "0224ab80-6810-4549-b3c5-31f2982b9638",
+            "revision_id": "0c1ed814-6102-4fd7-bb02-d041a3cac70e",
+            "chapter_number": 2
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 2,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "89cc1d0f-cc51-5e8e-b6c4-ce23d804b21c",
+      "narrative_order": 3072,
+      "chapter_number": 3,
+      "event_type": "observation",
+      "summary": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+      "participants": [],
+      "metadata": {
+        "chapter": 3,
+        "summary": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+        "evidence": [
+          {
+            "end": 209,
+            "quote": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+            "start": 0,
+            "text_hash": "5d866c2959a38c410d47c05c79ce0da0952cc2b3f2bd5b202122703d008345ac",
+            "chapter_id": "90457844-aef1-40b2-885c-e8ed07523d3d",
+            "revision_id": "2f14d8dc-2fa5-4a90-a582-0feb11a9303d",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 3,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "2653c051-fc27-5f81-bfef-643ba8d18a26",
+      "narrative_order": 4096,
+      "chapter_number": 4,
+      "event_type": "observation",
+      "summary": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+      "participants": [],
+      "metadata": {
+        "chapter": 4,
+        "summary": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+        "evidence": [
+          {
+            "end": 127,
+            "quote": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+            "start": 0,
+            "text_hash": "19539200da6e5b436e3b042a12f806bbbb7f6efcec4466a308969badeaa0932b",
+            "chapter_id": "0fadde33-20a7-451e-bd05-4fcaeda6658b",
+            "revision_id": "6dcfca05-10a5-4d2d-8537-7cfb658c0ab6",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 4,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "af3289bf-2f52-51d5-9fdc-436adbb2d830",
+      "narrative_order": 5120,
+      "chapter_number": 1,
+      "event_type": "observation",
+      "summary": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+      "participants": [],
+      "metadata": {
+        "chapter": 1,
+        "summary": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "evidence": [
+          {
+            "end": 184,
+            "quote": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+            "start": 0,
+            "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+            "chapter_id": "d9e0789f-bc78-4198-8e95-65ba67478800",
+            "revision_id": "8af9bf0b-4f6e-4cb2-a38c-e1649ebf415c",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 1,
+        "reconciliation_base_ids": []
+      }
+    },
+    {
+      "event_id": "f1b5f48f-0ff4-57ba-b810-8716b3cbf5a4",
+      "narrative_order": 6144,
+      "chapter_number": 6,
+      "event_type": "observation",
+      "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+      "participants": [],
+      "metadata": {
+        "chapter": 6,
+        "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+        "evidence": [
+          {
+            "end": 161,
+            "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+            "start": 0,
+            "text_hash": "44886ea51288b7e5a0c71f9118886788f15f3bda34666525aeb87f652c327735",
+            "chapter_id": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+            "revision_id": "da241a91-e9aa-40bd-9c90-c9a1601b1aef",
+            "chapter_number": 6
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 6,
+        "reconciliation_base_ids": []
+      }
+    }
+  ],
+  "semantic_memories": [],
+  "world_rules": [
+    {
+      "id": "f8a744ef-653a-484c-8a1c-f4347ae81f03",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": null,
+      "subject_name": "",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "7123ba0c-a1ee-4a0d-aaad-830a44f07d25",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": null,
+      "subject_name": "",
+      "fact_key": "unverified_voice_attribution",
+      "fact_value": {
+        "value": "Linh nhận ra giọng giống cha, cần mẫu đối chứng; chưa xác minh danh tính",
+        "subject": "",
+        "certainty": "reported"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "7a0f5595-1d4c-41f2-ac0a-24840b2eddff",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": null,
+      "subject_name": "",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "526669b5-f82d-41c2-8c59-f86216755fe1",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": null,
+      "subject_name": "",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "37d95c9f-ad69-4f9b-b73f-8db3f28c3bb0",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": null,
+      "subject_name": "",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "2d6cfb02-963d-4be9-9093-42fa2d8dbd72",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": null,
+      "subject_name": "",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu. Cô chưa mở cửa thêm và chưa xác nhận ai ở phía dưới. Duy vẫn đứng cạnh cửa, giữ nguyên dây cảnh báo.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    },
+    {
+      "id": "7b9b3338-c5bd-45f9-9a3a-da7e2017e584",
+      "fact_type": "narrative_fact",
+      "subject_entity_id": null,
+      "subject_name": "",
+      "fact_key": "micro_check_note",
+      "fact_value": {
+        "value": "Mai Linh đặt thẻ giấy kiểm tra micro cạnh máy thu; chưa thực hiện kế hoạch",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false
+    }
+  ],
+  "author_constraints": [],
+  "token_budget": {
+    "used": 4924,
+    "maximum": 12000,
+    "estimated_before": 4924,
+    "budget_overflow": false,
+    "protected_overflow": false,
+    "packing_version": "context-budget-v2-diverse",
+    "estimator_version": "utf8-json-bytes-3-v1",
+    "deduplicated_semantic_count": 0,
+    "dropped_artifact_count": 0
+  },
+  "context_summary": {
+    "entity_ids": [
+      "a433c4d5-4a3e-4c8d-9521-70fd85e77fff",
+      "d3dd6b42-e472-4f09-8852-9a28c1d34149",
+      "10df55f9-f230-4b04-bb87-91b02796b1b4",
+      "ea6006ca-b19e-47ab-af8d-97cd2324876b",
+      "8f226514-a7d6-4833-a78a-fb24e3d02b7e",
+      "05d44608-b57f-4ba6-9c2d-8171c731539f",
+      "77980e68-59a6-46ee-91e9-5a32073499a6",
+      "e9db8911-137f-4e79-8982-70c14161ec5f",
+      "892c4fe6-2784-4c93-976b-eb394a358381",
+      "2f16c95e-7b19-4d4b-85e5-219bf11fa0bc",
+      "573a6796-0025-4412-a6c8-38a45c4bad97",
+      "caa815b8-efdb-4b7f-a3a8-07b1168d8ce5",
+      "9da2861f-089c-4326-9765-2b838d6a7d13",
+      "5057317b-00f3-4f56-9dec-2f0c75032168",
+      "5e066e10-258d-438b-97c3-47f5c3658852"
+    ],
+    "event_ids": [
+      "c423460e-da5e-557a-8723-c19c383c246d",
+      "0fb42d2c-f54a-5ce2-b6f2-b323d9aab703",
+      "89cc1d0f-cc51-5e8e-b6c4-ce23d804b21c",
+      "2653c051-fc27-5f81-bfef-643ba8d18a26",
+      "af3289bf-2f52-51d5-9fdc-436adbb2d830",
+      "f1b5f48f-0ff4-57ba-b810-8716b3cbf5a4"
+    ],
+    "fact_ids": [
+      "f8a744ef-653a-484c-8a1c-f4347ae81f03",
+      "7123ba0c-a1ee-4a0d-aaad-830a44f07d25",
+      "7a0f5595-1d4c-41f2-ac0a-24840b2eddff",
+      "526669b5-f82d-41c2-8c59-f86216755fe1",
+      "37d95c9f-ad69-4f9b-b73f-8db3f28c3bb0",
+      "2d6cfb02-963d-4be9-9093-42fa2d8dbd72",
+      "7b9b3338-c5bd-45f9-9a3a-da7e2017e584"
+    ],
+    "cutoff_chapter": 6,
+    "requested_character": null,
+    "recent_scope_participant_entity_ids": [],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "plan_id": [
+      "ce2f15fe-97a5-4f1e-ade9-04a2c7e71333"
+    ],
+    "plan_version": [
+      "1"
+    ],
+    "active_objective_id": [
+      "88547f91-df1a-4c17-a877-40818b5797d0"
+    ],
+    "active_objective_title": [
+      "Kiểm tra micro có đối chứng — tác giả chỉnh"
+    ],
+    "query_text": "",
+    "semantic_memory_ids": [],
+    "context_packing_version": [
+      "context-budget-v2-diverse"
+    ],
+    "context_token_estimator_version": [
+      "utf8-json-bytes-3-v1"
+    ],
+    "dropped_entity_ids": [],
+    "dropped_event_ids": [],
+    "dropped_fact_ids": [],
+    "dropped_semantic_memory_ids": [],
+    "deduplicated_semantic_memory_ids": [],
+    "selection_policy": [
+      "query-relevance-diverse-whole-artifacts-v2"
+    ],
+    "drop_reasons": {}
+  },
+  "planning_context": {
+    "plan_id": "ce2f15fe-97a5-4f1e-ade9-04a2c7e71333",
+    "plan_version": 1,
+    "status": "active",
+    "source_outline_hash": "e8697abb1289895148a3f9be5ec42a0b6b6e553efb2671433e23552d55590cbf",
+    "total_objectives": 1,
+    "active_objective_id": "88547f91-df1a-4c17-a877-40818b5797d0"
+  },
+  "current_objective": {
+    "objective_id": "88547f91-df1a-4c17-a877-40818b5797d0",
+    "order_index": 1,
+    "target_chapter": 6,
+    "objective_type": "chapter_goal",
+    "title": "Kiểm tra micro có đối chứng — tác giả chỉnh",
+    "description": "Kế hoạch tương lai: kiểm tra micro, chưa khẳng định đã thực hiện.",
+    "status": "pending"
+  }
+}

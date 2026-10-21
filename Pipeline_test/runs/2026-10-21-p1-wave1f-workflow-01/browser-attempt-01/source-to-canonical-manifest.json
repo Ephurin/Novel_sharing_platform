@@ -1,0 +1,66 @@
+{
+  "run_id": "2026-10-21-p1-wave1f-workflow-01",
+  "session_id": "2ac14a73-4765-4fbb-b512-53dc6b604d2c",
+  "novel_id": "a3cc0118-8041-4b2f-8529-f8f248d8bb4f",
+  "user_id": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+  "conversion_rule_version": "markdown-h1-title-body-nfc-lf-v1",
+  "canonical_readback_observation": {
+    "started_at": "2026-10-21T15:10:13.897832+00:00",
+    "finished_at": "2026-10-21T15:10:13.989615+00:00",
+    "observed_after_action_id": "ACT-S02-CHECKPOINT"
+  },
+  "source_to_canonical": [
+    {
+      "chapter_number": 1,
+      "title": "Chương 1 — Bến trở về",
+      "source_file_sha256": "02096c1bd1ad214e1cd9edd8c8e2103b1468d597d79b7ac7af2067b6f9c6b543",
+      "canonical_body_sha256": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+      "conversion_rule_version": "markdown-h1-title-body-nfc-lf-v1",
+      "chapter_id": "342fa429-2acf-4411-94e2-171a2dfc65ef",
+      "revision_id": "0f287dd4-d0b4-45e3-87ee-d94b82a3f18a",
+      "readback_body_sha256": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5"
+    },
+    {
+      "chapter_number": 2,
+      "title": "Chương 2 — Lần đọc thứ nhất",
+      "source_file_sha256": "bfed7d0988dd6c7f33ae9625d9f16faa5e3dad04b9322a02d9f4f7cb603c4b8e",
+      "canonical_body_sha256": "48ea6a60c4e604370efc18db1b7baeebd48f93109d2d14fb19c9f4f8dcc2b404",
+      "conversion_rule_version": "markdown-h1-title-body-nfc-lf-v1",
+      "chapter_id": "52311286-5eb8-4a63-a8e9-9a8bab9ef69e",
+      "revision_id": "6c708991-18b7-42f9-8dd1-ea9a01ef6e56",
+      "readback_body_sha256": "48ea6a60c4e604370efc18db1b7baeebd48f93109d2d14fb19c9f4f8dcc2b404"
+    },
+    {
+      "chapter_number": 3,
+      "title": "Chương 3 — Hai nơi treo một quả chuông",
+      "source_file_sha256": "a6c008b4297866a4125801d06329ce18a89211dc29515e7a81adfae83263626a",
+      "canonical_body_sha256": "5d866c2959a38c410d47c05c79ce0da0952cc2b3f2bd5b202122703d008345ac",
+      "conversion_rule_version": "markdown-h1-title-body-nfc-lf-v1",
+      "chapter_id": "aa2c19d2-2d56-461f-a1b3-c3b408df6b47",
+      "revision_id": "48a0deb4-68b2-4844-b584-e0159e4e9c25",
+      "readback_body_sha256": "5d866c2959a38c410d47c05c79ce0da0952cc2b3f2bd5b202122703d008345ac"
+    },
+    {
+      "chapter_number": 4,
+      "title": "Chương 4 — Bản đồ không có tiếng nước",
+      "source_file_sha256": "29d0c290d9cbc0fdf662b6e5a6446a30b3834cd06986453dbcbc2f8cf88544a2",
+      "canonical_body_sha256": "19539200da6e5b436e3b042a12f806bbbb7f6efcec4466a308969badeaa0932b",
+      "conversion_rule_version": "markdown-h1-title-body-nfc-lf-v1",
+      "chapter_id": "6464cb83-473c-4a11-9cba-851c1c796bdc",
+      "revision_id": "f10f3c60-6e4d-4041-aaff-65cb33a2c023",
+      "readback_body_sha256": "19539200da6e5b436e3b042a12f806bbbb7f6efcec4466a308969badeaa0932b"
+    },
+    {
+      "chapter_number": 5,
+      "title": "Chương 5 — Ba tiếng gõ",
+      "source_file_sha256": "7813a9eeea18df4b03ed60ba32a1646347b638f6bb7e37a1949c39d1f841dc33",
+      "canonical_body_sha256": "6549fdfb9c1ff5a5cca74b8b77f09adff8ea67699944ade84c0de788c8a4c0c5",
+      "conversion_rule_version": "markdown-h1-title-body-nfc-lf-v1",
+      "chapter_id": "7dec3bcf-1e77-4747-bd1d-7dbbe1df476c",
+      "revision_id": "def167cf-916b-413e-82eb-8200fba9b2e7",
+      "readback_body_sha256": "6549fdfb9c1ff5a5cca74b8b77f09adff8ea67699944ade84c0de788c8a4c0c5"
+    }
+  ],
+  "readback_scope": "final_post_run_readback",
+  "captured_at": "2026-10-21T15:11:13.298591+00:00"
+}

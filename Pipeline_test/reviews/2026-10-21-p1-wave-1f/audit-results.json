@@ -1,0 +1,67 @@
+{
+  "protected_files_checked": 1679,
+  "protected_mismatches": [],
+  "source_spans": 52,
+  "source_span_failures": 0,
+  "gold_assertions": 35,
+  "exact_excerpt_matches": 35,
+  "fake_receipts": 76,
+  "ledger_calls": 76,
+  "dispatch_id_reconciliation": "PASS",
+  "external_real_provider_calls": 0,
+  "provider_scope": "isolated fake upstream; no real provider keys; internal worker networks",
+  "browser_attempts": 5,
+  "browser_action_bundles": 113,
+  "sample_probes": [
+    {
+      "probe_id": "G01",
+      "query": "hai mươi chín",
+      "expected_present": true,
+      "official_memory_present": true,
+      "context_preview_present": true,
+      "result": "PASS_FUNCTIONAL_SAMPLE",
+      "channel": "READ_ONLY_CONTEXT_PREVIEW_NOT_SEMANTIC_RAG",
+      "quality": "NOT_ASSESSED"
+    },
+    {
+      "probe_id": "G12",
+      "query": "chưa xác minh danh tính",
+      "expected_present": true,
+      "official_memory_present": true,
+      "context_preview_present": true,
+      "result": "PASS_FUNCTIONAL_SAMPLE",
+      "channel": "READ_ONLY_CONTEXT_PREVIEW_NOT_SEMANTIC_RAG",
+      "quality": "NOT_ASSESSED"
+    },
+    {
+      "probe_id": "G14",
+      "query": "Tai trái tôi không nghe",
+      "expected_present": true,
+      "official_memory_present": false,
+      "context_preview_present": false,
+      "result": "SCRIPTED_SUBSET_OMISSION",
+      "channel": "READ_ONLY_CONTEXT_PREVIEW_NOT_SEMANTIC_RAG",
+      "quality": "NOT_ASSESSED"
+    },
+    {
+      "probe_id": "G20",
+      "query": "vòng chuẩn",
+      "expected_present": true,
+      "official_memory_present": false,
+      "context_preview_present": false,
+      "result": "SCRIPTED_SUBSET_OMISSION",
+      "channel": "READ_ONLY_CONTEXT_PREVIEW_NOT_SEMANTIC_RAG",
+      "quality": "NOT_ASSESSED"
+    },
+    {
+      "probe_id": "FUTURE",
+      "query": "83 công nhân",
+      "expected_present": false,
+      "official_memory_present": false,
+      "context_preview_present": false,
+      "result": "PASS_FUNCTIONAL_SAMPLE",
+      "channel": "READ_ONLY_CONTEXT_PREVIEW_NOT_SEMANTIC_RAG",
+      "quality": "NOT_ASSESSED"
+    }
+  ]
+}

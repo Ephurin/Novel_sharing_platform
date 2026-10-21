@@ -1,0 +1,607 @@
+[
+  {
+    "attempt": "browser-attempt-01",
+    "original_status": "BLOCKED_UI_MISSING_OR_INVALID_EVIDENCE",
+    "original_reason": "RuntimeError: S03_CHAPTER_2_ENTITY_GATE_NOT_REACHED",
+    "actions": 21,
+    "checks": [
+      {
+        "action_id": "ACT-S01-ADD-2",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-ADD-3",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-ADD-4",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-ADD-5",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-CREATE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-1",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-2",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-3",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-4",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-5",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-CHECKPOINT",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-HINTS",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-OPEN",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-SAVE-HINTS",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-TAB",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-TRIGGER",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH1-BULK",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH1-CONTINUE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH1-FREEZE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH1-REJECT-0",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-OPEN",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      }
+    ]
+  },
+  {
+    "attempt": "browser-attempt-02",
+    "original_status": "OFFLINE_BROWSER_UI_SMOKE",
+    "original_reason": null,
+    "actions": 53,
+    "checks": [
+      {
+        "action_id": "ACT-S01-ADD-2",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-ADD-3",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-ADD-4",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-ADD-5",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-CREATE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-1",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-2",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-3",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-4",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S01-FILL-5",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-CHECKPOINT",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-HINTS",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-OPEN",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-SAVE-HINTS",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-TAB",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S02-TRIGGER",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-ACTIVATE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CANON-ACCEPT-1",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CANON-ACCEPT-2",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CANON-ACCEPT-3",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CANON-ACCEPT-4",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CANON-ACCEPT-5",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CANON-REJECT",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH1-BULK",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH1-CONTINUE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH1-FREEZE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH1-REJECT-0",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH1-RESUME-BOOTSTRAP",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH2-BULK",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH2-CONTINUE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH2-FREEZE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH2-RESUME-BOOTSTRAP",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH3-BULK",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH3-CONTINUE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH3-FREEZE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH3-REJECT-0",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH3-RESUME-BOOTSTRAP",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH4-BULK",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH4-CONTINUE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH4-FREEZE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH4-REJECT-0",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH4-RESUME-BOOTSTRAP",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH5-BULK",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH5-CONTINUE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH5-FREEZE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH5-REJECT-0",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-CH5-RESUME-BOOTSTRAP",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S03-OPEN",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-48",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-49",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-50",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-51",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-52",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      }
+    ]
+  },
+  {
+    "attempt": "browser-continuation-01",
+    "original_status": "BLOCKED_UI_MISSING_OR_INVALID_EVIDENCE",
+    "original_reason": "TimeoutError: Timeout 30000ms exceeded while waiting for event \"response\"",
+    "actions": 9,
+    "checks": [
+      {
+        "action_id": "ACT-S04-OPEN",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-RELOAD",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-2",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-3",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-4",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-5",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-6",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S05-DIRECTION",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S05-PLAN-TAB",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      }
+    ]
+  },
+  {
+    "attempt": "browser-continuation-02",
+    "original_status": "BLOCKED_UI_MISSING_OR_INVALID_EVIDENCE",
+    "original_reason": "TimeoutError: Timeout 30000ms exceeded while waiting for event \"response\"",
+    "actions": 20,
+    "checks": [
+      {
+        "action_id": "ACT-S04-OPEN",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-RELOAD",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-2",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-3",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-4",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-5",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S04-TAB-6",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S05-DIRECTION",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S05-EDIT",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S05-PLAN-TAB",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S05-REJECT",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S05-SUGGEST",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S06-SAVE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S07-ADD",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S07-CLOSE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S07-TITLE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S07-WRITE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S08-BULK",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S08-OPEN",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S08-REVIEW-TAB",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      }
+    ]
+  },
+  {
+    "attempt": "browser-incremental-resume-01",
+    "original_status": "BLOCKED_UI_MISSING_OR_INVALID_EVIDENCE",
+    "original_reason": "RuntimeError: PRODUCT_S09_STALE_DEBOUNCE_SAVE_AFTER_UNDO",
+    "actions": 10,
+    "checks": [
+      {
+        "action_id": "ACT-S08-ACCEPT-1",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S08-BULK",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S08-CONTINUE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S08-FREEZE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S08-OPEN",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S08-RESUME-NAV",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S08-REVIEW-TAB",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S09-CLOSE",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S09-EDIT-A",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      },
+      {
+        "action_id": "ACT-S09-UNDO-B",
+        "pass_check": true,
+        "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      }
+    ]
+  }
+]

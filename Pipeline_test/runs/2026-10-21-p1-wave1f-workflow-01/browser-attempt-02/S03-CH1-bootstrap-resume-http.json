@@ -1,0 +1,12 @@
+{
+  "status": 202,
+  "body": {
+    "success": true,
+    "data": {
+      "job_id": "3c0fd68b-2a7d-5635-9cf0-51c8e4449e23",
+      "status": "waiting_entity_review"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

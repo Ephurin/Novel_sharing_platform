@@ -1,0 +1,35 @@
+{
+  "action_id": "ACT-S01-CREATE",
+  "action_kind": "click",
+  "selector": "button: New Project",
+  "started_at": "2026-10-21T15:10:01.595789+00:00",
+  "finished_at": "2026-10-21T15:10:02.215289+00:00",
+  "application_url": "http://127.0.0.1:47567/author/ide?novelId=a3cc0118-8041-4b2f-8529-f8f248d8bb4f&chapterId=342fa429-2acf-4411-94e2-171a2dfc65ef",
+  "run_id": "2026-10-21-p1-wave1f-workflow-01",
+  "session_id": "2ac14a73-4765-4fbb-b512-53dc6b604d2c",
+  "user_id": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+  "novel_id": "a3cc0118-8041-4b2f-8529-f8f248d8bb4f",
+  "channel": "OFFLINE_BROWSER_UI_SMOKE",
+  "artifacts": {
+    "screenshot": {
+      "path": "ACT-S01-CREATE.png",
+      "sha256": "4f5c9dee7ffbf08ee9262989c21c6c79cf605b6efb8f6859a6721f3ad64651db"
+    },
+    "dom": {
+      "path": "ACT-S01-CREATE.dom.txt",
+      "sha256": "72607f37842a3aa51cb0f492a42490afe4b13d7260f5122d83039a02971c45ae"
+    },
+    "trace": {
+      "path": "browser.trace.zip",
+      "sha256": "b99a55154ba3c7766f4fcc6d46043d170f75c0c1847ef5952719f49d2b6452b2"
+    },
+    "session": {
+      "path": "browser-session.json",
+      "sha256": "e3bb6b09d650ab808767cdb3276fa0d0875fe7ed95b94359e7b432ff5f15881e"
+    },
+    "readback": {
+      "path": "ACT-S01-CREATE.readback.json",
+      "sha256": "646c3c9eae8e526009500718360d6147a03ebb0cae0d7813af630aaf459ee5fe"
+    }
+  }
+}

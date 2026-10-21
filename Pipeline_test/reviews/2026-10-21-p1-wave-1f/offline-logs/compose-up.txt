@@ -1,0 +1,986 @@
+time="2026-10-21T22:06:06+07:00" level=warning msg="Docker Compose is configured to build using Bake, but buildx isn't installed"
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [ai-service internal] load build definition from Dockerfile
+#1 transferring dockerfile: 457B done
+#1 DONE 0.0s
+
+#2 [ai-service internal] load metadata for docker.io/library/python:3.12.10-slim-bookworm
+#2 ...
+
+#3 [ai-service auth] library/python:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [ai-service internal] load metadata for docker.io/library/python:3.12.10-slim-bookworm
+#2 DONE 1.8s
+
+#4 [ai-service internal] load .dockerignore
+#4 transferring context: 219B done
+#4 DONE 0.0s
+
+#5 [ai-service 1/6] FROM docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db
+#5 resolve docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db 0.0s done
+#5 DONE 0.0s
+
+#6 [ai-service internal] load build context
+#6 transferring context: 24.05kB 0.0s done
+#6 DONE 0.1s
+
+#7 [ai-service 2/6] WORKDIR /app
+#7 CACHED
+
+#8 [ai-service 5/6] RUN pip install --no-cache-dir -r requirements.txt pytest httpx
+#8 CACHED
+
+#9 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#9 CACHED
+
+#10 [ai-service 4/6] COPY requirements.txt .
+#10 CACHED
+
+#11 [ai-service 6/6] COPY . .
+#11 CACHED
+
+#12 [ai-service] exporting to image
+#12 exporting layers done
+#12 exporting manifest sha256:0fc6d9d16b507d65d229009727fa5389c35473a4c0ba725b6c402a9043402805 0.0s done
+#12 exporting config sha256:2129279f0c279b2c040931825f79e37f3015047b676bde605f275d02c1b6184e 0.0s done
+#12 exporting attestation manifest sha256:ca9bcf1b632020b46d78b18ca94fadb43c16e5eaf2a0b4171cb57548b3f3a7da 0.1s done
+#12 exporting manifest list sha256:75a78d9eac3447008e8cd42a00995386cca776cdfd495161207162d846a59ce4
+#12 exporting manifest list sha256:75a78d9eac3447008e8cd42a00995386cca776cdfd495161207162d846a59ce4 0.0s done
+#12 naming to docker.io/library/p1-wave1f-20261021-workflow-01-ai-service:latest done
+#12 unpacking to docker.io/library/p1-wave1f-20261021-workflow-01-ai-service:latest 0.0s done
+#12 DONE 0.2s
+
+#13 [ai-service] resolving provenance for metadata file
+#13 DONE 0.0s
+
+#14 [backend internal] load build definition from Dockerfile
+#14 transferring dockerfile: 340B done
+#14 DONE 0.0s
+
+#15 [backend internal] load metadata for docker.io/library/node:22-bookworm-slim
+#15 ...
+
+#16 [backend auth] library/node:pull token for registry-1.docker.io
+#16 DONE 0.0s
+
+#15 [backend internal] load metadata for docker.io/library/node:22-bookworm-slim
+#15 DONE 2.5s
+
+#17 [backend internal] load .dockerignore
+#17 transferring context: 195B done
+#17 DONE 0.0s
+
+#18 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:a6385bc33f0f9d6a08482c87f52baee537a9184e2b47dea1ed97caac62f8960c
+#18 resolve docker.io/library/node:22-bookworm-slim@sha256:a6385bc33f0f9d6a08482c87f52baee537a9184e2b47dea1ed97caac62f8960c 0.0s done
+#18 ...
+
+#19 [backend internal] load build context
+#19 transferring context: 873.64kB 0.1s done
+#19 DONE 0.1s
+
+#18 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:a6385bc33f0f9d6a08482c87f52baee537a9184e2b47dea1ed97caac62f8960c
+#18 sha256:9d58805976c12f11013d188c510c3520e3f061c1b311d4905afe5865aa496e63 0B / 449B 0.2s
+#18 sha256:9d58805976c12f11013d188c510c3520e3f061c1b311d4905afe5865aa496e63 449B / 449B 0.3s done
+#18 sha256:696628b66b50a8ea2d374542f47107bc19fb3fd29825211da5c68b74a1b01555 0B / 1.71MB 0.2s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 0B / 49.89MB 0.2s
+#18 sha256:b43ad0aedb87ae13912d52799d0d5552c146dced05197a7fa83b117cb3308906 0B / 3.31kB 0.2s
+#18 sha256:b43ad0aedb87ae13912d52799d0d5552c146dced05197a7fa83b117cb3308906 3.31kB / 3.31kB 1.0s done
+#18 extracting sha256:b43ad0aedb87ae13912d52799d0d5552c146dced05197a7fa83b117cb3308906 0.0s done
+#18 sha256:696628b66b50a8ea2d374542f47107bc19fb3fd29825211da5c68b74a1b01555 1.05MB / 1.71MB 1.7s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 3.15MB / 49.89MB 1.8s
+#18 sha256:696628b66b50a8ea2d374542f47107bc19fb3fd29825211da5c68b74a1b01555 1.71MB / 1.71MB 2.2s done
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 6.29MB / 49.89MB 2.6s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 9.44MB / 49.89MB 3.0s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 13.63MB / 49.89MB 3.5s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 16.78MB / 49.89MB 3.9s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 20.97MB / 49.89MB 4.4s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 24.12MB / 49.89MB 4.8s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 27.26MB / 49.89MB 5.1s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 30.41MB / 49.89MB 5.6s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 33.55MB / 49.89MB 6.0s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 36.70MB / 49.89MB 6.5s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 39.85MB / 49.89MB 6.9s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 42.99MB / 49.89MB 7.5s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 46.14MB / 49.89MB 8.1s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 49.28MB / 49.89MB 8.9s
+#18 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 49.89MB / 49.89MB 9.1s done
+#18 extracting sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba
+#18 extracting sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 0.9s done
+#18 DONE 10.3s
+
+#18 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:a6385bc33f0f9d6a08482c87f52baee537a9184e2b47dea1ed97caac62f8960c
+#18 extracting sha256:696628b66b50a8ea2d374542f47107bc19fb3fd29825211da5c68b74a1b01555 0.1s done
+#18 extracting sha256:9d58805976c12f11013d188c510c3520e3f061c1b311d4905afe5865aa496e63 0.0s done
+#18 DONE 10.3s
+
+#20 [backend 2/8] WORKDIR /app/backend
+#20 DONE 0.4s
+
+#21 [backend 3/8] COPY backend/package*.json ./
+#21 DONE 0.1s
+
+#22 [backend 4/8] RUN npm ci
+#22 3.122 
+#22 3.122 added 148 packages, and audited 149 packages in 3s
+#22 3.122 
+#22 3.122 20 packages are looking for funding
+#22 3.122   run `npm fund` for details
+#22 3.125 
+#22 3.125 4 vulnerabilities (3 moderate, 1 critical)
+#22 3.125 
+#22 3.125 To address all issues, run:
+#22 3.125   npm audit fix
+#22 3.125 
+#22 3.125 Run `npm audit` for details.
+#22 3.126 npm notice
+#22 3.126 npm notice New major version of npm available! 10.9.9 -> 12.2.0
+#22 3.126 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+#22 3.126 npm notice To update run: npm install -g npm@12.2.0
+#22 3.126 npm notice
+#22 DONE 3.4s
+
+#23 [backend 5/8] COPY backend ./
+#23 DONE 0.1s
+
+#24 [backend 6/8] COPY docs/Assets /app/docs/Assets
+#24 DONE 0.1s
+
+#25 [backend 7/8] RUN sed -i 's/\r$//' ./docker-entrypoint.sh && chmod +x ./docker-entrypoint.sh
+#25 DONE 0.3s
+
+#26 [backend 8/8] RUN npm run build
+#26 0.455 
+#26 0.455 > ephurin-backend@0.1.0 build
+#26 0.455 > tsc -p tsconfig.json
+#26 0.455 
+#26 DONE 3.0s
+
+#27 [backend] exporting to image
+#27 exporting layers
+#27 exporting layers 2.2s done
+#27 exporting manifest sha256:ccb9649105a71de108fdeda0e3f612742616a4ae92d9e84e92237048633cf064 0.0s done
+#27 exporting config sha256:3b3945ee2a906ee3462d1b3bf4153ade05263b011722aed4fce35f849eb64bb9 0.0s done
+#27 exporting attestation manifest sha256:dc2bfa834a43a4ad879b18284b609d41eda2ff0f1946f8c13367c5b584a577e8 0.1s done
+#27 exporting manifest list sha256:f70ceafac8ddf6660359bc19380d16b7c1fe8962552f2600021d9bf1ffeb87cc
+#27 exporting manifest list sha256:f70ceafac8ddf6660359bc19380d16b7c1fe8962552f2600021d9bf1ffeb87cc 0.0s done
+#27 naming to docker.io/library/p1-wave1f-20261021-workflow-01-backend:latest 0.0s done
+#27 unpacking to docker.io/library/p1-wave1f-20261021-workflow-01-backend:latest
+#27 unpacking to docker.io/library/p1-wave1f-20261021-workflow-01-backend:latest 1.0s done
+#27 DONE 3.4s
+
+#28 [backend] resolving provenance for metadata file
+#28 DONE 0.0s
+
+#29 [web internal] load build definition from Dockerfile
+#29 transferring dockerfile: 398B done
+#29 DONE 0.0s
+
+#15 [web internal] load metadata for docker.io/library/node:22-bookworm-slim
+#15 DONE 2.9s
+
+#30 [web internal] load metadata for docker.io/library/nginx:1.27-alpine
+#30 ...
+
+#31 [web auth] library/nginx:pull token for registry-1.docker.io
+#31 DONE 0.0s
+
+#30 [web internal] load metadata for docker.io/library/nginx:1.27-alpine
+#30 DONE 1.4s
+
+#32 [web internal] load .dockerignore
+#32 transferring context: 195B done
+#32 DONE 0.0s
+
+#33 [web internal] load build context
+#33 DONE 0.0s
+
+#34 [web stage-1 1/3] FROM docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+#34 resolve docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10 0.1s done
+#34 DONE 0.1s
+
+#18 [web build 1/6] FROM docker.io/library/node:22-bookworm-slim@sha256:a6385bc33f0f9d6a08482c87f52baee537a9184e2b47dea1ed97caac62f8960c
+#18 resolve docker.io/library/node:22-bookworm-slim@sha256:a6385bc33f0f9d6a08482c87f52baee537a9184e2b47dea1ed97caac62f8960c 0.1s done
+#18 CACHED
+
+#33 [web internal] load build context
+#33 transferring context: 925.60kB 0.1s done
+#33 DONE 0.2s
+
+#35 [web build 2/6] WORKDIR /app/web
+#35 DONE 0.3s
+
+#36 [web build 3/6] COPY web/package*.json ./
+#36 DONE 0.1s
+
+#37 [web build 4/6] RUN npm ci
+#37 12.31 
+#37 12.31 added 127 packages, and audited 128 packages in 12s
+#37 12.31 
+#37 12.31 21 packages are looking for funding
+#37 12.31   run `npm fund` for details
+#37 12.33 
+#37 12.33 10 vulnerabilities (2 moderate, 8 high)
+#37 12.33 
+#37 12.33 To address all issues, run:
+#37 12.33   npm audit fix
+#37 12.33 
+#37 12.33 Run `npm audit` for details.
+#37 12.33 npm notice
+#37 12.33 npm notice New major version of npm available! 10.9.9 -> 12.2.0
+#37 12.33 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+#37 12.33 npm notice To update run: npm install -g npm@12.2.0
+#37 12.33 npm notice
+#37 DONE 13.4s
+
+#38 [web build 5/6] COPY web ./
+#38 DONE 0.3s
+
+#39 [web build 6/6] RUN npm run build
+#39 0.467 
+#39 0.467 > ephurin-web@0.1.0 build
+#39 0.467 > tsc -b && vite build
+#39 0.467 
+#39 4.741 vite v6.4.3 building for production...
+#39 4.806 transforming...
+#39 4.879 node_modules/react-router/dist/development/index.mjs (11:0): Module level directives cause errors when bundled, "use client" in "node_modules/react-router/dist/development/index.mjs" was ignored.
+#39 4.976 node_modules/react-router/dist/development/dom-export.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/react-router/dist/development/dom-export.mjs" was ignored.
+#39 5.186 node_modules/@tanstack/react-query/build/modern/useQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useQuery.js" was ignored.
+#39 5.191 node_modules/@tanstack/react-query/build/modern/useQueries.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useQueries.js" was ignored.
+#39 5.195 node_modules/@tanstack/react-query/build/modern/HydrationBoundary.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/HydrationBoundary.js" was ignored.
+#39 5.196 node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js" was ignored.
+#39 5.197 node_modules/@tanstack/react-query/build/modern/useMutationState.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useMutationState.js" was ignored.
+#39 5.199 node_modules/@tanstack/react-query/build/modern/useInfiniteQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useInfiniteQuery.js" was ignored.
+#39 5.200 node_modules/@tanstack/react-query/build/modern/IsRestoringProvider.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/IsRestoringProvider.js" was ignored.
+#39 5.200 node_modules/@tanstack/react-query/build/modern/useIsFetching.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useIsFetching.js" was ignored.
+#39 5.201 node_modules/@tanstack/react-query/build/modern/useMutation.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useMutation.js" was ignored.
+#39 5.202 node_modules/@mantine/core/esm/core/utils/keys/keys.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/keys/keys.mjs" was ignored.
+#39 5.203 node_modules/@mantine/core/esm/core/utils/camel-to-kebab-case/camel-to-kebab-case.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/camel-to-kebab-case/camel-to-kebab-case.mjs" was ignored.
+#39 5.204 node_modules/@mantine/core/esm/core/utils/filter-props/filter-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/filter-props/filter-props.mjs" was ignored.
+#39 5.204 node_modules/@mantine/core/esm/core/utils/is-number-like/is-number-like.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/is-number-like/is-number-like.mjs" was ignored.
+#39 5.205 node_modules/@mantine/core/esm/core/utils/create-optional-context/create-optional-context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/create-optional-context/create-optional-context.mjs" was ignored.
+#39 5.206 node_modules/@mantine/core/esm/core/utils/get-safe-id/get-safe-id.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/get-safe-id/get-safe-id.mjs" was ignored.
+#39 5.206 node_modules/@mantine/core/esm/core/utils/find-element-ancestor/find-element-ancestor.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/find-element-ancestor/find-element-ancestor.mjs" was ignored.
+#39 5.206 node_modules/@mantine/core/esm/core/utils/get-default-z-index/get-default-z-index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/get-default-z-index/get-default-z-index.mjs" was ignored.
+#39 5.207 node_modules/@mantine/core/esm/core/utils/noop/noop.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/noop/noop.mjs" was ignored.
+#39 5.207 node_modules/@mantine/core/esm/core/utils/close-on-escape/close-on-escape.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/close-on-escape/close-on-escape.mjs" was ignored.
+#39 5.208 node_modules/@mantine/core/esm/core/utils/is-element/is-element.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/is-element/is-element.mjs" was ignored.
+#39 5.208 node_modules/@mantine/core/esm/core/utils/create-safe-context/create-safe-context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/create-safe-context/create-safe-context.mjs" was ignored.
+#39 5.209 node_modules/@mantine/core/esm/core/utils/create-event-handler/create-event-handler.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/create-event-handler/create-event-handler.mjs" was ignored.
+#39 5.209 node_modules/@mantine/core/esm/core/utils/get-breakpoint-value/get-breakpoint-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/get-breakpoint-value/get-breakpoint-value.mjs" was ignored.
+#39 5.210 node_modules/@mantine/core/esm/core/utils/create-scoped-keydown-handler/create-scoped-keydown-handler.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/create-scoped-keydown-handler/create-scoped-keydown-handler.mjs" was ignored.
+#39 5.211 node_modules/@mantine/core/esm/core/utils/get-size/get-size.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/get-size/get-size.mjs" was ignored.
+#39 5.211 node_modules/@mantine/core/esm/core/utils/get-base-value/get-base-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/get-base-value/get-base-value.mjs" was ignored.
+#39 5.212 node_modules/@mantine/core/esm/core/utils/use-hovered/use-hovered.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/use-hovered/use-hovered.mjs" was ignored.
+#39 5.212 node_modules/@mantine/core/esm/core/utils/memoize/memoize.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/memoize/memoize.mjs" was ignored.
+#39 5.213 node_modules/@mantine/core/esm/core/utils/find-closest-number/find-closest-number.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/find-closest-number/find-closest-number.mjs" was ignored.
+#39 5.213 node_modules/@mantine/core/esm/core/utils/get-context-item-index/get-context-item-index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/get-context-item-index/get-context-item-index.mjs" was ignored.
+#39 5.214 node_modules/@mantine/core/esm/core/utils/get-ref-prop/get-ref-prop.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/get-ref-prop/get-ref-prop.mjs" was ignored.
+#39 5.215 node_modules/@mantine/core/esm/core/styles-api/create-vars-resolver/create-vars-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/create-vars-resolver/create-vars-resolver.mjs" was ignored.
+#39 5.215 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/resolve-class-names/resolve-class-names.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/resolve-class-names/resolve-class-names.mjs" was ignored.
+#39 5.216 node_modules/@mantine/core/esm/core/styles-api/use-resolved-styles-api/use-resolved-styles-api.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-resolved-styles-api/use-resolved-styles-api.mjs" was ignored.
+#39 5.218 node_modules/@mantine/core/esm/core/utils/create-use-external-events/create-use-external-events.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/create-use-external-events/create-use-external-events.mjs" was ignored.
+#39 5.218 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-global-class-names/get-global-class-names.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-global-class-names/get-global-class-names.mjs" was ignored.
+#39 5.219 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/resolve-styles/resolve-styles.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/resolve-styles/resolve-styles.mjs" was ignored.
+#39 5.219 node_modules/@mantine/core/esm/core/MantineProvider/color-scheme-managers/is-mantine-color-scheme.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/color-scheme-managers/is-mantine-color-scheme.mjs" was ignored.
+#39 5.220 node_modules/@mantine/core/esm/core/MantineProvider/color-functions/parse-theme-color/parse-theme-color.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/color-functions/parse-theme-color/parse-theme-color.mjs" was ignored.
+#39 5.221 node_modules/@mantine/core/esm/core/MantineProvider/color-scheme-managers/local-storage-manager.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/color-scheme-managers/local-storage-manager.mjs" was ignored.
+#39 5.222 node_modules/@mantine/core/esm/core/styles-api/use-styles/use-styles.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/use-styles.mjs" was ignored.
+#39 5.223 node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-primary-shade/get-primary-shade.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-primary-shade/get-primary-shade.mjs" was ignored.
+#39 5.223 node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js" was ignored.
+#39 5.224 node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-theme-color/get-theme-color.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-theme-color/get-theme-color.mjs" was ignored.
+#39 5.224 node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-gradient/get-gradient.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-gradient/get-gradient.mjs" was ignored.
+#39 5.225 node_modules/@mantine/core/esm/core/MantineProvider/color-functions/default-variant-colors-resolver/default-variant-colors-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/color-functions/default-variant-colors-resolver/default-variant-colors-resolver.mjs" was ignored.
+#39 5.227 node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-contrast-color/get-contrast-color.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-contrast-color/get-contrast-color.mjs" was ignored.
+#39 5.228 node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-auto-contrast-value/get-auto-contrast-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/color-functions/get-auto-contrast-value/get-auto-contrast-value.mjs" was ignored.
+#39 5.229 node_modules/@mantine/core/esm/core/MantineProvider/use-mantine-color-scheme/use-mantine-color-scheme.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/use-mantine-color-scheme/use-mantine-color-scheme.mjs" was ignored.
+#39 5.230 node_modules/@mantine/core/esm/core/MantineProvider/ColorSchemeScript/ColorSchemeScript.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/ColorSchemeScript/ColorSchemeScript.mjs" was ignored.
+#39 5.231 node_modules/@mantine/core/esm/core/MantineProvider/use-mantine-color-scheme/use-provider-color-scheme.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/use-mantine-color-scheme/use-provider-color-scheme.mjs" was ignored.
+#39 5.233 node_modules/@mantine/core/esm/core/MantineProvider/MantineThemeProvider/MantineThemeProvider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/MantineThemeProvider/MantineThemeProvider.mjs" was ignored.
+#39 5.234 node_modules/@mantine/core/esm/core/MantineProvider/use-props/use-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/use-props/use-props.mjs" was ignored.
+#39 5.235 node_modules/@mantine/core/esm/core/MantineProvider/use-mantine-color-scheme/use-computed-color-scheme.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/use-mantine-color-scheme/use-computed-color-scheme.mjs" was ignored.
+#39 5.236 node_modules/@mantine/core/esm/core/MantineProvider/convert-css-variables/convert-css-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/convert-css-variables/convert-css-variables.mjs" was ignored.
+#39 5.237 node_modules/@mantine/core/esm/core/MantineProvider/merge-theme-overrides/merge-theme-overrides.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/merge-theme-overrides/merge-theme-overrides.mjs" was ignored.
+#39 5.237 node_modules/@mantine/core/esm/core/MantineProvider/MantineProvider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/MantineProvider.mjs" was ignored.
+#39 5.240 node_modules/@mantine/core/esm/core/MantineProvider/Mantine.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/Mantine.context.mjs" was ignored.
+#39 5.241 node_modules/@mantine/core/esm/core/MantineProvider/use-matches/use-matches.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/use-matches/use-matches.mjs" was ignored.
+#39 5.242 node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/MantineCssVariables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/MantineCssVariables.mjs" was ignored.
+#39 5.243 node_modules/@mantine/core/esm/core/utils/get-sorted-breakpoints/get-sorted-breakpoints.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/get-sorted-breakpoints/get-sorted-breakpoints.mjs" was ignored.
+#39 5.243 node_modules/@mantine/core/esm/core/Box/style-props/extract-style-props/extract-style-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/extract-style-props/extract-style-props.mjs" was ignored.
+#39 5.247 node_modules/@mantine/core/esm/core/InlineStyles/InlineStyles.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/InlineStyles/InlineStyles.mjs" was ignored.
+#39 5.248 node_modules/@mantine/core/esm/core/Box/use-random-classname/use-random-classname.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/use-random-classname/use-random-classname.mjs" was ignored.
+#39 5.249 node_modules/@mantine/core/esm/core/Box/style-props/parse-style-props/parse-style-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/parse-style-props/parse-style-props.mjs" was ignored.
+#39 5.250 node_modules/@mantine/core/esm/core/Box/get-style-object/get-style-object.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/get-style-object/get-style-object.mjs" was ignored.
+#39 5.251 node_modules/@mantine/core/esm/core/Box/Box.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/Box.mjs" was ignored.
+#39 5.252 node_modules/@mantine/core/esm/core/factory/factory.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/factory/factory.mjs" was ignored.
+#39 5.253 node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/get-css-color-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/get-css-color-variables.mjs" was ignored.
+#39 5.255 node_modules/@mantine/core/esm/core/InlineStyles/styles-to-string/styles-to-string.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/InlineStyles/styles-to-string/styles-to-string.mjs" was ignored.
+#39 5.256 node_modules/@mantine/core/esm/core/DirectionProvider/DirectionProvider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/DirectionProvider/DirectionProvider.mjs" was ignored.
+#39 5.256 node_modules/@mantine/core/esm/core/Box/style-props/style-props-data.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/style-props-data.mjs" was ignored.
+#39 5.257 node_modules/@mantine/core/esm/components/Collapse/Collapse.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Collapse/Collapse.mjs" was ignored.
+#39 5.259 node_modules/@mantine/core/esm/components/UnstyledButton/UnstyledButton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/UnstyledButton/UnstyledButton.mjs" was ignored.
+#39 5.260 node_modules/@mantine/core/esm/components/VisuallyHidden/VisuallyHidden.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/VisuallyHidden/VisuallyHidden.mjs" was ignored.
+#39 5.261 node_modules/@mantine/core/esm/components/Paper/Paper.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Paper/Paper.mjs" was ignored.
+#39 5.263 node_modules/@mantine/core/esm/components/ActionIcon/ActionIcon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ActionIcon/ActionIcon.mjs" was ignored.
+#39 5.264 node_modules/@mantine/core/esm/components/Popover/PopoverTarget/PopoverTarget.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Popover/PopoverTarget/PopoverTarget.mjs" was ignored.
+#39 5.266 node_modules/@mantine/core/esm/components/ActionIcon/ActionIconGroupSection/ActionIconGroupSection.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ActionIcon/ActionIconGroupSection/ActionIconGroupSection.mjs" was ignored.
+#39 5.266 node_modules/@mantine/core/esm/components/ActionIcon/ActionIconGroup/ActionIconGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ActionIcon/ActionIconGroup/ActionIconGroup.mjs" was ignored.
+#39 5.268 node_modules/@mantine/core/esm/core/factory/polymorphic-factory.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/factory/polymorphic-factory.mjs" was ignored.
+#39 5.268 node_modules/@mantine/core/esm/components/CloseButton/CloseIcon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/CloseButton/CloseIcon.mjs" was ignored.
+#39 5.268 node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/default-css-variables-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/default-css-variables-resolver.mjs" was ignored.
+#39 5.270 node_modules/@mantine/core/esm/components/Loader/Loader.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Loader/Loader.mjs" was ignored.
+#39 5.271 node_modules/@mantine/core/esm/components/Overlay/Overlay.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Overlay/Overlay.mjs" was ignored.
+#39 5.273 node_modules/@mantine/core/esm/components/ScrollArea/ScrollArea.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollArea.mjs" was ignored.
+#39 5.275 node_modules/@mantine/core/esm/components/Group/Group.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Group/Group.mjs" was ignored.
+#39 5.277 node_modules/@mantine/core/esm/components/Popover/Popover.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Popover/Popover.mjs" was ignored.
+#39 5.278 node_modules/@mantine/core/esm/components/ModalBase/ModalBaseCloseButton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/ModalBaseCloseButton.mjs" was ignored.
+#39 5.279 node_modules/@mantine/core/esm/components/ModalBase/ModalBase.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/ModalBase.mjs" was ignored.
+#39 5.285 node_modules/@mantine/core/esm/components/ModalBase/ModalBaseBody.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/ModalBaseBody.mjs" was ignored.
+#39 5.286 node_modules/@mantine/core/esm/components/Popover/PopoverDropdown/PopoverDropdown.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Popover/PopoverDropdown/PopoverDropdown.mjs" was ignored.
+#39 5.288 node_modules/@mantine/core/esm/components/ModalBase/ModalBaseHeader.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/ModalBaseHeader.mjs" was ignored.
+#39 5.288 node_modules/@mantine/core/esm/components/ModalBase/ModalBaseTitle.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/ModalBaseTitle.mjs" was ignored.
+#39 5.290 node_modules/@mantine/core/esm/components/ModalBase/ModalBaseOverlay.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/ModalBaseOverlay.mjs" was ignored.
+#39 5.291 node_modules/@mantine/core/esm/components/ModalBase/NativeScrollArea.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/NativeScrollArea.mjs" was ignored.
+#39 5.292 node_modules/@mantine/core/esm/components/ModalBase/ModalBaseContent.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/ModalBaseContent.mjs" was ignored.
+#39 5.293 node_modules/@mantine/core/esm/components/Input/Input.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/Input.mjs" was ignored.
+#39 5.295 node_modules/@mantine/core/esm/components/Input/InputWrapper/InputWrapper.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/InputWrapper/InputWrapper.mjs" was ignored.
+#39 5.297 node_modules/@mantine/core/esm/components/Input/InputError/InputError.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/InputError/InputError.mjs" was ignored.
+#39 5.298 node_modules/@mantine/core/esm/components/Input/InputDescription/InputDescription.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/InputDescription/InputDescription.mjs" was ignored.
+#39 5.299 node_modules/@mantine/core/esm/components/CloseButton/CloseButton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/CloseButton/CloseButton.mjs" was ignored.
+#39 5.300 node_modules/@mantine/core/esm/components/Input/InputLabel/InputLabel.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/InputLabel/InputLabel.mjs" was ignored.
+#39 5.302 node_modules/@mantine/core/esm/components/Input/InputClearButton/InputClearButton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/InputClearButton/InputClearButton.mjs" was ignored.
+#39 5.302 node_modules/@mantine/core/esm/components/Input/InputWrapper.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/InputWrapper.context.mjs" was ignored.
+#39 5.303 node_modules/@mantine/core/esm/components/InputBase/InputBase.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/InputBase/InputBase.mjs" was ignored.
+#39 5.305 node_modules/@mantine/core/esm/components/Input/use-input-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/use-input-props.mjs" was ignored.
+#39 5.307 node_modules/@mantine/core/esm/components/Flex/flex-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Flex/flex-props.mjs" was ignored.
+#39 5.308 node_modules/@mantine/core/esm/components/Accordion/Accordion.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Accordion/Accordion.mjs" was ignored.
+#39 5.310 node_modules/@mantine/core/esm/components/Accordion/AccordionChevron.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Accordion/AccordionChevron.mjs" was ignored.
+#39 5.311 node_modules/@mantine/core/esm/components/Flex/Flex.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Flex/Flex.mjs" was ignored.
+#39 5.312 node_modules/@mantine/core/esm/components/Accordion/AccordionItem/AccordionItem.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Accordion/AccordionItem/AccordionItem.mjs" was ignored.
+#39 5.313 node_modules/@mantine/core/esm/components/Accordion/AccordionPanel/AccordionPanel.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Accordion/AccordionPanel/AccordionPanel.mjs" was ignored.
+#39 5.315 node_modules/@mantine/core/esm/components/FloatingIndicator/FloatingIndicator.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/FloatingIndicator/FloatingIndicator.mjs" was ignored.
+#39 5.316 node_modules/@mantine/core/esm/components/Accordion/AccordionControl/AccordionControl.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Accordion/AccordionControl/AccordionControl.mjs" was ignored.
+#39 5.317 node_modules/@mantine/core/esm/components/Input/InputPlaceholder/InputPlaceholder.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/InputPlaceholder/InputPlaceholder.mjs" was ignored.
+#39 5.318 node_modules/@mantine/core/esm/components/Affix/Affix.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Affix/Affix.mjs" was ignored.
+#39 5.319 node_modules/@mantine/core/esm/components/Alert/Alert.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Alert/Alert.mjs" was ignored.
+#39 5.321 node_modules/@mantine/core/esm/components/AngleSlider/AngleSlider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AngleSlider/AngleSlider.mjs" was ignored.
+#39 5.326 node_modules/@mantine/core/esm/components/Anchor/Anchor.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Anchor/Anchor.mjs" was ignored.
+#39 5.327 node_modules/@mantine/core/esm/components/AppShell/AppShell.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShell.mjs" was ignored.
+#39 5.329 node_modules/@mantine/core/esm/components/AppShell/AppShellFooter/AppShellFooter.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellFooter/AppShellFooter.mjs" was ignored.
+#39 5.331 node_modules/@mantine/core/esm/components/AppShell/AppShellAside/AppShellAside.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellAside/AppShellAside.mjs" was ignored.
+#39 5.332 node_modules/@mantine/core/esm/components/AppShell/AppShellHeader/AppShellHeader.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellHeader/AppShellHeader.mjs" was ignored.
+#39 5.333 node_modules/@mantine/core/esm/components/AppShell/AppShellSection/AppShellSection.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellSection/AppShellSection.mjs" was ignored.
+#39 5.334 node_modules/@mantine/core/esm/components/AppShell/AppShellNavbar/AppShellNavbar.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellNavbar/AppShellNavbar.mjs" was ignored.
+#39 5.335 node_modules/@mantine/core/esm/components/AppShell/AppShellMain/AppShellMain.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMain/AppShellMain.mjs" was ignored.
+#39 5.336 node_modules/@mantine/core/esm/components/AspectRatio/AspectRatio.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AspectRatio/AspectRatio.mjs" was ignored.
+#39 5.337 node_modules/@mantine/core/esm/components/Autocomplete/Autocomplete.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Autocomplete/Autocomplete.mjs" was ignored.
+#39 5.339 node_modules/@mantine/core/esm/components/Avatar/Avatar.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Avatar/Avatar.mjs" was ignored.
+#39 5.341 node_modules/@mantine/core/esm/components/BackgroundImage/BackgroundImage.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/BackgroundImage/BackgroundImage.mjs" was ignored.
+#39 5.342 node_modules/@mantine/core/esm/components/Badge/Badge.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Badge/Badge.mjs" was ignored.
+#39 5.343 node_modules/@mantine/core/esm/components/Blockquote/Blockquote.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Blockquote/Blockquote.mjs" was ignored.
+#39 5.344 node_modules/@mantine/core/esm/components/Breadcrumbs/Breadcrumbs.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Breadcrumbs/Breadcrumbs.mjs" was ignored.
+#39 5.346 node_modules/@mantine/core/esm/components/Button/ButtonGroup/ButtonGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Button/ButtonGroup/ButtonGroup.mjs" was ignored.
+#39 5.348 node_modules/@mantine/core/esm/components/Burger/Burger.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Burger/Burger.mjs" was ignored.
+#39 5.349 node_modules/@mantine/core/esm/components/Button/ButtonGroupSection/ButtonGroupSection.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Button/ButtonGroupSection/ButtonGroupSection.mjs" was ignored.
+#39 5.350 node_modules/@mantine/core/esm/components/Avatar/AvatarGroup/AvatarGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Avatar/AvatarGroup/AvatarGroup.mjs" was ignored.
+#39 5.351 node_modules/@mantine/core/esm/components/Card/Card.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Card/Card.mjs" was ignored.
+#39 5.352 node_modules/@mantine/core/esm/components/Card/CardSection/CardSection.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Card/CardSection/CardSection.mjs" was ignored.
+#39 5.354 node_modules/@mantine/core/esm/components/Button/Button.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Button/Button.mjs" was ignored.
+#39 5.355 node_modules/@mantine/core/esm/components/Checkbox/CheckIcon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/CheckIcon.mjs" was ignored.
+#39 5.356 node_modules/@mantine/core/esm/components/Checkbox/CheckboxGroup/CheckboxGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/CheckboxGroup/CheckboxGroup.mjs" was ignored.
+#39 5.358 node_modules/@mantine/core/esm/components/Checkbox/CheckboxIndicator/CheckboxIndicator.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/CheckboxIndicator/CheckboxIndicator.mjs" was ignored.
+#39 5.359 node_modules/@mantine/core/esm/components/Checkbox/CheckboxCard/CheckboxCard.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/CheckboxCard/CheckboxCard.context.mjs" was ignored.
+#39 5.360 node_modules/@mantine/core/esm/components/Center/Center.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Center/Center.mjs" was ignored.
+#39 5.364 node_modules/@mantine/core/esm/components/Checkbox/CheckboxGroup.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/CheckboxGroup.context.mjs" was ignored.
+#39 5.364 node_modules/@mantine/core/esm/components/Chip/ChipGroup/ChipGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Chip/ChipGroup/ChipGroup.mjs" was ignored.
+#39 5.365 node_modules/@mantine/core/esm/components/ColorPicker/ColorPicker.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/ColorPicker.mjs" was ignored.
+#39 5.368 node_modules/@mantine/core/esm/components/Code/Code.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Code/Code.mjs" was ignored.
+#39 5.370 node_modules/@mantine/core/esm/components/Chip/Chip.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Chip/Chip.mjs" was ignored.
+#39 5.371 node_modules/@mantine/core/esm/components/ColorPicker/HueSlider/HueSlider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/HueSlider/HueSlider.mjs" was ignored.
+#39 5.372 node_modules/@mantine/core/esm/components/ColorPicker/AlphaSlider/AlphaSlider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/AlphaSlider/AlphaSlider.mjs" was ignored.
+#39 5.373 node_modules/@mantine/core/esm/components/ColorPicker/converters/converters.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/converters/converters.mjs" was ignored.
+#39 5.374 node_modules/@mantine/core/esm/components/ColorPicker/converters/parsers.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/converters/parsers.mjs" was ignored.
+#39 5.375 node_modules/@mantine/core/esm/components/ColorSwatch/ColorSwatch.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorSwatch/ColorSwatch.mjs" was ignored.
+#39 5.376 node_modules/@mantine/core/esm/components/ColorInput/ColorInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorInput/ColorInput.mjs" was ignored.
+#39 5.379 node_modules/@mantine/core/esm/components/Checkbox/Checkbox.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/Checkbox.mjs" was ignored.
+#39 5.381 node_modules/@mantine/core/esm/components/Combobox/get-options-lockup/get-options-lockup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/get-options-lockup/get-options-lockup.mjs" was ignored.
+#39 5.381 node_modules/@mantine/core/esm/components/Combobox/ComboboxChevron/ComboboxChevron.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxChevron/ComboboxChevron.mjs" was ignored.
+#39 5.383 node_modules/@mantine/core/esm/components/Combobox/get-parsed-combobox-data/get-parsed-combobox-data.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/get-parsed-combobox-data/get-parsed-combobox-data.mjs" was ignored.
+#39 5.383 node_modules/@mantine/core/esm/components/Combobox/ComboboxDropdown/ComboboxDropdown.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxDropdown/ComboboxDropdown.mjs" was ignored.
+#39 5.385 node_modules/@mantine/core/esm/components/Combobox/ComboboxOptions/ComboboxOptions.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxOptions/ComboboxOptions.mjs" was ignored.
+#39 5.385 node_modules/@mantine/core/esm/components/Combobox/ComboboxTarget/ComboboxTarget.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxTarget/ComboboxTarget.mjs" was ignored.
+#39 5.386 node_modules/@mantine/core/esm/components/Combobox/Combobox.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/Combobox.mjs" was ignored.
+#39 5.388 node_modules/@mantine/core/esm/components/Combobox/ComboboxSearch/ComboboxSearch.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxSearch/ComboboxSearch.mjs" was ignored.
+#39 5.389 node_modules/@mantine/core/esm/components/Combobox/ComboboxOption/ComboboxOption.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxOption/ComboboxOption.mjs" was ignored.
+#39 5.390 node_modules/@mantine/core/esm/components/Combobox/ComboboxEmpty/ComboboxEmpty.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxEmpty/ComboboxEmpty.mjs" was ignored.
+#39 5.390 node_modules/@mantine/core/esm/components/Combobox/ComboboxFooter/ComboboxFooter.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxFooter/ComboboxFooter.mjs" was ignored.
+#39 5.391 node_modules/@mantine/core/esm/components/Checkbox/CheckboxCard/CheckboxCard.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/CheckboxCard/CheckboxCard.mjs" was ignored.
+#39 5.393 node_modules/@mantine/core/esm/components/Combobox/ComboboxHeader/ComboboxHeader.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxHeader/ComboboxHeader.mjs" was ignored.
+#39 5.394 node_modules/@mantine/core/esm/components/Combobox/ComboboxEventsTarget/ComboboxEventsTarget.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxEventsTarget/ComboboxEventsTarget.mjs" was ignored.
+#39 5.396 node_modules/@mantine/core/esm/components/Combobox/ComboboxDropdownTarget/ComboboxDropdownTarget.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxDropdownTarget/ComboboxDropdownTarget.mjs" was ignored.
+#39 5.397 node_modules/@mantine/core/esm/components/Combobox/ComboboxGroup/ComboboxGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxGroup/ComboboxGroup.mjs" was ignored.
+#39 5.398 node_modules/@mantine/core/esm/components/Combobox/ComboboxClearButton/ComboboxClearButton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxClearButton/ComboboxClearButton.mjs" was ignored.
+#39 5.402 node_modules/@mantine/core/esm/components/Combobox/ComboboxHiddenInput/ComboboxHiddenInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/ComboboxHiddenInput/ComboboxHiddenInput.mjs" was ignored.
+#39 5.403 node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/OptionsDropdown.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/OptionsDropdown.mjs" was ignored.
+#39 5.404 node_modules/@mantine/core/esm/components/Combobox/use-combobox/use-virtualized-combobox.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/use-combobox/use-virtualized-combobox.mjs" was ignored.
+#39 5.405 node_modules/@mantine/core/esm/components/Combobox/use-combobox-target-props/use-combobox-target-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/use-combobox-target-props/use-combobox-target-props.mjs" was ignored.
+#39 5.406 node_modules/@mantine/core/esm/components/Combobox/use-combobox/use-combobox.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/use-combobox/use-combobox.mjs" was ignored.
+#39 5.407 node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/default-options-filter.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/default-options-filter.mjs" was ignored.
+#39 5.408 node_modules/@mantine/core/esm/components/Dialog/Dialog.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Dialog/Dialog.mjs" was ignored.
+#39 5.409 node_modules/@mantine/core/esm/components/Container/Container.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Container/Container.mjs" was ignored.
+#39 5.411 node_modules/@mantine/core/esm/components/Drawer/Drawer.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/Drawer.mjs" was ignored.
+#39 5.412 node_modules/@mantine/core/esm/components/Drawer/DrawerBody.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/DrawerBody.mjs" was ignored.
+#39 5.413 node_modules/@mantine/core/esm/components/Drawer/DrawerContent.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/DrawerContent.mjs" was ignored.
+#39 5.414 node_modules/@mantine/core/esm/components/Drawer/DrawerCloseButton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/DrawerCloseButton.mjs" was ignored.
+#39 5.415 node_modules/@mantine/core/esm/components/Drawer/DrawerTitle.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/DrawerTitle.mjs" was ignored.
+#39 5.417 node_modules/@mantine/core/esm/components/Drawer/DrawerHeader.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/DrawerHeader.mjs" was ignored.
+#39 5.418 node_modules/@mantine/core/esm/components/Drawer/DrawerStack.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/DrawerStack.mjs" was ignored.
+#39 5.419 node_modules/@mantine/core/esm/components/Fieldset/Fieldset.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Fieldset/Fieldset.mjs" was ignored.
+#39 5.420 node_modules/@mantine/core/esm/components/Drawer/DrawerOverlay.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/DrawerOverlay.mjs" was ignored.
+#39 5.421 node_modules/@mantine/core/esm/components/CopyButton/CopyButton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/CopyButton/CopyButton.mjs" was ignored.
+#39 5.422 node_modules/@mantine/core/esm/components/Drawer/DrawerRoot.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/DrawerRoot.mjs" was ignored.
+#39 5.424 node_modules/@mantine/core/esm/components/Divider/Divider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Divider/Divider.mjs" was ignored.
+#39 5.425 node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/is-options-group.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/is-options-group.mjs" was ignored.
+#39 5.426 node_modules/@mantine/core/esm/components/Floating/use-floating-auto-update.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Floating/use-floating-auto-update.mjs" was ignored.
+#39 5.428 node_modules/@mantine/core/esm/components/FileInput/FileInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/FileInput/FileInput.mjs" was ignored.
+#39 5.432 node_modules/@mantine/core/esm/components/FocusTrap/FocusTrap.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/FocusTrap/FocusTrap.mjs" was ignored.
+#39 5.438 node_modules/@mantine/core/esm/components/FileButton/FileButton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/FileButton/FileButton.mjs" was ignored.
+#39 5.440 node_modules/@mantine/core/esm/components/Floating/FloatingArrow/FloatingArrow.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Floating/FloatingArrow/FloatingArrow.mjs" was ignored.
+#39 5.441 node_modules/@mantine/core/esm/components/Grid/GridCol/GridCol.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Grid/GridCol/GridCol.mjs" was ignored.
+#39 5.442 node_modules/@mantine/core/esm/components/Floating/use-delayed-hover.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Floating/use-delayed-hover.mjs" was ignored.
+#39 5.442 node_modules/@mantine/core/esm/components/Grid/Grid.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Grid/Grid.mjs" was ignored.
+#39 5.444 node_modules/@mantine/core/esm/components/Floating/get-floating-position/get-floating-position.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Floating/get-floating-position/get-floating-position.mjs" was ignored.
+#39 5.444 node_modules/@mantine/core/esm/components/HoverCard/HoverCard.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/HoverCard/HoverCard.mjs" was ignored.
+#39 5.446 node_modules/@mantine/core/esm/components/Image/Image.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Image/Image.mjs" was ignored.
+#39 5.448 node_modules/@mantine/core/esm/components/JsonInput/JsonInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/JsonInput/JsonInput.mjs" was ignored.
+#39 5.452 node_modules/@mantine/core/esm/components/Indicator/Indicator.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Indicator/Indicator.mjs" was ignored.
+#39 5.454 node_modules/@mantine/core/esm/components/Kbd/Kbd.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Kbd/Kbd.mjs" was ignored.
+#39 5.455 node_modules/@mantine/core/esm/components/Highlight/Highlight.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Highlight/Highlight.mjs" was ignored.
+#39 5.456 node_modules/@mantine/core/esm/components/List/ListItem/ListItem.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/List/ListItem/ListItem.mjs" was ignored.
+#39 5.457 node_modules/@mantine/core/esm/components/HoverCard/HoverCardTarget/HoverCardTarget.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/HoverCard/HoverCardTarget/HoverCardTarget.mjs" was ignored.
+#39 5.458 node_modules/@mantine/core/esm/components/Mark/Mark.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Mark/Mark.mjs" was ignored.
+#39 5.460 node_modules/@mantine/core/esm/components/List/List.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/List/List.mjs" was ignored.
+#39 5.461 node_modules/@mantine/core/esm/components/LoadingOverlay/LoadingOverlay.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/LoadingOverlay/LoadingOverlay.mjs" was ignored.
+#39 5.462 node_modules/@mantine/core/esm/components/Menu/Menu.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Menu/Menu.mjs" was ignored.
+#39 5.463 node_modules/@mantine/core/esm/components/Menu/MenuDivider/MenuDivider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Menu/MenuDivider/MenuDivider.mjs" was ignored.
+#39 5.464 node_modules/@mantine/core/esm/components/Menu/MenuItem/MenuItem.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Menu/MenuItem/MenuItem.mjs" was ignored.
+#39 5.466 node_modules/@mantine/core/esm/components/Menu/MenuLabel/MenuLabel.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Menu/MenuLabel/MenuLabel.mjs" was ignored.
+#39 5.467 node_modules/@mantine/core/esm/components/Menu/MenuDropdown/MenuDropdown.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Menu/MenuDropdown/MenuDropdown.mjs" was ignored.
+#39 5.468 node_modules/@mantine/core/esm/components/Menu/MenuTarget/MenuTarget.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Menu/MenuTarget/MenuTarget.mjs" was ignored.
+#39 5.469 node_modules/@mantine/core/esm/components/Modal/Modal.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/Modal.mjs" was ignored.
+#39 5.471 node_modules/@mantine/core/esm/components/Modal/ModalCloseButton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/ModalCloseButton.mjs" was ignored.
+#39 5.472 node_modules/@mantine/core/esm/components/Modal/ModalRoot.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/ModalRoot.mjs" was ignored.
+#39 5.474 node_modules/@mantine/core/esm/components/Modal/ModalOverlay.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/ModalOverlay.mjs" was ignored.
+#39 5.475 node_modules/@mantine/core/esm/components/Modal/ModalBody.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/ModalBody.mjs" was ignored.
+#39 5.476 node_modules/@mantine/core/esm/components/Modal/ModalContent.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/ModalContent.mjs" was ignored.
+#39 5.477 node_modules/@mantine/core/esm/components/Modal/ModalTitle.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/ModalTitle.mjs" was ignored.
+#39 5.478 node_modules/@mantine/core/esm/components/Modal/ModalStack.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/ModalStack.mjs" was ignored.
+#39 5.479 node_modules/@mantine/core/esm/components/NativeSelect/NativeSelect.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/NativeSelect/NativeSelect.mjs" was ignored.
+#39 5.481 node_modules/@mantine/core/esm/components/Modal/use-modals-stack.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/use-modals-stack.mjs" was ignored.
+#39 5.482 node_modules/@mantine/core/esm/components/MultiSelect/MultiSelect.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/MultiSelect/MultiSelect.mjs" was ignored.
+#39 5.487 node_modules/@mantine/core/esm/components/NumberFormatter/NumberFormatter.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/NumberFormatter/NumberFormatter.mjs" was ignored.
+#39 5.488 node_modules/@mantine/core/esm/components/Notification/Notification.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Notification/Notification.mjs" was ignored.
+#39 5.490 node_modules/@mantine/core/esm/components/NavLink/NavLink.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/NavLink/NavLink.mjs" was ignored.
+#39 5.492 node_modules/@mantine/core/esm/components/Modal/ModalHeader.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/ModalHeader.mjs" was ignored.
+#39 5.493 node_modules/@mantine/core/esm/components/Pagination/Pagination.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pagination/Pagination.mjs" was ignored.
+#39 5.494 node_modules/@mantine/core/esm/components/Pagination/PaginationItems/PaginationItems.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pagination/PaginationItems/PaginationItems.mjs" was ignored.
+#39 5.495 node_modules/@mantine/core/esm/components/Pagination/PaginationEdges/PaginationEdges.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pagination/PaginationEdges/PaginationEdges.mjs" was ignored.
+#39 5.496 node_modules/@mantine/core/esm/components/Pagination/PaginationDots/PaginationDots.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pagination/PaginationDots/PaginationDots.mjs" was ignored.
+#39 5.497 node_modules/@mantine/core/esm/components/NumberInput/NumberInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/NumberInput/NumberInput.mjs" was ignored.
+#39 5.499 node_modules/@mantine/core/esm/components/Pagination/PaginationRoot/PaginationRoot.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pagination/PaginationRoot/PaginationRoot.mjs" was ignored.
+#39 5.500 node_modules/@mantine/core/esm/components/PasswordInput/PasswordInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PasswordInput/PasswordInput.mjs" was ignored.
+#39 5.501 node_modules/@mantine/core/esm/components/Pill/Pill.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pill/Pill.mjs" was ignored.
+#39 5.503 node_modules/@mantine/core/esm/components/Pagination/PaginationControl/PaginationControl.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pagination/PaginationControl/PaginationControl.mjs" was ignored.
+#39 5.504 node_modules/@mantine/core/esm/components/PillsInput/PillsInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PillsInput/PillsInput.mjs" was ignored.
+#39 5.506 node_modules/@mantine/core/esm/components/Pill/PillGroup/PillGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pill/PillGroup/PillGroup.mjs" was ignored.
+#39 5.507 node_modules/@mantine/core/esm/components/PillsInput/PillsInputField/PillsInputField.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PillsInput/PillsInputField/PillsInputField.mjs" was ignored.
+#39 5.508 node_modules/@mantine/core/esm/components/Portal/OptionalPortal.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Portal/OptionalPortal.mjs" was ignored.
+#39 5.509 node_modules/@mantine/core/esm/components/Portal/Portal.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Portal/Portal.mjs" was ignored.
+#39 5.510 node_modules/@mantine/core/esm/components/PinInput/PinInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PinInput/PinInput.mjs" was ignored.
+#39 5.512 node_modules/@mantine/core/esm/components/Progress/Progress.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Progress/Progress.mjs" was ignored.
+#39 5.513 node_modules/@mantine/core/esm/components/Progress/ProgressLabel/ProgressLabel.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Progress/ProgressLabel/ProgressLabel.mjs" was ignored.
+#39 5.513 node_modules/@mantine/core/esm/components/Progress/ProgressRoot/ProgressRoot.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Progress/ProgressRoot/ProgressRoot.mjs" was ignored.
+#39 5.515 node_modules/@mantine/core/esm/components/Progress/ProgressSection/ProgressSection.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Progress/ProgressSection/ProgressSection.mjs" was ignored.
+#39 5.516 node_modules/@mantine/core/esm/components/Radio/RadioGroup/RadioGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/RadioGroup/RadioGroup.mjs" was ignored.
+#39 5.518 node_modules/@mantine/core/esm/components/Radio/RadioIcon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/RadioIcon.mjs" was ignored.
+#39 5.519 node_modules/@mantine/core/esm/components/Radio/Radio.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/Radio.mjs" was ignored.
+#39 5.523 node_modules/@mantine/core/esm/components/Radio/RadioCard/RadioCard.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/RadioCard/RadioCard.context.mjs" was ignored.
+#39 5.524 node_modules/@mantine/core/esm/components/Radio/RadioCard/RadioCard.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/RadioCard/RadioCard.mjs" was ignored.
+#39 5.526 node_modules/@mantine/core/esm/components/Rating/Rating.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Rating/Rating.mjs" was ignored.
+#39 5.528 node_modules/@mantine/core/esm/components/Radio/RadioIndicator/RadioIndicator.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/RadioIndicator/RadioIndicator.mjs" was ignored.
+#39 5.530 node_modules/@mantine/core/esm/components/RingProgress/RingProgress.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/RingProgress/RingProgress.mjs" was ignored.
+#39 5.546 node_modules/@mantine/core/esm/components/SemiCircleProgress/SemiCircleProgress.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/SemiCircleProgress/SemiCircleProgress.mjs" was ignored.
+#39 5.548 node_modules/@mantine/core/esm/components/Select/Select.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Select/Select.mjs" was ignored.
+#39 5.550 node_modules/@mantine/core/esm/components/SegmentedControl/SegmentedControl.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/SegmentedControl/SegmentedControl.mjs" was ignored.
+#39 5.552 node_modules/@mantine/core/esm/components/Skeleton/Skeleton.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Skeleton/Skeleton.mjs" was ignored.
+#39 5.553 node_modules/@mantine/core/esm/components/SimpleGrid/SimpleGrid.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/SimpleGrid/SimpleGrid.mjs" was ignored.
+#39 5.555 node_modules/@mantine/core/esm/components/Space/Space.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Space/Space.mjs" was ignored.
+#39 5.556 node_modules/@mantine/core/esm/components/Spoiler/Spoiler.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Spoiler/Spoiler.mjs" was ignored.
+#39 5.557 node_modules/@mantine/core/esm/components/Slider/Slider/Slider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/Slider/Slider.mjs" was ignored.
+#39 5.560 node_modules/@mantine/core/esm/components/Stack/Stack.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Stack/Stack.mjs" was ignored.
+#39 5.562 node_modules/@mantine/core/esm/components/Switch/Switch.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Switch/Switch.mjs" was ignored.
+#39 5.567 node_modules/@mantine/core/esm/components/Switch/SwitchGroup/SwitchGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Switch/SwitchGroup/SwitchGroup.mjs" was ignored.
+#39 5.568 node_modules/@mantine/core/esm/components/Slider/RangeSlider/RangeSlider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/RangeSlider/RangeSlider.mjs" was ignored.
+#39 5.571 node_modules/@mantine/core/esm/components/Table/Table.components.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Table/Table.components.mjs" was ignored.
+#39 5.573 node_modules/@mantine/core/esm/components/Table/Table.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Table/Table.mjs" was ignored.
+#39 5.574 node_modules/@mantine/core/esm/components/Table/TableScrollContainer.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Table/TableScrollContainer.mjs" was ignored.
+#39 5.575 node_modules/@mantine/core/esm/components/TableOfContents/TableOfContents.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/TableOfContents/TableOfContents.mjs" was ignored.
+#39 5.576 node_modules/@mantine/core/esm/components/Stepper/Stepper.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Stepper/Stepper.mjs" was ignored.
+#39 5.577 node_modules/@mantine/core/esm/components/Tabs/Tabs.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tabs/Tabs.mjs" was ignored.
+#39 5.579 node_modules/@mantine/core/esm/components/Stepper/StepperCompleted/StepperCompleted.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Stepper/StepperCompleted/StepperCompleted.mjs" was ignored.
+#39 5.579 node_modules/@mantine/core/esm/components/Stepper/StepperStep/StepperStep.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Stepper/StepperStep/StepperStep.mjs" was ignored.
+#39 5.580 node_modules/@mantine/core/esm/components/Tabs/TabsPanel/TabsPanel.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tabs/TabsPanel/TabsPanel.mjs" was ignored.
+#39 5.581 node_modules/@mantine/core/esm/components/Tabs/TabsTab/TabsTab.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tabs/TabsTab/TabsTab.mjs" was ignored.
+#39 5.582 node_modules/@mantine/core/esm/components/Tabs/TabsList/TabsList.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tabs/TabsList/TabsList.mjs" was ignored.
+#39 5.583 node_modules/@mantine/core/esm/components/Text/Text.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Text/Text.mjs" was ignored.
+#39 5.584 node_modules/@mantine/core/esm/components/TextInput/TextInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/TextInput/TextInput.mjs" was ignored.
+#39 5.584 node_modules/@mantine/core/esm/components/Textarea/Textarea.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Textarea/Textarea.mjs" was ignored.
+#39 5.586 node_modules/@mantine/core/esm/components/TagsInput/TagsInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/TagsInput/TagsInput.mjs" was ignored.
+#39 5.588 node_modules/@mantine/core/esm/components/Timeline/Timeline.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Timeline/Timeline.mjs" was ignored.
+#39 5.590 node_modules/@mantine/core/esm/components/Timeline/TimelineItem/TimelineItem.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Timeline/TimelineItem/TimelineItem.mjs" was ignored.
+#39 5.594 node_modules/@mantine/core/esm/components/ThemeIcon/ThemeIcon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ThemeIcon/ThemeIcon.mjs" was ignored.
+#39 5.595 node_modules/@mantine/core/esm/components/Title/Title.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Title/Title.mjs" was ignored.
+#39 5.597 node_modules/@mantine/core/esm/components/Tooltip/TooltipGroup/TooltipGroup.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tooltip/TooltipGroup/TooltipGroup.mjs" was ignored.
+#39 5.598 node_modules/@mantine/core/esm/components/Tooltip/Tooltip.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tooltip/Tooltip.mjs" was ignored.
+#39 5.599 node_modules/@mantine/core/esm/components/Tooltip/TooltipFloating/TooltipFloating.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tooltip/TooltipFloating/TooltipFloating.mjs" was ignored.
+#39 5.600 node_modules/@mantine/core/esm/components/Transition/get-transition-props/get-transition-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Transition/get-transition-props/get-transition-props.mjs" was ignored.
+#39 5.600 node_modules/@mantine/core/esm/components/Transition/transitions.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Transition/transitions.mjs" was ignored.
+#39 5.601 node_modules/@mantine/core/esm/components/Tree/Tree.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tree/Tree.mjs" was ignored.
+#39 5.602 node_modules/@mantine/core/esm/components/Transition/Transition.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Transition/Transition.mjs" was ignored.
+#39 5.603 node_modules/@mantine/core/esm/components/TypographyStylesProvider/TypographyStylesProvider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/TypographyStylesProvider/TypographyStylesProvider.mjs" was ignored.
+#39 5.605 node_modules/@mantine/core/esm/components/HoverCard/HoverCardDropdown/HoverCardDropdown.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/HoverCard/HoverCardDropdown/HoverCardDropdown.mjs" was ignored.
+#39 5.605 node_modules/@mantine/core/esm/components/Tree/use-tree.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tree/use-tree.mjs" was ignored.
+#39 5.686 node_modules/@tanstack/react-query/build/modern/errorBoundaryUtils.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/errorBoundaryUtils.js" was ignored.
+#39 5.696 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-class-name.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-class-name.mjs" was ignored.
+#39 5.698 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/get-style.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/get-style.mjs" was ignored.
+#39 5.699 node_modules/@mantine/core/esm/core/MantineProvider/convert-css-variables/wrap-with-selector.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/convert-css-variables/wrap-with-selector.mjs" was ignored.
+#39 5.699 node_modules/@mantine/core/esm/core/MantineProvider/use-respect-reduce-motion/use-respect-reduce-motion.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/use-respect-reduce-motion/use-respect-reduce-motion.mjs" was ignored.
+#39 5.700 node_modules/@mantine/core/esm/core/MantineProvider/convert-css-variables/css-variables-object-to-string.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/convert-css-variables/css-variables-object-to-string.mjs" was ignored.
+#39 5.700 node_modules/@mantine/core/esm/core/styles-api/use-styles/use-transformed-styles.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/use-transformed-styles.mjs" was ignored.
+#39 5.701 node_modules/@mantine/core/esm/core/MantineProvider/suppress-nextjs-warning.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/suppress-nextjs-warning.mjs" was ignored.
+#39 5.701 node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/get-merged-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/get-merged-variables.mjs" was ignored.
+#39 5.705 node_modules/@mantine/core/esm/core/MantineProvider/MantineClasses/MantineClasses.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/MantineClasses/MantineClasses.mjs" was ignored.
+#39 5.706 node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/remove-default-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/MantineProvider/MantineCssVariables/remove-default-variables.mjs" was ignored.
+#39 5.707 node_modules/@mantine/core/esm/core/Box/style-props/parse-style-props/sort-media-queries.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/parse-style-props/sort-media-queries.mjs" was ignored.
+#39 5.708 node_modules/@mantine/core/esm/core/Box/get-box-mod/get-box-mod.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/get-box-mod/get-box-mod.mjs" was ignored.
+#39 5.708 node_modules/@mantine/core/esm/core/Box/style-props/resolvers/index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/resolvers/index.mjs" was ignored.
+#39 5.710 node_modules/@mantine/core/esm/components/Collapse/use-collapse.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Collapse/use-collapse.mjs" was ignored.
+#39 5.711 node_modules/@mantine/core/esm/components/UnstyledButton/UnstyledButton.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/UnstyledButton/UnstyledButton.module.css.mjs" was ignored.
+#39 5.711 node_modules/@mantine/core/esm/core/Box/get-box-style/get-box-style.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/get-box-style/get-box-style.mjs" was ignored.
+#39 5.712 node_modules/@mantine/core/esm/components/Paper/Paper.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Paper/Paper.module.css.mjs" was ignored.
+#39 5.712 node_modules/@mantine/core/esm/components/ActionIcon/ActionIcon.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ActionIcon/ActionIcon.module.css.mjs" was ignored.
+#39 5.712 node_modules/@mantine/core/esm/components/VisuallyHidden/VisuallyHidden.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/VisuallyHidden/VisuallyHidden.module.css.mjs" was ignored.
+#39 5.712 node_modules/@mantine/core/esm/components/Popover/Popover.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Popover/Popover.context.mjs" was ignored.
+#39 5.713 node_modules/@mantine/core/esm/components/Loader/loaders/Bars.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Loader/loaders/Bars.mjs" was ignored.
+#39 5.714 node_modules/@mantine/core/esm/components/Loader/loaders/Dots.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Loader/loaders/Dots.mjs" was ignored.
+#39 5.715 node_modules/@mantine/core/esm/components/Loader/loaders/Oval.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Loader/loaders/Oval.mjs" was ignored.
+#39 5.716 node_modules/@mantine/core/esm/components/Loader/Loader.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Loader/Loader.module.css.mjs" was ignored.
+#39 5.716 node_modules/@mantine/core/esm/components/Overlay/Overlay.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Overlay/Overlay.module.css.mjs" was ignored.
+#39 5.716 node_modules/@mantine/core/esm/core/InlineStyles/css-object-to-string/css-object-to-string.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/InlineStyles/css-object-to-string/css-object-to-string.mjs" was ignored.
+#39 5.717 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaCorner/ScrollAreaCorner.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaCorner/ScrollAreaCorner.mjs" was ignored.
+#39 5.717 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaRoot/ScrollAreaRoot.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaRoot/ScrollAreaRoot.mjs" was ignored.
+#39 5.718 node_modules/@mantine/core/esm/components/ScrollArea/ScrollArea.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollArea.module.css.mjs" was ignored.
+#39 5.718 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaViewport/ScrollAreaViewport.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaViewport/ScrollAreaViewport.mjs" was ignored.
+#39 5.719 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaThumb/ScrollAreaThumb.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaThumb/ScrollAreaThumb.mjs" was ignored.
+#39 5.720 node_modules/@mantine/core/esm/components/Group/filter-falsy-children/filter-falsy-children.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Group/filter-falsy-children/filter-falsy-children.mjs" was ignored.
+#39 5.720 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbar.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbar.mjs" was ignored.
+#39 5.721 node_modules/@mantine/core/esm/components/Group/Group.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Group/Group.module.css.mjs" was ignored.
+#39 5.722 node_modules/@mantine/core/esm/components/Popover/Popover.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Popover/Popover.module.css.mjs" was ignored.
+#39 5.722 node_modules/@mantine/core/esm/components/Popover/use-popover.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Popover/use-popover.mjs" was ignored.
+#39 5.723 node_modules/@mantine/core/esm/components/ModalBase/ModalBase.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/ModalBase.context.mjs" was ignored.
+#39 5.723 node_modules/@mantine/core/esm/components/ModalBase/ModalBase.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/ModalBase.module.css.mjs" was ignored.
+#39 5.724 node_modules/@mantine/core/esm/components/ModalBase/use-modal.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/use-modal.mjs" was ignored.
+#39 5.725 node_modules/@mantine/core/esm/components/ModalBase/use-modal-body-id.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/use-modal-body-id.mjs" was ignored.
+#39 5.725 node_modules/@mantine/core/esm/components/ModalBase/use-modal-transition.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/use-modal-transition.mjs" was ignored.
+#39 5.726 node_modules/@mantine/core/esm/components/ModalBase/use-modal-title-id.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/use-modal-title-id.mjs" was ignored.
+#39 5.726 node_modules/@mantine/core/esm/components/Input/Input.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/Input.context.mjs" was ignored.
+#39 5.727 node_modules/@mantine/core/esm/components/Input/InputWrapper/get-input-offsets/get-input-offsets.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/InputWrapper/get-input-offsets/get-input-offsets.mjs" was ignored.
+#39 5.727 node_modules/@mantine/core/esm/components/Input/Input.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Input/Input.module.css.mjs" was ignored.
+#39 5.728 node_modules/@mantine/core/esm/components/CloseButton/CloseButton.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/CloseButton/CloseButton.module.css.mjs" was ignored.
+#39 5.728 node_modules/@mantine/core/esm/components/Accordion/Accordion.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Accordion/Accordion.context.mjs" was ignored.
+#39 5.729 node_modules/@mantine/core/esm/components/Accordion/Accordion.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Accordion/Accordion.module.css.mjs" was ignored.
+#39 5.729 node_modules/@mantine/core/esm/components/Accordion/AccordionItem.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Accordion/AccordionItem.context.mjs" was ignored.
+#39 5.730 node_modules/@mantine/core/esm/components/Flex/Flex.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Flex/Flex.module.css.mjs" was ignored.
+#39 5.730 node_modules/@mantine/core/esm/components/FloatingIndicator/FloatingIndicator.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/FloatingIndicator/FloatingIndicator.module.css.mjs" was ignored.
+#39 5.730 node_modules/@mantine/core/esm/components/Alert/Alert.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Alert/Alert.module.css.mjs" was ignored.
+#39 5.730 node_modules/@mantine/core/esm/components/AngleSlider/AngleSlider.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AngleSlider/AngleSlider.module.css.mjs" was ignored.
+#39 5.731 node_modules/@mantine/core/esm/components/FloatingIndicator/use-floating-indicator.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/FloatingIndicator/use-floating-indicator.mjs" was ignored.
+#39 5.732 node_modules/@mantine/core/esm/components/AppShell/AppShell.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShell.context.mjs" was ignored.
+#39 5.733 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/AppShellMediaStyles.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/AppShellMediaStyles.mjs" was ignored.
+#39 5.734 node_modules/@mantine/core/esm/components/AppShell/AppShell.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShell.module.css.mjs" was ignored.
+#39 5.734 node_modules/@mantine/core/esm/components/AppShell/use-resizing/use-resizing.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/use-resizing/use-resizing.mjs" was ignored.
+#39 5.735 node_modules/@mantine/core/esm/components/Anchor/Anchor.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Anchor/Anchor.module.css.mjs" was ignored.
+#39 5.735 node_modules/@mantine/core/esm/components/AspectRatio/AspectRatio.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AspectRatio/AspectRatio.module.css.mjs" was ignored.
+#39 5.735 node_modules/@mantine/core/esm/components/Combobox/Combobox.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/Combobox.context.mjs" was ignored.
+#39 5.736 node_modules/@mantine/core/esm/components/Avatar/AvatarGroup/AvatarGroup.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Avatar/AvatarGroup/AvatarGroup.context.mjs" was ignored.
+#39 5.736 node_modules/@mantine/core/esm/components/Affix/Affix.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Affix/Affix.module.css.mjs" was ignored.
+#39 5.736 node_modules/@mantine/core/esm/components/Avatar/AvatarPlaceholderIcon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Avatar/AvatarPlaceholderIcon.mjs" was ignored.
+#39 5.737 node_modules/@mantine/core/esm/components/Avatar/get-initials-color/get-initials-color.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Avatar/get-initials-color/get-initials-color.mjs" was ignored.
+#39 5.737 node_modules/@mantine/core/esm/components/Avatar/get-initials/get-initials.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Avatar/get-initials/get-initials.mjs" was ignored.
+#39 5.737 node_modules/@mantine/core/esm/components/Avatar/Avatar.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Avatar/Avatar.module.css.mjs" was ignored.
+#39 5.737 node_modules/@mantine/core/esm/components/BackgroundImage/BackgroundImage.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/BackgroundImage/BackgroundImage.module.css.mjs" was ignored.
+#39 5.737 node_modules/@mantine/core/esm/components/Badge/Badge.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Badge/Badge.module.css.mjs" was ignored.
+#39 5.737 node_modules/@mantine/core/esm/components/Blockquote/Blockquote.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Blockquote/Blockquote.module.css.mjs" was ignored.
+#39 5.738 node_modules/@mantine/core/esm/components/Button/Button.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Button/Button.module.css.mjs" was ignored.
+#39 5.738 node_modules/@mantine/core/esm/components/Burger/Burger.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Burger/Burger.module.css.mjs" was ignored.
+#39 5.738 node_modules/@mantine/core/esm/components/Card/Card.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Card/Card.context.mjs" was ignored.
+#39 5.739 node_modules/@mantine/core/esm/components/Card/Card.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Card/Card.module.css.mjs" was ignored.
+#39 5.739 node_modules/@mantine/core/esm/components/InputsGroupFieldset/InputsGroupFieldset.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/InputsGroupFieldset/InputsGroupFieldset.mjs" was ignored.
+#39 5.740 node_modules/@mantine/core/esm/components/Checkbox/CheckboxIndicator/CheckboxIndicator.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/CheckboxIndicator/CheckboxIndicator.module.css.mjs" was ignored.
+#39 5.740 node_modules/@mantine/core/esm/components/Center/Center.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Center/Center.module.css.mjs" was ignored.
+#39 5.740 node_modules/@mantine/core/esm/components/Chip/ChipGroup.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Chip/ChipGroup.context.mjs" was ignored.
+#39 5.741 node_modules/@mantine/core/esm/components/ColorPicker/ColorPicker.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/ColorPicker.context.mjs" was ignored.
+#39 5.741 node_modules/@mantine/core/esm/components/ColorPicker/ColorPicker.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/ColorPicker.module.css.mjs" was ignored.
+#39 5.745 node_modules/@mantine/core/esm/components/Code/Code.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Code/Code.module.css.mjs" was ignored.
+#39 5.745 node_modules/@mantine/core/esm/components/ColorPicker/Saturation/Saturation.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/Saturation/Saturation.mjs" was ignored.
+#39 5.747 node_modules/@mantine/core/esm/components/Chip/Chip.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Chip/Chip.module.css.mjs" was ignored.
+#39 5.747 node_modules/@mantine/core/esm/components/ColorSwatch/ColorSwatch.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorSwatch/ColorSwatch.module.css.mjs" was ignored.
+#39 5.747 node_modules/@mantine/core/esm/components/ColorInput/EyeDropperIcon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorInput/EyeDropperIcon.mjs" was ignored.
+#39 5.748 node_modules/@mantine/core/esm/components/ColorPicker/ColorSlider/ColorSlider.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/ColorSlider/ColorSlider.mjs" was ignored.
+#39 5.749 node_modules/@mantine/core/esm/components/Breadcrumbs/Breadcrumbs.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Breadcrumbs/Breadcrumbs.module.css.mjs" was ignored.
+#39 5.749 node_modules/@mantine/core/esm/components/ColorInput/ColorInput.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorInput/ColorInput.module.css.mjs" was ignored.
+#39 5.749 node_modules/@mantine/core/esm/components/InlineInput/InlineInput.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/InlineInput/InlineInput.mjs" was ignored.
+#39 5.751 node_modules/@mantine/core/esm/components/Checkbox/Checkbox.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/Checkbox.module.css.mjs" was ignored.
+#39 5.751 node_modules/@mantine/core/esm/components/ColorPicker/Swatches/Swatches.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/Swatches/Swatches.mjs" was ignored.
+#39 5.752 node_modules/@mantine/core/esm/components/Checkbox/CheckboxCard/CheckboxCard.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Checkbox/CheckboxCard/CheckboxCard.module.css.mjs" was ignored.
+#39 5.752 node_modules/@mantine/core/esm/components/Combobox/Combobox.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/Combobox.module.css.mjs" was ignored.
+#39 5.752 node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/is-empty-combobox-data.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/is-empty-combobox-data.mjs" was ignored.
+#39 5.752 node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/validate-options.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/OptionsDropdown/validate-options.mjs" was ignored.
+#39 5.753 node_modules/@mantine/core/esm/components/Combobox/use-combobox/get-index/get-virtualized-index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/use-combobox/get-index/get-virtualized-index.mjs" was ignored.
+#39 5.754 node_modules/@mantine/core/esm/components/Combobox/use-combobox/get-index/get-index.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Combobox/use-combobox/get-index/get-index.mjs" was ignored.
+#39 5.754 node_modules/@mantine/core/esm/components/Dialog/Dialog.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Dialog/Dialog.module.css.mjs" was ignored.
+#39 5.754 node_modules/@mantine/core/esm/components/Container/Container.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Container/Container.module.css.mjs" was ignored.
+#39 5.755 node_modules/@mantine/core/esm/components/Fieldset/Fieldset.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Fieldset/Fieldset.module.css.mjs" was ignored.
+#39 5.755 node_modules/@mantine/core/esm/components/Divider/Divider.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Divider/Divider.module.css.mjs" was ignored.
+#39 5.755 node_modules/@mantine/core/esm/components/Drawer/Drawer.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/Drawer.module.css.mjs" was ignored.
+#39 5.755 node_modules/@mantine/core/esm/components/Drawer/Drawer.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Drawer/Drawer.context.mjs" was ignored.
+#39 5.757 node_modules/@mantine/core/esm/components/Grid/Grid.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Grid/Grid.module.css.mjs" was ignored.
+#39 5.757 node_modules/@mantine/core/esm/components/Grid/Grid.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Grid/Grid.context.mjs" was ignored.
+#39 5.758 node_modules/@mantine/core/esm/components/Grid/GridCol/GridColVariables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Grid/GridCol/GridColVariables.mjs" was ignored.
+#39 5.759 node_modules/@mantine/core/esm/components/Grid/GridVariables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Grid/GridVariables.mjs" was ignored.
+#39 5.760 node_modules/@mantine/core/esm/components/Floating/FloatingArrow/get-arrow-position-styles.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Floating/FloatingArrow/get-arrow-position-styles.mjs" was ignored.
+#39 5.761 node_modules/@mantine/core/esm/components/Image/Image.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Image/Image.module.css.mjs" was ignored.
+#39 5.761 node_modules/@mantine/core/esm/components/JsonInput/validate-json/validate-json.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/JsonInput/validate-json/validate-json.mjs" was ignored.
+#39 5.762 node_modules/@mantine/core/esm/components/Indicator/get-position-variables/get-position-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Indicator/get-position-variables/get-position-variables.mjs" was ignored.
+#39 5.763 node_modules/@mantine/core/esm/components/Indicator/Indicator.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Indicator/Indicator.module.css.mjs" was ignored.
+#39 5.763 node_modules/@mantine/core/esm/components/Kbd/Kbd.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Kbd/Kbd.module.css.mjs" was ignored.
+#39 5.763 node_modules/@mantine/core/esm/components/HoverCard/HoverCard.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/HoverCard/HoverCard.context.mjs" was ignored.
+#39 5.764 node_modules/@mantine/core/esm/components/Highlight/highlighter/highlighter.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Highlight/highlighter/highlighter.mjs" was ignored.
+#39 5.764 node_modules/@mantine/core/esm/components/List/List.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/List/List.context.mjs" was ignored.
+#39 5.765 node_modules/@mantine/core/esm/components/List/List.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/List/List.module.css.mjs" was ignored.
+#39 5.766 node_modules/@mantine/core/esm/components/Mark/get-mark-color.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Mark/get-mark-color.mjs" was ignored.
+#39 5.766 node_modules/@mantine/core/esm/components/Mark/Mark.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Mark/Mark.module.css.mjs" was ignored.
+#39 5.767 node_modules/@mantine/core/esm/components/LoadingOverlay/LoadingOverlay.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/LoadingOverlay/LoadingOverlay.module.css.mjs" was ignored.
+#39 5.767 node_modules/@mantine/core/esm/components/Menu/Menu.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Menu/Menu.context.mjs" was ignored.
+#39 5.768 node_modules/@mantine/core/esm/components/Menu/Menu.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Menu/Menu.module.css.mjs" was ignored.
+#39 5.768 node_modules/@mantine/core/esm/components/Modal/Modal.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/Modal.module.css.mjs" was ignored.
+#39 5.768 node_modules/@mantine/core/esm/components/Modal/Modal.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Modal/Modal.context.mjs" was ignored.
+#39 5.769 node_modules/@mantine/core/esm/components/NativeSelect/NativeSelectOption.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/NativeSelect/NativeSelectOption.mjs" was ignored.
+#39 5.769 node_modules/@mantine/core/esm/components/MultiSelect/filter-picked-values.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/MultiSelect/filter-picked-values.mjs" was ignored.
+#39 5.771 node_modules/@mantine/core/esm/components/Notification/Notification.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Notification/Notification.module.css.mjs" was ignored.
+#39 5.771 node_modules/@mantine/core/esm/components/NavLink/NavLink.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/NavLink/NavLink.module.css.mjs" was ignored.
+#39 5.771 node_modules/@mantine/core/esm/components/Pagination/Pagination.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pagination/Pagination.module.css.mjs" was ignored.
+#39 5.771 node_modules/@mantine/core/esm/components/Pagination/Pagination.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pagination/Pagination.context.mjs" was ignored.
+#39 5.772 node_modules/@mantine/core/esm/components/Pagination/Pagination.icons.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pagination/Pagination.icons.mjs" was ignored.
+#39 5.773 node_modules/@mantine/core/esm/components/NumberInput/NumberInputChevron.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/NumberInput/NumberInputChevron.mjs" was ignored.
+#39 5.773 node_modules/@mantine/core/esm/components/NumberInput/NumberInput.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/NumberInput/NumberInput.module.css.mjs" was ignored.
+#39 5.774 node_modules/@mantine/core/esm/components/PasswordInput/PasswordToggleIcon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PasswordInput/PasswordToggleIcon.mjs" was ignored.
+#39 5.774 node_modules/@mantine/core/esm/components/PasswordInput/PasswordInput.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PasswordInput/PasswordInput.module.css.mjs" was ignored.
+#39 5.774 node_modules/@mantine/core/esm/components/PillsInput/PillsInput.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PillsInput/PillsInput.context.mjs" was ignored.
+#39 5.775 node_modules/@mantine/core/esm/components/Pill/PillGroup.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pill/PillGroup.context.mjs" was ignored.
+#39 5.776 node_modules/@mantine/core/esm/components/Pill/Pill.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Pill/Pill.module.css.mjs" was ignored.
+#39 5.776 node_modules/@mantine/core/esm/components/PillsInput/PillsInput.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PillsInput/PillsInput.module.css.mjs" was ignored.
+#39 5.776 node_modules/@mantine/core/esm/components/PinInput/PinInput.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PinInput/PinInput.module.css.mjs" was ignored.
+#39 5.776 node_modules/@mantine/core/esm/components/PinInput/create-pin-array/create-pin-array.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/PinInput/create-pin-array/create-pin-array.mjs" was ignored.
+#39 5.777 node_modules/@mantine/core/esm/components/Progress/Progress.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Progress/Progress.context.mjs" was ignored.
+#39 5.777 node_modules/@mantine/core/esm/components/Radio/RadioGroup.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/RadioGroup.context.mjs" was ignored.
+#39 5.778 node_modules/@mantine/core/esm/components/Progress/Progress.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Progress/Progress.module.css.mjs" was ignored.
+#39 5.778 node_modules/@mantine/core/esm/components/Radio/Radio.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/Radio.module.css.mjs" was ignored.
+#39 5.779 node_modules/@mantine/core/esm/components/Rating/Rating.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Rating/Rating.context.mjs" was ignored.
+#39 5.779 node_modules/@mantine/core/esm/components/Radio/RadioCard/RadioCard.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/RadioCard/RadioCard.module.css.mjs" was ignored.
+#39 5.780 node_modules/@mantine/core/esm/components/Radio/RadioIndicator/RadioIndicator.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Radio/RadioIndicator/RadioIndicator.module.css.mjs" was ignored.
+#39 5.780 node_modules/@mantine/core/esm/components/Rating/RatingItem/RatingItem.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Rating/RatingItem/RatingItem.mjs" was ignored.
+#39 5.781 node_modules/@mantine/core/esm/components/RingProgress/Curve/Curve.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/RingProgress/Curve/Curve.mjs" was ignored.
+#39 5.782 node_modules/@mantine/core/esm/components/RingProgress/get-curves/get-curves.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/RingProgress/get-curves/get-curves.mjs" was ignored.
+#39 5.782 node_modules/@mantine/core/esm/components/Rating/Rating.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Rating/Rating.module.css.mjs" was ignored.
+#39 5.783 node_modules/@mantine/core/esm/components/RingProgress/RingProgress.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/RingProgress/RingProgress.module.css.mjs" was ignored.
+#39 5.794 node_modules/@mantine/core/esm/components/SemiCircleProgress/SemiCircleProgress.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/SemiCircleProgress/SemiCircleProgress.module.css.mjs" was ignored.
+#39 5.794 node_modules/@mantine/core/esm/components/SegmentedControl/SegmentedControl.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/SegmentedControl/SegmentedControl.module.css.mjs" was ignored.
+#39 5.794 node_modules/@mantine/core/esm/components/Skeleton/Skeleton.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Skeleton/Skeleton.module.css.mjs" was ignored.
+#39 5.794 node_modules/@mantine/core/esm/components/SimpleGrid/SimpleGridVariables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/SimpleGrid/SimpleGridVariables.mjs" was ignored.
+#39 5.797 node_modules/@mantine/core/esm/components/SimpleGrid/SimpleGrid.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/SimpleGrid/SimpleGrid.module.css.mjs" was ignored.
+#39 5.797 node_modules/@mantine/core/esm/components/Slider/Slider.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/Slider.context.mjs" was ignored.
+#39 5.798 node_modules/@mantine/core/esm/components/Spoiler/Spoiler.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Spoiler/Spoiler.module.css.mjs" was ignored.
+#39 5.799 node_modules/@mantine/core/esm/components/Slider/SliderRoot/SliderRoot.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/SliderRoot/SliderRoot.mjs" was ignored.
+#39 5.800 node_modules/@mantine/core/esm/components/Slider/Thumb/Thumb.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/Thumb/Thumb.mjs" was ignored.
+#39 5.802 node_modules/@mantine/core/esm/components/Slider/utils/get-floating-value/get-gloating-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/utils/get-floating-value/get-gloating-value.mjs" was ignored.
+#39 5.802 node_modules/@mantine/core/esm/components/Slider/Track/Track.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/Track/Track.mjs" was ignored.
+#39 5.803 node_modules/@mantine/core/esm/components/Slider/utils/get-change-value/get-change-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/utils/get-change-value/get-change-value.mjs" was ignored.
+#39 5.804 node_modules/@mantine/core/esm/components/Slider/utils/get-step-mark-value/get-step-mark-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/utils/get-step-mark-value/get-step-mark-value.mjs" was ignored.
+#39 5.804 node_modules/@mantine/core/esm/components/Slider/Slider.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/Slider.module.css.mjs" was ignored.
+#39 5.804 node_modules/@mantine/core/esm/components/Slider/utils/get-precision/get-precision.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/utils/get-precision/get-precision.mjs" was ignored.
+#39 5.805 node_modules/@mantine/core/esm/components/Slider/utils/get-position/get-position.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/utils/get-position/get-position.mjs" was ignored.
+#39 5.805 node_modules/@mantine/core/esm/components/Switch/SwitchGroup.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Switch/SwitchGroup.context.mjs" was ignored.
+#39 5.805 node_modules/@mantine/core/esm/components/Switch/Switch.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Switch/Switch.module.css.mjs" was ignored.
+#39 5.806 node_modules/@mantine/core/esm/components/Stack/Stack.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Stack/Stack.module.css.mjs" was ignored.
+#39 5.806 node_modules/@mantine/core/esm/components/Slider/utils/get-client-position/get-client-position.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/utils/get-client-position/get-client-position.mjs" was ignored.
+#39 5.806 node_modules/@mantine/core/esm/components/Table/Table.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Table/Table.module.css.mjs" was ignored.
+#39 5.806 node_modules/@mantine/core/esm/components/Table/TableDataRenderer.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Table/TableDataRenderer.mjs" was ignored.
+#39 5.807 node_modules/@mantine/core/esm/components/Stepper/Stepper.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Stepper/Stepper.context.mjs" was ignored.
+#39 5.808 node_modules/@mantine/core/esm/components/Stepper/Stepper.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Stepper/Stepper.module.css.mjs" was ignored.
+#39 5.808 node_modules/@mantine/core/esm/components/Table/Table.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Table/Table.context.mjs" was ignored.
+#39 5.808 node_modules/@mantine/core/esm/components/Tabs/Tabs.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tabs/Tabs.module.css.mjs" was ignored.
+#39 5.809 node_modules/@mantine/core/esm/components/Text/Text.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Text/Text.module.css.mjs" was ignored.
+#39 5.809 node_modules/@mantine/core/esm/components/TagsInput/get-splitted-tags.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/TagsInput/get-splitted-tags.mjs" was ignored.
+#39 5.809 node_modules/@mantine/core/esm/components/TagsInput/filter-picked-tags.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/TagsInput/filter-picked-tags.mjs" was ignored.
+#39 5.811 node_modules/@mantine/core/esm/components/Timeline/Timeline.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Timeline/Timeline.context.mjs" was ignored.
+#39 5.814 node_modules/@mantine/core/esm/components/Timeline/Timeline.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Timeline/Timeline.module.css.mjs" was ignored.
+#39 5.814 node_modules/@mantine/core/esm/components/Title/get-title-size.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Title/get-title-size.mjs" was ignored.
+#39 5.815 node_modules/@mantine/core/esm/components/Title/Title.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Title/Title.module.css.mjs" was ignored.
+#39 5.815 node_modules/@mantine/core/esm/components/TableOfContents/TableOfContents.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/TableOfContents/TableOfContents.module.css.mjs" was ignored.
+#39 5.816 node_modules/@mantine/core/esm/components/ThemeIcon/ThemeIcon.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ThemeIcon/ThemeIcon.module.css.mjs" was ignored.
+#39 5.816 node_modules/@mantine/core/esm/components/Tooltip/Tooltip.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tooltip/Tooltip.module.css.mjs" was ignored.
+#39 5.816 node_modules/@mantine/core/esm/components/Tooltip/use-tooltip.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tooltip/use-tooltip.mjs" was ignored.
+#39 5.817 node_modules/@mantine/core/esm/components/Tooltip/TooltipFloating/use-floating-tooltip.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tooltip/TooltipFloating/use-floating-tooltip.mjs" was ignored.
+#39 5.818 node_modules/@mantine/core/esm/components/Tabs/Tabs.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tabs/Tabs.context.mjs" was ignored.
+#39 5.818 node_modules/@mantine/core/esm/components/Tree/Tree.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tree/Tree.module.css.mjs" was ignored.
+#39 5.818 node_modules/@mantine/core/esm/components/Tree/TreeNode.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tree/TreeNode.mjs" was ignored.
+#39 5.820 node_modules/@mantine/core/esm/components/Tooltip/TooltipGroup/TooltipGroup.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tooltip/TooltipGroup/TooltipGroup.context.mjs" was ignored.
+#39 5.820 node_modules/@mantine/core/esm/components/Transition/get-transition-styles/get-transition-styles.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Transition/get-transition-styles/get-transition-styles.mjs" was ignored.
+#39 5.820 node_modules/@mantine/core/esm/components/Transition/use-transition.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Transition/use-transition.mjs" was ignored.
+#39 5.821 node_modules/@mantine/core/esm/components/TypographyStylesProvider/TypographyStylesProvider.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/TypographyStylesProvider/TypographyStylesProvider.module.css.mjs" was ignored.
+#39 5.822 node_modules/@mantine/core/esm/components/Tree/get-children-nodes-values/get-children-nodes-values.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tree/get-children-nodes-values/get-children-nodes-values.mjs" was ignored.
+#39 5.822 node_modules/@mantine/core/esm/components/Tree/is-node-indeterminate/is-node-indeterminate.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tree/is-node-indeterminate/is-node-indeterminate.mjs" was ignored.
+#39 5.823 node_modules/@mantine/core/esm/components/Tree/is-node-checked/is-node-checked.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tree/is-node-checked/is-node-checked.mjs" was ignored.
+#39 5.824 node_modules/@mantine/core/esm/components/Tree/get-all-checked-nodes/get-all-checked-nodes.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Tree/get-all-checked-nodes/get-all-checked-nodes.mjs" was ignored.
+#39 5.872 node_modules/@mantine/hooks/esm/utils/clamp/clamp.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/utils/clamp/clamp.mjs" was ignored.
+#39 5.873 node_modules/@mantine/hooks/esm/utils/lower-first/lower-first.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/utils/lower-first/lower-first.mjs" was ignored.
+#39 5.873 node_modules/@mantine/hooks/esm/utils/random-id/random-id.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/utils/random-id/random-id.mjs" was ignored.
+#39 5.873 node_modules/@mantine/hooks/esm/utils/range/range.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/utils/range/range.mjs" was ignored.
+#39 5.874 node_modules/@mantine/hooks/esm/use-callback-ref/use-callback-ref.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-callback-ref/use-callback-ref.mjs" was ignored.
+#39 5.874 node_modules/@mantine/hooks/esm/utils/shallow-equal/shallow-equal.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/utils/shallow-equal/shallow-equal.mjs" was ignored.
+#39 5.875 node_modules/@mantine/hooks/esm/utils/upper-first/upper-first.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/utils/upper-first/upper-first.mjs" was ignored.
+#39 5.875 node_modules/@mantine/hooks/esm/use-debounced-callback/use-debounced-callback.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-debounced-callback/use-debounced-callback.mjs" was ignored.
+#39 5.875 node_modules/@mantine/hooks/esm/use-click-outside/use-click-outside.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-click-outside/use-click-outside.mjs" was ignored.
+#39 5.876 node_modules/@mantine/hooks/esm/use-clipboard/use-clipboard.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-clipboard/use-clipboard.mjs" was ignored.
+#39 5.879 node_modules/@mantine/hooks/esm/use-counter/use-counter.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-counter/use-counter.mjs" was ignored.
+#39 5.879 node_modules/@mantine/hooks/esm/use-color-scheme/use-color-scheme.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-color-scheme/use-color-scheme.mjs" was ignored.
+#39 5.880 node_modules/@mantine/hooks/esm/use-debounced-state/use-debounced-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-debounced-state/use-debounced-state.mjs" was ignored.
+#39 5.881 node_modules/@mantine/hooks/esm/use-debounced-value/use-debounced-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-debounced-value/use-debounced-value.mjs" was ignored.
+#39 5.881 node_modules/@mantine/hooks/esm/use-focus-return/use-focus-return.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-focus-return/use-focus-return.mjs" was ignored.
+#39 5.882 node_modules/@mantine/hooks/esm/use-document-visibility/use-document-visibility.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-document-visibility/use-document-visibility.mjs" was ignored.
+#39 5.882 node_modules/@mantine/hooks/esm/use-force-update/use-force-update.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-force-update/use-force-update.mjs" was ignored.
+#39 5.882 node_modules/@mantine/hooks/esm/use-did-update/use-did-update.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-did-update/use-did-update.mjs" was ignored.
+#39 5.883 node_modules/@mantine/hooks/esm/use-id/use-id.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-id/use-id.mjs" was ignored.
+#39 5.883 node_modules/@mantine/hooks/esm/use-document-title/use-document-title.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-document-title/use-document-title.mjs" was ignored.
+#39 5.884 node_modules/@mantine/hooks/esm/use-idle/use-idle.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-idle/use-idle.mjs" was ignored.
+#39 5.884 node_modules/@mantine/hooks/esm/use-interval/use-interval.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-interval/use-interval.mjs" was ignored.
+#39 5.884 node_modules/@mantine/hooks/esm/use-isomorphic-effect/use-isomorphic-effect.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-isomorphic-effect/use-isomorphic-effect.mjs" was ignored.
+#39 5.885 node_modules/@mantine/hooks/esm/use-session-storage/use-session-storage.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-session-storage/use-session-storage.mjs" was ignored.
+#39 5.885 node_modules/@mantine/hooks/esm/use-list-state/use-list-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-list-state/use-list-state.mjs" was ignored.
+#39 5.886 node_modules/@mantine/hooks/esm/use-local-storage/use-local-storage.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-local-storage/use-local-storage.mjs" was ignored.
+#39 5.886 node_modules/@mantine/hooks/esm/use-media-query/use-media-query.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-media-query/use-media-query.mjs" was ignored.
+#39 5.887 node_modules/@mantine/hooks/esm/use-merged-ref/use-merged-ref.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-merged-ref/use-merged-ref.mjs" was ignored.
+#39 5.887 node_modules/@mantine/hooks/esm/use-pagination/use-pagination.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-pagination/use-pagination.mjs" was ignored.
+#39 5.887 node_modules/@mantine/hooks/esm/use-mouse/use-mouse.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-mouse/use-mouse.mjs" was ignored.
+#39 5.888 node_modules/@mantine/hooks/esm/use-queue/use-queue.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-queue/use-queue.mjs" was ignored.
+#39 5.888 node_modules/@mantine/hooks/esm/use-page-leave/use-page-leave.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-page-leave/use-page-leave.mjs" was ignored.
+#39 5.888 node_modules/@mantine/hooks/esm/use-move/use-move.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-move/use-move.mjs" was ignored.
+#39 5.889 node_modules/@mantine/hooks/esm/use-resize-observer/use-resize-observer.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-resize-observer/use-resize-observer.mjs" was ignored.
+#39 5.889 node_modules/@mantine/hooks/esm/use-reduced-motion/use-reduced-motion.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-reduced-motion/use-reduced-motion.mjs" was ignored.
+#39 5.890 node_modules/@mantine/hooks/esm/use-shallow-effect/use-shallow-effect.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-shallow-effect/use-shallow-effect.mjs" was ignored.
+#39 5.890 node_modules/@mantine/hooks/esm/use-toggle/use-toggle.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-toggle/use-toggle.mjs" was ignored.
+#39 5.891 node_modules/@mantine/hooks/esm/use-uncontrolled/use-uncontrolled.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-uncontrolled/use-uncontrolled.mjs" was ignored.
+#39 5.891 node_modules/@mantine/hooks/esm/use-window-event/use-window-event.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-window-event/use-window-event.mjs" was ignored.
+#39 5.891 node_modules/@mantine/hooks/esm/use-window-scroll/use-window-scroll.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-window-scroll/use-window-scroll.mjs" was ignored.
+#39 5.892 node_modules/@mantine/hooks/esm/use-viewport-size/use-viewport-size.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-viewport-size/use-viewport-size.mjs" was ignored.
+#39 5.893 node_modules/@mantine/hooks/esm/use-hash/use-hash.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-hash/use-hash.mjs" was ignored.
+#39 5.893 node_modules/@mantine/hooks/esm/use-hotkeys/use-hotkeys.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-hotkeys/use-hotkeys.mjs" was ignored.
+#39 5.894 node_modules/@mantine/hooks/esm/use-intersection/use-intersection.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-intersection/use-intersection.mjs" was ignored.
+#39 5.898 node_modules/@mantine/hooks/esm/use-fullscreen/use-fullscreen.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-fullscreen/use-fullscreen.mjs" was ignored.
+#39 5.899 node_modules/@mantine/hooks/esm/use-scroll-into-view/use-scroll-into-view.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-scroll-into-view/use-scroll-into-view.mjs" was ignored.
+#39 5.900 node_modules/@mantine/hooks/esm/use-hover/use-hover.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-hover/use-hover.mjs" was ignored.
+#39 5.900 node_modules/@mantine/hooks/esm/use-os/use-os.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-os/use-os.mjs" was ignored.
+#39 5.901 node_modules/@mantine/hooks/esm/use-validated-state/use-validated-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-validated-state/use-validated-state.mjs" was ignored.
+#39 5.901 node_modules/@mantine/hooks/esm/use-set-state/use-set-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-set-state/use-set-state.mjs" was ignored.
+#39 5.902 node_modules/@mantine/hooks/esm/use-input-state/use-input-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-input-state/use-input-state.mjs" was ignored.
+#39 5.902 node_modules/@mantine/hooks/esm/use-logger/use-logger.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-logger/use-logger.mjs" was ignored.
+#39 5.903 node_modules/@mantine/hooks/esm/use-event-listener/use-event-listener.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-event-listener/use-event-listener.mjs" was ignored.
+#39 5.903 node_modules/@mantine/hooks/esm/use-disclosure/use-disclosure.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-disclosure/use-disclosure.mjs" was ignored.
+#39 5.903 node_modules/@mantine/hooks/esm/use-timeout/use-timeout.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-timeout/use-timeout.mjs" was ignored.
+#39 5.904 node_modules/@mantine/hooks/esm/use-text-selection/use-text-selection.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-text-selection/use-text-selection.mjs" was ignored.
+#39 5.904 node_modules/@mantine/hooks/esm/use-network/use-network.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-network/use-network.mjs" was ignored.
+#39 5.905 node_modules/@mantine/hooks/esm/use-previous/use-previous.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-previous/use-previous.mjs" was ignored.
+#39 5.905 node_modules/@mantine/hooks/esm/use-headroom/use-headroom.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-headroom/use-headroom.mjs" was ignored.
+#39 5.906 node_modules/@mantine/hooks/esm/use-in-viewport/use-in-viewport.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-in-viewport/use-in-viewport.mjs" was ignored.
+#39 5.906 node_modules/@mantine/hooks/esm/use-favicon/use-favicon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-favicon/use-favicon.mjs" was ignored.
+#39 5.906 node_modules/@mantine/hooks/esm/use-mutation-observer/use-mutation-observer.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-mutation-observer/use-mutation-observer.mjs" was ignored.
+#39 5.907 node_modules/@mantine/hooks/esm/use-eye-dropper/use-eye-dropper.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-eye-dropper/use-eye-dropper.mjs" was ignored.
+#39 5.907 node_modules/@mantine/hooks/esm/use-state-history/use-state-history.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-state-history/use-state-history.mjs" was ignored.
+#39 5.907 node_modules/@mantine/hooks/esm/use-mounted/use-mounted.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-mounted/use-mounted.mjs" was ignored.
+#39 5.908 node_modules/@mantine/hooks/esm/use-map/use-map.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-map/use-map.mjs" was ignored.
+#39 5.908 node_modules/@mantine/hooks/esm/use-set/use-set.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-set/use-set.mjs" was ignored.
+#39 5.909 node_modules/@mantine/hooks/esm/use-throttled-callback/use-throttled-callback.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-throttled-callback/use-throttled-callback.mjs" was ignored.
+#39 5.909 node_modules/@mantine/hooks/esm/use-focus-within/use-focus-within.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-focus-within/use-focus-within.mjs" was ignored.
+#39 5.909 node_modules/@mantine/hooks/esm/use-throttled-state/use-throttled-state.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-throttled-state/use-throttled-state.mjs" was ignored.
+#39 5.910 node_modules/@mantine/hooks/esm/use-throttled-value/use-throttled-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-throttled-value/use-throttled-value.mjs" was ignored.
+#39 5.910 node_modules/@mantine/hooks/esm/use-is-first-render/use-is-first-render.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-is-first-render/use-is-first-render.mjs" was ignored.
+#39 5.911 node_modules/@mantine/hooks/esm/use-radial-move/use-radial-move.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-radial-move/use-radial-move.mjs" was ignored.
+#39 5.911 node_modules/@mantine/hooks/esm/use-scroll-spy/use-scroll-spy.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-scroll-spy/use-scroll-spy.mjs" was ignored.
+#39 5.912 node_modules/@mantine/hooks/esm/use-orientation/use-orientation.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-orientation/use-orientation.mjs" was ignored.
+#39 5.912 node_modules/@mantine/hooks/esm/use-file-dialog/use-file-dialog.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-file-dialog/use-file-dialog.mjs" was ignored.
+#39 5.913 node_modules/@mantine/hooks/esm/use-fetch/use-fetch.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-fetch/use-fetch.mjs" was ignored.
+#39 5.913 node_modules/@mantine/hooks/esm/use-hotkeys/parse-hotkey.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-hotkeys/parse-hotkey.mjs" was ignored.
+#39 5.914 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-options-class-names/get-options-class-names.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-options-class-names/get-options-class-names.mjs" was ignored.
+#39 5.915 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-resolved-class-names/get-resolved-class-names.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-resolved-class-names/get-resolved-class-names.mjs" was ignored.
+#39 5.915 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-root-class-name/get-root-class-name.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-root-class-name/get-root-class-name.mjs" was ignored.
+#39 5.915 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-selector-class-name/get-selector-class-name.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-selector-class-name/get-selector-class-name.mjs" was ignored.
+#39 5.915 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-variant-class-name/get-variant-class-name.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-variant-class-name/get-variant-class-name.mjs" was ignored.
+#39 5.915 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/get-theme-styles/get-theme-styles.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/get-theme-styles/get-theme-styles.mjs" was ignored.
+#39 5.916 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-static-class-names/get-static-class-names.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-static-class-names/get-static-class-names.mjs" was ignored.
+#39 5.916 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-theme-class-names/get-theme-class-names.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-class-name/get-theme-class-names/get-theme-class-names.mjs" was ignored.
+#39 5.917 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/resolve-style/resolve-style.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/resolve-style/resolve-style.mjs" was ignored.
+#39 5.917 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/resolve-vars/resolve-vars.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/resolve-vars/resolve-vars.mjs" was ignored.
+#39 5.918 node_modules/@mantine/core/esm/core/Box/style-props/resolvers/border-resolver/border-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/resolvers/border-resolver/border-resolver.mjs" was ignored.
+#39 5.918 node_modules/@mantine/core/esm/core/Box/style-props/resolvers/color-resolver/color-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/resolvers/color-resolver/color-resolver.mjs" was ignored.
+#39 5.919 node_modules/@mantine/core/esm/core/Box/style-props/resolvers/font-family-resolver/font-family-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/resolvers/font-family-resolver/font-family-resolver.mjs" was ignored.
+#39 5.919 node_modules/@mantine/core/esm/core/Box/style-props/resolvers/font-size-resolver/font-size-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/resolvers/font-size-resolver/font-size-resolver.mjs" was ignored.
+#39 5.919 node_modules/@mantine/core/esm/core/Box/style-props/resolvers/identity-resolver/identity-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/resolvers/identity-resolver/identity-resolver.mjs" was ignored.
+#39 5.920 node_modules/@mantine/core/esm/core/Box/style-props/resolvers/line-height-resolver/line-height-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/resolvers/line-height-resolver/line-height-resolver.mjs" was ignored.
+#39 5.920 node_modules/@mantine/core/esm/core/Box/style-props/resolvers/size-resolver/size-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/resolvers/size-resolver/size-resolver.mjs" was ignored.
+#39 5.920 node_modules/@mantine/core/esm/core/Box/style-props/resolvers/spacing-resolver/spacing-resolver.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/Box/style-props/resolvers/spacing-resolver/spacing-resolver.mjs" was ignored.
+#39 5.921 node_modules/@mantine/core/esm/components/ScrollArea/ScrollArea.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollArea.context.mjs" was ignored.
+#39 5.921 node_modules/@mantine/core/esm/components/ScrollArea/use-resize-observer.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/use-resize-observer.mjs" was ignored.
+#39 5.922 node_modules/@mantine/core/esm/components/ScrollArea/utils/compose-event-handlers.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/utils/compose-event-handlers.mjs" was ignored.
+#39 5.922 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/Scrollbar.context.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/Scrollbar.context.mjs" was ignored.
+#39 5.923 node_modules/@mantine/core/esm/components/ScrollArea/utils/add-unlinked-scroll-listener.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/utils/add-unlinked-scroll-listener.mjs" was ignored.
+#39 5.923 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbarAuto.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbarAuto.mjs" was ignored.
+#39 5.924 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbarHover.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbarHover.mjs" was ignored.
+#39 5.925 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbarScroll.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbarScroll.mjs" was ignored.
+#39 5.925 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbarVisible.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollAreaScrollbarVisible.mjs" was ignored.
+#39 5.927 node_modules/@mantine/core/esm/components/ModalBase/use-lock-scroll.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ModalBase/use-lock-scroll.mjs" was ignored.
+#39 5.927 node_modules/@mantine/core/esm/components/ScrollArea/utils/to-int.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/utils/to-int.mjs" was ignored.
+#39 5.928 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-variables/get-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-variables/get-variables.mjs" was ignored.
+#39 5.929 node_modules/@mantine/core/esm/components/ColorPicker/Thumb/Thumb.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ColorPicker/Thumb/Thumb.mjs" was ignored.
+#39 5.930 node_modules/@mantine/core/esm/components/InlineInput/InlineInput.module.css.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/InlineInput/InlineInput.module.css.mjs" was ignored.
+#39 5.930 node_modules/@mantine/core/esm/components/Rating/StarSymbol/StarSymbol.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Rating/StarSymbol/StarSymbol.mjs" was ignored.
+#39 5.931 node_modules/@mantine/core/esm/components/RingProgress/Curve/get-curve-props.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/RingProgress/Curve/get-curve-props.mjs" was ignored.
+#39 5.936 node_modules/@mantine/core/esm/components/Slider/Marks/Marks.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/Marks/Marks.mjs" was ignored.
+#39 5.960 node_modules/@tanstack/react-query/build/modern/useSuspenseInfiniteQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseInfiniteQuery.js" was ignored.
+#39 5.961 node_modules/@mantine/core/esm/core/utils/get-env/get-env.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/utils/get-env/get-env.mjs" was ignored.
+#39 5.961 node_modules/@tanstack/react-query/build/modern/useSuspenseQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseQuery.js" was ignored.
+#39 5.961 node_modules/@tanstack/react-query/build/modern/useSuspenseQueries.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useSuspenseQueries.js" was ignored.
+#39 5.963 node_modules/@tanstack/react-query/build/modern/useBaseQuery.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@tanstack/react-query/build/modern/useBaseQuery.js" was ignored.
+#39 6.378 node_modules/@mantine/hooks/esm/use-id/use-react-id.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-id/use-react-id.mjs" was ignored.
+#39 6.379 node_modules/@mantine/hooks/esm/use-scroll-into-view/utils/ease-in-out-quad.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-scroll-into-view/utils/ease-in-out-quad.mjs" was ignored.
+#39 6.380 node_modules/@mantine/hooks/esm/use-scroll-into-view/utils/get-relative-position.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-scroll-into-view/utils/get-relative-position.mjs" was ignored.
+#39 6.380 node_modules/@mantine/hooks/esm/use-local-storage/create-storage.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-local-storage/create-storage.mjs" was ignored.
+#39 6.381 node_modules/@mantine/hooks/esm/use-scroll-into-view/utils/set-scroll-param.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-scroll-into-view/utils/set-scroll-param.mjs" was ignored.
+#39 6.382 node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/resolve-vars/merge-vars.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/core/styles-api/use-styles/get-style/resolve-vars/merge-vars.mjs" was ignored.
+#39 6.382 node_modules/@mantine/hooks/esm/use-scroll-into-view/utils/get-scroll-start.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-scroll-into-view/utils/get-scroll-start.mjs" was ignored.
+#39 6.383 node_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-ratio.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-ratio.mjs" was ignored.
+#39 6.383 node_modules/@mantine/core/esm/components/ScrollArea/utils/get-scroll-position-from-pointer.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/utils/get-scroll-position-from-pointer.mjs" was ignored.
+#39 6.384 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarX.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarX.mjs" was ignored.
+#39 6.385 node_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-offset-from-scroll.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-offset-from-scroll.mjs" was ignored.
+#39 6.385 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarY.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/ScrollbarY.mjs" was ignored.
+#39 6.386 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-aside-variables/assign-aside-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-aside-variables/assign-aside-variables.mjs" was ignored.
+#39 6.387 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-footer-variables/assign-footer-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-footer-variables/assign-footer-variables.mjs" was ignored.
+#39 6.389 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-header-variables/assign-header-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-header-variables/assign-header-variables.mjs" was ignored.
+#39 6.390 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-padding-variables/assign-padding-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-padding-variables/assign-padding-variables.mjs" was ignored.
+#39 6.391 node_modules/@mantine/core/esm/components/Rating/StarSymbol/StarIcon.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Rating/StarSymbol/StarIcon.mjs" was ignored.
+#39 6.392 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-navbar-variables/assign-navbar-variables.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/assign-navbar-variables/assign-navbar-variables.mjs" was ignored.
+#39 6.432 node_modules/@mantine/core/esm/components/Slider/Marks/is-mark-filled.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/Slider/Marks/is-mark-filled.mjs" was ignored.
+#39 6.457 node_modules/@mantine/hooks/esm/use-focus-trap/use-focus-trap.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-focus-trap/use-focus-trap.mjs" was ignored.
+#39 8.363 node_modules/@mantine/core/esm/components/ScrollArea/utils/linear-scale.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/utils/linear-scale.mjs" was ignored.
+#39 8.363 node_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-size.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/utils/get-thumb-size.mjs" was ignored.
+#39 8.363 node_modules/@mantine/core/esm/components/ScrollArea/utils/is-scrolling-within-scrollbar-bounds.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/utils/is-scrolling-within-scrollbar-bounds.mjs" was ignored.
+#39 8.364 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-base-size/get-base-size.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-base-size/get-base-size.mjs" was ignored.
+#39 8.364 node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/Scrollbar.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/ScrollArea/ScrollAreaScrollbar/Scrollbar.mjs" was ignored.
+#39 8.365 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-primitive-size/is-primitive-size.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-primitive-size/is-primitive-size.mjs" was ignored.
+#39 8.365 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-responsive-size/is-responsive-size.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/is-responsive-size/is-responsive-size.mjs" was ignored.
+#39 8.365 node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-padding-value/get-padding-value.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/core/esm/components/AppShell/AppShellMediaStyles/get-padding-value/get-padding-value.mjs" was ignored.
+#39 8.366 node_modules/@mantine/hooks/esm/use-focus-trap/scope-tab.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-focus-trap/scope-tab.mjs" was ignored.
+#39 8.374 node_modules/@mantine/hooks/esm/use-focus-trap/tabbable.mjs (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@mantine/hooks/esm/use-focus-trap/tabbable.mjs" was ignored.
+#39 9.420 ✓ 7059 modules transformed.
+#39 9.810 rendering chunks...
+#39 9.824 computing gzip size...
+#39 9.844 dist/index.html                   5.93 kB │ gzip:   1.79 kB
+#39 9.844 dist/assets/index-BiX0OAsX.css  204.02 kB │ gzip:  30.03 kB
+#39 9.844 dist/assets/index-BawMVPMd.js   918.13 kB │ gzip: 266.75 kB
+#39 9.844 
+#39 9.844 (!) Some chunks are larger than 500 kB after minification. Consider:
+#39 9.844 - Using dynamic import() to code-split the application
+#39 9.844 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+#39 9.844 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+#39 9.844 ✓ built in 5.08s
+#39 DONE 10.4s
+
+#40 [web stage-1 2/3] COPY web/nginx.conf /etc/nginx/conf.d/default.conf
+#40 CACHED
+
+#41 [web stage-1 3/3] COPY --from=build /app/web/dist /usr/share/nginx/html
+#41 CACHED
+
+#42 [web] exporting to image
+#42 exporting layers done
+#42 exporting manifest sha256:cfb1d20d784ce00ca175ca038e27952bbb93f99356caa386583c40d086bc1721 0.0s done
+#42 exporting config sha256:bd0fc115cd2507e3698925abb6ccd78c38233aeac462388c362cb97cb28f3c7e 0.0s done
+#42 exporting attestation manifest sha256:9a8db3e133e3de35294f40ed00c76adb7a5a10c65de60497dee99c9c8fb0b8cd
+#42 exporting attestation manifest sha256:9a8db3e133e3de35294f40ed00c76adb7a5a10c65de60497dee99c9c8fb0b8cd 0.1s done
+#42 exporting manifest list sha256:cfa8e558716f0b551f59a4ed6590cdb01c643ddc9dd333f7185111ca630310fc 0.0s done
+#42 naming to docker.io/library/p1-wave1f-20261021-workflow-01-web:latest done
+#42 unpacking to docker.io/library/p1-wave1f-20261021-workflow-01-web:latest 0.0s done
+#42 DONE 0.2s
+
+#43 [web] resolving provenance for metadata file
+#43 DONE 0.0s
+ ai-service  Built
+ backend  Built
+ web  Built
+ Network p1-wave1f-20261021-workflow-01_upstream  Creating
+ Network p1-wave1f-20261021-workflow-01_upstream  Created
+ Network p1-wave1f-20261021-workflow-01_browser-edge  Creating
+ Network p1-wave1f-20261021-workflow-01_browser-edge  Created
+ Volume p1-wave1f-20261021-workflow-01_pg_state  Creating
+ Volume p1-wave1f-20261021-workflow-01_pg_state  Created
+ Volume p1-wave1f-20261021-workflow-01_mongo_state  Creating
+ Volume p1-wave1f-20261021-workflow-01_mongo_state  Created
+ Volume p1-wave1f-20261021-workflow-01_fake_state  Creating
+ Volume p1-wave1f-20261021-workflow-01_fake_state  Created
+ Container p1-wave1f-20261021-workflow-01-fake-upstream-1  Creating
+ Container p1-wave1f-20261021-workflow-01-postgres-1  Creating
+ Container p1-wave1f-20261021-workflow-01-mongodb-1  Creating
+ Container p1-wave1f-20261021-workflow-01-mongodb-1  Created
+ Container p1-wave1f-20261021-workflow-01-fake-upstream-1  Created
+ Container p1-wave1f-20261021-workflow-01-budget-gateway-1  Creating
+ Container p1-wave1f-20261021-workflow-01-postgres-1  Created
+ Container p1-wave1f-20261021-workflow-01-budget-gateway-1  Created
+ Container p1-wave1f-20261021-workflow-01-ai-service-1  Creating
+ Container p1-wave1f-20261021-workflow-01-ai-service-1  Created
+ Container p1-wave1f-20261021-workflow-01-backend-1  Creating
+ Container p1-wave1f-20261021-workflow-01-backend-1  Created
+ Container p1-wave1f-20261021-workflow-01-web-1  Creating
+ Container p1-wave1f-20261021-workflow-01-web-1  Created
+ Container p1-wave1f-20261021-workflow-01-mongodb-1  Starting
+ Container p1-wave1f-20261021-workflow-01-postgres-1  Starting
+ Container p1-wave1f-20261021-workflow-01-fake-upstream-1  Starting
+ Container p1-wave1f-20261021-workflow-01-postgres-1  Started
+ Container p1-wave1f-20261021-workflow-01-fake-upstream-1  Started
+ Container p1-wave1f-20261021-workflow-01-budget-gateway-1  Starting
+ Container p1-wave1f-20261021-workflow-01-mongodb-1  Started
+ Container p1-wave1f-20261021-workflow-01-budget-gateway-1  Started
+ Container p1-wave1f-20261021-workflow-01-postgres-1  Waiting
+ Container p1-wave1f-20261021-workflow-01-budget-gateway-1  Waiting
+ Container p1-wave1f-20261021-workflow-01-postgres-1  Healthy
+ Container p1-wave1f-20261021-workflow-01-budget-gateway-1  Healthy
+ Container p1-wave1f-20261021-workflow-01-ai-service-1  Starting
+ Container p1-wave1f-20261021-workflow-01-ai-service-1  Started
+ Container p1-wave1f-20261021-workflow-01-postgres-1  Waiting
+ Container p1-wave1f-20261021-workflow-01-mongodb-1  Waiting
+ Container p1-wave1f-20261021-workflow-01-mongodb-1  Healthy
+ Container p1-wave1f-20261021-workflow-01-postgres-1  Healthy
+ Container p1-wave1f-20261021-workflow-01-backend-1  Starting
+ Container p1-wave1f-20261021-workflow-01-backend-1  Started
+ Container p1-wave1f-20261021-workflow-01-web-1  Starting
+ Container p1-wave1f-20261021-workflow-01-web-1  Started

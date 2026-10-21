@@ -1,0 +1,475 @@
+{
+  "novel_id": "{{NOVEL_ID}}",
+  "source_outline": "KẾ HOẠCH TƯƠNG LAI, KHÔNG PHẢI HISTORICAL CANON. Chương 1-4 đã có; tiếp tục phần dở chương 5. Mục tiêu toàn truyện 100.000 từ, 95.000-105.000 theo bộ đếm fixture.\n\n# Thành phố giữ lại tiếng mưa — ý đồ tác giả\n\nFixture PT-CV-001 v1.0.0. Truyện gốc cho kiểm thử. Toàn bộ địa danh, nhân vật và công nghệ là hư cấu.\n\n**Tài liệu này chứa kế hoạch tương lai, không phải các sự kiện đã xảy ra ở chương 5.** Tác giả được biết kết thúc; nhân vật chỉ được biết điều đã học qua các cảnh. Giữ phần kế hoạch trong Story Plan. Không nhập toàn bộ tài liệu thành fact/event lịch sử trong Story Brain.\n\n## Lời hứa với độc giả\n\nMột người phục chế âm thanh trở về thành phố xây trên đầm phá để xử lý kho lưu trữ trước mùa lũ. Cô tìm thấy một bản ghi dường như buộc tội người cha đã chết. Trong mười hai ngày trước đợt triều lớn, cô cùng một kỹ sư phải xác định ai đã quyết định hy sinh một xóm thợ mười bảy năm trước, đồng thời tìm cách cứu thành phố mà không lặp lại quyết định ấy.\n\nThể loại: bí ẩn xã hội, phiêu lưu đô thị, giả tưởng công nghệ nhẹ. Ngôi thứ ba hạn tri, điểm nhìn chính Mai Linh; có thể có chương điểm nhìn Duy khi đánh dấu rõ. Văn xuôi tiếng Việt cụ thể, giàu cảm giác nhưng tiết chế. Đối thoại có điều không nói ra. Hài hước nhỏ từ đời sống, không phá tình huống mất mát. Không thuyết giảng thay cho lựa chọn có hậu quả.\n\nĐích: khoảng 100.000 từ theo quy ước README, 40 chương. Đây là tiểu thuyết đầy đủ, không tuyển tập cảnh hoặc một treatment dài. Mỗi chương cần các cảnh có động cơ, hành động, thay đổi và hệ quả. Không kéo dài bằng nhắc lại hồ sơ, tóm tắt chương trước hay mô tả mưa lặp lại.\n\n## Thế giới và quy tắc cứng\n\n1. Cồn Vân là thành phố đầm phá có ba khu: Đồi Bắc cao, Chợ Giữa, xóm thợ Bãi Dưới thấp. Đê Vành bao quanh; trạm số Bốn nằm trên nhánh kênh cũ. Mạng cửa nước có độ trễ, cần vận hành phối hợp; không có nút bấm thần kỳ cứu mọi nơi.\n2. “Gốm thanh” lưu dao động âm thanh khi được nung bằng thiết bị chuyên dụng. Nó chỉ lưu âm thanh đã hiện diện gần máy, không ghi hình, đọc ý nghĩ, tiên đoán tương lai hoặc tái tạo phần chưa được ghi.\n3. Máy đọc cần điện ổn định và vòng chuẩn đồng phù hợp. Mỗi lần quét gốc làm mất một phần phổ cao; một mảnh chỉ nên quét tối đa ba lần. Bản sao số bảo toàn những gì đã thu, không lấy thêm thông tin ngoài bản gốc.\n4. Âm giống nhau không tự chứng minh là cùng nguồn. Chuông có thể bị đổi, tiếng nền có thể truyền theo ống, lời trên băng có thể là mệnh lệnh bị trích mất ngữ cảnh. Cần kiểm chứng thời gian và nguồn độc lập.\n5. Đợt lũ mười bảy năm trước làm 23 người chết ở Bãi Dưới. Cha Linh là Mai Lâm nằm trong số đó. Không hồi sinh, không nhân vật bí mật chính là Lâm còn sống. Giọng ghi âm không phải hiện diện sống.\n6. Duy mất thính lực tai trái do tai nạn nghề nghiệp bốn năm trước. Anh định vị bằng thị giác và dụng cụ, nghe bằng tai phải; không có cảnh nghe thì thầm bên trái từ xa mà không giải thích.\n7. Giải pháp cuối phải có công lao tập thể, chi phí vật chất và mất mát có thật. Không một bản ghi hoặc bài diễn văn tự làm thay đổi cả hệ thống.\n\n## Nhân vật\n\n| Nhân vật | Hiện tại | Mong muốn / điểm mù | Hướng phát triển |\n|---|---|---|---|\n| Mai Linh, 29 | Phục chế âm thanh; rời Cồn Vân 11 năm | Muốn cha hoàn toàn vô tội, tin bản ghi chính xác hơn con người | Chấp nhận sự thật phức tạp và công khai cả phần bất lợi cho gia đình |\n| Trần Duy, 31 | Kỹ sư bảo trì cửa nước; tai trái điếc | Muốn công trình an toàn, thường tránh tranh luận công khai | Dám ký vào phương án có rủi ro và giải thích cho người chịu rủi ro |\n| Bà Yên, 58 | Mẹ Linh; sửa lưới tại Chợ Giữa | Bảo vệ con và ký ức chồng bằng im lặng | Làm chứng việc mình từng che giấu, không được tha thứ tức thì |\n| Bà Sâm, 62 | Cựu vận hành trạm Bốn, bán cháo | Muốn tên 23 người chết được ghi đúng; không tin nhà chức trách | Chia sẻ kinh nghiệm khi được tôn trọng, không chỉ là người trao manh mối |\n| Nguyễn Vũ, 54 | Trưởng ban công trình; kỹ sư trẻ trong lũ cũ | Tin kiểm soát thông tin tránh hoảng loạn; sợ mất cơ hội cứu đa số | Phải chịu trách nhiệm lựa chọn; có thể cứu người nhưng không được xóa tội bằng một hành động |\n| An, 19 | Giao hàng bằng thuyền, phụ bà Sâm | Muốn rời phố; coi chuyện cũ là gánh nặng | Chủ động xây mạng thông báo sơ tán, có quyết định riêng |\n| Quách | Phó ban công trình cũ, đã chết 6 năm | Có liên quan sửa hồ sơ | Không đổ hết trách nhiệm lên người đã chết; chứng cứ phải chỉ ra cơ chế và vai trò người còn sống |\n\n## Sự thật dành cho tác giả — chỉ tiết lộ từng bước\n\nLâm thực sự nói “mở cửa Bốn”. Ông mở nhánh xả để cứu 83 công nhân mắc kẹt trong đường hầm; đó là một lựa chọn nguy hiểm, không phải thao tác bị vu oan hoàn toàn. Ông tin Bãi Dưới đã nhận báo động và được sơ tán. Tuyến chuông báo đã bị ngắt để phục vụ một đợt diễn tập ở Đồi Bắc; Vũ biết việc ngắt nhưng vẫn phê duyệt vận hành trong điều kiện thiếu thông tin. Quách sửa thời gian trong báo cáo sau lũ. Bà Yên giữ một sổ giao ca có thể chứng minh khoảng trống báo động nhưng im lặng vì sợ con bị trả thù và sợ chồng bị kết tội.\n\nKhông ai được biết trọn sự thật chỉ nhờ một giấc mơ hoặc một đoạn âm thanh tiện lợi. Cần chuỗi chứng cứ: mảnh CV-04 → vật chuẩn/chuông → tuyến ống → sổ giao ca → bản sao báo động độc lập → người sống sót → đối chất công khai. Người cung cấp lời khai có sai nhớ và động cơ; phân biệt lời kể với sự kiện đã xác nhận.\n\n## Kết thúc bắt buộc\n\nTrong triều lớn hiện tại, nhóm từ chối phương án bí mật đẩy nước về Bãi Dưới. Họ công khai rủi ro, tổ chức sơ tán có kiểm đếm, dùng mạng thuyền và vận hành phân tán. Kho gốm thanh bị hư hại một phần trong quá trình cứu người; không cứu được tất cả tài sản. Bằng chứng đã được sao lưu hợp lệ trước đó và phân phối nhiều nơi, không xuất hiện bản sao thần kỳ ở trang cuối.\n\nLinh công khai cả trách nhiệm của cha lẫn lỗi hệ thống. Vũ sống, phải điều trần và bị đình chỉ chức vụ; không kết thúc bằng một cái chết chuộc mọi lỗi. Yên và Linh bắt đầu hàn gắn, chưa hoàn toàn hòa giải. Duy và Linh có sự gần gũi được xây dựng, tình cảm không phải phần thưởng bắt buộc. An được quyền chọn tương lai riêng. Sáu tháng sau có đài tưởng niệm ghi đủ 23 tên, một cơ chế kiểm tra độc lập mới và dấu hiệu nó vẫn cần được bảo vệ. Câu kết quay lại âm thanh đời thường của thành phố, tránh khẩu hiệu.\n\n## Các điểm kiểm tra dài hạn\n\n- Giữ 23 người chết và 83 người được cứu là hai tập khác nhau. 83 chỉ được xác nhận ở giai đoạn điều tra sau.\n- Vòng chuẩn đồng có vết khía tam giác được gieo từ đầu; không đồng nhất mọi vòng đồng hoặc mảnh gốm.\n- CV-04: đã quét 1 lần khi kết thúc seed; lần 2 phải được ghi nhận, lần 3 là quyết định có giá. Không có lần 4 “đọc rõ hơn” vô hại.\n- Chuông nhà tang lễ đã chuyển vị trí sau lũ; không dùng âm của nó để định vị năm cũ mà bỏ qua sự thay đổi.\n- Bản đồ đường ống là tài liệu có sai lệch so với thực địa. Có đoạn bị hàn kín, không tự biến mất để giải quyết cao trào.\n- Quyền được biết và tham gia quyết định phải hiện ra trong hành động sơ tán, không chỉ trong đối thoại cuối.\n\n## Quyền biên tập của tác giả test\n\nĐược thay nhân vật phụ, thêm cảnh, đổi phân bổ độ dài và chi tiết đối thoại. Giữ các quy tắc cứng, nguồn gốc vật chứng, lịch tiết lộ và kết thúc cốt lõi. Mọi thay đổi lớn phải ghi decision log, cập nhật planning version; không sửa seed hoặc gold âm thầm. Không bắt model bám từng câu văn có sẵn: đánh giá khả năng sáng tác có kiểm soát, không khả năng sao chép.\n",
+  "objectives": [
+    {
+      "order_index": 1,
+      "title": "Ba tiếng gõ",
+      "description": "Khảo sát tiếng gõ dưới trạm. Tiêu chí tác giả: Giải thích tiếng gõ bằng cơ cấu thật và phát hiện lối vận hành phụ. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 5,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 2,
+        "seed_state": "partial",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 2,
+      "title": "Người giữ chìa khóa",
+      "description": "Thuyết phục Sâm tham gia khảo sát. Tiêu chí tác giả: Sâm có điều kiện riêng và đưa thông tin kiểm chứng được. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 6,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 2,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 3,
+      "title": "Dấu hàn mới",
+      "description": "Đối chiếu bản đồ với hiện trường. Tiêu chí tác giả: Chứng minh có thay đổi sau lũ nhưng chưa biết người ra lệnh. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 7,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 3,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 4,
+      "title": "Bản sao không biết nói dối",
+      "description": "Kiểm tra giới hạn của âm thanh đã sao. Tiêu chí tác giả: Linh chấp nhận bản sao không thể khôi phục âm chưa thu. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 8,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 3,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 5,
+      "title": "Danh sách thiếu một ca",
+      "description": "Tìm hồ sơ trực trạm. Tiêu chí tác giả: Có khoảng trống giao ca và nguồn hồ sơ độc lập. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 9,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 3,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 6,
+      "title": "Cơn mưa thử",
+      "description": "Mưa nhỏ làm lộ nguy cơ hiện tại. Tiêu chí tác giả: Nhóm giúp dân và thấy hậu quả của thông tin chậm. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 10,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 3,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 7,
+      "title": "Cái giá của lần đọc thứ hai",
+      "description": "Quyết định quét CV-04 lần hai. Tiêu chí tác giả: Thu thêm dữ kiện nhưng mất phổ cao được ghi nhận. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 11,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 4,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 8,
+      "title": "Tám mươi ba dấu chấm",
+      "description": "Tìm dấu vết công nhân đường hầm. Tiêu chí tác giả: Con số 83 xuất hiện như giả thuyết có nguồn. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 12,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 4,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 9,
+      "title": "Người đã rời Bãi Dưới",
+      "description": "Gặp người sống sót ngoài thành phố. Tiêu chí tác giả: Lời chứng xác nhận cứu người nhưng còn sai lệch thời gian. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 13,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 4,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 10,
+      "title": "Quyển sổ dưới ghế",
+      "description": "Yên cho Linh đọc sổ giao ca. Tiêu chí tác giả: Có bằng chứng sơ bộ khoảng trống báo động và xung đột mẹ con. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 14,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 5,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 11,
+      "title": "Một chữ ký còn sống",
+      "description": "Đối chiếu chữ ký Vũ với lịch vận hành. Tiêu chí tác giả: Vai trò phê duyệt của Vũ có căn cứ độc lập. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 15,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 5,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 12,
+      "title": "Hai bản tin cùng một giờ",
+      "description": "So hai nguồn báo động. Tiêu chí tác giả: Phân biệt giờ phát với giờ nhận và bác suy luận đơn giản. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 16,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 5,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 13,
+      "title": "Người cha không nguyên vẹn",
+      "description": "Xác nhận Lâm đã mở cửa để cứu công nhân. Tiêu chí tác giả: Linh từ bỏ mục tiêu minh oan tuyệt đối nhưng chưa công bố vội. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 17,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 6,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 14,
+      "title": "Đường nước dành cho ai",
+      "description": "Phân tích phương án chống lũ hiện tại. Tiêu chí tác giả: Thấy Bãi Dưới lại chịu rủi ro tập trung. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 18,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 6,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 15,
+      "title": "Lá thư không gửi",
+      "description": "Yên giải thích việc im lặng. Tiêu chí tác giả: Linh hiểu động cơ mà không xóa trách nhiệm của mẹ. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 19,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 6,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 16,
+      "title": "Cuộc họp không có ghế",
+      "description": "Đưa người dân vào cuộc bàn phương án. Tiêu chí tác giả: Xung đột lợi ích cụ thể và thất bại thương lượng đầu tiên. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 20,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 7,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 17,
+      "title": "Những bản sao được chia",
+      "description": "Phân phối chứng cứ đã xác minh. Tiêu chí tác giả: Bản sao có người nhận và hash trước khi kho gặp nạn. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 21,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 7,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 18,
+      "title": "Sơ đồ của Duy",
+      "description": "Xây phương án vận hành phân tán. Tiêu chí tác giả: Có đánh đổi thực tế và các điều kiện chưa đạt. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 22,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 7,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 19,
+      "title": "An chọn một chuyến đi",
+      "description": "An tổ chức mạng thuyền và thông báo. Tiêu chí tác giả: An có lựa chọn riêng với tổn thất cơ hội rời thành phố. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 23,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 8,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 20,
+      "title": "Tên của người đã chết",
+      "description": "Kiểm tra vai trò Quách và danh sách nạn nhân. Tiêu chí tác giả: Không đổ hết lỗi lên người chết và giữ đúng 23 tên. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 24,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 8,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 21,
+      "title": "Đối chất dưới mái tôn",
+      "description": "Đối chất Vũ bằng chuỗi chứng cứ. Tiêu chí tác giả: Vũ thừa nhận phần đã có chứng cứ nhưng còn tranh chấp trách nhiệm. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 25,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 8,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 22,
+      "title": "Một phương án không sạch sẽ",
+      "description": "Thử giải pháp trong giới hạn an toàn. Tiêu chí tác giả: Một nhánh thất bại tạo yêu cầu sửa thực tế. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 26,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 9,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 23,
+      "title": "Chỗ trống trên thuyền",
+      "description": "Diễn tập sơ tán có kiểm đếm. Tiêu chí tác giả: Phát hiện hộ bị bỏ sót và sửa cơ chế thông báo. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 27,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 9,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 24,
+      "title": "Lần đọc cuối cùng",
+      "description": "Cân nhắc và thực hiện lần quét thứ ba nếu cần. Tiêu chí tác giả: CV-04 không thể phục hồi thêm và bằng chứng không phụ thuộc phép màu. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 28,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 9,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 25,
+      "title": "Nước đến trước lịch",
+      "description": "Mực nước lên sớm buộc kích hoạt phương án. Tiêu chí tác giả: Mọi bên biết rủi ro và có phân công rõ. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 29,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 10,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 26,
+      "title": "Cánh cửa phải mở bằng tay",
+      "description": "Vận hành gặp sự cố tại nhánh phụ. Tiêu chí tác giả: Sâm và Duy dùng kỹ năng đã gieo cùng hỗ trợ tập thể. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 30,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 10,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 27,
+      "title": "Tiếng gọi qua mái nhà",
+      "description": "Mạng thông báo của An chịu thử thách. Tiêu chí tác giả: Cứu hộ có kiểm đếm và không bỏ nhóm yếu thế ngoài cảnh. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 31,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 10,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 28,
+      "title": "Kho lưu trữ ngập trước",
+      "description": "Linh chọn cứu người thay vì giữ toàn bộ kho. Tiêu chí tác giả: Mất mát gốm thật và bản sao tồn tại nhờ chuẩn bị trước. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 32,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 11,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 29,
+      "title": "Người ký lệnh mới",
+      "description": "Vũ phải chọn công khai rủi ro. Tiêu chí tác giả: Vũ hỗ trợ cứu hộ nhưng bằng chứng trách nhiệm vẫn được giữ. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 33,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 11,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 30,
+      "title": "Bên kia đỉnh triều",
+      "description": "Phối hợp qua cao điểm lũ. Tiêu chí tác giả: Thành phố thoát nguy chính nhờ phương án đã chuẩn bị và có thiệt hại. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 34,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 12,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 31,
+      "title": "Những người trở về",
+      "description": "Kiểm đếm sau lũ và nhìn nhận tổn thất. Tiêu chí tác giả: Không tuyên bố thắng trước khi kiểm tra người và hậu quả. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 35,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 12,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 32,
+      "title": "Bản ghi không được cắt",
+      "description": "Linh công bố toàn bộ chuỗi chứng cứ. Tiêu chí tác giả: Bao gồm lựa chọn của Lâm và im lặng của Yên. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 36,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 13,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 33,
+      "title": "Phiên điều trần",
+      "description": "Theo dõi trách nhiệm công khai. Tiêu chí tác giả: Vũ sống và bị đình chỉ còn cơ chế được điều tra. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 37,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 30,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 34,
+      "title": "Một bữa cơm chưa hòa giải",
+      "description": "Giải quyết bước đầu quan hệ Linh và Yên. Tiêu chí tác giả: Có hành động sửa chữa nhưng không tha thứ tức thì. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 38,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 35,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 35,
+      "title": "Hai mươi ba cái tên",
+      "description": "Trở lại thành phố sau sáu tháng. Tiêu chí tác giả: Đủ 23 tên cùng cơ chế giám sát mới và lựa chọn tương lai của An. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 39,
+      "objective_type": "chapter_goal",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 180,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    },
+    {
+      "order_index": 36,
+      "title": "Tiếng mưa còn lại",
+      "description": "Khép hành trình Linh và lời hứa toàn truyện. Tiêu chí tác giả: Các tuyến chính khép lại có dư âm và không thêm twist phủ định canon. Phát triển bằng các cảnh đầy đủ; không coi một đoạn ngắn là chương hoàn chỉnh.",
+      "target_chapter": 40,
+      "objective_type": "ending",
+      "metadata": {
+        "fixture_id": "PT-CV-001",
+        "relative_story_day": 181,
+        "seed_state": "none",
+        "author_review_required": true
+      }
+    }
+  ],
+  "idempotency_key": "{{RUN_ID}}-main-plan-v1"
+}

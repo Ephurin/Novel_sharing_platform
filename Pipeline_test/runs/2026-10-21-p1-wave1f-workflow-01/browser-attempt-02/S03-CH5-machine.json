@@ -1,0 +1,1806 @@
+{
+  "chunks": [
+    {
+      "end": 2637,
+      "start": 0
+    }
+  ],
+  "counts": {
+    "entity": 20,
+    "candidates": 69,
+    "not_entity": 47,
+    "unresolved": 2
+  },
+  "policy": "entity-candidates-v1",
+  "status": "waiting_entity_review",
+  "aliases": [],
+  "request": {
+    "options": {
+      "extract_events": true,
+      "build_embeddings": false,
+      "extract_entities": true,
+      "check_consistency": true,
+      "extract_prose_facts": true,
+      "extract_world_rules": true,
+      "review_fact_coverage": true,
+      "extract_state_transitions": true
+    },
+    "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+    "operation": "bootstrap_manuscript",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "chapter_id": "6ec2cbb6-b264-48ee-a222-d317973f9577",
+    "revision_id": "102b427c-765e-464d-ae4b-9c681fb61a82",
+    "content_hash": "6549fdfb9c1ff5a5cca74b8b77f09adff8ea67699944ade84c0de788c8a4c0c5",
+    "idempotency_key": "bootstrap:3c0fd68b-2a7d-5635-9cf0-51c8e4449e23:102b427c-765e-464d-ae4b-9c681fb61a82"
+  },
+  "entities": [
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Duy",
+      "status_quote": "",
+      "verified_end": 3,
+      "candidate_ids": [
+        "34c69cad16521bf6d539f646",
+        "33db2884e91dda1b70fda8f8",
+        "f1621e074e5a5b77e08fba92",
+        "866c12f5ef4af7dce925f06a",
+        "eb4d0945648f37225b3d496b",
+        "241a30601cff4dd8b9cdf151",
+        "08081ec2f99d969daab4f4c4"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 0,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Linh",
+      "status_quote": "",
+      "verified_end": 104,
+      "candidate_ids": [
+        "325eb2d9498828ae32d1e82d",
+        "afce8f95f75fed8127d82476",
+        "ce338892cb37a187733eaa3f",
+        "630ecab0603ac6c3ef48d866",
+        "7521422f76d295abaa790e93",
+        "3590ad1a9a8f1876af6b36f1",
+        "d2e9fc7028b51c41d698ac0b",
+        "0a9362805647408996b28bb5"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 100,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Sâm",
+      "status_quote": "",
+      "verified_end": 667,
+      "candidate_ids": [
+        "b3624fb368ef9b94d8d2f8c8",
+        "0c5a9d8d8b7c21931e108681"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 664,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "LOC",
+      "phrase": "Bốn",
+      "status_quote": "",
+      "verified_end": 870,
+      "candidate_ids": [
+        "315333e3855a837925e60822"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 867,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "ITEM",
+      "phrase": "CV-04",
+      "status_quote": "",
+      "verified_end": 1025,
+      "candidate_ids": [
+        "4b107aae829dd8017e4762f7"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 1020,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Bà Sâm",
+      "status_quote": "",
+      "verified_end": 1969,
+      "candidate_ids": [
+        "975ba791ebdb16b3016db59d"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 1963,
+      "canonical_entity_id": ""
+    }
+  ],
+  "decisions": [
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "34c69cad16521bf6d539f646",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "7f19b3d5693b4ec050ed96f9",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "325eb2d9498828ae32d1e82d",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "c1f4e999d7c5279188d6c3ea",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "9308942da2d81014107bf3b3",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "56bddd613525df8b682ca48e",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "b3095235d6df6bc39da36ea1",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "18d334c03ba2389d5cf64379",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "afce8f95f75fed8127d82476",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "33db2884e91dda1b70fda8f8",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "a3b044603b844162e728546b",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "6b3a805e942514af502cb6f3",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "3936b38640aaf984014fd267",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "c5c62e6844694535c6d9ce43",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "unresolved",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "652c3f2793062e187bea041d",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "426c74bc328a5dda8bad9d96",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "85766ccfb7afbb30f4196e87",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "b3624fb368ef9b94d8d2f8c8",
+      "status_quote": "",
+      "canonical_name": "Sâm",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "f1621e074e5a5b77e08fba92",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "ebf2c6bb374513da46152fb6",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "15a5794a4b6e019b2870cd59",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "unresolved",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "be1b6ca4e0a49b70666c7797",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "ce338892cb37a187733eaa3f",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "6a55481ff90d947a34e83f03",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "315333e3855a837925e60822",
+      "status_quote": "",
+      "canonical_name": "Bốn",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "d3d628f46569130899e7ec06",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "245f1c008b84abe472632626",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "ITEM",
+      "candidate_id": "4b107aae829dd8017e4762f7",
+      "status_quote": "",
+      "canonical_name": "CV-04",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "866c12f5ef4af7dce925f06a",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "fbca7003cc0315cc38b5918d",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "c64675fe6a27dc5c8f2edd6e",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "5f88eb54d4f1128bdf945f77",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "630ecab0603ac6c3ef48d866",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "2394247c55c7e801a525b8fe",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "d12b6bdbd4ae514bcffb5aef",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "1f354d32977b6d910bb4a82d",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "0f76b1e008c2688efdd69ecd",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "1d6a611d074efcfe5cdcd5de",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "7521422f76d295abaa790e93",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "56ff1b86028d957ba8071b4d",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "eb4d0945648f37225b3d496b",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "6ae91129bc59bc2c53196f18",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "f4af7cee910b89d0ae4784c0",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "499a15f7b61eccd88a7e4fef",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "39c0e3445035b0a20f78cde1",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "241a30601cff4dd8b9cdf151",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "facea2d98a9576b30517b14a",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "3590ad1a9a8f1876af6b36f1",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "499fe6516b816dcf33cb24e9",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "688c0fe500f2bafcaf6f38bd",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "06038f27419c4223a0e3d854",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "f8c39c606d3438c4594e363a",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "975ba791ebdb16b3016db59d",
+      "status_quote": "",
+      "canonical_name": "Bà Sâm",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "0c5a9d8d8b7c21931e108681",
+      "status_quote": "",
+      "canonical_name": "Sâm",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "3828d07e7f2bbb6f01cb4031",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "003cdbf9b8052bcdf3973734",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "96ef4dcce47b109c844d0a10",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "fa1da7ca5f363dad30257fcd",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "d3da58e3e4fc28869178815b",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "d2e9fc7028b51c41d698ac0b",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "2b8072fba83da91507b2eec7",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "0a9362805647408996b28bb5",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "dfdab909a1d0b2f909099864",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "8bd1a3e4ceb4ed46d8756260",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "66d734c96dd3fbfcb3f7534f",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "7b0072dfecc467024e2d31fb",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "08081ec2f99d969daab4f4c4",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "6a64be8f059687a22b038ecc",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "cd072a8d084e3483aedfc6f5",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    }
+  ],
+  "candidates": [
+    {
+      "end": 3,
+      "start": 0,
+      "context": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.\n\n“Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.”",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 203,
+      "candidate_id": "34c69cad16521bf6d539f646",
+      "context_start": 0
+    },
+    {
+      "end": 26,
+      "start": 23,
+      "context": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.\n\n“Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.”\n\n“Anh nghĩ có người kh",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 226,
+      "candidate_id": "7f19b3d5693b4ec050ed96f9",
+      "context_start": 0
+    },
+    {
+      "end": 104,
+      "start": 100,
+      "context": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.\n\n“Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.”\n\n“Anh nghĩ có người không?”\n\n“Tôi chưa nghĩ đến người.”\n\nCô nghe sự sửa lại trong câu nói. Không phả",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 304,
+      "candidate_id": "325eb2d9498828ae32d1e82d",
+      "context_start": 0
+    },
+    {
+      "end": 139,
+      "start": 136,
+      "context": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.\n\n“Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.”\n\n“Anh nghĩ có người không?”\n\n“Tôi chưa nghĩ đến người.”\n\nCô nghe sự sửa lại trong câu nói. Không phải anh biết bên dưới không có ai; an",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Nếu",
+      "context_end": 339,
+      "candidate_id": "c1f4e999d7c5279188d6c3ea",
+      "context_start": 0
+    },
+    {
+      "end": 209,
+      "start": 206,
+      "context": "ông mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.\n\n“Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.”\n\n“Anh nghĩ có người không?”\n\n“Tôi chưa nghĩ đến người.”\n\nCô nghe sự sửa lại trong câu nói. Không phải anh biết bên dưới không có ai; anh chưa có lý do để đặt một người vào khoảng tối đó.\n\nLinh tháo tai ngh",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 409,
+      "candidate_id": "9308942da2d81014107bf3b3",
+      "context_start": 6
+    },
+    {
+      "end": 237,
+      "start": 234,
+      "context": "t miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.\n\n“Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.”\n\n“Anh nghĩ có người không?”\n\n“Tôi chưa nghĩ đến người.”\n\nCô nghe sự sửa lại trong câu nói. Không phải anh biết bên dưới không có ai; anh chưa có lý do để đặt một người vào khoảng tối đó.\n\nLinh tháo tai nghe một bên để vẫn nghe được t",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tôi",
+      "context_end": 437,
+      "candidate_id": "56bddd613525df8b682ca48e",
+      "context_start": 34
+    },
+    {
+      "end": 263,
+      "start": 261,
+      "context": "y cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.\n\n“Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.”\n\n“Anh nghĩ có người không?”\n\n“Tôi chưa nghĩ đến người.”\n\nCô nghe sự sửa lại trong câu nói. Không phải anh biết bên dưới không có ai; anh chưa có lý do để đặt một người vào khoảng tối đó.\n\nLinh tháo tai nghe một bên để vẫn nghe được tiếng Duy. Cô đặt micro gần",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 463,
+      "candidate_id": "b3095235d6df6bc39da36ea1",
+      "context_start": 61
+    },
+    {
+      "end": 300,
+      "start": 295,
+      "context": " bảo Linh lùi về phần sàn có ánh sáng.\n\n“Nếu bên dưới còn nối với kênh, triều đổi là đủ làm áp lực khác đi.”\n\n“Anh nghĩ có người không?”\n\n“Tôi chưa nghĩ đến người.”\n\nCô nghe sự sửa lại trong câu nói. Không phải anh biết bên dưới không có ai; anh chưa có lý do để đặt một người vào khoảng tối đó.\n\nLinh tháo tai nghe một bên để vẫn nghe được tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên m",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Không",
+      "context_end": 500,
+      "candidate_id": "18d334c03ba2389d5cf64379",
+      "context_start": 95
+    },
+    {
+      "end": 396,
+      "start": 392,
+      "context": "c khác đi.”\n\n“Anh nghĩ có người không?”\n\n“Tôi chưa nghĩ đến người.”\n\nCô nghe sự sửa lại trong câu nói. Không phải anh biết bên dưới không có ai; anh chưa có lý do để đặt một người vào khoảng tối đó.\n\nLinh tháo tai nghe một bên để vẫn nghe được tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 596,
+      "candidate_id": "afce8f95f75fed8127d82476",
+      "context_start": 192
+    },
+    {
+      "end": 445,
+      "start": 442,
+      "context": " nghĩ đến người.”\n\nCô nghe sự sửa lại trong câu nói. Không phải anh biết bên dưới không có ai; anh chưa có lý do để đặt một người vào khoảng tối đó.\n\nLinh tháo tai nghe một bên để vẫn nghe được tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 645,
+      "candidate_id": "33db2884e91dda1b70fda8f8",
+      "context_start": 242
+    },
+    {
+      "end": 449,
+      "start": 447,
+      "context": " đến người.”\n\nCô nghe sự sửa lại trong câu nói. Không phải anh biết bên dưới không có ai; anh chưa có lý do để đặt một người vào khoảng tối đó.\n\nLinh tháo tai nghe một bên để vẫn nghe được tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 649,
+      "candidate_id": "a3b044603b844162e728546b",
+      "context_start": 247
+    },
+    {
+      "end": 498,
+      "start": 494,
+      "context": " Không phải anh biết bên dưới không có ai; anh chưa có lý do để đặt một người vào khoảng tối đó.\n\nLinh tháo tai nghe một bên để vẫn nghe được tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Trên",
+      "context_end": 698,
+      "candidate_id": "6b3a805e942514af502cb6f3",
+      "context_start": 294
+    },
+    {
+      "end": 542,
+      "start": 540,
+      "context": " chưa có lý do để đặt một người vào khoảng tối đó.\n\nLinh tháo tai nghe một bên để vẫn nghe được tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Âm",
+      "context_end": 742,
+      "candidate_id": "3936b38640aaf984014fd267",
+      "context_start": 340
+    },
+    {
+      "end": 608,
+      "start": 603,
+      "context": "ai nghe một bên để vẫn nghe được tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Ngoài",
+      "context_end": 808,
+      "candidate_id": "c5c62e6844694535c6d9ce43",
+      "context_start": 403
+    },
+    {
+      "end": 616,
+      "start": 614,
+      "context": " bên để vẫn nghe được tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "An",
+      "context_end": 816,
+      "candidate_id": "652c3f2793062e187bea041d",
+      "context_start": 414
+    },
+    {
+      "end": 637,
+      "start": 634,
+      "context": "c tiếng Duy. Cô đặt micro gần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cậu",
+      "context_end": 837,
+      "candidate_id": "426c74bc328a5dda8bad9d96",
+      "context_start": 434
+    },
+    {
+      "end": 667,
+      "start": 661,
+      "context": "ần chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm ",
+      "origins": [
+        "title_or_location"
+      ],
+      "surface": "bà Sâm",
+      "context_end": 867,
+      "candidate_id": "85766ccfb7afbb30f4196e87",
+      "context_start": 461
+    },
+    {
+      "end": 667,
+      "start": 664,
+      "context": "chân cửa, không luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Sâm",
+      "context_end": 867,
+      "candidate_id": "b3624fb368ef9b94d8d2f8c8",
+      "context_start": 464
+    },
+    {
+      "end": 678,
+      "start": 675,
+      "context": "hông luồn qua khe. Trên màn hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 878,
+      "candidate_id": "f1621e074e5a5b77e08fba92",
+      "context_start": 475
+    },
+    {
+      "end": 705,
+      "start": 702,
+      "context": " hình, tiếng nước thành một dải thấp. Âm kim loại nổi lên thành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ s",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Hỏi",
+      "context_end": 905,
+      "candidate_id": "ebf2c6bb374513da46152fb6",
+      "context_start": 502
+    },
+    {
+      "end": 765,
+      "start": 762,
+      "context": "ành những vệt hẹp, cách nhau không đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần b",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Chỉ",
+      "context_end": 965,
+      "candidate_id": "15a5794a4b6e019b2870cd59",
+      "context_start": 562
+    },
+    {
+      "end": 798,
+      "start": 796,
+      "context": " đều.\n\nNgoài sân, An buộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cầ",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "An",
+      "context_end": 998,
+      "candidate_id": "be1b6ca4e0a49b70666c7797",
+      "context_start": 596
+    },
+    {
+      "end": 822,
+      "start": 818,
+      "context": "uộc lại thuyền. Cậu gọi vào hỏi có cần báo bà Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 1022,
+      "candidate_id": "ce338892cb37a187733eaa3f",
+      "context_start": 618
+    },
+    {
+      "end": 870,
+      "start": 862,
+      "context": "à Sâm không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV-04 đã đứng ở đâu.\n\nDuy ngồi xổm cạnh chân tường",
+      "origins": [
+        "title_or_location"
+      ],
+      "surface": "trạm Bốn",
+      "context_end": 1070,
+      "candidate_id": "6a55481ff90d947a34e83f03",
+      "context_start": 662
+    },
+    {
+      "end": 870,
+      "start": 867,
+      "context": " không. Duy nói chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV-04 đã đứng ở đâu.\n\nDuy ngồi xổm cạnh chân tường",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bốn",
+      "context_end": 1070,
+      "candidate_id": "315333e3855a837925e60822",
+      "context_start": 667
+    },
+    {
+      "end": 885,
+      "start": 883,
+      "context": "chưa, rồi đổi ý.\n\n“Hỏi bà tay quay trắng có nối với khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV-04 đã đứng ở đâu.\n\nDuy ngồi xổm cạnh chân tường, soi đèn dọc m",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 1085,
+      "candidate_id": "d3d628f46569130899e7ec06",
+      "context_start": 683
+    },
+    {
+      "end": 939,
+      "start": 934,
+      "context": " khoang phụ phía tây không. Chỉ hỏi, đừng để bà tự đến đây.”\n\nAn đi ra chỗ có sóng. Linh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV-04 đã đứng ở đâu.\n\nDuy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy t",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Người",
+      "context_end": 1139,
+      "candidate_id": "245f1c008b84abe472632626",
+      "context_start": 734
+    },
+    {
+      "end": 1025,
+      "start": 1020,
+      "context": "nh nhìn dòng ghi chép của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV-04 đã đứng ở đâu.\n\nDuy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào. Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới h",
+      "origins": [
+        "author_guidance",
+        "capitalized_token",
+        "identifier"
+      ],
+      "surface": "CV-04",
+      "context_end": 1225,
+      "candidate_id": "4b107aae829dd8017e4762f7",
+      "context_start": 820
+    },
+    {
+      "end": 1045,
+      "start": 1042,
+      "context": "của mình: ngày hai, trạm Bốn, nhánh tây. Cô thêm “quan sát từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV-04 đã đứng ở đâu.\n\nDuy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào. Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 1245,
+      "candidate_id": "866c12f5ef4af7dce925f06a",
+      "context_start": 842
+    },
+    {
+      "end": 1102,
+      "start": 1099,
+      "context": "t từ sàn trên; chưa xuống khoang”. Người đọc bản ghi sau này cần biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV-04 đã đứng ở đâu.\n\nDuy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào. Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp xúc với không khí hơn. Linh không hỏi ngay.\n\n“Chị thấy v",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 1302,
+      "candidate_id": "fbca7003cc0315cc38b5918d",
+      "context_start": 899
+    },
+    {
+      "end": 1166,
+      "start": 1162,
+      "context": "n biết cô đứng ở đâu, cũng như cô cần biết người nói trên CV-04 đã đứng ở đâu.\n\nDuy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào. Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp xúc với không khí hơn. Linh không hỏi ngay.\n\n“Chị thấy vạch sơn trắng không?” anh nói.\n\nCô thấy, một vệt mảnh nằm sát bả",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Phần",
+      "context_end": 1366,
+      "candidate_id": "c64675fe6a27dc5c8f2edd6e",
+      "context_start": 962
+    },
+    {
+      "end": 1212,
+      "start": 1210,
+      "context": " nói trên CV-04 đã đứng ở đâu.\n\nDuy ngồi xổm cạnh chân tường, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào. Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp xúc với không khí hơn. Linh không hỏi ngay.\n\n“Chị thấy vạch sơn trắng không?” anh nói.\n\nCô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Nó",
+      "context_end": 1412,
+      "candidate_id": "5f88eb54d4f1128bdf945f77",
+      "context_start": 1010
+    },
+    {
+      "end": 1273,
+      "start": 1269,
+      "context": "g, soi đèn dọc một đường hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào. Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp xúc với không khí hơn. Linh không hỏi ngay.\n\n“Chị thấy vạch sơn trắng không?” anh nói.\n\nCô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ ch",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 1473,
+      "candidate_id": "630ecab0603ac6c3ef48d866",
+      "context_start": 1069
+    },
+    {
+      "end": 1295,
+      "start": 1292,
+      "context": "g hàn. Anh đưa ngón tay tới gần rồi dừng, lấy thước thay vì chạm vào. Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp xúc với không khí hơn. Linh không hỏi ngay.\n\n“Chị thấy vạch sơn trắng không?” anh nói.\n\nCô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Chị",
+      "context_end": 1495,
+      "candidate_id": "2394247c55c7e801a525b8fe",
+      "context_start": 1092
+    },
+    {
+      "end": 1336,
+      "start": 1334,
+      "context": "lấy thước thay vì chạm vào. Phần kim loại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp xúc với không khí hơn. Linh không hỏi ngay.\n\n“Chị thấy vạch sơn trắng không?” anh nói.\n\nCô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.”\n\nLinh lùi hai bước, lấy khung rộng. Tro",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 1536,
+      "candidate_id": "d12b6bdbd4ae514bcffb5aef",
+      "context_start": 1134
+    },
+    {
+      "end": 1375,
+      "start": 1372,
+      "context": "oại ở đây có màu khác đoạn phía trên. Nó có thể mới hơn, hoặc chỉ ít tiếp xúc với không khí hơn. Linh không hỏi ngay.\n\n“Chị thấy vạch sơn trắng không?” anh nói.\n\nCô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.”\n\nLinh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và b",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bên",
+      "context_end": 1575,
+      "candidate_id": "1f354d32977b6d910bb4a82d",
+      "context_start": 1172
+    },
+    {
+      "end": 1447,
+      "start": 1443,
+      "context": "ếp xúc với không khí hơn. Linh không hỏi ngay.\n\n“Chị thấy vạch sơn trắng không?” anh nói.\n\nCô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.”\n\nLinh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối. Cô chợt nghĩ những bằng chứng tốt thường ít",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Chụp",
+      "context_end": 1647,
+      "candidate_id": "0f76b1e008c2688efdd69ecd",
+      "context_start": 1243
+    },
+    {
+      "end": 1466,
+      "start": 1462,
+      "context": "í hơn. Linh không hỏi ngay.\n\n“Chị thấy vạch sơn trắng không?” anh nói.\n\nCô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.”\n\nLinh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối. Cô chợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Đừng",
+      "context_end": 1666,
+      "candidate_id": "1d6a611d074efcfe5cdcd5de",
+      "context_start": 1262
+    },
+    {
+      "end": 1502,
+      "start": 1498,
+      "context": "ấy vạch sơn trắng không?” anh nói.\n\nCô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.”\n\nLinh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối. Cô chợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 1702,
+      "candidate_id": "7521422f76d295abaa790e93",
+      "context_start": 1298
+    },
+    {
+      "end": 1538,
+      "start": 1533,
+      "context": "\nCô thấy, một vệt mảnh nằm sát bản lề. Bên dưới vệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.”\n\nLinh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối. Cô chợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Trong",
+      "context_end": 1738,
+      "candidate_id": "56ff1b86028d957ba8071b4d",
+      "context_start": 1333
+    },
+    {
+      "end": 1585,
+      "start": 1582,
+      "context": "ệt ấy có dấu của một con số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.”\n\nLinh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối. Cô chợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải g",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 1785,
+      "candidate_id": "eb4d0945648f37225b3d496b",
+      "context_start": 1382
+    },
+    {
+      "end": 1606,
+      "start": 1604,
+      "context": "on số đã bị lớp sơn sau che gần hết.\n\n“Chụp lại cả tường. Đừng chỉ chụp chỗ mình muốn thấy.”\n\nLinh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối. Cô chợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoạ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 1806,
+      "candidate_id": "6ae91129bc59bc2c53196f18",
+      "context_start": 1404
+    },
+    {
+      "end": 1691,
+      "start": 1688,
+      "context": "n thấy.”\n\nLinh lùi hai bước, lấy khung rộng. Trong ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối. Cô chợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu tr",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Một",
+      "context_end": 1891,
+      "candidate_id": "f4af7cee910b89d0ae4784c0",
+      "context_start": 1488
+    },
+    {
+      "end": 1741,
+      "start": 1738,
+      "context": " ảnh có cửa, thước, dây cảnh báo và bàn tay Duy đặt trên đầu gối. Cô chợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy,",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Một",
+      "context_end": 1941,
+      "candidate_id": "499a15f7b61eccd88a7e4fef",
+      "context_start": 1538
+    },
+    {
+      "end": 1801,
+      "start": 1797,
+      "context": "u gối. Cô chợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phò",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Điện",
+      "context_end": 2001,
+      "candidate_id": "39c0e3445035b0a20f78cde1",
+      "context_start": 1597
+    },
+    {
+      "end": 1811,
+      "start": 1808,
+      "context": "hợt nghĩ những bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 2011,
+      "candidate_id": "241a30601cff4dd8b9cdf151",
+      "context_start": 1608
+    },
+    {
+      "end": 1821,
+      "start": 1818,
+      "context": "hững bằng chứng tốt thường ít kịch tính hơn trí tưởng tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ ng",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 2021,
+      "candidate_id": "facea2d98a9576b30517b14a",
+      "context_start": 1618
+    },
+    {
+      "end": 1875,
+      "start": 1871,
+      "context": " tượng về chúng. Một người muốn kể chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 2075,
+      "candidate_id": "3590ad1a9a8f1876af6b36f1",
+      "context_start": 1671
+    },
+    {
+      "end": 1909,
+      "start": 1905,
+      "context": " chuyện có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản nà",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vâng",
+      "context_end": 2109,
+      "candidate_id": "499fe6516b816dcf33cb24e9",
+      "context_start": 1705
+    },
+    {
+      "end": 1915,
+      "start": 1911,
+      "context": "n có thể cắt bỏ cái thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này khôn",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cháu",
+      "context_end": 2115,
+      "candidate_id": "688c0fe500f2bafcaf6f38bd",
+      "context_start": 1711
+    },
+    {
+      "end": 1932,
+      "start": 1929,
+      "context": "i thước. Một người muốn biết chuyện đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 2132,
+      "candidate_id": "06038f27419c4223a0e3d854",
+      "context_start": 1729
+    },
+    {
+      "end": 1965,
+      "start": 1963,
+      "context": "n đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn cuộn bản đồ đang nằm trên bệ cửa",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bà",
+      "context_end": 2165,
+      "candidate_id": "f8c39c606d3438c4594e363a",
+      "context_start": 1763
+    },
+    {
+      "end": 1969,
+      "start": 1963,
+      "context": "n đã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ.",
+      "origins": [
+        "capitalized_sequence",
+        "title_or_location"
+      ],
+      "surface": "Bà Sâm",
+      "context_end": 2169,
+      "candidate_id": "975ba791ebdb16b3016db59d",
+      "context_start": 1763
+    },
+    {
+      "end": 1969,
+      "start": 1966,
+      "context": "ã xảy ra thì phải giữ nó lại.\n\nĐiện thoại Duy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Sâm",
+      "context_end": 2169,
+      "candidate_id": "0c5a9d8d8b7c21931e108681",
+      "context_start": 1766
+    },
+    {
+      "end": 2011,
+      "start": 2009,
+      "context": "uy rung. Anh quay tai phải về phía máy, mắt vẫn nhìn khe cửa. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ. Linh nghĩ đến tờ giấy đã đi qua những máy",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Nó",
+      "context_end": 2211,
+      "candidate_id": "3828d07e7f2bbb6f01cb4031",
+      "context_start": 1809
+    },
+    {
+      "end": 2071,
+      "start": 2068,
+      "context": "a. Linh chỉ nghe câu trả lời cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ. Linh nghĩ đến tờ giấy đã đi qua những máy photocopy, mỗi lần nét mờ hơn một chút, trong khi người sử ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Một",
+      "context_end": 2271,
+      "candidate_id": "003cdbf9b8052bcdf3973734",
+      "context_start": 1868
+    },
+    {
+      "end": 2097,
+      "start": 2095,
+      "context": "i cuối:\n\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ. Linh nghĩ đến tờ giấy đã đi qua những máy photocopy, mỗi lần nét mờ hơn một chút, trong khi người sử dụng có thể tin nó hơn vì ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Có",
+      "context_end": 2297,
+      "candidate_id": "96ef4dcce47b109c844d0a10",
+      "context_start": 1895
+    },
+    {
+      "end": 2106,
+      "start": 2103,
+      "context": "\n“Vâng. Cháu chưa chạm.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ. Linh nghĩ đến tờ giấy đã đi qua những máy photocopy, mỗi lần nét mờ hơn một chút, trong khi người sử dụng có thể tin nó hơn vì trông nó ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bản",
+      "context_end": 2306,
+      "candidate_id": "fa1da7ca5f363dad30257fcd",
+      "context_start": 1903
+    },
+    {
+      "end": 2127,
+      "start": 2124,
+      "context": "m.”\n\nAnh cất máy, đứng lên rất chậm.\n\n“Bà Sâm nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ. Linh nghĩ đến tờ giấy đã đi qua những máy photocopy, mỗi lần nét mờ hơn một chút, trong khi người sử dụng có thể tin nó hơn vì trông nó cũ và chính thức.\n\nTừ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 2327,
+      "candidate_id": "d3da58e3e4fc28869178815b",
+      "context_start": 1924
+    },
+    {
+      "end": 2174,
+      "start": 2170,
+      "context": "nói đó không phải cửa xuống phòng máy. Nó là chỗ người vận hành đứng khi đường chính mất điện.”\n\n“Một lối điều khiển phụ?”\n\n“Có thể. Bản này không ghi.”\n\nAnh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ. Linh nghĩ đến tờ giấy đã đi qua những máy photocopy, mỗi lần nét mờ hơn một chút, trong khi người sử dụng có thể tin nó hơn vì trông nó cũ và chính thức.\n\nTừ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 2374,
+      "candidate_id": "d2e9fc7028b51c41d698ac0b",
+      "context_start": 1970
+    },
+    {
+      "end": 2327,
+      "start": 2325,
+      "context": "nh nhìn cuộn bản đồ đang nằm trên bệ cửa sổ. Linh nghĩ đến tờ giấy đã đi qua những máy photocopy, mỗi lần nét mờ hơn một chút, trong khi người sử dụng có thể tin nó hơn vì trông nó cũ và chính thức.\n\nTừ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Từ",
+      "context_end": 2527,
+      "candidate_id": "2b8072fba83da91507b2eec7",
+      "context_start": 2125
+    },
+    {
+      "end": 2369,
+      "start": 2365,
+      "context": " sổ. Linh nghĩ đến tờ giấy đã đi qua những máy photocopy, mỗi lần nét mờ hơn một chút, trong khi người sử dụng có thể tin nó hơn vì trông nó cũ và chính thức.\n\nTừ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản gh",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 2569,
+      "candidate_id": "0a9362805647408996b28bb5",
+      "context_start": 2165
+    },
+    {
+      "end": 2383,
+      "start": 2380,
+      "context": "đến tờ giấy đã đi qua những máy photocopy, mỗi lần nét mờ hơn một chút, trong khi người sử dụng có thể tin nó hơn vì trông nó cũ và chính thức.\n\nTừ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy.\n\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Một",
+      "context_end": 2583,
+      "candidate_id": "dfdab909a1d0b2f909099864",
+      "context_start": 2180
+    },
+    {
+      "end": 2464,
+      "start": 2460,
+      "context": "i người sử dụng có thể tin nó hơn vì trông nó cũ và chính thức.\n\nTừ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy.\n\nTrong khe cửa, đường nước phản sáng bắt đầu dịch lên.\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Trên",
+      "context_end": 2637,
+      "candidate_id": "8bd1a3e4ceb4ed46d8756260",
+      "context_start": 2260
+    },
+    {
+      "end": 2499,
+      "start": 2497,
+      "context": "trông nó cũ và chính thức.\n\nTừ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy.\n\nTrong khe cửa, đường nước phản sáng bắt đầu dịch lên.\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 2637,
+      "candidate_id": "66d734c96dd3fbfcb3f7534f",
+      "context_start": 2297
+    },
+    {
+      "end": 2513,
+      "start": 2497,
+      "context": "trông nó cũ và chính thức.\n\nTừ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy.\n\nTrong khe cửa, đường nước phản sáng bắt đầu dịch lên.\n",
+      "origins": [
+        "title_or_location"
+      ],
+      "surface": "Cô không gọi Duy",
+      "context_end": 2637,
+      "candidate_id": "7b0072dfecc467024e2d31fb",
+      "context_start": 2297
+    },
+    {
+      "end": 2513,
+      "start": 2510,
+      "context": "à chính thức.\n\nTừ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy.\n\nTrong khe cửa, đường nước phản sáng bắt đầu dịch lên.\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 2637,
+      "candidate_id": "08081ec2f99d969daab4f4c4",
+      "context_start": 2310
+    },
+    {
+      "end": 2522,
+      "start": 2520,
+      "context": "ức.\n\nTừ dưới sàn vang lên ba tiếng gõ ngắn.\n\nLinh bất động. Một giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy.\n\nTrong khe cửa, đường nước phản sáng bắt đầu dịch lên.\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 2637,
+      "candidate_id": "6a64be8f059687a22b038ecc",
+      "context_start": 2320
+    },
+    {
+      "end": 2588,
+      "start": 2583,
+      "context": " giây sau có tiếng thứ tư, kéo dài, như một vật nặng bị kéo ngang thành ống. Trên màn hình, bốn vệt sáng hiện ra. Cô không gọi Duy ngay. Cô giơ tay để anh nhìn thấy, rồi chỉ xuống bản ghi đang chạy.\n\nTrong khe cửa, đường nước phản sáng bắt đầu dịch lên.\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Trong",
+      "context_end": 2637,
+      "candidate_id": "cd072a8d084e3483aedfc6f5",
+      "context_start": 2383
+    }
+  ],
+  "chapter_id": "6ec2cbb6-b264-48ee-a222-d317973f9577",
+  "revision_id": "102b427c-765e-464d-ae4b-9c681fb61a82",
+  "source_hash": "6549fdfb9c1ff5a5cca74b8b77f09adff8ea67699944ade84c0de788c8a4c0c5",
+  "chapter_number": 5,
+  "known_entities": [],
+  "review_version": 1,
+  "analysis_policy": "entity-human-review-v1",
+  "analysis_run_id": "9d53f052-32bb-4a21-982e-035cf428ece8",
+  "guidance_version": 1,
+  "reviewed_decisions": [],
+  "unanchored_discoveries": []
+}

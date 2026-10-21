@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "data": {
+      "proposal_ids": [
+        "9a89ceab-bfa3-5241-be69-d3ed0857859f",
+        "cb7dc854-6270-5d1c-89a6-2f5afee110b0",
+        "f1b5f48f-0ff4-57ba-b810-8716b3cbf5a4",
+        "d7001f6b-a05e-52f9-b802-cc4e5153683e",
+        "3ed99bd9-5117-5834-9807-aa86b2b2e358"
+      ],
+      "canonical_artifact_ids": [
+        "892c4fe6-2784-4c93-976b-eb394a358381",
+        "05d44608-b57f-4ba6-9c2d-8171c731539f",
+        "f1b5f48f-0ff4-57ba-b810-8716b3cbf5a4",
+        "2d6cfb02-963d-4be9-9093-42fa2d8dbd72",
+        "7b9b3338-c5bd-45f9-9a3a-da7e2017e584"
+      ],
+      "brain_version": 7,
+      "status": "accepted"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

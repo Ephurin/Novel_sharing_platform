@@ -1,0 +1,17 @@
+{
+  "issue_id": "WF1F-S09-001",
+  "category": "CONFIRMED_PRODUCT_FE_DEFECT",
+  "editor_matches_expected_B": true,
+  "persisted_draft_matches_stale_A": true,
+  "latest_revision_matches_stale_A": true,
+  "two_edit_window_seconds": 0.263885,
+  "debounce_seconds": 1.2,
+  "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+  "chapter_id": "23a185a6-5c4e-4d7e-b97a-060f598e109b",
+  "revision_id": "737c2025-d940-44b7-b3d5-7ea31b112123",
+  "actual_content_hash": "068989616d1748d0aa28e256bcac0af7563456edf36823e1a80a004735d94ecb",
+  "source_file": "web/src/features/author-ide/AuthorWritingIde.tsx",
+  "source_line": 461,
+  "phase": "S09",
+  "next_S10_S11": "NOT_RUN_MANDATORY_PRIOR_GATE_BLOCKED"
+}

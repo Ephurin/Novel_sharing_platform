@@ -1,0 +1,115 @@
+{
+  "verdict": "P1_WAVE_1F_BLOCKED:WF1F-S09-001",
+  "executor": "Codex",
+  "baseline_sha": "52d7fb9f88365643e96f84dcc49ee2e5e0f4aab3",
+  "s03_tested_sha": "c4b8f827bddc89a1fa6eaa95832e4739902e833f",
+  "s08_s09_tested_sha": "34fff042c3272e9661f7bf7163f290b4b5483568",
+  "evidence_commit": "resolve using git log -- this file; final handoff contains SHA",
+  "steps": [
+    {
+      "step": "S01",
+      "verdict": "PASS",
+      "scope": "5 source chapters imported via UI",
+      "evidence": "browser-attempt-02/ACT-S02-CHECKPOINT.readback.json"
+    },
+    {
+      "step": "S02",
+      "verdict": "PASS",
+      "scope": "all 5 exact immutable source mappings",
+      "evidence": "browser-attempt-02/five-chapter-checkpoint-matrix.json"
+    },
+    {
+      "step": "S03",
+      "verdict": "PASS",
+      "scope": "offline five gates + canon mixed decisions + baseline; real semantic quality NOT_ASSESSED",
+      "evidence": "browser-attempt-02/M0-02-approved-baseline.json"
+    },
+    {
+      "step": "S04",
+      "verdict": "PASS",
+      "scope": "real reload and tabs",
+      "evidence": "browser-continuation-02"
+    },
+    {
+      "step": "S05",
+      "verdict": "PASS",
+      "scope": "suggestions edit/reject; scripted future output",
+      "evidence": "browser-continuation-02/S05-after-edit-reject.json"
+    },
+    {
+      "step": "S06",
+      "verdict": "PASS",
+      "scope": "plan create/activate; official history unchanged",
+      "evidence": "browser-continuation-02/S06-after-plan.json"
+    },
+    {
+      "step": "S07",
+      "verdict": "PASS",
+      "scope": "ordinary editor save creates revision and outbox; no snapshot rescue",
+      "evidence": "browser-continuation-02/S07-normal-save-source.json"
+    },
+    {
+      "step": "S08",
+      "verdict": "PASS",
+      "scope": "fresh revision HITL and canon micro_check_note; M-FIRST functional",
+      "evidence": "browser-incremental-resume-01/M-FIRST-approved.json"
+    },
+    {
+      "step": "S09",
+      "verdict": "FAIL",
+      "scope": "WF1F-S09-001 stale debounce save after undo",
+      "evidence": "browser-incremental-resume-01/S09-debounce-readback.json"
+    },
+    {
+      "step": "S10",
+      "verdict": "NOT_RUN",
+      "scope": "mandatory S09 gate failed",
+      "evidence": ""
+    },
+    {
+      "step": "S11",
+      "verdict": "NOT_RUN",
+      "scope": "mandatory S09 gate failed",
+      "evidence": ""
+    }
+  ],
+  "regression": {
+    "tooling": {
+      "passed": 111,
+      "skipped": 4,
+      "exit_code": 0,
+      "log": "offline-logs/tools-current.txt",
+      "tested_sha": "34fff042c3272e9661f7bf7163f290b4b5483568"
+    },
+    "ai_service": {
+      "passed": 407,
+      "skipped": 2,
+      "deselected": 42,
+      "exit_code": 0,
+      "log": "offline-logs/ai-regression.txt",
+      "tested_sha": "33a8163cda8a60d43ac84bf6633b0231559a3dd2"
+    },
+    "backend": {
+      "passed": 62,
+      "exit_code": 0,
+      "log": "offline-logs/backend-regression.txt",
+      "tested_sha": "33a8163cda8a60d43ac84bf6633b0231559a3dd2"
+    }
+  },
+  "external_real_provider_calls": 0,
+  "fake_calls": 76,
+  "gold_assertions": 35,
+  "real_llm_execution": "NOT_ASSESSED",
+  "raw_extraction_quality": "NOT_ASSESSED",
+  "semantic_retrieval_quality": "NOT_ASSESSED",
+  "browser_idempotent_continue_replay": "NOT_RUN",
+  "packed_generation_context": "NOT_RUN",
+  "paid_usd_cap_math": "DEFERRED",
+  "P1_PROVIDER_BACKED": "NOT_ACCEPTED",
+  "P2": "NOT_RUN",
+  "P3": "NOT_RUN",
+  "100k": "NOT_RUN",
+  "product_changes": "NONE; separate S09_PATCH_PROPOSAL.md",
+  "preservation_audit": "audit-results.json",
+  "browser_bundle_revalidation": "browser-evidence-revalidation.json"
+}

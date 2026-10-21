@@ -1,0 +1,35 @@
+{
+  "action_id": "ACT-S03-CH2-FREEZE",
+  "action_kind": "click",
+  "selector": "L\u01b0u quy\u1ebft \u0111\u1ecbnh entity",
+  "started_at": "2026-10-21T15:13:55.977548+00:00",
+  "finished_at": "2026-10-21T15:13:56.615735+00:00",
+  "application_url": "http://127.0.0.1:47567/author/ide?novelId=5999e846-0165-4a10-92b4-c8d3f0b5ef4a&chapterId=6ec2cbb6-b264-48ee-a222-d317973f9577",
+  "run_id": "2026-10-21-p1-wave1f-workflow-01",
+  "session_id": "badac238-e489-4b50-8c2e-8cfaef90eea6",
+  "user_id": "c029c248-f324-42bd-bd4c-11c2f3f99e77",
+  "novel_id": "5999e846-0165-4a10-92b4-c8d3f0b5ef4a",
+  "channel": "OFFLINE_BROWSER_UI_SMOKE",
+  "artifacts": {
+    "screenshot": {
+      "path": "ACT-S03-CH2-FREEZE.png",
+      "sha256": "3c3c328700ff93d877f2e235f0afc41eeac53296bd76f3127089306ea5194750"
+    },
+    "dom": {
+      "path": "ACT-S03-CH2-FREEZE.dom.txt",
+      "sha256": "35ee4d4ed4bddf6fed4700a0cdfd682a597221899c04a02243f5a391e588a096"
+    },
+    "trace": {
+      "path": "browser.trace.zip",
+      "sha256": "f24c87b4852d92e3d6092879fe7775ccefbe5e7605301e87eba708bd45beb992"
+    },
+    "session": {
+      "path": "browser-session.json",
+      "sha256": "0d20b6787d95b5b46c8c4ded943a9b6ab9028951d2017e732671530e59de1f51"
+    },
+    "readback": {
+      "path": "ACT-S03-CH2-FREEZE.readback.json",
+      "sha256": "f7363958afbbf8452c0bbd8c04c528423dc3b84536afef8c851f3f242638e8bc"
+    }
+  }
+}

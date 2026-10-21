@@ -1,0 +1,14 @@
+{
+  "status": 200,
+  "body": {
+    "success": true,
+    "data": {
+      "story_brain_id": "fb4bf1f9-8e19-4ed1-9afb-70e2ca0beeb7",
+      "status": "active",
+      "baseline_revision_id": "102b427c-765e-464d-ae4b-9c681fb61a82",
+      "brain_version": 6
+    },
+    "error": null,
+    "meta": {}
+  }
+}

@@ -1,0 +1,12 @@
+step,verdict,scope,evidence,channel
+S01,PASS,5 source chapters imported via UI,browser-attempt-02/ACT-S02-CHECKPOINT.readback.json,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER
+S02,PASS,all 5 exact immutable source mappings,browser-attempt-02/five-chapter-checkpoint-matrix.json,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER
+S03,PASS,offline five gates + canon mixed decisions + baseline; real semantic quality NOT_ASSESSED,browser-attempt-02/M0-02-approved-baseline.json,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER
+S04,PASS,real reload and tabs,browser-continuation-02,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER
+S05,PASS,suggestions edit/reject; scripted future output,browser-continuation-02/S05-after-edit-reject.json,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER
+S06,PASS,plan create/activate; official history unchanged,browser-continuation-02/S06-after-plan.json,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER
+S07,PASS,ordinary editor save creates revision and outbox; no snapshot rescue,browser-continuation-02/S07-normal-save-source.json,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER
+S08,PASS,fresh revision HITL and canon micro_check_note; M-FIRST functional,browser-incremental-resume-01/M-FIRST-approved.json,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER
+S09,FAIL,WF1F-S09-001 stale debounce save after undo,browser-incremental-resume-01/S09-debounce-readback.json,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER
+S10,NOT_RUN,mandatory S09 gate failed,,NOT_RUN
+S11,NOT_RUN,mandatory S09 gate failed,,NOT_RUN
