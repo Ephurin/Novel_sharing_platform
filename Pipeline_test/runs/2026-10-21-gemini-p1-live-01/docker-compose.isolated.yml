@@ -29,6 +29,48 @@ services:
       timeout: 3s
       retries: 20
 
+  budget-gateway:
+    image: python:3.11-slim
+    container_name: p1-live-01-budget-gateway
+    working_dir: /workspace
+    command: >
+      python -u -c "
+      import sys; sys.path.insert(0, '/workspace/Pipeline_test/tools');
+      from budget_gateway import start_budget_gateway;
+      from pathlib import Path;
+      import time, os;
+      state_file = Path('/workspace/Pipeline_test/runs/2026-10-21-gemini-p1-live-01/budget_state.json');
+      server, th, ledger = start_budget_gateway(
+          state_file=state_file,
+          host='0.0.0.0',
+          port=18090,
+          max_calls=int(os.getenv('MAX_CALLS', '200')),
+          max_cost_usd=float(os.getenv('MAX_COST_USD', '5.00')),
+          admission_cost_usd=float(os.getenv('ADMISSION_COST_USD', '4.50')),
+          max_wall_clock_seconds=int(os.getenv('MAX_WALL_CLOCK_SECONDS', '7200')),
+          upstream_base_url=os.getenv('UPSTREAM_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai'),
+          upstream_api_key=os.getenv('GEMINI_API_KEY', ''),
+      );
+      print('[BUDGET_GATEWAY] Running authoritative gateway on port 18090...');
+      th.join()
+      "
+    environment:
+      MAX_CALLS: 200
+      MAX_COST_USD: "5.00"
+      ADMISSION_COST_USD: "4.50"
+      MAX_WALL_CLOCK_SECONDS: 7200
+      UPSTREAM_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    volumes:
+      - ../../../:/workspace
+    ports:
+      - "127.0.0.1:18090:18090"
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:18090/health')" ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
   ai-service:
     build:
       context: ../../../ai-service
@@ -41,14 +83,15 @@ services:
       LLM_ENABLED: "true"
       LLM_PROVIDER: gemini
       LLM_MODEL: gemini-3.5-flash-lite
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      LLM_BASE_URL: ""
+      GEMINI_API_KEY: ""
+      BUDGET_GUARD_URL: http://budget-gateway:18090
+      LLM_BASE_URL: http://budget-gateway:18090/v1
       LLM_FALLBACK_PROVIDER: ""
       LLM_LOCAL_FALLBACK: "false"
       LLM_STRUCTURED_MAX_TOKENS: 8192
-      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/p1_ephurin
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-p1_ephurin}
       PLATFORM_API_BASE_URL: http://backend:4000
-      PLATFORM_SERVICE_TOKEN: test-token-p1-live-01
+      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-test-token-p1-live-01}
       ENTITY_CANDIDATE_VERIFICATION_ENABLED: "true"
       CONTEXT_ROUTING_POLICY: legacy-v1
     ports:
@@ -60,6 +103,8 @@ services:
       retries: 10
     depends_on:
       postgres:
+        condition: service_healthy
+      budget-gateway:
         condition: service_healthy
 
   backend:
@@ -73,19 +118,19 @@ services:
       API_PREFIX: /api/v1
       WEB_ORIGIN: http://localhost:18080
       DB_CONNECT_ON_START: "true"
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/p1_ephurin
-      MONGODB_URI: mongodb://mongodb:27017/p1_ephurin
-      JWT_ACCESS_SECRET: p1-live-01-demo-access-secret-isolated
-      JWT_REFRESH_SECRET: p1-live-01-demo-refresh-secret-isolated
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-p1_ephurin}
+      MONGODB_URI: mongodb://mongodb:27017/${POSTGRES_DB:-p1_ephurin}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-p1-live-01-demo-access-secret-isolated}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-p1-live-01-demo-refresh-secret-isolated}
       JWT_ACCESS_EXPIRES_SECONDS: 3600
       JWT_REFRESH_EXPIRES_DAYS: 7
       REFRESH_TOKEN_COOKIE_NAME: ephurin_p1_refresh_token
       RUN_MIGRATIONS: "true"
       RUN_DEMO_SEED: "false"
       AI_SERVICE_URL: http://ai-service:8000
-      PLATFORM_SERVICE_TOKEN: test-token-p1-live-01
-      AI_LLM_BASE_URL: https://generativelanguage.googleapis.com/v1beta/openai
-      AI_LLM_API_KEY: ${GEMINI_API_KEY}
+      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-test-token-p1-live-01}
+      AI_LLM_BASE_URL: http://budget-gateway:18090/v1
+      AI_LLM_API_KEY: ""
       AI_LLM_MODEL: gemini-3.5-flash-lite
     ports:
       - "127.0.0.1:14000:4000"
@@ -95,6 +140,8 @@ services:
       mongodb:
         condition: service_healthy
       ai-service:
+        condition: service_healthy
+      budget-gateway:
         condition: service_healthy
 
   web:

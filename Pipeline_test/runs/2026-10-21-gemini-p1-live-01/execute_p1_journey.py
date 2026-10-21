@@ -38,7 +38,7 @@ AI_SERVICE_BASE = "http://127.0.0.1:18000"
 WEB_BASE = "http://127.0.0.1:18080"
 
 AUTHOR_USER = os.getenv("AUTHOR_USER", "p1_author")
-AUTHOR_PASS = os.getenv("AUTHOR_PASSWORD", "P1AuthorPass123!")
+AUTHOR_PASS = os.getenv("AUTHOR_PASSWORD")
 
 guard = BudgetGuard(state_file=RUN_DIR / "budget_state.json")
 
@@ -124,6 +124,112 @@ def sync_new_provider_calls(since_seconds: int = 180, default_operation: str = "
             print(f"[WARN] Error parsing provider log: {e}")
     return count
 
+
+def validate_browser_evidence(
+    response_evidence: str,
+    action_id: str,
+    novel_id: str,
+    run_dir: Optional[Path] = None,
+) -> Tuple[bool, str]:
+    """
+    Validates that evidence claimed as LIVE_UI represents an authentic
+    browser automation session per Wave 1C requirements (V1C-02):
+    1. Rejects mere string filenames, empty paths, or synthetic labels.
+    2. The referenced artifact file MUST actually exist on disk and be non-empty (>0 bytes).
+    3. If evidence is an image (.png) or DOM (.html), an accompanying provenance manifest
+       (.json) MUST exist containing:
+       - action_kind: click, type, upload, navigate, select, etc.
+       - application_url: valid HTTP(S) URL
+       - timestamp: ISO-8601 string
+       - correlating novel_id matching the action
+    """
+    if not response_evidence or not response_evidence.strip():
+        return False, "Empty or missing response evidence path"
+
+    raw_path = Path(response_evidence.strip())
+    base_dir = run_dir or RUN_DIR
+    target_path = raw_path if raw_path.is_absolute() else (base_dir / raw_path)
+
+    if not target_path.exists():
+        return False, f"Referenced browser evidence file does not exist on disk: {target_path}"
+
+    try:
+        file_size = target_path.stat().st_size
+    except OSError as e:
+        return False, f"Could not stat evidence file: {e}"
+
+    if file_size <= 0:
+        return False, f"Evidence file is empty (0 bytes): {target_path}"
+
+    # If it is a provenance JSON manifest directly
+    if target_path.suffix.lower() == ".json":
+        try:
+            with open(target_path, "r", encoding="utf-8") as f:
+                manifest = json.load(f)
+            if not isinstance(manifest, dict):
+                return False, "Evidence JSON is not a dictionary manifest"
+            action_kind = manifest.get("action_kind") or manifest.get("action")
+            app_url = manifest.get("application_url") or manifest.get("url")
+            ts = manifest.get("timestamp")
+            m_novel_id = manifest.get("novel_id")
+
+            if not action_kind or str(action_kind).lower() not in {"click", "type", "upload", "navigate", "select", "press"}:
+                return False, f"Invalid or missing action_kind in provenance: {action_kind}"
+            if not app_url or not (str(app_url).startswith("http://") or str(app_url).startswith("https://")):
+                return False, f"Invalid application_url in provenance: {app_url}"
+            if not ts:
+                return False, "Missing timestamp in provenance manifest"
+            if novel_id and m_novel_id and str(m_novel_id) != str(novel_id):
+                return False, f"Provenance novel_id mismatch: {m_novel_id} != {novel_id}"
+            return True, "Authentic browser automation JSON manifest verified"
+        except Exception as e:
+            return False, f"Corrupted or invalid provenance JSON: {e}"
+
+    # If it is a screenshot (.png) or DOM (.html)
+    if target_path.suffix.lower() in {".png", ".html"}:
+        prov_file = target_path.with_suffix(".json")
+        if not prov_file.exists():
+            alt_prov = target_path.parent / f"{target_path.stem}_provenance.json"
+            if alt_prov.exists():
+                prov_file = alt_prov
+            else:
+                return False, f"Screenshot/DOM artifact {target_path.name} lacks accompanying action provenance manifest (.json)"
+        return validate_browser_evidence(str(prov_file), action_id, novel_id, run_dir=base_dir)
+
+    return False, f"Unrecognized browser evidence artifact format: {target_path.suffix}"
+
+
+def verify_manuscript_gold_hashes(existing_chapters: List[Dict[str, Any]], fixture_dir: Optional[Path] = None) -> Tuple[bool, str]:
+    """Verifies that all 5 existing chapters match the exact canonical fixture content hashes (V1C-03)."""
+    if len(existing_chapters) != 5:
+        return False, f"Expected exactly 5 chapters, found {len(existing_chapters)}"
+
+    f_dir = fixture_dir or FIXTURE_DIR
+    chapter_files = [
+        ("ch01.md", 1),
+        ("ch02.md", 2),
+        ("ch03.md", 3),
+        ("ch04.md", 4),
+        ("ch05.md", 5),
+    ]
+    for (fname, expected_ch_num), ch in zip(chapter_files, existing_chapters):
+        fpath = f_dir / fname
+        if not fpath.exists():
+            return False, f"Fixture file {fname} not found"
+        expected_content = fpath.read_text(encoding="utf-8")
+        expected_sha = hashlib.sha256(expected_content.encode("utf-8")).hexdigest()
+
+        server_hash = ch.get("contentHash") or ch.get("latestRevisionHash") or ""
+        ch_id = ch.get("chapterId") or ch.get("id")
+        rev_id = ch.get("latestRevisionId") or ch.get("revisionId")
+        if not rev_id or rev_id == ch_id:
+            return False, f"Chapter {expected_ch_num} has missing or identical revision_id ({rev_id})"
+        if server_hash and server_hash != expected_sha:
+            return False, f"Chapter {expected_ch_num} content hash mismatch: {server_hash} != {expected_sha}"
+
+    return True, "All 5 chapters match gold fixture hashes"
+
+
 def record_action(
     action_id: str,
     phase: str,
@@ -146,16 +252,11 @@ def record_action(
     result: str = "SUCCESS",
     issue_id: str = "",
 ):
-    # Methodological guard: do not claim LIVE_UI without browser session evidence
+    # Methodological guard: strictly validate authentic browser session evidence (V1C-02)
     if channel == "LIVE_UI":
-        is_browser_evidence = (
-            response_evidence.endswith(".png")
-            or response_evidence.endswith(".html")
-            or "browser" in response_evidence.lower()
-            or "dom" in response_evidence.lower()
-        )
-        if not is_browser_evidence:
-            print(f"[GUARD] Action {action_id} lacks browser DOM/screenshot evidence. Channel '{channel}' corrected to 'LIVE_API'.")
+        is_valid_browser, reason = validate_browser_evidence(response_evidence, action_id, novel_id)
+        if not is_valid_browser:
+            print(f"[GUARD] Action {action_id} lacks authentic browser evidence ({reason}). Channel '{channel}' corrected to 'LIVE_API'.")
             channel = "LIVE_API"
 
     actions_file = RUN_DIR / "actions.csv"
@@ -195,6 +296,12 @@ def main():
     print("=" * 70)
 
     # 1. Login
+    if not AUTHOR_PASS:
+        raise RuntimeError(
+            "AUTHOR_PASSWORD environment variable is required (credential hygiene V1C-04). "
+            "Committed default password fallbacks are strictly prohibited."
+        )
+
     t0 = time.time()
     login_resp = api_request("POST", "/auth/login", {"identifier": AUTHOR_USER, "password": AUTHOR_PASS})
     token = login_resp["data"]["accessToken"]
@@ -221,28 +328,59 @@ def main():
                 ckpt_data = json.load(f)
                 novel_id = ckpt_data.get("main_novel_id")
         except Exception as e:
-            print(f"[WARN] Could not parse checkpoint.json: {e}")
+            raise RuntimeError(f"Corrupt or unreadable checkpoint.json (V1C-03 fail-closed): {e}")
 
-    # Also query server for novel if not found in checkpoint
-    if not novel_id:
+    # Inspect owned novels for this author (do not blindly attach to other users' novels)
+    user_owned_novels = []
+    try:
+        my_novels_resp = api_request("GET", "/author/novels", token=token)
+        user_owned_novels = my_novels_resp.get("data", [])
+    except Exception:
         try:
             novels_resp = api_request("GET", "/novels", token=token)
-            for n in novels_resp.get("data", []):
-                if n.get("title") == novel_payload["title"]:
-                    novel_id = n.get("novelId") or n.get("id")
-                    break
-        except Exception as e:
-            print(f"[WARN] Error querying existing novels: {e}")
+            user_owned_novels = [n for n in novels_resp.get("data", []) if n.get("authorId") == user_id or n.get("isOwner") is True]
+        except Exception:
+            pass
+
+    matching_novel = None
+    if novel_id:
+        matching_novel = next((n for n in user_owned_novels if (n.get("novelId") or n.get("id")) == novel_id), None)
+    else:
+        # Only consider title match if uniquely owned by this author
+        matching_titles = [n for n in user_owned_novels if n.get("title") == novel_payload["title"]]
+        if len(matching_titles) == 1:
+            matching_novel = matching_titles[0]
+            novel_id = matching_novel.get("novelId") or matching_novel.get("id")
+        elif len(matching_titles) > 1:
+            raise RuntimeError(
+                f"Ambiguous state: multiple owned novels found with title '{novel_payload['title']}'. "
+                "Failing closed per V1C-03; cannot infer novel identity."
+            )
 
     if novel_id:
+        # An existing owned novel was identified: MUST NEVER create a duplicate novel!
         try:
             ch_list_resp = api_request("GET", f"/novels/{novel_id}/chapters", token=token)
             existing_chapters = ch_list_resp.get("data", [])
-        except Exception:
-            existing_chapters = []
+        except Exception as e:
+            raise RuntimeError(f"Failed to query chapters for existing novel {novel_id}: {e}")
 
-    if novel_id and len(existing_chapters) == 5:
-        print(f"[S01] REPLAY GUARD: Novel {novel_id} already exists with {len(existing_chapters)} chapters. Resuming non-destructively without duplicate POSTs.")
+        # Fail closed on partial import sets (0, 1, 3, 4, etc.)
+        if len(existing_chapters) != 5:
+            raise RuntimeError(
+                f"S01_PARTIAL_IMPORT_REQUIRES_RECOVERY: Existing novel {novel_id} has {len(existing_chapters)} "
+                f"chapters (expected 5). Halting without creating duplicate novel (V1C-03 fail-closed)."
+            )
+
+        # Validate chapter content hashes and revisions against gold fixtures
+        is_gold, reason = verify_manuscript_gold_hashes(existing_chapters)
+        if not is_gold:
+            raise RuntimeError(
+                f"S01_PARTIAL_IMPORT_HASH_MISMATCH: Existing novel {novel_id} failed gold validation: {reason}. "
+                "Halting without creating duplicate novel (V1C-03 fail-closed)."
+            )
+
+        print(f"[S01] REPLAY GUARD: Novel {novel_id} verified with 5 chapters matching gold fixtures. Resuming safely.")
         chapters_imported = [
             {
                 "chapter_number": ch.get("chapterNumber", idx + 1),

@@ -124,6 +124,7 @@ export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContex
       headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
+        'X-Client-Service': 'backend-copilot',
         ...(env.AI_LLM_API_KEY ? { Authorization: `Bearer ${env.AI_LLM_API_KEY}` } : {})
       },
       body: JSON.stringify({

@@ -122,3 +122,17 @@ rm -f Pipeline_test/runs/2026-10-21-gemini-p1-live-01/smoke_test.py
 # - REVIEW_FINDINGS_CLOSURE.md (hồ sơ đóng 9 review findings)
 # - checkpoint.json, run_config.json, validation.json (trạng thái máy đọc)
 ```
+
+---
+
+## 6. DATED ADDENDUM (2026-10-21 UTC+7) — Wave 1C Offline Pre-Live Hardening Summary
+
+> [!NOTE]
+> **Wave 1C Completion Status:** **`P1_WAVE_1C_OFFLINE_READY_FOR_INDEPENDENT_REVIEW`**  
+> All 5 findings from GPT-6 independent verdict (`WAVE_1B_INDEPENDENT_VERDICT.md`) resolved with deterministic offline proofs:
+> 1. **V1C-01 (Cross-Container Budget Gate):** Implemented `Pipeline_test/tools/budget_gateway.py` with multi-process durable ledger, atomic pre-dispatch reservation, and token metering. Tested 8/8 fault injection scenarios including call 200/201 boundary, 2h absolute expiration, $4.50 admission cutoff, multi-process race on final slot, failed call accounting, and corrupt ledger denial. Both `ai-service` and `backend` wired.
+> 2. **V1C-02 (Authentic Browser Evidence):** Replaced filename string loophole in `execute_p1_journey.py` with `validate_browser_evidence()` requiring existing non-empty artifacts and structured action provenance manifests (`action_kind`, `url`, `timestamp`, `novel_id`). Added `Pipeline_test/tools/browser_author_driver.py` and 9/9 offline authenticity tests pass.
+> 3. **V1C-03 (Partial Import & Replay Idempotency):** Hardened S01 runner logic with `verify_manuscript_gold_hashes()`. Fails closed (`S01_PARTIAL_IMPORT_REQUIRES_RECOVERY` / `S01_PARTIAL_IMPORT_HASH_MISMATCH`) on 0/1/3/4/6 chapters, corrupt checkpoints, or hash mismatches, issuing 0 duplicate novel POSTs. 12/12 offline idempotency tests pass.
+> 4. **V1C-04 (Credential & Secret Hygiene):** Removed hardcoded demo passwords from executable runner; parameterized isolated Docker Compose environment; withheld Google AI Studio credentials from worker containers.
+> 5. **V1C-05 (Live Window Expired):** Preserved expired live window boundary (`2026-10-21T05:47:52Z`); executed OFFLINE ONLY tests; ZERO paid provider calls made.
+

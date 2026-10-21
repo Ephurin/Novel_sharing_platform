@@ -5,6 +5,8 @@ import re
 import hashlib
 import time
 import uuid
+import urllib.request
+import urllib.error
 from typing import Any
 
 from core.structured_call import extraction_source, structured_request
@@ -282,6 +284,11 @@ class LLMService:
 
         for model_name in self._gemini_model_candidates():
             for attempt in range(4):
+                ticket_id = self._budget_guard_reserve(
+                    operation=(structured_request.get() or {}).get("operation", "gemini_generate_content"),
+                    provider="gemini",
+                    model=model_name,
+                )
                 try:
                     structured = structured_request.get()
                     config = {
@@ -315,12 +322,40 @@ class LLMService:
                     self._record_structured_response(response, text, provider="gemini", model=model_name,
                                                      finish=getattr(candidates[0], "finish_reason", None) if candidates else None)
                     if text:
+                        if ticket_id:
+                            usage = getattr(response, "usage_metadata", None) or getattr(response, "usage", None)
+                            p_tokens = getattr(usage, "prompt_token_count", getattr(usage, "prompt_tokens", None))
+                            c_tokens = getattr(usage, "candidates_token_count", getattr(usage, "completion_tokens", None))
+                            self._budget_guard_finalize(
+                                ticket_id,
+                                status="SUCCESS",
+                                prompt_tokens=p_tokens,
+                                candidate_tokens=c_tokens,
+                                provider="gemini",
+                                model=model_name,
+                            )
                         self.model = model_name
                         return text
 
+                    if ticket_id:
+                        self._budget_guard_finalize(
+                            ticket_id,
+                            status="FAILED",
+                            error="Gemini returned empty response",
+                            provider="gemini",
+                            model=model_name,
+                        )
                     last_error = RuntimeError("Gemini returned empty response")
                 except Exception as exc:
                     last_error = exc
+                    if ticket_id:
+                        self._budget_guard_finalize(
+                            ticket_id,
+                            status="FAILED",
+                            error=str(exc),
+                            provider="gemini",
+                            model=model_name,
+                        )
                     message = str(exc).lower()
                     if self._is_quota_error(exc):
                         if attempt < 3:
@@ -389,11 +424,19 @@ class LLMService:
         if not key:
             raise LLMServiceError("OpenAI fallback is enabled but OPENAI_API_KEY is missing")
 
+        ticket_id = self._budget_guard_reserve(
+            operation=(structured_request.get() or {}).get("operation", "chat_completions"),
+            provider="openai-compatible",
+            model=model_name,
+        )
         try:
+            extra_headers = {"ngrok-skip-browser-warning": "true", "X-Client-Service": "ai-service"}
+            if ticket_id:
+                extra_headers["X-Budget-Ticket"] = ticket_id
             client = OpenAI(
                 api_key=key, 
                 base_url=self.base_url or None,
-                default_headers={"ngrok-skip-browser-warning": "true"},
+                default_headers=extra_headers,
                 timeout=self.timeout_seconds,
             )
             response = client.chat.completions.create(
@@ -409,12 +452,136 @@ class LLMService:
             text = response.choices[0].message.content or ""
             self._record_structured_response(response, text, provider="openai-compatible", model=model_name,
                                              finish=getattr(response.choices[0], "finish_reason", None))
+            if ticket_id:
+                usage = getattr(response, "usage", None)
+                p_tokens = getattr(usage, "prompt_tokens", None)
+                c_tokens = getattr(usage, "completion_tokens", None)
+                self._budget_guard_finalize(
+                    ticket_id,
+                    status="SUCCESS",
+                    prompt_tokens=p_tokens,
+                    candidate_tokens=c_tokens,
+                    provider="openai-compatible",
+                    model=model_name,
+                )
             return text
         except Exception as exc:
+            if ticket_id:
+                self._budget_guard_finalize(
+                    ticket_id,
+                    status="FAILED",
+                    error=str(exc),
+                    provider="openai-compatible",
+                    model=model_name,
+                )
             raise LLMServiceError(f"OpenAI request failed: {exc}") from exc
 
     def _can_fallback_to_openai(self) -> bool:
         return self.fallback_provider == "openai" and bool(self.fallback_api_key)
+
+    def _budget_guard_reserve(self, operation: str, provider: str, model: str) -> str:
+        guard_url = (os.getenv("BUDGET_GUARD_URL") or "").rstrip("/")
+        guard_file = os.getenv("BUDGET_GUARD_FILE")
+        if not guard_url and not guard_file:
+            return ""
+
+        if guard_url:
+            req_data = json.dumps({
+                "operation": operation,
+                "provider": provider,
+                "model": model,
+                "client_service": "ai-service",
+                "estimated_cost": 0.001,
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                f"{guard_url}/api/budget/reserve",
+                data=req_data,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    return data.get("ticket_id", "")
+            except urllib.error.HTTPError as exc:
+                err_body = exc.read().decode("utf-8")
+                raise LLMServiceError(f"BUDGET_GUARD_DENIED: HTTP {exc.code} - {err_body}") from exc
+            except Exception as exc:
+                raise LLMServiceError(f"BUDGET_METER_UNAVAILABLE: {exc}") from exc
+
+        if guard_file:
+            try:
+                from Pipeline_test.tools.budget_gateway import AuthoritativeBudgetLedger
+                from pathlib import Path
+                ledger = AuthoritativeBudgetLedger(Path(guard_file))
+                res = ledger.reserve(
+                    operation=operation,
+                    provider=provider,
+                    model=model,
+                    client_service="ai-service",
+                )
+                return res.get("ticket_id", "")
+            except Exception as exc:
+                if "BUDGET_METER_UNAVAILABLE" in str(type(exc).__name__) or "BudgetMeterUnavailableError" in str(type(exc).__name__):
+                    raise LLMServiceError(f"BUDGET_METER_UNAVAILABLE: {exc}") from exc
+                raise LLMServiceError(f"BUDGET_GUARD_DENIED: {exc}") from exc
+
+        return ""
+
+    def _budget_guard_finalize(
+        self,
+        ticket_id: str,
+        status: str,
+        prompt_tokens: int | None = None,
+        candidate_tokens: int | None = None,
+        error: str | None = None,
+        provider: str | None = None,
+        model: str | None = None,
+    ) -> None:
+        if not ticket_id:
+            return
+        guard_url = (os.getenv("BUDGET_GUARD_URL") or "").rstrip("/")
+        guard_file = os.getenv("BUDGET_GUARD_FILE")
+
+        if guard_url:
+            req_data = json.dumps({
+                "ticket_id": ticket_id,
+                "status": status,
+                "prompt_tokens": prompt_tokens,
+                "candidate_tokens": candidate_tokens,
+                "error": error,
+                "provider": provider,
+                "model": model,
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                f"{guard_url}/api/budget/finalize",
+                data=req_data,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    pass
+            except Exception as exc:
+                logger.warning("Failed to finalize budget ticket %s on gateway: %s", ticket_id, exc)
+            return
+
+        if guard_file:
+            try:
+                from Pipeline_test.tools.budget_gateway import AuthoritativeBudgetLedger
+                from pathlib import Path
+                ledger = AuthoritativeBudgetLedger(Path(guard_file))
+                ledger.finalize(
+                    ticket_id=ticket_id,
+                    status=status,
+                    prompt_tokens=prompt_tokens,
+                    candidate_tokens=candidate_tokens,
+                    error=error,
+                    provider=provider,
+                    model=model,
+                )
+            except Exception as exc:
+                logger.warning("Failed to finalize budget ticket %s on local ledger: %s", ticket_id, exc)
 
     @staticmethod
     def _local_fallback_enabled() -> bool:

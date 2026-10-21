@@ -66,5 +66,24 @@
     "budget_guard_status": "Hard atomic pre-dispatch reservation tested (7/7 fault-injection tests pass); wall-clock expired at 2026-10-21T05:47:52Z; live calls halted",
     "s01_classification": "S01_API_INTEGRATION_PASS_ONLY; S01_LIVE_UI_NOT_VERIFIED",
     "next_action": "Independent GPT-6 remote review on GitHub; no live provider calls or UI rerun in this cycle."
+  },
+  "wave_1c_hardening": {
+    "status": "P1_WAVE_1C_OFFLINE_READY_FOR_INDEPENDENT_REVIEW",
+    "updated_at": "2026-10-21T16:00:00+07:00",
+    "findings_addressed": [
+      "V1C-01: Cross-container pre-dispatch budget gate across ai-service and backend",
+      "V1C-02: Authentic browser E2E evidence validator and provenance manifests",
+      "V1C-03: Safe partial import replay idempotency (fail-closed on 0/1/3/4/6 chapters, corrupt checkpoints, hash mismatches)",
+      "V1C-04: Credential and secret hygiene (removed hardcoded password fallbacks, parameterized compose)",
+      "V1C-05: Expired 2-hour live window preserved; zero paid provider calls made"
+    ],
+    "cross_container_budget_tests": "8/8 passed",
+    "ui_evidence_authenticity_tests": "9/9 passed",
+    "partial_import_idempotency_tests": "12/12 passed",
+    "entity_review_regression": "76/76 passed",
+    "backend_targeted_suite": "63/63 passed",
+    "backend_typecheck": "passed",
+    "live_calls_consumed": 0,
+    "next_action": "Independent GPT-6 review on GitHub before project owner grants a new live window."
   }
 }

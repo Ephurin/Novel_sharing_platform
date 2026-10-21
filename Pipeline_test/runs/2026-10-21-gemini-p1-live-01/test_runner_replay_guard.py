@@ -112,6 +112,17 @@ def test_channel_validation_preserves_genuine_live_ui_evidence():
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_run_dir = Path(tmp_dir)
         actions_csv = tmp_run_dir / "actions.csv"
+        evidence_dir = tmp_run_dir / "evidence"
+        evidence_dir.mkdir(parents=True, exist_ok=True)
+        screenshot = evidence_dir / "browser_author_ide_screenshot.png"
+        screenshot.write_bytes(b"\x89PNG\r\n\x1a\nfake_browser_image")
+        prov_file = evidence_dir / "browser_author_ide_screenshot.json"
+        prov_file.write_text(json.dumps({
+            "action_kind": "click",
+            "application_url": "http://127.0.0.1:18080/novels/nov-1",
+            "timestamp": "2026-10-21T08:00:00Z",
+            "novel_id": "nov-1",
+        }), encoding="utf-8")
 
         with patch("execute_p1_journey.RUN_DIR", tmp_run_dir):
             record_action(
@@ -123,7 +134,7 @@ def test_channel_validation_preserves_genuine_live_ui_evidence():
                 objective_id="S01",
                 action="TEST_ACTION",
                 request_evidence="author/import/ch01",
-                response_evidence="evidence/browser_author_ide_screenshot.png",  # Real browser artifact
+                response_evidence="evidence/browser_author_ide_screenshot.png",  # Authentic browser artifact with provenance
                 result="SUCCESS",
             )
 
