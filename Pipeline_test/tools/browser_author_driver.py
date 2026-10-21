@@ -64,6 +64,7 @@ class BrowserActionSession:
         return response.json()['data']
 
     def canonical_readback(self):
+        observed_from=now()
         novel=self.read('/api/v1/novels/'+self.novel_id)
         if novel.get('authorId') != self.user_id:raise RuntimeError('NOVEL_OWNER_MISMATCH')
         chapters=self.read('/api/v1/novels/'+self.novel_id+'/chapters')
@@ -77,6 +78,8 @@ class BrowserActionSession:
                 'canonicalRevision':revision})
         ok,reason=verify_manuscript_gold_hashes(result,expected_novel_id=self.novel_id,expected_owner_id=self.user_id)
         if not ok:raise RuntimeError(reason)
+        self.canonical_readback_time={'started_at':observed_from,'finished_at':now(),
+            'observed_after_action_id':self.actions[-1]['action_id'] if self.actions else None}
         return result
 
 
@@ -225,6 +228,7 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
             if human_review:
                 from Pipeline_test.tools.browser_human_entity_review import execute_human_review
                 execute_human_review(session,project)
+                chapters=session.canonical_readback()
         except Exception as exc:
             failure=f'{type(exc).__name__}: {exc}'
             session.page.screenshot(path=str(session.evidence_dir/'BLOCKED_UI.png'))
@@ -237,6 +241,7 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
     if len(chapters)==5:
         mapping={'run_id':run_id,'session_id':session.session_id,'novel_id':session.novel_id,
                  'user_id':session.user_id,'conversion_rule_version':CONVERSION_RULE_VERSION,
+                 'canonical_readback_observation':session.canonical_readback_time,
                  'source_to_canonical':[{**source,'chapter_id':chapter['chapterId'],
                      'revision_id':chapter['latestRevisionId'],'readback_body_sha256':chapter['contentHash']}
                      for source,chapter in zip(session.source_manifest,chapters)],'readback_scope':'final_post_run_readback',
@@ -247,8 +252,11 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
     for action in session.actions:
         aid=action['action_id']
         readback=dict(run_id=run_id,session_id=session.session_id,action_id=aid,user_id=session.user_id,
-                      novel_id=session.novel_id,chapters=chapters,captured_at=now(),
-                      readback_scope='final_post_run_readback',action_finished_at=action['finished_at'])
+                      novel_id=session.novel_id,chapters=chapters,
+                      captured_at=getattr(session,'canonical_readback_time',{}).get('finished_at'),
+                      observation=getattr(session,'canonical_readback_time',{}),packaged_at=now(),
+                      readback_scope='final_post_run_readback' if failure is None else 'last_successful_canonical_readback_before_failure',
+                      action_finished_at=action['finished_at'])
         rb=session.evidence_dir/(aid+'.readback.json');rb.write_text(json.dumps(readback,ensure_ascii=False),encoding='utf-8')
         files={'screenshot':aid+'.png','dom':aid+'.dom.txt','trace':'browser.trace.zip','session':'browser-session.json','readback':rb.name}
         manifest={**action,'run_id':run_id,'session_id':session.session_id,'user_id':session.user_id,
