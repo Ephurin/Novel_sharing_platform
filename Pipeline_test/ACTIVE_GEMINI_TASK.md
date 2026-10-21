@@ -1,5 +1,7 @@
 # ACTIVE GEMINI TASK — P1 live functional acceptance (Wave 1)
 
+> **Documentation synchronization — 2026-10-21:** `WORKFLOW_CONTRACT.md` is now **revision 1.4**, defining P3 terminal 100k and distinct HITL/unattended claims. This changes **no Wave 1D testing authorization**: Wave 1D remains **offline-only** and P2/P3/100k NOT_RUN until gate review. Read current [architecture](../ai-service/docs/ARCHITECTURE.md), [API source matrix](../ai-service/docs/CURRENT_API_IMPLEMENTATION_MATRIX.md) and [P3 protocol](P3_100K_EVALUATION_PROTOCOL.md) as context, but **execute Wave 1D repair first**. Earlier wave notices below are preserved as history; the latest Wave 1D notice still governs operational work.
+
 > **LATEST ACTIVE TASK — 2026-10-21, WAVE 1D (OFFLINE INTEGRATION REPAIR).** Read and execute [P1_WAVE_1D_INTEGRATION_REPAIR_TASK.md](P1_WAVE_1D_INTEGRATION_REPAIR_TASK.md) **first**, grounded in [GPT-6 independent Wave 1C findings](reviews/2026-10-21-p1-wave-1d/INDEPENDENT_FINDINGS.md). The Wave 1C tests passed their *offline* scopes but source review found: no functioning Gemini Native dispatch via gateway, untrusted `X-Budget-Ticket` bypass, synthetic browser driver, absent hash/credential guards and unproven cost liability. **P1 remains BLOCKED; no provider-live calls.** Previous 2-hour approval is expired. Use branch `codex/ai-copilot-pipeline-test` exclusively; preserve old runs and resources; new isolated fake upstream/actual browser trace only; no P2/P3/100k, no PR/merge. This assignment overrides the older Wave 1C priority, not its safety rules.
 
 > **CURRENT ACTIVE ASSIGNMENT — 2026-10-21, WAVE 1C (OFFLINE ONLY).** Gemini must FIRST read and execute [P1_WAVE_1C_PRELIVE_HARDENING_TASK.md](P1_WAVE_1C_PRELIVE_HARDENING_TASK.md), grounded in [GPT-6 Wave 1B independent verdict](reviews/2026-10-21-p1-s02-gpt6/WAVE_1B_INDEPENDENT_VERDICT.md). The previous Wave 1B patch on `45bf06c` is **OFFLINE_ACCEPTED_WITH_GATES**; P1 overall remains BLOCKED. Fix (a) mandatory cross-container pre-provider-dispatch limits, (b) authentic browser UI evidence, (c) partial import/replay safety, plus test credentials. **Zero additional Google AI Studio calls**: the 2-hour authorization expired. Preserve all past reports, checkpoints, calls, databases, and Docker resources. Branch ONLY `codex/ai-copilot-pipeline-test`. Do not run P2/P3/100k or self-approve P1. This supersedes prior task priorities but not safety/isolation conditions. Return a narrow patch plus offline evidence for GPT-6 review.
@@ -39,7 +41,7 @@ If worktree is dirty, preserve and report it; **never** discard/reset/clean/stas
 
 Read in this order, *without assuming prior chat memory*:
 
-1. `Pipeline_test/WORKFLOW_CONTRACT.md` (revision 1.3 = behavioral source of truth).
+1. `Pipeline_test/WORKFLOW_CONTRACT.md` (revision 1.4 = current behavioral source of truth; Wave 1D remains OFFLINE ONLY).
 2. `Pipeline_test/SHORT_LOOP_TEST.md`.
 3. `Pipeline_test/GEMINI_HUMAN_ENTITY_REVIEW_RETEST.md`.
 4. `Pipeline_test/runs/2026-10-20-human-entity-review/REPORT.md` (offline implemented, live not yet passed).
