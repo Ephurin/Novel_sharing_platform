@@ -6,7 +6,7 @@ Các ngưỡng dưới đây là tiêu chí task đặt trước, không phải 
 
 `WORKFLOW_CONTRACT.md` revision 1.4 ngày 2026-10-21 quy định **bài 100.000 từ là gate cuối P3 bắt buộc**, sau P1 UI S01–S11, P2 setup→first chapter và P3 functional controller probe. Kết quả chỉ áp dụng cho **run mới theo v1.4**; các ngưỡng 95–105k trong report/task đời trước phải giữ nguyên như lịch sử, không sửa hồi tố.
 
-Rubric/chứng cứ dưới đây áp dụng riêng cho P3 HITL; hoàn toàn tự động là **claim độc lập**, chưa có policy entity/canon thay thế human gate được nghiệm thu. Các benchmark đối chứng cần cùng model, seed, budget và điều kiện can thiệp hoặc phải công khai confounder; không tuyên bố vượt trội khi chưa đo.
+Rubric/chứng cứ dưới đây áp dụng riêng cho P3 HITL; hoàn toàn tự động là **claim độc lập**, chưa có policy entity/canon thay thế human gate được nghiệm thu. Pre-registration, baseline fairness, retention/attribution và full-book blind review có hướng dẫn tại [P3_100K_EVALUATION_PROTOCOL.md](P3_100K_EVALUATION_PROTOCOL.md). Các benchmark đối chứng cần cùng model, seed, budget và điều kiện can thiệp hoặc phải công khai confounder; không tuyên bố vượt trội khi chưa đo.
 
 ## Sáu verdict độc lập
 
