@@ -1,0 +1,8 @@
+{
+  "files": 134,
+  "credential_and_jwt_findings": 0,
+  "zip_decompressed_contents_checked": true,
+  "captured_evidence_git_blob_bytes": "PASS",
+  "manifest_excludes": "itself and security-scan.json; normalized harness source is not a captured-evidence byte manifest",
+  "private_paths_excluded": true
+}

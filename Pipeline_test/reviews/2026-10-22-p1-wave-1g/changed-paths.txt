@@ -1,0 +1,14 @@
+.gitattributes
+Pipeline_test/reviews/2026-10-22-p1-wave-1g/sources/pr55-AuthorWritingIde.tsx
+Pipeline_test/reviews/2026-10-22-p1-wave-1g/sources/pr55-chapters.schemas.ts
+Pipeline_test/reviews/2026-10-22-p1-wave-1g/sources/pr55-chapters.service.ts
+Pipeline_test/reviews/2026-10-22-p1-wave-1g/sources/pr55-draft-chapters.repository.ts
+Pipeline_test/reviews/2026-10-22-p1-wave-1g/sources/pr55-useDraftPersistence.ts
+Pipeline_test/tests/wave1g_autosave.test.mjs
+Pipeline_test/tools/browser_author_driver.py
+Pipeline_test/tools/browser_wave1g_s09.py
+Pipeline_test/tools/capture_wave1d_runtime.py
+Pipeline_test/tools/compose.wave1g-offline.yml
+Pipeline_test/tools/prepare_wave1d_offline.py
+Pipeline_test/tools/seed_wave1d_author.mjs
+Evidence/reports: new Wave1G review and run folders only.

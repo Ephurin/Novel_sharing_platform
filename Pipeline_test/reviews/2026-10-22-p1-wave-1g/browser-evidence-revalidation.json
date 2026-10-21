@@ -1,0 +1,92 @@
+[
+  {
+    "action_id": "ACT-S01-ADD-2",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S01-ADD-3",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S01-ADD-4",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S01-ADD-5",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S01-CREATE",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S01-FILL-1",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S01-FILL-2",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S01-FILL-3",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S01-FILL-4",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S01-FILL-5",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S02-CHECKPOINT",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S02-HINTS",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S02-OPEN",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S02-SAVE-HINTS",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S02-TAB",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S02-TRIGGER",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S09-CLOSE-DRAWER",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  },
+  {
+    "action_id": "ACT-S09-FAST-UNDO",
+    "pass": true,
+    "reason": "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "run_id": "p1-wave1g-20261022-s09-red-01",
+  "max_calls": 200,
+  "max_cost_usd": "5.0",
+  "admission_cost_usd": "4.5",
+  "deadline": 1792628785.5519094,
+  "started": 1792621585.5519094,
+  "total_calls": 0,
+  "charged_usd": "0",
+  "outstanding_usd": "0",
+  "call_history": [],
+  "status": "OFFLINE_ONLY",
+  "actual_invoice_usd": "UNKNOWN",
+  "live_authorized": false,
+  "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+  "pricing_scope": "SYNTHETIC_OFFLINE_TEXT_ONLY"
+}

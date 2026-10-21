@@ -1,0 +1,60 @@
+{
+  "url": "https://github.com/Ephurin/Novel_sharing_platform/pull/55",
+  "number": 55,
+  "state": "open",
+  "merged": false,
+  "mergeable": true,
+  "draft": false,
+  "body": "## Changes\n- Protect drafts, revisions and VIP content with active-account and ownership checks.\n- Add reliable draft saving, local recovery, revision history and restore.\n- Add chapter lifecycle actions and scheduled publishing through moderation.\n- Persist uploaded media and make manuscript imports retry-safe.\n- Add durable author notifications and an unread-count badge.\n- Complete editable author profiles and refine the profile header and Studio actions.\n\n## Validation\n- 52 backend tests and 12 frontend tests passed during implementation.\n- Backend/frontend type checks and production Docker builds passed.\n- Browser checks covered author workflows, Light/Dark themes and responsive layouts.\n\n## Database\nIncludes migrations `015_author_workflow.sql` and `016_author_launch_checklist.sql`.\n\n## Merge order\nTargets `feat/author-workspace` and includes only the new author workflow commit. Merge this PR before #54 to include these changes in the workspace PR to `main`.",
+  "title": "feat(author): complete author workflows, notifications and profile improvements",
+  "base": "feat/author-workspace",
+  "base_sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+  "head": "feat/author-workflow-hardening",
+  "head_sha": "0c0b903f4cc86b7f469399ab6e616ffdba7e703b",
+  "head_repo_id": 1302639863,
+  "head_repo_full_name": "Ephurin/Novel_sharing_platform",
+  "merge_commit_sha": "847b0372ecf2d49874828a68bf792e5d381af986",
+  "user": {
+    "login": "trungtoto",
+    "name": "trungtoto",
+    "email": null,
+    "avatar_url": "https://avatars.githubusercontent.com/u/141932678?v=4",
+    "id": 141932678
+  },
+  "requested_reviewers": null,
+  "requested_team_reviewers": null,
+  "comments": [
+    {
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/pull/55#issuecomment-6327786736",
+      "body": "Cross-branch P1 E2E finding for FE review: **issue #56** documents a *real Playwright* S09 failure where rapid B→A→B Undo left the server on stale A (test branch's earlier inline autosave). This PR has a different `useDraftPersistence.ts` hook with queued/serial saves and version guards, so please validate the actual new hook rather than transplanting the old `triggerAutosave` patch. Acceptance includes B→A→B before debounce, A in-flight→B, chapter/account switching, version-conflict recovery, immutable revision/outbox consistency and fresh Playwright readback. Exact repro/evidence and minimal required tests: https://github.com/Ephurin/Novel_sharing_platform/issues/56 . Please link your FE fix/test commit before P1 Codex safely ports the relevant patch to the isolated test branch; no merge of this whole PR into P1 without compatibility review.",
+      "user": {
+        "login": "Ephurin",
+        "name": "Ephurin",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+        "id": 163795797
+      },
+      "id": 6327786736,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": "2026-10-21T22:18:28Z",
+      "updated_at": "2026-10-21T22:18:28Z",
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">Cross-branch P1 E2E finding for FE review: <strong>issue <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"5969438481\" data-permission-text=\"Title is private\" data-url=\"https://github.com/Ephurin/Novel_sharing_platform/issues/56\" data-hovercard-type=\"issue\" data-hovercard-url=\"/Ephurin/Novel_sharing_platform/issues/56/hovercard\" href=\"https://github.com/Ephurin/Novel_sharing_platform/issues/56\">#56</a></strong> documents a <em>real Playwright</em> S09 failure where rapid B→A→B Undo left the server on stale A (test branch's earlier inline autosave). This PR has a different <code class=\"notranslate\">useDraftPersistence.ts</code> hook with queued/serial saves and version guards, so please validate the actual new hook rather than transplanting the old <code class=\"notranslate\">triggerAutosave</code> patch. Acceptance includes B→A→B before debounce, A in-flight→B, chapter/account switching, version-conflict recovery, immutable revision/outbox consistency and fresh Playwright readback. Exact repro/evidence and minimal required tests: <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"5969438481\" data-permission-text=\"Title is private\" data-url=\"https://github.com/Ephurin/Novel_sharing_platform/issues/56\" data-hovercard-type=\"issue\" data-hovercard-url=\"/Ephurin/Novel_sharing_platform/issues/56/hovercard\" href=\"https://github.com/Ephurin/Novel_sharing_platform/issues/56\">#56</a> . Please link your FE fix/test commit before P1 Codex safely ports the relevant patch to the isolated test branch; no merge of this whole PR into P1 without compatibility review.</p>"
+    }
+  ],
+  "created_at": "2026-10-21T10:30:29Z",
+  "updated_at": "2026-10-21T22:18:28Z",
+  "closed_at": null,
+  "merged_at": null,
+  "commits": 2,
+  "changed_files": 74,
+  "additions": 1614,
+  "deletions": 482,
+  "display_url": "https://github.com/Ephurin/Novel_sharing_platform/pull/55",
+  "display_title": "feat(author): complete author workflows, notifications and profile improvements"
+}

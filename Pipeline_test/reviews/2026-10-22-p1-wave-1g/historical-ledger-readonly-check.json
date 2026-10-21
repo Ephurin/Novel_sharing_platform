@@ -1,0 +1,7 @@
+{
+  "old_project": "p1-wave1f-20261021-workflow-01",
+  "total_calls": 76,
+  "call_history_unchanged_vs_wave1f_closeout": true,
+  "comparison_file": "Pipeline_test\\runs\\2026-10-21-p1-wave1f-workflow-01\\runtime-closeout\\gateway-ledger-readback.json",
+  "method": "read-only gateway status; no initialize/reset/dispatch"
+}

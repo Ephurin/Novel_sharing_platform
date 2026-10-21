@@ -1,0 +1,25 @@
+{
+  "protected_files_checked": 2335,
+  "protected_mismatches": [],
+  "product_FE_unchanged": true,
+  "pr55_head": "0c0b903f4cc86b7f469399ab6e616ffdba7e703b",
+  "pr55_source_hashes": {
+    "web/src/features/author-ide/AuthorWritingIde.tsx": "66846f64bdface2e5345868076fe22588948240a3b3b7495afa8c2984191be5e",
+    "backend/src/modules/novels/chapters.schemas.ts": "83f0d9ae8fb7fc6124947a0835a127ab2a01fce5a0c20d9965e24292971d2a96",
+    "backend/src/modules/novels/chapters.service.ts": "7e7ae0cedc635b35225c497409af64d899dedc59b5cf73c67d4adbc3884ef832",
+    "backend/src/modules/novels/draft-chapters.repository.ts": "f2045f4ee1d15c208e2dd8128e2d85c0426cf4725fd177593e29284a12eb12d4",
+    "web/src/features/author-ide/useDraftPersistence.ts": "c969979b87f51f3f32edc264a7bb953dcbd68c209ef1891fca21eaaaf75898ef"
+  },
+  "reviewed_patch_available": false,
+  "browser_bundles": 18,
+  "five_seed_sources": "All 5 chapters match gold fixture hashes after heading-to-body conversion and canonical owner/revision readback",
+  "browser_verdict": "FAIL_STALE_PATCH_AND_DRAFT",
+  "stale_immutable_revision_in_this_run": false,
+  "outbox_events_in_this_run": 0,
+  "immutable_scope": "brain not active, snapshotSavedChapter skips revision/outbox; historical Wave1F remains the active-brain RED evidence",
+  "fake_requests": 9,
+  "ledger_requests": 9,
+  "dispatch_reconciliation": "PASS",
+  "external_real_provider_calls": 0,
+  "account_switch_finding_scope": "source hook test double; remount behavior E2E NOT_RUN"
+}

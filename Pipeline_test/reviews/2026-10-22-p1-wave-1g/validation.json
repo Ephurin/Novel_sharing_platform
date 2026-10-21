@@ -1,0 +1,130 @@
+{
+  "verdict": "P1_WAVE_1G_BLOCKED_AWAITING_FE_PATCH",
+  "executor": "Codex",
+  "baseline_sha": "a54115efbfe227c934d1f5c1e21d1a3e0647678c",
+  "browser_tested_sha": "91a352db65e8605dd8e062feb687a778fc7f3b00",
+  "source_regression_tested_sha": "62fc3a1ac9809986034b389e168f6f406f7a99ec",
+  "pr55_head": "0c0b903f4cc86b7f469399ab6e616ffdba7e703b",
+  "product_patch_integrated": false,
+  "reviews": 0,
+  "evidence_commit": "commit containing this file; exact SHA in final handoff",
+  "source_regression": {
+    "tests": 17,
+    "passed": 12,
+    "failed": 5,
+    "skipped": 0,
+    "exit_code": 1,
+    "scope": "EXPECTED_RED_NOT_RELEASE_PASS",
+    "log": "offline-logs/autosave-source-regression-final.txt"
+  },
+  "tooling": {
+    "passed": 111,
+    "skipped": 4,
+    "exit_code": 0,
+    "log": "offline-logs/tools-regression.txt"
+  },
+  "browser": {
+    "exit_code": 1,
+    "actions": 18,
+    "verdict": "FAIL",
+    "issue": "WF1F-S09-001",
+    "fresh_stale_PATCH_and_draft": true,
+    "fresh_stale_immutable_revision": false,
+    "brain_active": false,
+    "outbox_count": 0
+  },
+  "steps": [
+    {
+      "step": "S01",
+      "offline_verdict": "PASS",
+      "channel": "OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER",
+      "scope": "fresh source import/initial gate",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S02",
+      "offline_verdict": "PASS",
+      "channel": "OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER",
+      "scope": "fresh source import/initial gate",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S03",
+      "offline_verdict": "NOT_RUN",
+      "channel": "NOT_RUN",
+      "scope": "not executed; no reviewed compatible FE patch",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S04",
+      "offline_verdict": "NOT_RUN",
+      "channel": "NOT_RUN",
+      "scope": "not executed; no reviewed compatible FE patch",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S05",
+      "offline_verdict": "NOT_RUN",
+      "channel": "NOT_RUN",
+      "scope": "not executed; no reviewed compatible FE patch",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S06",
+      "offline_verdict": "NOT_RUN",
+      "channel": "NOT_RUN",
+      "scope": "not executed; no reviewed compatible FE patch",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S07",
+      "offline_verdict": "NOT_RUN",
+      "channel": "NOT_RUN",
+      "scope": "not executed; no reviewed compatible FE patch",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S08",
+      "offline_verdict": "NOT_RUN",
+      "channel": "NOT_RUN",
+      "scope": "not executed; no reviewed compatible FE patch",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S09",
+      "offline_verdict": "FAIL",
+      "channel": "OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER",
+      "scope": "independent pre-activation RED, not ordered post-S08 acceptance",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S10",
+      "offline_verdict": "NOT_RUN",
+      "channel": "NOT_RUN",
+      "scope": "not executed; no reviewed compatible FE patch",
+      "live_provider_ui": "NOT_RUN"
+    },
+    {
+      "step": "S11",
+      "offline_verdict": "NOT_RUN",
+      "channel": "NOT_RUN",
+      "scope": "not executed; no reviewed compatible FE patch",
+      "live_provider_ui": "NOT_RUN"
+    }
+  ],
+  "fake_provider_calls": 9,
+  "external_real_provider_calls": 0,
+  "model_semantic_quality": "NOT_ASSESSED",
+  "paid_usd_hard_cap": "DEFERRED_UNCHANGED",
+  "P1_PROVIDER_BACKED": "NOT_ACCEPTED",
+  "P2": "NOT_RUN",
+  "P3": "NOT_RUN",
+  "100k": "NOT_RUN",
+  "audit": "audit-results.json",
+  "blockers": [
+    "No reviewed compatible FE patch",
+    "WF1F-S09-001 still RED",
+    "PR hook account-change source diagnostic requires remount/E2E verification",
+    "Backend expectedVersion/migration compatibility must be reviewed before integration"
+  ]
+}

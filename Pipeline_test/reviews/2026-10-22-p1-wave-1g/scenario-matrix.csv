@@ -1,0 +1,7 @@
+scenario,source_level,browser,scope
+pre_debounce_title_body_vip_price,OLD_FAIL_4_HOOK_PASS_4,BODY_FAIL,no stale-A request allowed
+A_to_C,PASS_BOTH,NOT_RUN,coalesces latest
+in_flight_reorder_and_ack,HOOK_PASS,NOT_RUN,deferred API/version progression; real backend reorder not established
+chapter_switch_unmount_account_reload,HOOK_PARTIAL_ACCOUNT_FAIL,NOT_RUN,same-instance account diagnostic; auth remount unknown
+409_concurrent_tabs,HOOK_PASS_INJECTED_409,NOT_RUN,real backend two-tab conflict not established
+idempotent_replay_outbox,HOOK_PASS_DOUBLE_UNCHANGED_FLUSH,NOT_RUN,active-brain replay/outbox acceptance untested

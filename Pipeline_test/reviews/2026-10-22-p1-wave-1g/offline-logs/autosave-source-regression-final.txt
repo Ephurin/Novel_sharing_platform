@@ -1,0 +1,181 @@
+TAP version 13
+# Subtest: old: title B→A→B before debounce sends zero stale writes
+not ok 1 - old: title B→A→B before debounce sends zero stale writes
+  ---
+  duration_ms: 49.8645
+  location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\Pipeline_test\\tests\\wave1g_autosave.test.mjs:58:36'
+  failureType: 'testCodeFailure'
+  error: |-
+    A must never dispatch after reverting to saved B
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/Laptop/OneDrive/Documents/testproject/Pipeline_test/tests/wave1g_autosave.test.mjs:60:12)
+    async Test.run (node:internal/test_runner/test:980:9)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: hook: title B→A→B before debounce sends zero stale writes
+ok 2 - hook: title B→A→B before debounce sends zero stale writes
+  ---
+  duration_ms: 39.7839
+  ...
+# Subtest: old: content B→A→B before debounce sends zero stale writes
+not ok 3 - old: content B→A→B before debounce sends zero stale writes
+  ---
+  duration_ms: 4.6981
+  location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\Pipeline_test\\tests\\wave1g_autosave.test.mjs:58:36'
+  failureType: 'testCodeFailure'
+  error: |-
+    A must never dispatch after reverting to saved B
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/Laptop/OneDrive/Documents/testproject/Pipeline_test/tests/wave1g_autosave.test.mjs:60:12)
+    async Test.run (node:internal/test_runner/test:980:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:677:7)
+  ...
+# Subtest: hook: content B→A→B before debounce sends zero stale writes
+ok 4 - hook: content B→A→B before debounce sends zero stale writes
+  ---
+  duration_ms: 26.0813
+  ...
+# Subtest: old: isVip B→A→B before debounce sends zero stale writes
+not ok 5 - old: isVip B→A→B before debounce sends zero stale writes
+  ---
+  duration_ms: 4.366
+  location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\Pipeline_test\\tests\\wave1g_autosave.test.mjs:58:36'
+  failureType: 'testCodeFailure'
+  error: |-
+    A must never dispatch after reverting to saved B
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/Laptop/OneDrive/Documents/testproject/Pipeline_test/tests/wave1g_autosave.test.mjs:60:12)
+    async Test.run (node:internal/test_runner/test:980:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:677:7)
+  ...
+# Subtest: hook: isVip B→A→B before debounce sends zero stale writes
+ok 6 - hook: isVip B→A→B before debounce sends zero stale writes
+  ---
+  duration_ms: 21.4626
+  ...
+# Subtest: old: priceCoins B→A→B before debounce sends zero stale writes
+not ok 7 - old: priceCoins B→A→B before debounce sends zero stale writes
+  ---
+  duration_ms: 6.845
+  location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\Pipeline_test\\tests\\wave1g_autosave.test.mjs:58:36'
+  failureType: 'testCodeFailure'
+  error: |-
+    A must never dispatch after reverting to saved B
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/Laptop/OneDrive/Documents/testproject/Pipeline_test/tests/wave1g_autosave.test.mjs:60:12)
+    async Test.run (node:internal/test_runner/test:980:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:677:7)
+  ...
+# Subtest: hook: priceCoins B→A→B before debounce sends zero stale writes
+ok 8 - hook: priceCoins B→A→B before debounce sends zero stale writes
+  ---
+  duration_ms: 12.8916
+  ...
+# Subtest: old: A→C within debounce persists only C
+ok 9 - old: A→C within debounce persists only C
+  ---
+  duration_ms: 6.8194
+  ...
+# Subtest: hook: A→C within debounce persists only C
+ok 10 - hook: A→C within debounce persists only C
+  ---
+  duration_ms: 14.1975
+  ...
+# Subtest: hook: dispatched A then B converges serially; not saved while B unresolved
+ok 11 - hook: dispatched A then B converges serially; not saved while B unresolved
+  ---
+  duration_ms: 10.9347
+  ...
+# Subtest: hook: 409 preserves pending local buffer and blocks automatic retry
+ok 12 - hook: 409 preserves pending local buffer and blocks automatic retry
+  ---
+  duration_ms: 18.2064
+  ...
+# Subtest: hook: identical queue/flush creates no duplicate requests
+ok 13 - hook: identical queue/flush creates no duplicate requests
+  ---
+  duration_ms: 10.7293
+  ...
+# Subtest: hook: chapter switch flush keeps exact source chapter ownership
+ok 14 - hook: chapter switch flush keeps exact source chapter ownership
+  ---
+  duration_ms: 13.7716
+  ...
+# Subtest: hook: account change with same chapter ID must not recover prior account buffer
+not ok 15 - hook: account change with same chapter ID must not recover prior account buffer
+  ---
+  duration_ms: 11.1333
+  location: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\Pipeline_test\\tests\\wave1g_autosave.test.mjs:87:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    slot map must not cross user identity
+    + actual - expected
+    
+    + 'private user-1 text'
+    - 'Saved body B'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Saved body B'
+  actual: 'private user-1 text'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/Laptop/OneDrive/Documents/testproject/Pipeline_test/tests/wave1g_autosave.test.mjs:89:10)
+    Test.runInAsyncScope (node:async_hooks:211:14)
+    Test.run (node:internal/test_runner/test:979:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:677:18)
+    Test.postRun (node:internal/test_runner/test:1090:19)
+    Test.run (node:internal/test_runner/test:1018:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:677:7)
+  ...
+# Subtest: hook: restore B after acknowledgment of A sends a new versioned write
+ok 16 - hook: restore B after acknowledgment of A sends a new versioned write
+  ---
+  duration_ms: 11.8465
+  ...
+# Subtest: hook: unmount cancels undispatched timer and preserves local recovery buffer
+ok 17 - hook: unmount cancels undispatched timer and preserves local recovery buffer
+  ---
+  duration_ms: 6.863
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 12
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 573.1562

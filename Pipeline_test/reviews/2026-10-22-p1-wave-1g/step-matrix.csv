@@ -1,0 +1,12 @@
+step,offline_verdict,channel,scope,live_provider_ui
+S01,PASS,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER,fresh source import/initial gate,NOT_RUN
+S02,PASS,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER,fresh source import/initial gate,NOT_RUN
+S03,NOT_RUN,NOT_RUN,not executed; no reviewed compatible FE patch,NOT_RUN
+S04,NOT_RUN,NOT_RUN,not executed; no reviewed compatible FE patch,NOT_RUN
+S05,NOT_RUN,NOT_RUN,not executed; no reviewed compatible FE patch,NOT_RUN
+S06,NOT_RUN,NOT_RUN,not executed; no reviewed compatible FE patch,NOT_RUN
+S07,NOT_RUN,NOT_RUN,not executed; no reviewed compatible FE patch,NOT_RUN
+S08,NOT_RUN,NOT_RUN,not executed; no reviewed compatible FE patch,NOT_RUN
+S09,FAIL,OFFLINE_REAL_PLAYWRIGHT_FAKE_PROVIDER,"independent pre-activation RED, not ordered post-S08 acceptance",NOT_RUN
+S10,NOT_RUN,NOT_RUN,not executed; no reviewed compatible FE patch,NOT_RUN
+S11,NOT_RUN,NOT_RUN,not executed; no reviewed compatible FE patch,NOT_RUN

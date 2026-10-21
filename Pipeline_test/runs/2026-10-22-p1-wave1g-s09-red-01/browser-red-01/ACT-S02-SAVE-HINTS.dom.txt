@@ -1,0 +1,107 @@
+arrow_backTủ truyện
+Untitled Novel/Chương 5 — Ba tiếng gõ
+Đã lưu • 05:28
+description574 từ•~2 phút
+menu_bookBộ nhớ truyệnfullscreenTập trung
+auto_awesomeAI Hỗ trợ viếtXuất bản chươngsend
+view_sidebar
+Trạng thái:
+DRAFT
+• Tác phẩm: Untitled Novel
+Miễn phístarsChương VIP ✦
+Bộ nhớ · Trích xuất · Chờ duyệt
+Mục lục chương5
+
+Truyện: Untitled Novel
+
+first_page
+search
+add_circleThêm chương mới
+CHƯƠNG 1
+Bản nháp
+
+Chương 1 — Bến trở về
+
+1,216 từ
+CHƯƠNG 2
+Bản nháp
+
+Chương 2 — Lần đọc thứ nhất
+
+1,005 từ
+CHƯƠNG 3
+Bản nháp
+
+Chương 3 — Hai nơi treo một quả chuông
+
+995 từ
+CHƯƠNG 4
+Bản nháp
+
+Chương 4 — Bản đồ không có tiếng nước
+
+957 từ
+CHƯƠNG 5
+Bản nháp
+
+Chương 5 — Ba tiếng gõ
+
+574 từĐang mở
+text_fieldsMerriweatherexpand_more
+A-17A+
+format_align_justifyformat_align_leftformat_align_centerformat_align_right
+format_line_spacing2.15xexpand_more
+format_indent_increaseThụt dòng
+format_boldformat_italicformat_underlinedstrikethrough_s“”—✦ ✦ ✦
+Đã lưu: 05:28•Untitled Novel•Chương số 5
+auto_awesomeTrợ lý AI
+Bộ nhớ và định hướng tiểu thuyết
+
+Bộ nhớ chính thức v1 · active. Đề xuất chưa duyệt chưa được dùng làm sự thật.
+
+Chờ duyệt (0)
+Nhân vật
+Địa danh
+Vật phẩm
+Sự kiện
+Trích xuất
+Định hướng
+Full auto
+Dữ kiện
+
+1. Danh sách tăng cường (tùy chọn)
+
+Mỗi dòng một tên cần tìm. Tên trong danh sách không chứng minh đã xuất hiện trong chương.
+
+Tên cần chú ý khi trích xuất
+Lưu danh sách tăng cường
+
+Khai báo entity của thế giới truyện: tạo đề xuất riêng để duyệt, không khẳng định entity đã xuất hiện trong chương.
+
+Tên entity do tác giả khai báo
+Loại entity khai báo
+Tạo đề xuất entity từ khai báo
+
+2. Kiểm tra entity trước khi trích xuất event/fact
+
+Chưa có checkpoint chờ duyệt entity. Hãy lưu danh sách rồi trích xuất nội dung.
+
+Bổ sung hoặc thay thế dữ liệu trích xuất
+
+Tạo đề xuất từ bản lưu mới nhất. Nếu thay thế đề xuất sai, hãy loại đề xuất cũ riêng; dữ liệu đã duyệt không tự bị xóa.
+
+Chương nguồn
+Nội dung bản lưu (chọn và sao chép đoạn làm bằng chứng)
+Trích dẫn nguyên văn, đủ dài để xác định duy nhất
+Loại đề xuất
+Thuộc tính (ví dụ status, hearing, scan_count)
+Giá trị (status: Alive / Dead / Unknown)
+Thực thể đã duyệt (bỏ trống với lời kể chưa xác nhận / quy tắc chung)
+Kiểu giá trị
+Tạo đề xuất để duyệt
+
+Lưu chương sau khi kích hoạt bộ nhớ sẽ tự trích xuất. Duyệt các nhóm dưới đây để cập nhật bộ nhớ.
+
+Phân tích lại chương đang mở
+
+Không có đề xuất đang chờ.
