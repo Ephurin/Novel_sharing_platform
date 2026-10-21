@@ -1,6 +1,6 @@
 # Pipeline test — từ bản thảo dở đến tiểu thuyết 100.000 từ
 
-Fixture ID: `PT-CV-001` · Fixture version: `1.0.0` · Task revision: `1.2` · Ngôn ngữ: tiếng Việt.
+Fixture ID: `PT-CV-001` · Fixture version: `1.0.0` · Task revision: `1.3` · Ngôn ngữ: tiếng Việt.
 
 **Chạy trên máy khác:** checkout nhánh `codex/ai-copilot-pipeline-test`, dùng
 [PROMPT_RUN_TEST.md](PROMPT_RUN_TEST.md) giao agent dựng môi trường và test;
@@ -57,6 +57,8 @@ Bản sửa theo luồng đã thống nhất và bằng chứng regression nằm
 | `input/PAYOFF_LEDGER.csv` | Các chi tiết gieo trước và khoảng chương cần giải quyết |
 | `input/manifest.json` | Số từ thực, trạng thái chương và SHA-256 đầu vào |
 | `EVALUATION.md` | Rubric toàn truyện và điều kiện verdict |
+| `P3_100K_EVALUATION_PROTOCOL.md` | Giao thức nghiệm thu P3 bắt buộc 100k, đối chứng công bằng và full-book blind review |
+| `architecture/CURRENT_DELTA_2026-10-21.md` | Bản đối chiếu architecture/map lịch sử với code/evidence mới; không tự nâng trạng thái LIVE PASS |
 | `NARRATIVE_MEMORY_AUDIT.md` | Kiểm tra LLM extraction → proposals → memory → context cho P1/P2/P3 sau bootstrap, mỗi 10 chương, audit sâu mốc 20/50 và cuối run |
 | `templates/` | Cấu hình run, báo cáo, nhật ký, lỗi, tiến độ, đánh giá chương |
 | `tools/task_tool.py` | Công cụ offline: kiểm tra integrity, tạo run, đếm từ |
