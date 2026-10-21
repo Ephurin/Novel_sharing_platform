@@ -20,6 +20,13 @@ FIXTURE_DIR = Path(__file__).resolve().parents[1] / 'input/manuscript'
 def now(): return datetime.now(timezone.utc).isoformat()
 def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
+def browser_outcome(failure, checks, *, human_review=False, human_result=None):
+    if failure is not None or not checks or not all(c[0] for c in checks):
+        return 'BLOCKED_UI_MISSING_OR_INVALID_EVIDENCE'
+    if human_review and (human_result or {}).get('status') != 'OFFLINE_HUMAN_ENTITY_REVIEW_PASS':
+        return 'BLOCKED_HUMAN_ENTITY_REVIEW'
+    return 'OFFLINE_BROWSER_UI_SMOKE'
+
 class BrowserActionSession:
     def __init__(self, run_id, evidence_dir, base_url='http://127.0.0.1:28080', *, page=None):
         if urlparse(base_url).scheme != 'http' or urlparse(base_url).hostname not in {'localhost','127.0.0.1'}:
@@ -209,6 +216,9 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
         session_info={'session_id':session.session_id,'run_id':run_id,'browser_version':browser.version,
                       'started_at':now(),'login_observed':True,'user_id':session.user_id,'login_trace_excluded_for_credentials':True}
         try:
+            if human_review:
+                from Pipeline_test.tools.browser_human_entity_review import receipts
+                session.receipt_offset=len(receipts(project))
             execute_browser_s01_import_path(session,author_user=email)
             execute_browser_s02_entity_review_path(session,session.novel_id)
             chapters=session.canonical_readback()
@@ -216,7 +226,7 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
                 from Pipeline_test.tools.browser_human_entity_review import execute_human_review
                 execute_human_review(session,project)
         except Exception as exc:
-            failure=str(exc)
+            failure=f'{type(exc).__name__}: {exc}'
             session.page.screenshot(path=str(session.evidence_dir/'BLOCKED_UI.png'))
         finally:
             context.tracing.stop(path=str(private/'browser.trace.raw.zip'))
@@ -247,7 +257,9 @@ def run_browser(run_id,evidence_dir,base_url,email,password, *, human_review=Fal
         dest=session.evidence_dir/(aid+'.json');dest.write_text(json.dumps(manifest,indent=2),encoding='utf-8');manifests.append(dest)
     checks=[validate_browser_evidence(str(m.resolve()),m.stem,session.novel_id,session.evidence_dir,
         expected_run_id=run_id,expected_user_id=session.user_id,expected_session_id=session.session_id) for m in manifests]
-    result={'status':'BLOCKED_UI_MISSING_OR_INVALID_EVIDENCE' if failure or not checks or not all(c[0] for c in checks) else 'OFFLINE_BROWSER_UI_SMOKE',
+    human_path=session.evidence_dir/'human-review-result.json'
+    human_result=json.loads(human_path.read_text(encoding='utf-8')) if human_path.exists() else None
+    result={'status':browser_outcome(failure,checks,human_review=human_review,human_result=human_result),
         'reason':failure,'evidence_checks':checks,'session_id':session.session_id,'novel_id':session.novel_id,
         'user_id':session.user_id,'actions':len(session.actions),'real_provider_live_ui':'NOT_RUN',
        'readback_scope':'final_post_run_readback','source_conversion_rule':CONVERSION_RULE_VERSION,

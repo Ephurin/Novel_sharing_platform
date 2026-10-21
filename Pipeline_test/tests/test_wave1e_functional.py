@@ -39,3 +39,12 @@ def test_existing_browser_evidence_is_not_overwritten(tmp_path):
     sentinel=tmp_path/'browser-result.json';sentinel.write_text('historical')
     with pytest.raises(RuntimeError,match='REPLAY_FORBIDDEN'):BrowserActionSession('new',tmp_path)
     assert sentinel.read_text()=='historical'
+
+@pytest.mark.parametrize('failure,human_review,human_result',[
+    ('',False,None),
+    (None,True,None),
+    (None,True,{'status':'BLOCKED'}),
+])
+def test_missing_human_result_or_empty_assertion_error_cannot_pass(failure,human_review,human_result):
+    from Pipeline_test.tools.browser_author_driver import browser_outcome
+    assert browser_outcome(failure,[(True,'valid trace')],human_review=human_review,human_result=human_result).startswith('BLOCKED')

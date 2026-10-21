@@ -20,7 +20,9 @@ def execute_human_review(session,project):
             'action_finished_at':session.actions[-1]['finished_at'],'run_id':session.run_id,'session_id':session.session_id,
             'novel_id':session.novel_id,'user_id':session.user_id,'readback_scope':'immediate_phase_readback',
             'reviews':session.read(base+'/entity-reviews'),'memory':session.read(base+'/memory'),
-            'proposals':session.read(base+'/review-queue'),'receipts':receipts(project)}
+            'proposals':session.read(base+'/review-queue'),
+            'receipt_offset':session.receipt_offset,'receipts_scope':'current_browser_attempt_only',
+            'receipts':receipts(project)[session.receipt_offset:]}
         state['captured_at']=now()
         (session.evidence_dir/(label+'.json')).write_text(json.dumps(state,ensure_ascii=False,indent=2),encoding='utf-8')
         return state
