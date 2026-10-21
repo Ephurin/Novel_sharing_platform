@@ -237,6 +237,21 @@ class BudgetGatewayHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         try:
+            length = int(self.headers.get('Content-Length', '0'))
+            if length <= 0 or length > self.max_body_bytes or self.headers.get('Transfer-Encoding'):
+                return self._send_json(413, {'error': 'BOUNDED_CONTENT_LENGTH_REQUIRED'})
+            # Drain only a bounded request before an early denial. Closing with unread
+            # body bytes can reset Windows TCP and lose the intended 403/401 response.
+            previous_timeout = self.connection.gettimeout()
+            try:
+                self.connection.settimeout(3)
+                raw_body = self.rfile.read(length)
+            except (TimeoutError, OSError):
+                return self._send_json(408, {'error': 'REQUEST_BODY_UNAVAILABLE'})
+            finally:
+                self.connection.settimeout(previous_timeout)
+            if len(raw_body) != length:
+                return self._send_json(400, {'error': 'TRUNCATED_REQUEST_BODY'})
             if 'X-Budget-Ticket' in self.headers:
                 return self._send_json(403, {'error': 'CLIENT_TICKETS_FORBIDDEN'})
             if self.path.startswith('/api/budget/'):
@@ -244,10 +259,7 @@ class BudgetGatewayHandler(BaseHTTPRequestHandler):
             token = self.headers.get('Authorization', '').removeprefix('Bearer ') or self.headers.get('x-goog-api-key', '')
             client = (self.client_tokens or {}).get(token)
             if not client: return self._send_json(401, {'error': 'WORKER_AUTH_REQUIRED'})
-            length = int(self.headers.get('Content-Length', '0'))
-            if length <= 0 or length > self.max_body_bytes or self.headers.get('Transfer-Encoding'):
-                return self._send_json(413, {'error': 'BOUNDED_CONTENT_LENGTH_REQUIRED'})
-            body = json.loads(self.rfile.read(length))
+            body = json.loads(raw_body)
             native = self.path.startswith('/v1beta/models/') and self.path.endswith(':generateContent')
             compat = self.path == '/v1/chat/completions'
             if not (native or compat): return self._send_json(403, {'error': 'UNSUPPORTED_BILLABLE_ROUTE'})
