@@ -31,6 +31,7 @@ if str(JOURNEY_DIR) not in sys.path:
     sys.path.insert(0, str(JOURNEY_DIR))
 
 from Pipeline_test.tools.provenance import verify_manuscript_gold_hashes as _verify
+from Pipeline_test.tools.manuscript_fixture import parse_fixture_chapter
 
 def verify_manuscript_gold_hashes(chapters, fixture_dir=None):
     return _verify(chapters, fixture_dir=fixture_dir, expected_novel_id='wave1d-novel', expected_owner_id='wave1d-author')
@@ -47,8 +48,9 @@ def make_gold_chapters():
         ("ch05.md", 5, "Chương 5 — Ba tiếng gõ"),
     ]
     for fname, ch_num, title in chapter_files:
-        content = (FIXTURE_DIR / fname).read_text(encoding="utf-8")
-        sha = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        parsed = parse_fixture_chapter(ch_num, fixture_dir=FIXTURE_DIR)
+        assert parsed["title"] == title
+        body, sha = parsed["body"], parsed["canonical_body_sha256"]
         chapters.append({
             "chapterNumber": ch_num,
             "chapterId": f"chap-uuid-{ch_num:02d}",
@@ -56,9 +58,9 @@ def make_gold_chapters():
             "contentHash": sha,
             "novelId": "wave1d-novel", "ownerId": "wave1d-author",
             "canonicalRevision": {"revisionId": f"rev-uuid-{ch_num:02d}", "chapterId": f"chap-uuid-{ch_num:02d}",
-                "novelId": "wave1d-novel", "contentHash": sha, "content": content},
+                "novelId": "wave1d-novel", "contentHash": sha, "content": body},
             "title": title,
-            "wordCount": len(content.split()),
+            "wordCount": len(body.split()),
         })
     return chapters
 
