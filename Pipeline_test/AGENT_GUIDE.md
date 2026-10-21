@@ -1,6 +1,6 @@
 # Hướng dẫn thực thi cho testing agent
 
-**Workflow revision1.3 — gate bắt buộc:** đọc `WORKFLOW_CONTRACT.md`,
+**Workflow revision1.4 — gate bắt buộc:** đọc `WORKFLOW_CONTRACT.md`,
 `WORKFLOW_GAP_AUDIT.md`, chạy `SHORT_LOOP_TEST.md` trước bài dài. Các thao tác
 snapshot/bootstrap API bên dưới là adapter cho kiểm thử kỹ thuật/hybrid, không
 thay bằng chứng tác giả lưu chương rồi tự có extraction. UI gate thiếu phải ghi
@@ -27,9 +27,10 @@ Chạy một generation nhỏ với provider thật để xác minh model và ch
 |---|---|---|---|
 | AUTHOR_ASSISTED_HYBRID | Đọc, sửa yêu cầu, reject/accept, điều chỉnh plan | Dùng public Node gateway khi UI thiếu, ghi từng gap | Truyện hoàn chỉnh với tác giả hỗ trợ; không suy ra full UI hoặc tự động |
 | UI_ONLY | Chỉ dùng giao diện tác giả | Read-only để đối chiếu được phép; không dùng API thay thao tác thiếu | Nếu không có UI nhập idea/plan thì gate tương ứng BLOCKED; không âm thầm đổi chế độ |
-| AUTONOMOUS_100K | Agent khởi tạo và quan sát; không biên tập nội dung giữa run | Điều khiển run bằng endpoint hiện có nếu đã khai báo | Chỉ PASS tự động khi tự tạo đủ truyện đạt rubric; assisted rescue là run/chế độ khác |
+| P3_HITL_CONTROLLER_100K | Controller viết và lưu nháp, tác giả chỉ duyệt entity tại gate flag ON, không biên tập prose để che lỗi | API/controller điều phối; UI duyệt human entity | **Nghiệm thu P3 bắt buộc**: 100.000–105.000 từ hoàn chỉnh, có can thiệp đo được, không claim unattended |
+| P3_UNATTENDED_AUTONOMOUS_100K | Agent khởi tạo và quan sát, không can thiệp nội dung | Chỉ khi có policy entity/canon không can thiệp được phê duyệt, gate riêng | Claim fully unattended chỉ khi chạy thực và đủ rubric; flag OFF legacy không được suy diễn thành policy mới |
 
-Mặc định assisted hybrid thực hiện main novel cùng P2/P3 probe riêng. Nếu agent được yêu cầu chạy cả ba chế độ, mỗi chế độ có run ID và project riêng. Không so chất lượng ba chế độ như một thí nghiệm kiểm soát nếu model/config/seed khác nhau.
+Thứ tự bắt buộc: **P1 UI S01–S11 → P2 idea→first chapter → P3 controller probe → P3_HITL_CONTROLLER_100K terminal artifact**. Mỗi pha có project/run ID và verdict riêng. Assisted hybrid không thay thế P1 UI hoặc P3 controller. Không so chất lượng như thí nghiệm kiểm soát nếu model/config/seed/intervention khác nhau.
 
 ## 3. Nhập bản thảo và dựng Story Brain — P1
 
@@ -48,7 +49,7 @@ Trên **dự án phụ rỗng**, gửi idea/premise, preferences, constraints qu
 
 Chạy **P2-M0** trước/sau review entities setup (hoặc blueprint khi chọn rõ mode đó), phân biệt author-supplied với model-proposed/author-accepted; không ghi blueprint generation là extraction từ prose. Sau chương đầu accept chạy **P2-M-FIRST** kiểm tra incremental LLM extraction thật và memory/context. Probe ngắn phải có final audit; nếu chạy P2 dài, áp dụng đầy đủ lịch 10/20/50. Ghi riêng P2 plan isolation trên main, không dùng nó thay bằng chứng P2 idea-run memory.
 
-Trên **main novel**, chuyển các dòng chương **5–40** trong `chapter_plan.csv` thành objectives của plan; chương 1–4 đã xong nằm ở ledger tác giả, không được controller viết lại. `target_chapter` phải là số chương thật. Ngày trong CSV là ngày tương đối trong truyện, không phải ngày test. Cột completion_criterion phải được tác giả đọc để đánh giá, không chỉ copy nhãn.
+Trên **novel thuộc từng run tương ứng** (không dùng branch `main` hoặc dữ liệu thật), chuyển các dòng chương **5–40** trong `chapter_plan.csv` thành objectives của plan; chương 1–4 đã xong nằm ở ledger tác giả, không được controller viết lại. `target_chapter` phải là số chương thật. Ngày trong CSV là ngày tương đối trong truyện, không phải ngày test. Cột completion_criterion phải được tác giả đọc để đánh giá, không chỉ copy nhãn.
 
 Activate plan qua ứng dụng. So context của chương 5/6: mục tiêu hiện tại được cung cấp ở planning lane, tình tiết chương 17/28/40 không xuất hiện trong historical facts/events. Một mục tiêu tương lai trong planning không tự nó là leak; leak là được khẳng định đã xảy ra hoặc bị nhân vật biết trước vô cớ.
 
@@ -100,7 +101,7 @@ Tạo project probe mới từ cùng seed qua đường public. Plan gồm hai m
 
 Chạy **P3-M0** trên baseline kế thừa trước controller, **P3-M-FIRST** sau lần accept đầu và final sau probe. Thu raw proposals/trace trước auto-accept nếu quan sát được qua history; thiếu evidence phải ghi OBSERVABILITY_GAP, không lấy memory đã sửa làm điểm extractor. Autonomous long run áp dụng cùng lịch 10/20/50; quan sát giữa các step không phải sửa nội dung. Sửa memory tay phải ghi intervention và không được giữ claim tự động không can thiệp.
 
-Trong `AUTONOMOUS_100K`, không can thiệp giữa chừng để chữa văn mà vẫn báo autonomous PASS. Nếu controller tạo rất ít từ rồi completed, lưu bản đó, báo FAIL mục tiêu độ dài/nội dung. Có thể đề xuất assisted run khác, không ghi đè kết quả thất bại. Giới hạn API mỗi run/step không phải tiêu chí văn học; nếu sản phẩm thiếu scheduler/continuation cần thiết, ghi rõ hạn chế.
+Trong `P3_HITL_CONTROLLER_100K`, chỉ human entity review theo contract được phép và phải ghi rõ; không can thiệp nội dung prose để chữa văn mà vẫn báo controller hoàn thành. Trong `P3_UNATTENDED_AUTONOMOUS_100K` (nếu được phê duyệt riêng), không có bất cứ can thiệp nội dung giữa chừng nào để vẫn claim unattended. Nếu controller tạo rất ít từ rồi completed, lưu bản đó, báo FAIL mục tiêu độ dài/nội dung. Có thể đề xuất assisted run khác, không ghi đè kết quả thất bại. Giới hạn API mỗi run/step không phải tiêu chí văn học; nếu sản phẩm thiếu scheduler/continuation cần thiết, ghi rõ hạn chế.
 
 ## 8. Checkpoint, ngân sách và resume
 
