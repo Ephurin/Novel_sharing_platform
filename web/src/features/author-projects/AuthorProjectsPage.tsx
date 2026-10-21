@@ -1,3 +1,4 @@
+import { uploadImage } from '../../shared/components/ImageUpload';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -143,6 +144,7 @@ export function AuthorProjectsPage() {
   }, [projects]);
 
   // Create Project Mutation
+  const coverUpload = useMutation({ mutationFn: uploadImage, onSuccess: setNewCoverUrl, onError: (error: Error) => showToast(error.message) });
   const createProjectMutation = useMutation({
     mutationFn: async () => {
       const trimmedTitle = newTitle.trim();
@@ -755,7 +757,7 @@ export function AuthorProjectsPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                createProjectMutation.mutate();
+                if (!coverUpload.isPending) createProjectMutation.mutate();
               }}
               className="p-5 flex flex-col gap-4"
             >
@@ -858,13 +860,7 @@ export function AuthorProjectsPage() {
                     setIsCoverDragging(false);
                     const file = e.dataTransfer.files?.[0];
                     if (file && file.type.startsWith('image/')) {
-                      const reader = new FileReader();
-                      reader.onload = () => {
-                        if (typeof reader.result === 'string') {
-                          setNewCoverUrl(reader.result);
-                        }
-                      };
-                      reader.readAsDataURL(file);
+                      coverUpload.mutate(file);
                     }
                   }}
                   className={`rounded-xl p-3 flex items-center justify-between gap-3 transition-colors ${
@@ -883,7 +879,7 @@ export function AuthorProjectsPage() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-meta font-semibold text-stone-800 truncate">
-                        {newCoverUrl ? 'Đã chọn ảnh bìa' : 'Kéo thả ảnh hoặc tải lên'}
+                        {coverUpload.isPending ? 'Đang tải ảnh…' : newCoverUrl ? 'Đã chọn ảnh bìa' : 'Kéo thả ảnh hoặc tải lên'}
                       </p>
                       <p className="text-meta text-stone-500 truncate">
                         Hỗ trợ: JPG, PNG, WEBP (Tỷ lệ gợi ý 2:3)
@@ -899,13 +895,7 @@ export function AuthorProjectsPage() {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                          if (typeof reader.result === 'string') {
-                            setNewCoverUrl(reader.result);
-                          }
-                        };
-                        reader.readAsDataURL(file);
+                        coverUpload.mutate(file);
                       }
                     }}
                   />
@@ -952,7 +942,7 @@ export function AuthorProjectsPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={createProjectMutation.isPending || newTitle.trim().length < 2}
+                  disabled={createProjectMutation.isPending || coverUpload.isPending || newTitle.trim().length < 2}
                   className="px-5 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-semibold text-meta shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   {createProjectMutation.isPending && (

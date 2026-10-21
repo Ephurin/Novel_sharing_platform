@@ -79,3 +79,7 @@ celerybeat-schedule
 
 # Sealed local evaluation state (never commit before blind review)
 .eval-private/
+
+!backend/src/modules/media/
+!backend/src/modules/media/**
+backend/uploads/

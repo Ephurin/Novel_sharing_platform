@@ -1,3 +1,4 @@
+import { becomeAuthor } from './auth.service.js';
 import type { RequestHandler } from 'express';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
@@ -109,4 +110,13 @@ export const changePasswordController: RequestHandler = async (request, response
   } catch (error) {
     next(error);
   }
+};
+
+export const becomeAuthorController: RequestHandler = async (request, response, next) => {
+  try {
+    if (!request.auth) throw new AppError(401, 'AUTH_002', 'Missing access token');
+    const result = await becomeAuthor(request.auth);
+    setRefreshCookie(response, result.refreshToken, result.refreshTokenMaxAgeMs);
+    response.json(successResponse({ user: result.user, accessToken: result.accessToken }));
+  } catch (error) { next(error); }
 };

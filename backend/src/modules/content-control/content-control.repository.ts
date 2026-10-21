@@ -39,29 +39,30 @@ export async function createModerationReview(input: {
   targetId: string;
   source: ModerationSource;
   evidenceId?: string | null;
+  submittedContent?: { title: string; content: string; wordCount: number };
 }) {
   const result = await getPostgresPool().query(
     `
-      insert into moderation_reviews (target_type, target_id, source, evidence_id)
-      values ($1, $2, $3, $4)
+      insert into moderation_reviews (target_type, target_id, source, evidence_id, submitted_content)
+      values ($1, $2, $3, $4, $5)
       returning *
     `,
-    [input.targetType, input.targetId, input.source, input.evidenceId ?? null]
+    [input.targetType, input.targetId, input.source, input.evidenceId ?? null, input.submittedContent ?? null]
   );
 
   return result.rows[0];
 }
 
-export async function findOpenReview(targetType: ModerationTargetType, targetId: string) {
+export async function findOpenReview(targetType: ModerationTargetType, targetId: string, source?: 'KEYWORD_FILTER' | 'USER_REPORT') {
   const result = await getPostgresPool().query(
     `
       select *
       from moderation_reviews
-      where target_type = $1 and target_id = $2 and status = 'PENDING'
+      where target_type = $1 and target_id = $2 and status = 'PENDING' and ($3::moderation_source is null or source=$3)
       order by created_at desc
       limit 1
     `,
-    [targetType, targetId]
+    [targetType, targetId, source ?? null]
   );
 
   return result.rows[0] ?? null;
@@ -185,6 +186,7 @@ export async function resolveReview(input: {
       update moderation_reviews
       set status = $2,
           reviewed_by = $3,
+          notification_pending = true,
           reviewed_at = now(),
           reason = $4,
           updated_at = now()

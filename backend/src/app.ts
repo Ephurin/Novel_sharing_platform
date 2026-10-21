@@ -1,3 +1,4 @@
+import { mediaRoutes } from './modules/media/media.routes.js';
 import { novelEngagementRoutes } from './modules/interactions/novel-engagement.routes.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -40,6 +41,7 @@ export function createApp() {
     })
   );
   app.use(cookieParser());
+  app.use(`${env.API_PREFIX}/media`, mediaRoutes);
   app.use(express.json({ limit: '1mb' }));
 
   app.get(`${env.API_PREFIX}/health`, (_request, response) => {

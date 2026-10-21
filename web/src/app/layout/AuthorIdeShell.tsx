@@ -241,6 +241,7 @@ export function AuthorIdeShell() {
         title: chapterTitle,
         content: editorContent,
         ...pricingPayload,
+        expectedVersion: chapterQuery.data?.draft?.version ?? chapterQuery.data?.draftVersion ?? 0,
         autosave: false
       });
     },

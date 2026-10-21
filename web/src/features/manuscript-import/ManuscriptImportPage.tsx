@@ -1,3 +1,4 @@
+import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -313,10 +314,9 @@ export function ManuscriptImportPage() {
 
       // 2. If Story Brain AI enabled, trigger AI bootstrap with revision data
       if (enableStoryBrainAi && createdChapters.length > 0) {
-        const revisions = createdChapters.map((ch: any) => ({
-          chapter_id: ch.chapterId,
-          revision_id: ch.chapterId,
-          content_hash: 'auto-sha256'
+        const revisions = await Promise.all(createdChapters.map(async (ch: any, index: number) => {
+          const revision = (await apiClient.post<ApiEnvelope<{ revisionId: string; contentHash: string }>>('/chapters/' + ch.chapterId + '/revisions/snapshot', { content: toImport[index].content })).data.data;
+          return { chapter_id: ch.chapterId, revision_id: revision.revisionId, content_hash: revision.contentHash };
         }));
         try {
           await startBootstrapMutation.mutateAsync(revisions);

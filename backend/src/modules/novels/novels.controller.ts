@@ -4,7 +4,7 @@ import { successResponse } from '../../core/response/response.js';
 import {
   createNovel,
   deleteNovel,
-  getNovel,
+  readNovel,
   getNovelEarnings,
   listMyNovels,
   listNovels,
@@ -58,7 +58,7 @@ export const listMyNovelsController: RequestHandler = async (request, response, 
 
 export const getNovelController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await getNovel(String(request.params.novelId));
+    const result = await readNovel(String(request.params.novelId), request.auth);
     response.json(successResponse(result));
   } catch (error) {
     next(error);

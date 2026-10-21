@@ -92,6 +92,7 @@ export async function updateChapter(chapterId: string, input: {
   isVip?: boolean;
   priceCoins?: number;
   autosave?: boolean;
+  expectedVersion?: number;
 }) {
   const response = await apiClient.patch<ApiEnvelope<Chapter>>(`/chapters/${chapterId}`, input);
   return response.data.data;

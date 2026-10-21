@@ -1,3 +1,4 @@
+import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import type {
@@ -48,7 +49,7 @@ function highestSeverity(rules: MatchedRule[]) {
   return 'LOW';
 }
 
-export async function checkContent(input: ContentControlCheckInput) {
+export async function checkContent(input: ContentControlCheckInput & { publicationSnapshot?: { title: string; content: string; wordCount: number } }) {
   const rules = await listActiveFilterRules();
   const matchedRules = scanContent(input.content, rules);
 
@@ -60,8 +61,17 @@ export async function checkContent(input: ContentControlCheckInput) {
     } as const;
   }
 
-  const existingReview = await findOpenReview(input.targetType, input.targetId);
+  const existingReview = await findOpenReview(input.targetType, input.targetId, 'KEYWORD_FILTER');
   if (existingReview) {
+    if (input.publicationSnapshot && !existingReview.submitted_content) {
+      const attached = await getPostgresPool().query("update moderation_reviews set submitted_content=coalesce(submitted_content,$2::jsonb) where review_id=$1 and status='PENDING' returning submitted_content", [existingReview.review_id,input.publicationSnapshot]);
+      if (!attached.rowCount) throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Kết quả duyệt đã thay đổi, hãy gửi lại');
+      existingReview.submitted_content = attached.rows[0].submitted_content;
+    }
+    if (input.publicationSnapshot && existingReview.submitted_content && JSON.stringify(existingReview.submitted_content) !== JSON.stringify(input.publicationSnapshot)) {
+      const snapshot = existingReview.submitted_content;
+      if (snapshot.title !== input.publicationSnapshot.title || snapshot.content !== input.publicationSnapshot.content) throw new AppError(409, 'CONTENT_REVIEW_PENDING', 'Phiên bản trước đang chờ duyệt. Hãy chờ kết quả trước khi gửi phiên bản mới.');
+    }
     return {
       result: 'NEED_ADMIN_REVIEW',
       moderationRequired: true,
@@ -82,7 +92,8 @@ export async function checkContent(input: ContentControlCheckInput) {
     targetType: input.targetType,
     targetId: input.targetId,
     source: 'KEYWORD_FILTER',
-    evidenceId
+    evidenceId,
+    submittedContent: input.publicationSnapshot
   });
 
   return {
@@ -182,6 +193,10 @@ export async function resolveModerationReview(
     throw new AppError(422, 'ADMIN_003', 'Rejection reason required');
   }
 
+  if (review.target_type === 'CHAPTER' && review.source === 'KEYWORD_FILTER' && input.decision === 'APPROVED') {
+    const chapter = await findChapterById(review.target_id);
+    if (!chapter || chapter.status !== 'PENDING_MODERATION') throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Chương không còn chờ duyệt; không thể phát hành phiên bản cũ');
+  }
   const resolved = await resolveReviewRow({
     reviewId,
     status: input.decision as ModerationStatus,
@@ -218,22 +233,23 @@ export async function resolveModerationReview(
       }
 
       const draft = await findDraftChapterByChapterId(resolved.target_id);
-      const content = draft?.content ?? chapter.content;
+      const content = resolved.submitted_content?.content ?? draft?.content ?? chapter.content;
 
       if (!content) {
         throw new AppError(409, 'CONTENT_004', 'Invalid content state');
       }
 
       await publishChapter(resolved.target_id, {
-        title: draft?.title ?? chapter.title,
+        title: resolved.submitted_content?.title ?? draft?.title ?? chapter.title,
         content,
-        wordCount: draft?.wordCount ?? chapter.wordCount
+        wordCount: resolved.submitted_content?.wordCount ?? draft?.wordCount ?? chapter.wordCount
       });
     } else {
       await rejectChapterPublication(resolved.target_id);
     }
   }
 
+  if (resolved.target_type === 'CHAPTER') await getPostgresPool().query("update chapter_publication_schedules set status=$2,error=$3,updated_at=now() where moderation_review_id=$1 and status='PENDING_MODERATION'", [resolved.review_id, resolved.status === 'APPROVED' ? 'PUBLISHED' : 'FAILED', resolved.status === 'APPROVED' ? null : (input.reason ?? 'Nội dung không được duyệt')]);
   return {
     reviewId: resolved.review_id,
     status: resolved.status,

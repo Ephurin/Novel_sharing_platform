@@ -1,3 +1,6 @@
+import { randomUUID } from 'node:crypto';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
+import { enqueueNotification } from './notification-events.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 
 export async function getNovelStatistics(novelId: string, viewerId?: string, includeDrafts = false) {
@@ -29,7 +32,13 @@ export async function getNovelStatistics(novelId: string, viewerId?: string, inc
 
 export async function setNovelFollow(novelId: string, userId: string, following: boolean) {
   if (following) {
-    await getPostgresPool().query('insert into novel_follows (novel_id, user_id) values ($1, $2) on conflict do nothing', [novelId, userId]);
+    await withPostgresTransaction(async client => {
+      const inserted = await client.query('insert into novel_follows (novel_id, user_id) values ($1, $2) on conflict do nothing returning novel_id', [novelId, userId]);
+      if (inserted.rowCount) {
+        const novel = (await client.query('select author_id,title from novels where novel_id=$1', [novelId])).rows[0];
+        await enqueueNotification(client, { eventKey: 'novel-follow:' + randomUUID(), userId: novel.author_id, type: 'NOVEL_FOLLOW', title: 'Có độc giả theo dõi tác phẩm', content: novel.title, payload: { href: '/author/novels/' + novelId } });
+      }
+    });
   } else {
     await getPostgresPool().query('delete from novel_follows where novel_id = $1 and user_id = $2', [novelId, userId]);
   }
@@ -39,10 +48,18 @@ export async function setNovelRating(novelId: string, userId: string, score: num
   if (score === null) {
     await getPostgresPool().query('delete from novel_ratings where novel_id = $1 and user_id = $2', [novelId, userId]);
   } else {
-    await getPostgresPool().query(`insert into novel_ratings (novel_id, user_id, score, review_text) values ($1, $2, $3, $5)
+    await withPostgresTransaction(async client => {
+    const changed = await client.query(`insert into novel_ratings (novel_id, user_id, score, review_text) values ($1, $2, $3, $5)
       on conflict (novel_id, user_id) do update set score = excluded.score,
         review_text = case when $4 then excluded.review_text else novel_ratings.review_text end,
-        updated_at = now()`, [novelId, userId, score, review !== undefined, review ?? null]);
+        updated_at = now()
+      where novel_ratings.score is distinct from excluded.score or ($4 and novel_ratings.review_text is distinct from excluded.review_text)
+      returning novel_id`, [novelId, userId, score, review !== undefined, review ?? null]);
+    if (changed.rowCount) {
+      const novel = (await client.query('select author_id,title from novels where novel_id=$1', [novelId])).rows[0];
+      await enqueueNotification(client, { eventKey: 'rating:' + randomUUID(), userId: novel.author_id, type: 'READER_REVIEW', title: 'Tác phẩm có đánh giá mới', content: novel.title + ' · ' + score + '/10', payload: { href: '/author/novels/' + novelId + '/reviews' } });
+    }
+    });
   }
 }
 

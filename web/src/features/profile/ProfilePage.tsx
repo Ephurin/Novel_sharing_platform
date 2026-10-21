@@ -1,3 +1,7 @@
+import { AuthorProfileHeader } from './AuthorProfileHeader';
+import { ImageUpload } from '../../shared/components/ImageUpload';
+import { becomeAuthor } from '../auth/auth-api';
+import { useNavigate } from 'react-router-dom';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,7 +16,7 @@ import { LoadingState, ErrorState } from '../../shared/components/PageStates';
 
 export function AuthorProfilePage() {
   const { authorId = '' } = useParams();
-  const currentUser = useAuthStore((state: any) => state.user);
+  const currentUser = useAuthStore(state => state.user);
 
   // Author query (if authorId exists)
   const authorQuery = useQuery({
@@ -29,7 +33,6 @@ export function AuthorProfilePage() {
   });
 
   // Interactive States
-  const [bioExpanded, setBioExpanded] = useState(false);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [supportAmount, setSupportAmount] = useState(20);
   const [supportMessage, setSupportMessage] = useState('');
@@ -66,10 +69,8 @@ export function AuthorProfilePage() {
   const authorName = author?.displayName || author?.username || '';
   const authorUsername = author?.username || '';
   const authorAvatar = author?.avatarUrl;
-  const displayFollowers = author?.followersCount ?? 0;
   const availableCoins = walletQuery.data?.coinsBalance ?? 0;
   const displayNovels = author?.novels ?? [];
-  const totalReads = author?.totalViews ?? 0;
   const isOwnProfile = Boolean(currentUser?.userId && currentUser.userId === targetAuthorId);
 
   const handleShare = async () => {
@@ -84,6 +85,7 @@ export function AuthorProfilePage() {
   if (!targetAuthorId) return <ErrorState error={new Error('Cần đăng nhập hoặc chọn tác giả để xem hồ sơ.')} />;
   if (authorQuery.isLoading) return <LoadingState label="Đang tải hồ sơ tác giả..." />;
   if (authorQuery.isError) return <ErrorState error={authorQuery.error} onRetry={() => void authorQuery.refetch()} />;
+  if (!author) return <LoadingState label="Đang tải hồ sơ tác giả…" />;
 
   return (
     <div className="min-h-screen flex flex-col bg-surface text-stone-800 antialiased selection:bg-primary-100 selection:text-primary-900">
@@ -102,7 +104,7 @@ export function AuthorProfilePage() {
       <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6 flex-1">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-meta text-stone-500">
-          <Link to="/author/projects" className="hover:text-stone-900 transition-colors">
+          <Link to={currentUser?.role === 'AUTHOR' || currentUser?.role === 'ADMIN' ? '/author/projects' : '/reader'} className="hover:text-stone-900 transition-colors">
             Trang chủ
           </Link>
           <span className="text-stone-300">/</span>
@@ -111,100 +113,15 @@ export function AuthorProfilePage() {
           <span className="font-semibold text-stone-800">{authorName}</span>
         </nav>
 
-        {/* 2. Minimalist Author Profile Header */}
-        <section className="bg-surface-container-lowest rounded-2xl border border-stone-200/80 shadow-xs overflow-hidden">
-          {/* Profile Info Bar Overlapping Banner */}
-          <div className="p-5 sm:p-6 relative">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              {/* Left: Avatar & Identity */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3.5">
-                <div className="relative shrink-0">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white bg-primary-50 shadow-sm overflow-hidden flex items-center justify-center">
-                    {authorAvatar ? <img alt={authorName} className="w-full h-full object-cover" src={authorAvatar} /> : <span className="text-2xl font-bold text-primary-700">{authorName.slice(0, 1).toUpperCase()}</span>}
-                  </div>
-                </div>
-
-                <div className="space-y-1 sm:mb-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-                      {authorName}
-                    </h1>
-                  </div>
-                  <p className="text-meta font-medium text-stone-500">@{authorUsername}</p>
-                </div>
-              </div>
-
-              {/* Right Action Buttons */}
-              <div className="flex items-center gap-2 shrink-0 self-start md:self-end">
-                {/* Follow Button */}
-                <button
-                  onClick={() => followMutation.mutate()}
-                  disabled={!currentUser || isOwnProfile || followMutation.isPending}
-                  type="button"
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-meta font-semibold shadow-xs  transition-all ${
-                    author?.isFollowing
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
-                      : 'bg-primary-600 text-white hover:bg-primary-700'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[15px]">
-                    {author?.isFollowing ? 'check' : 'add'}
-                  </span>
-                  <span>{author?.isFollowing ? 'Đang theo dõi' : 'Theo dõi'}</span>
-                </button>
-
-                {/* Support Author Button */}
-                <button
-                  type="button"
-                  onClick={() => setSupportModalOpen(true)}
-                  disabled={!currentUser || isOwnProfile}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-meta font-semibold bg-amber-50 text-warning hover:bg-amber-100 border border-amber-300/80 shadow-xs  transition-all"
-                >
-                  <span className="material-symbols-outlined text-[15px] text-warning">volunteer_activism</span>
-                  <span>Ủng hộ tác giả</span>
-                </button>
-
-                {/* Share Button */}
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className="p-1.5 rounded-xl border border-stone-200 text-stone-500 hover:text-stone-800 hover:bg-stone-50 transition-colors shadow-2xs"
-                  title="Chia sẻ hồ sơ"
-                >
-                  <span className="material-symbols-outlined text-[18px]">share</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Keep the biography footprint stable while its text is collapsed. */}
-            {author?.bio && (
-              <div className="mt-3.5 pt-2.5 border-t border-stone-100">
-                <button type="button" aria-expanded={bioExpanded} aria-controls="author-bio" onClick={() => setBioExpanded(expanded => !expanded)} className="inline-flex items-center gap-1 text-body text-stone-700">
-                  <span className="material-symbols-outlined" aria-hidden="true">{bioExpanded ? 'arrow_drop_down' : 'arrow_right'}</span>
-                  <span>Giới thiệu tác giả</span>
-                </button>
-                <div id="author-bio" aria-hidden={!bioExpanded} className={`sc-author-bio ${bioExpanded ? '' : 'sc-author-bio-collapsed'}`}>
-                  <p className="text-body text-stone-700 whitespace-pre-wrap">{author.bio}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Public Inline Stats */}
-            <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-wrap items-center gap-3 text-meta text-stone-600">
-              <span className="font-medium">
-                <strong className="font-bold text-stone-900">{displayFollowers.toLocaleString('vi-VN')}</strong> người theo dõi
-              </span>
-              <span className="text-stone-300">•</span>
-              <span className="font-medium">
-                <strong className="font-bold text-stone-900">{totalReads.toLocaleString('vi-VN')}</strong> lượt đọc
-              </span>
-              <span className="text-stone-300">•</span>
-              <span className="font-medium">
-                <strong className="font-bold text-stone-900">{displayNovels.length}</strong> tác phẩm
-              </span>
-            </div>
-          </div>
-        </section>
+        <AuthorProfileHeader
+          author={author}
+          isOwnProfile={isOwnProfile}
+          canInteract={currentUser?.status === 'ACTIVE'}
+          followingPending={followMutation.isPending}
+          onFollow={() => followMutation.mutate()}
+          onSupport={() => setSupportModalOpen(true)}
+          onShare={() => void handleShare()}
+        />
 
         {/* 3. Book Collection (Authentic 3D Book Covers) */}
         <section className="space-y-4">
@@ -223,7 +140,7 @@ export function AuthorProfilePage() {
                   className="block relative aspect-[2/3] w-full rounded-r-xl rounded-l-xs overflow-hidden transition-all duration-300  bg-cover-fallback shadow-none group-hover:shadow-none"
                 >
                   {/* Book Art Image */}
-                  {novel.coverImageUrl ? <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover  transition-transform duration-500 brightness-[0.92] contrast-[1.05]" /> : <div className="w-full h-full flex items-center justify-center text-white text-center p-4 font-serif">{novel.title}</div>}
+                  {novel.coverImageUrl ? <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover " /> : <div className="w-full h-full flex items-center justify-center text-white text-center p-4 font-serif">{novel.title}</div>}
 
                 </div>
 
@@ -245,34 +162,9 @@ export function AuthorProfilePage() {
           </div>
         </section>
 
-        <p className="text-meta text-stone-500">{(author?.totalWords ?? 0).toLocaleString('vi-VN')} chữ đã xuất bản</p>
-        {author?.joinedAt && <p className="text-meta text-stone-500">Tham gia {new Date(author.joinedAt).toLocaleDateString('vi-VN')}</p>}
       </main>
 
-      {/* 5. Compact Literary Footer */}
-      <footer className="mt-8 border-t border-stone-200 bg-surface-container-lowest/80 py-6 px-4 sm:px-8 text-meta text-stone-500">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-serif font-bold text-stone-800">StoryCraft Văn Hoa</span>
-            <span className="text-stone-300">•</span>
-            <span>© 2025 Nền tảng Xuất bản &amp; Sáng tác Văn học Trực tuyến</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-4 text-stone-500 text-meta">
-            <a href="#" className="hover:text-primary-600 transition-colors">
-              Chính sách xuất bản
-            </a>
-            <a href="#" className="hover:text-primary-600 transition-colors">
-              Bản quyền &amp; Sở hữu trí tuệ
-            </a>
-            <a href="#" className="hover:text-primary-600 transition-colors">
-              Tiêu chuẩn cộng đồng
-            </a>
-            <a href="#" className="hover:text-primary-600 transition-colors">
-              Trung tâm trợ giúp độc giả
-            </a>
-          </div>
-        </div>
-      </footer>
+      <footer className="sc-author-profile-footer text-meta"><span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span><Link to="/reader">Khám phá tác phẩm</Link></footer>
 
       {/* 6. Support Author Modal */}
       {supportModalOpen && (
@@ -394,6 +286,10 @@ export function AuthorProfilePage() {
 // My Profile Page (Manage account & settings)
 // -------------------------------------------------------------
 export function MyProfilePage() {
+  const navigate = useNavigate();
+  const account = useAuthStore(state => state.user);
+  const setSession = useAuthStore(state => state.setSession);
+  const onboarding = useMutation({ mutationFn: becomeAuthor, onSuccess: session => { setSession(session); queryClient.clear(); navigate('/author/projects'); } });
   const queryClient = useQueryClient();
   const profileQuery = useQuery({ queryKey: ['profile', 'me'], queryFn: getMyProfile });
   const settingsQuery = useQuery({ queryKey: ['settings', 'me'], queryFn: getMySettings });
@@ -401,6 +297,8 @@ export function MyProfilePage() {
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [bio, setBio] = useState('');
+  const [bannerUrl, setBannerUrl] = useState('');
+  const [publishingSchedule, setPublishingSchedule] = useState('');
   const [language, setLanguage] = useState('vi');
   const [notificationEnabled, setNotificationEnabled] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -410,6 +308,8 @@ export function MyProfilePage() {
       setDisplayName(profileQuery.data.displayName ?? '');
       setAvatarUrl(profileQuery.data.avatarUrl ?? '');
       setBio(profileQuery.data.bio ?? '');
+      setBannerUrl(profileQuery.data.bannerUrl ?? '');
+      setPublishingSchedule(profileQuery.data.publishingSchedule ?? '');
     }
   }, [profileQuery.data]);
 
@@ -425,9 +325,13 @@ export function MyProfilePage() {
       updateMyProfile({
         displayName: displayName || undefined,
         avatarUrl: avatarUrl || null,
-        bio: bio || null
+        bio: bio || null,
+        bannerUrl: bannerUrl.trim() || null,
+        publishingSchedule: publishingSchedule.trim() || null
       }),
-    onSuccess: () => {
+    onSuccess: profile => {
+      if (account) useAuthStore.getState().setUser({ ...account, displayName: profile.displayName, avatarUrl: profile.avatarUrl });
+      void queryClient.invalidateQueries({ queryKey: ['author-profile'] });
       setToastMessage('Đã lưu hồ sơ thành công!');
       setTimeout(() => setToastMessage(null), 3000);
       void queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
@@ -470,6 +374,7 @@ export function MyProfilePage() {
           </Link>
         </div>
 
+        {account?.role === 'READER' && <div className="sc-card p-5"><h2 className="text-section-title">Bắt đầu sáng tác</h2><p className="text-body">Tạo tác phẩm và quản lý bản thảo trong không gian tác giả.</p><button type="button" className="sc-button sc-button-primary" disabled={onboarding.isPending} onClick={() => onboarding.mutate()}>{onboarding.isPending ? 'Đang đăng ký…' : 'Trở thành tác giả'}</button>{onboarding.isError && <p role="alert">{getApiErrorMessage(onboarding.error)}</p>}</div>}
         {/* Profile Card & Settings Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Card 1: Thông tin hiển thị */}
@@ -516,6 +421,12 @@ export function MyProfilePage() {
                 />
               </div>
 
+              <ImageUpload onUpload={setAvatarUrl} label="Tải ảnh đại diện" />
+              {account && ['AUTHOR','ADMIN'].includes(account.role) && <>
+                <div><label className="font-medium text-stone-700 block mb-1" htmlFor="author-banner">Ảnh bìa tác giả</label><input id="author-banner" type="url" value={bannerUrl} onChange={event => setBannerUrl(event.target.value)} className="w-full text-meta rounded-lg border border-stone-200 py-2 px-3" placeholder="https://…" />{bannerUrl && <img className="sc-author-banner mt-2" src={bannerUrl} alt="Xem trước ảnh bìa tác giả" />}</div>
+                <ImageUpload onUpload={setBannerUrl} label="Tải ảnh bìa tác giả" />
+                <div><label className="font-medium text-stone-700 block mb-1" htmlFor="author-publishing-schedule">Lịch đăng dự kiến</label><textarea id="author-publishing-schedule" rows={3} maxLength={500} value={publishingSchedule} onChange={event => setPublishingSchedule(event.target.value)} className="w-full text-meta rounded-lg border border-stone-200 py-2 px-3" placeholder="Ví dụ: Thứ Tư và thứ Bảy, lúc 20:00" /></div>
+              </>}
               <div>
                 <label className="font-medium text-stone-700 block mb-1">Tiểu sử ngắn (Bio)</label>
                 <textarea
@@ -534,6 +445,7 @@ export function MyProfilePage() {
               >
                 {profileMutation.isPending ? 'Đang lưu...' : 'Lưu hồ sơ'}
               </button>
+              {profileMutation.isError && <p role="alert" className="text-body">{getApiErrorMessage(profileMutation.error)}</p>}
             </div>
           </div>
 

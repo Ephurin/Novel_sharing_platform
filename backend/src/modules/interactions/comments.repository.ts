@@ -73,6 +73,7 @@ export async function updateCommentModerationStatus(
       $set: {
         status,
         moderationReviewId,
+        notificationPending: status === 'APPROVED',
         updatedAt: new Date()
       }
     }

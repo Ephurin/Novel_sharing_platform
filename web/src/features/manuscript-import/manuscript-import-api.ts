@@ -212,7 +212,9 @@ export async function importChaptersBatch(
   const created: any[] = [];
   for (let i = 0; i < chapters.length; i++) {
     const ch = chapters[i];
-    const response = await apiClient.post<ApiEnvelope<any>>(`/novels/${novelId}/chapters`, ch);
+    const fingerprint = new TextEncoder().encode(JSON.stringify([novelId, i, ch.title, ch.content]));
+    const clientRequestId = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', fingerprint)), byte => byte.toString(16).padStart(2, '0')).join('');
+    const response = await apiClient.post<ApiEnvelope<any>>(`/novels/${novelId}/chapters`, { ...ch, clientRequestId });
     created.push(response.data.data);
     if (onProgress) {
       onProgress(i + 1, chapters.length);

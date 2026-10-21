@@ -16,7 +16,8 @@ export const createChapterSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
     title: z.string().min(1).max(100),
-    content: z.string().min(1),
+    content: z.string(),
+    clientRequestId: z.string().min(1).max(128).optional(),
     isVip: z.boolean().default(false),
     priceCoins: z.number().int().min(0).default(0)
   })
@@ -26,9 +27,10 @@ export const updateChapterSchema = z.object({
   params: chapterIdParamSchema.shape.params,
   body: z.object({
     title: z.string().min(1).max(100).optional(),
-    content: z.string().min(1).optional(),
+    content: z.string().optional(),
     isVip: z.boolean().optional(),
     priceCoins: z.number().int().min(0).optional(),
+    expectedVersion: z.number().int().min(0).optional(),
     autosave: z.boolean().default(false)
   })
 });

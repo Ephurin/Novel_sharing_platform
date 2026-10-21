@@ -9,6 +9,8 @@ export type UserProfile = {
   displayName: string | null;
   avatarUrl: string | null;
   bio: string | null;
+  bannerUrl: string | null;
+  publishingSchedule: string | null;
   role: UserRole;
   language: string;
   notificationEnabled: boolean;
@@ -21,6 +23,8 @@ function mapProfile(row: QueryResultRow): UserProfile {
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
     bio: row.bio,
+    bannerUrl: row.banner_url,
+    publishingSchedule: row.publishing_schedule,
     role: row.role,
     language: row.language,
     notificationEnabled: row.notification_enabled
@@ -30,7 +34,7 @@ function mapProfile(row: QueryResultRow): UserProfile {
 export async function findProfileByUserId(userId: string) {
   const result = await getPostgresPool().query(
     `
-      select u.user_id, u.username, u.role, p.display_name, p.avatar_url, p.bio, p.language, p.notification_enabled
+      select u.user_id, u.username, u.role, p.display_name, p.avatar_url, p.bio, p.banner_url, p.publishing_schedule, p.language, p.notification_enabled
       from users u
       join user_profiles p on p.user_id = u.user_id
       where u.user_id = $1 and u.deleted_at is null
@@ -48,13 +52,15 @@ export async function updateProfile(userId: string, input: UpdateProfileInput) {
       update user_profiles
       set
         display_name = coalesce($2, display_name),
-        bio = coalesce($3, bio),
-        avatar_url = coalesce($4, avatar_url),
+        bio = case when $5 then $3 else bio end,
+        avatar_url = case when $6 then $4 else avatar_url end,
+        banner_url = case when $8 then $7 else banner_url end,
+        publishing_schedule = case when $10 then $9 else publishing_schedule end,
         updated_at = now()
       where user_id = $1
       returning *
     `,
-    [userId, input.displayName, input.bio, input.avatarUrl]
+    [userId, input.displayName, input.bio ?? null, input.avatarUrl ?? null, input.bio !== undefined, input.avatarUrl !== undefined, input.bannerUrl ?? null, input.bannerUrl !== undefined, input.publishingSchedule ?? null, input.publishingSchedule !== undefined]
   );
 
   return result.rows[0] ?? null;
@@ -80,7 +86,7 @@ export async function updateSettings(userId: string, input: UpdateSettingsInput)
 export async function findAuthorProfileById(authorId: string, viewerId?: string) {
   const profileResult = await getPostgresPool().query(
     `
-      select u.user_id, u.username, u.role, u.created_at, p.display_name, p.avatar_url, p.bio
+      select u.user_id, u.username, u.role, u.created_at, p.display_name, p.avatar_url, p.bio, p.banner_url, p.publishing_schedule
       from users u
       join user_profiles p on p.user_id = u.user_id
       where u.user_id = $1
@@ -134,6 +140,8 @@ export async function findAuthorProfileById(authorId: string, viewerId?: string)
     displayName: profile.display_name,
     avatarUrl: profile.avatar_url,
     bio: profile.bio,
+    bannerUrl: profile.banner_url,
+    publishingSchedule: profile.publishing_schedule,
     joinedAt: profile.created_at,
     totalViews: Number(totalsResult.rows[0]?.total_views ?? 0),
     totalWords: Number(totalsResult.rows[0]?.total_words ?? 0),
