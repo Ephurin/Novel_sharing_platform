@@ -1,6 +1,15 @@
 # API Contracts — Narrative Memory and Writing
 
-> Status: Accepted design baseline. Các endpoint là API đích đã review; API hiện hành vẫn được mô tả tại [API_DOC.md](API_DOC.md).
+> **Status:** Accepted **design baseline**, not a current deployment certification. `WORKFLOW_CONTRACT.md` v1.4 takes precedence for product behavior: [contract](../../Pipeline_test/WORKFLOW_CONTRACT.md). For actual source-inspected Node/FastAPI route/status mapping at SHA `c01c83d`, use [CURRENT_API_IMPLEMENTATION_MATRIX.md](CURRENT_API_IMPLEMENTATION_MATRIX.md); current FastAPI reference is [API_DOC.md](API_DOC.md). Historical `waiting_review` must not be read as a replacement for the current `waiting_entity_review` analysis state or `waiting_for_entity_review` P3 controller stop.
+
+## Runtime status versus accepted API intent (2026-10-21)
+
+The design beneath this heading contains historic proposed state diagrams, legacy route compatibility and endpoint payloads. **Only source-inspected declared routes exist by evidence from code**; runtime HTTP, schema/ownership, UI wiring, and provider behavior require tests at a matched SHA/config. Notably:
+
+- Node author API is mounted at `${env.API_PREFIX}/ai` (normally `/api/v1/ai`); AI FastAPI at `/v1` with an internal `/internal/v1`. These are distinct interfaces.
+- Human entity review is a **gate before event/fact**, not simply a generic `waiting_review` after all proposals. `entities_reviewed` is only the frozen inventory, not official canon.
+- P3 controller may report `waiting_for_entity_review`, preserving objective/revision without retry or auto-approval; terminal `completed` is never sufficient for P3 100k acceptance.
+- The contract's **mandatory P3 terminal book (100,000–105,000 words)** is a product/evaluation outcome, not an endpoint's status field.
 
 ## Các quyết định đã chấp nhận
 
