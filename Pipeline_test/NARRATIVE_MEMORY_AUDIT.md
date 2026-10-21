@@ -1,6 +1,6 @@
 # Gate narrative memory cho P1, P2 và P3
 
-Theo WORKFLOW_CONTRACT.md revision1.3; lịch audit của task vẫn giữ nguyên. Áp dụng cho mọi run mới; fixture văn học PT-CV-001 v1.0.0 không đổi. Mục tiêu: xác định **LLM có thực sự trích xuất thông tin từ nội dung mới, thông tin ấy có được lưu đúng và có dùng được ở lượt viết tiếp hay không**. Tăng brain_version, số entities hoặc job COMPLETED không đủ để PASS.
+Theo WORKFLOW_CONTRACT.md revision1.4; lịch audit của task vẫn giữ nguyên. Áp dụng cho mọi run mới; fixture văn học PT-CV-001 v1.0.0 không đổi. Mục tiêu: xác định **LLM có thực sự trích xuất thông tin từ nội dung mới, thông tin ấy có được lưu đúng và có dùng được ở lượt viết tiếp hay không**. P3 functional probe không thay được **P3_HITL_CONTROLLER_100K long-run final gate**, có M0/M-FIRST/10/20/50 (nếu đến mốc)/FINAL và metric/intervention riêng; xem [P3 evaluation protocol](P3_100K_EVALUATION_PROTOCOL.md). Tăng brain_version, số entities hoặc job COMPLETED không đủ để PASS.
 
 ## Lịch bắt buộc
 
