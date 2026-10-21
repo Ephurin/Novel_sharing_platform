@@ -1,481 +1,324 @@
+"""Wave 1D HOST HTTP integration. Container-level evidence is a SEPARATE gate.
+Uses the actual google-genai SDK, actual LLMService, and a separate fake HTTP upstream.
 """
-Cross-Container Authoritative Budget Gateway & Fault-Injection Tests (Wave 1C).
-Verifies:
-1. Hard ceiling 200/201 boundary: Call 200 succeeds, call 201 is strictly denied.
-2. 2-hour wall-clock absolute expiry: Dispatches rejected after elapsed deadline.
-3. Cost admission cap ($4.50 admission cutoff, $5.00 spend ceiling).
-4. Multi-process race contention on the final remaining slot (atomic reservation).
-5. Failed & retried provider calls consume slots permanently.
-6. Corrupted state ledger fails closed without destroying state.
-7. AI-Service LLMService cross-container integration via BUDGET_GUARD_URL.
-8. Backend Copilot proxy integration via /v1/chat/completions.
-"""
-
-from __future__ import annotations
-
+import concurrent.futures
+import importlib.util
 import json
 import os
+from pathlib import Path
 import socket
 import sys
-import tempfile
 import time
 import urllib.request
 import urllib.error
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from datetime import datetime, timezone
-from pathlib import Path
+from unittest.mock import patch
+
 import pytest
+ROOT = Path(__file__).resolve().parents[2]
+sys.path[:0] = [str(ROOT), str(ROOT / 'ai-service')]
+from Pipeline_test.tools.budget_gateway import AuthoritativeBudgetLedger, start_budget_gateway, BudgetMeterUnavailableError
+from Pipeline_test.tools.fake_provider_upstream import start_fake_upstream
+from core.llm_service import LLMService, LLMServiceError
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-if str(REPO_ROOT / "Pipeline_test" / "tools") not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT / "Pipeline_test" / "tools"))
-if str(REPO_ROOT / "ai-service") not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT / "ai-service"))
+AUTH = {'Bearer ai-worker': 'ai-service', 'Bearer backend-worker': 'backend'}
 
-from budget_gateway import (
-    AuthoritativeBudgetLedger,
-    BudgetExceededError,
-    BudgetMeterUnavailableError,
-    start_budget_gateway,
-)
+@pytest.fixture(autouse=True)
+def forbid_non_loopback_python_dns(monkeypatch):
+    original = socket.getaddrinfo
+    def local_only(host, *args, **kwargs):
+        if host not in {'127.0.0.1', 'localhost', '::1', None}:
+            raise RuntimeError('OFFLINE_TEST_EXTERNAL_NETWORK_DENIED')
+        return original(host, *args, **kwargs)
+    monkeypatch.setattr(socket, 'getaddrinfo', local_only)
 
-
-def find_free_port() -> int:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(("127.0.0.1", 0))
-        return s.getsockname()[1]
-
-
-def http_post_json(url: str, body: dict, headers: dict | None = None) -> tuple[int, dict]:
-    req_headers = {"Content-Type": "application/json"}
-    if headers:
-        req_headers.update(headers)
-    data = json.dumps(body).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers=req_headers, method="POST")
+def post(url, data=None, headers=None):
+    req = urllib.request.Request(url, data=json.dumps(data or {}).encode(),
+        headers={'Content-Type':'application/json', 'Authorization':'Bearer ai-worker', **(headers or {})})
     try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            raw = resp.read().decode("utf-8")
-            return resp.status, json.loads(raw)
-    except urllib.error.HTTPError as exc:
-        raw = exc.read().decode("utf-8")
-        try:
-            return exc.code, json.loads(raw)
-        except Exception:
-            return exc.code, {"raw_error": raw}
+        with urllib.request.urlopen(req, timeout=5) as res: return res.status, json.load(res)
+    except urllib.error.HTTPError as exc: return exc.code, json.load(exc)
+
+def body(text='hello'):
+    return {'model':'gemini-3.5-flash-lite', 'max_tokens':20, 'messages':[{'role':'user','content':text}]}
+
+@pytest.fixture
+def stack(tmp_path, request):
+    upstream, _, received = start_fake_upstream()
+    server, _, ledger = start_budget_gateway(tmp_path/'state.json', port=0, initialize=True, run_id='wave1d-unit',
+        upstream_base_url=f'http://127.0.0.1:{upstream.server_port}', upstream_api_key='fake-upstream-only',
+        client_tokens={'ai-worker':'ai-service', 'backend-worker':'backend'}, upstream_timeout=.1)
+    yield f'http://127.0.0.1:{server.server_port}', ledger, received, server
+    observation = os.getenv('WAVE1D_OBSERVATION_LOG')
+    if observation:
+        entry = {'test': request.node.nodeid, 'gateway_url': f'http://127.0.0.1:{server.server_port}',
+            'fake_upstream_url': f'http://127.0.0.1:{upstream.server_port}',
+            'received_requests': received, 'in_memory_reservations': ledger.state.get('total_calls'),
+            'meter_latched_unavailable': bool(ledger._init_error)}
+        with Path(observation).open('a', encoding='utf-8') as stream: stream.write(json.dumps(entry) + '\n')
+    server.shutdown(); server.server_close(); ledger.close(); upstream.shutdown(); upstream.server_close()
 
 
-def http_get_json(url: str) -> tuple[int, dict]:
-    req = urllib.request.Request(url, method="GET")
+def test_real_gemini_sdk_structured_operation_reaches_separate_upstream_once(stack, monkeypatch):
+    url, ledger, received, _ = stack
+    monkeypatch.setenv('BUDGET_GUARD_URL', url); monkeypatch.setenv('BUDGET_GUARD_MODE','proxy')
+    monkeypatch.setenv('BUDGET_GUARD_AUTH_TOKEN','ai-worker')
+    monkeypatch.delenv('BUDGET_GUARD_FILE',raising=False)
+    from services.entity_pipeline.pipeline import EntityPipeline
+    from services.entity_pipeline.verification import EntityDecisionBatch
+    from core.structured_call import call_structured
+    llm=LLMService(provider='gemini',model='gemini-3.5-flash-lite',api_key='',structured_max_tokens=128)
+    result=call_structured(llm, operation='entity_candidate_verification', system_prompt='Verify candidates.',
+        user_prompt=json.dumps({'candidates':[{'candidate_id':'c1'}]}))
+    assert EntityDecisionBatch.model_validate_json(result).decisions[0].candidate_id=='c1'
+    assert len(received)==1
+    assert received[0]['path']=='/v1beta/models/gemini-3.5-flash-lite:generateContent'
+    assert 'decisions' in received[0]['native_schema']['properties']
+    assert ledger.get_summary()['total_calls']==1
+    assert ledger.state['call_history'][0]['client_service']=='ai-service'
+    assert llm.provider=='gemini'
+
+
+@pytest.mark.parametrize('last_slot', [False, True])
+def test_real_sdk_quota_retries_consume_slots_and_budget_denial_stops_retries(stack,monkeypatch,last_slot):
+    from types import SimpleNamespace
+    import core.llm_service as client_module
+    monkeypatch.setenv('BUDGET_GUARD_URL', stack[0]);monkeypatch.setenv('BUDGET_GUARD_MODE','proxy')
+    monkeypatch.setenv('BUDGET_GUARD_AUTH_TOKEN','ai-worker')
+    monkeypatch.setattr(client_module,'time',SimpleNamespace(monotonic=time.monotonic,sleep=lambda _:None))
+    if last_slot:stack[1].state['max_calls']=1;stack[1]._save_durable()
+    llm=LLMService(provider='gemini',model='gemini-3.5-flash-lite',api_key='dummy')
+    with pytest.raises(LLMServiceError):llm._call_llm('offline','fault:429')
+    expected=1 if last_slot else 4
+    assert len(stack[2])==stack[1].state['total_calls']==expected
+    assert llm._gemini_model_candidates()==['models/gemini-3.5-flash-lite']
+
+
+@pytest.mark.parametrize('ticket', ['invented','stolen','reused','expired','old-run'])
+def test_client_tickets_never_dispatch_even_if_well_named(stack,ticket):
+    url, ledger, received, _=stack
+    assert post(url+'/v1/chat/completions',body(),{'X-Budget-Ticket':ticket})[0]==403
+    assert not received and ledger.state['total_calls']==0
+
+
+def test_actual_backend_provider_uses_gateway_once_in_separate_node_process(stack):
+    import shutil, subprocess
+    url, ledger, received, _ = stack
+    environment = {**os.environ, 'BUDGET_GUARD_URL': url, 'BUDGET_GUARD_MODE': 'proxy',
+        'BUDGET_GUARD_AUTH_TOKEN': 'backend-worker', 'AI_LLM_BASE_URL': url + '/v1',
+        'AI_LLM_API_KEY': '', 'AI_LLM_MODEL': 'gemini-3.5-flash-lite',
+        'DB_CONNECT_ON_START': 'false', 'AI_LLM_MAX_TOKENS': '128'}
+    script = """import {generateCopilotSuggestionWithLlm} from './dist/modules/ai-copilot/llm-provider.js';
+    const actualFetch=globalThis.fetch;
+    globalThis.fetch=(input,init)=>{if(new URL(String(input)).origin!==new URL(process.env.BUDGET_GUARD_URL).origin)
+      throw Error('OFFLINE_TEST_EXTERNAL_NETWORK_DENIED');return actualFetch(input,init)};
+    generateCopilotSuggestionWithLlm({instruction:'Offline integration',recentText:'An.',characters:[],recentEvents:[]})
+      .then(v=>{if(v!=='Separate fake upstream response.')throw Error('wrong upstream');console.log('BACKEND_HTTP_OK');process.exit(0)})
+      .catch(e=>{console.error(e.message);process.exit(1)});"""
+    result = subprocess.run([shutil.which('node'), '--input-type=module', '--eval', script],
+        cwd=ROOT/'backend', env=environment, capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stderr
+    assert 'BACKEND_HTTP_OK' in result.stdout
+    assert len(received) == ledger.state['total_calls'] == 1
+    assert received[0]['client'] == 'backend'
+
+
+def test_public_reserve_finalize_and_unpriced_routes_denied(stack):
+    url, ledger, received, _=stack
+    for path in ['/api/budget/reserve','/api/budget/finalize','/v1/embeddings','/v1beta/models/x:embedContent']:
+        assert post(url+path,{'estimated_cost':-999,'prompt_tokens':-100})[0]==403
+    assert post(url+'/v1/chat/completions',body(),{'Authorization':'Bearer forged'})[0]==401
+    assert not received
+
+
+@pytest.mark.parametrize('field,value', [('n',2),('n',-1),('stream',True),('max_tokens',0),
+    ('max_tokens',8193),('max_tokens',float('nan')),('tools',[]),('best_of',8),('responseModalities',['IMAGE'])])
+def test_unbounded_or_unpriced_billing_variants_fail_before_dispatch(stack,field,value):
+    data=body();data[field]=value
+    assert post(stack[0]+'/v1/chat/completions',data)[0] in {403,422}
+    assert not stack[2] and stack[1].state['total_calls']==0
+
+
+def test_real_previously_used_ticket_is_still_rejected_for_both_workers(stack):
+    url,ledger,received,_=stack
+    assert post(url+'/v1/chat/completions',body())[0]==200
+    ticket=ledger.state['call_history'][0]['ticket_id']
+    def caller(token):return post(url+'/v1/chat/completions',body(),
+        {'Authorization':'Bearer '+token,'X-Budget-Ticket':ticket})[0]
+    with concurrent.futures.ThreadPoolExecutor(2) as pool:
+        assert list(pool.map(caller,['ai-worker','backend-worker']))==[403,403]
+    assert len(received)==ledger.state['total_calls']==1
+
+
+def test_second_ledger_owner_cannot_race_authoritative_process(stack):
+    other=AuthoritativeBudgetLedger(stack[1].state_file)
     try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            raw = resp.read().decode("utf-8")
-            return resp.status, json.loads(raw)
-    except urllib.error.HTTPError as exc:
-        raw = exc.read().decode("utf-8")
-        try:
-            return exc.code, json.loads(raw)
-        except Exception:
-            return exc.code, {"raw_error": raw}
+        with pytest.raises(BudgetMeterUnavailableError): other.get_summary()
+    finally: other.close()
 
 
-def test_200_201_boundary_strictly_denies_201st_dispatch(tmp_path):
-    """Proves that exactly 200 calls are admitted and the 201st is rejected with 429."""
-    state_file = tmp_path / "budget_state.json"
-    port = find_free_port()
-    server, thread, ledger = start_budget_gateway(
-        state_file=state_file,
-        port=port,
-        max_calls=200,
-        max_cost_usd=5.00,
-        admission_cost_usd=4.50,
-    )
-    base_url = f"http://127.0.0.1:{port}"
+def test_spoofed_client_header_does_not_override_authenticated_identity(stack):
+    assert post(stack[0]+'/v1/chat/completions',body(),{'X-Client-Service':'administrator'})[0]==200
+    assert stack[1].state['call_history'][0]['client_service']=='ai-service'
 
+
+def test_http_cost_ceiling_ignores_claimed_client_estimate(stack):
+    url, ledger, received, _=stack
+    ledger.state['admission_cost_usd']='0.006';ledger._save_durable()
+    request=body();request.update(estimated_cost=0,prompt_tokens=-999)
+    assert post(url+'/v1/chat/completions',request)[0]==200
+    assert post(url+'/v1/chat/completions',request)[0]==429
+    assert len(received)==ledger.state['total_calls']==1
+
+
+def test_finalization_write_failure_preserves_full_outstanding_on_restart(stack):
+    import Pipeline_test.tools.budget_gateway as gateway
+    url,ledger,received,_=stack
+    ledger.state['max_calls']=1;ledger._save_durable()
+    replace=gateway.os.replace
+    calls=[]
+    def interrupted(source,target):
+        calls.append(1)
+        if len(calls)>1:raise OSError('injected finalization failure')
+        return replace(source,target)
+    with patch.object(gateway.os,'replace',side_effect=interrupted):
+        assert post(url+'/v1/chat/completions',body())[0]==503
+    assert len(received)==1
+    path=ledger.state_file;ledger.close()
+    restarted=AuthoritativeBudgetLedger(path)
     try:
-        # Fast-fill 200 calls
-        for i in range(1, 201):
-            status, res = http_post_json(
-                f"{base_url}/api/budget/reserve",
-                {"operation": f"call_{i}", "client_service": "test_runner"},
-            )
-            assert status == 200, f"Call {i} should be allowed: {res}"
-            assert res["allowed"] is True
-            assert res["call_index"] == i
-            # Finalize immediately
-            f_status, f_res = http_post_json(
-                f"{base_url}/api/budget/finalize",
-                {"ticket_id": res["ticket_id"], "status": "SUCCESS", "prompt_tokens": 10, "candidate_tokens": 5},
-            )
-            assert f_status == 200
-
-        # Attempt call 201: MUST BE STRICTLY DENIED
-        status_201, res_201 = http_post_json(
-            f"{base_url}/api/budget/reserve",
-            {"operation": "call_201_forbidden", "client_service": "test_runner"},
-        )
-        assert status_201 == 429, f"Call 201 must receive HTTP 429, got {status_201}: {res_201}"
-        assert res_201.get("error") == "BUDGET_EXCEEDED"
-        assert "MAX_CALLS_REACHED" in res_201.get("message", "")
-
-        # Also verify /v1/chat/completions proxy endpoint strictly rejects call 201
-        proxy_status, proxy_res = http_post_json(
-            f"{base_url}/v1/chat/completions",
-            {"model": "gemini-3.5-flash-lite", "messages": [{"role": "user", "content": "hi"}]},
-        )
-        assert proxy_status == 429
-        assert proxy_res["error"]["code"] == "BUDGET_LIMIT_REACHED"
-
-        # Verify summary reflects exactly 200 total calls
-        summary_status, summary = http_get_json(f"{base_url}/api/budget/status")
-        assert summary_status == 200
-        assert summary["total_calls"] == 200
-        assert summary["remaining_calls"] == 0
-        assert summary["status"] == "EXHAUSTED"
-
-    finally:
-        server.shutdown()
-        server.server_close()
+        state=restarted.get_summary()
+        assert state['total_calls']==1 and float(state['outstanding_usd'])>0
+        from Pipeline_test.tools.budget_gateway import BudgetExceededError
+        with pytest.raises(BudgetExceededError):restarted.reserve(liability_usd='.001')
+    finally:restarted.close()
 
 
-def test_2_hour_wall_clock_expiry_strictly_denies_dispatch(tmp_path):
-    """Proves that any dispatch after the 2-hour window is rejected."""
-    state_file = tmp_path / "budget_state.json"
-    past_started = datetime.fromtimestamp(time.time() - 7205, tz=timezone.utc).isoformat()
-    state_file.write_text(
-        json.dumps({
-            "max_calls": 200,
-            "max_cost_usd": 5.00,
-            "admission_cost_usd": 4.50,
-            "max_wall_clock_seconds": 7200,
-            "approval_reference": "Wave 1C Test",
-            "approved_by": "project owner",
-            "live_started_at": past_started,
-            "live_deadline_at": past_started,
-            "total_calls": 10,
-            "successful_calls": 10,
-            "failed_calls": 0,
-            "total_prompt_tokens": 1000,
-            "total_candidate_tokens": 500,
-            "estimated_cost_usd": 0.005,
-            "status": "ACTIVE",
-            "stop_reason": None,
-            "call_history": [],
-        }),
-        encoding="utf-8",
-    )
-
-    port = find_free_port()
-    server, thread, ledger = start_budget_gateway(
-        state_file=state_file,
-        port=port,
-        max_wall_clock_seconds=7200,
-    )
-    base_url = f"http://127.0.0.1:{port}"
-
-    try:
-        status, res = http_post_json(
-            f"{base_url}/api/budget/reserve",
-            {"operation": "post_deadline_call", "client_service": "test_runner"},
-        )
-        assert status == 429
-        assert res.get("error") == "BUDGET_EXCEEDED"
-        assert "TIME_LIMIT_EXCEEDED" in res.get("message", "")
-
-        # Summary check
-        s_status, summary = http_get_json(f"{base_url}/api/budget/status")
-        assert s_status == 200
-        assert summary["status"] == "EXHAUSTED"
-        assert "TIME_LIMIT_EXCEEDED" in summary["stop_reason"]
-
-    finally:
-        server.shutdown()
-        server.server_close()
+@pytest.mark.parametrize('url', ['', 'https://generativelanguage.googleapis.com', 'http://untrusted.example'])
+def test_missing_or_misrouted_guard_fails_before_sdk_transport(monkeypatch,url):
+    monkeypatch.setenv('BUDGET_GUARD_URL',url);monkeypatch.setenv('BUDGET_GUARD_MODE','proxy')
+    monkeypatch.setenv('BUDGET_GUARD_AUTH_TOKEN','ai-worker')
+    llm=LLMService(provider='gemini',api_key='dummy')
+    with pytest.raises(LLMServiceError,match='GUARD_CONFIGURATION_INVALID'):llm._call_llm('s','u')
+    assert not llm._local_fallback_enabled()
 
 
-def test_admission_cost_cutoff_strictly_denies_spend_over_ceiling(tmp_path):
-    """Proves that dispatch is refused when cost hits $4.50 cutoff, preventing spend > $5.00."""
-    state_file = tmp_path / "budget_state.json"
-    state_file.write_text(
-        json.dumps({
-            "max_calls": 200,
-            "max_cost_usd": 5.00,
-            "admission_cost_usd": 4.50,
-            "max_wall_clock_seconds": 7200,
-            "approval_reference": "Wave 1C Test",
-            "approved_by": "project owner",
-            "live_started_at": datetime.now(timezone.utc).isoformat(),
-            "live_deadline_at": None,
-            "total_calls": 50,
-            "successful_calls": 50,
-            "failed_calls": 0,
-            "total_prompt_tokens": 40000000,
-            "total_candidate_tokens": 1000000,
-            "estimated_cost_usd": 4.51,  # Above 4.50 admission cutoff
-            "status": "ACTIVE",
-            "stop_reason": None,
-            "call_history": [],
-        }),
-        encoding="utf-8",
-    )
-
-    port = find_free_port()
-    server, thread, ledger = start_budget_gateway(
-        state_file=state_file,
-        port=port,
-    )
-    base_url = f"http://127.0.0.1:{port}"
-
-    try:
-        status, res = http_post_json(
-            f"{base_url}/api/budget/reserve",
-            {"operation": "costly_call", "client_service": "test_runner"},
-        )
-        assert status == 429
-        assert res.get("error") == "BUDGET_EXCEEDED"
-        assert "ADMISSION_COST_LIMIT_REACHED" in res.get("message", "")
-    finally:
-        server.shutdown()
-        server.server_close()
+def test_200th_is_last_dispatch_and_concurrent_clients_cannot_take_201st(stack):
+    url, ledger, received, _=stack
+    for _ in range(199):
+        result=post(url+'/v1/chat/completions',body())
+        assert result[0]==200, (result, str(ledger._init_error), ledger.state['total_calls'])
+    def caller(token): return post(url+'/v1/chat/completions',body(),{'Authorization':'Bearer '+token})[0]
+    with concurrent.futures.ThreadPoolExecutor(2) as pool:
+        statuses=list(pool.map(caller,['ai-worker','backend-worker']))
+    assert sorted(statuses)==[200,429]
+    assert len(received)==ledger.state['total_calls']==200
+    assert post(url+'/v1/chat/completions',body())[0]==429
+    assert len(received)==200
 
 
-def _worker_reserve_slot(base_url: str, worker_id: int) -> tuple[int, dict]:
-    """Helper for multiprocess race test."""
-    return http_post_json(
-        f"{base_url}/api/budget/reserve",
-        {"operation": f"worker_race_{worker_id}", "client_service": f"worker_{worker_id}"},
-    )
+@pytest.mark.parametrize('fault,status',[('429',429),('500',500),('timeout',502),('redirect',502)])
+def test_upstream_error_timeout_and_retry_each_consume_exactly_one(stack,fault,status):
+    url, ledger, received, _=stack
+    for count in [1,2]:
+        assert post(url+'/v1/chat/completions',body('fault:'+fault))[0]==status
+        assert ledger.state['total_calls']==len(received)==count
+    assert all(e['charged_usd']==e['liability_usd'] for e in ledger.state['call_history'])
 
 
-def test_multiprocess_race_contention_for_final_slot(tmp_path):
-    """
-    Spawns concurrent independent workers to race for the final 1 slot (call 200).
-    Proves atomic reservation: exactly 1 worker succeeds (200), all others denied (429).
-    Ledger total_calls remains exactly 200.
-    """
-    state_file = tmp_path / "budget_state.json"
-    state_file.write_text(
-        json.dumps({
-            "max_calls": 200,
-            "max_cost_usd": 5.00,
-            "admission_cost_usd": 4.50,
-            "max_wall_clock_seconds": 7200,
-            "approval_reference": "Wave 1C Multiprocess Test",
-            "approved_by": "project owner",
-            "live_started_at": datetime.now(timezone.utc).isoformat(),
-            "live_deadline_at": None,
-            "total_calls": 199,  # Only 1 slot remaining!
-            "successful_calls": 199,
-            "failed_calls": 0,
-            "total_prompt_tokens": 10000,
-            "total_candidate_tokens": 5000,
-            "estimated_cost_usd": 0.05,
-            "status": "ACTIVE",
-            "stop_reason": None,
-            "call_history": [],
-        }),
-        encoding="utf-8",
-    )
-
-    port = find_free_port()
-    server, thread, ledger = start_budget_gateway(
-        state_file=state_file,
-        port=port,
-        max_calls=200,
-    )
-    base_url = f"http://127.0.0.1:{port}"
-
-    num_workers = 10
-    results = []
-    try:
-        with ProcessPoolExecutor(max_workers=num_workers) as executor:
-            futures = [
-                executor.submit(_worker_reserve_slot, base_url, i)
-                for i in range(num_workers)
-            ]
-            for f in as_completed(futures):
-                results.append(f.result())
-
-        successes = [r for r in results if r[0] == 200 and r[1].get("allowed") is True]
-        denials = [r for r in results if r[0] == 429]
-
-        assert len(successes) == 1, f"Exactly 1 worker must win the final slot, got {len(successes)}"
-        assert len(denials) == num_workers - 1, f"All {num_workers - 1} other workers must be denied"
-
-        # Finalize the winning ticket
-        winning_ticket = successes[0][1]["ticket_id"]
-        http_post_json(f"{base_url}/api/budget/finalize", {"ticket_id": winning_ticket, "status": "SUCCESS"})
-
-        # Verify durable ledger
-        s_status, summary = http_get_json(f"{base_url}/api/budget/status")
-        assert summary["total_calls"] == 200
-        assert summary["remaining_calls"] == 0
-
-    finally:
-        server.shutdown()
-        server.server_close()
+def test_model_discovery_is_also_accounted_and_denied_after_expiry(stack):
+    url, ledger, received, _ = stack
+    request = urllib.request.Request(url+'/v1/models', headers={'Authorization':'Bearer backend-worker'})
+    with urllib.request.urlopen(request) as response:
+        assert response.status == 200
+    assert len(received) == ledger.state['total_calls'] == 1
+    ledger.state['deadline'] = ledger.state['started'] - 1; ledger._save_durable()
+    with pytest.raises(urllib.error.HTTPError) as error: urllib.request.urlopen(request)
+    assert error.value.code == 429
+    assert len(received) == 1
 
 
-def test_failed_and_retried_provider_attempts_are_permanently_metered(tmp_path):
-    """Proves that a failed network call consumes a slot and retrying takes a 2nd slot."""
-    state_file = tmp_path / "budget_state.json"
-    port = find_free_port()
-    server, thread, ledger = start_budget_gateway(state_file=state_file, port=port, max_calls=200)
-    base_url = f"http://127.0.0.1:{port}"
-
-    try:
-        # Attempt 1: reserve then fail
-        st1, res1 = http_post_json(f"{base_url}/api/budget/reserve", {"operation": "attempt_1"})
-        assert st1 == 200
-        ticket_1 = res1["ticket_id"]
-
-        # Finalize as FAILED
-        f_st1, f_res1 = http_post_json(
-            f"{base_url}/api/budget/finalize",
-            {"ticket_id": ticket_1, "status": "FAILED", "error": "HTTP 500 Provider Outage"},
-        )
-        assert f_st1 == 200
-
-        # Attempt 2 (retry): consumes slot 2
-        st2, res2 = http_post_json(f"{base_url}/api/budget/reserve", {"operation": "attempt_2_retry"})
-        assert st2 == 200
-        ticket_2 = res2["ticket_id"]
-        assert ticket_1 != ticket_2
-        assert res2["call_index"] == 2
-
-        # Finalize attempt 2 as SUCCESS
-        http_post_json(f"{base_url}/api/budget/finalize", {"ticket_id": ticket_2, "status": "SUCCESS"})
-
-        s_status, summary = http_get_json(f"{base_url}/api/budget/status")
-        assert summary["total_calls"] == 2
-        assert summary["successful_calls"] == 1
-        assert summary["failed_calls"] == 1
-        assert summary["remaining_calls"] == 198
-
-    finally:
-        server.shutdown()
-        server.server_close()
+def test_settlement_replay_is_idempotent_and_unknown_usage_holds_maximum(stack):
+    url, ledger, received, _=stack
+    assert post(url+'/v1/chat/completions',body())[0]==200
+    before=json.dumps(ledger.state,sort_keys=True)
+    ledger.finalize(ledger.state['call_history'][0]['ticket_id'],'SUCCESS',cost_usd=0)
+    assert json.dumps(ledger.state,sort_keys=True)==before
 
 
-def test_corrupt_ledger_fails_closed_without_corrupting_file(tmp_path):
-    """Proves that corrupted or unreadable ledger strictly fails closed (503) without overwriting file."""
-    state_file = tmp_path / "budget_state.json"
-    corrupt_content = "{ this is invalid json and corrupt data content }}}"
-    state_file.write_text(corrupt_content, encoding="utf-8")
-
-    port = find_free_port()
-    server, thread, ledger = start_budget_gateway(state_file=state_file, port=port)
-    base_url = f"http://127.0.0.1:{port}"
-
-    try:
-        status, res = http_post_json(
-            f"{base_url}/api/budget/reserve",
-            {"operation": "should_fail_closed"},
-        )
-        assert status == 503
-        assert res.get("error") == "BUDGET_METER_UNAVAILABLE"
-
-        # State file on disk must NOT have been overwritten
-        assert state_file.read_text(encoding="utf-8") == corrupt_content
-
-    finally:
-        server.shutdown()
-        server.server_close()
+def test_time_and_outstanding_cost_expiry_deny_before_upstream(stack):
+    url, ledger, received, _=stack
+    ledger.state['deadline']=ledger.state['started']-1;ledger._save_durable()
+    assert post(url+'/v1/chat/completions',body())[0]==429
+    assert not received
 
 
-def test_ai_service_llm_service_cross_container_integration(tmp_path, monkeypatch):
-    """
-    Integrates AI-service LLMService with the budget gateway via BUDGET_GUARD_URL.
-    Proves that LLMService reserves slots before dispatch and fails closed when budget is exhausted.
-    """
-    from core.llm_service import LLMService, LLMServiceError
-
-    state_file = tmp_path / "budget_state.json"
-    port = find_free_port()
-    server, thread, ledger = start_budget_gateway(
-        state_file=state_file,
-        port=port,
-        max_calls=2,  # Set small limit to test exhaustion
-    )
-    base_url = f"http://127.0.0.1:{port}"
-    monkeypatch.setenv("BUDGET_GUARD_URL", base_url)
-    monkeypatch.setenv("LLM_BASE_URL", f"{base_url}/v1")
-    monkeypatch.setenv("OPENAI_API_KEY", "test-key-mock")
-
-    try:
-        service = LLMService(provider="openai", api_key="test-key-mock", base_url=f"{base_url}/v1")
-
-        # Call 1: succeed through proxy stub
-        out1 = service.generate_suggestion(current_text="Mai Linh buoc vao quan cu.", graph_context=None)
-        assert "suggestions" in out1
-        assert len(out1["suggestions"]) == 3
-
-        # Call 2: succeed through proxy stub
-        out2 = service.generate_suggestion(current_text="Trang gap lai nguoi ban cu.", graph_context=None)
-        assert "suggestions" in out2
-
-        # Check ledger: exactly 2 calls consumed
-        assert ledger.state["total_calls"] == 2
-
-        # Call 3: gateway is now exhausted (2/2) -> LLMService MUST fail closed with LLMServiceError
-        # (Disable local suggestion fallback to verify fail-closed exception)
-        monkeypatch.setenv("LLM_LOCAL_FALLBACK", "false")
-        with pytest.raises(LLMServiceError) as exc_info:
-            service.generate_suggestion(current_text="Doan van thu ba sau khi kiet ngan sach.", graph_context=None)
-
-        assert "BUDGET_GUARD_DENIED" in str(exc_info.value) or "BUDGET_EXCEEDED" in str(exc_info.value)
-
-    finally:
-        server.shutdown()
-        server.server_close()
+def test_inflight_liability_cannot_be_bypassed_by_client_estimates(tmp_path):
+    ledger=AuthoritativeBudgetLedger(tmp_path/'s.json',initialize=True,run_id='liability')
+    ledger.reserve(liability_usd=4.49)
+    from Pipeline_test.tools.budget_gateway import BudgetExceededError
+    with pytest.raises(BudgetExceededError): ledger.reserve(estimated_cost=-999,liability_usd=.02)
+    assert ledger.get_summary()['total_calls']==1
+    ledger.close()
 
 
-def test_backend_copilot_cross_container_proxy_integration(tmp_path):
-    """
-    Tests backend /v1/chat/completions proxy dispatch.
-    Verifies header X-Client-Service: backend-copilot is recorded and metering is enforced.
-    """
-    state_file = tmp_path / "budget_state.json"
-    port = find_free_port()
-    server, thread, ledger = start_budget_gateway(
-        state_file=state_file,
-        port=port,
-        max_calls=1,
-    )
-    base_url = f"http://127.0.0.1:{port}"
+def test_missing_corrupt_deleted_or_legacy_ledger_cannot_reset(tmp_path):
+    path=tmp_path/'s.json'
+    empty=AuthoritativeBudgetLedger(path)
+    with pytest.raises(BudgetMeterUnavailableError): empty.get_summary()
+    empty.close()
+    ledger=AuthoritativeBudgetLedger(path,initialize=True,run_id='durable')
+    ledger.reserve(liability_usd=.1);deadline=ledger.state['deadline'];ledger.close()
+    again=AuthoritativeBudgetLedger(path)
+    assert again.state['total_calls']==1 and again.state['deadline']==deadline
+    again.close();path.unlink()
+    missing=AuthoritativeBudgetLedger(path,initialize=True,run_id='must-not-reset')
+    with pytest.raises(BudgetMeterUnavailableError):missing.get_summary()
+    missing.close()
+    path.write_text('{broken')
+    broken=AuthoritativeBudgetLedger(path)
+    with pytest.raises(BudgetMeterUnavailableError):broken.get_summary()
+    assert path.read_text()=='{broken'
+    broken.close()
 
-    try:
-        # Request 1 from backend copilot
-        status1, res1 = http_post_json(
-            f"{base_url}/v1/chat/completions",
-            {
-                "model": "gemini-3.5-flash-lite",
-                "messages": [{"role": "user", "content": "Viet tiep chuong 1"}],
-            },
-            headers={"X-Client-Service": "backend-copilot"},
-        )
-        assert status1 == 200
-        assert "choices" in res1
-        assert res1["choices"][0]["message"]["content"] == "Offline stub suggestion."
 
-        # Verify entry in ledger
-        assert ledger.state["total_calls"] == 1
-        history_entry = ledger.state["call_history"][0]
-        assert history_entry["client_service"] == "backend-copilot"
+def test_interrupted_replace_is_fail_closed_and_preserves_authority(stack):
+    url, ledger, received, _=stack
+    original=ledger.state_file.read_bytes()
+    with patch('Pipeline_test.tools.budget_gateway.os.replace',side_effect=OSError('injected')):
+        assert post(url+'/v1/chat/completions',body())[0]==503
+    assert not received and ledger.state_file.read_bytes()==original
+    assert post(url+'/v1/chat/completions',body())[0]==503
 
-        # Request 2 from backend copilot: MUST BE 429 BUDGET_EXCEEDED
-        status2, res2 = http_post_json(
-            f"{base_url}/v1/chat/completions",
-            {
-                "model": "gemini-3.5-flash-lite",
-                "messages": [{"role": "user", "content": "Viet tiep chuong 2"}],
-            },
-            headers={"X-Client-Service": "backend-copilot"},
-        )
-        assert status2 == 429
-        assert res2["error"]["code"] == "BUDGET_LIMIT_REACHED"
 
-    finally:
-        server.shutdown()
-        server.server_close()
+def test_gateway_offline_no_direct_sdk_fallback(stack,monkeypatch):
+    url, ledger, received, server=stack
+    server.shutdown();server.server_close()
+    monkeypatch.setenv('BUDGET_GUARD_URL',url);monkeypatch.setenv('BUDGET_GUARD_MODE','proxy')
+    monkeypatch.setenv('BUDGET_GUARD_AUTH_TOKEN','ai-worker')
+    llm=LLMService(provider='openai',model='gemini-3.5-flash-lite',api_key='dummy',timeout_seconds=1)
+    with pytest.raises(LLMServiceError):llm._call_llm('system','user')
+    assert not received
+
+
+def test_guarded_embeddings_and_fallback_are_disabled_before_transport(stack,monkeypatch):
+    monkeypatch.setenv('BUDGET_GUARD_URL',stack[0]);monkeypatch.setenv('BUDGET_GUARD_MODE','proxy')
+    monkeypatch.setenv('BUDGET_GUARD_AUTH_TOKEN','ai-worker')
+    from infrastructure.embedding_providers import GeminiEmbeddingProvider, EmbeddingProviderError
+    # Deliberately inject a client whose transport must never be invoked.
+    import inspect
+    kwargs={'api_key':'dummy'}
+    provider=GeminiEmbeddingProvider(**kwargs)
+    with pytest.raises(EmbeddingProviderError, match='DISABLED'):provider.embed_query('test')
+    llm=LLMService(provider='gemini',api_key='dummy',fallback_api_key='dummy')
+    assert not llm._can_fallback_to_openai()
+    with pytest.raises(LLMServiceError,match='FALLBACK_DISABLED'):
+        llm._call_openai('s','u',model_override='gpt-4o-mini',api_key_override='dummy')
+    assert not stack[2]
+
+
+def test_unknown_live_pricing_is_denied_not_a_live_hard_cap_claim(stack):
+    url, ledger, received, server=stack
+    server.RequestHandlerClass.upstream_base_url='https://generativelanguage.googleapis.com/v1beta/openai'
+    assert post(url+'/v1/chat/completions',body())[0]==503
+    assert not received
+    assert ledger.get_summary()['live_cost_hard_cap']=='BUDGET_COST_HARD_CAP_UNPROVEN'

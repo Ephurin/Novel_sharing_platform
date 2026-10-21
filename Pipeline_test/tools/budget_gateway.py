@@ -1,591 +1,344 @@
-"""
-Authoritative Cross-Container Budget Gateway & Egress Interceptor (Wave 1C).
-Enforces owner-approved ceilings across all containers and processes:
-- Hard ceiling: Max 200 provider call attempts (rejects call 201)
-- Hard ceiling: Max USD 5.00 spend (admission cutoff at USD 4.50)
-- Hard ceiling: Max 2 hours elapsed live wall-clock time from first attempt
-- Atomic pre-dispatch reservation: Consumes attempt BEFORE network request
-- Strict fail-closed: Corrupted state or unavailable meter DENIES dispatch
-- Dual-mode: Standalone HTTP proxy gateway & Python ledger library
-"""
+"""Wave 1D: one authoritative dispatcher, offline-only until live pricing is verified.
 
+No canned provider responses, public reservations, client tickets or ledger resets.
+The process owns an OS file lock; workers use HTTP, never write the ledger.
+"""
 from __future__ import annotations
-
+import copy
+import hashlib
 import json
+import math
 import os
-import sys
+from pathlib import Path
 import threading
 import time
 import uuid
-import urllib.request
 import urllib.error
-from datetime import datetime, timezone
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from socketserver import ThreadingMixIn
-from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+import urllib.request
+from urllib.parse import urlparse
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from decimal import Decimal
 
-# Pricing rates per 1,000,000 tokens (Google AI Studio Gemini 3.5 Flash-Lite reference)
-INPUT_COST_PER_M = 0.10
-OUTPUT_COST_PER_M = 0.40
+class BudgetExceededError(RuntimeError): pass
+class BudgetMeterUnavailableError(RuntimeError): pass
 
-# Conservative fallback when usage tokens are missing or not reported
-DEFAULT_PROMPT_TOKENS = 2000
-DEFAULT_CANDIDATE_TOKENS = 800
-
-
-class BudgetExceededError(RuntimeError):
-    """Raised when any approved budget ceiling is exceeded."""
-    pass
-
-
-class BudgetMeterUnavailableError(RuntimeError):
-    """Raised when budget ledger is corrupted, unreadable, or unavailable (fail-closed)."""
-    pass
-
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs):
+        raise BudgetMeterUnavailableError("UPSTREAM_REDIRECT_DENIED")
 
 class AuthoritativeBudgetLedger:
-    """Authoritative ledger managing persistent state and enforcing ceilings."""
-
-    def __init__(
-        self,
-        state_file: Path,
-        max_calls: int = 200,
-        max_cost_usd: float = 5.00,
-        admission_cost_usd: float = 4.50,
-        max_wall_clock_seconds: int = 7200,
-        strict_fail_closed: bool = True,
-    ):
-        self.state_file = state_file
-        self.max_calls = max_calls
-        self.max_cost_usd = max_cost_usd
-        self.admission_cost_usd = admission_cost_usd
-        self.max_wall_clock_seconds = max_wall_clock_seconds
-        self.strict_fail_closed = strict_fail_closed
+    def __init__(self, state_file, max_calls=200, max_cost_usd=5.0,
+                 admission_cost_usd=4.5, max_wall_clock_seconds=7200,
+                 strict_fail_closed=True, *, initialize=False, run_id=None):
+        self.state_file = Path(state_file)
         self._lock = threading.RLock()
-        self._init_error: Optional[Exception] = None
+        self._init_error = None
+        self._owner = None
+        self.state = {}
         try:
-            self.state = self._load_or_init()
-        except BudgetMeterUnavailableError as exc:
-            self._init_error = exc
-            self.state = {}
-
-    def _load_or_init(self) -> Dict[str, Any]:
-        with self._lock:
-            if self.state_file.exists():
-                try:
-                    content = self.state_file.read_text(encoding="utf-8")
-                    data = json.loads(content)
-                    if not isinstance(data, dict) or "total_calls" not in data:
-                        raise ValueError("Corrupt or invalid state structure")
-                    return data
-                except Exception as exc:
-                    if self.strict_fail_closed:
-                        raise BudgetMeterUnavailableError(
-                            f"Budget ledger state is corrupted or unreadable: {exc}"
-                        ) from exc
-
-            return {
-                "max_calls": self.max_calls,
-                "max_cost_usd": self.max_cost_usd,
-                "admission_cost_usd": self.admission_cost_usd,
-                "max_wall_clock_seconds": self.max_wall_clock_seconds,
-                "approval_reference": "Wave 1C Authoritative Cross-Container Budget Gate",
-                "approved_by": "project owner",
-                "live_started_at": None,
-                "live_deadline_at": None,
-                "total_calls": 0,
-                "successful_calls": 0,
-                "failed_calls": 0,
-                "total_prompt_tokens": 0,
-                "total_candidate_tokens": 0,
-                "estimated_cost_usd": 0.0,
-                "status": "READY",
-                "stop_reason": None,
-                "call_history": [],
-            }
-
-    def _save_durable(self) -> None:
-        """Durable atomic save. Never overwrites corrupt state on load error."""
-        with self._lock:
-            temp_file = self.state_file.with_suffix(f".tmp_{uuid.uuid4().hex[:8]}")
-            with open(temp_file, "w", encoding="utf-8") as f:
-                json.dump(self.state, f, indent=2, ensure_ascii=False)
-            try:
-                os.replace(temp_file, self.state_file)
-            except OSError:
-                with open(self.state_file, "w", encoding="utf-8") as f:
-                    json.dump(self.state, f, indent=2, ensure_ascii=False)
-                if temp_file.exists():
-                    try:
-                        temp_file.unlink()
-                    except OSError:
-                        pass
-
-    def check_admission(self, next_calls: int = 1, estimated_next_cost: float = 0.001) -> None:
-        """Verify that the dispatch will not violate any ceiling. Fails closed."""
-        with self._lock:
-            if self._init_error:
-                raise BudgetMeterUnavailableError(f"Budget ledger state is corrupted or unreadable: {self._init_error}")
-
-            current_calls = self.state["total_calls"]
-            if current_calls + next_calls > self.max_calls:
-                self.state["status"] = "EXHAUSTED"
-                self.state["stop_reason"] = (
-                    f"MAX_CALLS_REACHED: attempted {current_calls + next_calls} > {self.max_calls}"
-                )
-                self._save_durable()
-                raise BudgetExceededError(self.state["stop_reason"])
-
-            current_cost = self.state["estimated_cost_usd"]
-            if current_cost + estimated_next_cost >= self.admission_cost_usd:
-                self.state["status"] = "EXHAUSTED"
-                self.state["stop_reason"] = (
-                    f"ADMISSION_COST_LIMIT_REACHED: estimated {current_cost + estimated_next_cost:.4f} >= {self.admission_cost_usd:.2f}"
-                )
-                self._save_durable()
-                raise BudgetExceededError(self.state["stop_reason"])
-
-            if self.state["live_started_at"] is not None:
-                started_ts = datetime.fromisoformat(self.state["live_started_at"]).timestamp()
-                now_ts = datetime.now(timezone.utc).timestamp()
-                elapsed = now_ts - started_ts
-                if elapsed >= self.max_wall_clock_seconds:
-                    self.state["status"] = "EXHAUSTED"
-                    self.state["stop_reason"] = (
-                        f"TIME_LIMIT_EXCEEDED: elapsed {elapsed:.1f}s >= {self.max_wall_clock_seconds}s"
-                    )
-                    self._save_durable()
-                    raise BudgetExceededError(self.state["stop_reason"])
-
-    def reserve(
-        self,
-        operation: str = "generic",
-        estimated_cost: float = 0.001,
-        provider: str = "gemini",
-        model: str = "gemini-3.5-flash-lite",
-        client_service: str = "unknown",
-    ) -> Dict[str, Any]:
-        """Atomically reserve one attempt slot before network dispatch."""
-        with self._lock:
-            self.check_admission(next_calls=1, estimated_next_cost=estimated_cost)
-
-            now = datetime.now(timezone.utc)
-            now_iso = now.isoformat()
-
-            if self.state["live_started_at"] is None:
-                self.state["live_started_at"] = now_iso
-                deadline = datetime.fromtimestamp(
-                    now.timestamp() + self.max_wall_clock_seconds, tz=timezone.utc
-                )
-                self.state["live_deadline_at"] = deadline.isoformat()
-                self.state["status"] = "ACTIVE"
-
-            ticket_id = f"TICK-{uuid.uuid4().hex[:12]}"
-            self.state["total_calls"] += 1
-
-            reservation_entry = {
-                "ticket_id": ticket_id,
-                "call_index": self.state["total_calls"],
-                "timestamp": now_iso,
-                "provider": provider,
-                "model": model,
-                "operation": operation,
-                "client_service": client_service,
-                "prompt_tokens": 0,
-                "candidate_tokens": 0,
-                "cost_usd": 0.0,
-                "status": "RESERVED",
-                "error": None,
-            }
-            self.state["call_history"].append(reservation_entry)
-            self._save_durable()
-            return {
-                "allowed": True,
-                "ticket_id": ticket_id,
-                "call_index": self.state["total_calls"],
-                "total_calls": self.state["total_calls"],
-                "remaining_calls": self.max_calls - self.state["total_calls"],
-            }
-
-    def finalize(
-        self,
-        ticket_id: str,
-        status: str = "SUCCESS",
-        prompt_tokens: Optional[int] = None,
-        candidate_tokens: Optional[int] = None,
-        error: Optional[str] = None,
-        provider: Optional[str] = None,
-        model: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """Finalize reservation after provider response or failure. Failed calls consume slot."""
-        with self._lock:
-            entry = next((e for e in self.state["call_history"] if e.get("ticket_id") == ticket_id), None)
-            if not entry:
-                raise ValueError(f"Unknown reservation ticket: {ticket_id}")
-
-            p_tokens = prompt_tokens if prompt_tokens is not None else DEFAULT_PROMPT_TOKENS
-            c_tokens = candidate_tokens if candidate_tokens is not None else DEFAULT_CANDIDATE_TOKENS
-            call_cost = (p_tokens / 1_000_000.0) * INPUT_COST_PER_M + (c_tokens / 1_000_000.0) * OUTPUT_COST_PER_M
-
-            if status == "SUCCESS":
-                self.state["successful_calls"] += 1
+            if not strict_fail_closed:
+                raise BudgetMeterUnavailableError("Fail-open mode is forbidden")
+            self.state_file.parent.mkdir(parents=True, exist_ok=True)
+            self._owner = open(str(self.state_file) + '.lock', 'a+b')
+            if os.name == 'nt':
+                import msvcrt
+                self._owner.seek(0); self._owner.write(b'0'); self._owner.flush(); self._owner.seek(0)
+                msvcrt.locking(self._owner.fileno(), msvcrt.LK_NBLCK, 1)
             else:
-                self.state["failed_calls"] += 1
+                import fcntl
+                fcntl.flock(self._owner, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            marker = Path(str(self.state_file) + '.initialized')
+            if not self.state_file.exists():
+                if not initialize or marker.exists():
+                    raise BudgetMeterUnavailableError("MISSING_AUTHORITATIVE_LEDGER")
+                if not run_id:
+                    raise BudgetMeterUnavailableError("Explicit new offline run_id required")
+                for value in (max_calls, max_cost_usd, admission_cost_usd, max_wall_clock_seconds):
+                    if not math.isfinite(value) or value <= 0:
+                        raise ValueError('Invalid budget ceiling')
+                if max_calls > 200 or max_cost_usd > 5 or admission_cost_usd > max_cost_usd or max_wall_clock_seconds > 7200:
+                    raise ValueError('Requested budget exceeds task ceilings')
+                started = time.time()
+                self.state = dict(schema=2, run_id=run_id, max_calls=max_calls,
+                    max_cost_usd=str(max_cost_usd), admission_cost_usd=str(admission_cost_usd),
+                    deadline=started + max_wall_clock_seconds, started=started,
+                    total_calls=0, charged_usd='0', outstanding_usd='0', call_history=[],
+                    status='OFFLINE_ONLY', actual_invoice_usd='UNKNOWN')
+                with marker.open('x', encoding='utf-8') as stream:
+                    json.dump({'run_id': run_id}, stream); stream.flush(); os.fsync(stream.fileno())
+                self._save_durable()
+            else:
+                self.state = self._read_verified()
+                if not marker.is_file() or json.loads(marker.read_text())['run_id'] != self.state['run_id']:
+                    raise BudgetMeterUnavailableError('LEDGER_MARKER_MISMATCH')
+        except Exception as exc:
+            self._init_error = BudgetMeterUnavailableError(str(exc))
 
-            self.state["total_prompt_tokens"] += p_tokens
-            self.state["total_candidate_tokens"] += c_tokens
-            self.state["estimated_cost_usd"] = round(self.state["estimated_cost_usd"] + call_cost, 6)
+    def close(self):
+        if self._owner:
+            self._owner.close(); self._owner = None
 
-            if provider:
-                entry["provider"] = provider
-            if model:
-                entry["model"] = model
-            entry["prompt_tokens"] = p_tokens
-            entry["candidate_tokens"] = c_tokens
-            entry["cost_usd"] = round(call_cost, 6)
-            entry["status"] = status
-            entry["error"] = error
-            self._save_durable()
-            return entry
+    def _read_verified(self):
+        envelope = json.loads(self.state_file.read_text(encoding='utf-8'))
+        data = envelope['state']
+        encoded = json.dumps(data, sort_keys=True, separators=(',', ':')).encode()
+        if envelope['sha256'] != hashlib.sha256(encoded).hexdigest() or data['schema'] != 2:
+            raise BudgetMeterUnavailableError('CORRUPT_OR_LEGACY_LEDGER')
+        if (data['total_calls'] != len(data['call_history']) or not 0 <= data['total_calls'] <= data['max_calls']
+            or not math.isfinite(data['deadline']) or data['deadline'] - data['started'] > 7200):
+            raise BudgetMeterUnavailableError('INVALID_LEDGER_COUNTERS')
+        if (type(data['max_calls']) is not int or data['max_calls'] > 200 or
+            not Decimal('0') < Decimal(data['admission_cost_usd']) <= Decimal(data['max_cost_usd']) <= Decimal('5')):
+            raise BudgetMeterUnavailableError('INVALID_PERSISTED_CEILINGS')
+        entries = data['call_history']
+        if len({e['ticket_id'] for e in entries}) != len(entries):
+            raise BudgetMeterUnavailableError('DUPLICATE_LEDGER_TICKET')
+        outstanding = sum((Decimal(e['liability_usd']) for e in entries if e['status'] == 'RESERVED'), Decimal(0))
+        charged = sum((Decimal(e['charged_usd']) for e in entries if e['status'] != 'RESERVED'), Decimal(0))
+        if outstanding != Decimal(data['outstanding_usd']) or charged != Decimal(data['charged_usd']):
+            raise BudgetMeterUnavailableError('INVALID_LEDGER_LIABILITY')
+        if min(charged, outstanding) < 0:
+            raise BudgetMeterUnavailableError('NEGATIVE_LEDGER_LIABILITY')
+        return data
 
-    def get_summary(self) -> Dict[str, Any]:
+    def _healthy(self):
+        if self._init_error:
+            raise self._init_error
+        try:
+            if self._read_verified() != self.state:
+                raise BudgetMeterUnavailableError('AUTHORITATIVE_LEDGER_CHANGED')
+        except Exception as exc:
+            self._init_error = BudgetMeterUnavailableError(str(exc))
+            raise self._init_error
+
+    def _save_durable(self):
+        temporary = self.state_file.with_name(self.state_file.name + '.tmp-' + uuid.uuid4().hex)
+        try:
+            data = json.dumps(self.state, sort_keys=True, separators=(',', ':')).encode()
+            with temporary.open('xb') as stream:
+                stream.write(json.dumps({'state': self.state, 'sha256': hashlib.sha256(data).hexdigest()}).encode())
+                stream.flush(); os.fsync(stream.fileno())
+            # Windows/OneDrive may transiently hold the destination. Retry ONLY
+            # atomic replacement; never truncate/rewrite the authoritative file.
+            for attempt in range(8):
+                try:
+                    os.replace(temporary, self.state_file)
+                    break
+                except PermissionError:
+                    if attempt == 7: raise
+                    time.sleep(.01 * (2 ** attempt))
+            if os.name != 'nt':
+                directory = os.open(self.state_file.parent, os.O_RDONLY)
+                try: os.fsync(directory)
+                finally: os.close(directory)
+        except Exception as exc:
+            self._init_error = BudgetMeterUnavailableError('LEDGER_DURABILITY_FAILURE')
+            raise self._init_error from exc
+        finally:
+            if temporary.exists(): temporary.unlink()
+
+    def reserve(self, operation='generic', estimated_cost=None, provider='gemini', model='',
+                client_service='unknown', *, liability_usd=None):
+        # Only the gateway supplies a policy-derived upper bound, never HTTP clients.
         with self._lock:
-            if self._init_error:
-                raise BudgetMeterUnavailableError(f"Budget ledger state is corrupted or unreadable: {self._init_error}")
-            elapsed_seconds = 0
-            if self.state["live_started_at"]:
-                started_ts = datetime.fromisoformat(self.state["live_started_at"]).timestamp()
-                now_ts = datetime.now(timezone.utc).timestamp()
-                elapsed_seconds = round(now_ts - started_ts, 1)
+            self._healthy()
+            if liability_usd is None:
+                raise BudgetExceededError('CONSERVATIVE_LIABILITY_REQUIRED')
+            amount = Decimal(str(liability_usd))
+            if not amount.is_finite() or amount <= 0:
+                raise BudgetExceededError('INVALID_LIABILITY')
+            s = self.state
+            if time.time() >= s['deadline']: raise BudgetExceededError('ABSOLUTE_DEADLINE_EXPIRED')
+            if s['total_calls'] >= s['max_calls']: raise BudgetExceededError('MAX_CALLS_REACHED')
+            committed = Decimal(s['charged_usd']) + Decimal(s['outstanding_usd']) + amount
+            if committed > min(Decimal(s['admission_cost_usd']), Decimal(s['max_cost_usd'])):
+                raise BudgetExceededError('OUTSTANDING_LIABILITY_COST_LIMIT')
+            ticket = dict(ticket_id=str(uuid.uuid4()), call_index=s['total_calls'] + 1,
+                client_service=client_service, operation=operation, provider=provider, model=model,
+                liability_usd=str(amount), charged_usd='0', status='RESERVED', timestamp=time.time())
+            s['total_calls'] += 1; s['call_history'].append(ticket)
+            s['outstanding_usd'] = str(Decimal(s['outstanding_usd']) + amount)
+            self._save_durable()  # Must succeed BEFORE transport can be called.
+            return copy.deepcopy(ticket)
 
-            return {
-                "approval_reference": self.state["approval_reference"],
-                "approved_by": self.state["approved_by"],
-                "status": self.state["status"],
-                "total_calls": self.state["total_calls"],
-                "max_calls": self.max_calls,
-                "remaining_calls": max(0, self.max_calls - self.state["total_calls"]),
-                "successful_calls": self.state["successful_calls"],
-                "failed_calls": self.state["failed_calls"],
-                "total_prompt_tokens": self.state["total_prompt_tokens"],
-                "total_candidate_tokens": self.state["total_candidate_tokens"],
-                "estimated_cost_usd": self.state["estimated_cost_usd"],
-                "max_cost_usd": self.max_cost_usd,
-                "admission_cost_usd": self.admission_cost_usd,
-                "live_started_at": self.state["live_started_at"],
-                "live_deadline_at": self.state["live_deadline_at"],
-                "elapsed_wall_clock_seconds": elapsed_seconds,
-                "max_wall_clock_seconds": self.max_wall_clock_seconds,
-                "stop_reason": self.state.get("stop_reason"),
-            }
+    def finalize(self, ticket_id, status='SUCCESS', *, cost_usd=None, **usage):
+        with self._lock:
+            self._healthy()
+            entry = next((e for e in self.state['call_history'] if e['ticket_id'] == ticket_id), None)
+            if not entry: raise ValueError('Unknown reservation')
+            if entry['status'] != 'RESERVED': return copy.deepcopy(entry)
+            liability = Decimal(entry['liability_usd'])
+            # Timeout/errors/missing usage retain the full ceiling (not assumed free).
+            amount = liability if cost_usd is None else Decimal(str(cost_usd))
+            if not amount.is_finite() or not 0 <= amount <= liability:
+                raise BudgetMeterUnavailableError('UNVERIFIED_USAGE_EXCEEDS_LIABILITY')
+            entry.update(status=status, charged_usd=str(amount), finished=time.time())
+            self.state['outstanding_usd'] = str(Decimal(self.state['outstanding_usd']) - liability)
+            self.state['charged_usd'] = str(Decimal(self.state['charged_usd']) + amount)
+            self._save_durable()
+            return copy.deepcopy(entry)
 
-
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
-    """Multi-threaded HTTP server handling concurrent requests across containers."""
-    daemon_threads = True
-
+    def get_summary(self):
+        with self._lock:
+            self._healthy()
+            return {**copy.deepcopy(self.state), 'live_authorized': False,
+                'live_cost_hard_cap': 'BUDGET_COST_HARD_CAP_UNPROVEN',
+                'pricing_scope': 'SYNTHETIC_OFFLINE_TEXT_ONLY', 'actual_invoice_usd': 'UNKNOWN'}
 
 class BudgetGatewayHandler(BaseHTTPRequestHandler):
-    """HTTP handler exposing budget accounting endpoints and proxy dispatch."""
+    ledger = None
+    upstream_base_url = None
+    upstream_api_key = None
+    client_tokens = None
+    upstream_timeout = 3
+    max_output_tokens = 8192
+    max_body_bytes = 65536
+    offline_only = True
+    # Synthetic upper-bound tariffs for OFFLINE TESTS ONLY, never live price claims.
+    input_rate = Decimal('1') / 1000000
+    output_rate = Decimal('4') / 1000000
 
-    ledger: AuthoritativeBudgetLedger
-    upstream_base_url: Optional[str] = None
-    upstream_api_key: Optional[str] = None
+    def _send_json(self, status, data):
+        body = json.dumps(data).encode()
+        try:
+            self.send_response(status); self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(body))); self.end_headers(); self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError): pass
 
-    def _send_json(self, status_code: int, data: Dict[str, Any]) -> None:
-        body = json.dumps(data, ensure_ascii=False).encode("utf-8")
-        self.send_response(status_code)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def do_GET(self) -> None:
-        if self.path in {"/api/budget/status", "/status", "/health"}:
+    def do_GET(self):
+        if self.path in ('/health', '/status', '/api/budget/status'):
+            try: self._send_json(200, self.ledger.get_summary())
+            except BudgetMeterUnavailableError: self._send_json(503, {'error': 'BUDGET_METER_UNAVAILABLE'})
+        elif self.path == '/v1/models':
+            if 'X-Budget-Ticket' in self.headers: return self._send_json(403, {'error': 'CLIENT_TICKETS_FORBIDDEN'})
+            token = self.headers.get('Authorization', '').removeprefix('Bearer ')
+            target = urlparse(self.upstream_base_url or '')
+            if token not in (self.client_tokens or {}): return self._send_json(401, {'error': 'WORKER_AUTH_REQUIRED'})
+            if not self.offline_only or target.scheme != 'http' or target.hostname not in {'127.0.0.1', 'localhost', 'fake-upstream'}:
+                return self._send_json(503, {'error': 'BUDGET_COST_HARD_CAP_UNPROVEN'})
             try:
-                summary = self.ledger.get_summary()
-                self._send_json(200, summary)
-            except Exception as e:
-                self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "message": str(e)})
-        elif self.path in {"/v1/models", "/models"}:
-            # Models discovery for health checks (does not consume generation quota)
-            self._send_json(200, {
-                "data": [
-                    {"id": "gemini-3.5-flash-lite"},
-                    {"id": "models/gemini-3.5-flash-lite"},
-                    {"id": "gpt-4o-mini"},
-                ]
-            })
-        else:
-            self._send_json(404, {"error": "NOT_FOUND", "path": self.path})
+                ticket = self.ledger.reserve(operation='models_discovery', provider='fake-metadata',
+                    client_service=self.client_tokens[token], liability_usd='0.000001')
+                opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+                request = urllib.request.Request(self.upstream_base_url.rstrip('/') + '/v1/models', headers={
+                    'Authorization': 'Bearer ' + (self.upstream_api_key or ''),
+                    'X-Gateway-Dispatch-Id': ticket['ticket_id'], 'X-Gateway-Client': self.client_tokens[token]})
+                try:
+                    with opener.open(request, timeout=2) as response:
+                        result = json.loads(response.read(65536))
+                    self.ledger.finalize(ticket['ticket_id'], 'SUCCESS')
+                    self._send_json(200, result)
+                except Exception:
+                    self.ledger.finalize(ticket['ticket_id'], 'UNKNOWN')
+                    self._send_json(503, {'error': 'MODEL_DISCOVERY_UNAVAILABLE'})
+            except BudgetExceededError as exc: self._send_json(429, {'error': str(exc)})
+            except Exception: self._send_json(503, {'error': 'MODEL_DISCOVERY_UNAVAILABLE'})
+        else: self._send_json(404, {'error': 'UNSUPPORTED_UNGUARDED_ROUTE'})
 
-    def do_POST(self) -> None:
-        content_len = int(self.headers.get("Content-Length", 0))
-        raw_body = self.rfile.read(content_len).decode("utf-8") if content_len > 0 else "{}"
+    def do_POST(self):
         try:
-            body = json.loads(raw_body)
-        except Exception:
-            body = {}
-
-        if self.path == "/api/budget/reserve":
-            self._handle_reserve(body)
-        elif self.path == "/api/budget/finalize":
-            self._handle_finalize(body)
-        elif self.path in {"/v1/chat/completions", "/chat/completions"}:
-            self._handle_chat_completions_proxy(body)
-        elif "/generateContent" in self.path:
-            self._handle_gemini_proxy(body)
-        else:
-            self._send_json(404, {"error": "NOT_FOUND", "path": self.path})
-
-    def _handle_reserve(self, body: Dict[str, Any]) -> None:
-        try:
-            operation = body.get("operation", "generic")
-            estimated_cost = float(body.get("estimated_cost", 0.001))
-            provider = body.get("provider", "gemini")
-            model = body.get("model", "gemini-3.5-flash-lite")
-            client_svc = body.get("client_service", "unknown")
-            res = self.ledger.reserve(
-                operation=operation,
-                estimated_cost=estimated_cost,
-                provider=provider,
-                model=model,
-                client_service=client_svc,
-            )
-            self._send_json(200, res)
-        except BudgetExceededError as exc:
-            self._send_json(429, {
-                "error": "BUDGET_EXCEEDED",
-                "message": str(exc),
-                "stop_reason": str(exc),
-            })
-        except BudgetMeterUnavailableError as exc:
-            self._send_json(503, {
-                "error": "BUDGET_METER_UNAVAILABLE",
-                "message": str(exc),
-            })
-        except Exception as exc:
-            self._send_json(500, {"error": "INTERNAL_ERROR", "message": str(exc)})
-
-    def _handle_finalize(self, body: Dict[str, Any]) -> None:
-        ticket_id = body.get("ticket_id")
-        if not ticket_id:
-            self._send_json(400, {"error": "MISSING_TICKET_ID"})
-            return
-        status = body.get("status", "SUCCESS")
-        p_tokens = body.get("prompt_tokens")
-        c_tokens = body.get("candidate_tokens")
-        error_msg = body.get("error")
-        provider = body.get("provider")
-        model = body.get("model")
-        try:
-            res = self.ledger.finalize(
-                ticket_id=ticket_id,
-                status=status,
-                prompt_tokens=p_tokens,
-                candidate_tokens=c_tokens,
-                error=error_msg,
-                provider=provider,
-                model=model,
-            )
-            self._send_json(200, {"status": "FINALIZED", "entry": res})
-        except Exception as exc:
-            self._send_json(500, {"error": "FINALIZE_ERROR", "message": str(exc)})
-
-    def _handle_chat_completions_proxy(self, body: Dict[str, Any]) -> None:
-        """Proxies an OpenAI-compatible request through atomic pre-dispatch reservation."""
-        model = body.get("model", "gemini-3.5-flash-lite")
-        client_svc = self.headers.get("X-Client-Service", "backend-copilot")
-        existing_ticket = self.headers.get("X-Budget-Ticket")
-
-        # 1. Pre-dispatch reservation
-        if existing_ticket:
-            ticket_id = existing_ticket
-        else:
+            if 'X-Budget-Ticket' in self.headers:
+                return self._send_json(403, {'error': 'CLIENT_TICKETS_FORBIDDEN'})
+            if self.path.startswith('/api/budget/'):
+                return self._send_json(403, {'error': 'GATEWAY_OWNS_RESERVATION_AND_SETTLEMENT'})
+            token = self.headers.get('Authorization', '').removeprefix('Bearer ') or self.headers.get('x-goog-api-key', '')
+            client = (self.client_tokens or {}).get(token)
+            if not client: return self._send_json(401, {'error': 'WORKER_AUTH_REQUIRED'})
+            length = int(self.headers.get('Content-Length', '0'))
+            if length <= 0 or length > self.max_body_bytes or self.headers.get('Transfer-Encoding'):
+                return self._send_json(413, {'error': 'BOUNDED_CONTENT_LENGTH_REQUIRED'})
+            body = json.loads(self.rfile.read(length))
+            native = self.path.startswith('/v1beta/models/') and self.path.endswith(':generateContent')
+            compat = self.path == '/v1/chat/completions'
+            if not (native or compat): return self._send_json(403, {'error': 'UNSUPPORTED_BILLABLE_ROUTE'})
+            model = self.path.split('/models/', 1)[1].split(':')[0] if native else body.get('model')
+            if str(model).removeprefix('models/') != 'gemini-3.5-flash-lite':
+                return self._send_json(403, {'error': 'MODEL_NOT_IN_OFFLINE_POLICY'})
+            config = body.get('generationConfig', {}) if native else body
+            limit = config.get('maxOutputTokens') if native else config.get('max_tokens')
+            if type(limit) is not int or not 1 <= limit <= self.max_output_tokens or body.get('stream'):
+                return self._send_json(422, {'error': 'BOUNDED_TEXT_OUTPUT_REQUIRED'})
+            variants = config.get('candidateCount', 1) if native else body.get('n', 1)
+            if type(variants) is not int or variants != 1 or 'best_of' in body:
+                return self._send_json(403, {'error': 'UNPRICED_MULTIPLE_OUTPUTS'})
+            if config.get('responseModalities', ['TEXT']) != ['TEXT']:
+                return self._send_json(403, {'error': 'UNPRICED_OUTPUT_MODALITY'})
+            # Reject multimodal/tools/caching/thinking variants without verified liability tariffs.
+            forbidden = ('inlineData', 'fileData', 'image_url', 'audio', 'video', 'tools',
+                         'cachedContent', 'thinkingConfig', 'max_completion_tokens')
+            def has_forbidden(value):
+                if isinstance(value, dict): return any(k in forbidden or has_forbidden(v) for k,v in value.items())
+                if isinstance(value, list): return any(has_forbidden(v) for v in value)
+                return False
+            if has_forbidden(body): return self._send_json(403, {'error': 'UNPRICED_BILLABLE_VARIANT'})
+            parsed = urlparse(self.upstream_base_url or '')
+            if (not self.offline_only or parsed.scheme != 'http' or parsed.hostname not in
+                    {'127.0.0.1', 'localhost', 'fake-upstream'} or parsed.username or parsed.query):
+                return self._send_json(503, {'error': 'BUDGET_COST_HARD_CAP_UNPROVEN'})
+            # One token per UTF8 request byte + framing allowance is a conservative
+            # synthetic text-fixture ceiling. This is NOT a verified live tariff.
+            wire = json.dumps(body, ensure_ascii=False).encode('utf-8')
+            liability = (len(wire) + 4096) * self.input_rate + limit * self.output_rate
+            ticket = self.ledger.reserve(operation='gemini_generate_content' if native else 'chat_completions',
+                provider='gemini-native' if native else 'gemini-openai-compatible', model=model,
+                client_service=client, liability_usd=liability)
+            url = self.upstream_base_url.rstrip('/') + self.path
+            headers = {'Content-Type':'application/json', 'X-Gateway-Dispatch-Id':ticket['ticket_id'],
+                       'X-Gateway-Client':client}
+            if self.upstream_api_key:
+                headers['x-goog-api-key' if native else 'Authorization'] = ('' if native else 'Bearer ') + self.upstream_api_key
+            request = urllib.request.Request(url, data=wire, headers=headers, method='POST')
+            opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
             try:
-                res = self.ledger.reserve(
-                    operation="chat_completions",
-                    estimated_cost=0.001,
-                    provider="openai-compatible",
-                    model=model,
-                    client_service=client_svc,
-                )
-                ticket_id = res["ticket_id"]
-            except BudgetExceededError as exc:
-                self._send_json(429, {
-                    "error": {
-                        "message": f"BUDGET_EXCEEDED: {exc}",
-                        "type": "budget_limit_exceeded",
-                        "code": "BUDGET_LIMIT_REACHED",
-                    }
-                })
-                return
-            except BudgetMeterUnavailableError as exc:
-                self._send_json(503, {
-                    "error": {
-                        "message": f"BUDGET_METER_UNAVAILABLE: {exc}",
-                        "type": "meter_unavailable",
-                        "code": "METER_UNAVAILABLE",
-                    }
-                })
-                return
+                with opener.open(request, timeout=self.upstream_timeout) as response:
+                    raw = response.read(2_000_001)
+                    if len(raw) > 2_000_000: raise ValueError('Upstream response exceeds bound')
+                    result = json.loads(raw)
+                # Retain full synthetic liability; untrusted usage never releases budget.
+                self.ledger.finalize(ticket['ticket_id'], 'SUCCESS')
+                return self._send_json(200, result)
+            except urllib.error.HTTPError as exc:
+                self.ledger.finalize(ticket['ticket_id'], 'FAILED')
+                return self._send_json(exc.code, {'error': 'UPSTREAM_HTTP_ERROR'})
+            except Exception:
+                self.ledger.finalize(ticket['ticket_id'], 'UNKNOWN')
+                return self._send_json(502, {'error': 'UPSTREAM_ERROR_OR_TIMEOUT'})
+        except BudgetExceededError as exc: self._send_json(429, {'error': str(exc)})
+        except BudgetMeterUnavailableError: self._send_json(503, {'error': 'BUDGET_METER_UNAVAILABLE'})
+        except (ValueError, TypeError, KeyError): self._send_json(422, {'error': 'INVALID_REQUEST'})
 
-        # 2. Forward to upstream (or stub provider during offline tests)
-        if not self.upstream_base_url:
-            # Offline stub mode: return deterministic response
-            prompt_tokens = 50
-            candidate_tokens = 25
-            if not existing_ticket:
-                self.ledger.finalize(
-                    ticket_id=ticket_id,
-                    status="SUCCESS",
-                    prompt_tokens=prompt_tokens,
-                    candidate_tokens=candidate_tokens,
-                    provider="stub-provider",
-                    model=model,
-                )
-            self._send_json(200, {
-                "id": f"chatcmpl-{ticket_id}",
-                "object": "chat.completion",
-                "created": int(time.time()),
-                "model": model,
-                "choices": [{
-                    "index": 0,
-                    "message": {"role": "assistant", "content": "Offline stub suggestion."},
-                    "finish_reason": "stop"
-                }],
-                "usage": {
-                    "prompt_tokens": prompt_tokens,
-                    "completion_tokens": candidate_tokens,
-                    "total_tokens": prompt_tokens + candidate_tokens,
-                }
-            })
-            return
+    def log_message(self, *args): pass
 
-        # Upstream dispatch
-        upstream_url = f"{self.upstream_base_url.rstrip('/')}/chat/completions"
-        req_headers = {"Content-Type": "application/json"}
-        if self.upstream_api_key:
-            req_headers["Authorization"] = f"Bearer {self.upstream_api_key}"
+# Backward import name for diagnostics; not a second dispatcher.
+ThreadedHTTPServer = ThreadingHTTPServer
 
-        req_data = json.dumps(body).encode("utf-8")
-        req = urllib.request.Request(upstream_url, data=req_data, headers=req_headers, method="POST")
+def start_budget_gateway(state_file, host='127.0.0.1', port=18090, max_calls=200,
+                         max_cost_usd=5., admission_cost_usd=4.5, max_wall_clock_seconds=7200,
+                         upstream_base_url=None, upstream_api_key=None, *, initialize=False,
+                         run_id=None, client_tokens=None, upstream_timeout=3, offline_only=True):
+    ledger = AuthoritativeBudgetLedger(state_file, max_calls, max_cost_usd, admission_cost_usd,
+        max_wall_clock_seconds, initialize=initialize, run_id=run_id)
+    class Handler(BudgetGatewayHandler): pass
+    Handler.ledger = ledger; Handler.upstream_base_url = upstream_base_url
+    Handler.upstream_api_key = upstream_api_key; Handler.client_tokens = client_tokens or {}
+    Handler.upstream_timeout = upstream_timeout; Handler.offline_only = offline_only
+    server = ThreadingHTTPServer((host, port), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
+    return server, thread, ledger
 
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                resp_raw = resp.read().decode("utf-8")
-                resp_json = json.loads(resp_raw)
-                usage = resp_json.get("usage", {})
-                p_tokens = usage.get("prompt_tokens", DEFAULT_PROMPT_TOKENS)
-                c_tokens = usage.get("completion_tokens", DEFAULT_CANDIDATE_TOKENS)
-                self.ledger.finalize(
-                    ticket_id=ticket_id,
-                    status="SUCCESS",
-                    prompt_tokens=p_tokens,
-                    candidate_tokens=c_tokens,
-                    provider="openai-compatible",
-                    model=model,
-                )
-                self._send_json(200, resp_json)
-        except urllib.error.HTTPError as exc:
-            err_body = exc.read().decode("utf-8")
-            self.ledger.finalize(
-                ticket_id=ticket_id,
-                status="FAILED",
-                prompt_tokens=0,
-                candidate_tokens=0,
-                error=f"HTTP {exc.code}: {err_body}",
-            )
-            self.send_response(exc.code)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(err_body.encode("utf-8"))
-        except Exception as exc:
-            self.ledger.finalize(
-                ticket_id=ticket_id,
-                status="FAILED",
-                prompt_tokens=0,
-                candidate_tokens=0,
-                error=f"Network error: {exc}",
-            )
-            self._send_json(502, {"error": {"message": f"Provider gateway network error: {exc}"}})
-
-    def _handle_gemini_proxy(self, body: Dict[str, Any]) -> None:
-        """Proxies Gemini generateContent request through atomic pre-dispatch reservation."""
-        client_svc = self.headers.get("X-Client-Service", "ai-service")
-        try:
-            res = self.ledger.reserve(
-                operation="gemini_generate_content",
-                estimated_cost=0.001,
-                provider="gemini",
-                model="gemini-3.5-flash-lite",
-                client_service=client_svc,
-            )
-            ticket_id = res["ticket_id"]
-        except BudgetExceededError as exc:
-            self._send_json(429, {"error": {"message": f"BUDGET_EXCEEDED: {exc}", "code": 429}})
-            return
-        except BudgetMeterUnavailableError as exc:
-            self._send_json(503, {"error": {"message": f"BUDGET_METER_UNAVAILABLE: {exc}", "code": 503}})
-            return
-
-        # Stub response if no upstream configured
-        prompt_tokens = 60
-        candidate_tokens = 30
-        self.ledger.finalize(
-            ticket_id=ticket_id,
-            status="SUCCESS",
-            prompt_tokens=prompt_tokens,
-            candidate_tokens=candidate_tokens,
-            provider="gemini",
-            model="gemini-3.5-flash-lite",
-        )
-        self._send_json(200, {
-            "candidates": [{
-                "content": {"parts": [{"text": "{\"status\":\"ok\"}"}]},
-                "finishReason": "STOP"
-            }],
-            "usageMetadata": {
-                "promptTokenCount": prompt_tokens,
-                "candidatesTokenCount": candidate_tokens,
-                "totalTokenCount": prompt_tokens + candidate_tokens,
-            }
-        })
-
-    def log_message(self, format: str, *args: Any) -> None:
-        # Suppress routine HTTP request logging to keep test output clean
-        pass
-
-
-def start_budget_gateway(
-    state_file: Path,
-    host: str = "127.0.0.1",
-    port: int = 18090,
-    max_calls: int = 200,
-    max_cost_usd: float = 5.00,
-    admission_cost_usd: float = 4.50,
-    max_wall_clock_seconds: int = 7200,
-    upstream_base_url: Optional[str] = None,
-    upstream_api_key: Optional[str] = None,
-) -> Tuple[ThreadedHTTPServer, threading.Thread, AuthoritativeBudgetLedger]:
-    """Start the multi-threaded authoritative budget gateway server."""
-    ledger = AuthoritativeBudgetLedger(
-        state_file=state_file,
-        max_calls=max_calls,
-        max_cost_usd=max_cost_usd,
-        admission_cost_usd=admission_cost_usd,
-        max_wall_clock_seconds=max_wall_clock_seconds,
-    )
-
-    class CustomHandler(BudgetGatewayHandler):
-        pass
-
-    CustomHandler.ledger = ledger
-    CustomHandler.upstream_base_url = upstream_base_url
-    CustomHandler.upstream_api_key = upstream_api_key
-
-    server = ThreadedHTTPServer((host, port), CustomHandler)
-    server_thread = threading.Thread(target=server.serve_forever, daemon=True)
-    server_thread.start()
-    return server, server_thread, ledger
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--state', required=True); parser.add_argument('--initialize', action='store_true')
+    parser.add_argument('--run-id'); parser.add_argument('--port', type=int, default=18090)
+    args = parser.parse_args()
+    if args.initialize:
+        ledger = AuthoritativeBudgetLedger(args.state, initialize=True, run_id=args.run_id)
+        ledger.get_summary(); ledger.close()
+    else:
+        server, thread, ledger = start_budget_gateway(args.state, host='0.0.0.0', port=args.port,
+            upstream_base_url=os.environ['OFFLINE_UPSTREAM_URL'],
+            upstream_api_key=os.environ.get('OFFLINE_UPSTREAM_KEY'),
+            client_tokens=json.loads(os.environ['WORKER_AUTH_TOKENS']),
+            upstream_timeout=float(os.getenv('GATEWAY_UPSTREAM_TIMEOUT_SECONDS', '3')))
+        thread.join()

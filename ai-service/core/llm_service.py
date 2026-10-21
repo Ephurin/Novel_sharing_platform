@@ -250,8 +250,27 @@ class LLMService:
         if reason.upper() not in {"STOP", "UNKNOWN"}:
             raise LLMServiceError(f"STRUCTURED_OUTPUT_INCOMPLETE trace_id={trace['trace_id']} finish={reason}")
 
+    @staticmethod
+    def _guard_proxy_config():
+        from urllib.parse import urlparse
+        url = os.getenv('BUDGET_GUARD_URL', '').rstrip('/')
+        if not url:
+            if os.getenv('BUDGET_GUARD_MODE') == 'proxy':
+                raise LLMServiceError('GUARD_CONFIGURATION_INVALID')
+            if os.getenv('BUDGET_GUARD_FILE'):
+                raise LLMServiceError('LEGACY_CLIENT_SIDE_LEDGER_DISABLED')
+            return None
+        parsed = urlparse(url)
+        token = os.getenv('BUDGET_GUARD_AUTH_TOKEN', '')
+        if (os.getenv('BUDGET_GUARD_MODE') != 'proxy' or not token or parsed.scheme != 'http'
+            or parsed.hostname not in {'budget-gateway', '127.0.0.1', 'localhost'}
+            or parsed.path or parsed.query or parsed.username):
+            raise LLMServiceError('GUARD_CONFIGURATION_INVALID')
+        return url, token
+
     def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
-        if not self.api_key:
+        guard = self._guard_proxy_config()
+        if not self.api_key and not guard:
             raise LLMServiceError(f"Missing API key for provider '{self.provider}'")
 
         try:
@@ -278,7 +297,16 @@ class LLMService:
         except Exception as exc:
             raise LLMServiceError("google-genai is not installed") from exc
 
-        client = genai.Client(api_key=self.api_key)
+        guard = self._guard_proxy_config()
+        if guard:
+            from google.genai import types
+            client = genai.Client(api_key=guard[1], http_options=types.HttpOptions(
+                base_url=guard[0], api_version='v1beta', timeout=self.timeout_seconds * 1000,
+                client_args={'trust_env': False},
+                headers={'Authorization': 'Bearer ' + guard[1]},
+                retry_options=types.HttpRetryOptions(attempts=1)))
+        else:
+            client = genai.Client(api_key=self.api_key)
         last_error: Exception | None = None
         merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
 
@@ -357,6 +385,9 @@ class LLMService:
                             model=model_name,
                         )
                     message = str(exc).lower()
+                    if guard and any(code in message for code in ('max_calls_reached', 'absolute_deadline_expired',
+                            'outstanding_liability_cost_limit', 'budget_meter_unavailable')):
+                        raise LLMServiceError('BUDGET_GUARD_DENIED') from exc
                     if self._is_quota_error(exc):
                         if attempt < 3:
                             sleep_s = (attempt + 1) * 3
@@ -371,6 +402,8 @@ class LLMService:
         raise LLMServiceError(f"Gemini request failed: {last_error}")
 
     def _gemini_model_candidates(self) -> list[str]:
+        if os.getenv('BUDGET_GUARD_URL') or os.getenv('BUDGET_GUARD_MODE') == 'proxy':
+            return [self.model]  # No hidden model fallback outside the admitted policy.
         candidates = [
             self.model,
             "models/gemini-3.5-flash-lite",
@@ -421,6 +454,11 @@ class LLMService:
         model_name = model_override or self.model
         if "generativelanguage.googleapis.com" in (self.base_url or "") and model_name in {"gpt-4o-mini", "models/gpt-4o-mini"}:
             model_name = "gemini-3.5-flash-lite"
+        guard = self._guard_proxy_config()
+        if guard:
+            if model_override or api_key_override:
+                raise LLMServiceError('GUARDED_FALLBACK_DISABLED')
+            key = guard[1]
         if not key:
             raise LLMServiceError("OpenAI fallback is enabled but OPENAI_API_KEY is missing")
 
@@ -435,7 +473,8 @@ class LLMService:
                 extra_headers["X-Budget-Ticket"] = ticket_id
             client = OpenAI(
                 api_key=key, 
-                base_url=self.base_url or None,
+                base_url=(guard[0] + '/v1') if guard else self.base_url or None,
+                max_retries=0 if guard else 2,
                 default_headers=extra_headers,
                 timeout=self.timeout_seconds,
             )
@@ -477,114 +516,20 @@ class LLMService:
             raise LLMServiceError(f"OpenAI request failed: {exc}") from exc
 
     def _can_fallback_to_openai(self) -> bool:
-        return self.fallback_provider == "openai" and bool(self.fallback_api_key)
+        return not os.getenv("BUDGET_GUARD_URL") and self.fallback_provider == "openai" and bool(self.fallback_api_key)
 
     def _budget_guard_reserve(self, operation: str, provider: str, model: str) -> str:
-        guard_url = (os.getenv("BUDGET_GUARD_URL") or "").rstrip("/")
-        guard_file = os.getenv("BUDGET_GUARD_FILE")
-        if not guard_url and not guard_file:
-            return ""
+        self._guard_proxy_config()  # Fail closed for a missing/misconfigured guarded route.
+        return ""  # No client-side tickets; exactly-once accounting belongs to proxy transport.
 
-        if guard_url:
-            req_data = json.dumps({
-                "operation": operation,
-                "provider": provider,
-                "model": model,
-                "client_service": "ai-service",
-                "estimated_cost": 0.001,
-            }).encode("utf-8")
-            req = urllib.request.Request(
-                f"{guard_url}/api/budget/reserve",
-                data=req_data,
-                headers={"Content-Type": "application/json"},
-                method="POST",
-            )
-            try:
-                with urllib.request.urlopen(req, timeout=10) as resp:
-                    data = json.loads(resp.read().decode("utf-8"))
-                    return data.get("ticket_id", "")
-            except urllib.error.HTTPError as exc:
-                err_body = exc.read().decode("utf-8")
-                raise LLMServiceError(f"BUDGET_GUARD_DENIED: HTTP {exc.code} - {err_body}") from exc
-            except Exception as exc:
-                raise LLMServiceError(f"BUDGET_METER_UNAVAILABLE: {exc}") from exc
-
-        if guard_file:
-            try:
-                from Pipeline_test.tools.budget_gateway import AuthoritativeBudgetLedger
-                from pathlib import Path
-                ledger = AuthoritativeBudgetLedger(Path(guard_file))
-                res = ledger.reserve(
-                    operation=operation,
-                    provider=provider,
-                    model=model,
-                    client_service="ai-service",
-                )
-                return res.get("ticket_id", "")
-            except Exception as exc:
-                if "BUDGET_METER_UNAVAILABLE" in str(type(exc).__name__) or "BudgetMeterUnavailableError" in str(type(exc).__name__):
-                    raise LLMServiceError(f"BUDGET_METER_UNAVAILABLE: {exc}") from exc
-                raise LLMServiceError(f"BUDGET_GUARD_DENIED: {exc}") from exc
-
-        return ""
-
-    def _budget_guard_finalize(
-        self,
-        ticket_id: str,
-        status: str,
-        prompt_tokens: int | None = None,
-        candidate_tokens: int | None = None,
-        error: str | None = None,
-        provider: str | None = None,
-        model: str | None = None,
-    ) -> None:
-        if not ticket_id:
-            return
-        guard_url = (os.getenv("BUDGET_GUARD_URL") or "").rstrip("/")
-        guard_file = os.getenv("BUDGET_GUARD_FILE")
-
-        if guard_url:
-            req_data = json.dumps({
-                "ticket_id": ticket_id,
-                "status": status,
-                "prompt_tokens": prompt_tokens,
-                "candidate_tokens": candidate_tokens,
-                "error": error,
-                "provider": provider,
-                "model": model,
-            }).encode("utf-8")
-            req = urllib.request.Request(
-                f"{guard_url}/api/budget/finalize",
-                data=req_data,
-                headers={"Content-Type": "application/json"},
-                method="POST",
-            )
-            try:
-                with urllib.request.urlopen(req, timeout=10) as resp:
-                    pass
-            except Exception as exc:
-                logger.warning("Failed to finalize budget ticket %s on gateway: %s", ticket_id, exc)
-            return
-
-        if guard_file:
-            try:
-                from Pipeline_test.tools.budget_gateway import AuthoritativeBudgetLedger
-                from pathlib import Path
-                ledger = AuthoritativeBudgetLedger(Path(guard_file))
-                ledger.finalize(
-                    ticket_id=ticket_id,
-                    status=status,
-                    prompt_tokens=prompt_tokens,
-                    candidate_tokens=candidate_tokens,
-                    error=error,
-                    provider=provider,
-                    model=model,
-                )
-            except Exception as exc:
-                logger.warning("Failed to finalize budget ticket %s on local ledger: %s", ticket_id, exc)
+    def _budget_guard_finalize(self, ticket_id: str, **kwargs) -> None:
+        if ticket_id:
+            raise LLMServiceError('CLIENT_SETTLEMENT_FORBIDDEN')
 
     @staticmethod
     def _local_fallback_enabled() -> bool:
+        if os.getenv('BUDGET_GUARD_URL') or os.getenv('BUDGET_GUARD_MODE') == 'proxy':
+            return False
         value = (os.getenv("LLM_LOCAL_FALLBACK", "true") or "true").strip().lower()
         return value not in {"0", "false", "no", "off"}
 

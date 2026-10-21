@@ -1,0 +1,111 @@
+{
+  "note": "Read-only revalidation of actual existing Playwright execution; original blocked result preserved",
+  "checks": [
+    {
+      "manifest": "ACT-S01-ADD-2.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S01-ADD-3.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S01-ADD-4.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S01-ADD-5.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S01-CREATE.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S01-FILL-1.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S01-FILL-2.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S01-FILL-3.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S01-FILL-4.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S01-FILL-5.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S02-HINTS.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S02-OPEN.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S02-SAVE-HINTS.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S02-TAB.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    },
+    {
+      "manifest": "ACT-S02-TRIGGER.json",
+      "result": [
+        true,
+        "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+      ]
+    }
+  ],
+  "status": "OFFLINE_BROWSER_UI_SMOKE"
+}

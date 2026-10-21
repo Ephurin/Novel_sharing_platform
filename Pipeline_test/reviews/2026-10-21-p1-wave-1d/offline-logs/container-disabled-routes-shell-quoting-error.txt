@@ -1,0 +1,4 @@
+  File "<string>", line 1
+    from core.llm_service import LLMService,LLMServiceError; from infrastructure.embedding_providers import GeminiEmbeddingProvider,EmbeddingProviderError; p=GeminiEmbeddingProvider(api_key='offline-dummy'); exec('try:\n p.embed_query(\
+                                                                                                                                                                                                                     ^
+SyntaxError: unterminated string literal (detected at line 1)

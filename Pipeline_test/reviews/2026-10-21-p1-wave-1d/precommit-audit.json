@@ -1,0 +1,9 @@
+{
+  "secret_scan": "PASS",
+  "scope": "All staged bytes and decompressed ZIP contents compared against both private offline env credentials and JWT pattern; no matches.",
+  "private_env_and_raw_traces_staged": false,
+  "historical_pytest_cache_changes_staged": false,
+  "remote_before_commit": "5da4412dc294f306090438c45980bb53584f2b6e",
+  "raw_test_log_whitespace": "Preserved as emitted; excluded from source style checks.",
+  "branch": "codex/ai-copilot-pipeline-test"
+}

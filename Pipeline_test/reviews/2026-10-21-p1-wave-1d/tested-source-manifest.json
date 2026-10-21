@@ -1,0 +1,20 @@
+{
+  "base_head": "5da4412dc294f306090438c45980bb53584f2b6e",
+  "note": "Working-tree hashes for reviewed code/config; final commit is returned after commit/push. Runtime image SHAs in per-run runtime captures.",
+  "files": {
+    "Pipeline_test/tools/browser_author_driver.py": "51f4f97ae139ed987884c319d48240520d95262bde125ac0dc5f8cca4c2a9de2",
+    "Pipeline_test/tools/budget_gateway.py": "c728702fcffc2d8b3e32acf6f78a328ec28ca0e7063e726a3cb44469baca9f93",
+    "Pipeline_test/tools/capture_wave1d_runtime.py": "c0718f7610b3781d9feca06ec2d028b6f2cddfd1851b5585dd8ccaca252e1c65",
+    "Pipeline_test/tools/compose.wave1d-offline.yml": "76583a1b7329e1426b7511df6067d583032ce63a2b47c549f28bff05ff053931",
+    "Pipeline_test/tools/container_boundary_probe.py": "b00ef288386add2793981a5a14cbbe21ae55689387ac87d78ba4a2897549003f",
+    "Pipeline_test/tools/fake_provider_upstream.py": "9d0b65c55835f92c34a454cc16c73e60c4ee19132737b2e9414f22c5def10029",
+    "Pipeline_test/tools/prepare_wave1d_offline.py": "0b209cda4feff4d762527aee591bc39df22f6fab55cfffc1e2c15308df2a252b",
+    "Pipeline_test/tools/provenance.py": "df059e3a0d4b997a20fe8ab7e6c424052af25b88554c81d1ef03134463e3657a",
+    "Pipeline_test/tools/requirements-wave1d.txt": "3bbf3422f6e008659ac76b3c3a32e1d367202abda15c38f7a0ff52e77ce2f1a7",
+    "Pipeline_test/tools/seed_wave1d_author.mjs": "2eb14abed755621b39346d0a14b0d874411b31cfb3af9ac0a2dcf0acfc744ae3",
+    "Pipeline_test/tools/verify_wave1d_worker_guards.py": "41c9b85353103fb45e15730c73d377117e085463dbee9cbc00c466ba1f1e0723",
+    "ai-service/core/llm_service.py": "723655e1b72c16805945d4f40b0acd3597bd0256c7487417a73a9255658ca5e8",
+    "ai-service/infrastructure/embedding_providers.py": "a53089c117f8f492b1687827464a354e965ddef0b5855e43243baf7e9e22bb3f",
+    "backend/src/modules/ai-copilot/llm-provider.ts": "b40b51741cfec4de4fdb41ed16fd383b04d1be70278cde4f203a27fcf1b50793"
+  }
+}

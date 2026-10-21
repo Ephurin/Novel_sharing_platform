@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tools/container_boundary_probe.py", line 86, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tools/container_boundary_probe.py", line 74, in main
+    else:raise AssertionError('Missing/corrupt ledger silently reset')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Missing/corrupt ledger silently reset

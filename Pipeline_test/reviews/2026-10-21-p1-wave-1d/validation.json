@@ -1,0 +1,46 @@
+{
+  "verdict": "P1_WAVE_1D_READY_FOR_GPT6_REVIEW",
+  "scope": "OFFLINE_INTEGRATION_ONLY",
+  "gates": {
+    "V1D-01": "PASS_OFFLINE",
+    "V1D-02": "PASS_OFFLINE",
+    "V1D-03": "PASS_OFFLINE",
+    "V1D-04": "PASS_OFFLINE",
+    "V1D-05": "PASS_OFFLINE",
+    "V1D-06": "PASS_OFFLINE"
+  },
+  "tests": {
+    "offline_tools": {
+      "passed": 76,
+      "skipped": 4
+    },
+    "executed_container_integration": {
+      "passed": 4
+    },
+    "container_boundary_checks": {
+      "passed": 10
+    },
+    "ai_service": {
+      "passed": 407,
+      "skipped": 2,
+      "deselected": 42
+    },
+    "backend": {
+      "passed": 62
+    }
+  },
+  "browser": {
+    "status": "OFFLINE_BROWSER_UI_SMOKE",
+    "attempt": "browser-attempt-04",
+    "actions": 16,
+    "novel_id": "6249b30e-56c9-44d8-9a7e-ad0f73f0d09a"
+  },
+  "unmetered_dispatches": 0,
+  "external_provider_calls": 0,
+  "real_provider_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+  "live_authorized": false,
+  "P1_acceptance": "NOT_ESTABLISHED",
+  "P2": "NOT_RUN",
+  "P3": "NOT_RUN",
+  "100k": "NOT_RUN"
+}

@@ -1,0 +1,18 @@
+{
+  "project": "p1-wave1d-20261021-browser-01",
+  "run_id": "2026-10-21-p1-wave1d-browser-01",
+  "env_file": "Pipeline_test\\tools\\.env.p1-wave1d-20261021-browser-01",
+  "ports": {
+    "WAVE1D_WEB_PORT": "27912",
+    "WAVE1D_BACKEND_PORT": "27913",
+    "WAVE1D_AI_PORT": "27914",
+    "WAVE1D_GATE_PORT": "27915",
+    "WAVE1D_FAKE_PORT": "27916"
+  },
+  "env_sha256": "b2b40723d26d811787e6e8f8ad6cfeaefffe4ca5faccc72f4570b05b1bdccd8e",
+  "source_head": "5da4412dc294f306090438c45980bb53584f2b6e",
+  "runtime_started": false,
+  "container_ownership": "NOT_YET_OBSERVED",
+  "external_provider_calls": 0,
+  "mode": "OFFLINE_FAKE_UPSTREAM_ONLY"
+}

@@ -33,11 +33,28 @@ type ModelsResponse = {
   }>;
 };
 
+function providerSettings() {
+  const guard = process.env.BUDGET_GUARD_URL?.replace(/\/$/, '');
+  if (!guard) {
+    if (process.env.BUDGET_GUARD_MODE === 'proxy') throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guard URL is required');
+    return { baseUrl: env.AI_LLM_BASE_URL, key: env.AI_LLM_API_KEY };
+  }
+  const url = new URL(guard);
+  const key = process.env.BUDGET_GUARD_AUTH_TOKEN;
+  if (process.env.BUDGET_GUARD_MODE !== 'proxy' || !key || url.protocol !== 'http:' ||
+      !['budget-gateway', '127.0.0.1', 'localhost'].includes(url.hostname) ||
+      url.pathname !== '/' || url.search || url.username) {
+    throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guarded egress configuration is invalid');
+  }
+  return { baseUrl: `${guard}/v1`, key };
+}
+
 export function isLlmConfigured() {
   return Boolean(env.AI_LLM_BASE_URL);
 }
 
 export async function checkLlmProviderHealth() {
+  const settings = providerSettings();
   if (!env.AI_LLM_BASE_URL) {
     return {
       ready: false,
@@ -53,12 +70,12 @@ export async function checkLlmProviderHealth() {
   const timeout = setTimeout(() => controller.abort(), Math.min(env.AI_LLM_TIMEOUT_MS, 15000));
 
   try {
-    const response = await fetch(`${env.AI_LLM_BASE_URL.replace(/\/$/, '')}/models`, {
+    const response = await fetch(`${settings.baseUrl!.replace(/\/$/, '')}/models`, {
       method: 'GET',
       signal: controller.signal,
       headers: {
         'ngrok-skip-browser-warning': 'true',
-        ...(env.AI_LLM_API_KEY ? { Authorization: `Bearer ${env.AI_LLM_API_KEY}` } : {})
+        ...(settings.key ? { Authorization: `Bearer ${settings.key}` } : {})
       }
     });
 
@@ -110,6 +127,7 @@ export async function checkLlmProviderHealth() {
 }
 
 export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContext) {
+  const settings = providerSettings();
   if (!env.AI_LLM_BASE_URL) {
     throw new AppError(500, 'AI_001', 'AI LLM base URL is not configured');
   }
@@ -118,14 +136,14 @@ export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContex
   const timeout = setTimeout(() => controller.abort(), env.AI_LLM_TIMEOUT_MS);
 
   try {
-    const response = await fetch(`${env.AI_LLM_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
+    const response = await fetch(`${settings.baseUrl!.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
         'X-Client-Service': 'backend-copilot',
-        ...(env.AI_LLM_API_KEY ? { Authorization: `Bearer ${env.AI_LLM_API_KEY}` } : {})
+        ...(settings.key ? { Authorization: `Bearer ${settings.key}` } : {})
       },
       body: JSON.stringify({
         model: env.AI_LLM_MODEL,

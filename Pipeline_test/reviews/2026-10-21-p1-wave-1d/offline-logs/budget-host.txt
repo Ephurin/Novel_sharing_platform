@@ -1,0 +1,26 @@
+.......F...........                                                      [100%]
+================================== FAILURES ===================================
+____ test_200th_is_last_dispatch_and_concurrent_clients_cannot_take_201st _____
+
+stack = ('http://127.0.0.1:20900', <Pipeline_test.tools.budget_gateway.AuthoritativeBudgetLedger object at 0x00000210EE150CE0>... 'native_schema': None, 'output_limit': 20, ...}, ...], <http.server.ThreadingHTTPServer object at 0x00000210EE152510>)
+
+    def test_200th_is_last_dispatch_and_concurrent_clients_cannot_take_201st(stack):
+        url, ledger, received, _=stack
+>       for _ in range(199): assert post(url+'/v1/chat/completions',body())[0]==200
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 503 == 200
+
+Pipeline_test\tests\test_cross_container_budget_gate.py:82: AssertionError
+============================== warnings summary ===============================
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\cacheprovider.py:475
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\cacheprovider.py:475: PytestCacheWarning: cache could not write path C:\Users\Laptop\OneDrive\Documents\testproject\.pytest_cache\v\cache\nodeids: [Errno 13] Permission denied: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\.pytest_cache\\v\\cache\\nodeids'
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\cacheprovider.py:429
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\cacheprovider.py:429: PytestCacheWarning: could not create cache path C:\Users\Laptop\OneDrive\Documents\testproject\.pytest_cache\v\cache\lastfailed: [WinError 5] Access is denied: 'C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\.pytest_cache\\v\\cache'
+    config.cache.set("cache/lastfailed", self.lastfailed)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED Pipeline_test/tests/test_cross_container_budget_gate.py::test_200th_is_last_dispatch_and_concurrent_clients_cannot_take_201st
+1 failed, 18 passed, 2 warnings in 32.75s

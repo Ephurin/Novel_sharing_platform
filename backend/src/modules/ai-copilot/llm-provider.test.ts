@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { env } from '../../core/config/env.js';
-import { checkLlmProviderHealth } from './llm-provider.js';
+import { checkLlmProviderHealth, generateCopilotSuggestionWithLlm } from './llm-provider.js';
 
 describe('AI Copilot LLM Provider Health Check', () => {
   const originalBaseUrl = env.AI_LLM_BASE_URL;
@@ -93,4 +93,27 @@ describe('AI Copilot LLM Provider Health Check', () => {
       globalThis.fetch = originalFetch;
     }
   });
+});
+
+test('proxy mode with missing or external guard URL fails before any fetch', async () => {
+  const saved = Object.fromEntries(['BUDGET_GUARD_MODE','BUDGET_GUARD_URL','BUDGET_GUARD_AUTH_TOKEN']
+    .map(key => [key, process.env[key]]));
+  const originalFetch = globalThis.fetch;
+  let requests = 0;
+  globalThis.fetch = (async () => { requests++; throw Error('Unexpected transport'); }) as typeof fetch;
+  try {
+    process.env.BUDGET_GUARD_MODE = 'proxy';
+    process.env.BUDGET_GUARD_AUTH_TOKEN = 'offline-worker';
+    for (const url of ['', 'https://generativelanguage.googleapis.com', 'http://untrusted.example']) {
+      process.env.BUDGET_GUARD_URL = url;
+      await assert.rejects(generateCopilotSuggestionWithLlm({ instruction:'offline', recentText:'An',
+        characters:[], recentEvents:[] }), (error: any) => error.code === 'GUARD_CONFIGURATION_INVALID');
+    }
+    assert.equal(requests, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+    for (const [key,value] of Object.entries(saved)) {
+      if (value === undefined) delete process.env[key]; else process.env[key] = value;
+    }
+  }
 });

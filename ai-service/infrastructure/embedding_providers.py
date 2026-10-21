@@ -69,6 +69,8 @@ class GeminiEmbeddingProvider:
         kind: str,
         retry_rate_limits: bool,
     ) -> tuple[tuple[float, ...], ...]:
+        if os.getenv('BUDGET_GUARD_URL') or os.getenv('BUDGET_GUARD_MODE') == 'proxy':
+            raise EmbeddingProviderError('GUARDED_P1_EMBEDDING_DISABLED')
         if not texts or any(not text.strip() for text in texts):
             raise EmbeddingProviderError(
                 f"Cannot embed empty semantic-memory {kind}"

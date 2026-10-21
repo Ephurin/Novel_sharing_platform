@@ -125,109 +125,14 @@ def sync_new_provider_calls(since_seconds: int = 180, default_operation: str = "
     return count
 
 
-def validate_browser_evidence(
-    response_evidence: str,
-    action_id: str,
-    novel_id: str,
-    run_dir: Optional[Path] = None,
-) -> Tuple[bool, str]:
-    """
-    Validates that evidence claimed as LIVE_UI represents an authentic
-    browser automation session per Wave 1C requirements (V1C-02):
-    1. Rejects mere string filenames, empty paths, or synthetic labels.
-    2. The referenced artifact file MUST actually exist on disk and be non-empty (>0 bytes).
-    3. If evidence is an image (.png) or DOM (.html), an accompanying provenance manifest
-       (.json) MUST exist containing:
-       - action_kind: click, type, upload, navigate, select, etc.
-       - application_url: valid HTTP(S) URL
-       - timestamp: ISO-8601 string
-       - correlating novel_id matching the action
-    """
-    if not response_evidence or not response_evidence.strip():
-        return False, "Empty or missing response evidence path"
-
-    raw_path = Path(response_evidence.strip())
-    base_dir = run_dir or RUN_DIR
-    target_path = raw_path if raw_path.is_absolute() else (base_dir / raw_path)
-
-    if not target_path.exists():
-        return False, f"Referenced browser evidence file does not exist on disk: {target_path}"
-
-    try:
-        file_size = target_path.stat().st_size
-    except OSError as e:
-        return False, f"Could not stat evidence file: {e}"
-
-    if file_size <= 0:
-        return False, f"Evidence file is empty (0 bytes): {target_path}"
-
-    # If it is a provenance JSON manifest directly
-    if target_path.suffix.lower() == ".json":
-        try:
-            with open(target_path, "r", encoding="utf-8") as f:
-                manifest = json.load(f)
-            if not isinstance(manifest, dict):
-                return False, "Evidence JSON is not a dictionary manifest"
-            action_kind = manifest.get("action_kind") or manifest.get("action")
-            app_url = manifest.get("application_url") or manifest.get("url")
-            ts = manifest.get("timestamp")
-            m_novel_id = manifest.get("novel_id")
-
-            if not action_kind or str(action_kind).lower() not in {"click", "type", "upload", "navigate", "select", "press"}:
-                return False, f"Invalid or missing action_kind in provenance: {action_kind}"
-            if not app_url or not (str(app_url).startswith("http://") or str(app_url).startswith("https://")):
-                return False, f"Invalid application_url in provenance: {app_url}"
-            if not ts:
-                return False, "Missing timestamp in provenance manifest"
-            if novel_id and m_novel_id and str(m_novel_id) != str(novel_id):
-                return False, f"Provenance novel_id mismatch: {m_novel_id} != {novel_id}"
-            return True, "Authentic browser automation JSON manifest verified"
-        except Exception as e:
-            return False, f"Corrupted or invalid provenance JSON: {e}"
-
-    # If it is a screenshot (.png) or DOM (.html)
-    if target_path.suffix.lower() in {".png", ".html"}:
-        prov_file = target_path.with_suffix(".json")
-        if not prov_file.exists():
-            alt_prov = target_path.parent / f"{target_path.stem}_provenance.json"
-            if alt_prov.exists():
-                prov_file = alt_prov
-            else:
-                return False, f"Screenshot/DOM artifact {target_path.name} lacks accompanying action provenance manifest (.json)"
-        return validate_browser_evidence(str(prov_file), action_id, novel_id, run_dir=base_dir)
-
-    return False, f"Unrecognized browser evidence artifact format: {target_path.suffix}"
+def validate_browser_evidence(response_evidence, action_id, novel_id, run_dir=None, **scope):
+    from Pipeline_test.tools.provenance import validate_browser_evidence as validate
+    return validate(response_evidence, action_id, novel_id, run_dir=run_dir or RUN_DIR, **scope)
 
 
-def verify_manuscript_gold_hashes(existing_chapters: List[Dict[str, Any]], fixture_dir: Optional[Path] = None) -> Tuple[bool, str]:
-    """Verifies that all 5 existing chapters match the exact canonical fixture content hashes (V1C-03)."""
-    if len(existing_chapters) != 5:
-        return False, f"Expected exactly 5 chapters, found {len(existing_chapters)}"
-
-    f_dir = fixture_dir or FIXTURE_DIR
-    chapter_files = [
-        ("ch01.md", 1),
-        ("ch02.md", 2),
-        ("ch03.md", 3),
-        ("ch04.md", 4),
-        ("ch05.md", 5),
-    ]
-    for (fname, expected_ch_num), ch in zip(chapter_files, existing_chapters):
-        fpath = f_dir / fname
-        if not fpath.exists():
-            return False, f"Fixture file {fname} not found"
-        expected_content = fpath.read_text(encoding="utf-8")
-        expected_sha = hashlib.sha256(expected_content.encode("utf-8")).hexdigest()
-
-        server_hash = ch.get("contentHash") or ch.get("latestRevisionHash") or ""
-        ch_id = ch.get("chapterId") or ch.get("id")
-        rev_id = ch.get("latestRevisionId") or ch.get("revisionId")
-        if not rev_id or rev_id == ch_id:
-            return False, f"Chapter {expected_ch_num} has missing or identical revision_id ({rev_id})"
-        if server_hash and server_hash != expected_sha:
-            return False, f"Chapter {expected_ch_num} content hash mismatch: {server_hash} != {expected_sha}"
-
-    return True, "All 5 chapters match gold fixture hashes"
+def verify_manuscript_gold_hashes(existing_chapters, fixture_dir=None, **scope):
+    from Pipeline_test.tools.provenance import verify_manuscript_gold_hashes as verify
+    return verify(existing_chapters, fixture_dir=fixture_dir or FIXTURE_DIR, **scope)
 
 
 def record_action(

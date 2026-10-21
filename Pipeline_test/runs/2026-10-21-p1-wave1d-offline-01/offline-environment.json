@@ -1,0 +1,18 @@
+{
+  "project": "p1-wave1d-20261021-offline-01",
+  "run_id": "2026-10-21-p1-wave1d-offline-01",
+  "env_file": "Pipeline_test\\tools\\.env.p1-wave1d-20261021-offline-01",
+  "ports": {
+    "WAVE1D_WEB_PORT": "62471",
+    "WAVE1D_BACKEND_PORT": "62472",
+    "WAVE1D_AI_PORT": "62473",
+    "WAVE1D_GATE_PORT": "62474",
+    "WAVE1D_FAKE_PORT": "62475"
+  },
+  "env_sha256": "191612cf5817f1e0337bfc1190a1cc0445be08d73827d4c41272a7ec62de5325",
+  "source_head": "5da4412dc294f306090438c45980bb53584f2b6e",
+  "runtime_started": false,
+  "container_ownership": "NOT_YET_OBSERVED",
+  "external_provider_calls": 0,
+  "mode": "OFFLINE_FAKE_UPSTREAM_ONLY"
+}

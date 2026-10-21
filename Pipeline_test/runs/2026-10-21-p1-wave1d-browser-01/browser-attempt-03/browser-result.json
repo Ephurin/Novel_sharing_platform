@@ -1,0 +1,75 @@
+{
+  "status": "OFFLINE_BROWSER_UI_SMOKE",
+  "reason": null,
+  "evidence_checks": [
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ],
+    [
+      true,
+      "Consistent executed-browser artifact bundle; not cryptographic authenticity"
+    ]
+  ],
+  "session_id": "d9e607fe-2857-43e7-8167-4d0f1befb60d",
+  "novel_id": "98dcdc44-022e-40a4-b667-f0ccbaf59aa0",
+  "user_id": "471849d1-ced3-440f-a56b-b01095ef5525",
+  "actions": 16,
+  "real_provider_live_ui": "NOT_RUN"
+}

@@ -1,0 +1,4159 @@
+{
+  "run_id": "2026-10-21-p1-wave1d-browser-01",
+  "session_id": "d9e607fe-2857-43e7-8167-4d0f1befb60d",
+  "novel_id": "98dcdc44-022e-40a4-b667-f0ccbaf59aa0",
+  "user_id": "471849d1-ced3-440f-a56b-b01095ef5525",
+  "captured_at": "2026-10-21T13:24:23.517095+00:00",
+  "reviews": [
+    {
+      "chunks": [
+        {
+          "end": 3995,
+          "start": 0
+        },
+        {
+          "end": 5480,
+          "start": 3736
+        }
+      ],
+      "counts": {
+        "candidates": 170,
+        "not_entity": 170
+      },
+      "policy": "entity-candidates-v1",
+      "status": "waiting_entity_review",
+      "aliases": [],
+      "request": {
+        "options": {
+          "extract_events": true,
+          "build_embeddings": false,
+          "extract_entities": true,
+          "check_consistency": true,
+          "extract_prose_facts": true,
+          "extract_world_rules": true,
+          "review_fact_coverage": true,
+          "extract_state_transitions": true
+        },
+        "novel_id": "98dcdc44-022e-40a4-b667-f0ccbaf59aa0",
+        "operation": "bootstrap_manuscript",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "chapter_id": "b7e6b912-55ec-4124-8cde-7f6ba8e55db1",
+        "revision_id": "27f117ec-b0af-4729-8543-13ae314ed640",
+        "content_hash": "02096c1bd1ad214e1cd9edd8c8e2103b1468d597d79b7ac7af2067b6f9c6b543",
+        "idempotency_key": "bootstrap:89e7d6c6-618c-513e-9f2d-4e2f60e2b0a0:27f117ec-b0af-4729-8543-13ae314ed640"
+      },
+      "entities": [],
+      "decisions": [
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "66d9ec2110b05e0bdb1e7e05",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "d9c925900d0991aa78a4dc34",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e7e09141c4011ec1c4faffa1",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "ede343790f243f1deffed4c6",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "2d83a00af90317d72cc46ee7",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "ce9f6be2b5362ca9b55c2a20",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "1ad9dd2250c0bae35651233e",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "71975884818622f362545915",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "4e43deb0b14c3f73924290be",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "8627f3a0cbf6a54c75d53f3d",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "04c78365f209bdc12954579b",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "b37b261f4c1f00f263bcad76",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e6f9f55b08b68576270304cf",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "7c7e6c0cd70e34acb04edabf",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "2a2459bd488131acad6f345b",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "d663820131f1f8db9ccdf082",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "0f5d9b0fcf74f6822a02aada",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "996b2e216d4d1c925cf8d255",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "09e2c4414e10b059cbb42d2f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "405ae3e2850dd253ff933d9c",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "45652f9ac2cd58cd99a88981",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "dc6a55cc54884c7223c3b935",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "bc6de259abe79e36a7765f85",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "be59917157492b72dfc82d8c",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "7a0a355078b4c61242f5147d",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "51cc2d5ea72fa71fe488bf3f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "465e0590693078270f641af4",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "5244bc6494c0d33768be59ac",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "294a61b1d627ad607d7bdb69",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "58d23ae76ce090cecb085c34",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "05534e2ba4043e0179b8ee45",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "274c06b71abdcbf97d876e62",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "cd7537891bbfbcb63beffb23",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "deac089fe6881043f3919ad6",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "cb9294b07bf527cf92fca962",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "26d0193401ef011e5d46441a",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "74e6e03849e1bd608a5f021a",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e30320ff581225e6d057a066",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "f3ab14ff381d37769a0aba10",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "a814f02eaa9f00b22fffab09",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "1babbd9560cfdd0e51230b3a",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "b9a93309f8f54590538bbe55",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "05e2a332170ea5f7d5d7ac5c",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "6db56da93c1e4b6f9383302f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "f1848bcdfcfd2e50f813e8e3",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "a3d7b1aab97f3a6d91fc1bf0",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "2ded447a6fbbfa2bf2dff2ea",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "894546780bd8bedd4ebcd80d",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "5a222c5fb92c56fc5ec3cfc3",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "14a9c687a3f2c2414de0863f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "ce2e560434f8058ea2fbf5c7",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "cbe2f8764266ac5adf5758be",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "fa3a7bd737db6634f74c23af",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "8dea8acd438d6fdd67357d00",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "f24d34559c0c0d2233322740",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "587cf444d108212397ddb5d5",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "f94bb9c49f0d7c88338e5b95",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "2b194494e8dc12ec6152e862",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "292905c1af1b26fba8d25ceb",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "b751ad545a438ef2637871ee",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "68213c5a32e45efa79ee5358",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "75840c642ca8509926bcb933",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "06d7c94aed772949bfd48aa8",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "ef9dba5e1a0e86107c124179",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "a5d95e4f9282186b0e548613",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "a7ec1ec2113b0cd750749266",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "fc5e9384383c9fc06df44703",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "c808a58b6a14645d9e51d921",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "f64157cef891e6629111a870",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "cc40ffe9d30ebbed744f3dc1",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "ff2cda51d21a9b349797ffaa",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "9462b48d4c5bcc634ecee841",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "5c23bf23f0d7b8423aba4c77",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "cd677cdd2ac1b2d489abadb8",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "64599c50ada088713a1e66a6",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "c0a1028771d6fa7bef97c585",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "31dc2f5825d2335687961b2e",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "c61ddfdb4e100b593d6e3cc7",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "cbe6d6578b1a1261bcd93ed8",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "306198bb35329531c2092159",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "f1225754f1dbb0ba3deab85f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e5c8403b11211db9b688605f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "944f35d3ecbbe081a268b68b",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e1d97e31f4f090f575c9c133",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "6ed0fdeb2f8267fee7f0491f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "56116c9be3f0f58910dbb2cb",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "1a3b729112ae051a013ae62e",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "012f1f42b18a85b8fba02b3d",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "41f68e5528824b18dea054d2",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "64b406a8229ab8b29d56ddf7",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "fdf9bcac2c188b72a9c36edf",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "6e3cf49576a6d7dc7d27a4e9",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "96233c7551e540a5087d840c",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "cce8b6f2be5db81e0244f8e3",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "c6092cdc055f350ca0b827f3",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "bac33e959c56b777fe7807cb",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "5c66640ecd31633dd2242c90",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "3f0dc1f7d93d702c57996fe0",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "b83a26f2d2b4e7b6d77dde78",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "5208fdbcc79c900010fd4d6f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "3d40d8f5a503496d7f7c37d2",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "2e1b50018ac2251c80c50060",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "7b74659f1fa7ad2d74511032",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "f9c760dc71fa179f07234d7f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "dbc7951eae6890d983146cd1",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "3805c2cdc4f4fbd1dab807cd",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "2ed81bf95f3f723eb2dab1ab",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "9b8171a0737ddc91331d7ee2",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "69347b4e4b3f6a3606a23b3a",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "8d8719b98b04201f8199c99c",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "01cf70c5ab8880a72f076eee",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "050f11978ea1092982352e13",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "63cc35a984225e825d2f6bc0",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "759f5e35b12c936b35ad28ba",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "21ce042bdc926835b9df90e3",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "72646ff6d992fec3418d54e4",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "b08afac5a587fd55f96f317e",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "24a44624d66f5ec6857de430",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "dc0daa8724e5672edb6827ca",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "a7a9c2abccf4bbabddf47097",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e656b8902c85f68b52224604",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "4083922fdec5faf1aa83f6ce",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "4cd769377d29f3b93e94e78a",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "2dff5b5514aad4814fdf91e1",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "df55254971ad9b250f66e8c2",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "8415e6c2001bf30e7d08e949",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "19299b423d97d041e7c6ef93",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "5ceafbfa80233b5892e0962f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "6bf1933b16150c3db547c5d0",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "82a29b6f77321f80e2b1129e",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "3ae58138c664d5e1fe68497d",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e5a6a598971485e77d63ef99",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "a2fb17cd7056aedae662d7fd",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "5f57993424e188aaa7593dd2",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "056941f325a9c4d5d1d1be25",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "4d745a15bd196ffc68119334",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "91b1216663b167a149f00de4",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "8dfecf86fc48c26c56e16156",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "c1cfb33841127620d7be4787",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "b7a1499f72d778b8b600b392",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "ffafaeb45d805d827d6f9a9b",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "1cf7c2f27566148958dc729b",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e7a2476d0d7a5c0843fbf65d",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "3cda7a9f32c8ed464d56fbed",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e6937e3826069a50fcaa2056",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "ea16f0919c419ce5c8aedfc8",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "5b64406a6adb7ccc168c5f0f",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e7b75398939ab0dc18975ca6",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "087dfcea7a60658cad3d8f7b",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "d39b4927bb654e9d66b714a9",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "42d2ef6a16aa9506a26e73d1",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "cf2055f38c4589449eb2ea18",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "f3f53e9fb93689f34959c727",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "db82035e6754b9c26bce5cd4",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "baa09c934ee1c7a97e235425",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e64c492a0e71388201262ab2",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "03dfae39413f932281ef387a",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e28bd964e13cd18101bc0c55",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "0856862bba615e8fd342d24c",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "82449960951b73a371e5fbfa",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "fd820d1c7fa89431a3a81455",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "7d7a1b5ef0418c62e49c7b9b",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "0d1cab35695938b542ae6651",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e9bfbb5701aa41bbae4bf927",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "ffc5c007b6ced3b3d800552d",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "bfd25a79923b42d76c971036",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "cca7189bf342fb0a66747651",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "637690585717e3ac1517f272",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "94552ad435c5d0e3917474ae",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        },
+        {
+          "reason": "Offline deterministic fixture, not a quality verdict",
+          "verdict": "not_entity",
+          "confidence": 0.7,
+          "entity_type": null,
+          "candidate_id": "e412b5f8ae61c0588ab53d0d",
+          "status_quote": "",
+          "canonical_name": "",
+          "identity_quote": "",
+          "initial_status": "Unknown",
+          "canonical_entity_id": ""
+        }
+      ],
+      "candidates": [
+        {
+          "end": 8,
+          "start": 2,
+          "context": "# Chương 1 — Bến trở về\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Chương",
+          "context_end": 208,
+          "candidate_id": "66d9ec2110b05e0bdb1e7e05",
+          "context_start": 0
+        },
+        {
+          "end": 16,
+          "start": 13,
+          "context": "# Chương 1 — Bến trở về\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bến",
+          "context_end": 216,
+          "candidate_id": "d9c925900d0991aa78a4dc34",
+          "context_start": 0
+        },
+        {
+          "end": 30,
+          "start": 13,
+          "context": "# Chương 1 — Bến trở về\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước,",
+          "origins": [
+            "title_or_location"
+          ],
+          "surface": "Bến trở về\n\nChiếc",
+          "context_end": 230,
+          "candidate_id": "e7e09141c4011ec1c4faffa1",
+          "context_start": 0
+        },
+        {
+          "end": 30,
+          "start": 25,
+          "context": "# Chương 1 — Bến trở về\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước,",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Chiếc",
+          "context_end": 230,
+          "candidate_id": "ede343790f243f1deffed4c6",
+          "context_start": 0
+        },
+        {
+          "end": 79,
+          "start": 76,
+          "context": "# Chương 1 — Bến trở về\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Mai",
+          "context_end": 279,
+          "candidate_id": "2d83a00af90317d72cc46ee7",
+          "context_start": 0
+        },
+        {
+          "end": 84,
+          "start": 76,
+          "context": "# Chương 1 — Bến trở về\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đ",
+          "origins": [
+            "author_guidance",
+            "capitalized_sequence"
+          ],
+          "surface": "Mai Linh",
+          "context_end": 284,
+          "candidate_id": "ce9f6be2b5362ca9b55c2a20",
+          "context_start": 0
+        },
+        {
+          "end": 84,
+          "start": 80,
+          "context": "# Chương 1 — Bến trở về\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 284,
+          "candidate_id": "1ad9dd2250c0bae35651233e",
+          "context_start": 0
+        },
+        {
+          "end": 135,
+          "start": 134,
+          "context": "# Chương 1 — Bến trở về\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giốn",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ở",
+          "context_end": 335,
+          "candidate_id": "71975884818622f362545915",
+          "context_start": 0
+        },
+        {
+          "end": 215,
+          "start": 211,
+          "context": "— Bến trở về\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay,",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Mười",
+          "context_end": 415,
+          "candidate_id": "4e43deb0b14c3f73924290be",
+          "context_start": 11
+        },
+        {
+          "end": 270,
+          "start": 267,
+          "context": "của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Mỗi",
+          "context_end": 470,
+          "candidate_id": "8627f3a0cbf6a54c75d53f3d",
+          "context_start": 67
+        },
+        {
+          "end": 386,
+          "start": 383,
+          "context": "ũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nh",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bây",
+          "context_end": 586,
+          "candidate_id": "04c78365f209bdc12954579b",
+          "context_start": 183
+        },
+        {
+          "end": 478,
+          "start": 474,
+          "context": " bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\n\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc v",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 678,
+          "candidate_id": "b37b261f4c1f00f263bcad76",
+          "context_start": 274
+        },
+        {
+          "end": 601,
+          "start": 599,
+          "context": "ép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\n\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Nó",
+          "context_end": 801,
+          "candidate_id": "e6f9f55b08b68576270304cf",
+          "context_start": 399
+        },
+        {
+          "end": 617,
+          "start": 614,
+          "context": ", nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\n\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ l",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Một",
+          "context_end": 817,
+          "candidate_id": "7c7e6c0cd70e34acb04edabf",
+          "context_start": 414
+        },
+        {
+          "end": 662,
+          "start": 660,
+          "context": "n vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\n\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\n\n“Đừng kéo. Bến này phải bế đồ qua.”\n\nLin",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 862,
+          "candidate_id": "2a2459bd488131acad6f345b",
+          "context_start": 460
+        },
+        {
+          "end": 700,
+          "start": 696,
+          "context": "h khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\n\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\n\n“Đừng kéo. Bến này phải bế đồ qua.”\n\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bánh",
+          "context_end": 900,
+          "candidate_id": "d663820131f1f8db9ccdf082",
+          "context_start": 496
+        },
+        {
+          "end": 718,
+          "start": 713,
+          "context": "áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\n\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\n\n“Đừng kéo. Bến này phải bế đồ qua.”\n\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Người",
+          "context_end": 918,
+          "candidate_id": "0f5d9b0fcf74f6822a02aada",
+          "context_start": 513
+        },
+        {
+          "end": 827,
+          "start": 823,
+          "context": " bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\n\n“Đừng kéo. Bến này phải bế đồ qua.”\n\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\n\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Đừng",
+          "context_end": 1027,
+          "candidate_id": "996b2e216d4d1c925cf8d255",
+          "context_start": 623
+        },
+        {
+          "end": 836,
+          "start": 833,
+          "context": "nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\n\n“Đừng kéo. Bến này phải bế đồ qua.”\n\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\n\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông c",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bến",
+          "context_end": 1036,
+          "candidate_id": "09e2c4414e10b059cbb42d2f",
+          "context_start": 633
+        },
+        {
+          "end": 863,
+          "start": 859,
+          "context": " Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\n\n“Đừng kéo. Bến này phải bế đồ qua.”\n\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\n\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 1063,
+          "candidate_id": "405ae3e2850dd253ff933d9c",
+          "context_start": 659
+        },
+        {
+          "end": 875,
+          "start": 872,
+          "context": "nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\n\n“Đừng kéo. Bến này phải bế đồ qua.”\n\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\n\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những v",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Câu",
+          "context_end": 1075,
+          "candidate_id": "45652f9ac2cd58cd99a88981",
+          "context_start": 672
+        },
+        {
+          "end": 938,
+          "start": 934,
+          "context": " chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\n\n“Đừng kéo. Bến này phải bế đồ qua.”\n\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\n\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Trên",
+          "context_end": 1138,
+          "candidate_id": "dc6a55cc54884c7223c3b935",
+          "context_start": 734
+        },
+        {
+          "end": 1043,
+          "start": 1040,
+          "context": " phải bế đồ qua.”\n\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\n\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết t",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bên",
+          "context_end": 1243,
+          "candidate_id": "bc6de259abe79e36a7765f85",
+          "context_start": 840
+        },
+        {
+          "end": 1112,
+          "start": 1107,
+          "context": " phải nhìn sang chỗ khác.\n\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi già",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Những",
+          "context_end": 1312,
+          "candidate_id": "be59917157492b72dfc82d8c",
+          "context_start": 907
+        },
+        {
+          "end": 1164,
+          "start": 1160,
+          "context": "hờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? C",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Vạch",
+          "context_end": 1364,
+          "candidate_id": "7a0a355078b4c61242f5147d",
+          "context_start": 960
+        },
+        {
+          "end": 1188,
+          "start": 1185,
+          "context": "ười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yê",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Một",
+          "context_end": 1388,
+          "candidate_id": "51cc2d5ea72fa71fe488bf3f",
+          "context_start": 985
+        },
+        {
+          "end": 1271,
+          "start": 1268,
+          "context": "những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cậu",
+          "context_end": 1471,
+          "candidate_id": "465e0590693078270f641af4",
+          "context_start": 1068
+        },
+        {
+          "end": 1352,
+          "start": 1349,
+          "context": " đều nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay.",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Chị",
+          "context_end": 1552,
+          "candidate_id": "5244bc6494c0d33768be59ac",
+          "context_start": 1149
+        },
+        {
+          "end": 1356,
+          "start": 1349,
+          "context": " đều nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An ",
+          "origins": [
+            "capitalized_sequence"
+          ],
+          "surface": "Chị Mai",
+          "context_end": 1556,
+          "candidate_id": "294a61b1d627ad607d7bdb69",
+          "context_start": 1149
+        },
+        {
+          "end": 1361,
+          "start": 1349,
+          "context": " đều nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ c",
+          "origins": [
+            "capitalized_sequence"
+          ],
+          "surface": "Chị Mai Linh",
+          "context_end": 1561,
+          "candidate_id": "58d23ae76ce090cecb085c34",
+          "context_start": 1149
+        },
+        {
+          "end": 1356,
+          "start": 1353,
+          "context": " nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Mai",
+          "context_end": 1556,
+          "candidate_id": "05534e2ba4043e0179b8ee45",
+          "context_start": 1153
+        },
+        {
+          "end": 1361,
+          "start": 1353,
+          "context": " nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ c",
+          "origins": [
+            "author_guidance",
+            "capitalized_sequence"
+          ],
+          "surface": "Mai Linh",
+          "context_end": 1561,
+          "candidate_id": "274c06b71abdcbf97d876e62",
+          "context_start": 1153
+        },
+        {
+          "end": 1361,
+          "start": 1357,
+          "context": "u. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ c",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 1561,
+          "candidate_id": "cd7537891bbfbcb63beffb23",
+          "context_start": 1157
+        },
+        {
+          "end": 1367,
+          "start": 1363,
+          "context": "h mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc t",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cháu",
+          "context_end": 1567,
+          "candidate_id": "deac089fe6881043f3919ad6",
+          "context_start": 1163
+        },
+        {
+          "end": 1374,
+          "start": 1368,
+          "context": " nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền n",
+          "origins": [
+            "title_or_location"
+          ],
+          "surface": "bà Yên",
+          "context_end": 1574,
+          "candidate_id": "cb9294b07bf527cf92fca962",
+          "context_start": 1168
+        },
+        {
+          "end": 1374,
+          "start": 1371,
+          "context": "ất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Yên",
+          "context_end": 1574,
+          "candidate_id": "26d0193401ef011e5d46441a",
+          "context_start": 1171
+        },
+        {
+          "end": 1382,
+          "start": 1379,
+          "context": "óng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Con",
+          "context_end": 1582,
+          "candidate_id": "74e6e03849e1bd608a5f021a",
+          "context_start": 1179
+        },
+        {
+          "end": 1389,
+          "start": 1383,
+          "context": "\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.",
+          "origins": [
+            "title_or_location"
+          ],
+          "surface": "bà Yên",
+          "context_end": 1589,
+          "candidate_id": "e30320ff581225e6d057a066",
+          "context_start": 1183
+        },
+        {
+          "end": 1389,
+          "start": 1386,
+          "context": "ột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Yên",
+          "context_end": 1589,
+          "candidate_id": "f3ab14ff381d37769a0aba10",
+          "context_start": 1186
+        },
+        {
+          "end": 1396,
+          "start": 1394,
+          "context": "iao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đườn",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Em",
+          "context_end": 1596,
+          "candidate_id": "a814f02eaa9f00b22fffab09",
+          "context_start": 1194
+        },
+        {
+          "end": 1405,
+          "start": 1403,
+          "context": "ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bà",
+          "context_end": 1605,
+          "candidate_id": "1babbd9560cfdd0e51230b3a",
+          "context_start": 1203
+        },
+        {
+          "end": 1409,
+          "start": 1403,
+          "context": "ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đan",
+          "origins": [
+            "capitalized_sequence",
+            "title_or_location"
+          ],
+          "surface": "Bà Sâm",
+          "context_end": 1609,
+          "candidate_id": "b9a93309f8f54590538bbe55",
+          "context_start": 1203
+        },
+        {
+          "end": 1409,
+          "start": 1406,
+          "context": "i trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đan",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Sâm",
+          "context_end": 1609,
+          "candidate_id": "05e2a332170ea5f7d5d7ac5c",
+          "context_start": 1206
+        },
+        {
+          "end": 1448,
+          "start": 1443,
+          "context": "ên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Người",
+          "context_end": 1648,
+          "candidate_id": "6db56da93c1e4b6f9383302f",
+          "context_start": 1243
+        },
+        {
+          "end": 1471,
+          "start": 1468,
+          "context": "Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cá",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cậu",
+          "context_end": 1671,
+          "candidate_id": "f1848bcdfcfd2e50f813e8e3",
+          "context_start": 1268
+        },
+        {
+          "end": 1501,
+          "start": 1499,
+          "context": " vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“K",
+          "origins": [
+            "author_guidance",
+            "capitalized_token"
+          ],
+          "surface": "An",
+          "context_end": 1701,
+          "candidate_id": "a3d7b1aab97f3a6d91fc1bf0",
+          "context_start": 1299
+        },
+        {
+          "end": 1536,
+          "start": 1534,
+          "context": "y khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trướ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 1736,
+          "candidate_id": "2ded447a6fbbfa2bf2dff2ea",
+          "context_start": 1334
+        },
+        {
+          "end": 1555,
+          "start": 1553,
+          "context": "Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơ",
+          "origins": [
+            "author_guidance",
+            "capitalized_token"
+          ],
+          "surface": "An",
+          "context_end": 1755,
+          "candidate_id": "894546780bd8bedd4ebcd80d",
+          "context_start": 1353
+        },
+        {
+          "end": 1597,
+          "start": 1592,
+          "context": "\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Đường",
+          "context_end": 1797,
+          "candidate_id": "5a222c5fb92c56fc5ec3cfc3",
+          "context_start": 1392
+        },
+        {
+          "end": 1618,
+          "start": 1616,
+          "context": "ải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại.",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Đi",
+          "context_end": 1818,
+          "candidate_id": "14a9c687a3f2c2414de0863f",
+          "context_start": 1416
+        },
+        {
+          "end": 1684,
+          "start": 1682,
+          "context": "tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Mẹ",
+          "context_end": 1884,
+          "candidate_id": "ce2e560434f8058ea2fbf5c7",
+          "context_start": 1482
+        },
+        {
+          "end": 1703,
+          "start": 1700,
+          "context": "n, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như x",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Kho",
+          "context_end": 1903,
+          "candidate_id": "cbe2f8764266ac5adf5758be",
+          "context_start": 1500
+        },
+        {
+          "end": 1711,
+          "start": 1709,
+          "context": "hín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Mẹ",
+          "context_end": 1911,
+          "candidate_id": "fa3a7bd737db6634f74c23af",
+          "context_start": 1509
+        },
+        {
+          "end": 1761,
+          "start": 1758,
+          "context": "ỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. N",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Nếu",
+          "context_end": 1961,
+          "candidate_id": "8dea8acd438d6fdd67357d00",
+          "context_start": 1558
+        },
+        {
+          "end": 1801,
+          "start": 1797,
+          "context": " lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 2001,
+          "candidate_id": "f24d34559c0c0d2233322740",
+          "context_start": 1597
+        },
+        {
+          "end": 1822,
+          "start": 1819,
+          "context": "thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Tin",
+          "context_end": 2022,
+          "candidate_id": "587cf444d108212397ddb5d5",
+          "context_start": 1619
+        },
+        {
+          "end": 1857,
+          "start": 1855,
+          "context": "ộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Đã",
+          "context_end": 2057,
+          "candidate_id": "f94bb9c49f0d7c88338e5b95",
+          "context_start": 1655
+        },
+        {
+          "end": 1868,
+          "start": 1866,
+          "context": "ột cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 2068,
+          "candidate_id": "2b194494e8dc12ec6152e862",
+          "context_start": 1666
+        },
+        {
+          "end": 1942,
+          "start": 1936,
+          "context": "c trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Thuyền",
+          "context_end": 2142,
+          "candidate_id": "292905c1af1b26fba8d25ceb",
+          "context_start": 1736
+        },
+        {
+          "end": 1953,
+          "start": 1950,
+          "context": "ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem c",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Chợ",
+          "context_end": 2153,
+          "candidate_id": "b751ad545a438ef2637871ee",
+          "context_start": 1750
+        },
+        {
+          "end": 1958,
+          "start": 1950,
+          "context": "ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cu",
+          "origins": [
+            "capitalized_sequence",
+            "title_or_location"
+          ],
+          "surface": "Chợ Giữa",
+          "context_end": 2158,
+          "candidate_id": "68213c5a32e45efa79ee5358",
+          "context_start": 1750
+        },
+        {
+          "end": 1958,
+          "start": 1954,
+          "context": "ơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cu",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Giữa",
+          "context_end": 2158,
+          "candidate_id": "75840c642ca8509926bcb933",
+          "context_start": 1754
+        },
+        {
+          "end": 1965,
+          "start": 1960,
+          "context": "u sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc t",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Những",
+          "context_end": 2165,
+          "candidate_id": "06d7c94aed772949bfd48aa8",
+          "context_start": 1760
+        },
+        {
+          "end": 2066,
+          "start": 2063,
+          "context": "á. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Một",
+          "context_end": 2266,
+          "candidate_id": "ef9dba5e1a0e86107c124179",
+          "context_start": 1863
+        },
+        {
+          "end": 2128,
+          "start": 2125,
+          "context": "ông việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và m",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Hai",
+          "context_end": 2328,
+          "candidate_id": "a5d95e4f9282186b0e548613",
+          "context_start": 1925
+        },
+        {
+          "end": 2183,
+          "start": 2180,
+          "context": "a mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kh",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cồn",
+          "context_end": 2383,
+          "candidate_id": "a7ec1ec2113b0cd750749266",
+          "context_start": 1980
+        },
+        {
+          "end": 2187,
+          "start": 2180,
+          "context": "a mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gố",
+          "origins": [
+            "capitalized_sequence"
+          ],
+          "surface": "Cồn Vân",
+          "context_end": 2387,
+          "candidate_id": "fc5e9384383c9fc06df44703",
+          "context_start": 1980
+        },
+        {
+          "end": 2187,
+          "start": 2184,
+          "context": "t kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gố",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Vân",
+          "context_end": 2387,
+          "candidate_id": "c808a58b6a14645d9e51d921",
+          "context_start": 1984
+        },
+        {
+          "end": 2247,
+          "start": 2245,
+          "context": "buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ ",
+          "origins": [
+            "author_guidance",
+            "capitalized_token"
+          ],
+          "surface": "An",
+          "context_end": 2447,
+          "candidate_id": "f64157cef891e6629111a870",
+          "context_start": 2045
+        },
+        {
+          "end": 2265,
+          "start": 2261,
+          "context": ". Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiế",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Trên",
+          "context_end": 2465,
+          "candidate_id": "cc40ffe9d30ebbed744f3dc1",
+          "context_start": 2061
+        },
+        {
+          "end": 2283,
+          "start": 2280,
+          "context": "g nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Đồi",
+          "context_end": 2483,
+          "candidate_id": "ff2cda51d21a9b349797ffaa",
+          "context_start": 2080
+        },
+        {
+          "end": 2287,
+          "start": 2280,
+          "context": "g nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười",
+          "origins": [
+            "capitalized_sequence",
+            "title_or_location"
+          ],
+          "surface": "Đồi Bắc",
+          "context_end": 2487,
+          "candidate_id": "9462b48d4c5bcc634ecee841",
+          "context_start": 2080
+        },
+        {
+          "end": 2287,
+          "start": 2284,
+          "context": "ng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bắc",
+          "context_end": 2487,
+          "candidate_id": "5c23bf23f0d7b8423aba4c77",
+          "context_start": 2084
+        },
+        {
+          "end": 2354,
+          "start": 2351,
+          "context": " con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành cô",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ban",
+          "context_end": 2554,
+          "candidate_id": "cd677cdd2ac1b2d489abadb8",
+          "context_start": 2151
+        },
+        {
+          "end": 2384,
+          "start": 2381,
+          "context": "ồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.\n\nKho nằm sau m",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Kho",
+          "context_end": 2584,
+          "candidate_id": "64599c50ada088713a1e66a6",
+          "context_start": 2181
+        },
+        {
+          "end": 2417,
+          "start": 2415,
+          "context": "hỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.\n\nKho nằm sau một trường tiểu học đã chuyển đi. ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Có",
+          "context_end": 2617,
+          "candidate_id": "c0a1028771d6fa7bef97c585",
+          "context_start": 2215
+        },
+        {
+          "end": 2478,
+          "start": 2474,
+          "context": " xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.\n\nKho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên c",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 2678,
+          "candidate_id": "31dc2f5825d2335687961b2e",
+          "context_start": 2274
+        },
+        {
+          "end": 2513,
+          "start": 2511,
+          "context": "nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.\n\nKho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm than",
+          "origins": [
+            "author_guidance",
+            "capitalized_token"
+          ],
+          "surface": "An",
+          "context_end": 2713,
+          "candidate_id": "c61ddfdb4e100b593d6e3cc7",
+          "context_start": 2311
+        },
+        {
+          "end": 2574,
+          "start": 2571,
+          "context": "n lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.\n\nKho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, á",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Kho",
+          "context_end": 2774,
+          "candidate_id": "cbe6d6578b1a1261bcd93ed8",
+          "context_start": 2371
+        },
+        {
+          "end": 2620,
+          "start": 2617,
+          "context": " người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.\n\nKho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Sân",
+          "context_end": 2820,
+          "candidate_id": "306198bb35329531c2092159",
+          "context_start": 2417
+        },
+        {
+          "end": 2676,
+          "start": 2672,
+          "context": "\n\nLinh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.\n\nKho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Trên",
+          "context_end": 2876,
+          "candidate_id": "f1225754f1dbb0ba3deab85f",
+          "context_start": 2472
+        },
+        {
+          "end": 2697,
+          "start": 2692,
+          "context": "c khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.\n\nKho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ ki",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Phòng",
+          "context_end": 2897,
+          "candidate_id": "e5c8403b11211db9b688605f",
+          "context_start": 2492
+        },
+        {
+          "end": 2742,
+          "start": 2737,
+          "context": " vừa thử thành công một động cơ.\n\nKho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Người",
+          "context_end": 2942,
+          "candidate_id": "944f35d3ecbbe081a268b68b",
+          "context_start": 2537
+        },
+        {
+          "end": 2803,
+          "start": 2800,
+          "context": "ọc đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ông",
+          "context_end": 3003,
+          "candidate_id": "e1d97e31f4f090f575c9c133",
+          "context_start": 2600
+        },
+        {
+          "end": 2852,
+          "start": 2849,
+          "context": " vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Tôi",
+          "context_end": 3052,
+          "candidate_id": "6ed0fdeb2f8267fee7f0491f",
+          "context_start": 2649
+        },
+        {
+          "end": 2881,
+          "start": 2878,
+          "context": "ửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Tôi",
+          "context_end": 3081,
+          "candidate_id": "56116c9be3f0f58910dbb2cb",
+          "context_start": 2678
+        },
+        {
+          "end": 2910,
+          "start": 2905,
+          "context": " âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Trong",
+          "context_end": 3110,
+          "candidate_id": "1a3b729112ae051a013ae62e",
+          "context_start": 2705
+        },
+        {
+          "end": 2955,
+          "start": 2953,
+          "context": "là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thàn",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Nó",
+          "context_end": 3155,
+          "candidate_id": "012f1f42b18a85b8fba02b3d",
+          "context_start": 2753
+        },
+        {
+          "end": 2988,
+          "start": 2985,
+          "context": " lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ông",
+          "context_end": 3188,
+          "candidate_id": "41f68e5528824b18dea054d2",
+          "context_start": 2785
+        },
+        {
+          "end": 2996,
+          "start": 2985,
+          "context": " lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. ",
+          "origins": [
+            "title_or_location"
+          ],
+          "surface": "Ông tên Hòa",
+          "context_end": 3196,
+          "candidate_id": "64b406a8229ab8b29d56ddf7",
+          "context_start": 2785
+        },
+        {
+          "end": 2996,
+          "start": 2993,
+          "context": "t nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Hòa",
+          "context_end": 3196,
+          "candidate_id": "fdf9bcac2c188b72a9c36edf",
+          "context_start": 2793
+        },
+        {
+          "end": 3001,
+          "start": 2998,
+          "context": ". Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha c",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ông",
+          "context_end": 3201,
+          "candidate_id": "6e3cf49576a6d7dc7d27a4e9",
+          "context_start": 2798
+        },
+        {
+          "end": 3057,
+          "start": 3054,
+          "context": "ưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Các",
+          "context_end": 3257,
+          "candidate_id": "96233c7551e540a5087d840c",
+          "context_start": 2854
+        },
+        {
+          "end": 3120,
+          "start": 3117,
+          "context": "c anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là mộ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Hồi",
+          "context_end": 3320,
+          "candidate_id": "cce8b6f2be5db81e0244f8e3",
+          "context_start": 2917
+        },
+        {
+          "end": 3129,
+          "start": 3125,
+          "context": "i máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong h",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 3329,
+          "candidate_id": "c6092cdc055f350ca0b827f3",
+          "context_start": 2925
+        },
+        {
+          "end": 3199,
+          "start": 3196,
+          "context": ". Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cha",
+          "context_end": 3399,
+          "candidate_id": "bac33e959c56b777fe7807cb",
+          "context_start": 2996
+        },
+        {
+          "end": 3301,
+          "start": 3298,
+          "context": "iết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sa",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Mai",
+          "context_end": 3501,
+          "candidate_id": "5c66640ecd31633dd2242c90",
+          "context_start": 3098
+        },
+        {
+          "end": 3305,
+          "start": 3298,
+          "context": "iết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao nh",
+          "origins": [
+            "capitalized_sequence"
+          ],
+          "surface": "Mai Lâm",
+          "context_end": 3505,
+          "candidate_id": "3f0dc1f7d93d702c57996fe0",
+          "context_start": 3098
+        },
+        {
+          "end": 3305,
+          "start": 3302,
+          "context": "trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao nh",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Lâm",
+          "context_end": 3505,
+          "candidate_id": "b83a26f2d2b4e7b6d77dde78",
+          "context_start": 3102
+        },
+        {
+          "end": 3372,
+          "start": 3369,
+          "context": "g của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng tr",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Sau",
+          "context_end": 3572,
+          "candidate_id": "5208fdbcc79c900010fd4d6f",
+          "context_start": 3169
+        },
+        {
+          "end": 3416,
+          "start": 3413,
+          "context": "gười sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần qua",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ông",
+          "context_end": 3616,
+          "candidate_id": "3d40d8f5a503496d7f7c37d2",
+          "context_start": 3213
+        },
+        {
+          "end": 3420,
+          "start": 3413,
+          "context": "gười sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay ch",
+          "origins": [
+            "capitalized_sequence",
+            "title_or_location"
+          ],
+          "surface": "Ông Hòa",
+          "context_end": 3620,
+          "candidate_id": "2e1b50018ac2251c80c50060",
+          "context_start": 3213
+        },
+        {
+          "end": 3420,
+          "start": 3417,
+          "context": " sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay ch",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Hòa",
+          "context_end": 3620,
+          "candidate_id": "7b74659f1fa7ad2d74511032",
+          "context_start": 3217
+        },
+        {
+          "end": 3465,
+          "start": 3461,
+          "context": " lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Kiểm",
+          "context_end": 3665,
+          "candidate_id": "f9c760dc71fa179f07234d7f",
+          "context_start": 3261
+        },
+        {
+          "end": 3553,
+          "start": 3551,
+          "context": "trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 3753,
+          "candidate_id": "dbc7951eae6890d983146cd1",
+          "context_start": 3351
+        },
+        {
+          "end": 3660,
+          "start": 3658,
+          "context": "y. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo m",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Vì",
+          "context_end": 3860,
+          "candidate_id": "3805c2cdc4f4fbd1dab807cd",
+          "context_start": 3458
+        },
+        {
+          "end": 3687,
+          "start": 3684,
+          "context": "trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. C",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ông",
+          "context_end": 3887,
+          "candidate_id": "2ed81bf95f3f723eb2dab1ab",
+          "context_start": 3484
+        },
+        {
+          "end": 3691,
+          "start": 3684,
+          "context": "trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái h",
+          "origins": [
+            "capitalized_sequence",
+            "title_or_location"
+          ],
+          "surface": "Ông Hòa",
+          "context_end": 3891,
+          "candidate_id": "9b8171a0737ddc91331d7ee2",
+          "context_start": 3484
+        },
+        {
+          "end": 3691,
+          "start": 3688,
+          "context": "g, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái h",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Hòa",
+          "context_end": 3891,
+          "candidate_id": "69347b4e4b3f6a3606a23b3a",
+          "context_start": 3488
+        },
+        {
+          "end": 3716,
+          "start": 3713,
+          "context": " có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh m",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Tìm",
+          "context_end": 3916,
+          "candidate_id": "8d8719b98b04201f8199c99c",
+          "context_start": 3513
+        },
+        {
+          "end": 3745,
+          "start": 3743,
+          "context": "ều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Vì",
+          "context_end": 3945,
+          "candidate_id": "01cf70c5ab8880a72f076eee",
+          "context_start": 3543
+        },
+        {
+          "end": 3775,
+          "start": 3773,
+          "context": "n màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bố",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 3975,
+          "candidate_id": "050f11978ea1092982352e13",
+          "context_start": 3573
+        },
+        {
+          "end": 3783,
+          "start": 3780,
+          "context": "ình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi c",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Mực",
+          "context_end": 3983,
+          "candidate_id": "63cc35a984225e825d2f6bc0",
+          "context_start": 3580
+        },
+        {
+          "end": 3830,
+          "start": 3827,
+          "context": " số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ông",
+          "context_end": 4030,
+          "candidate_id": "759f5e35b12c936b35ad28ba",
+          "context_start": 3627
+        },
+        {
+          "end": 3834,
+          "start": 3827,
+          "context": " số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLin",
+          "origins": [
+            "capitalized_sequence",
+            "title_or_location"
+          ],
+          "surface": "Ông Hòa",
+          "context_end": 4034,
+          "candidate_id": "21ce042bdc926835b9df90e3",
+          "context_start": 3627
+        },
+        {
+          "end": 3834,
+          "start": 3831,
+          "context": "mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLin",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Hòa",
+          "context_end": 4034,
+          "candidate_id": "72646ff6d992fec3418d54e4",
+          "context_start": 3631
+        },
+        {
+          "end": 3889,
+          "start": 3886,
+          "context": "g Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cái",
+          "context_end": 4089,
+          "candidate_id": "b08afac5a587fd55f96f317e",
+          "context_start": 3686
+        },
+        {
+          "end": 3940,
+          "start": 3937,
+          "context": "ào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt con",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cái",
+          "context_end": 4140,
+          "candidate_id": "24a44624d66f5ec6857de430",
+          "context_start": 3737
+        },
+        {
+          "end": 3976,
+          "start": 3968,
+          "context": "n.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết ",
+          "origins": [
+            "title_or_location"
+          ],
+          "surface": "trạm Bốn",
+          "context_end": 4176,
+          "candidate_id": "dc0daa8724e5672edb6827ca",
+          "context_start": 3768
+        },
+        {
+          "end": 3976,
+          "start": 3973,
+          "context": "Cô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bốn",
+          "context_end": 4176,
+          "candidate_id": "a7a9c2abccf4bbabddf47097",
+          "context_start": 3773
+        },
+        {
+          "end": 3981,
+          "start": 3978,
+          "context": ". Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại b",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Tôi",
+          "context_end": 4181,
+          "candidate_id": "e656b8902c85f68b52224604",
+          "context_start": 3778
+        },
+        {
+          "end": 4012,
+          "start": 4008,
+          "context": "t đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc ch",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Nhãn",
+          "context_end": 4212,
+          "candidate_id": "4083922fdec5faf1aa83f6ce",
+          "context_start": 3808
+        },
+        {
+          "end": 4035,
+          "start": 4031,
+          "context": "Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có v",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 4235,
+          "candidate_id": "4cd769377d29f3b93e94e78a",
+          "context_start": 3831
+        },
+        {
+          "end": 4049,
+          "start": 4044,
+          "context": "ết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Trong",
+          "context_end": 4249,
+          "candidate_id": "2dff5b5514aad4814fdf91e1",
+          "context_start": 3844
+        },
+        {
+          "end": 4159,
+          "start": 4155,
+          "context": "hi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu m",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Trên",
+          "context_end": 4359,
+          "candidate_id": "df55254971ad9b250f66e8c2",
+          "context_start": 3955
+        },
+        {
+          "end": 4199,
+          "start": 4194,
+          "context": "o chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, tr",
+          "origins": [
+            "author_guidance",
+            "capitalized_token",
+            "identifier"
+          ],
+          "surface": "CV-04",
+          "context_end": 4399,
+          "candidate_id": "8415e6c2001bf30e7d08e949",
+          "context_start": 3994
+        },
+        {
+          "end": 4205,
+          "start": 4203,
+          "context": "hức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Đã",
+          "context_end": 4405,
+          "candidate_id": "19299b423d97d041e7c6ef93",
+          "context_start": 4003
+        },
+        {
+          "end": 4223,
+          "start": 4219,
+          "context": " mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày thán",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Chưa",
+          "context_end": 4423,
+          "candidate_id": "5ceafbfa80233b5892e0962f",
+          "context_start": 4019
+        },
+        {
+          "end": 4230,
+          "start": 4225,
+          "context": "ết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgà",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Không",
+          "context_end": 4430,
+          "candidate_id": "6bf1933b16150c3db547c5d0",
+          "context_start": 4025
+        },
+        {
+          "end": 4257,
+          "start": 4254,
+          "context": "vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Anh",
+          "context_end": 4457,
+          "candidate_id": "82a29b6f77321f80e2b1129e",
+          "context_start": 4054
+        },
+        {
+          "end": 4291,
+          "start": 4290,
+          "context": "ay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ở",
+          "context_end": 4491,
+          "candidate_id": "3ae58138c664d5e1fe68497d",
+          "context_start": 4090
+        },
+        {
+          "end": 4323,
+          "start": 4321,
+          "context": " mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Ti",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 4523,
+          "candidate_id": "e5a6a598971485e77d63ef99",
+          "context_start": 4121
+        },
+        {
+          "end": 4349,
+          "start": 4344,
+          "context": "ư móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Những",
+          "context_end": 4549,
+          "candidate_id": "a2fb17cd7056aedae662d7fd",
+          "context_start": 4144
+        },
+        {
+          "end": 4405,
+          "start": 4397,
+          "context": "04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tr",
+          "origins": [
+            "title_or_location"
+          ],
+          "surface": "trạm Bốn",
+          "context_end": 4605,
+          "candidate_id": "5f57993424e188aaa7593dd2",
+          "context_start": 4197
+        },
+        {
+          "end": 4405,
+          "start": 4402,
+          "context": "“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tr",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bốn",
+          "context_end": 4605,
+          "candidate_id": "056941f325a9c4d5d1d1be25",
+          "context_start": 4202
+        },
+        {
+          "end": 4431,
+          "start": 4427,
+          "context": "ông có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ngày",
+          "context_end": 4631,
+          "candidate_id": "4d745a15bd196ffc68119334",
+          "context_start": 4227
+        },
+        {
+          "end": 4445,
+          "start": 4442,
+          "context": "ẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hò",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bãi",
+          "context_end": 4645,
+          "candidate_id": "91b1216663b167a149f00de4",
+          "context_start": 4242
+        },
+        {
+          "end": 4450,
+          "start": 4442,
+          "context": "ẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói",
+          "origins": [
+            "capitalized_sequence"
+          ],
+          "surface": "Bãi Dưới",
+          "context_end": 4650,
+          "candidate_id": "8dfecf86fc48c26c56e16156",
+          "context_start": 4242
+        },
+        {
+          "end": 4450,
+          "start": 4446,
+          "context": "úng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Dưới",
+          "context_end": 4650,
+          "candidate_id": "c1cfb33841127620d7be4787",
+          "context_start": 4246
+        },
+        {
+          "end": 4463,
+          "start": 4458,
+          "context": "kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ngoài",
+          "context_end": 4663,
+          "candidate_id": "b7a1499f72d778b8b600b392",
+          "context_start": 4258
+        },
+        {
+          "end": 4526,
+          "start": 4521,
+          "context": "Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần đư",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Tiếng",
+          "context_end": 4726,
+          "candidate_id": "ffafaeb45d805d827d6f9a9b",
+          "context_start": 4321
+        },
+        {
+          "end": 4553,
+          "start": 4549,
+          "context": " chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông khô",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 4753,
+          "candidate_id": "1cf7c2f27566148958dc729b",
+          "context_start": 4349
+        },
+        {
+          "end": 4567,
+          "start": 4565,
+          "context": "nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, c",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 4767,
+          "candidate_id": "e7a2476d0d7a5c0843fbf65d",
+          "context_start": 4365
+        },
+        {
+          "end": 4642,
+          "start": 4639,
+          "context": "hi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác.\n\nLinh nhì",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ông",
+          "context_end": 4842,
+          "candidate_id": "3cda7a9f32c8ed464d56fbed",
+          "context_start": 4439
+        },
+        {
+          "end": 4646,
+          "start": 4639,
+          "context": "hi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác.\n\nLinh nhìn mư",
+          "origins": [
+            "capitalized_sequence",
+            "title_or_location"
+          ],
+          "surface": "Ông Hòa",
+          "context_end": 4846,
+          "candidate_id": "e6937e3826069a50fcaa2056",
+          "context_start": 4439
+        },
+        {
+          "end": 4646,
+          "start": 4643,
+          "context": "ãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác.\n\nLinh nhìn mư",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Hòa",
+          "context_end": 4846,
+          "candidate_id": "ea16f0919c419ce5c8aedfc8",
+          "context_start": 4443
+        },
+        {
+          "end": 4678,
+          "start": 4673,
+          "context": "người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác.\n\nLinh nhìn mười hai ô trống trong lịch công v",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Những",
+          "context_end": 4878,
+          "candidate_id": "5b64406a6adb7ccc168c5f0f",
+          "context_start": 4473
+        },
+        {
+          "end": 4739,
+          "start": 4734,
+          "context": "ế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác.\n\nLinh nhìn mười hai ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Trong",
+          "context_end": 4939,
+          "candidate_id": "e7b75398939ab0dc18975ca6",
+          "context_start": 4534
+        },
+        {
+          "end": 4838,
+          "start": 4834,
+          "context": "ng.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác.\n\nLinh nhìn mười hai ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn tr",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 5038,
+          "candidate_id": "087dfcea7a60658cad3d8f7b",
+          "context_start": 4634
+        },
+        {
+          "end": 4885,
+          "start": 4883,
+          "context": " ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác.\n\nLinh nhìn mười hai ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 5085,
+          "candidate_id": "d39b4927bb654e9d66b714a9",
+          "context_start": 4683
+        },
+        {
+          "end": 5012,
+          "start": 5009,
+          "context": " đồ vật của người khác.\n\nLinh nhìn mười hai ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cho",
+          "context_end": 5212,
+          "candidate_id": "42d2ef6a16aa9506a26e73d1",
+          "context_start": 4809
+        },
+        {
+          "end": 5035,
+          "start": 5027,
+          "context": "khác.\n\nLinh nhìn mười hai ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng",
+          "origins": [
+            "title_or_location"
+          ],
+          "surface": "trạm Bốn",
+          "context_end": 5235,
+          "candidate_id": "cf2055f38c4589449eb2ea18",
+          "context_start": 4827
+        },
+        {
+          "end": 5035,
+          "start": 5032,
+          "context": "\n\nLinh nhìn mười hai ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Bốn",
+          "context_end": 5235,
+          "candidate_id": "f3f53e9fb93689f34959c727",
+          "context_start": 4832
+        },
+        {
+          "end": 5056,
+          "start": 5053,
+          "context": "ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Ông",
+          "context_end": 5256,
+          "candidate_id": "db82035e6754b9c26bce5cd4",
+          "context_start": 4853
+        },
+        {
+          "end": 5060,
+          "start": 5053,
+          "context": "ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn",
+          "origins": [
+            "capitalized_sequence",
+            "title_or_location"
+          ],
+          "surface": "Ông Hòa",
+          "context_end": 5260,
+          "candidate_id": "baa09c934ee1c7a97e235425",
+          "context_start": 4853
+        },
+        {
+          "end": 5060,
+          "start": 5057,
+          "context": "ống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Hòa",
+          "context_end": 5260,
+          "candidate_id": "e64c492a0e71388201262ab2",
+          "context_start": 4857
+        },
+        {
+          "end": 5079,
+          "start": 5076,
+          "context": " việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Đến",
+          "context_end": 5279,
+          "candidate_id": "03dfae39413f932281ef387a",
+          "context_start": 4876
+        },
+        {
+          "end": 5103,
+          "start": 5101,
+          "context": "m mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì h",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 5303,
+          "candidate_id": "e28bd964e13cd18101bc0c55",
+          "context_start": 4901
+        },
+        {
+          "end": 5142,
+          "start": 5138,
+          "context": "đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi,",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 5342,
+          "candidate_id": "0856862bba615e8fd342d24c",
+          "context_start": 4938
+        },
+        {
+          "end": 5156,
+          "start": 5152,
+          "context": "a cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Điện",
+          "context_end": 5356,
+          "candidate_id": "82449960951b73a371e5fbfa",
+          "context_start": 4952
+        },
+        {
+          "end": 5189,
+          "start": 5187,
+          "context": " chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 5389,
+          "candidate_id": "fd820d1c7fa89431a3a81455",
+          "context_start": 4987
+        },
+        {
+          "end": 5253,
+          "start": 5246,
+          "context": " nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thậ",
+          "origins": [
+            "title_or_location"
+          ],
+          "surface": "ông Hòa",
+          "context_end": 5453,
+          "candidate_id": "7d7a1b5ef0418c62e49c7b9b",
+          "context_start": 5046
+        },
+        {
+          "end": 5253,
+          "start": 5250,
+          "context": ".\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thậ",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Hòa",
+          "context_end": 5453,
+          "candidate_id": "0d1cab35695938b542ae6651",
+          "context_start": 5050
+        },
+        {
+          "end": 5277,
+          "start": 5274,
+          "context": ". Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiế",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Tin",
+          "context_end": 5477,
+          "candidate_id": "e9bfbb5701aa41bbae4bf927",
+          "context_start": 5074
+        },
+        {
+          "end": 5291,
+          "start": 5289,
+          "context": "quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiết.\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cá",
+          "context_end": 5480,
+          "candidate_id": "ffc5c007b6ced3b3d800552d",
+          "context_start": 5089
+        },
+        {
+          "end": 5319,
+          "start": 5317,
+          "context": "i cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiết.\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Cô",
+          "context_end": 5480,
+          "candidate_id": "bfd25a79923b42d76c971036",
+          "context_start": 5117
+        },
+        {
+          "end": 5327,
+          "start": 5324,
+          "context": "ẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiết.\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Con",
+          "context_end": 5480,
+          "candidate_id": "cca7189bf342fb0a66747651",
+          "context_start": 5124
+        },
+        {
+          "end": 5356,
+          "start": 5353,
+          "context": "iện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiết.\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Tối",
+          "context_end": 5480,
+          "candidate_id": "637690585717e3ac1517f272",
+          "context_start": 5153
+        },
+        {
+          "end": 5370,
+          "start": 5366,
+          "context": "ng túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiết.\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Trên",
+          "context_end": 5480,
+          "candidate_id": "94552ad435c5d0e3917474ae",
+          "context_start": 5166
+        },
+        {
+          "end": 5427,
+          "start": 5423,
+          "context": "ẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiết.\n",
+          "origins": [
+            "capitalized_token"
+          ],
+          "surface": "Linh",
+          "context_end": 5480,
+          "candidate_id": "e412b5f8ae61c0588ab53d0d",
+          "context_start": 5223
+        }
+      ],
+      "chapter_id": "b7e6b912-55ec-4124-8cde-7f6ba8e55db1",
+      "revision_id": "27f117ec-b0af-4729-8543-13ae314ed640",
+      "source_hash": "02096c1bd1ad214e1cd9edd8c8e2103b1468d597d79b7ac7af2067b6f9c6b543",
+      "chapter_number": 1,
+      "known_entities": [],
+      "review_version": 1,
+      "analysis_policy": "entity-human-review-v1",
+      "analysis_run_id": "d7e40cbe-cf62-49d9-95db-dc2308d88fc6",
+      "guidance_version": 1,
+      "reviewed_decisions": [],
+      "unanchored_discoveries": []
+    }
+  ]
+}

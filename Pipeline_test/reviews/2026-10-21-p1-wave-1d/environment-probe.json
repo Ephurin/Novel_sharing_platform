@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-10-21T13:05:55.718147+00:00",
+  "docker_exit": 1,
+  "docker_error": "error during connect: Get \"http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info\": open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.",
+  "playwright_python_available": false,
+  "google_genai_sdk": "1.69.0",
+  "docker_or_app_started": false,
+  "historical_resources_modified": false,
+  "external_provider_calls": 0
+}

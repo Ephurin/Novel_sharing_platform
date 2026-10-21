@@ -1,11 +1,12 @@
+# HISTORICAL CONFIG — DO NOT START for Wave 1D. Use the new offline config.
 services:
   postgres:
     image: pgvector/pgvector:pg16
     container_name: p1-live-01-postgres
     environment:
-      POSTGRES_DB: p1_ephurin
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:?Set isolated DB name}
+      POSTGRES_USER: ${POSTGRES_USER:?Set isolated DB user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set isolated DB secret}
     ports:
       - "127.0.0.1:25432:5432"
     volumes:
@@ -85,13 +86,15 @@ services:
       LLM_MODEL: gemini-3.5-flash-lite
       GEMINI_API_KEY: ""
       BUDGET_GUARD_URL: http://budget-gateway:18090
+      BUDGET_GUARD_MODE: proxy
+      BUDGET_GUARD_AUTH_TOKEN: ${AI_WORKER_TOKEN:?Set worker-only auth token}
       LLM_BASE_URL: http://budget-gateway:18090/v1
       LLM_FALLBACK_PROVIDER: ""
       LLM_LOCAL_FALLBACK: "false"
       LLM_STRUCTURED_MAX_TOKENS: 8192
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-p1_ephurin}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:?Set isolated POSTGRES_USER}:${POSTGRES_PASSWORD:?Set isolated POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:?Set isolated POSTGRES_DB}
       PLATFORM_API_BASE_URL: http://backend:4000
-      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-test-token-p1-live-01}
+      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:?Set isolated PLATFORM_SERVICE_TOKEN}
       ENTITY_CANDIDATE_VERIFICATION_ENABLED: "true"
       CONTEXT_ROUTING_POLICY: legacy-v1
     ports:
@@ -118,17 +121,17 @@ services:
       API_PREFIX: /api/v1
       WEB_ORIGIN: http://localhost:18080
       DB_CONNECT_ON_START: "true"
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-p1_ephurin}
-      MONGODB_URI: mongodb://mongodb:27017/${POSTGRES_DB:-p1_ephurin}
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-p1-live-01-demo-access-secret-isolated}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-p1-live-01-demo-refresh-secret-isolated}
+      DATABASE_URL: postgresql://${POSTGRES_USER:?Set isolated POSTGRES_USER}:${POSTGRES_PASSWORD:?Set isolated POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:?Set isolated POSTGRES_DB}
+      MONGODB_URI: mongodb://mongodb:27017/${POSTGRES_DB:?Set isolated POSTGRES_DB}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set isolated JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set isolated JWT_REFRESH_SECRET}
       JWT_ACCESS_EXPIRES_SECONDS: 3600
       JWT_REFRESH_EXPIRES_DAYS: 7
       REFRESH_TOKEN_COOKIE_NAME: ephurin_p1_refresh_token
       RUN_MIGRATIONS: "true"
       RUN_DEMO_SEED: "false"
       AI_SERVICE_URL: http://ai-service:8000
-      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-test-token-p1-live-01}
+      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:?Set isolated PLATFORM_SERVICE_TOKEN}
       AI_LLM_BASE_URL: http://budget-gateway:18090/v1
       AI_LLM_API_KEY: ""
       AI_LLM_MODEL: gemini-3.5-flash-lite

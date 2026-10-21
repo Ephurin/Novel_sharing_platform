@@ -1,0 +1,252 @@
+{
+  "project": "p1-wave1d-20261021-browser-01",
+  "services": [
+    {
+      "container_id": "a8c2cf70a80e",
+      "name": "/p1-wave1d-20261021-browser-01-web-1",
+      "service": "web",
+      "image_sha": "sha256:d2df6c08ed04e3cc399fcf4e07c22ceaa4fec3dcef538ba30663b28f4208db5f",
+      "command": [
+        "nginx",
+        "-g",
+        "daemon off;"
+      ],
+      "state": "running",
+      "networks": [
+        "p1-wave1d-20261021-browser-01_browser-edge",
+        "p1-wave1d-20261021-browser-01_workers"
+      ],
+      "mounts": [],
+      "provider_configuration": {
+        "LLM_PROVIDER": null,
+        "LLM_MODEL": null,
+        "LLM_FALLBACK_PROVIDER": null,
+        "LLM_LOCAL_FALLBACK": null,
+        "EMBEDDING_PROVIDER": null,
+        "BUDGET_GUARD_MODE": null,
+        "BUDGET_GUARD_URL": null
+      },
+      "real_provider_keys_present": false
+    },
+    {
+      "container_id": "0551b871ac2e",
+      "name": "/p1-wave1d-20261021-browser-01-backend-1",
+      "service": "backend",
+      "image_sha": "sha256:5f7fbb3530460f06ae1d18f3d75a2c9e8e66d031c00095e4613c66d1b34f686b",
+      "command": [
+        "./docker-entrypoint.sh"
+      ],
+      "state": "running",
+      "networks": [
+        "p1-wave1d-20261021-browser-01_workers"
+      ],
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\Pipeline_test\\tools",
+          "destination": "/wave-tools",
+          "rw": false
+        }
+      ],
+      "provider_configuration": {
+        "LLM_PROVIDER": null,
+        "LLM_MODEL": null,
+        "LLM_FALLBACK_PROVIDER": null,
+        "LLM_LOCAL_FALLBACK": null,
+        "EMBEDDING_PROVIDER": null,
+        "BUDGET_GUARD_MODE": "proxy",
+        "BUDGET_GUARD_URL": "http://budget-gateway:18090"
+      },
+      "real_provider_keys_present": false
+    },
+    {
+      "container_id": "5b2ac6af5db0",
+      "name": "/p1-wave1d-20261021-browser-01-ai-service-1",
+      "service": "ai-service",
+      "image_sha": "sha256:234a39b8941c43af022681b754bbd465aa30c12f999aaaa8f7a3b6e8045d9fac",
+      "command": [
+        "sh",
+        "-c",
+        "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
+      ],
+      "state": "running",
+      "networks": [
+        "p1-wave1d-20261021-browser-01_workers"
+      ],
+      "mounts": [],
+      "provider_configuration": {
+        "LLM_PROVIDER": "gemini",
+        "LLM_MODEL": "gemini-3.5-flash-lite",
+        "LLM_FALLBACK_PROVIDER": "disabled",
+        "LLM_LOCAL_FALLBACK": "false",
+        "EMBEDDING_PROVIDER": "none",
+        "BUDGET_GUARD_MODE": "proxy",
+        "BUDGET_GUARD_URL": "http://budget-gateway:18090"
+      },
+      "real_provider_keys_present": false
+    },
+    {
+      "container_id": "90fb1cfc673a",
+      "name": "/p1-wave1d-20261021-browser-01-budget-gateway-1",
+      "service": "budget-gateway",
+      "image_sha": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "command": [
+        "python",
+        "-u",
+        "/tools/budget_gateway.py",
+        "--state",
+        "/state/ledger.json"
+      ],
+      "state": "running",
+      "networks": [
+        "p1-wave1d-20261021-browser-01_upstream",
+        "p1-wave1d-20261021-browser-01_workers"
+      ],
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\Pipeline_test\\tools",
+          "destination": "/tools",
+          "rw": false
+        },
+        {
+          "type": "volume",
+          "source": "p1-wave1d-20261021-browser-01_budget_state",
+          "destination": "/state",
+          "rw": true
+        }
+      ],
+      "provider_configuration": {
+        "LLM_PROVIDER": null,
+        "LLM_MODEL": null,
+        "LLM_FALLBACK_PROVIDER": null,
+        "LLM_LOCAL_FALLBACK": null,
+        "EMBEDDING_PROVIDER": null,
+        "BUDGET_GUARD_MODE": null,
+        "BUDGET_GUARD_URL": null
+      },
+      "real_provider_keys_present": false
+    },
+    {
+      "container_id": "916d697ba4df",
+      "name": "/p1-wave1d-20261021-browser-01-fake-upstream-1",
+      "service": "fake-upstream",
+      "image_sha": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "command": [
+        "python",
+        "-u",
+        "/tools/fake_provider_upstream.py"
+      ],
+      "state": "running",
+      "networks": [
+        "p1-wave1d-20261021-browser-01_upstream"
+      ],
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "C:\\Users\\Laptop\\OneDrive\\Documents\\testproject\\Pipeline_test\\tools",
+          "destination": "/tools",
+          "rw": false
+        },
+        {
+          "type": "volume",
+          "source": "p1-wave1d-20261021-browser-01_fake_state",
+          "destination": "/evidence",
+          "rw": true
+        }
+      ],
+      "provider_configuration": {
+        "LLM_PROVIDER": null,
+        "LLM_MODEL": null,
+        "LLM_FALLBACK_PROVIDER": null,
+        "LLM_LOCAL_FALLBACK": null,
+        "EMBEDDING_PROVIDER": null,
+        "BUDGET_GUARD_MODE": null,
+        "BUDGET_GUARD_URL": null
+      },
+      "real_provider_keys_present": false
+    },
+    {
+      "container_id": "8818cddca7d7",
+      "name": "/p1-wave1d-20261021-browser-01-postgres-1",
+      "service": "postgres",
+      "image_sha": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "command": [
+        "postgres"
+      ],
+      "state": "running",
+      "networks": [
+        "p1-wave1d-20261021-browser-01_workers"
+      ],
+      "mounts": [
+        {
+          "type": "volume",
+          "source": "p1-wave1d-20261021-browser-01_pg_state",
+          "destination": "/var/lib/postgresql/data",
+          "rw": true
+        }
+      ],
+      "provider_configuration": {
+        "LLM_PROVIDER": null,
+        "LLM_MODEL": null,
+        "LLM_FALLBACK_PROVIDER": null,
+        "LLM_LOCAL_FALLBACK": null,
+        "EMBEDDING_PROVIDER": null,
+        "BUDGET_GUARD_MODE": null,
+        "BUDGET_GUARD_URL": null
+      },
+      "real_provider_keys_present": false
+    },
+    {
+      "container_id": "c28b62fa4768",
+      "name": "/p1-wave1d-20261021-browser-01-mongodb-1",
+      "service": "mongodb",
+      "image_sha": "sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173",
+      "command": [
+        "mongod"
+      ],
+      "state": "running",
+      "networks": [
+        "p1-wave1d-20261021-browser-01_workers"
+      ],
+      "mounts": [
+        {
+          "type": "volume",
+          "source": "f86a9f14dd9d0ae030f1ee8769f02f4995c73441e82c9141709118298787ad47",
+          "destination": "/data/configdb",
+          "rw": true
+        },
+        {
+          "type": "volume",
+          "source": "p1-wave1d-20261021-browser-01_mongo_state",
+          "destination": "/data/db",
+          "rw": true
+        }
+      ],
+      "provider_configuration": {
+        "LLM_PROVIDER": null,
+        "LLM_MODEL": null,
+        "LLM_FALLBACK_PROVIDER": null,
+        "LLM_LOCAL_FALLBACK": null,
+        "EMBEDDING_PROVIDER": null,
+        "BUDGET_GUARD_MODE": null,
+        "BUDGET_GUARD_URL": null
+      },
+      "real_provider_keys_present": false
+    }
+  ],
+  "networks": [
+    {
+      "name": "p1-wave1d-20261021-browser-01_browser-edge",
+      "internal": false
+    },
+    {
+      "name": "p1-wave1d-20261021-browser-01_upstream",
+      "internal": true
+    },
+    {
+      "name": "p1-wave1d-20261021-browser-01_workers",
+      "internal": true
+    }
+  ]
+}

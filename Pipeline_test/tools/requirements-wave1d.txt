@@ -1,0 +1,5 @@
+# Browser harness dependencies; application/SDK dependencies remain in ai-service/requirements.txt.
+playwright>=1.49,<2
+Pillow>=10
+PyYAML>=6
+pytest>=8

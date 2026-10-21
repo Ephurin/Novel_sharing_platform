@@ -1,0 +1,108 @@
+{
+  "status": "PASS",
+  "historical_files_checked": 40,
+  "unchanged": [
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/actions.csv",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/budget_guard.py",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/budget_state.json",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/chapter_reviews.csv",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/checkpoint.json",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/continuity.csv",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/interventions.csv",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/issues.csv",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/LIVE_RESUME_REPORT.md",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/MEMORY_AUDIT.md",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/memory_checkpoints.csv",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/memory_items.csv",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/memory_probes.csv",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/NEXT_REVIEW.md",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/REPORT.md",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/REVIEW_FINDINGS_CLOSURE.md",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/revision_manifest.csv",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/run_config.json",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/test_runner_replay_guard.py",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/validation.json",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/audit-regression.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/backend-targeted-tests.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/backend-typecheck.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/gold_manifest.json",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/provider-smoke.json",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/python-tests.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/runtime-verification.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/s01-import-readback.json",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/s02-verification-unresolved-reproduction.json",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/schema-verification.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/evidence/web-build.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/repair-offline/ai-service-suite.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/repair-offline/audit-regression.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/repair-offline/backend-targeted-tests.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/repair-offline/backend-typecheck.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/repair-offline/budget-guard-tests.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/repair-offline/replay-guard-tests.txt",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/repair-offline/web-build.txt"
+  ],
+  "explicitly_authorized_code_config_changes": [
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/docker-compose.isolated.yml",
+    "Pipeline_test/runs/2026-10-21-gemini-p1-live-01/execute_p1_journey.py"
+  ],
+  "unexpected_changes": [],
+  "fixtures": [
+    {
+      "path": "BLUEPRINT.md",
+      "sha256": "5c64fa6f4910deb113133a4b3a5df98ba8bc083a043f6ebd005aab5efadef33d",
+      "status": "PASS"
+    },
+    {
+      "path": "CANON_AT_START.md",
+      "sha256": "cd304f17a9b2952b50005398046a52244b0a6cade2071790318b43b5a25f617d",
+      "status": "PASS"
+    },
+    {
+      "path": "chapter_plan.csv",
+      "sha256": "c5c5203a3a66801d435956b524404a6d6e5537ac8dec8f8f98b9704d1832c18b",
+      "status": "PASS"
+    },
+    {
+      "path": "main_story_plan.template.json",
+      "sha256": "28c9b98f477f7b64b719eda9f76bc193985f95c0641d83679536d638c03bba1e",
+      "status": "PASS"
+    },
+    {
+      "path": "manuscript/ch01.md",
+      "sha256": "02096c1bd1ad214e1cd9edd8c8e2103b1468d597d79b7ac7af2067b6f9c6b543",
+      "status": "PASS"
+    },
+    {
+      "path": "manuscript/ch02.md",
+      "sha256": "bfed7d0988dd6c7f33ae9625d9f16faa5e3dad04b9322a02d9f4f7cb603c4b8e",
+      "status": "PASS"
+    },
+    {
+      "path": "manuscript/ch03.md",
+      "sha256": "a6c008b4297866a4125801d06329ce18a89211dc29515e7a81adfae83263626a",
+      "status": "PASS"
+    },
+    {
+      "path": "manuscript/ch04.md",
+      "sha256": "29d0c290d9cbc0fdf662b6e5a6446a30b3834cd06986453dbcbc2f8cf88544a2",
+      "status": "PASS"
+    },
+    {
+      "path": "manuscript/ch05.md",
+      "sha256": "7813a9eeea18df4b03ed60ba32a1646347b638f6bb7e37a1949c39d1f841dc33",
+      "status": "PASS"
+    },
+    {
+      "path": "PAYOFF_LEDGER.csv",
+      "sha256": "d3e743cf0cd06e5fad05b2d99e22317e884c74b845a461909604dd8b31773683",
+      "status": "PASS"
+    }
+  ],
+  "historical_budget": {
+    "total_calls": 8,
+    "estimated_cost_usd": 0.007379,
+    "live_deadline_at": "2026-10-21T05:47:52.543771+00:00"
+  },
+  "historical_ledger_status_note": "Stored ACTIVE label preserved; approval expired, never renewed.",
+  "historical_docker_resources": "NOT_STARTED_OR_MODIFIED; only new p1-wave1d resources used"
+}

@@ -30,7 +30,10 @@ JOURNEY_DIR = REPO_ROOT / "Pipeline_test" / "runs" / "2026-10-21-gemini-p1-live-
 if str(JOURNEY_DIR) not in sys.path:
     sys.path.insert(0, str(JOURNEY_DIR))
 
-from execute_p1_journey import verify_manuscript_gold_hashes
+from Pipeline_test.tools.provenance import verify_manuscript_gold_hashes as _verify
+
+def verify_manuscript_gold_hashes(chapters, fixture_dir=None):
+    return _verify(chapters, fixture_dir=fixture_dir, expected_novel_id='wave1d-novel', expected_owner_id='wave1d-author')
 
 
 def make_gold_chapters():
@@ -51,6 +54,9 @@ def make_gold_chapters():
             "chapterId": f"chap-uuid-{ch_num:02d}",
             "latestRevisionId": f"rev-uuid-{ch_num:02d}",  # Distinct from chapterId
             "contentHash": sha,
+            "novelId": "wave1d-novel", "ownerId": "wave1d-author",
+            "canonicalRevision": {"revisionId": f"rev-uuid-{ch_num:02d}", "chapterId": f"chap-uuid-{ch_num:02d}",
+                "novelId": "wave1d-novel", "contentHash": sha, "content": content},
             "title": title,
             "wordCount": len(content.split()),
         })
@@ -90,7 +96,7 @@ def test_verify_manuscript_gold_hashes_fails_when_revision_id_identical_to_chapt
     chapters[0]["latestRevisionId"] = chapters[0]["chapterId"]  # Conflated!
     is_valid, reason = verify_manuscript_gold_hashes(chapters, fixture_dir=FIXTURE_DIR)
     assert is_valid is False
-    assert "missing or identical revision_id" in reason
+    assert "identical chapter/revision_id" in reason
 
 
 def run_s01_simulation(tmp_path, checkpoint_content, server_chapters, user_novels=None, author_user="p1_author"):
@@ -212,3 +218,18 @@ def test_verified_5_chapters_resumes_idempotently_with_zero_novel_posts(tmp_path
     assert res["status"] == "RESUMED_IDEMPOTENT"
     assert res["novel_id"] == "novel-existing-p1"
     assert len(res["posts"]) == 0, f"Expected 0 POST calls, got {len(res['posts'])}"
+
+
+@pytest.mark.parametrize('mutation', ['empty_hash','missing_hash','duplicate_number','duplicate_id','scrambled','wrong_owner','stale','missing_readback','empty_revision'])
+def test_wave1d_strict_provenance_rejects_incomplete_or_ambiguous_readback(mutation):
+    chapters=make_gold_chapters()
+    if mutation=='empty_hash':chapters[0]['contentHash']=''
+    elif mutation=='missing_hash':del chapters[0]['contentHash']
+    elif mutation=='duplicate_number':chapters[1]['chapterNumber']=1
+    elif mutation=='duplicate_id':chapters[1]['chapterId']=chapters[0]['chapterId']
+    elif mutation=='scrambled':chapters[0],chapters[1]=chapters[1],chapters[0]
+    elif mutation=='wrong_owner':chapters[0]['ownerId']='someone-else'
+    elif mutation=='stale':chapters[0]['canonicalRevision']['revisionId']='old'
+    elif mutation=='missing_readback':del chapters[0]['canonicalRevision']
+    elif mutation=='empty_revision':chapters[0]['latestRevisionId']=''
+    assert verify_manuscript_gold_hashes(chapters)[0] is False

@@ -33,6 +33,7 @@ staticfiles/
 .pytest_cache/
 .pytest_tmp/
 Pipeline_test/runs/**/pytest-*/
+Pipeline_test/reviews/**/pytest-*/
 .mypy_cache/
 .ruff_cache/
 .tox/

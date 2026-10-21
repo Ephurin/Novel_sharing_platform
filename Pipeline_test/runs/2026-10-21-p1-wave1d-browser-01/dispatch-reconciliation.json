@@ -1,0 +1,191 @@
+{
+  "status": "PASS",
+  "project": "p1-wave1d-20261021-browser-01",
+  "received_count": 30,
+  "unmetered_dispatches": 0,
+  "duplicate_dispatches": 0,
+  "matched_dispatches": [
+    {
+      "dispatch_id": "95fa0fa8-58b5-43da-a2cd-786494c74e75",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "9136bc83-7cf2-411b-ba72-1352a10fb51e",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "045e4d28-55d6-4e05-92ff-43e79c49264d",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "d3f3bc08-172c-42f0-8723-34e1fcaffff4",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "441fd7fc-64b9-4650-bda6-f50410d5ce9a",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "47d36bf8-3b9e-4a0e-8cdc-0992311bb711",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "db7aef85-2dbe-4a32-8649-eb5b48d170b5",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "e94ae9ea-e35a-4f8e-950f-4b253d4ac2a8",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "9a8c3199-e218-464f-b799-2bdf1053039d",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "288cd8fe-7ed3-4e51-98ce-cf2194c409c5",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "e8096c2c-50f0-4f97-ab3c-3511395e0b37",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "34d1d59f-fcf0-4280-8baa-996ca9f92508",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "545ab05f-8496-46b6-a934-5465641a6f14",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "1bb80aed-20c9-4102-b12d-e6174f71bf8d",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "8a778326-8637-49aa-8f69-c25a447b9a16",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "88e7829e-2778-44fe-8936-cb67b96a28dc",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "b583019a-6c4b-4d55-a0d3-95735d955d70",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "86ccef8e-4cbe-41aa-8ef0-747bba2a6d8d",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "d57932f1-f0ad-455f-8754-a51bb2abec5d",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "c160546c-eda9-4c2b-bc98-0cdd1db49cfb",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "1b7ae5ee-42b1-4042-9548-bc750d8d1932",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "983e2826-fb69-47c5-b2b3-e9cb04a395d5",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "c179fc78-197d-4e09-b421-ebb047883752",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "36578e61-72ec-4dae-a3c1-d70f5721961b",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "1ebd19fd-c7d9-41ed-b5c9-af38e6c592fb",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "6525cd7a-bd9b-4736-9081-8f6be706c59e",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "00b1e49a-2a13-4f7e-87b7-ee2a66887cea",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "b651a255-b102-4ca5-a6f2-72e88f6964a0",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "00d18d68-ac1e-4018-845d-5ba02e9c5d65",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    },
+    {
+      "dispatch_id": "79026a22-e384-4e39-b156-9d906cf77457",
+      "ledger": "/state/ledger.json",
+      "run_id": "p1-wave1d-20261021-browser-01",
+      "status": "SUCCESS"
+    }
+  ],
+  "reserved_without_dispatch": 0,
+  "note": "Cost-boundary probes deliberately reserve liability without dispatch; failed probe attempts and their sub-ledgers preserved."
+}
