@@ -8,7 +8,7 @@ sau đó dùng [PROMPT_REVIEW_PIPELINE.md](PROMPT_REVIEW_PIPELINE.md) để đá
 code/evidence theo contract và map. Prompt không phụ thuộc đường dẫn máy cũ;
 keys, `.env`, DB/volumes và browser session phải chuẩn bị cục bộ.
 
-**Nguồn chuẩn cho ba use case:** [WORKFLOW_CONTRACT.md revision1.3,2026-10-20](WORKFLOW_CONTRACT.md).
+**Nguồn chuẩn cho ba use case:** [WORKFLOW_CONTRACT.md revision1.4,2026-10-21](WORKFLOW_CONTRACT.md).
 P1 = bản thảo có sẵn; P2 = ý tưởng/thiết lập; P3 = controller tự động. Đã bổ sung
 optional hints → tác giả duyệt entity → event/fact; P3 phải chờ entity review khi
 bật mode mới và không được báo fully autonomous. Code mới opt-in, migration0012,
@@ -31,7 +31,7 @@ Bản sửa theo luồng đã thống nhất và bằng chứng regression nằm
 
 Đây là một task kiểm thử có thể chạy lại, không phải báo cáo hệ thống đã pass. Chưa thực thi lượt test nào khi tạo bộ tài liệu này. Không cần tạo chat mới để sử dụng.
 
-**Đầu ra bắt buộc của lượt chạy đầy đủ:** một tiểu thuyết hoàn chỉnh khoảng **100.000 từ (95.000–105.000)** được đọc lại từ dữ liệu lưu trong sản phẩm, cùng báo cáo chất lượng, hành trình tác giả, mức can thiệp và mọi vấn đề gặp phải. Bản thảo đầu vào là phần mở đầu viết dở, **không phải nửa truyện 50.000 từ**. Không dùng dàn ý, tóm tắt hay lặp văn để bù độ dài.
+**Đầu ra nghiệm thu cuối bắt buộc của P3:** một tiểu thuyết hoàn chỉnh **100.000–105.000 từ**, đọc lại từ revision canonical đã lưu trong sản phẩm; gồm ending, provenance, narrative-memory audit, đánh giá độc lập và báo cáo mức can thiệp. Band 95.000–105.000 thuộc task assisted lịch sử, **không áp dụng làm P3 PASS v1.4**. Bản thảo đầu vào là phần mở đầu viết dở, **không phải nửa truyện 50.000 từ**. Không dùng dàn ý, tóm tắt hay lặp văn để bù độ dài.
 
 ## Bắt đầu
 
@@ -39,7 +39,7 @@ Bản sửa theo luồng đã thống nhất và bằng chứng regression nằm
 2. Kiểm tra fixture: `python Pipeline_test/tools/task_tool.py verify`.
 3. Tạo lượt chạy riêng: `python Pipeline_test/tools/task_tool.py init --run-id 2026-10-17-author-01`.
 4. Giao nội dung `TASK.md` cho testing agent, chỉ định thư mục run vừa tạo. Điền cấu hình và ngân sách trước khi gọi model thật.
-5. Chạy vòng ngắn theo `SHORT_LOOP_TEST.md` qua UI trước. Sau đó dùng `AGENT_GUIDE.md` cho bài dài; `AUTHOR_ASSISTED_HYBRID` chỉ đo năng lực có hỗ trợ API, không chứng minh hành trình UI đầy đủ.
+5. Chạy P1 S01–S11 qua UI trước, rồi P2 idea→first chapter, P3 controller probe (có/không plan), **sau cùng P3_HITL_CONTROLLER_100K** trên project/run riêng. `AUTHOR_ASSISTED_HYBRID` chỉ là đối chứng/chế độ có hỗ trợ, không thay P3 acceptance; mọi lần gọi provider thật cần cửa sổ ngân sách riêng đang hiệu lực.
 6. Đếm bản xuất cuối: `python Pipeline_test/tools/task_tool.py count --directory Pipeline_test/runs/<run-id>/final/chapters`.
 
 ## Các tài liệu
@@ -72,9 +72,9 @@ Với tiếng Việt, “từ” trong task là **đơn vị cách nhau bằng k
 
 - `P1`: import bản thảo, review/activate, viết tiếp, reject/accept, sửa thủ công, lưu và cập nhật bộ nhớ.
 - `P2`: smoke riêng trên một dự án rỗng từ idea; trên dự án chính kiểm tra Story Plan hướng dẫn viết mà không làm tương lai thành lịch sử.
-- `P3`: probe riêng trên dự án dùng một lần để kiểm tra controller tự động; không coi probe này là đã viết tự động toàn bộ 100k.
+- `P3`: trước tiên probe controller nhiều objective trên dự án riêng; **sau probe đạt mới chạy nghiệm thu cuối bắt buộc `P3_HITL_CONTROLLER_100K`** đến kết thúc truyện 100.000–105.000 từ trên dự án/run riêng. Khi flag Human Entity Review bật phải dừng tại gate tác giả và ghi đúng mức can thiệp.
 
-Một run assisted hoàn thành truyện không chứng minh P3 tự động đạt 100k. Nếu yêu cầu chứng minh điều đó, chạy chế độ `AUTONOMOUS_100K` riêng trên dự án mới, cùng đầu vào và rubric, giữ nguyên giới hạn can thiệp đã khai báo.
+`P3_UNATTENDED_AUTONOMOUS_100K` là thí nghiệm/claim **riêng chưa có policy auto entity review được chấp nhận**, không tự chuyển flag OFF để lấy nhãn fully autonomous. Truyện assisted hybrid hoàn chỉnh không thay bằng chứng P3 controller. Đối chứng cần cùng seed/model/config/budget/rubric và khai báo intervention khác biệt.
 
 Mỗi pipeline có audit narrative memory riêng sau bootstrap/import và accepted revision đầu tiên. Run dài kiểm tra tại 10/20/30/40/50… chương; bội số 20/50 có audit sâu. Run mặc định 40 chương ghi mốc 50 NOT_APPLICABLE; probe ngắn phải audit cuối và khai báo chưa có coverage dài hạn. Các template `memory_checkpoints.csv`, `memory_items.csv`, `memory_probes.csv` và `MEMORY_AUDIT.md` được sao khi init run. Run cũ muốn áp dụng task revision 1.1 phải thêm các template còn thiếu và ghi migration trong report; không ghi đè evidence cũ.
 
