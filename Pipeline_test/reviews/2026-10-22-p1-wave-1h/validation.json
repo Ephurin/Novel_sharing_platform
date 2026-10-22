@@ -11,7 +11,8 @@
   },
   "branch": "codex/ai-copilot-pipeline-test",
   "baseline_sha": "8a8bb499919674349cd8d0022784e95dd0fb14ca",
-  "tested_commit": "HEAD",
+  "tested_commit": "252ce08c06a1eeb18d0ceeaf37146546d5c35149",
+  "evidence_commit": "252ce08c06a1eeb18d0ceeaf37146546d5c35149",
   "execution_mode": "OFFLINE_ONLY",
   "real_provider_calls": 0,
   "harness_environment": {

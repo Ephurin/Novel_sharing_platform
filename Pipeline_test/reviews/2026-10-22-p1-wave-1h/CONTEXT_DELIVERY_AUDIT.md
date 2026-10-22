@@ -3,6 +3,7 @@
 **Date:** 2026-10-22 (Asia/Bangkok)  
 **Permitted branch:** `codex/ai-copilot-pipeline-test`  
 **Baseline commit:** `8a8bb499919674349cd8d0022784e95dd0fb14ca`  
+**Evidence commit:** `252ce08c06a1eeb18d0ceeaf37146546d5c35149` (and closeout commit)  
 **Execution:** OFFLINE ONLY — 0 real provider calls.  
 **Channel:** `OFFLINE_API_DIAGNOSTIC`  
 
