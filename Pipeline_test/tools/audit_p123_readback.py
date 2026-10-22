@@ -29,12 +29,14 @@ def main():
     probe.save("gateway-ledger", probe.ledger())
     proposals = json.loads((run / "M0-db-proposals.json").read_text(encoding="utf-8"))
     entities = json.loads((run / "M0-db-entities.json").read_text(encoding="utf-8"))
+    revision_chapters = {r["revision_id"]: r["chapter_number"] for r in manifest["revisions"]}
     earliest = {}
     for p in proposals:
         if p["proposal_type"] != "entity" or p["status"] != "accepted":
             continue
         name = p["payload"]["canonical_name"]
-        chapters = [e["chapter_number"] for e in p["evidence"] if e.get("chapter_number")]
+        chapters = [e.get("chapter_number") or revision_chapters.get(e.get("revision_id")) for e in p["evidence"]]
+        chapters = [c for c in chapters if c is not None]
         if chapters:
             earliest[name] = min(min(chapters), earliest.get(name, min(chapters)))
     script = """import os,json,urllib.request,sys
