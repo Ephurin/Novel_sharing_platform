@@ -1,0 +1,90 @@
+{
+  "B": {
+    "body_hash": "6b86e017e30593b0f6db17282a35e226b78cb6b8b9faf84025e6f91d770ed5cc",
+    "expectedVersion": 5,
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "ff2e040d-64c1-4691-82f3-5423cdb84064",
+        "novelId": "985a0230-0023-4a5d-9a4e-fb30c99f16ad",
+        "title": "B latest intended bo",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 4,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 6
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  "stale_A": {
+    "body_hash": "f34746a615b7a3521f3b441e8aae90c7cd7021176b28827ff65cf76440993372",
+    "expectedVersion": 5,
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "ff2e040d-64c1-4691-82f3-5423cdb84064",
+        "novelId": "985a0230-0023-4a5d-9a4e-fb30c99f16ad",
+        "title": "A delayed obsolete b",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 4,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 7
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  "B_replay": {
+    "body_hash": "6b86e017e30593b0f6db17282a35e226b78cb6b8b9faf84025e6f91d770ed5cc",
+    "expectedVersion": 5,
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "ff2e040d-64c1-4691-82f3-5423cdb84064",
+        "novelId": "985a0230-0023-4a5d-9a4e-fb30c99f16ad",
+        "title": "B latest intended bo",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 4,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 8
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  "final": {
+    "chapterId": "ff2e040d-64c1-4691-82f3-5423cdb84064",
+    "novelId": "985a0230-0023-4a5d-9a4e-fb30c99f16ad",
+    "title": "B latest intended bo",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 4,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "draft": {
+      "title": "B latest intended bo",
+      "content": "B latest intended body",
+      "wordCount": 4,
+      "version": 8,
+      "autosave": true,
+      "updatedAt": "2026-10-22T06:08:53.193Z"
+    }
+  }
+}

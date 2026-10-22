@@ -1,0 +1,174 @@
+{
+  "job": {
+    "job_id": "28c975c0-f570-4841-8397-b610bf6cb435",
+    "novel_id": "70ed7143-1368-44c6-b8b2-8066df0e6291",
+    "chapter_id": "4134ef66-0dc0-4ace-b747-44cce59d7b72",
+    "revision_id": "e1833921-d8cf-49ea-a190-2ea5d5edce7f",
+    "content_hash": "6bc0a6b803ebb8089f0ad1ac7e024334b827eeaa3d8ed1555aab720d628c8e62",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "operation": "continue",
+    "selection": {
+      "start": 0,
+      "end": 0
+    },
+    "instruction": "next-d8aa3a8e7c1546278a6ada1827c3b317 Continue current scene.",
+    "constraints": [],
+    "style": {},
+    "expected_brain_version": 5,
+    "actor_id": "c1405dbe-5f32-44a0-b003-857fff89c490",
+    "idempotency_key": "generated:28c975c0-f570-4841-8397-b610bf6cb435",
+    "input_hash": "c2a3fe5c1f3174b596e49757dd1a3cd0b54f719f63165dd88054cc487f08a003",
+    "status": "failed",
+    "stage": "failed",
+    "draft": null,
+    "patch": null,
+    "validation_status": "failed",
+    "validations": [],
+    "context_summary": {
+      "fact_ids": [
+        "24a0c572-79fb-4a01-b0eb-0523ff272990",
+        "3c9d7000-70c6-4fba-91e2-5a5ea22c9474"
+      ],
+      "event_ids": [],
+      "entity_ids": [],
+      "query_text": "next-d8aa3a8e7c1546278a6ada1827c3b317 Continue current scene.",
+      "drop_reasons": {
+        "1f366f22-48d5-42b5-afd7-bce6799509a5": "out_of_budget_after_relevance_ordering",
+        "2fa88ef3-564b-4008-81eb-ce5fb49488a0": "out_of_budget_after_relevance_ordering"
+      },
+      "chapter_number": 1,
+      "cutoff_chapter": 1,
+      "dropped_fact_ids": [
+        "1f366f22-48d5-42b5-afd7-bce6799509a5"
+      ],
+      "selection_policy": [
+        "query-relevance-diverse-whole-artifacts-v2"
+      ],
+      "dropped_event_ids": [],
+      "brain_version_used": 5,
+      "dropped_entity_ids": [
+        "2fa88ef3-564b-4008-81eb-ce5fb49488a0"
+      ],
+      "requested_character": null,
+      "semantic_memory_ids": [],
+      "temporal_origin_policy": [
+        "known-source-cutoff_unknown-global-v1"
+      ],
+      "context_packing_version": [
+        "context-budget-v2-diverse"
+      ],
+      "semantic_retrieval_status": [
+        "disabled"
+      ],
+      "semantic_embedding_version": [],
+      "dropped_semantic_memory_ids": [],
+      "context_token_estimator_version": "[REDACTED]",
+      "deduplicated_semantic_memory_ids": [],
+      "recent_scope_participant_identity": [
+        "normalized-event-participants-v1"
+      ],
+      "temporal_origin_unknown_entity_ids": [
+        "2fa88ef3-564b-4008-81eb-ce5fb49488a0"
+      ],
+      "recent_scope_participant_entity_ids": []
+    },
+    "model_info": {
+      "name": "",
+      "prompt_version": ""
+    },
+    "error": {
+      "code": "CONTEXT_PROTECTED_BUDGET_EXCEEDED",
+      "message": "Protected author context exceeds the available budget"
+    },
+    "brain_version_used": 5,
+    "context_hash": "",
+    "chapter_number": 1,
+    "type": "writing_generation",
+    "progress": {
+      "stage": "failed",
+      "status": "failed"
+    }
+  },
+  "stored": {
+    "id": "912f9375-801b-4e45-bfda-d448b81d21e6",
+    "job_id": "28c975c0-f570-4841-8397-b610bf6cb435",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "70ed7143-1368-44c6-b8b2-8066df0e6291",
+    "chapter_id": "4134ef66-0dc0-4ace-b747-44cce59d7b72",
+    "revision_id": "e1833921-d8cf-49ea-a190-2ea5d5edce7f",
+    "base_content_hash": "6bc0a6b803ebb8089f0ad1ac7e024334b827eeaa3d8ed1555aab720d628c8e62",
+    "brain_version": 5,
+    "operation": "continue",
+    "selection_start": 0,
+    "selection_end": 0,
+    "instruction": "next-d8aa3a8e7c1546278a6ada1827c3b317 Continue current scene.",
+    "constraints": [],
+    "style": {},
+    "actor_id": "c1405dbe-5f32-44a0-b003-857fff89c490",
+    "idempotency_key": "generated:28c975c0-f570-4841-8397-b610bf6cb435",
+    "input_hash": "c2a3fe5c1f3174b596e49757dd1a3cd0b54f719f63165dd88054cc487f08a003",
+    "status": "failed",
+    "stage": "failed",
+    "draft": null,
+    "patch": null,
+    "validation_status": "failed",
+    "validations": [],
+    "context_summary": {
+      "fact_ids": [
+        "24a0c572-79fb-4a01-b0eb-0523ff272990",
+        "3c9d7000-70c6-4fba-91e2-5a5ea22c9474"
+      ],
+      "event_ids": [],
+      "entity_ids": [],
+      "query_text": "next-d8aa3a8e7c1546278a6ada1827c3b317 Continue current scene.",
+      "drop_reasons": {
+        "1f366f22-48d5-42b5-afd7-bce6799509a5": "out_of_budget_after_relevance_ordering",
+        "2fa88ef3-564b-4008-81eb-ce5fb49488a0": "out_of_budget_after_relevance_ordering"
+      },
+      "chapter_number": 1,
+      "cutoff_chapter": 1,
+      "dropped_fact_ids": [
+        "1f366f22-48d5-42b5-afd7-bce6799509a5"
+      ],
+      "selection_policy": [
+        "query-relevance-diverse-whole-artifacts-v2"
+      ],
+      "dropped_event_ids": [],
+      "brain_version_used": 5,
+      "dropped_entity_ids": [
+        "2fa88ef3-564b-4008-81eb-ce5fb49488a0"
+      ],
+      "requested_character": null,
+      "semantic_memory_ids": [],
+      "temporal_origin_policy": [
+        "known-source-cutoff_unknown-global-v1"
+      ],
+      "context_packing_version": [
+        "context-budget-v2-diverse"
+      ],
+      "semantic_retrieval_status": [
+        "disabled"
+      ],
+      "semantic_embedding_version": [],
+      "dropped_semantic_memory_ids": [],
+      "context_token_estimator_version": "[REDACTED]",
+      "deduplicated_semantic_memory_ids": [],
+      "recent_scope_participant_identity": [
+        "normalized-event-participants-v1"
+      ],
+      "temporal_origin_unknown_entity_ids": [
+        "2fa88ef3-564b-4008-81eb-ce5fb49488a0"
+      ],
+      "recent_scope_participant_entity_ids": []
+    },
+    "model_name": null,
+    "prompt_version": null,
+    "error": {
+      "code": "CONTEXT_PROTECTED_BUDGET_EXCEEDED",
+      "message": "Protected author context exceeds the available budget"
+    },
+    "created_at": "2026-10-22T06:27:29.878687+00:00",
+    "updated_at": "2026-10-22T06:27:29.910784+00:00"
+  },
+  "captures": []
+}

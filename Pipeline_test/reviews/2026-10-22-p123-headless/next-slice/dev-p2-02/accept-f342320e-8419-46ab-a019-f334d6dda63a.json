@@ -1,0 +1,34 @@
+{
+  "accepted": {
+    "revision": {
+      "revisionId": "e89c4f74-e814-4651-8b21-f6f04da16aff",
+      "novelId": "e35c636f-3ad1-4745-8341-65cbfcaa1721",
+      "chapterId": "934a5fbd-91d5-43ef-a4c3-dbb9f5db26fd",
+      "parentRevisionId": "03b7bcfe-763f-4fcf-af59-3e1af7d6920f",
+      "contentHash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+      "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "wordCount": 21,
+      "sourceType": "AI_DRAFT_ACCEPT",
+      "sourceGenerationId": "f342320e-8419-46ab-a019-f334d6dda63a",
+      "createdBy": "7512dadf-bc27-4cca-a8ab-c34f2be5e594",
+      "createdAt": "2026-10-22T06:22:42.000Z"
+    },
+    "chapterId": "934a5fbd-91d5-43ef-a4c3-dbb9f5db26fd"
+  },
+  "replay": {
+    "revision": {
+      "revisionId": "e89c4f74-e814-4651-8b21-f6f04da16aff",
+      "novelId": "e35c636f-3ad1-4745-8341-65cbfcaa1721",
+      "chapterId": "934a5fbd-91d5-43ef-a4c3-dbb9f5db26fd",
+      "parentRevisionId": "03b7bcfe-763f-4fcf-af59-3e1af7d6920f",
+      "contentHash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+      "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "wordCount": 21,
+      "sourceType": "AI_DRAFT_ACCEPT",
+      "sourceGenerationId": "f342320e-8419-46ab-a019-f334d6dda63a",
+      "createdBy": "7512dadf-bc27-4cca-a8ab-c34f2be5e594",
+      "createdAt": "2026-10-22T06:22:42.000Z"
+    },
+    "chapterId": "934a5fbd-91d5-43ef-a4c3-dbb9f5db26fd"
+  }
+}

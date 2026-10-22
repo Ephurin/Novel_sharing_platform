@@ -1,0 +1,61 @@
+{
+  "budget": {
+    "used": 16192,
+    "maximum": 12000,
+    "estimated_before": 32357,
+    "budget_overflow": true,
+    "protected_overflow": true,
+    "packing_version": "context-budget-v2-diverse",
+    "estimator_version": "utf8-json-bytes-3-v1",
+    "deduplicated_semantic_count": 0,
+    "dropped_artifact_count": 2
+  },
+  "context_summary": {
+    "temporal_origin_policy": [
+      "known-source-cutoff_unknown-global-v1"
+    ],
+    "temporal_origin_unknown_entity_ids": [
+      "01d8be87-0bc3-4171-ad82-489e8c8dbfb7"
+    ],
+    "entity_ids": [],
+    "event_ids": [],
+    "fact_ids": [
+      "e64abe79-cdca-4744-9a10-b3297e98f277",
+      "59f9fa6b-3190-4ff6-89b1-40c372a2c0da"
+    ],
+    "cutoff_chapter": 1,
+    "requested_character": null,
+    "recent_scope_participant_entity_ids": [],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "query_text": "",
+    "semantic_retrieval_status": [
+      "disabled"
+    ],
+    "semantic_embedding_version": [],
+    "semantic_memory_ids": [],
+    "context_packing_version": [
+      "context-budget-v2-diverse"
+    ],
+    "context_token_estimator_version": [
+      "utf8-json-bytes-3-v1"
+    ],
+    "dropped_entity_ids": [
+      "01d8be87-0bc3-4171-ad82-489e8c8dbfb7"
+    ],
+    "dropped_event_ids": [],
+    "dropped_fact_ids": [
+      "946b7669-c6ae-48c2-a830-725903aa5bdd"
+    ],
+    "dropped_semantic_memory_ids": [],
+    "deduplicated_semantic_memory_ids": [],
+    "selection_policy": [
+      "query-relevance-diverse-whole-artifacts-v2"
+    ],
+    "drop_reasons": {
+      "01d8be87-0bc3-4171-ad82-489e8c8dbfb7": "out_of_budget_after_relevance_ordering",
+      "946b7669-c6ae-48c2-a830-725903aa5bdd": "out_of_budget_after_relevance_ordering"
+    }
+  }
+}

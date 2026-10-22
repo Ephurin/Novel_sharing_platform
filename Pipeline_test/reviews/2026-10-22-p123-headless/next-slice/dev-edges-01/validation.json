@@ -1,0 +1,21 @@
+{
+  "tested_sha": "d8e6b35f1457db0822825734c62506fd3c8789b5",
+  "source_dirty_at_start": true,
+  "project": "p123-core-81c34be5dd",
+  "novel_id": "b7255983-b1f6-499b-820b-d297e7799bef",
+  "stage": "context_edges",
+  "mode": "edges",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "HTTP_422:POST:/ai/story-brains/b7255983-b1f6-499b-820b-d297e7799bef/author-proposals:{'success': False, 'data': None, 'error': {'code': 'INVALID_AUTHOR_EVIDENCE', 'message': 'Evidence quote is ambiguous; include more surrounding text', 'details': {'code': 'INVALID_AUTHOR_EVIDENCE', 'message': 'Evidence quote is ambiguous; include more surrounding text'}}, 'meta': {}}"
+  },
+  "verdict": "FAIL",
+  "external_provider_calls": 0
+}

@@ -1,0 +1,37 @@
+{
+  "proposal": {
+    "proposal_id": "458a2560-82c1-5b9a-b264-ba38cb7c616e",
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "locked_short",
+      "fact_value": "Quy tắc tác giả: luôn kiểm tra micro trước khi bật máy.",
+      "fact_type": "author_fact",
+      "chapter_number": 1,
+      "source_type": "author"
+    },
+    "analysis_run_id": "310a14cd-2581-455e-ab8d-7451eb846881",
+    "dependency_group_id": "0b205b51-70cc-517e-bdbd-2b720f10bae2",
+    "materialization_order": 0,
+    "evidence": [
+      {
+        "revision_id": "921cef44-b5bd-4803-a684-fc5928f335ca",
+        "chapter_id": "9297bb94-a273-4ee3-af67-fe575b216392",
+        "chapter_number": 1,
+        "start": 0,
+        "end": 55,
+        "text_hash": "7839fc9b365f4d8420e2b8dc1222fdf76b262494c54d4919760c09e72f53f0ba",
+        "quote": "Quy tắc tác giả: luôn kiểm tra micro trước khi bật máy."
+      }
+    ],
+    "confidence": 1,
+    "expected_brain_version": 1,
+    "status": "pending",
+    "decision_reason": null
+  },
+  "accepted": {
+    "proposal_id": "458a2560-82c1-5b9a-b264-ba38cb7c616e",
+    "canonical_artifact_id": "fdbf5d8f-3ad8-4e0a-9a18-6432e871968f",
+    "brain_version": 2,
+    "status": "accepted"
+  }
+}

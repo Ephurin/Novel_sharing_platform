@@ -1,0 +1,143 @@
+[
+  {
+    "round": 0,
+    "client_HTTP_intervals_overlap": true,
+    "writers": [
+      {
+        "writer": "A",
+        "expected_version": 1,
+        "start_ns": 17322578000000,
+        "end_ns": 17322609000000,
+        "status": 409,
+        "response": {
+          "success": false,
+          "data": null,
+          "error": {
+            "code": "DRAFT_CONFLICT",
+            "message": "Draft changed or another save is in progress; reload before retrying"
+          },
+          "meta": {}
+        }
+      },
+      {
+        "writer": "B",
+        "expected_version": 1,
+        "start_ns": 17322578000000,
+        "end_ns": 17322609000000,
+        "status": 200,
+        "response": {
+          "success": true,
+          "data": {
+            "chapterId": "e03f57bc-ceab-4251-866c-89842edd8cc1",
+            "novelId": "ddba8d28-0b51-4378-b302-ca7156c5fd2a",
+            "title": "Simultaneous CAS",
+            "chapterNumber": 1,
+            "content": null,
+            "wordCount": 1,
+            "isVip": false,
+            "priceCoins": 0,
+            "status": "DRAFT",
+            "analysisRevisionId": null,
+            "draftVersion": 2
+          },
+          "error": null,
+          "meta": {}
+        }
+      }
+    ]
+  },
+  {
+    "round": 1,
+    "client_HTTP_intervals_overlap": true,
+    "writers": [
+      {
+        "writer": "A",
+        "expected_version": 2,
+        "start_ns": 17322625000000,
+        "end_ns": 17322640000000,
+        "status": 200,
+        "response": {
+          "success": true,
+          "data": {
+            "chapterId": "e03f57bc-ceab-4251-866c-89842edd8cc1",
+            "novelId": "ddba8d28-0b51-4378-b302-ca7156c5fd2a",
+            "title": "Simultaneous CAS",
+            "chapterNumber": 1,
+            "content": null,
+            "wordCount": 1,
+            "isVip": false,
+            "priceCoins": 0,
+            "status": "DRAFT",
+            "analysisRevisionId": null,
+            "draftVersion": 3
+          },
+          "error": null,
+          "meta": {}
+        }
+      },
+      {
+        "writer": "B",
+        "expected_version": 2,
+        "start_ns": 17322625000000,
+        "end_ns": 17322640000000,
+        "status": 409,
+        "response": {
+          "success": false,
+          "data": null,
+          "error": {
+            "code": "DRAFT_CONFLICT",
+            "message": "Draft changed or another save is in progress; reload before retrying"
+          },
+          "meta": {}
+        }
+      }
+    ]
+  },
+  {
+    "round": 2,
+    "client_HTTP_intervals_overlap": true,
+    "writers": [
+      {
+        "writer": "A",
+        "expected_version": 3,
+        "start_ns": 17322656000000,
+        "end_ns": 17322671000000,
+        "status": 200,
+        "response": {
+          "success": true,
+          "data": {
+            "chapterId": "e03f57bc-ceab-4251-866c-89842edd8cc1",
+            "novelId": "ddba8d28-0b51-4378-b302-ca7156c5fd2a",
+            "title": "Simultaneous CAS",
+            "chapterNumber": 1,
+            "content": null,
+            "wordCount": 1,
+            "isVip": false,
+            "priceCoins": 0,
+            "status": "DRAFT",
+            "analysisRevisionId": null,
+            "draftVersion": 4
+          },
+          "error": null,
+          "meta": {}
+        }
+      },
+      {
+        "writer": "B",
+        "expected_version": 3,
+        "start_ns": 17322656000000,
+        "end_ns": 17322671000000,
+        "status": 409,
+        "response": {
+          "success": false,
+          "data": null,
+          "error": {
+            "code": "DRAFT_CONFLICT",
+            "message": "Draft changed or another save is in progress; reload before retrying"
+          },
+          "meta": {}
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "outbound_hash_bff289aa-950b-4bc9-b804-0b0b1c1daabd",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "retrieval_disabled_bff289aa-950b-4bc9-b804-0b0b1c1daabd",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "HTTP_locked_rule_retained",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "actual_pruning",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "unknown_policy_explicit",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "no_invented_origin",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "protected_overflow_no_dispatch",
+    "status": "PASS",
+    "details": null
+  }
+]

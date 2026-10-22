@@ -1,0 +1,60 @@
+[
+  {
+    "id": "819d484e-cfad-4229-a029-8f2a31e876c2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+    "status": "active",
+    "baseline_revision_id": "41bb6469-a570-4c5b-b523-a99d1de58bc4",
+    "brain_version": 8,
+    "schema_version": 1,
+    "entity_guidance": {
+      "entries": [
+        {
+          "kind": "hint",
+          "name": "Mai Linh",
+          "notes": "",
+          "aliases": [],
+          "entity_type": null
+        },
+        {
+          "kind": "hint",
+          "name": "Mai Lâm",
+          "notes": "",
+          "aliases": [],
+          "entity_type": null
+        },
+        {
+          "kind": "hint",
+          "name": "Duy",
+          "notes": "",
+          "aliases": [],
+          "entity_type": null
+        },
+        {
+          "kind": "hint",
+          "name": "CV-04",
+          "notes": "",
+          "aliases": [],
+          "entity_type": null
+        },
+        {
+          "kind": "hint",
+          "name": "Cồn Vân",
+          "notes": "",
+          "aliases": [],
+          "entity_type": null
+        },
+        {
+          "kind": "hint",
+          "name": "Đồi Bắc",
+          "notes": "",
+          "aliases": [],
+          "entity_type": null
+        }
+      ],
+      "version": 1
+    },
+    "created_at": "2026-10-22T06:30:30.785708+00:00",
+    "updated_at": "2026-10-22T06:31:17.289978+00:00"
+  }
+]

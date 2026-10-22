@@ -1,0 +1,5 @@
+{
+  "fixture_ddl": "create function next_fault_ea3c2a6d54354879a6e0e41c62aa1af4() returns trigger language plpgsql as $$ begin raise exception 'NEXT_SLICE_OWNED_OUTBOX_FAULT'; end $$; create trigger next_fault_ea3c2a6d54354879a6e0e41c62aa1af4 before insert on revision_outbox_events for each row when (NEW.chapter_id='ea3c2a6d-5435-4879-a6e0-e41c62aa1af4'::uuid) execute function next_fault_ea3c2a6d54354879a6e0e41c62aa1af4();",
+  "response": null,
+  "counts_before_after": "{\"revisions\" : 1, \"outbox\" : 0}"
+}

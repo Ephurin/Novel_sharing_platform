@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-22",
+  "executor": "Codex",
+  "branch": "codex/ai-copilot-pipeline-test",
+  "starting_task_head": "d8e6b35f1457db0822825734c62506fd3c8789b5",
+  "tested_source_sha": "1dc7dfa38267c9eb176f56f070380930d1887d85",
+  "production_source_commit": "5c20d493e6a4951a4c1cf81fd2beb8dae5449306",
+  "evidence_commit_resolution": "git log -1 --format=%H -- Pipeline_test/reviews/2026-10-22-p123-headless/next-slice/validation.json",
+  "P1_CORE": "BOUNDED_OFFLINE_READY_FOR_GPT6_REVIEW",
+  "P2_CORE": "BOUNDED_OFFLINE_PASS_EXECUTOR_READY_FOR_GPT6_REVIEW",
+  "full_P1_acceptance": "NOT_GRANTED",
+  "UI": "UI_BLOCKED_FE; historical S09 RED unchanged",
+  "provider": "REAL_PROVIDER_NOT_TESTED",
+  "external_provider_calls": 0,
+  "embedding_calls": 0,
+  "actual_paid_spend_usd": 0,
+  "human_decisions": "SIMULATED_HUMAN_VIA_API",
+  "runs": {
+    "p1": {
+      "project": "p123-core-96e7f14d3d",
+      "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+      "checks_passed": 46,
+      "exit_code": 0,
+      "evidence": "final-p1/validation.json"
+    },
+    "p2": {
+      "project": "p123-core-4f32e288c8",
+      "novel_id": "13baa49a-277a-4cc7-a090-21bc05910db7",
+      "checks_passed": 27,
+      "exit_code": 0,
+      "evidence": "final-p2/validation.json"
+    },
+    "concurrency": {
+      "project": "p123-core-96e7f14d3d",
+      "novel_id": "848463ac-bac8-4f1a-9c8b-d1391a53ed95",
+      "checks_passed": 9,
+      "exit_code": 0,
+      "evidence": "final-concurrency/validation.json"
+    },
+    "edges": {
+      "project": "p123-core-246d87fb24",
+      "novel_id": "fab96dd2-4a2e-4c99-a5f8-62fe69b50af0",
+      "checks_passed": 8,
+      "exit_code": 0,
+      "evidence": "final-edges/validation.json"
+    },
+    "concurrent-barrier": {
+      "project": "p123-core-96e7f14d3d",
+      "novel_id": "ddba8d28-0b51-4378-b302-ca7156c5fd2a",
+      "checks_passed": 7,
+      "exit_code": 0,
+      "evidence": "final-concurrent-barrier/validation.json"
+    }
+  },
+  "regressions": {
+    "AI": {
+      "passed": 152,
+      "skipped": 2,
+      "exit_code": 0,
+      "scope": "Offline unit/repository; SQL uses SQLite; DNS denies non-loopback"
+    },
+    "backend_focused": {
+      "passed": 29,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "backend_typecheck": {
+      "exit_code": 0
+    },
+    "docker_builds": {
+      "exit_code": 0
+    },
+    "all_backend_development_attempt": {
+      "command": "npm --prefix backend test",
+      "exit_code": 1,
+      "reason": "Unrelated PostgreSQL suites connect to localhost:5432; sandbox EACCES; no mutation; not a full-suite PASS"
+    }
+  },
+  "current_cutoff_audit": {
+    "accepted_entity_quote_hash_proofs": 60,
+    "invalid_evidence": 0,
+    "future_entity_leaks": 0,
+    "cutoffs": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "preserved_M0_relative_audit_exit_code": 1,
+    "phase_explanation": "M0 map predates accepted chapter-1 Duy source; current accepted immutable evidence passes"
+  },
+  "not_run": [
+    "UI/browser S09 integration",
+    "real provider/embedding",
+    "literary and semantic retrieval quality",
+    "full backend PostgreSQL suite",
+    "ordinary PATCH after idea baseline",
+    "post-commit process-kill fault",
+    "controller P3",
+    "100k-105k long run"
+  ],
+  "limits": [
+    "Optional versioned content/title CAS only; legacy writes and cross-store atomicity not guaranteed",
+    "Unknown-origin entities are global/explicitly tagged; no invented temporal evidence",
+    "P2 recovery is a fresh generation on unchanged base, not in-place failed writing job resume"
+  ],
+  "reports": [
+    "P1_REMAINING_GATES.md",
+    "P2_CORE_REPORT.md",
+    "FE_BACKEND_CONTRACT_HANDOFF_NEXT.md",
+    "P3_NEXT_GATE.md"
+  ],
+  "handoff": "STOP_FOR_GPT6_SOURCE_EVIDENCE_REVIEW"
+}

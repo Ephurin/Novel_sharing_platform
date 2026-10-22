@@ -1,0 +1,446 @@
+{
+  "policy": "CURRENT accepted immutable evidence, including newly accepted chapter-1 rewrite",
+  "supersedes_interpretation_only": "final-cutoff-audit used frozen M0 source map against later M-FIRST context; preserved FAIL is a phase mismatch",
+  "earliest": {
+    "Mai Linh": 1,
+    "Duy": 1,
+    "Cồn Vân": 1,
+    "Linh": 1,
+    "Yên": 1,
+    "Bà Sâm": 1,
+    "Sâm": 1,
+    "CV-04": 1,
+    "Bốn": 1,
+    "Đồi Bắc": 1,
+    "Hòa": 1,
+    "Mai Lâm": 1,
+    "Bãi Dưới": 1,
+    "Nguyễn Vũ": 4,
+    "Vũ": 4
+  },
+  "proofs": [
+    {
+      "name": "Mai Linh",
+      "proposal_id": "5b233a6a-731a-5496-9e55-f94f26b058f3",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Duy",
+      "proposal_id": "6bd5389f-52c7-5607-b115-a46138e920bd",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Cồn Vân",
+      "proposal_id": "b9a1a32d-4652-5387-ad50-93ed60b000d6",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Linh",
+      "proposal_id": "db193493-ed4a-5f2e-abab-f0f0aaa833f9",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Yên",
+      "proposal_id": "c46c6df5-5d39-595f-b45c-b5c2e895f5d0",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bà Sâm",
+      "proposal_id": "ffded16f-131e-58a9-b4d3-5d7fd9f10961",
+      "revision_id": "9a0729ff-fefd-4f24-9205-7b25e352f28a",
+      "chapter": 3,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Sâm",
+      "proposal_id": "79425591-201d-58ba-97cc-719bb88ed6e9",
+      "revision_id": "9a0729ff-fefd-4f24-9205-7b25e352f28a",
+      "chapter": 3,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Linh",
+      "proposal_id": "b5517e5f-3174-5314-b7b5-f1a89f5363ec",
+      "revision_id": "9a0729ff-fefd-4f24-9205-7b25e352f28a",
+      "chapter": 3,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "CV-04",
+      "proposal_id": "fabfc677-2327-5d3f-b1e8-dbde68937b94",
+      "revision_id": "9a0729ff-fefd-4f24-9205-7b25e352f28a",
+      "chapter": 3,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bà Sâm",
+      "proposal_id": "c9dadd85-8a32-5f3c-aa65-b07f3ec52041",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bốn",
+      "proposal_id": "5711cc42-9ef5-509d-b535-58f2d3261a8a",
+      "revision_id": "9a0729ff-fefd-4f24-9205-7b25e352f28a",
+      "chapter": 3,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Yên",
+      "proposal_id": "e939a1dd-e4ec-55e8-b168-29f6316a36df",
+      "revision_id": "9a0729ff-fefd-4f24-9205-7b25e352f28a",
+      "chapter": 3,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Duy",
+      "proposal_id": "ae74ad18-ff49-547c-b3ea-06eb85857fb9",
+      "revision_id": "9a0729ff-fefd-4f24-9205-7b25e352f28a",
+      "chapter": 3,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Mai Linh",
+      "proposal_id": "cc36b04c-fe23-5298-926e-98ef2d3d7e45",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Linh",
+      "proposal_id": "0cb78254-64cb-57d4-b441-34aeb9daee66",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Yên",
+      "proposal_id": "4edc0b00-171c-58ec-afe8-4a3478b8beed",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bà Sâm",
+      "proposal_id": "29a98d45-40ed-5cfe-abcd-7cd913b287fd",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Sâm",
+      "proposal_id": "f8c2d933-048f-5af8-ac3c-7bd4a87b87e0",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Đồi Bắc",
+      "proposal_id": "bbf12c36-d440-5551-ba9c-738021ee1fed",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Hòa",
+      "proposal_id": "cc005543-e96c-54a0-b43a-7212fd9d2ecb",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Mai Lâm",
+      "proposal_id": "82e90587-7e3f-57eb-8670-d3a642bbd0ec",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bốn",
+      "proposal_id": "b1a68007-c227-5abc-8e56-5a8df3fe69ff",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "CV-04",
+      "proposal_id": "773ae4fc-fea0-545e-a4e3-4ea1fae3b414",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bãi Dưới",
+      "proposal_id": "1de2714b-3bb1-5dd0-b7b5-5d2d17dd1a5a",
+      "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Duy",
+      "proposal_id": "81f581db-4213-5d73-92bd-4113d1e172c9",
+      "revision_id": "41bb6469-a570-4c5b-b523-a99d1de58bc4",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Sâm",
+      "proposal_id": "1d7aca37-9857-5717-bec5-9a613a6fb709",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Cồn Vân",
+      "proposal_id": "c3758c7e-f4df-55d7-88be-ea30b4fac6ed",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Đồi Bắc",
+      "proposal_id": "3d962a5f-0ca1-5dee-8582-1bcaef465fe2",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Hòa",
+      "proposal_id": "e1848c90-fa19-5fdc-b4a2-d0a7c847d89e",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Mai Lâm",
+      "proposal_id": "b57ec594-e855-51b4-982d-1a04a5316b4f",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bốn",
+      "proposal_id": "fb2e50dc-50d0-599a-9486-49bac3ed35f4",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "CV-04",
+      "proposal_id": "ca677032-ae27-518f-b891-cc1e3cf4210b",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Duy",
+      "proposal_id": "a3dcbecc-c7ac-52ed-8cf9-4e8b453e6d8c",
+      "revision_id": "799d277e-3478-4e23-ab79-2e5d19cdd626",
+      "chapter": 2,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Linh",
+      "proposal_id": "b5460781-7695-5e5f-bc57-1745ced5cbb2",
+      "revision_id": "799d277e-3478-4e23-ab79-2e5d19cdd626",
+      "chapter": 2,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Hòa",
+      "proposal_id": "30a85ab6-d4f5-5382-9e4b-c16de39620e4",
+      "revision_id": "799d277e-3478-4e23-ab79-2e5d19cdd626",
+      "chapter": 2,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bốn",
+      "proposal_id": "cb92e40a-1cf7-5854-a020-b89d3ae2d551",
+      "revision_id": "799d277e-3478-4e23-ab79-2e5d19cdd626",
+      "chapter": 2,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "CV-04",
+      "proposal_id": "7281d805-1307-5835-bf88-8b5afb1408c0",
+      "revision_id": "799d277e-3478-4e23-ab79-2e5d19cdd626",
+      "chapter": 2,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bãi Dưới",
+      "proposal_id": "6734317e-105e-5cad-9c26-85f81c260ccb",
+      "revision_id": "799d277e-3478-4e23-ab79-2e5d19cdd626",
+      "chapter": 2,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Duy",
+      "proposal_id": "ce0dceed-1fd9-5f87-8a3c-1f20192c8f80",
+      "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c",
+      "chapter": 4,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Linh",
+      "proposal_id": "d379b07f-966a-5161-841a-cc69e7960781",
+      "revision_id": "41bb6469-a570-4c5b-b523-a99d1de58bc4",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Sâm",
+      "proposal_id": "08ab3f5f-aaf0-5726-8e41-685859894209",
+      "revision_id": "41bb6469-a570-4c5b-b523-a99d1de58bc4",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bốn",
+      "proposal_id": "bdee94c8-6d57-5264-b713-b54d7b7ddb60",
+      "revision_id": "41bb6469-a570-4c5b-b523-a99d1de58bc4",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "CV-04",
+      "proposal_id": "fc3aab88-2240-5584-9c3c-8e910c53fa20",
+      "revision_id": "41bb6469-a570-4c5b-b523-a99d1de58bc4",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bà Sâm",
+      "proposal_id": "9c936403-9575-5abc-b414-31119e3cf70c",
+      "revision_id": "41bb6469-a570-4c5b-b523-a99d1de58bc4",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Cồn Vân",
+      "proposal_id": "f1d0b5e7-fa09-5960-a7dc-7feb0068a347",
+      "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c",
+      "chapter": 4,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Linh",
+      "proposal_id": "acc82f5a-7dbe-53ef-b104-505119137594",
+      "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c",
+      "chapter": 4,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Đồi Bắc",
+      "proposal_id": "97caf145-b12b-59b0-8326-dd5d24021c31",
+      "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c",
+      "chapter": 4,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Nguyễn Vũ",
+      "proposal_id": "81e3dbc5-2893-5252-8020-8e02c7abe588",
+      "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c",
+      "chapter": 4,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Vũ",
+      "proposal_id": "c61d5887-7463-507a-b91e-4485f5654b2c",
+      "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c",
+      "chapter": 4,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bốn",
+      "proposal_id": "52af803e-12d4-5625-bcca-e45aa4085cdb",
+      "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c",
+      "chapter": 4,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "CV-04",
+      "proposal_id": "944f5569-20bc-56d6-ac59-9c580c173d64",
+      "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c",
+      "chapter": 4,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Sâm",
+      "proposal_id": "457b2082-df24-5611-ab5c-51a26fbb812e",
+      "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c",
+      "chapter": 4,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bãi Dưới",
+      "proposal_id": "6ab0b493-e8d9-55d4-9ca2-a00b75ba9200",
+      "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f",
+      "chapter": 1,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Duy",
+      "proposal_id": "3d9fbeec-5fc3-5e58-8102-f47e6f4a83f5",
+      "revision_id": "ec06c9f7-f42b-4943-9a70-01ce08444a7d",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Linh",
+      "proposal_id": "0b229b7c-006e-55c7-bc4d-6e3d70f60ef0",
+      "revision_id": "ec06c9f7-f42b-4943-9a70-01ce08444a7d",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Sâm",
+      "proposal_id": "4106b7a9-6c68-56e2-bddf-90f2976791b4",
+      "revision_id": "ec06c9f7-f42b-4943-9a70-01ce08444a7d",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bốn",
+      "proposal_id": "9babc369-2aec-5ae1-be8b-ba0069382cee",
+      "revision_id": "ec06c9f7-f42b-4943-9a70-01ce08444a7d",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "CV-04",
+      "proposal_id": "6febd5f7-f17b-525e-b96f-7cb5f7904611",
+      "revision_id": "ec06c9f7-f42b-4943-9a70-01ce08444a7d",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Bà Sâm",
+      "proposal_id": "6069ff2e-02cd-555d-9948-ccab3ec6330f",
+      "revision_id": "ec06c9f7-f42b-4943-9a70-01ce08444a7d",
+      "chapter": 5,
+      "quote_hash_valid": true
+    },
+    {
+      "name": "Mai Linh",
+      "proposal_id": "521c4197-e153-5f81-a7c4-346773b1325f",
+      "revision_id": "ec06c9f7-f42b-4943-9a70-01ce08444a7d",
+      "chapter": 5,
+      "quote_hash_valid": true
+    }
+  ],
+  "invalid_evidence": [],
+  "leaks": [],
+  "verdict": "PASS"
+}

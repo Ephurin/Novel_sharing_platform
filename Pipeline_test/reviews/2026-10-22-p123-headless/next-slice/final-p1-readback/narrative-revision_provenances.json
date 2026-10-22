@@ -1,0 +1,72 @@
+[
+  {
+    "id": "34c62a73-674c-4702-9d6f-0663d2c03d4f",
+    "story_brain_id": "819d484e-cfad-4229-a029-8f2a31e876c2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+    "chapter_id": "b35943d7-9c73-435d-b90c-ef7ca45b61b7",
+    "chapter_number": 1,
+    "created_at": "2026-10-22T06:30:30.87972+00:00",
+    "revision_id": "04ce8ace-be57-4ccc-86a4-0c634a06a58f"
+  },
+  {
+    "id": "d57d2d5a-a9ab-43fd-8eb6-571f489e9044",
+    "story_brain_id": "819d484e-cfad-4229-a029-8f2a31e876c2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+    "chapter_id": "6c73edf6-f9fe-4161-9cbc-adb08c5ecd23",
+    "chapter_number": 2,
+    "created_at": "2026-10-22T06:30:30.87972+00:00",
+    "revision_id": "799d277e-3478-4e23-ab79-2e5d19cdd626"
+  },
+  {
+    "id": "91186f44-6be8-4898-8a63-de7ac8131018",
+    "story_brain_id": "819d484e-cfad-4229-a029-8f2a31e876c2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+    "chapter_id": "a5f29cf4-c02c-4268-bacd-1db70872b0ba",
+    "chapter_number": 3,
+    "created_at": "2026-10-22T06:30:30.87972+00:00",
+    "revision_id": "9a0729ff-fefd-4f24-9205-7b25e352f28a"
+  },
+  {
+    "id": "28c601aa-9c81-4db1-89fa-591af2127931",
+    "story_brain_id": "819d484e-cfad-4229-a029-8f2a31e876c2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+    "chapter_id": "3f4a86d1-be2c-40c5-8c11-c7adf482fe03",
+    "chapter_number": 4,
+    "created_at": "2026-10-22T06:30:30.87972+00:00",
+    "revision_id": "734c08be-aca8-47cd-bcfd-149d66b4494c"
+  },
+  {
+    "id": "3c9465de-51b5-4339-97d9-36505d7cb0ec",
+    "story_brain_id": "819d484e-cfad-4229-a029-8f2a31e876c2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+    "chapter_id": "13215082-acbe-4455-8bd9-0aa3d1ad2e96",
+    "chapter_number": 5,
+    "created_at": "2026-10-22T06:30:30.87972+00:00",
+    "revision_id": "41bb6469-a570-4c5b-b523-a99d1de58bc4"
+  },
+  {
+    "id": "db71760d-e069-4e25-b366-8ab206f93df3",
+    "story_brain_id": "819d484e-cfad-4229-a029-8f2a31e876c2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+    "chapter_id": "13215082-acbe-4455-8bd9-0aa3d1ad2e96",
+    "chapter_number": 5,
+    "created_at": "2026-10-22T06:30:56.69263+00:00",
+    "revision_id": "ec06c9f7-f42b-4943-9a70-01ce08444a7d"
+  },
+  {
+    "id": "a52ec4d2-38cf-492a-8809-1862052758ff",
+    "story_brain_id": "819d484e-cfad-4229-a029-8f2a31e876c2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+    "chapter_id": "b35943d7-9c73-435d-b90c-ef7ca45b61b7",
+    "chapter_number": 1,
+    "created_at": "2026-10-22T06:31:16.68897+00:00",
+    "revision_id": "18b33b94-374a-44f4-ba81-4799f02907f5"
+  }
+]

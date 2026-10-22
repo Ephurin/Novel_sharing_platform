@@ -1,0 +1,3173 @@
+{
+  "chunks": [
+    {
+      "end": 3995,
+      "start": 0
+    },
+    {
+      "end": 4351,
+      "start": 3737
+    }
+  ],
+  "counts": {
+    "entity": 38,
+    "candidates": 123,
+    "not_entity": 83,
+    "unresolved": 2
+  },
+  "policy": "entity-candidates-v1",
+  "status": "waiting_entity_review",
+  "aliases": [],
+  "request": {
+    "options": {
+      "extract_events": true,
+      "build_embeddings": false,
+      "extract_entities": true,
+      "check_consistency": true,
+      "extract_prose_facts": true,
+      "extract_world_rules": true,
+      "review_fact_coverage": true,
+      "extract_state_transitions": true
+    },
+    "novel_id": "1378a160-896c-47b0-8015-7ea5d03186a0",
+    "operation": "bootstrap_manuscript",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "chapter_id": "8c8e456b-74a8-463f-9ffb-90ccf6b32802",
+    "revision_id": "55750fd1-814f-4e17-aed0-791d461ef192",
+    "content_hash": "19539200da6e5b436e3b042a12f806bbbb7f6efcec4466a308969badeaa0932b",
+    "idempotency_key": "bootstrap:8e616280-f26c-52b8-a3da-3fe8dc027b7f:55750fd1-814f-4e17-aed0-791d461ef192"
+  },
+  "entities": [
+    {
+      "score": 7,
+      "entity": "LOC",
+      "phrase": "Cồn Vân",
+      "status_quote": "",
+      "verified_end": 26,
+      "candidate_ids": [
+        "c4d0bcba3c2e20c21fbeedd8"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 19,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Duy",
+      "status_quote": "",
+      "verified_end": 132,
+      "candidate_ids": [
+        "76cf70c9a6dbbd7c3d825581",
+        "d096a1f95058d43237c7ef82",
+        "c1b7cea41696019ea699e365",
+        "ae84a699bc716b2f8ce2f664",
+        "6cb704fd13b0dd2a84692dfb",
+        "9f50e3ab7375829b6d68e044",
+        "c24d363a3ec4c8a532a01099",
+        "3b351d752a32649ae1ae3404",
+        "6ab5769b51b3d5bf6fea5f52",
+        "326daec1a58e3a1f956c2d18"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 129,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Linh",
+      "status_quote": "",
+      "verified_end": 141,
+      "candidate_ids": [
+        "fdd0bde360ad96d1c4c6806e",
+        "c93faa96c9471e72be382026",
+        "ec7b801382a621d43a305f38",
+        "e13131eb9d91e0ff39bbc414",
+        "d498948d45d388c516e1865d",
+        "1b6f6376067cbdabf2ca52f7",
+        "ca891ad3588864540d02879a",
+        "d45b765996b24b3ba9d9f657",
+        "04a694560649adc829fdd6ef",
+        "bcb4c9917130f89073f44df4",
+        "0fc66f1cf8d709d415421ad8",
+        "701dc20671c1a7bd3d114f41"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 137,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "LOC",
+      "phrase": "Đồi Bắc",
+      "status_quote": "",
+      "verified_end": 156,
+      "candidate_ids": [
+        "100070e239121949e7d45ec2"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 149,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Nguyễn Vũ",
+      "status_quote": "",
+      "verified_end": 571,
+      "candidate_ids": [
+        "bd0703e5185c26a9a71d8de4"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 562,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Vũ",
+      "status_quote": "",
+      "verified_end": 571,
+      "candidate_ids": [
+        "ec028643d3f787a5456fbacb",
+        "fc8596466ed0efca164f4997",
+        "cd6971fdb2f393ffe05eeb30",
+        "b1515c47312d64c92927201b",
+        "1599537b3644ed50ba89e5a7",
+        "1b812459d1d62c450ab37f53",
+        "d3f80fcb987c44af72c8625a"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 569,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "LOC",
+      "phrase": "Bốn",
+      "status_quote": "",
+      "verified_end": 1074,
+      "candidate_ids": [
+        "4689ef593ad4130f547b52c3",
+        "2a3d3f7e4fd5b225adf406c2",
+        "45f13f2588e34195176daefd",
+        "9929ccd360d186a15a70dd63"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 1071,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "ITEM",
+      "phrase": "CV-04",
+      "status_quote": "",
+      "verified_end": 1710,
+      "candidate_ids": [
+        "7b4f3dd18fab88d8a29b7716"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 1705,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Sâm",
+      "status_quote": "",
+      "verified_end": 3042,
+      "candidate_ids": [
+        "06ab941001f2b3bc3f1da50a"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 3039,
+      "canonical_entity_id": ""
+    }
+  ],
+  "decisions": [
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "ab41c129fb1e79d050e8f0c6",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "39474f33628c2364c3119e9a",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "c4d0bcba3c2e20c21fbeedd8",
+      "status_quote": "",
+      "canonical_name": "Cồn Vân",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4a46182b2acbecacfba08ead",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "da0187d55db7a8795a60801a",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "76cf70c9a6dbbd7c3d825581",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "fdd0bde360ad96d1c4c6806e",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "f42eadb0b655bf8009d6dc2f",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "100070e239121949e7d45ec2",
+      "status_quote": "",
+      "canonical_name": "Đồi Bắc",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "5cefdb2d5ca7225cceace882",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "83b777da3a082193c15038b5",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "fedb5016afc85283a06b4dc6",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "0bf333b8e096794c8e6f02b8",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "e288c9a4a6927c799a03635b",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "a514907c6f6bd226f9e6d1b5",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "36e71da01715c773275e6179",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "c61201a0991f30bfc14d0bcb",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "874855f8566e7f30ead2dfeb",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "1f48e202e774bb221c1b4b4c",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4bbc2e1b8a9cf48def9eb97b",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "bd0703e5185c26a9a71d8de4",
+      "status_quote": "",
+      "canonical_name": "Nguyễn Vũ",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "ec028643d3f787a5456fbacb",
+      "status_quote": "",
+      "canonical_name": "Vũ",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "6c3da3722ad961b7d41bb573",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "9ee2f8f05346b2fd1009d7f3",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "c93faa96c9471e72be382026",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "efa570828d93b05241a4e49f",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "ec7b801382a621d43a305f38",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "c60622e9969daa7c9d885ffe",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4345b14ab701d97b6a27b259",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "fc8596466ed0efca164f4997",
+      "status_quote": "",
+      "canonical_name": "Vũ",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "aab2cc9284a3dc4226cd3e80",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "a0e46460287b0b2ede1a8695",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "00f9107fe2fe67dfc48ae858",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "d096a1f95058d43237c7ef82",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "34ae0a58364f887a2eab3d75",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "3f9248d77da4ce15aa3ded43",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "4689ef593ad4130f547b52c3",
+      "status_quote": "",
+      "canonical_name": "Bốn",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "a32ce10531a805aee34238ac",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "7224f6fa2da6ef60dba63880",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "800624f6de8b19c5bf909f3a",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "da50c9c8c519925368302765",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "cd6971fdb2f393ffe05eeb30",
+      "status_quote": "",
+      "canonical_name": "Vũ",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "3c56fe4dfec31e13ecabc4a9",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "2662cd8d410985a0263c73aa",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4a4ce4a4f941f51e9fd9ee4a",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "88f6993531d8944f635aef45",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "b1515c47312d64c92927201b",
+      "status_quote": "",
+      "canonical_name": "Vũ",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "e13131eb9d91e0ff39bbc414",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "773f4657a248cbf528a8a7b8",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4df0f17a1c801cdfad56889f",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "79a864a3e5e2087cef6077f4",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "6c70e38a9500aeeeaa849985",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "c1b7cea41696019ea699e365",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "2a3d3f7e4fd5b225adf406c2",
+      "status_quote": "",
+      "canonical_name": "Bốn",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "d498948d45d388c516e1865d",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "be2864d7325ad174343b043e",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "ITEM",
+      "candidate_id": "7b4f3dd18fab88d8a29b7716",
+      "status_quote": "",
+      "canonical_name": "CV-04",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "87a88c9ca5c64ad3178b13ee",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "1599537b3644ed50ba89e5a7",
+      "status_quote": "",
+      "canonical_name": "Vũ",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "fd38e489ff99835cedd52770",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "e881334f634ad31b553bf698",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "7cabd581348520687751fef3",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "93025217f029730b0b5311f8",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "1d706a8e2b7144f1ac75eebf",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "2836ae2276882a5e49dfe3bb",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "1b6f6376067cbdabf2ca52f7",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "0b4a04a6e576b697bca69e5d",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "45f13f2588e34195176daefd",
+      "status_quote": "",
+      "canonical_name": "Bốn",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "1b812459d1d62c450ab37f53",
+      "status_quote": "",
+      "canonical_name": "Vũ",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "dec7537b4577743cd9991645",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "34ad031d0775f90154759580",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "dee401072d613b0e7cf6e4a7",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "1756d87502dd167be7095504",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "ca891ad3588864540d02879a",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "7d5f9c181e4b7a4efb7ad14c",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "ae84a699bc716b2f8ce2f664",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "176e7baa11eebc31e2add00f",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "5ab1718495db3d705d45cfb8",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "d3f80fcb987c44af72c8625a",
+      "status_quote": "",
+      "canonical_name": "Vũ",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "cffebea88433e8800e127f72",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "7166134b24d2114a0053cbd8",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "d45b765996b24b3ba9d9f657",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "6cb704fd13b0dd2a84692dfb",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4ab76d9051ffabb6e9eefcf8",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "d7243a63d3bf2d7f1bc93a48",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "bdac9ccfff7eed24fe687477",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "99061a629e007254c390abb8",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "ed7388e07b6ebc6dcb999f4b",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "unresolved",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4aac23aa9844330d2f9a96a5",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "204b6e2aa2c33e4f738a9409",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "0c1502d594aea74cf367bdd9",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "06ab941001f2b3bc3f1da50a",
+      "status_quote": "",
+      "canonical_name": "Sâm",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "17089de18ad221fd306f7452",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "9f50e3ab7375829b6d68e044",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "f28c5e965e846e9d29432fd1",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "a12cb6031dce6fbfd6d101c0",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "04a694560649adc829fdd6ef",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "b5101788cbe74b7b73aeca8c",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "12be804a9b83262fadfe959d",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "bbf312ee9b4f91c0d369f74c",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "9929ccd360d186a15a70dd63",
+      "status_quote": "",
+      "canonical_name": "Bốn",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "b9412f23b1b2f8f63f22f370",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "b9f693b3186a9be6dba73006",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "c24d363a3ec4c8a532a01099",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "bcb4c9917130f89073f44df4",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "2722d0e9a3c23055d792f0ee",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "5bf9f5eb7fd9ae6a300784e8",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "5b81d008b443ade7422a89a5",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "f58917057c7faf31ec0c6f6e",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "3b351d752a32649ae1ae3404",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "d2573d7018a0826338079f4b",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4aaa89a5c99b1e901af88330",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "0fc66f1cf8d709d415421ad8",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "2bf04836a89a508a1067d8f3",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "7e27c8e0b2a127b4150a81a9",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "7f6ebfea9d80fcfab40b4687",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "6ab5769b51b3d5bf6fea5f52",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "c11d0a60c7026fffda7b3558",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "0c6406889d7d737f7fd4a8ed",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "53c5e70c47947b166371c3cb",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "unresolved",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "43f24cc2fc987ce184141fdf",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "326daec1a58e3a1f956c2d18",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "701dc20671c1a7bd3d114f41",
+      "status_quote": "",
+      "canonical_name": "Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    }
+  ],
+  "candidates": [
+    {
+      "end": 4,
+      "start": 0,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cu",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Sáng",
+      "context_end": 204,
+      "candidate_id": "ab41c129fb1e79d050e8f0c6",
+      "context_start": 0
+    },
+    {
+      "end": 22,
+      "start": 19,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni l",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cồn",
+      "context_end": 222,
+      "candidate_id": "39474f33628c2364c3119e9a",
+      "context_start": 0
+    },
+    {
+      "end": 26,
+      "start": 19,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông.",
+      "origins": [
+        "author_guidance",
+        "capitalized_sequence"
+      ],
+      "surface": "Cồn Vân",
+      "context_end": 226,
+      "candidate_id": "c4d0bcba3c2e20c21fbeedd8",
+      "context_start": 0
+    },
+    {
+      "end": 26,
+      "start": 23,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vân",
+      "context_end": 226,
+      "candidate_id": "4a46182b2acbecacfba08ead",
+      "context_start": 0
+    },
+    {
+      "end": 41,
+      "start": 38,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên ph",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Mặt",
+      "context_end": 241,
+      "candidate_id": "da0187d55db7a8795a60801a",
+      "context_start": 0
+    },
+    {
+      "end": 132,
+      "start": 129,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì ",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 332,
+      "candidate_id": "76cf70c9a6dbbd7c3d825581",
+      "context_start": 0
+    },
+    {
+      "end": 141,
+      "start": 137,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 341,
+      "candidate_id": "fdd0bde360ad96d1c4c6806e",
+      "context_start": 0
+    },
+    {
+      "end": 152,
+      "start": 149,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Đồi",
+      "context_end": 352,
+      "candidate_id": "f42eadb0b655bf8009d6dc2f",
+      "context_start": 0
+    },
+    {
+      "end": 156,
+      "start": 149,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩ",
+      "origins": [
+        "author_guidance",
+        "capitalized_sequence",
+        "title_or_location"
+      ],
+      "surface": "Đồi Bắc",
+      "context_end": 356,
+      "candidate_id": "100070e239121949e7d45ec2",
+      "context_start": 0
+    },
+    {
+      "end": 156,
+      "start": 153,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bắc",
+      "context_end": 356,
+      "candidate_id": "5cefdb2d5ca7225cceace882",
+      "context_start": 0
+    },
+    {
+      "end": 161,
+      "start": 158,
+      "context": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩn,” c",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 361,
+      "candidate_id": "83b777da3a082193c15038b5",
+      "context_start": 0
+    },
+    {
+      "end": 229,
+      "start": 227,
+      "context": "không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩn,” cô nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 429,
+      "candidate_id": "fedb5016afc85283a06b4dc6",
+      "context_start": 27
+    },
+    {
+      "end": 309,
+      "start": 306,
+      "context": "ông sâu hơn vết thật.\n\nDuy chờ Linh ở chân Đồi Bắc. Anh mang chiếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩn,” cô nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tôi",
+      "context_end": 509,
+      "candidate_id": "0bf333b8e096794c8e6f02b8",
+      "context_start": 106
+    },
+    {
+      "end": 373,
+      "start": 370,
+      "context": "ếc hộp dụng cụ hôm trước và một cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩn,” cô nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ t",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tôi",
+      "context_end": 573,
+      "candidate_id": "e288c9a4a6927c799a03635b",
+      "context_start": 170
+    },
+    {
+      "end": 402,
+      "start": 399,
+      "context": "ột cuộn bản đồ bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩn,” cô nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Quý",
+      "context_end": 602,
+      "candidate_id": "a514907c6f6bd226f9e6d1b5",
+      "context_start": 199
+    },
+    {
+      "end": 416,
+      "start": 413,
+      "context": " bọc ni lông. Cô đứng bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩn,” cô nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuố",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Khó",
+      "context_end": 616,
+      "candidate_id": "36e71da01715c773275e6179",
+      "context_start": 213
+    },
+    {
+      "end": 436,
+      "start": 433,
+      "context": "g bên phải anh, điều nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩn,” cô nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 636,
+      "candidate_id": "c61201a0991f30bfc14d0bcb",
+      "context_start": 233
+    },
+    {
+      "end": 455,
+      "start": 453,
+      "context": " nhỏ ấy khiến cuộc nói chuyện bắt đầu dễ dàng hơn.\n\n“Tôi tưởng đi xin giấy thì không cần mang vòng chuẩn,” cô nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay,",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Họ",
+      "context_end": 655,
+      "candidate_id": "874855f8566e7f30ead2dfeb",
+      "context_start": 253
+    },
+    {
+      "end": 524,
+      "start": 520,
+      "context": "in giấy thì không cần mang vòng chuẩn,” cô nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Lin",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Trên",
+      "context_end": 724,
+      "candidate_id": "1f48e202e774bb221c1b4b4c",
+      "context_start": 320
+    },
+    {
+      "end": 568,
+      "start": 562,
+      "context": " nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Nguyễn",
+      "context_end": 768,
+      "candidate_id": "4bbc2e1b8a9cf48def9eb97b",
+      "context_start": 362
+    },
+    {
+      "end": 571,
+      "start": 562,
+      "context": " nói.\n\n“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã ch",
+      "origins": [
+        "capitalized_sequence"
+      ],
+      "surface": "Nguyễn Vũ",
+      "context_end": 771,
+      "candidate_id": "bd0703e5185c26a9a71d8de4",
+      "context_start": 362
+    },
+    {
+      "end": 571,
+      "start": 569,
+      "context": "“Tôi không để nó trong xe.”\n\n“Quý lắm à?”\n\n“Khó làm lại đúng.”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã ch",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vũ",
+      "context_end": 771,
+      "candidate_id": "ec028643d3f787a5456fbacb",
+      "context_start": 369
+    },
+    {
+      "end": 633,
+      "start": 630,
+      "context": "”\n\nAnh không nói thêm. Họ đi lên bậc thang mới lát, qua những chậu cây không bị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Ông",
+      "context_end": 833,
+      "candidate_id": "6c3da3722ad961b7d41bb573",
+      "context_start": 430
+    },
+    {
+      "end": 711,
+      "start": 708,
+      "context": "ị ngập gốc. Trên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa s",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Khi",
+      "context_end": 911,
+      "candidate_id": "9ee2f8f05346b2fd1009d7f3",
+      "context_start": 508
+    },
+    {
+      "end": 725,
+      "start": 721,
+      "context": "rên cao, gió có mùi cỏ cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lạ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 925,
+      "candidate_id": "c93faa96c9471e72be382026",
+      "context_start": 521
+    },
+    {
+      "end": 746,
+      "start": 743,
+      "context": " cắt thay vì bùn.\n\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tôi",
+      "context_end": 946,
+      "candidate_id": "efa570828d93b05241a4e49f",
+      "context_start": 543
+    },
+    {
+      "end": 765,
+      "start": 761,
+      "context": "\nNguyễn Vũ tiếp họ trong phòng họp có cửa kính nhìn xuống thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 965,
+      "candidate_id": "ec7b801382a621d43a305f38",
+      "context_start": 561
+    },
+    {
+      "end": 821,
+      "start": 818,
+      "context": " thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Ông",
+      "context_end": 1021,
+      "candidate_id": "c60622e9969daa7c9d885ffe",
+      "context_start": 618
+    },
+    {
+      "end": 824,
+      "start": 818,
+      "context": " thành phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy tr",
+      "origins": [
+        "capitalized_sequence",
+        "title_or_location"
+      ],
+      "surface": "Ông Vũ",
+      "context_end": 1024,
+      "candidate_id": "4345b14ab701d97b6a27b259",
+      "context_start": 618
+    },
+    {
+      "end": 824,
+      "start": 822,
+      "context": "nh phố. Ông mặc áo sơ mi xắn tay, trước mặt là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy tr",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vũ",
+      "context_end": 1024,
+      "candidate_id": "fc8596466ed0efca164f4997",
+      "context_start": 622
+    },
+    {
+      "end": 867,
+      "start": 865,
+      "context": " là ba điện thoại và một cốc trà đã nguội. Khi nghe tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây t",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 1067,
+      "candidate_id": "aab2cc9284a3dc4226cd3e80",
+      "context_start": 665
+    },
+    {
+      "end": 918,
+      "start": 915,
+      "context": "e tên Linh, ông đứng dậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch ché",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Ông",
+      "context_end": 1118,
+      "candidate_id": "a0e46460287b0b2ede1a8695",
+      "context_start": 715
+    },
+    {
+      "end": 941,
+      "start": 937,
+      "context": "ậy.\n\n“Tôi biết bố cô.”\n\nLinh đã chuẩn bị cho câu ấy nhưng vẫn không biết đáp gì. Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cách",
+      "context_end": 1141,
+      "candidate_id": "00f9107fe2fe67dfc48ae858",
+      "context_start": 737
+    },
+    {
+      "end": 1021,
+      "start": 1018,
+      "context": "Ông Vũ kéo ghế cho cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tườn",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 1221,
+      "candidate_id": "d096a1f95058d43237c7ef82",
+      "context_start": 818
+    },
+    {
+      "end": 1038,
+      "start": 1035,
+      "context": "o cô, rồi hỏi tình trạng kho. Cô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 1238,
+      "candidate_id": "34ae0a58364f887a2eab3d75",
+      "context_start": 835
+    },
+    {
+      "end": 1074,
+      "start": 1066,
+      "context": "ô nói về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ố",
+      "origins": [
+        "title_or_location"
+      ],
+      "surface": "trạm Bốn",
+      "context_end": 1274,
+      "candidate_id": "3f9248d77da4ce15aa3ded43",
+      "context_start": 866
+    },
+    {
+      "end": 1074,
+      "start": 1071,
+      "context": " về mái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ố",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bốn",
+      "context_end": 1274,
+      "candidate_id": "4689ef593ad4130f547b52c3",
+      "context_start": 871
+    },
+    {
+      "end": 1080,
+      "start": 1076,
+      "context": "ái dột, điện và các mảnh gốm chưa sao. Ông ghi lại từng mục. Cách ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khá",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Trên",
+      "context_end": 1280,
+      "candidate_id": "a32ce10531a805aee34238ac",
+      "context_start": 876
+    },
+    {
+      "end": 1143,
+      "start": 1140,
+      "context": "h ông hỏi cụ thể khiến cô khó giữ hình ảnh một người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch t",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bản",
+      "context_end": 1343,
+      "candidate_id": "7224f6fa2da6ef60dba63880",
+      "context_start": 940
+    },
+    {
+      "end": 1191,
+      "start": 1187,
+      "context": "người chỉ quan tâm nghi thức.\n\nDuy trải bản đồ. Anh chỉ một nhánh ống phía tây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tuần",
+      "context_end": 1391,
+      "candidate_id": "800624f6de8b19c5bf909f3a",
+      "context_start": 987
+    },
+    {
+      "end": 1265,
+      "start": 1263,
+      "context": "ây trạm Bốn. Trên bản đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Có",
+      "context_end": 1465,
+      "candidate_id": "da50c9c8c519925368302765",
+      "context_start": 1063
+    },
+    {
+      "end": 1286,
+      "start": 1284,
+      "context": " đồ, nó kết thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vũ",
+      "context_end": 1486,
+      "candidate_id": "cd6971fdb2f393ffe05eeb30",
+      "context_start": 1084
+    },
+    {
+      "end": 1296,
+      "start": 1294,
+      "context": "t thúc bằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Có",
+      "context_end": 1496,
+      "candidate_id": "3c56fe4dfec31e13ecabc4a9",
+      "context_start": 1094
+    },
+    {
+      "end": 1304,
+      "start": 1302,
+      "context": "ằng nét gạch chéo và dòng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đá",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vì",
+      "context_end": 1504,
+      "candidate_id": "2662cd8d410985a0263c73aa",
+      "context_start": 1102
+    },
+    {
+      "end": 1328,
+      "start": 1325,
+      "context": "ng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Ông",
+      "context_end": 1528,
+      "candidate_id": "4a4ce4a4f941f51e9fd9ee4a",
+      "context_start": 1125
+    },
+    {
+      "end": 1331,
+      "start": 1325,
+      "context": "ng “đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Ch",
+      "origins": [
+        "capitalized_sequence",
+        "title_or_location"
+      ],
+      "surface": "Ông Vũ",
+      "context_end": 1531,
+      "candidate_id": "88f6993531d8944f635aef45",
+      "context_start": 1125
+    },
+    {
+      "end": 1331,
+      "start": 1329,
+      "context": "đã bịt”.\n\n“Bản này sao từ hồ sơ sáu năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Ch",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vũ",
+      "context_end": 1531,
+      "candidate_id": "b1515c47312d64c92927201b",
+      "context_start": 1129
+    },
+    {
+      "end": 1367,
+      "start": 1363,
+      "context": "u năm trước,” anh nói. “Tuần trước tôi kiểm tra ngoài tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gậ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 1567,
+      "candidate_id": "e13131eb9d91e0ff39bbc414",
+      "context_start": 1163
+    },
+    {
+      "end": 1418,
+      "start": 1416,
+      "context": " tường trạm, còn nghe dòng chảy ở phía này.”\n\n“Có thể là ống khác,” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 1618,
+      "candidate_id": "773f4657a248cbf528a8a7b8",
+      "context_start": 1216
+    },
+    {
+      "end": 1485,
+      "start": 1482,
+      "context": "” Vũ nói.\n\n“Có thể. Vì vậy cần khảo sát.”\n\nÔng Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tôi",
+      "context_end": 1685,
+      "candidate_id": "4df0f17a1c801cdfad56889f",
+      "context_start": 1282
+    },
+    {
+      "end": 1534,
+      "start": 1529,
+      "context": "Vũ nhìn lịch triều trên màn hình. Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Chính",
+      "context_end": 1734,
+      "candidate_id": "79a864a3e5e2087cef6077f4",
+      "context_start": 1329
+    },
+    {
+      "end": 1564,
+      "start": 1562,
+      "context": " Linh thấy những ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống c",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 1764,
+      "candidate_id": "6c70e38a9500aeeeaa849985",
+      "context_start": 1362
+    },
+    {
+      "end": 1577,
+      "start": 1574,
+      "context": "hững ô màu cam đậm dần về phía cuối bảng. Cô nói kho được giao mười hai ngày; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống cha và khả năn",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 1777,
+      "candidate_id": "c1b7cea41696019ea699e365",
+      "context_start": 1374
+    },
+    {
+      "end": 1653,
+      "start": 1650,
+      "context": "; hôm nay đã là ngày thứ hai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lờ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bốn",
+      "context_end": 1853,
+      "candidate_id": "2a3d3f7e4fd5b225adf406c2",
+      "context_start": 1450
+    },
+    {
+      "end": 1680,
+      "start": 1676,
+      "context": "ai.\n\n“Tôi biết lịch,” ông đáp, rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lời có một bản tại kho theo q",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 1880,
+      "candidate_id": "d498948d45d388c516e1865d",
+      "context_start": 1476
+    },
+    {
+      "end": 1697,
+      "start": 1695,
+      "context": ",” ông đáp, rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lời có một bản tại kho theo quy trình bảo tồn.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Họ",
+      "context_end": 1897,
+      "candidate_id": "be2864d7325ad174343b043e",
+      "context_start": 1495
+    },
+    {
+      "end": 1710,
+      "start": 1705,
+      "context": ", rồi giọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lời có một bản tại kho theo quy trình bảo tồn.\n\n“Đừng công ",
+      "origins": [
+        "author_guidance",
+        "capitalized_token",
+        "identifier"
+      ],
+      "surface": "CV-04",
+      "context_end": 1910,
+      "candidate_id": "7b4f3dd18fab88d8a29b7716",
+      "context_start": 1505
+    },
+    {
+      "end": 1714,
+      "start": 1712,
+      "context": "iọng dịu xuống. “Chính tôi ký đề nghị kinh phí.”\n\nCô gật đầu. Duy không nhìn cô nhưng dịch bản đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lời có một bản tại kho theo quy trình bảo tồn.\n\n“Đừng công bố đ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 1914,
+      "candidate_id": "87a88c9ca5c64ad3178b13ee",
+      "context_start": 1512
+    },
+    {
+      "end": 1809,
+      "start": 1807,
+      "context": "đồ một chút để che tờ giấy ghi câu “mở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lời có một bản tại kho theo quy trình bảo tồn.\n\n“Đừng công bố đoạn cắt,” ông nói. “Thành phố đang chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta b",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vũ",
+      "context_end": 2009,
+      "candidate_id": "1599537b3644ed50ba89e5a7",
+      "context_start": 1607
+    },
+    {
+      "end": 1846,
+      "start": 1844,
+      "context": "ở cửa Bốn” trong sổ cô đang mở. Linh đóng sổ lại.\n\nHọ nói về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lời có một bản tại kho theo quy trình bảo tồn.\n\n“Đừng công bố đoạn cắt,” ông nói. “Thành phố đang chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi ch",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 2046,
+      "candidate_id": "fd38e489ff99835cedd52770",
+      "context_start": 1644
+    },
+    {
+      "end": 1904,
+      "start": 1900,
+      "context": "i về CV-04. Cô chỉ trình bày điều đã đo, việc giọng nghe giống cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lời có một bản tại kho theo quy trình bảo tồn.\n\n“Đừng công bố đoạn cắt,” ông nói. “Thành phố đang chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác min",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Đừng",
+      "context_end": 2104,
+      "candidate_id": "e881334f634ad31b553bf698",
+      "context_start": 1700
+    },
+    {
+      "end": 1939,
+      "start": 1934,
+      "context": "đã đo, việc giọng nghe giống cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lời có một bản tại kho theo quy trình bảo tồn.\n\n“Đừng công bố đoạn cắt,” ông nói. “Thành phố đang chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Thành",
+      "context_end": 2139,
+      "candidate_id": "7cabd581348520687751fef3",
+      "context_start": 1734
+    },
+    {
+      "end": 1965,
+      "start": 1962,
+      "context": " cha và khả năng tiếng chuông cần đối chứng. Vũ hỏi có ai khác giữ bản sao không. Cô trả lời có một bản tại kho theo quy trình bảo tồn.\n\n“Đừng công bố đoạn cắt,” ông nói. “Thành phố đang chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Một",
+      "context_end": 2165,
+      "candidate_id": "93025217f029730b0b5311f8",
+      "context_start": 1762
+    },
+    {
+      "end": 2039,
+      "start": 2034,
+      "context": "ao không. Cô trả lời có một bản tại kho theo quy trình bảo tồn.\n\n“Đừng công bố đoạn cắt,” ông nói. “Thành phố đang chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông b",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Chúng",
+      "context_end": 2239,
+      "candidate_id": "1d706a8e2b7144f1ac75eebf",
+      "context_start": 1834
+    },
+    {
+      "end": 2069,
+      "start": 2066,
+      "context": "tại kho theo quy trình bảo tồn.\n\n“Đừng công bố đoạn cắt,” ông nói. “Thành phố đang chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ kh",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tôi",
+      "context_end": 2269,
+      "candidate_id": "2836ae2276882a5e49dfe3bb",
+      "context_start": 1866
+    },
+    {
+      "end": 2113,
+      "start": 2109,
+      "context": " bố đoạn cắt,” ông nói. “Thành phố đang chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 2313,
+      "candidate_id": "1b6f6376067cbdabf2ca52f7",
+      "context_start": 1909
+    },
+    {
+      "end": 2151,
+      "start": 2143,
+      "context": " đang chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ.”\n\nĐó không phải câu trả lời, nhưng c",
+      "origins": [
+        "title_or_location"
+      ],
+      "surface": "trạm Bốn",
+      "context_end": 2351,
+      "candidate_id": "0b4a04a6e576b697bca69e5d",
+      "context_start": 1943
+    },
+    {
+      "end": 2151,
+      "start": 2148,
+      "context": " chuẩn bị lũ. Một câu không có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ.”\n\nĐó không phải câu trả lời, nhưng c",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bốn",
+      "context_end": 2351,
+      "candidate_id": "45f13f2588e34195176daefd",
+      "context_start": 1948
+    },
+    {
+      "end": 2177,
+      "start": 2175,
+      "context": " có đầu cuối có thể làm người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ.”\n\nĐó không phải câu trả lời, nhưng cũng không phải lời phủ nhậ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vũ",
+      "context_end": 2377,
+      "candidate_id": "1b812459d1d62c450ab37f53",
+      "context_start": 1975
+    },
+    {
+      "end": 2201,
+      "start": 2197,
+      "context": "m người ta bỏ nhà chạy sai hướng.”\n\n“Chúng tôi chưa định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ.”\n\nĐó không phải câu trả lời, nhưng cũng không phải lời phủ nhận. Linh ghi nguyên văn.\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Ngón",
+      "context_end": 2401,
+      "candidate_id": "dec7537b4577743cd9991645",
+      "context_start": 1997
+    },
+    {
+      "end": 2252,
+      "start": 2249,
+      "context": "định công bố.”\n\n“Tôi xin cô giữ như vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ.”\n\nĐó không phải câu trả lời, nhưng cũng không phải lời phủ nhận. Linh ghi nguyên văn.\n\nGiấy cho phép khảo sát được ký với điều kiện không",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tôi",
+      "context_end": 2452,
+      "candidate_id": "34ad031d0775f90154759580",
+      "context_start": 2049
+    },
+    {
+      "end": 2287,
+      "start": 2284,
+      "context": " vậy đến khi xác minh.”\n\nLinh hỏi ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ.”\n\nĐó không phải câu trả lời, nhưng cũng không phải lời phủ nhận. Linh ghi nguyên văn.\n\nGiấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống kho",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Hồi",
+      "context_end": 2487,
+      "candidate_id": "dee401072d613b0e7cf6e4a7",
+      "context_start": 2084
+    },
+    {
+      "end": 2319,
+      "start": 2317,
+      "context": " ông có nhớ hoạt động của trạm Bốn trong đêm lũ cũ không. Vũ nhìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ.”\n\nĐó không phải câu trả lời, nhưng cũng không phải lời phủ nhận. Linh ghi nguyên văn.\n\nGiấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Đó",
+      "context_end": 2519,
+      "candidate_id": "1756d87502dd167be7095504",
+      "context_start": 2117
+    },
+    {
+      "end": 2384,
+      "start": 2380,
+      "context": "ìn xuống bản đồ. Ngón tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ.”\n\nĐó không phải câu trả lời, nhưng cũng không phải lời phủ nhận. Linh ghi nguyên văn.\n\nGiấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng. Duy đọc kỹ trước khi nhận. Anh gạch chân điều kiện c",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 2584,
+      "candidate_id": "ca891ad3588864540d02879a",
+      "context_start": 2180
+    },
+    {
+      "end": 2406,
+      "start": 2402,
+      "context": "tay ông dừng ở mép giấy nơi ni lông bị bong.\n\n“Tôi nhớ nhiều thứ không khớp nhau. Hồi ấy tôi trẻ hơn cô bây giờ.”\n\nĐó không phải câu trả lời, nhưng cũng không phải lời phủ nhận. Linh ghi nguyên văn.\n\nGiấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng. Duy đọc kỹ trước khi nhận. Anh gạch chân điều kiện cuối rồi chỉ vào tên mì",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Giấy",
+      "context_end": 2606,
+      "candidate_id": "7d5f9c181e4b7a4efb7ad14c",
+      "context_start": 2202
+    },
+    {
+      "end": 2535,
+      "start": 2532,
+      "context": "âu trả lời, nhưng cũng không phải lời phủ nhận. Linh ghi nguyên văn.\n\nGiấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng. Duy đọc kỹ trước khi nhận. Anh gạch chân điều kiện cuối rồi chỉ vào tên mình.\n\n“Tôi đủ tư cách người của đội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi h",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 2735,
+      "candidate_id": "ae84a699bc716b2f8ce2f664",
+      "context_start": 2332
+    },
+    {
+      "end": 2562,
+      "start": 2559,
+      "context": "g phải lời phủ nhận. Linh ghi nguyên văn.\n\nGiấy cho phép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng. Duy đọc kỹ trước khi nhận. Anh gạch chân điều kiện cuối rồi chỉ vào tên mình.\n\n“Tôi đủ tư cách người của đội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Du",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 2762,
+      "candidate_id": "176e7baa11eebc31e2add00f",
+      "context_start": 2359
+    },
+    {
+      "end": 2615,
+      "start": 2612,
+      "context": "hép khảo sát được ký với điều kiện không vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng. Duy đọc kỹ trước khi nhận. Anh gạch chân điều kiện cuối rồi chỉ vào tên mình.\n\n“Tôi đủ tư cách người của đội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tôi",
+      "context_end": 2815,
+      "candidate_id": "5ab1718495db3d705d45cfb8",
+      "context_start": 2412
+    },
+    {
+      "end": 2650,
+      "start": 2648,
+      "context": "hông vận hành cửa nước, không xuống khoang kín và có người của đội bảo trì đi cùng. Duy đọc kỹ trước khi nhận. Anh gạch chân điều kiện cuối rồi chỉ vào tên mình.\n\n“Tôi đủ tư cách người của đội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vũ",
+      "context_end": 2850,
+      "candidate_id": "d3f80fcb987c44af72c8625a",
+      "context_start": 2448
+    },
+    {
+      "end": 2670,
+      "start": 2667,
+      "context": "ước, không xuống khoang kín và có người của đội bảo trì đi cùng. Duy đọc kỹ trước khi nhận. Anh gạch chân điều kiện cuối rồi chỉ vào tên mình.\n\n“Tôi đủ tư cách người của đội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn c",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 2870,
+      "candidate_id": "cffebea88433e8800e127f72",
+      "context_start": 2467
+    },
+    {
+      "end": 2733,
+      "start": 2730,
+      "context": ". Duy đọc kỹ trước khi nhận. Anh gạch chân điều kiện cuối rồi chỉ vào tên mình.\n\n“Tôi đủ tư cách người của đội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tô",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Khi",
+      "context_end": 2933,
+      "candidate_id": "7166134b24d2114a0053cbd8",
+      "context_start": 2530
+    },
+    {
+      "end": 2755,
+      "start": 2751,
+      "context": "i nhận. Anh gạch chân điều kiện cuối rồi chỉ vào tên mình.\n\n“Tôi đủ tư cách người của đội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 2955,
+      "candidate_id": "d45b765996b24b3ba9d9f657",
+      "context_start": 2551
+    },
+    {
+      "end": 2763,
+      "start": 2760,
+      "context": "nh gạch chân điều kiện cuối rồi chỉ vào tên mình.\n\n“Tôi đủ tư cách người của đội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới ",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 2963,
+      "candidate_id": "6cb704fd13b0dd2a84692dfb",
+      "context_start": 2560
+    },
+    {
+      "end": 2785,
+      "start": 2782,
+      "context": " cuối rồi chỉ vào tên mình.\n\n“Tôi đủ tư cách người của đội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 2985,
+      "candidate_id": "4ab76d9051ffabb6e9eefcf8",
+      "context_start": 2582
+    },
+    {
+      "end": 2841,
+      "start": 2838,
+      "context": "ội chứ?”\n\nVũ cười lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Tin",
+      "context_end": 3041,
+      "candidate_id": "d7243a63d3bf2d7f1bc93a48",
+      "context_start": 2638
+    },
+    {
+      "end": 2859,
+      "start": 2855,
+      "context": " lần đầu.\n\n“Anh thì quá đủ để báo tôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nh",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Việc",
+      "context_end": 3059,
+      "candidate_id": "bdac9ccfff7eed24fe687477",
+      "context_start": 2655
+    },
+    {
+      "end": 2892,
+      "start": 2890,
+      "context": "ôi biết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Có",
+      "context_end": 3092,
+      "candidate_id": "99061a629e007254c390abb8",
+      "context_start": 2690
+    },
+    {
+      "end": 2898,
+      "start": 2894,
+      "context": "iết vì sao mọi thứ chưa sửa xong.”\n\nKhi họ ra hành lang, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu t",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Việc",
+      "context_end": 3098,
+      "candidate_id": "ed7388e07b6ebc6dcb999f4b",
+      "context_start": 2694
+    },
+    {
+      "end": 2950,
+      "start": 2948,
+      "context": "g, Linh hỏi Duy có tin ông không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "An",
+      "context_end": 3150,
+      "candidate_id": "4aac23aa9844330d2f9a96a5",
+      "context_start": 2748
+    },
+    {
+      "end": 2976,
+      "start": 2973,
+      "context": "g không. Anh cuộn bản đồ, tránh một người đang bê chồng hồ sơ.\n\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cậu",
+      "context_end": 3176,
+      "candidate_id": "204b6e2aa2c33e4f738a9409",
+      "context_start": 2773
+    },
+    {
+      "end": 3042,
+      "start": 3036,
+      "context": "\n“Tin việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTr",
+      "origins": [
+        "title_or_location"
+      ],
+      "surface": "bà Sâm",
+      "context_end": 3242,
+      "candidate_id": "0c1502d594aea74cf367bdd9",
+      "context_start": 2836
+    },
+    {
+      "end": 3042,
+      "start": 3039,
+      "context": "in việc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTr",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Sâm",
+      "context_end": 3242,
+      "candidate_id": "06ab941001f2b3bc3f1da50a",
+      "context_start": 2839
+    },
+    {
+      "end": 3046,
+      "start": 3044,
+      "context": "ệc nào?”\n\n“Việc ông muốn chúng ta an toàn.”\n\n“Có. Việc ông sẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bà",
+      "context_end": 3246,
+      "candidate_id": "17089de18ad221fd306f7452",
+      "context_start": 2844
+    },
+    {
+      "end": 3107,
+      "start": 3104,
+      "context": "ẽ kể hết những gì biết thì tôi chưa biết.”\n\nAn đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 3307,
+      "candidate_id": "9f50e3ab7375829b6d68e044",
+      "context_start": 2904
+    },
+    {
+      "end": 3151,
+      "start": 3149,
+      "context": "n đón họ dưới chân đồi. Cậu đã buộc thêm dây vào thuyền và mang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bà",
+      "context_end": 3351,
+      "candidate_id": "f28c5e965e846e9d29432fd1",
+      "context_start": 2949
+    },
+    {
+      "end": 3212,
+      "start": 3209,
+      "context": "ang một bình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 3412,
+      "candidate_id": "a12cb6031dce6fbfd6d101c0",
+      "context_start": 3009
+    },
+    {
+      "end": 3222,
+      "start": 3218,
+      "context": "ình nước nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 3422,
+      "candidate_id": "04a694560649adc829fdd6ef",
+      "context_start": 3018
+    },
+    {
+      "end": 3226,
+      "start": 3224,
+      "context": "ớc nóng của bà Sâm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 3426,
+      "candidate_id": "b5101788cbe74b7b73aeca8c",
+      "context_start": 3024
+    },
+    {
+      "end": 3244,
+      "start": 3240,
+      "context": "âm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Trạm",
+      "context_end": 3444,
+      "candidate_id": "12be804a9b83262fadfe959d",
+      "context_start": 3040
+    },
+    {
+      "end": 3248,
+      "start": 3240,
+      "context": "âm. Bà không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đèn v",
+      "origins": [
+        "capitalized_sequence",
+        "title_or_location"
+      ],
+      "surface": "Trạm Bốn",
+      "context_end": 3448,
+      "candidate_id": "bbf312ee9b4f91c0d369f74c",
+      "context_start": 3040
+    },
+    {
+      "end": 3248,
+      "start": 3245,
+      "context": "à không đi, nhưng nhắn đừng chạm chiếc tay quay màu trắng. Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đèn v",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bốn",
+      "context_end": 3448,
+      "candidate_id": "9929ccd360d186a15a70dd63",
+      "context_start": 3045
+    },
+    {
+      "end": 3307,
+      "start": 3304,
+      "context": "Duy nghe xong hỏi bà còn nói gì nữa không.\n\n“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đèn và bậc thang trước khi cho Linh qua cửa.\n\nCô đứng ở phần sàn",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Một",
+      "context_end": 3507,
+      "candidate_id": "b9412f23b1b2f8f63f22f370",
+      "context_start": 3104
+    },
+    {
+      "end": 3351,
+      "start": 3348,
+      "context": "“Bà bảo nếu anh phải hỏi nó ở đâu thì tốt nhất đừng xuống.”\n\nAnh nhìn Linh. Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đèn và bậc thang trước khi cho Linh qua cửa.\n\nCô đứng ở phần sàn khô, nghe. Không phải để tìm giọng cha. Cô ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Bên",
+      "context_end": 3551,
+      "candidate_id": "b9f693b3186a9be6dba73006",
+      "context_start": 3148
+    },
+    {
+      "end": 3425,
+      "start": 3422,
+      "context": ". Cô không cười.\n\nTrạm Bốn thấp, tường gạch thẫm màu như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đèn và bậc thang trước khi cho Linh qua cửa.\n\nCô đứng ở phần sàn khô, nghe. Không phải để tìm giọng cha. Cô tự nhắc mình điều đó khi áp micro tiếp xúc lên lan can.\n\nTừ phía nhánh ống",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 3625,
+      "candidate_id": "c24d363a3ec4c8a532a01099",
+      "context_start": 3222
+    },
+    {
+      "end": 3478,
+      "start": 3474,
+      "context": " như đã hút nước vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đèn và bậc thang trước khi cho Linh qua cửa.\n\nCô đứng ở phần sàn khô, nghe. Không phải để tìm giọng cha. Cô tự nhắc mình điều đó khi áp micro tiếp xúc lên lan can.\n\nTừ phía nhánh ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt qu",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 3678,
+      "candidate_id": "bcb4c9917130f89073f44df4",
+      "context_start": 3274
+    },
+    {
+      "end": 3491,
+      "start": 3489,
+      "context": "c vào tận lõi. Một tấm biển cấm vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đèn và bậc thang trước khi cho Linh qua cửa.\n\nCô đứng ở phần sàn khô, nghe. Không phải để tìm giọng cha. Cô tự nhắc mình điều đó khi áp micro tiếp xúc lên lan can.\n\nTừ phía nhánh ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 3691,
+      "candidate_id": "2722d0e9a3c23055d792f0ee",
+      "context_start": 3289
+    },
+    {
+      "end": 3524,
+      "start": 3519,
+      "context": "m vào nghiêng trên hàng rào. Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đèn và bậc thang trước khi cho Linh qua cửa.\n\nCô đứng ở phần sàn khô, nghe. Không phải để tìm giọng cha. Cô tự nhắc mình điều đó khi áp micro tiếp xúc lên lan can.\n\nTừ phía nhánh ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh. Duy nhìn đồng h",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Không",
+      "context_end": 3724,
+      "candidate_id": "5bf9f5eb7fd9ae6a300784e8",
+      "context_start": 3319
+    },
+    {
+      "end": 3550,
+      "start": 3548,
+      "context": "Bên trong, cỏ mọc qua các rãnh thoát, còn vệt dầu cũ nằm cao hơn đầu gối. Duy kiểm tra lối đi, đèn và bậc thang trước khi cho Linh qua cửa.\n\nCô đứng ở phần sàn khô, nghe. Không phải để tìm giọng cha. Cô tự nhắc mình điều đó khi áp micro tiếp xúc lên lan can.\n\nTừ phía nhánh ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh. Duy nhìn đồng hồ đo, đổi vị trí đầu cảm b",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 3750,
+      "candidate_id": "5b81d008b443ade7422a89a5",
+      "context_start": 3348
+    },
+    {
+      "end": 3610,
+      "start": 3608,
+      "context": " hơn đầu gối. Duy kiểm tra lối đi, đèn và bậc thang trước khi cho Linh qua cửa.\n\nCô đứng ở phần sàn khô, nghe. Không phải để tìm giọng cha. Cô tự nhắc mình điều đó khi áp micro tiếp xúc lên lan can.\n\nTừ phía nhánh ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh. Duy nhìn đồng hồ đo, đổi vị trí đầu cảm biến. Kết quả không biến mất.\n\n“Có thể truyền từ đường chính,",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Từ",
+      "context_end": 3810,
+      "candidate_id": "f58917057c7faf31ec0c6f6e",
+      "context_start": 3408
+    },
+    {
+      "end": 3712,
+      "start": 3709,
+      "context": "hô, nghe. Không phải để tìm giọng cha. Cô tự nhắc mình điều đó khi áp micro tiếp xúc lên lan can.\n\nTừ phía nhánh ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh. Duy nhìn đồng hồ đo, đổi vị trí đầu cảm biến. Kết quả không biến mất.\n\n“Có thể truyền từ đường chính,” anh nói.\n\nLinh gật đầu. Cô đã bắt đầu nhận ra câu “có thể” không nhất thiết là cách trốn tránh. Đôi ",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 3912,
+      "candidate_id": "3b351d752a32649ae1ae3404",
+      "context_start": 3509
+    },
+    {
+      "end": 3758,
+      "start": 3755,
+      "context": "hắc mình điều đó khi áp micro tiếp xúc lên lan can.\n\nTừ phía nhánh ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh. Duy nhìn đồng hồ đo, đổi vị trí đầu cảm biến. Kết quả không biến mất.\n\n“Có thể truyền từ đường chính,” anh nói.\n\nLinh gật đầu. Cô đã bắt đầu nhận ra câu “có thể” không nhất thiết là cách trốn tránh. Đôi khi nó là thứ duy nhất giữ người ta khỏi biến ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Kết",
+      "context_end": 3958,
+      "candidate_id": "d2573d7018a0826338079f4b",
+      "context_start": 3555
+    },
+    {
+      "end": 3783,
+      "start": 3781,
+      "context": "cro tiếp xúc lên lan can.\n\nTừ phía nhánh ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh. Duy nhìn đồng hồ đo, đổi vị trí đầu cảm biến. Kết quả không biến mất.\n\n“Có thể truyền từ đường chính,” anh nói.\n\nLinh gật đầu. Cô đã bắt đầu nhận ra câu “có thể” không nhất thiết là cách trốn tránh. Đôi khi nó là thứ duy nhất giữ người ta khỏi biến một mong muốn thành chứng",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Có",
+      "context_end": 3983,
+      "candidate_id": "4aaa89a5c99b1e901af88330",
+      "context_start": 3581
+    },
+    {
+      "end": 3826,
+      "start": 3822,
+      "context": "ống bị gạch chéo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh. Duy nhìn đồng hồ đo, đổi vị trí đầu cảm biến. Kết quả không biến mất.\n\n“Có thể truyền từ đường chính,” anh nói.\n\nLinh gật đầu. Cô đã bắt đầu nhận ra câu “có thể” không nhất thiết là cách trốn tránh. Đôi khi nó là thứ duy nhất giữ người ta khỏi biến một mong muốn thành chứng cứ.\n\nDuy mở hộp, đặt vòng chuẩn có vết khí",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 4026,
+      "candidate_id": "0fc66f1cf8d709d415421ad8",
+      "context_start": 3622
+    },
+    {
+      "end": 3838,
+      "start": 3836,
+      "context": "éo trên bản đồ có một âm trầm đều, ngắt quãng theo nhịp nước ngoài kênh. Duy nhìn đồng hồ đo, đổi vị trí đầu cảm biến. Kết quả không biến mất.\n\n“Có thể truyền từ đường chính,” anh nói.\n\nLinh gật đầu. Cô đã bắt đầu nhận ra câu “có thể” không nhất thiết là cách trốn tránh. Đôi khi nó là thứ duy nhất giữ người ta khỏi biến một mong muốn thành chứng cứ.\n\nDuy mở hộp, đặt vòng chuẩn có vết khía tam giác s",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cô",
+      "context_end": 4038,
+      "candidate_id": "2bf04836a89a508a1067d8f3",
+      "context_start": 3636
+    },
+    {
+      "end": 3911,
+      "start": 3908,
+      "context": " Duy nhìn đồng hồ đo, đổi vị trí đầu cảm biến. Kết quả không biến mất.\n\n“Có thể truyền từ đường chính,” anh nói.\n\nLinh gật đầu. Cô đã bắt đầu nhận ra câu “có thể” không nhất thiết là cách trốn tránh. Đôi khi nó là thứ duy nhất giữ người ta khỏi biến một mong muốn thành chứng cứ.\n\nDuy mở hộp, đặt vòng chuẩn có vết khía tam giác sang ngăn bên trong để lấy đèn. Anh kiểm tra chốt cửa cầu thang phụ. Cánh ",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Đôi",
+      "context_end": 4111,
+      "candidate_id": "7e27c8e0b2a127b4150a81a9",
+      "context_start": 3708
+    },
+    {
+      "end": 3929,
+      "start": 3926,
+      "context": "đo, đổi vị trí đầu cảm biến. Kết quả không biến mất.\n\n“Có thể truyền từ đường chính,” anh nói.\n\nLinh gật đầu. Cô đã bắt đầu nhận ra câu “có thể” không nhất thiết là cách trốn tránh. Đôi khi nó là thứ duy nhất giữ người ta khỏi biến một mong muốn thành chứng cứ.\n\nDuy mở hộp, đặt vòng chuẩn có vết khía tam giác sang ngăn bên trong để lấy đèn. Anh kiểm tra chốt cửa cầu thang phụ. Cánh cửa mở được nửa ga",
+      "origins": [
+        "author_guidance"
+      ],
+      "surface": "duy",
+      "context_end": 4129,
+      "candidate_id": "7f6ebfea9d80fcfab40b4687",
+      "context_start": 3726
+    },
+    {
+      "end": 3992,
+      "start": 3989,
+      "context": "ruyền từ đường chính,” anh nói.\n\nLinh gật đầu. Cô đã bắt đầu nhận ra câu “có thể” không nhất thiết là cách trốn tránh. Đôi khi nó là thứ duy nhất giữ người ta khỏi biến một mong muốn thành chứng cứ.\n\nDuy mở hộp, đặt vòng chuẩn có vết khía tam giác sang ngăn bên trong để lấy đèn. Anh kiểm tra chốt cửa cầu thang phụ. Cánh cửa mở được nửa gang tay rồi mắc lại.\n\nTrong khoảng tối bên dưới, có một tiếng gõ",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 4192,
+      "candidate_id": "6ab5769b51b3d5bf6fea5f52",
+      "context_start": 3789
+    },
+    {
+      "end": 4072,
+      "start": 4069,
+      "context": "” không nhất thiết là cách trốn tránh. Đôi khi nó là thứ duy nhất giữ người ta khỏi biến một mong muốn thành chứng cứ.\n\nDuy mở hộp, đặt vòng chuẩn có vết khía tam giác sang ngăn bên trong để lấy đèn. Anh kiểm tra chốt cửa cầu thang phụ. Cánh cửa mở được nửa gang tay rồi mắc lại.\n\nTrong khoảng tối bên dưới, có một tiếng gõ.\n\nAn gọi từ ngoài sân rằng nước đang đổi chiều. Duy giơ tay ra hiệu chờ. Linh n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Anh",
+      "context_end": 4272,
+      "candidate_id": "c11d0a60c7026fffda7b3558",
+      "context_start": 3869
+    },
+    {
+      "end": 4110,
+      "start": 4106,
+      "context": ". Đôi khi nó là thứ duy nhất giữ người ta khỏi biến một mong muốn thành chứng cứ.\n\nDuy mở hộp, đặt vòng chuẩn có vết khía tam giác sang ngăn bên trong để lấy đèn. Anh kiểm tra chốt cửa cầu thang phụ. Cánh cửa mở được nửa gang tay rồi mắc lại.\n\nTrong khoảng tối bên dưới, có một tiếng gõ.\n\nAn gọi từ ngoài sân rằng nước đang đổi chiều. Duy giơ tay ra hiệu chờ. Linh nhìn vào khe cửa, thấy một đường sáng p",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cánh",
+      "context_end": 4310,
+      "candidate_id": "0c6406889d7d737f7fd4a8ed",
+      "context_start": 3906
+    },
+    {
+      "end": 4155,
+      "start": 4150,
+      "context": "ỏi biến một mong muốn thành chứng cứ.\n\nDuy mở hộp, đặt vòng chuẩn có vết khía tam giác sang ngăn bên trong để lấy đèn. Anh kiểm tra chốt cửa cầu thang phụ. Cánh cửa mở được nửa gang tay rồi mắc lại.\n\nTrong khoảng tối bên dưới, có một tiếng gõ.\n\nAn gọi từ ngoài sân rằng nước đang đổi chiều. Duy giơ tay ra hiệu chờ. Linh nhìn vào khe cửa, thấy một đường sáng phản lên ở nơi bản đồ bảo không còn nước.\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Trong",
+      "context_end": 4351,
+      "candidate_id": "53c5e70c47947b166371c3cb",
+      "context_start": 3950
+    },
+    {
+      "end": 4197,
+      "start": 4195,
+      "context": " hộp, đặt vòng chuẩn có vết khía tam giác sang ngăn bên trong để lấy đèn. Anh kiểm tra chốt cửa cầu thang phụ. Cánh cửa mở được nửa gang tay rồi mắc lại.\n\nTrong khoảng tối bên dưới, có một tiếng gõ.\n\nAn gọi từ ngoài sân rằng nước đang đổi chiều. Duy giơ tay ra hiệu chờ. Linh nhìn vào khe cửa, thấy một đường sáng phản lên ở nơi bản đồ bảo không còn nước.\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "An",
+      "context_end": 4351,
+      "candidate_id": "43f24cc2fc987ce184141fdf",
+      "context_start": 3995
+    },
+    {
+      "end": 4244,
+      "start": 4241,
+      "context": " ngăn bên trong để lấy đèn. Anh kiểm tra chốt cửa cầu thang phụ. Cánh cửa mở được nửa gang tay rồi mắc lại.\n\nTrong khoảng tối bên dưới, có một tiếng gõ.\n\nAn gọi từ ngoài sân rằng nước đang đổi chiều. Duy giơ tay ra hiệu chờ. Linh nhìn vào khe cửa, thấy một đường sáng phản lên ở nơi bản đồ bảo không còn nước.\n",
+      "origins": [
+        "author_guidance",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 4351,
+      "candidate_id": "326daec1a58e3a1f956c2d18",
+      "context_start": 4041
+    },
+    {
+      "end": 4270,
+      "start": 4266,
+      "context": "n. Anh kiểm tra chốt cửa cầu thang phụ. Cánh cửa mở được nửa gang tay rồi mắc lại.\n\nTrong khoảng tối bên dưới, có một tiếng gõ.\n\nAn gọi từ ngoài sân rằng nước đang đổi chiều. Duy giơ tay ra hiệu chờ. Linh nhìn vào khe cửa, thấy một đường sáng phản lên ở nơi bản đồ bảo không còn nước.\n",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 4351,
+      "candidate_id": "701dc20671c1a7bd3d114f41",
+      "context_start": 4066
+    }
+  ],
+  "chapter_id": "8c8e456b-74a8-463f-9ffb-90ccf6b32802",
+  "revision_id": "55750fd1-814f-4e17-aed0-791d461ef192",
+  "source_hash": "19539200da6e5b436e3b042a12f806bbbb7f6efcec4466a308969badeaa0932b",
+  "chapter_number": 4,
+  "known_entities": [],
+  "review_version": 1,
+  "analysis_policy": "entity-human-review-v1",
+  "analysis_run_id": "f5b33b50-f5a2-4ed1-83ac-1755b37079df",
+  "guidance_version": 1,
+  "reviewed_decisions": [],
+  "unanchored_discoveries": []
+}

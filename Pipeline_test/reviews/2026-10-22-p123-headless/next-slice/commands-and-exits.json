@@ -1,0 +1,48 @@
+{
+  "source_sha": "1dc7dfa38267c9eb176f56f070380930d1887d85",
+  "prepare": "python Pipeline_test/tools/prepare_p123_next.py --manifest <NEW manifest>",
+  "initialize": "docker compose --env-file <manifest.env_file> -f Pipeline_test/tools/compose.p123-next.yml --profile initialize run --rm budget-init",
+  "start": "docker compose --env-file <manifest.env_file> -f Pipeline_test/tools/compose.p123-next.yml up -d --build api-ingress",
+  "final_modes": [
+    {
+      "command": "python Pipeline_test/tools/run_p123_next.py --env-file <own manifest.env_file> --output Pipeline_test/reviews/2026-10-22-p123-headless/next-slice/final-p1 --mode p1",
+      "exit_code": 0
+    },
+    {
+      "command": "python Pipeline_test/tools/run_p123_next.py --env-file <own manifest.env_file> --output Pipeline_test/reviews/2026-10-22-p123-headless/next-slice/final-p2 --mode p2",
+      "exit_code": 0
+    },
+    {
+      "command": "python Pipeline_test/tools/run_p123_next.py --env-file <own manifest.env_file> --output Pipeline_test/reviews/2026-10-22-p123-headless/next-slice/final-concurrency --mode concurrency",
+      "exit_code": 0
+    },
+    {
+      "command": "python Pipeline_test/tools/run_p123_next.py --env-file <own manifest.env_file> --output Pipeline_test/reviews/2026-10-22-p123-headless/next-slice/final-edges --mode edges",
+      "exit_code": 0
+    }
+  ],
+  "regression": {
+    "command": "python Pipeline_test/tools/run_p123_regressions.py --output Pipeline_test/reviews/2026-10-22-p123-headless/next-slice/final-regressions",
+    "exit_code": 0,
+    "args_evidence": "final-regressions/validation.json"
+  },
+  "barrier": {
+    "command": "python Pipeline_test/reviews/2026-10-22-p123-headless/next-slice/probe_concurrent_barrier.py",
+    "exit_code": 0
+  },
+  "current_readback": {
+    "command": "python Pipeline_test/reviews/2026-10-22-p123-headless/next-slice/readback_current.py",
+    "exit_code": 0
+  },
+  "edge_readback": {
+    "command": "python Pipeline_test/reviews/2026-10-22-p123-headless/next-slice/readback_edges.py",
+    "exit_code": 0,
+    "prior_attempt": "Preserved final-edges-readback, KeyError reading absent token_budget from provider context; final-02 reads supported context-preview"
+  },
+  "historical_audit": {
+    "command": "python Pipeline_test/tools/audit_p123_readback.py --env-file <P1 env> --run <final-p1> --output <final-cutoff-audit>",
+    "exit_code": 1,
+    "reason": "Frozen M0 origins compared with updated M-FIRST canon; retained; current evidence audit passes"
+  },
+  "stop": "docker compose --env-file <own manifest.env_file> -f Pipeline_test/tools/compose.p123-next.yml stop; retain all volumes/containers"
+}

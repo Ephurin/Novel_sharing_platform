@@ -1,0 +1,53 @@
+{
+  "tested_sha": "d8e6b35f1457db0822825734c62506fd3c8789b5",
+  "source_dirty_at_start": true,
+  "project": "p123-core-81c34be5dd",
+  "novel_id": "70ed7143-1368-44c6-b8b2-8066df0e6291",
+  "stage": "context_edges",
+  "mode": "edges",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_hash_bff289aa-950b-4bc9-b804-0b0b1c1daabd",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "retrieval_disabled_bff289aa-950b-4bc9-b804-0b0b1c1daabd",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "HTTP_locked_rule_retained",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "actual_pruning",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "unknown_policy_explicit",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "no_invented_origin",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "protected_overflow_no_dispatch",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

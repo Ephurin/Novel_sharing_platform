@@ -1,0 +1,4 @@
+{
+  "ddl": "drop trigger if exists next_fault_ea3c2a6d54354879a6e0e41c62aa1af4 on revision_outbox_events; drop function if exists next_fault_ea3c2a6d54354879a6e0e41c62aa1af4();",
+  "remaining": "0"
+}

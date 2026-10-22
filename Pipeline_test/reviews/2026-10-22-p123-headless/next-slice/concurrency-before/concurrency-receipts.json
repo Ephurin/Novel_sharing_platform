@@ -1,0 +1,106 @@
+[
+  {
+    "round": 0,
+    "requested_first": "B",
+    "writers": [
+      {
+        "body_hash": "5fd38968bd5b1aa45ef5d2e4388d3ec754b9dad9cbd47ab57c182fa0bd52e6a4",
+        "expectedVersion": 1,
+        "status": 200,
+        "response": {
+          "success": true,
+          "data": {
+            "chapterId": "ff2e040d-64c1-4691-82f3-5423cdb84064",
+            "novelId": "985a0230-0023-4a5d-9a4e-fb30c99f16ad",
+            "title": "B concurrent 0",
+            "chapterNumber": 1,
+            "content": null,
+            "wordCount": 3,
+            "isVip": false,
+            "priceCoins": 0,
+            "status": "DRAFT",
+            "analysisRevisionId": null,
+            "draftVersion": 2
+          },
+          "error": null,
+          "meta": {}
+        }
+      },
+      {
+        "body_hash": "1890905dbdf3bd10e9059c9b62050654009ebf8f4ebcb6956a7ea76389cd8944",
+        "expectedVersion": 1,
+        "status": 200,
+        "response": {
+          "success": true,
+          "data": {
+            "chapterId": "ff2e040d-64c1-4691-82f3-5423cdb84064",
+            "novelId": "985a0230-0023-4a5d-9a4e-fb30c99f16ad",
+            "title": "A stale 0",
+            "chapterNumber": 1,
+            "content": null,
+            "wordCount": 3,
+            "isVip": false,
+            "priceCoins": 0,
+            "status": "DRAFT",
+            "analysisRevisionId": null,
+            "draftVersion": 3
+          },
+          "error": null,
+          "meta": {}
+        }
+      }
+    ]
+  },
+  {
+    "round": 1,
+    "requested_first": "A",
+    "writers": [
+      {
+        "body_hash": "1c134f60aafb95242781f8cd3bfadbbf15f9aa706cf54471e3eee79635e11452",
+        "expectedVersion": 3,
+        "status": 200,
+        "response": {
+          "success": true,
+          "data": {
+            "chapterId": "ff2e040d-64c1-4691-82f3-5423cdb84064",
+            "novelId": "985a0230-0023-4a5d-9a4e-fb30c99f16ad",
+            "title": "A concurrent 1",
+            "chapterNumber": 1,
+            "content": null,
+            "wordCount": 3,
+            "isVip": false,
+            "priceCoins": 0,
+            "status": "DRAFT",
+            "analysisRevisionId": null,
+            "draftVersion": 4
+          },
+          "error": null,
+          "meta": {}
+        }
+      },
+      {
+        "body_hash": "ccb6855ffec04d2753ae3ac63f9e8938bcdc6f4984636f5cff166e9f3028f693",
+        "expectedVersion": 3,
+        "status": 200,
+        "response": {
+          "success": true,
+          "data": {
+            "chapterId": "ff2e040d-64c1-4691-82f3-5423cdb84064",
+            "novelId": "985a0230-0023-4a5d-9a4e-fb30c99f16ad",
+            "title": "B stale 1",
+            "chapterNumber": 1,
+            "content": null,
+            "wordCount": 3,
+            "isVip": false,
+            "priceCoins": 0,
+            "status": "DRAFT",
+            "analysisRevisionId": null,
+            "draftVersion": 5
+          },
+          "error": null,
+          "meta": {}
+        }
+      }
+    ]
+  }
+]

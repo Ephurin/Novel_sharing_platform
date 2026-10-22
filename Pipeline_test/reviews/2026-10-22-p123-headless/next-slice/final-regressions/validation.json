@@ -1,0 +1,54 @@
+{
+  "tested_sha": "1dc7dfa38267c9eb176f56f070380930d1887d85",
+  "AI": {
+    "args": [
+      "-m",
+      "not postgres_integration",
+      "--basetemp=.pytest_tmp",
+      "-m",
+      "not postgres_integration",
+      "-q",
+      "-ra",
+      "--basetemp=C:\\Users\\thaib\\AppData\\Local\\Temp\\p123-next-342dfa35e3184287b3a028ff59848de8",
+      "--junitxml=C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\next-slice\\final-regressions\\ai-junit.xml",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_context_budget.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_context_routing.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_context_scope.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_manuscript_bootstrap.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_entity_review_workflow.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_revision_analysis_workflow.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_entity_cutoff_provenance.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_narrative_repository_contract.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_canon_revision_reconciliation.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_state_projection.py"
+    ],
+    "exit_code": 0,
+    "egress_guard": "non-loopback DNS denied",
+    "SQL_fixture": "SQLite; real PostgreSQL covered by separate HTTP run"
+  },
+  "backend": [
+    {
+      "suite": "backend-typecheck",
+      "command": [
+        "npm.cmd",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0
+    },
+    {
+      "suite": "backend-focused",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/modules/ai/ai-gateway.test.ts",
+        "src/modules/ai/p1-closed-loop-gateway.test.ts"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "tested_sha": "d8e6b35f1457db0822825734c62506fd3c8789b5",
+  "source_dirty_at_start": true,
+  "project": "p123-core-2ddd5a4adf",
+  "novel_id": "82884413-343f-486c-a184-7a1f14eebc2b",
+  "stage": "preflight",
+  "mode": "concurrency",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "one_winner_0",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "precise_conflict_0",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "one_winner_1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "precise_conflict_1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "rapid_stale_rejected_identical_replay_ok",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "latest_preserved",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "versioned_wrong_owner_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "legacy_client_compatible",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

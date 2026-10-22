@@ -1,0 +1,120 @@
+{
+  "job": {
+    "job_id": "73ad5209-88fe-4d3c-8cca-0191ebd0cf11",
+    "novel_id": "fe6b0a0f-f5c3-41a0-834a-f089da63680f",
+    "chapter_id": "15b1cf45-09cd-4d90-86e9-cff423089b87",
+    "revision_id": "89013bf2-0829-4596-82bb-9f70b83f8efa",
+    "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "operation": "continue",
+    "selection": {
+      "start": 0,
+      "end": 0
+    },
+    "instruction": "next-5c1d02b1f95b42819ee6cde740c6aad5 fault:500",
+    "constraints": [],
+    "style": {},
+    "expected_brain_version": 2,
+    "actor_id": "b17c38b8-1090-4cf3-9ce8-21be64875a5d",
+    "idempotency_key": "generated:73ad5209-88fe-4d3c-8cca-0191ebd0cf11",
+    "input_hash": "2d8a8eb67e2c0da3d5d22607dee3b05a5338a03da986e6684adb3bf2d5e36407",
+    "status": "failed",
+    "stage": "failed",
+    "draft": null,
+    "patch": null,
+    "validation_status": "pending",
+    "validations": [],
+    "context_summary": {
+      "chapter_number": 1,
+      "brain_version_used": 2
+    },
+    "model_info": {
+      "name": "",
+      "prompt_version": ""
+    },
+    "error": {
+      "message": "Writing generation failed: Gemini request failed: 500 None. {'error': 'UPSTREAM_HTTP_ERROR'}"
+    },
+    "brain_version_used": 2,
+    "context_hash": "",
+    "chapter_number": 1,
+    "type": "writing_generation",
+    "progress": {
+      "stage": "failed",
+      "status": "failed"
+    }
+  },
+  "stored": {
+    "id": "c338c659-294b-4fd5-9323-75f0bc2155a6",
+    "job_id": "73ad5209-88fe-4d3c-8cca-0191ebd0cf11",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "fe6b0a0f-f5c3-41a0-834a-f089da63680f",
+    "chapter_id": "15b1cf45-09cd-4d90-86e9-cff423089b87",
+    "revision_id": "89013bf2-0829-4596-82bb-9f70b83f8efa",
+    "base_content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "brain_version": 2,
+    "operation": "continue",
+    "selection_start": 0,
+    "selection_end": 0,
+    "instruction": "next-5c1d02b1f95b42819ee6cde740c6aad5 fault:500",
+    "constraints": [],
+    "style": {},
+    "actor_id": "b17c38b8-1090-4cf3-9ce8-21be64875a5d",
+    "idempotency_key": "generated:73ad5209-88fe-4d3c-8cca-0191ebd0cf11",
+    "input_hash": "2d8a8eb67e2c0da3d5d22607dee3b05a5338a03da986e6684adb3bf2d5e36407",
+    "status": "failed",
+    "stage": "failed",
+    "draft": null,
+    "patch": null,
+    "validation_status": "pending",
+    "validations": [],
+    "context_summary": {
+      "chapter_number": 1,
+      "brain_version_used": 2
+    },
+    "model_name": null,
+    "prompt_version": null,
+    "error": {
+      "message": "Writing generation failed: Gemini request failed: 500 None. {'error': 'UPSTREAM_HTTP_ERROR'}"
+    },
+    "created_at": "2026-10-22T06:23:25.066541+00:00",
+    "updated_at": "2026-10-22T06:23:25.880865+00:00"
+  },
+  "captures": [
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "80dd41de83161708052d79c639d5fb1de32d7f30a8bd68fc7a08229a2011fcee",
+      "dispatch_id": "15d54040-2044-4725-9da3-c694e4186765",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}\n\nThao tác: continue\nĐoạn văn được chọn: \nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: next-5c1d02b1f95b42819ee6cde740c6aad5 fault:500\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":2,\"current_objective\":{\"description\":\"Tomorrow check microphone.\",\"objective_id\":\"821f332c-654a-412c-aee8-7c52355d37d3\",\"objective_type\":\"chapter_goal\",\"order_index\":1,\"status\":\"pending\",\"target_chapter\":2,\"title\":\"NEXT_FUTURE_ONLY\"},\"current_states\":[{\"entity_id\":\"9468528f-4f21-47bd-b375-9e87b7f39e8d\",\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"a5dbfe6a-f1b2-4429-90d7-2f42849e34a7\",\"location\":\"Unknown\",\"name\":\"Duy\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"f622ee51-6099-4bcc-8890-e50961e2449f\",\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"state\":{},\"status\":\"Unknown\"}],\"entities\":[{\"entity_id\":\"9468528f-4f21-47bd-b375-9e87b7f39e8d\",\"entity_type\":\"location\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"status\":\"Unknown\"},{\"entity_id\":\"a5dbfe6a-f1b2-4429-90d7-2f42849e34a7\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Duy\",\"status\":\"Unknown\"},{\"entity_id\":\"f622ee51-6099-4bcc-8890-e50961e2449f\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"status\":\"Unknown\"}],\"planning_context\":{\"active_objective_id\":\"821f332c-654a-412c-aee8-7c52355d37d3\",\"plan_id\":\"839b2472-048e-45b5-8455-d7a001cf2724\",\"plan_version\":1,\"source_outline_hash\":\"1f5f673b055e8c3e56e2fbc947151a6dd7844c0adba23a1ccf9b15e7aead5869\",\"status\":\"active\",\"total_objectives\":1},\"recent_events\":[],\"semantic_memories\":[],\"world_rules\":[]}",
+      "scenario": "p123-next-v1",
+      "received_at": 1792650205.8707914,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"draft_text\": \"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\\n\\nDuy đứng bên Mai Linh tại Cồn Vân.\", \"explanation\": \"FAKE_PROVIDER_OUTPUT scripted functional continuation\"}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": "[REDACTED]",
+          "candidatesTokenCount": "[REDACTED]",
+          "totalTokenCount": "[REDACTED]"
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "15d54040-2044-4725-9da3-c694e4186765"
+      },
+      "operation": "writing_generation"
+    }
+  ]
+}

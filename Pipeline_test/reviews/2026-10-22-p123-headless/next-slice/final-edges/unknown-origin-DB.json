@@ -1,0 +1,24 @@
+[
+  {
+    "id": "01d8be87-0bc3-4171-ad82-489e8c8dbfb7",
+    "story_brain_id": "ccc40c77-63dc-409a-ac6e-f9903592e91e",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "fab96dd2-4a2e-4c99-a5f8-62fe69b50af0",
+    "entity_type": "PER",
+    "canonical_name": "Unknown origin person",
+    "normalized_name": "unknown origin person",
+    "description": null,
+    "static_attributes": {
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "confidence": 1.0,
+    "is_locked": false,
+    "created_by": null,
+    "created_at": "2026-10-22T06:35:36.109421+00:00",
+    "updated_at": "2026-10-22T06:35:36.109421+00:00"
+  }
+]

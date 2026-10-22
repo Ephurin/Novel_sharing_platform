@@ -1,0 +1,84 @@
+{
+  "persisted_context_summary": {
+    "plan_id": [
+      "e7e83301-6722-479e-a953-7a736efaaa2e"
+    ],
+    "fact_ids": [
+      "36fda3b3-ddbc-40a7-af00-3198ea45312e",
+      "e51e33a3-f203-4424-888f-b103b97c10ae",
+      "56d58cb5-6fce-43f0-bb93-424fe7524998",
+      "23843d23-f6ff-47c7-94bd-7208e37cae3c",
+      "1712c648-40d5-456d-b10a-56d490b73a84",
+      "94db1bb3-621d-4f72-967c-4bf6f0569491"
+    ],
+    "event_ids": [
+      "4a98f2fe-c4bc-5cb1-94f4-cc7041f3b870",
+      "8d6450d1-26b1-5bdc-9920-a2da6b9fc824",
+      "fc25f321-9338-54ba-bbb4-6c4296fff255",
+      "0df9f952-a1ef-58fd-9d29-8b25ff7b39ca",
+      "47a94a8e-24c8-5685-b261-82afb5866494"
+    ],
+    "entity_ids": [
+      "0670a93b-1eee-4ef3-a689-9150b2b589ea",
+      "b1a51110-98f9-473a-8f6e-8c81b2ef7a98",
+      "1c768b7e-fb24-4714-ada5-0c44a8651082",
+      "ddd7cce9-f365-4463-8873-f2f99a5565cc",
+      "801c5780-d3e3-4705-b700-b423869206eb",
+      "0f7195ab-1fcd-4621-a4bf-09b49b08dcc6",
+      "9965777a-fcc1-4270-95f3-6cc574bc807e",
+      "296ccc20-7450-44c3-b9c6-988fad694b8c",
+      "d2206faf-ab58-4108-9d47-73e57ffb7256",
+      "a696039e-fad5-4676-9094-65efec608554",
+      "4d38b33f-0fb9-4bf1-a942-867bdcfe700b",
+      "ecd84455-e32f-4910-95ae-d1df09f927ec",
+      "b98506f0-ffa3-479a-a448-d7172fcc0895",
+      "cc092b3e-2378-46e7-9867-5ae13a05028c",
+      "26dfd9ac-1ebc-44b1-b6b9-8342ef80d328"
+    ],
+    "query_text": "Headless 8962c6f407a44248a9372ba44e8f0837: tiếp tục theo dõi máy thu CV-04.",
+    "context_hash": "f156ded444db8948da0a734cbbe9ff7dc1a9c0033cfedb8c3a0b57b833774c9d",
+    "drop_reasons": {},
+    "plan_version": [
+      "1"
+    ],
+    "chapter_number": 5,
+    "cutoff_chapter": 5,
+    "dropped_fact_ids": [],
+    "selection_policy": [
+      "query-relevance-diverse-whole-artifacts-v2"
+    ],
+    "dropped_event_ids": [],
+    "brain_version_used": 6,
+    "dropped_entity_ids": [],
+    "active_objective_id": [
+      "3ebd88b4-20d0-4219-999e-f08de132c876"
+    ],
+    "requested_character": null,
+    "semantic_memory_ids": [],
+    "active_objective_title": [
+      "HEADLESS_FUTURE_PLAN"
+    ],
+    "temporal_origin_policy": [
+      "known-source-cutoff_unknown-global-v1"
+    ],
+    "context_packing_version": [
+      "context-budget-v2-diverse"
+    ],
+    "semantic_retrieval_status": [
+      "disabled"
+    ],
+    "semantic_embedding_version": [],
+    "dropped_semantic_memory_ids": [],
+    "context_token_estimator_version": "[REDACTED]",
+    "deduplicated_semantic_memory_ids": [],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "temporal_origin_unknown_entity_ids": [],
+    "recent_scope_participant_entity_ids": []
+  },
+  "semantic_retrieval_quality": "NOT_ASSESSED",
+  "overflow_fault": "NOT_RUN",
+  "future_entity_cutoff": "ACTUAL_CHAPTER_1_OUTBOUND_CHECKED",
+  "locked_rule_stress": "NOT_RUN"
+}

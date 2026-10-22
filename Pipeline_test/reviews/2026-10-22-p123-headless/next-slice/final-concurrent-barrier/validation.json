@@ -1,0 +1,45 @@
+{
+  "tested_sha": "1dc7dfa38267c9eb176f56f070380930d1887d85",
+  "source_dirty_at_start": false,
+  "project": "p123-core-96e7f14d3d",
+  "novel_id": "ddba8d28-0b51-4378-b302-ca7156c5fd2a",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "real_overlap_0",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "one_CAS_winner_0",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "real_overlap_1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "one_CAS_winner_1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "real_overlap_2",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "one_CAS_winner_2",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "external_provider_calls": 0
+}

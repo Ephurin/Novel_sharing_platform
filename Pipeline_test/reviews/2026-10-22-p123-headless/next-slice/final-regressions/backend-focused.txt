@@ -1,0 +1,45 @@
+▶ Node.js AI Gateway Service (P6.5 Hardening)
+  ✔ reanalysis idempotency key survives HTTP forwarding and retries (22.0721ms)
+  ✔ AIGatewayService forwards headers with tenant, user, and service token (0.6435ms)
+  ✔ AIGatewayService builds query parameters correctly for context-preview (1.3234ms)
+  ✔ AIGatewayService propagates remote AI errors as AppError with correct status code (3.2144ms)
+  ✔ AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE (0.6462ms)
+  ✔ assertNovelOwnership enforces author access control with 403 FORBIDDEN (0.4086ms)
+  ✔ Canonical chapter cutoff derivation from DB record overrides client cutoff (0.1814ms)
+  ✔ Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author (0.7031ms)
+  ✔ Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept (0.6081ms)
+  ✔ Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author (0.713ms)
+  ✔ Story Brain freshness check fails closed with 503 when AI service is unavailable (0.3383ms)
+✔ Node.js AI Gateway Service (P6.5 Hardening) (32.7386ms)
+▶ AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ✔ P1-Gateway: Forward manuscript bootstrap with tenant & service authentication (18.8307ms)
+  ✔ P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package (0.7171ms)
+  ✔ P1-Gateway: AI Writing generation creates queued job with pinned brain version (0.4497ms)
+  ✔ P1-Accept: Patch application and content hash update contract (0.2362ms)
+  ✔ P2-Gateway: Forward bootstrap from idea with tenant & service authentication (0.4296ms)
+  ✔ P2B-Gateway: Forward Story Plan creation, activation, and objective update (0.9251ms)
+  ✔ P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN) (0.6029ms)
+✔ AI-PIPE-01 P1 Node Gateway & Acceptance Flow (23.7677ms)
+▶ Chapter Revisions & Patch Application
+  ✔ applyPatchToContent correctly applies insertion at cursor (0.8677ms)
+  ✔ applyPatchToContent correctly replaces selection range (0.1351ms)
+  ✔ applyPatchToContent handles unicode code points without splitting multi-byte characters (0.113ms)
+  ✔ applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping) (0.5077ms)
+  ✔ applyPatchToContent allows valid boundary edge cases (0 to length) (0.1601ms)
+✔ Chapter Revisions & Patch Application (3.1211ms)
+▶ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ✔ Exponential backoff for outbox retries is bounded by 300s (1.111ms)
+  ✔ Conditional MongoDB draft reconciliation preserves newer manual draft edits (0.2971ms)
+  ✔ Conditional MongoDB draft reconciliation creates new draft if not found (0.3177ms)
+  ✔ Accept-time brain version conflict rejects stale generation (0.4342ms)
+  ✔ Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker (0.4588ms)
+  ✔ Outbox expired lease recovery: crashed worker event is reclaimed after timeout (0.2882ms)
+✔ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening) (4.5638ms)
+ℹ tests 29
+ℹ suites 4
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 907.7112

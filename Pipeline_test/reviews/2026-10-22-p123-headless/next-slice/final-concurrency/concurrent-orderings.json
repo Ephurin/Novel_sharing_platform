@@ -1,0 +1,80 @@
+[
+  [
+    {
+      "text": "B0",
+      "version": 1,
+      "status": 200,
+      "response": {
+        "success": true,
+        "data": {
+          "chapterId": "cbd30a17-bb6a-409e-8f26-0afa7651de25",
+          "novelId": "848463ac-bac8-4f1a-9c8b-d1391a53ed95",
+          "title": "Race",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 1,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 2
+        },
+        "error": null,
+        "meta": {}
+      }
+    },
+    {
+      "text": "A0",
+      "version": 1,
+      "status": 409,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "DRAFT_CONFLICT",
+          "message": "Draft changed or another save is in progress; reload before retrying"
+        },
+        "meta": {}
+      }
+    }
+  ],
+  [
+    {
+      "text": "A1",
+      "version": 2,
+      "status": 200,
+      "response": {
+        "success": true,
+        "data": {
+          "chapterId": "cbd30a17-bb6a-409e-8f26-0afa7651de25",
+          "novelId": "848463ac-bac8-4f1a-9c8b-d1391a53ed95",
+          "title": "Race",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 1,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 3
+        },
+        "error": null,
+        "meta": {}
+      }
+    },
+    {
+      "text": "B1",
+      "version": 2,
+      "status": 409,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "DRAFT_CONFLICT",
+          "message": "Draft changed or another save is in progress; reload before retrying"
+        },
+        "meta": {}
+      }
+    }
+  ]
+]

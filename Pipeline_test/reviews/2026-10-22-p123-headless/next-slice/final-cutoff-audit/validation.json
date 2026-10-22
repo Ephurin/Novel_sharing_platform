@@ -1,0 +1,240 @@
+{
+  "tested_sha": "1dc7dfa38267c9eb176f56f070380930d1887d85",
+  "novel_id": "1722f327-92d9-4ceb-ae1c-9d2cf7897f09",
+  "future_entity_cutoff": "FAIL",
+  "failure_count": 1,
+  "external_provider_calls": 0,
+  "prior_main_checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch2",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch3",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch4",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch5",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "same_novel_wrong_authenticated_author_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_ae6efff6-bd73-4a25-86ab-108a161369b3",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_2222df54-1f23-41d4-bf76-359eed1d3d8c",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_e6871455-ad4b-45e1-8f3e-182422762c1d",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_3a6dc58b-8e13-4e6d-9e5c-5282f8bc2cc5",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_92562ea0-f456-4b52-a962-ee87c3f32bcc",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "canon_unchanged_until_approval",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "nonempty_approved_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "approved_memory_survives_process_restart",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "attached_plan_not_historical_memory",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_matches_durable_context_hash",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_attached_in_actual_outbound",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_not_outbound_historical_event",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "early_outbound_matches_durable_hash",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "later_entities_actually_seeded_in_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "later_entities_excluded_from_early_outbound",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_brain_version_rejected",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "ordinary_save_creates_revision",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "identical_save_reuses_immutable_revision",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_revision_reanalysis_rejected",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_b9f67156-43f8-4026-a8b9-b9ff056e0bf9",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "first_incremental_memory_changed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "append_only_fake_reuses_existing_events",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "append_only_fake_adds_only_new_note_fact",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "single_outbox_for_replayed_save",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbox_completed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "incremental_memory_survives_restart",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_hash_b682c15c-07cc-47e9-ab96-5a9b474f50db",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "retrieval_disabled_b682c15c-07cc-47e9-ab96-5a9b474f50db",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "real_DB_transaction_rollback",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "fault_no_draft_or_canon_advance",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accept_idempotent",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_lineage",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "draft_synced",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "never_published",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accept_not_implicit_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_PATCH_no_revision_outbox_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_d3e14700-953f-4ee7-828d-96c289a6f9cc",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "single_accept_outbox",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_memory_durable",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "ledger_audit": "READ_FROM_OWNING_GATEWAY_HTTP; original failed ledger-lock attempt preserved"
+}

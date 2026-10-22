@@ -1,0 +1,37 @@
+[
+  {
+    "chapter_id": "ea3c2a6d-5435-4879-a6e0-e41c62aa1af4",
+    "chapter_number": 1,
+    "revision_id": "f580749a-38b1-48ef-b848-36e150fb28aa",
+    "status": null,
+    "retry_count": null
+  },
+  {
+    "chapter_id": "d73ee3e4-1f4c-4286-a47f-233b98cd117c",
+    "chapter_number": 2,
+    "revision_id": "934aff2f-5def-414a-b41a-495c8c85698c",
+    "status": null,
+    "retry_count": null
+  },
+  {
+    "chapter_id": "97150780-2c6a-43a1-884f-354220a30dad",
+    "chapter_number": 3,
+    "revision_id": "fb9ca854-7347-4621-8271-87b25650953e",
+    "status": null,
+    "retry_count": null
+  },
+  {
+    "chapter_id": "8c8e456b-74a8-463f-9ffb-90ccf6b32802",
+    "chapter_number": 4,
+    "revision_id": "55750fd1-814f-4e17-aed0-791d461ef192",
+    "status": null,
+    "retry_count": null
+  },
+  {
+    "chapter_id": "89e7705d-c19f-4386-b7ea-51b810e5609f",
+    "chapter_number": 5,
+    "revision_id": "64af0d70-6b87-445d-aa52-2fe3e5ad21da",
+    "status": "COMPLETED",
+    "retry_count": 0
+  }
+]

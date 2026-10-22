@@ -1,0 +1,7 @@
+{
+  "files_checked": 292,
+  "generated_secret_values_checked": 48,
+  "credential_or_JWT_leaks": [],
+  "env_files": "Gitignored; never staged",
+  "scope": "All new next-slice artifacts; LF-normalized after capture"
+}

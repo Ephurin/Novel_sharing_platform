@@ -1,0 +1,18 @@
+{
+  "before": "Original d8e6b35 production image accepts competing stale writes; EXPECTED_RED preserved",
+  "development": [
+    "Initial Docker default subnet exhaustion: kept historical networks; new explicit subnets; DNS fixed by recreating only new development containers",
+    "dev-p2-01 preflight failure while services stopped",
+    "dev-p2-02 harness expected revisionId at top level; actual response has revision wrapper; corrected harness",
+    "dev-p2-03 P2 26 checks PASS before adding stale-PATCH assertion",
+    "dev-concurrency 9 checks PASS",
+    "dev-p1-01 baseline and DB rollback pass; entity continue blocked by combined development ledger admission budget, no guard override/reset",
+    "dev-edges-01 ambiguous repeated source quote rejected 422; source then included unique prefix and quote",
+    "dev-edges-02 8 checks PASS",
+    "Regression first new overflow assertion expected None, fake fixture initializes last_call={}; corrected assertion; then 58 PASS/2 SKIP",
+    "Full backend development npm test exit1 EACCES localhost PostgreSQL; focused final 29 PASS",
+    "Historical cutoff helper final exit1 due M0/current phase mismatch; current provenance quote/hash audit PASS",
+    "Edge readback first misses token_budget in provider payload; separate final-02 API context-preview confirms overflow"
+  ],
+  "historical_artifacts_modified": false
+}

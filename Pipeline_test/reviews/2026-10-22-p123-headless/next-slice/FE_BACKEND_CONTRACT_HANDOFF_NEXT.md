@@ -1,0 +1,15 @@
+# FE/backend contract handoff — no FE integration, 2026-10-22
+
+Tested backend/AI source: `1dc7dfa38267c9eb176f56f070380930d1887d85`. **HOLD_FE_INTEGRATION_ONLY**. No `web/` change, merge, cherry-pick or browser S09 retest was performed.
+
+`PATCH /api/v1/chapters/:chapterId` now recognizes optional `expectedVersion` (integer >=0), using the Mongo draft version returned by chapter GET / PATCH `draftVersion`. Content/title updates perform atomic Mongo compare-and-swap before SQL metadata/revision/outbox side effects. Same prior version + competing different bodies: one 200, loser 409 `DRAFT_CONFLICT`, reload required. A stale retry with the same current title/content is accepted without incrementing Mongo version again. Body autosave defaults remain. Invalid/stale writes do not silently win. Ownership is checked before CAS; wrong authenticated author gets 403. Ordinary active-brain revision/outbox dedup remains tested. Unversioned clients retain legacy semantics and do not acquire a stale-write guarantee.
+
+Scope: version is a draft-content/title guard. Metadata-only/pricing requests do not consume draft version. Mongo and PostgreSQL do not participate in a distributed atomic transaction; this is not a guarantee for mixed legacy/versioned writers, cross-store outage recovery, every metadata race or every editor debounce path. FE must review exact expectedVersion use, conflict/reload UX, in-flight ordering and identical-save replay before integration. No UI can be marked GREEN from these tests.
+
+PR #55 was consulted read-only through GitHub connector at head `0c0b903f4cc86b7f469399ab6e616ffdba7e703b` (open, base `feat/author-workspace`). Schema blob `5df274c4abf2480f3daf878fd826edc36ca9315a`; draft repository blob `85c2be240d5454670d1065a7d4a269440c72a494`; chapter service blob `325963b7adafd2cb6be9c968f4f71a3130ce139e`.
+
+Compatibility delta: same optional schema field and 409 `DRAFT_CONFLICT`, but PR service requires version on content/title and emits 428 `DRAFT_VERSION_REQUIRED`; this branch deliberately keeps omission backward compatible. PR #55 also has stacked migrations 015/016, scheduling and its own save path. None were imported. This is a narrow backend implementation, not a declaration that the entire PR is compatible or merged. Public PR: https://github.com/Ephurin/Novel_sharing_platform/pull/55 .
+
+Author facts: explicit `is_locked` in edit-and-accept must be a boolean and is persisted across accepted canon repositories. Locked overflow generation now fails before provider dispatch with `CONTEXT_PROTECTED_BUDGET_EXCEEDED`. Retrieval disabled is explicit metadata. Known source cutoff and unknown global origin policy are in P1 report.
+
+FE next review must independently test autosave overlap/order/retry, conflict handling and save→analysis visibility on the intended integrated branch. Historical S09 browser RED stays RED. Scripted API HITL is not UI acceptance. P2 uses actual accept-draft from an empty immutable writer base; ordinary-save after idea baseline was not tested in this slice.

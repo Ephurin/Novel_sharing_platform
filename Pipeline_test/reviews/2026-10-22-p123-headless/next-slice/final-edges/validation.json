@@ -1,0 +1,53 @@
+{
+  "tested_sha": "1dc7dfa38267c9eb176f56f070380930d1887d85",
+  "source_dirty_at_start": false,
+  "project": "p123-core-246d87fb24",
+  "novel_id": "fab96dd2-4a2e-4c99-a5f8-62fe69b50af0",
+  "stage": "context_edges",
+  "mode": "edges",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_hash_2706f349-c36f-4acd-9694-d9fbe89af818",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "retrieval_disabled_2706f349-c36f-4acd-9694-d9fbe89af818",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "HTTP_locked_rule_retained",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "actual_pruning",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "unknown_policy_explicit",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "no_invented_origin",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "protected_overflow_no_dispatch",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

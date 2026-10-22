@@ -1,0 +1,15 @@
+{
+  "tested_sha": "d8e6b35f1457db0822825734c62506fd3c8789b5",
+  "source_dirty_at_start": true,
+  "project": "p123-core-2ddd5a4adf",
+  "novel_id": null,
+  "stage": "preflight",
+  "mode": "p2",
+  "checks": [],
+  "failure": {
+    "type": "AssertionError",
+    "message": "Empty exception"
+  },
+  "verdict": "FAIL",
+  "external_provider_calls": 0
+}
