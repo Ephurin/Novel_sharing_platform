@@ -1,0 +1,307 @@
+TAP version 13
+# {"level":30,"time":1792710991603,"pid":7120,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+# Subtest: job authorization: trusted scope gates both status and mutable resume
+    # Subtest: resume: wrong author
+    ok 1 - resume: wrong author
+      ---
+      duration_ms: 1.5108
+      ...
+    # Subtest: resume: invalid scope undefined
+    ok 2 - resume: invalid scope undefined
+      ---
+      duration_ms: 0.1366
+      ...
+    # Subtest: resume: invalid scope null
+    ok 3 - resume: invalid scope null
+      ---
+      duration_ms: 0.1529
+      ...
+    # Subtest: resume: invalid scope ""
+    ok 4 - resume: invalid scope ""
+      ---
+      duration_ms: 0.1541
+      ...
+    # Subtest: resume: invalid scope "bad-uuid"
+    ok 5 - resume: invalid scope "bad-uuid"
+      ---
+      duration_ms: 0.203
+      ...
+    # Subtest: resume: invalid scope 123
+    ok 6 - resume: invalid scope 123
+      ---
+      duration_ms: 0.1083
+      ...
+    # Subtest: resume: invalid scope []
+    ok 7 - resume: invalid scope []
+      ---
+      duration_ms: 0.1066
+      ...
+    # Subtest: resume: invalid scope {}
+    ok 8 - resume: invalid scope {}
+      ---
+      duration_ms: 0.2083
+      ...
+    # Subtest: resume: invalid scope true
+    ok 9 - resume: invalid scope true
+      ---
+      duration_ms: 0.2858
+      ...
+    # Subtest: resume: invalid scope " 11111111-1111-4111-8111-111111111111"
+    ok 10 - resume: invalid scope " 11111111-1111-4111-8111-111111111111"
+      ---
+      duration_ms: 0.146
+      ...
+    # Subtest: resume: null metadata
+    ok 11 - resume: null metadata
+      ---
+      duration_ms: 0.1585
+      ...
+    # Subtest: resume: array metadata
+    ok 12 - resume: array metadata
+      ---
+      duration_ms: 0.0971
+      ...
+    # Subtest: resume: missing job
+    ok 13 - resume: missing job
+      ---
+      duration_ms: 0.1215
+      ...
+    # Subtest: resume: deleted novel
+    ok 14 - resume: deleted novel
+      ---
+      duration_ms: 0.116
+      ...
+    # Subtest: resume: owner bootstrap
+    ok 15 - resume: owner bootstrap
+      ---
+      duration_ms: 0.1629
+      ...
+    # Subtest: resume: owner writing job
+    ok 16 - resume: owner writing job
+      ---
+      duration_ms: 0.0835
+      ...
+    # Subtest: resume: authorized admin
+    ok 17 - resume: authorized admin
+      ---
+      duration_ms: 0.0725
+      ...
+    # Subtest: GET: wrong author
+    ok 18 - GET: wrong author
+      ---
+      duration_ms: 0.1409
+      ...
+    # Subtest: GET: invalid scope undefined
+    ok 19 - GET: invalid scope undefined
+      ---
+      duration_ms: 0.0532
+      ...
+    # Subtest: GET: invalid scope null
+    ok 20 - GET: invalid scope null
+      ---
+      duration_ms: 0.047
+      ...
+    # Subtest: GET: invalid scope ""
+    ok 21 - GET: invalid scope ""
+      ---
+      duration_ms: 0.0613
+      ...
+    # Subtest: GET: invalid scope "bad-uuid"
+    ok 22 - GET: invalid scope "bad-uuid"
+      ---
+      duration_ms: 0.06
+      ...
+    # Subtest: GET: invalid scope 123
+    ok 23 - GET: invalid scope 123
+      ---
+      duration_ms: 0.0472
+      ...
+    # Subtest: GET: invalid scope []
+    ok 24 - GET: invalid scope []
+      ---
+      duration_ms: 0.0594
+      ...
+    # Subtest: GET: invalid scope {}
+    ok 25 - GET: invalid scope {}
+      ---
+      duration_ms: 0.0479
+      ...
+    # Subtest: GET: invalid scope true
+    ok 26 - GET: invalid scope true
+      ---
+      duration_ms: 0.1477
+      ...
+    # Subtest: GET: invalid scope " 11111111-1111-4111-8111-111111111111"
+    ok 27 - GET: invalid scope " 11111111-1111-4111-8111-111111111111"
+      ---
+      duration_ms: 0.0603
+      ...
+    # Subtest: GET: null metadata
+    ok 28 - GET: null metadata
+      ---
+      duration_ms: 0.0599
+      ...
+    # Subtest: GET: array metadata
+    ok 29 - GET: array metadata
+      ---
+      duration_ms: 0.0558
+      ...
+    # Subtest: GET: missing job
+    ok 30 - GET: missing job
+      ---
+      duration_ms: 0.0786
+      ...
+    # Subtest: GET: deleted novel
+    ok 31 - GET: deleted novel
+      ---
+      duration_ms: 0.063
+      ...
+    # Subtest: GET: owner bootstrap
+    ok 32 - GET: owner bootstrap
+      ---
+      duration_ms: 0.0694
+      ...
+    # Subtest: GET: owner writing job
+    ok 33 - GET: owner writing job
+      ---
+      duration_ms: 0.0678
+      ...
+    # Subtest: GET: authorized admin
+    ok 34 - GET: authorized admin
+      ---
+      duration_ms: 0.1194
+      ...
+    1..34
+ok 1 - job authorization: trusted scope gates both status and mutable resume
+  ---
+  duration_ms: 9.0079
+  ...
+# Subtest: Chapter Revisions & Patch Application
+    # Subtest: applyPatchToContent correctly applies insertion at cursor
+    ok 1 - applyPatchToContent correctly applies insertion at cursor
+      ---
+      duration_ms: 1.109
+      ...
+    # Subtest: applyPatchToContent correctly replaces selection range
+    ok 2 - applyPatchToContent correctly replaces selection range
+      ---
+      duration_ms: 0.1663
+      ...
+    # Subtest: applyPatchToContent handles unicode code points without splitting multi-byte characters
+    ok 3 - applyPatchToContent handles unicode code points without splitting multi-byte characters
+      ---
+      duration_ms: 0.1104
+      ...
+    # Subtest: applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+    ok 4 - applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+      ---
+      duration_ms: 0.5372
+      ...
+    # Subtest: applyPatchToContent allows valid boundary edge cases (0 to length)
+    ok 5 - applyPatchToContent allows valid boundary edge cases (0 to length)
+      ---
+      duration_ms: 0.1248
+      ...
+    1..5
+ok 2 - Chapter Revisions & Patch Application
+  ---
+  duration_ms: 3.3104
+  type: 'suite'
+  ...
+# Subtest: controller identity parses full pinned intent and rejects legacy attempts
+ok 3 - controller identity parses full pinned intent and rejects legacy attempts
+  ---
+  duration_ms: 2.7321
+  ...
+# Subtest: intent checks run, plan and objective under row locks and rejects ABA epoch
+ok 4 - intent checks run, plan and objective under row locks and rejects ABA epoch
+  ---
+  duration_ms: 1.0929
+  ...
+# {"level":30,"time":1792710991968,"pid":32256,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+# Subtest: private read boundaries deny before Mongo; controllers require trusted actor
+ok 5 - private read boundaries deny before Mongo; controllers require trusted actor
+  ---
+  duration_ms: 15.3381
+  ...
+# {"level":30,"time":1792710991969,"pid":32256,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+# Subtest: Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+    # Subtest: Exponential backoff for outbox retries is bounded by 300s
+    ok 1 - Exponential backoff for outbox retries is bounded by 300s
+      ---
+      duration_ms: 1.1764
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation preserves newer manual draft edits
+    ok 2 - Conditional MongoDB draft reconciliation preserves newer manual draft edits
+      ---
+      duration_ms: 0.3757
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation creates new draft if not found
+    ok 3 - Conditional MongoDB draft reconciliation creates new draft if not found
+      ---
+      duration_ms: 0.2501
+      ...
+    # Subtest: Accept-time brain version conflict rejects stale generation
+    ok 4 - Accept-time brain version conflict rejects stale generation
+      ---
+      duration_ms: 0.2926
+      ...
+    # Subtest: Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+    ok 5 - Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+      ---
+      duration_ms: 0.2682
+      ...
+    # Subtest: Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+    ok 6 - Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+      ---
+      duration_ms: 0.2041
+      ...
+    1..6
+ok 6 - Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ---
+  duration_ms: 3.8533
+  type: 'suite'
+  ...
+# Subtest: Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+    # Subtest: Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+    ok 1 - Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+      ---
+      duration_ms: 97.1554
+      ...
+    # Subtest: Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL
+    ok 2 - Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL
+      ---
+      duration_ms: 2.952
+      ...
+    # Subtest: Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS
+    ok 3 - Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS
+      ---
+      duration_ms: 3.5487
+      ...
+    # Subtest: Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion
+    ok 4 - Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion
+      ---
+      duration_ms: 14.1837
+      ...
+    # Subtest: Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision
+    ok 5 - Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision
+      ---
+      duration_ms: 4.3293
+      ...
+# {"level":30,"time":1792710992101,"pid":26656,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    1..5
+ok 7 - Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+  ---
+  duration_ms: 177.2493
+  type: 'suite'
+  ...
+# {"level":30,"time":1792710992104,"pid":26656,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+1..7
+# tests 54
+# suites 3
+# pass 54
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 987.7036

@@ -1,0 +1,17 @@
+
+> ephurin-backend@0.1.0 db:migrate
+> tsx src/core/database/migrate.ts
+
+{"level":30,"time":1792710752681,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 001_auth_user_wallet.sql"}
+{"level":30,"time":1792710752821,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 002_novels.sql"}
+{"level":30,"time":1792710752875,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 003_chapters.sql"}
+{"level":30,"time":1792710752998,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 004_content_control.sql"}
+{"level":30,"time":1792710753018,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 005_reports_description.sql"}
+{"level":30,"time":1792710753121,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 006_reading_interactions.sql"}
+{"level":30,"time":1792710753233,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 007_wallet_transactions.sql"}
+{"level":30,"time":1792710753428,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 008_authoring_context.sql"}
+{"level":30,"time":1792710753487,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 009_chapter_revisions.sql"}
+{"level":30,"time":1792710753528,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 010_analysis_outbox.sql"}
+{"level":30,"time":1792710753544,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 011_outbox_claim_token.sql"}
+{"level":30,"time":1792710753578,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 012_reports_unique_open.sql"}
+{"level":30,"time":1792710753579,"pid":31472,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}

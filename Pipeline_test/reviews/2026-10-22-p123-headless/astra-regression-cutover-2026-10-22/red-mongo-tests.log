@@ -1,0 +1,82 @@
+TAP version 13
+# {"level":30,"time":1792710756417,"pid":5796,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection ready"}
+# Subtest: Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)
+    # Subtest: Targeted Probe 1: Older draft is cleanly updated by accepted revision
+    not ok 1 - Targeted Probe 1: Older draft is cleanly updated by accepted revision
+      ---
+      duration_ms: 41.2159
+      location: 'C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:846'
+      failureType: 'testCodeFailure'
+      error: 'invalid input syntax for type uuid: "live-test-chap-1792710755921"'
+      code: '22P02'
+      name: 'error'
+      stack: |-
+        C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\node_modules\pg-pool\index.js:45:11
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async findLatestRevisionByChapterId (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-revisions.repository.ts:106:18)
+        async <anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\draft-chapters.repository.ts:103:20)
+        async withChapterWriter (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-writer.ts:23:12)
+        async TestContext.<anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\mongo-reconciliation.live.test.ts:53:21)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1358:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync
+    not ok 2 - Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync
+      ---
+      duration_ms: 17.009
+      location: 'C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:1967'
+      failureType: 'testCodeFailure'
+      error: 'invalid input syntax for type uuid: "live-test-chap-1792710755921"'
+      code: '22P02'
+      name: 'error'
+      stack: |-
+        C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\node_modules\pg-pool\index.js:45:11
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async findLatestRevisionByChapterId (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-revisions.repository.ts:106:18)
+        async <anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\draft-chapters.repository.ts:103:20)
+        async withChapterWriter (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-writer.ts:23:12)
+        async TestContext.<anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\mongo-reconciliation.live.test.ts:84:25)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:677:7)
+      ...
+    # Subtest: Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId
+    not ok 3 - Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId
+      ---
+      duration_ms: 11.5435
+      location: 'C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:3078'
+      failureType: 'testCodeFailure'
+      error: 'invalid input syntax for type uuid: "live-test-chap-nodraft-1792710756485"'
+      code: '22P02'
+      name: 'error'
+      stack: |-
+        C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\node_modules\pg-pool\index.js:45:11
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async findLatestRevisionByChapterId (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-revisions.repository.ts:106:18)
+        async <anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\draft-chapters.repository.ts:103:20)
+        async withChapterWriter (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-writer.ts:23:12)
+        async TestContext.<anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\mongo-reconciliation.live.test.ts:105:25)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:677:7)
+      ...
+# {"level":30,"time":1792710756503,"pid":5796,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+    1..3
+not ok 1 - Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)
+  ---
+  duration_ms: 586.933
+  type: 'suite'
+  location: 'C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:302'
+  failureType: 'subtestsFailed'
+  error: '3 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 3
+# suites 1
+# pass 0
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2636.3819
