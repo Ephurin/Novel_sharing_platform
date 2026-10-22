@@ -1,0 +1,37 @@
+[
+  {
+    "id": "5a2a3349-8ee9-4e72-b69d-82b309d4b333",
+    "plan_id": "99db8a5b-e2ed-45c5-a72a-0512e2777849",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "734c61fa-265e-4c14-bee5-93025d203d79",
+    "order_index": 1,
+    "target_chapter": 1,
+    "objective_type": "ending",
+    "title": "Intent gate plan_replaced",
+    "description": "P3 bounded intent case",
+    "status": "in_progress",
+    "objective_metadata": {
+      "min_words": 1,
+      "is_terminal": true
+    },
+    "intent_version": 1,
+    "created_at": "2026-10-22T08:32:08.083778+00:00",
+    "updated_at": "2026-10-22T08:32:08.750864+00:00"
+  },
+  {
+    "id": "c04da5b1-383f-423c-be2e-f29e54b7cd06",
+    "plan_id": "8e7e9f5d-8d4e-4bab-8542-a8a50bde2afb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "734c61fa-265e-4c14-bee5-93025d203d79",
+    "order_index": 1,
+    "target_chapter": 2,
+    "objective_type": "chapter_goal",
+    "title": "Replacement",
+    "description": "New intent",
+    "status": "pending",
+    "objective_metadata": {},
+    "intent_version": 0,
+    "created_at": "2026-10-22T08:32:10.989593+00:00",
+    "updated_at": "2026-10-22T08:32:10.989593+00:00"
+  }
+]

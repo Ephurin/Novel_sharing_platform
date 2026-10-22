@@ -1,0 +1,119 @@
+{
+  "run": {
+    "run_id": "bd3d9fa3-d77e-4a61-94be-6b238455a912",
+    "novel_id": "650fbf86-2662-4e92-9bec-ede2f26e91ba",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_id": "20b42156-9bc7-4886-9fad-47a697622cce",
+    "plan_version": 1,
+    "status": "running",
+    "current_objective_id": "32c44415-2be2-4efd-b9ad-57b6ba561b77",
+    "current_chapter_id": "ab52d94f-d7d9-4e52-9577-712b2a3b6430",
+    "current_iteration": 0,
+    "max_iterations": 3,
+    "current_retries": 0,
+    "max_retries_per_objective": 3,
+    "last_generation_id": "720c2c9b-3ac9-534c-96ea-cb031f6656e3",
+    "last_accepted_revision_id": null,
+    "last_brain_version": 2,
+    "stop_reason": null,
+    "idempotency_key": "2b97db9c918e4a10a95e700b1f745d61",
+    "input_hash": "badc8ba753cbb53f53fdd94b771bd81f3e9b917816ec25febe9332b0730b792c",
+    "created_by": "b3e182b3-f04a-4589-8eee-6d29ee365a6d",
+    "created_at": "2026-10-22T08:19:18.783770+00:00",
+    "updated_at": "2026-10-22T08:19:19.428513+00:00"
+  },
+  "plan": {
+    "plan_id": "20b42156-9bc7-4886-9fad-47a697622cce",
+    "novel_id": "650fbf86-2662-4e92-9bec-ede2f26e91ba",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_version": 1,
+    "status": "active",
+    "objectives": [
+      {
+        "objective_id": "32c44415-2be2-4efd-b9ad-57b6ba561b77",
+        "order_index": 1,
+        "title": "Intent gate stop_first",
+        "description": "P3 bounded intent case",
+        "target_chapter": 1,
+        "objective_type": "ending",
+        "status": "in_progress",
+        "metadata": {
+          "min_words": 1,
+          "is_terminal": true
+        },
+        "intent_version": 1
+      }
+    ],
+    "source_outline": "",
+    "source_outline_hash": "",
+    "idempotency_key": null,
+    "input_hash": "23f79a7989f61fbe6ca70120fff95173b336611704abbfb38dd8c938c5f5f484",
+    "created_by": "b3e182b3-f04a-4589-8eee-6d29ee365a6d"
+  },
+  "revisions": [
+    {
+      "revision_id": "8ff4548c-1175-4425-885f-f3dadb2e3ef6",
+      "novel_id": "650fbf86-2662-4e92-9bec-ede2f26e91ba",
+      "chapter_id": "ab52d94f-d7d9-4e52-9577-712b2a3b6430",
+      "parent_revision_id": null,
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content": "",
+      "word_count": 0,
+      "source_type": "AUTHOR_MANUAL",
+      "source_generation_id": null,
+      "created_by": "b3e182b3-f04a-4589-8eee-6d29ee365a6d",
+      "created_at": "2026-10-22T08:19:19.340046+00:00"
+    }
+  ],
+  "outbox": [],
+  "memory": {
+    "story_id": "650fbf86-2662-4e92-9bec-ede2f26e91ba",
+    "entities": [
+      {
+        "name": "Mai Linh",
+        "entity_id": "33c11dbf-cd12-454e-adec-b4af9d239cd3",
+        "entity_type": "character",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "Duy",
+        "entity_id": "11d1a00a-992a-4ed5-b269-ba3a02036b52",
+        "entity_type": "character",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "Cồn Vân",
+        "entity_id": "0aabd4a1-f514-4965-86bb-5933ad3447bf",
+        "entity_type": "location",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      }
+    ],
+    "aliases": [],
+    "mentions": [],
+    "facts": [],
+    "relations": [],
+    "events": [],
+    "transitions": [],
+    "current_state": {
+      "entities": {},
+      "provenance": {},
+      "relationships": [],
+      "projection_version": 1
+    },
+    "metadata": {
+      "brain_id": "d08d6e57-bfd4-41ad-bbbc-0459289663aa",
+      "brain_version": "2",
+      "status": "active",
+      "baseline_revision_id": null
+    }
+  }
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "job_id": "4d2cd61e-6b58-539e-81a9-b346f95d06cf",
+    "matches": [
+      {
+        "capture": {
+          "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+          "request_sha256": "b8ac7996fd5dfac239628d7f44bdb6382726dbaea96020396f3dc3c51ba548ae",
+          "dispatch_id": "8c4fce2c-46d9-414a-a031-64800a1ec3c1",
+          "client": "ai-service",
+          "native_schema": null,
+          "output_limit": 512,
+          "upstream_auth_valid": true,
+          "prompt_text": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}\n\nThao tác: continuation\nĐoạn văn được chọn: \nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: Thực hiện mục tiêu cốt truyện: P3 observe. Mai Linh checks the note.\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":2,\"current_objective\":{\"description\":\"Mai Linh checks the note.\",\"objective_id\":\"a60960c8-2d09-4d16-a3fa-9599b6811682\",\"objective_type\":\"chapter_goal\",\"order_index\":1,\"status\":\"in_progress\",\"target_chapter\":1,\"title\":\"P3 observe\"},\"current_states\":[{\"entity_id\":\"b65d5e81-3996-46d5-a556-0fe631bf7bcc\",\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"b3885ee7-9887-4dea-952c-df0d149e4e30\",\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"c183b653-5404-4ab7-9fbb-5f91631158fa\",\"location\":\"Unknown\",\"name\":\"Duy\",\"state\":{},\"status\":\"Unknown\"}],\"entities\":[{\"entity_id\":\"b65d5e81-3996-46d5-a556-0fe631bf7bcc\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"status\":\"Unknown\"},{\"entity_id\":\"b3885ee7-9887-4dea-952c-df0d149e4e30\",\"entity_type\":\"location\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"status\":\"Unknown\"},{\"entity_id\":\"c183b653-5404-4ab7-9fbb-5f91631158fa\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Duy\",\"status\":\"Unknown\"}],\"planning_context\":{\"active_objective_id\":\"a60960c8-2d09-4d16-a3fa-9599b6811682\",\"plan_id\":\"fbfcef0d-6889-4a2d-8d82-2892410920c0\",\"plan_version\":1,\"source_outline_hash\":\"e1a5acf3e86c8f34489fa0536261875b5caef357328f67c62a7794fc6602f0c8\",\"status\":\"active\",\"total_objectives\":2},\"recent_events\":[],\"semantic_memories\":[],\"world_rules\":[]}",
+          "scenario": "p123-p3-v1",
+          "received_at": 1792658286.9322822,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text": "{\"draft_text\": \"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\\n\\nDuy đứng bên Mai Linh tại Cồn Vân.\", \"explanation\": \"FAKE_PROVIDER_OUTPUT scripted functional continuation\"}"
+                    }
+                  ]
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": "[REDACTED]",
+              "candidatesTokenCount": "[REDACTED]",
+              "totalTokenCount": "[REDACTED]"
+            },
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "8c4fce2c-46d9-414a-a031-64800a1ec3c1"
+          },
+          "operation": "writing_generation"
+        },
+        "context_hash": "58c9b5fffd583b47da5c323956f410aba7f89c6b11e39b3d6acda1ddcbb0cb14",
+        "prompt_sha256": "5a8b4642fd1b786ff85e401f507782828cf497305885c506b84bd8caed96dc77"
+      }
+    ]
+  },
+  {
+    "job_id": "75e61ca1-4f98-53cb-835c-1390e1e85e16",
+    "matches": [
+      {
+        "capture": {
+          "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+          "request_sha256": "1c5eb41873d55983818ac4e119eff5406340c1744e4200a3b2f42e3220181ec7",
+          "dispatch_id": "67150ab3-42ce-43fa-b8b6-13cae12aa300",
+          "client": "ai-service",
+          "native_schema": null,
+          "output_limit": 512,
+          "upstream_auth_valid": true,
+          "prompt_text": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}\n\nThao tác: continuation\nĐoạn văn được chọn: \nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: Thực hiện mục tiêu cốt truyện: P3 resolved ending. Duy closes the scene.\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":3,\"current_objective\":{\"description\":\"Duy closes the scene.\",\"objective_id\":\"619e95ba-92de-4f40-83ca-2a0cf5409743\",\"objective_type\":\"ending\",\"order_index\":2,\"status\":\"in_progress\",\"target_chapter\":2,\"title\":\"P3 resolved ending\"},\"current_states\":[{\"entity_id\":\"c183b653-5404-4ab7-9fbb-5f91631158fa\",\"location\":\"Unknown\",\"name\":\"Duy\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"b3885ee7-9887-4dea-952c-df0d149e4e30\",\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"b65d5e81-3996-46d5-a556-0fe631bf7bcc\",\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"state\":{},\"status\":\"Unknown\"}],\"entities\":[{\"entity_id\":\"c183b653-5404-4ab7-9fbb-5f91631158fa\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Duy\",\"status\":\"Unknown\"},{\"entity_id\":\"b3885ee7-9887-4dea-952c-df0d149e4e30\",\"entity_type\":\"location\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"status\":\"Unknown\"},{\"entity_id\":\"b65d5e81-3996-46d5-a556-0fe631bf7bcc\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"status\":\"Unknown\"}],\"planning_context\":{\"active_objective_id\":\"619e95ba-92de-4f40-83ca-2a0cf5409743\",\"plan_id\":\"fbfcef0d-6889-4a2d-8d82-2892410920c0\",\"plan_version\":1,\"source_outline_hash\":\"e1a5acf3e86c8f34489fa0536261875b5caef357328f67c62a7794fc6602f0c8\",\"status\":\"active\",\"total_objectives\":2},\"recent_events\":[{\"chapter_number\":1,\"event_id\":\"9fc17052-2805-56de-8ce4-3e0ba3411fd1\",\"event_type\":\"observation\",\"metadata\":{\"chapter\":1,\"chapter_number\":1,\"consequences\":[],\"event_type\":\"observation\",\"evidence\":[{\"chapter_id\":\"24bb3dd6-08da-418f-b9e3-f0d8ca31d606\",\"chapter_number\":1,\"end\":60,\"quote\":\"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\",\"revision_id\":\"db617b3c-3e7f-4b9e-ad96-c704728cdfb3\",\"start\":0,\"text_hash\":\"7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6\"}],\"locations\":[],\"participants\":[],\"reconciliation_base_ids\":[],\"summary\":\"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\"},\"narrative_order\":1024,\"participants\":[],\"summary\":\"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\"}],\"semantic_memories\":[],\"world_rules\":[{\"fact_key\":\"micro_check_note\",\"fact_type\":\"narrative_fact\",\"fact_value\":{\"certainty\":\"confirmed\",\"subject\":\"\",\"value\":\"Mai Linh đặt thẻ giấy kiểm tra micro cạnh máy thu; chưa thực hiện kế hoạch\"},\"id\":\"8466ca19-5148-4c26-9fdb-65a420ae2010\",\"is_locked\":false,\"subject_entity_id\":null,\"subject_name\":\"\"},{\"fact_key\":\"observed_scene\",\"fact_type\":\"narrative_fact\",\"fact_value\":{\"certainty\":\"confirmed\",\"subject\":\"\",\"value\":\"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\"},\"id\":\"06abf382-ee61-4f49-a2b8-bb641179b61d\",\"is_locked\":false,\"subject_entity_id\":null,\"subject_name\":\"\"}]}",
+          "scenario": "p123-p3-v1",
+          "received_at": 1792658289.4436593,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text": "{\"draft_text\": \"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\\n\\nDuy đứng bên Mai Linh tại Cồn Vân.\", \"explanation\": \"FAKE_PROVIDER_OUTPUT scripted functional continuation\"}"
+                    }
+                  ]
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": "[REDACTED]",
+              "candidatesTokenCount": "[REDACTED]",
+              "totalTokenCount": "[REDACTED]"
+            },
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "67150ab3-42ce-43fa-b8b6-13cae12aa300"
+          },
+          "operation": "writing_generation"
+        },
+        "context_hash": "b712d0db8f5745c8d499f9d771e88d9f1315c0a6826f45776d6387ecc9639580",
+        "prompt_sha256": "313a4415738727453e37ab022539da437c230f5784e3cdef34ac0d5aa79a19e8"
+      }
+    ]
+  }
+]

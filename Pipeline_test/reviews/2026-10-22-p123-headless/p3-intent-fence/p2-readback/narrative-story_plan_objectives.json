@@ -1,0 +1,18 @@
+[
+  {
+    "id": "a2d2bca9-d321-4568-b92c-489029eac98d",
+    "plan_id": "ec553383-4e91-4813-9265-a51f6b40211b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b05d01a1-03c7-43af-9211-8bb15b899d76",
+    "order_index": 1,
+    "target_chapter": 2,
+    "objective_type": "chapter_goal",
+    "title": "NEXT_FUTURE_ONLY",
+    "description": "Tomorrow check microphone.",
+    "status": "pending",
+    "objective_metadata": {},
+    "intent_version": 0,
+    "created_at": "2026-10-22T08:33:27.254431+00:00",
+    "updated_at": "2026-10-22T08:33:27.254431+00:00"
+  }
+]

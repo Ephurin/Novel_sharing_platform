@@ -1,0 +1,39 @@
+[
+  {
+    "id": "89081673-f97c-4656-8b2d-0cf2a6339b5b",
+    "plan_id": "a59298c4-51e1-485d-877b-7e626e4b96c6",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "2e0374be-1d14-4a7d-b10d-82ecaccef999",
+    "order_index": 1,
+    "target_chapter": 1,
+    "objective_type": "chapter_goal",
+    "title": "P3 observe",
+    "description": "Observe note.",
+    "status": "completed",
+    "objective_metadata": {
+      "min_words": 1
+    },
+    "intent_version": 2,
+    "created_at": "2026-10-22T08:20:50.919756+00:00",
+    "updated_at": "2026-10-22T08:20:52.772058+00:00"
+  },
+  {
+    "id": "27ac9442-0cc0-48f0-986c-71eece070283",
+    "plan_id": "a59298c4-51e1-485d-877b-7e626e4b96c6",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "2e0374be-1d14-4a7d-b10d-82ecaccef999",
+    "order_index": 2,
+    "target_chapter": 2,
+    "objective_type": "ending",
+    "title": "P3 ending",
+    "description": "Resolve scene.",
+    "status": "completed",
+    "objective_metadata": {
+      "min_words": 1,
+      "is_terminal": true
+    },
+    "intent_version": 2,
+    "created_at": "2026-10-22T08:20:50.919756+00:00",
+    "updated_at": "2026-10-22T08:20:54.405812+00:00"
+  }
+]

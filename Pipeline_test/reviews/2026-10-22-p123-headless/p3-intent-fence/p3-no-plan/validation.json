@@ -1,0 +1,16 @@
+{
+  "tested_sha": "a7081c6932e33bd5500d0ca40604afe6bb0d51e4",
+  "source_dirty_at_start": false,
+  "project": "p123-core-170deba7f4",
+  "novel_id": null,
+  "run": null,
+  "no_plan_entry": true,
+  "stage": "preflight",
+  "checks": [],
+  "failure": {
+    "type": "TimeoutExpired",
+    "message": "Command '['docker', 'inspect', 'p123-core-170deba7f4-backend-1', 'p123-core-170deba7f4-ai-service-1', 'p123-core-170deba7f4-postgres-1', 'p123-core-170deba7f4-mongodb-1', 'p123-core-170deba7f4-budget-gateway-1', 'p123-core-170deba7f4-fake-upstream-1']' timed out after -507.9380000000019 seconds"
+  },
+  "verdict": "PARTIAL",
+  "external_provider_calls": 0
+}

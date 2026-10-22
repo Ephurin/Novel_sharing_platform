@@ -1,0 +1,41 @@
+{
+  "tested_sha": "a7081c6932e33bd5500d0ca40604afe6bb0d51e4",
+  "source_dirty_at_start": false,
+  "project": "p123-core-8a205dcd76",
+  "novel_id": "99b9646c-d465-4185-ab26-25f37c27233e",
+  "run_id": "2df59d27-2410-40fd-8fd9-43091af52d3c",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "terminal_step_0",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "terminal_step_1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "restart_does_not_resume",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "no_new_accepts",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "memory_unchanged",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

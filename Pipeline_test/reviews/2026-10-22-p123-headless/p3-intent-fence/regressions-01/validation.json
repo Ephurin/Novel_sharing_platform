@@ -1,0 +1,59 @@
+{
+  "tested_sha": "a7081c6932e33bd5500d0ca40604afe6bb0d51e4",
+  "AI": {
+    "args": [
+      "-m",
+      "not postgres_integration",
+      "--basetemp=.pytest_tmp",
+      "-m",
+      "not postgres_integration",
+      "-q",
+      "-ra",
+      "--basetemp=C:\\Users\\thaib\\AppData\\Local\\Temp\\p123-next-5ee0c46a285b4aa3822af84fe1ac95d5",
+      "--junitxml=C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\p3-intent-fence\\regressions-01\\ai-junit.xml",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_context_budget.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_context_routing.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_context_scope.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_manuscript_bootstrap.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_entity_review_workflow.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_revision_analysis_workflow.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_entity_cutoff_provenance.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_narrative_repository_contract.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_canon_revision_reconciliation.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_state_projection.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_autonomous_routes.py",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\ai-service\\tests\\test_internal_generation_contract.py"
+    ],
+    "exit_code": 0,
+    "egress_guard": "non-loopback DNS denied",
+    "SQL_fixture": "SQLite; real PostgreSQL covered by separate HTTP run"
+  },
+  "backend": [
+    {
+      "suite": "backend-typecheck",
+      "command": [
+        "npm.cmd",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0
+    },
+    {
+      "suite": "backend-focused",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/modules/ai/ai-gateway.test.ts",
+        "src/modules/ai/p1-closed-loop-gateway.test.ts",
+        "src/modules/ai/autonomous-controller.test.ts",
+        "src/modules/ai/autonomous-memory.test.ts"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

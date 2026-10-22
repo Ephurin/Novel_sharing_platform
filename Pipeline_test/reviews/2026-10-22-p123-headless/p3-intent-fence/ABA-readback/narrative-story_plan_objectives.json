@@ -1,0 +1,21 @@
+[
+  {
+    "id": "c45636f9-4318-4673-a7fa-999702894aa4",
+    "plan_id": "4d701488-f3b6-4c38-9ec7-eb8f3a254ec2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b6a6ded9-bba9-429f-bd9f-7135c9b8f168",
+    "order_index": 1,
+    "target_chapter": 1,
+    "objective_type": "ending",
+    "title": "Intent gate ABA",
+    "description": "P3 bounded intent case",
+    "status": "in_progress",
+    "objective_metadata": {
+      "min_words": 1,
+      "is_terminal": true
+    },
+    "intent_version": 4,
+    "created_at": "2026-10-22T08:21:08.538277+00:00",
+    "updated_at": "2026-10-22T08:21:11.258359+00:00"
+  }
+]

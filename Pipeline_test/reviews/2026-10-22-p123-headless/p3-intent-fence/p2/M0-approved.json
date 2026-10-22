@@ -1,0 +1,50 @@
+{
+  "story_id": "b05d01a1-03c7-43af-9211-8bb15b899d76",
+  "entities": [
+    {
+      "name": "Mai Linh",
+      "entity_id": "509449de-74ab-4530-a2ed-33f531d1b2d0",
+      "entity_type": "character",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Duy",
+      "entity_id": "9a7da3e6-5ef8-4a92-8277-cf937632191c",
+      "entity_type": "character",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Cồn Vân",
+      "entity_id": "d5ddacaf-0c79-4815-8244-56df30e3951a",
+      "entity_type": "location",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  ],
+  "aliases": [],
+  "mentions": [],
+  "facts": [],
+  "relations": [],
+  "events": [],
+  "transitions": [],
+  "current_state": {
+    "entities": {},
+    "provenance": {},
+    "relationships": [],
+    "projection_version": 1
+  },
+  "metadata": {
+    "brain_id": "1b1d188a-def8-498b-b136-9e3f5c799323",
+    "brain_version": "2",
+    "status": "active",
+    "baseline_revision_id": null
+  }
+}

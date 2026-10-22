@@ -1,0 +1,18 @@
+[
+  {
+    "id": "ff9f1f68-2fe8-4eb2-a3e9-b7474ec32e88",
+    "plan_id": "ac42010a-e6d8-43d3-9e2a-0f741b173a82",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "99b9646c-d465-4185-ab26-25f37c27233e",
+    "order_index": 1,
+    "target_chapter": 1,
+    "objective_type": "chapter_goal",
+    "title": "Stop before step",
+    "description": "No late accept",
+    "status": "pending",
+    "objective_metadata": {},
+    "intent_version": 0,
+    "created_at": "2026-10-22T08:41:53.167521+00:00",
+    "updated_at": "2026-10-22T08:41:53.167521+00:00"
+  }
+]

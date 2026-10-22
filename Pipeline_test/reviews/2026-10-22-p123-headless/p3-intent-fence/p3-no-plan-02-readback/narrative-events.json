@@ -1,0 +1,72 @@
+[
+  {
+    "id": "b6d00a7d-c566-59f3-8bc2-62c7c8fd2bd7",
+    "story_brain_id": "b563ca1c-5e22-466c-96c3-7f2e124f39ae",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "447ce38e-42f8-4eb2-a19b-667a4269bbf2",
+    "narrative_order": 1024,
+    "event_type": "observation",
+    "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+    "participants": [],
+    "event_metadata": {
+      "chapter": 1,
+      "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+      "evidence": [
+        {
+          "end": 60,
+          "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "start": 0,
+          "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+          "chapter_id": "0d54a047-8de7-4610-9063-cb6277aa6520",
+          "revision_id": "33b88054-ce08-4a82-81e3-010b149a7b54",
+          "chapter_number": 1
+        }
+      ],
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 1,
+      "reconciliation_base_ids": []
+    },
+    "chapter_number": 1,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "created_at": "2026-10-22T08:35:33.218988+00:00"
+  },
+  {
+    "id": "3dd534ba-3080-585c-9a0f-29f5ae139fc1",
+    "story_brain_id": "b563ca1c-5e22-466c-96c3-7f2e124f39ae",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "447ce38e-42f8-4eb2-a19b-667a4269bbf2",
+    "narrative_order": 2048,
+    "event_type": "observation",
+    "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+    "participants": [],
+    "event_metadata": {
+      "chapter": 2,
+      "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+      "evidence": [
+        {
+          "end": 60,
+          "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "start": 0,
+          "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+          "chapter_id": "026da2cf-62b3-466a-b73c-e9ead3475bf0",
+          "revision_id": "82d237a1-6cc3-4dc8-b3f3-e4619ef31cfb",
+          "chapter_number": 2
+        }
+      ],
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 2,
+      "reconciliation_base_ids": []
+    },
+    "chapter_number": 2,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "created_at": "2026-10-22T08:35:35.375231+00:00"
+  }
+]

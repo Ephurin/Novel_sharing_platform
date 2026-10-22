@@ -1,0 +1,12 @@
+{
+  "status": 409,
+  "response": {
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "OBJECTIVE_INTENT_SUPERSEDED",
+      "message": "Controller intent changed; retain this generation only as an unaccepted candidate"
+    },
+    "meta": {}
+  }
+}

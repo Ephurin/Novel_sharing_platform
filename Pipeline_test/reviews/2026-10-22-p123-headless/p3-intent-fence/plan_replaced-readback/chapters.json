@@ -1,0 +1,18 @@
+[
+  {
+    "chapter_id": "05a1c9a5-09be-45e0-9e33-bf3ef8f42536",
+    "novel_id": "734c61fa-265e-4c14-bee5-93025d203d79",
+    "title": "Intent gate plan_replaced",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 0,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:32:08.766701+00:00",
+    "updated_at": "2026-10-22T08:32:08.766701+00:00",
+    "deleted_at": null,
+    "latest_revision_id": null
+  }
+]

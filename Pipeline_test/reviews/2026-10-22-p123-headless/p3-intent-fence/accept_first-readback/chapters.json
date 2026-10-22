@@ -1,0 +1,18 @@
+[
+  {
+    "chapter_id": "7cb81a2d-0b35-4cf7-92c3-7c60f2665557",
+    "novel_id": "51bd0600-7128-472a-b9d4-374acff05389",
+    "title": "Intent gate accept_first",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 21,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:20:13.390036+00:00",
+    "updated_at": "2026-10-22T08:20:13.779697+00:00",
+    "deleted_at": null,
+    "latest_revision_id": "af326834-bf99-48ce-9b16-607bbed02914"
+  }
+]

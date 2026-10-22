@@ -1,0 +1,79 @@
+{
+  "tested_sha": "a7081c6932e33bd5500d0ca40604afe6bb0d51e4",
+  "source_dirty_at_start": false,
+  "project": "p123-core-170deba7f4",
+  "novel_id": "447ce38e-42f8-4eb2-a19b-667a4269bbf2",
+  "run": {
+    "run_id": "b24ca718-3826-4c78-9c46-ef2596c3b4f5",
+    "novel_id": "447ce38e-42f8-4eb2-a19b-667a4269bbf2",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_id": "2c6e02ad-fa91-4ac6-a555-87fc8ee0d7f9",
+    "plan_version": 1,
+    "status": "running",
+    "current_objective_id": "30e40b5c-5f06-48df-9618-f48400b82809",
+    "current_chapter_id": "026da2cf-62b3-466a-b73c-e9ead3475bf0",
+    "current_iteration": 1,
+    "max_iterations": 5,
+    "current_retries": 0,
+    "max_retries_per_objective": 3,
+    "last_generation_id": "4111d2c7-1c66-5d92-b6ff-bb174c3e59c6",
+    "last_accepted_revision_id": "33b88054-ce08-4a82-81e3-010b149a7b54",
+    "last_brain_version": 3,
+    "stop_reason": "waiting_for_entity_review",
+    "idempotency_key": "p3-e9482d74d98148b6b06e9bdc19eef723",
+    "input_hash": "877607eb6ff68a0c33edffba83aebea90e6a5ed3323edc2c048a96a9ac042aa0",
+    "created_by": "ddda0147-065b-4456-974a-fd2732a8267d",
+    "created_at": "2026-10-22T08:35:31.797543+00:00",
+    "updated_at": "2026-10-22T08:35:34.739906+00:00"
+  },
+  "no_plan_entry": true,
+  "stage": "P3_step_HITL",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "create_idempotent",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "wrong_owner_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "plan_not_history",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "pause_no_canon_0",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_4087d12f-5758-4a39-bfa1-7b9593095b6a",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "pause_no_canon_3",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_8dabde8a-cb34-4df3-9a40-cd5ecc330f93",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "HTTP_409:POST:/ai/autonomous/runs/b24ca718-3826-4c78-9c46-ef2596c3b4f5/step:{'success': False, 'data': None, 'error': {'code': 'RUN_STEP_BUSY', 'message': 'Full auto is already processing this run'}, 'meta': {}}"
+  },
+  "verdict": "PARTIAL",
+  "external_provider_calls": 0
+}

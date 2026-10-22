@@ -1,0 +1,18 @@
+[
+  {
+    "chapter_id": "e3389dcc-69d8-4d45-a5b8-77f79f1d6e06",
+    "novel_id": "b6a6ded9-bba9-429f-bd9f-7135c9b8f168",
+    "title": "Intent gate ABA",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 0,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:21:09.21361+00:00",
+    "updated_at": "2026-10-22T08:21:09.21361+00:00",
+    "deleted_at": null,
+    "latest_revision_id": null
+  }
+]

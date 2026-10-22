@@ -1,0 +1,34 @@
+[
+  {
+    "_id": "6ad9cad46bb5835a7bc700e6",
+    "novelId": "447ce38e-42f8-4eb2-a19b-667a4269bbf2",
+    "chapterId": "0d54a047-8de7-4610-9063-cb6277aa6520",
+    "authorId": "ddda0147-065b-4456-974a-fd2732a8267d",
+    "title": "P3 observe",
+    "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+    "wordCount": 21,
+    "version": 1,
+    "autosave": false,
+    "lastAcceptedRevisionId": "33b88054-ce08-4a82-81e3-010b149a7b54",
+    "lastAcceptedAt": "2026-10-22T08:35:32.376Z",
+    "createdAt": "2026-10-22T08:35:32.377Z",
+    "updatedAt": "2026-10-22T08:35:32.377Z",
+    "deletedAt": null
+  },
+  {
+    "_id": "6ad9cad66bb5835a7bc700e7",
+    "novelId": "447ce38e-42f8-4eb2-a19b-667a4269bbf2",
+    "chapterId": "026da2cf-62b3-466a-b73c-e9ead3475bf0",
+    "authorId": "ddda0147-065b-4456-974a-fd2732a8267d",
+    "title": "P3 resolved ending",
+    "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+    "wordCount": 21,
+    "version": 1,
+    "autosave": false,
+    "lastAcceptedRevisionId": "82d237a1-6cc3-4dc8-b3f3-e4619ef31cfb",
+    "lastAcceptedAt": "2026-10-22T08:35:34.070Z",
+    "createdAt": "2026-10-22T08:35:34.071Z",
+    "updatedAt": "2026-10-22T08:35:34.071Z",
+    "deletedAt": null
+  }
+]

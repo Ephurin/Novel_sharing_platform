@@ -1,0 +1,18 @@
+[
+  {
+    "chapter_id": "004a9724-f068-4c37-9e12-e1da6ddcb129",
+    "novel_id": "e2ed17cd-ef7c-468f-8128-ed2d23d140a5",
+    "title": "Intent gate kill_post_commit",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 21,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:34:34.228885+00:00",
+    "updated_at": "2026-10-22T08:34:34.634867+00:00",
+    "deleted_at": null,
+    "latest_revision_id": "0605fb74-ff66-4bf2-abf8-af814423ee07"
+  }
+]

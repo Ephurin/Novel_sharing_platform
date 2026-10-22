@@ -1,0 +1,37 @@
+[
+  {
+    "id": "4eb0bfe0-9401-5d23-9943-6b7fd3a32a0b",
+    "story_brain_id": "8a44f8b0-adf8-4a57-8924-7b309cd215ae",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "7b2bf0ab-8e92-41c4-98d4-05802b7f40fb",
+    "narrative_order": 1024,
+    "event_type": "observation",
+    "summary": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+    "participants": [],
+    "event_metadata": {
+      "chapter": 1,
+      "summary": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+      "evidence": [
+        {
+          "end": 184,
+          "quote": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+          "start": 0,
+          "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+          "chapter_id": "72c57370-ae33-4dbe-bf67-b192cb2f339a",
+          "revision_id": "8d2385fa-b316-4a03-968f-06904507bb18",
+          "chapter_number": 1
+        }
+      ],
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 1,
+      "reconciliation_base_ids": []
+    },
+    "chapter_number": 1,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "created_at": "2026-10-22T08:33:01.970484+00:00"
+  }
+]

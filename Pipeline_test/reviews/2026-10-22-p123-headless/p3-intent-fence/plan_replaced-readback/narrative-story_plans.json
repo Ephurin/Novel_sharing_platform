@@ -1,0 +1,30 @@
+[
+  {
+    "id": "99db8a5b-e2ed-45c5-a72a-0512e2777849",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "734c61fa-265e-4c14-bee5-93025d203d79",
+    "plan_version": 1,
+    "status": "superseded",
+    "source_outline": "",
+    "source_outline_hash": "",
+    "idempotency_key": null,
+    "input_hash": "49faab7ffde522eef4cfac6b12a62f829435587dc966b682552b2158f6886609",
+    "created_by": "864e8e4e-0776-4b86-a1ac-cccd9d3bb55c",
+    "created_at": "2026-10-22T08:32:08.083778+00:00",
+    "updated_at": "2026-10-22T08:32:11.021235+00:00"
+  },
+  {
+    "id": "8e7e9f5d-8d4e-4bab-8542-a8a50bde2afb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "734c61fa-265e-4c14-bee5-93025d203d79",
+    "plan_version": 2,
+    "status": "active",
+    "source_outline": "",
+    "source_outline_hash": "",
+    "idempotency_key": null,
+    "input_hash": "ff2ab54417400e7d77ef7bf6c0c1a441fe855b4f4fe5d16bbe2e2d879f849ca9",
+    "created_by": "864e8e4e-0776-4b86-a1ac-cccd9d3bb55c",
+    "created_at": "2026-10-22T08:32:10.989593+00:00",
+    "updated_at": "2026-10-22T08:32:11.021235+00:00"
+  }
+]

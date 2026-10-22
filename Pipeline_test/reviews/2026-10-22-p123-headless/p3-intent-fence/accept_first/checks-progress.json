@@ -1,0 +1,42 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "two_step_busy",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "edit_waits_for_accept_transaction",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "accepted_count_matches_commit_order",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "canon_unchanged_without_author_review",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "outbox_matches_accepted_count",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "accepted_replay_same_id",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "restart_preserves_accepted_count",
+    "status": "PASS",
+    "details": null
+  }
+]

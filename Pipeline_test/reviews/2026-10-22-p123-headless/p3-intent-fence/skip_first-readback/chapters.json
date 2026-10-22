@@ -1,0 +1,18 @@
+[
+  {
+    "chapter_id": "7a6559e4-4fb9-4724-bf0f-d87c8b81effd",
+    "novel_id": "6e2347a2-4f13-4f7c-bda2-9efd1a8d9aa4",
+    "title": "Intent gate skip_first",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 0,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:18:04.527277+00:00",
+    "updated_at": "2026-10-22T08:18:04.527277+00:00",
+    "deleted_at": null,
+    "latest_revision_id": null
+  }
+]

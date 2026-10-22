@@ -1,0 +1,42 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "create_idempotent",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "wrong_owner_denied",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "plan_not_history",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "pause_no_canon_0",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_4087d12f-5758-4a39-bfa1-7b9593095b6a",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "pause_no_canon_3",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_8dabde8a-cb34-4df3-9a40-cd5ecc330f93",
+    "status": "PASS",
+    "details": null
+  }
+]

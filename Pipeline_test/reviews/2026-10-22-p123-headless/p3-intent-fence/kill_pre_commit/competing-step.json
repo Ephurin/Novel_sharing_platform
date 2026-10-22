@@ -1,0 +1,12 @@
+{
+  "status": 409,
+  "response": {
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "RUN_STEP_BUSY",
+      "message": "Full auto is already processing this run"
+    },
+    "meta": {}
+  }
+}

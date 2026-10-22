@@ -1,0 +1,104 @@
+{
+  "tested_source_sha": "a7081c6932e33bd5500d0ca40604afe6bb0d51e4",
+  "records": [
+    {
+      "scenario": "skip_first",
+      "exit_code": 0,
+      "invocation_reference": "Pipeline_test/tools/run_p3_intent_fence.py --mode skip_first",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "stop_first",
+      "exit_code": 0,
+      "invocation_reference": "Pipeline_test/tools/run_p3_intent_fence.py --mode stop_first",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "accept_first",
+      "exit_code": 0,
+      "invocation_reference": "Pipeline_test/tools/run_p3_intent_fence.py --mode accept_first",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "ABA",
+      "exit_code": 0,
+      "invocation_reference": "Pipeline_test/tools/run_p3_intent_fence.py --mode ABA",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "plan_replaced",
+      "exit_code": 0,
+      "invocation_reference": "Pipeline_test/tools/run_p3_intent_fence.py --mode plan_replaced",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "kill_pre_commit",
+      "exit_code": 0,
+      "invocation_reference": "Pipeline_test/tools/run_p3_intent_fence.py --mode kill_pre_commit",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "kill_post_commit",
+      "exit_code": 0,
+      "invocation_reference": "Pipeline_test/tools/run_p3_intent_fence.py --mode kill_post_commit",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "p3-existing",
+      "exit_code": 0,
+      "invocation_reference": "p3-existing/validation.json",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "p3-no-plan-03",
+      "exit_code": 0,
+      "invocation_reference": "p3-no-plan-03/validation.json",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "p2",
+      "exit_code": 0,
+      "invocation_reference": "p2/validation.json",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "terminal-stop",
+      "exit_code": 0,
+      "invocation_reference": "terminal-stop/validation.json",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "scenario": "p1-writer",
+      "exit_code": 0,
+      "invocation_reference": "p1-writer/validation.json",
+      "note": "See HTTP trace, containment and validation in scenario directory; own environment manifest required."
+    },
+    {
+      "command": "Pipeline_test/tools/run_p123_regressions.py",
+      "exit_code": 0,
+      "exact_args_reference": "regressions-01/validation.json"
+    },
+    {
+      "command": "npm.cmd run build",
+      "cwd": "backend",
+      "exit_code": 0
+    }
+  ],
+  "retained_unsuccessful_attempts": [
+    {
+      "path": "p3-no-plan",
+      "exit_code": 1,
+      "reason": "Docker inspect preflight TimeoutExpired; no novel created"
+    },
+    {
+      "path": "p3-no-plan-02",
+      "exit_code": 1,
+      "reason": "Real background worker RUN_STEP_BUSY; superseded by fresh p3-no-plan-03 with bounded known-busy retry adapter"
+    },
+    {
+      "path": "stop_first-readback",
+      "exit_code": 1,
+      "reason": "In-memory fake receipts lost on restart; durable journal verified in stop_first-readback-02"
+    }
+  ]
+}

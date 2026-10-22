@@ -1,0 +1,16 @@
+[
+  {
+    "objective_id": "21b443a4-f473-4ac7-b29b-21b81c6a3492",
+    "order_index": 1,
+    "title": "Intent gate skip_first",
+    "description": "P3 bounded intent case",
+    "target_chapter": 1,
+    "objective_type": "ending",
+    "status": "skipped",
+    "metadata": {
+      "min_words": 1,
+      "is_terminal": true
+    },
+    "intent_version": 2
+  }
+]

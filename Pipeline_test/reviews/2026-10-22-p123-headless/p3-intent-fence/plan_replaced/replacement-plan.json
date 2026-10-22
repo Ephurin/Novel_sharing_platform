@@ -1,0 +1,25 @@
+{
+  "plan_id": "8e7e9f5d-8d4e-4bab-8542-a8a50bde2afb",
+  "novel_id": "734c61fa-265e-4c14-bee5-93025d203d79",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "plan_version": 2,
+  "status": "draft",
+  "objectives": [
+    {
+      "objective_id": "c04da5b1-383f-423c-be2e-f29e54b7cd06",
+      "order_index": 1,
+      "title": "Replacement",
+      "description": "New intent",
+      "target_chapter": 2,
+      "objective_type": "chapter_goal",
+      "status": "pending",
+      "metadata": {},
+      "intent_version": 0
+    }
+  ],
+  "source_outline": "",
+  "source_outline_hash": "",
+  "idempotency_key": null,
+  "input_hash": "ff2ab54417400e7d77ef7bf6c0c1a441fe855b4f4fe5d16bbe2e2d879f849ca9",
+  "created_by": "864e8e4e-0776-4b86-a1ac-cccd9d3bb55c"
+}

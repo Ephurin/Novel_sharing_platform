@@ -1,0 +1,18 @@
+[
+  {
+    "chapter_id": "ab52d94f-d7d9-4e52-9577-712b2a3b6430",
+    "novel_id": "650fbf86-2662-4e92-9bec-ede2f26e91ba",
+    "title": "Intent gate stop_first",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 0,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:19:19.335975+00:00",
+    "updated_at": "2026-10-22T08:19:19.335975+00:00",
+    "deleted_at": null,
+    "latest_revision_id": null
+  }
+]

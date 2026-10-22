@@ -1,0 +1,43 @@
+{
+  "tested_sha": "a7081c6932e33bd5500d0ca40604afe6bb0d51e4",
+  "source_dirty_at_start": false,
+  "project": "p123-core-b593f66b4e",
+  "novel_id": "6e2347a2-4f13-4f7c-bda2-9efd1a8d9aa4",
+  "run_id": "fd3df962-3060-495b-9759-9d8798f5e8d9",
+  "mode": "skip_first",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "two_step_busy",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_count_matches_commit_order",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "canon_unchanged_without_author_review",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbox_matches_accepted_count",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "restart_preserves_accepted_count",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

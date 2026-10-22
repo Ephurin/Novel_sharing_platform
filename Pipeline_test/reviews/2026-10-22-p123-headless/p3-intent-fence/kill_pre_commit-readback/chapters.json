@@ -1,0 +1,18 @@
+[
+  {
+    "chapter_id": "c94871e3-da85-40ef-88db-3e3e5250874b",
+    "novel_id": "ef955fdb-c8e6-4dd0-846f-5c068d218e22",
+    "title": "Intent gate kill_pre_commit",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 0,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:33:16.366947+00:00",
+    "updated_at": "2026-10-22T08:33:16.366947+00:00",
+    "deleted_at": null,
+    "latest_revision_id": null
+  }
+]

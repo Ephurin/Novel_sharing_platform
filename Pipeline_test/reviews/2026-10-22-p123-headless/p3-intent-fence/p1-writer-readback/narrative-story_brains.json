@@ -1,0 +1,25 @@
+[
+  {
+    "id": "8a44f8b0-adf8-4a57-8924-7b309cd215ae",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "7b2bf0ab-8e92-41c4-98d4-05802b7f40fb",
+    "status": "active",
+    "baseline_revision_id": "8d2385fa-b316-4a03-968f-06904507bb18",
+    "brain_version": 2,
+    "schema_version": 1,
+    "entity_guidance": {
+      "entries": [
+        {
+          "kind": "hint",
+          "name": "Mai Linh",
+          "notes": "",
+          "aliases": [],
+          "entity_type": null
+        }
+      ],
+      "version": 1
+    },
+    "created_at": "2026-10-22T08:32:56.053355+00:00",
+    "updated_at": "2026-10-22T08:33:02.426498+00:00"
+  }
+]

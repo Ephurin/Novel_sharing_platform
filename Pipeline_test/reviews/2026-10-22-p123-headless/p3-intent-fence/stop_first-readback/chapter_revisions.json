@@ -1,0 +1,15 @@
+[
+  {
+    "revision_id": "8ff4548c-1175-4425-885f-f3dadb2e3ef6",
+    "novel_id": "650fbf86-2662-4e92-9bec-ede2f26e91ba",
+    "chapter_id": "ab52d94f-d7d9-4e52-9577-712b2a3b6430",
+    "parent_revision_id": null,
+    "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "content": "",
+    "word_count": 0,
+    "source_type": "AUTHOR_MANUAL",
+    "source_generation_id": null,
+    "created_by": "b3e182b3-f04a-4589-8eee-6d29ee365a6d",
+    "created_at": "2026-10-22T08:19:19.340046+00:00"
+  }
+]

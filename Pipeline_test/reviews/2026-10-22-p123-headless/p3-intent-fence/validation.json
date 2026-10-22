@@ -1,0 +1,108 @@
+{
+  "verdict": "P3_OBJECTIVE_FENCE_BOUNDED_OFFLINE_EXECUTOR_PASS",
+  "tested_source_sha": "a7081c6932e33bd5500d0ca40604afe6bb0d51e4",
+  "authority_sha": "fee928f46448f8b1cd84652d06b7c36ca6481828",
+  "source_clean_at_test_start": true,
+  "scenarios": [
+    {
+      "scenario": "skip_first",
+      "status": "PASS",
+      "checks": 6,
+      "accepted": 0,
+      "outbox": 0,
+      "audit": "skip_first-readback"
+    },
+    {
+      "scenario": "stop_first",
+      "status": "PASS",
+      "checks": 6,
+      "accepted": 0,
+      "outbox": 0,
+      "audit": "stop_first-readback-02"
+    },
+    {
+      "scenario": "accept_first",
+      "status": "PASS",
+      "checks": 8,
+      "accepted": 1,
+      "outbox": 1,
+      "audit": "accept_first-readback"
+    },
+    {
+      "scenario": "ABA",
+      "status": "PASS",
+      "checks": 6,
+      "accepted": 0,
+      "outbox": 0,
+      "audit": "ABA-readback"
+    },
+    {
+      "scenario": "plan_replaced",
+      "status": "PASS",
+      "checks": 6,
+      "accepted": 0,
+      "outbox": 0,
+      "audit": "plan_replaced-readback"
+    },
+    {
+      "scenario": "kill_pre_commit",
+      "status": "PASS",
+      "checks": 6,
+      "accepted": 0,
+      "outbox": 0,
+      "audit": "kill_pre_commit-readback"
+    },
+    {
+      "scenario": "kill_post_commit",
+      "status": "PASS",
+      "checks": 7,
+      "accepted": 1,
+      "outbox": 1,
+      "audit": "kill_post_commit-readback"
+    },
+    {
+      "scenario": "p3-existing",
+      "status": "PASS",
+      "checks": 12,
+      "evidence": "p3-existing/validation.json"
+    },
+    {
+      "scenario": "p3-no-plan-03",
+      "status": "PASS",
+      "checks": 12,
+      "evidence": "p3-no-plan-03/validation.json"
+    },
+    {
+      "scenario": "p2",
+      "status": "PASS",
+      "checks": 27,
+      "evidence": "p2/validation.json"
+    },
+    {
+      "scenario": "terminal-stop",
+      "status": "PASS",
+      "checks": 6,
+      "evidence": "terminal-stop/validation.json"
+    },
+    {
+      "scenario": "p1-writer",
+      "status": "PASS",
+      "checks": 0,
+      "evidence": "p1-writer/validation.json"
+    }
+  ],
+  "AI_passed": 162,
+  "AI_skipped": 2,
+  "backend_passed": 44,
+  "backend_typecheck": "PASS",
+  "backend_build": "PASS",
+  "external_provider_calls": 0,
+  "actual_paid_spend_usd": 0,
+  "human_actor": "SIMULATED_HUMAN_VIA_API",
+  "independent_review": "PENDING",
+  "UI": "NOT_RUN",
+  "LIVE_PROVIDER": "NOT_RUN",
+  "SEMANTIC_RAG": "NOT_ASSESSED",
+  "LITERARY_QUALITY": "NOT_ASSESSED",
+  "P3_100K": "NOT_RUN"
+}

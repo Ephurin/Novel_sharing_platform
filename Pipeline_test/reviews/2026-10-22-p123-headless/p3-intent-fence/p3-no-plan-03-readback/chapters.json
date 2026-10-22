@@ -1,0 +1,34 @@
+[
+  {
+    "chapter_id": "24bb3dd6-08da-418f-b9e3-f0d8ca31d606",
+    "novel_id": "8220bacd-2f67-472e-b28a-862b7875d0d6",
+    "title": "P3 observe",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 21,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:38:06.494604+00:00",
+    "updated_at": "2026-10-22T08:38:07.10632+00:00",
+    "deleted_at": null,
+    "latest_revision_id": "db617b3c-3e7f-4b9e-ad96-c704728cdfb3"
+  },
+  {
+    "chapter_id": "adf75ac5-0eef-4c75-8e30-3626b292650b",
+    "novel_id": "8220bacd-2f67-472e-b28a-862b7875d0d6",
+    "title": "P3 resolved ending",
+    "chapter_number": 2,
+    "content": null,
+    "word_count": 21,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:38:09.276556+00:00",
+    "updated_at": "2026-10-22T08:38:09.616133+00:00",
+    "deleted_at": null,
+    "latest_revision_id": "e6d23b66-01bf-402f-b781-e827e2ccaab6"
+  }
+]

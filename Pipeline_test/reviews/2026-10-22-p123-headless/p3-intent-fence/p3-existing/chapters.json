@@ -1,0 +1,24 @@
+[
+  {
+    "chapterId": "4b2014de-483f-4ade-8f26-985c668d8169",
+    "novelId": "2e0374be-1d14-4a7d-b10d-82ecaccef999",
+    "title": "P3 observe",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 21,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT"
+  },
+  {
+    "chapterId": "995956e5-1d1e-4e2e-811c-cb7d827e7c3d",
+    "novelId": "2e0374be-1d14-4a7d-b10d-82ecaccef999",
+    "title": "P3 ending",
+    "chapterNumber": 2,
+    "content": null,
+    "wordCount": 21,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT"
+  }
+]

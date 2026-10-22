@@ -1,0 +1,44 @@
+[
+  {
+    "objective_id": "c45636f9-4318-4673-a7fa-999702894aa4",
+    "order_index": 1,
+    "title": "Intent gate ABA",
+    "description": "P3 bounded intent case",
+    "target_chapter": 1,
+    "objective_type": "ending",
+    "status": "skipped",
+    "metadata": {
+      "min_words": 1,
+      "is_terminal": true
+    },
+    "intent_version": 2
+  },
+  {
+    "objective_id": "c45636f9-4318-4673-a7fa-999702894aa4",
+    "order_index": 1,
+    "title": "Intent gate ABA",
+    "description": "P3 bounded intent case",
+    "target_chapter": 1,
+    "objective_type": "ending",
+    "status": "pending",
+    "metadata": {
+      "min_words": 1,
+      "is_terminal": true
+    },
+    "intent_version": 3
+  },
+  {
+    "objective_id": "c45636f9-4318-4673-a7fa-999702894aa4",
+    "order_index": 1,
+    "title": "Intent gate ABA",
+    "description": "P3 bounded intent case",
+    "target_chapter": 1,
+    "objective_type": "ending",
+    "status": "in_progress",
+    "metadata": {
+      "min_words": 1,
+      "is_terminal": true
+    },
+    "intent_version": 4
+  }
+]

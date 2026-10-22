@@ -1,0 +1,45 @@
+{
+  "schema": 2,
+  "run_id": "p123-core-352b5eee87",
+  "max_calls": 200,
+  "max_cost_usd": "5.0",
+  "admission_cost_usd": "4.5",
+  "deadline": 1792664332.1159277,
+  "started": 1792657132.1159277,
+  "total_calls": 2,
+  "charged_usd": "0.046214",
+  "outstanding_usd": "0.000000",
+  "call_history": [
+    {
+      "ticket_id": "ee6df288-bcbf-44da-9a65-a332a8743423",
+      "call_index": 1,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.037655",
+      "charged_usd": "0.037655",
+      "status": "SUCCESS",
+      "timestamp": 1792657158.3568609,
+      "finished": 1792657158.3889883
+    },
+    {
+      "ticket_id": "07aa6e6e-59ad-4087-abbf-ba7abc9d02b2",
+      "call_index": 2,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.008559",
+      "charged_usd": "0.008559",
+      "status": "SUCCESS",
+      "timestamp": 1792657159.5174968,
+      "finished": 1792657159.5342588
+    }
+  ],
+  "status": "OFFLINE_ONLY",
+  "actual_invoice_usd": "UNKNOWN",
+  "live_authorized": false,
+  "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+  "pricing_scope": "SYNTHETIC_OFFLINE_TEXT_ONLY"
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "chapter_id": "72c57370-ae33-4dbe-bf67-b192cb2f339a",
+    "novel_id": "7b2bf0ab-8e92-41c4-98d4-05802b7f40fb",
+    "title": "Ordered writer",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 3,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:32:55.692584+00:00",
+    "updated_at": "2026-10-22T08:33:06.948647+00:00",
+    "deleted_at": null,
+    "latest_revision_id": "8cf3dbc4-14f9-4f16-8eba-a1f59dff5dd6"
+  },
+  {
+    "chapter_id": "74e47077-36ca-457e-9a67-34586629de4d",
+    "novel_id": "7b2bf0ab-8e92-41c4-98d4-05802b7f40fb",
+    "title": "Crash post_cas",
+    "chapter_number": 2,
+    "content": null,
+    "word_count": 3,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:33:17.35464+00:00",
+    "updated_at": "2026-10-22T08:33:28.913123+00:00",
+    "deleted_at": null,
+    "latest_revision_id": "1b426697-8912-4d90-aab7-9fae42ae3903"
+  },
+  {
+    "chapter_id": "6d235df9-676e-4acd-a57d-a289258b6021",
+    "novel_id": "7b2bf0ab-8e92-41c4-98d4-05802b7f40fb",
+    "title": "Crash post_pg",
+    "chapter_number": 3,
+    "content": null,
+    "word_count": 3,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T08:33:29.045675+00:00",
+    "updated_at": "2026-10-22T08:33:39.48564+00:00",
+    "deleted_at": null,
+    "latest_revision_id": "63920002-3902-40bf-9358-f3c9e6160fcb"
+  }
+]

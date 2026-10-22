@@ -1,0 +1,42 @@
+{
+  "plan_id": "2c6e02ad-fa91-4ac6-a555-87fc8ee0d7f9",
+  "novel_id": "447ce38e-42f8-4eb2-a19b-667a4269bbf2",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "plan_version": 1,
+  "status": "active",
+  "objectives": [
+    {
+      "objective_id": "85b0f677-7636-4017-800a-b6c9e5cd3afd",
+      "order_index": 1,
+      "title": "P3 observe",
+      "description": "Mai Linh checks the note.",
+      "target_chapter": 1,
+      "objective_type": "chapter_goal",
+      "status": "pending",
+      "metadata": {
+        "min_words": 1,
+        "is_terminal": false
+      },
+      "intent_version": 0
+    },
+    {
+      "objective_id": "30e40b5c-5f06-48df-9618-f48400b82809",
+      "order_index": 2,
+      "title": "P3 resolved ending",
+      "description": "Duy closes the scene.",
+      "target_chapter": 2,
+      "objective_type": "ending",
+      "status": "pending",
+      "metadata": {
+        "min_words": 1,
+        "is_terminal": true
+      },
+      "intent_version": 0
+    }
+  ],
+  "source_outline": "Automatically planned for full auto",
+  "source_outline_hash": "e1a5acf3e86c8f34489fa0536261875b5caef357328f67c62a7794fc6602f0c8",
+  "idempotency_key": null,
+  "input_hash": "d21f5fec356b8a8040fe2e0ce4db95b85bcec71adcfd94bf63bdb376f9ba1979",
+  "created_by": "ddda0147-065b-4456-974a-fd2732a8267d"
+}

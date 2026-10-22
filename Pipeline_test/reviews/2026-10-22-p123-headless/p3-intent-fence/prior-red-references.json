@@ -1,0 +1,42 @@
+[
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/accepted-after-objective-skipped.json",
+    "sha256": "dd0a6c9e2a9be4d295eaa6f38a2d430a2b99c8e5f8e3d01a3e90253b98fb311a"
+  },
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/account-foreign.json",
+    "sha256": "33e02477adfd98b13eaa84ecb6a2ae6b5241a7d07ba29a37a9f5bea5004b7791"
+  },
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/account-owner.json",
+    "sha256": "59b76c39c86c8ca90f698770cb5656f0a09b5bca2413294a90309226c043e69b"
+  },
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/checkpoint-restart.json",
+    "sha256": "fd609f7fa175d8884d1622f7b109901ae74121eab8b9dc9d6ea68c624b644347"
+  },
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/checks-progress.json",
+    "sha256": "59710033f010a0c99f44fbbb0419738853fd5dd6ed70ada7c6e77c263c7e3426"
+  },
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/containment.json",
+    "sha256": "fc4b434add19ff1b765e12dcb672630d261b4879f054130b7fe0f1ae73e10dfc"
+  },
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/inflight-receipts.json",
+    "sha256": "5daf49d14419d89dc857d196f6b0a9ae07757901fcb32fc6c0ffab709507694a"
+  },
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/plan-after-mutation.json",
+    "sha256": "91b448735b611efcdb7cbb80c225c2e826580b9838f54896d9e05ab54b86bee4"
+  },
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/stop-terminal.json",
+    "sha256": "83e5ecac4caa8be325a193e5416744bcd60d8c34d22ce3097e31d0785956ca19"
+  },
+  {
+    "path": "Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/P3-negative/inflight-objective/validation.json",
+    "sha256": "4ce8d092418a1e98b305684b6605d899cf9c36bfa2a128b84d5463871bff8561"
+  }
+]
