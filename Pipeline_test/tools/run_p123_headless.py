@@ -309,9 +309,28 @@ class Probe:
             "full_prompt_hash": hashlib.sha256(entry["prompt_text"].encode()).hexdigest()})
         self.check("future_plan_attached_in_actual_outbound", context.get("planning_context", {}).get("plan_id") == plan["plan_id"])
         self.check("future_plan_not_outbound_historical_event", "HEADLESS_FUTURE_PLAN" not in json.dumps(context["recent_events"]))
+        # These entities were actually approved from later immutable chapters.
+        # Generate through the same backend path at chapter 1 to test real outbound cutoff.
+        early = manifest[0]
+        early_instruction = "Headless-cutoff-" + uuid.uuid4().hex + ": tiếp tục cảnh hiện tại."
+        early_job = self.api("POST", "/ai/writing/generations", {"novel_id": self.novel,
+            **{k: early[k] for k in ("chapter_id", "revision_id", "content_hash")},
+            "instruction": early_instruction, "selection": {"start": 0, "end": 0, "cursor": 0},
+            "expected_brain_version": summary["brain_version"]})
+        early_done = self.wait_job(early_job["job_id"], {"completed"})
+        entries = self.http.get(self.base.removesuffix("/api/v1") + "/received", timeout=5).json()
+        early_entries = [e for e in entries if early_instruction in e.get("prompt_text", "")]
+        assert len(early_entries) == 1, "EARLY_OUTBOUND_CORRELATION_FAILED"
+        early_context = json.loads(early_entries[0]["prompt_text"].split("Bối cảnh tiểu thuyết (Story Brain): ", 1)[1].split("\n", 1)[0])
+        early_stored = json.loads(self.sql("select row_to_json(g) from narrative.writing_generations g where job_id='" + early_done["job_id"] + "'"))
+        self.save("outbound-cutoff-1", {"capture": early_entries[0], "context": early_context, "stored_job": early_stored})
+        self.check("early_outbound_matches_durable_hash", digest(early_context) == early_stored["context_summary"]["context_hash"])
+        later_names = {"Duy", "Nguyễn Vũ", "Vũ"}
+        self.check("later_entities_actually_seeded_in_canon", later_names <= {e["name"] for e in after["entities"]})
+        self.check("later_entities_excluded_from_early_outbound", not later_names & {e["name"] for e in early_context["entities"]})
         self.save("retrieval-and-budget", {"persisted_context_summary": stored["context_summary"],
             "semantic_retrieval_quality": "NOT_ASSESSED", "overflow_fault": "NOT_RUN",
-            "future_entity_cutoff": "NOT_YET_VERIFIED", "locked_rule_stress": "NOT_RUN"})
+            "future_entity_cutoff": "ACTUAL_CHAPTER_1_OUTBOUND_CHECKED", "locked_rule_stress": "NOT_RUN"})
         self.api("POST", "/ai/writing/generations", {"novel_id": self.novel,
             **{k: r[k] for k in ("chapter_id", "revision_id", "content_hash")},
             "expected_brain_version": summary["brain_version"] + 999}, expected=(409,))

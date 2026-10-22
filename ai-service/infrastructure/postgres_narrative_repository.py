@@ -555,6 +555,13 @@ class PostgresNarrativeRepository:
             from domain.canon_identity import validate_reconciliation_base
             _, base_facts, base_events, _ = self._projection_inputs(session, novel_id)
             validate_reconciliation_base([self._to_proposal(p) for p in proposals], base_events, base_facts)
+            entity_revision_ids = {self._stable_uuid("revision", str(e["revision_id"]))
+                for p in proposals if p.proposal_type == "entity"
+                for e in p.evidence if e.get("revision_id")}
+            entity_source_chapters = {p.revision_id: p.chapter_number for p in session.scalars(
+                select(RevisionProvenanceRecord).where(
+                    *self._scope(RevisionProvenanceRecord, novel_id),
+                    RevisionProvenanceRecord.revision_id.in_(entity_revision_ids))).all()} if entity_revision_ids else {}
             for proposal in proposals:
                 external_id = next(
                     item for item in proposal_ids if self._stable_uuid("proposal", item) == proposal.id
@@ -570,6 +577,10 @@ class PostgresNarrativeRepository:
                         raise ProjectionError('A reused artifact cannot be edited; request a new source analysis')
                     artifact_ids.append(payload['reuse_artifact_id'])
                 elif proposal.proposal_type == "entity":
+                    source_chapters = [entity_source_chapters[self._stable_uuid("revision", str(e["revision_id"]))]
+                        for e in proposal.evidence if e.get("revision_id") and
+                        self._stable_uuid("revision", str(e["revision_id"])) in entity_source_chapters]
+                    first_chapter = min(source_chapters) if source_chapters else None
                     normalized = str(payload["normalized_name"]).casefold()
                     entity = session.scalar(
                         select(EntityRecord).where(
@@ -592,8 +603,15 @@ class PostgresNarrativeRepository:
                             confirmation_status="confirmed",
                             confidence=proposal.confidence,
                         )
+                        if first_chapter is not None:
+                            entity.static_attributes = {**entity.static_attributes, "first_chapter": first_chapter}
                         session.add(entity)
                         session.flush()
+                    elif first_chapter is not None and entity.static_attributes.get("first_chapter") is not None:
+                        # Review order need not match chapter order. Keep the earliest
+                        # canonical source; declared/legacy entities without a cutoff stay global.
+                        entity.static_attributes = {**entity.static_attributes, "first_chapter":
+                            min(entity.static_attributes["first_chapter"], first_chapter)}
                     artifact_ids.append(str(entity.id))
                 elif proposal.proposal_type == "event":
                     if payload.get('supersedes_id'):
