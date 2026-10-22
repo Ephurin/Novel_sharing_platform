@@ -1,23 +1,16 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
-## 0. CURRENT TOP PRIORITY — COMPLETE THREE AI AUTHORING USE CASES (2026-10-22)
+## 0. CURRENT HOLD — WAIT FOR FE DEVELOPER PR REVIEWS (2026-10-22)
 
-**Owner direction, supersedes conflicting task priority/ownership below.** The primary product goal is to **finish P1, P2 and P3 as actual usable workflows**, not to keep expanding isolated Wave 1H audits or wait for the FE developer. The behavioral source of truth remains `Pipeline_test/WORKFLOW_CONTRACT.md` v1.4.
+**Owner correction:** The previous directive to prioritize immediate P1 → P2 → P3 completion and allow Codex to independently replace FE implementation is **paused**. Do not start `THREE_USECASE_COMPLETION_TASK_2026-10-22.md`. Do not independently patch production frontend or integrate/cherry-pick PR #55 merely to bypass the review process. **Await completion of FE developer PR reviews and a fresh owner instruction** before resuming P1–P3 integration or S09 repair.
 
-**Single active Codex execution plan:** [Pipeline_test/THREE_USECASE_COMPLETION_TASK_2026-10-22.md](Pipeline_test/THREE_USECASE_COMPLETION_TASK_2026-10-22.md). The task pointer in `Pipeline_test/ACTIVE_GEMINI_TASK.md` must match this decision.
+While on hold, read-only inspection of FE PRs, contract/source compatibility and existing evidence is allowed when specifically requested. Keep FE developer ownership of production FE changes; existing S09 RED and Wave 1H findings remain unchanged. No automatic PR merges, provider calls, main writes or changes to unrelated Wallet/VIP tasks.
 
-**Strict product order:**
-1. **P1 — existing manuscript:** real author UI import → approved Story Brain → ordinary save/revision/extraction → continue, S01–S11. Codex owns solving S09 stale autosave on **pipeline test branch** if necessary; FE Issue #56 / PR #55 no longer blocks implementation.
-2. **P2 — idea/setup:** setup extraction and human approval → baseline → future plan → first chapter → same writing loop. A blueprint proposal alone is not a PASS.
-3. **P3 — controller:** bounded functional multi-objective writing with plan/no-plan, HITL entity review, safe continuation/termination and no auto publish; mandatory later 100,000–105,000-word canonical completed novel gate under v1.4.
-
-**Updated roles:** Codex = end-to-end full-stack executor/integrator on `codex/ai-copilot-pipeline-test` (including narrowly necessary FE fixes); GPT-6 = remote architecture/evidence reviewer and acceptance gatekeeper; Gemini = optional delegated independent local tasks; external FE developer = optional contributor, **not a prerequisite**. Implement the smallest safe UI/backend/AI-service patch to unblock the use case. No blind PR #55 cherry-pick, no writes to FE branches, and no automatic merge to main.
-
-**Execution boundaries:** Continue in isolated fake-provider/real-browser mode with **0 real external AI calls**. Previous live approval expired and the Free Tier budget deferral does not create new permission. P1/P2/P3 offline functional verdicts remain distinct from provider-backed/live and literary acceptance. Do not rewrite historical evidence or bypass UI author actions with writable APIs. Preserve other team work; Wallet/VIP/Reader is **lower priority and independently owned**. Earlier §5 Wallet/VIP and §7 Wave 1H audit are historical/supplementary instructions, not a reason for Codex to pause delivery.
+The three-use-case completion plan is **retained for later** under `Pipeline_test/THREE_USECASE_COMPLETION_TASK_2026-10-22.md`, but is not the active instruction. Previous sections below describe historical plans or separately owned work; this hold takes precedence for Codex.
 
 ---
 
-## 1. Historical Canonical Status — 2026-10-16 (previous main release, not current v1.4 P1–P3 acceptance)
+## 1. Canonical Status — 2026-10-16
 
 All three authoring pipelines are closed on backend/system acceptance, and P1 browser acceptance is now closed on the refactored Author UI.
 
@@ -309,21 +302,44 @@ P8-05 destructive cleanup remains blocked pending the separately defined stabili
 
 ---
 
-## 4. Collaboration Ownership — current P1/P2/P3 delivery
+## 4. Collaboration Ownership
 
-**Codex — PRIMARY FULL-STACK OWNER on pipeline branch:** Inspect, implement, integrate and test minimum required AI service, backend, frontend, DB migrations and real browser journeys for P1→P2→P3. Codex may repair S09 autosave independently on its permitted test branch; it must not wait for the FE owner or blindly port all of PR #55. Always test integration compatibility and protect historical evidence.
+### Gemini / Antigravity — LOCAL OWNER
 
-**GPT-6 — INDEPENDENT REVIEW / ACCEPTANCE:** Verify exact tested SHA, negative tests, historical vs new evidence, UI/readback and narrative contract. Mark scoped PASS/BLOCKED; plan next slices. No assumption that executor-run tests are independently rerun by ChatGPT.
+Gemini handles:
+- local code inspection and implementation;
+- Docker / Compose;
+- PostgreSQL / pgvector / MongoDB;
+- local unit, integration and system tests;
+- local browser automation;
+- deterministic/fake LLM;
+- bounded real-provider calls only when explicitly required;
+- local evidence/report generation;
+- commit/push on the assigned working branch.
 
-**Gemini — OPTIONAL SUPPORT / PARALLEL OWNER:** May execute separately assigned local code, Docker and tests where paths/branches do not collide with Codex. Existing Reader/Wallet work remains separately owned but is not on the P1/P2/P3 critical path.
+Gemini stops at:
 
-**FE developer — NON-BLOCKING:** May offer reviewed fixes, but Codex is empowered to implement compatible production-path UI fixes on the isolated pipeline branch. Do not modify the FE developer's branch or silently merge their work.
+```text
+LOCAL_PASS_CI_PENDING
+```
 
-**Release:** Neither executor merges to `main` without independent review. Local functional PASS, GitHub CI PASS, provider-backed acceptance and literary quality remain separate claims.
+unless a newer directive explicitly assigns a different boundary.
+
+### ChatGPT — GITHUB / REMOTE ACCEPTANCE OWNER
+
+ChatGPT handles:
+- remote branch/head/diff review;
+- PR creation/update;
+- GitHub Actions inspection and logs;
+- CI-only test/wiring repair where appropriate;
+- merge decision;
+- canonical report/handoff closure on `main`.
+
+Never collapse local PASS into CI PASS without direct GitHub evidence.
 
 ---
 
-## 5. LEGACY SEPARATE WORKSTREAM — WALLET/VIP E2E ACCEPTANCE HARNESS HARDENING (not current Codex priority)
+## 5. ACTIVE EXECUTION DIRECTIVE — WALLET/VIP E2E ACCEPTANCE HARNESS HARDENING
 
 Gate: `READER-WALLET-VIP-UNLOCK-E2E`
 Work on EXISTING branch: `astra/reader-wallet-vip-unlock-e2e`
@@ -435,7 +451,7 @@ Keep this file limited to current canonical state, architecture invariants, owne
 
 ---
 
-## 7. COMPLETED HISTORICAL CODEX TASK — Wave 1H independent evidence audit (2026-10-22)
+## 7. PARALLEL CODEX TASK — Wave 1H independent evidence audit (2026-10-22)
 
 **Scope:** This is a task for Codex working **only** on `codex/ai-copilot-pipeline-test`. It does **not** supersede §5's Wallet/VIP task for Gemini on `astra/reader-wallet-vip-unlock-e2e`, and it does not replace `Pipeline_test/ACTIVE_GEMINI_TASK.md`'s Wave 1G FE-blocked S09 gate.
 
