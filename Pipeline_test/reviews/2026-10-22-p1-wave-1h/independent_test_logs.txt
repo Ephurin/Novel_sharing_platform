@@ -1,0 +1,28 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\thaib\AppData\Local\Programs\Python\Python311\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform
+plugins: anyio-4.15.1
+collecting ... collected 17 items
+
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_story_brain_to_outbound_http_prompt_hash_parity PASSED
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_1_approved_canon_included_at_chapter_cutoff PASSED
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_2_locked_rules_survive_extreme_budget_pressure PASSED
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_3_future_events_and_plans_not_historical_facts PASSED
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_4_superseded_states_and_facts_not_current PASSED
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_5_cross_tenant_memory_isolation PASSED
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_6_deterministic_budget_pruning_and_traceability PASSED
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_7_honest_retrieval_and_fail_closed_routing PASSED
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_8_unapproved_proposals_and_stale_brain_version_prevented PASSED
+Pipeline_test/tests/test_wave1h_independent_audit.py::test_independent_correlated_capture {"independent_http_capture": {"capture_correlated": true, "context_hash": "be0151f36402f38e4a95b08bbe7a0423152d4d44cad8e32b2d7bf2340585a8ab", "dispatch_id": "62f28b5b-c001-4cce-be48-a5b147c0d936", "extracted_context_hash": "be0151f36402f38e4a95b08bbe7a0423152d4d44cad8e32b2d7bf2340585a8ab", "fixture_kind": "direct_in_memory_synthetic", "full_prompt_hash": "04705518cc625be8c87aa7ef762b362493a8a7e9232e139629cf82689d01f9cb", "job_id": "bb8802be-a309-4df8-8e4f-f6b826d3c190", "output_limit": 512, "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent"}}
+PASSED
+Pipeline_test/tests/test_wave1h_independent_audit.py::test_post_hash_mutation_detected PASSED
+Pipeline_test/tests/test_wave1h_independent_audit.py::test_capture_faults_rejected[wrong_dispatch] PASSED
+Pipeline_test/tests/test_wave1h_independent_audit.py::test_capture_faults_rejected[stale_request] PASSED
+Pipeline_test/tests/test_wave1h_independent_audit.py::test_capture_faults_rejected[mismatched_hash] PASSED
+Pipeline_test/tests/test_wave1h_independent_audit.py::test_gateway_denial_fails_generation PASSED
+Pipeline_test/tests/test_wave1h_independent_audit.py::test_direct_external_ip_denied PASSED
+Pipeline_test/tests/test_wave1h_independent_audit.py::test_upstream_transmission_failure PASSED
+
+- generated xml file: C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\Pipeline_test\reviews\2026-10-22-p1-wave-1h\independent_junit.xml -
+============================= 17 passed in 9.29s ==============================

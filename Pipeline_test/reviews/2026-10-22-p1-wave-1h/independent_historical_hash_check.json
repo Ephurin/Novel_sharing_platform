@@ -1,0 +1,10 @@
+{
+  "historical_capture_count": 1,
+  "historical_ledger_calls": 2,
+  "historical_dispatch_matches": true,
+  "historical_context_hash_recomputed": "da363c14c68dfe7e639f2e6deada4ba832dfb1b928dc2c9ffdb2b6131966dd0d",
+  "historical_context_hash_matches": true,
+  "historical_full_prompt_hash_matches": true,
+  "historical_payload_matches": true,
+  "limitation": "Historical runtime artifact recomputation; not independent proof of database provenance. First ledger dispatch has no preserved capture."
+}

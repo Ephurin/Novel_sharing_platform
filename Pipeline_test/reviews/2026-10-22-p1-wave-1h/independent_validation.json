@@ -1,0 +1,34 @@
+{
+  "tested_sha": "c23ea4a5c72a35d53ffc03f160f262f2186a4def",
+  "clean_before_run": true,
+  "command": [
+    "C:\\Users\\thaib\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-m",
+    "pytest",
+    "Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py",
+    "Pipeline_test/tests/test_wave1h_independent_audit.py",
+    "-v",
+    "-ra",
+    "-s",
+    "--junitxml=C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p1-wave-1h\\independent_junit.xml"
+  ],
+  "exit_code": 0,
+  "dependencies": {
+    "pytest": "9.1.1",
+    "google-genai": "2.24.0",
+    "httpx": "0.28.1",
+    "pydantic": "2.13.5",
+    "requests": "2.34.2"
+  },
+  "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+  "historical_sandbox_attempt": {
+    "exit_code": 1,
+    "passed": 8,
+    "failed": 1,
+    "reason": "WinError 10013 blocked loopback sockets; rerun with loopback permission passed"
+  },
+  "network_scope": "loopback fake upstream only; independent tests additionally block direct external socket.connect",
+  "actual_provider_spend_usd": 0,
+  "executor_accounting": "Two historical simulated calls; charged_usd 0.021671 is synthetic, not actual spend",
+  "verdict": "WAVE_1H_REVIEW_BLOCKED:CANON_PROVENANCE_AND_TENANT_PLAN_FIXTURE_GAPS"
+}
