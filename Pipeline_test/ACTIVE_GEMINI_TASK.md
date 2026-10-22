@@ -1,12 +1,16 @@
-# CURRENT CODEX STATUS — ON HOLD FOR FE PR REVIEW
+# ACTIVE CODEX TASK — HEADLESS CORE P1 → P2 → P3 (FE INTEGRATION HOLD)
 
-**Owner revision:** 2026-10-22. **Branch:** `codex/ai-copilot-pipeline-test`.
+**Updated:** 2026-10-22 (Asia/Bangkok). **Branch:** `codex/ai-copilot-pipeline-test` only.
 
-**Do not begin new P1/P2/P3 implementation or self-repair FE S09 yet.** Await review completion of the FE developer PRs and an explicit restart instruction. The recently added `THREE_USECASE_COMPLETION_TASK_2026-10-22.md` is **parked**, not active. Codex is not authorized by that parked plan to own production FE changes. Do not merge, cherry-pick, alter FE branches, or infer FE approval from a PR's existence.
+**Single executable Codex task:** [P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md](P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md). Project directive: [../promt.md](../promt.md) §0. Behavioral authority: [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
 
-**Existing status (unchanged):** S09 autosave real-browser RED on the pipeline branch; Issue #56 is a FE-owned coordination item. Wave 1H independent review found synthetic outbound context hash parity, with durable canon/tenant/plan provenance not yet accepted. Retain existing evidence. Read-only FE PR review is permissible when specifically requested; otherwise hold further Codex execution. No real provider calls without separate renewed authorization.
+**Decision:** `HOLD_FE_INTEGRATION_ONLY`: resume AI-service/backend/database/HTTP API headless E2E for P1 then P2 then P3 immediately. Codex may fix isolated core defects and write backend/AI/service test harness on this branch. Do **not** edit `web/`, FE-owned PR #52/#54/#55, Author IDE autosave hook, or FE integration. FE reviews are separate; no waiting for them on core work. The previous [THREE_USECASE_COMPLETION_TASK_2026-10-22.md](THREE_USECASE_COMPLETION_TASK_2026-10-22.md) stays PARKED because it authorized FE work.
 
-**Authority:** `../promt.md` section 0. Historical task below is retained for context but is superseded by this HOLD directive.
+**Immediate P1 slice:** 5-chapter source-grounded immutable revisions → supported entity review/canon acceptance → PostgreSQL readback → outbound context hash/parity through fake HTTP gateway → versioned writer/save/outbox/analysis with retry. Repair Wave 1H synthetic fixture provenance, wrong-tenant, actually seeded future entity, attached future plan and budget/retrieval claim gaps. Use scripted human review **via supported authenticated API**, labeled as simulated API actor, not actual UI.
+
+**Acceptance scope:** `P1/P2/P3_CORE_OFFLINE_PASS` is not UI S01–S11 PASS, real Gemini quality, semantic retrieval quality, P3 100k or provider-backed acceptance. S09 browser RED and FE-owned Issue #56 stay unresolved pending FE integration; no fake GREEN. Zero external real provider or embedding calls, test-owned isolated DB and fake upstream, protect all historical evidence/ledger/gold. Only backend/AI/API/headless code + sanitized evidence on branch; no merge or auto publication.
+
+Historical instructions below are **superseded** as active Codex tasks. Follow the single task above.
 
 ---
 
