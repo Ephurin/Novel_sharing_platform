@@ -209,6 +209,12 @@ class WritingService:
         process_inline: bool = True,
         source_text: str | None = None,
     ) -> WritingGenerationJob:
+        # Nullable API offsets mean "unspecified"; normalize before both hashing
+        # and bounds checks so omitted/null and explicit default offsets replay alike.
+        selection = {key: value for key, value in selection.items() if value is not None}
+        selection.setdefault("cursor", 0)
+        selection.setdefault("start", selection["cursor"])
+        selection.setdefault("end", selection["cursor"])
         if chapter_number is None:
             chapter_number = selection.get("chapter_number")
 

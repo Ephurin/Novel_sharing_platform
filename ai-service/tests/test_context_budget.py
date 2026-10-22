@@ -364,6 +364,22 @@ class _OneContextRepository:
         return job
 
 
+def test_nullable_api_selection_uses_default_offsets_and_canonical_idempotency():
+    """WritingGenerationSelection defaults serialize nullable offsets as None."""
+    repo = _OneContextRepository(_package())
+    service = WritingService(repo, FakeDeterministicLLMService())
+    text = "Current chapter."
+    common = dict(tenant_id="tenant", novel_id="novel", chapter_id="chapter",
+                  revision_id="revision", content_hash=hashlib.sha256(text.encode()).hexdigest(),
+                  operation="continue", instruction="Continue.", source_text=text,
+                  idempotency_key="nullable-selection", process_inline=False)
+    job = service.start_generation(**common, selection={"start": None, "end": None, "cursor": None})
+    replay = service.start_generation(**common, selection={"start": 0, "end": 0, "cursor": 0})
+    assert job.job_id == replay.job_id
+    assert job.input_hash == replay.input_hash
+    assert job.selection["start"] == job.selection["end"] == job.selection["cursor"] == 0
+
+
 def test_writing_service_hashes_and_sends_exact_packed_prompt_context() -> None:
     huge = _recent("drop-me", 1, pad="x" * 5000)
     locked = _rule("locked", locked=True)
