@@ -429,3 +429,19 @@ def test_writing_service_hashes_and_sends_exact_packed_prompt_context() -> None:
     ).hexdigest()
     assert job.context_hash == expected_hash
     assert job.context_summary["context_packing_version"] == [CONTEXT_PACKING_VERSION]
+
+
+def test_protected_overflow_fails_before_provider_dispatch():
+    source = _package(world_rules=(_rule('locked', locked=True, pad='x' * 10000),))
+    repo = _OneContextRepository(source)
+    llm = FakeDeterministicLLMService()
+    service = WritingService(repo, llm, context_packer=ContextBudgetPacker(default_budget=300))
+    text = 'Current chapter.'
+    job = service.start_generation(tenant_id='tenant', novel_id='novel', chapter_id='chapter',
+        revision_id='revision', content_hash=hashlib.sha256(text.encode()).hexdigest(),
+        operation='continue', selection={'start': 0, 'end': 0, 'cursor': len(text)},
+        instruction='Continue.', expected_brain_version=1, source_text=text, process_inline=True)
+    assert job.status == 'failed'
+    assert job.error['code'] == 'CONTEXT_PROTECTED_BUDGET_EXCEEDED'
+    assert not llm.last_call
+    assert job.context_summary['semantic_retrieval_status'] == ['disabled']

@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { getMongoDatabase } from '../../core/database/mongo.js';
+import { AppError } from '../../core/errors/app-error.js';
 
 const collectionName = 'draft_chapters';
 
@@ -41,11 +42,14 @@ export async function upsertDraftChapter(input: {
   wordCount: number;
   autosave: boolean;
   lastAcceptedRevisionId?: string | null;
+  expectedVersion?: number;
 }) {
   const now = new Date();
 
-  await collection().updateOne(
-    { chapterId: input.chapterId },
+  let saved;
+  try {
+    saved = await collection().findOneAndUpdate(
+    { chapterId: input.chapterId, ...(input.expectedVersion !== undefined ? { version: input.expectedVersion } : {}) },
     {
       $set: {
         novelId: input.novelId,
@@ -69,10 +73,18 @@ export async function upsertDraftChapter(input: {
         version: 1
       }
     },
-    { upsert: true }
+    { upsert: input.expectedVersion === undefined || input.expectedVersion === 0, returnDocument: 'after' }
   );
-
-  return findDraftChapterByChapterId(input.chapterId);
+  } catch (error: any) {
+    if (error?.code !== 11000 || input.expectedVersion === undefined) throw error;
+  }
+  if (saved) return saved;
+  const current = await findDraftChapterByChapterId(input.chapterId);
+  // A retry of the same successful body/title must not create another version.
+  if (current && input.expectedVersion !== undefined && current.version > input.expectedVersion &&
+      current.authorId === input.authorId && current.novelId === input.novelId &&
+      current.title === input.title && current.content === input.content) return current;
+  throw new AppError(409, 'DRAFT_CONFLICT', 'Draft changed or another save is in progress; reload before retrying');
 }
 
 export async function syncDraftFromRevisionConditional(input: {

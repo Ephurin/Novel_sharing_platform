@@ -18,6 +18,8 @@ def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
 
 
 def validate_payload(kind, payload):
+    if kind == 'fact' and 'is_locked' in payload and type(payload['is_locked']) is not bool:
+        raise ProjectionError('Fact is_locked must be a boolean')
     if kind == 'alias':
         if not isinstance(payload.get('alias'), str) or not payload['alias'].strip():
             raise ProjectionError('Alias requires a nonempty surface')

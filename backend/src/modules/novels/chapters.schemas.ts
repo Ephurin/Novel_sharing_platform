@@ -29,6 +29,7 @@ export const updateChapterSchema = z.object({
     content: z.string().optional(),
     isVip: z.boolean().optional(),
     priceCoins: z.number().int().min(0).optional(),
+    expectedVersion: z.number().int().min(0).optional(),
     autosave: z.boolean().default(false)
   })
 });

@@ -204,3 +204,18 @@ def test_sql_tenant_scope_on_state_and_correction(repo):
     assert other.get_current_state("story")["entities"] == {}
     with pytest.raises(KeyError):
         NarrativeApplicationService(other).propose_event_correction("story", proposals[0].proposal_id, {}, [], 1)
+
+
+def test_author_lock_survives_fact_acceptance(repo):
+    proposal = NarrativeProposal(str(uuid.uuid4()), 'fact', {
+        'fact_type': 'world_rule', 'fact_key': 'locked_rule',
+        'fact_value': 'Keep this author rule.', 'is_locked': True})
+    accept(repo, [proposal])
+    facts = repo.get_story_brain('story').facts
+    assert any(f['fact_key'] == 'locked_rule' and f['is_locked'] is True for f in facts)
+
+
+def test_author_lock_requires_boolean():
+    from domain.projection import validate_payload
+    with pytest.raises(ProjectionError, match='boolean'):
+        validate_payload('fact', {'fact_key': 'rule', 'fact_value': 'x', 'is_locked': 'false'})

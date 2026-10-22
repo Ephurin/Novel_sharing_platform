@@ -84,7 +84,9 @@ class WritingService:
             enforce_token_budget=False,
         )
 
-        package = replace(package, context_summary={**package.context_summary, 'query_text': semantic_query or ''})
+        package = replace(package, context_summary={**package.context_summary, 'query_text': semantic_query or '',
+            'semantic_retrieval_status': ['disabled' if self._semantic_retriever is None else 'not_requested'],
+            'semantic_embedding_version': [], 'semantic_memory_ids': []})
         retrieval_result = None
         if self._semantic_retriever is not None and semantic_query and semantic_query.strip():
             retrieval_result = self._semantic_retriever.retrieve(
@@ -437,6 +439,11 @@ class WritingService:
                 },
             )
             return self._repository.save_writing_job(failed_job)
+        if context_package.token_budget.get("protected_overflow"):
+            return self._repository.save_writing_job(replace(job, status="failed", stage="failed",
+                validation_status="failed", context_summary=context_package.context_summary,
+                error={"code": "CONTEXT_PROTECTED_BUDGET_EXCEEDED",
+                       "message": "Protected author context exceeds the available budget"}))
         prompt_context = self._context_packer.prompt_context(context_package)
         context_hash = hashlib.sha256(
             json.dumps(

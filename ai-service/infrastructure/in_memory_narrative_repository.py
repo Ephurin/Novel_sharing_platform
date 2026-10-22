@@ -353,7 +353,7 @@ class InMemoryNarrativeRepository:
                     "chapter_number": fact_ch,
                     "source_revision_id": rev_id,
                     "evidence": list(proposal.evidence),
-                    "is_locked": False,
+                    "is_locked": payload.get("is_locked", False),
                 })
                 if payload.get('subject_entity_id') and payload.get('fact_key') == 'status':
                     subject = next(e for e in entities if e.entity_id == payload['subject_entity_id'])

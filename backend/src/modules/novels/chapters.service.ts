@@ -138,6 +138,15 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
   const isPublishedDraftUpdate =
     chapter.status === 'PUBLISHED' && (input.title !== undefined || input.content !== undefined) && !isPublishedPricingOnlyUpdate;
 
+  let draft = existingDraft;
+  // Compare-and-swap happens before PostgreSQL metadata/revision/outbox writes.
+  if (input.title !== undefined || input.content !== undefined) {
+    if (!nextContent) throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+    draft = await upsertDraftChapter({ chapterId, novelId: chapter.novelId, authorId: auth.userId,
+      title: nextTitle, content: nextContent, wordCount, autosave: input.autosave,
+      expectedVersion: input.expectedVersion });
+  }
+
   let updatedChapter;
 
   if (isPublishedDraftUpdate) {
@@ -164,24 +173,6 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
 
   if (!updatedChapter) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
-  }
-
-  let draft = existingDraft;
-
-  if (input.title !== undefined || input.content !== undefined) {
-    if (!nextContent) {
-      throw new AppError(409, 'CONTENT_004', 'Invalid content state');
-    }
-
-    draft = await upsertDraftChapter({
-      chapterId,
-      novelId: chapter.novelId,
-      authorId: auth.userId,
-      title: nextTitle,
-      content: nextContent,
-      wordCount,
-      autosave: input.autosave
-    });
   }
 
   const revision = input.content !== undefined

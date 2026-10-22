@@ -731,6 +731,7 @@ class PostgresNarrativeRepository:
                         fact_type=str(payload.get("fact_type", "world_rule")),
                         fact_key=str(payload["fact_key"]),
                         fact_value=payload["fact_value"],
+                        is_locked=payload.get("is_locked", False),
                         supersedes_id=uuid.UUID(payload['supersedes_id']) if payload.get('supersedes_id') else None,
                         is_retired=bool(payload.get('is_retired', False)),
                         chapter_number=fact_ch,
@@ -2027,6 +2028,9 @@ class PostgresNarrativeRepository:
                 }
 
             context_summary = {
+                "temporal_origin_policy": ["known-source-cutoff_unknown-global-v1"],
+                "temporal_origin_unknown_entity_ids": [str(e.id) for e in raw_entities
+                    if (e.static_attributes or {}).get("first_chapter") is None],
                 "entity_ids": [e["entity_id"] for e in entities_out],
                 "event_ids": [ev["event_id"] for ev in events_out],
                 "fact_ids": [r["id"] for r in rules_out],
