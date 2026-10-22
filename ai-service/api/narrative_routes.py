@@ -1119,6 +1119,7 @@ def get_internal_writing_generation(
     return {
         "data": {
             "job_id": job.job_id,
+            "idempotency_key": job.idempotency_key,
             "novel_id": job.novel_id,
             "chapter_id": job.chapter_id,
             "revision_id": job.revision_id,

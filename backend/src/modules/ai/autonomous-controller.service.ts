@@ -255,6 +255,7 @@ export class AutonomousControllerService {
           userId: auth.userId,
         });
         if (existingJob && existingJob.status === 'completed'
+          && existingJob.novel_id === run.novel_id && existingJob.chapter_id === targetChapter.chapterId
           && typeof existingJob.idempotency_key === 'string'
           && existingJob.idempotency_key.startsWith(`auto-${run.run_id}-`)) {
           genJob = existingJob;
