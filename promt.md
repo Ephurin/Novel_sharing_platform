@@ -1,12 +1,23 @@
 # Active Project Handoff — Novel Sharing Platform AI
 
-## 0. CURRENT HOLD — WAIT FOR FE DEVELOPER PR REVIEWS (2026-10-22)
+## 0. ACTIVE PRIORITY — P1/P2/P3 HEADLESS CORE; HOLD FE INTEGRATION (2026-10-22)
 
-**Owner correction:** The previous directive to prioritize immediate P1 → P2 → P3 completion and allow Codex to independently replace FE implementation is **paused**. Do not start `THREE_USECASE_COMPLETION_TASK_2026-10-22.md`. Do not independently patch production frontend or integrate/cherry-pick PR #55 merely to bypass the review process. **Await completion of FE developer PR reviews and a fresh owner instruction** before resuming P1–P3 integration or S09 repair.
+**New owner decision:** Replace `HOLD_ALL` with **`HOLD_FE_INTEGRATION_ONLY`**. Codex should resume **P1 → P2 → P3 core workflows** now, not wait for FE developer reviews. However FE production/source work, Author IDE autosave, PR #52/#54/#55 and browser UI acceptance remain strictly on hold. The earlier instruction granting Codex full-stack FE ownership is **revoked**.
 
-While on hold, read-only inspection of FE PRs, contract/source compatibility and existing evidence is allowed when specifically requested. Keep FE developer ownership of production FE changes; existing S09 RED and Wave 1H findings remain unchanged. No automatic PR merges, provider calls, main writes or changes to unrelated Wallet/VIP tasks.
+**SINGLE ACTIVE CODEX TASK:** [Pipeline_test/P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md](Pipeline_test/P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md). `Pipeline_test/ACTIVE_GEMINI_TASK.md` must point to the same active task. The parked [THREE_USECASE_COMPLETION_TASK_2026-10-22.md](Pipeline_test/THREE_USECASE_COMPLETION_TASK_2026-10-22.md) is **not authorized** until FE review and a new explicit decision.
 
-The three-use-case completion plan is **retained for later** under `Pipeline_test/THREE_USECASE_COMPLETION_TASK_2026-10-22.md`, but is not the active instruction. Previous sections below describe historical plans or separately owned work; this hold takes precedence for Codex.
+**Product priority:**
+1. **P1 headless CORE** — existing manuscript → real approved durable Story Brain → writing/immutable revisions/outbox/memory; resolve Wave 1H provenance gaps by supported APIs and read-only DB evidence.
+2. **P2 headless CORE** — idea/setup → explicit entity review and baseline → future Story Plan → first chapter → shared writing loop.
+3. **P3 headless CORE** — bounded multi-objective controller with/without plan, HITL gate, resume/failure safety, draft-only persistence; final 100k–105k canonical finished-novel acceptance later and separately authorized.
+
+**Ownership:** Codex may implement/repair backend, AI Service, migrations in isolated test DBs, and a headless API E2E harness **on `codex/ai-copilot-pipeline-test` only**. FE developer exclusively owns FE PR code; do not edit `web/`, cherry-pick, merge or self-patch production frontend. GPT-6 independently reviews evidence and gate decisions. Existing separately owned Wallet/VIP work is unaffected.
+
+**Evidence boundary:** `CORE_OFFLINE_PASS` through real HTTP + durable DB is distinct from `UI_E2E_PASS`, `LIVE_PROVIDER_PASS`, semantic RAG quality, literary quality and P3 100k completion. Scripted API-mediated human decisions are `SIMULATED_HUMAN_VIA_API`, not human UI acceptance. Do not mark S09 browser GREEN; historical Wave 1G S09 RED remains. Keep `WORKFLOW_CONTRACT.md` v1.4 intact.
+
+**Hard safety boundary:** ZERO actual external Gemini/OpenAI/embedding calls until renewed explicit authorization. Isolated fake provider and test-owned stack only; no historical evidence/gold/ledger mutation, no production data writes, no auto publication, no main or FE branch writes, no PR merge.
+
+This section supersedes conflicting instructions below in §4/§5/§7, which are historical or independently assigned tasks. Proceed immediately with the first P1 headless slice in the linked active task and commit/push sanitized evidence for remote review.
 
 ---
 
