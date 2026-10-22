@@ -251,3 +251,15 @@ class AutonomousRouteTests(unittest.TestCase):
         conflicts = [r for r in results if r.status_code == 409]
         self.assertEqual(conflicts[0].json()["detail"]["code"], "ACTIVE_RUN_CONFLICT")
 
+
+    def test_resume_can_explicitly_clear_HITL_stop_reason(self):
+        created = self.client.post('/v1/autonomous/runs', json={'novel_id': self.novel_id}, headers=self.headers)
+        self.assertEqual(created.status_code, 201)
+        path = '/v1/autonomous/runs/' + created.json()['data']['run_id']
+        paused = self.client.patch(path, json={'stop_reason': 'waiting_for_entity_review'}, headers=self.headers)
+        self.assertEqual(paused.json()['data']['stop_reason'], 'waiting_for_entity_review')
+        unchanged = self.client.patch(path, json={'current_iteration': 1}, headers=self.headers)
+        self.assertEqual(unchanged.json()['data']['stop_reason'], 'waiting_for_entity_review')
+        resumed = self.client.patch(path, json={'stop_reason': None}, headers=self.headers)
+        self.assertIsNone(resumed.json()['data']['stop_reason'])
+        self.assertIsNone(self.client.get(path, headers=self.headers).json()['data']['stop_reason'])

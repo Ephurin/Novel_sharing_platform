@@ -496,7 +496,7 @@ def update_autonomous_run(
         last_generation_id=payload.last_generation_id if payload.last_generation_id is not None else current.last_generation_id,
         last_accepted_revision_id=payload.last_accepted_revision_id if payload.last_accepted_revision_id is not None else current.last_accepted_revision_id,
         last_brain_version=payload.last_brain_version if payload.last_brain_version is not None else current.last_brain_version,
-        stop_reason=payload.stop_reason if payload.stop_reason is not None else current.stop_reason,
+        stop_reason=payload.stop_reason if "stop_reason" in payload.model_fields_set else current.stop_reason,
     )
     saved = repository.update_autonomous_run(updated)
     return {
