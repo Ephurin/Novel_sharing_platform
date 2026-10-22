@@ -1,4 +1,20 @@
-# ACTIVE CODING AGENT TASK — P1 Wave 1G (S09 autosave, OFFLINE ONLY)
+# ACTIVE CODEX TASK — THREE USE CASE DELIVERY (P1 → P2 → P3)
+
+**Updated:** 2026-10-22 (Asia/Bangkok). **Permitted branch:** `codex/ai-copilot-pipeline-test`.
+**Single current Codex instruction:** [THREE_USECASE_COMPLETION_TASK_2026-10-22.md](THREE_USECASE_COMPLETION_TASK_2026-10-22.md).
+**Project command:** [../promt.md](../promt.md), section 0. **Behavior contract:** [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
+
+**Priority:** Finish the usable product journeys **P1 existing manuscript**, **P2 idea/setup**, **P3 controller + mandatory later 100k terminal**. Implement and integrate backend/AI/necessary FE and real-browser E2E on this isolated branch. Codex **may independently fix S09**; FE Issue #56 / PR #55 is useful provenance, **not a required handoff or stop reason**. Do not cherry-pick the entire PR or modify others' branches; require version/409/DB compatibility and real browser readbacks.
+
+**Current evidence boundary:** Wave 1H independently proved synthetic in-memory HTTP context/hash parity (17/17 tests), but durable approved canon, same-novel tenant authorization, seeded future entity and attached Story Plan were NOT accepted. Include these in P1 completion, not endless stand-alone diagnostic waves. P1 S09 has documented real browser RED; S10/S11 NOT_RUN. Prior main CI successes are historical, not current v1.4 acceptance.
+
+**Safety:** OFFLINE fake provider only; zero external LLM/embedding calls without renewed explicit approval. Preserve old runs, source gold, reports and immutable evidence, test data isolation and no automatic publishing. Full P1/P2/P3 live and P3 100k acceptance **cannot** be claimed from fake-model runs. Code/evidence only on pipeline branch; no unreviewed merge.
+
+The directives below are **archived task history**, retained for provenance. They no longer control Codex priority, FE ownership or stop rules.
+
+---
+
+# HISTORICAL CODING AGENT TASK — P1 Wave 1G (S09 autosave, OFFLINE ONLY)
 
 **Updated:** 2026-10-22 (Asia/Bangkok). **Permitted branch:** `codex/ai-copilot-pipeline-test`. **Single ACTIVE Codex instruction:** [P1_WAVE_1G_S09_AUTOSAVE_HANDOFF.md](P1_WAVE_1G_S09_AUTOSAVE_HANDOFF.md). This replaces the earlier Wave 1F active pointer below. **Root cause of stop:** [GitHub issue #56](https://github.com/Ephurin/Novel_sharing_platform/issues/56), reported to FE dev on [PR #55](https://github.com/Ephurin/Novel_sharing_platform/pull/55). Wave 1F source/evidence at `8db9839` shows S01–S08 functional **offline** with fake provider and S09 **real Playwright FAIL** from stale autosave. S10/S11 NOT_RUN.
 
