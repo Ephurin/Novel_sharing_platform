@@ -68,6 +68,10 @@ try {
   const owner = await api('GET',path,a.accessToken,200);
   assert.equal(owner.draft.content,marker);
   assert.equal(owner.draft.version,chapter.draftVersion);
+  const privateNovelMetadata = await api('GET',`/novels/${novel.novelId}`,undefined,200);
+  assert.equal(privateNovelMetadata.status,'DRAFT');
+  assert.ok(!JSON.stringify(privateNovelMetadata).includes(marker));
+  checks.push('public legacy novel detail exposes draft novel metadata, not chapter bodies; policy review remains');
   const before = await snapshot();
   for (const token of [undefined,b.accessToken]) {
     const result = await api('GET',path,token,red ? 200 : token ? 403 : 401);
@@ -117,6 +121,18 @@ try {
   const catalog = await api('GET',`/reading/novels/${novel.novelId}`,undefined,200);
   assert.ok(!JSON.stringify(catalog).includes(marker));
   assert.ok(!JSON.stringify(catalog).includes('CANONICAL_PUBLIC_FIXTURE'));
+  if (!red) {
+    // Synthetic fixture coins only; exercise existing entitlement API without payments.
+    await pool.query('update wallets set coins_balance=10 where user_id=$1',[reader.user.userId]);
+    await api('POST',`/chapters/${chapter.chapterId}/unlock`,reader.accessToken,200);
+    const unlocked = await api('GET',`/reading/chapters/${chapter.chapterId}`,reader.accessToken,200);
+    assert.equal(unlocked.content,'CANONICAL_PUBLIC_FIXTURE');
+    assert.ok(!JSON.stringify(unlocked).includes(marker));
+    await api('GET',path,reader.accessToken,403);
+    await api('GET',list,reader.accessToken,403);
+    await api('GET',`/reading/chapters/${chapter.chapterId}`,b.accessToken,402);
+    await api('GET',`/reading/chapters/${chapter.chapterId}`,undefined,402);
+  }
   const novelPublic = await api('GET',`/novels/${novel.novelId}`,undefined,200);
   assert.ok(!JSON.stringify(novelPublic).includes(marker));
   if (red) {
