@@ -1,0 +1,23 @@
+{
+  "tested_sha": "b5c9c8db6bfd976f37d8811c2db45ad40691fd99",
+  "args": [
+    "-m",
+    "not postgres_integration",
+    "--basetemp=.pytest_tmp",
+    "tests/test_context_budget.py",
+    "tests/test_context_routing.py",
+    "tests/test_manuscript_bootstrap.py",
+    "tests/test_entity_review_workflow.py",
+    "tests/test_revision_analysis_workflow.py",
+    "tests/test_entity_cutoff_provenance.py",
+    "tests/test_narrative_repository_contract.py",
+    "tests/test_canon_revision_reconciliation.py",
+    "-q",
+    "-ra",
+    "--basetemp=C:\\Users\\thaib\\AppData\\Local\\Temp\\p123-final-tests-a46b735a0f7747b5a4edfe37ad8ddc8c",
+    "--junitxml=C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\ai-final-junit.xml"
+  ],
+  "exit_code": 0,
+  "egress_guard": "non-loopback DNS denied",
+  "scope": "Offline unit/repository regressions; SQL variant uses SQLite, real PostgreSQL tested separately"
+}

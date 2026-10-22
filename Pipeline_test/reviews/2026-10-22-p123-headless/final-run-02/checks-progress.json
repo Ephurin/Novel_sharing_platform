@@ -1,0 +1,122 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "source_hash_ch1",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "source_hash_ch2",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "source_hash_ch3",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "source_hash_ch4",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "source_hash_ch5",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "same_novel_wrong_authenticated_author_denied",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_e688bfd9-6a77-4e3f-a4b9-4d2a509271f0",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_8fc4c05a-fc9c-4b8e-bad1-0a98db89741e",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_5a09b74a-f4cb-4229-9f36-6d61ce182596",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_bae8753b-5f37-4679-81a1-bc49c6ab5b5a",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_0431d452-a5ca-4121-889f-6d56872b0333",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "canon_unchanged_until_approval",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "nonempty_approved_canon",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "approved_memory_survives_process_restart",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "attached_plan_not_historical_memory",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "outbound_matches_durable_context_hash",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "future_plan_attached_in_actual_outbound",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "future_plan_not_outbound_historical_event",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "stale_brain_version_rejected",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "ordinary_save_creates_revision",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "identical_save_reuses_immutable_revision",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "stale_revision_reanalysis_rejected",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_f1db10bb-8c7c-4215-94a5-120ca25170a3",
+    "status": "PASS",
+    "details": null
+  }
+]

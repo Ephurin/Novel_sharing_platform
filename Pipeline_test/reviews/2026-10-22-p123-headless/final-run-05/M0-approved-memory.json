@@ -1,0 +1,420 @@
+{
+  "story_id": "14300d20-a248-4d3c-8be0-947766ba2f61",
+  "entities": [
+    {
+      "name": "Duy",
+      "entity_id": "467fe4a0-1109-431d-9fa1-6803b5b3c964",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Linh",
+      "entity_id": "f551cba5-9b67-413e-9012-cb481eaef5f4",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Hòa",
+      "entity_id": "275f602d-8e86-4dfc-96fc-2542d0f14be2",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Bốn",
+      "entity_id": "f30ae032-0f2a-4006-884c-f22a9042f75d",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "CV-04",
+      "entity_id": "2f419e3b-805b-4695-91b0-8e1a780625b7",
+      "entity_type": "ITEM",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Bãi Dưới",
+      "entity_id": "dc278c7d-2a87-49c3-8875-40df84cd433d",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Sâm",
+      "entity_id": "1894e9e3-a8c5-4c64-90fd-625227301007",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Bà Sâm",
+      "entity_id": "ef1f31c6-1413-47cb-8727-b32ccb5e05c6",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Yên",
+      "entity_id": "d954de00-144b-463d-acf9-c1a0d58049b4",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Cồn Vân",
+      "entity_id": "40584ca3-ec8b-4c23-8bcb-606d28f3e96a",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Đồi Bắc",
+      "entity_id": "35ed3181-1b65-43af-923d-b41454d8a13c",
+      "entity_type": "LOC",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Nguyễn Vũ",
+      "entity_id": "9069c1ef-f372-4367-b757-0fd53da13147",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Vũ",
+      "entity_id": "051240ae-c1e3-4f08-9846-255851b77857",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Mai Linh",
+      "entity_id": "064005c3-76fb-45dc-b216-67634b5e7b22",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Mai Lâm",
+      "entity_id": "e323a003-3af0-4dff-8a2d-ac469ce200fd",
+      "entity_type": "PER",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  ],
+  "aliases": [
+    {
+      "alias_id": "102efdae-6c5f-455f-b6db-ed1849eb269f",
+      "entity_id": "064005c3-76fb-45dc-b216-67634b5e7b22",
+      "alias": "Linh",
+      "normalized_alias": "linh"
+    }
+  ],
+  "mentions": [],
+  "facts": [
+    {
+      "fact_id": "8d4da4c9-4637-446b-8c2d-0deb1d316339",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false,
+      "chapter_number": 2,
+      "source_revision_id": "f00be0ea-99cb-49f2-a967-820526f38c93",
+      "source_start": 0,
+      "source_end": 130,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "c07734d6-3017-47c8-b165-743aff86c595",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "unverified_voice_attribution",
+      "fact_value": {
+        "value": "Linh nhận ra giọng giống cha, cần mẫu đối chứng; chưa xác minh danh tính",
+        "subject": "",
+        "certainty": "reported"
+      },
+      "is_locked": false,
+      "chapter_number": 2,
+      "source_revision_id": "f00be0ea-99cb-49f2-a967-820526f38c93",
+      "source_start": 3004,
+      "source_end": 3067,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "c689ec19-5466-43a1-a077-edca5dd0642d",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false,
+      "chapter_number": 5,
+      "source_revision_id": "844b9836-93d0-476f-9eab-5e6bc42056dc",
+      "source_start": 0,
+      "source_end": 133,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "9a386aa7-0224-480b-a6fe-7d05737c3be8",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false,
+      "chapter_number": 3,
+      "source_revision_id": "702732d8-3152-4fae-95e8-184f973521a4",
+      "source_start": 0,
+      "source_end": 209,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "5b91df45-bab0-4605-baa2-19e425e38443",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false,
+      "chapter_number": 4,
+      "source_revision_id": "272ac36d-5eb8-4052-9162-520e5d7aca02",
+      "source_start": 0,
+      "source_end": 127,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "3cd01eec-29b2-4327-8b45-56054299c1da",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "5de66b85-948e-4210-95a9-089ec461188b",
+      "source_start": 0,
+      "source_end": 184,
+      "supersedes_id": null,
+      "is_retired": false
+    }
+  ],
+  "relations": [],
+  "events": [
+    {
+      "event_id": "1c4b500d-f8ba-5b25-b3e7-d2c2d32dbba4",
+      "event_type": "observation",
+      "participants": [],
+      "summary": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+      "chapter": 2,
+      "metadata": {
+        "chapter": 2,
+        "summary": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+        "evidence": [
+          {
+            "end": 130,
+            "quote": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+            "start": 0,
+            "text_hash": "48ea6a60c4e604370efc18db1b7baeebd48f93109d2d14fb19c9f4f8dcc2b404",
+            "chapter_id": "ec759128-1c20-4032-865a-84e2a35a9b69",
+            "revision_id": "f00be0ea-99cb-49f2-a967-820526f38c93",
+            "chapter_number": 2
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 2,
+        "reconciliation_base_ids": [],
+        "narrative_order": 1024
+      }
+    },
+    {
+      "event_id": "89a26b7d-3e90-51b0-8590-7502d540b9f5",
+      "event_type": "observation",
+      "participants": [],
+      "summary": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+      "chapter": 5,
+      "metadata": {
+        "chapter": 5,
+        "summary": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+        "evidence": [
+          {
+            "end": 133,
+            "quote": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+            "start": 0,
+            "text_hash": "6549fdfb9c1ff5a5cca74b8b77f09adff8ea67699944ade84c0de788c8a4c0c5",
+            "chapter_id": "a4437c72-4ff0-4970-b0a1-972f43e8d07e",
+            "revision_id": "844b9836-93d0-476f-9eab-5e6bc42056dc",
+            "chapter_number": 5
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 5,
+        "reconciliation_base_ids": [],
+        "narrative_order": 2048
+      }
+    },
+    {
+      "event_id": "cd06ac01-fd11-5bfb-a6ed-e4697471b0a7",
+      "event_type": "observation",
+      "participants": [],
+      "summary": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+      "chapter": 3,
+      "metadata": {
+        "chapter": 3,
+        "summary": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+        "evidence": [
+          {
+            "end": 209,
+            "quote": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+            "start": 0,
+            "text_hash": "5d866c2959a38c410d47c05c79ce0da0952cc2b3f2bd5b202122703d008345ac",
+            "chapter_id": "4a401873-80d1-4324-a587-afd5edf3f1e9",
+            "revision_id": "702732d8-3152-4fae-95e8-184f973521a4",
+            "chapter_number": 3
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 3,
+        "reconciliation_base_ids": [],
+        "narrative_order": 3072
+      }
+    },
+    {
+      "event_id": "4d1e0446-7dd4-5086-8ff2-a4ff4553fbf3",
+      "event_type": "observation",
+      "participants": [],
+      "summary": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+      "chapter": 4,
+      "metadata": {
+        "chapter": 4,
+        "summary": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+        "evidence": [
+          {
+            "end": 127,
+            "quote": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+            "start": 0,
+            "text_hash": "19539200da6e5b436e3b042a12f806bbbb7f6efcec4466a308969badeaa0932b",
+            "chapter_id": "05b4319d-54f4-4b9f-96f5-35b10dbe9c9d",
+            "revision_id": "272ac36d-5eb8-4052-9162-520e5d7aca02",
+            "chapter_number": 4
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 4,
+        "reconciliation_base_ids": [],
+        "narrative_order": 4096
+      }
+    },
+    {
+      "event_id": "a632e3f7-47cd-59fe-bf09-73dcdfe4fe15",
+      "event_type": "observation",
+      "participants": [],
+      "summary": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "evidence": [
+          {
+            "end": 184,
+            "quote": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+            "start": 0,
+            "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+            "chapter_id": "d36f6f58-93e4-43b5-af11-cd5f6adf0ef6",
+            "revision_id": "5de66b85-948e-4210-95a9-089ec461188b",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 1,
+        "reconciliation_base_ids": [],
+        "narrative_order": 5120
+      }
+    }
+  ],
+  "transitions": [],
+  "current_state": {
+    "entities": {},
+    "provenance": {},
+    "relationships": [],
+    "projection_version": 1
+  },
+  "metadata": {
+    "brain_id": "b2837620-6e76-4d91-987c-60a013863e7b",
+    "brain_version": "6",
+    "status": "active",
+    "baseline_revision_id": "844b9836-93d0-476f-9eab-5e6bc42056dc"
+  }
+}

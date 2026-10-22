@@ -1,0 +1,14 @@
+{
+  "project": "p123-core-18c208421c",
+  "env_file": "Pipeline_test\\tools\\.env.p123-core-18c208421c",
+  "source_sha": "eca4a000d1bd114d16af0b77871a45a26e777a21",
+  "ports": {
+    "WAVE1D_WEB_PORT": "53451",
+    "WAVE1D_BACKEND_PORT": "53452",
+    "WAVE1D_AI_PORT": "53453",
+    "WAVE1D_GATE_PORT": "53454",
+    "WAVE1D_FAKE_PORT": "53455"
+  },
+  "new_resources_only": true,
+  "runtime_started": false
+}

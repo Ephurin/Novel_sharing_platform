@@ -1,0 +1,177 @@
+[
+  {
+    "id": "1c4b500d-f8ba-5b25-b3e7-d2c2d32dbba4",
+    "story_brain_id": "b2837620-6e76-4d91-987c-60a013863e7b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "14300d20-a248-4d3c-8be0-947766ba2f61",
+    "narrative_order": 1024,
+    "event_type": "observation",
+    "summary": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+    "participants": [],
+    "event_metadata": {
+      "chapter": 2,
+      "summary": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+      "evidence": [
+        {
+          "end": 130,
+          "quote": "Duy đến lúc điện trong kho vừa tắt lần thứ hai. Anh đứng ở cửa với một hộp dụng cụ kim loại và nhìn chiếc quạt đang quay chậm dần.",
+          "start": 0,
+          "text_hash": "48ea6a60c4e604370efc18db1b7baeebd48f93109d2d14fb19c9f4f8dcc2b404",
+          "chapter_id": "ec759128-1c20-4032-865a-84e2a35a9b69",
+          "revision_id": "f00be0ea-99cb-49f2-a967-820526f38c93",
+          "chapter_number": 2
+        }
+      ],
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 2,
+      "reconciliation_base_ids": []
+    },
+    "chapter_number": 2,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "created_at": "2026-10-22T05:15:16.271066+00:00"
+  },
+  {
+    "id": "89a26b7d-3e90-51b0-8590-7502d540b9f5",
+    "story_brain_id": "b2837620-6e76-4d91-987c-60a013863e7b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "14300d20-a248-4d3c-8be0-947766ba2f61",
+    "narrative_order": 2048,
+    "event_type": "observation",
+    "summary": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+    "participants": [],
+    "event_metadata": {
+      "chapter": 5,
+      "summary": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+      "evidence": [
+        {
+          "end": 133,
+          "quote": "Duy không mở cửa thêm. Anh chèn một miếng gỗ vào khe, buộc dây cảnh báo qua hai trụ lan can rồi bảo Linh lùi về phần sàn có ánh sáng.",
+          "start": 0,
+          "text_hash": "6549fdfb9c1ff5a5cca74b8b77f09adff8ea67699944ade84c0de788c8a4c0c5",
+          "chapter_id": "a4437c72-4ff0-4970-b0a1-972f43e8d07e",
+          "revision_id": "844b9836-93d0-476f-9eab-5e6bc42056dc",
+          "chapter_number": 5
+        }
+      ],
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 5,
+      "reconciliation_base_ids": []
+    },
+    "chapter_number": 5,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "created_at": "2026-10-22T05:15:16.428319+00:00"
+  },
+  {
+    "id": "cd06ac01-fd11-5bfb-a6ed-e4697471b0a7",
+    "story_brain_id": "b2837620-6e76-4d91-987c-60a013863e7b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "14300d20-a248-4d3c-8be0-947766ba2f61",
+    "narrative_order": 3072,
+    "event_type": "observation",
+    "summary": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+    "participants": [],
+    "event_metadata": {
+      "chapter": 3,
+      "summary": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+      "evidence": [
+        {
+          "end": 209,
+          "quote": "Bà Sâm bán cháo ở chỗ con hẻm hẹp đến mức hai người mang ô phải nghiêng vai tránh nhau. Trên tường sau bếp có một mảng vôi mới, trắng hơn mọi thứ xung quanh. Linh ngồi xuống ghế thấp, đầu gối gần chạm mặt bàn.",
+          "start": 0,
+          "text_hash": "5d866c2959a38c410d47c05c79ce0da0952cc2b3f2bd5b202122703d008345ac",
+          "chapter_id": "4a401873-80d1-4324-a587-afd5edf3f1e9",
+          "revision_id": "702732d8-3152-4fae-95e8-184f973521a4",
+          "chapter_number": 3
+        }
+      ],
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 3,
+      "reconciliation_base_ids": []
+    },
+    "chapter_number": 3,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "created_at": "2026-10-22T05:15:16.538876+00:00"
+  },
+  {
+    "id": "4d1e0446-7dd4-5086-8ff2-a4ff4553fbf3",
+    "story_brain_id": "b2837620-6e76-4d91-987c-60a013863e7b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "14300d20-a248-4d3c-8be0-947766ba2f61",
+    "narrative_order": 4096,
+    "event_type": "observation",
+    "summary": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+    "participants": [],
+    "event_metadata": {
+      "chapter": 4,
+      "summary": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+      "evidence": [
+        {
+          "end": 127,
+          "quote": "Sáng ngày thứ hai, Cồn Vân không mưa. Mặt kênh phẳng đến mức những vết nứt trên tường nhà in xuống nước trông sâu hơn vết thật.",
+          "start": 0,
+          "text_hash": "19539200da6e5b436e3b042a12f806bbbb7f6efcec4466a308969badeaa0932b",
+          "chapter_id": "05b4319d-54f4-4b9f-96f5-35b10dbe9c9d",
+          "revision_id": "272ac36d-5eb8-4052-9162-520e5d7aca02",
+          "chapter_number": 4
+        }
+      ],
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 4,
+      "reconciliation_base_ids": []
+    },
+    "chapter_number": 4,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "created_at": "2026-10-22T05:15:16.681419+00:00"
+  },
+  {
+    "id": "a632e3f7-47cd-59fe-bf09-73dcdfe4fe15",
+    "story_brain_id": "b2837620-6e76-4d91-987c-60a013863e7b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "14300d20-a248-4d3c-8be0-947766ba2f61",
+    "narrative_order": 5120,
+    "event_type": "observation",
+    "summary": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+    "participants": [],
+    "event_metadata": {
+      "chapter": 1,
+      "summary": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+      "evidence": [
+        {
+          "end": 184,
+          "quote": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+          "start": 0,
+          "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+          "chapter_id": "d36f6f58-93e4-43b5-af11-cd5f6adf0ef6",
+          "revision_id": "5de66b85-948e-4210-95a9-089ec461188b",
+          "chapter_number": 1
+        }
+      ],
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 1,
+      "reconciliation_base_ids": []
+    },
+    "chapter_number": 1,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "created_at": "2026-10-22T05:15:16.824523+00:00"
+  }
+]

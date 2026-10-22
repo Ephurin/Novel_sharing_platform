@@ -1,0 +1,66 @@
+{
+  "channel": "READ_ONLY_SERVICE_AUTH_HTTP_DIAGNOSTIC",
+  "source": "Actual accepted entity proposals and immutable revision evidence; not fabricated future entity",
+  "earliest_approved_source_chapters": {
+    "Bà Sâm": 1,
+    "Sâm": 1,
+    "Linh": 1,
+    "CV-04": 1,
+    "Cồn Vân": 1,
+    "Duy": 2,
+    "Đồi Bắc": 1,
+    "Bốn": 1,
+    "Yên": 1,
+    "Hòa": 1,
+    "Bãi Dưới": 1,
+    "Nguyễn Vũ": 4,
+    "Vũ": 4,
+    "Mai Linh": 1,
+    "Mai Lâm": 1
+  },
+  "status": "FAIL",
+  "leaks": [
+    {
+      "cutoff": 1,
+      "entity_id": "034ba649-e50f-4d89-bb3d-b5b35bb803b8",
+      "name": "Duy",
+      "first_approved_source_chapter": 2
+    },
+    {
+      "cutoff": 1,
+      "entity_id": "8edb388c-a524-4207-b812-8b3bf484bedd",
+      "name": "Nguyễn Vũ",
+      "first_approved_source_chapter": 4
+    },
+    {
+      "cutoff": 1,
+      "entity_id": "8be66ea8-34ce-41ac-a2ea-292dbf210de6",
+      "name": "Vũ",
+      "first_approved_source_chapter": 4
+    },
+    {
+      "cutoff": 2,
+      "entity_id": "8edb388c-a524-4207-b812-8b3bf484bedd",
+      "name": "Nguyễn Vũ",
+      "first_approved_source_chapter": 4
+    },
+    {
+      "cutoff": 2,
+      "entity_id": "8be66ea8-34ce-41ac-a2ea-292dbf210de6",
+      "name": "Vũ",
+      "first_approved_source_chapter": 4
+    },
+    {
+      "cutoff": 3,
+      "entity_id": "8edb388c-a524-4207-b812-8b3bf484bedd",
+      "name": "Nguyễn Vũ",
+      "first_approved_source_chapter": 4
+    },
+    {
+      "cutoff": 3,
+      "entity_id": "8be66ea8-34ce-41ac-a2ea-292dbf210de6",
+      "name": "Vũ",
+      "first_approved_source_chapter": 4
+    }
+  ]
+}

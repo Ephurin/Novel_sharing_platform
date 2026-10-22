@@ -1,0 +1,21 @@
+{
+  "tested_sha": "30258f8a2819f51427f61c33a2e86f088c86dba1",
+  "args": [
+    "-m",
+    "not postgres_integration",
+    "--basetemp=.pytest_tmp",
+    "tests/test_context_budget.py",
+    "tests/test_context_routing.py",
+    "tests/test_manuscript_bootstrap.py",
+    "tests/test_entity_review_workflow.py",
+    "tests/test_revision_analysis_workflow.py",
+    "-q",
+    "-ra",
+    "--basetemp=C:\\Users\\thaib\\AppData\\Local\\Packages\\sandbox.{50c12c8b-11b0-4b48-a86d-ae2149a2c3e4}\\AC\\Temp\\p123-core-tests-044448537abe4ad19b621371a66a696b",
+    "--junitxml=C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\ai-targeted-junit.xml"
+  ],
+  "exit_code": 1,
+  "egress_guard": "non-loopback DNS denied",
+  "prior_container_attempt_exit": 137,
+  "prior_container_attempt": "No result; not PASS. Repeated on host with guarded fake-only unit dependencies and dedicated temp directory."
+}

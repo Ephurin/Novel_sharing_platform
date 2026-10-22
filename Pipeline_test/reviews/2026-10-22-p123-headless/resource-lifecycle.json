@@ -1,0 +1,251 @@
+{
+  "owned_projects_only": true,
+  "final_state": "ALL_TEST_PROCESSES_STOPPED_VOLUMES_RETAINED",
+  "projects": [
+    {
+      "project": "p123-core-18c208421c",
+      "containers": [
+        {
+          "name": "p123-core-18c208421c-api-ingress-1",
+          "status": "Exited (137) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-18c208421c-backend-1",
+          "status": "Exited (1) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-18c208421c-ai-service-1",
+          "status": "Exited (137) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-18c208421c-budget-gateway-1",
+          "status": "Exited (137) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-18c208421c-fake-upstream-1",
+          "status": "Exited (137) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-18c208421c-postgres-1",
+          "status": "Exited (0) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-18c208421c-mongodb-1",
+          "status": "Exited (0) 24 minutes ago"
+        }
+      ],
+      "volumes_retained": true,
+      "no_database_drop": true
+    },
+    {
+      "project": "p123-core-216fbd38ac",
+      "containers": [
+        {
+          "name": "p123-core-216fbd38ac-api-ingress-1",
+          "status": "Exited (137) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-216fbd38ac-backend-1",
+          "status": "Exited (1) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-216fbd38ac-ai-service-1",
+          "status": "Exited (137) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-216fbd38ac-budget-gateway-1",
+          "status": "Exited (137) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-216fbd38ac-fake-upstream-1",
+          "status": "Exited (137) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-216fbd38ac-mongodb-1",
+          "status": "Exited (0) 24 minutes ago"
+        },
+        {
+          "name": "p123-core-216fbd38ac-postgres-1",
+          "status": "Exited (0) 24 minutes ago"
+        }
+      ],
+      "volumes_retained": true,
+      "no_database_drop": true
+    },
+    {
+      "project": "p123-core-82c260aa78",
+      "containers": [
+        {
+          "name": "p123-core-82c260aa78-api-ingress-1",
+          "status": "Exited (137) 21 minutes ago"
+        },
+        {
+          "name": "p123-core-82c260aa78-backend-1",
+          "status": "Exited (1) 21 minutes ago"
+        },
+        {
+          "name": "p123-core-82c260aa78-ai-service-1",
+          "status": "Exited (137) 21 minutes ago"
+        },
+        {
+          "name": "p123-core-82c260aa78-budget-gateway-1",
+          "status": "Exited (137) 21 minutes ago"
+        },
+        {
+          "name": "p123-core-82c260aa78-fake-upstream-1",
+          "status": "Exited (137) 21 minutes ago"
+        },
+        {
+          "name": "p123-core-82c260aa78-postgres-1",
+          "status": "Exited (0) 21 minutes ago"
+        },
+        {
+          "name": "p123-core-82c260aa78-mongodb-1",
+          "status": "Exited (0) 21 minutes ago"
+        }
+      ],
+      "volumes_retained": true,
+      "no_database_drop": true
+    },
+    {
+      "project": "p123-core-d898496dad",
+      "containers": [
+        {
+          "name": "p123-core-d898496dad-api-ingress-1",
+          "status": "Exited (137) 18 minutes ago"
+        },
+        {
+          "name": "p123-core-d898496dad-backend-1",
+          "status": "Exited (1) 18 minutes ago"
+        },
+        {
+          "name": "p123-core-d898496dad-ai-service-1",
+          "status": "Exited (137) 17 minutes ago"
+        },
+        {
+          "name": "p123-core-d898496dad-budget-gateway-1",
+          "status": "Exited (137) 17 minutes ago"
+        },
+        {
+          "name": "p123-core-d898496dad-fake-upstream-1",
+          "status": "Exited (137) 17 minutes ago"
+        },
+        {
+          "name": "p123-core-d898496dad-postgres-1",
+          "status": "Exited (0) 17 minutes ago"
+        },
+        {
+          "name": "p123-core-d898496dad-mongodb-1",
+          "status": "Exited (0) 18 minutes ago"
+        }
+      ],
+      "volumes_retained": true,
+      "no_database_drop": true
+    },
+    {
+      "project": "p123-core-de579cb3b7",
+      "containers": [
+        {
+          "name": "p123-core-de579cb3b7-api-ingress-1",
+          "status": "Exited (137) 10 minutes ago"
+        },
+        {
+          "name": "p123-core-de579cb3b7-backend-1",
+          "status": "Exited (1) 10 minutes ago"
+        },
+        {
+          "name": "p123-core-de579cb3b7-ai-service-1",
+          "status": "Exited (137) 10 minutes ago"
+        },
+        {
+          "name": "p123-core-de579cb3b7-budget-gateway-1",
+          "status": "Exited (137) 10 minutes ago"
+        },
+        {
+          "name": "p123-core-de579cb3b7-fake-upstream-1",
+          "status": "Exited (137) 10 minutes ago"
+        },
+        {
+          "name": "p123-core-de579cb3b7-mongodb-1",
+          "status": "Exited (0) 10 minutes ago"
+        },
+        {
+          "name": "p123-core-de579cb3b7-postgres-1",
+          "status": "Exited (0) 10 minutes ago"
+        }
+      ],
+      "volumes_retained": true,
+      "no_database_drop": true
+    },
+    {
+      "project": "p123-core-3b5417efca",
+      "containers": [
+        {
+          "name": "p123-core-3b5417efca-api-ingress-1",
+          "status": "Exited (137) 7 minutes ago"
+        },
+        {
+          "name": "p123-core-3b5417efca-backend-1",
+          "status": "Exited (1) 7 minutes ago"
+        },
+        {
+          "name": "p123-core-3b5417efca-ai-service-1",
+          "status": "Exited (137) 7 minutes ago"
+        },
+        {
+          "name": "p123-core-3b5417efca-budget-gateway-1",
+          "status": "Exited (137) 6 minutes ago"
+        },
+        {
+          "name": "p123-core-3b5417efca-fake-upstream-1",
+          "status": "Exited (137) 6 minutes ago"
+        },
+        {
+          "name": "p123-core-3b5417efca-postgres-1",
+          "status": "Exited (0) 7 minutes ago"
+        },
+        {
+          "name": "p123-core-3b5417efca-mongodb-1",
+          "status": "Exited (0) 7 minutes ago"
+        }
+      ],
+      "volumes_retained": true,
+      "no_database_drop": true
+    },
+    {
+      "project": "p123-core-19b78b27ae",
+      "containers": [
+        {
+          "name": "p123-core-19b78b27ae-api-ingress-1",
+          "status": "Exited (137) 12 seconds ago"
+        },
+        {
+          "name": "p123-core-19b78b27ae-backend-1",
+          "status": "Exited (1) 11 seconds ago"
+        },
+        {
+          "name": "p123-core-19b78b27ae-ai-service-1",
+          "status": "Exited (137) 8 seconds ago"
+        },
+        {
+          "name": "p123-core-19b78b27ae-budget-gateway-1",
+          "status": "Exited (137) 5 seconds ago"
+        },
+        {
+          "name": "p123-core-19b78b27ae-fake-upstream-1",
+          "status": "Exited (137) 1 second ago"
+        },
+        {
+          "name": "p123-core-19b78b27ae-postgres-1",
+          "status": "Exited (0) 8 seconds ago"
+        },
+        {
+          "name": "p123-core-19b78b27ae-mongodb-1",
+          "status": "Exited (0) 11 seconds ago"
+        }
+      ],
+      "volumes_retained": true,
+      "no_database_drop": true
+    }
+  ]
+}

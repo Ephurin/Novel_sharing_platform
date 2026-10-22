@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "generated_secret_values_scanned": 56,
+  "credential_value_matches": 0,
+  "jwt_pattern_matches": 0,
+  "login_register_payloads_and_tokens": "EXCLUDED_FROM_HTTP_TRACE",
+  "scope": "All committed review artifacts in this delivery; generated .env files stay gitignored",
+  "format_normalization": "LF line endings; trailing whitespace removed from copied console log lines only"
+}

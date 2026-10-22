@@ -1,0 +1,115 @@
+{
+  "tested_source_sha": "0512fa6276bfbd2834d8cbcfaea3d06088838c98",
+  "source_dirty_at_start": false,
+  "project": "p123-core-82c260aa78",
+  "novel_id": "304b0ea3-6dc3-401c-8208-c8ac22d5e568",
+  "stage": "outbound_generation",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch2",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch3",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch4",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch5",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "same_novel_wrong_authenticated_author_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_288ca99c-14ae-4765-b548-b4e2655f15f3",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_6f3c1e51-482f-4713-8e56-b364694ffb82",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_ce220435-8669-46a2-ad12-6058d316045f",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_b503fe73-b49a-4a41-8319-1f6259d16d85",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_5b1f9f06-1612-4d24-bc5e-dd998a2d30be",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "canon_unchanged_until_approval",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "nonempty_approved_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "approved_memory_survives_process_restart",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "attached_plan_not_historical_memory",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_matches_durable_context_hash",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_attached_in_actual_outbound",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_not_outbound_historical_event",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "HTTP_400:POST:/ai/writing/generations:{'success': False, 'data': None, 'error': {'code': 'GENERATION_REQUEST_FAILED', 'message': \"'<' not supported between instances of 'NoneType' and 'int'\", 'details': {'code': 'GENERATION_REQUEST_FAILED', 'message': \"'<' not supported between instances of 'NoneType' and 'int'\"}}, 'meta': {}}"
+  },
+  "verdict": "P1_CORE_BLOCKED",
+  "P2_CORE": "NOT_RUN",
+  "P3_CORE": "NOT_RUN",
+  "UI": "BLOCKED_FE",
+  "REAL_PROVIDER": "NOT_TESTED",
+  "SEMANTIC_RAG": "NOT_ASSESSED",
+  "P3_100K": "NOT_RUN"
+}

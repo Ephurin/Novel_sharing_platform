@@ -1,0 +1,174 @@
+{
+  "date": "2026-10-22",
+  "timezone": "Asia/Saigon",
+  "branch": "codex/ai-copilot-pipeline-test",
+  "baseline_sha": "eca4a000d1bd114d16af0b77871a45a26e777a21",
+  "tested_source_sha": "b5c9c8db6bfd976f37d8811c2db45ad40691fd99",
+  "evidence_commit_resolution": "git log -1 --format=%H -- Pipeline_test/reviews/2026-10-22-p123-headless/EXECUTOR_REPORT.md",
+  "verdict": "P1_CORE_SLICE_READY_FOR_GPT6_REVIEW",
+  "full_P1_CORE_OFFLINE_PASS": "NOT_GRANTED_PENDING_REVIEW_AND_REMAINING_GATES",
+  "headless_http_run": {
+    "exit_code": 0,
+    "checks_passed": 33,
+    "checks_failed": 0,
+    "project": "p123-core-19b78b27ae",
+    "novel_id": "14300d20-a248-4d3c-8be0-947766ba2f61",
+    "source_dirty_at_start": false
+  },
+  "read_only_cutoff_audit": {
+    "exit_code": 0,
+    "cutoffs": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "source_identities": 15,
+    "future_entity_leaks": 0
+  },
+  "regressions": [
+    {
+      "suite": "AI targeted offline",
+      "tested_sha": "b5c9c8db6bfd976f37d8811c2db45ad40691fd99",
+      "passed": 111,
+      "skipped": 0,
+      "exit_code": 0,
+      "evidence": "ai-final-validation.json"
+    },
+    {
+      "suite": "backend focused",
+      "tested_sha": "0512fa6",
+      "passed": 29,
+      "skipped": 0,
+      "exit_code": 0,
+      "note": "Backend source unchanged since this run",
+      "evidence": "backend-targeted-tests.txt"
+    },
+    {
+      "suite": "Wave1H and harness",
+      "tested_sha": "6d73bce",
+      "passed": 21,
+      "skipped": 0,
+      "exit_code": 0,
+      "evidence": "harness-tests.txt"
+    },
+    {
+      "suite": "final focused harness",
+      "tested_sha": "b5c9c8db6bfd976f37d8811c2db45ad40691fd99",
+      "passed": 4,
+      "skipped": 0,
+      "exit_code": 0,
+      "evidence": "harness-focused-final-tests.txt"
+    }
+  ],
+  "core_fixes": [
+    "normalize nullable offsets before request hashing/bounds",
+    "materialize earliest source chapter from scoped revision provenance",
+    "unique durable identities for requests without client idempotency keys"
+  ],
+  "negative_evidence": {
+    "nullable_selection_before": "final-run-01/validation.json",
+    "fake_reconciliation_schema_before": "final-run-02/validation.json",
+    "temporal_cutoff_before": "readback-audit-02/future-entity-cutoff.json",
+    "unkeyed_generation_before": "final-run-04/validation.json",
+    "diagnostic_ledger_lock_before": "final-run-03/validation.json",
+    "early_development_invalid_verdict_correction": "development-attempt-summary.json",
+    "SQL_red_tests": "Observed terminal RED before fixes; raw RED console transcripts not separately persisted. Actual pre-fix HTTP/DB failures above are preserved."
+  },
+  "accounting": {
+    "simulated_calls": 63,
+    "synthetic_charged_usd": "3.307739",
+    "actual_provider_calls": 0,
+    "actual_provider_spend_usd": 0,
+    "live_authorized": false,
+    "pricing_scope": "SYNTHETIC_OFFLINE_TEXT_ONLY"
+  },
+  "boundaries": {
+    "human_actor": "SIMULATED_HUMAN_VIA_API",
+    "P2_CORE": "NOT_RUN",
+    "P3_CORE": "NOT_RUN",
+    "UI": "BLOCKED_FE",
+    "historical_S09": "RED_UNCHANGED",
+    "real_provider": "NOT_TESTED",
+    "semantic_RAG": "NOT_ASSESSED",
+    "literary_quality": "NOT_TESTED",
+    "P3_100K": "NOT_RUN"
+  },
+  "remaining": [
+    "optimistic PATCH version conflict/two concurrent writers",
+    "real-DB materialization/interrupted-worker fault injection",
+    "durable HTTP locked-rule and overflow stress",
+    "explicit disabled retrieval metadata",
+    "generated draft accept endpoint E2E",
+    "independent GPT-6 acceptance review"
+  ],
+  "source_file_sha256": {
+    "ai-service/application/writing_service.py": "31c56c35ff2cc963141bb6c435ae2f2ec03548a9aa4f6846d9b1b5506250c5e3",
+    "ai-service/infrastructure/postgres_narrative_repository.py": "49f1da331f414017e5633decb43ec225a788831d056991e99c37f86f893665fc",
+    "Pipeline_test/tools/run_p123_headless.py": "3edc8c1d3692a44a5cec042993e35c47fe8a586cd1b135c16983bf513670460c",
+    "Pipeline_test/tools/audit_p123_readback.py": "9de7d6cfce292639405e8da70057fc52186528e637deda1166d64763d588d679",
+    "Pipeline_test/tools/fake_provider_upstream.py": "74bb056c4a4934513b67c73dab4fd7beaf2eac49d918da6b93326fe6b927ae8a",
+    "Pipeline_test/tools/fake_p123_scenario.py": "a20da90d7a20a1424241276242a8868c997fc2576c507372f88e357e0090ae59",
+    "Pipeline_test/tools/compose.p123-headless.yml": "c622171257b7b05dbb0fb8018dcc78111f4968490881ea7ae6b80448513da665"
+  },
+  "final_artifact_sha256": {
+    "final-run-05\\account-foreign.json": "9b8be58a44b181c726abdb561d7109f0ea25555b19ccaf47da63ec9a3397c47e",
+    "final-run-05\\account-owner.json": "a0dcbdaecf993e775f6d95d6149fc1845c8a97da3f3e5f3a6601bccd930e0ac6",
+    "final-run-05\\active-plan.json": "ee915d3e84e117cf676d1fe989829cde95200e5f80592a1a0f4e902ede7f2331",
+    "final-run-05\\checks-progress.json": "070b5468a2a731b30357a983258415c81e2a0cf3eb91de5b88997f47b6cde428",
+    "final-run-05\\containment.json": "720abc4ea253997bcbfed320fe3d52016ead101bc3e0e663cdcab553446d6537",
+    "final-run-05\\final-extraction-status.json": "e74f4313514ef3936a7ec32c2c5f8095fe24e9047ae78c2959ae203fc6041878",
+    "final-run-05\\gateway-ledger.json": "930b59c0ebf33cc7e8b234773a27e5b976320ce2c36c5c9ebeeee5126d6bc07c",
+    "final-run-05\\http-trace.jsonl": "6196a93f0f9c1699127a4cb2fe62d555509fdc45a0d7e08f14590b3666b1e01a",
+    "final-run-05\\human-4cb06db1-ee06-4f7d-b00a-071fcc08c56d.json": "80f9778203dc0daa29e77bf225a1993711bce779d8acb5d8897c6387e687153d",
+    "final-run-05\\human-6f3ef48d-91db-4f1f-a66f-587662998392.json": "7cfc7e0591bfbd5071a5250919fec05cf27d10a665d650ec25a47d4d9a8ac148",
+    "final-run-05\\human-8d537c0e-522d-48f1-bbf9-724df79dee85.json": "e68c735eb2afb8962915e78e0f8585273c7a6c98f416b48897e59bd94f4ef52f",
+    "final-run-05\\human-bb03434f-9b3b-4f43-9720-84ff5424e77f.json": "fdc5fde49a68634beb1a3312962612bc90e0fec75386f3cb01428754c8058c60",
+    "final-run-05\\human-c8622f1f-3314-4b43-b983-b791001c1193.json": "bc9e7e28b585f442f8473ee3041e1dcfc41fb8b0a1051ddd86489c79dc91031f",
+    "final-run-05\\human-e340bf50-ecf8-4eb9-9a3d-a808219becbd.json": "a3fe41e5a983d016bf12e1b7c8e9f8e1b362a604241b123917b2e3be254dc385",
+    "final-run-05\\M-FIRST-approved-memory.json": "2b2e534978af9c7fc457204cd116feaa4705b93fc22518b8aa85bf63e61dd996",
+    "final-run-05\\M-FIRST-db-revisions.json": "b91e96657ea027c1083e9b2ac6e94b3dbbfeb41aac62a41c862c1bef4740f831",
+    "final-run-05\\M-FIRST-outbox.json": "ebe7c1b6efaedeb42c4a4dd451754a09238f3b5f07ed61fcd5c4af3938ae0594",
+    "final-run-05\\M0-approved-memory.json": "59521c3c3df20faf467d2ee4ac68bccd5b816cce28cd21c2016cf765030381f1",
+    "final-run-05\\M0-db-analysis_runs.json": "764797783592e5fbd90333c0922cd652112c4708f76b16d582c47236b5e2c0df",
+    "final-run-05\\M0-db-brain.json": "40f1118bf5208de2d2f15b1e9b837c66d09addef99d82028070acf7944d83ba1",
+    "final-run-05\\M0-db-entities.json": "7acea45fcdcc05cf7a8732dee554a64a59c1df069ffcaa1cd2ae28a6ed2ff260",
+    "final-run-05\\M0-db-events.json": "77fa1d68ac5a5ca54f5a8ecd7478870e05f1e9ead8d1a228e57a67d221ba16a6",
+    "final-run-05\\M0-db-facts.json": "605f803854aa08a1ac067d5b5d5c14f95bb58f8dd425f207661adeed53050069",
+    "final-run-05\\M0-db-proposals.json": "60af43376044f20eb9becf84b69b38b2872d6cceab99929c508e6f95c73f94c2",
+    "final-run-05\\M0-db-revision_provenances.json": "8f8f9d1e3216e0042ad8173a5bd9e4fe35919985de9730981acaf7449bc1f5ad",
+    "final-run-05\\M0-raw-queue.json": "2f0204bc90e73c9150c20ee7f84c6368478434eae25d13d4d512c2e8a7091ec5",
+    "final-run-05\\machine-4cb06db1-ee06-4f7d-b00a-071fcc08c56d.json": "48545e5d6e81f843c600e9f3a0b41c81c5a6dc55c07fb03d0cfea39124bcc5bb",
+    "final-run-05\\machine-6f3ef48d-91db-4f1f-a66f-587662998392.json": "327e33005e30657ea53ea7f5b71340a188e8453a955a59627a9e8c55873151a5",
+    "final-run-05\\machine-8d537c0e-522d-48f1-bbf9-724df79dee85.json": "c64f646bed118cb5c20530d0e7c759b12b2cad997e68ff4486026df616225241",
+    "final-run-05\\machine-bb03434f-9b3b-4f43-9720-84ff5424e77f.json": "5d0149fd9f55267b2ad92a2aedd0f3a636c9fc230d7561b81c1af9ad5209353c",
+    "final-run-05\\machine-c8622f1f-3314-4b43-b983-b791001c1193.json": "2ad01f9af9a98e24fd8795adaf62e390eeeef473cdd90d38a541860801265859",
+    "final-run-05\\machine-e340bf50-ecf8-4eb9-9a3d-a808219becbd.json": "ae3796ecce3f83d5a2e6cca7d203b7be9c2ab3ee609ec8c73c0a3708db3459c8",
+    "final-run-05\\ordinary-save.json": "44a2b1f18955efe99f97d2a9c8f595b1311ff40266ec05f9453e56069f1e8db4",
+    "final-run-05\\outbound-capture.json": "1af56d2917ec5c2fb592eb27dcaf454ef196bc65630b51da85fb6c62d7ad3e25",
+    "final-run-05\\outbound-cutoff-1.json": "8d8107447d9862bd033f3e20f76745263ac67524bf974497eb62752fcdd36edd",
+    "final-run-05\\retrieval-and-budget.json": "ef03a87949ff8120e4bf5216e9bd309ebdc8c6d3e18145abc912d4d80444f3e8",
+    "final-run-05\\source-manifest.json": "c88415411a0902415593c2e81a2affe7c1892f6f64f884d97e888de4eb2dfed3",
+    "final-run-05\\validation.json": "cb0f081d43ab37f7a506f486f86442873f6e8092aada7d926a0beb9e3dc7a55f",
+    "final-readback-audit\\checks-progress.json": "59710033f010a0c99f44fbbb0419738853fd5dd6ed70ada7c6e77c263c7e3426",
+    "final-readback-audit\\containment.json": "720abc4ea253997bcbfed320fe3d52016ead101bc3e0e663cdcab553446d6537",
+    "final-readback-audit\\cutoff-contexts.json": "b354e53ba193957ea39cd405d7c2ef0d5d11063171f7973309eb6e468f33c952",
+    "final-readback-audit\\future-entity-cutoff.json": "21d1923fb884c048b78913e150f3d0a4e244262b64248f25c6d5bb8cb4255626",
+    "final-readback-audit\\gateway-ledger.json": "930b59c0ebf33cc7e8b234773a27e5b976320ce2c36c5c9ebeeee5126d6bc07c",
+    "final-readback-audit\\migrations.json": "0c5a47a4129c53a575a4fc7232f08954b5889d6ee7b1ebbdb7cbbcaf453e6498",
+    "final-readback-audit\\outbox-current.json": "ebe7c1b6efaedeb42c4a4dd451754a09238f3b5f07ed61fcd5c4af3938ae0594",
+    "final-readback-audit\\proposals-current.json": "6cb88a0706d73acdb0aa5b02b3dc5b47ca28e2fe7a5b348c9de9d26ceb665335",
+    "final-readback-audit\\validation.json": "b19a8c7a65e90a1eb137d368d188a363654ecf6f35e7c8fe77d18984ec28034e",
+    "mongo-postgres-readback.json": "1e62779030002092e14fdf5c6322492819d1b51376e24d1f5d735a69bedbfaa9",
+    "migration-and-runtime.txt": "dc41c13b9faa1f72702d3bef663523fc4a1248faa1a8cc494896d62009537dfe",
+    "resource-lifecycle.json": "e199bc0d5de6f3033985224a726b7db94c2337a60694548db9388a90875b15ee",
+    "sanitization-check.json": "35ac87a28ba98121a0a73a3367ecbffc7b0ec4f0934173c4f5cc7fc53cd2b67a"
+  },
+  "mongo_postgres_content_readback": {
+    "status": "PASS",
+    "chapters": 5,
+    "evidence": "mongo-postgres-readback.json"
+  },
+  "resource_lifecycle": "Test processes stopped; owned volumes retained; no DB deletion claim"
+}

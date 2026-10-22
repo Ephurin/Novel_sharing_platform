@@ -1,0 +1,23 @@
+{
+  "channel": "READ_ONLY_SERVICE_AUTH_HTTP_DIAGNOSTIC",
+  "source": "Actual accepted entity proposals and immutable revision evidence; not fabricated future entity",
+  "earliest_approved_source_chapters": {
+    "Cồn Vân": 1,
+    "Duy": 2,
+    "Linh": 1,
+    "Đồi Bắc": 1,
+    "Bốn": 1,
+    "CV-04": 1,
+    "Sâm": 1,
+    "Hòa": 1,
+    "Bãi Dưới": 1,
+    "Bà Sâm": 1,
+    "Nguyễn Vũ": 4,
+    "Vũ": 4,
+    "Yên": 1,
+    "Mai Linh": 1,
+    "Mai Lâm": 1
+  },
+  "status": "PASS",
+  "leaks": []
+}

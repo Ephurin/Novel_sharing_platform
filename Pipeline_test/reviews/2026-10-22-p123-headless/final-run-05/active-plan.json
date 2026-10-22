@@ -1,0 +1,24 @@
+{
+  "plan_id": "c2330158-c4ae-4a2d-aaba-a2ce0cbf44ed",
+  "novel_id": "14300d20-a248-4d3c-8be0-947766ba2f61",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "plan_version": 1,
+  "status": "active",
+  "objectives": [
+    {
+      "objective_id": "7d3d27f0-0b52-4305-a547-3f52d664f78e",
+      "order_index": 1,
+      "title": "HEADLESS_FUTURE_PLAN",
+      "description": "Kiểm tra micro trước cửa Bốn; chưa thực hiện.",
+      "target_chapter": 6,
+      "objective_type": "chapter_goal",
+      "status": "pending",
+      "metadata": {}
+    }
+  ],
+  "source_outline": "Future intent only; not historical canon",
+  "source_outline_hash": "47d94975c375d318cf05d74b393e9616cba29e8ecc2ba477eb4fcb4b7b5b3740",
+  "idempotency_key": null,
+  "input_hash": "e71b4b6c725f1d9734eb4683d32acb50252b89ab0a462caba7fce582b13b95b0",
+  "created_by": "01c6feaf-9c1d-4513-b849-ac34b9d879c5"
+}

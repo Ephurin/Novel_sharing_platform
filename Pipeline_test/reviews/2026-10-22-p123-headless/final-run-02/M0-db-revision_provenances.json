@@ -1,0 +1,52 @@
+[
+  {
+    "id": "5aec9e15-7e84-4709-86e1-c0a6c4c35650",
+    "story_brain_id": "7312f8f0-e5d1-439d-8655-2fc468161539",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "66f4c4c1-d1c7-42d1-a89f-0091627e588d",
+    "chapter_id": "1a7d13e6-4663-4fb8-aa88-45954df73b14",
+    "chapter_number": 1,
+    "created_at": "2026-10-22T05:00:28.213875+00:00",
+    "revision_id": "1a871c31-2b2b-48d0-be42-ef48699d4f99"
+  },
+  {
+    "id": "36621053-21b0-4a49-a0b3-b31b7fddb485",
+    "story_brain_id": "7312f8f0-e5d1-439d-8655-2fc468161539",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "66f4c4c1-d1c7-42d1-a89f-0091627e588d",
+    "chapter_id": "0af308cf-2506-4380-a34b-28ea06897691",
+    "chapter_number": 2,
+    "created_at": "2026-10-22T05:00:28.213875+00:00",
+    "revision_id": "53e9cf06-a663-4387-882b-da613776ec8f"
+  },
+  {
+    "id": "fcbbe587-c5ac-422e-88f5-d7491c08abad",
+    "story_brain_id": "7312f8f0-e5d1-439d-8655-2fc468161539",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "66f4c4c1-d1c7-42d1-a89f-0091627e588d",
+    "chapter_id": "9a2cae0e-e5f6-47a2-ae7e-5e2d6107451e",
+    "chapter_number": 3,
+    "created_at": "2026-10-22T05:00:28.213875+00:00",
+    "revision_id": "608347a9-5904-45f3-8d6e-901117c3b9c9"
+  },
+  {
+    "id": "08567e5d-ceeb-4d3b-bf6d-a695e3030e14",
+    "story_brain_id": "7312f8f0-e5d1-439d-8655-2fc468161539",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "66f4c4c1-d1c7-42d1-a89f-0091627e588d",
+    "chapter_id": "2cc300e3-bcd0-4a07-95aa-b146148295bb",
+    "chapter_number": 4,
+    "created_at": "2026-10-22T05:00:28.213875+00:00",
+    "revision_id": "fd3abbd9-ea15-4947-9df7-8b505e11a801"
+  },
+  {
+    "id": "2fe860ae-add2-48d7-8d07-e8e116972b07",
+    "story_brain_id": "7312f8f0-e5d1-439d-8655-2fc468161539",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "66f4c4c1-d1c7-42d1-a89f-0091627e588d",
+    "chapter_id": "b7cdd265-0fef-45df-9663-83b4000486cf",
+    "chapter_number": 5,
+    "created_at": "2026-10-22T05:00:28.213875+00:00",
+    "revision_id": "cfc8d4a6-2cfa-4989-93ad-7dfdcf8f8da4"
+  }
+]

@@ -1,0 +1,115 @@
+{
+  "tested_source_sha": "0ada9755ce2cbc960c5b108becc2c50ba1674577",
+  "source_dirty_at_start": false,
+  "project": "p123-core-3b5417efca",
+  "novel_id": "bb91286a-8574-4cc9-91e7-956e93acd935",
+  "stage": "outbound_generation",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch2",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch3",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch4",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch5",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "same_novel_wrong_authenticated_author_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_c2ba58e1-b30c-4dbf-85fb-902625e0ba99",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_5c0b0a3b-805c-4150-b84c-241c66712164",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_9bf6b043-61e7-41d7-a8c0-71598d1a52af",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_f55f14c6-1835-421d-9dff-7b7985153e11",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_788d1c92-f606-457a-adfe-bccd70b03101",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "canon_unchanged_until_approval",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "nonempty_approved_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "approved_memory_survives_process_restart",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "attached_plan_not_historical_memory",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_matches_durable_context_hash",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_attached_in_actual_outbound",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_not_outbound_historical_event",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "HTTP_400:POST:/ai/writing/generations:{'success': False, 'data': None, 'error': {'code': 'GENERATION_REQUEST_FAILED', 'message': '(psycopg.errors.UniqueViolation) duplicate key value violates unique constraint \"uq_writing_gen_tenant_idempotency\"\\nDETAIL:  Key (tenant_id, novel_id, idempotency_key)=(00000000-0000-0000-0000-000000000001, bb91286a-8574-4cc9-91e7-956e93acd935, ) already exists.\\n[SQL: INSERT INTO narrative.writing_generations (id, job_id, tenant_id, novel_id, chapter_id, revision_id, base_content_hash, brain_version, operation, selection_start, selection_end, instruction, constraints, style, actor_id, idempotency_key, input_hash, status, stage, draft, patch, validation_status, validations, context_summary, model_name, prompt_version, error) VALUES (%(id)s::UUID, %(job_id)s::UUID, %(tenant_id)s::UUID, %(novel_id)s::UUID, %(chapter_id)s::UUID, %(revision_id)s::UUID, %(base_content_hash)s::VARCHAR, %(brain_version)s::BIGINT, %(operation)s::VARCHAR, %(selection_start)s::INTEGER, %(selection_end)s::INTEGER, %(instruction)s::VARCHAR, %(constraints)s::JSONB, %(style)s::JSONB, %(actor_id)s::UUID, %(idempotency_key)s::VARCHAR, %(input_hash)s::VARCHAR, %(status)s::VARCHAR, %(stage)s::VARCHAR, %(draft)s::VARCHAR, %(patch)s::JSONB, %(validation_status)s::VARCHAR, %(validations)s::JSONB, %(context_summary)s::JSONB, %(model_name)s::VARCHAR, %(prompt_version)s::VARCHAR, %(error)s::JSONB) RETURNING narrative.writing_generations.created_at, narrative.writing_generations.updated_at]\\n[parameters: {\\'id\\': UUID(\\'d037a50e-20b4-4492-9b7a-4dc8412fb6b8\\'), \\'job_id\\': UUID(\\'de2a0e6a-6c6c-4054-857e-520ba7953425\\'), \\'tenant_id\\': UUID(\\'00000000-0000-0000-0000-000000000001\\'), \\'novel_id\\': UUID(\\'bb91286a-8574-4cc9-91e7-956e93acd935\\'), \\'chapter_id\\': UUID(\\'442a95e5-66ba-48ae-beae-5e29712a9849\\'), \\'revision_id\\': UUID(\\'a6984e90-02a4-4191-9d77-79cf004bb821\\'), \\'base_content_hash\\': \\'ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5\\', \\'brain_version\\': 6, \\'operation\\': \\'continue\\', \\'selection_start\\': 0, \\'selection_end\\': 0, \\'instruction\\': \\'Headless-cutoff-221a626b63704f88adca245cfc05c473: tiếp tục cảnh hiện tại.\\', \\'constraints\\': Jsonb([]), \\'style\\': Jsonb({}), \\'actor_id\\': UUID(\\'fb3f08cd-f476-45e9-82b5-b68e983d9ef9\\'), \\'idempotency_key\\': \\'\\', \\'input_hash\\': \\'53cd1f0d4edcf904999949053474f5c03ba32a72fdfc2b2a64eff386e1b2c55e\\', \\'status\\': \\'queued\\', \\'stage\\': \\'queued\\', \\'draft\\': None, \\'patch\\': Jsonb(None), \\'validation_status\\': \\'pending\\', \\'validations\\': Jsonb([]), \\'context_summary\\': Jsonb({\\'chapter_number\\': 1}), \\'model_name\\': None, \\'prompt_version\\': None, \\'error\\': Jsonb(None)}]\\n(Background on this error at: https://sqlalche.me/e/20/gkpj)', 'details': {'code': 'GENERATION_REQUEST_FAILED', 'message': '(psycopg.errors.UniqueViolation) duplicate key value violates unique constraint \"uq_writing_gen_tenant_idempotency\"\\nDETAIL:  Key (tenant_id, novel_id, idempotency_key)=(00000000-0000-0000-0000-000000000001, bb91286a-8574-4cc9-91e7-956e93acd935, ) already exists.\\n[SQL: INSERT INTO narrative.writing_generations (id, job_id, tenant_id, novel_id, chapter_id, revision_id, base_content_hash, brain_version, operation, selection_start, selection_end, instruction, constraints, style, actor_id, idempotency_key, input_hash, status, stage, draft, patch, validation_status, validations, context_summary, model_name, prompt_version, error) VALUES (%(id)s::UUID, %(job_id)s::UUID, %(tenant_id)s::UUID, %(novel_id)s::UUID, %(chapter_id)s::UUID, %(revision_id)s::UUID, %(base_content_hash)s::VARCHAR, %(brain_version)s::BIGINT, %(operation)s::VARCHAR, %(selection_start)s::INTEGER, %(selection_end)s::INTEGER, %(instruction)s::VARCHAR, %(constraints)s::JSONB, %(style)s::JSONB, %(actor_id)s::UUID, %(idempotency_key)s::VARCHAR, %(input_hash)s::VARCHAR, %(status)s::VARCHAR, %(stage)s::VARCHAR, %(draft)s::VARCHAR, %(patch)s::JSONB, %(validation_status)s::VARCHAR, %(validations)s::JSONB, %(context_summary)s::JSONB, %(model_name)s::VARCHAR, %(prompt_version)s::VARCHAR, %(error)s::JSONB) RETURNING narrative.writing_generations.created_at, narrative.writing_generations.updated_at]\\n[parameters: {\\'id\\': UUID(\\'d037a50e-20b4-4492-9b7a-4dc8412fb6b8\\'), \\'job_id\\': UUID(\\'de2a0e6a-6c6c-4054-857e-520ba7953425\\'), \\'tenant_id\\': UUID(\\'00000000-0000-0000-0000-000000000001\\'), \\'novel_id\\': UUID(\\'bb91286a-8574-4cc9-91e7-956e93acd935\\'), \\'chapter_id\\': UUID(\\'442a95e5-66ba-48ae-beae-5e29712a9849\\'), \\'revision_id\\': UUID(\\'a6984e90-02a4-4191-9d77-79cf004bb821\\'), \\'base_content_hash\\': \\'ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5\\', \\'brain_version\\': 6, \\'operation\\': \\'continue\\', \\'selection_start\\': 0, \\'selection_end\\': 0, \\'instruction\\': \\'Headless-cutoff-221a626b63704f88adca245cfc05c473: tiếp tục cảnh hiện tại.\\', \\'constraints\\': Jsonb([]), \\'style\\': Jsonb({}), \\'actor_id\\': UUID(\\'fb3f08cd-f476-45e9-82b5-b68e983d9ef9\\'), \\'idempotency_key\\': \\'\\', \\'input_hash\\': \\'53cd1f0d4edcf904999949053474f5c03ba32a72fdfc2b2a64eff386e1b2c55e\\', \\'status\\': \\'queued\\', \\'stage\\': \\'queued\\', \\'draft\\': None, \\'patch\\': Jsonb(None), \\'validation_status\\': \\'pending\\', \\'validations\\': Jsonb([]), \\'context_summary\\': Jsonb({\\'chapter_number\\': 1}), \\'model_name\\': None, \\'prompt_version\\': None, \\'error\\': Jsonb(None)}]\\n(Background on this error at: https://sqlalche.me/e/20/gkpj)'}}, 'meta': {}}"
+  },
+  "verdict": "P1_CORE_BLOCKED",
+  "P2_CORE": "NOT_RUN",
+  "P3_CORE": "NOT_RUN",
+  "UI": "BLOCKED_FE",
+  "REAL_PROVIDER": "NOT_TESTED",
+  "SEMANTIC_RAG": "NOT_ASSESSED",
+  "P3_100K": "NOT_RUN"
+}

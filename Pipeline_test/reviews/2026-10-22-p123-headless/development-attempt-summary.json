@@ -1,0 +1,308 @@
+[
+  {
+    "tested_source_sha": "eca4a000d1bd114d16af0b77871a45a26e777a21",
+    "project": "p123-core-18c208421c",
+    "novel_id": null,
+    "stage": "preflight",
+    "checks": [
+      {
+        "name": "isolated_real_databases_fake_only",
+        "status": "PASS",
+        "details": null
+      }
+    ],
+    "failure": "HTTPConnectionPool(host='127.0.0.1', port=53452): Max retries exceeded with url: /api/v1/auth/register (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=53452): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))",
+    "verdict": "P1_CORE_BLOCKED",
+    "P2_CORE": "NOT_RUN",
+    "P3_CORE": "NOT_RUN",
+    "UI": "BLOCKED_FE",
+    "REAL_PROVIDER": "NOT_TESTED",
+    "SEMANTIC_RAG": "NOT_ASSESSED",
+    "P3_100K": "NOT_RUN",
+    "artifact": "dev-attempt-01\\validation.json",
+    "classification": "DEVELOPMENT_ONLY_NOT_ACCEPTANCE",
+    "raw_artifacts": "Retained locally under .eval-private/p123-headless-development-20261022/dev-attempt-01\\validation.json; sanitized outcome recorded here; not acceptance evidence"
+  },
+  {
+    "tested_source_sha": "eca4a000d1bd114d16af0b77871a45a26e777a21",
+    "project": "p123-core-18c208421c",
+    "novel_id": null,
+    "stage": "preflight",
+    "checks": [
+      {
+        "name": "isolated_real_databases_fake_only",
+        "status": "PASS",
+        "details": null
+      }
+    ],
+    "failure": "HTTP_400:POST:/auth/login:{'success': False, 'data': None, 'error': {'code': 'VALIDATION_001', 'message': 'Invalid request payload', 'details': {'formErrors': [], 'fieldErrors': {'body': ['Required']}}}, 'meta': {}}",
+    "verdict": "P1_CORE_BLOCKED",
+    "P2_CORE": "NOT_RUN",
+    "P3_CORE": "NOT_RUN",
+    "UI": "BLOCKED_FE",
+    "REAL_PROVIDER": "NOT_TESTED",
+    "SEMANTIC_RAG": "NOT_ASSESSED",
+    "P3_100K": "NOT_RUN",
+    "artifact": "dev-attempt-02\\validation.json",
+    "classification": "DEVELOPMENT_ONLY_NOT_ACCEPTANCE",
+    "raw_artifacts": "Retained locally under .eval-private/p123-headless-development-20261022/dev-attempt-02\\validation.json; sanitized outcome recorded here; not acceptance evidence"
+  },
+  {
+    "tested_source_sha": "eca4a000d1bd114d16af0b77871a45a26e777a21",
+    "project": "p123-core-18c208421c",
+    "novel_id": "4dc93ec3-e7e3-4762-a6c4-c25839be4443",
+    "stage": "five_chapter_source",
+    "checks": [
+      {
+        "name": "isolated_real_databases_fake_only",
+        "status": "PASS",
+        "details": null
+      }
+    ],
+    "failure": "list index out of range",
+    "verdict": "P1_CORE_BLOCKED",
+    "P2_CORE": "NOT_RUN",
+    "P3_CORE": "NOT_RUN",
+    "UI": "BLOCKED_FE",
+    "REAL_PROVIDER": "NOT_TESTED",
+    "SEMANTIC_RAG": "NOT_ASSESSED",
+    "P3_100K": "NOT_RUN",
+    "artifact": "dev-attempt-03\\validation.json",
+    "classification": "DEVELOPMENT_ONLY_NOT_ACCEPTANCE",
+    "raw_artifacts": "Retained locally under .eval-private/p123-headless-development-20261022/dev-attempt-03\\validation.json; sanitized outcome recorded here; not acceptance evidence"
+  },
+  {
+    "tested_source_sha": "eca4a000d1bd114d16af0b77871a45a26e777a21",
+    "project": "p123-core-18c208421c",
+    "novel_id": "ffc6a0be-a3b6-4d3b-a0bd-c626962ef1f5",
+    "stage": "bootstrap_entity_canon",
+    "checks": [
+      {
+        "name": "isolated_real_databases_fake_only",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch1",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch2",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch3",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch4",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch5",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "same_novel_wrong_authenticated_author_denied",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_963eee08-b73f-41af-9ca5-27e4cd440e08",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_86a73a06-26cd-4f92-b2c5-b83341bdeb1d",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_c7a8cc9a-56da-4019-bb20-e8416ff724a2",
+        "status": "PASS",
+        "details": null
+      }
+    ],
+    "failure": "",
+    "verdict": "P1_CORE_SLICE_READY_FOR_REVIEW",
+    "P2_CORE": "NOT_RUN",
+    "P3_CORE": "NOT_RUN",
+    "UI": "BLOCKED_FE",
+    "REAL_PROVIDER": "NOT_TESTED",
+    "SEMANTIC_RAG": "NOT_ASSESSED",
+    "P3_100K": "NOT_RUN",
+    "artifact": "dev-attempt-04\\validation.json",
+    "classification": "DEVELOPMENT_ONLY_NOT_ACCEPTANCE",
+    "review_correction": "Invalid historic development verdict: empty exception string was wrongly treated as success; only 3 of 5 gates reached. Fixed and regression-tested before official runs.",
+    "raw_artifacts": "Retained locally under .eval-private/p123-headless-development-20261022/dev-attempt-04\\validation.json; sanitized outcome recorded here; not acceptance evidence"
+  },
+  {
+    "tested_source_sha": "eca4a000d1bd114d16af0b77871a45a26e777a21",
+    "project": "p123-core-18c208421c",
+    "novel_id": "3b744406-3b01-4e9d-b348-d46d2fb2b5c1",
+    "stage": "bootstrap_entity_canon",
+    "checks": [
+      {
+        "name": "isolated_real_databases_fake_only",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch1",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch2",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch3",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch4",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch5",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "same_novel_wrong_authenticated_author_denied",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_1f835bac-b9df-4b66-a771-89d2421ba625",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_6db269d3-6826-452e-9428-66023cb8403c",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_0b648f0c-4f6e-4e52-83f2-be7aa051dcfd",
+        "status": "PASS",
+        "details": null
+      }
+    ],
+    "failure": {
+      "type": "AssertionError",
+      "message": "JOB_FAILED:{'message': 'BUDGET_GUARD_DENIED'}"
+    },
+    "verdict": "P1_CORE_BLOCKED",
+    "P2_CORE": "NOT_RUN",
+    "P3_CORE": "NOT_RUN",
+    "UI": "BLOCKED_FE",
+    "REAL_PROVIDER": "NOT_TESTED",
+    "SEMANTIC_RAG": "NOT_ASSESSED",
+    "P3_100K": "NOT_RUN",
+    "artifact": "dev-attempt-05\\validation.json",
+    "classification": "DEVELOPMENT_ONLY_NOT_ACCEPTANCE",
+    "raw_artifacts": "Retained locally under .eval-private/p123-headless-development-20261022/dev-attempt-05\\validation.json; sanitized outcome recorded here; not acceptance evidence"
+  },
+  {
+    "tested_source_sha": "eca4a000d1bd114d16af0b77871a45a26e777a21",
+    "project": "p123-core-216fbd38ac",
+    "novel_id": "9908d647-9c53-43b8-b95b-9a356dcdd098",
+    "stage": "durable_restart",
+    "checks": [
+      {
+        "name": "isolated_real_databases_fake_only",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch1",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch2",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch3",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch4",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "source_hash_ch5",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "same_novel_wrong_authenticated_author_denied",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_024f9f11-1a7a-4e37-aec5-012bbd2e8401",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_9f69fdba-ec9a-475f-83c3-bde3ba36a37a",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_185f2e01-8d57-4583-913d-b17f86ec310a",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_ec165581-92da-4d5e-b25c-bb3137d2a62a",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "entity_review_not_canon_fa18cc99-0128-496a-a5a0-437ebe9da416",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "canon_unchanged_until_approval",
+        "status": "PASS",
+        "details": null
+      },
+      {
+        "name": "nonempty_approved_canon",
+        "status": "PASS",
+        "details": null
+      }
+    ],
+    "failure": {
+      "type": "AssertionError",
+      "message": "HTTP_502:GET:/ai/story-brains/9908d647-9c53-43b8-b95b-9a356dcdd098/memory:{'success': False, 'data': None, 'error': {'code': 'AI_SERVICE_UNAVAILABLE', 'message': 'Could not reach AI Service: fetch failed'}, 'meta': {}}"
+    },
+    "verdict": "P1_CORE_BLOCKED",
+    "P2_CORE": "NOT_RUN",
+    "P3_CORE": "NOT_RUN",
+    "UI": "BLOCKED_FE",
+    "REAL_PROVIDER": "NOT_TESTED",
+    "SEMANTIC_RAG": "NOT_ASSESSED",
+    "P3_100K": "NOT_RUN",
+    "artifact": "dev-attempt-06\\validation.json",
+    "classification": "DEVELOPMENT_ONLY_NOT_ACCEPTANCE",
+    "raw_artifacts": "Retained locally under .eval-private/p123-headless-development-20261022/dev-attempt-06\\validation.json; sanitized outcome recorded here; not acceptance evidence"
+  }
+]

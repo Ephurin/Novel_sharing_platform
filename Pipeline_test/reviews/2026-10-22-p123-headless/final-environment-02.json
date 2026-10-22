@@ -1,0 +1,6 @@
+{
+  "project": "p123-core-d898496dad",
+  "env_file": "Pipeline_test\\tools\\.env.p123-core-d898496dad",
+  "new_resources_only": true,
+  "runtime_started": false
+}

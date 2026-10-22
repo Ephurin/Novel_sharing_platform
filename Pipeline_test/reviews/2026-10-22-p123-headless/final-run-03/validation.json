@@ -1,0 +1,160 @@
+{
+  "tested_source_sha": "6d73bce596d01dd1cd68fb9947ce0ea2b011e802",
+  "source_dirty_at_start": false,
+  "project": "p123-core-de579cb3b7",
+  "novel_id": "623e67c7-2dda-412c-9920-84fda0816db5",
+  "stage": "ordinary_save_outbox",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch2",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch3",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch4",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch5",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "same_novel_wrong_authenticated_author_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_d8d5c12f-25b7-48e9-afab-3a047bfeda13",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_654de7b6-2782-4fbd-82c8-cf647cefe23e",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_6a9cc952-7ef6-4288-9176-7c3636d20644",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_15a8091e-0586-43ba-ba5a-fed77fb35edb",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_18a2e8cb-229e-400a-8da2-06df9f301adb",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "canon_unchanged_until_approval",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "nonempty_approved_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "approved_memory_survives_process_restart",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "attached_plan_not_historical_memory",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_matches_durable_context_hash",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_attached_in_actual_outbound",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_not_outbound_historical_event",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_brain_version_rejected",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "ordinary_save_creates_revision",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "identical_save_reuses_immutable_revision",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_revision_reanalysis_rejected",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_fe1b0df9-8672-4019-ada8-2ee47c56590a",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "first_incremental_memory_changed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "single_outbox_for_replayed_save",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbox_completed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "incremental_memory_survives_restart",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "RuntimeError",
+    "message": "COMMAND_FAILED:docker compose --env-file C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\tools\\.env.p123-core-de579cb3b7:Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/tools/budget_gateway.py\", line 183, in get_summary\n    self._healthy()\n  File \"/tools/budget_gateway.py\", line 106, in _healthy\n    raise self._init_error\nbudget_gateway.BudgetMeterUnavailableError: [Errno 11] Resource temporarily unavailable\n"
+  },
+  "verdict": "P1_CORE_BLOCKED",
+  "P2_CORE": "NOT_RUN",
+  "P3_CORE": "NOT_RUN",
+  "UI": "BLOCKED_FE",
+  "REAL_PROVIDER": "NOT_TESTED",
+  "SEMANTIC_RAG": "NOT_ASSESSED",
+  "P3_100K": "NOT_RUN"
+}

@@ -1,0 +1,143 @@
+..........................F...F.....F............                        [100%]
+================================== FAILURES ===================================
+___ test_entity_gate_is_durable_and_resume_does_not_repeat_entity_llm[json] ___
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x0000020208319590>
+
+    def test_entity_gate_is_durable_and_resume_does_not_repeat_entity_llm(repo):
+        llm = Verifier()
+        repository, analysis, args = service('An tới trạm Bốn.', llm, repo)
+        before = registry(repository, 'story')
+>       first = analysis.analyze(**args)
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_entity_review_workflow.py:23:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+application\revision_analysis_service.py:269: in analyze
+    prepared = self._prepare_entity_review(run, revision, tenant_id=tenant_id, novel_id=novel_id,
+application\revision_analysis_service.py:171: in _prepare_entity_review
+    self._repository.save_entity_candidate_audit(story_id, run.run_id, value)
+infrastructure\json_narrative_repository.py:374: in save_entity_candidate_audit
+    self._manager.save_narrative_kb(story_id, kb)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <core.story_kb_manager.StoryKBManager object at 0x000002020831BB50>
+story_id = 'story'
+kb = StoryKB(story_id='story', metadata={'created_at': '2026-10-22T04:59:52.673209+00:00', 'updated_at': '2026-10-22T04:59:...sals=[], relation_history=[], entity_states={}, event_history=[], current_world_state=CurrentWorldState(characters={}))
+
+    def save_narrative_kb(self, story_id: str, kb: StoryKB) -> None:
+        """Atomic replacement with explicit errors for the canonical proposal workflow."""
+        self._assert_writable(story_id)
+        import os
+        import tempfile
+        destination = self._get_file_path(story_id)
+        kb.metadata["updated_at"] = datetime.now(timezone.utc).isoformat()
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=self.storage_dir,
+                                             suffix=".tmp", delete=False) as output:
+                temporary = output.name
+                output.write(kb.model_dump_json(indent=2))
+                output.flush()
+                os.fsync(output.fileno())
+            import time
+            for attempt in range(5):
+                try:
+>                   os.replace(temporary, destination)
+E                   PermissionError: [WinError 5] Access is denied: 'C:\\Users\\thaib\\AppData\\Local\\Packages\\sandbox.{50c12c8b-11b0-4b48-a86d-ae2149a2c3e4}\\AC\\Temp\\p123-core-tests-044448537abe4ad19b621371a66a696b\\test_entity_gate_is_durable_an1\\tmp18c3pzso.tmp' -> 'C:\\Users\\thaib\\AppData\\Local\\Packages\\sandbox.{50c12c8b-11b0-4b48-a86d-ae2149a2c3e4}\\AC\\Temp\\p123-core-tests-044448537abe4ad19b621371a66a696b\\test_entity_gate_is_durable_an1\\story.json'
+
+core\story_kb_manager.py:137: PermissionError
+____ test_guidance_is_scoped_versioned_and_never_creates_occurrences[json] ____
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x00000202084B7110>
+
+    def test_guidance_is_scoped_versioned_and_never_creates_occurrences(repo):
+        original = registry(repo, 'story')
+>       value = save_guidance(repo, 'story', [{'name': 'vòng bạc'}, {'name': 'Vắng Mặt', 'kind': 'declared', 'entity_type': 'PER'}], 0)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_entity_review_workflow.py:55:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+application\entity_review_service.py:46: in save_guidance
+    return repository.save_entity_guidance(story_id, {'entries': clean}, expected_version)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\json_narrative_repository.py:55: in save_entity_guidance
+    self._manager.save_narrative_kb(story_id, kb)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <core.story_kb_manager.StoryKBManager object at 0x00000202084B6A90>
+story_id = 'story'
+kb = StoryKB(story_id='story', metadata={'created_at': '2026-10-22T04:59:53.580223+00:00', 'updated_at': '2026-10-22T04:59:...sals=[], relation_history=[], entity_states={}, event_history=[], current_world_state=CurrentWorldState(characters={}))
+
+    def save_narrative_kb(self, story_id: str, kb: StoryKB) -> None:
+        """Atomic replacement with explicit errors for the canonical proposal workflow."""
+        self._assert_writable(story_id)
+        import os
+        import tempfile
+        destination = self._get_file_path(story_id)
+        kb.metadata["updated_at"] = datetime.now(timezone.utc).isoformat()
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=self.storage_dir,
+                                             suffix=".tmp", delete=False) as output:
+                temporary = output.name
+                output.write(kb.model_dump_json(indent=2))
+                output.flush()
+                os.fsync(output.fileno())
+            import time
+            for attempt in range(5):
+                try:
+>                   os.replace(temporary, destination)
+E                   PermissionError: [WinError 5] Access is denied: 'C:\\Users\\thaib\\AppData\\Local\\Packages\\sandbox.{50c12c8b-11b0-4b48-a86d-ae2149a2c3e4}\\AC\\Temp\\p123-core-tests-044448537abe4ad19b621371a66a696b\\test_guidance_is_scoped_versio1\\tmpgtng_sur.tmp' -> 'C:\\Users\\thaib\\AppData\\Local\\Packages\\sandbox.{50c12c8b-11b0-4b48-a86d-ae2149a2c3e4}\\AC\\Temp\\p123-core-tests-044448537abe4ad19b621371a66a696b\\test_guidance_is_scoped_versio1\\story.json'
+
+core\story_kb_manager.py:137: PermissionError
+_ test_author_declaration_has_no_chapter_occurrence_and_requires_normal_approval[json] _
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000002020861DC10>
+
+    def test_author_declaration_has_no_chapter_occurrence_and_requires_normal_approval(repo):
+        repository, analysis, _ = service('An tới.', Verifier(), repo)
+        original = registry(repository, 'story')
+        proposal = analysis.create_author_entity('story', 'Nguyệt', 'PER')
+        assert not proposal.evidence and proposal.payload['initial_status'] == 'Unknown'
+        assert proposal.payload['source_type'] == 'author_declaration'
+        assert registry(repository, 'story') == original
+>       repository.accept_proposal_group('story', [proposal.proposal_id], proposal.expected_brain_version)
+
+tests\test_entity_review_workflow.py:136:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+infrastructure\json_narrative_repository.py:294: in accept_proposal_group
+    self._manager.save_narrative_kb(story_id, kb)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <core.story_kb_manager.StoryKBManager object at 0x00000202086C7390>
+story_id = 'story'
+kb = StoryKB(story_id='story', metadata={'created_at': '2026-10-22T04:59:53.946216+00:00', 'updated_at': '2026-10-22T04:59:... None}], relation_history=[], entity_states={}, event_history=[], current_world_state=CurrentWorldState(characters={}))
+
+    def save_narrative_kb(self, story_id: str, kb: StoryKB) -> None:
+        """Atomic replacement with explicit errors for the canonical proposal workflow."""
+        self._assert_writable(story_id)
+        import os
+        import tempfile
+        destination = self._get_file_path(story_id)
+        kb.metadata["updated_at"] = datetime.now(timezone.utc).isoformat()
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=self.storage_dir,
+                                             suffix=".tmp", delete=False) as output:
+                temporary = output.name
+                output.write(kb.model_dump_json(indent=2))
+                output.flush()
+                os.fsync(output.fileno())
+            import time
+            for attempt in range(5):
+                try:
+>                   os.replace(temporary, destination)
+E                   PermissionError: [WinError 5] Access is denied: 'C:\\Users\\thaib\\AppData\\Local\\Packages\\sandbox.{50c12c8b-11b0-4b48-a86d-ae2149a2c3e4}\\AC\\Temp\\p123-core-tests-044448537abe4ad19b621371a66a696b\\test_author_declaration_has_no1\\tmpsu0c0p4a.tmp' -> 'C:\\Users\\thaib\\AppData\\Local\\Packages\\sandbox.{50c12c8b-11b0-4b48-a86d-ae2149a2c3e4}\\AC\\Temp\\p123-core-tests-044448537abe4ad19b621371a66a696b\\test_author_declaration_has_no1\\story.json'
+
+core\story_kb_manager.py:137: PermissionError
+=========================== short test summary info ===========================
+FAILED tests/test_entity_review_workflow.py::test_entity_gate_is_durable_and_resume_does_not_repeat_entity_llm[json]
+FAILED tests/test_entity_review_workflow.py::test_guidance_is_scoped_versioned_and_never_creates_occurrences[json]
+FAILED tests/test_entity_review_workflow.py::test_author_declaration_has_no_chapter_occurrence_and_requires_normal_approval[json]
+3 failed, 46 passed in 2.84s

@@ -1,0 +1,31 @@
+{
+  "tested_sha": "30258f8a2819f51427f61c33a2e86f088c86dba1",
+  "args": [
+    "-m",
+    "not postgres_integration",
+    "--basetemp=.pytest_tmp",
+    "tests/test_context_budget.py",
+    "tests/test_context_routing.py",
+    "tests/test_manuscript_bootstrap.py",
+    "tests/test_entity_review_workflow.py",
+    "tests/test_revision_analysis_workflow.py",
+    "-q",
+    "-ra",
+    "--basetemp=C:\\Users\\thaib\\AppData\\Local\\Temp\\p123-core-tests-a6c22f5a6e7b4e23892c1d9e8e05b543",
+    "--junitxml=C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\ai-targeted-final-junit.xml"
+  ],
+  "exit_code": 0,
+  "egress_guard": "non-loopback DNS denied",
+  "prior_attempts": [
+    {
+      "exit": 137,
+      "scope": "container pytest; no result"
+    },
+    {
+      "exit": 1,
+      "passed": 46,
+      "failed": 3,
+      "cause": "Sandbox denied os.replace in dedicated temp directory; see ai-targeted-tests.txt"
+    }
+  ]
+}

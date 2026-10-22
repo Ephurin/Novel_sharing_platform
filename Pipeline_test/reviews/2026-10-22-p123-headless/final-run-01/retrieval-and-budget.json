@@ -1,0 +1,76 @@
+{
+  "persisted_context_summary": {
+    "plan_id": [
+      "b29e50a0-1c14-42ff-a99c-8cd0634f3127"
+    ],
+    "fact_ids": [
+      "12ba35f6-7976-4693-8057-d64e7176c4cc",
+      "9b3ecaf2-e9ef-434b-a186-6e7f66bdfcec",
+      "ec22769c-8e8f-4f4a-8190-6d2be3d08172",
+      "0deca4b7-4e93-4be1-b23c-11961894ec53",
+      "bff90d4d-c85e-4b61-9d62-6f46dcc6209a",
+      "5c5f476a-4997-4e14-9d45-b31edf4e8724"
+    ],
+    "event_ids": [
+      "b4958dff-b844-5917-a403-4cea9bd55665",
+      "ff7b1f99-24eb-58dd-bdfa-39b0ecf9a6dc",
+      "6e0a57b6-42a6-524b-b2af-962b5ef2e00e",
+      "e970d8e9-61de-59d7-8700-aa9869a72949",
+      "92785da5-7a62-5c60-a2b6-31a8db1f84be"
+    ],
+    "entity_ids": [
+      "7ec56794-b5c7-45f2-9e73-7c182c079d8a",
+      "bd230a4b-a886-4f8d-933e-9231dbd5544b",
+      "9cb9509e-60d9-4b8b-905a-c9b4bd0759bc",
+      "2ee4a9f2-27c5-41e7-9d21-1eb099a51e63",
+      "aaf87af5-f10e-45a7-89c4-4955cc77caf6",
+      "9b443b48-81de-46bf-87da-6762d3800fd0",
+      "9a79dacf-2c1d-4257-a001-8c833f7a6eaa",
+      "3a55d666-79fd-4b3e-aec7-affc349abb8e",
+      "b21a44f0-29c9-4f31-ae87-be9d19f56da9",
+      "a43fd6b6-1f76-48d8-9f79-b8868954b630",
+      "b197498e-3525-44ce-bf04-879bddb2f9a4",
+      "8b50e731-fc72-4072-8d41-9202b1972023",
+      "b0d03a95-4de1-48ed-868f-d775c0c63beb",
+      "5e5ff82d-dd9f-4db3-bbad-4dfa08930799",
+      "47652a8e-f69f-44e9-97ba-4a03d8f3a579"
+    ],
+    "query_text": "Headless 77de0fafacce45cf8e5c5d7cdc68ff4d: tiếp tục theo dõi máy thu CV-04.",
+    "context_hash": "0ef44fb2d1a263baf1f4c14e5a9c5d26f6ba956535cd273e0634670ae2e006d1",
+    "drop_reasons": {},
+    "plan_version": [
+      "1"
+    ],
+    "chapter_number": 5,
+    "cutoff_chapter": 5,
+    "dropped_fact_ids": [],
+    "selection_policy": [
+      "query-relevance-diverse-whole-artifacts-v2"
+    ],
+    "dropped_event_ids": [],
+    "brain_version_used": 6,
+    "dropped_entity_ids": [],
+    "active_objective_id": [
+      "82e4c081-6921-4691-9438-5cc1e0e721b4"
+    ],
+    "requested_character": null,
+    "semantic_memory_ids": [],
+    "active_objective_title": [
+      "HEADLESS_FUTURE_PLAN"
+    ],
+    "context_packing_version": [
+      "context-budget-v2-diverse"
+    ],
+    "dropped_semantic_memory_ids": [],
+    "context_token_estimator_version": "[REDACTED]",
+    "deduplicated_semantic_memory_ids": [],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "recent_scope_participant_entity_ids": []
+  },
+  "semantic_retrieval_quality": "NOT_ASSESSED",
+  "overflow_fault": "NOT_RUN",
+  "future_entity_cutoff": "NOT_YET_VERIFIED",
+  "locked_rule_stress": "NOT_RUN"
+}

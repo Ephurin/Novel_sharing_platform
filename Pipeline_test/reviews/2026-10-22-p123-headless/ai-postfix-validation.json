@@ -1,0 +1,23 @@
+{
+  "tested_sha": "0ada9755ce2cbc960c5b108becc2c50ba1674577",
+  "args": [
+    "-m",
+    "not postgres_integration",
+    "--basetemp=.pytest_tmp",
+    "tests/test_context_budget.py",
+    "tests/test_context_routing.py",
+    "tests/test_manuscript_bootstrap.py",
+    "tests/test_entity_review_workflow.py",
+    "tests/test_revision_analysis_workflow.py",
+    "tests/test_entity_cutoff_provenance.py",
+    "tests/test_narrative_repository_contract.py",
+    "tests/test_canon_revision_reconciliation.py",
+    "-q",
+    "-ra",
+    "--basetemp=C:\\Users\\thaib\\AppData\\Local\\Temp\\p123-postfix-tests-6d0d8d76d9834f64a6510eaf3b5a1b17",
+    "--junitxml=C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\ai-postfix-junit.xml"
+  ],
+  "exit_code": 0,
+  "egress_guard": "non-loopback DNS denied",
+  "scope": "Offline unit/repository regressions; SQL variant uses SQLite. Durable PostgreSQL verified separately in headless HTTP run."
+}

@@ -1,0 +1,175 @@
+{
+  "tested_sha": "b5c9c8db6bfd976f37d8811c2db45ad40691fd99",
+  "novel_id": "14300d20-a248-4d3c-8be0-947766ba2f61",
+  "future_entity_cutoff": "PASS",
+  "failure_count": 0,
+  "external_provider_calls": 0,
+  "prior_main_checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch2",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch3",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch4",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_hash_ch5",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "same_novel_wrong_authenticated_author_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_4cb06db1-ee06-4f7d-b00a-071fcc08c56d",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_c8622f1f-3314-4b43-b983-b791001c1193",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_8d537c0e-522d-48f1-bbf9-724df79dee85",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_bb03434f-9b3b-4f43-9720-84ff5424e77f",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_6f3ef48d-91db-4f1f-a66f-587662998392",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "canon_unchanged_until_approval",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "nonempty_approved_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "approved_memory_survives_process_restart",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "attached_plan_not_historical_memory",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_matches_durable_context_hash",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_attached_in_actual_outbound",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_plan_not_outbound_historical_event",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "early_outbound_matches_durable_hash",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "later_entities_actually_seeded_in_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "later_entities_excluded_from_early_outbound",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_brain_version_rejected",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "ordinary_save_creates_revision",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "identical_save_reuses_immutable_revision",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_revision_reanalysis_rejected",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_e340bf50-ecf8-4eb9-9a3d-a808219becbd",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "first_incremental_memory_changed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "append_only_fake_reuses_existing_events",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "append_only_fake_adds_only_new_note_fact",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "single_outbox_for_replayed_save",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbox_completed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "incremental_memory_survives_restart",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "ledger_audit": "READ_FROM_OWNING_GATEWAY_HTTP; original failed ledger-lock attempt preserved"
+}
