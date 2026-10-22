@@ -41,3 +41,16 @@ def test_evidence_redacts_nested_credentials():
     assert runner.sanitize({"password": "secret", "nested": [{"accessToken": "jwt"}],
                             "context_hash": "abc"}) == {
         "password": "[REDACTED]", "nested": [{"accessToken": "[REDACTED]"}], "context_hash": "abc"}
+
+
+def test_fake_append_only_reconciliation_reuses_old_value_and_proposes_new():
+    from Pipeline_test.tools.fake_p123_scenario import reconciliation
+    data = {"approved": {"old": {"kind": "fact", "payload": {
+        "fact_key": "scene", "fact_value": {"value": "Source observation"}}}},
+        "candidates": [{"proposal_id": "same", "kind": "fact", "payload": {
+            "fact_key": "scene", "fact_value": "Source observation"}},
+            {"proposal_id": "new", "kind": "fact", "payload": {
+                "fact_key": "note", "fact_value": "New source note"}}]}
+    result = reconciliation(json.dumps(data))
+    assert [(d["action"], d["target_id"]) for d in result["decisions"]] == [("reuse", "old"), ("new", "")]
+    assert result["removed_ids"] == []

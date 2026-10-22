@@ -49,7 +49,13 @@ class FakeHandler(BaseHTTPRequestHandler):
             if config.get('responseMimeType') == 'application/json':
                 schema = config.get('responseJsonSchema', {})
                 props = schema.get('properties', {})
-                if 'decisions' in props:
+                if self.scenario == 'p123-core-v1' and 'removed_ids' in props:
+                    try:
+                        from .fake_p123_scenario import reconciliation
+                    except ImportError:
+                        from fake_p123_scenario import reconciliation
+                    output = reconciliation(text)
+                elif 'decisions' in props:
                     request = json.loads(text.split('\n\n')[-1])
                     output = {'decisions': [{'candidate_id': c['candidate_id'], 'verdict': 'not_entity',
                         'reason': 'Offline deterministic fixture, not a quality verdict'} for c in request['candidates']]}
@@ -62,7 +68,7 @@ class FakeHandler(BaseHTTPRequestHandler):
                 elif 'events' in props: output = {'events': []}
                 elif 'facts' in props: output = {'facts': []}
                 else: output = {'entities': []}
-                if self.scenario == 'wave1f-grounded-v1':
+                if self.scenario in ('wave1f-grounded-v1', 'p123-core-v1') and 'removed_ids' not in props:
                     try:
                         from .fake_wave1f_scenario import output as wave1f_output
                     except ImportError:
@@ -91,13 +97,14 @@ class FakeHandler(BaseHTTPRequestHandler):
                  'dispatch_id': self.headers['X-Gateway-Dispatch-Id'], 'client': self.headers['X-Gateway-Client'],
                  'native_schema': config.get('responseJsonSchema'), 'output_limit': config.get('maxOutputTokens', config.get('max_tokens')),
                  'upstream_auth_valid': True, 'prompt_text': text}
-        if self.scenario in ('wave1e-mixed-v1','wave1f-grounded-v1','wave1h-context-verify-v1'):
+        if self.scenario in ('wave1e-mixed-v1','wave1f-grounded-v1','wave1h-context-verify-v1','p123-core-v1'):
             entry.update(scenario=self.scenario,received_at=time.time(),response=result,
-                         operation=('writing_generation' if ('Story Brain' in text or 'Author AI Copilot' in text) else
+                         operation=('canon_reconciliation' if 'removed_ids' in config.get('responseJsonSchema',{}).get('properties',{}) else
+                                    'writing_generation' if ('Story Brain' in text or 'Author AI Copilot' in text) else
                                     'entity_verification' if 'decisions' in config.get('responseJsonSchema',{}).get('properties',{}) else
                                     'events' if 'events' in config.get('responseJsonSchema',{}).get('properties',{}) else
                                     'facts' if 'facts' in config.get('responseJsonSchema',{}).get('properties',{}) else 'discovery'))
-        if self.scenario in ('wave1f-grounded-v1','wave1h-context-verify-v1'):
+        if self.scenario in ('wave1f-grounded-v1','wave1h-context-verify-v1','p123-core-v1'):
             if 'Suggest future events' in text:entry['operation']='plan_suggestions'
             if 'findings' in config.get('responseJsonSchema',{}).get('properties',{}):entry['operation']='consistency'
         with self.lock:

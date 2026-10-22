@@ -42,7 +42,7 @@ services:
     environment:
       OFFLINE_UPSTREAM_KEY: ${OFFLINE_UPSTREAM_KEY:?fake upstream credential required}
       FAKE_REQUEST_LOG: /evidence/requests.jsonl
-      FAKE_SCENARIO: wave1f-grounded-v1
+      FAKE_SCENARIO: p123-core-v1
     volumes:
     - ./:/tools:ro
     - fake_state:/evidence
