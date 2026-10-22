@@ -6,6 +6,7 @@ import json
 import uuid
 from dataclasses import asdict, replace
 from domain.repositories import NarrativeRepository
+from domain.errors import ControllerIntentSupersededError
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -354,7 +355,10 @@ def update_story_plan_objective(
             plan_id=plan_id,
             objective_id=objective_id,
             status=payload.status,
+            **({'controller_intent': payload.controller_intent.model_dump()} if payload.controller_intent else {}),
         )
+    except ControllerIntentSupersededError as exc:
+        raise HTTPException(409, detail={'code': 'OBJECTIVE_INTENT_SUPERSEDED', 'message': str(exc)}) from exc
     except KeyError as exc:
         raise HTTPException(404, detail={"code": "OBJECTIVE_NOT_FOUND", "message": str(exc)}) from exc
     return {
@@ -971,7 +975,10 @@ def accept_proposal_group(
             payload.expected_brain_version,
             payload.reason,
             payload.edited_payloads,
+            payload.controller_intent.model_dump() if payload.controller_intent else None,
         )
+    except ControllerIntentSupersededError as exc:
+        raise HTTPException(409, detail={'code': 'OBJECTIVE_INTENT_SUPERSEDED', 'message': str(exc)}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except OptimisticLockError as exc:

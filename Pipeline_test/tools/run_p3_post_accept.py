@@ -41,6 +41,9 @@ def run(env,output,seam,action,expect_red=False):
    p.check('accepted_history_already_committed',len([x for x in before['chapter_revisions'] if x['source_type']=='AI_DRAFT_ACCEPT'])==1)
    p.api('PATCH',op,{'novel_id':p.novel,'status':'skipped'},headers={'Authorization':'Bearer '+p.foreign},expected=(403,))
    p.api('POST',rp+'/stop',{},headers={'Authorization':'Bearer invalid'},expected=(401,))
+   if action=='advance_first':
+    p.command(p.compose+['exec','-T','backend','node','-e',"require('fs').writeFileSync('/tmp/p3-intent-release','release')"])
+    p.save('advance-before-cancel',future.result())
    if action in ['stop','kill_stop']:
     p.save('author-cancel',p.api('POST',rp+'/stop',{'reason':'SIMULATED_HUMAN_VIA_API post accept stop'}))
     p.save('author-cancel-repeat',p.api('POST',rp+'/stop',{'reason':'SIMULATED_HUMAN_VIA_API repeated stop'}))
@@ -56,7 +59,8 @@ def run(env,output,seam,action,expect_red=False):
   if action=='kill_stop':p.command(p.compose+['start','backend'])
   p.command(p.compose+['exec','-T','backend','node','-e',"require('fs').rmSync('/tmp/p3-intent-config.json',{force:true})"])
   after=state();p.save('after',after)
-  safe=after['memory']==before['memory'] and after['plan']['objectives'][0]['status']!='completed'
+  safe=(after['memory']==before['memory'] or action=='advance_first') and after['plan']['objectives'][0]['status']!='completed'
+  if action=='advance_first':p.check('advance_committed_before_skip',p.api('GET',rp)['status']=='completed')
   p.check('post_cancel_no_canon_or_completed_overwrite',safe if not expect_red else not safe)
   p.check('accepted_revision_retained_once',len([x for x in after['chapter_revisions'] if x['source_type']=='AI_DRAFT_ACCEPT'])==1)
   p.check('single_analysis_outbox',len(after['revision_outbox_events'])==1)
@@ -73,4 +77,4 @@ def run(env,output,seam,action,expect_red=False):
  p.save('validation',{'tested_sha':p.source_sha,'source_dirty_at_start':p.source_dirty,'project':p.project,'novel_id':p.novel,'run_id':rid,'seam':seam,'action':action,'checks':p.checks,'failure':error,'verdict':'FAIL' if error else 'EXPECTED_RED' if expect_red else 'PASS','external_provider_calls':0})
  print(json.dumps({'seam':seam,'action':action,'failure':error,'checks':len(p.checks)}));return int(error is not None)
 if __name__=='__main__':
- a=argparse.ArgumentParser();a.add_argument('--env-file',required=True);a.add_argument('--output',required=True);a.add_argument('--seam',choices=['post_commit','pre_approval','pre_progress'],required=True);a.add_argument('--action',choices=['skip','stop','ABA','kill_stop'],required=True);a.add_argument('--expect-red',action='store_true');v=a.parse_args();raise SystemExit(run(v.env_file,v.output,v.seam,v.action,v.expect_red))
+ a=argparse.ArgumentParser();a.add_argument('--env-file',required=True);a.add_argument('--output',required=True);a.add_argument('--seam',choices=['post_commit','pre_approval','pre_progress'],required=True);a.add_argument('--action',choices=['skip','stop','ABA','kill_stop','advance_first'],required=True);a.add_argument('--expect-red',action='store_true');v=a.parse_args();raise SystemExit(run(v.env_file,v.output,v.seam,v.action,v.expect_red))

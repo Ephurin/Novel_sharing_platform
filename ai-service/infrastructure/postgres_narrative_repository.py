@@ -516,6 +516,7 @@ class PostgresNarrativeRepository:
         *,
         edited_payloads: dict[str, dict[str, Any]] | None = None,
         reason: str | None = None,
+        controller_intent: dict | None = None,
     ) -> dict[str, Any]:
         from domain.errors import ProposalAlreadyDecidedError
 
@@ -523,6 +524,10 @@ class PostgresNarrativeRepository:
         proposal_uuids = [self._stable_uuid("proposal", item) for item in proposal_ids]
         edited_payloads = edited_payloads or {}
         with session_scope(self._session_factory) as session:
+            if controller_intent is not None:
+                from infrastructure.controller_intent import lock_controller_intent
+                lock_controller_intent(session, novel_id=novel_id, tenant_id=self._tenant_id,
+                    actor_id=self._actor_id, intent=controller_intent)
             brain = session.scalar(
                 select(StoryBrainRecord)
                 .where(*self._scope(StoryBrainRecord, novel_id))
@@ -543,6 +548,10 @@ class PostgresNarrativeRepository:
             ).all()
             if len(proposals) != len(set(proposal_uuids)):
                 raise KeyError("Proposal group is incomplete")
+            if controller_intent is not None and any(not p.evidence or any(
+                str(e.get('revision_id')) != controller_intent['revision_id'] for e in p.evidence) for p in proposals):
+                from domain.errors import ControllerIntentSupersededError
+                raise ControllerIntentSupersededError('Proposals do not belong to the accepted controller revision')
             if any(item.status != ProposalStatus.PENDING.value for item in proposals):
                 raise ProposalAlreadyDecidedError("Proposal group contains a decided proposal")
             groups = {item.dependency_group_id for item in proposals}
@@ -2282,11 +2291,19 @@ class PostgresNarrativeRepository:
         plan_id: str,
         objective_id: str,
         status: str,
+        controller_intent: dict | None = None,
     ) -> StoryPlanObjective:
         o_uuid = uuid.UUID(objective_id)
         p_uuid = uuid.UUID(plan_id)
         n_id = self._novel_id(novel_id)
         with session_scope(self._session_factory) as session:
+            if controller_intent is not None:
+                from infrastructure.controller_intent import lock_controller_intent
+                from domain.errors import ControllerIntentSupersededError
+                run, current = lock_controller_intent(session, novel_id=n_id, tenant_id=self._tenant_id,
+                    actor_id=self._actor_id, intent=controller_intent)
+                if run.plan_id != p_uuid or current.id != o_uuid or status != 'completed':
+                    raise ControllerIntentSupersededError('Invalid controller progress target')
             # Enforce that the plan exists and belongs to the specified novel & tenant
             plan = session.scalar(
                 select(StoryPlanRecord).where(

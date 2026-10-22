@@ -178,6 +178,7 @@ class NarrativeApplicationService:
         expected_brain_version: int,
         reason: str | None = None,
         edited_payloads: dict[str, dict[str, Any]] | None = None,
+        controller_intent: dict | None = None,
     ) -> dict[str, Any]:
         return self._repository.accept_proposal_group(
             story_id,
@@ -185,6 +186,7 @@ class NarrativeApplicationService:
             expected_brain_version,
             reason=reason,
             edited_payloads=edited_payloads,
+            **({'controller_intent': controller_intent} if controller_intent is not None else {}),
         )
 
     def accept_proposal_group_by_ids(
@@ -194,6 +196,7 @@ class NarrativeApplicationService:
         expected_brain_version: int,
         reason: str | None = None,
         edited_payloads: dict[str, dict[str, Any]] | None = None,
+        controller_intent: dict | None = None,
     ) -> dict[str, Any]:
         if not set(edited_payloads or {}).issubset(proposal_ids):
             raise ValueError("Edits must belong to selected proposals")
@@ -204,7 +207,7 @@ class NarrativeApplicationService:
         if any(proposal.dependency_group_id != group_id for _, proposal in located):
             raise ValueError("Proposal does not belong to dependency group")
         return self.accept_proposal_group(
-            story_ids.pop(), proposal_ids, expected_brain_version, reason, edited_payloads
+            story_ids.pop(), proposal_ids, expected_brain_version, reason, edited_payloads, controller_intent
         )
 
     def accept_proposal_by_id(

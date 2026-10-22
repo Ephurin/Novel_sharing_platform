@@ -236,7 +236,11 @@ class InMemoryNarrativeRepository:
         *,
         edited_payloads: dict[str, dict[str, Any]] | None = None,
         reason: str | None = None,
+        controller_intent: dict | None = None,
     ) -> dict[str, Any]:
+        if controller_intent is not None:
+            from domain.errors import ControllerIntentSupersededError
+            raise ControllerIntentSupersededError('Durable controller progress requires PostgreSQL')
         brain = self.get_story_brain(story_id)
         current_version = int(brain.metadata.get("brain_version", "1"))
         if current_version != expected_brain_version:
@@ -1050,7 +1054,11 @@ class InMemoryNarrativeRepository:
         plan_id: str,
         objective_id: str,
         status: str,
+        controller_intent: dict | None = None,
     ) -> StoryPlanObjective:
+        if controller_intent is not None:
+            from domain.errors import ControllerIntentSupersededError
+            raise ControllerIntentSupersededError('Durable controller progress requires PostgreSQL')
         plan = self._story_plans.get(plan_id)
         if not plan or plan.novel_id != novel_id:
             raise KeyError(f"StoryPlan {plan_id} not found")

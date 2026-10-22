@@ -1,5 +1,6 @@
 import { approveAutonomousMemory, objectiveIsComplete, EntityReviewRequiredError } from './autonomous-memory.service.js';
 import { withAutonomousRunLock } from './autonomous-run.repository.js';
+import { controllerAttempt } from '../novels/controller-intent.js';
 import crypto from 'node:crypto';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
@@ -137,7 +138,15 @@ export class AutonomousControllerService {
   }
 
   async stepRun(auth: AuthContext, runId: string, options?: StepOptions): Promise<AutonomousRunDto> {
-    return withAutonomousRunLock(runId, () => this.stepRunLocked(auth, runId, options));
+    return withAutonomousRunLock(runId, async () => {
+      try { return await this.stepRunLocked(auth, runId, options); }
+      catch (error) {
+        if (error instanceof AppError && ['OBJECTIVE_INTENT_SUPERSEDED', 'RUN_TERMINAL'].includes(error.code)) {
+          return this.getRun(auth, runId);
+        }
+        throw error;
+      }
+    });
   }
 
   private async stepRunLocked(auth: AuthContext, runId: string, options?: StepOptions): Promise<AutonomousRunDto> {
@@ -255,10 +264,13 @@ export class AutonomousControllerService {
           path: `/internal/v1/writing/generations/${latestRev.sourceGenerationId}`,
           userId: auth.userId,
         });
+        const attempt = typeof existingJob?.idempotency_key === 'string' ? controllerAttempt(existingJob.idempotency_key) : null;
         if (existingJob && existingJob.status === 'completed'
           && existingJob.novel_id === run.novel_id && existingJob.chapter_id === targetChapter.chapterId
           && typeof existingJob.idempotency_key === 'string'
-          && existingJob.idempotency_key.startsWith(`auto-${run.run_id}-`)) {
+          && attempt?.runId === run.run_id && attempt.objectiveId === currentObjectiveId
+          && attempt.intent === eligibleObj.intent_version && attempt.planVersion === run.plan_version
+          && attempt.iteration === run.current_iteration && attempt.retry === run.current_retries) {
           genJob = existingJob;
           isAlreadyAccepted = true;
         }
@@ -437,9 +449,11 @@ export class AutonomousControllerService {
         assertCurrent: ids => assertCurrentProposalEvidence(run.novel_id, ids, auth.userId),
         accept: async (gid, ids, version) => (await aiGatewayService.forwardRequest<{ brain_version: number }>({ method: 'POST',
           path: `/v1/proposal-groups/${gid}/accept`, body: { proposal_ids: ids,
-            expected_brain_version: version, reason: 'autonomous_loop_auto_advance' }, userId: auth.userId })).brain_version,
+            expected_brain_version: version, reason: 'autonomous_loop_auto_advance',
+            controller_intent: { generation_id: genJob.job_id, revision_id: acceptResult.revision.revisionId } }, userId: auth.userId })).brain_version,
       });
     } catch (error) {
+      if (error instanceof AppError && ['OBJECTIVE_INTENT_SUPERSEDED', 'RUN_TERMINAL'].includes(error.code)) throw error;
       if (error instanceof EntityReviewRequiredError) {
         return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,
           body: { stop_reason: 'waiting_for_entity_review', current_objective_id: currentObjectiveId,
@@ -484,7 +498,8 @@ export class AutonomousControllerService {
       method: 'PATCH',
       path: `/v1/story-plans/${run.plan_id}/objectives/${currentObjectiveId}`,
       queryParams: { novel_id: run.novel_id },
-      body: { status: 'completed' },
+      body: { status: 'completed', controller_intent: { generation_id: genJob.job_id,
+        revision_id: acceptResult.revision.revisionId } },
       userId: auth.userId,
     });
 

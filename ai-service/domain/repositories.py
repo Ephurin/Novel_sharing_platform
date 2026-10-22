@@ -83,6 +83,7 @@ class NarrativeRepository(Protocol):
         *,
         edited_payloads: dict[str, dict[str, Any]] | None = None,
         reason: str | None = None,
+        controller_intent: dict | None = None,
     ) -> dict[str, Any]: ...
 
     def decide_proposal(
@@ -187,6 +188,7 @@ class NarrativeRepository(Protocol):
         plan_id: str,
         objective_id: str,
         status: str,
+        controller_intent: dict | None = None,
     ) -> StoryPlanObjective: ...
 
     def create_autonomous_run(self, run: AutonomousRun) -> AutonomousRun: ...

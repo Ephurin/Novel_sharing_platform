@@ -56,10 +56,16 @@ class ProposalEditAcceptRequest(ProposalDecisionRequest):
     reason: str | None = None
 
 
+class ControllerIntentRequest(BaseModel):
+    generation_id: str = Field(pattern=r'^[0-9a-f-]{36}$')
+    revision_id: str = Field(pattern=r'^[0-9a-f-]{36}$')
+
+
 class ProposalGroupAcceptRequest(ProposalDecisionRequest):
     proposal_ids: list[str] = Field(..., min_length=1)
     reason: str | None = None
     edited_payloads: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    controller_intent: ControllerIntentRequest | None = None
 
 
 class CorrectionEventPayload(BaseModel):
@@ -133,6 +139,7 @@ class StoryPlanCreateRequest(BaseModel):
 
 class StoryPlanObjectiveUpdateRequest(BaseModel):
     status: str = Field(pattern="^(pending|in_progress|completed|skipped)$")
+    controller_intent: ControllerIntentRequest | None = None
 
 
 class AutonomousRunCreateRequest(BaseModel):

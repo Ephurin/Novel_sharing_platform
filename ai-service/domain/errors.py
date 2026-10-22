@@ -73,3 +73,7 @@ class ActiveRunConflictError(NarrativeRepositoryError):
     def __init__(self, message: str = "Active autonomous run already exists for this novel"):
         super().__init__(message)
 
+
+class ControllerIntentSupersededError(NarrativeRepositoryError):
+    pass
+
