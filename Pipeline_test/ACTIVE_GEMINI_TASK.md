@@ -1,18 +1,18 @@
-# ACTIVE CODEX TASK — P1 CORE CLOSURE + P2 HEADLESS (FE INTEGRATION HOLD)
+# ACTIVE CODEX TASK — P1 ORDERED-WRITER TEST/REPAIR → P3 HEADLESS CONTROLLER
 
-**Updated:** 2026-10-22 (Asia/Bangkok). **Permitted branch:** `codex/ai-copilot-pipeline-test`.
+**Updated:** 2026-10-22 Asia/Bangkok. **Branch:** `codex/ai-copilot-pipeline-test` ONLY.
 
-**Only current executable task:** [P123_HEADLESS_NEXT_SLICE_2026-10-22.md](P123_HEADLESS_NEXT_SLICE_2026-10-22.md). [Project priority](../promt.md) §0, [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
+**SINGLE EXECUTABLE TASK:** [P123_HEADLESS_P1_RACE_P3_TASK_2026-10-22.md](P123_HEADLESS_P1_RACE_P3_TASK_2026-10-22.md). Project instruction [../promt.md](../promt.md) §0, contract [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
 
-**Independent review:** [GPT6_P1_CORE_INDEPENDENT_REVIEW.md](reviews/2026-10-22-p123-headless/GPT6_P1_CORE_INDEPENDENT_REVIEW.md) examined source SHA `b5c9c8db6bfd976f37d8811c2db45ad40691fd99` and evidence HEAD `64407f72a7d5182f2f850d386375c7ac709ddd3a`. The bounded 33-check P1 slice is credible executor evidence, **accepted for progressing work only**. The reviewer did not rerun the Docker/pytest E2E. No full `P1_CORE_OFFLINE_PASS`.
+**GPT-6 independent review:** [GPT6_P1_P2_INDEPENDENT_REVIEW.md](reviews/2026-10-22-p123-headless/next-slice/GPT6_P1_P2_INDEPENDENT_REVIEW.md), based on code SHA `1dc7dfa38267c9eb176f56f070380930d1887d85` and executor evidence HEAD `4158e8600a4e3b76df6eaab4073235aa5fc4537a`. Source/evidence review ONLY; GPT-6 did not independently rerun Docker, PostgreSQL, Mongo or pytest.
 
-**Priority now:** Reproduce/resolve P1 backend optimistic PATCH concurrency when compatible with PR #55's contract; test real accept-generated-draft→revision→outbox→memory, DB failure recovery, locked-rule/overflow and unknown-origin temporal policies. Then execute a **new isolated P2 idea/setup-to-first-chapter headless journey**. P1 API gap may be marked BLOCKED with evidence without blocking independent P2 development; do not fabricate a version protocol. Prepare P3 checklist for the next handoff.
+**Current verdict:** P1 bounded executor headless function evidence accepted **with blocker**: same-version Mongo CAS 409 works, but reversed cross-store side effect order after two individually valid CAS writes may create stale Postgres revision/outbox and/or timestamp-based Mongo overwrite. This is a **static race hypothesis not yet runtime reproduced**. P1 full Core PASS is BLOCKED pending deterministic two-success interleaving test and safe repair/explicit blocker. P2 bounded headless 27/27 executor evidence is accepted WITH LIMITATIONS, not UI/provider/quality PASS; P2 need not be repeated absent shared regression impact.
 
-**Ownership boundary:** `HOLD_FE_INTEGRATION_ONLY`. Codex owns backend, AI service, API headless E2E, test-owned migrations. FE developer owns `web/`, Author IDE autosave and PR #52/#54/#55. No frontend edits, cherry-picks, PR merges or main changes. Historical S09 browser RED remains. API-mediated fake human review is not UI acceptance.
+**Next work:** P0 reproduce/fix the P1 Mongo v1→2 A then Mongo v2→3 B, B commits PG, then A resumes PG/Mongo sync. Use fresh isolated test-owned DB and evidence. P1 safety test needs latest Mongo body, PG immutable latest, outbox, and restart readback. After P0 bounded handoff, implement bounded P3 controller with/without Story Plan, true HITL pause/resume via simulated-author API, draft-only generate/accept/analysis/canon/objective, failure/idempotency/terminal. P3 100k NOT_RUN and not authorized live.
 
-**Safety:** New isolated project/DB/Mongo/identity/run, fake-only LLM and zero external Gemini/OpenAI/embedding calls; preserve historical artifacts and ledger. No auto publish. P3 100k long-run NOT_RUN; live provider and literary quality NOT_TESTED.
+**Scope:** Backend/AI/API/headless only, no `web/` edits, FE PR cherry-pick/merge or main writes. Historical browser S09 RED remains. `HOLD_FE_INTEGRATION_ONLY` persists. ZERO external real provider or embeddings. Preserve evidence/ledgers/gold and use fresh isolated env. All `SIMULATED_HUMAN_VIA_API` decisions must be labeled, no unattended claim.
 
-The earlier [P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md](P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md) first P1 slice is **delivered**, and [THREE_USECASE_COMPLETION_TASK_2026-10-22.md](THREE_USECASE_COMPLETION_TASK_2026-10-22.md) remains PARKED. Historical instructions below are not current assignments.
+Previous [P123_HEADLESS_NEXT_SLICE_2026-10-22.md](P123_HEADLESS_NEXT_SLICE_2026-10-22.md) completed its executor scope. The old full-stack FE plan remains PARKED. Everything below is historical.
 
 ---
 
