@@ -1,0 +1,49 @@
+{
+  "tested_sha": "54314d38bd7dffca060898b9239cd7caa0ca7732",
+  "source_dirty_at_start": false,
+  "project": "p123-core-d9e6589593",
+  "novel_id": "734d929e-cf60-4293-820e-b3bb268859fd",
+  "run_id": "e9727785-030c-4e62-8d4f-95de12c7d9e7",
+  "seam": "pre_approval",
+  "action": "stop",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_224b1b97-6a2c-4589-ae8a-f871ba545e42",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_history_already_committed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "post_cancel_no_canon_or_completed_overwrite",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_revision_retained_once",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "single_analysis_outbox",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "restart_retains_memory",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

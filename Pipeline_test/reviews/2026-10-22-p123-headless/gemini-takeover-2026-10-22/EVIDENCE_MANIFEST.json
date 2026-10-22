@@ -1,0 +1,557 @@
+{
+  "manifest_version": "1.0",
+  "generator": "GEMINI_EXECUTOR",
+  "date": "2026-10-22",
+  "target_branch": "codex/ai-copilot-pipeline-test",
+  "authority_sha": "0582f0528f80740c17f0caa75ccc541fb3080e69",
+  "codex_final_source_sha": "3f7320c9ec0c2e6d9c6c67bc75d16f4449d39c99",
+  "codex_final_docs_evidence_head": "c55b2f4d0b8e7f6895e70a48845f08a37c3b8bd2",
+  "root_post_accept_validation_json_present": false,
+  "root_post_accept_validation_json_note": "Root post-accept/validation.json is absent on checked out tree; green-03 individual validations verified.",
+  "codex_green_03_summary": {
+    "scenario_count": 11,
+    "total_checks": 77,
+    "total_pass": 77,
+    "total_fail": 0,
+    "scenarios": {
+      "post_commit-skip": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/post_commit-skip/validation.json",
+        "sha256": "a8551275b14fbc39cdd5469931012a0e15e648d56bf355b36061b729f0854568",
+        "verdict": "PASS",
+        "check_count": 6,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "post_commit-stop": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/post_commit-stop/validation.json",
+        "sha256": "4138e1d4985a0642ab4c38da49c6562f7576daf5c1022c800bf47a052e981aef",
+        "verdict": "PASS",
+        "check_count": 6,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "pre_approval-stop": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/pre_approval-stop/validation.json",
+        "sha256": "90463c743e3e5095a9f2337dd0a8d4c903ca12539adc93411a00ff2f19250350",
+        "verdict": "PASS",
+        "check_count": 7,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "entity_review_not_canon_6916a094-4600-4fd2-b5ab-5fbd63ad0f67",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "pre_approval-skip": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/pre_approval-skip/validation.json",
+        "sha256": "3cf32aaf65f7207c3bbe61a0e4dbeb933e5a339a9ee5662599eae0fa131680d3",
+        "verdict": "PASS",
+        "check_count": 7,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "entity_review_not_canon_049872c8-3810-4f74-b065-fb6076b67ed4",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "pre_approval-kill_stop": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/pre_approval-kill_stop/validation.json",
+        "sha256": "f76a3825e6655618c30730af24ebfac82ed205657457c2def12a78f75abf9fea",
+        "verdict": "PASS",
+        "check_count": 7,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "entity_review_not_canon_ae2a4a7f-40a9-46aa-97f0-bf99ef75347f",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "pre_approval-advance_first": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/pre_approval-advance_first/validation.json",
+        "sha256": "f9681fb87c748ec0257601b92d7989f1d5ef4e76960f128fe956e3c986982046",
+        "verdict": "PASS",
+        "check_count": 8,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "entity_review_not_canon_50bb646d-f8a1-4f9d-924a-63e7dcf6e5cf",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "advance_committed_before_skip",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "pre_approval-ABA-02": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/pre_approval-ABA-02/validation.json",
+        "sha256": "4ddcdec486db9e3cc5445af842b56885de860c6da9836f65fb07732c813303d5",
+        "verdict": "PASS",
+        "check_count": 9,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "entity_review_not_canon_b26f95cb-17d5-4bd6-bb61-8f1617941e0f",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "stale_epoch_run_still_running",
+            "status": "PASS"
+          },
+          {
+            "name": "stale_epoch_exact_conflict",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "pre_progress-skip": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/pre_progress-skip/validation.json",
+        "sha256": "39912570048d6e1f6166963bab721628ae6462fd03e5391f4f0a26ebeb68b2f0",
+        "verdict": "PASS",
+        "check_count": 7,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "entity_review_not_canon_c2d9143e-df41-44b7-8658-ae7921307a0d",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "pre_progress-stop": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/pre_progress-stop/validation.json",
+        "sha256": "72177d9f5802ec6246e256d6731c9b6fa597fe63841dc023dd95828337ddb568",
+        "verdict": "PASS",
+        "check_count": 7,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "entity_review_not_canon_8160ee0d-c855-4a8a-925c-ed3d4b8d1cbd",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "hitl": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/hitl/validation.json",
+        "sha256": "f46f9c4b1979a91262050910868e855167c27790bae03db39d92b7885768ce20",
+        "verdict": "PASS",
+        "check_count": 6,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "entity_review_not_canon_87c618e1-723f-446e-a220-0dbad3c71964",
+            "status": "PASS"
+          },
+          {
+            "name": "stale_HITL_no_canon",
+            "status": "PASS"
+          },
+          {
+            "name": "stale_HITL_preserves_skipped",
+            "status": "PASS"
+          },
+          {
+            "name": "stale_HITL_terminal",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_no_revive",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      },
+      "replacement": {
+        "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/replacement/validation.json",
+        "sha256": "b1e4d298358516e60c567880f0ba3bd040eef41c5a518bd5af0b966830ec592b",
+        "verdict": "PASS",
+        "check_count": 7,
+        "checks": [
+          {
+            "name": "isolated_real_databases_fake_only",
+            "status": "PASS"
+          },
+          {
+            "name": "entity_review_not_canon_aed5191b-0e4b-4499-8630-e6296d574e19",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_history_already_committed",
+            "status": "PASS"
+          },
+          {
+            "name": "post_cancel_no_canon_or_completed_overwrite",
+            "status": "PASS"
+          },
+          {
+            "name": "accepted_revision_retained_once",
+            "status": "PASS"
+          },
+          {
+            "name": "single_analysis_outbox",
+            "status": "PASS"
+          },
+          {
+            "name": "restart_retains_memory",
+            "status": "PASS"
+          }
+        ],
+        "origin": "CODEX_EXECUTOR"
+      }
+    },
+    "actual_total_checks": 77
+  },
+  "codex_other_suites": {
+    "p1-writer": {
+      "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/p1-writer/validation.json",
+      "sha256": "e16ac580d5418f131bfff207ac7cad21e97bd5751aad27b25484e09fa9762c4b",
+      "verdict": "PASS",
+      "check_count": 0,
+      "note": "Headless validation",
+      "origin": "CODEX_EXECUTOR"
+    },
+    "p2": {
+      "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/p2/validation.json",
+      "sha256": "16d05a4f022f4e37346f61e44b2e2b15f1d96163b2a7a10df592c11421ce3b09",
+      "verdict": "PASS",
+      "check_count": 27,
+      "note": "Headless validation",
+      "origin": "CODEX_EXECUTOR"
+    },
+    "p3-existing": {
+      "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/p3-existing/validation.json",
+      "sha256": "cedd01b7472ac3f47205392c75ba3e535a9d336ff3d9a9c4b5c15d655fc8c419",
+      "verdict": "PASS",
+      "check_count": 12,
+      "note": "Headless validation",
+      "origin": "CODEX_EXECUTOR"
+    },
+    "p3-no-plan": {
+      "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/p3-no-plan/validation.json",
+      "sha256": "647b6be53cc5c15d863e3f8fffaeb32fa2eca8f18b3df1bdf4cf140a8d1f04a8",
+      "verdict": "PASS",
+      "check_count": 12,
+      "note": "Headless validation",
+      "origin": "CODEX_EXECUTOR"
+    },
+    "pre_approval-ABA": {
+      "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03/pre_approval-ABA/validation.json",
+      "sha256": "4d3e6cc3dad259962f70af0ecf27236896c877560fce7f7988c0f3f9e46548ba",
+      "verdict": "FAIL",
+      "check_count": 2,
+      "note": "Preserved historical attempt",
+      "origin": "CODEX_EXECUTOR"
+    }
+  },
+  "gemini_runtime_reproductions": {
+    "repro-pre_progress-skip": {
+      "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/gemini-takeover-2026-10-22/repro-pre_progress-skip/validation.json",
+      "sha256": "445f5e4b91e3013d530f62cac6720084b6538c632a11c93dae9512667eb9e6c7",
+      "verdict": "PASS",
+      "check_count": 7,
+      "project": "p123-core-409292495f",
+      "external_provider_calls": 0,
+      "checks": [
+        {
+          "name": "isolated_real_databases_fake_only",
+          "status": "PASS"
+        },
+        {
+          "name": "entity_review_not_canon_0ae39575-5b2d-4da4-8cfd-607c9648e9b2",
+          "status": "PASS"
+        },
+        {
+          "name": "accepted_history_already_committed",
+          "status": "PASS"
+        },
+        {
+          "name": "post_cancel_no_canon_or_completed_overwrite",
+          "status": "PASS"
+        },
+        {
+          "name": "accepted_revision_retained_once",
+          "status": "PASS"
+        },
+        {
+          "name": "single_analysis_outbox",
+          "status": "PASS"
+        },
+        {
+          "name": "restart_retains_memory",
+          "status": "PASS"
+        }
+      ],
+      "origin": "GEMINI_EXECUTOR"
+    },
+    "repro-pre_approval-stop": {
+      "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/gemini-takeover-2026-10-22/repro-pre_approval-stop/validation.json",
+      "sha256": "a05308582f8bc56f7392dc59c5ce3fa8e2987d7faadf6260a183abaf895b77a1",
+      "verdict": "PASS",
+      "check_count": 7,
+      "project": "p123-core-d9e6589593",
+      "external_provider_calls": 0,
+      "checks": [
+        {
+          "name": "isolated_real_databases_fake_only",
+          "status": "PASS"
+        },
+        {
+          "name": "entity_review_not_canon_224b1b97-6a2c-4589-ae8a-f871ba545e42",
+          "status": "PASS"
+        },
+        {
+          "name": "accepted_history_already_committed",
+          "status": "PASS"
+        },
+        {
+          "name": "post_cancel_no_canon_or_completed_overwrite",
+          "status": "PASS"
+        },
+        {
+          "name": "accepted_revision_retained_once",
+          "status": "PASS"
+        },
+        {
+          "name": "single_analysis_outbox",
+          "status": "PASS"
+        },
+        {
+          "name": "restart_retains_memory",
+          "status": "PASS"
+        }
+      ],
+      "origin": "GEMINI_EXECUTOR"
+    }
+  },
+  "gemini_focused_regressions": {
+    "validation_path": "Pipeline_test/reviews/2026-10-22-p123-headless/gemini-takeover-2026-10-22/focused-regressions/validation.json",
+    "sha256": "9db167c1b5f8443fb6885268f0bd15da94a836ad8bbef2b24b488b3bb8ff97df",
+    "ai_tests": "166 passed, 2 skipped",
+    "backend_typecheck": "PASS (exit_code 0)",
+    "backend_focused_unit": "PASS (44 passed, exit_code 0)",
+    "origin": "GEMINI_EXECUTOR"
+  }
+}

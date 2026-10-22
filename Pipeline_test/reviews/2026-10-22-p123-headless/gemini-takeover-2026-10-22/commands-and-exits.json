@@ -1,0 +1,82 @@
+[
+  {
+    "step": "G2-prov-1",
+    "description": "Allocate isolated subnet triple and environment manifest for pre_progress-skip",
+    "command": "python Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/prepare_additional.py Pipeline_test/reviews/2026-10-22-p123-headless/gemini-takeover-2026-10-22/test-pre_progress-skip-env.json",
+    "project": "p123-core-409292495f",
+    "exit_code": 0
+  },
+  {
+    "step": "G2-init-1",
+    "description": "Initialize budget container for p123-core-409292495f",
+    "command": "docker compose --env-file Pipeline_test\\tools\\.env.p123-core-409292495f -f Pipeline_test/tools/compose.p123-p3.yml -f Pipeline_test/tools/compose.p123-post-accept-test.yml --profile initialize run --rm budget-init",
+    "project": "p123-core-409292495f",
+    "exit_code": 0
+  },
+  {
+    "step": "G2-up-1",
+    "description": "Start isolated docker compose services for p123-core-409292495f",
+    "command": "docker compose --env-file Pipeline_test\\tools\\.env.p123-core-409292495f -f Pipeline_test/tools/compose.p123-p3.yml -f Pipeline_test/tools/compose.p123-post-accept-test.yml up -d --build",
+    "project": "p123-core-409292495f",
+    "exit_code": 0
+  },
+  {
+    "step": "G2-run-1",
+    "description": "Execute pre_progress-skip post-accept cancellation test",
+    "command": "python Pipeline_test/tools/run_p3_post_accept.py --env-file Pipeline_test\\tools\\.env.p123-core-409292495f --output Pipeline_test/reviews/2026-10-22-p123-headless/gemini-takeover-2026-10-22/repro-pre_progress-skip --seam pre_progress --action skip",
+    "project": "p123-core-409292495f",
+    "exit_code": 0,
+    "result": "PASS (7 checks passed, 0 failures, 0 external provider calls)"
+  },
+  {
+    "step": "G2-stop-1",
+    "description": "Gracefully stop p123-core-409292495f containers",
+    "command": "docker compose --env-file Pipeline_test\\tools\\.env.p123-core-409292495f -f Pipeline_test/tools/compose.p123-p3.yml -f Pipeline_test/tools/compose.p123-post-accept-test.yml stop -t 2",
+    "project": "p123-core-409292495f",
+    "exit_code": 0
+  },
+  {
+    "step": "G2-prov-2",
+    "description": "Allocate isolated subnet triple and environment manifest for pre_approval-stop",
+    "command": "python Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/prepare_additional.py Pipeline_test/reviews/2026-10-22-p123-headless/gemini-takeover-2026-10-22/test-pre_approval-stop-env.json",
+    "project": "p123-core-d9e6589593",
+    "exit_code": 0
+  },
+  {
+    "step": "G2-init-2",
+    "description": "Initialize budget container for p123-core-d9e6589593",
+    "command": "docker compose --env-file Pipeline_test\\tools\\.env.p123-core-d9e6589593 -f Pipeline_test/tools/compose.p123-p3.yml -f Pipeline_test/tools/compose.p123-post-accept-test.yml --profile initialize run --rm budget-init",
+    "project": "p123-core-d9e6589593",
+    "exit_code": 0
+  },
+  {
+    "step": "G2-up-2",
+    "description": "Start isolated docker compose services for p123-core-d9e6589593",
+    "command": "docker compose --env-file Pipeline_test\\tools\\.env.p123-core-d9e6589593 -f Pipeline_test/tools/compose.p123-p3.yml -f Pipeline_test/tools/compose.p123-post-accept-test.yml up -d",
+    "project": "p123-core-d9e6589593",
+    "exit_code": 0
+  },
+  {
+    "step": "G2-run-2",
+    "description": "Execute pre_approval-stop post-accept cancellation test",
+    "command": "python Pipeline_test/tools/run_p3_post_accept.py --env-file Pipeline_test\\tools\\.env.p123-core-d9e6589593 --output Pipeline_test/reviews/2026-10-22-p123-headless/gemini-takeover-2026-10-22/repro-pre_approval-stop --seam pre_approval --action stop",
+    "project": "p123-core-d9e6589593",
+    "exit_code": 0,
+    "result": "PASS (7 checks passed, 0 failures, 0 external provider calls)"
+  },
+  {
+    "step": "G2-stop-2",
+    "description": "Gracefully stop p123-core-d9e6589593 containers",
+    "command": "docker compose --env-file Pipeline_test\\tools\\.env.p123-core-d9e6589593 -f Pipeline_test/tools/compose.p123-p3.yml -f Pipeline_test/tools/compose.p123-post-accept-test.yml stop -t 2",
+    "project": "p123-core-d9e6589593",
+    "exit_code": 0
+  },
+  {
+    "step": "G2-regress",
+    "description": "Execute offline regression test suites (AI unit + backend typecheck + backend focused unit)",
+    "command": "python Pipeline_test/tools/run_p123_regressions.py --output Pipeline_test/reviews/2026-10-22-p123-headless/gemini-takeover-2026-10-22/focused-regressions",
+    "project": "offline-local",
+    "exit_code": 0,
+    "result": "AI: 166 PASS / 2 SKIP; Backend typecheck: PASS; Backend focused: 44 PASS"
+  }
+]
