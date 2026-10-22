@@ -123,7 +123,7 @@ class NextProbe(Probe):
         cid=source['revisions'][0]['chapter_id']
         job,_=self.generate(cid); self.accept(cid,job,fault=True)
         current=self.read_memory(); self.check('accepted_memory_durable',self.restart_and_read()==current)
-        self.edges(); self.stage='P1_remaining_complete'
+        self.stage='P1_accept_complete'
 
     def p2(self):
         self.setup(); self.stage='P2_extract_from_idea'
