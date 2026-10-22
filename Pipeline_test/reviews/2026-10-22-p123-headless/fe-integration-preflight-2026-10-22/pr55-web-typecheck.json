@@ -1,0 +1,6 @@
+{
+  "command": "npm.cmd run typecheck",
+  "cwd": "PR55/web",
+  "exit_code": 0,
+  "source_sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c"
+}

@@ -1,0 +1,295 @@
+{
+  "executor": "ASTRA",
+  "pipeline_source_sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+  "pr55_source_sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+  "commands": [
+    {
+      "label": "infra-up",
+      "command": [
+        "docker-compose",
+        "--env-file",
+        "C:\\tmp\\novel-p123-authz-astra-20261022\\Pipeline_test\\tools\\.env.p123-core-8c853261f5",
+        "-f",
+        "C:\\tmp\\novel-p123-authz-astra-20261022\\Pipeline_test\\tools\\compose.p123-headless.yml",
+        "-f",
+        "C:\\tmp\\p123-fe-preflight-20261022\\ports-private.yml",
+        "up",
+        "-d",
+        "--wait",
+        "postgres",
+        "mongodb"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "combined-sql-first",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "p123-core-8c853261f5_workers",
+        "--env-file",
+        "C:\\tmp\\p123-fe-preflight-20261022\\runtime-private.env",
+        "--mount",
+        "type=bind,src=C:\\tmp\\p123-fe-preflight-20261022\\composite-sql,dst=/app/backend/src/core/database/migrations,readonly",
+        "p123-core-bce7da708c-backend",
+        "npm",
+        "run",
+        "db:migrate"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "combined-sql-repeat",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "p123-core-8c853261f5_workers",
+        "--env-file",
+        "C:\\tmp\\p123-fe-preflight-20261022\\runtime-private.env",
+        "--mount",
+        "type=bind,src=C:\\tmp\\p123-fe-preflight-20261022\\composite-sql,dst=/app/backend/src/core/database/migrations,readonly",
+        "p123-core-bce7da708c-backend",
+        "npm",
+        "run",
+        "db:migrate"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "ai-alembic-upgrade",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "p123-core-8c853261f5_workers",
+        "--env-file",
+        "C:\\tmp\\p123-fe-preflight-20261022\\ai-private.env",
+        "p123-core-bce7da708c-ai-service",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "ai-alembic-repeat",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "p123-core-8c853261f5_workers",
+        "--env-file",
+        "C:\\tmp\\p123-fe-preflight-20261022\\ai-private.env",
+        "p123-core-bce7da708c-ai-service",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "schema-readback",
+      "command": [
+        "docker-compose",
+        "--env-file",
+        "C:\\tmp\\novel-p123-authz-astra-20261022\\Pipeline_test\\tools\\.env.p123-core-8c853261f5",
+        "-f",
+        "C:\\tmp\\novel-p123-authz-astra-20261022\\Pipeline_test\\tools\\compose.p123-headless.yml",
+        "-f",
+        "C:\\tmp\\p123-fe-preflight-20261022\\ports-private.yml",
+        "exec",
+        "-T",
+        "postgres",
+        "psql",
+        "-X",
+        "-U",
+        "p123",
+        "-d",
+        "p123_core_8c853261f5",
+        "-At",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "select json_build_object('database',current_database(),'migrations',(select json_agg(migration_id order by migration_id) from schema_migrations),'alembic',(select json_agg(version_num) from alembic_version),'reports_guard',to_regclass('idx_reports_open_reporter_target'),'moderation_guard',to_regclass('idx_moderation_reviews_pending_target_source'),'tables',(select json_agg(table_schema||'.'||table_name order by table_schema,table_name) from information_schema.tables where table_schema in ('public','narrative')))"
+      ],
+      "exit_code": 0
+    },
+    {
+      "artifact": "browser-attempt01.json",
+      "command": [
+        "node",
+        "--test",
+        "tests/draft-persistence.browser.test.mjs"
+      ],
+      "cwd": "temporary browser-sandbox/web; unmodified test copy with source/backend junctions to pinned PR worktree",
+      "exit_code": 1,
+      "scope": "FAIL"
+    },
+    {
+      "artifact": "browser-runtime.json",
+      "command": [
+        "node",
+        "--test",
+        "tests/draft-persistence.browser.test.mjs"
+      ],
+      "cwd": "temporary browser-sandbox/web; unmodified test copy with source/backend junctions to pinned PR worktree",
+      "exit_code": 0,
+      "scope": "PASS_HOOK_FIXTURE_ONLY"
+    },
+    {
+      "artifact": "pr55-web-typecheck.json",
+      "command": "npm.cmd run typecheck",
+      "cwd": "PR55/web",
+      "exit_code": 0,
+      "scope": "typecheck"
+    },
+    {
+      "artifact": "read-authz-probe-command.json",
+      "command": [
+        "python",
+        "C:/tmp/p123-fe-preflight-20261022/probe_draft_read_scope.py"
+      ],
+      "cwd": "pipeline analysis worktree; child cwd backend",
+      "exit_code": 0,
+      "scope": "0 means expected insecure condition reproduced, not security PASS"
+    },
+    {
+      "artifact": "pr55-api-command.json",
+      "command": [
+        "python",
+        "C:/tmp/p123-fe-preflight-20261022/probe_pr55_contract.py"
+      ],
+      "cwd": "pipeline analysis worktree; child cwd backend",
+      "exit_code": 0,
+      "scope": "PASS_SEPARATE_PR55_API_ONLY"
+    },
+    {
+      "command": [
+        "git",
+        "fetch",
+        "origin",
+        "codex/ai-copilot-pipeline-test"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "merge",
+        "--ff-only",
+        "origin/codex/ai-copilot-pipeline-test"
+      ],
+      "exit_code": 0,
+      "result": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca"
+    },
+    {
+      "command": [
+        "git",
+        "fetch",
+        "origin",
+        "main",
+        "refs/pull/52/head",
+        "refs/pull/54/head",
+        "refs/pull/55/head"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "C:/tmp/novel-fe-pr55-preflight-20261022",
+        "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "npm.cmd",
+        "ci",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "cwd": "PR55/web",
+      "exit_code": 0,
+      "log": "pr55-web-dependency-install.txt"
+    },
+    {
+      "command": [
+        "python",
+        "C:/tmp/p123-fe-preflight-20261022/run_migration_rehearsal.py"
+      ],
+      "exit_code": 0,
+      "subcommands": "migration-commands.json; script included; credentials regenerated privately by existing prepare helper"
+    },
+    {
+      "command": [
+        "python",
+        "C:/tmp/p123-fe-preflight-20261022/run_hook_fixture.py"
+      ],
+      "exit_code": 1,
+      "attempt": "01",
+      "classification": "infrastructure ECONNREFUSED, before browser; retained"
+    },
+    {
+      "command": [
+        "python",
+        "C:/tmp/p123-fe-preflight-20261022/run_hook_fixture.py"
+      ],
+      "exit_code": 0,
+      "attempt": "02",
+      "classification": "unchanged PR55 hook fixture; fixed-destination DB ingress only"
+    },
+    {
+      "command": [
+        "python",
+        "C:/tmp/p123-fe-preflight-20261022/probe_draft_read_scope.py"
+      ],
+      "exit_code": 0,
+      "classification": "0 means expected security RED reproduced, not security PASS"
+    },
+    {
+      "command": [
+        "python",
+        "C:/tmp/p123-fe-preflight-20261022/probe_pr55_contract.py"
+      ],
+      "exit_code": 0,
+      "classification": "separate PR55 API validation only"
+    }
+  ],
+  "source_checks": "source-checks.json",
+  "connector_actions": {
+    "get_pr_info": [
+      52,
+      54,
+      55
+    ],
+    "list_pr_changed_filenames": [
+      52,
+      54,
+      55
+    ],
+    "fetch_issue": 56,
+    "fetch_issue_comments": 56,
+    "fetch_commit_workflow_runs": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c; PR-triggered first page",
+    "read_only": true,
+    "shell_exit_code": "NOT_APPLICABLE"
+  },
+  "read_only_assertion": {
+    "production_source_edits": false,
+    "PR_source_edits": false,
+    "merge_cherry_pick_main_FE_branch_writes": false,
+    "historical_evidence_overwrites": false,
+    "mutations": "fresh owned infrastructure; synthetic fixtures; new report/test evidence only"
+  },
+  "environment": "Fresh p123-core-8c853261f5 PG/Mongo. Internal DB network; loopback fixed-destination ingress. AI service disabled/closed port9 for HTTP/browser; AI image runs Alembic only; no real keys. Existing images reused with pinned source proof; no historical volumes reused."
+}

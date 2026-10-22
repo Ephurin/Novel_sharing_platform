@@ -1,0 +1,17 @@
+{
+  "executor": "ASTRA",
+  "source_sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+  "pipeline_test_driver_sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+  "source_clean": true,
+  "runtime": "PASS_SEPARATE_PR55_API_ONLY",
+  "anonymous_get": 401,
+  "foreign_author_get": 403,
+  "owner_get": 200,
+  "missing_version_patch": 428,
+  "versioned_owner_patch": 200,
+  "stale_different_body_patch": 409,
+  "metadata_only_no_version_patch": 200,
+  "no_active_baseline_fixture": true,
+  "provider_calls": 0,
+  "combined_app_runtime": "NOT_RUN"
+}

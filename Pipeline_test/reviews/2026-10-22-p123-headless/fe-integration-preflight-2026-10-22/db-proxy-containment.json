@@ -1,0 +1,10 @@
+{
+  "project": "p123-core-8c853261f5",
+  "purpose": "loopback host fixture ingress to fresh PG/Mongo only",
+  "fixed_destinations": [
+    "postgres:5432",
+    "mongodb:27017"
+  ],
+  "no_provider_process_or_credentials": true,
+  "start_exit_code": 0
+}

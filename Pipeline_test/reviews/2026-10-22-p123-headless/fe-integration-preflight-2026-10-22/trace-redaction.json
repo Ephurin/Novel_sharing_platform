@@ -1,0 +1,12 @@
+{
+  "executor": "ASTRA",
+  "raw_trace_kept_private": true,
+  "sanitized_trace": "draft-trace-sanitized.zip",
+  "jwt_occurrences_redacted": 23,
+  "observed_http_hosts": [
+    "127.0.0.1"
+  ],
+  "observed_url_count": 7,
+  "all_browser_network_hosts_loopback": true,
+  "scope": "mounted hook fixture only; no full Author IDE"
+}

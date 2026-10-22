@@ -1,0 +1,19 @@
+{
+  "executor": "ASTRA",
+  "source_sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+  "source_dirty": false,
+  "finding": "CORE_DRAFT_READ_SCOPE",
+  "security_verdict": "RED_REPRODUCED",
+  "expected_anonymous": "401 or non-disclosing public DTO",
+  "actual_anonymous": 200,
+  "expected_foreign_author": 403,
+  "actual_foreign_author": 200,
+  "private_draft_leaked": true,
+  "novel_id": "dc03d7bf-b172-4070-9cca-0e8d8e0a73a8",
+  "chapter_id": "0c46e213-cb6c-46a7-9fc6-5c49efc16d89",
+  "owner_id": "f1afa96f-4820-4809-9a30-689398ad71a7",
+  "foreign_author_id": "3245fa0a-a869-4065-b875-0c2b91b8ca97",
+  "chapter_status": "DRAFT",
+  "provider_calls": 0,
+  "production_patch": "NOT_IMPLEMENTED; separate Core owner authorization and GPT6 review required"
+}

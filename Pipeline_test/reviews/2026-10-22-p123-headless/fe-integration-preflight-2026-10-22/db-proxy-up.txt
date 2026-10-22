@@ -1,0 +1,7 @@
+
+ Network p123-core-8c853261f5_preflight-edge  Creating
+ Network p123-core-8c853261f5_preflight-edge  Created
+ Container p123-core-8c853261f5-db-proxy-1  Creating
+ Container p123-core-8c853261f5-db-proxy-1  Created
+ Container p123-core-8c853261f5-db-proxy-1  Starting
+ Container p123-core-8c853261f5-db-proxy-1  Started

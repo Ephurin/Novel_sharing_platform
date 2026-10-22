@@ -1,0 +1,119 @@
+[
+  {
+    "label": "infra-up",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\Pipeline_test\\tools\\.env.p123-core-8c853261f5",
+      "-f",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\Pipeline_test\\tools\\compose.p123-headless.yml",
+      "-f",
+      "C:\\tmp\\p123-fe-preflight-20261022\\ports-private.yml",
+      "up",
+      "-d",
+      "--wait",
+      "postgres",
+      "mongodb"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "combined-sql-first",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "p123-core-8c853261f5_workers",
+      "--env-file",
+      "C:\\tmp\\p123-fe-preflight-20261022\\runtime-private.env",
+      "--mount",
+      "type=bind,src=C:\\tmp\\p123-fe-preflight-20261022\\composite-sql,dst=/app/backend/src/core/database/migrations,readonly",
+      "p123-core-bce7da708c-backend",
+      "npm",
+      "run",
+      "db:migrate"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "combined-sql-repeat",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "p123-core-8c853261f5_workers",
+      "--env-file",
+      "C:\\tmp\\p123-fe-preflight-20261022\\runtime-private.env",
+      "--mount",
+      "type=bind,src=C:\\tmp\\p123-fe-preflight-20261022\\composite-sql,dst=/app/backend/src/core/database/migrations,readonly",
+      "p123-core-bce7da708c-backend",
+      "npm",
+      "run",
+      "db:migrate"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "ai-alembic-upgrade",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "p123-core-8c853261f5_workers",
+      "--env-file",
+      "C:\\tmp\\p123-fe-preflight-20261022\\ai-private.env",
+      "p123-core-bce7da708c-ai-service",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "ai-alembic-repeat",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "p123-core-8c853261f5_workers",
+      "--env-file",
+      "C:\\tmp\\p123-fe-preflight-20261022\\ai-private.env",
+      "p123-core-bce7da708c-ai-service",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "exit_code": 0
+  },
+  {
+    "label": "schema-readback",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\Pipeline_test\\tools\\.env.p123-core-8c853261f5",
+      "-f",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\Pipeline_test\\tools\\compose.p123-headless.yml",
+      "-f",
+      "C:\\tmp\\p123-fe-preflight-20261022\\ports-private.yml",
+      "exec",
+      "-T",
+      "postgres",
+      "psql",
+      "-X",
+      "-U",
+      "p123",
+      "-d",
+      "p123_core_8c853261f5",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "select json_build_object('database',current_database(),'migrations',(select json_agg(migration_id order by migration_id) from schema_migrations),'alembic',(select json_agg(version_num) from alembic_version),'reports_guard',to_regclass('idx_reports_open_reporter_target'),'moderation_guard',to_regclass('idx_moderation_reviews_pending_target_source'),'tables',(select json_agg(table_schema||'.'||table_name order by table_schema,table_name) from information_schema.tables where table_schema in ('public','narrative')))"
+    ],
+    "exit_code": 0
+  }
+]

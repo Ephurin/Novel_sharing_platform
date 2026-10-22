@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python",
+    "C:/tmp/p123-fe-preflight-20261022/probe_draft_read_scope.py"
+  ],
+  "exit_code": 0,
+  "meaning": "0 means expected insecure condition reproduced, not security PASS",
+  "fixture_server_command": [
+    "node",
+    "--import",
+    "./node_modules/tsx/dist/loader.mjs",
+    "C:\\tmp\\p123-fe-preflight-20261022\\pipeline_api_fixture.ts"
+  ],
+  "fixture_server_end": "owned child terminated by driver finally; exit_code 0 belongs to Python validation driver, not long-running server"
+}

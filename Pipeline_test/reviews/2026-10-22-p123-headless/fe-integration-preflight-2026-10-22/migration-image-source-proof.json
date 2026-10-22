@@ -1,0 +1,16 @@
+[
+  {
+    "image": "p123-core-bce7da708c-backend",
+    "image_id": "sha256:fa705c28720a1d08417e0e1f705eeb39db419f7808688f03041379201ff2c848",
+    "file": "backend/src/core/database/migrate.ts",
+    "sha256_lf": "337b2ef0c31d19b1308f84a6a9518ce92c0987df0118f55e9a8e4edb231ea0a7",
+    "matches_pipeline_sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca"
+  },
+  {
+    "image": "p123-core-bce7da708c-ai-service",
+    "image_id": "sha256:ef486fd68bceff8473b52e5003cef3206bb5a71f297be2b351c15c503f32ed29",
+    "file": "ai-service/migrations/versions/0013_objective_intent.py",
+    "sha256_lf": "468cea920ec37cff6fb329f54c183911fefcb2af249664851dc5b3cf8331fedb",
+    "matches_pipeline_sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca"
+  }
+]

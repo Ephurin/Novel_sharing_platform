@@ -1,0 +1,24 @@
+
+> ephurin-backend@0.1.0 db:migrate
+> tsx src/core/database/migrate.ts
+
+{"level":30,"time":1792679245004,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 001_auth_user_wallet.sql"}
+{"level":30,"time":1792679245135,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 002_novels.sql"}
+{"level":30,"time":1792679245190,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 003_chapters.sql"}
+{"level":30,"time":1792679245327,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 004_content_control.sql"}
+{"level":30,"time":1792679245339,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 005_reports_description.sql"}
+{"level":30,"time":1792679245445,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 006_reading_interactions.sql"}
+{"level":30,"time":1792679245580,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 007_wallet_transactions.sql"}
+{"level":30,"time":1792679245791,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 008_authoring_context.sql"}
+{"level":30,"time":1792679245873,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 009_chapter_revisions.sql"}
+{"level":30,"time":1792679245935,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 010_analysis_outbox.sql"}
+{"level":30,"time":1792679245981,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 011_outbox_claim_token.sql"}
+{"level":30,"time":1792679246040,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 012_novel_engagement.sql"}
+{"level":30,"time":1792679246076,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 012_reports_unique_open.sql"}
+{"level":30,"time":1792679246140,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 013_novel_review_text.sql"}
+{"level":30,"time":1792679246190,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 014_novel_editorial_metadata.sql"}
+{"level":30,"time":1792679246262,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 015_author_workflow.sql"}
+{"level":30,"time":1792679246377,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 016_author_launch_checklist.sql"}
+{"level":30,"time":1792679246437,"pid":30,"hostname":"8a722f973c0b","msg":"Applied migration 017_transactional_moderation_evidence.sql"}
+{"level":30,"time":1792679246438,"pid":30,"hostname":"8a722f973c0b","msg":"PostgreSQL connection closed"}
+

@@ -1,0 +1,95 @@
+{
+  "executor": "ASTRA",
+  "refs": {
+    "pipeline": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+    "main": "390b09fd043ec29db84519a9d195b59b76eec003",
+    "pr52": "63946d068801fc10de2d7d01b1fb56dd2fc42f9f",
+    "pr54": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+    "pr55": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c"
+  },
+  "checks": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "C:\\tmp\\novel-p123-authz-astra-20261022",
+      "exit_code": 0,
+      "stdout": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca"
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "C:\\tmp\\novel-p123-authz-astra-20261022",
+      "exit_code": 0,
+      "stdout": ""
+    },
+    {
+      "command": [
+        "git",
+        "merge-base",
+        "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+        "390b09fd043ec29db84519a9d195b59b76eec003"
+      ],
+      "cwd": "C:\\tmp\\novel-p123-authz-astra-20261022",
+      "exit_code": 0,
+      "stdout": "390b09fd043ec29db84519a9d195b59b76eec003"
+    },
+    {
+      "command": [
+        "git",
+        "rev-list",
+        "--left-right",
+        "--count",
+        "26a6cbc4c562dd5c496ce446efb55bb297ee3dca...390b09fd043ec29db84519a9d195b59b76eec003"
+      ],
+      "cwd": "C:\\tmp\\novel-p123-authz-astra-20261022",
+      "exit_code": 0,
+      "stdout": "163\t0"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--quiet",
+        "7d1f1bed508480db84def77c75c99039a9bacd7e",
+        "HEAD",
+        "--",
+        "backend",
+        "ai-service",
+        "web"
+      ],
+      "cwd": "C:\\tmp\\novel-p123-authz-astra-20261022",
+      "exit_code": 0,
+      "stdout": ""
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "C:\\tmp\\novel-p123-authz-astra-20261022",
+      "exit_code": 0,
+      "stdout": ""
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "C:\\tmp\\novel-fe-pr55-preflight-20261022",
+      "exit_code": 0,
+      "stdout": ""
+    }
+  ],
+  "production_edits": false,
+  "PR_source_edits": false,
+  "merged_or_cherry_picked": false,
+  "historical_evidence_overwritten": false
+}

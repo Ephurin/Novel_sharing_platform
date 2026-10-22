@@ -1,0 +1,3189 @@
+{
+  "refs": {
+    "pipeline": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+    "main": "390b09fd043ec29db84519a9d195b59b76eec003",
+    "pr52": "63946d068801fc10de2d7d01b1fb56dd2fc42f9f",
+    "pr54": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+    "pr55": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c"
+  },
+  "files": [
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/novels/chapters.schemas.ts",
+      "exists": true,
+      "sha256_lf": "ac56ea6a81541153bcfcb5e93db5555c17174ffac2a17f79af2ebbca9ecfefd1",
+      "line_count": 38,
+      "matches": [
+        {
+          "line": 32,
+          "text": "expectedVersion: z.number().int().min(0).optional(),"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/novels/chapters.service.ts",
+      "exists": true,
+      "sha256_lf": "666177b880f56a93a9dcc2380ed9a4ab8d0fa93e53be872a78b313341a4a0bf4",
+      "line_count": 256,
+      "matches": [
+        {
+          "line": 1,
+          "text": "import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';"
+        },
+        {
+          "line": 19,
+          "text": "import { snapshotSavedChapter } from './chapter-revisions.service.js';"
+        },
+        {
+          "line": 74,
+          "text": "if (input.content.trim()) await snapshotSavedChapter(auth, chapter.chapterId, input.content);"
+        },
+        {
+          "line": 78,
+          "text": "draftVersion: draft?.version ?? 1"
+        },
+        {
+          "line": 115,
+          "text": "return withChapterWriter(chapterId, lease => updateChapterUnderLease(auth, chapterId, input, lease));"
+        },
+        {
+          "line": 154,
+          "text": "expectedVersion: input.expectedVersion });"
+        },
+        {
+          "line": 186,
+          "text": "? await snapshotSavedChapter(auth, chapterId, input.content, lease)"
+        },
+        {
+          "line": 191,
+          "text": "analysisRevisionId: revision?.revisionId ?? null,"
+        },
+        {
+          "line": 192,
+          "text": "draftVersion: draft?.version ?? null"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/novels/chapter-writer.ts",
+      "exists": true,
+      "sha256_lf": "7de72bf9ee50463c4361482904ce409a6f613c94e635efb84adca38c30108d90",
+      "line_count": 32,
+      "matches": [
+        {
+          "line": 11,
+          "text": "export async function withChapterWriter<T>(chapterId: string,"
+        },
+        {
+          "line": 19,
+          "text": "const result = await client.query('select pg_try_advisory_lock(hashtextextended($1, 71923)) as acquired', [chapterId]);"
+        },
+        {
+          "line": 21,
+          "text": "if (!acquired) throw new AppError(409, 'DRAFT_CONFLICT', 'Chapter save in progress; reload before retrying');"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/novels/draft-chapters.repository.ts",
+      "exists": true,
+      "sha256_lf": "a49ecaa1e06a4719764ad8c9880d6913bb67ddce9008e62ad80e0d53f7a9bed4",
+      "line_count": 210,
+      "matches": [
+        {
+          "line": 1,
+          "text": "import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';"
+        },
+        {
+          "line": 47,
+          "text": "expectedVersion?: number;"
+        },
+        {
+          "line": 54,
+          "text": "{ chapterId: input.chapterId, ...(input.expectedVersion !== undefined ? { version: input.expectedVersion } : {}) },"
+        },
+        {
+          "line": 78,
+          "text": "{ upsert: input.expectedVersion === undefined || input.expectedVersion === 0, returnDocument: 'after' }"
+        },
+        {
+          "line": 81,
+          "text": "if (error?.code !== 11000 || input.expectedVersion === undefined) throw error;"
+        },
+        {
+          "line": 86,
+          "text": "if (current && input.expectedVersion !== undefined && current.version > input.expectedVersion &&"
+        },
+        {
+          "line": 89,
+          "text": "throw new AppError(409, 'DRAFT_CONFLICT', 'Draft changed or another save is in progress; reload before retrying');"
+        },
+        {
+          "line": 92,
+          "text": "export async function syncDraftFromRevisionConditional(input: {"
+        },
+        {
+          "line": 102,
+          "text": "return withChapterWriter(input.chapterId, async () => {"
+        },
+        {
+          "line": 104,
+          "text": "if (latest && latest.revisionId !== input.revisionId) return { status: 'skipped_newer_draft' as const };"
+        },
+        {
+          "line": 108,
+          "text": "async function syncDraftUnderLease(input: Parameters<typeof syncDraftFromRevisionConditional>[0]): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/novels/chapter-revisions.service.ts",
+      "exists": true,
+      "sha256_lf": "9c72a78e9ecff13ec8ecb91b17ec484a858dddc74d62534c0da71238e44cddf4",
+      "line_count": 513,
+      "matches": [
+        {
+          "line": 2,
+          "text": "import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';"
+        },
+        {
+          "line": 10,
+          "text": "import { findDraftChapterByChapterId, upsertDraftChapter, syncDraftFromRevisionConditional } from './draft-chapters.repository.js';"
+        },
+        {
+          "line": 13,
+          "text": "import { triggerImmediateProcessing } from '../../jobs/outbox-processor.js';"
+        },
+        {
+          "line": 17,
+          "text": "findRevisionBySourceGenerationId,"
+        },
+        {
+          "line": 91,
+          "text": "return withChapterWriter(chapterId, lease => createSnapshotUnderLease(auth, chapterId, input, lease), parent);"
+        },
+        {
+          "line": 110,
+          "text": "'Cannot create bootstrap snapshot for a novel with an active Story Brain baseline'"
+        },
+        {
+          "line": 149,
+          "text": "// Only enqueue INCREMENTAL_ANALYSIS for ordinary author snapshots (NOT bootstrap-owned pre-baseline revisions)"
+        },
+        {
+          "line": 166,
+          "text": "const snapshotTime = new Date();"
+        },
+        {
+          "line": 168,
+          "text": "await syncDraftFromRevisionConditional({"
+        },
+        {
+          "line": 174,
+          "text": "acceptTimestamp: snapshotTime,"
+        },
+        {
+          "line": 179,
+          "text": "`[DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB sync failed in snapshot for revision ${revision.revisionId}:`,"
+        },
+        {
+          "line": 197,
+          "text": "acceptTimestamp: snapshotTime.toISOString()"
+        },
+        {
+          "line": 215,
+          "text": "export async function snapshotSavedChapter(auth: AuthContext, chapterId: string, content: string, lease?: ChapterWriterLease) {"
+        },
+        {
+          "line": 225,
+          "text": "return withChapterWriter(chapterId, lease => acceptDraftUnderLease(auth, chapterId, input, lease));"
+        },
+        {
+          "line": 236,
+          "text": "const existingAccepted = await findRevisionBySourceGenerationId(undefined, chapterId, input.generationId);"
+        },
+        {
+          "line": 343,
+          "text": "const existingAccepted = await findRevisionBySourceGenerationId(client, chapterId, input.generationId);"
+        },
+        {
+          "line": 362,
+          "text": "'STALE_BASE_REVISION',"
+        },
+        {
+          "line": 412,
+          "text": "const syncRes = await syncDraftFromRevisionConditional({"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/novels/chapters.routes.ts",
+      "exists": true,
+      "sha256_lf": "166960b68fdb3772db3cb4ac279c78040bb35502dd72cdcc8fae3b5c4b96a07e",
+      "line_count": 61,
+      "matches": [
+        {
+          "line": 14,
+          "text": "snapshotChapterController"
+        },
+        {
+          "line": 20,
+          "text": "snapshotSchema"
+        },
+        {
+          "line": 38,
+          "text": "'/:chapterId/revisions/snapshot',"
+        },
+        {
+          "line": 40,
+          "text": "validateRequest(snapshotSchema),"
+        },
+        {
+          "line": 41,
+          "text": "snapshotChapterController"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/security/active-account.ts",
+      "exists": false
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrate.ts",
+      "exists": true,
+      "sha256_lf": "337b2ef0c31d19b1308f84a6a9518ce92c0987df0118f55e9a8e4edb231ea0a7",
+      "line_count": 68,
+      "matches": []
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/ai/ai-gateway.controller.ts",
+      "exists": true,
+      "sha256_lf": "fef1b8aa7af2367e77bf85db2901639958e839390f49549df18e1e079a96e2cf",
+      "line_count": 702,
+      "matches": [
+        {
+          "line": 37,
+          "text": "const base = `/v1/story-brains/${novelId}/entity-reviews`;"
+        },
+        {
+          "line": 254,
+          "text": "async function getAuthorizedJob(req: Request) {"
+        },
+        {
+          "line": 257,
+          "text": "path: `/v1/jobs/${req.params.jobId}`,"
+        },
+        {
+          "line": 265,
+          "text": "throw new AppError(403, 'JOB_SCOPE_INVALID', 'Job has no valid novel scope');"
+        },
+        {
+          "line": 277,
+          "text": "res.json(successResponse(await getAuthorizedJob(req)));"
+        },
+        {
+          "line": 283,
+          "text": "export async function resumeJobController("
+        },
+        {
+          "line": 289,
+          "text": "await getAuthorizedJob(req);"
+        },
+        {
+          "line": 292,
+          "text": "path: `/v1/jobs/${req.params.jobId}/resume`,"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/ai/ai-gateway.routes.ts",
+      "exists": true,
+      "sha256_lf": "4e0e97159a16c829c0a2a87bebb55c9d5ee23afbfbc24186606637861fce3e69",
+      "line_count": 178,
+      "matches": [
+        {
+          "line": 12,
+          "text": "resumeJobController,"
+        },
+        {
+          "line": 48,
+          "text": "aiGatewayRoutes.get('/story-brains/:novelId/entity-reviews', entityReviewController);"
+        },
+        {
+          "line": 49,
+          "text": "aiGatewayRoutes.post('/story-brains/:novelId/entity-reviews/:runId/review', entityReviewController);"
+        },
+        {
+          "line": 50,
+          "text": "aiGatewayRoutes.post('/story-brains/:novelId/entity-reviews/:runId/continue', entityReviewController);"
+        },
+        {
+          "line": 139,
+          "text": "'/jobs/:jobId',"
+        },
+        {
+          "line": 144,
+          "text": "'/jobs/:jobId/resume',"
+        },
+        {
+          "line": 145,
+          "text": "resumeJobController"
+        },
+        {
+          "line": 150,
+          "text": "'/autonomous/runs',"
+        },
+        {
+          "line": 155,
+          "text": "'/autonomous/runs/:runId',"
+        },
+        {
+          "line": 165,
+          "text": "'/autonomous/runs/:runId/step',"
+        },
+        {
+          "line": 170,
+          "text": "'/autonomous/runs/:runId/run',"
+        },
+        {
+          "line": 175,
+          "text": "'/autonomous/runs/:runId/stop',"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/ai/autonomous-controller.service.ts",
+      "exists": true,
+      "sha256_lf": "f61555404c65b3fa948ecc094481fbdb5779a2d794aac2060c7932502b0f3ed8",
+      "line_count": 569,
+      "matches": [
+        {
+          "line": 14,
+          "text": "import { processOutboxOnce } from '../../jobs/outbox-processor.js';"
+        },
+        {
+          "line": 97,
+          "text": "path: '/v1/autonomous/runs',"
+        },
+        {
+          "line": 106,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 134,
+          "text": "path: `/v1/autonomous/runs/${runId}/stop`,"
+        },
+        {
+          "line": 144,
+          "text": "if (error instanceof AppError && ['OBJECTIVE_INTENT_SUPERSEDED', 'RUN_TERMINAL'].includes(error.code)) {"
+        },
+        {
+          "line": 165,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 174,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 205,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 220,
+          "text": "eligibleObj.intent_version = claimed.intent_version;"
+        },
+        {
+          "line": 272,
+          "text": "&& attempt.intent === eligibleObj.intent_version && attempt.planVersion === run.plan_version"
+        },
+        {
+          "line": 283,
+          "text": "await aiGatewayService.forwardRequest({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 286,
+          "text": "const genIdempotencyKey = `auto-${run.run_id}-obj-${eligibleObj.objective_id}-intent-${eligibleObj.intent_version}-plan-${run.plan_version}-iter-${run.current_iteration}-try-${run.current_retries}`;"
+        },
+        {
+          "line": 317,
+          "text": "await aiGatewayService.forwardRequest({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 403,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 436,
+          "text": "return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 444,
+          "text": "path: `/v1/story-brains/${run.novel_id}/entity-reviews`, userId: auth.userId }),"
+        },
+        {
+          "line": 453,
+          "text": "controller_intent: { generation_id: genJob.job_id, revision_id: acceptResult.revision.revisionId } }, userId: auth.userId })).brain_version,"
+        },
+        {
+          "line": 456,
+          "text": "if (error instanceof AppError && ['OBJECTIVE_INTENT_SUPERSEDED', 'RUN_TERMINAL'].includes(error.code)) throw error;"
+        },
+        {
+          "line": 458,
+          "text": "return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 459,
+          "text": "body: { stop_reason: 'waiting_for_entity_review', current_objective_id: currentObjectiveId,"
+        },
+        {
+          "line": 463,
+          "text": "return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 488,
+          "text": "return aiGatewayService.forwardRequest<AutonomousRunDto>({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 501,
+          "text": "body: { status: 'completed', controller_intent: { generation_id: genJob.job_id,"
+        },
+        {
+          "line": 533,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 560,
+          "text": "if (currentRun.status !== 'running' || currentRun.stop_reason === 'waiting_for_entity_review') {"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/ai/autonomous-run.repository.ts",
+      "exists": true,
+      "sha256_lf": "1316336ba417083ce96b675fab988c2f70992bf1c28186b4e144e6f6fbd829cc",
+      "line_count": 31,
+      "matches": [
+        {
+          "line": 8,
+          "text": "const result = await client.query('select pg_try_advisory_lock(hashtextextended($1, 0)) as locked', [`auto:${runId}`]);"
+        },
+        {
+          "line": 10,
+          "text": "if (!locked) throw new AppError(409, 'RUN_STEP_BUSY', 'Full auto is already processing this run');"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "ai-service/api/narrative_routes.py",
+      "exists": true,
+      "sha256_lf": "ae10a83ba909d4e7da320843fd55a35598827eac5096974f92b82a121a2a1d7b",
+      "line_count": 1191,
+      "matches": [
+        {
+          "line": 161,
+          "text": "if job.status not in {\"waiting_review\", \"completed\"}:"
+        },
+        {
+          "line": 167,
+          "text": "\"status\": job.status,"
+        },
+        {
+          "line": 189,
+          "text": "mode=payload.mode,"
+        },
+        {
+          "line": 197,
+          "text": "\"status\": job.status,"
+        },
+        {
+          "line": 343,
+          "text": "def _controller_intent_context(intent, actor):"
+        },
+        {
+          "line": 370,
+          "text": "**({'controller_intent': _controller_intent_context(payload.controller_intent, controller_actor)} if payload.controller_intent else {}),"
+        },
+        {
+          "line": 373,
+          "text": "raise HTTPException(409, detail={'code': 'OBJECTIVE_INTENT_SUPERSEDED', 'message': str(exc)}) from exc"
+        },
+        {
+          "line": 398,
+          "text": "@router.post(\"/autonomous/runs\", status_code=201)"
+        },
+        {
+          "line": 461,
+          "text": "@router.get(\"/autonomous/runs/{run_id}\")"
+        },
+        {
+          "line": 491,
+          "text": "@router.patch(\"/autonomous/runs/{run_id}\")"
+        },
+        {
+          "line": 527,
+          "text": "@router.post(\"/autonomous/runs/{run_id}/stop\")"
+        },
+        {
+          "line": 550,
+          "text": "@router.get(\"/jobs/{job_id}\")"
+        },
+        {
+          "line": 577,
+          "text": "\"status\": w_job.status,"
+        },
+        {
+          "line": 584,
+          "text": "@router.get(\"/jobs/{job_id}/events\")"
+        },
+        {
+          "line": 597,
+          "text": "\"status\": w_job.status,"
+        },
+        {
+          "line": 602,
+          "text": "if w_job.status in (\"completed\", \"failed\"):"
+        },
+        {
+          "line": 611,
+          "text": "\"status\": b_job.status,"
+        },
+        {
+          "line": 615,
+          "text": "if b_job.status in (\"completed\", \"failed\", \"waiting_review\"):"
+        },
+        {
+          "line": 626,
+          "text": "@router.post(\"/jobs/{job_id}/resume\", status_code=202)"
+        },
+        {
+          "line": 637,
+          "text": "if job.status not in {\"waiting_review\", \"completed\"}:"
+        },
+        {
+          "line": 639,
+          "text": "return {\"data\": {\"job_id\": job_id, \"status\": job.status}, \"meta\": {\"request_id\": request_id}}"
+        },
+        {
+          "line": 831,
+          "text": "@router.get('/story-brains/{brain_id}/entity-reviews')"
+        },
+        {
+          "line": 836,
+          "text": "@router.post('/story-brains/{brain_id}/entity-reviews/{run_id}/review')"
+        },
+        {
+          "line": 851,
+          "text": "@router.post('/story-brains/{brain_id}/entity-reviews/{run_id}/continue')"
+        },
+        {
+          "line": 991,
+          "text": "_controller_intent_context(payload.controller_intent, controller_actor) if payload.controller_intent else None,"
+        },
+        {
+          "line": 994,
+          "text": "raise HTTPException(409, detail={'code': 'OBJECTIVE_INTENT_SUPERSEDED', 'message': str(exc)}) from exc"
+        },
+        {
+          "line": 1092,
+          "text": "if job.status not in (\"completed\", \"failed\"):"
+        },
+        {
+          "line": 1155,
+          "text": "\"status\": job.status,"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "ai-service/infrastructure/controller_intent.py",
+      "exists": true,
+      "sha256_lf": "899192b0bfc95dbb15ccad3da3995f8965ed5bf5cb08f3e4c74c4789857461dd",
+      "line_count": 40,
+      "matches": [
+        {
+          "line": 11,
+          "text": "def lock_controller_intent(session, *, novel_id, tenant_id, intent):"
+        },
+        {
+          "line": 35,
+          "text": "if not objective or objective.status != 'in_progress' or objective.intent_version != int(epoch): stale()"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/author-ide/AuthorWritingIde.tsx",
+      "exists": true,
+      "sha256_lf": "6a9d6d39ec860655ffa584dd37606f462e19000bf5b0455fa4deb38fd70c416b",
+      "line_count": 1694,
+      "matches": [
+        {
+          "line": 245,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 252,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 455,
+          "text": "const hasChanged ="
+        },
+        {
+          "line": 461,
+          "text": "if (!hasChanged) return;"
+        },
+        {
+          "line": 465,
+          "text": "clearTimeout(autosaveTimeoutRef.current);"
+        },
+        {
+          "line": 490,
+          "text": "const handleAccessChange = (mode: AccessMode) => {"
+        },
+        {
+          "line": 566,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 1402,
+          "text": "<span className=\"[writing-mode:vertical-rl] tracking-wider text-stone-700 text-[11px]\">Trợ lý AI</span>"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/author-ide/useDraftPersistence.ts",
+      "exists": false
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/author-ide/RevisionHistory.tsx",
+      "exists": false
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/ai-copilot/AuthorMemoryPanel.tsx",
+      "exists": true,
+      "sha256_lf": "9ff1255da74c0d6835d107487a2740c020e7f55856c0d894943cd1a0335421ff",
+      "line_count": 249,
+      "matches": [
+        {
+          "line": 9,
+          "text": "import { acceptProposalGroup, activateBaseline, getBootstrapJob, getReviewQueue, getStoryBrainSummary,"
+        },
+        {
+          "line": 33,
+          "text": "const job = useQuery({ queryKey: ['memory-job', jobId], queryFn: () => getBootstrapJob(jobId!), enabled: enabled && Boolean(jobId),"
+        },
+        {
+          "line": 42,
+          "text": "return await memoryGet<AutoRun>(lastRun ? `/ai/autonomous/runs/${lastRun}` : `/ai/autonomous/by-novel/${novelId}/active`);"
+        },
+        {
+          "line": 67,
+          "text": "const rev = await memoryPost<{ revisionId: string; contentHash: string }>(`/chapters/${ch.chapterId}/revisions/snapshot`,"
+        },
+        {
+          "line": 135,
+          "text": "{job.data && ['failed', 'waiting_entity_review'].includes(job.data.status) && ("
+        },
+        {
+          "line": 158,
+          "text": "const result = await memoryPost<{ job_id: string }>('/ai/story-brains/bootstrap/from-idea', { novel_id: novelId, idea: setup, mode: 'extract' }); rememberJob(result.job_id);"
+        },
+        {
+          "line": 190,
+          "text": "const run = await memoryPost<AutoRun>('/ai/autonomous/runs', { novel_id: novelId, max_iterations: 100 });"
+        },
+        {
+          "line": 194,
+          "text": "<Button variant=\"default\" disabled={auto.data?.status !== 'running'} onClick={() => { perform(() => memoryPost(`/ai/autonomous/runs/${auto.data!.run_id}/stop`, { reason: 'author_stopped' })); }}>Dừng full auto</Button>"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/ai-copilot/EntityExtractionReview.tsx",
+      "exists": true,
+      "sha256_lf": "190c9708ba2f1628330a9bfde768f2b42869a7937659fc6da68b1acd4afa3137",
+      "line_count": 133,
+      "matches": [
+        {
+          "line": 21,
+          "text": "const reviews = useQuery({ queryKey: ['entity-reviews', novelId], refetchInterval: 3000,"
+        },
+        {
+          "line": 22,
+          "text": "queryFn: () => memoryGet<Review[]>(`${base}/entity-reviews`) });"
+        },
+        {
+          "line": 74,
+          "text": "const endpoint = `${base}/entity-reviews/${review.analysis_run_id}`;"
+        },
+        {
+          "line": 80,
+          "text": "{review.status === 'waiting_entity_review' && !stale && <>"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/ai-copilot/author-memory-api.ts",
+      "exists": true,
+      "sha256_lf": "7c2c1ebc2531be42b7db4c7757762749372fb571c76bd097ad04943b14ca1a3f",
+      "line_count": 32,
+      "matches": []
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/ai-copilot/WritingAssistantPanel.tsx",
+      "exists": true,
+      "sha256_lf": "4ec432c9e809b372decb2c134e90b7c31c8033f99b854442382281d4236d1f4f",
+      "line_count": 575,
+      "matches": [
+        {
+          "line": 78,
+          "text": "const [snapshotLoading, setSnapshotLoading] = useState(false);"
+        },
+        {
+          "line": 86,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 94,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 161,
+          "text": "// Create initial snapshot first"
+        },
+        {
+          "line": 165,
+          "text": "// Dirty editor guard: Prompt to snapshot modified text to avoid stale offset application"
+        },
+        {
+          "line": 330,
+          "text": "loading={snapshotLoading}"
+        },
+        {
+          "line": 371,
+          "text": "<Badge size=\"xs\" color=\"blue\">{job.status}</Badge>"
+        },
+        {
+          "line": 378,
+          "text": "{job && job.status?.toLowerCase() === 'completed' && ("
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/ai-copilot/ai-copilot-api.ts",
+      "exists": true,
+      "sha256_lf": "31b0e08d003a62479d534d7a6b14b1f580cbd3b27b40368c1b3d3885c71ec4f0",
+      "line_count": 216,
+      "matches": [
+        {
+          "line": 181,
+          "text": "const response = await apiClient.get<ApiEnvelope<WritingGenerationJob>>(`/ai/jobs/${jobId}`);"
+        },
+        {
+          "line": 195,
+          "text": "`/chapters/${chapterId}/revisions/snapshot`,"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/manuscript-import/manuscript-import-api.ts",
+      "exists": true,
+      "sha256_lf": "ae763a5ba3b46440e87180060d5a9fca3a0292a4e9218a38f2c0df3efc2781c1",
+      "line_count": 284,
+      "matches": [
+        {
+          "line": 52,
+          "text": "export async function getBootstrapJob(jobId: string) {"
+        },
+        {
+          "line": 53,
+          "text": "const response = await apiClient.get<ApiEnvelope<BootstrapJob>>(`/ai/jobs/${jobId}`);"
+        },
+        {
+          "line": 58,
+          "text": "const response = await apiClient.post<ApiEnvelope<BootstrapJob>>(`/ai/jobs/${jobId}/resume`);"
+        },
+        {
+          "line": 259,
+          "text": "onProgress(i, chapters.length, `Đang tạo snapshot revision cho chương: ${ch.title}`);"
+        },
+        {
+          "line": 262,
+          "text": "// 2. Create canonical immutable revision snapshot"
+        },
+        {
+          "line": 266,
+          "text": "`/chapters/${chapterData.chapterId}/revisions/snapshot`,"
+        },
+        {
+          "line": 271,
+          "text": "throw new Error(`Lỗi khi tạo snapshot revision cho chương \"${ch.title}\" (${chapterData.chapterId}): ${err?.message || 'Không thể tạo snapshot'}`);"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/manuscript-import/ManuscriptImportPage.tsx",
+      "exists": true,
+      "sha256_lf": "f1aba22861486a8a853ee18779aab4776d6fe3fc87bde40b25f836112cb9042d",
+      "line_count": 1456,
+      "matches": [
+        {
+          "line": 9,
+          "text": "getBootstrapJob,"
+        },
+        {
+          "line": 134,
+          "text": "queryFn: () => getBootstrapJob(jobId!),"
+        },
+        {
+          "line": 341,
+          "text": "// 1. Batch create chapters in Novel DB with canonical snapshot revisions"
+        },
+        {
+          "line": 1257,
+          "text": "job.status === 'completed'"
+        },
+        {
+          "line": 1259,
+          "text": ": job.status === 'failed'"
+        },
+        {
+          "line": 1264,
+          "text": "{job.status}"
+        },
+        {
+          "line": 1285,
+          "text": "{job.status === 'failed' && ("
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/novels/novel-api.ts",
+      "exists": true,
+      "sha256_lf": "49c203b24ed91f89de84893f0d572317eff65f786b43dbdd811d57e613bc7d8f",
+      "line_count": 84,
+      "matches": []
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/notifications/notification-api.ts",
+      "exists": true,
+      "sha256_lf": "62609d49464785046363a5c5991b6deb3c9062b6945688c15f48ff43278b6930",
+      "line_count": 36,
+      "matches": []
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/novels/chapter-lifecycle.ts",
+      "exists": false
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/novels/chapter-schedules.ts",
+      "exists": false
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/interactions/notification-events.ts",
+      "exists": false
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/content-control/moderation-evidence.repository.ts",
+      "exists": true,
+      "sha256_lf": "e07f71c27a2c7da8558fa7760a8029390257fc1d6fa23d4bcd5d44e876b9cca5",
+      "line_count": 41,
+      "matches": [
+        {
+          "line": 5,
+          "text": "const collectionName = 'moderation_evidence';"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/tests/draft-persistence.browser.test.mjs",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/novels/chapters.schemas.ts",
+      "exists": true,
+      "sha256_lf": "0d050b28f32f4be4e3c505d33b18954ebf2d0195ceca87c2f657cbf955d31b8e",
+      "line_count": 37,
+      "matches": []
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/novels/chapters.service.ts",
+      "exists": true,
+      "sha256_lf": "8db4ce408ffadb84c7b075a91adf7c3f6d7c47d60b9fa4547253e65941924b42",
+      "line_count": 252,
+      "matches": [
+        {
+          "line": 75,
+          "text": "draftVersion: draft?.version ?? 1"
+        },
+        {
+          "line": 188,
+          "text": "draftVersion: draft?.version ?? null"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/novels/chapter-writer.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/novels/draft-chapters.repository.ts",
+      "exists": true,
+      "sha256_lf": "b58bd51da9ec26fbd8a7cdf2fb364bb71b8220ccd259c6cf3498e4f3d3900e80",
+      "line_count": 189,
+      "matches": [
+        {
+          "line": 78,
+          "text": "export async function syncDraftFromRevisionConditional(input: {"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/novels/chapter-revisions.service.ts",
+      "exists": true,
+      "sha256_lf": "770a77d2491d72363ba0fdd82592ad2a1709bf953e4b6453b7a4bff88ac86725",
+      "line_count": 489,
+      "matches": [
+        {
+          "line": 8,
+          "text": "import { findDraftChapterByChapterId, upsertDraftChapter, syncDraftFromRevisionConditional } from './draft-chapters.repository.js';"
+        },
+        {
+          "line": 11,
+          "text": "import { triggerImmediateProcessing } from '../../jobs/outbox-processor.js';"
+        },
+        {
+          "line": 15,
+          "text": "findRevisionBySourceGenerationId,"
+        },
+        {
+          "line": 104,
+          "text": "'Cannot create bootstrap snapshot for a novel with an active Story Brain baseline'"
+        },
+        {
+          "line": 138,
+          "text": "// Only enqueue INCREMENTAL_ANALYSIS for ordinary author snapshots (NOT bootstrap-owned pre-baseline revisions)"
+        },
+        {
+          "line": 155,
+          "text": "const snapshotTime = new Date();"
+        },
+        {
+          "line": 157,
+          "text": "await syncDraftFromRevisionConditional({"
+        },
+        {
+          "line": 163,
+          "text": "acceptTimestamp: snapshotTime,"
+        },
+        {
+          "line": 168,
+          "text": "`[DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB sync failed in snapshot for revision ${revision.revisionId}:`,"
+        },
+        {
+          "line": 186,
+          "text": "acceptTimestamp: snapshotTime.toISOString()"
+        },
+        {
+          "line": 214,
+          "text": "const existingAccepted = await findRevisionBySourceGenerationId(undefined, chapterId, input.generationId);"
+        },
+        {
+          "line": 319,
+          "text": "const existingAccepted = await findRevisionBySourceGenerationId(client, chapterId, input.generationId);"
+        },
+        {
+          "line": 338,
+          "text": "'STALE_BASE_REVISION',"
+        },
+        {
+          "line": 388,
+          "text": "const syncRes = await syncDraftFromRevisionConditional({"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/novels/chapters.routes.ts",
+      "exists": true,
+      "sha256_lf": "166960b68fdb3772db3cb4ac279c78040bb35502dd72cdcc8fae3b5c4b96a07e",
+      "line_count": 61,
+      "matches": [
+        {
+          "line": 14,
+          "text": "snapshotChapterController"
+        },
+        {
+          "line": 20,
+          "text": "snapshotSchema"
+        },
+        {
+          "line": 38,
+          "text": "'/:chapterId/revisions/snapshot',"
+        },
+        {
+          "line": 40,
+          "text": "validateRequest(snapshotSchema),"
+        },
+        {
+          "line": 41,
+          "text": "snapshotChapterController"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/core/security/active-account.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/core/database/migrate.ts",
+      "exists": true,
+      "sha256_lf": "337b2ef0c31d19b1308f84a6a9518ce92c0987df0118f55e9a8e4edb231ea0a7",
+      "line_count": 68,
+      "matches": []
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/ai/ai-gateway.controller.ts",
+      "exists": true,
+      "sha256_lf": "b05bd49e956832ee9b87ebed1542fffd483b34acae3627581c1418f8efb3ba20",
+      "line_count": 549,
+      "matches": [
+        {
+          "line": 137,
+          "text": "path: `/v1/jobs/${jobId}`,"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/ai/ai-gateway.routes.ts",
+      "exists": true,
+      "sha256_lf": "361e158a848d11e3fbde412385f40759643d14ff1071db61aeb07819c0f806ad",
+      "line_count": 151,
+      "matches": [
+        {
+          "line": 117,
+          "text": "'/jobs/:jobId',"
+        },
+        {
+          "line": 123,
+          "text": "'/autonomous/runs',"
+        },
+        {
+          "line": 128,
+          "text": "'/autonomous/runs/:runId',"
+        },
+        {
+          "line": 138,
+          "text": "'/autonomous/runs/:runId/step',"
+        },
+        {
+          "line": 143,
+          "text": "'/autonomous/runs/:runId/run',"
+        },
+        {
+          "line": 148,
+          "text": "'/autonomous/runs/:runId/stop',"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/ai/autonomous-controller.service.ts",
+      "exists": true,
+      "sha256_lf": "84762cd664fb961cc9ed33a28f2727462b820963edf664b9d913c18de531e7d6",
+      "line_count": 499,
+      "matches": [
+        {
+          "line": 9,
+          "text": "import { processOutboxOnce } from '../../jobs/outbox-processor.js';"
+        },
+        {
+          "line": 67,
+          "text": "path: '/v1/autonomous/runs',"
+        },
+        {
+          "line": 76,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 104,
+          "text": "path: `/v1/autonomous/runs/${runId}/stop`,"
+        },
+        {
+          "line": 123,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 132,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 163,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 349,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 463,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/ai/autonomous-run.repository.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "ai-service/api/narrative_routes.py",
+      "exists": true,
+      "sha256_lf": "77a80c55bcc6de52e0ee7063473b99af1bcd5e76f03545a660ae8192ba8b2e44",
+      "line_count": 1003,
+      "matches": [
+        {
+          "line": 101,
+          "text": "if job.status not in {\"waiting_review\", \"completed\"}:"
+        },
+        {
+          "line": 107,
+          "text": "\"status\": job.status,"
+        },
+        {
+          "line": 136,
+          "text": "\"status\": job.status,"
+        },
+        {
+          "line": 320,
+          "text": "@router.post(\"/autonomous/runs\", status_code=201)"
+        },
+        {
+          "line": 383,
+          "text": "@router.get(\"/autonomous/runs/{run_id}\")"
+        },
+        {
+          "line": 413,
+          "text": "@router.patch(\"/autonomous/runs/{run_id}\")"
+        },
+        {
+          "line": 443,
+          "text": "@router.post(\"/autonomous/runs/{run_id}/stop\")"
+        },
+        {
+          "line": 466,
+          "text": "@router.get(\"/jobs/{job_id}\")"
+        },
+        {
+          "line": 493,
+          "text": "\"status\": w_job.status,"
+        },
+        {
+          "line": 500,
+          "text": "@router.get(\"/jobs/{job_id}/events\")"
+        },
+        {
+          "line": 513,
+          "text": "\"status\": w_job.status,"
+        },
+        {
+          "line": 518,
+          "text": "if w_job.status in (\"completed\", \"failed\"):"
+        },
+        {
+          "line": 527,
+          "text": "\"status\": b_job.status,"
+        },
+        {
+          "line": 531,
+          "text": "if b_job.status in (\"completed\", \"failed\", \"waiting_review\"):"
+        },
+        {
+          "line": 542,
+          "text": "@router.post(\"/jobs/{job_id}/resume\", status_code=202)"
+        },
+        {
+          "line": 553,
+          "text": "if job.status not in {\"waiting_review\", \"completed\"}:"
+        },
+        {
+          "line": 555,
+          "text": "return {\"data\": {\"job_id\": job_id, \"status\": job.status}, \"meta\": {\"request_id\": request_id}}"
+        },
+        {
+          "line": 905,
+          "text": "if job.status not in (\"completed\", \"failed\"):"
+        },
+        {
+          "line": 967,
+          "text": "\"status\": job.status,"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "ai-service/infrastructure/controller_intent.py",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/author-ide/AuthorWritingIde.tsx",
+      "exists": true,
+      "sha256_lf": "25df93415c03e2b5bb5b12a9ed57e750dd1911e1cde3c6968052f8a6fdd268ff",
+      "line_count": 1960,
+      "matches": [
+        {
+          "line": 274,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 281,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 470,
+          "text": "const hasChanged ="
+        },
+        {
+          "line": 476,
+          "text": "if (!hasChanged) return;"
+        },
+        {
+          "line": 480,
+          "text": "clearTimeout(autosaveTimeoutRef.current);"
+        },
+        {
+          "line": 503,
+          "text": "const handleAccessChange = (mode: AccessMode) => {"
+        },
+        {
+          "line": 579,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/author-ide/useDraftPersistence.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/author-ide/RevisionHistory.tsx",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/ai-copilot/AuthorMemoryPanel.tsx",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/ai-copilot/EntityExtractionReview.tsx",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/ai-copilot/author-memory-api.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/ai-copilot/WritingAssistantPanel.tsx",
+      "exists": true,
+      "sha256_lf": "c065d5e404ad6490fc883d5ace5ed1484fb018f9e76f2385f2611f337bbd1ce1",
+      "line_count": 575,
+      "matches": [
+        {
+          "line": 78,
+          "text": "const [snapshotLoading, setSnapshotLoading] = useState(false);"
+        },
+        {
+          "line": 86,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 94,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 161,
+          "text": "// Create initial snapshot first"
+        },
+        {
+          "line": 165,
+          "text": "// Dirty editor guard: Prompt to snapshot modified text to avoid stale offset application"
+        },
+        {
+          "line": 330,
+          "text": "loading={snapshotLoading}"
+        },
+        {
+          "line": 371,
+          "text": "<Badge size=\"xs\" color=\"blue\">{job.status}</Badge>"
+        },
+        {
+          "line": 378,
+          "text": "{job && job.status?.toLowerCase() === 'completed' && ("
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/ai-copilot/ai-copilot-api.ts",
+      "exists": true,
+      "sha256_lf": "31b0e08d003a62479d534d7a6b14b1f580cbd3b27b40368c1b3d3885c71ec4f0",
+      "line_count": 216,
+      "matches": [
+        {
+          "line": 181,
+          "text": "const response = await apiClient.get<ApiEnvelope<WritingGenerationJob>>(`/ai/jobs/${jobId}`);"
+        },
+        {
+          "line": 195,
+          "text": "`/chapters/${chapterId}/revisions/snapshot`,"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/manuscript-import/manuscript-import-api.ts",
+      "exists": true,
+      "sha256_lf": "179ec71a4dd4a72344f21df2b11e69e694a447d9e0b04c604628ccb18267f1d9",
+      "line_count": 278,
+      "matches": [
+        {
+          "line": 51,
+          "text": "export async function getBootstrapJob(jobId: string) {"
+        },
+        {
+          "line": 52,
+          "text": "const response = await apiClient.get<ApiEnvelope<BootstrapJob>>(`/ai/jobs/${jobId}`);"
+        },
+        {
+          "line": 253,
+          "text": "onProgress(i, chapters.length, `Đang tạo snapshot revision cho chương: ${ch.title}`);"
+        },
+        {
+          "line": 256,
+          "text": "// 2. Create canonical immutable revision snapshot"
+        },
+        {
+          "line": 260,
+          "text": "`/chapters/${chapterData.chapterId}/revisions/snapshot`,"
+        },
+        {
+          "line": 265,
+          "text": "throw new Error(`Lỗi khi tạo snapshot revision cho chương \"${ch.title}\" (${chapterData.chapterId}): ${err?.message || 'Không thể tạo snapshot'}`);"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/manuscript-import/ManuscriptImportPage.tsx",
+      "exists": true,
+      "sha256_lf": "c588b72a43dd0a91a44bd23283d6684eb4894af255bb5b2a22a39bbbbf2e459d",
+      "line_count": 1323,
+      "matches": [
+        {
+          "line": 10,
+          "text": "getBootstrapJob,"
+        },
+        {
+          "line": 99,
+          "text": "queryFn: () => getBootstrapJob(jobId!),"
+        },
+        {
+          "line": 305,
+          "text": "// 1. Batch create chapters in Novel DB with canonical snapshot revisions"
+        },
+        {
+          "line": 1142,
+          "text": "job.status === 'completed'"
+        },
+        {
+          "line": 1144,
+          "text": ": job.status === 'failed'"
+        },
+        {
+          "line": 1149,
+          "text": "{job.status}"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/novels/novel-api.ts",
+      "exists": true,
+      "sha256_lf": "a6478d99aeb0635a827b34f449fe37bba9b593586f3c5b95af2ca417d4de8c7e",
+      "line_count": 105,
+      "matches": []
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/src/features/notifications/notification-api.ts",
+      "exists": true,
+      "sha256_lf": "62609d49464785046363a5c5991b6deb3c9062b6945688c15f48ff43278b6930",
+      "line_count": 36,
+      "matches": []
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/novels/chapter-lifecycle.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/novels/chapter-schedules.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/interactions/notification-events.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "backend/src/modules/content-control/moderation-evidence.repository.ts",
+      "exists": true,
+      "sha256_lf": "e07f71c27a2c7da8558fa7760a8029390257fc1d6fa23d4bcd5d44e876b9cca5",
+      "line_count": 41,
+      "matches": [
+        {
+          "line": 5,
+          "text": "const collectionName = 'moderation_evidence';"
+        }
+      ]
+    },
+    {
+      "tree": "pr54",
+      "sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "path": "web/tests/draft-persistence.browser.test.mjs",
+      "exists": false
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/novels/chapters.schemas.ts",
+      "exists": true,
+      "sha256_lf": "83f0d9ae8fb7fc6124947a0835a127ab2a01fce5a0c20d9965e24292971d2a96",
+      "line_count": 39,
+      "matches": [
+        {
+          "line": 33,
+          "text": "expectedVersion: z.number().int().min(0).optional(),"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/novels/chapters.service.ts",
+      "exists": true,
+      "sha256_lf": "96c050d1322e815e7ec00a9b95f359a081c4cc24a1145fe4c3c7f2280b152977",
+      "line_count": 285,
+      "matches": [
+        {
+          "line": 3,
+          "text": "import { assertActiveAccount } from '../../core/security/active-account.js';"
+        },
+        {
+          "line": 80,
+          "text": "expectedVersion: 0,"
+        },
+        {
+          "line": 91,
+          "text": "draftVersion: draft?.version ?? 1"
+        },
+        {
+          "line": 103,
+          "text": "await assertActiveAccount(auth);"
+        },
+        {
+          "line": 164,
+          "text": "if ((input.title !== undefined || input.content !== undefined) && input.expectedVersion === undefined) throw new AppError(428, 'DRAFT_VERSION_REQUIRED', 'Đọc phiên bản bản nháp trước khi lưu');"
+        },
+        {
+          "line": 175,
+          "text": "expectedVersion: input.expectedVersion"
+        },
+        {
+          "line": 213,
+          "text": "draftVersion: draft?.version ?? null"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/novels/chapter-writer.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/novels/draft-chapters.repository.ts",
+      "exists": true,
+      "sha256_lf": "f2045f4ee1d15c208e2dd8128e2d85c0426cf4725fd177593e29284a12eb12d4",
+      "line_count": 197,
+      "matches": [
+        {
+          "line": 45,
+          "text": "expectedVersion?: number;"
+        },
+        {
+          "line": 51,
+          "text": "{ chapterId: input.chapterId, ...(input.expectedVersion !== undefined ? { version: input.expectedVersion } : {}) },"
+        },
+        {
+          "line": 75,
+          "text": "{ upsert: input.expectedVersion === undefined || input.expectedVersion === 0, returnDocument: 'after' }"
+        },
+        {
+          "line": 79,
+          "text": "if ((error as { code?: number }).code === 11000 && input.expectedVersion !== undefined) throw new AppError(409, 'DRAFT_CONFLICT', 'Bản nháp đã thay đổi ở phiên khác. Bản đang viết chưa bị ghi đè.');"
+        },
+        {
+          "line": 82,
+          "text": "if (!saved) throw new AppError(409, 'DRAFT_CONFLICT', 'Bản nháp đã thay đổi ở phiên khác.');"
+        },
+        {
+          "line": 86,
+          "text": "export async function syncDraftFromRevisionConditional(input: {"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/novels/chapter-revisions.service.ts",
+      "exists": true,
+      "sha256_lf": "9c8c376c7414839f49918030a2baa8a112ca746925b27f53767bce42c3b78767",
+      "line_count": 450,
+      "matches": [
+        {
+          "line": 8,
+          "text": "import { findDraftChapterByChapterId, upsertDraftChapter, syncDraftFromRevisionConditional } from './draft-chapters.repository.js';"
+        },
+        {
+          "line": 11,
+          "text": "import { triggerImmediateProcessing } from '../../jobs/outbox-processor.js';"
+        },
+        {
+          "line": 15,
+          "text": "findRevisionBySourceGenerationId,"
+        },
+        {
+          "line": 104,
+          "text": "'Cannot create bootstrap snapshot for a novel with an active Story Brain baseline'"
+        },
+        {
+          "line": 138,
+          "text": "// Only enqueue INCREMENTAL_ANALYSIS for ordinary author snapshots (NOT bootstrap-owned pre-baseline revisions)"
+        },
+        {
+          "line": 175,
+          "text": "const existingAccepted = await findRevisionBySourceGenerationId(undefined, chapterId, input.generationId);"
+        },
+        {
+          "line": 280,
+          "text": "const existingAccepted = await findRevisionBySourceGenerationId(client, chapterId, input.generationId);"
+        },
+        {
+          "line": 299,
+          "text": "'STALE_BASE_REVISION',"
+        },
+        {
+          "line": 349,
+          "text": "const syncRes = await syncDraftFromRevisionConditional({"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/novels/chapters.routes.ts",
+      "exists": true,
+      "sha256_lf": "3307a2615f81d8748fe4e865bf20521af5d78ac0422ced18ba85b0dd215faa78",
+      "line_count": 70,
+      "matches": [
+        {
+          "line": 3,
+          "text": "import { requireActiveAccount } from '../../core/security/active-account.js';"
+        },
+        {
+          "line": 17,
+          "text": "snapshotChapterController"
+        },
+        {
+          "line": 23,
+          "text": "snapshotSchema"
+        },
+        {
+          "line": 28,
+          "text": "const requireAuthor = [requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN'])];"
+        },
+        {
+          "line": 41,
+          "text": "'/:chapterId/revisions/snapshot',"
+        },
+        {
+          "line": 43,
+          "text": "validateRequest(snapshotSchema),"
+        },
+        {
+          "line": 44,
+          "text": "snapshotChapterController"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/security/active-account.ts",
+      "exists": true,
+      "sha256_lf": "f6e8ede7166581f1b4d412c9ac26548ec09c3f452cd148bdfb2bf00c58d07f07",
+      "line_count": 16,
+      "matches": [
+        {
+          "line": 6,
+          "text": "export async function assertActiveAccount(auth: AuthContext) {"
+        },
+        {
+          "line": 9,
+          "text": "if (!account || account.status !== 'ACTIVE' || account.role !== auth.role) throw new AppError(403, 'AUTH_008', 'Tài khoản hoặc quyền truy cập đã thay đổi. Vui lòng đăng nhập lại.');"
+        },
+        {
+          "line": 11,
+          "text": "export const requireActiveAccount: RequestHandler = async (request, _response, next) => {"
+        },
+        {
+          "line": 14,
+          "text": "await assertActiveAccount(request.auth); next();"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrate.ts",
+      "exists": true,
+      "sha256_lf": "337b2ef0c31d19b1308f84a6a9518ce92c0987df0118f55e9a8e4edb231ea0a7",
+      "line_count": 68,
+      "matches": []
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/ai/ai-gateway.controller.ts",
+      "exists": true,
+      "sha256_lf": "b05bd49e956832ee9b87ebed1542fffd483b34acae3627581c1418f8efb3ba20",
+      "line_count": 549,
+      "matches": [
+        {
+          "line": 137,
+          "text": "path: `/v1/jobs/${jobId}`,"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/ai/ai-gateway.routes.ts",
+      "exists": true,
+      "sha256_lf": "361e158a848d11e3fbde412385f40759643d14ff1071db61aeb07819c0f806ad",
+      "line_count": 151,
+      "matches": [
+        {
+          "line": 117,
+          "text": "'/jobs/:jobId',"
+        },
+        {
+          "line": 123,
+          "text": "'/autonomous/runs',"
+        },
+        {
+          "line": 128,
+          "text": "'/autonomous/runs/:runId',"
+        },
+        {
+          "line": 138,
+          "text": "'/autonomous/runs/:runId/step',"
+        },
+        {
+          "line": 143,
+          "text": "'/autonomous/runs/:runId/run',"
+        },
+        {
+          "line": 148,
+          "text": "'/autonomous/runs/:runId/stop',"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/ai/autonomous-controller.service.ts",
+      "exists": true,
+      "sha256_lf": "84762cd664fb961cc9ed33a28f2727462b820963edf664b9d913c18de531e7d6",
+      "line_count": 499,
+      "matches": [
+        {
+          "line": 9,
+          "text": "import { processOutboxOnce } from '../../jobs/outbox-processor.js';"
+        },
+        {
+          "line": 67,
+          "text": "path: '/v1/autonomous/runs',"
+        },
+        {
+          "line": 76,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 104,
+          "text": "path: `/v1/autonomous/runs/${runId}/stop`,"
+        },
+        {
+          "line": 123,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 132,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 163,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 349,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        },
+        {
+          "line": 463,
+          "text": "path: `/v1/autonomous/runs/${runId}`,"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/ai/autonomous-run.repository.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "ai-service/api/narrative_routes.py",
+      "exists": true,
+      "sha256_lf": "77a80c55bcc6de52e0ee7063473b99af1bcd5e76f03545a660ae8192ba8b2e44",
+      "line_count": 1003,
+      "matches": [
+        {
+          "line": 101,
+          "text": "if job.status not in {\"waiting_review\", \"completed\"}:"
+        },
+        {
+          "line": 107,
+          "text": "\"status\": job.status,"
+        },
+        {
+          "line": 136,
+          "text": "\"status\": job.status,"
+        },
+        {
+          "line": 320,
+          "text": "@router.post(\"/autonomous/runs\", status_code=201)"
+        },
+        {
+          "line": 383,
+          "text": "@router.get(\"/autonomous/runs/{run_id}\")"
+        },
+        {
+          "line": 413,
+          "text": "@router.patch(\"/autonomous/runs/{run_id}\")"
+        },
+        {
+          "line": 443,
+          "text": "@router.post(\"/autonomous/runs/{run_id}/stop\")"
+        },
+        {
+          "line": 466,
+          "text": "@router.get(\"/jobs/{job_id}\")"
+        },
+        {
+          "line": 493,
+          "text": "\"status\": w_job.status,"
+        },
+        {
+          "line": 500,
+          "text": "@router.get(\"/jobs/{job_id}/events\")"
+        },
+        {
+          "line": 513,
+          "text": "\"status\": w_job.status,"
+        },
+        {
+          "line": 518,
+          "text": "if w_job.status in (\"completed\", \"failed\"):"
+        },
+        {
+          "line": 527,
+          "text": "\"status\": b_job.status,"
+        },
+        {
+          "line": 531,
+          "text": "if b_job.status in (\"completed\", \"failed\", \"waiting_review\"):"
+        },
+        {
+          "line": 542,
+          "text": "@router.post(\"/jobs/{job_id}/resume\", status_code=202)"
+        },
+        {
+          "line": 553,
+          "text": "if job.status not in {\"waiting_review\", \"completed\"}:"
+        },
+        {
+          "line": 555,
+          "text": "return {\"data\": {\"job_id\": job_id, \"status\": job.status}, \"meta\": {\"request_id\": request_id}}"
+        },
+        {
+          "line": 905,
+          "text": "if job.status not in (\"completed\", \"failed\"):"
+        },
+        {
+          "line": 967,
+          "text": "\"status\": job.status,"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "ai-service/infrastructure/controller_intent.py",
+      "exists": false
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/author-ide/AuthorWritingIde.tsx",
+      "exists": true,
+      "sha256_lf": "dcd58aca14eb014b0edc399878ecc639384932db1ebdc0da6347d7641ae09c63",
+      "line_count": 1933,
+      "matches": [
+        {
+          "line": 2,
+          "text": "import { RevisionHistory, snapshotDraft } from './RevisionHistory';"
+        },
+        {
+          "line": 4,
+          "text": "import { useDraftPersistence } from './useDraftPersistence';"
+        },
+        {
+          "line": 241,
+          "text": "const persistence = useDraftPersistence(user?.userId ?? '', activeChapterId);"
+        },
+        {
+          "line": 284,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 291,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 463,
+          "text": "const handleAccessChange = (mode: AccessMode) => {"
+        },
+        {
+          "line": 504,
+          "text": "await snapshotDraft(activeChapterId, content);"
+        },
+        {
+          "line": 535,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 892,
+          "text": "{historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, price"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/author-ide/useDraftPersistence.ts",
+      "exists": true,
+      "sha256_lf": "88da92c9ee49f64c168b3b05564240d29564a3c5e11db19b32ca241a68c049f9",
+      "line_count": 115,
+      "matches": [
+        {
+          "line": 11,
+          "text": "export function useDraftPersistence(userId: string, chapterId: string) {"
+        },
+        {
+          "line": 18,
+          "text": "if (timer.current) clearTimeout(timer.current);"
+        },
+        {
+          "line": 19,
+          "text": "for (const slot of slots.current.values()) { slot.retired = true; slot.pending = undefined; }"
+        },
+        {
+          "line": 40,
+          "text": "while (slot.pending && !slot.retired && mounted.current && account.current === session) {"
+        },
+        {
+          "line": 45,
+          "text": "const result = await updateChapter(id, { ...value, autosave: true, expectedVersion: slot.version });"
+        },
+        {
+          "line": 46,
+          "text": "slot.version = result.draftVersion ?? result.draft?.version ?? slot.version;"
+        },
+        {
+          "line": 48,
+          "text": "if (!slot.pending && !slot.retired && mounted.current) {"
+        },
+        {
+          "line": 53,
+          "text": "if (!slot.retired) slot.pending ??= value;"
+        },
+        {
+          "line": 71,
+          "text": "slots.current.set(id, { version: chapter.draft?.version ?? chapter.draftVersion ?? 0, saved: value });"
+        },
+        {
+          "line": 82,
+          "text": "if (timer.current) clearTimeout(timer.current);"
+        },
+        {
+          "line": 83,
+          "text": "if (same(value, slot.saved) && !slot.running) { slot.pending = undefined; try { localStorage.removeItem(key(id)); } catch {} setStatus('saved'); update(); return; }"
+        },
+        {
+          "line": 88,
+          "text": "if (timer.current) clearTimeout(timer.current);"
+        },
+        {
+          "line": 93,
+          "text": "if (timer.current) clearTimeout(timer.current);"
+        },
+        {
+          "line": 100,
+          "text": "if (timer.current) clearTimeout(timer.current);"
+        },
+        {
+          "line": 101,
+          "text": "for (const slot of slots.current.values()) { slot.retired = true; slot.pending = undefined; }"
+        },
+        {
+          "line": 111,
+          "text": "return () => { mounted.current = false; if (timer.current) clearTimeout(timer.current); window.removeEventListener('beforeunload', beforeUnload); };"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/author-ide/RevisionHistory.tsx",
+      "exists": true,
+      "sha256_lf": "3abaae845d967853e63b2d4d69560b9c36e74f4c531dc56ed3187d4dcd36e34e",
+      "line_count": 73,
+      "matches": [
+        {
+          "line": 11,
+          "text": "onRestore: (content: string) => Promise<void>;"
+        },
+        {
+          "line": 15,
+          "text": "export async function snapshotDraft(chapterId: string, content: string) {"
+        },
+        {
+          "line": 16,
+          "text": "return apiClient.post(`/chapters/${chapterId}/revisions/snapshot`, { content });"
+        },
+        {
+          "line": 19,
+          "text": "export function RevisionHistory({ chapterId, content, onRestore, onClose }: RevisionHistoryProps) {"
+        },
+        {
+          "line": 25,
+          "text": "const snapshot = useMutation({"
+        },
+        {
+          "line": 26,
+          "text": "mutationFn: () => snapshotDraft(chapterId, content),"
+        },
+        {
+          "line": 33,
+          "text": "await snapshotDraft(chapterId, content);"
+        },
+        {
+          "line": 34,
+          "text": "await onRestore(revision.content);"
+        },
+        {
+          "line": 45,
+          "text": "<Button variant=\"light\" size=\"xs\" loading={snapshot.isPending} onClick={() => snapshot.mutate()}>Lưu mốc hiện tại</Button>"
+        },
+        {
+          "line": 49,
+          "text": "{(snapshot.error || restore.error) && <Alert color=\"red\">{getApiErrorMessage(snapshot.error || restore.error)}</Alert>}"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/ai-copilot/AuthorMemoryPanel.tsx",
+      "exists": false
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/ai-copilot/EntityExtractionReview.tsx",
+      "exists": false
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/ai-copilot/author-memory-api.ts",
+      "exists": false
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/ai-copilot/WritingAssistantPanel.tsx",
+      "exists": true,
+      "sha256_lf": "c065d5e404ad6490fc883d5ace5ed1484fb018f9e76f2385f2611f337bbd1ce1",
+      "line_count": 575,
+      "matches": [
+        {
+          "line": 78,
+          "text": "const [snapshotLoading, setSnapshotLoading] = useState(false);"
+        },
+        {
+          "line": 86,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 94,
+          "text": "window.clearTimeout(pollTimerRef.current);"
+        },
+        {
+          "line": 161,
+          "text": "// Create initial snapshot first"
+        },
+        {
+          "line": 165,
+          "text": "// Dirty editor guard: Prompt to snapshot modified text to avoid stale offset application"
+        },
+        {
+          "line": 330,
+          "text": "loading={snapshotLoading}"
+        },
+        {
+          "line": 371,
+          "text": "<Badge size=\"xs\" color=\"blue\">{job.status}</Badge>"
+        },
+        {
+          "line": 378,
+          "text": "{job && job.status?.toLowerCase() === 'completed' && ("
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/ai-copilot/ai-copilot-api.ts",
+      "exists": true,
+      "sha256_lf": "31b0e08d003a62479d534d7a6b14b1f580cbd3b27b40368c1b3d3885c71ec4f0",
+      "line_count": 216,
+      "matches": [
+        {
+          "line": 181,
+          "text": "const response = await apiClient.get<ApiEnvelope<WritingGenerationJob>>(`/ai/jobs/${jobId}`);"
+        },
+        {
+          "line": 195,
+          "text": "`/chapters/${chapterId}/revisions/snapshot`,"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/manuscript-import/manuscript-import-api.ts",
+      "exists": true,
+      "sha256_lf": "755fdac95060073c5a827136f44650276574e635e13e52252eeddf70d38ac0c2",
+      "line_count": 281,
+      "matches": [
+        {
+          "line": 51,
+          "text": "export async function getBootstrapJob(jobId: string) {"
+        },
+        {
+          "line": 52,
+          "text": "const response = await apiClient.get<ApiEnvelope<BootstrapJob>>(`/ai/jobs/${jobId}`);"
+        },
+        {
+          "line": 256,
+          "text": "onProgress(i, chapters.length, `Đang tạo snapshot revision cho chương: ${ch.title}`);"
+        },
+        {
+          "line": 259,
+          "text": "// 2. Create canonical immutable revision snapshot"
+        },
+        {
+          "line": 263,
+          "text": "`/chapters/${chapterData.chapterId}/revisions/snapshot`,"
+        },
+        {
+          "line": 268,
+          "text": "throw new Error(`Lỗi khi tạo snapshot revision cho chương \"${ch.title}\" (${chapterData.chapterId}): ${err?.message || 'Không thể tạo snapshot'}`);"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/manuscript-import/ManuscriptImportPage.tsx",
+      "exists": true,
+      "sha256_lf": "c588b72a43dd0a91a44bd23283d6684eb4894af255bb5b2a22a39bbbbf2e459d",
+      "line_count": 1323,
+      "matches": [
+        {
+          "line": 10,
+          "text": "getBootstrapJob,"
+        },
+        {
+          "line": 99,
+          "text": "queryFn: () => getBootstrapJob(jobId!),"
+        },
+        {
+          "line": 305,
+          "text": "// 1. Batch create chapters in Novel DB with canonical snapshot revisions"
+        },
+        {
+          "line": 1142,
+          "text": "job.status === 'completed'"
+        },
+        {
+          "line": 1144,
+          "text": ": job.status === 'failed'"
+        },
+        {
+          "line": 1149,
+          "text": "{job.status}"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/novels/novel-api.ts",
+      "exists": true,
+      "sha256_lf": "47c74c208fa14236d01069361a5ce5bb75d90f116f3a9b0e4b62a983e1280e64",
+      "line_count": 106,
+      "matches": [
+        {
+          "line": 95,
+          "text": "expectedVersion?: number;"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/notifications/notification-api.ts",
+      "exists": true,
+      "sha256_lf": "7627f0c343e77a67a7b12ab1fc0d16af325ec484094be51f7fd4a0f63ab27d7c",
+      "line_count": 43,
+      "matches": []
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/novels/chapter-lifecycle.ts",
+      "exists": true,
+      "sha256_lf": "e429ee5ff5872ede4d95199743c943ebd0989ff53e1ef792a21f74f50f019409",
+      "line_count": 70,
+      "matches": [
+        {
+          "line": 59,
+          "text": "throw new AppError(409, 'CHAPTER_ORDER_CANONICAL', 'Chỉ đổi thứ tự bản thảo chưa phát hành, chưa lưu mốc và chưa có dữ liệu cốt truyện hoặc phân tích.');"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/novels/chapter-schedules.ts",
+      "exists": true,
+      "sha256_lf": "1d43c7d942cc93750b760307cbf8371d1a7ae268a2773721047e9881a06041e4",
+      "line_count": 91,
+      "matches": [
+        {
+          "line": 13,
+          "text": "expectedVersion: z.number().int().nonnegative()"
+        },
+        {
+          "line": 36,
+          "text": "if (!draft || draft.version !== input.expectedVersion) throw new AppError(409, 'DRAFT_CONFLICT', 'Bản nháp đã thay đổi, hãy tải lại');"
+        },
+        {
+          "line": 69,
+          "text": "if (!draft || draft.version !== schedule.draft_version) throw new AppError(409, 'DRAFT_CONFLICT', 'Bản thảo đã thay đổi; hãy đặt lịch lại');"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/interactions/notification-events.ts",
+      "exists": true,
+      "sha256_lf": "de9ad1a96f173188a7a74b2c69ff3de7a8a5c6d45802687a5c23ce85cedb417b",
+      "line_count": 8,
+      "matches": [
+        {
+          "line": 5,
+          "text": "await client.query(`insert into notification_events(event_key,user_id,type,title,content,payload)"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/content-control/moderation-evidence.repository.ts",
+      "exists": true,
+      "sha256_lf": "c637d833fa3186998e50f0d97c307855de0f2be44513409fd87956d477206589",
+      "line_count": 53,
+      "matches": [
+        {
+          "line": 7,
+          "text": "const collectionName = 'moderation_evidence';"
+        },
+        {
+          "line": 34,
+          "text": "await client.query('insert into moderation_evidence(evidence_id,payload) values($1,$2)', [id, evidence]);"
+        },
+        {
+          "line": 47,
+          "text": "const stored = await getPostgresPool().query('select payload from moderation_evidence where evidence_id=$1', [evidenceId]);"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/tests/draft-persistence.browser.test.mjs",
+      "exists": true,
+      "sha256_lf": "7e596175b6e1cab19efc8d4e74a214687f22e1acc85c0e88a570140f779e423a",
+      "line_count": 179,
+      "matches": [
+        {
+          "line": 41,
+          "text": "await page.context().tracing.start({ screenshots: true, snapshots: true });"
+        },
+        {
+          "line": 67,
+          "text": "const snapshot = async chapterId => {"
+        },
+        {
+          "line": 68,
+          "text": "const response = await fetch(config.base + '/chapters/' + chapterId + '/revisions/snapshot', { method: 'POST',"
+        },
+        {
+          "line": 72,
+          "text": "await snapshot(x);"
+        },
+        {
+          "line": 115,
+          "text": "const otherBuffer = await page.evaluate(y => window.draft.initialize({ chapterId: y, title: 'Other', content: 'Other baseline', isVip: false, priceCoins: 0, draftVersion: 1 }), y);"
+        },
+        {
+          "line": 123,
+          "text": "const remote = await fetch(config.base + '/chapters/' + y, { method: 'PATCH', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ content: 'Remote winner', expectedVersion: ver"
+        },
+        {
+          "line": 131,
+          "text": "const finalRevision = await snapshot(y), finalState = await readback(y);"
+        },
+        {
+          "line": 164,
+          "text": "for (const relative of ['src/features/author-ide/useDraftPersistence.ts', 'src/features/author-ide/AuthorWritingIde.tsx']) {"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/modules/novels/chapters.controller.ts",
+      "exists": true,
+      "sha256_lf": "67058802e9dfc4f6e4ae199c01487bb0d3f9fc10532a697899b09a723dd5d8c2",
+      "line_count": 63,
+      "matches": [
+        {
+          "line": 6,
+          "text": "getChapter,"
+        },
+        {
+          "line": 12,
+          "text": "function requireRequestAuth(request: Parameters<RequestHandler>[0]) {"
+        },
+        {
+          "line": 22,
+          "text": "const result = await createChapter(requireRequestAuth(request), String(request.params.novelId), request.body);"
+        },
+        {
+          "line": 23,
+          "text": "response.status(201).json(successResponse(result));"
+        },
+        {
+          "line": 38,
+          "text": "export const getChapterController: RequestHandler = async (request, response, next) => {"
+        },
+        {
+          "line": 40,
+          "text": "const result = await getChapter(String(request.params.chapterId));"
+        },
+        {
+          "line": 49,
+          "text": "const result = await updateChapter(requireRequestAuth(request), String(request.params.chapterId), request.body);"
+        },
+        {
+          "line": 58,
+          "text": "const result = await submitChapterPublish(requireRequestAuth(request), String(request.params.chapterId));"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/app/layout/AuthorIdeShell.tsx",
+      "exists": true,
+      "sha256_lf": "933405237a32cddb53497ed53d51d611e64beb53de3f20bd15feba71905b07b9",
+      "line_count": 1182,
+      "matches": [
+        {
+          "line": 40,
+          "text": "getChapter,"
+        },
+        {
+          "line": 108,
+          "text": "const [statusMessage, setStatusMessage] = useState('API ready');"
+        },
+        {
+          "line": 178,
+          "text": "queryFn: () => getChapter(chapterId),"
+        },
+        {
+          "line": 333,
+          "text": "setStatusMessage(`Chapter status: ${result.status}`);"
+        },
+        {
+          "line": 344,
+          "text": "setStatusMessage(`Novel status: ${result.status}`);"
+        },
+        {
+          "line": 382,
+          "text": "chapterId && premiumPricingValid && (currentChapter?.status === 'PUBLISHED' || editorContent)"
+        },
+        {
+          "line": 480,
+          "text": "statusMessage={statusMessage}"
+        },
+        {
+          "line": 525,
+          "text": "{chapter?.status ?? novel?.status ?? 'Idle'}"
+        },
+        {
+          "line": 697,
+          "text": "{novel?.status ?? 'No project selected'}"
+        },
+        {
+          "line": 720,
+          "text": "{project.title} · {project.status}"
+        },
+        {
+          "line": 743,
+          "text": "Ch.{chapter.chapterNumber} {chapter.draft?.title ?? chapter.title} · {chapter.status}"
+        },
+        {
+          "line": 997,
+          "text": "const canEditPremium = Boolean(chapter && ['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'].includes(chapter.status));"
+        },
+        {
+          "line": 1009,
+          "text": "<Badge color={chapter?.status === 'PENDING_MODERATION' ? 'yellow' : 'violet'} variant=\"light\">"
+        },
+        {
+          "line": 1010,
+          "text": "{chapter?.status ?? 'Idle'}"
+        },
+        {
+          "line": 1051,
+          "text": "{chapter?.status === 'PUBLISHED' ? <Badge color=\"gray\">Published changes save as draft</Badge> : null}"
+        },
+        {
+          "line": 1159,
+          "text": "statusMessage,"
+        },
+        {
+          "line": 1164,
+          "text": "statusMessage: string;"
+        },
+        {
+          "line": 1168,
+          "text": "<Group className=\"status-bar\" justify=\"space-between\">"
+        },
+        {
+          "line": 1173,
+          "text": "{statusMessage} · API {apiConnected ? 'connected' : 'error'}"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/reader/ReaderPage.tsx",
+      "exists": true,
+      "sha256_lf": "0986eb31d2ed6c8a4832427648bc76e51851078e5765225cf59ee2bc5dc13d3b",
+      "line_count": 1063,
+      "matches": [
+        {
+          "line": 55,
+          "text": "const [statusFilter, setStatusFilter] = useState<'ONGOING' | 'COMPLETED' | 'HIATUS' | ''>('');"
+        },
+        {
+          "line": 59,
+          "text": "queryKey: ['reader-search', searchQuery, genreFilter, tagFilter, statusFilter, sortFilter, orderFilter],"
+        },
+        {
+          "line": 65,
+          "text": "status: statusFilter,"
+        },
+        {
+          "line": 75,
+          "text": "description=\"Browse published novels, then open detail or continue reading.\""
+        },
+        {
+          "line": 80,
+          "text": "label=\"Search published novels\""
+        },
+        {
+          "line": 95,
+          "text": "label=\"Story status\""
+        },
+        {
+          "line": 102,
+          "text": "value={statusFilter}"
+        },
+        {
+          "line": 103,
+          "text": "onChange={(value) => setStatusFilter((value ?? '') as typeof statusFilter)}"
+        },
+        {
+          "line": 130,
+          "text": "{novelsQuery.isLoading ? <LoadingState label=\"Loading published novels...\" /> : null}"
+        },
+        {
+          "line": 133,
+          "text": "<EmptyState description=\"No published novels match the current search.\" />"
+        },
+        {
+          "line": 165,
+          "text": "description=\"Browse published stories as a guest. Login when you want to save, comment, unlock VIP, or report.\""
+        },
+        {
+          "line": 194,
+          "text": "<EmptyState description=\"No published novels match the current public search.\" />"
+        },
+        {
+          "line": 276,
+          "text": "<Badge variant=\"outline\">{novel?.status ?? novel?.serialStatus ?? 'Published'}</Badge>"
+        },
+        {
+          "line": 339,
+          "text": "{!chapters.length ? <EmptyState description=\"No published chapters yet.\" /> : null}"
+        },
+        {
+          "line": 369,
+          "text": "description={novel?.authorName ? `By ${novel.authorName}` : 'Public published novel detail'}"
+        },
+        {
+          "line": 387,
+          "text": "<Badge variant=\"outline\">{novel?.status ?? novel?.serialStatus ?? 'Published'}</Badge>"
+        },
+        {
+          "line": 418,
+          "text": "{!chapters.length ? <EmptyState description=\"No published chapters yet.\" /> : null}"
+        },
+        {
+          "line": 524,
+          "text": "description={chapter?.isVip ? `VIP chapter · ${chapter.priceCoins} coins` : 'Free published chapter'}"
+        },
+        {
+          "line": 696,
+          "text": "{comment.status}"
+        },
+        {
+          "line": 806,
+          "text": "{comment.status}"
+        },
+        {
+          "line": 901,
+          "text": "if (error instanceof ApiClientError && error.status === 409) {"
+        },
+        {
+          "line": 1003,
+          "text": "<Badge>{novel.status ?? novel.serialStatus ?? 'PUBLISHED'}</Badge>"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "web/src/features/author-projects/AuthorNovelMetadataPage.tsx",
+      "exists": true,
+      "sha256_lf": "9e57f028bc933f8caed77f40ec28ad7cf14cff500efbded10f53cef585c74985",
+      "line_count": 1094,
+      "matches": [
+        {
+          "line": 47,
+          "text": "const [statusFilter, setStatusFilter] = useState<string>('ALL');"
+        },
+        {
+          "line": 136,
+          "text": "if (statusFilter !== 'ALL' && ch.status !== statusFilter) return false;"
+        },
+        {
+          "line": 143,
+          "text": "}, [chapters, activeTab, searchQuery, statusFilter, accessFilter]);"
+        },
+        {
+          "line": 179,
+          "text": "const renderStatusBadge = (status: ChapterStatus) => {"
+        },
+        {
+          "line": 180,
+          "text": "switch (status) {"
+        },
+        {
+          "line": 419,
+          "text": "data-testid=\"novel-status-badge\""
+        },
+        {
+          "line": 421,
+          "text": "novel.status === 'PUBLISHED'"
+        },
+        {
+          "line": 423,
+          "text": ": novel.status === 'PENDING_MODERATION'"
+        },
+        {
+          "line": 425,
+          "text": ": novel.status === 'REJECTED'"
+        },
+        {
+          "line": 430,
+          "text": "{novel.status === 'PUBLISHED'"
+        },
+        {
+          "line": 432,
+          "text": ": novel.status === 'PENDING_MODERATION'"
+        },
+        {
+          "line": 434,
+          "text": ": novel.status === 'REJECTED'"
+        },
+        {
+          "line": 525,
+          "text": "novel.status === 'PUBLISHED' ||"
+        },
+        {
+          "line": 526,
+          "text": "novel.status === 'PENDING_MODERATION'"
+        },
+        {
+          "line": 529,
+          "text": "novel.status === 'PUBLISHED'"
+        },
+        {
+          "line": 531,
+          "text": ": novel.status === 'PENDING_MODERATION'"
+        },
+        {
+          "line": 537,
+          "text": "data-testid=\"submit-publish-btn\""
+        },
+        {
+          "line": 539,
+          "text": "<span className=\"material-symbols-outlined text-[17px]\">publish</span>"
+        },
+        {
+          "line": 621,
+          "text": "value={statusFilter}"
+        },
+        {
+          "line": 630,
+          "text": "Đã xuất bản ({chapters.filter((c) => c.status === 'PUBLISHED').length})"
+        },
+        {
+          "line": 633,
+          "text": "Bản nháp ({chapters.filter((c) => c.status === 'DRAFT').length})"
+        },
+        {
+          "line": 636,
+          "text": "Chờ duyệt ({chapters.filter((c) => c.status === 'PENDING_MODERATION').length})"
+        },
+        {
+          "line": 639,
+          "text": "Đã lưu trữ ({chapters.filter((c) => c.status === 'ARCHIVED').length})"
+        },
+        {
+          "line": 717,
+          "text": "chapter.status === 'ARCHIVED' ? 'opacity-65 bg-stone-50/50' : 'bg-white'"
+        },
+        {
+          "line": 760,
+          "text": "<td className=\"py-3 px-3.5 text-center\">{renderStatusBadge(chapter.status)}</td>"
+        },
+        {
+          "line": 762,
+          "text": "{chapter.status === 'PUBLISHED' ? '4.2k' : '—'}"
+        },
+        {
+          "line": 964,
+          "text": "novel.status === 'PUBLISHED' ||"
+        },
+        {
+          "line": 965,
+          "text": "novel.status === 'PENDING_MODERATION'"
+        },
+        {
+          "line": 969,
+          "text": "data-testid=\"modal-submit-publish-btn\""
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "ai-service/migrations/versions/0013_objective_intent.py",
+      "exists": true,
+      "sha256_lf": "468cea920ec37cff6fb329f54c183911fefcb2af249664851dc5b3cf8331fedb",
+      "line_count": 17,
+      "matches": [
+        {
+          "line": 12,
+          "text": "if 'intent_version' not in columns:"
+        },
+        {
+          "line": 13,
+          "text": "op.add_column('story_plan_objectives', sa.Column('intent_version', sa.Integer(), nullable=False, server_default='0'), schema=schema)"
+        },
+        {
+          "line": 17,
+          "text": "op.drop_column('story_plan_objectives', 'intent_version', schema=schema)"
+        }
+      ]
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/security/auth.middleware.ts",
+      "exists": true,
+      "sha256_lf": "c933513d62f53ea49b548ab18c86b199f1726cbf5d7905ee9ceb45978d3e2649",
+      "line_count": 86,
+      "matches": []
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/modules/novels/chapters.controller.ts",
+      "exists": true,
+      "sha256_lf": "fc6875f5b10c389b715c453242f1d3edb187c11f8cea733f965a789525a9ae80",
+      "line_count": 63,
+      "matches": [
+        {
+          "line": 6,
+          "text": "getChapter,"
+        },
+        {
+          "line": 12,
+          "text": "function requireRequestAuth(request: Parameters<RequestHandler>[0]) {"
+        },
+        {
+          "line": 22,
+          "text": "const result = await createChapter(requireRequestAuth(request), String(request.params.novelId), request.body);"
+        },
+        {
+          "line": 23,
+          "text": "response.status(201).json(successResponse(result));"
+        },
+        {
+          "line": 38,
+          "text": "export const getChapterController: RequestHandler = async (request, response, next) => {"
+        },
+        {
+          "line": 40,
+          "text": "const result = await getChapter(String(request.params.chapterId), requireRequestAuth(request));"
+        },
+        {
+          "line": 49,
+          "text": "const result = await updateChapter(requireRequestAuth(request), String(request.params.chapterId), request.body);"
+        },
+        {
+          "line": 58,
+          "text": "const result = await submitChapterPublish(requireRequestAuth(request), String(request.params.chapterId));"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/app/layout/AuthorIdeShell.tsx",
+      "exists": true,
+      "sha256_lf": "0a76e04b75b5e74d819600dcbd170a95c3f8c7b581f6ae0706c55702ea8296a6",
+      "line_count": 1183,
+      "matches": [
+        {
+          "line": 40,
+          "text": "getChapter,"
+        },
+        {
+          "line": 108,
+          "text": "const [statusMessage, setStatusMessage] = useState('API ready');"
+        },
+        {
+          "line": 178,
+          "text": "queryFn: () => getChapter(chapterId),"
+        },
+        {
+          "line": 244,
+          "text": "expectedVersion: chapterQuery.data?.draft?.version ?? chapterQuery.data?.draftVersion ?? 0,"
+        },
+        {
+          "line": 334,
+          "text": "setStatusMessage(`Chapter status: ${result.status}`);"
+        },
+        {
+          "line": 345,
+          "text": "setStatusMessage(`Novel status: ${result.status}`);"
+        },
+        {
+          "line": 383,
+          "text": "chapterId && premiumPricingValid && (currentChapter?.status === 'PUBLISHED' || editorContent)"
+        },
+        {
+          "line": 481,
+          "text": "statusMessage={statusMessage}"
+        },
+        {
+          "line": 526,
+          "text": "{chapter?.status ?? novel?.status ?? 'Idle'}"
+        },
+        {
+          "line": 698,
+          "text": "{novel?.status ?? 'No project selected'}"
+        },
+        {
+          "line": 721,
+          "text": "{project.title} · {project.status}"
+        },
+        {
+          "line": 744,
+          "text": "Ch.{chapter.chapterNumber} {chapter.draft?.title ?? chapter.title} · {chapter.status}"
+        },
+        {
+          "line": 998,
+          "text": "const canEditPremium = Boolean(chapter && ['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'].includes(chapter.status));"
+        },
+        {
+          "line": 1010,
+          "text": "<Badge color={chapter?.status === 'PENDING_MODERATION' ? 'yellow' : 'violet'} variant=\"light\">"
+        },
+        {
+          "line": 1011,
+          "text": "{chapter?.status ?? 'Idle'}"
+        },
+        {
+          "line": 1052,
+          "text": "{chapter?.status === 'PUBLISHED' ? <Badge color=\"gray\">Published changes save as draft</Badge> : null}"
+        },
+        {
+          "line": 1160,
+          "text": "statusMessage,"
+        },
+        {
+          "line": 1165,
+          "text": "statusMessage: string;"
+        },
+        {
+          "line": 1169,
+          "text": "<Group className=\"status-bar\" justify=\"space-between\">"
+        },
+        {
+          "line": 1174,
+          "text": "{statusMessage} · API {apiConnected ? 'connected' : 'error'}"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/author-projects/ChapterActions.tsx",
+      "exists": true,
+      "sha256_lf": "3139fe94b3c2001949ab96bdc67700fc1969dd01b384728651a022ee7501f18e",
+      "line_count": 134,
+      "matches": [
+        {
+          "line": 6,
+          "text": "import { getChapter, submitChapterPublish, updateChapter } from '../novels/novel-api';"
+        },
+        {
+          "line": 10,
+          "text": "type ChapterAction = 'pricing' | 'publish' | 'archive' | 'restore' | 'delete';"
+        },
+        {
+          "line": 21,
+          "text": "else if (action === 'publish') await submitChapterPublish(chapter.chapterId);"
+        },
+        {
+          "line": 31,
+          "text": "const confirmation = action === 'publish'"
+        },
+        {
+          "line": 44,
+          "text": "{chapter.status === 'ARCHIVED' ? ("
+        },
+        {
+          "line": 52,
+          "text": "{['DRAFT','REJECTED'].includes(chapter.status) && <Menu.Item onClick={() => setScheduleOpen(true)}>Lên lịch xuất bản</Menu.Item>}"
+        },
+        {
+          "line": 53,
+          "text": "<Menu.Item onClick={() => setAction('publish')}>Gửi phát hành</Menu.Item>"
+        },
+        {
+          "line": 118,
+          "text": "queryFn: () => getChapter(selected!),"
+        },
+        {
+          "line": 124,
+          "text": "data={chapters.filter(item => item.status !== 'ARCHIVED').map(item => ({ value: item.chapterId, label: item.title }))} />"
+        },
+        {
+          "line": 130,
+          "text": "onRestore={async content => { await updateChapter(selected!, { content, expectedVersion: chapter.data!.draft?.version ?? chapter.data!.draftVersion ?? 0 }); }} />"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/reader/ReaderPage.tsx",
+      "exists": true,
+      "sha256_lf": "22189a666ef70651cd87151f13af645bc144e266d5cdc4d544808376bf75efd3",
+      "line_count": 868,
+      "matches": [
+        {
+          "line": 54,
+          "text": "const [statusFilter, setStatusFilter] = useState<'ONGOING' | 'COMPLETED' | 'HIATUS' | ''>('');"
+        },
+        {
+          "line": 58,
+          "text": "queryKey: ['reader-search', searchQuery, genreFilter, tagFilter, statusFilter, sortFilter, orderFilter],"
+        },
+        {
+          "line": 64,
+          "text": "status: statusFilter,"
+        },
+        {
+          "line": 74,
+          "text": "description=\"Browse published novels, then open detail or continue reading.\""
+        },
+        {
+          "line": 79,
+          "text": "label=\"Search published novels\""
+        },
+        {
+          "line": 94,
+          "text": "label=\"Story status\""
+        },
+        {
+          "line": 101,
+          "text": "value={statusFilter}"
+        },
+        {
+          "line": 102,
+          "text": "onChange={(value) => setStatusFilter((value ?? '') as typeof statusFilter)}"
+        },
+        {
+          "line": 129,
+          "text": "{novelsQuery.isLoading ? <LoadingState label=\"Loading published novels...\" /> : null}"
+        },
+        {
+          "line": 132,
+          "text": "<EmptyState description=\"No published novels match the current search.\" />"
+        },
+        {
+          "line": 164,
+          "text": "description=\"Browse published stories as a guest. Login when you want to save, comment, unlock VIP, or report.\""
+        },
+        {
+          "line": 193,
+          "text": "<EmptyState description=\"No published novels match the current public search.\" />"
+        },
+        {
+          "line": 275,
+          "text": "<Badge variant=\"outline\">{novel?.status ?? novel?.serialStatus ?? 'Published'}</Badge>"
+        },
+        {
+          "line": 339,
+          "text": "{!chapters.length ? <EmptyState description=\"No published chapters yet.\" /> : null}"
+        },
+        {
+          "line": 370,
+          "text": "description={novel?.authorName ? `By ${novel.authorName}` : 'Public published novel detail'}"
+        },
+        {
+          "line": 388,
+          "text": "<Badge variant=\"outline\">{novel?.status ?? novel?.serialStatus ?? 'Published'}</Badge>"
+        },
+        {
+          "line": 419,
+          "text": "{!chapters.length ? <EmptyState description=\"No published chapters yet.\" /> : null}"
+        },
+        {
+          "line": 509,
+          "text": "description={chapter?.isVip ? `VIP chapter · ${chapter.priceCoins} coins` : 'Free published chapter'}"
+        },
+        {
+          "line": 705,
+          "text": "if (error instanceof ApiClientError && error.status === 409) {"
+        },
+        {
+          "line": 808,
+          "text": "<Badge>{novel.status ?? novel.serialStatus ?? 'PUBLISHED'}</Badge>"
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "web/src/features/author-projects/AuthorNovelMetadataPage.tsx",
+      "exists": true,
+      "sha256_lf": "3383809e5f2168b37d20d38396681f74325d00954a97b40cdbdd8e48ebe30977",
+      "line_count": 939,
+      "matches": [
+        {
+          "line": 37,
+          "text": "refetchInterval: query => query.state.data?.some(ch => ['PENDING','PENDING_MODERATION'].includes(ch.publicationSchedule?.status ?? '')) ? 10000 : false,"
+        },
+        {
+          "line": 71,
+          "text": "const [statusFilter, setStatusFilter] = useState<string>('ALL');"
+        },
+        {
+          "line": 167,
+          "text": "if (statusFilter !== 'ALL' && ch.status !== statusFilter) return false;"
+        },
+        {
+          "line": 174,
+          "text": "}, [chapters, activeTab, searchQuery, statusFilter, accessFilter]);"
+        },
+        {
+          "line": 209,
+          "text": "const renderStatusBadge = (status: ChapterStatus) => {"
+        },
+        {
+          "line": 210,
+          "text": "switch (status) {"
+        },
+        {
+          "line": 342,
+          "text": "<span className={`sc-novel-status ${novel.status === 'PUBLISHED' ? 'sc-novel-status-public' : ''}`}>{novel.status === 'PUBLISHED' ? serialStatusLabel : novel.status === 'PENDING_MODERATION' ? 'Chờ duyệt' : novel.status === 'REJECT"
+        },
+        {
+          "line": 359,
+          "text": "disabled={submitPublishMutation.isPending || novel.status === 'PUBLISHED' || novel.status === 'PENDING_MODERATION'}"
+        },
+        {
+          "line": 361,
+          "text": "data-testid=\"submit-publish-btn\""
+        },
+        {
+          "line": 363,
+          "text": "<span className=\"material-symbols-outlined\" aria-hidden=\"true\">publish</span>"
+        },
+        {
+          "line": 463,
+          "text": "value={statusFilter}"
+        },
+        {
+          "line": 472,
+          "text": "Đã xuất bản ({chapters.filter((c) => c.status === 'PUBLISHED').length})"
+        },
+        {
+          "line": 475,
+          "text": "Bản nháp ({chapters.filter((c) => c.status === 'DRAFT').length})"
+        },
+        {
+          "line": 478,
+          "text": "Chờ duyệt ({chapters.filter((c) => c.status === 'PENDING_MODERATION').length})"
+        },
+        {
+          "line": 481,
+          "text": "Đã lưu trữ ({chapters.filter((c) => c.status === 'ARCHIVED').length})"
+        },
+        {
+          "line": 559,
+          "text": "chapter.status === 'ARCHIVED' ? 'opacity-65 bg-stone-50/50' : 'bg-surface-container-lowest'"
+        },
+        {
+          "line": 573,
+          "text": "onClick={() => chapter.status !== 'ARCHIVED' && openIde(chapter.chapterId)}"
+        },
+        {
+          "line": 585,
+          "text": "{chapter.publicationSchedule?.status === 'PENDING' ? 'Đăng lúc ' + new Date(chapter.publicationSchedule.scheduledAt).toLocaleString('vi-VN') : chapter.publicationSchedule?.status === 'PENDING_MODERATION' ? 'Lịch đăng đang chờ duyệ"
+        },
+        {
+          "line": 602,
+          "text": "<td className=\"py-3 px-3.5 text-center\">{renderStatusBadge(chapter.status)}</td>"
+        },
+        {
+          "line": 610,
+          "text": "disabled={chapter.status === 'ARCHIVED'}"
+        },
+        {
+          "line": 809,
+          "text": "novel.status === 'PUBLISHED' ||"
+        },
+        {
+          "line": 810,
+          "text": "novel.status === 'PENDING_MODERATION'"
+        },
+        {
+          "line": 814,
+          "text": "data-testid=\"modal-submit-publish-btn\""
+        }
+      ]
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/security/auth.middleware.ts",
+      "exists": true,
+      "sha256_lf": "c933513d62f53ea49b548ab18c86b199f1726cbf5d7905ee9ceb45978d3e2649",
+      "line_count": 86,
+      "matches": []
+    }
+  ]
+}

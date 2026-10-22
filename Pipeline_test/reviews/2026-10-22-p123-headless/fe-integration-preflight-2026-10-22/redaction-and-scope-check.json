@@ -1,0 +1,10 @@
+{
+  "executor": "ASTRA",
+  "known_fresh_credentials": "NO_MATCH",
+  "JWT_in_evidence_or_trace": "NO_MATCH",
+  "all_pinned_source_links": "VALID_SHA_PATH_AND_LINE",
+  "private_configs_copied": false,
+  "production_diff": "NONE",
+  "historical_artifact_overwrite": false,
+  "raw_trace_private": true
+}

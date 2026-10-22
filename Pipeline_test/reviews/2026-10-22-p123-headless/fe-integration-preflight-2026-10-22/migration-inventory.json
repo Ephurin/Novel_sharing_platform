@@ -1,0 +1,205 @@
+{
+  "source_sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+  "files": [
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/001_auth_user_wallet.sql",
+      "sha256_lf": "f0258ee52abe8e08d3b421bcf643a2d917fb2e6375fae96d58cf293ec951ac76"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/002_novels.sql",
+      "sha256_lf": "fcc3f08e607b5f5ddab8722e488688db83a0375c517dbb852645767f77996024"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/003_chapters.sql",
+      "sha256_lf": "befc8f6a5598978a89c7fff585eabd04cec2b2218ede63117c47c97d426264a8"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/004_content_control.sql",
+      "sha256_lf": "6d644be58f9502f2f9e5b1347f6a4024d370d7124dd94b90aab20d61219973e7"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/005_reports_description.sql",
+      "sha256_lf": "15d343d2dd4749725e03b50177191e8e9f41cd896dd90d42c3df5f2e5f3f9ec2"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/006_reading_interactions.sql",
+      "sha256_lf": "8531185deda6f6af6bca35f8741aa3d9257898ee717e9ab8526ec9f24f5d9280"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/007_wallet_transactions.sql",
+      "sha256_lf": "aa9d79788765f6dae4ad64b351b44d5f22915c6c015dd9e45a8ceb8153c2950f"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/008_authoring_context.sql",
+      "sha256_lf": "13dc7bf6d49661a8f9fccec120481b84de47c66f697f8f326213487cd5f46b2e"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/009_chapter_revisions.sql",
+      "sha256_lf": "2720b61d71124e9795e664a0ad3083969e7aac09575216ae9234a77d707e361a"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/010_analysis_outbox.sql",
+      "sha256_lf": "d50115d4046d7111bcde25be4ec414b3ef686c39502ce9f0666bd363c8f7d460"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/011_outbox_claim_token.sql",
+      "sha256_lf": "cd6d1a299e47dd6852535266e78df15bde632edd3d15b72bb11b0bee74936a01"
+    },
+    {
+      "tree": "pipeline",
+      "sha": "26a6cbc4c562dd5c496ce446efb55bb297ee3dca",
+      "path": "backend/src/core/database/migrations/012_reports_unique_open.sql",
+      "sha256_lf": "19cabb4ab8f8aca238ae4b0d0aa81074b42671dd01a7734cb5dc9d32a4993b9e"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/001_auth_user_wallet.sql",
+      "sha256_lf": "f0258ee52abe8e08d3b421bcf643a2d917fb2e6375fae96d58cf293ec951ac76"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/002_novels.sql",
+      "sha256_lf": "fcc3f08e607b5f5ddab8722e488688db83a0375c517dbb852645767f77996024"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/003_chapters.sql",
+      "sha256_lf": "befc8f6a5598978a89c7fff585eabd04cec2b2218ede63117c47c97d426264a8"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/004_content_control.sql",
+      "sha256_lf": "6d644be58f9502f2f9e5b1347f6a4024d370d7124dd94b90aab20d61219973e7"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/005_reports_description.sql",
+      "sha256_lf": "15d343d2dd4749725e03b50177191e8e9f41cd896dd90d42c3df5f2e5f3f9ec2"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/006_reading_interactions.sql",
+      "sha256_lf": "8531185deda6f6af6bca35f8741aa3d9257898ee717e9ab8526ec9f24f5d9280"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/007_wallet_transactions.sql",
+      "sha256_lf": "aa9d79788765f6dae4ad64b351b44d5f22915c6c015dd9e45a8ceb8153c2950f"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/008_authoring_context.sql",
+      "sha256_lf": "13dc7bf6d49661a8f9fccec120481b84de47c66f697f8f326213487cd5f46b2e"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/009_chapter_revisions.sql",
+      "sha256_lf": "2720b61d71124e9795e664a0ad3083969e7aac09575216ae9234a77d707e361a"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/010_analysis_outbox.sql",
+      "sha256_lf": "d50115d4046d7111bcde25be4ec414b3ef686c39502ce9f0666bd363c8f7d460"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/011_outbox_claim_token.sql",
+      "sha256_lf": "cd6d1a299e47dd6852535266e78df15bde632edd3d15b72bb11b0bee74936a01"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/012_novel_engagement.sql",
+      "sha256_lf": "01066aa6b1cc5ddaef58e794027c5beb5f81311c736b03b6a7d18a9906879fb6"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/012_reports_unique_open.sql",
+      "sha256_lf": "19cabb4ab8f8aca238ae4b0d0aa81074b42671dd01a7734cb5dc9d32a4993b9e"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/013_novel_review_text.sql",
+      "sha256_lf": "6371e8d1337dcd4134b4e80827b7c310f29958379c77bd29fc8c5f64ac4e572e"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/014_novel_editorial_metadata.sql",
+      "sha256_lf": "2656e824d7b95c363f3dd14dc14bd7819172e2cc1ec9b191f63a7dfbdc0646f1"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/015_author_workflow.sql",
+      "sha256_lf": "71bf53f906b4c38266e21f6d747fc54d002e61fcebf1d7ee55445eaaa2a9adda"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/016_author_launch_checklist.sql",
+      "sha256_lf": "1fe61604872d0b5886f38dc1443f16b0f91845bbdb16cf831680f5640d706500"
+    },
+    {
+      "tree": "pr55",
+      "sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "path": "backend/src/core/database/migrations/017_transactional_moderation_evidence.sql",
+      "sha256_lf": "06d7ea4c2ea1c1a9cd1b3a4cd7e9ad1d8429777405fb6b0e2a7dc265a6155d07"
+    }
+  ],
+  "combined_order": [
+    "001_auth_user_wallet.sql",
+    "002_novels.sql",
+    "003_chapters.sql",
+    "004_content_control.sql",
+    "005_reports_description.sql",
+    "006_reading_interactions.sql",
+    "007_wallet_transactions.sql",
+    "008_authoring_context.sql",
+    "009_chapter_revisions.sql",
+    "010_analysis_outbox.sql",
+    "011_outbox_claim_token.sql",
+    "012_novel_engagement.sql",
+    "012_reports_unique_open.sql",
+    "013_novel_review_text.sql",
+    "014_novel_editorial_metadata.sql",
+    "015_author_workflow.sql",
+    "016_author_launch_checklist.sql",
+    "017_transactional_moderation_evidence.sql"
+  ]
+}

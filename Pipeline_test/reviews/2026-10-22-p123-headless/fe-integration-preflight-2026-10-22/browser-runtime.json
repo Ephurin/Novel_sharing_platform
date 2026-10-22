@@ -1,0 +1,17 @@
+{
+  "executor": "ASTRA",
+  "source_sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+  "source_clean_before": true,
+  "source_clean_after": true,
+  "command": [
+    "node",
+    "--test",
+    "tests/draft-persistence.browser.test.mjs"
+  ],
+  "cwd": "temporary browser-sandbox/web; unmodified test copy with source/backend junctions to pinned PR worktree",
+  "exit_code": 0,
+  "runtime": "PASS_HOOK_FIXTURE_ONLY",
+  "full_Author_IDE_S09": "NOT_RUN",
+  "provider": "loopback closed port 9; real keys blank",
+  "historical_artifacts_overwritten": false
+}
