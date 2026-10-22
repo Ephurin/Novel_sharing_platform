@@ -1,0 +1,18 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\thaib\AppData\Local\Programs\Python\Python311\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform
+plugins: anyio-4.15.1
+collecting ... collected 9 items
+
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_story_brain_to_outbound_http_prompt_hash_parity PASSED [ 11%]
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_1_approved_canon_included_at_chapter_cutoff PASSED [ 22%]
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_2_locked_rules_survive_extreme_budget_pressure PASSED [ 33%]
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_3_future_events_and_plans_not_historical_facts PASSED [ 44%]
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_4_superseded_states_and_facts_not_current PASSED [ 55%]
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_5_cross_tenant_memory_isolation PASSED [ 66%]
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_6_deterministic_budget_pruning_and_traceability PASSED [ 77%]
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_7_honest_retrieval_and_fail_closed_routing PASSED [ 88%]
+Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py::test_invariant_8_unapproved_proposals_and_stale_brain_version_prevented PASSED [100%]
+
+============================== 9 passed in 2.23s ==============================

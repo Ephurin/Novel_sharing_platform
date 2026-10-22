@@ -1,0 +1,33 @@
+{
+  "chapter_cutoff": 4,
+  "included_entity_ids": [
+    "e-linh-01",
+    "e-duy-03",
+    "e-lam-02",
+    "e-cv04-04",
+    "e-convan-05"
+  ],
+  "included_event_ids": [
+    "ev-ch1-init",
+    "ev-ch2-voice",
+    "ev-ch3-patrol",
+    "ev-ch4-recover"
+  ],
+  "included_rule_ids": [
+    "rule-locked-barrier-01",
+    "rule-locked-freq-02",
+    "fact-signal-ch3-new",
+    "fact-voice-ch2-03"
+  ],
+  "excluded_future_event_id": "ev-ch5-future",
+  "excluded_future_fact_id": "fact-future-ch5-05",
+  "excluded_superseded_fact_id": "fact-signal-ch1-old",
+  "excluded_unapproved_proposal_id": "prop-unapproved-draft-01",
+  "excluded_foreign_tenant_rule": "rule-foreign-secret-99",
+  "tight_budget_dropped_events": [
+    "ev-ch1-init",
+    "ev-ch2-voice",
+    "ev-ch3-patrol",
+    "ev-ch4-recover"
+  ]
+}

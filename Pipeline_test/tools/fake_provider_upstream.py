@@ -69,9 +69,14 @@ class FakeHandler(BaseHTTPRequestHandler):
                         from fake_wave1f_scenario import output as wave1f_output
                     output=wave1f_output(props,text)
                 content = json.dumps(output)
+            elif 'Story Brain' in text or 'Author AI Copilot' in text:
+                content = json.dumps({
+                    'draft_text': 'Mai Linh tiếp tục theo dõi các chỉ số tín hiệu trên màn hình máy thu CV-04.',
+                    'explanation': 'Tiếp tục mạch truyện phù hợp bối cảnh'
+                })
             else: content = 'Separate fake upstream response.'
             result = {'candidates': [{'content': {'role': 'model', 'parts': [{'text': content}]},
-                                     'finishReason': 'STOP'}],
+                                      'finishReason': 'STOP'}],
                       'usageMetadata': {'promptTokenCount': 10, 'candidatesTokenCount': 10, 'totalTokenCount': 20},
                       'modelVersion': 'gemini-3.5-flash-lite', 'responseId': self.headers['X-Gateway-Dispatch-Id']}
         else:
@@ -85,13 +90,14 @@ class FakeHandler(BaseHTTPRequestHandler):
         entry = {'path': self.path, 'request_sha256': hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest(),
                  'dispatch_id': self.headers['X-Gateway-Dispatch-Id'], 'client': self.headers['X-Gateway-Client'],
                  'native_schema': config.get('responseJsonSchema'), 'output_limit': config.get('maxOutputTokens', config.get('max_tokens')),
-                 'upstream_auth_valid': True}
-        if self.scenario in ('wave1e-mixed-v1','wave1f-grounded-v1'):
+                 'upstream_auth_valid': True, 'prompt_text': text}
+        if self.scenario in ('wave1e-mixed-v1','wave1f-grounded-v1','wave1h-context-verify-v1'):
             entry.update(scenario=self.scenario,received_at=time.time(),response=result,
-                         operation=('entity_verification' if 'decisions' in config.get('responseJsonSchema',{}).get('properties',{}) else
+                         operation=('writing_generation' if ('Story Brain' in text or 'Author AI Copilot' in text) else
+                                    'entity_verification' if 'decisions' in config.get('responseJsonSchema',{}).get('properties',{}) else
                                     'events' if 'events' in config.get('responseJsonSchema',{}).get('properties',{}) else
                                     'facts' if 'facts' in config.get('responseJsonSchema',{}).get('properties',{}) else 'discovery'))
-        if self.scenario == 'wave1f-grounded-v1':
+        if self.scenario in ('wave1f-grounded-v1','wave1h-context-verify-v1'):
             if 'Suggest future events' in text:entry['operation']='plan_suggestions'
             if 'findings' in config.get('responseJsonSchema',{}).get('properties',{}):entry['operation']='consistency'
         with self.lock:

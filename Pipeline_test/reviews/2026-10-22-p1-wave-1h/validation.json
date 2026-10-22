@@ -1,0 +1,96 @@
+{
+  "wave": "P1 Wave 1H",
+  "task": "Independent Story Brain Context Verification",
+  "verdict": "P1_WAVE_1H_CONTEXT_VERIFIED_S09_BLOCKED",
+  "verdict_distinction": {
+    "PACKED_TO_LLM_SOURCE_VERIFIED": "PASS",
+    "OFFLINE_OUTBOUND_CONTEXT_VERIFIED": "PASS",
+    "SEMANTIC_RAG_NOT_ASSESSED": "NOT_ASSESSED",
+    "REAL_MODEL_QUALITY_NOT_TESTED": "NOT_TESTED",
+    "S09_BLOCKED_AWAITING_FE_PATCH": "BLOCKED"
+  },
+  "branch": "codex/ai-copilot-pipeline-test",
+  "baseline_sha": "8a8bb499919674349cd8d0022784e95dd0fb14ca",
+  "tested_commit": "HEAD",
+  "execution_mode": "OFFLINE_ONLY",
+  "real_provider_calls": 0,
+  "harness_environment": {
+    "project_id": "p1-wave1h-20261022-ctx-verify-01",
+    "tenant_id": "tenant-wave1h-owned",
+    "novel_id": "novel-wave1h-canon-01",
+    "chapter_cutoff": 4,
+    "source_revision": "rev-ch4-uuid",
+    "brain_version_used": 1,
+    "channel": "OFFLINE_API_DIAGNOSTIC",
+    "fake_upstream": {
+      "port": "ephemeral loopback",
+      "scenario": "wave1h-context-verify-v1",
+      "effective_model": "gemini-3.5-flash-lite",
+      "effective_output_limit": 512,
+      "dispatch_id": "4f21a4ae-d8f3-4c2d-8457-1d4ce02a28a3"
+    },
+    "budget_gateway": {
+      "port": "ephemeral loopback",
+      "ledger_status": "OFFLINE_ONLY",
+      "total_calls": 2,
+      "charged_usd": "0.021671",
+      "live_authorized": false
+    }
+  },
+  "context_delivery_trace": {
+    "persisted_job_context_hash": "da363c14c68dfe7e639f2e6deada4ba832dfb1b928dc2c9ffdb2b6131966dd0d",
+    "extracted_story_brain_hash": "da363c14c68dfe7e639f2e6deada4ba832dfb1b928dc2c9ffdb2b6131966dd0d",
+    "full_outbound_prompt_hash": "896cd1cdfca0905f4d273eabf25aed3f614cefaa7e169920bac5e16792c7abad",
+    "story_brain_hashes_match": true,
+    "hashes_distinct": true
+  },
+  "invariants_matrix": {
+    "inv1_approved_canon_included": {
+      "result": "PASS",
+      "detail": "Mai Linh, Duy, CV-04, Cồn Vân and Ch1-Ch4 events included at cutoff 4"
+    },
+    "inv2_locked_rules_retained_under_budget": {
+      "result": "PASS",
+      "detail": "Locked barrier and frequency rules retained under 150-token extreme pruning where all non-locked events dropped"
+    },
+    "inv3_future_events_excluded": {
+      "result": "PASS",
+      "detail": "Chapter 5 event and planned Ch6 future event excluded from historical recent events"
+    },
+    "inv4_superseded_states_not_current": {
+      "result": "PASS",
+      "detail": "Duy condition is recovered (not obsolete hurt); superseded Ch1 signal fact excluded and replaced by Ch3 signal fact"
+    },
+    "inv5_cross_tenant_isolation": {
+      "result": "PASS",
+      "detail": "Foreign tenant novel entities, rules, and events never leak into target novel context"
+    },
+    "inv6_budget_pruning_deterministic": {
+      "result": "PASS",
+      "detail": "ContextBudgetPacker produces identical packages and hashes across multiple runs; dropped event IDs recorded"
+    },
+    "inv7_retrieval_failures_honest": {
+      "result": "PASS",
+      "detail": "Semantic retrieval honestly reports disabled/not_requested when embeddings are off; max tier overflow fails closed"
+    },
+    "inv8_unapproved_memory_not_promoted": {
+      "result": "PASS",
+      "detail": "Unapproved pending proposals excluded from world rules; stale expected brain version triggers optimistic lock error"
+    }
+  },
+  "deterministic_regression_suite": {
+    "test_file": "Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py",
+    "tests_collected": 9,
+    "tests_passed": 9,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "exit_code": 0,
+    "log_file": "Pipeline_test/reviews/2026-10-22-p1-wave-1h/test_logs.txt"
+  },
+  "boundaries": {
+    "semantic_rag": "NOT_ASSESSED (embeddings disabled under offline pipeline test)",
+    "real_model_quality": "NOT_TESTED (fake provider text-only responses)",
+    "author_write_api": "NOT_USED (S09 autosave blocker not bypassed)",
+    "s10_s11_execution": "NOT_RUN (S09 remains blocked awaiting FE patch)"
+  }
+}
