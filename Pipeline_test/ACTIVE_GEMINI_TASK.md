@@ -1,16 +1,16 @@
-# ACTIVE GEMINI TASK — P123 JOB RESUME AUTHORIZATION CLOSURE
+# ACTIVE EXECUTOR TASK — FE/BACKEND INTEGRATION PREFLIGHT (ASTRA)
 
-**Updated:** 2026-10-22 Asia/Bangkok. **Branch:** `codex/ai-copilot-pipeline-test`. Executor: Gemini. Final reviewer: GPT-6.
+**Date:** 2026-10-22 Asia/Bangkok. **Permitted branch:** `codex/ai-copilot-pipeline-test` only. **Executor:** ASTRA (correctly identify another agent if executing). **Final review:** GPT-6.
 
-**ONLY ACTIVE TASK:** [P123_GEMINI_JOB_RESUME_AUTHZ_CLOSURE_2026-10-22.md](P123_GEMINI_JOB_RESUME_AUTHZ_CLOSURE_2026-10-22.md). See [../promt.md](../promt.md) §0 and contract [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
+**SINGLE CURRENT TASK:** [P123_FE_BACKEND_INTEGRATION_PREFLIGHT_2026-10-22.md](P123_FE_BACKEND_INTEGRATION_PREFLIGHT_2026-10-22.md). Read [../promt.md](../promt.md) §0 and [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4 first.
 
-**GPT-6 review and gate:** [GPT6_P123_CORE_FINAL_REVIEW_2026-10-22.md](reviews/2026-10-22-p123-headless/gpt6-final/GPT6_P123_CORE_FINAL_REVIEW_2026-10-22.md). Bounded P1/P2/P3 functionality and P3 transaction fencing evidence accepted. Overall `P123_CORE_OFFLINE_READY_FOR_INTEGRATION_REVIEW` is **BLOCKED** by a newly identified authorization-check omission in the bootstrap job resume route. This is a static code-review finding awaiting targeted verification, not an observed runtime breach.
+**GPT-6 verdict:** [GPT6_JOB_RESUME_AUTHZ_DELTA_ACCEPTANCE_2026-10-22.md](reviews/2026-10-22-p123-headless/gpt6-final/GPT6_JOB_RESUME_AUTHZ_DELTA_ACCEPTANCE_2026-10-22.md) closes the cross-author job-resume blocker at bounded source and executor evidence level, tested source `7d1f1bed508480db84def77c75c99039a9bacd7e`, ASTRA evidence `3791a15` sealed by `cdffb28`. `P123_CORE_OFFLINE_READY_FOR_INTEGRATION_REVIEW` is GRANTED for **planning/compatibility review only**, not FE merge, UI PASS or deployment. The narrow authz remediation is done; do not repeat it. GPT-6 independently inspected GitHub source/evidence, did not run Docker.
 
-**Next:** Verify backend job ownership checks, add a backward-compatible fail-closed authorization guard for resume and scoped job status, and test authorized vs unauthorized users through a new isolated fake-only HTTP environment. Preserve existing source/evidence; perform minimal focused regression and hand off exact tested code and sanitized evidence SHA for GPT-6 delta review. Prior Gemini takeover task is complete; do not repeat P3 testing without regression need.
+**Next scope:** check current PR #52/#54/#55 heads and source-based API/DTO differences, perform read-only FE and migration inventory, optionally use fresh isolated temporary composite test DB (no Git merges), document S09 browser status and hand off prioritized FE-vs-Core owner decisions. Create reports under `reviews/2026-10-22-p123-headless/fe-integration-preflight-2026-10-22/`. Stop for GPT-6 review. Do NOT implement FE code or treat a dry-run as a merged deployment.
 
-**Boundaries:** `HOLD_FE_INTEGRATION_ONLY`. No frontend edits, FE PR merge, main writes, production data changes, external LLM or embedding API calls, paid spend, publishing, old volume cleanup or P3 long run. Historical S09 browser remains RED. Final review after a passing targeted fix may permit *integration planning*, never automatic FE merging or production acceptance.
+**Hard boundaries:** `HOLD_FE_INTEGRATION_ONLY`. No `web/` edits, FE/main branch writes, PR merge/cherry-pick, real Gemini/OpenAI/embedding calls, paid spend, publishing, P3 100k run or historical evidence/database/volume destruction. S09 browser RED remains FE-owned. Existing bounded P1/P2/P3 tests retain acceptance only within their proven offline scope.
 
-Below is historical material, not active instructions.
+All text below is historical and not an active executable instruction.
 
 ---
 
