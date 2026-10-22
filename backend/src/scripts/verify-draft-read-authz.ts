@@ -18,6 +18,8 @@ const pool = getPostgresPool();
 const mongo = getMongoDatabase();
 const traces: unknown[] = [];
 const checks: string[] = [];
+const actorLabels = new Map<string,string>();
+let fixture: unknown;
 let providerCalls = 0;
 const fake = createServer((_req, res) => { providerCalls++; res.writeHead(503).end('{}'); });
 await new Promise<void>(r => fake.listen(0, '127.0.0.1', r));
@@ -33,7 +35,7 @@ const snapshots: unknown[] = [];
 async function api(method: string, path: string, token: string | undefined, expected: number, body?: unknown) {
   const response = await fetch(base + path, {method, headers: {'Content-Type':'application/json', ...(token ? {Authorization:`Bearer ${token}`} : {})}, body: body === undefined ? undefined : JSON.stringify(body)});
   const result = await response.json() as any;
-  traces.push({method,path,status:response.status,actor:token ? 'authenticated' : 'anonymous',response:path.startsWith('/auth/') ? {redacted:true} : result});
+  traces.push({method,path,status:response.status,actor:token ? actorLabels.get(token) ?? 'invalid-token' : 'anonymous',response:path.startsWith('/auth/') ? {redacted:true} : result});
   assert.equal(response.status, expected, `${method} ${path}: ${JSON.stringify(result)}`);
   checks.push(`${method} ${path} ${expected}`);
   return result.data;
@@ -57,7 +59,9 @@ try {
     const password = 'FixtureA9_' + randomUUID();
     const registration = await api('POST','/auth/register',undefined,201,{username,email:username+'@example.test',password});
     await pool.query('update users set role=$1 where user_id=$2',[role,registration.user.userId]);
-    accounts.push(await api('POST','/auth/login',undefined,200,{identifier:username,password}));
+    const account = await api('POST','/auth/login',undefined,200,{identifier:username,password});
+    actorLabels.set(account.accessToken,['AUTHOR_A','AUTHOR_B','READER','ADMIN'][accounts.length]);
+    accounts.push(account);
   }
   const [a,b,reader,admin] = accounts;
   const novel = await api('POST','/novels',a.accessToken,201,{title:'Private authz fixture',synopsis:'Synthetic isolated fixture'});
@@ -66,6 +70,7 @@ try {
   const path = `/chapters/${chapter.chapterId}`;
   const list = `/novels/${novel.novelId}/chapters`;
   const owner = await api('GET',path,a.accessToken,200);
+  fixture = {accounts:accounts.map(x=>({userId:x.user.userId,role:x.user.role,actor:actorLabels.get(x.accessToken)})),novelId:novel.novelId,chapterId:chapter.chapterId,draftVersion:owner.draft.version,draftContentSha256:createHash('sha256').update(owner.draft.content).digest('hex')};
   assert.equal(owner.draft.content,marker);
   assert.equal(owner.draft.version,chapter.draftVersion);
   const privateNovelMetadata = await api('GET',`/novels/${novel.novelId}`,undefined,200);
@@ -157,7 +162,7 @@ try {
 } finally {
   await mkdir(out,{recursive:true});
   await writeFile(`${out}/http-trace.jsonl`,traces.map(x=>JSON.stringify(x)).join('\n')+'\n');
-  await writeFile(`${out}/validation.json`,JSON.stringify({mode:red?'RED':'GREEN',passed:!failure,failure,identity,checks,snapshots,providerCalls},null,2));
+  await writeFile(`${out}/validation.json`,JSON.stringify({mode:red?'RED':'GREEN',passed:!failure,failure,identity,fixture,checks,snapshots,providerCalls},null,2));
   await new Promise<void>(r=>server.close(()=>r()));
   await new Promise<void>(r=>fake.close(()=>r()));
   await disconnectPostgres();
