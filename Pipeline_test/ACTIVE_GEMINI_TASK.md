@@ -1,18 +1,18 @@
-# ACTIVE CODEX TASK — P1 ORDERED-WRITER TEST/REPAIR → P3 HEADLESS CONTROLLER
+# ACTIVE CODEX TASK — P3 OBJECTIVE INTENT/ACCEPT SAFETY (FE HOLD)
 
-**Updated:** 2026-10-22 Asia/Bangkok. **Branch:** `codex/ai-copilot-pipeline-test` ONLY.
+**Date:** 2026-10-22 Asia/Bangkok. **Only permitted branch:** `codex/ai-copilot-pipeline-test`.
 
-**SINGLE EXECUTABLE TASK:** [P123_HEADLESS_P1_RACE_P3_TASK_2026-10-22.md](P123_HEADLESS_P1_RACE_P3_TASK_2026-10-22.md). Project instruction [../promt.md](../promt.md) §0, contract [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
+**SINGLE EXECUTABLE TASK:** [P123_P3_OBJECTIVE_INTENT_FENCE_TASK_2026-10-22.md](P123_P3_OBJECTIVE_INTENT_FENCE_TASK_2026-10-22.md). Current project priority: [../promt.md](../promt.md) §0, v1.4 contract [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md).
 
-**GPT-6 independent review:** [GPT6_P1_P2_INDEPENDENT_REVIEW.md](reviews/2026-10-22-p123-headless/next-slice/GPT6_P1_P2_INDEPENDENT_REVIEW.md), based on code SHA `1dc7dfa38267c9eb176f56f070380930d1887d85` and executor evidence HEAD `4158e8600a4e3b76df6eaab4073235aa5fc4537a`. Source/evidence review ONLY; GPT-6 did not independently rerun Docker, PostgreSQL, Mongo or pytest.
+**Independent source/evidence review:** [GPT6_P1_P3_INDEPENDENT_REVIEW.md](reviews/2026-10-22-p123-headless/p1-race-p3/GPT6_P1_P3_INDEPENDENT_REVIEW.md), executor tested SHA `c34a0251dbc6d15fd2af7a8b1ead787adf892100`, original handoff HEAD `26a99956238ec19e930b4858bee190d2a9203009`. Reviewer inspected source and artifacts via GitHub, not independently rerun Docker/pytest.
 
-**Current verdict:** P1 bounded executor headless function evidence accepted **with blocker**: same-version Mongo CAS 409 works, but reversed cross-store side effect order after two individually valid CAS writes may create stale Postgres revision/outbox and/or timestamp-based Mongo overwrite. This is a **static race hypothesis not yet runtime reproduced**. P1 full Core PASS is BLOCKED pending deterministic two-success interleaving test and safe repair/explicit blocker. P2 bounded headless 27/27 executor evidence is accepted WITH LIMITATIONS, not UI/provider/quality PASS; P2 need not be repeated absent shared regression impact.
+**Review verdict:** P1 writer ordering bug was proven RED on pinned older image, then bounded GREEN on final source; accept that limited repair evidence, not general cross-store atomicity. P2 bounded idea→first chapter evidence accepted with limitations. P3 two 2-objective headless paths have executor 12/12 checks each but full P3 Core **BLOCKED** by `P3_OBJECTIVE_INTENT_FENCE`: author status `skipped` commits while generation is in flight, yet one later AI_DRAFT_ACCEPT revision is committed. No canon auto-approval. The objective endpoint has no shared intent fence with acceptance. A pre-accept status GET alone cannot prove safety.
 
-**Next work:** P0 reproduce/fix the P1 Mongo v1→2 A then Mongo v2→3 B, B commits PG, then A resumes PG/Mongo sync. Use fresh isolated test-owned DB and evidence. P1 safety test needs latest Mongo body, PG immutable latest, outbox, and restart readback. After P0 bounded handoff, implement bounded P3 controller with/without Story Plan, true HITL pause/resume via simulated-author API, draft-only generate/accept/analysis/canon/objective, failure/idempotency/terminal. P3 100k NOT_RUN and not authorized live.
+**Execute P0:** Preserve existing RED, implement documented safe atomic skip/stop vs accept boundary (or explicit objective-busy conflict with unchanged state). Test both completion orders, run stop, plan status/version, crash/retry/restart, no ghost revision/outbox/canon, idempotency and human entity checkpoint via new isolated authenticated API+PG/Mongo+fake-provider tests. Repeat P3 existing/no-plan, P1 ordered-writer and P2 regression on exact clean tested code SHA, then sanitized evidence commit. If safe repair cannot be implemented without redesign, report BLOCKED rather than fake PASS.
 
-**Scope:** Backend/AI/API/headless only, no `web/` edits, FE PR cherry-pick/merge or main writes. Historical browser S09 RED remains. `HOLD_FE_INTEGRATION_ONLY` persists. ZERO external real provider or embeddings. Preserve evidence/ledgers/gold and use fresh isolated env. All `SIMULATED_HUMAN_VIA_API` decisions must be labeled, no unattended claim.
+**Boundaries:** `HOLD_FE_INTEGRATION_ONLY`, no `web/` changes, FE PR integration/merges, S09 browser claim, real Gemini/OpenAI/embedding calls, auto publication or long P3 100k run. Author decisions scripted via API are `SIMULATED_HUMAN_VIA_API`. Protect all historic projects/evidence/ledgers, use fresh test-owned resources. Codex must stop for independent GPT-6 review of next bounded delivery.
 
-Previous [P123_HEADLESS_NEXT_SLICE_2026-10-22.md](P123_HEADLESS_NEXT_SLICE_2026-10-22.md) completed its executor scope. The old full-stack FE plan remains PARKED. Everything below is historical.
+Prior `P123_HEADLESS_P1_RACE_P3_TASK_2026-10-22.md` is delivered. All below sections are historical guidance, not active tasks.
 
 ---
 
