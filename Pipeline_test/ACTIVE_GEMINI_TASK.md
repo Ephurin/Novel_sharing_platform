@@ -1,18 +1,16 @@
-# ACTIVE GEMINI TASK — P123 CORE TAKEOVER & INDEPENDENT ACCEPTANCE
+# ACTIVE GEMINI TASK — P123 JOB RESUME AUTHORIZATION CLOSURE
 
-**Date:** 2026-10-22 Asia/Bangkok. **Branch:** `codex/ai-copilot-pipeline-test`. **Current executor: GEMINI** (Codex quota exhausted per owner). GPT-6 performs final independent review.
+**Updated:** 2026-10-22 Asia/Bangkok. **Branch:** `codex/ai-copilot-pipeline-test`. Executor: Gemini. Final reviewer: GPT-6.
 
-**ONLY EXECUTABLE TASK:** [P123_GEMINI_TAKEOVER_AND_INDEPENDENT_ACCEPTANCE_2026-10-22.md](P123_GEMINI_TAKEOVER_AND_INDEPENDENT_ACCEPTANCE_2026-10-22.md). Governing [../promt.md](../promt.md) §0 and [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
+**ONLY ACTIVE TASK:** [P123_GEMINI_JOB_RESUME_AUTHZ_CLOSURE_2026-10-22.md](P123_GEMINI_JOB_RESUME_AUTHZ_CLOSURE_2026-10-22.md). See [../promt.md](../promt.md) §0 and contract [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
 
-**Handoff state:** Codex already implemented P3 post-accept intent/approved-canon/plan-progress fence, committed final **tested source** `3f7320c9ec0c2e6d9c6c67bc75d16f4449d39c99`, and last evidence/docs commit `c55b2f4d0b8e7f6895e70a48845f08a37c3b8bd2`. Previous task [P123_P3_POST_ACCEPT_AND_CORE_READINESS_TASK_2026-10-22.md](P123_P3_POST_ACCEPT_AND_CORE_READINESS_TASK_2026-10-22.md) is executor-delivered; **DO NOT repeat the implementation or rerun all tests as a first step**.
+**GPT-6 review and gate:** [GPT6_P123_CORE_FINAL_REVIEW_2026-10-22.md](reviews/2026-10-22-p123-headless/gpt6-final/GPT6_P123_CORE_FINAL_REVIEW_2026-10-22.md). Bounded P1/P2/P3 functionality and P3 transaction fencing evidence accepted. Overall `P123_CORE_OFFLINE_READY_FOR_INTEGRATION_REVIEW` is **BLOCKED** by a newly identified authorization-check omission in the bootstrap job resume route. This is a static code-review finding awaiting targeted verification, not an observed runtime breach.
 
-**Evidence to review:** [post-accept/HANDOFF_GPT6.md](reviews/2026-10-22-p123-headless/post-accept/HANDOFF_GPT6.md), [P3_POST_ACCEPT_REPORT.md](reviews/2026-10-22-p123-headless/post-accept/P3_POST_ACCEPT_REPORT.md), `reviews/2026-10-22-p123-headless/post-accept/green-03/`, [P123_CORE_READINESS_MATRIX.md](reviews/2026-10-22-p123-headless/core-readiness/P123_CORE_READINESS_MATRIX.md), [FE_BACKEND_CUTOVER_CONTRACT.md](reviews/2026-10-22-p123-headless/core-readiness/FE_BACKEND_CUTOVER_CONTRACT.md). **Exactly 11 final post-accept scenario validation files and 77 recorded PASS checks**; additional P3 two 12-check runs, P2 27-check, P1 writer bounded PASS. Prior 84/84 claim was a miscount. `post-accept/validation.json` aggregate is referenced but missing at current HEAD; verify and create **new Gemini-owned** manifest, never edit Codex's reports.
+**Next:** Verify backend job ownership checks, add a backward-compatible fail-closed authorization guard for resume and scoped job status, and test authorized vs unauthorized users through a new isolated fake-only HTTP environment. Preserve existing source/evidence; perform minimal focused regression and hand off exact tested code and sanitized evidence SHA for GPT-6 delta review. Prior Gemini takeover task is complete; do not repeat P3 testing without regression need.
 
-**Gemini actions completed:** (1) independently inspected source `3f7320c` (controller intent fence, actor binding, varchar provenance, row-locking invariants), (2) inventoried evidence and generated `EVIDENCE_MANIFEST.json` resolving the 77-check count and missing root validation file, (3) performed fresh isolated runtime reproductions (`repro-pre_progress-skip` and `repro-pre_approval-stop` both 7/7 PASS, and offline focused regressions PASS) with 0 real provider calls, and (4) generated `reviews/2026-10-22-p123-headless/gemini-takeover-2026-10-22/` reports (`GEMINI_INDEPENDENT_REVIEW.md`, `RUNTIME_REPRO_REPORT.md`, `commands-and-exits.json`, `P123_CORE_INTEGRATION_READINESS_RECOMMENDATION.md`). **Execution STOPPED awaiting GPT-6 independent gate decision.**
+**Boundaries:** `HOLD_FE_INTEGRATION_ONLY`. No frontend edits, FE PR merge, main writes, production data changes, external LLM or embedding API calls, paid spend, publishing, old volume cleanup or P3 long run. Historical S09 browser remains RED. Final review after a passing targeted fix may permit *integration planning*, never automatic FE merging or production acceptance.
 
-**Hard boundary:** `HOLD_FE_INTEGRATION_ONLY` — NO `web/` production UI edits, FE PR #52/#54/#55 merge or cherry-pick, main writes, real provider/embedding egress, publishing, P3 100k run, historical evidence or Docker volume resets. Browser S09 remains RED/FE-owned. Test-only human actions labeled `SIMULATED_HUMAN_VIA_API`, no UI/literary/live claims. **0 real model calls / 0 paid spend**, fresh test-owned projects only.
-
-All content below is historical and superseded for current execution.
+Below is historical material, not active instructions.
 
 ---
 
