@@ -438,3 +438,28 @@ Historical implementation/review transcripts belong in:
 - Git history.
 
 Keep this file limited to current canonical state, architecture invariants, ownership, and the next executable gate.
+
+---
+
+## 7. PARALLEL CODEX TASK — Wave 1H independent evidence audit (2026-10-22)
+
+**Scope:** This is a task for Codex working **only** on `codex/ai-copilot-pipeline-test`. It does **not** supersede §5's Wallet/VIP task for Gemini on `astra/reader-wallet-vip-unlock-e2e`, and it does not replace `Pipeline_test/ACTIVE_GEMINI_TASK.md`'s Wave 1G FE-blocked S09 gate.
+
+**Objective:** Independently audit the reported Wave 1H `OFFLINE_OUTBOUND_CONTEXT_VERIFIED=PASS` rather than treating executor-authored PASS as acceptance. Start by fetching current branch HEAD and checking clean status. Read:
+- `Pipeline_test/P1_WAVE_1H_OUTBOUND_CONTEXT_DIAGNOSTIC_TASK.md`
+- `Pipeline_test/reviews/2026-10-22-p1-wave-1h/CONTEXT_DELIVERY_AUDIT.md`
+- `Pipeline_test/reviews/2026-10-22-p1-wave-1h/validation.json`, `outbound_prompt_evidence.json`, `context_comparison.json`, `ledger_summary.json`, `test_logs.txt`
+- `Pipeline_test/tests/test_wave1h_story_brain_context_delivery.py`, `Pipeline_test/tools/verify_story_brain_context_delivery.py`, `Pipeline_test/tools/fake_provider_upstream.py`
+- Wave 1G independent path review and `WORKFLOW_CONTRACT.md`.
+
+### Required checks
+
+1. Establish provenance: identify the exact 3 commits since Wave 1H task handoff `62f127d771f967e0f6f179025f36ed7a4b0c75aa`; inspect source/evidence diffs and distinguish real runtime captures from fixtures and synthetic assertions. Don't merely restate report prose.
+2. Re-run focused 9-test suite on a clean checkout, recording exact tested SHA, command, exit code, skipped tests and dependencies. Audit whether HTTP capture uses actual `WritingService → LLMService → gateway → fake upstream` invocation, not a fabricated payload or a parallel reimplementation. Compare persisted `context_hash` with extracted outbound Story Brain JSON from capture and explain full-prompt hash distinction.
+3. Check fixture independence, tenant isolation, temporal cutoff, locked-rule retention, superseded states, unapproved proposals, deterministic pruning, and semantic retrieval status. Examine negative/fault tests for **post-hash mutation, wrong/stale request, gateway transmission failure and mismatched hash**. Where coverage is missing, add narrow deterministic tests that genuinely FAIL for injected faults and PASS after restoring correct behavior; do not edit production code without a reproducible defect.
+4. Validate gateway/ledger is fake-only: preserve no real egress, classify two simulated calls and synthetic USD accounting correctly; never treat simulated `charged_usd` as actual spend. Do not call Gemini/OpenAI/embedding APIs.
+5. Make an independent verdict: `WAVE_1H_INDEPENDENT_ACCEPTED_OFFLINE`, `WAVE_1H_REVIEW_BLOCKED:<reason>`, or `WAVE_1H_REJECTED:<reason>`. Limit acceptance to outbound context provenance; semantic RAG and model quality remain NOT_ASSESSED/NOT_TESTED. S09 is still BLOCKED pending reviewed FE patch (issue #56 / PR #55); do not run S10/S11, cherry-pick or merge frontend changes, or claim P1 overall PASS.
+
+### Handoff
+
+Write sanitized, reproducible findings under `Pipeline_test/reviews/2026-10-22-p1-wave-1h/`, preferably `GPT6_INDEPENDENT_REVIEW_HANDOFF.md` plus focused audit/test evidence. Clearly separate executor evidence, independently re-run evidence and untested boundaries. Preserve historical ledgers, fixtures and all prior review reports. Commit/push only necessary review tests/docs to `codex/ai-copilot-pipeline-test` and report tested SHA, evidence SHA and any blockers. Stop there for GPT-6 final remote review; do not modify §5 Wallet/VIP task or the active Wave 1G pointer.
