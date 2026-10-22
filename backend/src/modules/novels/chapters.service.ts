@@ -248,7 +248,7 @@ export async function submitChapterPublish(auth: AuthContext, chapterId: string,
     content: `${publishTitle}\n\n${publishContent}`,
     submittedBy: auth.userId,
     publicationSnapshot: { title: publishTitle, content: publishContent, wordCount: publishWordCount }
-  });
+  }, client);
 
   await client.query("update chapter_publication_schedules set status='CANCELLED', error='Đã gửi phát hành thủ công.', updated_at=now() where chapter_id=$1 and status='PENDING'", [chapterId]);
   if (!moderation.moderationRequired) {

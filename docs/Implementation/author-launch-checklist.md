@@ -1,5 +1,9 @@
 # Checklist tác giả trước ra mắt — Nhóm A
 
+Đợt sửa review PR #54/#55 ngày 22/10/2026 bổ sung migration 017, giới hạn reorder
+để bảo vệ dữ liệu cốt truyện, transaction kiểm duyệt lịch đăng và cách ly autosave
+theo tài khoản. Xem [kết quả và bằng chứng kiểm thử](../development/PR-54-55-REVIEW/README.md).
+
 Đối chiếu theo code và kiểm thử ngày 21/10/2026. Cả năm nhóm trong checklist đều đã có luồng sử dụng.
 
 | Mục | Trước lượt bổ sung này | Kết quả và nơi sử dụng |

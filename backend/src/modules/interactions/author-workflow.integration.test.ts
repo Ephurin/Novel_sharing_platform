@@ -18,7 +18,7 @@ test('author workflow: draft privacy, conflicts, revisions, idempotent imports, 
     const pg=await import('../../core/database/postgres.js'), mongo=await import('../../core/database/mongo.js');
     closePostgres=pg.disconnectPostgres; closeMongo=mongo.disconnectMongo; dropMongo=()=>mongo.getMongoDatabase().dropDatabase();
     const pool=pg.getPostgresPool();
-    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','007_wallet_transactions','008_authoring_context','009_chapter_revisions','010_analysis_outbox','011_outbox_claim_token','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
+    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','007_wallet_transactions','008_authoring_context','009_chapter_revisions','010_analysis_outbox','011_outbox_claim_token','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
     const author=randomUUID(),reader=randomUUID(),other=randomUUID(),admin=randomUUID(),outsider=randomUUID();
     for(const [id,role] of [[author,'AUTHOR'],[reader,'READER'],[other,'READER'],[admin,'ADMIN'],[outsider,'AUTHOR']]) {
       await pool.query(`insert into users (user_id,email,username,password_hash,role) values ($1::uuid,$2,$1::text,'hash',$3)`,[id,id+'@test.invalid',role]);
@@ -71,11 +71,34 @@ test('author workflow: draft privacy, conflicts, revisions, idempotent imports, 
     assert.equal((await req(cp,'POST',{...payload,content:'Changed'},authorToken)).status,409);
     const id=imported.body.data.chapterId,order='/novels/'+novel+'/chapter-order';
     assert.equal((await req(order,'PUT',{chapterIds:[draft,chapter]},authorToken)).status,409);
-    assert.equal((await req(order,'PUT',{chapterIds:[id,draft,chapter]},authorToken)).status,200);
+    const beforeOrder=(await pool.query('select chapter_id,chapter_number from chapters where novel_id=$1 order by chapter_number',[novel])).rows;
+    assert.equal((await req(order,'PUT',{chapterIds:[id,draft,chapter]},authorToken)).body.error.code,'CHAPTER_ORDER_CANONICAL');
+    assert.deepEqual((await pool.query('select chapter_id,chapter_number from chapters where novel_id=$1 order by chapter_number',[novel])).rows,beforeOrder);
     assert.equal((await req('/chapters/'+id+'/archive','POST',{},outsiderToken)).status,403);
     for(const action of ['archive','restore','archive'])assert.equal((await req('/chapters/'+id+'/'+action,'POST',{},authorToken)).status,200);
     assert.equal((await req('/chapters/'+id,'DELETE',undefined,authorToken)).status,200);
     assert.equal((await req(cp,'POST',{title:'Next',content:'New prose'},authorToken)).status,201);
+    // A deleted chapter reserves its number, without drifting on repeated reorder.
+    const privateChapters='/novels/'+privateId+'/chapters',privateOrder='/novels/'+privateId+'/chapter-order';
+    const created=[] as string[];
+    for(let i=0;i<3;i++) { const r=await req(privateChapters,'POST',{title:'Draft '+i,content:'Private draft'},authorToken);assert.equal(r.status,201);created.push(r.body.data.chapterId); }
+    await req('/chapters/'+created[1]+'/archive','POST',{},authorToken);
+    assert.equal((await req('/chapters/'+created[1],'DELETE',undefined,authorToken)).status,200);
+    for(const chapterIds of [[created[2],created[0]],[created[0],created[2]],[created[2],created[0]]]) assert.equal((await req(privateOrder,'PUT',{chapterIds},authorToken)).status,200);
+    assert.equal((await pool.query('select chapter_number from chapters where chapter_id=$1',[created[1]])).rows[0].chapter_number,2);
+    const next=await req(privateChapters,'POST',{title:'Next draft',content:'Text'},authorToken);assert.equal(next.status,201);
+    assert.equal((await pool.query('select chapter_number from chapters where chapter_id=$1',[next.body.data.chapterId])).rows[0].chapter_number,4);
+    const safeOrder=[created[2],created[0],next.body.data.chapterId];
+    await pool.query("insert into plot_summaries(novel_id,scope,start_chapter_number,end_chapter_number,summary,created_by,updated_by) values($1,'NOVEL',1,3,'Canonical range',$2,$2)",[privateId,author]);
+    assert.equal((await req(privateOrder,'PUT',{chapterIds:[...safeOrder].reverse()},authorToken)).body.error.code,'CHAPTER_ORDER_CANONICAL');
+    assert.deepEqual((await pool.query('select start_chapter_number,end_chapter_number from plot_summaries where novel_id=$1',[privateId])).rows,[{start_chapter_number:1,end_chapter_number:3}]);
+    await pool.query('delete from plot_summaries where novel_id=$1',[privateId]);
+    await pool.query("insert into story_timeline_events(novel_id,chapter_id,title,event_order,summary,created_by,updated_by) values($1,$2,'Canonical event',1,'Timeline',$3,$3)",[privateId,created[0],author]);
+    assert.equal((await req(privateOrder,'PUT',{chapterIds:[...safeOrder].reverse()},authorToken)).body.error.code,'CHAPTER_ORDER_CANONICAL');
+    await pool.query('delete from story_timeline_events where novel_id=$1',[privateId]);
+    // Restoring/soft-deleting a formerly published chapter does not erase its history.
+    await pool.query('update chapters set published_at=now() where chapter_id=$1',[created[1]]);
+    assert.equal((await req(privateOrder,'PUT',{chapterIds:[...safeOrder].reverse()},authorToken)).body.error.code,'CHAPTER_ORDER_CANONICAL');
     // Approved comments deliver to authors; replies deliver to their reader, with crash-safe retry IDs.
     const notifications=await import('./notifications.repository.js');await notifications.ensureNotificationIndexes();
     const delivery=await import('./domain-notifications.js');

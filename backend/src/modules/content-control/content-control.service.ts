@@ -1,3 +1,4 @@
+import type { PoolClient } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -54,8 +55,8 @@ function highestSeverity(rules: MatchedRule[]) {
   return 'LOW';
 }
 
-export async function checkContent(input: ContentControlCheckInput & { publicationSnapshot?: { title: string; content: string; wordCount: number } }) {
-  const rules = await listActiveFilterRules();
+export async function checkContent(input: ContentControlCheckInput & { publicationSnapshot?: { title: string; content: string; wordCount: number } }, client?: PoolClient) {
+  const rules = await listActiveFilterRules(client);
   const matchedRules = scanContent(input.content, rules);
 
   if (!matchedRules.length) {
@@ -66,10 +67,10 @@ export async function checkContent(input: ContentControlCheckInput & { publicati
     } as const;
   }
 
-  const existingReview = await findOpenReview(input.targetType, input.targetId, undefined, 'KEYWORD_FILTER');
+  const existingReview = await findOpenReview(input.targetType, input.targetId, client, 'KEYWORD_FILTER');
   if (existingReview) {
     if (input.publicationSnapshot && !existingReview.submitted_content) {
-      const attached = await getPostgresPool().query("update moderation_reviews set submitted_content=coalesce(submitted_content,$2::jsonb) where review_id=$1 and status='PENDING' returning submitted_content", [existingReview.review_id,input.publicationSnapshot]);
+      const attached = await (client ?? getPostgresPool()).query("update moderation_reviews set submitted_content=coalesce(submitted_content,$2::jsonb) where review_id=$1 and status='PENDING' returning submitted_content", [existingReview.review_id,input.publicationSnapshot]);
       if (!attached.rowCount) throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Kết quả duyệt đã thay đổi, hãy gửi lại');
       existingReview.submitted_content = attached.rows[0].submitted_content;
     }
@@ -91,7 +92,7 @@ export async function checkContent(input: ContentControlCheckInput & { publicati
     source: 'KEYWORD_FILTER',
     matchedRules,
     summary: `${matchedRules.length} content filter rule(s) matched.`
-  });
+  }, client);
 
   const review = await createModerationReview({
     targetType: input.targetType,
@@ -99,7 +100,7 @@ export async function checkContent(input: ContentControlCheckInput & { publicati
     source: 'KEYWORD_FILTER',
     evidenceId,
     submittedContent: input.publicationSnapshot
-  });
+  }, client);
 
   return {
     result: 'NEED_ADMIN_REVIEW',

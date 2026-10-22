@@ -232,13 +232,14 @@ export function AuthorWritingIde() {
   }, [chapterId, chaptersQuery.data]);
 
   const chapterQuery = useQuery({
-    queryKey: ['author', 'chapter', activeChapterId],
+    queryKey: ['author', 'chapter', activeChapterId, user?.userId],
     queryFn: () => getChapter(activeChapterId),
     refetchInterval: query => ['PENDING','PENDING_MODERATION'].includes(query.state.data?.publicationSchedule?.status ?? '') ? 10000 : false,
     enabled: Boolean(activeChapterId)
   });
 
   const persistence = useDraftPersistence(user?.userId ?? '', activeChapterId);
+  const activeDraftScope = `${user?.userId}:${activeChapterId}`;
   const loadedChapter = useRef('');
   // Story Bible Queries
   const charactersQuery = useQuery({
@@ -298,17 +299,22 @@ export function AuthorWritingIde() {
 
   // Load chapter data into editor when chapter changes
   useEffect(() => {
+    loadedChapter.current = '';
+    setTitle(''); setContent(''); setIsVip(false); setPriceCoins(0);
+  }, [user?.userId]);
+
+  useEffect(() => {
     if (chapterQuery.data) {
       const ch = chapterQuery.data;
-      if (loadedChapter.current === activeChapterId) return;
-      loadedChapter.current = activeChapterId;
+      if (loadedChapter.current === activeDraftScope) return;
+      loadedChapter.current = activeDraftScope;
       const value = persistence.initialize(ch);
       if (!value) return;
       setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins);
       setAutosaveStatus('saved');
       setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
     }
-  }, [chapterQuery.data, activeChapterId]);
+  }, [chapterQuery.data, activeChapterId, user?.userId]);
 
   // The outer workspace scrolls; the manuscript and textarea keep their full height.
   const adjustHeight = () => {
@@ -443,13 +449,13 @@ export function AuthorWritingIde() {
   useEffect(() => { setAutosaveStatus(persistence.status); if (persistence.status === 'saved') setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })); }, [persistence.status]);
   const triggerAutosave = (newTitle: string, newContent: string, newIsVip: boolean, newPrice: number) => persistence.queue({ title: newTitle, content: newContent, isVip: newIsVip, priceCoins: newIsVip ? Math.max(1, newPrice) : 0 });
   const handleTitleChange = (val: string) => {
-    if (isAcceptingAi || loadedChapter.current !== activeChapterId) return;
+    if (isAcceptingAi || loadedChapter.current !== activeDraftScope) return;
     setTitle(val);
     triggerAutosave(val, content, isVip, priceCoins);
   };
 
   const handleContentChange = (val: string) => {
-    if (isAcceptingAi || loadedChapter.current !== activeChapterId) return;
+    if (isAcceptingAi || loadedChapter.current !== activeDraftScope) return;
     setContent(val);
     triggerAutosave(title, val, isVip, priceCoins);
   };
@@ -627,7 +633,7 @@ export function AuthorWritingIde() {
       await persistence.flush();
       await acceptDraftRevision(activeChapterId, currentJob.job_id);
       const chapter = await getChapter(activeChapterId);
-      if (loadedChapter.current === activeChapterId) {
+      if (loadedChapter.current === activeDraftScope) {
         const value = persistence.initialize(chapter, true);
         setTitle(value.title);
         setContent(value.content);
@@ -1332,7 +1338,7 @@ export function AuthorWritingIde() {
             <div className="w-full min-h-[500px]">
               <textarea
                 ref={editorRef}
-                readOnly={isAcceptingAi || !chapterQuery.data || loadedChapter.current !== activeChapterId}
+                readOnly={isAcceptingAi || !chapterQuery.data || loadedChapter.current !== activeDraftScope}
                 value={content}
                 onChange={(e) => handleContentChange(e.target.value)}
                 placeholder="Bắt đầu câu từ chương truyện của bạn tại đây..."

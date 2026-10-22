@@ -18,7 +18,7 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
     const pg=await import('../../core/database/postgres.js'), mongo=await import('../../core/database/mongo.js');
     closePostgres=pg.disconnectPostgres; closeMongo=mongo.disconnectMongo; dropMongo=()=>mongo.getMongoDatabase().dropDatabase();
     const pool=pg.getPostgresPool();
-    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','007_wallet_transactions','008_authoring_context','009_chapter_revisions','010_analysis_outbox','011_outbox_claim_token','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
+    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','007_wallet_transactions','008_authoring_context','009_chapter_revisions','010_analysis_outbox','011_outbox_claim_token','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
     const author=randomUUID(),reader=randomUUID(),other=randomUUID(),admin=randomUUID(),outsider=randomUUID();
     for(const [id,role] of [[author,'AUTHOR'],[reader,'READER'],[other,'READER'],[admin,'ADMIN'],[outsider,'AUTHOR']]) {
       await pool.query(`insert into users (user_id,email,username,password_hash,role) values ($1::uuid,$2,$1::text,'hash',$3)`,[id,id+'@test.invalid',role]);
@@ -71,6 +71,29 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
     const empty=await create('');assert.equal((await req('/chapters/'+empty+'/schedule','POST',await plan(empty),authorToken)).status,400);
     // Scheduled publication uses normal moderation and pins the exact submitted version.
     await pool.query("insert into content_filter_rules(name,pattern,category,severity) values('Scheduled rule','flagged-schedule','test','HIGH')");
+    // Fault after moderation creation must roll back evidence/review/chapter/outbox.
+    const faulted=await create('flagged-schedule rollback test');
+    await req('/chapters/'+faulted+'/schedule','POST',await plan(faulted),authorToken);await due(faulted);
+    const evidenceCount=(await pool.query('select count(*)::int as n from moderation_evidence')).rows[0].n;
+    const mongoEvidenceCount=await mongo.getMongoDatabase().collection('moderation_evidence').countDocuments({targetId:faulted});
+    await pool.query(`create function fail_schedule_commit() returns trigger language plpgsql as $$ begin
+      if new.chapter_id='${faulted}'::uuid and new.status='PENDING_MODERATION' then raise exception 'injected after moderation'; end if;
+      return new; end $$;
+      create trigger fail_schedule_commit before update on chapter_publication_schedules for each row execute function fail_schedule_commit()`);
+    await scheduler.publishDueChapters();
+    assert.equal((await data(faulted)).status,'DRAFT');assert.equal((await data(faulted)).publicationSchedule.status,'PENDING');
+    assert.equal((await pool.query('select count(*)::int as n from moderation_reviews where target_id=$1',[faulted])).rows[0].n,0);
+    assert.equal((await pool.query('select count(*)::int as n from moderation_evidence')).rows[0].n,evidenceCount);
+    assert.equal(await mongo.getMongoDatabase().collection('moderation_evidence').countDocuments({targetId:faulted}),mongoEvidenceCount);
+    assert.equal((await pool.query("select count(*)::int as n from notification_events where event_key='schedule:'||(select schedule_id::text from chapter_publication_schedules where chapter_id=$1)",[faulted])).rows[0].n,0);
+    await pool.query('drop trigger fail_schedule_commit on chapter_publication_schedules; drop function fail_schedule_commit()');
+    await scheduler.publishDueChapters();await scheduler.publishDueChapters();
+    assert.equal((await data(faulted)).publicationSchedule.status,'PENDING_MODERATION');
+    assert.equal((await pool.query("select count(*)::int as n from moderation_reviews where target_id=$1 and source='KEYWORD_FILTER'",[faulted])).rows[0].n,1);
+    assert.equal((await pool.query('select count(*)::int as n from moderation_evidence')).rows[0].n,evidenceCount+1);
+    const faultReview=(await pool.query('select evidence_id from moderation_reviews where target_id=$1',[faulted])).rows[0];
+    const evidenceRepo=await import('../content-control/moderation-evidence.repository.js');
+    assert.ok((await evidenceRepo.findModerationEvidence(faultReview.evidence_id)).matchedRules.includes('Scheduled rule'));
     const moderated=await create('flagged-schedule original content');
     await req('/reports','POST',{targetType:'CHAPTER',targetId:moderated,reason:'Separate report workflow'},readerToken);
     await req('/chapters/'+moderated+'/schedule','POST',await plan(moderated),authorToken);await due(moderated);await scheduler.publishDueChapters();

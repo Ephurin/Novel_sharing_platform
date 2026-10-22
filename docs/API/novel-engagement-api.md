@@ -61,7 +61,8 @@ chapters for the management screen.
 The reviews endpoint returns an array in `data` and `page`, `limit`, `totalItems`,
 `totalPages` in `meta` (default limit 10, maximum 50). Each item contains `userId`,
 `displayName`, `avatarUrl`, `score`, `review`, `createdAt`, `updatedAt`. Only entries
-with text appear here; a score without text still contributes to the average.
+with text appear here; a score without text still contributes to the statistics
+endpoint's average, but not the review-list average.
 Dates are ISO timestamps. Ordering uses update time and user ID for a stable tie
 breaker. Reviews contain plain text, which clients should render as text.
 
@@ -82,6 +83,8 @@ Response metadata additionally includes `ratingAverage: number | null`,
 computed across all visible reviews with text, not just the current page.
 Score-only ratings remain included in the statistics endpoint, but are excluded
 from this review-list average and total. Empty review sets return null average.
+The review-list UI labels these as “Điểm trung bình của nhận xét có nội dung”
+and “nhận xét có điểm”; neither value represents all reader ratings.
 
 The page reuses AuthorTheme, AuthorNavbar, NovelReviews and PageStates. It now
 shares the application-wide Light/Dark/System preference and semantic StoryCraft

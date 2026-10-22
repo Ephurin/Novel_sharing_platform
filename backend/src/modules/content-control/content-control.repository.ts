@@ -21,8 +21,8 @@ function mapRule(row: QueryResultRow): MatchedRule {
   };
 }
 
-export async function listActiveFilterRules() {
-  const result = await getPostgresPool().query(
+export async function listActiveFilterRules(client?: PoolClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       select *
       from content_filter_rules

@@ -60,6 +60,7 @@ export async function publishDueChapters() {
           where s.status='PENDING' and s.scheduled_at<=now() order by s.scheduled_at
           limit 1 for update of c,s skip locked`)).rows[0];
         if (!schedule) return false;
+        await client.query('savepoint publication_attempt');
         let status: string, error: string | null = null, reviewId: string | null = null;
         try {
           if (schedule.deleted_at || schedule.novel_deleted || schedule.user_status !== 'ACTIVE' || !['AUTHOR','ADMIN'].includes(schedule.role)) throw new AppError(409, 'SCHEDULE_ACCOUNT', 'Tác giả hoặc nội dung không còn hoạt động');
@@ -71,6 +72,8 @@ export async function publishDueChapters() {
           reviewId = published.moderationReviewId;
         } catch (cause) {
           if (!(cause instanceof AppError)) throw cause;
+          // A handled domain failure must not commit partial moderation writes.
+          await client.query('rollback to savepoint publication_attempt');
           status = 'FAILED'; error = cause.message;
         }
         await client.query(`update chapter_publication_schedules set status=$2,error=$3,moderation_review_id=$4,updated_at=now() where chapter_id=$1`, [schedule.chapter_id,status,error,reviewId]);
