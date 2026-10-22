@@ -1,0 +1,60 @@
+{
+  "tested_sha": "7d1f1bed508480db84def77c75c99039a9bacd7e",
+  "AI": {
+    "args": [
+      "-m",
+      "not postgres_integration",
+      "--basetemp=.pytest_tmp",
+      "-m",
+      "not postgres_integration",
+      "-q",
+      "-ra",
+      "--basetemp=C:\\Users\\Laptop\\AppData\\Local\\Temp\\p123-next-c779aa4dbf334ffd891af25a8003b7d8",
+      "--junitxml=C:\\tmp\\p123-astra-regression-01\\ai-junit.xml",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_context_budget.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_context_routing.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_context_scope.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_manuscript_bootstrap.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_entity_review_workflow.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_revision_analysis_workflow.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_entity_cutoff_provenance.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_narrative_repository_contract.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_canon_revision_reconciliation.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_state_projection.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_autonomous_routes.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_internal_generation_contract.py",
+      "C:\\tmp\\novel-p123-authz-astra-20261022\\ai-service\\tests\\test_controller_intent_context.py"
+    ],
+    "exit_code": 0,
+    "egress_guard": "non-loopback DNS denied",
+    "SQL_fixture": "SQLite; real PostgreSQL covered by separate HTTP run"
+  },
+  "backend": [
+    {
+      "suite": "backend-typecheck",
+      "command": [
+        "npm.cmd",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0
+    },
+    {
+      "suite": "backend-focused",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/modules/ai/ai-gateway.test.ts",
+        "src/modules/ai/p1-closed-loop-gateway.test.ts",
+        "src/modules/ai/autonomous-controller.test.ts",
+        "src/modules/ai/autonomous-memory.test.ts"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

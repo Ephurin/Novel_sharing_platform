@@ -1,0 +1,17 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "foreign_denial_no_job_or_provider_side_effect",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "repeated_owner_resume_no_duplicate_work",
+    "status": "PASS",
+    "details": null
+  }
+]

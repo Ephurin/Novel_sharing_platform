@@ -1,0 +1,423 @@
+{
+  "job": {
+    "job_id": "3ff9160b-a488-5fc7-9e37-a58509806002",
+    "novel_id": "a8f5a59e-a3ef-4d3f-952d-e2ac717aa9fe",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "revisions": [
+      {
+        "chapter_id": "22e0c389-8e10-4ad8-8ae3-326e5198a785",
+        "revision_id": "ffb4fbc9-5998-488a-acdb-60022adcefd8",
+        "content_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "status": "pending",
+        "proposal_count": 0,
+        "analysis_run_id": null,
+        "chapter_number": null
+      }
+    ],
+    "locale": "vi-VN",
+    "options": {
+      "build_embeddings": false,
+      "extract_world_rules": true,
+      "require_review_for_all": true
+    },
+    "status": "running",
+    "progress_current": 0,
+    "stage": "chapter_analysis",
+    "result": null,
+    "error": null,
+    "type": "bootstrap",
+    "progress": {
+      "current": 0,
+      "total": 1,
+      "unit": "chapter",
+      "stage": "chapter_analysis"
+    }
+  },
+  "postgres_job": {
+    "id": "3ff9160b-a488-5fc7-9e37-a58509806002",
+    "story_brain_id": "76c8b3ef-3fca-43be-af18-ac23b16d56b7",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "a8f5a59e-a3ef-4d3f-952d-e2ac717aa9fe",
+    "status": "running",
+    "stage": "chapter_analysis",
+    "locale": "vi-VN",
+    "options": {
+      "build_embeddings": false,
+      "extract_world_rules": true,
+      "require_review_for_all": true
+    },
+    "revisions": [
+      {
+        "status": "pending",
+        "chapter_id": "22e0c389-8e10-4ad8-8ae3-326e5198a785",
+        "revision_id": "ffb4fbc9-5998-488a-acdb-60022adcefd8",
+        "content_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "chapter_number": null,
+        "proposal_count": 0,
+        "analysis_run_id": null
+      }
+    ],
+    "progress_current": 0,
+    "progress_total": 1,
+    "result": null,
+    "error": null,
+    "created_at": "2026-10-22T12:37:48.096249+00:00",
+    "updated_at": "2026-10-22T12:37:59.475594+00:00"
+  },
+  "fake_received": [
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "0e1080daa3e3a884099ec2a01af2787dab110ac109619dca57343e4d45d27ff2",
+      "dispatch_id": "c2361278-7b5a-4e69-ba6a-23b65f2852fc",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON object using this schema: {\"entities\":[{\"phrase\":\"Tiêu Viêm\",\"entity\":\"PER\",\"score\":9.5,\"initial_status\":\"Unknown\"}]}. initial_status is Alive, Dead or Unknown: only explicit life/death evidence may set it; include status_quote as an exact source quote supporting any non-Unknown status, otherwise empty. remember characters mentioned as already dead. Non-person entities use Unknown. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords. Do not mistake verbs for object names.\n\nText to analyze:\n\nChiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\n\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\n\n“Đừng kéo. Bến này phải bế đồ qua.”\n\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\n\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\n\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\n\n“Chị Mai Linh? Cháu bà Yên?”\n\n“Con bà Yên.”\n\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\n\nCậu đứng lên, tự giới thiệu là An, mười chín tuổi, rồi đón va li. Cô không đưa ngay. An chỉ chiếc thuyền nhỏ dưới bậc đá.\n\n“Đường lên kho đang sửa. Đi thuyền mất mười phút, kéo va li đi bộ thì mất một cái bánh.”\n\n“Mẹ tôi nhờ em?”\n\n“Kho nhờ. Mẹ chị bảo nếu chị đến trước trưa thì về ăn cơm. Nếu sau trưa thì nồi vẫn ở trên bếp.”\n\nLinh nhìn điện thoại. Tin nhắn cuối của mẹ chỉ có ba chữ: Đã mua cá. Cô đã trả lời bằng giờ phà đến, như xác nhận một cuộc hẹn công việc.\n\nThuyền đi qua Chợ Giữa. Những mái hiên nhô ra mặt kênh, bên dưới treo lưới, thau nhôm và những chậu cây được buộc dây vào cột. Một người thợ đang nâng ổ điện lên cao hơn vết ẩm trên tường. Hai đứa trẻ tranh nhau xem con cua mắc trong giỏ nhựa. Cồn Vân có vẻ không hề dành riêng chỗ nào cho sự trở về của cô.\n\nAn chỉ phía xa. Trên nền trời xám, Đồi Bắc nổi lên với những ngôi nhà sơn sáng và một tòa nhà kính mới.\n\n“Ban công trình chuyển lên đó. Kho gốm thanh thì vẫn ở chỗ thấp. Có người bảo như thế hợp lý, đồ cũ không biết khiếu nại.”\n\nLinh bật cười trước khi kịp giữ lại. An ngoái đầu, hài lòng như vừa thử thành công một động cơ.\n\nKho nằm sau một trường tiểu học đã chuyển đi. Sân có cây bàng bị cắt mất ngọn, vết cắt phủ nhựa đen. Trên cửa, tấm biển “Phòng lưu trữ âm thanh đô thị” mất chữ cuối. Người ra đón cô là ông thủ kho gầy, áo sơ mi cài lệch một nút. Ông chìa tay nhưng nhìn va li thay vì nhìn cô.\n\n“Tôi tưởng cô sẽ mang máy.”\n\n“Tôi mang dụng cụ kiểm tra. Trong thư các anh nói máy đọc còn hoạt động.”\n\n“Nó hoạt động theo cách riêng.”\n\nÔng tên Hòa. Ông đưa cô qua ba gian có mùi bụi ẩm, giấy và đất nung. Các mảnh gốm nằm trong khay lót vải, mã số viết trên thẻ treo. Hồi nhỏ Linh từng nghĩ đây là nơi thành phố cất giọng của những người đã chết. Cha cô sửa lại: người sống cũng có thể để giọng ở đây, và giọng ở lại không có nghĩa người ấy ở lại.\n\nMai Lâm, cha cô, là một trong hai mươi ba người chết trong trận lũ ấy. Sau đám tang, cô đã ghét câu đó nhiều năm.\n\nÔng Hòa đặt lên bàn bản hợp đồng mười hai ngày. Kiểm kê, đánh giá tình trạng, ưu tiên sao những mảnh có nguy cơ hỏng trước đợt triều lớn. Cô đã đọc hợp đồng trên màn hình, nhưng ở đây, dưới quạt trần quay chậm, con số mười hai trông ngắn hơn.\n\n“Vì sao đợi đến bây giờ?”\n\nÔng Hòa mở ngăn kéo tìm bút. Tìm xong, ông lại đóng vào.\n\n“Vì đến bây giờ mới có tiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất",
+      "scenario": "p123-core-v1",
+      "received_at": 1792672680.7323534,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"entities\": []}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": "[REDACTED]",
+          "candidatesTokenCount": "[REDACTED]",
+          "totalTokenCount": "[REDACTED]"
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "c2361278-7b5a-4e69-ba6a-23b65f2852fc"
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "50c3618ea733d2165c99a1cc19dffd36c8026fa1c8cce346a6ad8738425c99c3",
+      "dispatch_id": "ca473160-cdf2-4980-9a6f-0ccd9631985f",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON object using this schema: {\"entities\":[{\"phrase\":\"Tiêu Viêm\",\"entity\":\"PER\",\"score\":9.5,\"initial_status\":\"Unknown\"}]}. initial_status is Alive, Dead or Unknown: only explicit life/death evidence may set it; include status_quote as an exact source quote supporting any non-Unknown status, otherwise empty. remember characters mentioned as already dead. Non-person entities use Unknown. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords. Do not mistake verbs for object names.\n\nText to analyze:\n\ntiền.”\n\nCô ký. Mực trên đầu bút hơi khô, nét đầu tiên bị đứt. Ông Hòa chờ cô viết nốt rồi kéo một hộp gỗ từ dưới bàn ra. Cái hộp không nằm trong danh mục kiểm kê in sẵn.\n\n“Cái này tìm thấy khi dọn phòng trạm Bốn. Tôi chưa nhập kho chính thức. Nhãn cũ gần mất hết.”\n\nLinh mở nắp. Trong lớp vải là mảnh gốm rộng bằng lòng bàn tay, một cạnh phủ sơn xanh, giữa mặt có vết nứt cong như móc câu. Trên thẻ, ai đó viết lại bằng bút chì: CV-04.\n\n“Đã đọc chưa?”\n\n“Chưa. Không có vòng chuẩn đúng cỡ. Anh kỹ sư sẽ mang sang chiều nay.”\n\nỞ góc hộp còn một mảnh giấy ố. Cô dùng nhíp nâng lên. Những chữ đầu mất vì nước; phần còn lại ghi “ca đêm, trạm Bốn” và một ngày tháng.\n\nNgày trước khi Bãi Dưới ngập.\n\nNgoài sân, một người đang quét lá đẩy chiếc ghế nhựa sang bên. Tiếng chân ghế cọ nền khiến Linh giật mình. Cô đặt giấy xuống quá nhanh, rồi kiểm tra xem mình có làm rách nó không.\n\nÔng Hòa nói có thể để hộp ấy sau. Những mảnh ghi tiếng chợ và tiếng còi phà cũng cần được cứu. Trong giọng ông không có tò mò, chỉ có sự dè dặt của người đã sống lâu giữa đồ vật của người khác.\n\nLinh nhìn mười hai ô trống trong lịch công việc. Cô nghĩ đến bữa cơm mẹ để trên bếp, đến vạch đỏ ở bến, đến hai mươi ba cái tên khắc trên bức tường mà cô chưa đi ngang lại.\n\n“Cho tôi xem hồ sơ trạm Bốn trước,” cô nói.\n\nÔng Hòa lấy chìa khóa. Đến cửa, ông quay lại.\n\n“Cô có cần tôi gọi cho mẹ cô không?”\n\nLinh lắc đầu. Điện thoại trong túi rung một lần. Cô biết rất có thể đó là mẹ, nhưng vẫn đợi tiếng bước chân ông Hòa xa hẳn mới lấy ra.\n\nTin nhắn viết: Cá nguội thì hấp lại được.\n\nCô gõ “Con biết”, xóa đi, rồi nhắn “Tối con về”. Trên bàn, cái móc nứt ở mặt gốm giữ một sợi bụi rất nhỏ. Linh cúi xuống nhấc nó ra, thận trọng hơn mức cần thiết.",
+      "scenario": "p123-core-v1",
+      "received_at": 1792672683.2966673,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"entities\": []}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": "[REDACTED]",
+          "candidatesTokenCount": "[REDACTED]",
+          "totalTokenCount": "[REDACTED]"
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "ca473160-cdf2-4980-9a6f-0ccd9631985f"
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+      "request_sha256": "f06ac4462b7573f2d3a29abb024ab8d1fc54a057e38195418e1a94aef17dbd3b",
+      "dispatch_id": "4669161e-f827-482a-af46-7cefcb8420e8",
+      "client": "ai-service",
+      "native_schema": {
+        "$defs": {
+          "EntityDecision": {
+            "additionalProperties": false,
+            "properties": {
+              "candidate_id": {
+                "description": "Exact candidate_id from the request.",
+                "title": "Candidate Id",
+                "type": "string"
+              },
+              "verdict": {
+                "description": "Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.",
+                "enum": [
+                  "entity",
+                  "not_entity",
+                  "unresolved"
+                ],
+                "title": "Verdict",
+                "type": "string"
+              },
+              "entity_type": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "PER",
+                      "LOC",
+                      "ORG",
+                      "ITEM",
+                      "SKILL"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.",
+                "title": "Entity Type"
+              },
+              "canonical_name": {
+                "default": "",
+                "description": "Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Name",
+                "type": "string"
+              },
+              "canonical_entity_id": {
+                "default": "",
+                "description": "Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Canonical Entity Id",
+                "type": "string"
+              },
+              "identity_quote": {
+                "default": "",
+                "description": "Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Identity Quote",
+                "type": "string"
+              },
+              "initial_status": {
+                "default": "Unknown",
+                "description": "Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.",
+                "enum": [
+                  "Alive",
+                  "Dead",
+                  "Unknown"
+                ],
+                "title": "Initial Status",
+                "type": "string"
+              },
+              "status_quote": {
+                "default": "",
+                "description": "Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.",
+                "title": "Status Quote",
+                "type": "string"
+              },
+              "confidence": {
+                "default": 0.7,
+                "maximum": 1,
+                "minimum": 0,
+                "title": "Confidence",
+                "type": "number"
+              },
+              "reason": {
+                "description": "Linguistic context reason for this verdict.",
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "candidate_id",
+              "verdict",
+              "reason"
+            ],
+            "title": "EntityDecision",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/$defs/EntityDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decisions"
+        ],
+        "title": "EntityDecisionBatch",
+        "type": "object"
+      },
+      "output_limit": 8192,
+      "upstream_auth_valid": true,
+      "prompt_text": "Verify EVERY supplied candidate OCCURRENCE in its original context, not just the name string. Candidates intentionally overgenerate; sentence-initial common words (e.g. \"Chương\", \"Bến\", \"Chiếc\") and common phrases (e.g. \"an\" in \"an toàn\") are NOT entities. Return exactly one decision per candidate_id, with no missing, extra, or duplicate candidate IDs. Verdicts must be strictly partitioned as follows:\n1. For verdict \"entity\":\n   - entity_type: must be one of PER, LOC, ORG, ITEM, SKILL.\n   - canonical_name: must be an exact known canonical name or the supplied candidate surface.\n   - canonical_entity_id: reference ONLY a supplied known entity ID matching this entity, else empty string \"\".\n   - Distinct people sharing a short name must NOT be merged.\n   - An alias requires identity_quote copied verbatim from source context proving identity; if ambiguous use \"unresolved\".\n   - Non-Unknown life status only for PER with explicit confirmed source status_quote, not hearsay or inference.\n2. For verdict \"not_entity\" and \"unresolved\":\n   - canonical_name MUST be empty string \"\" (DO NOT retain or copy the candidate surface name into canonical_name).\n   - canonical_entity_id MUST be empty string \"\".\n   - entity_type MUST be null.\n   - identity_quote MUST be empty string \"\".\n   - initial_status MUST be \"Unknown\".\n   - status_quote MUST be empty string \"\".\n   - For \"not_entity\": state the linguistic or context reason (e.g. common noun, chapter header, sentence-initial word).\n   - For \"unresolved\": state what ambiguity prevents confirmation (unresolved is not approved truth).\nExplain each decision in reason. Schema: {\"$defs\": {\"EntityDecision\": {\"additionalProperties\": false, \"properties\": {\"candidate_id\": {\"description\": \"Exact candidate_id from the request.\", \"title\": \"Candidate Id\", \"type\": \"string\"}, \"verdict\": {\"description\": \"Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.\", \"enum\": [\"entity\", \"not_entity\", \"unresolved\"], \"title\": \"Verdict\", \"type\": \"string\"}, \"entity_type\": {\"anyOf\": [{\"enum\": [\"PER\", \"LOC\", \"ORG\", \"ITEM\", \"SKILL\"], \"type\": \"string\"}, {\"type\": \"null\"}], \"default\": null, \"description\": \"PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.\", \"title\": \"Entity Type\"}, \"canonical_name\": {\"default\": \"\", \"description\": \"Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Name\", \"type\": \"string\"}, \"canonical_entity_id\": {\"default\": \"\", \"description\": \"Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Entity Id\", \"type\": \"string\"}, \"identity_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Identity Quote\", \"type\": \"string\"}, \"initial_status\": {\"default\": \"Unknown\", \"description\": \"Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.\", \"enum\": [\"Alive\", \"Dead\", \"Unknown\"], \"title\": \"Initial Status\", \"type\": \"string\"}, \"status_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Status Quote\", \"type\": \"string\"}, \"confidence\": {\"default\": 0.7, \"maximum\": 1, \"minimum\": 0, \"title\": \"Confidence\", \"type\": \"number\"}, \"reason\": {\"description\": \"Linguistic context reason for this verdict.\", \"minLength\": 1, \"title\": \"Reason\", \"type\": \"string\"}}, \"required\": [\"candidate_id\", \"verdict\", \"reason\"], \"title\": \"EntityDecision\", \"type\": \"object\"}}, \"additionalProperties\": false, \"properties\": {\"decisions\": {\"items\": {\"$ref\": \"#/$defs/EntityDecision\"}, \"title\": \"Decisions\", \"type\": \"array\"}}, \"required\": [\"decisions\"], \"title\": \"EntityDecisionBatch\", \"type\": \"object\"}\n\n{\"candidates\": [{\"candidate_id\": \"d08e3a3c34440bcb1cc0707a\", \"surface\": \"Chiếc\", \"start\": 0, \"end\": 5, \"context_start\": 0, \"context_end\": 205, \"context\": \"Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\\n\\nMười một năm trước,\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"48905d4d545ac7bfd0f20498\", \"surface\": \"Mai\", \"start\": 51, \"end\": 54, \"context_start\": 0, \"context_end\": 254, \"context\": \"Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\\n\\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"d58c274a8a43518d12ebc70a\", \"surface\": \"Mai Linh\", \"start\": 51, \"end\": 59, \"context_start\": 0, \"context_end\": 259, \"context\": \"Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\\n\\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đ\", \"origins\": [\"capitalized_sequence\"]}, {\"candidate_id\": \"d95290f4a7c47ecdd580952b\", \"surface\": \"Linh\", \"start\": 55, \"end\": 59, \"context_start\": 0, \"context_end\": 259, \"context\": \"Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\\n\\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đ\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"0cf89671e374b2d7a2a341de\", \"surface\": \"Ở\", \"start\": 109, \"end\": 110, \"context_start\": 0, \"context_end\": 310, \"context\": \"Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\\n\\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giốn\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"23969e3e129ad1483aa038ac\", \"surface\": \"Mười\", \"start\": 186, \"end\": 190, \"context_start\": 0, \"context_end\": 390, \"context\": \"Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\\n\\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay,\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"aeb5e5852f56d7b499dc804c\", \"surface\": \"Mỗi\", \"start\": 242, \"end\": 245, \"context_start\": 42, \"context_end\": 445, \"context\": \"của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\\n\\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như \", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"8acbefd92238448cf07bf636\", \"surface\": \"Bây\", \"start\": 358, \"end\": 361, \"context_start\": 158, \"context_end\": 561, \"context\": \"ũ dễ hơn nhớ đường về nhà.\\n\\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nh\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"eeb1b9e8e2cf8787c2cd5000\", \"surface\": \"Linh\", \"start\": 449, \"end\": 453, \"context_start\": 249, \"context_end\": 653, \"context\": \" bánh xe đi qua, nó gõ hai tiếng ngắn rồi một tiếng dài, giống người ở trong nhà miễn cưỡng đứng dậy mở cửa. Bây giờ thanh thép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\\n\\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc v\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"b24d3bf636d495c89cef4909\", \"surface\": \"Nó\", \"start\": 574, \"end\": 576, \"context_start\": 374, \"context_end\": 776, \"context\": \"ép đã được thay, nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\\n\\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đ\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"acbc814ff6f66865f7f9226c\", \"surface\": \"Một\", \"start\": 589, \"end\": 592, \"context_start\": 389, \"context_end\": 792, \"context\": \", nhưng tiếng nước dội vào khoang rỗng dưới bến vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\\n\\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ l\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"3cbfbccea13a8fd76fa41d11\", \"surface\": \"Cô\", \"start\": 635, \"end\": 637, \"context_start\": 435, \"context_end\": 837, \"context\": \"n vẫn như cũ. Linh đứng giữa đám hành khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\\n\\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\\n\\n“Đừng kéo. Bến này phải bế đồ qua.”\\n\\nLin\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"c10036dea9fb2ada8baba0eb\", \"surface\": \"Bánh\", \"start\": 671, \"end\": 675, \"context_start\": 471, \"context_end\": 875, \"context\": \"h khách đang thu áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\\n\\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\\n\\n“Đừng kéo. Bến này phải bế đồ qua.”\\n\\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"25180afce411fe5128967af4\", \"surface\": \"Người\", \"start\": 688, \"end\": 693, \"context_start\": 488, \"context_end\": 893, \"context\": \"áo mưa, tay giữ chiếc va li dựng sát chân, chờ cái cảm giác mình đã về nhà xuất hiện. Nó không đến.\\n\\nMột người bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\\n\\n“Đừng kéo. Bến này phải bế đồ qua.”\\n\\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn \", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"e79a3e0b6aa801cbd8bb4d83\", \"surface\": \"Đừng\", \"start\": 798, \"end\": 802, \"context_start\": 598, \"context_end\": 1002, \"context\": \" bán bánh nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\\n\\n“Đừng kéo. Bến này phải bế đồ qua.”\\n\\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\\n\\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người \", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"62b7d1f9115adc1f58c21078\", \"surface\": \"Bến\", \"start\": 808, \"end\": 811, \"context_start\": 608, \"context_end\": 1011, \"context\": \"nếp hỏi cô có xuống không. Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\\n\\n“Đừng kéo. Bến này phải bế đồ qua.”\\n\\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\\n\\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông c\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"fcf1ceb3228237ec5f6ebf88\", \"surface\": \"Linh\", \"start\": 834, \"end\": 838, \"context_start\": 634, \"context_end\": 1038, \"context\": \" Cô xin lỗi, nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\\n\\n“Đừng kéo. Bến này phải bế đồ qua.”\\n\\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\\n\\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn \", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"763bdca903c8c214118b656e\", \"surface\": \"Câu\", \"start\": 847, \"end\": 850, \"context_start\": 647, \"context_end\": 1050, \"context\": \"nhấc va li qua khe ván. Bánh xe mắc lại. Người phụ nữ đưa chân chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\\n\\n“Đừng kéo. Bến này phải bế đồ qua.”\\n\\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\\n\\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những v\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"b33a52d6f50a6eff6db7ee23\", \"surface\": \"Trên\", \"start\": 909, \"end\": 913, \"context_start\": 709, \"context_end\": 1113, \"context\": \" chặn chiếc xe khỏi trôi xuống nước, rồi cúi nhấc giúp như thể họ đã biết nhau từ lâu.\\n\\n“Đừng kéo. Bến này phải bế đồ qua.”\\n\\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\\n\\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành \", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"a3d53e2ebb1dcc2c1ac4e768\", \"surface\": \"Bên\", \"start\": 1015, \"end\": 1018, \"context_start\": 815, \"context_end\": 1218, \"context\": \" phải bế đồ qua.”\\n\\nLinh cảm ơn. Câu nói khiến cô nhớ cha đến mức cô phải nhìn sang chỗ khác.\\n\\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\\n\\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết t\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"4d72f2093925b8146d2daefa\", \"surface\": \"Những\", \"start\": 1082, \"end\": 1087, \"context_start\": 882, \"context_end\": 1287, \"context\": \" phải nhìn sang chỗ khác.\\n\\nTrên cột đo nước gần nhà chờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\\n\\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi già\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"56755bea263764d5960c24cc\", \"surface\": \"Vạch\", \"start\": 1135, \"end\": 1139, \"context_start\": 935, \"context_end\": 1339, \"context\": \"hờ, vạch đỏ của trận lũ mười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\\n\\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\\n\\n“Chị Mai Linh? C\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"4e288eb2e231ac997080575d\", \"surface\": \"Một\", \"start\": 1160, \"end\": 1163, \"context_start\": 960, \"context_end\": 1363, \"context\": \"ười bảy năm trước nằm ngang vai một người đàn ông cao. Bên dưới, người ta sơn thêm những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\\n\\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\\n\\n“Chị Mai Linh? Cháu bà Yên?”\\n\\n“Con bà Yê\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"a4cfb5cce1c768f29b6eda13\", \"surface\": \"Cậu\", \"start\": 1243, \"end\": 1246, \"context_start\": 1043, \"context_end\": 1446, \"context\": \"những vạch xanh, mỗi vạch kèm một năm. Những năm cô đi vắng xếp thành hàng, không đều nhau. Vạch mới nhất còn bóng.\\n\\nMột cậu giao hàng ngồi trên thùng cá rỗng, tấm biển viết tên cô dựng cạnh đầu gối. Cậu mặc áo mưa màu cam đã bạc ở vai, đôi giày buộc bằng hai màu dây khác nhau.\\n\\n“Chị Mai Linh? Cháu bà Yên?”\\n\\n“Con bà Yên.”\\n\\n“Em biết. Bà Sâm dặn phải hỏi như thế để chị sửa. Người khác sẽ chỉ gật.”\\n\\nCậu\", \"origins\": [\"capitalized_token\"]}], \"known_entities\": [], \"known_aliases\": [], \"allowed_names\": [\"An\", \"Anh\", \"Ban\", \"Bà\", \"Bà Sâm\", \"Bánh\", \"Bây\", \"Bãi\", \"Bãi Dưới\", \"Bên\", \"Bắc\", \"Bến\", \"Bốn\", \"CV-04\", \"Cha\", \"Chiếc\", \"Cho\", \"Cháu\", \"Chưa\", \"Chị\", \"Chị Mai\", \"Chị Mai Linh\", \"Chợ\", \"Chợ Giữa\", \"Con\", \"Cá\", \"Các\", \"Cái\", \"Câu\", \"Có\", \"Cô\", \"Cậu\", \"Cồn\", \"Cồn Vân\", \"Dưới\", \"Em\", \"Giữa\", \"Hai\", \"Hòa\", \"Hồi\", \"Kho\", \"Không\", \"Kiểm\", \"Linh\", \"Lâm\", \"Mai\", \"Mai Linh\", \"Mai Lâm\", \"Mười\", \"Mẹ\", \"Mỗi\", \"Một\", \"Mực\", \"Ngoài\", \"Ngày\", \"Người\", \"Nhãn\", \"Những\", \"Nó\", \"Nếu\", \"Phòng\", \"Sau\", \"Sâm\", \"Sân\", \"Thuyền\", \"Tin\", \"Tiếng\", \"Trong\", \"Trên\", \"Tìm\", \"Tôi\", \"Tối\", \"Vân\", \"Vì\", \"Vạch\", \"Yên\", \"bà Yên\", \"trạm Bốn\", \"Ông\", \"Ông Hòa\", \"Ông tên Hòa\", \"ông Hòa\", \"Đi\", \"Điện\", \"Đã\", \"Đường\", \"Đến\", \"Đồi\", \"Đồi Bắc\", \"Đừng\", \"Ở\"], \"author_guidance\": [], \"guidance_policy\": \"Hints are search instructions, never evidence of an occurrence or event. Author declarations describe world identities, not chapter presence. Do not merge identities or invent source facts from these entries.\"}",
+      "scenario": "p123-core-v1",
+      "received_at": 1792672684.1633477,
+      "response": {
+        "candidates": [
+          {
+            "content": {
+              "role": "model",
+              "parts": [
+                {
+                  "text": "{\"decisions\": [{\"candidate_id\": \"d08e3a3c34440bcb1cc0707a\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"48905d4d545ac7bfd0f20498\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"d58c274a8a43518d12ebc70a\", \"verdict\": \"entity\", \"canonical_name\": \"Mai Linh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"d95290f4a7c47ecdd580952b\", \"verdict\": \"entity\", \"canonical_name\": \"Mai Linh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"identity_quote\": \"Chi\\u1ebfc ph\\u00e0 ch\\u1ea1m b\\u1ebfn b\\u1eb1ng m\\u1ed9t ti\\u1ebfng th\\u1edf d\\u00e0i c\\u1ee7a s\\u1eaft. Mai Linh nh\\u1eadn ra \\u00e2m thanh \\u1ea5y tr\\u01b0\\u1edbc khi nh\\u1eadn ra th\\u00e0nh ph\\u1ed1. \\u1ede tu\\u1ed5i hai m\\u01b0\\u01a1i ch\\u00edn, c\\u00f4 v\\u1eabn nh\\u1edb m\\u1ed9t ti\\u1ebfng \\u0111\\u1ed9ng c\\u0169 d\\u1ec5 h\\u01a1n nh\\u1edb \\u0111\\u01b0\\u1eddng v\\u1ec1 nh\\u00e0.\\n\\nM\\u01b0\\u1eddi m\\u1ed9t n\\u0103m tr\\u01b0\\u1edbc, c\\u1ea7u d\\u1eabn c\\u00f2n c\\u00f3 m\\u1ed9t thanh th\\u00e9p l\\u1ecfng. M\\u1ed7i l\\u1ea7n b\\u00e1nh xe \\u0111\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"0cf89671e374b2d7a2a341de\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"23969e3e129ad1483aa038ac\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"aeb5e5852f56d7b499dc804c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"8acbefd92238448cf07bf636\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"eeb1b9e8e2cf8787c2cd5000\", \"verdict\": \"entity\", \"canonical_name\": \"Linh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"b24d3bf636d495c89cef4909\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"acbc814ff6f66865f7f9226c\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"3cbfbccea13a8fd76fa41d11\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"c10036dea9fb2ada8baba0eb\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"25180afce411fe5128967af4\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"e79a3e0b6aa801cbd8bb4d83\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"62b7d1f9115adc1f58c21078\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"fcf1ceb3228237ec5f6ebf88\", \"verdict\": \"entity\", \"canonical_name\": \"Linh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"763bdca903c8c214118b656e\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"b33a52d6f50a6eff6db7ee23\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"a3d53e2ebb1dcc2c1ac4e768\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"4d72f2093925b8146d2daefa\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"56755bea263764d5960c24cc\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"4e288eb2e231ac997080575d\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}, {\"candidate_id\": \"a4cfb5cce1c768f29b6eda13\", \"verdict\": \"not_entity\", \"canonical_name\": \"\", \"entity_type\": null, \"canonical_entity_id\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.7, \"reason\": \"FAKE_PROVIDER_OUTPUT scripted source-context verdict\"}]}"
+                }
+              ]
+            },
+            "finishReason": "STOP"
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": "[REDACTED]",
+          "candidatesTokenCount": "[REDACTED]",
+          "totalTokenCount": "[REDACTED]"
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "responseId": "4669161e-f827-482a-af46-7cefcb8420e8"
+      },
+      "operation": "entity_verification"
+    }
+  ],
+  "ledger": {
+    "schema": 2,
+    "run_id": "p123-core-092cfc4a3d",
+    "max_calls": 200,
+    "max_cost_usd": "5.0",
+    "admission_cost_usd": "4.5",
+    "deadline": 1792679641.0130308,
+    "started": 1792672441.0130308,
+    "total_calls": 9,
+    "charged_usd": "0.526184",
+    "outstanding_usd": "0.000000",
+    "call_history": [
+      {
+        "ticket_id": "c2361278-7b5a-4e69-ba6a-23b65f2852fc",
+        "call_index": 1,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.043164",
+        "charged_usd": "0.043164",
+        "status": "SUCCESS",
+        "timestamp": 1792672679.696724,
+        "finished": 1792672680.7381175
+      },
+      {
+        "ticket_id": "ca473160-cdf2-4980-9a6f-0ccd9631985f",
+        "call_index": 2,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.040088",
+        "charged_usd": "0.040088",
+        "status": "SUCCESS",
+        "timestamp": 1792672681.6115208,
+        "finished": 1792672683.2977087
+      },
+      {
+        "ticket_id": "4669161e-f827-482a-af46-7cefcb8420e8",
+        "call_index": 3,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.062283",
+        "charged_usd": "0.062283",
+        "status": "SUCCESS",
+        "timestamp": 1792672683.8566976,
+        "finished": 1792672684.1660714
+      },
+      {
+        "ticket_id": "cc388e08-3c64-4bf1-bddf-4f32484c1644",
+        "call_index": 4,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.063913",
+        "charged_usd": "0.063913",
+        "status": "SUCCESS",
+        "timestamp": 1792672684.597511,
+        "finished": 1792672684.9073794
+      },
+      {
+        "ticket_id": "485bdcdd-64f4-44e6-af95-7bd1a4efcee8",
+        "call_index": 5,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.063532",
+        "charged_usd": "0.063532",
+        "status": "SUCCESS",
+        "timestamp": 1792672685.5861971,
+        "finished": 1792672685.987114
+      },
+      {
+        "ticket_id": "11d9ccbd-8086-445c-af74-078b48329953",
+        "call_index": 6,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.063391",
+        "charged_usd": "0.063391",
+        "status": "SUCCESS",
+        "timestamp": 1792672686.6186938,
+        "finished": 1792672687.4393752
+      },
+      {
+        "ticket_id": "fa185860-09fb-4ee4-9572-8d7dc0d41674",
+        "call_index": 7,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.063717",
+        "charged_usd": "0.063717",
+        "status": "SUCCESS",
+        "timestamp": 1792672687.9945598,
+        "finished": 1792672688.015206
+      },
+      {
+        "ticket_id": "2f3ea6c7-3479-4da2-ac25-5a4ce46b0981",
+        "call_index": 8,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.063592",
+        "charged_usd": "0.063592",
+        "status": "SUCCESS",
+        "timestamp": 1792672688.0629356,
+        "finished": 1792672688.084001
+      },
+      {
+        "ticket_id": "59b5fdd1-d54a-4dd9-b64a-7783def829e9",
+        "call_index": 9,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.062504",
+        "charged_usd": "0.062504",
+        "status": "SUCCESS",
+        "timestamp": 1792672688.1323767,
+        "finished": 1792672688.1549473
+      }
+    ],
+    "status": "OFFLINE_ONLY",
+    "actual_invoice_usd": "UNKNOWN",
+    "live_authorized": false,
+    "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+    "pricing_scope": "SYNTHETIC_OFFLINE_TEXT_ONLY"
+  }
+}

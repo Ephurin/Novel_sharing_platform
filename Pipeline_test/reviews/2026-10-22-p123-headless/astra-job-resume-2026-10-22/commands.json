@@ -1,0 +1,70 @@
+[
+  {
+    "phase": "RED",
+    "command": "python Pipeline_test/tools/probe_job_resume_authz.py --env-file Pipeline_test/tools/.env.p123-core-092cfc4a3d --output C:/tmp/p123-astra-red-01 --expect red",
+    "exit_code": 0,
+    "meaning": "Expected security RED observed; exit 0 means exploit reproduced, not secure behavior",
+    "runtime_source_sha": "f64f7b8b8a0009e77c17a1f14a784bb74aeee16a"
+  },
+  {
+    "phase": "GREEN",
+    "command": "python Pipeline_test/tools/probe_job_resume_authz.py --env-file Pipeline_test/tools/.env.p123-core-bce7da708c --output C:/tmp/p123-astra-green-01 --expect green",
+    "exit_code": 0,
+    "runtime_source_sha": "7d1f1bed508480db84def77c75c99039a9bacd7e"
+  },
+  {
+    "phase": "regression",
+    "command": "python Pipeline_test/tools/run_p123_regressions.py --output C:/tmp/p123-astra-regression-01",
+    "exit_code": 0,
+    "details": "See regressions/validation.json for pytest arguments, backend focused command and typecheck; AI 166 PASS/2 SKIP, backend 44 PASS"
+  },
+  {
+    "phase": "authorization-unit",
+    "cwd": "backend",
+    "command": "node --import tsx --test src/modules/ai/job-resume-authorization.test.ts",
+    "exit_code": 0,
+    "details": "34 scenario subtests plus parent = 35 TAP tests PASS"
+  },
+  {
+    "phase": "build",
+    "cwd": "backend",
+    "command": "npm.cmd run build",
+    "exit_code": 0
+  },
+  {
+    "phase": "RED infrastructure",
+    "command": "docker-compose --env-file Pipeline_test/tools/.env.p123-core-092cfc4a3d -f Pipeline_test/tools/compose.p123-headless.yml build",
+    "exit_code": 0,
+    "new_owned_project_only": true
+  },
+  {
+    "phase": "RED infrastructure",
+    "command": "docker-compose --env-file Pipeline_test/tools/.env.p123-core-092cfc4a3d -f Pipeline_test/tools/compose.p123-headless.yml --profile initialize run --rm budget-init",
+    "exit_code": 0,
+    "new_owned_project_only": true
+  },
+  {
+    "phase": "RED infrastructure",
+    "command": "docker-compose --env-file Pipeline_test/tools/.env.p123-core-092cfc4a3d -f Pipeline_test/tools/compose.p123-headless.yml up -d",
+    "exit_code": 0,
+    "new_owned_project_only": true
+  },
+  {
+    "phase": "GREEN infrastructure",
+    "command": "docker-compose --env-file Pipeline_test/tools/.env.p123-core-bce7da708c -f Pipeline_test/tools/compose.p123-headless.yml build",
+    "exit_code": 0,
+    "new_owned_project_only": true
+  },
+  {
+    "phase": "GREEN infrastructure",
+    "command": "docker-compose --env-file Pipeline_test/tools/.env.p123-core-bce7da708c -f Pipeline_test/tools/compose.p123-headless.yml --profile initialize run --rm budget-init",
+    "exit_code": 0,
+    "new_owned_project_only": true
+  },
+  {
+    "phase": "GREEN infrastructure",
+    "command": "docker-compose --env-file Pipeline_test/tools/.env.p123-core-bce7da708c -f Pipeline_test/tools/compose.p123-headless.yml up -d",
+    "exit_code": 0,
+    "new_owned_project_only": true
+  }
+]

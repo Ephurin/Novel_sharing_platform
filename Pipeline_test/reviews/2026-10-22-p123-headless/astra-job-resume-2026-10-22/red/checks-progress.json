@@ -1,0 +1,12 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "RED_foreign_resume_accepted_and_job_mutated",
+    "status": "PASS",
+    "details": null
+  }
+]

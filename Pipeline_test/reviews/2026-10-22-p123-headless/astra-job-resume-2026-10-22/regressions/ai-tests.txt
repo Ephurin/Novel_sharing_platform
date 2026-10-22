@@ -1,0 +1,37 @@
+........................................................................ [ 42%]
+........................................................................ [ 85%]
+...ss...................                                                 [100%]
+============================== warnings summary ===============================
+ai-service\main.py:165
+  C:\tmp\novel-p123-authz-astra-20261022\ai-service\main.py:165: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+..\..\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+ai-service\main.py:170
+  C:\tmp\novel-p123-authz-astra-20261022\ai-service\main.py:170: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+------ generated xml file: C:\tmp\p123-astra-regression-01\ai-junit.xml -------
+=========================== short test summary info ===========================
+SKIPPED [2] ai-service\tests\test_state_projection.py:199: SQL tenant boundary
+166 passed, 2 skipped, 4 warnings in 14.26s

@@ -1,0 +1,11 @@
+{
+  "executor": "ASTRA",
+  "source_sha": "f64f7b8b8a0009e77c17a1f14a784bb74aeee16a",
+  "source_dirty": true,
+  "owner_id": "0f5cf112-6206-4d15-afe2-3cc1cd408e7f",
+  "foreign_id": "f0f4d610-4737-468b-932e-7255cb0e0fdb",
+  "novel_id": "a8f5a59e-a3ef-4d3f-952d-e2ac717aa9fe",
+  "job_id": "3ff9160b-a488-5fc7-9e37-a58509806002",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "controlled_fault": "owned fake gateway temporarily stopped; no business SQL seeding"
+}

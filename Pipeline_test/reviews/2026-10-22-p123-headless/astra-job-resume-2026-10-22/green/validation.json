@@ -1,0 +1,26 @@
+{
+  "executor": "ASTRA",
+  "mode": "green",
+  "source_sha": "7d1f1bed508480db84def77c75c99039a9bacd7e",
+  "source_dirty": false,
+  "runtime": "PASS",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "foreign_denial_no_job_or_provider_side_effect",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "repeated_owner_resume_no_duplicate_work",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "release": "HOLD_FE_INTEGRATION_ONLY",
+  "full_core_acceptance": "NOT_GRANTED"
+}

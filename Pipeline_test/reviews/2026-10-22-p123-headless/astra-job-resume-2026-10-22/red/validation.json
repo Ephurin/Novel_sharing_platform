@@ -1,0 +1,21 @@
+{
+  "executor": "ASTRA",
+  "mode": "red",
+  "source_sha": "f64f7b8b8a0009e77c17a1f14a784bb74aeee16a",
+  "source_dirty": true,
+  "runtime": "RED_REPRODUCED",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "RED_foreign_resume_accepted_and_job_mutated",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "release": "HOLD_FE_INTEGRATION_ONLY",
+  "full_core_acceptance": "NOT_GRANTED"
+}

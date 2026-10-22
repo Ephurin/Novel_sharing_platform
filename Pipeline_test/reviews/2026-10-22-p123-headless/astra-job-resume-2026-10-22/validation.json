@@ -1,0 +1,118 @@
+{
+  "executor": "ASTRA (not Gemini; authorized takeover)",
+  "baseline_sha": "f64f7b8b8a0009e77c17a1f14a784bb74aeee16a",
+  "source_sha": "7d1f1bed508480db84def77c75c99039a9bacd7e",
+  "source_clean_before_verification": true,
+  "source_clean_before_evidence_assembly": true,
+  "runtime": "PASS_TARGETED_JOB_AUTHORIZATION_ONLY",
+  "red": {
+    "security": "FAIL_REPRODUCED",
+    "foreign_resume_http": 202,
+    "job_before": "failed",
+    "job_after": "running",
+    "fake_requests_before": 0,
+    "fake_requests_after": 3,
+    "production_source_pristine": true,
+    "probe_untracked_at_red": true,
+    "explanation": "red/fixture.json honestly records source_dirty=true because only the new probe was untracked. Image-source-proof matches five production files in the baseline container to f64f7b8."
+  },
+  "http_matrix": [
+    {
+      "case": "anonymous_resume",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "case": "anonymous_get",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "case": "foreign_get",
+      "method": "GET",
+      "status": 403
+    },
+    {
+      "case": "missing_resume",
+      "method": "POST",
+      "status": 404
+    },
+    {
+      "case": "missing_get",
+      "method": "GET",
+      "status": 404
+    },
+    {
+      "case": "foreign_resume",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "case": "owner_resume",
+      "method": "POST",
+      "status": 202
+    },
+    {
+      "case": "owner_repeat_resume",
+      "method": "POST",
+      "status": 202
+    }
+  ],
+  "green": {
+    "wrong_owner_no_observed_side_effect": true,
+    "job_snapshot_equal": true,
+    "pg_analysis_proposal_outbox_counts_equal": true,
+    "mongo_collection_counts_equal": true,
+    "fake_requests_after_denial": 0,
+    "owner_final_status": "waiting_entity_review",
+    "owner_repeated_resume_no_duplicate_work": true,
+    "owner_fake_calls_before_repeat": 9,
+    "owner_fake_calls_after_repeat": 9,
+    "ai_mutable_resume_calls": 2,
+    "note": "Exactly the two owner-positive POSTs reached AI; denied/404/anonymous requests did not. Unit tests separately assert zero mutable POST for each denial."
+  },
+  "tests": {
+    "authorization_TAP": {
+      "pass": 35,
+      "scenario_subtests": 34,
+      "exit_code": 0
+    },
+    "backend_focused": {
+      "pass": 44,
+      "exit_code": 0
+    },
+    "AI_focused": {
+      "pass": 166,
+      "skip": 2,
+      "exit_code": 0,
+      "skip_reason": "SQL tenant-boundary marker in test_state_projection; not represented as runtime tenant validation"
+    },
+    "typecheck": {
+      "exit_code": 0
+    },
+    "build": {
+      "exit_code": 0
+    }
+  },
+  "not_run": [
+    "Distinct-tenant HTTP (only same-tenant fixtures provisioned)",
+    "Malformed/missing-scope job through real HTTP (covered by controller unit fault injection; no invalid business rows seeded)",
+    "ADMIN through real HTTP (covered by existing ownership policy and unit positive)",
+    "Concurrent repeated resume; only sequential repeat verified",
+    "Full P1/P2/P3 E2E and P3 post-accept stop/skip: no changed shared P3 code or dependencies on these controllers; focused autonomous regressions passed",
+    "Real provider/embedding, semantic RAG, literary quality, UI E2E and P3 100k"
+  ],
+  "egress": {
+    "real_provider_calls": 0,
+    "real_provider_cost_usd": 0,
+    "fake_provider_calls_green": 9,
+    "embedding_provider": "none",
+    "internal_network_containment": "red/containment.json and green/containment.json",
+    "AI_unit_guard": "non-loopback DNS denied; provider keys blank",
+    "budget_ledger_warning": "Synthetic ledger accounting is not a paid-provider hard-cap proof"
+  },
+  "release": "HOLD_FE_INTEGRATION_ONLY",
+  "independent_delta_review": "PENDING_GPT6",
+  "full_core_acceptance": "NOT_GRANTED",
+  "historical_data_or_volumes_deleted": false
+}

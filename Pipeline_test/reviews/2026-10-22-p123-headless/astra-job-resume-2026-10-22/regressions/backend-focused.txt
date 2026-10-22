@@ -1,0 +1,266 @@
+TAP version 13
+# Subtest: Node.js AI Gateway Service (P6.5 Hardening)
+    # Subtest: reanalysis idempotency key survives HTTP forwarding and retries
+    ok 1 - reanalysis idempotency key survives HTTP forwarding and retries
+      ---
+      duration_ms: 64.9382
+      ...
+    # Subtest: AIGatewayService forwards headers with tenant, user, and service token
+    ok 2 - AIGatewayService forwards headers with tenant, user, and service token
+      ---
+      duration_ms: 1.0662
+      ...
+    # Subtest: AIGatewayService builds query parameters correctly for context-preview
+    ok 3 - AIGatewayService builds query parameters correctly for context-preview
+      ---
+      duration_ms: 1.2379
+      ...
+    # Subtest: AIGatewayService propagates remote AI errors as AppError with correct status code
+    ok 4 - AIGatewayService propagates remote AI errors as AppError with correct status code
+      ---
+      duration_ms: 1.8016
+      ...
+    # Subtest: AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+    ok 5 - AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+      ---
+      duration_ms: 0.5052
+      ...
+    # Subtest: assertNovelOwnership enforces author access control with 403 FORBIDDEN
+    ok 6 - assertNovelOwnership enforces author access control with 403 FORBIDDEN
+      ---
+      duration_ms: 0.6276
+      ...
+    # Subtest: Canonical chapter cutoff derivation from DB record overrides client cutoff
+    ok 7 - Canonical chapter cutoff derivation from DB record overrides client cutoff
+      ---
+      duration_ms: 0.2123
+      ...
+    # Subtest: Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+    ok 8 - Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 1.0118
+      ...
+    # Subtest: Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+    ok 9 - Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+      ---
+      duration_ms: 1.4272
+      ...
+    # Subtest: Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+    ok 10 - Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 2.9236
+      ...
+    # Subtest: Story Brain freshness check fails closed with 503 when AI service is unavailable
+    ok 11 - Story Brain freshness check fails closed with 503 when AI service is unavailable
+      ---
+      duration_ms: 0.5103
+      ...
+    1..11
+ok 1 - Node.js AI Gateway Service (P6.5 Hardening)
+  ---
+  duration_ms: 79.444
+  type: 'suite'
+  ...
+# Subtest: Autonomous Controller Gateway & Contract Tests
+    # Subtest: Cross-author autonomous run access enforces 403 FORBIDDEN
+    ok 1 - Cross-author autonomous run access enforces 403 FORBIDDEN
+      ---
+      duration_ms: 57.8763
+      ...
+    # Subtest: Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+    ok 2 - Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+      ---
+      duration_ms: 1.3489
+      ...
+    # Subtest: Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+    ok 3 - Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+      ---
+      duration_ms: 0.577
+      ...
+    # Subtest: Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+    ok 4 - Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+      ---
+      duration_ms: 0.3418
+      ...
+    # Subtest: Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+    ok 5 - Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+      ---
+      duration_ms: 0.2245
+      ...
+    # Subtest: Intentional completion gate terminates on terminal objective or all objectives done
+    ok 6 - Intentional completion gate terminates on terminal objective or all objectives done
+      ---
+      duration_ms: 0.3591
+      ...
+    1..6
+ok 2 - Autonomous Controller Gateway & Contract Tests
+  ---
+  duration_ms: 62.8165
+  type: 'suite'
+  ...
+# Subtest: empty queue cannot hide incomplete extraction
+ok 3 - empty queue cannot hide incomplete extraction
+  ---
+  duration_ms: 6.0212
+  ...
+# Subtest: only the generated revision is approved and fresh version is returned
+ok 4 - only the generated revision is approved and fresh version is returned
+  ---
+  duration_ms: 0.7358
+  ...
+# Subtest: delivered outbox and empty proposals cannot bypass author entity review
+ok 5 - delivered outbox and empty proposals cannot bypass author entity review
+  ---
+  duration_ms: 0.4278
+  ...
+# Subtest: an unrelated chapter checkpoint does not block this generated revision
+ok 6 - an unrelated chapter checkpoint does not block this generated revision
+  ---
+  duration_ms: 0.4129
+  ...
+# Subtest: approval failures and stale evidence propagate to the controller
+ok 7 - approval failures and stale evidence propagate to the controller
+  ---
+  duration_ms: 0.4879
+  ...
+# Subtest: short prose never completes even if the evaluator would approve it
+ok 8 - short prose never completes even if the evaluator would approve it
+  ---
+  duration_ms: 0.3183
+  ...
+# Subtest: ending requires achieved objective and resolved ending
+ok 9 - ending requires achieved objective and resolved ending
+  ---
+  duration_ms: 0.3702
+  ...
+# Subtest: AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+    # Subtest: P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+    ok 1 - P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+      ---
+      duration_ms: 32.5903
+      ...
+    # Subtest: P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+    ok 2 - P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+      ---
+      duration_ms: 1.7263
+      ...
+    # Subtest: P1-Gateway: AI Writing generation creates queued job with pinned brain version
+    ok 3 - P1-Gateway: AI Writing generation creates queued job with pinned brain version
+      ---
+      duration_ms: 0.9933
+      ...
+    # Subtest: P1-Accept: Patch application and content hash update contract
+    ok 4 - P1-Accept: Patch application and content hash update contract
+      ---
+      duration_ms: 0.4401
+      ...
+    # Subtest: P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+    ok 5 - P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+      ---
+      duration_ms: 0.8762
+      ...
+    # Subtest: P2B-Gateway: Forward Story Plan creation, activation, and objective update
+    ok 6 - P2B-Gateway: Forward Story Plan creation, activation, and objective update
+      ---
+      duration_ms: 1.7623
+      ...
+    # Subtest: P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+    ok 7 - P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+      ---
+      duration_ms: 0.8415
+      ...
+    1..7
+ok 10 - AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ---
+  duration_ms: 41.099
+  type: 'suite'
+  ...
+# Subtest: Chapter Revisions & Patch Application
+    # Subtest: applyPatchToContent correctly applies insertion at cursor
+    ok 1 - applyPatchToContent correctly applies insertion at cursor
+      ---
+      duration_ms: 1.1074
+      ...
+    # Subtest: applyPatchToContent correctly replaces selection range
+    ok 2 - applyPatchToContent correctly replaces selection range
+      ---
+      duration_ms: 0.213
+      ...
+    # Subtest: applyPatchToContent handles unicode code points without splitting multi-byte characters
+    ok 3 - applyPatchToContent handles unicode code points without splitting multi-byte characters
+      ---
+      duration_ms: 0.1624
+      ...
+    # Subtest: applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+    ok 4 - applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+      ---
+      duration_ms: 1.2762
+      ...
+    # Subtest: applyPatchToContent allows valid boundary edge cases (0 to length)
+    ok 5 - applyPatchToContent allows valid boundary edge cases (0 to length)
+      ---
+      duration_ms: 0.4108
+      ...
+    1..5
+ok 11 - Chapter Revisions & Patch Application
+  ---
+  duration_ms: 4.9886
+  type: 'suite'
+  ...
+# Subtest: controller identity parses full pinned intent and rejects legacy attempts
+ok 12 - controller identity parses full pinned intent and rejects legacy attempts
+  ---
+  duration_ms: 6.9597
+  ...
+# Subtest: intent checks run, plan and objective under row locks and rejects ABA epoch
+ok 13 - intent checks run, plan and objective under row locks and rejects ABA epoch
+  ---
+  duration_ms: 1.0808
+  ...
+# Subtest: Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+    # Subtest: Exponential backoff for outbox retries is bounded by 300s
+    ok 1 - Exponential backoff for outbox retries is bounded by 300s
+      ---
+      duration_ms: 1.3375
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation preserves newer manual draft edits
+    ok 2 - Conditional MongoDB draft reconciliation preserves newer manual draft edits
+      ---
+      duration_ms: 5.1921
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation creates new draft if not found
+    ok 3 - Conditional MongoDB draft reconciliation creates new draft if not found
+      ---
+      duration_ms: 0.5095
+      ...
+    # Subtest: Accept-time brain version conflict rejects stale generation
+    ok 4 - Accept-time brain version conflict rejects stale generation
+      ---
+      duration_ms: 0.4057
+      ...
+    # Subtest: Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+    ok 5 - Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+      ---
+      duration_ms: 0.4881
+      ...
+    # Subtest: Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+    ok 6 - Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+      ---
+      duration_ms: 0.7619
+      ...
+    1..6
+ok 14 - Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ---
+  duration_ms: 10.6809
+  type: 'suite'
+  ...
+1..14
+# tests 44
+# suites 5
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4900.2186
+

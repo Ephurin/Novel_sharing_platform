@@ -1,0 +1,68 @@
+[
+  {
+    "mode": "red",
+    "project": "p123-core-092cfc4a3d",
+    "production_source_sha": "f64f7b8b8a0009e77c17a1f14a784bb74aeee16a",
+    "files": [
+      {
+        "file": "backend/src/modules/ai/ai-gateway.controller.ts",
+        "normalized_sha256": "f3be651cc0e446e3cbc47206d54e1b9da8292edcd7ed65f764345e4c74df892e",
+        "matches_committed_source": true
+      },
+      {
+        "file": "backend/src/modules/ai/ai-gateway.routes.ts",
+        "normalized_sha256": "4e0e97159a16c829c0a2a87bebb55c9d5ee23afbfbc24186606637861fce3e69",
+        "matches_committed_source": true
+      },
+      {
+        "file": "backend/src/modules/ai/ai-gateway.service.ts",
+        "normalized_sha256": "aa1bf22dde7ef862049d763e9e0718eb2aa11b061fd790c8e27a904d94646170",
+        "matches_committed_source": true
+      },
+      {
+        "file": "ai-service/api/narrative_routes.py",
+        "normalized_sha256": "ae10a83ba909d4e7da320843fd55a35598827eac5096974f92b82a121a2a1d7b",
+        "matches_committed_source": true
+      },
+      {
+        "file": "ai-service/application/bootstrap_service.py",
+        "normalized_sha256": "f6e179658f84200b37011c23df96407ec6da072959675ed55a82d32a55414aac",
+        "matches_committed_source": true
+      }
+    ],
+    "job_access_log_lines": 18
+  },
+  {
+    "mode": "green",
+    "project": "p123-core-bce7da708c",
+    "production_source_sha": "7d1f1bed508480db84def77c75c99039a9bacd7e",
+    "files": [
+      {
+        "file": "backend/src/modules/ai/ai-gateway.controller.ts",
+        "normalized_sha256": "fef1b8aa7af2367e77bf85db2901639958e839390f49549df18e1e079a96e2cf",
+        "matches_committed_source": true
+      },
+      {
+        "file": "backend/src/modules/ai/ai-gateway.routes.ts",
+        "normalized_sha256": "4e0e97159a16c829c0a2a87bebb55c9d5ee23afbfbc24186606637861fce3e69",
+        "matches_committed_source": true
+      },
+      {
+        "file": "backend/src/modules/ai/ai-gateway.service.ts",
+        "normalized_sha256": "aa1bf22dde7ef862049d763e9e0718eb2aa11b061fd790c8e27a904d94646170",
+        "matches_committed_source": true
+      },
+      {
+        "file": "ai-service/api/narrative_routes.py",
+        "normalized_sha256": "ae10a83ba909d4e7da320843fd55a35598827eac5096974f92b82a121a2a1d7b",
+        "matches_committed_source": true
+      },
+      {
+        "file": "ai-service/application/bootstrap_service.py",
+        "normalized_sha256": "f6e179658f84200b37011c23df96407ec6da072959675ed55a82d32a55414aac",
+        "matches_committed_source": true
+      }
+    ],
+    "job_access_log_lines": 38
+  }
+]

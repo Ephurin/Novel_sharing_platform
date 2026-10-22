@@ -1,0 +1,14 @@
+{
+  "commands": [
+    {
+      "exit_code": 0,
+      "command": "node --import tsx --test src/modules/ai/job-resume-authorization.test.ts"
+    },
+    {
+      "exit_code": 0,
+      "command": "npm.cmd run build"
+    }
+  ],
+  "source_sha": "7d1f1bed508480db84def77c75c99039a9bacd7e",
+  "status": null
+}

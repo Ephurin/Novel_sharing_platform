@@ -1,0 +1,37 @@
+{
+  "job_id": "9c066278-0c44-5594-9f02-9f613d65f295",
+  "novel_id": "e612d695-b472-496a-8bff-be7185713774",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "revisions": [
+    {
+      "chapter_id": "18e7e794-3109-4321-9e99-b63f1d884828",
+      "revision_id": "efea60ac-0ccb-458e-b272-2f8aaa755b2b",
+      "content_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+      "status": "waiting_entity_review",
+      "proposal_count": 0,
+      "analysis_run_id": "8b0c6d84-ee68-4eb9-841a-a99380b21b47",
+      "chapter_number": null
+    }
+  ],
+  "locale": "vi-VN",
+  "options": {
+    "build_embeddings": false,
+    "extract_world_rules": true,
+    "require_review_for_all": true
+  },
+  "status": "waiting_entity_review",
+  "progress_current": 0,
+  "stage": "entity_review",
+  "result": {
+    "scene_count": 45,
+    "analysis_run_id": "8b0c6d84-ee68-4eb9-841a-a99380b21b47"
+  },
+  "error": null,
+  "type": "bootstrap",
+  "progress": {
+    "current": 0,
+    "total": 1,
+    "unit": "chapter",
+    "stage": "entity_review"
+  }
+}
