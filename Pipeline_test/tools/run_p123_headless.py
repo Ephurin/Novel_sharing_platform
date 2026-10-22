@@ -169,8 +169,7 @@ class Probe:
 
     def ledger(self):
         return json.loads(self.command(self.compose + ["exec", "-T", "budget-gateway", "python", "-c",
-            "import sys;sys.path.insert(0,'/tools');from budget_gateway import AuthoritativeBudgetLedger;"
-            "l=AuthoritativeBudgetLedger('/state/ledger.json');import json;print(json.dumps(l.get_summary()));l.close()"] ))
+            "import urllib.request;print(urllib.request.urlopen('http://localhost:18090/health').read().decode())"] ))
 
     def review(self, review):
         raw = copy.deepcopy(review)
