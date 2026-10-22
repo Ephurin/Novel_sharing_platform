@@ -1,18 +1,18 @@
-# ACTIVE CODEX TASK — P3 OBJECTIVE INTENT/ACCEPT SAFETY (FE HOLD)
+# ACTIVE CODEX TASK — P3 POST-ACCEPT SAFETY AND P123 CORE READINESS
 
-**Date:** 2026-10-22 Asia/Bangkok. **Only permitted branch:** `codex/ai-copilot-pipeline-test`.
+**Date:** 2026-10-22 (Asia/Bangkok). **Branch:** `codex/ai-copilot-pipeline-test` only.
 
-**SINGLE EXECUTABLE TASK:** [P123_P3_OBJECTIVE_INTENT_FENCE_TASK_2026-10-22.md](P123_P3_OBJECTIVE_INTENT_FENCE_TASK_2026-10-22.md). Current project priority: [../promt.md](../promt.md) §0, v1.4 contract [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md).
+**SINGLE ACTIVE EXECUTABLE TASK:** [P123_P3_POST_ACCEPT_AND_CORE_READINESS_TASK_2026-10-22.md](P123_P3_POST_ACCEPT_AND_CORE_READINESS_TASK_2026-10-22.md). Governing direction: [../promt.md](../promt.md) §0 and [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
 
-**Independent source/evidence review:** [GPT6_P1_P3_INDEPENDENT_REVIEW.md](reviews/2026-10-22-p123-headless/p1-race-p3/GPT6_P1_P3_INDEPENDENT_REVIEW.md), executor tested SHA `c34a0251dbc6d15fd2af7a8b1ead787adf892100`, original handoff HEAD `26a99956238ec19e930b4858bee190d2a9203009`. Reviewer inspected source and artifacts via GitHub, not independently rerun Docker/pytest.
+**Independent GPT-6 verdict:** [GPT6_P3_INTENT_FENCE_INDEPENDENT_REVIEW.md](reviews/2026-10-22-p123-headless/p3-intent-fence/GPT6_P3_INTENT_FENCE_INDEPENDENT_REVIEW.md) accepted the source/evidence for the original P3 **pre-accept** skip/stop race repair at tested SHA `a7081c6932e33bd5500d0ca40604afe6bb0d51e4` and evidence HEAD `a77a2451b3e590a8308f911a0eac5d614b9fa0e8`. Seven deterministic executor cases 45/45 and existing/no-plan P3 12/12 each. GPT-6 did **not** rerun Docker or pytest. This is **bounded acceptance**, not `P3_CORE_OFFLINE_PASS`.
 
-**Review verdict:** P1 writer ordering bug was proven RED on pinned older image, then bounded GREEN on final source; accept that limited repair evidence, not general cross-store atomicity. P2 bounded idea→first chapter evidence accepted with limitations. P3 two 2-objective headless paths have executor 12/12 checks each but full P3 Core **BLOCKED** by `P3_OBJECTIVE_INTENT_FENCE`: author status `skipped` commits while generation is in flight, yet one later AI_DRAFT_ACCEPT revision is committed. No canon auto-approval. The objective endpoint has no shared intent fence with acceptance. A pre-accept status GET alone cannot prove safety.
+**P0 next gate:** Determine and test whether author `skipped` / run stopped **after** accepted draft transaction yet before outbox→human review→approved canon→objective completion can result in late canon promotion or skipped objective silently becoming completed. Existing source uses stale pre-generation `eligibleObj` and run status recheck only. A new durable conditional objective/progress fence (not just GET) may be needed. Preserve already committed immutable revision and truthful history; stop automatic downstream advancement after committed cancellation, including restart/HITL. Test before coding and preserve RED if reproduced.
 
-**Execute P0:** Preserve existing RED, implement documented safe atomic skip/stop vs accept boundary (or explicit objective-busy conflict with unchanged state). Test both completion orders, run stop, plan status/version, crash/retry/restart, no ghost revision/outbox/canon, idempotency and human entity checkpoint via new isolated authenticated API+PG/Mongo+fake-provider tests. Repeat P3 existing/no-plan, P1 ordered-writer and P2 regression on exact clean tested code SHA, then sanitized evidence commit. If safe repair cannot be implemented without redesign, report BLOCKED rather than fake PASS.
+**P1 next gate:** No-plan background worker contention `RUN_STEP_BUSY` previously required bounded evidence-side retry; establish the production-supported caller contract or label limitation. Produce one `P123_CORE_READINESS_MATRIX` and read-only FE/backend contract/migration handoff. Check PR #55 and #54 read-only; do not integrate them.
 
-**Boundaries:** `HOLD_FE_INTEGRATION_ONLY`, no `web/` changes, FE PR integration/merges, S09 browser claim, real Gemini/OpenAI/embedding calls, auto publication or long P3 100k run. Author decisions scripted via API are `SIMULATED_HUMAN_VIA_API`. Protect all historic projects/evidence/ledgers, use fresh test-owned resources. Codex must stop for independent GPT-6 review of next bounded delivery.
+**Ownership:** `HOLD_FE_INTEGRATION_ONLY`; backend, AI Service and fake-provider headless only. No `web/` changes, FE PR cherry-picks/merges, main writes, real Gemini/OpenAI/embedding calls, auto publishing, 100,000–105,000-word final P3 run or historical evidence edits. Human actions are `SIMULATED_HUMAN_VIA_API`. Use fresh isolated test-owned volumes/identities and test exact clean committed SHA.
 
-Prior `P123_HEADLESS_P1_RACE_P3_TASK_2026-10-22.md` is delivered. All below sections are historical guidance, not active tasks.
+Previous [P123_P3_OBJECTIVE_INTENT_FENCE_TASK_2026-10-22.md](P123_P3_OBJECTIVE_INTENT_FENCE_TASK_2026-10-22.md) is delivered; all below is historical context, not an active Codex assignment.
 
 ---
 
