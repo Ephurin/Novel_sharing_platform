@@ -69,7 +69,7 @@ def run(env,output,protected=False):
     else:raise RuntimeError('Crash seam not reached: '+seam)
     during={'draft':p.api('GET','/chapters/'+crashcid),'latest':p.latest(crashcid)}
     p.command(p.compose+['kill','-s','SIGKILL','backend']);http=future.result()
-   p.command(p.compose+['up','-d','backend'])
+   p.command(p.compose+['start','backend'])
    for _ in range(80):
     try: resumed=p.api('GET','/chapters/'+crashcid);break
     except Exception:time.sleep(.3)

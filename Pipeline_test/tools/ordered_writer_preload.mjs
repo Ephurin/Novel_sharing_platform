@@ -20,7 +20,7 @@ async function pause(chapterId, version) {
 Collection.prototype.findOne = async function(filter, options) {
   if (this.collectionName === 'draft_chapters' && casChapters.has(filter.chapterId)) {
     const config = JSON.parse(await readFile('/tmp/p123-ordered-config.json', 'utf8'));
-    if (config.chapterId === filter.chapterId && config.seam === 'post_pg') await pause(filter.chapterId, null);
+    if (config.chapterId === filter.chapterId && config.seam === 'post_pg') { casChapters.delete(filter.chapterId); await pause(filter.chapterId, null); }
   }
   return originalFind.call(this, filter, options);
 };
