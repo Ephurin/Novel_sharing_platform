@@ -1,16 +1,12 @@
-# ACTIVE CODEX TASK — THREE USE CASE DELIVERY (P1 → P2 → P3)
+# CURRENT CODEX STATUS — ON HOLD FOR FE PR REVIEW
 
-**Updated:** 2026-10-22 (Asia/Bangkok). **Permitted branch:** `codex/ai-copilot-pipeline-test`.
-**Single current Codex instruction:** [THREE_USECASE_COMPLETION_TASK_2026-10-22.md](THREE_USECASE_COMPLETION_TASK_2026-10-22.md).
-**Project command:** [../promt.md](../promt.md), section 0. **Behavior contract:** [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
+**Owner revision:** 2026-10-22. **Branch:** `codex/ai-copilot-pipeline-test`.
 
-**Priority:** Finish the usable product journeys **P1 existing manuscript**, **P2 idea/setup**, **P3 controller + mandatory later 100k terminal**. Implement and integrate backend/AI/necessary FE and real-browser E2E on this isolated branch. Codex **may independently fix S09**; FE Issue #56 / PR #55 is useful provenance, **not a required handoff or stop reason**. Do not cherry-pick the entire PR or modify others' branches; require version/409/DB compatibility and real browser readbacks.
+**Do not begin new P1/P2/P3 implementation or self-repair FE S09 yet.** Await review completion of the FE developer PRs and an explicit restart instruction. The recently added `THREE_USECASE_COMPLETION_TASK_2026-10-22.md` is **parked**, not active. Codex is not authorized by that parked plan to own production FE changes. Do not merge, cherry-pick, alter FE branches, or infer FE approval from a PR's existence.
 
-**Current evidence boundary:** Wave 1H independently proved synthetic in-memory HTTP context/hash parity (17/17 tests), but durable approved canon, same-novel tenant authorization, seeded future entity and attached Story Plan were NOT accepted. Include these in P1 completion, not endless stand-alone diagnostic waves. P1 S09 has documented real browser RED; S10/S11 NOT_RUN. Prior main CI successes are historical, not current v1.4 acceptance.
+**Existing status (unchanged):** S09 autosave real-browser RED on the pipeline branch; Issue #56 is a FE-owned coordination item. Wave 1H independent review found synthetic outbound context hash parity, with durable canon/tenant/plan provenance not yet accepted. Retain existing evidence. Read-only FE PR review is permissible when specifically requested; otherwise hold further Codex execution. No real provider calls without separate renewed authorization.
 
-**Safety:** OFFLINE fake provider only; zero external LLM/embedding calls without renewed explicit approval. Preserve old runs, source gold, reports and immutable evidence, test data isolation and no automatic publishing. Full P1/P2/P3 live and P3 100k acceptance **cannot** be claimed from fake-model runs. Code/evidence only on pipeline branch; no unreviewed merge.
-
-The directives below are **archived task history**, retained for provenance. They no longer control Codex priority, FE ownership or stop rules.
+**Authority:** `../promt.md` section 0. Historical task below is retained for context but is superseded by this HOLD directive.
 
 ---
 
