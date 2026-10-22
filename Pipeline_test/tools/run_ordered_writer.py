@@ -47,6 +47,40 @@ def run(env,output,protected=False):
  else:raise RuntimeError('Restart unavailable')
  p.save('after-restart',after);p.save('gateway-ledger',p.ledger())
  safe=final['chapter']['draft']['content']=='P1_ORDERED_B_ newer body' and final['latest']['content']=='P1_ORDERED_B_ newer body'
+ if protected:
+  for seam in ('post_cas','post_pg'):
+   crashcid=p.api('POST','/novels/'+p.novel+'/chapters',{'title':'Crash '+seam,'content':'Initial crash draft.'})['chapterId']
+   p.api('POST','/chapters/'+crashcid+'/revisions/snapshot',{})
+   initialrev=p.latest(crashcid)
+   config=json.dumps({'chapterId':crashcid,'seam':seam})
+   setup="const fs=require('fs'); for(const f of ['p123-ordered-paused','p123-ordered-release']) fs.rmSync('/tmp/'+f,{force:true}); fs.writeFileSync('/tmp/p123-ordered-config.json',process.argv[1])"
+   p.command(p.compose+['exec','-T','backend','node','-e',setup,config])
+   version=p.api('GET','/chapters/'+crashcid)['draft']['version']
+   with ThreadPoolExecutor(1) as pool:
+    def interrupted():
+     try:
+      res=p.http.patch(p.base+'/chapters/'+crashcid,json={'content':'P1_ORDERED_A_crash '+seam,'expectedVersion':version},timeout=45)
+      return {'status':res.status_code}
+     except Exception as exc:return {'error':type(exc).__name__}
+    future=pool.submit(interrupted)
+    for _ in range(80):
+     if p.command(p.compose+['exec','-T','backend','node','-e',"console.log(require('fs').existsSync('/tmp/p123-ordered-paused'))"])=='true':break
+     time.sleep(.05)
+    else:raise RuntimeError('Crash seam not reached: '+seam)
+    during={'draft':p.api('GET','/chapters/'+crashcid),'latest':p.latest(crashcid)}
+    p.command(p.compose+['kill','-s','SIGKILL','backend']);http=future.result()
+   p.command(p.compose+['up','-d','backend'])
+   for _ in range(80):
+    try: resumed=p.api('GET','/chapters/'+crashcid);break
+    except Exception:time.sleep(.3)
+   else:raise RuntimeError('Crash restart timeout')
+   expected='P1_ORDERED_A_crash '+seam
+   if seam=='post_cas':assert during['latest']['revisionId']==initialrev['revisionId']
+   else:assert during['latest']['content']==expected
+   result=p.api('PATCH','/chapters/'+crashcid,{'content':'Recovered B '+seam,'expectedVersion':resumed['draft']['version']})
+   latest=p.latest(crashcid)
+   assert latest['content']=='Recovered B '+seam
+   p.save('crash-'+seam,{'fixture':'SIGKILL owned backend at deterministic seam','during':during,'HTTP_interrupted':http,'after_restart':resumed,'recovery':result,'latest':latest,'no_invented_revision':seam!='post_cas' or during['latest']['revisionId']==initialrev['revisionId']})
  p.save('validation',{'tested_sha':p.source_sha,'source_dirty_at_start':p.source_dirty,'project':p.project,'novel_id':p.novel,'A_status':ar['status'],'B_status':b['status'],'safe':safe,'verdict':'PASS' if safe else 'EXPECTED_RED','protected':protected,'external_provider_calls':0})
  print(json.dumps({'safe':safe,'A_status':ar['status'],'B_status':b['status']}))
  return 0 if safe else 1

@@ -6,17 +6,31 @@ if (!/^p123-core-[a-f0-9]{10}$/.test(process.env.WAVE1D_PROJECT ?? '') || proces
 const require = createRequire('/app/backend/package.json');
 const { Collection } = require('mongodb');
 const original = Collection.prototype.findOneAndUpdate;
+const originalFind = Collection.prototype.findOne;
+const casChapters = new Set();
+async function pause(chapterId, version) {
+  await writeFile('/tmp/p123-ordered-paused', JSON.stringify({ chapterId, version }));
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try { await access('/tmp/p123-ordered-release'); return; } catch {}
+    await setTimeout(30);
+  }
+  throw Error('Bounded test barrier expired');
+}
+Collection.prototype.findOne = async function(filter, options) {
+  if (this.collectionName === 'draft_chapters' && casChapters.has(filter.chapterId)) {
+    const config = JSON.parse(await readFile('/tmp/p123-ordered-config.json', 'utf8'));
+    if (config.chapterId === filter.chapterId && config.seam === 'post_pg') await pause(filter.chapterId, null);
+  }
+  return originalFind.call(this, filter, options);
+};
 Collection.prototype.findOneAndUpdate = async function(filter, update, options) {
   const result = await original.call(this, filter, update, options);
   if (this.collectionName !== 'draft_chapters' || !update?.$set?.content?.startsWith('P1_ORDERED_A_')) return result;
   let config;
   try { config = JSON.parse(await readFile('/tmp/p123-ordered-config.json', 'utf8')); } catch { return result; }
   if (filter.chapterId !== config.chapterId) return result;
-  await writeFile('/tmp/p123-ordered-paused', JSON.stringify({ chapterId: filter.chapterId, version: result?.version }));
-  const deadline = Date.now() + 30000;
-  while (Date.now() < deadline) {
-    try { await access('/tmp/p123-ordered-release'); return result; } catch {}
-    await setTimeout(30);
-  }
-  throw Error('Bounded test barrier expired');
+  if (config.seam === 'post_pg') { casChapters.add(filter.chapterId); return result; }
+  await pause(filter.chapterId, result?.version);
+  return result;
 };
