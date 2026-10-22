@@ -1,0 +1,26 @@
+[
+  {
+    "path": "backend/src/core/database/migrations/012_novel_engagement.sql",
+    "content": "create table if not exists novel_follows (\n  novel_id uuid not null references novels(novel_id) on delete cascade,\n  user_id uuid not null references users(user_id) on delete cascade,\n  created_at timestamptz not null default now(),\n  primary key (novel_id, user_id)\n);\n\ncreate table if not exists novel_ratings (\n  novel_id uuid not null references novels(novel_id) on delete cascade,\n  user_id uuid not null references users(user_id) on delete cascade,\n  score smallint not null check (score between 1 and 10),\n  created_at timestamptz not null default now(),\n  updated_at timestamptz not null default now(),\n  primary key (novel_id, user_id)\n);\n",
+    "encoding": "utf-8",
+    "sha": "6a0d0deda0a25aabdea08fc1f05921fc9eda270f",
+    "display_url": "https://github.com/Ephurin/Novel_sharing_platform/blob/7b15c078c1ffe2fca96c4e66c96577e3ff007c3c/backend/src/core/database/migrations/012_novel_engagement.sql",
+    "display_title": "012_novel_engagement.sql"
+  },
+  {
+    "path": "backend/src/core/database/migrations/013_novel_review_text.sql",
+    "content": "alter table novel_ratings add column if not exists review_text text\n  check (review_text is null or (char_length(review_text) between 1 and 2000 and char_length(btrim(review_text)) > 0));\n\ncreate index if not exists idx_novel_reviews_updated\n  on novel_ratings (novel_id, updated_at desc, user_id) where review_text is not null;\n",
+    "encoding": "utf-8",
+    "sha": "71ad29ddd1064c1853eff24eb37c179a036f578a",
+    "display_url": "https://github.com/Ephurin/Novel_sharing_platform/blob/7b15c078c1ffe2fca96c4e66c96577e3ff007c3c/backend/src/core/database/migrations/013_novel_review_text.sql",
+    "display_title": "013_novel_review_text.sql"
+  },
+  {
+    "path": "backend/src/core/database/migrations/014_novel_editorial_metadata.sql",
+    "content": "alter table novels add column if not exists author_note text\n  check (author_note is null or char_length(author_note) <= 5000);\n\ncreate table if not exists novel_genres (\n  novel_id uuid not null references novels(novel_id) on delete cascade,\n  genre_id uuid not null references genres(genre_id),\n  primary key (novel_id, genre_id)\n);\n\ninsert into novel_genres (novel_id, genre_id)\nselect novel_id, genre_id from novels where genre_id is not null\non conflict do nothing;\n",
+    "encoding": "utf-8",
+    "sha": "da477670daca1021254b8da9038606b13da45555",
+    "display_url": "https://github.com/Ephurin/Novel_sharing_platform/blob/7b15c078c1ffe2fca96c4e66c96577e3ff007c3c/backend/src/core/database/migrations/014_novel_editorial_metadata.sql",
+    "display_title": "014_novel_editorial_metadata.sql"
+  }
+]
