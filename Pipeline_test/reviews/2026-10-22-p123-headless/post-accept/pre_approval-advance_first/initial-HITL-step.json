@@ -1,0 +1,31 @@
+{
+  "status": 200,
+  "response": {
+    "success": true,
+    "data": {
+      "run_id": "5b2d5d51-9f0c-4726-9536-c1f03101a2c3",
+      "novel_id": "c12fb002-37d9-4b3d-9235-80b4b9ef7c4d",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "plan_id": "00a02d82-e2f8-46f1-a726-5ffcf6c542cc",
+      "plan_version": 1,
+      "status": "running",
+      "current_objective_id": "b7e84c87-8086-4c10-b0c5-897f2aa55375",
+      "current_chapter_id": "f047fcde-3e5d-4148-8a77-6eb1ffad46b7",
+      "current_iteration": 0,
+      "max_iterations": 3,
+      "current_retries": 0,
+      "max_retries_per_objective": 3,
+      "last_generation_id": "5a9ba77a-249b-5fd5-837e-6ea380aab54e",
+      "last_accepted_revision_id": null,
+      "last_brain_version": 2,
+      "stop_reason": "waiting_for_memory_extraction",
+      "idempotency_key": "f379814c46d74b3b97fe2ba1c88040a3",
+      "input_hash": "99a709e354f90f2e187d109a3bdb6f4bc765a64a681aa3f378d600eeb7870dc5",
+      "created_by": "15fbd89a-927f-4575-83f5-f1fbcf836dec",
+      "created_at": "2026-10-22T09:28:07.565419+00:00",
+      "updated_at": "2026-10-22T09:28:08.354366+00:00"
+    },
+    "error": null,
+    "meta": {}
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "project": "p123-core-c481fdf795",
+  "env_file": "Pipeline_test\\tools\\.env.p123-core-c481fdf795",
+  "new_resources_only": true,
+  "runtime_started": false,
+  "subnets": [
+    "10.241.95.0/24",
+    "10.241.96.0/24",
+    "10.241.97.0/24"
+  ]
+}

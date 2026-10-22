@@ -1,0 +1,44 @@
+{
+  "A": {
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "51f7ebb1-1883-4f49-abcb-b5a044c740fa",
+        "novelId": "4f77a615-12dc-486d-aa19-ae0cae7605d2",
+        "title": "Ordered writer",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 2,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": "a23f06ec-14cc-43ad-b633-1441ac704e20",
+        "draftVersion": 3
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  "B": {
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "51f7ebb1-1883-4f49-abcb-b5a044c740fa",
+        "novelId": "4f77a615-12dc-486d-aa19-ae0cae7605d2",
+        "title": "Ordered writer",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 3,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": "5435c376-3ddb-4632-bfae-b13926fd7027",
+        "draftVersion": 5
+      },
+      "error": null,
+      "meta": {}
+    }
+  }
+}

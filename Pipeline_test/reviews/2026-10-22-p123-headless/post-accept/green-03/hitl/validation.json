@@ -1,0 +1,42 @@
+{
+  "tested_sha": "3f7320c9ec0c2e6d9c6c67bc75d16f4449d39c99",
+  "source_dirty_at_start": false,
+  "project": "p123-core-00a2cabebb",
+  "novel_id": "20fc9f1c-7787-4bed-af74-41dcd4dfbb4f",
+  "run_id": "2fec5fa0-d554-43b8-a40b-15078d4d5891",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_87c618e1-723f-446e-a220-0dbad3c71964",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_HITL_no_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_HITL_preserves_skipped",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_HITL_terminal",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "restart_no_revive",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

@@ -1,0 +1,21 @@
+[
+  {
+    "id": "42263871-8d8a-4871-a52c-b2217100d516",
+    "plan_id": "283e380c-1629-4de6-b765-3681702efd56",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "a42fcff4-1ce1-4a80-a8d5-dd81ed7c7c68",
+    "order_index": 1,
+    "target_chapter": 1,
+    "objective_type": "ending",
+    "title": "Post accept fence",
+    "description": "Bounded objective",
+    "status": "skipped",
+    "objective_metadata": {
+      "min_words": 1,
+      "is_terminal": true
+    },
+    "intent_version": 4,
+    "created_at": "2026-10-22T09:38:03.545927+00:00",
+    "updated_at": "2026-10-22T09:38:12.169081+00:00"
+  }
+]

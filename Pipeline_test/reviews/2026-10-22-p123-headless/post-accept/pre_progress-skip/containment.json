@@ -1,0 +1,61 @@
+{
+  "containers": [
+    {
+      "name": "/p123-core-2892ac01f1-backend-1",
+      "id": "c88d5b7e4d6229a382f5701f2c1404b4c773c618f87b5f25945d9eb81ee1e8e6",
+      "image": "sha256:7b79801bab9e68e13b078342ec23b0c33da599e45c737c7d746ca1c6b8c45874",
+      "networks": [
+        "p123-core-2892ac01f1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-2892ac01f1-ai-service-1",
+      "id": "4040e00bf36ebedfc3eafd2014e6ddb0ac1c73986ee5f4c27e9355fedeac4dca",
+      "image": "sha256:06e19c4de48a1f07a50b071185c17713332b0340cc66de10754ed7a515622a78",
+      "networks": [
+        "p123-core-2892ac01f1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-2892ac01f1-postgres-1",
+      "id": "aa42bbc74622cc65b4caa1ca7cd4c8c1c60c8310599ee0ab26e7a2b482549740",
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "networks": [
+        "p123-core-2892ac01f1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-2892ac01f1-mongodb-1",
+      "id": "67e6a660333665c8e8d10ef1b0445c633f45bca1122c119aed701db783e91d86",
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "networks": [
+        "p123-core-2892ac01f1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-2892ac01f1-budget-gateway-1",
+      "id": "f0f94c81e5c6a6657841fd30fa74f304d82f8204ae492b49aa00a7459589a100",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "networks": [
+        "p123-core-2892ac01f1_upstream",
+        "p123-core-2892ac01f1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-2892ac01f1-fake-upstream-1",
+      "id": "a0b79a27b930a02f276650852d3e30c46cd246919c1eb1d7f88a7b4999abc46d",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "networks": [
+        "p123-core-2892ac01f1_upstream"
+      ]
+    }
+  ],
+  "internal_networks": [
+    "p123-core-2892ac01f1_upstream",
+    "p123-core-2892ac01f1_workers"
+  ],
+  "database": "p123_core_2892ac01f1",
+  "real_keys_empty": true,
+  "external_provider_calls": 0,
+  "provider_route": "ai/backend -> budget-gateway -> fake-upstream on internal networks"
+}

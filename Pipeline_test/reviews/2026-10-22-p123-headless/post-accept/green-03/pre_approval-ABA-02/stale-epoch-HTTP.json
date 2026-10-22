@@ -1,0 +1,28 @@
+{
+  "stage": "pre_approval-ABA",
+  "method": "PATCH",
+  "path": "/ai/story-plans/cd8b65cb-b11a-48fb-9ff9-039c9e79910c/objectives/dfcc50da-87a1-455e-91f5-247f98db108c",
+  "request": {
+    "novel_id": "d11be3b8-16f8-4e6b-9cd8-1a7f0c05d16f",
+    "status": "completed",
+    "controller_intent": {
+      "generation_id": "4498fb94-fcb3-5dfd-bfe7-abbab9e06507",
+      "revision_id": "754d18a6-dfd7-4dfb-bec0-a8613b37c7eb"
+    }
+  },
+  "status": 409,
+  "response": {
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "OBJECTIVE_INTENT_SUPERSEDED",
+      "message": "Controller intent changed; accepted history requires author review",
+      "details": {
+        "code": "OBJECTIVE_INTENT_SUPERSEDED",
+        "message": "Controller intent changed; accepted history requires author review"
+      }
+    },
+    "meta": {}
+  },
+  "actor": "SIMULATED_HUMAN_VIA_API"
+}

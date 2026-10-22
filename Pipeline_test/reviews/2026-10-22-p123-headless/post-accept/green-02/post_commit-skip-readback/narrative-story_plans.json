@@ -1,0 +1,16 @@
+[
+  {
+    "id": "ac083646-8ab0-48ce-abf3-c1fd08fe9b7d",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "2465ac31-ba9a-46c4-97a4-6faa33eebfd3",
+    "plan_version": 1,
+    "status": "active",
+    "source_outline": "",
+    "source_outline_hash": "",
+    "idempotency_key": null,
+    "input_hash": "1c2c3a5c86e66b263e230ca631d33dc46955a034e5dbfbf8c871d4c440ae105d",
+    "created_by": "167aadcb-84ec-45bd-8d65-4e674d1ea785",
+    "created_at": "2026-10-22T09:31:04.817577+00:00",
+    "updated_at": "2026-10-22T09:31:04.848334+00:00"
+  }
+]

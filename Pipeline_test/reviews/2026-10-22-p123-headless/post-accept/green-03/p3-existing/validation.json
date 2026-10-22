@@ -1,0 +1,96 @@
+{
+  "tested_sha": "3f7320c9ec0c2e6d9c6c67bc75d16f4449d39c99",
+  "source_dirty_at_start": false,
+  "project": "p123-core-77eb04b99a",
+  "novel_id": "aec8a91a-993f-49d5-ab28-04cd45eb1111",
+  "run": {
+    "run_id": "c9eabdba-a049-402e-acb2-03c8dc56ddac",
+    "novel_id": "aec8a91a-993f-49d5-ab28-04cd45eb1111",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_id": "56829a51-1f6b-4192-b7f5-86b3a8fe9901",
+    "plan_version": 1,
+    "status": "completed",
+    "current_objective_id": "f947cf2e-9c9d-4631-8240-0f5be94ed86b",
+    "current_chapter_id": "2fbff5ae-419c-4ce6-ab19-77de749b0bae",
+    "current_iteration": 2,
+    "max_iterations": 5,
+    "current_retries": 0,
+    "max_retries_per_objective": 3,
+    "last_generation_id": "7eb7bc72-68cc-5a12-ba27-34f90da3ebec",
+    "last_accepted_revision_id": "42dc93d8-32da-4fad-8078-39a68016996a",
+    "last_brain_version": 4,
+    "stop_reason": "terminal_objective_completed",
+    "idempotency_key": "p3-e90fdf2b69224d028df34adfd1af1355",
+    "input_hash": "27cd286d3b60d271c42e815b2839482799acf8d6a749134b9f7495a23e96d42b",
+    "created_by": "32b8c44c-29b1-4d02-9325-733951c373c7",
+    "created_at": "2026-10-22T09:39:30.524670+00:00",
+    "updated_at": "2026-10-22T09:39:40.755781+00:00"
+  },
+  "no_plan_entry": false,
+  "stage": "P3_step_HITL",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "create_idempotent",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "wrong_owner_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "plan_not_history",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "pause_no_canon_1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_873b3ad2-bfc7-4e7c-96bc-e2537a45da69",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "pause_no_canon_4",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_7b43b7a2-fa32-4b0c-bef1-2a3f93b94211",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "controller_completed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "multiple_objectives_completed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "all_draft",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "terminal_replay_no_advance",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

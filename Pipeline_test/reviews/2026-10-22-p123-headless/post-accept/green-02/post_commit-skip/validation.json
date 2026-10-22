@@ -1,0 +1,44 @@
+{
+  "tested_sha": "c2af76def0396a9efc0bde1515d3a2a6252eb732",
+  "source_dirty_at_start": false,
+  "project": "p123-core-8af6d16ebf",
+  "novel_id": "2465ac31-ba9a-46c4-97a4-6faa33eebfd3",
+  "run_id": "cf7395af-2068-4d86-b583-be26599af398",
+  "seam": "post_commit",
+  "action": "skip",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_history_already_committed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "post_cancel_no_canon_or_completed_overwrite",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_revision_retained_once",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "single_analysis_outbox",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "restart_retains_memory",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

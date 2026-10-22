@@ -1,0 +1,364 @@
+{
+  "chunks": [
+    {
+      "end": 96,
+      "start": 0
+    }
+  ],
+  "counts": {
+    "entity": 6,
+    "candidates": 10,
+    "not_entity": 4
+  },
+  "policy": "entity-candidates-v1",
+  "status": "waiting_entity_review",
+  "aliases": [
+    {
+      "end": 8,
+      "alias": "Linh",
+      "start": 4,
+      "entity_id": "95d14546-77cd-45f4-a6ef-60e8eac7894a",
+      "confidence": 0.7,
+      "entity_name": "Mai Linh",
+      "identity_quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân."
+    }
+  ],
+  "request": {
+    "options": {
+      "extract_events": true,
+      "build_embeddings": false,
+      "extract_entities": true,
+      "check_consistency": true,
+      "extract_prose_facts": true,
+      "extract_world_rules": false,
+      "review_fact_coverage": true,
+      "extract_state_transitions": false
+    },
+    "novel_id": "5f97471b-0cf6-4b5d-992f-93d1389eca9f",
+    "operation": "incremental_story_analysis",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "chapter_id": "f5aa1421-4711-42f4-8e8d-4185b5e513d0",
+    "revision_id": "43806484-be9f-420b-b146-82d0bfbdfcd8",
+    "content_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+    "idempotency_key": "analysis-43806484-be9f-420b-b146-82d0bfbdfcd8"
+  },
+  "entities": [
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Mai Linh",
+      "status_quote": "",
+      "verified_end": 8,
+      "candidate_ids": [
+        "11d3cc7d13357500c09666ba",
+        "80216096bc927118039b677c",
+        "386ebd9591c135b2d6b758e2",
+        "541cc2547e6386ae848f4de1"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 0,
+      "canonical_entity_id": "95d14546-77cd-45f4-a6ef-60e8eac7894a"
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Duy",
+      "status_quote": "",
+      "verified_end": 65,
+      "candidate_ids": [
+        "767af5c92f08672714b7b268"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 62,
+      "canonical_entity_id": "903ee9f1-d579-4938-8d4f-aff56d65267e"
+    },
+    {
+      "score": 7,
+      "entity": "LOC",
+      "phrase": "Cồn Vân",
+      "status_quote": "",
+      "verified_end": 95,
+      "candidate_ids": [
+        "c6a9d52def581ec17281311a"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 88,
+      "canonical_entity_id": "56e8f370-85d7-47db-b681-75c54450a462"
+    }
+  ],
+  "decisions": [
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "9f3a6c8fb66f54e29b76f55d",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "11d3cc7d13357500c09666ba",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "95d14546-77cd-45f4-a6ef-60e8eac7894a"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "80216096bc927118039b677c",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "95d14546-77cd-45f4-a6ef-60e8eac7894a"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "767af5c92f08672714b7b268",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "903ee9f1-d579-4938-8d4f-aff56d65267e"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "f2428275ceb161947ea7bfee",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "386ebd9591c135b2d6b758e2",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "95d14546-77cd-45f4-a6ef-60e8eac7894a"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "541cc2547e6386ae848f4de1",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "95d14546-77cd-45f4-a6ef-60e8eac7894a"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "bbf2f0a083c5c88e62cd8b96",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "c6a9d52def581ec17281311a",
+      "status_quote": "",
+      "canonical_name": "Cồn Vân",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "56e8f370-85d7-47db-b681-75c54450a462"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4efa7175a9e0b6c9583a6328",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    }
+  ],
+  "candidates": [
+    {
+      "end": 3,
+      "start": 0,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Mai",
+      "context_end": 96,
+      "candidate_id": "9f3a6c8fb66f54e29b76f55d",
+      "context_start": 0
+    },
+    {
+      "end": 8,
+      "start": 0,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_sequence"
+      ],
+      "surface": "Mai Linh",
+      "context_end": 96,
+      "candidate_id": "11d3cc7d13357500c09666ba",
+      "context_start": 0
+    },
+    {
+      "end": 8,
+      "start": 4,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 96,
+      "candidate_id": "80216096bc927118039b677c",
+      "context_start": 0
+    },
+    {
+      "end": 65,
+      "start": 62,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 96,
+      "candidate_id": "767af5c92f08672714b7b268",
+      "context_start": 0
+    },
+    {
+      "end": 78,
+      "start": 75,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Mai",
+      "context_end": 96,
+      "candidate_id": "f2428275ceb161947ea7bfee",
+      "context_start": 0
+    },
+    {
+      "end": 83,
+      "start": 75,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_sequence"
+      ],
+      "surface": "Mai Linh",
+      "context_end": 96,
+      "candidate_id": "386ebd9591c135b2d6b758e2",
+      "context_start": 0
+    },
+    {
+      "end": 83,
+      "start": 79,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 96,
+      "candidate_id": "541cc2547e6386ae848f4de1",
+      "context_start": 0
+    },
+    {
+      "end": 91,
+      "start": 88,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cồn",
+      "context_end": 96,
+      "candidate_id": "bbf2f0a083c5c88e62cd8b96",
+      "context_start": 0
+    },
+    {
+      "end": 95,
+      "start": 88,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_sequence"
+      ],
+      "surface": "Cồn Vân",
+      "context_end": 96,
+      "candidate_id": "c6a9d52def581ec17281311a",
+      "context_start": 0
+    },
+    {
+      "end": 95,
+      "start": 92,
+      "context": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vân",
+      "context_end": 96,
+      "candidate_id": "4efa7175a9e0b6c9583a6328",
+      "context_start": 0
+    }
+  ],
+  "chapter_id": "f5aa1421-4711-42f4-8e8d-4185b5e513d0",
+  "revision_id": "43806484-be9f-420b-b146-82d0bfbdfcd8",
+  "source_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+  "chapter_number": 1,
+  "known_entities": [
+    {
+      "name": "Mai Linh",
+      "entity_id": "95d14546-77cd-45f4-a6ef-60e8eac7894a",
+      "entity_type": "PER"
+    },
+    {
+      "name": "Duy",
+      "entity_id": "903ee9f1-d579-4938-8d4f-aff56d65267e",
+      "entity_type": "PER"
+    },
+    {
+      "name": "Cồn Vân",
+      "entity_id": "56e8f370-85d7-47db-b681-75c54450a462",
+      "entity_type": "LOC"
+    }
+  ],
+  "review_version": 1,
+  "analysis_policy": "entity-human-review-v1",
+  "analysis_run_id": "f2ce823e-d64e-4b6e-8013-86ed64c6221a",
+  "guidance_version": 0,
+  "reviewed_decisions": [],
+  "unanchored_discoveries": []
+}

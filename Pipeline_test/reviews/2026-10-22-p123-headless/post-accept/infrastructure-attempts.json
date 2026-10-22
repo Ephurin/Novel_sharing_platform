@@ -1,0 +1,28 @@
+{
+  "attempts": [
+    {
+      "command": "python Pipeline_test/tools/run_post_accept_matrix.py Pipeline_test/reviews/2026-10-22-p123-headless/post-accept/green-03",
+      "exit_code": 1,
+      "phase": "prepare pre_progress-stop",
+      "reason": "No owned test subnet candidate found in allocator 10.241.* pool",
+      "business_data_created_for_failed_phase": false,
+      "completed_scenarios_retained": true
+    },
+    {
+      "command": "final sanity loop / prepare_p123_next.py --manifest green-03/hitl-environment.json",
+      "exit_code": 1,
+      "phase": "prepare hitl after successful replacement",
+      "reason": "No owned test subnet candidate found",
+      "business_data_created_for_failed_phase": false
+    },
+    {
+      "command": "prepare_additional.py green-03/pre_progress-stop-environment.json",
+      "exit_code": 1,
+      "reason": "Docker network IPAM Config can be null; TypeError before allocation",
+      "resources_created": false,
+      "resolution": "Normalize missing Config to empty list; select verified unused 10.242/10.243 subnet triples, preserve all prior networks"
+    }
+  ],
+  "continuation": "resume_remaining.py; exact command exits in green-03/continuation-commands.json",
+  "production_source_unchanged": "3f7320c9ec0c2e6d9c6c67bc75d16f4449d39c99"
+}

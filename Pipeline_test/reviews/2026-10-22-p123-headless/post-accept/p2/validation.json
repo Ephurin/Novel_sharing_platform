@@ -1,0 +1,148 @@
+{
+  "tested_sha": "c2cddff34585401f335a37d2649caeb6d06f4d87",
+  "source_dirty_at_start": false,
+  "project": "p123-core-93c57017cf",
+  "novel_id": "5f97471b-0cf6-4b5d-992f-93d1389eca9f",
+  "stage": "P2_core_complete",
+  "mode": "p2",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "setup_entity_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "setup_not_implicit_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "source_names_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "idea_not_history",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "P2_foreign_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "M0_durable",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "plan_not_history",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "P2_failed_job_no_canon_advance",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "failed_draft_not_acceptable",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_hash_a864f04d-4484-471c-9e17-40da9d0bf1e5",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "retrieval_disabled_a864f04d-4484-471c-9e17-40da9d0bf1e5",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "plan_in_HTTP_request",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accept_idempotent",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_lineage",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "draft_synced",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "never_published",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accept_not_implicit_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "stale_PATCH_no_revision_outbox_canon",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_f2ce823e-d64e-4b6e-8013-86ed64c6221a",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "single_accept_outbox",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "M_FIRST_nonempty_history",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "M_FIRST_durable",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "outbound_hash_ea392435-b326-425a-a02d-10bcdce25928",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "retrieval_disabled_ea392435-b326-425a-a02d-10bcdce25928",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "second_request_memory_continuity",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "future_not_historical",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "external_provider_calls": 0
+}

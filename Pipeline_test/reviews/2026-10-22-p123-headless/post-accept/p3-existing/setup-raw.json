@@ -1,0 +1,62 @@
+[
+  {
+    "proposal_id": "5562d308-468f-5f14-b401-dc41863c29f4",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "character",
+      "canonical_name": "Mai Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "mai linh"
+    },
+    "analysis_run_id": "32c5b2c7-ec87-45c2-a1fe-9dc1084275c2",
+    "dependency_group_id": "1a896f97-98b5-54c6-96d8-80428b891d02",
+    "materialization_order": 1,
+    "evidence": [],
+    "confidence": 0.9,
+    "expected_brain_version": 1,
+    "status": "pending",
+    "decision_reason": null,
+    "review_priority": 40,
+    "review_reason": "standard_review"
+  },
+  {
+    "proposal_id": "e87d5fb9-721e-5d2c-8fa9-08bd36920e64",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "character",
+      "canonical_name": "Duy",
+      "initial_status": "Unknown",
+      "normalized_name": "duy"
+    },
+    "analysis_run_id": "32c5b2c7-ec87-45c2-a1fe-9dc1084275c2",
+    "dependency_group_id": "1a896f97-98b5-54c6-96d8-80428b891d02",
+    "materialization_order": 2,
+    "evidence": [],
+    "confidence": 0.9,
+    "expected_brain_version": 1,
+    "status": "pending",
+    "decision_reason": null,
+    "review_priority": 40,
+    "review_reason": "standard_review"
+  },
+  {
+    "proposal_id": "46fa899c-3778-548a-a9eb-fcd7ebed4580",
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "location",
+      "canonical_name": "Cồn Vân",
+      "initial_status": "Unknown",
+      "normalized_name": "cồn vân"
+    },
+    "analysis_run_id": "32c5b2c7-ec87-45c2-a1fe-9dc1084275c2",
+    "dependency_group_id": "1a896f97-98b5-54c6-96d8-80428b891d02",
+    "materialization_order": 3,
+    "evidence": [],
+    "confidence": 0.9,
+    "expected_brain_version": 1,
+    "status": "pending",
+    "decision_reason": null,
+    "review_priority": 40,
+    "review_reason": "standard_review"
+  }
+]

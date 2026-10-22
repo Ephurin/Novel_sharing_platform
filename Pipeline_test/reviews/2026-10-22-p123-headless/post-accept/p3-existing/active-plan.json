@@ -1,0 +1,41 @@
+{
+  "plan_id": "8ff316ff-2efd-473c-9dae-effc84d24673",
+  "novel_id": "9d58319a-7beb-491d-97b3-50da45320d6f",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "plan_version": 1,
+  "status": "active",
+  "objectives": [
+    {
+      "objective_id": "0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4",
+      "order_index": 1,
+      "title": "P3 observe",
+      "description": "Observe note.",
+      "target_chapter": 1,
+      "objective_type": "chapter_goal",
+      "status": "pending",
+      "metadata": {
+        "min_words": 1
+      },
+      "intent_version": 0
+    },
+    {
+      "objective_id": "9894a60e-36f3-452b-b0eb-e507857d382f",
+      "order_index": 2,
+      "title": "P3 ending",
+      "description": "Resolve scene.",
+      "target_chapter": 2,
+      "objective_type": "ending",
+      "status": "pending",
+      "metadata": {
+        "min_words": 1,
+        "is_terminal": true
+      },
+      "intent_version": 0
+    }
+  ],
+  "source_outline": "Bounded future intent",
+  "source_outline_hash": "7dde082c693338e19da322b9b24c570316128bf495da316eb65a5a84e31b5e31",
+  "idempotency_key": null,
+  "input_hash": "a319eb5b25bdb3d063f3600511fda56be86f62a27d3ad96368be07fa46242fa9",
+  "created_by": "0cef547a-7f95-42c8-b98c-b1c54c71a04a"
+}

@@ -1,0 +1,130 @@
+[
+  {
+    "case": "replacement",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-016d4a3098",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "case": "replacement",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-016d4a3098",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "case": "replacement",
+    "command": [
+      "python",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\supplemental_checks.py",
+      "replacement",
+      "Pipeline_test\\tools\\.env.p123-core-016d4a3098",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\replacement"
+    ],
+    "exit_code": 0
+  },
+  {
+    "case": "replacement",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-016d4a3098",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "case": "hitl",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-4cd37a7c51",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "case": "hitl",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-4cd37a7c51",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "case": "hitl",
+    "command": [
+      "python",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\supplemental_checks.py",
+      "hitl",
+      "Pipeline_test\\tools\\.env.p123-core-4cd37a7c51",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\hitl"
+    ],
+    "exit_code": 0
+  },
+  {
+    "case": "hitl",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-4cd37a7c51",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  }
+]

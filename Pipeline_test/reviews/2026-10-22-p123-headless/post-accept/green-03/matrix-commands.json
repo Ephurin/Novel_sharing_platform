@@ -1,0 +1,416 @@
+[
+  {
+    "scenario": "pre_approval-advance_first",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-0edb36ab81",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-advance_first",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-0edb36ab81",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-advance_first",
+    "command": [
+      "C:\\Users\\thaib\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "Pipeline_test/tools/run_p3_post_accept.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-0edb36ab81",
+      "--output",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\green-03\\pre_approval-advance_first",
+      "--seam",
+      "pre_approval",
+      "--action",
+      "advance_first"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-advance_first",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-0edb36ab81",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "post_commit-skip",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-f8ac433fe0",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "post_commit-skip",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-f8ac433fe0",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "post_commit-skip",
+    "command": [
+      "C:\\Users\\thaib\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "Pipeline_test/tools/run_p3_post_accept.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-f8ac433fe0",
+      "--output",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\green-03\\post_commit-skip",
+      "--seam",
+      "post_commit",
+      "--action",
+      "skip"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "post_commit-skip",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-f8ac433fe0",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "post_commit-stop",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-aa2c1441f5",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "post_commit-stop",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-aa2c1441f5",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "post_commit-stop",
+    "command": [
+      "C:\\Users\\thaib\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "Pipeline_test/tools/run_p3_post_accept.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-aa2c1441f5",
+      "--output",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\green-03\\post_commit-stop",
+      "--seam",
+      "post_commit",
+      "--action",
+      "stop"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "post_commit-stop",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-aa2c1441f5",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-skip",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-3b4bb542ca",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-skip",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-3b4bb542ca",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-skip",
+    "command": [
+      "C:\\Users\\thaib\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "Pipeline_test/tools/run_p3_post_accept.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-3b4bb542ca",
+      "--output",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\green-03\\pre_approval-skip",
+      "--seam",
+      "pre_approval",
+      "--action",
+      "skip"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-skip",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-3b4bb542ca",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-stop",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-55b212a4e0",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-stop",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-55b212a4e0",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-stop",
+    "command": [
+      "C:\\Users\\thaib\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "Pipeline_test/tools/run_p3_post_accept.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-55b212a4e0",
+      "--output",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\green-03\\pre_approval-stop",
+      "--seam",
+      "pre_approval",
+      "--action",
+      "stop"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-stop",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-55b212a4e0",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_progress-skip",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-771bb3b57c",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_progress-skip",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-771bb3b57c",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_progress-skip",
+    "command": [
+      "C:\\Users\\thaib\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "Pipeline_test/tools/run_p3_post_accept.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-771bb3b57c",
+      "--output",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\green-03\\pre_progress-skip",
+      "--seam",
+      "pre_progress",
+      "--action",
+      "skip"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_progress-skip",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-771bb3b57c",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  }
+]

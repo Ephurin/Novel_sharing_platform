@@ -1,0 +1,11 @@
+{
+  "tested_sha": "3f7320c9ec0c2e6d9c6c67bc75d16f4449d39c99",
+  "source_dirty_at_start": false,
+  "project": "p123-core-55b212a4e0",
+  "novel_id": "61ee51c8-5640-4310-8bf1-c75cecca23e3",
+  "scenario": "pre_approval-stop",
+  "status": "PASS",
+  "read_only": true,
+  "matched_writing_jobs": 1,
+  "mongo_drafts": 1
+}

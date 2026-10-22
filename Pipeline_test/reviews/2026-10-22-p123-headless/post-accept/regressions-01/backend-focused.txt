@@ -1,0 +1,63 @@
+▶ Node.js AI Gateway Service (P6.5 Hardening)
+  ✔ reanalysis idempotency key survives HTTP forwarding and retries (55.5691ms)
+  ✔ AIGatewayService forwards headers with tenant, user, and service token (1.2127ms)
+  ✔ AIGatewayService builds query parameters correctly for context-preview (1.2833ms)
+  ✔ AIGatewayService propagates remote AI errors as AppError with correct status code (2.0909ms)
+  ✔ AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE (0.6727ms)
+  ✔ assertNovelOwnership enforces author access control with 403 FORBIDDEN (0.6351ms)
+  ✔ Canonical chapter cutoff derivation from DB record overrides client cutoff (0.3272ms)
+  ✔ Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author (1.259ms)
+  ✔ Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept (0.9018ms)
+  ✔ Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author (1.024ms)
+  ✔ Story Brain freshness check fails closed with 503 when AI service is unavailable (0.492ms)
+✔ Node.js AI Gateway Service (P6.5 Hardening) (68.5339ms)
+▶ Autonomous Controller Gateway & Contract Tests
+  ✔ Cross-author autonomous run access enforces 403 FORBIDDEN (54.0885ms)
+  ✔ Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT (1.399ms)
+  ✔ Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch (0.5796ms)
+  ✔ Scoped proposal acceptance: ignores unrelated pending proposals in review queue (0.4205ms)
+  ✔ Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft (0.2949ms)
+  ✔ Intentional completion gate terminates on terminal objective or all objectives done (0.3996ms)
+✔ Autonomous Controller Gateway & Contract Tests (59.431ms)
+✔ empty queue cannot hide incomplete extraction (3.8404ms)
+✔ only the generated revision is approved and fresh version is returned (0.9948ms)
+✔ delivered outbox and empty proposals cannot bypass author entity review (0.5259ms)
+✔ an unrelated chapter checkpoint does not block this generated revision (0.4237ms)
+✔ approval failures and stale evidence propagate to the controller (0.8152ms)
+✔ short prose never completes even if the evaluator would approve it (0.6015ms)
+✔ ending requires achieved objective and resolved ending (0.5484ms)
+▶ AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ✔ P1-Gateway: Forward manuscript bootstrap with tenant & service authentication (72.9477ms)
+  ✔ P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package (1.9327ms)
+  ✔ P1-Gateway: AI Writing generation creates queued job with pinned brain version (3.1641ms)
+  ✔ P1-Accept: Patch application and content hash update contract (1.0959ms)
+  ✔ P2-Gateway: Forward bootstrap from idea with tenant & service authentication (1.6891ms)
+  ✔ P2B-Gateway: Forward Story Plan creation, activation, and objective update (2.1812ms)
+  ✔ P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN) (1.225ms)
+✔ AI-PIPE-01 P1 Node Gateway & Acceptance Flow (87.5629ms)
+▶ Chapter Revisions & Patch Application
+  ✔ applyPatchToContent correctly applies insertion at cursor (4.8163ms)
+  ✔ applyPatchToContent correctly replaces selection range (2.1227ms)
+  ✔ applyPatchToContent handles unicode code points without splitting multi-byte characters (0.3702ms)
+  ✔ applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping) (1.0513ms)
+  ✔ applyPatchToContent allows valid boundary edge cases (0 to length) (0.3309ms)
+✔ Chapter Revisions & Patch Application (12.6018ms)
+✔ controller identity parses full pinned intent and rejects legacy attempts (9.8655ms)
+✔ intent checks run, plan and objective under row locks and rejects ABA epoch (1.1251ms)
+▶ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ✔ Exponential backoff for outbox retries is bounded by 300s (1.4754ms)
+  ✔ Conditional MongoDB draft reconciliation preserves newer manual draft edits (0.5112ms)
+  ✔ Conditional MongoDB draft reconciliation creates new draft if not found (0.39ms)
+  ✔ Accept-time brain version conflict rejects stale generation (0.2608ms)
+  ✔ Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker (0.4407ms)
+  ✔ Outbox expired lease recovery: crashed worker event is reclaimed after timeout (0.4013ms)
+✔ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening) (5.6701ms)
+ℹ tests 44
+ℹ suites 5
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1961.2528
+

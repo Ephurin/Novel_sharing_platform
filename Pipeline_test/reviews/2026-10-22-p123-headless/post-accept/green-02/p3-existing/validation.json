@@ -1,0 +1,69 @@
+{
+  "tested_sha": "c2af76def0396a9efc0bde1515d3a2a6252eb732",
+  "source_dirty_at_start": false,
+  "project": "p123-core-e9bd0bcba1",
+  "novel_id": "29f494ef-1f25-43f5-8fb1-8274950ade2b",
+  "run": {
+    "run_id": "095caef6-e9c6-48e8-9ca0-0ce3dc59f73a",
+    "novel_id": "29f494ef-1f25-43f5-8fb1-8274950ade2b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_id": "4447102d-7113-4007-a792-b0e5ac6055bd",
+    "plan_version": 1,
+    "status": "running",
+    "current_objective_id": "f784102e-38ae-42da-b8df-e9733f1faf25",
+    "current_chapter_id": "4658b5b0-e724-4f01-ae22-d5c9952ffc73",
+    "current_iteration": 0,
+    "max_iterations": 5,
+    "current_retries": 0,
+    "max_retries_per_objective": 3,
+    "last_generation_id": "90898a85-292c-5073-a51e-d05fae3cf14b",
+    "last_accepted_revision_id": null,
+    "last_brain_version": 2,
+    "stop_reason": "waiting_for_entity_review",
+    "idempotency_key": "p3-9290a8a014394ddda6b825bc6fce81aa",
+    "input_hash": "ef268c30573265d465a84b5457091d970db95b37955699a419eaa0c12501bb91",
+    "created_by": "1b2dc23a-8769-4ada-a9b5-db2d50be6151",
+    "created_at": "2026-10-22T09:35:26.710734+00:00",
+    "updated_at": "2026-10-22T09:35:29.644061+00:00"
+  },
+  "no_plan_entry": false,
+  "stage": "P3_step_HITL",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "create_idempotent",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "wrong_owner_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "plan_not_history",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "pause_no_canon_1",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_029fcc5a-aa04-49e5-b838-4635972dd702",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "HTTP_500:POST:/ai/autonomous/runs/095caef6-e9c6-48e8-9ca0-0ce3dc59f73a/step:{'success': False, 'data': None, 'error': {'code': 'AI_SERVICE_500', 'message': 'AI Service returned status 500', 'details': None}, 'meta': {}}"
+  },
+  "verdict": "PARTIAL",
+  "external_provider_calls": 0
+}

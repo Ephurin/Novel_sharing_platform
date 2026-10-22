@@ -1,0 +1,189 @@
+{
+  "story_id": "aec8a91a-993f-49d5-ab28-04cd45eb1111",
+  "entities": [
+    {
+      "name": "Mai Linh",
+      "entity_id": "960edd73-84f4-49e2-af80-59dbc5d5f5c3",
+      "entity_type": "character",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Duy",
+      "entity_id": "6f655f58-1367-4e59-a659-a6eb3e5995d5",
+      "entity_type": "character",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    },
+    {
+      "name": "Cồn Vân",
+      "entity_id": "cdf36069-28dc-4604-8c18-9f6d73f18794",
+      "entity_type": "location",
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1,
+      "is_locked": false
+    }
+  ],
+  "aliases": [
+    {
+      "alias_id": "8d9a4d9d-d536-4b2d-a2a3-4cd714755bb1",
+      "entity_id": "960edd73-84f4-49e2-af80-59dbc5d5f5c3",
+      "alias": "Linh",
+      "normalized_alias": "linh"
+    }
+  ],
+  "mentions": [],
+  "facts": [
+    {
+      "fact_id": "9a14f96a-ec7c-4398-88e2-a3c451c0cb69",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "755a0d5f-1f64-48cb-b112-9d05f48f45c7",
+      "source_start": 0,
+      "source_end": 60,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "43c4865b-9024-46d4-b7b9-6a365e13fd39",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "micro_check_note",
+      "fact_value": {
+        "value": "Mai Linh đặt thẻ giấy kiểm tra micro cạnh máy thu; chưa thực hiện kế hoạch",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false,
+      "chapter_number": 1,
+      "source_revision_id": "755a0d5f-1f64-48cb-b112-9d05f48f45c7",
+      "source_start": 0,
+      "source_end": 60,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "4a5f677a-1c97-435d-b9c4-526728905921",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "observed_scene",
+      "fact_value": {
+        "value": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false,
+      "chapter_number": 2,
+      "source_revision_id": "42dc93d8-32da-4fad-8078-39a68016996a",
+      "source_start": 0,
+      "source_end": 60,
+      "supersedes_id": null,
+      "is_retired": false
+    },
+    {
+      "fact_id": "136a381a-b91b-4d85-a303-6a898fccd783",
+      "subject_entity_id": null,
+      "fact_type": "narrative_fact",
+      "fact_key": "micro_check_note",
+      "fact_value": {
+        "value": "Mai Linh đặt thẻ giấy kiểm tra micro cạnh máy thu; chưa thực hiện kế hoạch",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "is_locked": false,
+      "chapter_number": 2,
+      "source_revision_id": "42dc93d8-32da-4fad-8078-39a68016996a",
+      "source_start": 0,
+      "source_end": 60,
+      "supersedes_id": null,
+      "is_retired": false
+    }
+  ],
+  "relations": [],
+  "events": [
+    {
+      "event_id": "c577fac7-8a0f-55c4-afb9-f93418ffc90d",
+      "event_type": "observation",
+      "participants": [],
+      "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+      "chapter": 1,
+      "metadata": {
+        "chapter": 1,
+        "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+        "evidence": [
+          {
+            "end": 60,
+            "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+            "start": 0,
+            "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+            "chapter_id": "fd544f40-3f1d-4ab3-9803-06f257538e38",
+            "revision_id": "755a0d5f-1f64-48cb-b112-9d05f48f45c7",
+            "chapter_number": 1
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 1,
+        "reconciliation_base_ids": [],
+        "narrative_order": 1024
+      }
+    },
+    {
+      "event_id": "f9a20222-805a-5e2e-8579-64b2a28a9f45",
+      "event_type": "observation",
+      "participants": [],
+      "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+      "chapter": 2,
+      "metadata": {
+        "chapter": 2,
+        "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+        "evidence": [
+          {
+            "end": 60,
+            "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+            "start": 0,
+            "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+            "chapter_id": "2fbff5ae-419c-4ce6-ab19-77de749b0bae",
+            "revision_id": "42dc93d8-32da-4fad-8078-39a68016996a",
+            "chapter_number": 2
+          }
+        ],
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 2,
+        "reconciliation_base_ids": [],
+        "narrative_order": 2048
+      }
+    }
+  ],
+  "transitions": [],
+  "current_state": {
+    "entities": {},
+    "provenance": {},
+    "relationships": [],
+    "projection_version": 1
+  },
+  "metadata": {
+    "brain_id": "db046b22-0261-4788-b3c5-979c46dc9b5d",
+    "brain_version": "4",
+    "status": "active",
+    "baseline_revision_id": null
+  }
+}

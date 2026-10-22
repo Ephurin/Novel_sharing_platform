@@ -1,0 +1,142 @@
+[
+  {
+    "event_id": "e55b121a-e5ee-4c1b-a7e6-341684466a54",
+    "event_type": "INCREMENTAL_ANALYSIS",
+    "novel_id": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "chapter_id": "893f6969-7c5f-4235-83b5-8a1d0c303716",
+    "revision_id": "246185c7-5c09-4127-af14-c2bd17bb9a4c",
+    "content_hash": "f4f6714ea0a685a1256bec39b3ace433be161a16c79fe52cb7026dc88bc840ef",
+    "created_by": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "payload": {
+      "operation": "incremental_story_analysis"
+    },
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "max_retries": 5,
+    "next_retry_at": "2026-10-22T09:42:18.117228+00:00",
+    "last_error": null,
+    "created_at": "2026-10-22T09:42:18.117228+00:00",
+    "updated_at": "2026-10-22T09:42:18.825256+00:00",
+    "claim_token": "[REDACTED]"
+  },
+  {
+    "event_id": "48ff6125-087f-4c93-b96b-59b0a711eea1",
+    "event_type": "INCREMENTAL_ANALYSIS",
+    "novel_id": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "chapter_id": "b2651865-8e6c-4d66-9233-32ce2e0289c6",
+    "revision_id": "1209cbdf-b702-4b46-81a6-e136a42c0611",
+    "content_hash": "d1333db8259933e3d73502ba6647fd9ede1ec8441fdad88d7376c6ca303e3667",
+    "created_by": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "payload": {
+      "operation": "incremental_story_analysis"
+    },
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "max_retries": 5,
+    "next_retry_at": "2026-10-22T09:42:31.079818+00:00",
+    "last_error": null,
+    "created_at": "2026-10-22T09:42:31.079818+00:00",
+    "updated_at": "2026-10-22T09:42:33.217456+00:00",
+    "claim_token": "[REDACTED]"
+  },
+  {
+    "event_id": "eeaeb5e4-5832-4139-8dce-9c3b34a50534",
+    "event_type": "INCREMENTAL_ANALYSIS",
+    "novel_id": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "chapter_id": "893f6969-7c5f-4235-83b5-8a1d0c303716",
+    "revision_id": "50b4d1b3-a450-4c49-a4c4-fbbb6df1aa9d",
+    "content_hash": "894447de8e8179a4106b36cd9913bfc8f862541a7c77c88dcf9d929c898ac42f",
+    "created_by": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "payload": {
+      "operation": "incremental_story_analysis"
+    },
+    "status": "COMPLETED",
+    "retry_count": 1,
+    "max_retries": 5,
+    "next_retry_at": "2026-10-22T09:42:39.995793+00:00",
+    "last_error": "fetch failed",
+    "created_at": "2026-10-22T09:42:18.563712+00:00",
+    "updated_at": "2026-10-22T09:42:43.537927+00:00",
+    "claim_token": "[REDACTED]"
+  },
+  {
+    "event_id": "3bfcfb3c-a6b8-4f21-931e-95263fc468c4",
+    "event_type": "INCREMENTAL_ANALYSIS",
+    "novel_id": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "chapter_id": "b2651865-8e6c-4d66-9233-32ce2e0289c6",
+    "revision_id": "f5e8b40d-a438-4b68-9a8e-7da3b9feb671",
+    "content_hash": "04ec83ddb3b9dcedc6ee1d41e28291c35ac4f5aea58f581e537aae7f41ec15a1",
+    "created_by": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "payload": {
+      "operation": "incremental_story_analysis"
+    },
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "max_retries": 5,
+    "next_retry_at": "2026-10-22T09:42:43.16919+00:00",
+    "last_error": null,
+    "created_at": "2026-10-22T09:42:43.16919+00:00",
+    "updated_at": "2026-10-22T09:42:43.901827+00:00",
+    "claim_token": "[REDACTED]"
+  },
+  {
+    "event_id": "f432357b-7bb8-472f-ab0e-8db3ed8be65b",
+    "event_type": "INCREMENTAL_ANALYSIS",
+    "novel_id": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "chapter_id": "6b8d7e95-7274-4d22-8373-99251e29bf5a",
+    "revision_id": "400c2c49-bcf9-43ac-9263-7aab49ef2004",
+    "content_hash": "d1333db8259933e3d73502ba6647fd9ede1ec8441fdad88d7376c6ca303e3667",
+    "created_by": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "payload": {
+      "operation": "incremental_story_analysis"
+    },
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "max_retries": 5,
+    "next_retry_at": "2026-10-22T09:42:43.303611+00:00",
+    "last_error": null,
+    "created_at": "2026-10-22T09:42:43.303611+00:00",
+    "updated_at": "2026-10-22T09:42:53.794617+00:00",
+    "claim_token": "[REDACTED]"
+  },
+  {
+    "event_id": "5ab3e5b6-05e2-4873-9acc-70571c72f9f6",
+    "event_type": "INCREMENTAL_ANALYSIS",
+    "novel_id": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "chapter_id": "6b8d7e95-7274-4d22-8373-99251e29bf5a",
+    "revision_id": "4b4d0400-fce8-41d6-b475-0fa901915595",
+    "content_hash": "b4054c3f1725d8675453fe0f9c1c4920c75193f79f6b9687d966fec64b0e3618",
+    "created_by": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "payload": {
+      "operation": "incremental_story_analysis"
+    },
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "max_retries": 5,
+    "next_retry_at": "2026-10-22T09:42:44.187466+00:00",
+    "last_error": null,
+    "created_at": "2026-10-22T09:42:44.187466+00:00",
+    "updated_at": "2026-10-22T09:42:54.174029+00:00",
+    "claim_token": "[REDACTED]"
+  },
+  {
+    "event_id": "27b85a3d-cd23-42b9-863b-8630e4481758",
+    "event_type": "INCREMENTAL_ANALYSIS",
+    "novel_id": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "chapter_id": "6b8d7e95-7274-4d22-8373-99251e29bf5a",
+    "revision_id": "2130d79f-5d17-47d4-a7ac-b2f3bacf889c",
+    "content_hash": "eb3c440c556bc620800bb6510a1e7d74e8e7a971a41e2f7685fe0b0fce7f3aee",
+    "created_by": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "payload": {
+      "operation": "incremental_story_analysis"
+    },
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "max_retries": 5,
+    "next_retry_at": "2026-10-22T09:42:53.263967+00:00",
+    "last_error": null,
+    "created_at": "2026-10-22T09:42:53.263967+00:00",
+    "updated_at": "2026-10-22T09:42:54.632616+00:00",
+    "claim_token": "[REDACTED]"
+  }
+]

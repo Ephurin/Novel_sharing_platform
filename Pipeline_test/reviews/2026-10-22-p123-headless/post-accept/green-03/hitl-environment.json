@@ -1,0 +1,13 @@
+{
+  "project": "p123-core-00a2cabebb",
+  "env_file": "Pipeline_test\\tools\\.env.p123-core-00a2cabebb",
+  "new_resources_only": true,
+  "runtime_started": false,
+  "subnets": [
+    "10.242.10.0/24",
+    "10.242.11.0/24",
+    "10.242.12.0/24"
+  ],
+  "allocator": "post-accept/prepare_additional.py",
+  "historical_networks_unchanged": true
+}

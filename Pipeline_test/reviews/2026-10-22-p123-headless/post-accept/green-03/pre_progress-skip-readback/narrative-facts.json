@@ -1,0 +1,56 @@
+[
+  {
+    "id": "900db564-0a6f-4f8d-b135-51a15e557e03",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "subject_entity_id": null,
+    "fact_type": "narrative_fact",
+    "fact_key": "observed_scene",
+    "fact_value": {
+      "value": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+      "subject": "",
+      "certainty": "confirmed"
+    },
+    "supersedes_id": null,
+    "is_retired": false,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "confidence": 0.8,
+    "priority": 0,
+    "is_locked": false,
+    "source_revision_id": "e3817468-d2a3-4f37-8705-8b89c99ceae2",
+    "chapter_number": 1,
+    "source_start": 0,
+    "source_end": 60,
+    "created_by": "00000000-0000-0000-0000-000000000001",
+    "created_at": "2026-10-22T09:45:42.439674+00:00"
+  },
+  {
+    "id": "e70f7980-1051-40ce-acdd-c2fd4908fd70",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "subject_entity_id": null,
+    "fact_type": "narrative_fact",
+    "fact_key": "micro_check_note",
+    "fact_value": {
+      "value": "Mai Linh đặt thẻ giấy kiểm tra micro cạnh máy thu; chưa thực hiện kế hoạch",
+      "subject": "",
+      "certainty": "confirmed"
+    },
+    "supersedes_id": null,
+    "is_retired": false,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "confidence": 0.8,
+    "priority": 0,
+    "is_locked": false,
+    "source_revision_id": "e3817468-d2a3-4f37-8705-8b89c99ceae2",
+    "chapter_number": 1,
+    "source_start": 0,
+    "source_end": 60,
+    "created_by": "00000000-0000-0000-0000-000000000001",
+    "created_at": "2026-10-22T09:45:42.439674+00:00"
+  }
+]

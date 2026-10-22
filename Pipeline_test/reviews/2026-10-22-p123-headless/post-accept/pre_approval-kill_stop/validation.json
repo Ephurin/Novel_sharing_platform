@@ -1,0 +1,32 @@
+{
+  "tested_sha": "c2cddff34585401f335a37d2649caeb6d06f4d87",
+  "source_dirty_at_start": false,
+  "project": "p123-core-2a0cddf3bf",
+  "novel_id": "145078e2-78fb-4146-9943-218e2acd0fdf",
+  "run_id": "fdd16761-4681-4826-b4b0-e630a050e14e",
+  "seam": "pre_approval",
+  "action": "kill_stop",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_3526e0e5-e902-4b8e-a95e-93068cf773e7",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_history_already_committed",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "HTTP_502:GET:/ai/autonomous/runs/fdd16761-4681-4826-b4b0-e630a050e14e:{'non_json': '<!DOCTYPE HTML>\\n<html lang=\"en\">\\n    <head>\\n        <meta charset=\"utf-8\">\\n        <title>Error response</title>\\n    </head>\\n    <body>\\n        <h1>Error response</h1>\\n        <p>Error code: 502</p>\\n        <p>Message: Bad Gateway.</p>\\n        <p>Error code explanation: 502 - Invalid responses from '}"
+  },
+  "verdict": "FAIL",
+  "external_provider_calls": 0
+}

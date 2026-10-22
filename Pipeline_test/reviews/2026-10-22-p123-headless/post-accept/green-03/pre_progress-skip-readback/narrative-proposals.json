@@ -1,0 +1,329 @@
+[
+  {
+    "id": "4bacad01-0208-5730-bed3-026ce7a3a40e",
+    "analysis_run_id": "05a4c475-ae0e-4960-b72a-2061dd5b64bc",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "23526376-f4d6-5b54-aeb7-811a889f82f9",
+    "materialization_order": 1,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "character",
+      "canonical_name": "Mai Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "mai linh"
+    },
+    "evidence": [],
+    "confidence": 0.9,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:39.17043+00:00",
+    "updated_at": "2026-10-22T09:45:39.734472+00:00"
+  },
+  {
+    "id": "4a1103a5-6eb2-5b0f-b7a5-79ef5fcd43ff",
+    "analysis_run_id": "05a4c475-ae0e-4960-b72a-2061dd5b64bc",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "23526376-f4d6-5b54-aeb7-811a889f82f9",
+    "materialization_order": 2,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "character",
+      "canonical_name": "Duy",
+      "initial_status": "Unknown",
+      "normalized_name": "duy"
+    },
+    "evidence": [],
+    "confidence": 0.9,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:39.17043+00:00",
+    "updated_at": "2026-10-22T09:45:39.734472+00:00"
+  },
+  {
+    "id": "5378483f-2d9a-58f0-bcf8-5ded3bc9374f",
+    "analysis_run_id": "05a4c475-ae0e-4960-b72a-2061dd5b64bc",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "23526376-f4d6-5b54-aeb7-811a889f82f9",
+    "materialization_order": 3,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "location",
+      "canonical_name": "Cồn Vân",
+      "initial_status": "Unknown",
+      "normalized_name": "cồn vân"
+    },
+    "evidence": [],
+    "confidence": 0.9,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:39.17043+00:00",
+    "updated_at": "2026-10-22T09:45:39.734472+00:00"
+  },
+  {
+    "id": "56920289-cd56-58d0-8482-629aa407900b",
+    "analysis_run_id": "c2d9143e-df41-44b7-8658-ae7921307a0d",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "c5282fa5-0d7d-5e07-893a-a2c03af08ebb",
+    "materialization_order": 0,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "candidate_ids": [
+        "11d3cc7d13357500c09666ba",
+        "80216096bc927118039b677c",
+        "386ebd9591c135b2d6b758e2",
+        "541cc2547e6386ae848f4de1"
+      ],
+      "canonical_name": "Mai Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "mai linh",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 8,
+        "quote": "Mai Linh",
+        "start": 0,
+        "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+        "revision_id": "e3817468-d2a3-4f37-8705-8b89c99ceae2"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 2,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:42.179729+00:00",
+    "updated_at": "2026-10-22T09:45:42.439674+00:00"
+  },
+  {
+    "id": "476ecc4b-199e-5e41-b3cf-428de78b2fa0",
+    "analysis_run_id": "c2d9143e-df41-44b7-8658-ae7921307a0d",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "c5282fa5-0d7d-5e07-893a-a2c03af08ebb",
+    "materialization_order": 1,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "candidate_ids": [
+        "767af5c92f08672714b7b268"
+      ],
+      "canonical_name": "Duy",
+      "initial_status": "Unknown",
+      "normalized_name": "duy",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 65,
+        "quote": "Duy",
+        "start": 62,
+        "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+        "revision_id": "e3817468-d2a3-4f37-8705-8b89c99ceae2"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 2,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:42.179729+00:00",
+    "updated_at": "2026-10-22T09:45:42.439674+00:00"
+  },
+  {
+    "id": "ac09067c-23da-5309-a94e-6f618487f2d6",
+    "analysis_run_id": "c2d9143e-df41-44b7-8658-ae7921307a0d",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "c5282fa5-0d7d-5e07-893a-a2c03af08ebb",
+    "materialization_order": 2,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "candidate_ids": [
+        "c6a9d52def581ec17281311a"
+      ],
+      "canonical_name": "Cồn Vân",
+      "initial_status": "Unknown",
+      "normalized_name": "cồn vân",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 95,
+        "quote": "Cồn Vân",
+        "start": 88,
+        "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+        "revision_id": "e3817468-d2a3-4f37-8705-8b89c99ceae2"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 2,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:42.179729+00:00",
+    "updated_at": "2026-10-22T09:45:42.439674+00:00"
+  },
+  {
+    "id": "0c09e5ad-3558-50fd-9cf3-d84556c67c12",
+    "analysis_run_id": "c2d9143e-df41-44b7-8658-ae7921307a0d",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "c5282fa5-0d7d-5e07-893a-a2c03af08ebb",
+    "materialization_order": 3,
+    "proposal_type": "alias",
+    "payload": {
+      "alias": "Linh",
+      "entity_id": "cc4d3413-1880-44e1-9c75-594d0e846aa7",
+      "entity_name": "Mai Linh",
+      "identity_quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân."
+    },
+    "evidence": [
+      {
+        "end": 8,
+        "quote": "Linh",
+        "start": 4,
+        "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+        "chapter_id": "eea331b8-05ad-4275-9bab-521d1aa46d4a",
+        "revision_id": "e3817468-d2a3-4f37-8705-8b89c99ceae2",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 2,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:42.179729+00:00",
+    "updated_at": "2026-10-22T09:45:42.439674+00:00"
+  },
+  {
+    "id": "4987aabb-9134-5955-b1b1-c83aa9fa79f1",
+    "analysis_run_id": "c2d9143e-df41-44b7-8658-ae7921307a0d",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "c5282fa5-0d7d-5e07-893a-a2c03af08ebb",
+    "materialization_order": 4,
+    "proposal_type": "event",
+    "payload": {
+      "chapter": 1,
+      "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 1,
+      "reconciliation_base_ids": []
+    },
+    "evidence": [
+      {
+        "end": 60,
+        "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+        "start": 0,
+        "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+        "chapter_id": "eea331b8-05ad-4275-9bab-521d1aa46d4a",
+        "revision_id": "e3817468-d2a3-4f37-8705-8b89c99ceae2",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 0.5,
+    "status": "accepted",
+    "expected_brain_version": 2,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:42.179729+00:00",
+    "updated_at": "2026-10-22T09:45:42.439674+00:00"
+  },
+  {
+    "id": "2403bd1d-7e0c-5bfd-a9dd-8efe02d4b97f",
+    "analysis_run_id": "c2d9143e-df41-44b7-8658-ae7921307a0d",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "c5282fa5-0d7d-5e07-893a-a2c03af08ebb",
+    "materialization_order": 5,
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "observed_scene",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "subject_name": "",
+      "chapter_number": 1,
+      "reconciliation_base_ids": []
+    },
+    "evidence": [
+      {
+        "end": 60,
+        "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+        "start": 0,
+        "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+        "chapter_id": "eea331b8-05ad-4275-9bab-521d1aa46d4a",
+        "revision_id": "e3817468-d2a3-4f37-8705-8b89c99ceae2",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 0.8,
+    "status": "accepted",
+    "expected_brain_version": 2,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:42.179729+00:00",
+    "updated_at": "2026-10-22T09:45:42.439674+00:00"
+  },
+  {
+    "id": "e9e1051d-5d7f-52b9-a14c-49cabce245bd",
+    "analysis_run_id": "c2d9143e-df41-44b7-8658-ae7921307a0d",
+    "story_brain_id": "36f3c050-fb83-4289-b589-90ebd35ca6cb",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "b2acbf56-1e57-4987-89ce-626db43539ed",
+    "dependency_group_id": "c5282fa5-0d7d-5e07-893a-a2c03af08ebb",
+    "materialization_order": 6,
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "micro_check_note",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "Mai Linh đặt thẻ giấy kiểm tra micro cạnh máy thu; chưa thực hiện kế hoạch",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "subject_name": "",
+      "chapter_number": 1,
+      "reconciliation_base_ids": []
+    },
+    "evidence": [
+      {
+        "end": 60,
+        "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+        "start": 0,
+        "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+        "chapter_id": "eea331b8-05ad-4275-9bab-521d1aa46d4a",
+        "revision_id": "e3817468-d2a3-4f37-8705-8b89c99ceae2",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 0.8,
+    "status": "accepted",
+    "expected_brain_version": 2,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:45:42.179729+00:00",
+    "updated_at": "2026-10-22T09:45:42.439674+00:00"
+  }
+]

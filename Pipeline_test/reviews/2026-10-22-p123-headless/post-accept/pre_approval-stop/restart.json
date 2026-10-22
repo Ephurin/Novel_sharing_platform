@@ -1,0 +1,582 @@
+{
+  "run": {
+    "run_id": "b005abaf-9750-4b98-b84c-057c483a4fe8",
+    "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_id": "c50fef95-c7f6-4752-b587-3754f8ce590d",
+    "plan_version": 1,
+    "status": "stopped",
+    "current_objective_id": "7940eaa4-9ded-434a-ae18-0820f6acb4b4",
+    "current_chapter_id": "1cf7094e-2f51-4b70-a386-334400907db5",
+    "current_iteration": 0,
+    "max_iterations": 3,
+    "current_retries": 0,
+    "max_retries_per_objective": 3,
+    "last_generation_id": "676d50d9-e3ec-5cc2-b926-beaed2345061",
+    "last_accepted_revision_id": null,
+    "last_brain_version": 2,
+    "stop_reason": "SIMULATED_HUMAN_VIA_API repeated stop",
+    "idempotency_key": "6953b39b8fcb41be8f5ced0ed7dab51d",
+    "input_hash": "1e374f624bc838fc25251cb66192e81b4c10873812e9dbf3508d22a19d715931",
+    "created_by": "d00c3bbb-483e-4034-a78d-d8b11c44c5a6",
+    "created_at": "2026-10-22T09:22:15.806096+00:00",
+    "updated_at": "2026-10-22T09:22:22.554981+00:00"
+  },
+  "plan": {
+    "plan_id": "c50fef95-c7f6-4752-b587-3754f8ce590d",
+    "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_version": 1,
+    "status": "active",
+    "objectives": [
+      {
+        "objective_id": "7940eaa4-9ded-434a-ae18-0820f6acb4b4",
+        "order_index": 1,
+        "title": "Post accept fence",
+        "description": "Bounded objective",
+        "target_chapter": 1,
+        "objective_type": "ending",
+        "status": "in_progress",
+        "metadata": {
+          "min_words": 1,
+          "is_terminal": true
+        },
+        "intent_version": 1
+      }
+    ],
+    "source_outline": "",
+    "source_outline_hash": "",
+    "idempotency_key": null,
+    "input_hash": "a708c1070af093940f721b433f8daa5ba13f65bf9fa8c5c4757f5d8756cd2b1a",
+    "created_by": "d00c3bbb-483e-4034-a78d-d8b11c44c5a6"
+  },
+  "memory": {
+    "story_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+    "entities": [
+      {
+        "name": "Mai Linh",
+        "entity_id": "044fc28a-6cf1-4c3e-a4c9-41ec78c131c5",
+        "entity_type": "character",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "Duy",
+        "entity_id": "50b7d824-573e-45f3-9ea0-998a90733bf6",
+        "entity_type": "character",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "Cồn Vân",
+        "entity_id": "b14b11b3-609c-43d5-aa07-2fe4a7a9a857",
+        "entity_type": "location",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      }
+    ],
+    "aliases": [],
+    "mentions": [],
+    "facts": [],
+    "relations": [],
+    "events": [],
+    "transitions": [],
+    "current_state": {
+      "entities": {},
+      "provenance": {},
+      "relationships": [],
+      "projection_version": 1
+    },
+    "metadata": {
+      "brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "brain_version": "2",
+      "status": "active",
+      "baseline_revision_id": null
+    }
+  },
+  "chapter_revisions": [
+    {
+      "revision_id": "dfe6c630-6b4c-4dfc-aeb3-0cc229db3682",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "chapter_id": "1cf7094e-2f51-4b70-a386-334400907db5",
+      "parent_revision_id": null,
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content": "",
+      "word_count": 0,
+      "source_type": "AUTHOR_MANUAL",
+      "source_generation_id": null,
+      "created_by": "d00c3bbb-483e-4034-a78d-d8b11c44c5a6",
+      "created_at": "2026-10-22T09:22:15.897932+00:00"
+    },
+    {
+      "revision_id": "33d3fb8e-7215-46db-892d-344ef0db6bb3",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "chapter_id": "1cf7094e-2f51-4b70-a386-334400907db5",
+      "parent_revision_id": "dfe6c630-6b4c-4dfc-aeb3-0cc229db3682",
+      "content_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+      "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "word_count": 21,
+      "source_type": "AI_DRAFT_ACCEPT",
+      "source_generation_id": "676d50d9-e3ec-5cc2-b926-beaed2345061",
+      "created_by": "d00c3bbb-483e-4034-a78d-d8b11c44c5a6",
+      "created_at": "2026-10-22T09:22:16.4421+00:00"
+    }
+  ],
+  "revision_outbox_events": [
+    {
+      "event_id": "68eb8c3d-0c1d-4889-9bea-1f7f3694ebe3",
+      "event_type": "INCREMENTAL_ANALYSIS",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "chapter_id": "1cf7094e-2f51-4b70-a386-334400907db5",
+      "revision_id": "33d3fb8e-7215-46db-892d-344ef0db6bb3",
+      "content_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+      "created_by": "d00c3bbb-483e-4034-a78d-d8b11c44c5a6",
+      "payload": {
+        "operation": "incremental_story_analysis"
+      },
+      "status": "COMPLETED",
+      "retry_count": 0,
+      "max_retries": 5,
+      "next_retry_at": "2026-10-22T09:22:16.4421+00:00",
+      "last_error": null,
+      "created_at": "2026-10-22T09:22:16.4421+00:00",
+      "updated_at": "2026-10-22T09:22:16.859822+00:00",
+      "claim_token": "[REDACTED]"
+    }
+  ],
+  "narrative.proposals": [
+    {
+      "id": "7b627272-6671-5209-9202-3f18c9822799",
+      "analysis_run_id": "8ae95734-cdcd-4cee-9786-4db38d535047",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "a3975722-6dea-5553-bbf0-f28bdb8e1b89",
+      "materialization_order": 1,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "character",
+        "canonical_name": "Mai Linh",
+        "initial_status": "Unknown",
+        "normalized_name": "mai linh"
+      },
+      "evidence": [],
+      "confidence": 0.9,
+      "status": "accepted",
+      "expected_brain_version": 1,
+      "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+      "created_at": "2026-10-22T09:22:15.107684+00:00",
+      "updated_at": "2026-10-22T09:22:15.490111+00:00"
+    },
+    {
+      "id": "d35c7947-fccb-5f22-8258-23af423ea34c",
+      "analysis_run_id": "8ae95734-cdcd-4cee-9786-4db38d535047",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "a3975722-6dea-5553-bbf0-f28bdb8e1b89",
+      "materialization_order": 2,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "character",
+        "canonical_name": "Duy",
+        "initial_status": "Unknown",
+        "normalized_name": "duy"
+      },
+      "evidence": [],
+      "confidence": 0.9,
+      "status": "accepted",
+      "expected_brain_version": 1,
+      "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+      "created_at": "2026-10-22T09:22:15.107684+00:00",
+      "updated_at": "2026-10-22T09:22:15.490111+00:00"
+    },
+    {
+      "id": "b1037d57-c127-57fc-865b-59e3b3f6909f",
+      "analysis_run_id": "8ae95734-cdcd-4cee-9786-4db38d535047",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "a3975722-6dea-5553-bbf0-f28bdb8e1b89",
+      "materialization_order": 3,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "location",
+        "canonical_name": "Cồn Vân",
+        "initial_status": "Unknown",
+        "normalized_name": "cồn vân"
+      },
+      "evidence": [],
+      "confidence": 0.9,
+      "status": "accepted",
+      "expected_brain_version": 1,
+      "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+      "created_at": "2026-10-22T09:22:15.107684+00:00",
+      "updated_at": "2026-10-22T09:22:15.490111+00:00"
+    },
+    {
+      "id": "e950d1a5-12eb-57e3-8367-3fa4d572dfcf",
+      "analysis_run_id": "d5c9e03f-2057-4894-91a8-a8ce546058e8",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "cb7a3726-7904-54ce-a75a-7ead6ea9a245",
+      "materialization_order": 0,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "PER",
+        "candidate_ids": [
+          "11d3cc7d13357500c09666ba",
+          "80216096bc927118039b677c",
+          "386ebd9591c135b2d6b758e2",
+          "541cc2547e6386ae848f4de1"
+        ],
+        "canonical_name": "Mai Linh",
+        "initial_status": "Unknown",
+        "normalized_name": "mai linh",
+        "entity_candidate_policy": "entity-human-review-v1"
+      },
+      "evidence": [
+        {
+          "end": 8,
+          "quote": "Mai Linh",
+          "start": 0,
+          "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+          "revision_id": "33d3fb8e-7215-46db-892d-344ef0db6bb3"
+        }
+      ],
+      "confidence": 0.7,
+      "status": "pending",
+      "expected_brain_version": 2,
+      "decision_reason": null,
+      "created_at": "2026-10-22T09:22:18.222+00:00",
+      "updated_at": "2026-10-22T09:22:18.222+00:00"
+    },
+    {
+      "id": "d1246288-2a9e-58bb-908d-fc42877ef949",
+      "analysis_run_id": "d5c9e03f-2057-4894-91a8-a8ce546058e8",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "cb7a3726-7904-54ce-a75a-7ead6ea9a245",
+      "materialization_order": 1,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "PER",
+        "candidate_ids": [
+          "767af5c92f08672714b7b268"
+        ],
+        "canonical_name": "Duy",
+        "initial_status": "Unknown",
+        "normalized_name": "duy",
+        "entity_candidate_policy": "entity-human-review-v1"
+      },
+      "evidence": [
+        {
+          "end": 65,
+          "quote": "Duy",
+          "start": 62,
+          "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+          "revision_id": "33d3fb8e-7215-46db-892d-344ef0db6bb3"
+        }
+      ],
+      "confidence": 0.7,
+      "status": "pending",
+      "expected_brain_version": 2,
+      "decision_reason": null,
+      "created_at": "2026-10-22T09:22:18.222+00:00",
+      "updated_at": "2026-10-22T09:22:18.222+00:00"
+    },
+    {
+      "id": "387044c7-f6e1-5d1f-bad7-60189e034d36",
+      "analysis_run_id": "d5c9e03f-2057-4894-91a8-a8ce546058e8",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "cb7a3726-7904-54ce-a75a-7ead6ea9a245",
+      "materialization_order": 2,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "LOC",
+        "candidate_ids": [
+          "c6a9d52def581ec17281311a"
+        ],
+        "canonical_name": "Cồn Vân",
+        "initial_status": "Unknown",
+        "normalized_name": "cồn vân",
+        "entity_candidate_policy": "entity-human-review-v1"
+      },
+      "evidence": [
+        {
+          "end": 95,
+          "quote": "Cồn Vân",
+          "start": 88,
+          "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+          "revision_id": "33d3fb8e-7215-46db-892d-344ef0db6bb3"
+        }
+      ],
+      "confidence": 0.7,
+      "status": "pending",
+      "expected_brain_version": 2,
+      "decision_reason": null,
+      "created_at": "2026-10-22T09:22:18.222+00:00",
+      "updated_at": "2026-10-22T09:22:18.222+00:00"
+    },
+    {
+      "id": "e0b97251-6156-575c-93d7-57f405a0c147",
+      "analysis_run_id": "d5c9e03f-2057-4894-91a8-a8ce546058e8",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "cb7a3726-7904-54ce-a75a-7ead6ea9a245",
+      "materialization_order": 3,
+      "proposal_type": "alias",
+      "payload": {
+        "alias": "Linh",
+        "entity_id": "044fc28a-6cf1-4c3e-a4c9-41ec78c131c5",
+        "entity_name": "Mai Linh",
+        "identity_quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân."
+      },
+      "evidence": [
+        {
+          "end": 8,
+          "quote": "Linh",
+          "start": 4,
+          "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+          "chapter_id": "1cf7094e-2f51-4b70-a386-334400907db5",
+          "revision_id": "33d3fb8e-7215-46db-892d-344ef0db6bb3",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.7,
+      "status": "pending",
+      "expected_brain_version": 2,
+      "decision_reason": null,
+      "created_at": "2026-10-22T09:22:18.222+00:00",
+      "updated_at": "2026-10-22T09:22:18.222+00:00"
+    },
+    {
+      "id": "eb6ea1e7-b713-5f4a-9961-55e38961a4d2",
+      "analysis_run_id": "d5c9e03f-2057-4894-91a8-a8ce546058e8",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "cb7a3726-7904-54ce-a75a-7ead6ea9a245",
+      "materialization_order": 4,
+      "proposal_type": "event",
+      "payload": {
+        "chapter": 1,
+        "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [],
+        "chapter_number": 1,
+        "reconciliation_base_ids": []
+      },
+      "evidence": [
+        {
+          "end": 60,
+          "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "start": 0,
+          "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+          "chapter_id": "1cf7094e-2f51-4b70-a386-334400907db5",
+          "revision_id": "33d3fb8e-7215-46db-892d-344ef0db6bb3",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.5,
+      "status": "pending",
+      "expected_brain_version": 2,
+      "decision_reason": null,
+      "created_at": "2026-10-22T09:22:18.222+00:00",
+      "updated_at": "2026-10-22T09:22:18.222+00:00"
+    },
+    {
+      "id": "e9720efe-e6ab-59d3-8a6a-add0e78b6ea4",
+      "analysis_run_id": "d5c9e03f-2057-4894-91a8-a8ce546058e8",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "cb7a3726-7904-54ce-a75a-7ead6ea9a245",
+      "materialization_order": 5,
+      "proposal_type": "fact",
+      "payload": {
+        "fact_key": "observed_scene",
+        "certainty": "confirmed",
+        "fact_type": "narrative_fact",
+        "fact_value": {
+          "value": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "subject": "",
+          "certainty": "confirmed"
+        },
+        "subject_name": "",
+        "chapter_number": 1,
+        "reconciliation_base_ids": []
+      },
+      "evidence": [
+        {
+          "end": 60,
+          "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "start": 0,
+          "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+          "chapter_id": "1cf7094e-2f51-4b70-a386-334400907db5",
+          "revision_id": "33d3fb8e-7215-46db-892d-344ef0db6bb3",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.8,
+      "status": "pending",
+      "expected_brain_version": 2,
+      "decision_reason": null,
+      "created_at": "2026-10-22T09:22:18.222+00:00",
+      "updated_at": "2026-10-22T09:22:18.222+00:00"
+    },
+    {
+      "id": "822ba348-19d6-5977-8363-d42f31ae03c1",
+      "analysis_run_id": "d5c9e03f-2057-4894-91a8-a8ce546058e8",
+      "story_brain_id": "6b5b7e58-f16b-4a03-939b-247bece6edf6",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "dependency_group_id": "cb7a3726-7904-54ce-a75a-7ead6ea9a245",
+      "materialization_order": 6,
+      "proposal_type": "fact",
+      "payload": {
+        "fact_key": "micro_check_note",
+        "certainty": "confirmed",
+        "fact_type": "narrative_fact",
+        "fact_value": {
+          "value": "Mai Linh đặt thẻ giấy kiểm tra micro cạnh máy thu; chưa thực hiện kế hoạch",
+          "subject": "",
+          "certainty": "confirmed"
+        },
+        "subject_name": "",
+        "chapter_number": 1,
+        "reconciliation_base_ids": []
+      },
+      "evidence": [
+        {
+          "end": 60,
+          "quote": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "start": 0,
+          "text_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+          "chapter_id": "1cf7094e-2f51-4b70-a386-334400907db5",
+          "revision_id": "33d3fb8e-7215-46db-892d-344ef0db6bb3",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.8,
+      "status": "pending",
+      "expected_brain_version": 2,
+      "decision_reason": null,
+      "created_at": "2026-10-22T09:22:18.222+00:00",
+      "updated_at": "2026-10-22T09:22:18.222+00:00"
+    }
+  ],
+  "narrative.writing_generations": [
+    {
+      "id": "fcf79b5b-441b-4eb9-a329-7b3c89670886",
+      "job_id": "676d50d9-e3ec-5cc2-b926-beaed2345061",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "0c46fa24-995f-4fee-9b65-143ff109494d",
+      "chapter_id": "1cf7094e-2f51-4b70-a386-334400907db5",
+      "revision_id": "dfe6c630-6b4c-4dfc-aeb3-0cc229db3682",
+      "base_content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "brain_version": 2,
+      "operation": "continuation",
+      "selection_start": 0,
+      "selection_end": 0,
+      "instruction": "Thực hiện mục tiêu cốt truyện: Post accept fence. Bounded objective",
+      "constraints": [],
+      "style": {},
+      "actor_id": "d00c3bbb-483e-4034-a78d-d8b11c44c5a6",
+      "idempotency_key": "auto-b005abaf-9750-4b98-b84c-057c483a4fe8-obj-7940eaa4-9ded-434a-ae18-0820f6acb4b4-intent-1-plan-1-iter-0-try-0",
+      "input_hash": "1131c091dbdd4b7953dae6e5d1cb8ff36934ef110a8148ae5890e1a6b83e0362",
+      "status": "completed",
+      "stage": "completed",
+      "draft": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+      "patch": {
+        "end": 0,
+        "start": 0,
+        "replacement": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân."
+      },
+      "validation_status": "passed",
+      "validations": [
+        {
+          "code": "OK",
+          "passed": true,
+          "message": "Patch schema and offsets valid",
+          "validator": "patch_schema"
+        }
+      ],
+      "context_summary": {
+        "plan_id": [
+          "c50fef95-c7f6-4752-b587-3754f8ce590d"
+        ],
+        "fact_ids": [],
+        "event_ids": [],
+        "entity_ids": [
+          "b14b11b3-609c-43d5-aa07-2fe4a7a9a857",
+          "50b7d824-573e-45f3-9ea0-998a90733bf6",
+          "044fc28a-6cf1-4c3e-a4c9-41ec78c131c5"
+        ],
+        "query_text": "Thực hiện mục tiêu cốt truyện: Post accept fence. Bounded objective",
+        "context_hash": "953ee2a40fd6399211d9f49eb32be84c5096904d62aace66a824799643fa7b7d",
+        "drop_reasons": {},
+        "plan_version": [
+          "1"
+        ],
+        "chapter_number": 1,
+        "cutoff_chapter": 1,
+        "dropped_fact_ids": [],
+        "selection_policy": [
+          "query-relevance-diverse-whole-artifacts-v2"
+        ],
+        "dropped_event_ids": [],
+        "brain_version_used": 2,
+        "dropped_entity_ids": [],
+        "active_objective_id": [
+          "7940eaa4-9ded-434a-ae18-0820f6acb4b4"
+        ],
+        "requested_character": null,
+        "semantic_memory_ids": [],
+        "active_objective_title": [
+          "Post accept fence"
+        ],
+        "temporal_origin_policy": [
+          "known-source-cutoff_unknown-global-v1"
+        ],
+        "context_packing_version": [
+          "context-budget-v2-diverse"
+        ],
+        "semantic_retrieval_status": [
+          "disabled"
+        ],
+        "semantic_embedding_version": [],
+        "dropped_semantic_memory_ids": [],
+        "context_token_estimator_version": "[REDACTED]",
+        "deduplicated_semantic_memory_ids": [],
+        "recent_scope_participant_identity": [
+          "normalized-event-participants-v1"
+        ],
+        "temporal_origin_unknown_entity_ids": [
+          "044fc28a-6cf1-4c3e-a4c9-41ec78c131c5",
+          "50b7d824-573e-45f3-9ea0-998a90733bf6",
+          "b14b11b3-609c-43d5-aa07-2fe4a7a9a857"
+        ],
+        "recent_scope_participant_entity_ids": []
+      },
+      "model_name": null,
+      "prompt_version": null,
+      "error": null,
+      "created_at": "2026-10-22T09:22:16.025093+00:00",
+      "updated_at": "2026-10-22T09:22:16.29409+00:00"
+    }
+  ]
+}

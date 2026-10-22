@@ -1,0 +1,22 @@
+[
+  {
+    "event_id": "68d82374-3730-41c4-8c78-1769b6a983ba",
+    "event_type": "INCREMENTAL_ANALYSIS",
+    "novel_id": "69fde87c-8302-4d94-a659-48c761771e19",
+    "chapter_id": "4eb9b2a4-5130-4ee6-96f5-7a245d339a5b",
+    "revision_id": "b609c44f-8890-4d3a-98a0-42eb09b60130",
+    "content_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+    "created_by": "806b789b-602f-41e6-a8b9-7f68addd77fb",
+    "payload": {
+      "operation": "incremental_story_analysis"
+    },
+    "status": "COMPLETED",
+    "retry_count": 0,
+    "max_retries": 5,
+    "next_retry_at": "2026-10-22T09:39:37.470819+00:00",
+    "last_error": null,
+    "created_at": "2026-10-22T09:39:37.470819+00:00",
+    "updated_at": "2026-10-22T09:39:39.032447+00:00",
+    "claim_token": "[REDACTED]"
+  }
+]

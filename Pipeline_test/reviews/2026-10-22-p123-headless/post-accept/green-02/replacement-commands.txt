@@ -1,0 +1,199 @@
+ Volume p123-core-a143374b9e_budget_state Creating 
+ Volume p123-core-a143374b9e_budget_state Creating 
+ Network p123-core-a143374b9e_workers Creating 
+ Network p123-core-a143374b9e_workers Creating 
+ Volume p123-core-a143374b9e_budget_state Created 
+ Volume p123-core-a143374b9e_budget_state Created 
+ Network p123-core-a143374b9e_workers Created 
+ Network p123-core-a143374b9e_workers Created 
+ Container p123-core-a143374b9e-budget-init-run-0fac9ab9ad81 Creating 
+ Container p123-core-a143374b9e-budget-init-run-0fac9ab9ad81 Created 
+ Image p123-core-a143374b9e-ai-service Building 
+ Image p123-core-a143374b9e-backend Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.26kB done
+#1 DONE 0.0s
+
+#2 [ai-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 475B 0.0s done
+#2 DONE 0.0s
+
+#3 [backend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 340B done
+#3 DONE 0.0s
+
+#4 [backend internal] load metadata for docker.io/library/node:22-bookworm-slim
+#4 ...
+
+#5 [ai-service internal] load metadata for docker.io/library/python:3.12.10-slim-bookworm
+#5 DONE 0.6s
+
+#4 [backend internal] load metadata for docker.io/library/node:22-bookworm-slim
+#4 DONE 0.6s
+
+#6 [ai-service internal] load .dockerignore
+#6 transferring context: 237B 0.0s done
+#6 DONE 0.0s
+
+#7 [backend internal] load .dockerignore
+#7 transferring context: 195B 0.0s done
+#7 DONE 0.0s
+
+#8 [backend internal] load build context
+#8 DONE 0.0s
+
+#9 [ai-service internal] load build context
+#9 transferring context: 22.28kB 0.0s done
+#9 DONE 0.1s
+
+#10 [ai-service 1/6] FROM docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db
+#10 resolve docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db 0.1s done
+#10 DONE 0.1s
+
+#11 [ai-service 4/6] COPY requirements.txt .
+#11 CACHED
+
+#12 [ai-service 5/6] RUN pip install --no-cache-dir -r requirements.txt pytest httpx
+#12 CACHED
+
+#13 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#13 CACHED
+
+#14 [ai-service 2/6] WORKDIR /app
+#14 CACHED
+
+#15 [ai-service 6/6] COPY . .
+#15 CACHED
+
+#16 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#16 resolve docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d 0.1s done
+#16 DONE 0.1s
+
+#8 [backend internal] load build context
+#8 transferring context: 13.32kB 0.0s done
+#8 DONE 0.0s
+
+#17 [backend 3/8] COPY backend/package*.json ./
+#17 CACHED
+
+#18 [backend 4/8] RUN npm ci
+#18 CACHED
+
+#19 [backend 7/8] RUN sed -i 's/\r$//' ./docker-entrypoint.sh && chmod +x ./docker-entrypoint.sh
+#19 CACHED
+
+#20 [backend 2/8] WORKDIR /app/backend
+#20 CACHED
+
+#21 [backend 5/8] COPY backend ./
+#21 CACHED
+
+#22 [backend 6/8] COPY docs/Assets /app/docs/Assets
+#22 CACHED
+
+#23 [backend 8/8] RUN npm run build
+#23 CACHED
+
+#24 [backend] exporting to image
+#24 exporting layers 0.0s done
+#24 exporting manifest sha256:76315c66f85cdffd0a9bca0ba07fdaed9c5fc6cd1581b22db93ede38c1b53365
+#24 exporting manifest sha256:76315c66f85cdffd0a9bca0ba07fdaed9c5fc6cd1581b22db93ede38c1b53365 0.1s done
+#24 exporting config sha256:9c01556ea21b0863daa25ec201b94410a7290e15ed1d50f387fcf1f3aedd6503 0.0s done
+#24 exporting attestation manifest sha256:48c5fe21ceff31fadeb20fcafc8cc3a7739ff2e5cecf1a402d3d44860c6c2fea 0.0s done
+#24 exporting manifest list sha256:eb7414865eef74606e2e27f8681ebe9665753d2b3fd4a51f98f65020143ea61d
+#24 ...
+
+#25 [ai-service] exporting to image
+#25 exporting layers done
+#25 exporting manifest sha256:b6ca5860b63f25e8cd61be68aa86d5b5905682517f19e3734f9006b4baf3f77e 0.0s done
+#25 exporting config sha256:a9d27c39d63acc2237e6e360ec3a7647da058a06aefca4afaf1c3f4195be234b 0.0s done
+#25 exporting attestation manifest sha256:4ea3a41d172ee29c8dadcfcc690914ac42428979526162f2615a0db9578df752 0.1s done
+#25 exporting manifest list sha256:314ec857a7428b677953a1b2ee3a7fe3e6e7343ad9a923b75d634afa66dbeef5 0.0s done
+#25 naming to docker.io/library/p123-core-a143374b9e-ai-service:latest 0.0s done
+#25 unpacking to docker.io/library/p123-core-a143374b9e-ai-service:latest 0.0s done
+#25 DONE 0.5s
+
+#24 [backend] exporting to image
+#24 exporting manifest list sha256:eb7414865eef74606e2e27f8681ebe9665753d2b3fd4a51f98f65020143ea61d 0.0s done
+#24 naming to docker.io/library/p123-core-a143374b9e-backend:latest done
+#24 unpacking to docker.io/library/p123-core-a143374b9e-backend:latest 0.1s done
+#24 DONE 0.5s
+
+#26 [ai-service] resolving provenance for metadata file
+#26 DONE 0.0s
+
+#27 [backend] resolving provenance for metadata file
+#27 DONE 0.0s
+ Image p123-core-a143374b9e-ai-service Built 
+ Image p123-core-a143374b9e-backend Built 
+ Network p123-core-a143374b9e_headless-edge Creating 
+ Network p123-core-a143374b9e_headless-edge Creating 
+ Network p123-core-a143374b9e_upstream Creating 
+ Volume p123-core-a143374b9e_fake_state Creating 
+ Volume p123-core-a143374b9e_fake_state Creating 
+ Volume p123-core-a143374b9e_mongo_state Creating 
+ Volume p123-core-a143374b9e_mongo_state Creating 
+ Network p123-core-a143374b9e_upstream Creating 
+ Volume p123-core-a143374b9e_pg_state Creating 
+ Volume p123-core-a143374b9e_pg_state Creating 
+ Volume p123-core-a143374b9e_mongo_state Created 
+ Volume p123-core-a143374b9e_mongo_state Created 
+ Container p123-core-a143374b9e-mongodb-1 Creating 
+ Volume p123-core-a143374b9e_fake_state Created 
+ Volume p123-core-a143374b9e_fake_state Created 
+ Volume p123-core-a143374b9e_pg_state Created 
+ Volume p123-core-a143374b9e_pg_state Created 
+ Container p123-core-a143374b9e-postgres-1 Creating 
+ Network p123-core-a143374b9e_headless-edge Created 
+ Network p123-core-a143374b9e_headless-edge Created 
+ Network p123-core-a143374b9e_upstream Created 
+ Network p123-core-a143374b9e_upstream Created 
+ Container p123-core-a143374b9e-fake-upstream-1 Creating 
+ Container p123-core-a143374b9e-mongodb-1 Created 
+ Container p123-core-a143374b9e-postgres-1 Created 
+ Container p123-core-a143374b9e-fake-upstream-1 Created 
+ Container p123-core-a143374b9e-budget-gateway-1 Creating 
+ Container p123-core-a143374b9e-budget-gateway-1 Created 
+ Container p123-core-a143374b9e-ai-service-1 Creating 
+ Container p123-core-a143374b9e-ai-service-1 Created 
+ Container p123-core-a143374b9e-backend-1 Creating 
+ Container p123-core-a143374b9e-backend-1 Created 
+ Container p123-core-a143374b9e-api-ingress-1 Creating 
+ Container p123-core-a143374b9e-api-ingress-1 Created 
+ Container p123-core-a143374b9e-mongodb-1 Starting 
+ Container p123-core-a143374b9e-fake-upstream-1 Starting 
+ Container p123-core-a143374b9e-postgres-1 Starting 
+ Container p123-core-a143374b9e-mongodb-1 Started 
+ Container p123-core-a143374b9e-fake-upstream-1 Started 
+ Container p123-core-a143374b9e-budget-gateway-1 Starting 
+ Container p123-core-a143374b9e-budget-gateway-1 Started 
+ Container p123-core-a143374b9e-postgres-1 Started 
+ Container p123-core-a143374b9e-postgres-1 Waiting 
+ Container p123-core-a143374b9e-budget-gateway-1 Waiting 
+ Container p123-core-a143374b9e-postgres-1 Healthy 
+ Container p123-core-a143374b9e-budget-gateway-1 Healthy 
+ Container p123-core-a143374b9e-ai-service-1 Starting 
+ Container p123-core-a143374b9e-ai-service-1 Started 
+ Container p123-core-a143374b9e-postgres-1 Waiting 
+ Container p123-core-a143374b9e-mongodb-1 Waiting 
+ Container p123-core-a143374b9e-postgres-1 Healthy 
+ Container p123-core-a143374b9e-mongodb-1 Healthy 
+ Container p123-core-a143374b9e-backend-1 Starting 
+ Container p123-core-a143374b9e-backend-1 Started 
+ Container p123-core-a143374b9e-api-ingress-1 Starting 
+ Container p123-core-a143374b9e-api-ingress-1 Started 
+{"seam": "pre_approval", "action": "stop", "failure": {"type": "RuntimeError", "message": "Post accept seam not reached"}, "checks": 2}
+ Container p123-core-a143374b9e-api-ingress-1 Stopping 
+ Container p123-core-a143374b9e-api-ingress-1 Stopped 
+ Container p123-core-a143374b9e-backend-1 Stopping 
+ Container p123-core-a143374b9e-backend-1 Stopped 
+ Container p123-core-a143374b9e-ai-service-1 Stopping 
+ Container p123-core-a143374b9e-mongodb-1 Stopping 
+ Container p123-core-a143374b9e-mongodb-1 Stopped 
+ Container p123-core-a143374b9e-ai-service-1 Stopped 
+ Container p123-core-a143374b9e-budget-gateway-1 Stopping 
+ Container p123-core-a143374b9e-postgres-1 Stopping 
+ Container p123-core-a143374b9e-postgres-1 Stopped 
+ Container p123-core-a143374b9e-budget-gateway-1 Stopped 
+ Container p123-core-a143374b9e-fake-upstream-1 Stopping 
+ Container p123-core-a143374b9e-fake-upstream-1 Stopped 

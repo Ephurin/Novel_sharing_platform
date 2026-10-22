@@ -1,0 +1,14 @@
+[
+  {
+    "id": "0e07ec00-042d-4d7d-9939-98e725abdeba",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "5dfbaf6e-0be9-45c4-a995-d09e74af704e",
+    "status": "active",
+    "baseline_revision_id": null,
+    "brain_version": 4,
+    "schema_version": 1,
+    "entity_guidance": null,
+    "created_at": "2026-10-22T09:40:42.15247+00:00",
+    "updated_at": "2026-10-22T09:40:50.375113+00:00"
+  }
+]

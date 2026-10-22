@@ -1,0 +1,25 @@
+{
+  "plan_id": "66b8e1f0-0b0a-49dd-a7d1-861b19a823f6",
+  "novel_id": "99ac7f77-d7b7-4609-8055-a0c8ce2f28f9",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "plan_version": 2,
+  "status": "active",
+  "objectives": [
+    {
+      "objective_id": "a6cb5264-3b6b-448a-ab58-db1007f68ac0",
+      "order_index": 1,
+      "title": "Replacement intent",
+      "description": "New author plan",
+      "target_chapter": 2,
+      "objective_type": "chapter_goal",
+      "status": "pending",
+      "metadata": {},
+      "intent_version": 0
+    }
+  ],
+  "source_outline": "",
+  "source_outline_hash": "",
+  "idempotency_key": null,
+  "input_hash": "ed1f72fe071d51ed3e35e69e2b6610f3958a00ba1fda4fb0c84b6db4f60a5e49",
+  "created_by": "be4c5c56-d9a2-4093-9779-136612252d10"
+}

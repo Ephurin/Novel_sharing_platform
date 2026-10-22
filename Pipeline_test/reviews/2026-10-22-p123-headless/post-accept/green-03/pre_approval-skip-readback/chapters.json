@@ -1,0 +1,18 @@
+[
+  {
+    "chapter_id": "d812520e-79ab-48b0-915e-365b99bfbf00",
+    "novel_id": "75d4498f-e80d-4d32-9e1b-78a4c9bd3c74",
+    "title": "Post accept fence",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 21,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T09:42:34.697416+00:00",
+    "updated_at": "2026-10-22T09:42:35.135021+00:00",
+    "deleted_at": null,
+    "latest_revision_id": "744af56c-67bb-4d08-92b2-133d461778dc"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_87c618e1-723f-446e-a220-0dbad3c71964",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "stale_HITL_no_canon",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "stale_HITL_preserves_skipped",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "stale_HITL_terminal",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "restart_no_revive",
+    "status": "PASS",
+    "details": null
+  }
+]

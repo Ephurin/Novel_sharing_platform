@@ -1,0 +1,27 @@
+{
+  "tested_sha": "c2af76def0396a9efc0bde1515d3a2a6252eb732",
+  "source_dirty_at_start": false,
+  "project": "p123-core-a143374b9e",
+  "novel_id": "19130e16-3ae1-4150-902d-26d474f3e0a7",
+  "run_id": "0b59417f-a2e2-4dd2-91a6-b3a2b6bb420e",
+  "seam": "pre_approval",
+  "action": "stop",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_1c8468c4-5279-4dad-9f71-ae38ffef026f",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "RuntimeError",
+    "message": "Post accept seam not reached"
+  },
+  "verdict": "FAIL",
+  "external_provider_calls": 0
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "chapter_id": "e1d6200f-9d3d-41e4-8e00-33e35a285b78",
+    "novel_id": "c3a466a9-385d-44bf-970d-2b8be566977b",
+    "title": "First chapter",
+    "chapter_number": 1,
+    "content": null,
+    "word_count": 21,
+    "is_vip": false,
+    "price_coins": 0,
+    "status": "DRAFT",
+    "published_at": null,
+    "created_at": "2026-10-22T09:43:49.011511+00:00",
+    "updated_at": "2026-10-22T09:44:13.096974+00:00",
+    "deleted_at": null,
+    "latest_revision_id": "e1698387-7cb4-44ed-96be-810b7171f5a2"
+  }
+]

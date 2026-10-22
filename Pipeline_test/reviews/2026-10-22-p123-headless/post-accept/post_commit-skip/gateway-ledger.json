@@ -1,0 +1,71 @@
+{
+  "schema": 2,
+  "run_id": "p123-core-216a8b8d88",
+  "max_calls": 200,
+  "max_cost_usd": "5.0",
+  "admission_cost_usd": "4.5",
+  "deadline": 1792667903.1190536,
+  "started": 1792660703.1190536,
+  "total_calls": 4,
+  "charged_usd": "0.131985",
+  "outstanding_usd": "0.000000",
+  "call_history": [
+    {
+      "ticket_id": "76b4fd5c-969e-47c2-84c4-f4b5b93fd7b8",
+      "call_index": 1,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.037655",
+      "charged_usd": "0.037655",
+      "status": "SUCCESS",
+      "timestamp": 1792660738.1764877,
+      "finished": 1792660738.2538033
+    },
+    {
+      "ticket_id": "aa3317b5-e43c-4b99-b8aa-6dec73f9ac9b",
+      "call_index": 2,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.008539",
+      "charged_usd": "0.008539",
+      "status": "SUCCESS",
+      "timestamp": 1792660740.228119,
+      "finished": 1792660740.2475846
+    },
+    {
+      "ticket_id": "d5eba601-1cc5-4ea9-aa64-4256d574bb09",
+      "call_index": 3,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.037870",
+      "charged_usd": "0.037870",
+      "status": "SUCCESS",
+      "timestamp": 1792660743.9365585,
+      "finished": 1792660743.953735
+    },
+    {
+      "ticket_id": "22b8f853-896e-4395-952e-fbf806f99014",
+      "call_index": 4,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.047921",
+      "charged_usd": "0.047921",
+      "status": "SUCCESS",
+      "timestamp": 1792660744.0538466,
+      "finished": 1792660744.102349
+    }
+  ],
+  "status": "OFFLINE_ONLY",
+  "actual_invoice_usd": "UNKNOWN",
+  "live_authorized": false,
+  "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+  "pricing_scope": "SYNTHETIC_OFFLINE_TEXT_ONLY"
+}

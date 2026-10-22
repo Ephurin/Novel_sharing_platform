@@ -1,0 +1,37 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_e7eb7857-5df3-4ce4-82ed-02a3afd4831f",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "accepted_history_already_committed",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "post_cancel_no_canon_or_completed_overwrite",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "accepted_revision_retained_once",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "single_analysis_outbox",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "restart_retains_memory",
+    "status": "PASS",
+    "details": null
+  }
+]

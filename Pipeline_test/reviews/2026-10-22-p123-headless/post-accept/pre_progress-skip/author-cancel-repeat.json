@@ -1,0 +1,14 @@
+{
+  "objective_id": "e4ef4925-28cc-4a78-9cb7-2cc67ef7f9e1",
+  "order_index": 1,
+  "title": "Post accept fence",
+  "description": "Bounded objective",
+  "target_chapter": 1,
+  "objective_type": "ending",
+  "status": "skipped",
+  "metadata": {
+    "min_words": 1,
+    "is_terminal": true
+  },
+  "intent_version": 3
+}

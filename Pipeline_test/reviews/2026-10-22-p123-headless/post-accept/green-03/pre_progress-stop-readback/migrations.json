@@ -1,0 +1,54 @@
+{
+  "AI": "0013_objective_intent",
+  "intent_column": "intent_version:0",
+  "backend": [
+    {
+      "migration_id": "001_auth_user_wallet.sql",
+      "applied_at": "2026-10-22T09:48:17.418096+00:00"
+    },
+    {
+      "migration_id": "002_novels.sql",
+      "applied_at": "2026-10-22T09:48:17.496421+00:00"
+    },
+    {
+      "migration_id": "003_chapters.sql",
+      "applied_at": "2026-10-22T09:48:17.565556+00:00"
+    },
+    {
+      "migration_id": "004_content_control.sql",
+      "applied_at": "2026-10-22T09:48:17.589099+00:00"
+    },
+    {
+      "migration_id": "005_reports_description.sql",
+      "applied_at": "2026-10-22T09:48:17.650303+00:00"
+    },
+    {
+      "migration_id": "006_reading_interactions.sql",
+      "applied_at": "2026-10-22T09:48:17.660204+00:00"
+    },
+    {
+      "migration_id": "007_wallet_transactions.sql",
+      "applied_at": "2026-10-22T09:48:17.707022+00:00"
+    },
+    {
+      "migration_id": "008_authoring_context.sql",
+      "applied_at": "2026-10-22T09:48:17.748538+00:00"
+    },
+    {
+      "migration_id": "009_chapter_revisions.sql",
+      "applied_at": "2026-10-22T09:48:17.815918+00:00"
+    },
+    {
+      "migration_id": "010_analysis_outbox.sql",
+      "applied_at": "2026-10-22T09:48:17.845642+00:00"
+    },
+    {
+      "migration_id": "011_outbox_claim_token.sql",
+      "applied_at": "2026-10-22T09:48:17.869128+00:00"
+    },
+    {
+      "migration_id": "012_reports_unique_open.sql",
+      "applied_at": "2026-10-22T09:48:17.881312+00:00"
+    }
+  ]
+}

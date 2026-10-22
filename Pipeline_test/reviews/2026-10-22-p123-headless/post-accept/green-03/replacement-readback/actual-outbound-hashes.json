@@ -1,0 +1,46 @@
+[
+  {
+    "job_id": "b4dd5432-81e0-5fdc-8f00-f7be985fe789",
+    "matches": [
+      {
+        "capture": {
+          "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+          "request_sha256": "96976767fa79203f8db0314d6b8e055aecbfb00d24200c6118a89d329dce2c37",
+          "dispatch_id": "199d30d6-2c3a-478e-86ac-f29bc9538b2f",
+          "client": "ai-service",
+          "native_schema": null,
+          "output_limit": 512,
+          "upstream_auth_valid": true,
+          "prompt_text": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}\n\nThao tác: continuation\nĐoạn văn được chọn: \nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: Thực hiện mục tiêu cốt truyện: Post accept fence. Bounded objective\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":2,\"current_objective\":{\"description\":\"Bounded objective\",\"objective_id\":\"1282a7db-9d4a-4a75-a852-782d5d159636\",\"objective_type\":\"ending\",\"order_index\":1,\"status\":\"in_progress\",\"target_chapter\":1,\"title\":\"Post accept fence\"},\"current_states\":[{\"entity_id\":\"8e5e4506-2d41-4f9f-bc5d-a49ebd829517\",\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"2fe495c5-33cd-4be9-ac53-5f871ae70e79\",\"location\":\"Unknown\",\"name\":\"Duy\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"8dcce81f-d49f-4724-ad13-2918228e6beb\",\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"state\":{},\"status\":\"Unknown\"}],\"entities\":[{\"entity_id\":\"8e5e4506-2d41-4f9f-bc5d-a49ebd829517\",\"entity_type\":\"location\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"status\":\"Unknown\"},{\"entity_id\":\"2fe495c5-33cd-4be9-ac53-5f871ae70e79\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Duy\",\"status\":\"Unknown\"},{\"entity_id\":\"8dcce81f-d49f-4724-ad13-2918228e6beb\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"status\":\"Unknown\"}],\"planning_context\":{\"active_objective_id\":\"1282a7db-9d4a-4a75-a852-782d5d159636\",\"plan_id\":\"8a491218-cb4d-494b-86bd-89d21fcafa87\",\"plan_version\":1,\"source_outline_hash\":\"\",\"status\":\"active\",\"total_objectives\":1},\"recent_events\":[],\"semantic_memories\":[],\"world_rules\":[]}",
+          "scenario": "p123-p3-v1",
+          "received_at": 1792662353.6451974,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text": "{\"draft_text\": \"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\\n\\nDuy đứng bên Mai Linh tại Cồn Vân.\", \"explanation\": \"FAKE_PROVIDER_OUTPUT scripted functional continuation\"}"
+                    }
+                  ]
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": "[REDACTED]",
+              "candidatesTokenCount": "[REDACTED]",
+              "totalTokenCount": "[REDACTED]"
+            },
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "199d30d6-2c3a-478e-86ac-f29bc9538b2f"
+          },
+          "operation": "writing_generation"
+        },
+        "context_hash": "b3b5dee4ae7a752dae8a27f95e1993ad1e077cf1e510ec83a5c3d2266b060d8e",
+        "prompt_sha256": "b5f7c233fd92c3ad09da70993109806a1336b23a38ff31fce4153fed98464489"
+      }
+    ]
+  }
+]

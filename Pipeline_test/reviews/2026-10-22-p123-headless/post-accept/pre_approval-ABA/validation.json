@@ -1,0 +1,37 @@
+{
+  "tested_sha": "c2cddff34585401f335a37d2649caeb6d06f4d87",
+  "source_dirty_at_start": false,
+  "project": "p123-core-c23e00473f",
+  "novel_id": "dc701418-d8aa-4b7b-83a9-c83844181b84",
+  "run_id": "846af6d8-cc8a-423e-a9cd-06eeaaccbe04",
+  "seam": "pre_approval",
+  "action": "ABA",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_5e9337fd-8732-48e8-9ba6-82394df10dbd",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "accepted_history_already_committed",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "post_cancel_no_canon_or_completed_overwrite",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "accepted_revision_retained_once"
+  },
+  "verdict": "FAIL",
+  "external_provider_calls": 0
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "eb7bbb3e-fb96-4056-8808-8c3ea1f10b05",
+    "story_brain_id": "665ef4db-7cf0-4c26-8d8c-1ebcd6f9db34",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "61ee51c8-5640-4310-8bf1-c75cecca23e3",
+    "entity_type": "character",
+    "canonical_name": "Mai Linh",
+    "normalized_name": "mai linh",
+    "description": null,
+    "static_attributes": {
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "confidence": 0.9,
+    "is_locked": false,
+    "created_by": null,
+    "created_at": "2026-10-22T09:44:00.111856+00:00",
+    "updated_at": "2026-10-22T09:44:00.111856+00:00"
+  },
+  {
+    "id": "b618efdf-0791-4b65-9634-c8b01cffbd40",
+    "story_brain_id": "665ef4db-7cf0-4c26-8d8c-1ebcd6f9db34",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "61ee51c8-5640-4310-8bf1-c75cecca23e3",
+    "entity_type": "character",
+    "canonical_name": "Duy",
+    "normalized_name": "duy",
+    "description": null,
+    "static_attributes": {
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "confidence": 0.9,
+    "is_locked": false,
+    "created_by": null,
+    "created_at": "2026-10-22T09:44:00.111856+00:00",
+    "updated_at": "2026-10-22T09:44:00.111856+00:00"
+  },
+  {
+    "id": "6bff554b-4448-4c45-b325-402cd61b953d",
+    "story_brain_id": "665ef4db-7cf0-4c26-8d8c-1ebcd6f9db34",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "61ee51c8-5640-4310-8bf1-c75cecca23e3",
+    "entity_type": "location",
+    "canonical_name": "Cồn Vân",
+    "normalized_name": "cồn vân",
+    "description": null,
+    "static_attributes": {
+      "status": "Unknown",
+      "location": "Unknown",
+      "mentions": 1
+    },
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "confidence": 0.9,
+    "is_locked": false,
+    "created_by": null,
+    "created_at": "2026-10-22T09:44:00.111856+00:00",
+    "updated_at": "2026-10-22T09:44:00.111856+00:00"
+  }
+]

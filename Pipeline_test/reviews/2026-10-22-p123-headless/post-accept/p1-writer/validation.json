@@ -1,0 +1,12 @@
+{
+  "tested_sha": "c2cddff34585401f335a37d2649caeb6d06f4d87",
+  "source_dirty_at_start": false,
+  "project": "p123-core-58cb165f5d",
+  "novel_id": "4f77a615-12dc-486d-aa19-ae0cae7605d2",
+  "A_status": 200,
+  "B_status": 200,
+  "safe": true,
+  "verdict": "PASS",
+  "protected": true,
+  "external_provider_calls": 0
+}

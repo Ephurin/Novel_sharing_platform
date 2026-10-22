@@ -1,0 +1,59 @@
+{
+  "tested_sha": "c2cddff34585401f335a37d2649caeb6d06f4d87",
+  "source_dirty_at_start": false,
+  "project": "p123-core-a199f94f51",
+  "novel_id": "befd27ad-55ad-4909-860e-20acd6ad837e",
+  "run": {
+    "run_id": "acc5c55c-4cea-47ad-88a8-dbc70a573a00",
+    "novel_id": "befd27ad-55ad-4909-860e-20acd6ad837e",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_id": "e0271884-051f-4688-9dfa-e0062623a0ed",
+    "plan_version": 1,
+    "status": "running",
+    "current_objective_id": null,
+    "current_chapter_id": null,
+    "current_iteration": 0,
+    "max_iterations": 5,
+    "current_retries": 0,
+    "max_retries_per_objective": 3,
+    "last_generation_id": null,
+    "last_accepted_revision_id": null,
+    "last_brain_version": 2,
+    "stop_reason": null,
+    "idempotency_key": "p3-abd8d84f618d416096894212c8b747dd",
+    "input_hash": "ed238d1d7fe87f5273affebcd9aa87ac2ed8e349d381952988aed9fd84211c3e",
+    "created_by": "96880b12-6863-4a5f-8e3c-72b16a6cd239",
+    "created_at": "2026-10-22T09:26:39.956821+00:00",
+    "updated_at": "2026-10-22T09:26:39.956821+00:00"
+  },
+  "no_plan_entry": true,
+  "stage": "P3_step_HITL",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "create_idempotent",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "wrong_owner_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "plan_not_history",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "HTTP_409:POST:/ai/autonomous/runs/acc5c55c-4cea-47ad-88a8-dbc70a573a00/run:{'success': False, 'data': None, 'error': {'code': 'RUN_STEP_BUSY', 'message': 'Full auto is already processing this run'}, 'meta': {}}"
+  },
+  "verdict": "PARTIAL",
+  "external_provider_calls": 0
+}

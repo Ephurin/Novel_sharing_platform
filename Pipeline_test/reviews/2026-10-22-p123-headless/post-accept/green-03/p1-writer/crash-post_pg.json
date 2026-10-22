@@ -1,0 +1,86 @@
+{
+  "fixture": "SIGKILL owned backend at deterministic seam",
+  "during": {
+    "draft": {
+      "chapterId": "6b8d7e95-7274-4d22-8373-99251e29bf5a",
+      "novelId": "8c527644-5434-4708-9ede-1bfa879435c9",
+      "title": "Crash post_pg",
+      "chapterNumber": 3,
+      "content": null,
+      "wordCount": 2,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "draft": {
+        "title": "Crash post_pg",
+        "content": "P1_ORDERED_A_crash post_pg",
+        "wordCount": 2,
+        "version": 4,
+        "autosave": false,
+        "updatedAt": "2026-10-22T09:42:44.172Z"
+      }
+    },
+    "latest": {
+      "revisionId": "4b4d0400-fce8-41d6-b475-0fa901915595",
+      "novelId": "8c527644-5434-4708-9ede-1bfa879435c9",
+      "chapterId": "6b8d7e95-7274-4d22-8373-99251e29bf5a",
+      "parentRevisionId": "400c2c49-bcf9-43ac-9263-7aab49ef2004",
+      "contentHash": "b4054c3f1725d8675453fe0f9c1c4920c75193f79f6b9687d966fec64b0e3618",
+      "content": "P1_ORDERED_A_crash post_pg",
+      "wordCount": 2,
+      "sourceType": "AUTHOR_MANUAL",
+      "sourceGenerationId": null,
+      "createdBy": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+      "createdAt": "2026-10-22T09:42:44.187Z"
+    }
+  },
+  "HTTP_interrupted": {
+    "error": "ConnectionError"
+  },
+  "after_restart": {
+    "chapterId": "6b8d7e95-7274-4d22-8373-99251e29bf5a",
+    "novelId": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "title": "Crash post_pg",
+    "chapterNumber": 3,
+    "content": null,
+    "wordCount": 2,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "draft": {
+      "title": "Crash post_pg",
+      "content": "P1_ORDERED_A_crash post_pg",
+      "wordCount": 2,
+      "version": 4,
+      "autosave": false,
+      "updatedAt": "2026-10-22T09:42:44.172Z"
+    }
+  },
+  "recovery": {
+    "chapterId": "6b8d7e95-7274-4d22-8373-99251e29bf5a",
+    "novelId": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "title": "Crash post_pg",
+    "chapterNumber": 3,
+    "content": null,
+    "wordCount": 3,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "analysisRevisionId": "2130d79f-5d17-47d4-a7ac-b2f3bacf889c",
+    "draftVersion": 5
+  },
+  "latest": {
+    "revisionId": "2130d79f-5d17-47d4-a7ac-b2f3bacf889c",
+    "novelId": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "chapterId": "6b8d7e95-7274-4d22-8373-99251e29bf5a",
+    "parentRevisionId": "4b4d0400-fce8-41d6-b475-0fa901915595",
+    "contentHash": "eb3c440c556bc620800bb6510a1e7d74e8e7a971a41e2f7685fe0b0fce7f3aee",
+    "content": "Recovered B post_pg",
+    "wordCount": 3,
+    "sourceType": "AUTHOR_MANUAL",
+    "sourceGenerationId": null,
+    "createdBy": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "createdAt": "2026-10-22T09:42:53.263Z"
+  },
+  "no_invented_revision": true
+}

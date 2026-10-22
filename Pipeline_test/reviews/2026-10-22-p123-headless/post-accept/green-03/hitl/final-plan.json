@@ -1,0 +1,27 @@
+{
+  "plan_id": "a71ac7d1-9433-4638-b064-fd4190e6b25e",
+  "novel_id": "20fc9f1c-7787-4bed-af74-41dcd4dfbb4f",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "plan_version": 1,
+  "status": "active",
+  "objectives": [
+    {
+      "objective_id": "f6e3430c-6c5f-4a9d-8d78-9724eccbb621",
+      "order_index": 1,
+      "title": "Stale HITL",
+      "description": "No automatic advancement",
+      "target_chapter": 1,
+      "objective_type": "ending",
+      "status": "skipped",
+      "metadata": {
+        "min_words": 1
+      },
+      "intent_version": 2
+    }
+  ],
+  "source_outline": "",
+  "source_outline_hash": "",
+  "idempotency_key": null,
+  "input_hash": "78f589b3734c0b9442186878370baf681654bf57092ab45387c08b3508510ba3",
+  "created_by": "dba0759f-4a51-4711-88fe-a091318c5226"
+}

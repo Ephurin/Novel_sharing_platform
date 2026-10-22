@@ -1,0 +1,73 @@
+[
+  {
+    "scenario": "pre_approval-ABA-02",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-7c2865700e",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-ABA-02",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-7c2865700e",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-ABA-02",
+    "command": [
+      "python",
+      "-c",
+      "import sys,runpy;sys.path.insert(0,'Pipeline_test/tools');p=sys.argv.pop(1);sys.argv[0]=p;runpy.run_path(p,run_name='__main__')",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\coordinated_harness.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-7c2865700e",
+      "--output",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\green-03\\pre_approval-ABA-02",
+      "--seam",
+      "pre_approval",
+      "--action",
+      "ABA"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "pre_approval-ABA-02",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-7c2865700e",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-post-accept-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  }
+]

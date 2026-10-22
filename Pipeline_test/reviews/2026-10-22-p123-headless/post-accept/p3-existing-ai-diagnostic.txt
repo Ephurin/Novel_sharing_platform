@@ -1,0 +1,47 @@
+INFO:     10.241.56.6:49410 - "GET /internal/v1/proposal-groups/1a896f97-98b5-54c6-96d8-80428b891d02/novel HTTP/1.1" 200 OK
+INFO:     10.241.56.6:49416 - "POST /v1/proposal-groups/1a896f97-98b5-54c6-96d8-80428b891d02/accept HTTP/1.1" 200 OK
+INFO:     10.241.56.6:49416 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 200 OK
+INFO:     10.241.56.6:49410 - "GET /internal/v1/proposal-groups/6cc09eb2-f8da-5d2d-a324-8633e8011857/novel HTTP/1.1" 200 OK
+INFO:     10.241.56.6:49410 - "POST /v1/proposal-groups/6cc09eb2-f8da-5d2d-a324-8633e8011857/accept HTTP/1.1" 200 OK
+INFO:     10.241.56.6:49416 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:49416 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:46194 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:46206 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:43252 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:43280 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:58914 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:58922 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:45660 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:45672 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:60668 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:60670 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:52636 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:52662 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:54186 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:54198 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:37836 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+INFO:     10.241.56.6:37846 - "PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4?novel_id=9d58319a-7beb-491d-97b3-50da45320d6f HTTP/1.1" 409 Conflict
+2026-10-22 09:24:21,483 | INFO | ai-service | GET /internal/v1/proposal-groups/1a896f97-98b5-54c6-96d8-80428b891d02/novel -> 200 (27.59 ms)
+2026-10-22 09:24:21,691 | INFO | ai-service | POST /v1/proposal-groups/1a896f97-98b5-54c6-96d8-80428b891d02/accept -> 200 (173.24 ms)
+2026-10-22 09:24:22,869 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 200 (27.95 ms)
+2026-10-22 09:24:25,036 | INFO | core.llm_service | structured_provider_response {"trace_id": "3dd3e1b4-9192-444e-88d8-b9c56601b781", "operation": "entity_extraction", "source": {"novel_id": "9d58319a-7beb-491d-97b3-50da45320d6f", "chapter_id": "0dce667d-ad8d-49cd-bab3-41affc7abf81", "revision_id": "fa92f468-69c9-4b62-9798-bed1bc1b269e", "content_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6", "analysis_run_id": "295ce0af-b21d-4527-926c-2907dbfbe8ad"}, "system_prompt_sha256": "52b8b321666d78dc15f0c47d094a5224e34a6955cb632b27237a6c8d4063a0fb", "input_sha256": "d031280d7edbf9ab8fcb245edd6065aa56412a203314b409dce68cb982890257", "max_output_tokens": 8192, "provider": "gemini", "model": "models/gemini-3.5-flash-lite", "finish_reason": "STOP", "response_id": "8d00bfb8-8d86-4f53-87cc-8454e53f57ce", "response_sha256": "53380d71683a22adf8ff947d7c36410472c3a87f71a1980fe7b0ad208722dc48", "response_characters": 16, "usage": {"prompt_token_count": 10, "candidates_token_count": 10, "total_token_count": 20}}
+2026-10-22 09:24:28,555 | INFO | ai-service | GET /internal/v1/proposal-groups/6cc09eb2-f8da-5d2d-a324-8633e8011857/novel -> 200 (12.70 ms)
+2026-10-22 09:24:28,919 | INFO | ai-service | POST /v1/proposal-groups/6cc09eb2-f8da-5d2d-a324-8633e8011857/accept -> 200 (316.12 ms)
+2026-10-22 09:24:30,032 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (64.88 ms)
+2026-10-22 09:24:33,522 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (16.91 ms)
+2026-10-22 09:24:38,620 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (13.14 ms)
+2026-10-22 09:24:43,684 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (22.14 ms)
+2026-10-22 09:24:48,801 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (19.68 ms)
+2026-10-22 09:24:53,599 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (21.93 ms)
+2026-10-22 09:24:58,648 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (16.18 ms)
+2026-10-22 09:25:03,638 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (22.21 ms)
+2026-10-22 09:25:08,667 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (25.84 ms)
+2026-10-22 09:25:13,477 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (19.07 ms)
+2026-10-22 09:25:18,581 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (7.58 ms)
+2026-10-22 09:25:23,494 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (13.73 ms)
+2026-10-22 09:25:28,802 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (13.48 ms)
+2026-10-22 09:25:33,727 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (18.99 ms)
+2026-10-22 09:25:38,645 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (11.06 ms)
+2026-10-22 09:25:43,725 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (23.50 ms)
+2026-10-22 09:25:48,437 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (13.99 ms)
+2026-10-22 09:25:53,444 | INFO | ai-service | PATCH /v1/story-plans/8ff316ff-2efd-473c-9dae-effc84d24673/objectives/0fc4e6ea-2d3c-4750-a808-77e71ffd2bb4 -> 409 (8.70 ms)

@@ -1,0 +1,28 @@
+[
+  {
+    "revision_id": "4dc723df-a260-4f3e-82d0-ec0f8b2ac044",
+    "novel_id": "99ac7f77-d7b7-4609-8055-a0c8ce2f28f9",
+    "chapter_id": "79a10ce9-6353-4c1e-a008-570529f9c89a",
+    "parent_revision_id": null,
+    "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "content": "",
+    "word_count": 0,
+    "source_type": "AUTHOR_MANUAL",
+    "source_generation_id": null,
+    "created_by": "be4c5c56-d9a2-4093-9779-136612252d10",
+    "created_at": "2026-10-22T09:45:53.247838+00:00"
+  },
+  {
+    "revision_id": "468cc760-65b1-43d5-bc6c-195373ec1f2a",
+    "novel_id": "99ac7f77-d7b7-4609-8055-a0c8ce2f28f9",
+    "chapter_id": "79a10ce9-6353-4c1e-a008-570529f9c89a",
+    "parent_revision_id": "4dc723df-a260-4f3e-82d0-ec0f8b2ac044",
+    "content_hash": "7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6",
+    "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+    "word_count": 21,
+    "source_type": "AI_DRAFT_ACCEPT",
+    "source_generation_id": "b4dd5432-81e0-5fdc-8f00-f7be985fe789",
+    "created_by": "be4c5c56-d9a2-4093-9779-136612252d10",
+    "created_at": "2026-10-22T09:45:53.780558+00:00"
+  }
+]

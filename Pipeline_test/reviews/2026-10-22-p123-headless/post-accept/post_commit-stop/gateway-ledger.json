@@ -1,0 +1,71 @@
+{
+  "schema": 2,
+  "run_id": "p123-core-0d1948ec2c",
+  "max_calls": 200,
+  "max_cost_usd": "5.0",
+  "admission_cost_usd": "4.5",
+  "deadline": 1792667970.5024974,
+  "started": 1792660770.5024974,
+  "total_calls": 4,
+  "charged_usd": "0.131985",
+  "outstanding_usd": "0.000000",
+  "call_history": [
+    {
+      "ticket_id": "345ffbd7-1116-43ab-bbce-0e4f2b432574",
+      "call_index": 1,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.037655",
+      "charged_usd": "0.037655",
+      "status": "SUCCESS",
+      "timestamp": 1792660800.6516476,
+      "finished": 1792660800.7404306
+    },
+    {
+      "ticket_id": "3b924519-3291-48ce-b897-044e66df62b7",
+      "call_index": 2,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.008539",
+      "charged_usd": "0.008539",
+      "status": "SUCCESS",
+      "timestamp": 1792660802.683336,
+      "finished": 1792660802.752763
+    },
+    {
+      "ticket_id": "1b035ef0-11ef-477e-ba36-9236aea7c3e4",
+      "call_index": 3,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.037870",
+      "charged_usd": "0.037870",
+      "status": "SUCCESS",
+      "timestamp": 1792660806.437811,
+      "finished": 1792660806.4555895
+    },
+    {
+      "ticket_id": "5a1f00c8-7a75-471c-b38b-bacc2ae0a062",
+      "call_index": 4,
+      "client_service": "ai-service",
+      "operation": "gemini_generate_content",
+      "provider": "gemini-native",
+      "model": "gemini-3.5-flash-lite",
+      "liability_usd": "0.047921",
+      "charged_usd": "0.047921",
+      "status": "SUCCESS",
+      "timestamp": 1792660806.52374,
+      "finished": 1792660806.603086
+    }
+  ],
+  "status": "OFFLINE_ONLY",
+  "actual_invoice_usd": "UNKNOWN",
+  "live_authorized": false,
+  "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+  "pricing_scope": "SYNTHETIC_OFFLINE_TEXT_ONLY"
+}

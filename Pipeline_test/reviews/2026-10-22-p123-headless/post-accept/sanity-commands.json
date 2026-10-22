@@ -1,0 +1,242 @@
+[
+  {
+    "scenario": "p1-writer",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-58cb165f5d",
+      "-f",
+      "Pipeline_test/tools/compose.p123-next.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-ordered-test.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p1-writer",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-58cb165f5d",
+      "-f",
+      "Pipeline_test/tools/compose.p123-next.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-ordered-test.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p1-writer",
+    "command": [
+      "python",
+      "Pipeline_test/tools/run_ordered_writer.py",
+      "Pipeline_test\\tools\\.env.p123-core-58cb165f5d",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\p1-writer",
+      "--protected"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p1-writer",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-58cb165f5d",
+      "-f",
+      "Pipeline_test/tools/compose.p123-next.yml",
+      "-f",
+      "Pipeline_test/tools/compose.p123-ordered-test.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p2",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-93c57017cf",
+      "-f",
+      "Pipeline_test/tools/compose.p123-next.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p2",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-93c57017cf",
+      "-f",
+      "Pipeline_test/tools/compose.p123-next.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p2",
+    "command": [
+      "python",
+      "Pipeline_test/tools/run_p123_next.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-93c57017cf",
+      "--output",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\p2",
+      "--mode",
+      "p2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p2",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-93c57017cf",
+      "-f",
+      "Pipeline_test/tools/compose.p123-next.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p3-existing",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-cf7d91e14b",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p3-existing",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-cf7d91e14b",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p3-existing",
+    "command": [
+      "python",
+      "Pipeline_test/tools/run_p3_headless.py",
+      "Pipeline_test\\tools\\.env.p123-core-cf7d91e14b",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\p3-existing"
+    ],
+    "exit_code": 1
+  },
+  {
+    "scenario": "p3-existing",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-cf7d91e14b",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p3-no-plan",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-a199f94f51",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p3-no-plan",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-a199f94f51",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0
+  },
+  {
+    "scenario": "p3-no-plan",
+    "command": [
+      "python",
+      "Pipeline_test/tools/run_p3_headless.py",
+      "Pipeline_test\\tools\\.env.p123-core-a199f94f51",
+      "Pipeline_test\\reviews\\2026-10-22-p123-headless\\post-accept\\p3-no-plan",
+      "--no-plan"
+    ],
+    "exit_code": 1
+  },
+  {
+    "scenario": "p3-no-plan",
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-a199f94f51",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0
+  }
+]

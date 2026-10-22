@@ -1,0 +1,76 @@
+{
+  "chapter": {
+    "chapterId": "c169f2cf-69b7-43ba-83f2-86c73a3c2991",
+    "novelId": "fb3be9f6-d535-41b0-b16f-8b3032a33342",
+    "title": "Ordered writer",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 3,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "draft": {
+      "title": "Ordered writer",
+      "content": "P1_ORDERED_B_ newer body",
+      "wordCount": 3,
+      "version": 6,
+      "autosave": false,
+      "updatedAt": "2026-10-22T09:32:27.054Z"
+    }
+  },
+  "latest": {
+    "revisionId": "89375159-1da9-4a6d-8ca3-af350a9cf9b0",
+    "novelId": "fb3be9f6-d535-41b0-b16f-8b3032a33342",
+    "chapterId": "c169f2cf-69b7-43ba-83f2-86c73a3c2991",
+    "parentRevisionId": "77dbce18-ec2e-4f9a-9e1d-0d98303d20b3",
+    "contentHash": "894447de8e8179a4106b36cd9913bfc8f862541a7c77c88dcf9d929c898ac42f",
+    "content": "P1_ORDERED_B_ newer body",
+    "wordCount": 3,
+    "sourceType": "AUTHOR_MANUAL",
+    "sourceGenerationId": null,
+    "createdBy": "f25e4cfb-651b-44e2-914c-966efeb2ed38",
+    "createdAt": "2026-10-22T09:32:27.047Z"
+  },
+  "outbox": [
+    {
+      "event_id": "c417c44f-6f8e-4c00-92bb-e89b7daff71c",
+      "event_type": "INCREMENTAL_ANALYSIS",
+      "novel_id": "fb3be9f6-d535-41b0-b16f-8b3032a33342",
+      "chapter_id": "c169f2cf-69b7-43ba-83f2-86c73a3c2991",
+      "revision_id": "77dbce18-ec2e-4f9a-9e1d-0d98303d20b3",
+      "content_hash": "f4f6714ea0a685a1256bec39b3ace433be161a16c79fe52cb7026dc88bc840ef",
+      "created_by": "f25e4cfb-651b-44e2-914c-966efeb2ed38",
+      "payload": {
+        "operation": "incremental_story_analysis"
+      },
+      "status": "COMPLETED",
+      "retry_count": 0,
+      "max_retries": 5,
+      "next_retry_at": "2026-10-22T09:32:26.825987+00:00",
+      "last_error": null,
+      "created_at": "2026-10-22T09:32:26.825987+00:00",
+      "updated_at": "2026-10-22T09:32:27.048671+00:00",
+      "claim_token": "[REDACTED]"
+    },
+    {
+      "event_id": "e93f98e7-e7e9-4596-92e4-2fc15d6ddae9",
+      "event_type": "INCREMENTAL_ANALYSIS",
+      "novel_id": "fb3be9f6-d535-41b0-b16f-8b3032a33342",
+      "chapter_id": "c169f2cf-69b7-43ba-83f2-86c73a3c2991",
+      "revision_id": "89375159-1da9-4a6d-8ca3-af350a9cf9b0",
+      "content_hash": "894447de8e8179a4106b36cd9913bfc8f862541a7c77c88dcf9d929c898ac42f",
+      "created_by": "f25e4cfb-651b-44e2-914c-966efeb2ed38",
+      "payload": {
+        "operation": "incremental_story_analysis"
+      },
+      "status": "COMPLETED",
+      "retry_count": 0,
+      "max_retries": 5,
+      "next_retry_at": "2026-10-22T09:32:27.04757+00:00",
+      "last_error": null,
+      "created_at": "2026-10-22T09:32:27.04757+00:00",
+      "updated_at": "2026-10-22T09:32:27.284831+00:00",
+      "claim_token": "[REDACTED]"
+    }
+  ]
+}

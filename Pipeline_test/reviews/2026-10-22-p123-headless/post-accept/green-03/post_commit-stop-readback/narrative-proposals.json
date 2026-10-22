@@ -1,0 +1,71 @@
+[
+  {
+    "id": "57854c2b-82e5-5683-9fed-ae65f3388c89",
+    "analysis_run_id": "c5a2af7a-fcfd-4efc-929a-5bf02af70c13",
+    "story_brain_id": "ad3a746f-732c-425b-8cc8-023cb6de346b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "16e8879e-1987-41ce-9e64-7c99e27a5955",
+    "dependency_group_id": "62fa1ca3-0a43-510d-80b0-8f3da0f7883e",
+    "materialization_order": 1,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "character",
+      "canonical_name": "Mai Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "mai linh"
+    },
+    "evidence": [],
+    "confidence": 0.9,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:41:01.207878+00:00",
+    "updated_at": "2026-10-22T09:41:01.807602+00:00"
+  },
+  {
+    "id": "49d0d2ac-dba0-5354-b2c3-fffd901691bd",
+    "analysis_run_id": "c5a2af7a-fcfd-4efc-929a-5bf02af70c13",
+    "story_brain_id": "ad3a746f-732c-425b-8cc8-023cb6de346b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "16e8879e-1987-41ce-9e64-7c99e27a5955",
+    "dependency_group_id": "62fa1ca3-0a43-510d-80b0-8f3da0f7883e",
+    "materialization_order": 2,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "character",
+      "canonical_name": "Duy",
+      "initial_status": "Unknown",
+      "normalized_name": "duy"
+    },
+    "evidence": [],
+    "confidence": 0.9,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:41:01.207878+00:00",
+    "updated_at": "2026-10-22T09:41:01.807602+00:00"
+  },
+  {
+    "id": "e190c86d-4a6c-52b8-b5f6-96f70da49835",
+    "analysis_run_id": "c5a2af7a-fcfd-4efc-929a-5bf02af70c13",
+    "story_brain_id": "ad3a746f-732c-425b-8cc8-023cb6de346b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "16e8879e-1987-41ce-9e64-7c99e27a5955",
+    "dependency_group_id": "62fa1ca3-0a43-510d-80b0-8f3da0f7883e",
+    "materialization_order": 3,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "location",
+      "canonical_name": "Cồn Vân",
+      "initial_status": "Unknown",
+      "normalized_name": "cồn vân"
+    },
+    "evidence": [],
+    "confidence": 0.9,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T09:41:01.207878+00:00",
+    "updated_at": "2026-10-22T09:41:01.807602+00:00"
+  }
+]

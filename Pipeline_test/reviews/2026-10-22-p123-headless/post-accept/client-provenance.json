@@ -1,0 +1,12 @@
+{
+  "production_source_sha": "3f7320c9ec0c2e6d9c6c67bc75d16f4449d39c99",
+  "base_driver": "Pipeline_test/tools/run_p3_post_accept.py",
+  "base_driver_sha256": "a97b6bb623fd3592b8bdaccb88100708a651d80d3b809e2b050e4f838f7461ef",
+  "coordinated_driver_sha256": "5b25abdc3bc875911746c1cdd6eab6095c5bf4ed67297e65177f8ea141be7cb7",
+  "changes": [
+    "Install owned test barrier before entity review so native worker cannot pass seam first",
+    "While run still running and objective in_progress at newer ABA epoch, send stale controller progress and assert exact 409",
+    "Explicitly stop newly reauthorized intent before releasing worker to avoid legitimate native new generation obscuring old-attempt readback"
+  ],
+  "production_or_provider_payloads_fabricated": false
+}

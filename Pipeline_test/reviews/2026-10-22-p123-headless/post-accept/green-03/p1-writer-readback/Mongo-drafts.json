@@ -1,0 +1,53 @@
+[
+  {
+    "_id": "6ad9da68872b7694a874479d",
+    "chapterId": "893f6969-7c5f-4235-83b5-8a1d0c303716",
+    "authorId": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "autosave": false,
+    "content": "P1_ORDERED_B_ newer body",
+    "createdAt": "2026-10-22T09:42:00.909Z",
+    "deletedAt": null,
+    "deletionReason": null,
+    "novelId": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "title": "Ordered writer",
+    "updatedAt": "2026-10-22T09:42:18.573Z",
+    "version": 6,
+    "wordCount": 3,
+    "lastAcceptedAt": "2026-10-22T09:42:18.572Z",
+    "lastAcceptedRevisionId": "50b4d1b3-a450-4c49-a4c4-fbbb6df1aa9d"
+  },
+  {
+    "_id": "6ad9da87872b7694a8744817",
+    "chapterId": "b2651865-8e6c-4d66-9233-32ce2e0289c6",
+    "authorId": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "autosave": false,
+    "content": "Recovered B post_cas",
+    "createdAt": "2026-10-22T09:42:31.061Z",
+    "deletedAt": null,
+    "deletionReason": null,
+    "novelId": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "title": "Crash post_cas",
+    "updatedAt": "2026-10-22T09:42:43.189Z",
+    "version": 6,
+    "wordCount": 3,
+    "lastAcceptedAt": "2026-10-22T09:42:43.187Z",
+    "lastAcceptedRevisionId": "f5e8b40d-a438-4b68-9a8e-7da3b9feb671"
+  },
+  {
+    "_id": "6ad9da93872b7694a874485c",
+    "chapterId": "6b8d7e95-7274-4d22-8373-99251e29bf5a",
+    "authorId": "ef52aa64-6b9c-480a-a951-e0d80f54fb6c",
+    "autosave": false,
+    "content": "Recovered B post_pg",
+    "createdAt": "2026-10-22T09:42:43.291Z",
+    "deletedAt": null,
+    "deletionReason": null,
+    "novelId": "8c527644-5434-4708-9ede-1bfa879435c9",
+    "title": "Crash post_pg",
+    "updatedAt": "2026-10-22T09:42:53.282Z",
+    "version": 6,
+    "wordCount": 3,
+    "lastAcceptedAt": "2026-10-22T09:42:53.280Z",
+    "lastAcceptedRevisionId": "2130d79f-5d17-47d4-a7ac-b2f3bacf889c"
+  }
+]
