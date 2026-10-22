@@ -250,29 +250,31 @@ export async function startWritingGenerationController(
   }
 }
 
+// Resolve scope only from the service-authenticated job lookup, never from request input.
+async function getAuthorizedJob(req: Request) {
+  const data = await aiGatewayService.forwardRequest<unknown>({
+    method: 'GET',
+    path: `/v1/jobs/${req.params.jobId}`,
+    userId: req.auth!.userId,
+    requestId: req.header('x-request-id'),
+  });
+  const novelId = data && typeof data === 'object' && !Array.isArray(data)
+    ? (data as Record<string, unknown>).novel_id : undefined;
+  if (typeof novelId !== 'string' ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(novelId)) {
+    throw new AppError(403, 'JOB_SCOPE_INVALID', 'Job has no valid novel scope');
+  }
+  await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+  return data;
+}
+
 export async function getJobStatusController(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const { jobId } = req.params;
-    const userId = req.auth!.userId;
-    const userRole = req.auth!.role;
-
-    const data = await aiGatewayService.forwardRequest({
-      method: 'GET',
-      path: `/v1/jobs/${jobId}`,
-      userId,
-      requestId: req.header('x-request-id'),
-    });
-
-    // Verify resource ownership on returned job
-    if (data?.novel_id) {
-      await assertNovelOwnership(userId, userRole, data.novel_id);
-    }
-
-    res.json(successResponse(data));
+    res.json(successResponse(await getAuthorizedJob(req)));
   } catch (error) {
     next(error);
   }
@@ -284,16 +286,13 @@ export async function resumeJobController(
   next: NextFunction
 ) {
   try {
-    const { jobId } = req.params;
-    const userId = req.auth!.userId;
-
+    await getAuthorizedJob(req);
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
-      path: `/v1/jobs/${jobId}/resume`,
-      userId,
+      path: `/v1/jobs/${req.params.jobId}/resume`,
+      userId: req.auth!.userId,
       requestId: req.header('x-request-id'),
     });
-
     res.status(202).json(successResponse(data));
   } catch (error) {
     next(error);
