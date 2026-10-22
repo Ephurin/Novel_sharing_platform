@@ -340,6 +340,17 @@ def activate_story_plan(
     }
 
 
+def _controller_intent_context(intent, actor):
+    # Actor is supplied by the authenticated backend, never from caller JSON.
+    try:
+        trusted_actor = str(uuid.UUID(actor))
+        uuid.UUID(intent.generation_id)
+        uuid.UUID(intent.revision_id)
+    except (ValueError, TypeError, AttributeError) as exc:
+        raise HTTPException(422, detail={'code': 'INVALID_CONTROLLER_INTENT'}) from exc
+    return {**intent.model_dump(), 'actor_id': trusted_actor}
+
+
 @router.patch("/story-plans/{plan_id}/objectives/{objective_id}")
 def update_story_plan_objective(
     plan_id: str,
@@ -348,6 +359,7 @@ def update_story_plan_objective(
     novel_id: str = Query(..., description="Target novel id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     repository = Depends(get_narrative_repository),
+    controller_actor: str | None = Header(None, alias='X-Actor-Id'),
 ):
     try:
         obj = repository.update_objective_status(
@@ -355,7 +367,7 @@ def update_story_plan_objective(
             plan_id=plan_id,
             objective_id=objective_id,
             status=payload.status,
-            **({'controller_intent': payload.controller_intent.model_dump()} if payload.controller_intent else {}),
+            **({'controller_intent': _controller_intent_context(payload.controller_intent, controller_actor)} if payload.controller_intent else {}),
         )
     except ControllerIntentSupersededError as exc:
         raise HTTPException(409, detail={'code': 'OBJECTIVE_INTENT_SUPERSEDED', 'message': str(exc)}) from exc
@@ -966,6 +978,7 @@ def accept_proposal_group(
     request_id: str = Header(..., alias="X-Request-Id"),
     service: NarrativeApplicationService = Depends(get_narrative_service),
     semantic_materializer = Depends(get_semantic_materializer),
+    controller_actor: str | None = Header(None, alias='X-Actor-Id'),
 ):
     try:
         story_id, _ = service.resolve_proposal_group_novel(group_id)
@@ -975,7 +988,7 @@ def accept_proposal_group(
             payload.expected_brain_version,
             payload.reason,
             payload.edited_payloads,
-            payload.controller_intent.model_dump() if payload.controller_intent else None,
+            _controller_intent_context(payload.controller_intent, controller_actor) if payload.controller_intent else None,
         )
     except ControllerIntentSupersededError as exc:
         raise HTTPException(409, detail={'code': 'OBJECTIVE_INTENT_SUPERSEDED', 'message': str(exc)}) from exc

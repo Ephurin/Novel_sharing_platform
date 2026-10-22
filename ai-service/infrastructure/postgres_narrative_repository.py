@@ -526,8 +526,7 @@ class PostgresNarrativeRepository:
         with session_scope(self._session_factory) as session:
             if controller_intent is not None:
                 from infrastructure.controller_intent import lock_controller_intent
-                lock_controller_intent(session, novel_id=novel_id, tenant_id=self._tenant_id,
-                    actor_id=self._actor_id, intent=controller_intent)
+                lock_controller_intent(session, novel_id=novel_id, tenant_id=self._tenant_id, intent=controller_intent)
             brain = session.scalar(
                 select(StoryBrainRecord)
                 .where(*self._scope(StoryBrainRecord, novel_id))
@@ -2300,8 +2299,7 @@ class PostgresNarrativeRepository:
             if controller_intent is not None:
                 from infrastructure.controller_intent import lock_controller_intent
                 from domain.errors import ControllerIntentSupersededError
-                run, current = lock_controller_intent(session, novel_id=n_id, tenant_id=self._tenant_id,
-                    actor_id=self._actor_id, intent=controller_intent)
+                run, current = lock_controller_intent(session, novel_id=n_id, tenant_id=self._tenant_id, intent=controller_intent)
                 if run.plan_id != p_uuid or current.id != o_uuid or status != 'completed':
                     raise ControllerIntentSupersededError('Invalid controller progress target')
             # Enforce that the plan exists and belongs to the specified novel & tenant

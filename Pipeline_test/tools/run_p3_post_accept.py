@@ -58,6 +58,13 @@ def run(env,output,seam,action,expect_red=False):
    except Exception as exc:p.save('worker-result',{'interrupted':type(exc).__name__})
   if action=='kill_stop':p.command(p.compose+['start','backend'])
   p.command(p.compose+['exec','-T','backend','node','-e',"require('fs').rmSync('/tmp/p3-intent-config.json',{force:true})"])
+  if action=='kill_stop':
+   for _ in range(80):
+    try:p.api('GET',rp);break
+    except Exception:time.sleep(.25)
+  # ABA explicitly reauthorizes a *new* intent. Stop it before an independent
+  # native tick can generate for that new intent; the old attempt stays fenced.
+  if action=='ABA':p.api('POST',rp+'/stop',{'reason':'Quiesce explicitly reauthorized ABA intent'})
   after=state();p.save('after',after)
   safe=(after['memory']==before['memory'] or action=='advance_first') and after['plan']['objectives'][0]['status']!='completed'
   if action=='advance_first':p.check('advance_committed_before_skip',p.api('GET',rp)['status']=='completed')

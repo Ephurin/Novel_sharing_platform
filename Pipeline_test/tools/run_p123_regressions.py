@@ -23,7 +23,7 @@ def main():
     sys.path.insert(0,str(ROOT/'ai-service'))
     import pytest
     from contextlib import redirect_stdout, redirect_stderr
-    suites=['context_budget','context_routing','context_scope','manuscript_bootstrap','entity_review_workflow','revision_analysis_workflow','entity_cutoff_provenance','narrative_repository_contract','canon_revision_reconciliation','state_projection','autonomous_routes','internal_generation_contract']
+    suites=['context_budget','context_routing','context_scope','manuscript_bootstrap','entity_review_workflow','revision_analysis_workflow','entity_cutoff_provenance','narrative_repository_contract','canon_revision_reconciliation','state_projection','autonomous_routes','internal_generation_contract','controller_intent_context']
     args=['-m','not postgres_integration','-q','-ra','--basetemp='+str(Path(tempfile.gettempdir())/('p123-next-'+uuid.uuid4().hex)),'--junitxml='+str(out/'ai-junit.xml')]+[str(ROOT/'ai-service/tests'/('test_'+s+'.py')) for s in suites]
     with (out/'ai-tests.txt').open('w',encoding='utf-8') as stream, redirect_stdout(stream), redirect_stderr(stream):
         ai_exit=int(pytest.main(args))

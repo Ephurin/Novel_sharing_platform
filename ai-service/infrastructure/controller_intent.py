@@ -8,13 +8,14 @@ from infrastructure.orm_models import AutonomousRunRecord, StoryPlanRecord, Stor
 _UUID = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 _ATTEMPT = re.compile(rf'^auto-({_UUID})-obj-({_UUID})-intent-(\d+)-plan-(\d+)-iter-(\d+)-try-(\d+)$')
 
-def lock_controller_intent(session, *, novel_id, tenant_id, actor_id, intent):
+def lock_controller_intent(session, *, novel_id, tenant_id, intent):
     """Lock order matches acceptDraft: run → plan → objective, then canon rows.
 
     The key is loaded from the persisted job, never trusted from request text.
     No provider or cross-service call occurs while these locks are held.
     """
     def stale(): raise ControllerIntentSupersededError('Controller intent changed; accepted history requires author review')
+    actor_id = uuid.UUID(intent['actor_id'])
     job = session.scalar(select(WritingGenerationRecord).where(
         WritingGenerationRecord.job_id == uuid.UUID(intent['generation_id']),
         WritingGenerationRecord.novel_id == novel_id, WritingGenerationRecord.tenant_id == tenant_id))

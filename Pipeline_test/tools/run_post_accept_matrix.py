@@ -4,7 +4,7 @@ from pathlib import Path
 from prepare_p123_next import prepare
 
 ROOT=Path(__file__).resolve().parents[2]
-OUT=ROOT/'Pipeline_test/reviews/2026-10-22-p123-headless/post-accept'
+OUT=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else ROOT/'Pipeline_test/reviews/2026-10-22-p123-headless/post-accept'
 def invoke(args,log):
  with log.open('a',encoding='utf-8',newline='\n') as f:
   p=subprocess.run(args,cwd=ROOT,stdout=f,stderr=subprocess.STDOUT,text=True)
