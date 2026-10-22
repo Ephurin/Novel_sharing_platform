@@ -1,0 +1,56 @@
+[
+  {
+    "container": "astra-draft-0b2257dc51-pg",
+    "id": "f25c53bdc8ce39c00640828ca229481e4f3ea0811d422adb226dbd6ace238d4f",
+    "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+    "database": "ephurin_test_astra_draft_0b2257dc51",
+    "stop_exit": 0,
+    "running_after": false,
+    "data_retained": true
+  },
+  {
+    "container": "astra-draft-0b2257dc51-mongo",
+    "id": "7925935dede85e6faa483625ff06dab9ae42675eff9d4d3aa766478854828474",
+    "image": "sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173",
+    "database": "ephurin_test_astra_draft_0b2257dc51",
+    "stop_exit": 0,
+    "running_after": false,
+    "data_retained": true
+  },
+  {
+    "container": "astra-draft-e704ac757b-pg",
+    "id": "6c151d1f52df8e173b3b325e853d31235689b33e60eec8fdebbe896cec47162a",
+    "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+    "database": "ephurin_test_astra_draft_e704ac757b",
+    "stop_exit": 0,
+    "running_after": false,
+    "data_retained": true
+  },
+  {
+    "container": "astra-draft-e704ac757b-mongo",
+    "id": "ae91f5b6cfe70e3e16c0a85ada7a936e70cffd91e097e0add6d8c5c90e9d143b",
+    "image": "sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173",
+    "database": "ephurin_test_astra_draft_e704ac757b",
+    "stop_exit": 0,
+    "running_after": false,
+    "data_retained": true
+  },
+  {
+    "container": "astra-draft-d7f67c6d1f-pg",
+    "id": "a4a8f10a468bd2677b97ffa2a59b56fce1622b64deaf4adae08f8cd7810bf3db",
+    "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+    "database": "ephurin_test_astra_draft_d7f67c6d1f",
+    "stop_exit": 0,
+    "running_after": false,
+    "data_retained": true
+  },
+  {
+    "container": "astra-draft-d7f67c6d1f-mongo",
+    "id": "5b0302ce6e05436a45cc5e84b37bbdc7cb91a4931fdf013a8dcf37d8da00b001",
+    "image": "sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173",
+    "database": "ephurin_test_astra_draft_d7f67c6d1f",
+    "stop_exit": 0,
+    "running_after": false,
+    "data_retained": true
+  }
+]

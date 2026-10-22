@@ -1,0 +1,11 @@
+[
+  {
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "src/scripts/verify-draft-read-authz.ts"
+    ],
+    "exit_code": 0
+  }
+]

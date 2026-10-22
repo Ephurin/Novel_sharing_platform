@@ -1,0 +1,27 @@
+{
+  "verdict": "CORE_DRAFT_READ_SCOPE_LOCAL_GREEN_READY_FOR_GPT6_DELTA_REVIEW",
+  "hold": "HOLD_FE_INTEGRATION_ONLY",
+  "tested_source_sha": "d7d9651a6dc17a1986b8b03e5d3ffa07a0a9093a",
+  "http_red_reproduced": true,
+  "http_green": true,
+  "typecheck_exit": 0,
+  "build_exit": 0,
+  "focused_tests": {
+    "pass": 54,
+    "fail": 0,
+    "exit_code": 0
+  },
+  "additional_existing_mongo_reconciliation_suite": {
+    "pass": 0,
+    "fail": 3,
+    "exit_code": 1,
+    "same_failure_on_baseline": true,
+    "reason": "legacy live-test-chap-* fixture is not UUID; PostgreSQL rejects with 22P02"
+  },
+  "full_backend_suite": "NOT_RUN / NOT_CLAIMED_PASS",
+  "real_provider_calls": 0,
+  "fe_integration": "HOLD",
+  "merge_allowed": false,
+  "independent_review": "PENDING",
+  "novel_metadata_privacy": "POLICY_UNRESOLVED; legacy public DRAFT novel metadata observed, no chapter body"
+}

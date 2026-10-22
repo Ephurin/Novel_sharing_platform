@@ -1,0 +1,88 @@
+{
+  "mode": "GREEN",
+  "passed": true,
+  "identity": {
+    "postgresDb": "ephurin_test_astra_draft_e704ac757b",
+    "postgresServerAddr": "172.17.0.4",
+    "postgresServerPort": 5432,
+    "mongoDb": "ephurin_test_astra_draft_e704ac757b",
+    "isIsolated": true,
+    "optInVerified": true
+  },
+  "checks": [
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /novels 201",
+    "POST /novels/246dbb18-90aa-4825-82c3-9418bb3f80bd/chapters 201",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 200",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 401",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 403",
+    "GET /novels/246dbb18-90aa-4825-82c3-9418bb3f80bd/chapters 401",
+    "GET /novels/246dbb18-90aa-4825-82c3-9418bb3f80bd/chapters 403",
+    "GET /novels/246dbb18-90aa-4825-82c3-9418bb3f80bd/chapters 403",
+    "GET /novels/246dbb18-90aa-4825-82c3-9418bb3f80bd/chapters 200",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 403",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 401",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021?authorId=97c58719-c7c4-4dd7-b748-f71ee7b62b41&novel_id=246dbb18-90aa-4825-82c3-9418bb3f80bd 403",
+    "GET /chapters/210cce31-65ef-4581-972b-4f9e39d2b0bb 404",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 200",
+    "direct service denies absent/foreign/reader auth; owner succeeds",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 401",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 403",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 200",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 401",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 403",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 200",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 401",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 403",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 200",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 401",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 403",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 200",
+    "GET /reading/chapters/ef271afc-9348-42b8-86c9-e2eb80148021 404",
+    "GET /reading/chapters/ef271afc-9348-42b8-86c9-e2eb80148021 200",
+    "GET /reading/chapters/ef271afc-9348-42b8-86c9-e2eb80148021 402",
+    "GET /reading/chapters/ef271afc-9348-42b8-86c9-e2eb80148021 402",
+    "GET /reading/chapters/ef271afc-9348-42b8-86c9-e2eb80148021 402",
+    "GET /reading/novels/246dbb18-90aa-4825-82c3-9418bb3f80bd 200",
+    "GET /novels/246dbb18-90aa-4825-82c3-9418bb3f80bd 200",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 403",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 403",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 401",
+    "GET /chapters/ef271afc-9348-42b8-86c9-e2eb80148021 404"
+  ],
+  "snapshots": [
+    {
+      "stage": "private GET/list matrix",
+      "before": "55f65f3420ae0b3ebff00bbdb753a157f7b138d7f15d985bdd91ffcde0fab215",
+      "after": "55f65f3420ae0b3ebff00bbdb753a157f7b138d7f15d985bdd91ffcde0fab215"
+    },
+    {
+      "stage": "REJECTED",
+      "before": "20f0405d72a4db0e90ad27ef3416f4887315385dd3876de3397a5cc5945244ac",
+      "after": "20f0405d72a4db0e90ad27ef3416f4887315385dd3876de3397a5cc5945244ac"
+    },
+    {
+      "stage": "PENDING_MODERATION",
+      "before": "75433de15e36f2c53b256c30f40b69eb71d20f2c729c6bb1fcf853f5c0c951e9",
+      "after": "75433de15e36f2c53b256c30f40b69eb71d20f2c729c6bb1fcf853f5c0c951e9"
+    },
+    {
+      "stage": "ARCHIVED",
+      "before": "7871e8adc0376292ba930200069972c39ce01f7d2facdc0525126ea27b5129bf",
+      "after": "7871e8adc0376292ba930200069972c39ce01f7d2facdc0525126ea27b5129bf"
+    },
+    {
+      "stage": "PUBLISHED",
+      "before": "5f5f57e66917527d9f3e5bd9ebfdf1bf98d7aa9c7bc17b0e4dc7b725eafcfe49",
+      "after": "5f5f57e66917527d9f3e5bd9ebfdf1bf98d7aa9c7bc17b0e4dc7b725eafcfe49"
+    }
+  ],
+  "providerCalls": 0
+}

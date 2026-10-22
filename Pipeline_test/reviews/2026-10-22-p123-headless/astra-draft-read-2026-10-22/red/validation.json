@@ -1,0 +1,78 @@
+{
+  "mode": "RED",
+  "passed": true,
+  "identity": {
+    "postgresDb": "ephurin_test_astra_draft_0b2257dc51",
+    "postgresServerAddr": "172.17.0.2",
+    "postgresServerPort": 5432,
+    "mongoDb": "ephurin_test_astra_draft_0b2257dc51",
+    "isIsolated": true,
+    "optInVerified": true
+  },
+  "checks": [
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /novels 201",
+    "POST /novels/3735391b-c9c5-4751-8c51-029c3607ecf4/chapters 201",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /novels/3735391b-c9c5-4751-8c51-029c3607ecf4/chapters 200",
+    "RED public list discloses unpublished title/id/status",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /reading/chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 404",
+    "GET /reading/chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 200",
+    "GET /reading/chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 402",
+    "GET /reading/chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 402",
+    "GET /reading/chapters/185d966f-ef87-4009-bf87-7b7be1fbbe29 402",
+    "GET /reading/novels/3735391b-c9c5-4751-8c51-029c3607ecf4 200",
+    "GET /novels/3735391b-c9c5-4751-8c51-029c3607ecf4 200",
+    "GET /novels/3735391b-c9c5-4751-8c51-029c3607ecf4/chapters 200",
+    "RED public list bypasses locked VIP canonical body gate"
+  ],
+  "snapshots": [
+    {
+      "stage": "private GET/list matrix",
+      "before": "88f0e171715b24e0d02504d2b90c726b7fc4a05df393c32421a4f6ffd979d32f",
+      "after": "88f0e171715b24e0d02504d2b90c726b7fc4a05df393c32421a4f6ffd979d32f"
+    },
+    {
+      "stage": "REJECTED",
+      "before": "1a0f76e9271b15c4e0fc80398acc78df08f7360df638c14ca51b8fed73cb48de",
+      "after": "1a0f76e9271b15c4e0fc80398acc78df08f7360df638c14ca51b8fed73cb48de"
+    },
+    {
+      "stage": "PENDING_MODERATION",
+      "before": "d4e5fdd7de57044aab26511ba3e8731d57a60ffd26d879e486c00163ed9061dc",
+      "after": "d4e5fdd7de57044aab26511ba3e8731d57a60ffd26d879e486c00163ed9061dc"
+    },
+    {
+      "stage": "ARCHIVED",
+      "before": "d60c26df66602b52b55a2d2ea9c8274cfcbd0b844780741740e6e0d5339c1116",
+      "after": "d60c26df66602b52b55a2d2ea9c8274cfcbd0b844780741740e6e0d5339c1116"
+    },
+    {
+      "stage": "PUBLISHED",
+      "before": "adf4e252da4208d1f4397a5131313cab20932a4c8753fc109d8a2edebee6ee63",
+      "after": "adf4e252da4208d1f4397a5131313cab20932a4c8753fc109d8a2edebee6ee63"
+    }
+  ],
+  "providerCalls": 0
+}

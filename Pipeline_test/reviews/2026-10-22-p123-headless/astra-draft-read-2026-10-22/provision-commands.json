@@ -1,0 +1,106 @@
+[
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-draft-e704ac757b-pg",
+      "--label",
+      "astra.task=draft-read-authz",
+      "-p",
+      "127.0.0.1::5432",
+      "-e",
+      "POSTGRES_HOST_AUTH_METHOD=trust",
+      "-e",
+      "POSTGRES_DB=ephurin_test_astra_draft_e704ac757b",
+      "pgvector/pgvector:pg16"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-draft-e704ac757b-mongo",
+      "--label",
+      "astra.task=draft-read-authz",
+      "-p",
+      "127.0.0.1::27017",
+      "mongo:7"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-draft-e704ac757b-pg",
+      "5432"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-draft-e704ac757b-mongo",
+      "27017"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-draft-d7f67c6d1f-pg",
+      "--label",
+      "astra.task=draft-read-authz",
+      "-p",
+      "127.0.0.1::5432",
+      "-e",
+      "POSTGRES_HOST_AUTH_METHOD=trust",
+      "-e",
+      "POSTGRES_DB=ephurin_test_astra_draft_d7f67c6d1f",
+      "pgvector/pgvector:pg16"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-draft-d7f67c6d1f-mongo",
+      "--label",
+      "astra.task=draft-read-authz",
+      "-p",
+      "127.0.0.1::27017",
+      "mongo:7"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-draft-d7f67c6d1f-pg",
+      "5432"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-draft-d7f67c6d1f-mongo",
+      "27017"
+    ],
+    "exit_code": 0
+  }
+]

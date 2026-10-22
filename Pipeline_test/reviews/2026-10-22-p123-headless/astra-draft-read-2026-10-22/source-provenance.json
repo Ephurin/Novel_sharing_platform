@@ -1,0 +1,20 @@
+{
+  "source_sha": "d7d9651a6dc17a1986b8b03e5d3ffa07a0a9093a",
+  "source_dirty": false,
+  "status_porcelain": "",
+  "captured_before_http_run": true,
+  "provider_keys_empty": true,
+  "executor": "ASTRA (Codex)",
+  "baseline_sha": "7191016fcf67150b332a1d64551d105d2c91d75e",
+  "source_commits": [
+    "f2e04287c3c35b0e0297d09e0f30348e74a97150",
+    "9cd8787caa45d29e8cc20013349769ee3e5176b5",
+    "d7d9651a6dc17a1986b8b03e5d3ffa07a0a9093a"
+  ],
+  "red_provenance": "Fresh RED executed with production source identical to 7191016f; harness was then untracked, later committed at f2e04287. Do not claim the new RED harness itself was clean committed at run time.",
+  "historical_red": "../fe-integration-preflight-2026-10-22/read-authz-red (unchanged)",
+  "branch": "codex/ai-copilot-pipeline-test",
+  "checkout": "detached isolated worktree to preserve preexisting dirty branch checkout; commits pushed only to the assigned remote branch",
+  "baseline_backend_tree": "a03c175172d23cbd95367a5869eba578b767092f",
+  "tested_backend_tree": "6eaa94d885aa2b04cfa10657a241eb52081f9cce"
+}

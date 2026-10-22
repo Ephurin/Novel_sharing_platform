@@ -1,0 +1,70 @@
+[
+  {
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "src/scripts/verify-draft-read-authz.ts"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "src/scripts/verify-draft-read-authz.ts"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "src/scripts/verify-draft-read-authz.ts"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "src/scripts/verify-draft-read-authz.ts"
+    ],
+    "exit_code": 0
+  }
+]

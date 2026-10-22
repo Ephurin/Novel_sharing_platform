@@ -1,0 +1,124 @@
+{
+  "mode": "GREEN",
+  "passed": true,
+  "identity": {
+    "postgresDb": "ephurin_test_astra_draft_d7f67c6d1f",
+    "postgresServerAddr": "172.17.0.6",
+    "postgresServerPort": 5432,
+    "mongoDb": "ephurin_test_astra_draft_d7f67c6d1f",
+    "isIsolated": true,
+    "optInVerified": true
+  },
+  "fixture": {
+    "accounts": [
+      {
+        "userId": "9ddc7b92-8a83-4471-997a-7b23e9654e31",
+        "role": "AUTHOR",
+        "actor": "AUTHOR_A"
+      },
+      {
+        "userId": "85157e01-1235-44c9-88d3-bc43de8cf44a",
+        "role": "AUTHOR",
+        "actor": "AUTHOR_B"
+      },
+      {
+        "userId": "535d3af4-844c-4926-8bb2-a7f9a1b7e2b0",
+        "role": "READER",
+        "actor": "READER"
+      },
+      {
+        "userId": "08a52777-5f50-4ab4-9358-dfbc8a1abb68",
+        "role": "ADMIN",
+        "actor": "ADMIN"
+      }
+    ],
+    "novelId": "7233a5dd-871e-4d48-84f4-7062084e6443",
+    "chapterId": "ff2984ea-1150-4f61-a7a0-b944fc69fd23",
+    "draftVersion": 1,
+    "draftContentSha256": "383319275a942f67c950aa4d0ec4b09a68e78d8b1e70800ec0a0ec09ea39aac6"
+  },
+  "checks": [
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /novels 201",
+    "POST /novels/7233a5dd-871e-4d48-84f4-7062084e6443/chapters 201",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 200",
+    "GET /novels/7233a5dd-871e-4d48-84f4-7062084e6443 200",
+    "public legacy novel detail exposes draft novel metadata, not chapter bodies; policy review remains",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 401",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 403",
+    "GET /novels/7233a5dd-871e-4d48-84f4-7062084e6443/chapters 401",
+    "GET /novels/7233a5dd-871e-4d48-84f4-7062084e6443/chapters 403",
+    "GET /novels/7233a5dd-871e-4d48-84f4-7062084e6443/chapters 403",
+    "GET /novels/7233a5dd-871e-4d48-84f4-7062084e6443/chapters 200",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 403",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 401",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23?authorId=9ddc7b92-8a83-4471-997a-7b23e9654e31&novel_id=7233a5dd-871e-4d48-84f4-7062084e6443 403",
+    "GET /chapters/a1cc2458-bd1a-4c78-b76d-2f3823a46282 404",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 200",
+    "direct service denies absent/foreign/reader auth; owner succeeds",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 401",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 403",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 200",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 401",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 403",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 200",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 401",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 403",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 200",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 401",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 403",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 200",
+    "GET /reading/chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 404",
+    "GET /reading/chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 200",
+    "GET /reading/chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 402",
+    "GET /reading/chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 402",
+    "GET /reading/chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 402",
+    "GET /reading/novels/7233a5dd-871e-4d48-84f4-7062084e6443 200",
+    "POST /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23/unlock 200",
+    "GET /reading/chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 200",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 403",
+    "GET /novels/7233a5dd-871e-4d48-84f4-7062084e6443/chapters 403",
+    "GET /reading/chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 402",
+    "GET /reading/chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 402",
+    "GET /novels/7233a5dd-871e-4d48-84f4-7062084e6443 200",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 403",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 403",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 401",
+    "GET /chapters/ff2984ea-1150-4f61-a7a0-b944fc69fd23 404"
+  ],
+  "snapshots": [
+    {
+      "stage": "private GET/list matrix",
+      "before": "c44943962936672d335b4eb8774e31553341ede34ec1992aa42410bb98c42015",
+      "after": "c44943962936672d335b4eb8774e31553341ede34ec1992aa42410bb98c42015"
+    },
+    {
+      "stage": "REJECTED",
+      "before": "434afb9cdc5fa29558bd8175c9cc449014957ec44deee708b2186ab6cacd5215",
+      "after": "434afb9cdc5fa29558bd8175c9cc449014957ec44deee708b2186ab6cacd5215"
+    },
+    {
+      "stage": "PENDING_MODERATION",
+      "before": "546570ad5415d6d969938288f965c4345608196c33fa2bad566579d81ca79328",
+      "after": "546570ad5415d6d969938288f965c4345608196c33fa2bad566579d81ca79328"
+    },
+    {
+      "stage": "ARCHIVED",
+      "before": "f3f7ce4cee80fc47ccd6e1cdab5cd86cb7c79f77b730bd1dd2e4f7d9bf1f76f1",
+      "after": "f3f7ce4cee80fc47ccd6e1cdab5cd86cb7c79f77b730bd1dd2e4f7d9bf1f76f1"
+    },
+    {
+      "stage": "PUBLISHED",
+      "before": "9ce3fc01d29077d0141c40fac386a036876ca2bb07e17b1d49efdbe22040688a",
+      "after": "9ce3fc01d29077d0141c40fac386a036876ca2bb07e17b1d49efdbe22040688a"
+    }
+  ],
+  "providerCalls": 0
+}

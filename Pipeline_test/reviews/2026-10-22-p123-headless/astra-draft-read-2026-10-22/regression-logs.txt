@@ -1,0 +1,380 @@
+
+> ephurin-backend@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> ephurin-backend@0.1.0 build
+> tsc -p tsconfig.json
+
+TAP version 13
+# {"level":30,"time":1792683637221,"pid":16628,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+# Subtest: job authorization: trusted scope gates both status and mutable resume
+    # Subtest: resume: wrong author
+    ok 1 - resume: wrong author
+      ---
+      duration_ms: 2.4115
+      ...
+    # Subtest: resume: invalid scope undefined
+    ok 2 - resume: invalid scope undefined
+      ---
+      duration_ms: 0.2587
+      ...
+    # Subtest: resume: invalid scope null
+    ok 3 - resume: invalid scope null
+      ---
+      duration_ms: 0.2644
+      ...
+    # Subtest: resume: invalid scope ""
+    ok 4 - resume: invalid scope ""
+      ---
+      duration_ms: 0.2783
+      ...
+    # Subtest: resume: invalid scope "bad-uuid"
+    ok 5 - resume: invalid scope "bad-uuid"
+      ---
+      duration_ms: 0.2816
+      ...
+    # Subtest: resume: invalid scope 123
+    ok 6 - resume: invalid scope 123
+      ---
+      duration_ms: 0.1729
+      ...
+    # Subtest: resume: invalid scope []
+    ok 7 - resume: invalid scope []
+      ---
+      duration_ms: 0.1693
+      ...
+    # Subtest: resume: invalid scope {}
+    ok 8 - resume: invalid scope {}
+      ---
+      duration_ms: 0.2666
+      ...
+    # Subtest: resume: invalid scope true
+    ok 9 - resume: invalid scope true
+      ---
+      duration_ms: 0.4305
+      ...
+    # Subtest: resume: invalid scope " 11111111-1111-4111-8111-111111111111"
+    ok 10 - resume: invalid scope " 11111111-1111-4111-8111-111111111111"
+      ---
+      duration_ms: 0.3749
+      ...
+    # Subtest: resume: null metadata
+    ok 11 - resume: null metadata
+      ---
+      duration_ms: 0.2862
+      ...
+    # Subtest: resume: array metadata
+    ok 12 - resume: array metadata
+      ---
+      duration_ms: 0.0879
+      ...
+    # Subtest: resume: missing job
+    ok 13 - resume: missing job
+      ---
+      duration_ms: 0.1129
+      ...
+    # Subtest: resume: deleted novel
+    ok 14 - resume: deleted novel
+      ---
+      duration_ms: 0.1133
+      ...
+    # Subtest: resume: owner bootstrap
+    ok 15 - resume: owner bootstrap
+      ---
+      duration_ms: 0.1789
+      ...
+    # Subtest: resume: owner writing job
+    ok 16 - resume: owner writing job
+      ---
+      duration_ms: 0.0879
+      ...
+    # Subtest: resume: authorized admin
+    ok 17 - resume: authorized admin
+      ---
+      duration_ms: 0.079
+      ...
+    # Subtest: GET: wrong author
+    ok 18 - GET: wrong author
+      ---
+      duration_ms: 0.156
+      ...
+    # Subtest: GET: invalid scope undefined
+    ok 19 - GET: invalid scope undefined
+      ---
+      duration_ms: 0.0633
+      ...
+    # Subtest: GET: invalid scope null
+    ok 20 - GET: invalid scope null
+      ---
+      duration_ms: 0.0524
+      ...
+    # Subtest: GET: invalid scope ""
+    ok 21 - GET: invalid scope ""
+      ---
+      duration_ms: 0.0533
+      ...
+    # Subtest: GET: invalid scope "bad-uuid"
+    ok 22 - GET: invalid scope "bad-uuid"
+      ---
+      duration_ms: 0.0953
+      ...
+    # Subtest: GET: invalid scope 123
+    ok 23 - GET: invalid scope 123
+      ---
+      duration_ms: 0.0862
+      ...
+    # Subtest: GET: invalid scope []
+    ok 24 - GET: invalid scope []
+      ---
+      duration_ms: 0.0769
+      ...
+    # Subtest: GET: invalid scope {}
+    ok 25 - GET: invalid scope {}
+      ---
+      duration_ms: 0.0704
+      ...
+    # Subtest: GET: invalid scope true
+    ok 26 - GET: invalid scope true
+      ---
+      duration_ms: 0.1902
+      ...
+    # Subtest: GET: invalid scope " 11111111-1111-4111-8111-111111111111"
+    ok 27 - GET: invalid scope " 11111111-1111-4111-8111-111111111111"
+      ---
+      duration_ms: 0.0996
+      ...
+    # Subtest: GET: null metadata
+    ok 28 - GET: null metadata
+      ---
+      duration_ms: 0.0881
+      ...
+    # Subtest: GET: array metadata
+    ok 29 - GET: array metadata
+      ---
+      duration_ms: 0.0698
+      ...
+    # Subtest: GET: missing job
+    ok 30 - GET: missing job
+      ---
+      duration_ms: 0.0878
+      ...
+    # Subtest: GET: deleted novel
+    ok 31 - GET: deleted novel
+      ---
+      duration_ms: 0.0675
+      ...
+    # Subtest: GET: owner bootstrap
+    ok 32 - GET: owner bootstrap
+      ---
+      duration_ms: 0.0718
+      ...
+    # Subtest: GET: owner writing job
+    ok 33 - GET: owner writing job
+      ---
+      duration_ms: 0.0673
+      ...
+    # Subtest: GET: authorized admin
+    ok 34 - GET: authorized admin
+      ---
+      duration_ms: 0.1199
+      ...
+    1..34
+ok 1 - job authorization: trusted scope gates both status and mutable resume
+  ---
+  duration_ms: 12.713
+  ...
+# Subtest: Chapter Revisions & Patch Application
+    # Subtest: applyPatchToContent correctly applies insertion at cursor
+    ok 1 - applyPatchToContent correctly applies insertion at cursor
+      ---
+      duration_ms: 0.7306
+      ...
+    # Subtest: applyPatchToContent correctly replaces selection range
+    ok 2 - applyPatchToContent correctly replaces selection range
+      ---
+      duration_ms: 0.145
+      ...
+    # Subtest: applyPatchToContent handles unicode code points without splitting multi-byte characters
+    ok 3 - applyPatchToContent handles unicode code points without splitting multi-byte characters
+      ---
+      duration_ms: 0.1044
+      ...
+    # Subtest: applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+    ok 4 - applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+      ---
+      duration_ms: 0.4799
+      ...
+    # Subtest: applyPatchToContent allows valid boundary edge cases (0 to length)
+    ok 5 - applyPatchToContent allows valid boundary edge cases (0 to length)
+      ---
+      duration_ms: 0.1184
+      ...
+    1..5
+ok 2 - Chapter Revisions & Patch Application
+  ---
+  duration_ms: 2.6393
+  type: 'suite'
+  ...
+# Subtest: controller identity parses full pinned intent and rejects legacy attempts
+ok 3 - controller identity parses full pinned intent and rejects legacy attempts
+  ---
+  duration_ms: 3.0352
+  ...
+# Subtest: intent checks run, plan and objective under row locks and rejects ABA epoch
+ok 4 - intent checks run, plan and objective under row locks and rejects ABA epoch
+  ---
+  duration_ms: 1.0577
+  ...
+# {"level":30,"time":1792683637623,"pid":29128,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection ready"}
+# Subtest: Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)
+    # Subtest: Targeted Probe 1: Older draft is cleanly updated by accepted revision
+    not ok 1 - Targeted Probe 1: Older draft is cleanly updated by accepted revision
+      ---
+      duration_ms: 36.3503
+      location: 'C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:846'
+      failureType: 'testCodeFailure'
+      error: 'invalid input syntax for type uuid: "live-test-chap-1792683637557"'
+      code: '22P02'
+      name: 'error'
+      stack: |-
+        C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\node_modules\pg-pool\index.js:45:11
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async findLatestRevisionByChapterId (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-revisions.repository.ts:106:18)
+        async <anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\draft-chapters.repository.ts:103:20)
+        async withChapterWriter (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-writer.ts:23:12)
+        async TestContext.<anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\mongo-reconciliation.live.test.ts:53:21)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1358:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync
+    not ok 2 - Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync
+      ---
+      duration_ms: 16.355
+      location: 'C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:1967'
+      failureType: 'testCodeFailure'
+      error: 'invalid input syntax for type uuid: "live-test-chap-1792683637557"'
+      code: '22P02'
+      name: 'error'
+      stack: |-
+        C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\node_modules\pg-pool\index.js:45:11
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async findLatestRevisionByChapterId (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-revisions.repository.ts:106:18)
+        async <anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\draft-chapters.repository.ts:103:20)
+        async withChapterWriter (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-writer.ts:23:12)
+        async TestContext.<anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\mongo-reconciliation.live.test.ts:84:25)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:677:7)
+      ...
+    # Subtest: Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId
+    not ok 3 - Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId
+      ---
+      duration_ms: 10.7287
+      location: 'C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:3078'
+      failureType: 'testCodeFailure'
+      error: 'invalid input syntax for type uuid: "live-test-chap-nodraft-1792683637705"'
+      code: '22P02'
+      name: 'error'
+      stack: |-
+        C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\node_modules\pg-pool\index.js:45:11
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async findLatestRevisionByChapterId (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-revisions.repository.ts:106:18)
+        async <anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\draft-chapters.repository.ts:103:20)
+        async withChapterWriter (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\chapter-writer.ts:23:12)
+        async TestContext.<anonymous> (C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\backend\src\modules\novels\mongo-reconciliation.live.test.ts:105:25)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:677:7)
+      ...
+# {"level":30,"time":1792683637723,"pid":29128,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+    1..3
+not ok 5 - Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)
+  ---
+  duration_ms: 162.8037
+  type: 'suite'
+  location: 'C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts:1:302'
+  failureType: 'subtestsFailed'
+  error: '3 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+    # Subtest: Exponential backoff for outbox retries is bounded by 300s
+    ok 1 - Exponential backoff for outbox retries is bounded by 300s
+      ---
+      duration_ms: 1.8525
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation preserves newer manual draft edits
+    ok 2 - Conditional MongoDB draft reconciliation preserves newer manual draft edits
+      ---
+      duration_ms: 0.4786
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation creates new draft if not found
+    ok 3 - Conditional MongoDB draft reconciliation creates new draft if not found
+      ---
+      duration_ms: 0.2989
+      ...
+    # Subtest: Accept-time brain version conflict rejects stale generation
+    ok 4 - Accept-time brain version conflict rejects stale generation
+      ---
+      duration_ms: 0.3854
+      ...
+    # Subtest: Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+    ok 5 - Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+      ---
+      duration_ms: 0.4878
+      ...
+    # Subtest: Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+    ok 6 - Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+      ---
+      duration_ms: 0.4804
+      ...
+    1..6
+ok 6 - Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ---
+  duration_ms: 6.2456
+  type: 'suite'
+  ...
+# Subtest: Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+    # Subtest: Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+    ok 1 - Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+      ---
+      duration_ms: 95.1878
+      ...
+    # Subtest: Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL
+    ok 2 - Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL
+      ---
+      duration_ms: 4.0232
+      ...
+    # Subtest: Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS
+    ok 3 - Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS
+      ---
+      duration_ms: 4.3994
+      ...
+    # Subtest: Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion
+    ok 4 - Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion
+      ---
+      duration_ms: 17.0262
+      ...
+    # Subtest: Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision
+    ok 5 - Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision
+      ---
+      duration_ms: 5.71
+      ...
+# {"level":30,"time":1792683637810,"pid":8068,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    1..5
+ok 7 - Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+  ---
+  duration_ms: 201.2082
+  type: 'suite'
+  ...
+# {"level":30,"time":1792683637814,"pid":8068,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+1..7
+# tests 56
+# suites 4
+# pass 53
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1145.3124

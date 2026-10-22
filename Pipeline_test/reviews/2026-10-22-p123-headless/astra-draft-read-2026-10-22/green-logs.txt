@@ -1,0 +1,14 @@
+{"level":30,"time":1792683623590,"pid":26360,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection ready"}
+{"level":30,"time":1792683627853,"pid":26360,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+{"level":30,"time":1792683627857,"pid":26360,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+{"level":30,"time":1792683741205,"pid":11936,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection ready"}
+{"level":30,"time":1792683745253,"pid":11936,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+{"level":30,"time":1792683745258,"pid":11936,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+9cd8787caa45d29e8cc20013349769ee3e5176b5
+{"level":30,"time":1792683819709,"pid":28984,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection ready"}
+{"level":30,"time":1792683824675,"pid":28984,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+{"level":30,"time":1792683824680,"pid":28984,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+d7d9651a6dc17a1986b8b03e5d3ffa07a0a9093a
+{"level":30,"time":1792683896995,"pid":6656,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection ready"}
+{"level":30,"time":1792683900688,"pid":6656,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+{"level":30,"time":1792683900693,"pid":6656,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}

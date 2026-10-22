@@ -1,0 +1,18 @@
+[
+  {
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "exit_code": 0
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-draft-0b2257dc51-pg",
+      "--label",
+      "astra.task=draft-read-authz",
+      "-p",
+      "127.0.0.1::5432",
+      "-e",
+      "POSTGRES_HOST_AUTH_METHOD=trust",
+      "-e",
+      "POSTGRES_DB=ephurin_test_astra_draft_0b2257dc51",
+      "pgvector/pgvector:pg16"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-draft-0b2257dc51-mongo",
+      "--label",
+      "astra.task=draft-read-authz",
+      "-p",
+      "127.0.0.1::27017",
+      "mongo:7"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-draft-0b2257dc51-pg",
+      "5432"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-draft-0b2257dc51-mongo",
+      "27017"
+    ],
+    "exit_code": 0
+  }
+]

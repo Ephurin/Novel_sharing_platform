@@ -1,0 +1,12 @@
+[
+  {
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "--test",
+      "src/modules/novels/mongo-reconciliation.live.test.ts"
+    ],
+    "exit_code": 1
+  }
+]

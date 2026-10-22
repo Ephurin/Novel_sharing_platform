@@ -1,0 +1,11 @@
+{"level":30,"time":1792683485941,"pid":2928,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection ready"}
+{"level":50,"time":1792683486311,"pid":2928,"hostname":"LAPTOP-2CITHEGB","err":{"type":"DatabaseError","message":"relation \"users\" does not exist","stack":"error: relation \"users\" does not exist\n    at C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\node_modules\\pg\\lib\\client.js:652:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async createUserAccount (C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\auth\\auth.repository.ts:59:22)\n    at async withPostgresTransaction (C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\core\\database\\transaction.ts:11:20)\n    at async register (C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\auth\\auth.service.ts:106:18)\n    at async registerController (C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend\\src\\modules\\auth\\auth.controller.ts:39:20)","length":104,"name":"error","severity":"ERROR","code":"42P01","position":"20","file":"parse_relation.c","line":"1449","routine":"parserOpenTable"},"msg":"relation \"users\" does not exist"}
+{"level":30,"time":1792683486332,"pid":2928,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+{"level":30,"time":1792683486336,"pid":2928,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+AssertionError [ERR_ASSERTION]: POST /auth/register: {"success":false,"data":null,"error":{"code":"SYS_001","message":"Internal Server Error"},"meta":{}}
+
+500 !== 201
+
+{"level":30,"time":1792683501118,"pid":28524,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection ready"}
+{"level":30,"time":1792683504540,"pid":28524,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+{"level":30,"time":1792683504545,"pid":28524,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}

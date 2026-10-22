@@ -1,0 +1,382 @@
+{
+  "baseline-regression-commands.json": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "green-commands.json": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/scripts/verify-draft-read-authz.ts"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/scripts/verify-draft-read-authz.ts"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/scripts/verify-draft-read-authz.ts"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/scripts/verify-draft-read-authz.ts"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "migrate-commands.json": [
+    {
+      "command": [
+        "npm.cmd",
+        "run",
+        "db:migrate"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "npm.cmd",
+        "run",
+        "db:migrate"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "provision-commands.json": [
+    {
+      "command": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "astra-draft-e704ac757b-pg",
+        "--label",
+        "astra.task=draft-read-authz",
+        "-p",
+        "127.0.0.1::5432",
+        "-e",
+        "POSTGRES_HOST_AUTH_METHOD=trust",
+        "-e",
+        "POSTGRES_DB=ephurin_test_astra_draft_e704ac757b",
+        "pgvector/pgvector:pg16"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "astra-draft-e704ac757b-mongo",
+        "--label",
+        "astra.task=draft-read-authz",
+        "-p",
+        "127.0.0.1::27017",
+        "mongo:7"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "port",
+        "astra-draft-e704ac757b-pg",
+        "5432"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "port",
+        "astra-draft-e704ac757b-mongo",
+        "27017"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "astra-draft-d7f67c6d1f-pg",
+        "--label",
+        "astra.task=draft-read-authz",
+        "-p",
+        "127.0.0.1::5432",
+        "-e",
+        "POSTGRES_HOST_AUTH_METHOD=trust",
+        "-e",
+        "POSTGRES_DB=ephurin_test_astra_draft_d7f67c6d1f",
+        "pgvector/pgvector:pg16"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "astra-draft-d7f67c6d1f-mongo",
+        "--label",
+        "astra.task=draft-read-authz",
+        "-p",
+        "127.0.0.1::27017",
+        "mongo:7"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "port",
+        "astra-draft-d7f67c6d1f-pg",
+        "5432"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "port",
+        "astra-draft-d7f67c6d1f-mongo",
+        "27017"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "red-commands.json": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/scripts/verify-draft-read-authz.ts"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "red-provision-commands.json": [
+    {
+      "command": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "astra-draft-0b2257dc51-pg",
+        "--label",
+        "astra.task=draft-read-authz",
+        "-p",
+        "127.0.0.1::5432",
+        "-e",
+        "POSTGRES_HOST_AUTH_METHOD=trust",
+        "-e",
+        "POSTGRES_DB=ephurin_test_astra_draft_0b2257dc51",
+        "pgvector/pgvector:pg16"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "astra-draft-0b2257dc51-mongo",
+        "--label",
+        "astra.task=draft-read-authz",
+        "-p",
+        "127.0.0.1::27017",
+        "mongo:7"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "port",
+        "astra-draft-0b2257dc51-pg",
+        "5432"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "port",
+        "astra-draft-0b2257dc51-mongo",
+        "27017"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "regression-commands.json": [
+    {
+      "command": [
+        "npm.cmd",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "npm.cmd",
+        "run",
+        "build"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/ai/job-resume-authorization.test.ts",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "regression-final-commands.json": [
+    {
+      "command": [
+        "npm.cmd",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "npm.cmd",
+        "run",
+        "build"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/draft-read-authorization.test.ts",
+        "src/modules/ai/job-resume-authorization.test.ts",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "npm.cmd",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "npm.cmd",
+        "run",
+        "build"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/draft-read-authorization.test.ts",
+        "src/modules/ai/job-resume-authorization.test.ts",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "initial_setup_failures": [
+    {
+      "command": "npm.cmd run db:migrate",
+      "exit_code": 1,
+      "reason": "new PostgreSQL container not yet ready; connection terminated unexpectedly; migration rerun succeeded"
+    },
+    {
+      "command": "node --import tsx src/scripts/verify-draft-read-authz.ts (RED first setup attempt)",
+      "exit_code": 1,
+      "reason": "users table absent after failed migration; rerun after successful migration passed"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "mode": "GREEN",
+  "passed": true,
+  "identity": {
+    "postgresDb": "ephurin_test_astra_draft_d7f67c6d1f",
+    "postgresServerAddr": "172.17.0.6",
+    "postgresServerPort": 5432,
+    "mongoDb": "ephurin_test_astra_draft_d7f67c6d1f",
+    "isIsolated": true,
+    "optInVerified": true
+  },
+  "checks": [
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /auth/register 201",
+    "POST /auth/login 200",
+    "POST /novels 201",
+    "POST /novels/3ab071e7-6966-4fae-99dc-7cbe7db458f7/chapters 201",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 200",
+    "GET /novels/3ab071e7-6966-4fae-99dc-7cbe7db458f7 200",
+    "public legacy novel detail exposes draft novel metadata, not chapter bodies; policy review remains",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 401",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 403",
+    "GET /novels/3ab071e7-6966-4fae-99dc-7cbe7db458f7/chapters 401",
+    "GET /novels/3ab071e7-6966-4fae-99dc-7cbe7db458f7/chapters 403",
+    "GET /novels/3ab071e7-6966-4fae-99dc-7cbe7db458f7/chapters 403",
+    "GET /novels/3ab071e7-6966-4fae-99dc-7cbe7db458f7/chapters 200",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 403",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 401",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717?authorId=d1b909cd-0480-42a9-a8b8-a4f5835d934d&novel_id=3ab071e7-6966-4fae-99dc-7cbe7db458f7 403",
+    "GET /chapters/7239e3c4-f1dd-42b4-934a-52a91d53a1de 404",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 200",
+    "direct service denies absent/foreign/reader auth; owner succeeds",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 401",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 403",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 200",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 401",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 403",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 200",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 401",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 403",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 200",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 401",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 403",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 200",
+    "GET /reading/chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 404",
+    "GET /reading/chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 200",
+    "GET /reading/chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 402",
+    "GET /reading/chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 402",
+    "GET /reading/chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 402",
+    "GET /reading/novels/3ab071e7-6966-4fae-99dc-7cbe7db458f7 200",
+    "POST /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717/unlock 200",
+    "GET /reading/chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 200",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 403",
+    "GET /novels/3ab071e7-6966-4fae-99dc-7cbe7db458f7/chapters 403",
+    "GET /reading/chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 402",
+    "GET /reading/chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 402",
+    "GET /novels/3ab071e7-6966-4fae-99dc-7cbe7db458f7 200",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 403",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 403",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 401",
+    "GET /chapters/21d79ec3-23cb-4dc2-b2d6-cb3a18c4c717 404"
+  ],
+  "snapshots": [
+    {
+      "stage": "private GET/list matrix",
+      "before": "fa3ca341266062e081679499bfac6d38a78815f2aa6071044fdf7e3eba43fd6c",
+      "after": "fa3ca341266062e081679499bfac6d38a78815f2aa6071044fdf7e3eba43fd6c"
+    },
+    {
+      "stage": "REJECTED",
+      "before": "f9fa278c36a31f96d805befca8d0165c5aba877eb2945aa7431d59c207894580",
+      "after": "f9fa278c36a31f96d805befca8d0165c5aba877eb2945aa7431d59c207894580"
+    },
+    {
+      "stage": "PENDING_MODERATION",
+      "before": "a707f561ec2290c1b875a9fafeecf49ddb2946f873b81460b5b26e8ee3fe3676",
+      "after": "a707f561ec2290c1b875a9fafeecf49ddb2946f873b81460b5b26e8ee3fe3676"
+    },
+    {
+      "stage": "ARCHIVED",
+      "before": "aa6ab074bbea82cd2394a20e222c8a0eff37c9204434b3c01ac9a815c766fd97",
+      "after": "aa6ab074bbea82cd2394a20e222c8a0eff37c9204434b3c01ac9a815c766fd97"
+    },
+    {
+      "stage": "PUBLISHED",
+      "before": "54224774801201f3c70c030965010afeadefacc01314cde74b09847b3c71ae7d",
+      "after": "54224774801201f3c70c030965010afeadefacc01314cde74b09847b3c71ae7d"
+    }
+  ],
+  "providerCalls": 0
+}
