@@ -21,7 +21,10 @@ def reconciliation(text):
                 value = old.get("fact_value")
                 if isinstance(value, dict):
                     value = value.get("value", value)
-                same = new.get("fact_key") == old.get("fact_key") and new.get("fact_value") == value
+                new_value = new.get("fact_value")
+                if isinstance(new_value, dict):
+                    new_value = new_value.get("value", new_value)
+                same = new.get("fact_key") == old.get("fact_key") and new_value == value
             if same:
                 target = key
                 break

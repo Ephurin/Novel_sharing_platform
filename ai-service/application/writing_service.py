@@ -328,7 +328,9 @@ class WritingService:
             style=dict(style or {}),
             expected_brain_version=expected_brain_version,
             actor_id=actor_id,
-            idempotency_key=idempotency_key,
+            # The durable unique index also covers requests without a client key.
+            # Give each such request its own identity; explicit replay keys stay unchanged.
+            idempotency_key=idempotency_key or f"generated:{job_id}",
             input_hash=input_hash,
             status="queued",
             stage="queued",

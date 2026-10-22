@@ -1,10 +1,12 @@
 """Repository regression (SQLite SQL backend); real PostgreSQL is tested by P1 HTTP E2E."""
 import uuid
+import hashlib
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from domain.models import NarrativeProposal
+from application.writing_service import WritingService
 from infrastructure.orm_models import Base, SCHEMA
 from infrastructure.postgres_narrative_repository import PostgresNarrativeRepository
 
@@ -38,5 +40,27 @@ def test_approved_entity_cutoff_comes_from_scoped_revision_provenance():
         approve(2)
         assert "Later Arrival" in names(2)
         assert "Later Arrival" not in names(1)
+    finally:
+        engine.dispose()
+
+
+def test_multiple_generations_without_client_key_have_unique_durable_identity():
+    engine = create_engine("sqlite://", execution_options={"schema_translate_map": {SCHEMA: None}})
+    Base.metadata.create_all(engine)
+    repo = PostgresNarrativeRepository(sessionmaker(bind=engine, expire_on_commit=False),
+                                      tenant_id=str(uuid.uuid4()), actor_id=str(uuid.uuid4()))
+    service = WritingService(repo, None)
+    text = "Source chapter."
+    args = dict(tenant_id=str(repo._tenant_id), novel_id=str(uuid.uuid4()),
+                chapter_id=str(uuid.uuid4()), revision_id=str(uuid.uuid4()),
+                content_hash=hashlib.sha256(text.encode()).hexdigest(), source_text=text,
+                selection={}, instruction="Continue", operation="continue", process_inline=False)
+    try:
+        first = service.start_generation(**args)
+        second = service.start_generation(**args)
+        assert first.job_id != second.job_id
+        assert first.idempotency_key != second.idempotency_key
+        keyed = service.start_generation(**args, idempotency_key="retry-once")
+        assert service.start_generation(**args, idempotency_key="retry-once").job_id == keyed.job_id
     finally:
         engine.dispose()

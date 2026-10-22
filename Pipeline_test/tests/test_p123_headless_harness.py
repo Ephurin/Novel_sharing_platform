@@ -54,3 +54,5 @@ def test_fake_append_only_reconciliation_reuses_old_value_and_proposes_new():
     result = reconciliation(json.dumps(data))
     assert [(d["action"], d["target_id"]) for d in result["decisions"]] == [("reuse", "old"), ("new", "")]
     assert result["removed_ids"] == []
+    data["candidates"][0]["payload"]["fact_value"] = {"value": "Source observation", "certainty": "confirmed"}
+    assert reconciliation(json.dumps(data))["decisions"][0]["action"] == "reuse"
