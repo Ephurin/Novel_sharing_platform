@@ -1,3 +1,5 @@
+import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';
+import { findLatestRevisionByChapterId } from './chapter-revisions.repository.js';
 import { ObjectId } from 'mongodb';
 import { getMongoDatabase } from '../../core/database/mongo.js';
 import { AppError } from '../../core/errors/app-error.js';
@@ -96,7 +98,14 @@ export async function syncDraftFromRevisionConditional(input: {
   acceptTimestamp: Date;
   novelId?: string;
   authorId?: string;
-}): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {
+}, parent?: ChapterWriterLease): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {
+  return withChapterWriter(input.chapterId, async () => {
+    const latest = await findLatestRevisionByChapterId(undefined, input.chapterId);
+    if (latest && latest.revisionId !== input.revisionId) return { status: 'skipped_newer_draft' as const };
+    return syncDraftUnderLease(input);
+  }, parent);
+}
+async function syncDraftUnderLease(input: Parameters<typeof syncDraftFromRevisionConditional>[0]): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {
   const now = new Date();
   const existing = await collection().findOne({ chapterId: input.chapterId, deletedAt: null });
   if (existing) {

@@ -1,0 +1,5 @@
+services:
+  backend:
+    environment:
+      P123_ORDERED_TEST: '1'
+      NODE_OPTIONS: --import=/wave-tools/ordered_writer_preload.mjs

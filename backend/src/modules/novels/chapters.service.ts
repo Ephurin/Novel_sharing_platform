@@ -1,3 +1,4 @@
+import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
@@ -109,6 +110,12 @@ export async function getChapter(chapterId: string) {
 
 export async function updateChapter(auth: AuthContext, chapterId: string, input: UpdateChapterInput) {
   const chapter = await findChapterById(chapterId);
+  if (!chapter) throw new AppError(404, 'CONTENT_001', 'Content not found');
+  assertOwner(await getNovel(chapter.novelId), auth);
+  return withChapterWriter(chapterId, lease => updateChapterUnderLease(auth, chapterId, input, lease));
+}
+async function updateChapterUnderLease(auth: AuthContext, chapterId: string, input: UpdateChapterInput, lease: ChapterWriterLease) {
+  const chapter = await findChapterById(chapterId);
 
   if (!chapter) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
@@ -176,7 +183,7 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
   }
 
   const revision = input.content !== undefined
-    ? await snapshotSavedChapter(auth, chapterId, input.content)
+    ? await snapshotSavedChapter(auth, chapterId, input.content, lease)
     : null;
 
   return {

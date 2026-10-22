@@ -1,3 +1,4 @@
+import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';
 import crypto from 'node:crypto';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
@@ -81,11 +82,15 @@ async function checkStoryBrainActive(novelId: string): Promise<boolean> {
   }
 }
 
-export async function createSnapshot(
-  auth: AuthContext,
-  chapterId: string,
-  input?: { content?: string; purpose?: 'AUTHOR_SNAPSHOT' | 'MANUSCRIPT_BOOTSTRAP' }
-): Promise<ChapterRevisionRecord> {
+export async function createSnapshot(auth: AuthContext, chapterId: string,
+  input?: { content?: string; purpose?: 'AUTHOR_SNAPSHOT' | 'MANUSCRIPT_BOOTSTRAP' }, parent?: ChapterWriterLease): Promise<ChapterRevisionRecord> {
+  const chapter = await findChapterById(chapterId);
+  if (!chapter) throw new AppError(404, 'CHAPTER_001', 'Chapter not found');
+  assertOwner(await getNovel(chapter.novelId), auth);
+  return withChapterWriter(chapterId, lease => createSnapshotUnderLease(auth, chapterId, input, lease), parent);
+}
+async function createSnapshotUnderLease(auth: AuthContext, chapterId: string,
+  input: { content?: string; purpose?: 'AUTHOR_SNAPSHOT' | 'MANUSCRIPT_BOOTSTRAP' } | undefined, lease: ChapterWriterLease): Promise<ChapterRevisionRecord> {
   const chapter = await findChapterById(chapterId);
   if (!chapter) {
     throw new AppError(404, 'CHAPTER_001', 'Chapter not found');
@@ -167,7 +172,7 @@ export async function createSnapshot(
       wordCount,
       acceptTimestamp: snapshotTime,
       novelId: chapter.novelId
-    });
+    }, lease);
   } catch (mongoErr: any) {
     console.error(
       `[DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB sync failed in snapshot for revision ${revision.revisionId}:`,
@@ -206,17 +211,19 @@ export async function createSnapshot(
 // Before the initial author-triggered extraction, saves remain ordinary drafts.
 // Once the baseline is active, every changed body creates a durable revision and
 // analysis outbox event. The worker never approves its proposals.
-export async function snapshotSavedChapter(auth: AuthContext, chapterId: string, content: string) {
+export async function snapshotSavedChapter(auth: AuthContext, chapterId: string, content: string, lease?: ChapterWriterLease) {
   const chapter = await findChapterById(chapterId);
   if (!chapter || !(await checkStoryBrainActive(chapter.novelId))) return null;
-  return createSnapshot(auth, chapterId, { content, purpose: 'AUTHOR_SNAPSHOT' });
+  return createSnapshot(auth, chapterId, { content, purpose: 'AUTHOR_SNAPSHOT' }, lease);
 }
 
-export async function acceptDraft(
-  auth: AuthContext,
-  chapterId: string,
-  input: { generationId: string }
-): Promise<{ revision: ChapterRevisionRecord; chapterId: string }> {
+export async function acceptDraft(auth: AuthContext, chapterId: string, input: { generationId: string }): Promise<{ revision: ChapterRevisionRecord; chapterId: string }> {
+  const chapter = await findChapterById(chapterId);
+  if (!chapter) throw new AppError(404, 'CHAPTER_001', 'Chapter not found');
+  assertOwner(await getNovel(chapter.novelId), auth);
+  return withChapterWriter(chapterId, lease => acceptDraftUnderLease(auth, chapterId, input, lease));
+}
+async function acceptDraftUnderLease(auth: AuthContext, chapterId: string, input: { generationId: string }, lease: ChapterWriterLease): Promise<{ revision: ChapterRevisionRecord; chapterId: string }> {
   const chapter = await findChapterById(chapterId);
   if (!chapter) {
     throw new AppError(404, 'CHAPTER_001', 'Chapter not found');
@@ -408,7 +415,7 @@ export async function acceptDraft(
       acceptTimestamp: acceptTime,
       novelId: chapter.novelId,
       authorId: auth.userId,
-    });
+    }, lease);
     if (syncRes.status === 'skipped_newer_draft') {
       console.log(
         `[MongoDB Reconciliation] Skipped draft sync for revision ${newRevision.revisionId}: newer manual draft in progress.`
