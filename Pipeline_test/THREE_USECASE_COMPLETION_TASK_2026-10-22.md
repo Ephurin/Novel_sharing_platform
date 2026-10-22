@@ -1,4 +1,10 @@
-# ACTIVE DELIVERY TASK — Finish P1, P2 and P3 as usable author journeys
+# PARKED PLAN — NOT AUTHORIZED FOR EXECUTION
+
+**Owner correction (2026-10-22):** Suspend this plan pending completion and review of FE developer pull requests. Codex must not begin P1/P2/P3 integration, self-implement FE S09 fixes, cherry-pick PR #55 or reinterpret the earlier full-stack ownership as current permission. Wait for an explicit restart after FE review. Production frontend ownership remains with the FE developer. The following text is historical planning material, preserved to resume later. The controlling instruction is `../promt.md` section 0 and `ACTIVE_GEMINI_TASK.md`.
+
+---
+
+# HISTORICAL DELIVERY PLAN — Finish P1, P2 and P3 as usable author journeys
 
 **Decision date:** 2026-10-22 (Asia/Bangkok)
 **Execution branch:** `codex/ai-copilot-pipeline-test` only
