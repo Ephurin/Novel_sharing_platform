@@ -21,7 +21,10 @@ def run(env,output,noplan=False):
   p.check('plan_not_history',p.read_memory()==m0)
   p.stage='P3_step_HITL'
   for step in range(12):
-   before=p.read_memory();run=p.api('POST','/ai/autonomous/runs/'+rid+'/step',{});p.save('step-'+str(step),run)
+   before=p.read_memory()
+   if step==0: run=p.api('POST','/ai/autonomous/runs/'+rid+'/run',{'max_steps':2})['run']
+   else: run=p.api('POST','/ai/autonomous/runs/'+rid+'/step',{})
+   p.save('step-'+str(step),run)
    if run['stop_reason']=='waiting_for_entity_review':
     p.check('pause_no_canon_'+str(step),p.read_memory()==before)
     chapter=run['current_chapter_id'];revision=p.latest(chapter)

@@ -1,8 +1,11 @@
 """Bounded P3 fake scenario. Structured plumbing only, not quality evidence."""
 import json,re
+from pathlib import Path
 
 def response(text,fallback):
     if 'Suggest future events for a novel' in text:
+        if Path('/evidence/p3-invalid-plan').exists():
+            return json.dumps({'events':[{'title':'Invalid plan','description':'Missing ending fixture','target_chapter':1,'min_words':1,'ending':False}]})
         match=re.search(r'Start at chapter (\d+)',text);start=int(match.group(1)) if match else 1
         return json.dumps({'events':[{'title':'P3 observe','description':'Mai Linh checks the note.','target_chapter':start,'min_words':1,'ending':False},{'title':'P3 resolved ending','description':'Duy closes the scene.','target_chapter':start+1,'min_words':1,'ending':True}]})
     if 'Evaluate whether the supplied actual prose' in text:
