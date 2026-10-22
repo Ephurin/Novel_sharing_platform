@@ -1,16 +1,18 @@
-# ACTIVE CODEX TASK — HEADLESS CORE P1 → P2 → P3 (FE INTEGRATION HOLD)
+# ACTIVE CODEX TASK — P1 CORE CLOSURE + P2 HEADLESS (FE INTEGRATION HOLD)
 
-**Updated:** 2026-10-22 (Asia/Bangkok). **Branch:** `codex/ai-copilot-pipeline-test` only.
+**Updated:** 2026-10-22 (Asia/Bangkok). **Permitted branch:** `codex/ai-copilot-pipeline-test`.
 
-**Single executable Codex task:** [P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md](P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md). Project directive: [../promt.md](../promt.md) §0. Behavioral authority: [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
+**Only current executable task:** [P123_HEADLESS_NEXT_SLICE_2026-10-22.md](P123_HEADLESS_NEXT_SLICE_2026-10-22.md). [Project priority](../promt.md) §0, [WORKFLOW_CONTRACT.md](WORKFLOW_CONTRACT.md) v1.4.
 
-**Decision:** `HOLD_FE_INTEGRATION_ONLY`: resume AI-service/backend/database/HTTP API headless E2E for P1 then P2 then P3 immediately. Codex may fix isolated core defects and write backend/AI/service test harness on this branch. Do **not** edit `web/`, FE-owned PR #52/#54/#55, Author IDE autosave hook, or FE integration. FE reviews are separate; no waiting for them on core work. The previous [THREE_USECASE_COMPLETION_TASK_2026-10-22.md](THREE_USECASE_COMPLETION_TASK_2026-10-22.md) stays PARKED because it authorized FE work.
+**Independent review:** [GPT6_P1_CORE_INDEPENDENT_REVIEW.md](reviews/2026-10-22-p123-headless/GPT6_P1_CORE_INDEPENDENT_REVIEW.md) examined source SHA `b5c9c8db6bfd976f37d8811c2db45ad40691fd99` and evidence HEAD `64407f72a7d5182f2f850d386375c7ac709ddd3a`. The bounded 33-check P1 slice is credible executor evidence, **accepted for progressing work only**. The reviewer did not rerun the Docker/pytest E2E. No full `P1_CORE_OFFLINE_PASS`.
 
-**Immediate P1 slice:** 5-chapter source-grounded immutable revisions → supported entity review/canon acceptance → PostgreSQL readback → outbound context hash/parity through fake HTTP gateway → versioned writer/save/outbox/analysis with retry. Repair Wave 1H synthetic fixture provenance, wrong-tenant, actually seeded future entity, attached future plan and budget/retrieval claim gaps. Use scripted human review **via supported authenticated API**, labeled as simulated API actor, not actual UI.
+**Priority now:** Reproduce/resolve P1 backend optimistic PATCH concurrency when compatible with PR #55's contract; test real accept-generated-draft→revision→outbox→memory, DB failure recovery, locked-rule/overflow and unknown-origin temporal policies. Then execute a **new isolated P2 idea/setup-to-first-chapter headless journey**. P1 API gap may be marked BLOCKED with evidence without blocking independent P2 development; do not fabricate a version protocol. Prepare P3 checklist for the next handoff.
 
-**Acceptance scope:** `P1/P2/P3_CORE_OFFLINE_PASS` is not UI S01–S11 PASS, real Gemini quality, semantic retrieval quality, P3 100k or provider-backed acceptance. S09 browser RED and FE-owned Issue #56 stay unresolved pending FE integration; no fake GREEN. Zero external real provider or embedding calls, test-owned isolated DB and fake upstream, protect all historical evidence/ledger/gold. Only backend/AI/API/headless code + sanitized evidence on branch; no merge or auto publication.
+**Ownership boundary:** `HOLD_FE_INTEGRATION_ONLY`. Codex owns backend, AI service, API headless E2E, test-owned migrations. FE developer owns `web/`, Author IDE autosave and PR #52/#54/#55. No frontend edits, cherry-picks, PR merges or main changes. Historical S09 browser RED remains. API-mediated fake human review is not UI acceptance.
 
-Historical instructions below are **superseded** as active Codex tasks. Follow the single task above.
+**Safety:** New isolated project/DB/Mongo/identity/run, fake-only LLM and zero external Gemini/OpenAI/embedding calls; preserve historical artifacts and ledger. No auto publish. P3 100k long-run NOT_RUN; live provider and literary quality NOT_TESTED.
+
+The earlier [P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md](P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md) first P1 slice is **delivered**, and [THREE_USECASE_COMPLETION_TASK_2026-10-22.md](THREE_USECASE_COMPLETION_TASK_2026-10-22.md) remains PARKED. Historical instructions below are not current assignments.
 
 ---
 
