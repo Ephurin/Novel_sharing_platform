@@ -4,12 +4,12 @@
 
 **New owner decision:** Replace `HOLD_ALL` with **`HOLD_FE_INTEGRATION_ONLY`**. Codex should resume **P1 → P2 → P3 core workflows** now, not wait for FE developer reviews. However FE production/source work, Author IDE autosave, PR #52/#54/#55 and browser UI acceptance remain strictly on hold. The earlier instruction granting Codex full-stack FE ownership is **revoked**.
 
-**SINGLE ACTIVE CODEX TASK:** [Pipeline_test/P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md](Pipeline_test/P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md). `Pipeline_test/ACTIVE_GEMINI_TASK.md` must point to the same active task. The parked [THREE_USECASE_COMPLETION_TASK_2026-10-22.md](Pipeline_test/THREE_USECASE_COMPLETION_TASK_2026-10-22.md) is **not authorized** until FE review and a new explicit decision.
+**SINGLE ACTIVE CODEX TASK:** [Pipeline_test/P123_HEADLESS_NEXT_SLICE_2026-10-22.md](Pipeline_test/P123_HEADLESS_NEXT_SLICE_2026-10-22.md). The previous [P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md](Pipeline_test/P123_HEADLESS_CORE_DELIVERY_TASK_2026-10-22.md) has a bounded P1 slice delivered and reviewed at source/evidence level. `Pipeline_test/ACTIVE_GEMINI_TASK.md` must point to the same active task. The parked [THREE_USECASE_COMPLETION_TASK_2026-10-22.md](Pipeline_test/THREE_USECASE_COMPLETION_TASK_2026-10-22.md) is **not authorized** until FE review and a new explicit decision.
 
-**Product priority:**
-1. **P1 headless CORE** — existing manuscript → real approved durable Story Brain → writing/immutable revisions/outbox/memory; resolve Wave 1H provenance gaps by supported APIs and read-only DB evidence.
-2. **P2 headless CORE** — idea/setup → explicit entity review and baseline → future Story Plan → first chapter → shared writing loop.
-3. **P3 headless CORE** — bounded multi-objective controller with/without plan, HITL gate, resume/failure safety, draft-only persistence; final 100k–105k canonical finished-novel acceptance later and separately authorized.
+**Product priority (current next slice):**
+1. **P1 remaining CORE guards** — independent evidence review has accepted the bounded 33-check source→canon→HTTP/M-FIRST slice for further development, but **not full P1 PASS**. Address PATCH version conflict, accepted-generated-draft E2E, DB fault recovery, locked rule/overflow and legacy cutoff provenance. See [GPT-6 review](Pipeline_test/reviews/2026-10-22-p123-headless/GPT6_P1_CORE_INDEPENDENT_REVIEW.md).
+2. **P2 headless CORE** — begin from idea/setup (not manuscript), explicit entity review and baseline → future Story Plan → first accepted/saved chapter → shared writing loop; independent isolated project.
+3. **P3 headless CORE** — next after P2 functional evidence; bounded multi-objective controller with/without plan, HITL gate, resume/failure safety, draft-only persistence. 100k–105k final separate and not authorized live.
 
 **Ownership:** Codex may implement/repair backend, AI Service, migrations in isolated test DBs, and a headless API E2E harness **on `codex/ai-copilot-pipeline-test` only**. FE developer exclusively owns FE PR code; do not edit `web/`, cherry-pick, merge or self-patch production frontend. GPT-6 independently reviews evidence and gate decisions. Existing separately owned Wallet/VIP work is unaffected.
 
@@ -17,7 +17,7 @@
 
 **Hard safety boundary:** ZERO actual external Gemini/OpenAI/embedding calls until renewed explicit authorization. Isolated fake provider and test-owned stack only; no historical evidence/gold/ledger mutation, no production data writes, no auto publication, no main or FE branch writes, no PR merge.
 
-This section supersedes conflicting instructions below in §4/§5/§7, which are historical or independently assigned tasks. Proceed immediately with the first P1 headless slice in the linked active task and commit/push sanitized evidence for remote review.
+This section supersedes conflicting instructions below in §4/§5/§7, which are historical or independently assigned tasks. Proceed with the next P1 core closure and P2 headless slice in the active task, and commit/push sanitized evidence for remote review.
 
 ---
 
