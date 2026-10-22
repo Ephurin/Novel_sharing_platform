@@ -1,125 +1,171 @@
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { randomUUID, createHash } from 'node:crypto';
 import { connectMongo, disconnectMongo, getMongoDatabase } from '../../core/database/mongo.js';
-import {
-  syncDraftFromRevisionConditional,
-  findDraftChapterByChapterId,
-  upsertDraftChapter,
-} from './draft-chapters.repository.js';
+import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
+import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
+import { findLatestRevisionByChapterId } from './chapter-revisions.repository.js';
+import { syncDraftFromRevisionConditional, findDraftChapterByChapterId, upsertDraftChapter } from './draft-chapters.repository.js';
 
 describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
-  const testChapterId = `live-test-chap-${Date.now()}`;
-  const testNovelId = `live-test-novel-${Date.now()}`;
-  const testAuthorId = `live-test-author-${Date.now()}`;
+  const pool = getPostgresPool();
+  const db = getMongoDatabase();
+  const authorId = randomUUID();
+  const novelId = randomUUID();
+  const sentinelAuthorId = randomUUID();
+  // Deliberately resembles the old cleanup prefix: it must survive fixture cleanup.
+  const sentinelChapterId = `live-test-chap-sentinel-${randomUUID()}`;
+  const fixtures = Array.from({ length: 3 }, (_, index) => ({
+    chapterId: randomUUID(), parentId: randomUUID(), revisionId: randomUUID(),
+    title: `Reconciliation fixture ${index + 1}`, content: `Accepted canonical body ${index + 1}`,
+    acceptedAt: new Date(Date.now() - 10_000),
+  }));
+  const chapterIds = fixtures.map(f => f.chapterId);
+  const revisionIds = fixtures.flatMap(f => [f.parentId, f.revisionId]);
+  let seeded = false;
+  let mongoSentinelInserted = false;
+  let sentinelPg: unknown;
+  let sentinelMongo: unknown;
+  const hash = (value: string) => createHash('sha256').update(value).digest('hex');
+
+  async function ownedSnapshot() {
+    return {
+      users: (await pool.query('select user_id from users where user_id=$1', [authorId])).rows,
+      novels: (await pool.query('select novel_id from novels where novel_id=$1', [novelId])).rows,
+      chapters: (await pool.query('select chapter_id,latest_revision_id from chapters where chapter_id=any($1::uuid[]) order by chapter_id', [chapterIds])).rows,
+      revisions: (await pool.query('select revision_id,parent_revision_id,content_hash from chapter_revisions where revision_id=any($1::uuid[]) order by revision_id', [revisionIds])).rows,
+      drafts: await db.collection('draft_chapters').find({chapterId: {$in: chapterIds}}).sort({chapterId:1}).toArray(),
+    };
+  }
 
   before(async () => {
+    // Validate live targets before indexes, inserts, or cleanup can mutate either store.
+    const identity = await validateTestDatabaseIsolation(pool, db);
     await connectMongo();
-    // Clean up any stale test doc
-    const db = getMongoDatabase();
-    await db.collection('draft_chapters').deleteMany({
-      chapterId: { $regex: '^live-test-chap-' },
-    });
+    const beforeSetup = await ownedSnapshot();
+    assert.ok(Object.values(beforeSetup).every(rows => rows.length === 0));
+    const client = await pool.connect();
+    try {
+      await client.query('begin');
+      for (const id of [authorId, sentinelAuthorId]) {
+        await client.query("insert into users(user_id,email,username,role) values($1,$2,$3,'AUTHOR')", [id,`${id}@example.test`,`reconcile_${id}`]);
+      }
+      await client.query("insert into novels(novel_id,author_id,title,slug,synopsis) values($1,$2,'Reconciliation fixture',$3,'Synthetic test only')", [novelId,authorId,`reconcile-${novelId}`]);
+      for (const [index, f] of fixtures.entries()) {
+        await client.query('insert into chapters(chapter_id,novel_id,chapter_number,title,content,word_count) values($1,$2,$3,$4,$5,4)', [f.chapterId,novelId,index+1,f.title,f.content]);
+        for (const parent of [true,false]) {
+          const content = parent ? 'Previous canonical body' : f.content;
+          await client.query(`insert into chapter_revisions(revision_id,novel_id,chapter_id,parent_revision_id,content_hash,content,word_count,source_type,created_by,created_at)
+            values($1,$2,$3,$4,$5,$6,4,'AUTHOR_MANUAL',$7,$8)`,
+          [parent ? f.parentId : f.revisionId,novelId,f.chapterId,parent ? null : f.parentId,hash(content),content,authorId,new Date(f.acceptedAt.getTime()-(parent ? 10_000 : 0))]);
+        }
+        await client.query('update chapters set latest_revision_id=$1 where chapter_id=$2',[f.revisionId,f.chapterId]);
+      }
+      await client.query('commit');
+      seeded = true;
+    } catch (error) {
+      await client.query('rollback');
+      throw error;
+    } finally { client.release(); }
+    sentinelPg = (await pool.query('select * from users where user_id=$1',[sentinelAuthorId])).rows[0];
+    await db.collection('draft_chapters').insertOne({chapterId:sentinelChapterId,content:'Unrelated sentinel; never reconcile or prefix-delete',version:7});
+    mongoSentinelInserted = true;
+    sentinelMongo = await db.collection('draft_chapters').findOne({chapterId:sentinelChapterId});
+    console.log(JSON.stringify({stage:'fixture_setup',identity,beforeSetup,afterSetup:await ownedSnapshot()}));
   });
 
   after(async () => {
-    const db = getMongoDatabase();
-    await db.collection('draft_chapters').deleteMany({
-      chapterId: { $regex: '^live-test-chap-' },
-    });
-    await disconnectMongo();
+    try {
+      if (seeded) {
+        const beforeCleanup = await ownedSnapshot();
+        await db.collection('draft_chapters').deleteMany({chapterId:{$in:chapterIds}});
+        await pool.query('update chapters set latest_revision_id=null where chapter_id=any($1::uuid[])',[chapterIds]);
+        await pool.query('delete from chapter_revisions where revision_id=any($1::uuid[])',[revisionIds]);
+        await pool.query('delete from chapters where chapter_id=any($1::uuid[])',[chapterIds]);
+        await pool.query('delete from novels where novel_id=$1',[novelId]);
+        await pool.query('delete from users where user_id=$1',[authorId]);
+        const afterCleanup = await ownedSnapshot();
+        assert.ok(Object.values(afterCleanup).every(rows => rows.length===0),'exact fixture cleanup must remove every owned row/document');
+        try {
+          if (sentinelPg) assert.deepEqual((await pool.query('select * from users where user_id=$1',[sentinelAuthorId])).rows[0],sentinelPg);
+          if (sentinelMongo) assert.deepEqual(await db.collection('draft_chapters').findOne({chapterId:sentinelChapterId}),sentinelMongo);
+          console.log(JSON.stringify({stage:'fixture_cleanup',beforeCleanup,afterCleanup,sentinelsPreserved:!!sentinelPg && !!sentinelMongo}));
+        } finally {
+          // Sentinel teardown is separate and occurs only after preservation assertions.
+          if (mongoSentinelInserted) await db.collection('draft_chapters').deleteOne({chapterId:sentinelChapterId});
+          await pool.query('delete from users where user_id=$1',[sentinelAuthorId]);
+        }
+      }
+    } finally {
+      await Promise.all([disconnectMongo(),disconnectPostgres()]);
+    }
   });
 
-  test('Targeted Probe 1: Older draft is cleanly updated by accepted revision', async () => {
-    // 1. Seed initial draft with older timestamp (10 seconds ago)
-    const tenSecondsAgo = new Date(Date.now() - 10000);
-    await upsertDraftChapter({
-      novelId: testNovelId,
-      chapterId: testChapterId,
-      authorId: testAuthorId,
-      title: 'Bản thảo ban đầu',
-      content: 'Nội dung ban đầu của tác giả',
-      wordCount: 6,
-      autosave: false,
-    });
+  async function acceptedInput(index: number) {
+    const f = fixtures[index];
+    const revision = await findLatestRevisionByChapterId(undefined,f.chapterId);
+    assert.ok(revision,'a real latest PG revision must exist; latest=null is not this test');
+    assert.equal(revision.revisionId,f.revisionId);
+    assert.equal(revision.parentRevisionId,f.parentId);
+    assert.equal(revision.novelId,novelId);
+    assert.equal(revision.createdBy,authorId);
+    assert.equal(revision.contentHash,hash(f.content));
+    assert.equal(revision.content,f.content);
+    return {chapterId:f.chapterId,novelId:revision.novelId,authorId:revision.createdBy!,revisionId:revision.revisionId,title:f.title,content:revision.content,wordCount:revision.wordCount,acceptTimestamp:revision.createdAt};
+  }
 
-    const db = getMongoDatabase();
-    await db.collection('draft_chapters').updateOne(
-      { chapterId: testChapterId },
-      { $set: { updatedAt: tenSecondsAgo } }
-    );
-
-    // 2. Sync accepted revision with newer timestamp (5 seconds ago)
-    const fiveSecondsAgo = new Date(Date.now() - 5000);
-    const syncRes = await syncDraftFromRevisionConditional({
-      novelId: testNovelId,
-      chapterId: testChapterId,
-      authorId: testAuthorId,
-      revisionId: 'rev-ai-accept-001',
-      title: 'Bản thảo cập nhật AI',
-      content: 'Nội dung AI đã được tác giả chấp nhận',
-      wordCount: 8,
-      acceptTimestamp: fiveSecondsAgo,
-    });
-
-    assert.equal(syncRes.status, 'synced');
-    assert.equal(syncRes.draft?.content, 'Nội dung AI đã được tác giả chấp nhận');
-    assert.equal(syncRes.draft?.lastAcceptedRevisionId, 'rev-ai-accept-001');
+  test('Targeted Probe 1: Older draft is cleanly updated by accepted revision', async (t) => {
+    const input = await acceptedInput(0);
+    const original = await upsertDraftChapter({...input,content:'Older editor buffer',autosave:false});
+    assert.ok(original);
+    await db.collection('draft_chapters').updateOne({chapterId:input.chapterId},{$set:{updatedAt:new Date(input.acceptTimestamp.getTime()-1000)}});
+    const result = await syncDraftFromRevisionConditional(input);
+    assert.equal(result.status,'synced');
+    const stored = await findDraftChapterByChapterId(input.chapterId);
+    assert.deepEqual(result.draft,stored);
+    assert.equal(stored?.content,input.content);
+    assert.equal(stored?.lastAcceptedRevisionId,input.revisionId);
+    assert.equal(stored?.lastAcceptedAt?.getTime(),input.acceptTimestamp.getTime());
+    assert.equal(stored?.version,original.version+1);
+    assert.equal(stored?.novelId,novelId);
+    assert.equal(stored?.authorId,authorId);
+    t.diagnostic(JSON.stringify({probe:1,latestRevision:input.revisionId,parentRevision:fixtures[0].parentId,draft:stored}));
   });
 
-  test('Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync', async () => {
-    // 1. Author performs manual edit right now (newer timestamp)
-    const manualEditTime = new Date();
-    await upsertDraftChapter({
-      novelId: testNovelId,
-      chapterId: testChapterId,
-      authorId: testAuthorId,
-      title: 'Tác giả sửa tay mới nhất',
-      content: 'Nội dung sửa tay quan trọng vừa viết xong!',
-      wordCount: 8,
-      autosave: false,
-    });
-
-    // 2. A delayed outbox worker runs with older acceptTimestamp (e.g., 20 seconds ago)
-    const delayedAcceptTime = new Date(Date.now() - 20000);
-    const delayedSync = await syncDraftFromRevisionConditional({
-      novelId: testNovelId,
-      chapterId: testChapterId,
-      authorId: testAuthorId,
-      revisionId: 'rev-stale-outbox',
-      content: 'Nội dung outbox cũ đến muộn',
-      wordCount: 6,
-      acceptTimestamp: delayedAcceptTime,
-    });
-
-    assert.equal(delayedSync.status, 'skipped_newer_draft');
-    assert.equal(delayedSync.draft?.content, 'Nội dung sửa tay quan trọng vừa viết xong!');
-
-    // Verify in DB directly
-    const currentDoc = await findDraftChapterByChapterId(testChapterId);
-    assert.equal(currentDoc?.content, 'Nội dung sửa tay quan trọng vừa viết xong!');
-    assert.notEqual(currentDoc?.lastAcceptedRevisionId, 'rev-stale-outbox');
+  test('Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync', async (t) => {
+    const input = await acceptedInput(1);
+    await upsertDraftChapter({...input,content:'Newer manual edit must survive',autosave:false});
+    const before = await findDraftChapterByChapterId(input.chapterId);
+    assert.ok(before && before.updatedAt>input.acceptTimestamp);
+    // Incoming revision IS latest: reach the timestamp guard, not the PG superseded guard.
+    const delayed = await syncDraftFromRevisionConditional(input);
+    assert.equal(delayed.status,'skipped_newer_draft');
+    assert.deepEqual(delayed.draft,before);
+    assert.deepEqual(await findDraftChapterByChapterId(input.chapterId),before);
+    assert.notEqual(before.lastAcceptedRevisionId,input.revisionId);
+    // A superseded revision must also be rejected even with a newer timestamp.
+    const superseded = await syncDraftFromRevisionConditional({...input,revisionId:fixtures[1].parentId,acceptTimestamp:new Date(before.updatedAt.getTime()+1000)});
+    assert.equal(superseded.status,'skipped_newer_draft');
+    assert.equal(superseded.draft,undefined);
+    const after = await findDraftChapterByChapterId(input.chapterId);
+    assert.deepEqual(after,before);
+    t.diagnostic(JSON.stringify({probe:2,latestRevision:input.revisionId,before,after,supersededStatus:superseded.status}));
   });
 
-  test('Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId', async () => {
-    const freshChapterId = `live-test-chap-nodraft-${Date.now()}`;
-    const syncNullRes = await syncDraftFromRevisionConditional({
-      novelId: testNovelId,
-      chapterId: freshChapterId,
-      authorId: testAuthorId,
-      revisionId: 'rev-recovery-001',
-      title: 'Chương phục hồi',
-      content: 'Bản thảo ban đầu được phục hồi từ revision',
-      wordCount: 8,
-      acceptTimestamp: new Date(),
-    });
-
-    assert.equal(syncNullRes.status, 'synced');
-    assert.ok(syncNullRes.draft);
-    assert.equal(syncNullRes.draft.chapterId, freshChapterId);
-    assert.equal(syncNullRes.draft.version, 1);
-    assert.equal(syncNullRes.draft.novelId, testNovelId);
-    assert.equal(syncNullRes.draft.authorId, testAuthorId);
-    assert.ok(syncNullRes.draft.novelId.length > 0, 'novelId must not be empty');
-    assert.ok(syncNullRes.draft.authorId.length > 0, 'authorId must not be empty');
+  test('Targeted Probe 3: No-draft recovery creates document with trusted ownership and version', async (t) => {
+    const input = await acceptedInput(2);
+    assert.equal(await findDraftChapterByChapterId(input.chapterId),null);
+    const result = await syncDraftFromRevisionConditional(input);
+    assert.equal(result.status,'synced');
+    const stored = await findDraftChapterByChapterId(input.chapterId);
+    assert.deepEqual(result.draft,stored);
+    assert.equal(stored?.chapterId,input.chapterId);
+    assert.equal(stored?.novelId,novelId);
+    assert.equal(stored?.authorId,authorId);
+    assert.equal(stored?.version,1);
+    assert.equal(stored?.content,input.content);
+    assert.equal(stored?.lastAcceptedRevisionId,input.revisionId);
+    assert.equal(stored?.lastAcceptedAt?.getTime(),input.acceptTimestamp.getTime());
+    t.diagnostic(JSON.stringify({probe:3,before:null,latestRevision:input.revisionId,draft:stored}));
   });
 });
