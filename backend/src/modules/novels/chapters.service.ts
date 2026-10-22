@@ -17,6 +17,20 @@ import {
 import { findDraftChapterByChapterId, upsertDraftChapter } from './draft-chapters.repository.js';
 import { getNovel } from './novels.service.js';
 import { snapshotSavedChapter } from './chapter-revisions.service.js';
+import { findAuthUserById } from '../auth/auth.repository.js';
+
+// Private author projections must also be safe for direct service callers.
+async function assertDraftReader(auth: AuthContext) {
+  if (!auth?.userId) throw new AppError(401, 'AUTH_002', 'Missing access token');
+  if (!['AUTHOR', 'ADMIN'].includes(auth.role)) {
+    throw new AppError(403, 'AUTH_008', 'Unauthorized action');
+  }
+  const user = await findAuthUserById(auth.userId);
+  if (!user) throw new AppError(401, 'AUTH_002', 'Missing or invalid account');
+  if (user.status !== 'ACTIVE' || user.role !== auth.role) {
+    throw new AppError(403, 'AUTH_008', 'Unauthorized action');
+  }
+}
 
 function countWords(content: string) {
   return content.trim().split(/\s+/).filter(Boolean).length;
@@ -79,18 +93,21 @@ export async function createChapter(auth: AuthContext, novelId: string, input: C
   };
 }
 
-export async function listChapters(novelId: string) {
-  await getNovel(novelId);
+export async function listChapters(novelId: string, auth: AuthContext) {
+  await assertDraftReader(auth);
+  assertOwner(await getNovel(novelId), auth);
   return listChaptersByNovelId(novelId);
 }
 
-export async function getChapter(chapterId: string) {
+export async function getChapter(chapterId: string, auth: AuthContext) {
+  await assertDraftReader(auth);
   const chapter = await findChapterById(chapterId);
 
   if (!chapter) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
 
+  assertOwner(await getNovel(chapter.novelId), auth);
   const draft = await findDraftChapterByChapterId(chapterId);
 
   return {

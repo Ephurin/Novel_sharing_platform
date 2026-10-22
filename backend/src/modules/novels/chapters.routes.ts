@@ -24,7 +24,7 @@ export const chaptersRoutes = Router();
 
 const requireAuthor = [requireAuth, requireRoles(['AUTHOR', 'ADMIN'])];
 
-chaptersRoutes.get('/:chapterId', validateRequest(chapterIdParamSchema), getChapterController);
+chaptersRoutes.get('/:chapterId', ...requireAuthor, validateRequest(chapterIdParamSchema), getChapterController);
 chaptersRoutes.patch('/:chapterId', ...requireAuthor, validateRequest(updateChapterSchema), updateChapterController);
 chaptersRoutes.post(
   '/:chapterId/submit-publish',

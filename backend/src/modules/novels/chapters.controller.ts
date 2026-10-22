@@ -28,7 +28,7 @@ export const createChapterController: RequestHandler = async (request, response,
 
 export const listChaptersController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await listChapters(String(request.params.novelId));
+    const result = await listChapters(String(request.params.novelId), requireRequestAuth(request));
     response.json(successResponse(result));
   } catch (error) {
     next(error);
@@ -37,7 +37,7 @@ export const listChaptersController: RequestHandler = async (request, response, 
 
 export const getChapterController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await getChapter(String(request.params.chapterId));
+    const result = await getChapter(String(request.params.chapterId), requireRequestAuth(request));
     response.json(successResponse(result));
   } catch (error) {
     next(error);
