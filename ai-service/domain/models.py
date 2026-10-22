@@ -154,6 +154,7 @@ class StoryPlanObjective:
     objective_type: str = "chapter_goal"
     status: str = "pending"
     metadata: dict[str, Any] = field(default_factory=dict)
+    intent_version: int = 0
 
 
 @dataclass(frozen=True, slots=True)

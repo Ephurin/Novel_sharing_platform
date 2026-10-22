@@ -1,3 +1,4 @@
+import { assertControllerIntent } from './controller-intent.js';
 import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';
 import crypto from 'node:crypto';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -334,6 +335,8 @@ async function acceptDraftUnderLease(auth: AuthContext, chapterId: string, input
 
   // 2. Transactional dual-write & conflict verification
   const newRevision = await withPostgresTransaction(async (client) => {
+    await assertControllerIntent(client, { key: generation.idempotency_key ?? '',
+      jobId: generation.job_id, novelId: chapter.novelId, chapterId, authorId: auth.userId });
     await lockChapterForUpdate(client, chapterId);
 
     // 2a. Idempotency guard: If this generation was already accepted, return existing revision

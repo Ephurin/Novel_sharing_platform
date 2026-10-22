@@ -263,3 +263,13 @@ class AutonomousRouteTests(unittest.TestCase):
         resumed = self.client.patch(path, json={'stop_reason': None}, headers=self.headers)
         self.assertIsNone(resumed.json()['data']['stop_reason'])
         self.assertIsNone(self.client.get(path, headers=self.headers).json()['data']['stop_reason'])
+
+    def test_objective_intent_epoch_survives_skip_pending_ABA(self):
+        objective = self.plan.objectives[0]
+        path = f'/v1/story-plans/{self.plan.plan_id}/objectives/{objective.objective_id}?novel_id={self.novel_id}'
+        versions = []
+        for status in ('in_progress', 'skipped', 'pending', 'in_progress'):
+            response = self.client.patch(path, json={'status': status}, headers=self.headers)
+            self.assertEqual(response.status_code, 200)
+            versions.append(response.json()['data']['intent_version'])
+        self.assertEqual(versions, [1, 2, 3, 4])

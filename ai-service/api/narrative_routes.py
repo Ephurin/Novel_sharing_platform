@@ -498,7 +498,10 @@ def update_autonomous_run(
         last_brain_version=payload.last_brain_version if payload.last_brain_version is not None else current.last_brain_version,
         stop_reason=payload.stop_reason if "stop_reason" in payload.model_fields_set else current.stop_reason,
     )
-    saved = repository.update_autonomous_run(updated)
+    try:
+        saved = repository.update_autonomous_run(updated)
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={"code": "RUN_TERMINAL", "message": str(exc)}) from exc
     return {
         "data": asdict(saved),
         "meta": {"request_id": request_id, "schema_version": 1},

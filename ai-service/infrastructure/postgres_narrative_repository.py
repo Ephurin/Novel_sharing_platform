@@ -2110,6 +2110,7 @@ class PostgresNarrativeRepository:
                 objective_type=o.objective_type,
                 status=o.status,
                 metadata=dict(o.objective_metadata or {}),
+                intent_version=o.intent_version,
             )
             for o in sorted_objs
         )
@@ -2302,11 +2303,12 @@ class PostgresNarrativeRepository:
                     StoryPlanObjectiveRecord.plan_id == p_uuid,
                     StoryPlanObjectiveRecord.novel_id == n_id,
                     StoryPlanObjectiveRecord.tenant_id == self._tenant_id,
-                )
+                ).with_for_update()
             )
             if not obj:
                 raise KeyError(f"Objective {objective_id} not found in plan {plan_id}")
             obj.status = status
+            obj.intent_version += 1
             session.flush()
             return StoryPlanObjective(
                 objective_id=str(obj.id),
@@ -2317,6 +2319,7 @@ class PostgresNarrativeRepository:
                 objective_type=obj.objective_type,
                 status=obj.status,
                 metadata=dict(obj.objective_metadata or {}),
+                intent_version=obj.intent_version,
             )
 
     @staticmethod
@@ -2449,10 +2452,12 @@ class PostgresNarrativeRepository:
                 select(AutonomousRunRecord).where(
                     AutonomousRunRecord.id == r_uuid,
                     AutonomousRunRecord.tenant_id == self._tenant_id,
-                )
+                ).with_for_update()
             )
             if not record:
                 raise KeyError(f"AutonomousRun {run.run_id} not found")
+            if record.status in {"completed", "stopped", "failed"} and run.status != record.status:
+                raise OptimisticLockError("A terminal run cannot be resumed by a stale worker")
             record.status = run.status
             record.plan_version = run.plan_version
             record.current_objective_id = uuid.UUID(run.current_objective_id) if run.current_objective_id else None

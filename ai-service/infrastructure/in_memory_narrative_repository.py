@@ -1058,7 +1058,7 @@ class InMemoryNarrativeRepository:
         target_obj = None
         for obj in plan.objectives:
             if obj.objective_id == objective_id:
-                target_obj = replace(obj, status=status)
+                target_obj = replace(obj, status=status, intent_version=obj.intent_version + 1)
                 updated_objs.append(target_obj)
             else:
                 updated_objs.append(obj)

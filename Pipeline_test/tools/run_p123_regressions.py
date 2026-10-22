@@ -29,7 +29,7 @@ def main():
         ai_exit=int(pytest.main(args))
     socket.getaddrinfo=original
     results=[]
-    commands=[['npm.cmd','run','typecheck'],['node','--import','tsx','--test','src/modules/novels/chapter-revisions.test.ts','src/modules/novels/outbox.test.ts','src/modules/ai/ai-gateway.test.ts','src/modules/ai/p1-closed-loop-gateway.test.ts','src/modules/ai/autonomous-controller.test.ts','src/modules/ai/autonomous-memory.test.ts']]
+    commands=[['npm.cmd','run','typecheck'],['node','--import','tsx','--test','src/modules/novels/controller-intent.test.ts','src/modules/novels/chapter-revisions.test.ts','src/modules/novels/outbox.test.ts','src/modules/ai/ai-gateway.test.ts','src/modules/ai/p1-closed-loop-gateway.test.ts','src/modules/ai/autonomous-controller.test.ts','src/modules/ai/autonomous-memory.test.ts']]
     for name,command in zip(('backend-typecheck','backend-focused'),commands):
         r=subprocess.run(command,cwd=ROOT/'backend',capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
         (out/(name+'.txt')).write_text(r.stdout+'\n'+r.stderr,encoding='utf-8')

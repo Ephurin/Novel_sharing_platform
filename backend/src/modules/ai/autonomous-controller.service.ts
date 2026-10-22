@@ -201,13 +201,14 @@ export class AutonomousControllerService {
 
     const currentObjectiveId = eligibleObj.objective_id;
     if (eligibleObj.status === 'pending') {
-      await aiGatewayService.forwardRequest({
+      const claimed = await aiGatewayService.forwardRequest<any>({
         method: 'PATCH',
         path: `/v1/story-plans/${run.plan_id}/objectives/${currentObjectiveId}`,
         queryParams: { novel_id: run.novel_id },
         body: { status: 'in_progress' },
         userId: auth.userId,
       });
+      eligibleObj.intent_version = claimed.intent_version;
     }
 
     // Determine target chapter
@@ -267,8 +268,10 @@ export class AutonomousControllerService {
     }
 
     if (!isAlreadyAccepted) {
+      await aiGatewayService.forwardRequest({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,
+        body: { current_objective_id: currentObjectiveId, current_chapter_id: targetChapter.chapterId }, userId: auth.userId });
       // Generate draft via P1 Writing Generation API
-      const genIdempotencyKey = `auto-${run.run_id}-iter-${run.current_iteration}-try-${run.current_retries}`;
+      const genIdempotencyKey = `auto-${run.run_id}-obj-${eligibleObj.objective_id}-intent-${eligibleObj.intent_version}-plan-${run.plan_version}-iter-${run.current_iteration}-try-${run.current_retries}`;
       const genPayload = {
         novel_id: run.novel_id,
         chapter_id: targetChapter.chapterId,
@@ -298,6 +301,9 @@ export class AutonomousControllerService {
       if (!genJobId) {
         throw new AppError(502, 'AI_SERVICE_ERROR', 'Writing generation failed to return job_id');
       }
+
+      await aiGatewayService.forwardRequest({ method: 'PATCH', path: `/v1/autonomous/runs/${runId}`,
+        body: { last_generation_id: genJobId }, userId: auth.userId });
 
       // Poll for generation completion (internal API)
       for (let i = 0; i < 25; i++) {
@@ -406,6 +412,9 @@ export class AutonomousControllerService {
         generationId: genJob.job_id,
       });
     }
+
+    const afterAcceptRun = await this.getRun(auth, runId);
+    if (afterAcceptRun.status !== 'running') return afterAcceptRun;
 
     // Persisted analysis completion is required; an empty queue alone is ambiguous.
     try {
