@@ -1,0 +1,8 @@
+{
+  "sha": "66bcef65b55ebdda58e2fe1d19ad850f209fd408",
+  "dirty": false,
+  "before_run": true,
+  "database": "ephurin_test_astra_reconcile_9cad96e5f6",
+  "provider_keys_empty": true,
+  "provider_upstream": "closed loopback port 9"
+}

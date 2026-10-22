@@ -1,0 +1,40 @@
+{
+  "recommendation": "P123_CORE_TEST_HARNESS_CLEANED_AND_FE_HANDOFF_READY",
+  "independent_review": "PENDING_GPT6",
+  "hold": "HOLD_FE_INTEGRATION_ONLY",
+  "source_sha": "3cc70a0c1c79d9ca89e6b01867cc3c076570e950",
+  "red_source_sha": "66bcef65b55ebdda58e2fe1d19ad850f209fd408",
+  "red": {
+    "tests": 3,
+    "failed": 3,
+    "exit_code": 1,
+    "error": "22P02 non-UUID chapter IDs"
+  },
+  "green": {
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "focused": {
+    "tests": 54,
+    "passed": 54,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "typecheck_exit_code": 0,
+  "build_exit_code": 0,
+  "opt_in_negative": {
+    "expected_exit": 1,
+    "counts_unchanged": true
+  },
+  "production_files_changed": 0,
+  "changed_test_files": 1,
+  "full_backend_suite": "NOT_RUN",
+  "ai_focused": "NOT_RERUN: no AI/shared source change",
+  "fe_s09_integration": "NOT_RUN",
+  "real_providers": "NOT_RUN: keys empty, upstream closed loopback; focused persistence test mocks fetch",
+  "populated_migration": "NOT_RUN",
+  "p3_100k": "NOT_RUN",
+  "merge_release_allowed": false
+}

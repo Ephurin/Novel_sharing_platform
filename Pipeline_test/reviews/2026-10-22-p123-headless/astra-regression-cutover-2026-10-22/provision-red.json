@@ -1,0 +1,9 @@
+{
+  "database": "ephurin_test_astra_reconcile_9cad96e5f6",
+  "containers": [
+    "astra-reconcile-9cad96e5f6-pg",
+    "astra-reconcile-9cad96e5f6-mongo"
+  ],
+  "pg_port": "65313",
+  "mongo_port": "65315"
+}

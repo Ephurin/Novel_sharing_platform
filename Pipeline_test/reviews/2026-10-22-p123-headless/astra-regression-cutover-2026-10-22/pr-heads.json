@@ -1,0 +1,40 @@
+{
+  "observed_date_local": "2026-10-23",
+  "timezone": "Asia/Saigon",
+  "method": "GitHub connector get_pr_info, read-only",
+  "prs": [
+    {
+      "number": 52,
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/pull/52",
+      "state": "open",
+      "merged": false,
+      "head_sha": "63946d068801fc10de2d7d01b1fb56dd2fc42f9f",
+      "base": "main",
+      "base_sha": "231b5e0f8f0a858da4bab30abd7c6a4877d0f128",
+      "updated_at": "2026-10-17T03:41:26Z",
+      "changed_since_preflight": false
+    },
+    {
+      "number": 54,
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/pull/54",
+      "state": "open",
+      "merged": false,
+      "head_sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "base": "main",
+      "base_sha": "390b09fd043ec29db84519a9d195b59b76eec003",
+      "updated_at": "2026-10-22T08:05:24Z",
+      "changed_since_preflight": false
+    },
+    {
+      "number": 55,
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/pull/55",
+      "state": "open",
+      "merged": false,
+      "head_sha": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+      "base": "feat/author-workspace",
+      "base_sha": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+      "updated_at": "2026-10-22T08:05:27Z",
+      "changed_since_preflight": false
+    }
+  ]
+}

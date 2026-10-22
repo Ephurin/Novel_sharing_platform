@@ -1,0 +1,56 @@
+{
+  "before": {
+    "pg": {
+      "users": 0,
+      "novels": 0,
+      "chapters": 0,
+      "revisions": 0
+    },
+    "mongo": [
+      {
+        "name": "comments",
+        "count": 0
+      },
+      {
+        "name": "device_tokens",
+        "count": 0
+      },
+      {
+        "name": "draft_chapters",
+        "count": 1
+      },
+      {
+        "name": "notifications",
+        "count": 0
+      }
+    ]
+  },
+  "after": {
+    "pg": {
+      "users": 0,
+      "novels": 0,
+      "chapters": 0,
+      "revisions": 0
+    },
+    "mongo": [
+      {
+        "name": "comments",
+        "count": 0
+      },
+      {
+        "name": "device_tokens",
+        "count": 0
+      },
+      {
+        "name": "draft_chapters",
+        "count": 1
+      },
+      {
+        "name": "notifications",
+        "count": 0
+      }
+    ]
+  },
+  "unchanged": true,
+  "expected_exit": 1
+}

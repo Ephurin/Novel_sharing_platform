@@ -1,0 +1,66 @@
+[
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-reconcile-dd92368f3c-pg",
+      "--label",
+      "astra.task=mongo-fixture-cutover",
+      "-p",
+      "127.0.0.1::5432",
+      "-e",
+      "POSTGRES_HOST_AUTH_METHOD=trust",
+      "-e",
+      "POSTGRES_DB=ephurin_test_astra_reconcile_dd92368f3c",
+      "pgvector/pgvector:pg16"
+    ],
+    "cwd": "C:\\Users\\Laptop\\OneDrive\\Documents\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-22T23:16:15.183226+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-reconcile-dd92368f3c-pg",
+      "5432"
+    ],
+    "cwd": "C:\\Users\\Laptop\\OneDrive\\Documents\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-22T23:16:15.357912+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-reconcile-dd92368f3c-mongo",
+      "--label",
+      "astra.task=mongo-fixture-cutover",
+      "-p",
+      "127.0.0.1::27017",
+      "mongo:7"
+    ],
+    "cwd": "C:\\Users\\Laptop\\OneDrive\\Documents\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-22T23:16:18.578884+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-reconcile-dd92368f3c-mongo",
+      "27017"
+    ],
+    "cwd": "C:\\Users\\Laptop\\OneDrive\\Documents\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-22T23:16:18.740938+00:00"
+  }
+]

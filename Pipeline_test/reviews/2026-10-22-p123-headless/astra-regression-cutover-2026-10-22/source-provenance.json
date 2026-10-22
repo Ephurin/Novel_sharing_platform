@@ -1,0 +1,35 @@
+{
+  "baseline": "66bcef65b55ebdda58e2fe1d19ad850f209fd408",
+  "tested_source": "3cc70a0c1c79d9ca89e6b01867cc3c076570e950",
+  "red": {
+    "sha": "66bcef65b55ebdda58e2fe1d19ad850f209fd408",
+    "dirty": false,
+    "before_run": true,
+    "database": "ephurin_test_astra_reconcile_9cad96e5f6",
+    "provider_keys_empty": true,
+    "provider_upstream": "closed loopback port 9"
+  },
+  "green": {
+    "sha": "3cc70a0c1c79d9ca89e6b01867cc3c076570e950",
+    "dirty": false,
+    "before_run": true,
+    "database": "ephurin_test_astra_reconcile_dd92368f3c",
+    "provider_keys_empty": true,
+    "provider_upstream": "closed loopback port 9"
+  },
+  "focused": {
+    "sha": "3cc70a0c1c79d9ca89e6b01867cc3c076570e950",
+    "dirty": false,
+    "before_run": true,
+    "database": "ephurin_test_astra_reconcile_dd92368f3c",
+    "provider_keys_empty": true,
+    "provider_upstream": "closed loopback port 9"
+  },
+  "source_scope": [
+    "backend/src/modules/novels/mongo-reconciliation.live.test.ts"
+  ],
+  "checkout": "reused clean detached worktree; original dirty checkout preserved; push only assigned branch",
+  "branch": "codex/ai-copilot-pipeline-test",
+  "execution_date_local": "2026-10-23",
+  "evidence_directory_date": "2026-10-22 retained as explicitly requested"
+}

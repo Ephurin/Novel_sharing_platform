@@ -1,0 +1,24 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "astra-reconcile-dd92368f3c-mongo",
+    "mongosh",
+    "--quiet",
+    "ephurin_test_astra_reconcile_dd92368f3c",
+    "--eval",
+    "JSON.stringify(db.draft_chapters.find({}, {_id:0,chapterId:1,novelId:1,authorId:1,version:1,lastAcceptedRevisionId:1}).toArray())"
+  ],
+  "exit_code": 0,
+  "documents": [
+    {
+      "novelId": "b0aa0fc4-5999-4d67-8b6f-f3a1185e49dc",
+      "chapterId": "0061aadb-0434-4439-86ca-653e2b11c14b",
+      "authorId": "12c02316-45d6-4559-8b39-014268c4ec7a",
+      "version": 1,
+      "lastAcceptedRevisionId": "a616553c-8f5a-487b-a78e-1bd83041531f"
+    }
+  ],
+  "all_outside_repaired_fixture_ids": true,
+  "explanation": "Existing p1-production-persistence.postgres.test.ts after hook deletes PG novel/user but does not remove its reconciled Mongo draft. Left intact in this task-owned DB; not a residual from the repaired three-probe fixture."
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "mode": "red",
+    "container": "astra-reconcile-9cad96e5f6-pg",
+    "id": "c7eba3ad00c6b61a0db71a1c874c98880455a1e3cf958b1a2cf641f175eb8765",
+    "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+    "database": "ephurin_test_astra_reconcile_9cad96e5f6",
+    "stop_exit_code": 0,
+    "running_after": false,
+    "data_retained": true,
+    "mounts": [
+      {
+        "type": "volume",
+        "name": "dcf27b47bd3d90d3d3c9f108bf14214f1bee772bf620bba2f9040346c195a0b5",
+        "destination": "/var/lib/postgresql/data"
+      }
+    ]
+  },
+  {
+    "mode": "red",
+    "container": "astra-reconcile-9cad96e5f6-mongo",
+    "id": "a6478cc2d522a29030c34cd13c92415f329a62a2956e8932dec287f3f0913961",
+    "image": "sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173",
+    "database": "ephurin_test_astra_reconcile_9cad96e5f6",
+    "stop_exit_code": 0,
+    "running_after": false,
+    "data_retained": true,
+    "mounts": [
+      {
+        "type": "volume",
+        "name": "85693de789036394bf0984fc904d16707c11118216f2c8b7fc903672ee9441ed",
+        "destination": "/data/configdb"
+      },
+      {
+        "type": "volume",
+        "name": "47cd207c342ea7917ff9a9dfcf8c3984ffa35db99fc2d16853dcb9bfdba24131",
+        "destination": "/data/db"
+      }
+    ]
+  },
+  {
+    "mode": "green",
+    "container": "astra-reconcile-dd92368f3c-pg",
+    "id": "0406107b8a3768caa10766e9485c565cd775d12e7ec4f9d15035bca5f244a256",
+    "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+    "database": "ephurin_test_astra_reconcile_dd92368f3c",
+    "stop_exit_code": 0,
+    "running_after": false,
+    "data_retained": true,
+    "mounts": [
+      {
+        "type": "volume",
+        "name": "339b248d62e775eed1e51d3b66fbfbd7fc146773b9479aec1a1cef074f587d01",
+        "destination": "/var/lib/postgresql/data"
+      }
+    ]
+  },
+  {
+    "mode": "green",
+    "container": "astra-reconcile-dd92368f3c-mongo",
+    "id": "224a51c000fde9b33b666741b14aed11569d94a679bf3168c10d802b9cbd1a13",
+    "image": "sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173",
+    "database": "ephurin_test_astra_reconcile_dd92368f3c",
+    "stop_exit_code": 0,
+    "running_after": false,
+    "data_retained": true,
+    "mounts": [
+      {
+        "type": "volume",
+        "name": "3d0a3f02a5a74762aec8edb17aa0e1b5a8a05562bed613abf7dd27ded70534b4",
+        "destination": "/data/configdb"
+      },
+      {
+        "type": "volume",
+        "name": "dfeea7fb4699b0a8716ff70a859227a865a52985e8d7bc1fe837ef33d020422b",
+        "destination": "/data/db"
+      }
+    ]
+  }
+]

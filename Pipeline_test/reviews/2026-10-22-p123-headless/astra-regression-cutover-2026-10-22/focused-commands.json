@@ -1,0 +1,64 @@
+[
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-22T23:16:23.605694+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-22T23:16:23.659696+00:00"
+  },
+  {
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-22T23:16:27.032542+00:00"
+  },
+  {
+    "command": [
+      "npm.cmd",
+      "run",
+      "build"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-22T23:16:31.089400+00:00"
+  },
+  {
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "--test",
+      "src/modules/novels/draft-read-authorization.test.ts",
+      "src/modules/ai/job-resume-authorization.test.ts",
+      "src/modules/novels/chapter-revisions.test.ts",
+      "src/modules/novels/outbox.test.ts",
+      "src/modules/novels/controller-intent.test.ts",
+      "src/modules/novels/p1-production-persistence.postgres.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-22T23:16:32.133548+00:00"
+  }
+]
