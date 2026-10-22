@@ -18,7 +18,7 @@ def provision(name):
  return env,c
 def main():
  OUT.mkdir(parents=True,exist_ok=True);records=[]
- scenarios=[(s,a) for s in ['post_commit','pre_approval','pre_progress'] for a in ['skip','stop']]+[('pre_approval','ABA'),('pre_approval','kill_stop'),('pre_approval','advance_first')]
+ scenarios=[('pre_approval','advance_first')]+[(s,a) for s in ['post_commit','pre_approval','pre_progress'] for a in ['skip','stop']]+[('pre_approval','ABA'),('pre_approval','kill_stop')]
  for seam,action in scenarios:
   name=seam+'-'+action;env,c=provision(name);log=OUT/(name+'-commands.txt')
   try:

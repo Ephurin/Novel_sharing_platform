@@ -35,6 +35,6 @@ def lock_controller_intent(session, *, novel_id, tenant_id, intent):
     if not objective or objective.status != 'in_progress' or objective.intent_version != int(epoch): stale()
     # PG history is the acceptance authority. Mongo reconciliation is independent.
     revision = session.execute(text('select revision_id from public.chapter_revisions where revision_id=:revision and novel_id=:novel and chapter_id=:chapter and source_generation_id=:job and source_type=\'AI_DRAFT_ACCEPT\''),
-        {'revision':uuid.UUID(intent['revision_id']), 'novel':novel_id, 'chapter':job.chapter_id, 'job':job.job_id}).first()
+        {'revision':uuid.UUID(intent['revision_id']), 'novel':novel_id, 'chapter':job.chapter_id, 'job':str(job.job_id)}).first()
     if not revision: stale()
     return run, objective
