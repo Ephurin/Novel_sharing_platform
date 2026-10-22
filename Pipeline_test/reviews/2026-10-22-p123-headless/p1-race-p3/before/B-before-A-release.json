@@ -1,0 +1,79 @@
+{
+  "result": {
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "57c9cb75-cca0-43aa-882e-9e3a0882b9c4",
+        "novelId": "dc513f21-d5cf-4044-8706-bd7049f65b35",
+        "title": "Ordered writer",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 3,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": "2da02f5b-4541-4903-aa89-37704a68e5a0",
+        "draftVersion": 4
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  "state": {
+    "chapter": {
+      "chapterId": "57c9cb75-cca0-43aa-882e-9e3a0882b9c4",
+      "novelId": "dc513f21-d5cf-4044-8706-bd7049f65b35",
+      "title": "Ordered writer",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 3,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "draft": {
+        "title": "Ordered writer",
+        "content": "P1_ORDERED_B_ newer body",
+        "wordCount": 3,
+        "version": 5,
+        "autosave": false,
+        "updatedAt": "2026-10-22T07:16:25.387Z"
+      }
+    },
+    "latest": {
+      "revisionId": "2da02f5b-4541-4903-aa89-37704a68e5a0",
+      "novelId": "dc513f21-d5cf-4044-8706-bd7049f65b35",
+      "chapterId": "57c9cb75-cca0-43aa-882e-9e3a0882b9c4",
+      "parentRevisionId": "205dbf2f-b43c-4e0b-be37-b60af879b25b",
+      "contentHash": "894447de8e8179a4106b36cd9913bfc8f862541a7c77c88dcf9d929c898ac42f",
+      "content": "P1_ORDERED_B_ newer body",
+      "wordCount": 3,
+      "sourceType": "AUTHOR_MANUAL",
+      "sourceGenerationId": null,
+      "createdBy": "d55719ad-5a48-4d13-98b2-c4aa9efe48cc",
+      "createdAt": "2026-10-22T07:16:25.382Z"
+    },
+    "outbox": [
+      {
+        "event_id": "54c3d2d3-560c-4316-91a9-0db3d1fa49d7",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "dc513f21-d5cf-4044-8706-bd7049f65b35",
+        "chapter_id": "57c9cb75-cca0-43aa-882e-9e3a0882b9c4",
+        "revision_id": "2da02f5b-4541-4903-aa89-37704a68e5a0",
+        "content_hash": "894447de8e8179a4106b36cd9913bfc8f862541a7c77c88dcf9d929c898ac42f",
+        "created_by": "d55719ad-5a48-4d13-98b2-c4aa9efe48cc",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-22T07:16:25.382781+00:00",
+        "last_error": null,
+        "created_at": "2026-10-22T07:16:25.382781+00:00",
+        "updated_at": "2026-10-22T07:16:25.626166+00:00",
+        "claim_token": "[REDACTED]"
+      }
+    ]
+  }
+}

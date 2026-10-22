@@ -1,0 +1,62 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "create_idempotent",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "wrong_owner_denied",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "plan_not_history",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "pause_no_canon_0",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_1c68983c-66f6-4eb1-a608-b7226fe36bf3",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "pause_no_canon_2",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "entity_review_not_canon_89b5d6a6-a0da-4d57-8fa9-0fca6bae2152",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "controller_completed",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "multiple_objectives_completed",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "all_draft",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "terminal_replay_no_advance",
+    "status": "PASS",
+    "details": null
+  }
+]

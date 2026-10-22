@@ -1,0 +1,22 @@
+{
+  "tested_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "legacy_then_versioned",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "verdict": "PASS",
+  "limit": "Serialized writes, not cross-store rollback; no client 428 added"
+}

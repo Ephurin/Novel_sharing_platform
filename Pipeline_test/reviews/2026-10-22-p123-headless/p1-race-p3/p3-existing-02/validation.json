@@ -1,0 +1,74 @@
+{
+  "tested_sha": "e496f4d685bf2006dd294046a2879b7fc4f82afe",
+  "source_dirty_at_start": false,
+  "project": "p123-core-ca999cc8da",
+  "novel_id": "3543ab5c-5420-4894-8ebe-0c3a0518d8e6",
+  "run": {
+    "run_id": "b64c8c7f-6d24-4728-95d6-35b2ec4458ab",
+    "novel_id": "3543ab5c-5420-4894-8ebe-0c3a0518d8e6",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_id": "155bf264-49ab-49a0-8711-887b5d9c322c",
+    "plan_version": 1,
+    "status": "running",
+    "current_objective_id": "8753e180-eccd-4dcf-b6a2-fc2c38848520",
+    "current_chapter_id": "54e38c82-04db-446f-8462-3425cb475b61",
+    "current_iteration": 1,
+    "max_iterations": 5,
+    "current_retries": 0,
+    "max_retries_per_objective": 3,
+    "last_generation_id": "d24bfcac-5f08-5d9e-9f6b-61dbda787d7e",
+    "last_accepted_revision_id": "c7af2f67-06c5-45b1-bbf1-c01e70649875",
+    "last_brain_version": 3,
+    "stop_reason": "waiting_for_entity_review",
+    "idempotency_key": "p3-15af4206bfd0491c9d9a4b5601657f1d",
+    "input_hash": "72d96312d9dac132c705b58dbacaa1d7cdb969fc83ebc76fc6e7c63ffce7780d",
+    "created_by": "bbabd14c-6abf-4cdb-8351-28bad7ff42af",
+    "created_at": "2026-10-22T07:25:05.939155+00:00",
+    "updated_at": "2026-10-22T07:25:07.641903+00:00"
+  },
+  "no_plan_entry": false,
+  "stage": "P3_step_HITL",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "create_idempotent",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "wrong_owner_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "plan_not_history",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "pause_no_canon_0",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_3fcb49d1-2969-4125-8909-caff860e0529",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "pause_no_canon_1",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "RuntimeError",
+    "message": "ENTITY_GATE_TIMEOUT:c7af2f67-06c5-45b1-bbf1-c01e70649875"
+  },
+  "verdict": "PARTIAL",
+  "external_provider_calls": 0
+}

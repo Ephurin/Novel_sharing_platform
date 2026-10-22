@@ -1,0 +1,10 @@
+{
+  "A_revision": "3a5a9f87-84e7-486c-ac21-26a6d378a9c7",
+  "B_revision": "9b379b9a-46b4-49ba-87cf-1f92125db4a6",
+  "B_parent_is_A": true,
+  "one_matching_outbox_per_revision": true,
+  "crash_seams": [
+    "post_cas",
+    "post_pg"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "logical_first": "B",
+  "barrier_prefix_is_test_instrumentation_only": true,
+  "B": {
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "f904c16d-b05e-4471-b153-fa8860a0b8b7",
+        "novelId": "d06176a9-c888-46f7-9fd3-68888700db67",
+        "title": "Inverse order",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 1,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": "31334d90-13e5-4fea-84a4-9b128d8987b3",
+        "draftVersion": 3
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  "A_during_B": {
+    "status": 409,
+    "response": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "DRAFT_CONFLICT",
+        "message": "Chapter save in progress; reload before retrying"
+      },
+      "meta": {}
+    }
+  },
+  "A_after_reload": {
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "f904c16d-b05e-4471-b153-fa8860a0b8b7",
+        "novelId": "d06176a9-c888-46f7-9fd3-68888700db67",
+        "title": "Inverse order",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 4,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": "532ae520-ed9b-49ba-8301-3397e2dd8d39",
+        "draftVersion": 5
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  "latest": {
+    "revisionId": "532ae520-ed9b-49ba-8301-3397e2dd8d39",
+    "novelId": "d06176a9-c888-46f7-9fd3-68888700db67",
+    "chapterId": "f904c16d-b05e-4471-b153-fa8860a0b8b7",
+    "parentRevisionId": "31334d90-13e5-4fea-84a4-9b128d8987b3",
+    "contentHash": "6c7bcd25e39e15863663008a360b87386e2e74cc6b81d482244769f3ad2aef5d",
+    "content": "A logical newer body",
+    "wordCount": 4,
+    "sourceType": "AUTHOR_MANUAL",
+    "sourceGenerationId": null,
+    "createdBy": "34581214-4e0d-4ac6-91c5-aaf02003e03b",
+    "createdAt": "2026-10-22T07:41:38.301Z"
+  },
+  "draft": {
+    "chapterId": "f904c16d-b05e-4471-b153-fa8860a0b8b7",
+    "novelId": "d06176a9-c888-46f7-9fd3-68888700db67",
+    "title": "Inverse order",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 4,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "draft": {
+      "title": "Inverse order",
+      "content": "A logical newer body",
+      "wordCount": 4,
+      "version": 6,
+      "autosave": false,
+      "updatedAt": "2026-10-22T07:41:38.307Z"
+    }
+  }
+}

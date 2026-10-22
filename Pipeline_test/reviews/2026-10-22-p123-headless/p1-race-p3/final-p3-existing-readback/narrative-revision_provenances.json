@@ -1,0 +1,22 @@
+[
+  {
+    "id": "fd9188f4-2e01-4d44-8d1e-29fc9be1ebad",
+    "story_brain_id": "207480d6-47aa-492e-abec-45f320a4541b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "724b5d58-5e28-4cf4-8ef7-9b096aa7e6f6",
+    "chapter_id": "d607720d-07ac-4a69-b872-abf2e757e00d",
+    "chapter_number": 1,
+    "created_at": "2026-10-22T07:30:57.931097+00:00",
+    "revision_id": "65a82b4b-b67f-4099-945f-52e27d786e37"
+  },
+  {
+    "id": "f2d3801e-daa1-4e8c-9baa-8dfb4727c3e8",
+    "story_brain_id": "207480d6-47aa-492e-abec-45f320a4541b",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "724b5d58-5e28-4cf4-8ef7-9b096aa7e6f6",
+    "chapter_id": "4804a5b5-7d4e-47d1-aba7-023f5a3e897d",
+    "chapter_number": 2,
+    "created_at": "2026-10-22T07:30:59.497179+00:00",
+    "revision_id": "ba8aadee-a549-40a2-a613-eb86dd163b04"
+  }
+]

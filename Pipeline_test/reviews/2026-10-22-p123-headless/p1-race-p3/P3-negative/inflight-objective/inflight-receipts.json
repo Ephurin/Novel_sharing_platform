@@ -1,0 +1,58 @@
+{
+  "first": {
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "run_id": "e88cc15a-5dfd-41e5-afd9-e54bdb02fb04",
+        "novel_id": "849da55a-5877-43cd-b6eb-69a0e3a274c6",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "plan_id": "7438aa0d-9d33-452d-b789-55cadf9b41bf",
+        "plan_version": 1,
+        "status": "running",
+        "current_objective_id": "c0ac957a-db94-44da-803b-6f5dcecaa2bd",
+        "current_chapter_id": "f9eb2659-582d-4839-a148-ffe9fb2358d9",
+        "current_iteration": 0,
+        "max_iterations": 3,
+        "current_retries": 0,
+        "max_retries_per_objective": 2,
+        "last_generation_id": "412d3513-966a-5aa9-8d7a-8e7a4e8094de",
+        "last_accepted_revision_id": null,
+        "last_brain_version": 2,
+        "stop_reason": "waiting_for_entity_review",
+        "idempotency_key": "daa1c4eccd4a4801ae91d0bad9b7e78d",
+        "input_hash": "6389974bfa018c39e9da045bb1cbad1007a02b7c240d21a4ce052a96ed36e0af",
+        "created_by": "f33cf8f5-0e03-4ba8-b962-d448f6bc5e22",
+        "created_at": "2026-10-22T07:35:58.338676+00:00",
+        "updated_at": "2026-10-22T07:35:59.627621+00:00"
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  "second": {
+    "status": 409,
+    "response": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "RUN_STEP_BUSY",
+        "message": "Full auto is already processing this run"
+      },
+      "meta": {}
+    }
+  },
+  "mutation": {
+    "objective_id": "c0ac957a-db94-44da-803b-6f5dcecaa2bd",
+    "order_index": 1,
+    "title": "fault:timeout P3_INFLIGHT",
+    "description": "Bounded negative probe",
+    "target_chapter": 1,
+    "objective_type": "ending",
+    "status": "skipped",
+    "metadata": {
+      "min_words": 1,
+      "is_terminal": true
+    }
+  }
+}

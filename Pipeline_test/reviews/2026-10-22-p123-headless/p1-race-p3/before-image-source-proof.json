@@ -1,0 +1,30 @@
+{
+  "production_source_sha": "ee6971bc3c9e007cabe5b37e7cae2a3fe3dbf5f0",
+  "harness_source_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "backend_image": "sha256:bf5ce421b1fc824c949ba598dfb7c985bb86f37ced36913707f58bb9fe24c20f",
+  "ai_image": "sha256:73b6bd8f573f5d0ac0394491dd600cf4e13dfb0cbcfef4e96b56118fa5f39f39",
+  "normalization": "LF; unmodified original checkout files include CRLF",
+  "verified_files": [
+    {
+      "file": "src/modules/novels/chapters.service.ts",
+      "git_source_LF_sha256": "c53e327edbf22dbc8708981e21622019caa049fe5753a63e9474b94e6ca7d0b9",
+      "immutable_image_LF_sha256": "c53e327edbf22dbc8708981e21622019caa049fe5753a63e9474b94e6ca7d0b9"
+    },
+    {
+      "file": "src/modules/novels/draft-chapters.repository.ts",
+      "git_source_LF_sha256": "76ac894756a67f8b572c975a34d321a5011f081e8d6a9a1f7eef8838c7c49922",
+      "immutable_image_LF_sha256": "76ac894756a67f8b572c975a34d321a5011f081e8d6a9a1f7eef8838c7c49922"
+    },
+    {
+      "file": "src/modules/novels/chapter-revisions.service.ts",
+      "git_source_LF_sha256": "bdce71ed22d2fe5f4dd8adf9dee66bf8e9dbe07e168e919caa39fae122414f48",
+      "immutable_image_LF_sha256": "bdce71ed22d2fe5f4dd8adf9dee66bf8e9dbe07e168e919caa39fae122414f48"
+    },
+    {
+      "file": "src/modules/novels/chapters.repository.ts",
+      "git_source_LF_sha256": "2d4ceea066cf572b4b0fdaa396abd2c6f9f80cb039e17270766185989dc67eda",
+      "immutable_image_LF_sha256": "2d4ceea066cf572b4b0fdaa396abd2c6f9f80cb039e17270766185989dc67eda"
+    }
+  ],
+  "prior_raw_hash_mismatch": "Line endings; normalized contents all match"
+}

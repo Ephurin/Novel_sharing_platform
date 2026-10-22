@@ -1,0 +1,18 @@
+{
+  "tested_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "source_dirty_at_start": false,
+  "project": "p123-core-64907aab11",
+  "novel_id": "849da55a-5877-43cd-b6eb-69a0e3a274c6",
+  "case": "inflight_objective_fence",
+  "verdict": "EXPECTED_RED",
+  "details": {
+    "accepted_revision_count": 1,
+    "objective_status": "skipped",
+    "step_statuses": [
+      200,
+      409
+    ],
+    "canon_unchanged": true
+  },
+  "external_provider_calls": 0
+}

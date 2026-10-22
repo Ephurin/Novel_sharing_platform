@@ -1,0 +1,69 @@
+{
+  "tested_sha": "049e40ded3578c882fc29df64034aadf8a5b9b55",
+  "source_dirty_at_start": false,
+  "project": "p123-core-ca999cc8da",
+  "novel_id": "ee41f458-9374-477a-9183-cd4dabc4cd40",
+  "run": {
+    "run_id": "3ef7e39a-b149-462e-b2b7-5b1cb3ec4bc5",
+    "novel_id": "ee41f458-9374-477a-9183-cd4dabc4cd40",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "plan_id": "d1015a9e-ef85-47b5-847e-065f92ca3b78",
+    "plan_version": 1,
+    "status": "running",
+    "current_objective_id": "5edd51aa-e641-48a9-a2cf-391f54b49739",
+    "current_chapter_id": "70cec143-7d09-4c37-b0ba-876471000881",
+    "current_iteration": 0,
+    "max_iterations": 5,
+    "current_retries": 0,
+    "max_retries_per_objective": 3,
+    "last_generation_id": "9619aa9c-7c1a-5c93-a0d5-70273752d85b",
+    "last_accepted_revision_id": null,
+    "last_brain_version": 2,
+    "stop_reason": "waiting_for_entity_review",
+    "idempotency_key": "p3-6660b82e9b3a4b9bbf1a04945b0443cf",
+    "input_hash": "d0a501a85e1c3644e363668e94816b1f0dd2a686fa4d992a2ad32b09aafdfd9d",
+    "created_by": "c20dc32f-d7cc-47b5-b548-8a96ab7f8192",
+    "created_at": "2026-10-22T07:22:20.951090+00:00",
+    "updated_at": "2026-10-22T07:22:21.847036+00:00"
+  },
+  "no_plan_entry": false,
+  "stage": "P3_step_HITL",
+  "checks": [
+    {
+      "name": "isolated_real_databases_fake_only",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "create_idempotent",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "wrong_owner_denied",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "plan_not_history",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "pause_no_canon_0",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "name": "entity_review_not_canon_b3091f50-43bf-487e-a312-85222a5e9acf",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "HTTP_409:POST:/ai/autonomous/runs/3ef7e39a-b149-462e-b2b7-5b1cb3ec4bc5/step:{'success': False, 'data': None, 'error': {'code': 'OPTIMISTIC_LOCK_CONFLICT', 'message': 'Story brain version conflict: expected 2, found 3', 'details': {'code': 'OPTIMISTIC_LOCK_CONFLICT', 'message': 'Story brain version conflict: expected 2, found 3'}}, 'meta': {}}"
+  },
+  "verdict": "PARTIAL",
+  "external_provider_calls": 0
+}

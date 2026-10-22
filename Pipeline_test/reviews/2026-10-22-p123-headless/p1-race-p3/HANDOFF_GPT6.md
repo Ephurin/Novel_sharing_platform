@@ -1,0 +1,13 @@
+# GPT-6 review handoff — P1 ordered writer / P3 bounded controller
+
+Branch `codex/ai-copilot-pipeline-test`. Final tested source **`c34a0251dbc6d15fd2af7a8b1ead787adf892100`**. Production repairs: `049e40d` writer serialization/latest-revision recovery fence; `e496f4d` internal generation identity; `6b5890c` explicit-null pause clearing. Evidence SHA: commit adding this file (`git log -1 --format=%H -- Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/HANDOFF_GPT6.md`).
+
+Read `P1_ORDERED_WRITER_REPRO_AND_FIX.md`, `P3_FUNCTIONAL_REPORT.md`, `validation.json` and `commands-and-exits.json`. Inventory/hash and credential scan are separate files. All final repaired runs use clean committed source. Historical artifacts were not rewritten.
+
+P1 static hypothesis is now runtime RED: two independently valid CAS writes both return 200 but older A becomes Mongo/latest PG after B. A second clean harness run uses original immutable images proven against ee6971b, avoiding a dirty-source acceptance claim. After repair: first B attempt conflicts while A owns the cross-store lease; reload/retry B persists correct revision chain/outbox and survives restart. Inverse ordering, both SIGKILL seams, obsolete recovery skip and legacy/versioned sequence are captured. Explicit reload/retry recovery is bounded; no distributed rollback/automatic replay claim.
+
+P3 existing-plan and no-plan happy journeys each pass 12 checks, 2 objectives/iterations, real HITL, 2 actual HTTP/hash-linked writing jobs, final 3 entities/2 events/4 facts, draft-only terminal completion. P2 shared-path regression 27 PASS; AI 161 PASS/2 SKIP; backend 42 PASS; typecheck/build PASS. Negative missing-ending plan, bounded fake 500 retry, wrong owner/cross-novel plan, stale brain, concurrent step and checkpoint restart/stop are captured.
+
+**P3_CORE_PARTIAL_BLOCKED_INFLIGHT_OBJECTIVE_FENCE:** an author skips the objective while generation is still in flight; controller nevertheless accepts one revision before pausing at HITL. Canon remains unchanged and the run is explicitly stopped. This must not be upgraded to full P3 PASS. Review atomic objective-intent/accept fencing and cancellation policy options in the report. Broader active-plan replacement and arbitrary in-flight worker-death semantics remain unaccepted.
+
+Source/evidence review requested for the repaired P1 scope and P3 blocker/next gate. Stop here. No automatic 100k continuation. UI_BLOCKED_FE; historical S09 RED; REAL_PROVIDER_NOT_TESTED; SEMANTIC_RAG_NOT_ASSESSED; literary quality NOT_TESTED; P3_HITL_CONTROLLER_100K NOT_RUN. Zero real provider/embedding calls/paid spend; all review decisions SIMULATED_HUMAN_VIA_API. Owned stacks stopped, volumes/ledgers retained.

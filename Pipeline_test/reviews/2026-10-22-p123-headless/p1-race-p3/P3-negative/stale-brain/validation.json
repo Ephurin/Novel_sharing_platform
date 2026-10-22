@@ -1,0 +1,11 @@
+{
+  "tested_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "source_dirty_at_start": false,
+  "project": "p123-core-64907aab11",
+  "novel_id": "06e13067-fd95-4407-9300-07545b3693bc",
+  "verdict": "PASS",
+  "HTTP": 409,
+  "accepted_count": "0",
+  "response": null,
+  "in_place_resume": "NOT_CLAIMED"
+}

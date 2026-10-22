@@ -1,0 +1,17 @@
+{
+  "pr": "https://github.com/Ephurin/Novel_sharing_platform/pull/55",
+  "inspection": "READ_ONLY_GITHUB_CONNECTOR",
+  "head": "0c0b903f4cc86b7f469399ab6e616ffdba7e703b",
+  "state": "OPEN_AT_INSPECTION",
+  "base": "feat/author-workspace",
+  "blobs": {
+    "chapters.schemas.ts": "5df274c4abf2480f3daf878fd826edc36ca9315a",
+    "draft-chapters.repository.ts": "85c2be240d5454670d1065a7d4a269440c72a494",
+    "chapters.service.ts": "325963b7adafd2cb6be9c968f4f71a3130ce139e"
+  },
+  "imported_commits": [],
+  "FE_changes": [],
+  "notes": "Optional expectedVersion schema, service requires content/title version (428), stacked migrations 015/016 not imported.",
+  "rechecked_this_slice": "GitHub connector fetch_pr; same head 0c0b903f4cc86b7f469399ab6e616ffdba7e703b, open/unmerged",
+  "current_branch_delta": "Optional legacy version omission retained; chapter mutation admission can now return 409 for busy legacy writers."
+}

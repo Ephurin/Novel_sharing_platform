@@ -1,0 +1,7 @@
+{
+  "tested_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "source_dirty_at_start": false,
+  "verdict": "PASS",
+  "channel": "Production delayed sync primitive in owned backend; not an author API mutation",
+  "newer_B_preserved": true
+}

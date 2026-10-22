@@ -1,0 +1,19 @@
+{
+  "chapterId": "33a5bb33-eb6d-4092-8f96-3e19e64b5a6e",
+  "novelId": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+  "title": "Ordered writer",
+  "chapterNumber": 1,
+  "content": null,
+  "wordCount": 1216,
+  "isVip": false,
+  "priceCoins": 0,
+  "status": "DRAFT",
+  "draft": {
+    "title": "Ordered writer",
+    "content": "P1_ORDERED_A_ body",
+    "wordCount": 2,
+    "version": 3,
+    "autosave": false,
+    "updatedAt": "2026-10-22T07:30:46.765Z"
+  }
+}

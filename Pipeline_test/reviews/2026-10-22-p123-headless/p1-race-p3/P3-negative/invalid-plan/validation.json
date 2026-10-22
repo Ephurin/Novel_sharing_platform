@@ -1,0 +1,14 @@
+{
+  "tested_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "source_dirty_at_start": false,
+  "project": "p123-core-64907aab11",
+  "novel_id": "18228fc2-1676-41d3-afe7-f219463f52eb",
+  "case": "invalid_plan",
+  "verdict": "PASS",
+  "details": {
+    "HTTP": 422,
+    "response": null,
+    "run_count": "0"
+  },
+  "external_provider_calls": 0
+}

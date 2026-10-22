@@ -1,0 +1,39 @@
+{
+  "result": {
+    "status": "skipped_newer_draft"
+  },
+  "before": {
+    "_id": "6ad9bb9fa4975f532ddc5d59",
+    "chapterId": "33a5bb33-eb6d-4092-8f96-3e19e64b5a6e",
+    "authorId": "b371def2-842f-4af8-8096-18bb2bdab3d3",
+    "autosave": false,
+    "content": "P1_ORDERED_B_ newer body",
+    "createdAt": "2026-10-22T07:30:39.961Z",
+    "deletedAt": null,
+    "deletionReason": null,
+    "novelId": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "title": "Ordered writer",
+    "updatedAt": "2026-10-22T07:30:48.463Z",
+    "version": 6,
+    "wordCount": 3,
+    "lastAcceptedAt": "2026-10-22T07:30:48.462Z",
+    "lastAcceptedRevisionId": "9b379b9a-46b4-49ba-87cf-1f92125db4a6"
+  },
+  "after": {
+    "_id": "6ad9bb9fa4975f532ddc5d59",
+    "chapterId": "33a5bb33-eb6d-4092-8f96-3e19e64b5a6e",
+    "authorId": "b371def2-842f-4af8-8096-18bb2bdab3d3",
+    "autosave": false,
+    "content": "P1_ORDERED_B_ newer body",
+    "createdAt": "2026-10-22T07:30:39.961Z",
+    "deletedAt": null,
+    "deletionReason": null,
+    "novelId": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "title": "Ordered writer",
+    "updatedAt": "2026-10-22T07:30:48.463Z",
+    "version": 6,
+    "wordCount": 3,
+    "lastAcceptedAt": "2026-10-22T07:30:48.462Z",
+    "lastAcceptedRevisionId": "9b379b9a-46b4-49ba-87cf-1f92125db4a6"
+  }
+}

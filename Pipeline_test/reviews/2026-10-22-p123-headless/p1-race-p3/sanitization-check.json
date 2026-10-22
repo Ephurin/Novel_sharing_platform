@@ -1,0 +1,7 @@
+{
+  "files_checked": 308,
+  "generated_secret_values_checked": 56,
+  "credential_or_JWT_leaks": [],
+  "env_files": "Gitignored, never staged",
+  "scope": "New p1-race-p3 evidence only; LF normalization"
+}

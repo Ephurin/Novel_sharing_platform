@@ -1,0 +1,12 @@
+{
+  "tested_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "source_dirty_at_start": false,
+  "project": "p123-core-64907aab11",
+  "novel_id": "4af84f8c-7cef-4b3c-9cb5-a550a05ae6fe",
+  "case": "cross_novel_plan",
+  "verdict": "PASS",
+  "details": {
+    "HTTP": 404
+  },
+  "external_provider_calls": 0
+}

@@ -1,0 +1,9 @@
+{
+  "tested_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "source_dirty_at_start": false,
+  "project": "p123-core-ad79e9c8f8",
+  "novel_id": "d06176a9-c888-46f7-9fd3-68888700db67",
+  "verdict": "PASS",
+  "logical_order": "B then A",
+  "newer_A_preserved": true
+}

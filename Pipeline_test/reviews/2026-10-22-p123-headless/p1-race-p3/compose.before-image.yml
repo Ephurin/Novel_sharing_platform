@@ -1,0 +1,5 @@
+services:
+  backend:
+    image: sha256:bf5ce421b1fc824c949ba598dfb7c985bb86f37ced36913707f58bb9fe24c20f
+  ai-service:
+    image: sha256:73b6bd8f573f5d0ac0394491dd600cf4e13dfb0cbcfef4e96b56118fa5f39f39

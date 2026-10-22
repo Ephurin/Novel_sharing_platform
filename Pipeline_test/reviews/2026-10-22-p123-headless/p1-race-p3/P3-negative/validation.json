@@ -1,0 +1,88 @@
+{
+  "tested_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "cases": [
+    {
+      "case": "invalid_plan",
+      "verdict": "PASS",
+      "details": {
+        "HTTP": 422,
+        "response": null,
+        "run_count": "0"
+      }
+    },
+    {
+      "case": "provider_500_bounded_retry",
+      "verdict": "PASS",
+      "details": {
+        "first": {
+          "run_id": "2530a59c-d89f-436e-86d2-06b7955aade3",
+          "novel_id": "cbb3d304-fcbe-4212-abb2-16f2d74039f4",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "plan_id": "155dd845-b1db-4fd6-9768-c429c383fa00",
+          "plan_version": 1,
+          "status": "running",
+          "current_objective_id": "af4604ce-846b-4495-a22a-b345e6794443",
+          "current_chapter_id": "904be1e9-bd18-42c1-a11c-e918db03b1ac",
+          "current_iteration": 0,
+          "max_iterations": 3,
+          "current_retries": 1,
+          "max_retries_per_objective": 2,
+          "last_generation_id": "940906a6-f675-5fae-bd69-756ab145fc13",
+          "last_accepted_revision_id": null,
+          "last_brain_version": 2,
+          "stop_reason": "quality_gate_failed_retry_scheduled",
+          "idempotency_key": "c338d0b60fee497f9ab0465fe03d871c",
+          "input_hash": "825678c49e2fa0d5eb7bc8af9fc7a479e0cccae4756e2e434b82c793bd9d9c7d",
+          "created_by": "36e0e72b-8ec1-4d43-9588-3f21e4b70474",
+          "created_at": "2026-10-22T07:35:31.248307+00:00",
+          "updated_at": "2026-10-22T07:35:31.655161+00:00"
+        },
+        "second": {
+          "run_id": "2530a59c-d89f-436e-86d2-06b7955aade3",
+          "novel_id": "cbb3d304-fcbe-4212-abb2-16f2d74039f4",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "plan_id": "155dd845-b1db-4fd6-9768-c429c383fa00",
+          "plan_version": 1,
+          "status": "failed",
+          "current_objective_id": "af4604ce-846b-4495-a22a-b345e6794443",
+          "current_chapter_id": "904be1e9-bd18-42c1-a11c-e918db03b1ac",
+          "current_iteration": 0,
+          "max_iterations": 3,
+          "current_retries": 2,
+          "max_retries_per_objective": 2,
+          "last_generation_id": "646a8f7f-c3ae-54bb-965b-c81e0619de36",
+          "last_accepted_revision_id": null,
+          "last_brain_version": 2,
+          "stop_reason": "max_retries_exceeded",
+          "idempotency_key": "c338d0b60fee497f9ab0465fe03d871c",
+          "input_hash": "825678c49e2fa0d5eb7bc8af9fc7a479e0cccae4756e2e434b82c793bd9d9c7d",
+          "created_by": "36e0e72b-8ec1-4d43-9588-3f21e4b70474",
+          "created_at": "2026-10-22T07:35:31.248307+00:00",
+          "updated_at": "2026-10-22T07:35:31.979274+00:00"
+        },
+        "accepted_count": "0"
+      }
+    },
+    {
+      "case": "cross_novel_plan",
+      "verdict": "PASS",
+      "details": {
+        "HTTP": 404
+      }
+    },
+    {
+      "case": "inflight_objective_fence",
+      "verdict": "EXPECTED_RED",
+      "details": {
+        "accepted_revision_count": 1,
+        "objective_status": "skipped",
+        "step_statuses": [
+          200,
+          409
+        ],
+        "canon_unchanged": true
+      }
+    }
+  ],
+  "verdict": "PARTIAL_BLOCKED_INFLIGHT_OBJECTIVE_FENCE"
+}

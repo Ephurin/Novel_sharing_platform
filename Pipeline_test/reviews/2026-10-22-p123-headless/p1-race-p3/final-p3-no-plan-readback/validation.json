@@ -1,0 +1,9 @@
+{
+  "tested_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "source_dirty_at_start": false,
+  "novel_id": "4e589b24-a815-4447-b392-7e72663c6c10",
+  "project": "p123-core-1260b6b979",
+  "verdict": "PASS",
+  "outbound_jobs_linked": 2,
+  "read_only": true
+}

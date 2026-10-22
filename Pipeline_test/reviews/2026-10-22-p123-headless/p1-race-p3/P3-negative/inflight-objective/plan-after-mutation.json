@@ -1,0 +1,27 @@
+{
+  "plan_id": "7438aa0d-9d33-452d-b789-55cadf9b41bf",
+  "novel_id": "849da55a-5877-43cd-b6eb-69a0e3a274c6",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "plan_version": 1,
+  "status": "active",
+  "objectives": [
+    {
+      "objective_id": "c0ac957a-db94-44da-803b-6f5dcecaa2bd",
+      "order_index": 1,
+      "title": "fault:timeout P3_INFLIGHT",
+      "description": "Bounded negative probe",
+      "target_chapter": 1,
+      "objective_type": "ending",
+      "status": "skipped",
+      "metadata": {
+        "min_words": 1,
+        "is_terminal": true
+      }
+    }
+  ],
+  "source_outline": "",
+  "source_outline_hash": "",
+  "idempotency_key": null,
+  "input_hash": "60b2b0fcbe8ac63e8c6f814ec0ee927b8a1da3c51c078889e38cfe14278ae8b6",
+  "created_by": "f33cf8f5-0e03-4ba8-b962-d448f6bc5e22"
+}

@@ -1,0 +1,202 @@
+{
+  "date": "2026-10-22",
+  "executor": "Codex",
+  "branch": "codex/ai-copilot-pipeline-test",
+  "starting_head": "ee6971bc3c9e007cabe5b37e7cae2a3fe3dbf5f0",
+  "tested_source_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "evidence_SHA_resolution": "git log -1 --format=%H -- Pipeline_test/reviews/2026-10-22-p123-headless/p1-race-p3/validation.json",
+  "P1": "P1_ORDERED_WRITER_BOUNDED_FIX_READY_FOR_GPT6_REVIEW",
+  "P3": "P3_CORE_PARTIAL_BLOCKED_INFLIGHT_OBJECTIVE_FENCE",
+  "full_P1_P3_acceptance": "NOT_GRANTED",
+  "runs": {
+    "final-writer": {
+      "project": "p123-core-ad79e9c8f8",
+      "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+      "run_id": null,
+      "checks": "bounded explicit assertions; see receipts",
+      "exit_code": 0
+    },
+    "inverse-order": {
+      "project": "p123-core-ad79e9c8f8",
+      "novel_id": "d06176a9-c888-46f7-9fd3-68888700db67",
+      "run_id": null,
+      "checks": "bounded explicit assertions; see receipts",
+      "exit_code": 0
+    },
+    "final-p3-existing": {
+      "project": "p123-core-64907aab11",
+      "novel_id": "724b5d58-5e28-4cf4-8ef7-9b096aa7e6f6",
+      "run_id": "65db6311-f975-4cfe-85dd-9b6c9fd86efa",
+      "checks": 12,
+      "exit_code": 0
+    },
+    "final-p3-no-plan": {
+      "project": "p123-core-1260b6b979",
+      "novel_id": "4e589b24-a815-4447-b392-7e72663c6c10",
+      "run_id": "4d0caffd-d72e-43d5-b6f7-611a0eb93ea5",
+      "checks": 12,
+      "exit_code": 0
+    },
+    "final-p2-regression": {
+      "project": "p123-core-64907aab11",
+      "novel_id": "96e9fa9f-ca75-4801-9fae-1a6968e8c78c",
+      "run_id": null,
+      "checks": 27,
+      "exit_code": 0
+    }
+  },
+  "before_RED": {
+    "host_harness_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+    "runtime_production_source_sha": "ee6971bc3c9e007cabe5b37e7cae2a3fe3dbf5f0",
+    "source_image_proof": "before-image-source-proof.json",
+    "source_dirty_at_start": false,
+    "exit_code": 1,
+    "A_status": 200,
+    "B_status": 200,
+    "Mongo_and_latest_revert_to_A": true
+  },
+  "P1_crash_tests": {
+    "post_Mongo_CAS_pre_PG": "PASS; SIGKILL; no invented revision; supported reload/retry",
+    "post_PG_commit_pre_Mongo_sync": "PASS; SIGKILL; durable revision; supported reload/retry",
+    "automatic_cross_store_rollback": "NOT_CLAIMED"
+  },
+  "P3_happy_paths": {
+    "existing_plan": 12,
+    "no_plan": 12,
+    "objectives_per_run": 2,
+    "iterations_per_run": 2,
+    "canon_per_final": {
+      "entities": 3,
+      "events": 2,
+      "facts": 4
+    },
+    "writing_jobs_HTTP_context_hash_linked_per_run": 2
+  },
+  "P3_negative": [
+    {
+      "case": "invalid_plan",
+      "verdict": "PASS",
+      "details": {
+        "HTTP": 422,
+        "response": null,
+        "run_count": "0"
+      }
+    },
+    {
+      "case": "provider_500_bounded_retry",
+      "verdict": "PASS",
+      "details": {
+        "first": {
+          "run_id": "2530a59c-d89f-436e-86d2-06b7955aade3",
+          "novel_id": "cbb3d304-fcbe-4212-abb2-16f2d74039f4",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "plan_id": "155dd845-b1db-4fd6-9768-c429c383fa00",
+          "plan_version": 1,
+          "status": "running",
+          "current_objective_id": "af4604ce-846b-4495-a22a-b345e6794443",
+          "current_chapter_id": "904be1e9-bd18-42c1-a11c-e918db03b1ac",
+          "current_iteration": 0,
+          "max_iterations": 3,
+          "current_retries": 1,
+          "max_retries_per_objective": 2,
+          "last_generation_id": "940906a6-f675-5fae-bd69-756ab145fc13",
+          "last_accepted_revision_id": null,
+          "last_brain_version": 2,
+          "stop_reason": "quality_gate_failed_retry_scheduled",
+          "idempotency_key": "c338d0b60fee497f9ab0465fe03d871c",
+          "input_hash": "825678c49e2fa0d5eb7bc8af9fc7a479e0cccae4756e2e434b82c793bd9d9c7d",
+          "created_by": "36e0e72b-8ec1-4d43-9588-3f21e4b70474",
+          "created_at": "2026-10-22T07:35:31.248307+00:00",
+          "updated_at": "2026-10-22T07:35:31.655161+00:00"
+        },
+        "second": {
+          "run_id": "2530a59c-d89f-436e-86d2-06b7955aade3",
+          "novel_id": "cbb3d304-fcbe-4212-abb2-16f2d74039f4",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "plan_id": "155dd845-b1db-4fd6-9768-c429c383fa00",
+          "plan_version": 1,
+          "status": "failed",
+          "current_objective_id": "af4604ce-846b-4495-a22a-b345e6794443",
+          "current_chapter_id": "904be1e9-bd18-42c1-a11c-e918db03b1ac",
+          "current_iteration": 0,
+          "max_iterations": 3,
+          "current_retries": 2,
+          "max_retries_per_objective": 2,
+          "last_generation_id": "646a8f7f-c3ae-54bb-965b-c81e0619de36",
+          "last_accepted_revision_id": null,
+          "last_brain_version": 2,
+          "stop_reason": "max_retries_exceeded",
+          "idempotency_key": "c338d0b60fee497f9ab0465fe03d871c",
+          "input_hash": "825678c49e2fa0d5eb7bc8af9fc7a479e0cccae4756e2e434b82c793bd9d9c7d",
+          "created_by": "36e0e72b-8ec1-4d43-9588-3f21e4b70474",
+          "created_at": "2026-10-22T07:35:31.248307+00:00",
+          "updated_at": "2026-10-22T07:35:31.979274+00:00"
+        },
+        "accepted_count": "0"
+      }
+    },
+    {
+      "case": "cross_novel_plan",
+      "verdict": "PASS",
+      "details": {
+        "HTTP": 404
+      }
+    },
+    {
+      "case": "inflight_objective_fence",
+      "verdict": "EXPECTED_RED",
+      "details": {
+        "accepted_revision_count": 1,
+        "objective_status": "skipped",
+        "step_statuses": [
+          200,
+          409
+        ],
+        "canon_unchanged": true
+      }
+    },
+    {
+      "case": "stale_brain",
+      "verdict": "PASS",
+      "evidence": "P3-negative/stale-brain/validation.json"
+    }
+  ],
+  "regressions": {
+    "AI": {
+      "pass": 161,
+      "skip": 2,
+      "warnings": 4,
+      "exit_code": 0
+    },
+    "backend_focused": {
+      "pass": 42,
+      "skip": 0,
+      "exit_code": 0
+    },
+    "typecheck": {
+      "exit_code": 0
+    },
+    "P2_HTTP": {
+      "checks_passed": 27,
+      "exit_code": 0
+    }
+  },
+  "external_provider_calls": 0,
+  "embedding_calls": 0,
+  "actual_paid_spend_USD": 0,
+  "human": "SIMULATED_HUMAN_VIA_API",
+  "UI": "UI_BLOCKED_FE; S09 RED unchanged",
+  "REAL_PROVIDER": "NOT_TESTED",
+  "SEMANTIC_RAG": "NOT_ASSESSED",
+  "LITERARY_QUALITY": "NOT_TESTED",
+  "P3_100K": "NOT_RUN; not authorized now",
+  "remaining_bounds": [
+    "In-flight objective skip can still produce accepted revision: BLOCKER, canon not auto-approved",
+    "No full active-plan replacement/rescheduling safety acceptance",
+    "P3 restart proven at persisted human checkpoint, not arbitrary in-flight controller kill",
+    "P1 CAS\u2192PG crash recovery is explicit reload/retry, no automatic distributed rollback",
+    "Admission connection loss without process death, rolling old/new versions and load/saturation not validated",
+    "Full backend PostgreSQL suite not rerun; focused and actual isolated HTTP suites only"
+  ],
+  "handoff": "STOP_FOR_INDEPENDENT_GPT6_SOURCE_EVIDENCE_REVIEW"
+}

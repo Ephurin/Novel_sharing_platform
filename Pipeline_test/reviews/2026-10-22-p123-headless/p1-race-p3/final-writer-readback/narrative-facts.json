@@ -1,0 +1,29 @@
+[
+  {
+    "id": "d72296d4-e821-4aa7-83be-3a267d2eceb2",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "subject_entity_id": null,
+    "fact_type": "narrative_fact",
+    "fact_key": "observed_scene",
+    "fact_value": {
+      "value": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+      "subject": "",
+      "certainty": "confirmed"
+    },
+    "supersedes_id": null,
+    "is_retired": false,
+    "source_type": "AI",
+    "confirmation_status": "confirmed",
+    "confidence": 0.8,
+    "priority": 0,
+    "is_locked": false,
+    "source_revision_id": "57267384-0acb-4192-9aca-2bad57aa6647",
+    "chapter_number": 1,
+    "source_start": 0,
+    "source_end": 184,
+    "created_by": "00000000-0000-0000-0000-000000000001",
+    "created_at": "2026-10-22T07:30:45.337746+00:00"
+  }
+]

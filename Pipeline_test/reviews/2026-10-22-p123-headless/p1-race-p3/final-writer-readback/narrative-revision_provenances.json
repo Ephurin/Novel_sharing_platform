@@ -1,0 +1,12 @@
+[
+  {
+    "id": "5d937a84-3f5b-4cec-a896-0463b846f851",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "chapter_id": "33a5bb33-eb6d-4092-8f96-3e19e64b5a6e",
+    "chapter_number": 1,
+    "created_at": "2026-10-22T07:30:41.072855+00:00",
+    "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+  }
+]

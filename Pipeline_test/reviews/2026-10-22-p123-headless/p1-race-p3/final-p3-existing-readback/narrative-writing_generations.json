@@ -1,0 +1,203 @@
+[
+  {
+    "id": "5e2cc0b6-46b5-4970-8a8c-35d5275e8afa",
+    "job_id": "517b0c37-3e47-53e8-90c5-24bdaef2c7cc",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "724b5d58-5e28-4cf4-8ef7-9b096aa7e6f6",
+    "chapter_id": "d607720d-07ac-4a69-b872-abf2e757e00d",
+    "revision_id": "aa82a05e-db27-407a-aa21-a31ec6023de7",
+    "base_content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "brain_version": 2,
+    "operation": "continuation",
+    "selection_start": 0,
+    "selection_end": 0,
+    "instruction": "Thực hiện mục tiêu cốt truyện: P3 observe. Observe note.",
+    "constraints": [],
+    "style": {},
+    "actor_id": "dc7a5d4e-ada0-4693-8bd8-bf81c090344d",
+    "idempotency_key": "auto-65db6311-f975-4cfe-85dd-9b6c9fd86efa-iter-0-try-0",
+    "input_hash": "6ddeb1e5659a8aba8112b96a57763dc4b3bd3af742f515b3699ffacf51799fbb",
+    "status": "completed",
+    "stage": "completed",
+    "draft": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+    "patch": {
+      "end": 0,
+      "start": 0,
+      "replacement": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân."
+    },
+    "validation_status": "passed",
+    "validations": [
+      {
+        "code": "OK",
+        "passed": true,
+        "message": "Patch schema and offsets valid",
+        "validator": "patch_schema"
+      }
+    ],
+    "context_summary": {
+      "plan_id": [
+        "eb525756-c7ec-40a2-83d0-7373585eb669"
+      ],
+      "fact_ids": [],
+      "event_ids": [],
+      "entity_ids": [
+        "13cf43b2-0504-42de-bfa8-e8ecb8cc3e19",
+        "35015f3d-60f1-4c94-946a-83f1b78df451",
+        "2d359953-b667-4798-b401-1b7457a984cc"
+      ],
+      "query_text": "Thực hiện mục tiêu cốt truyện: P3 observe. Observe note.",
+      "context_hash": "ebabd4140b36d1c8c53f651d4054c16335f6c4ab21f3d65a5ce16c0351732278",
+      "drop_reasons": {},
+      "plan_version": [
+        "1"
+      ],
+      "chapter_number": 1,
+      "cutoff_chapter": 1,
+      "dropped_fact_ids": [],
+      "selection_policy": [
+        "query-relevance-diverse-whole-artifacts-v2"
+      ],
+      "dropped_event_ids": [],
+      "brain_version_used": 2,
+      "dropped_entity_ids": [],
+      "active_objective_id": [
+        "24abb92c-67e2-4c6b-b279-c42d4c29b74b"
+      ],
+      "requested_character": null,
+      "semantic_memory_ids": [],
+      "active_objective_title": [
+        "P3 observe"
+      ],
+      "temporal_origin_policy": [
+        "known-source-cutoff_unknown-global-v1"
+      ],
+      "context_packing_version": [
+        "context-budget-v2-diverse"
+      ],
+      "semantic_retrieval_status": [
+        "disabled"
+      ],
+      "semantic_embedding_version": [],
+      "dropped_semantic_memory_ids": [],
+      "context_token_estimator_version": "[REDACTED]",
+      "deduplicated_semantic_memory_ids": [],
+      "recent_scope_participant_identity": [
+        "normalized-event-participants-v1"
+      ],
+      "temporal_origin_unknown_entity_ids": [
+        "2d359953-b667-4798-b401-1b7457a984cc",
+        "35015f3d-60f1-4c94-946a-83f1b78df451",
+        "13cf43b2-0504-42de-bfa8-e8ecb8cc3e19"
+      ],
+      "recent_scope_participant_entity_ids": []
+    },
+    "model_name": null,
+    "prompt_version": null,
+    "error": null,
+    "created_at": "2026-10-22T07:30:57.179448+00:00",
+    "updated_at": "2026-10-22T07:30:57.349214+00:00"
+  },
+  {
+    "id": "7ed51c2d-e48c-4d7f-9fe9-6b5f3fdac971",
+    "job_id": "06275912-e52f-5567-b512-ed00af4c0755",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "724b5d58-5e28-4cf4-8ef7-9b096aa7e6f6",
+    "chapter_id": "4804a5b5-7d4e-47d1-aba7-023f5a3e897d",
+    "revision_id": "bf69fb2a-6223-4dba-9861-7b09f0aa74a9",
+    "base_content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "brain_version": 3,
+    "operation": "continuation",
+    "selection_start": 0,
+    "selection_end": 0,
+    "instruction": "Thực hiện mục tiêu cốt truyện: P3 ending. Resolve scene.",
+    "constraints": [],
+    "style": {},
+    "actor_id": "dc7a5d4e-ada0-4693-8bd8-bf81c090344d",
+    "idempotency_key": "auto-65db6311-f975-4cfe-85dd-9b6c9fd86efa-iter-1-try-0",
+    "input_hash": "387fbe64b1992cd384757efd64bf7d30eb6327f9ee8ba40abb133ce096a17e36",
+    "status": "completed",
+    "stage": "completed",
+    "draft": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.",
+    "patch": {
+      "end": 0,
+      "start": 0,
+      "replacement": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân."
+    },
+    "validation_status": "passed",
+    "validations": [
+      {
+        "code": "OK",
+        "passed": true,
+        "message": "Patch schema and offsets valid",
+        "validator": "patch_schema"
+      }
+    ],
+    "context_summary": {
+      "plan_id": [
+        "eb525756-c7ec-40a2-83d0-7373585eb669"
+      ],
+      "fact_ids": [
+        "959b5a1a-916f-408c-8fc0-41d29ed3b2c6",
+        "21322df4-3eda-4230-aaa3-c2e4b4002dbf"
+      ],
+      "event_ids": [
+        "d186b264-e298-584b-9597-a42b5b569589"
+      ],
+      "entity_ids": [
+        "13cf43b2-0504-42de-bfa8-e8ecb8cc3e19",
+        "35015f3d-60f1-4c94-946a-83f1b78df451",
+        "2d359953-b667-4798-b401-1b7457a984cc"
+      ],
+      "query_text": "Thực hiện mục tiêu cốt truyện: P3 ending. Resolve scene.",
+      "context_hash": "a83e1c976aab1172c432c4c0d6d64c7464775c510f78015d4d3f89dbae3b856e",
+      "drop_reasons": {},
+      "plan_version": [
+        "1"
+      ],
+      "chapter_number": 2,
+      "cutoff_chapter": 2,
+      "dropped_fact_ids": [],
+      "selection_policy": [
+        "query-relevance-diverse-whole-artifacts-v2"
+      ],
+      "dropped_event_ids": [],
+      "brain_version_used": 3,
+      "dropped_entity_ids": [],
+      "active_objective_id": [
+        "13c94268-0c7e-4c2d-b547-73f9cf55c104"
+      ],
+      "requested_character": null,
+      "semantic_memory_ids": [],
+      "active_objective_title": [
+        "P3 ending"
+      ],
+      "temporal_origin_policy": [
+        "known-source-cutoff_unknown-global-v1"
+      ],
+      "context_packing_version": [
+        "context-budget-v2-diverse"
+      ],
+      "semantic_retrieval_status": [
+        "disabled"
+      ],
+      "semantic_embedding_version": [],
+      "dropped_semantic_memory_ids": [],
+      "context_token_estimator_version": "[REDACTED]",
+      "deduplicated_semantic_memory_ids": [],
+      "recent_scope_participant_identity": [
+        "normalized-event-participants-v1"
+      ],
+      "temporal_origin_unknown_entity_ids": [
+        "2d359953-b667-4798-b401-1b7457a984cc",
+        "35015f3d-60f1-4c94-946a-83f1b78df451",
+        "13cf43b2-0504-42de-bfa8-e8ecb8cc3e19"
+      ],
+      "recent_scope_participant_entity_ids": []
+    },
+    "model_name": null,
+    "prompt_version": null,
+    "error": null,
+    "created_at": "2026-10-22T07:30:58.652995+00:00",
+    "updated_at": "2026-10-22T07:30:58.770702+00:00"
+  }
+]

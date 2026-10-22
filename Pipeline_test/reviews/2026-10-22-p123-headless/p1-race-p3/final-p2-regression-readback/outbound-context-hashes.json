@@ -1,0 +1,131 @@
+[
+  {
+    "job_id": "0a0af6aa-62f2-4680-8da1-791f43176b7e",
+    "status": "completed",
+    "matches": [
+      {
+        "capture": {
+          "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+          "request_sha256": "edcfd55bfaa2f903c1cafac483992e1bb9577764024726db2601fc292a936052",
+          "dispatch_id": "2060ed79-fb27-4261-8219-2450d9073962",
+          "client": "ai-service",
+          "native_schema": null,
+          "output_limit": 512,
+          "upstream_auth_valid": true,
+          "prompt_text": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}\n\nThao tác: continue\nĐoạn văn được chọn: \nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: next-82db313039f74730932f972847a4cbfb Continue current scene.\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":3,\"current_objective\":{\"description\":\"Tomorrow check microphone.\",\"objective_id\":\"2c2c6788-33fa-4e69-901a-231fe1714e89\",\"objective_type\":\"chapter_goal\",\"order_index\":1,\"status\":\"pending\",\"target_chapter\":2,\"title\":\"NEXT_FUTURE_ONLY\"},\"current_states\":[{\"entity_id\":\"b098e7ab-3ac8-42a2-b8b2-f7d179a3c6cf\",\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"183a1b48-cf4a-41f0-9562-9ea8103a7471\",\"location\":\"Unknown\",\"name\":\"Duy\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"db65e4ff-6695-45d4-a315-3093436a78b0\",\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"state\":{},\"status\":\"Unknown\"}],\"entities\":[{\"entity_id\":\"b098e7ab-3ac8-42a2-b8b2-f7d179a3c6cf\",\"entity_type\":\"location\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"status\":\"Unknown\"},{\"entity_id\":\"183a1b48-cf4a-41f0-9562-9ea8103a7471\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Duy\",\"status\":\"Unknown\"},{\"entity_id\":\"db65e4ff-6695-45d4-a315-3093436a78b0\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"status\":\"Unknown\"}],\"planning_context\":{\"active_objective_id\":\"2c2c6788-33fa-4e69-901a-231fe1714e89\",\"plan_id\":\"b21adeb3-a1ed-4211-a9d4-c9efaefba15d\",\"plan_version\":1,\"source_outline_hash\":\"1f5f673b055e8c3e56e2fbc947151a6dd7844c0adba23a1ccf9b15e7aead5869\",\"status\":\"active\",\"total_objectives\":1},\"recent_events\":[{\"chapter_number\":1,\"event_id\":\"2d7d4440-b4ac-5ddb-a325-1ad5db96be65\",\"event_type\":\"observation\",\"metadata\":{\"chapter\":1,\"chapter_number\":1,\"consequences\":[],\"event_type\":\"observation\",\"evidence\":[{\"chapter_id\":\"a03008c9-7695-49d4-aedd-13ddcab06b76\",\"chapter_number\":1,\"end\":60,\"quote\":\"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\",\"revision_id\":\"9984f5d1-0ff7-465f-8538-efb541e3827e\",\"start\":0,\"text_hash\":\"7131e1f2324531a815f700a997a925c6d6228e6f21f489c6ccefb07b1cef39a6\"}],\"locations\":[],\"participants\":[],\"reconciliation_base_ids\":[],\"summary\":\"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\"},\"narrative_order\":1024,\"participants\":[],\"summary\":\"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\"}],\"semantic_memories\":[],\"world_rules\":[{\"fact_key\":\"observed_scene\",\"fact_type\":\"narrative_fact\",\"fact_value\":{\"certainty\":\"confirmed\",\"subject\":\"\",\"value\":\"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\"},\"id\":\"090e47e5-9775-4301-8d68-88f210b33768\",\"is_locked\":false,\"subject_entity_id\":null,\"subject_name\":\"\"},{\"fact_key\":\"micro_check_note\",\"fact_type\":\"narrative_fact\",\"fact_value\":{\"certainty\":\"confirmed\",\"subject\":\"\",\"value\":\"Mai Linh đặt thẻ giấy kiểm tra micro cạnh máy thu; chưa thực hiện kế hoạch\"},\"id\":\"45b697bc-8ea6-41bf-b8a2-e3ccc7c5ebdd\",\"is_locked\":false,\"subject_entity_id\":null,\"subject_name\":\"\"}]}",
+          "scenario": "p123-p3-v1",
+          "received_at": 1792654357.852706,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text": "{\"draft_text\": \"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\\n\\nDuy đứng bên Mai Linh tại Cồn Vân.\", \"explanation\": \"FAKE_PROVIDER_OUTPUT scripted functional continuation\"}"
+                    }
+                  ]
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": "[REDACTED]",
+              "candidatesTokenCount": "[REDACTED]",
+              "totalTokenCount": "[REDACTED]"
+            },
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "2060ed79-fb27-4261-8219-2450d9073962"
+          },
+          "operation": "writing_generation"
+        },
+        "prompt_sha256": "523a3c520dc738009f268cfe82b98ed8108177d0664cc58588c3cfadc5cae1d6",
+        "context_hash": "f0d272fb41d84f803bc72a4f1386ddf4bb0efa0d28d37d69d83ce348565e6129"
+      }
+    ]
+  },
+  {
+    "job_id": "3fae1b73-3ba1-4336-8117-423a007a393a",
+    "status": "completed",
+    "matches": [
+      {
+        "capture": {
+          "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+          "request_sha256": "cab3b443cb43842207cbe89aaf114760f5bf8fe7b39f106b0640eac94b0d3cae",
+          "dispatch_id": "434607c9-8ce5-4fdf-a294-b9f1f4d5d781",
+          "client": "ai-service",
+          "native_schema": null,
+          "output_limit": 512,
+          "upstream_auth_valid": true,
+          "prompt_text": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}\n\nThao tác: continue\nĐoạn văn được chọn: \nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: next-a0f9dafa6c154ccb826ae00b57e168ed fault:500\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":2,\"current_objective\":{\"description\":\"Tomorrow check microphone.\",\"objective_id\":\"2c2c6788-33fa-4e69-901a-231fe1714e89\",\"objective_type\":\"chapter_goal\",\"order_index\":1,\"status\":\"pending\",\"target_chapter\":2,\"title\":\"NEXT_FUTURE_ONLY\"},\"current_states\":[{\"entity_id\":\"b098e7ab-3ac8-42a2-b8b2-f7d179a3c6cf\",\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"183a1b48-cf4a-41f0-9562-9ea8103a7471\",\"location\":\"Unknown\",\"name\":\"Duy\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"db65e4ff-6695-45d4-a315-3093436a78b0\",\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"state\":{},\"status\":\"Unknown\"}],\"entities\":[{\"entity_id\":\"b098e7ab-3ac8-42a2-b8b2-f7d179a3c6cf\",\"entity_type\":\"location\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"status\":\"Unknown\"},{\"entity_id\":\"183a1b48-cf4a-41f0-9562-9ea8103a7471\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Duy\",\"status\":\"Unknown\"},{\"entity_id\":\"db65e4ff-6695-45d4-a315-3093436a78b0\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"status\":\"Unknown\"}],\"planning_context\":{\"active_objective_id\":\"2c2c6788-33fa-4e69-901a-231fe1714e89\",\"plan_id\":\"b21adeb3-a1ed-4211-a9d4-c9efaefba15d\",\"plan_version\":1,\"source_outline_hash\":\"1f5f673b055e8c3e56e2fbc947151a6dd7844c0adba23a1ccf9b15e7aead5869\",\"status\":\"active\",\"total_objectives\":1},\"recent_events\":[],\"semantic_memories\":[],\"world_rules\":[]}",
+          "scenario": "p123-p3-v1",
+          "received_at": 1792654345.2463284,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text": "{\"draft_text\": \"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\\n\\nDuy đứng bên Mai Linh tại Cồn Vân.\", \"explanation\": \"FAKE_PROVIDER_OUTPUT scripted functional continuation\"}"
+                    }
+                  ]
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": "[REDACTED]",
+              "candidatesTokenCount": "[REDACTED]",
+              "totalTokenCount": "[REDACTED]"
+            },
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "434607c9-8ce5-4fdf-a294-b9f1f4d5d781"
+          },
+          "operation": "writing_generation"
+        },
+        "prompt_sha256": "4cfec49030a2c1b8735d94c8c381dab96f967d6a03029f9f06f53ed07097396b",
+        "context_hash": "3aa2b656223789c302a8cd6b24dcae9a7e9347f22b971e1d0d133b0594d19ca6"
+      },
+      {
+        "capture": {
+          "path": "/v1beta/models/gemini-3.5-flash-lite:generateContent",
+          "request_sha256": "7fdc4c1ad6ba008dca7a340715a579436dd9262d82a35627d9444853f26b6988",
+          "dispatch_id": "9ac0a64c-88be-4b53-971f-b9261541d6f1",
+          "client": "ai-service",
+          "native_schema": null,
+          "output_limit": 512,
+          "upstream_auth_valid": true,
+          "prompt_text": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}\n\nThao tác: continue\nĐoạn văn được chọn: \nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: next-0d6c6696e3a54607bc0b208692c8f4b9 Continue current scene.\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":2,\"current_objective\":{\"description\":\"Tomorrow check microphone.\",\"objective_id\":\"2c2c6788-33fa-4e69-901a-231fe1714e89\",\"objective_type\":\"chapter_goal\",\"order_index\":1,\"status\":\"pending\",\"target_chapter\":2,\"title\":\"NEXT_FUTURE_ONLY\"},\"current_states\":[{\"entity_id\":\"b098e7ab-3ac8-42a2-b8b2-f7d179a3c6cf\",\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"183a1b48-cf4a-41f0-9562-9ea8103a7471\",\"location\":\"Unknown\",\"name\":\"Duy\",\"state\":{},\"status\":\"Unknown\"},{\"entity_id\":\"db65e4ff-6695-45d4-a315-3093436a78b0\",\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"state\":{},\"status\":\"Unknown\"}],\"entities\":[{\"entity_id\":\"b098e7ab-3ac8-42a2-b8b2-f7d179a3c6cf\",\"entity_type\":\"location\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Cồn Vân\",\"status\":\"Unknown\"},{\"entity_id\":\"183a1b48-cf4a-41f0-9562-9ea8103a7471\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Duy\",\"status\":\"Unknown\"},{\"entity_id\":\"db65e4ff-6695-45d4-a315-3093436a78b0\",\"entity_type\":\"character\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Mai Linh\",\"status\":\"Unknown\"}],\"planning_context\":{\"active_objective_id\":\"2c2c6788-33fa-4e69-901a-231fe1714e89\",\"plan_id\":\"b21adeb3-a1ed-4211-a9d4-c9efaefba15d\",\"plan_version\":1,\"source_outline_hash\":\"1f5f673b055e8c3e56e2fbc947151a6dd7844c0adba23a1ccf9b15e7aead5869\",\"status\":\"active\",\"total_objectives\":1},\"recent_events\":[],\"semantic_memories\":[],\"world_rules\":[]}",
+          "scenario": "p123-p3-v1",
+          "received_at": 1792654346.1647499,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text": "{\"draft_text\": \"Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\\n\\nDuy đứng bên Mai Linh tại Cồn Vân.\", \"explanation\": \"FAKE_PROVIDER_OUTPUT scripted functional continuation\"}"
+                    }
+                  ]
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": "[REDACTED]",
+              "candidatesTokenCount": "[REDACTED]",
+              "totalTokenCount": "[REDACTED]"
+            },
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "9ac0a64c-88be-4b53-971f-b9261541d6f1"
+          },
+          "operation": "writing_generation"
+        },
+        "prompt_sha256": "1c852eb7082b78613d1342dcc4b8827ba1bfd7b50966b48367e6500d3056e3d9",
+        "context_hash": "3aa2b656223789c302a8cd6b24dcae9a7e9347f22b971e1d0d133b0594d19ca6"
+      }
+    ]
+  }
+]

@@ -1,0 +1,70 @@
+{
+  "tested_source_sha": "c34a0251dbc6d15fd2af7a8b1ead787adf892100",
+  "prepare": "python Pipeline_test/tools/prepare_p123_next.py --manifest <new manifest>",
+  "initialize": "docker compose --env-file <env> -f <compose> [ordered override only for ordered tests] --profile initialize run --rm budget-init",
+  "start": "docker compose --env-file <env> -f <compose> [override] up -d --build api-ingress",
+  "ordered_override": "Pipeline_test/tools/compose.p123-ordered-test.yml",
+  "before_runtime_override": "compose.before-image.yml; --no-build pins original images",
+  "P3_compose": "Pipeline_test/tools/compose.p123-p3.yml",
+  "steps": [
+    {
+      "command": "python Pipeline_test/tools/run_ordered_writer.py <before-clean env> <before-clean output>",
+      "exit_code": 1,
+      "classification": "EXPECTED_RED, pinned old runtime image; clean committed current harness"
+    },
+    {
+      "command": "python Pipeline_test/tools/run_ordered_writer.py <final-writer env> <final-writer output> --protected",
+      "exit_code": 0
+    },
+    {
+      "command": "python Pipeline_test/tools/run_p3_headless.py <existing env> <final-p3-existing>",
+      "exit_code": 0
+    },
+    {
+      "command": "python Pipeline_test/tools/run_p3_headless.py <no-plan env> <final-p3-no-plan> --no-plan",
+      "exit_code": 0
+    },
+    {
+      "command": "python Pipeline_test/tools/run_p123_next.py --env-file <existing env> --output <final-p2-regression> --mode p2",
+      "exit_code": 0
+    },
+    {
+      "command": "python Pipeline_test/tools/run_p123_regressions.py --output <final-regressions>",
+      "exit_code": 0,
+      "exact_args": "final-regressions/validation.json"
+    },
+    {
+      "command": "python <evidence>/probe_p3_negative.py",
+      "exit_code": 0,
+      "classification": "Probe executed; objective safety EXPECTED_RED, aggregate P3 BLOCKED"
+    },
+    {
+      "command": "python <evidence>/probe_extra_guards.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python <evidence>/probe_inverse_order.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python <evidence>/readback_final.py",
+      "exit_code": 0
+    }
+  ],
+  "development_failures": [
+    {
+      "case": "p3-existing-01",
+      "exit_code": 1,
+      "reason": "Missing internal generation idempotency key; fixed e496f4d"
+    },
+    {
+      "case": "p3-existing-02",
+      "exit_code": 1,
+      "reason": "Explicit null pause reason retained old HITL flag; fixed 6b5890c"
+    },
+    {
+      "case": "before raw image file hash comparison",
+      "reason": "CRLF vs LF; normalized comparison proves four source files match ee6971b"
+    }
+  ]
+}

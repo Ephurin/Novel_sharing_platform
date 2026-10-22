@@ -1,0 +1,553 @@
+[
+  {
+    "id": "9619b6a1-2068-5953-8124-647a46e37264",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 0,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "candidate_ids": [
+        "d58c274a8a43518d12ebc70a",
+        "d95290f4a7c47ecdd580952b",
+        "6dd226fd38f880957a028bae",
+        "1f525f394bbe9f3c21f34233"
+      ],
+      "canonical_name": "Mai Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "mai linh",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 59,
+        "quote": "Mai Linh",
+        "start": 51,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "d4f51a60-e341-564a-9552-e711f5fbefea",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 1,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "candidate_ids": [
+        "eeb1b9e8e2cf8787c2cd5000",
+        "fcf1ceb3228237ec5f6ebf88",
+        "d626482fcb93ef84bac88aff",
+        "97da340ad756b7cdf2f9de6a",
+        "93aa100e24b1da08cb61e384",
+        "3ca733e2836dab961f4010a0",
+        "662da15ef6606889602dfce8",
+        "168c4cffb2c47446dab71826",
+        "f3591af4d54e899fb3a2f381",
+        "37c867d21c2de188fa495a3d"
+      ],
+      "canonical_name": "Linh",
+      "initial_status": "Unknown",
+      "normalized_name": "linh",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 453,
+        "quote": "Linh",
+        "start": 449,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "405ccede-ad6e-513c-91b9-514707405f4c",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 2,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "candidate_ids": [
+        "323fe5dc9b7d5370d26fd74b",
+        "3375d9ff39b0141d06812d6c"
+      ],
+      "canonical_name": "Yên",
+      "initial_status": "Unknown",
+      "normalized_name": "yên",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 1349,
+        "quote": "Yên",
+        "start": 1346,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "5f0eff2d-c442-5120-9db5-bb4dc925cd5f",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 3,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "candidate_ids": [
+        "4bf10fb84718116265369ea7"
+      ],
+      "canonical_name": "Bà Sâm",
+      "initial_status": "Unknown",
+      "normalized_name": "bà sâm",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 1384,
+        "quote": "Bà Sâm",
+        "start": 1378,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "fc54bb55-f7c7-5d12-bbb4-34b8396be075",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 4,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "candidate_ids": [
+        "c65b1c575bf59d4282958fa5"
+      ],
+      "canonical_name": "Sâm",
+      "initial_status": "Unknown",
+      "normalized_name": "sâm",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 1384,
+        "quote": "Sâm",
+        "start": 1381,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "47137870-39bd-56cc-ad7b-8d60b8ffaafe",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 5,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "candidate_ids": [
+        "8f410edd4fff3410be4022e1"
+      ],
+      "canonical_name": "Cồn Vân",
+      "initial_status": "Unknown",
+      "normalized_name": "cồn vân",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 2162,
+        "quote": "Cồn Vân",
+        "start": 2155,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "b127c560-d8b6-50f4-b1d3-e5536d50a69d",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 6,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "candidate_ids": [
+        "7f471464731dd61eabfbe13e"
+      ],
+      "canonical_name": "Đồi Bắc",
+      "initial_status": "Unknown",
+      "normalized_name": "đồi bắc",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 2262,
+        "quote": "Đồi Bắc",
+        "start": 2255,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "831e0d78-f3fd-514d-b7a7-a75e4313728f",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 7,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "candidate_ids": [
+        "628430a7f398b7b41bb87ca9",
+        "261e7cd9b3f1a01ba730a316",
+        "c405b9530900611fc439ffb1",
+        "401b16bc1a0e4b5efb3ed070",
+        "9c2753ab615ed606d742fa85",
+        "8516836a41e9af3139cf811a",
+        "4c60445395ba98edae799a3c"
+      ],
+      "canonical_name": "Hòa",
+      "initial_status": "Unknown",
+      "normalized_name": "hòa",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 2971,
+        "quote": "Hòa",
+        "start": 2968,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "0ff7fc91-b9fb-5d87-85a6-09b85c53de80",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 8,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "PER",
+      "candidate_ids": [
+        "8079c0d46beca562a40c7ea2"
+      ],
+      "canonical_name": "Mai Lâm",
+      "initial_status": "Unknown",
+      "normalized_name": "mai lâm",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 3280,
+        "quote": "Mai Lâm",
+        "start": 3273,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "9641a0cb-a8ff-5b6d-9503-8cb56730161d",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 9,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "candidate_ids": [
+        "80f2307605708f1fbd92afe2",
+        "ad030b16a99af42042fc0599",
+        "bdf32708f497268b9ee5bb5a"
+      ],
+      "canonical_name": "Bốn",
+      "initial_status": "Unknown",
+      "normalized_name": "bốn",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 3951,
+        "quote": "Bốn",
+        "start": 3948,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "ad092d75-f326-545a-b392-4f3182d2fe3a",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 10,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "ITEM",
+      "candidate_ids": [
+        "f8dccf6751b094e2d0dc3332"
+      ],
+      "canonical_name": "CV-04",
+      "initial_status": "Unknown",
+      "normalized_name": "cv-04",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 4174,
+        "quote": "CV-04",
+        "start": 4169,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "7ec8a846-bcd7-53e6-a5b1-f584e767fc46",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 11,
+    "proposal_type": "entity",
+    "payload": {
+      "entity_type": "LOC",
+      "candidate_ids": [
+        "ee84763066fd21bbdfbdea56"
+      ],
+      "canonical_name": "Bãi Dưới",
+      "initial_status": "Unknown",
+      "normalized_name": "bãi dưới",
+      "entity_candidate_policy": "entity-human-review-v1"
+    },
+    "evidence": [
+      {
+        "end": 4425,
+        "quote": "Bãi Dưới",
+        "start": 4417,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647"
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "72881ada-2d47-534a-9115-05f23f91d865",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 12,
+    "proposal_type": "alias",
+    "payload": {
+      "alias": "Linh",
+      "entity_id": "53565494-fa8a-45ba-94cf-4aec9449aebe",
+      "entity_name": "Mai Linh",
+      "identity_quote": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.\n\nMười một năm trước, cầu dẫn còn có một thanh thép lỏng. Mỗi lần bánh xe đ"
+    },
+    "evidence": [
+      {
+        "end": 59,
+        "quote": "Linh",
+        "start": 55,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "chapter_id": "33a5bb33-eb6d-4092-8f96-3e19e64b5a6e",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 0.7,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "93436eab-a549-57a2-a72c-9531aa1eda4a",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 13,
+    "proposal_type": "event",
+    "payload": {
+      "chapter": 1,
+      "summary": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+      "locations": [],
+      "event_type": "observation",
+      "consequences": [],
+      "participants": [],
+      "chapter_number": 1,
+      "reconciliation_base_ids": []
+    },
+    "evidence": [
+      {
+        "end": 184,
+        "quote": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "start": 0,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "chapter_id": "33a5bb33-eb6d-4092-8f96-3e19e64b5a6e",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 0.5,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  },
+  {
+    "id": "c7ec060c-8d38-54b4-986b-238f2d5c37d2",
+    "analysis_run_id": "665261a7-a5f1-4625-a63b-db1f661d0f23",
+    "story_brain_id": "55b53379-1edf-42bb-a14f-05604a4193e0",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "novel_id": "3b5a5083-26f3-433b-96c7-570b80f47fa0",
+    "dependency_group_id": "e49f3367-e33e-57e8-929d-5bb9454d7f89",
+    "materialization_order": 14,
+    "proposal_type": "fact",
+    "payload": {
+      "fact_key": "observed_scene",
+      "certainty": "confirmed",
+      "fact_type": "narrative_fact",
+      "fact_value": {
+        "value": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "subject": "",
+        "certainty": "confirmed"
+      },
+      "subject_name": "",
+      "chapter_number": 1,
+      "reconciliation_base_ids": []
+    },
+    "evidence": [
+      {
+        "end": 184,
+        "quote": "Chiếc phà chạm bến bằng một tiếng thở dài của sắt. Mai Linh nhận ra âm thanh ấy trước khi nhận ra thành phố. Ở tuổi hai mươi chín, cô vẫn nhớ một tiếng động cũ dễ hơn nhớ đường về nhà.",
+        "start": 0,
+        "text_hash": "ae780e1ba2fb095acd71def5fc6dd74d851fc07fa23492ef39ee3b75e8570cf5",
+        "chapter_id": "33a5bb33-eb6d-4092-8f96-3e19e64b5a6e",
+        "revision_id": "57267384-0acb-4192-9aca-2bad57aa6647",
+        "chapter_number": 1
+      }
+    ],
+    "confidence": 0.8,
+    "status": "accepted",
+    "expected_brain_version": 1,
+    "decision_reason": "SIMULATED_HUMAN_VIA_API bounded scripted functional approval",
+    "created_at": "2026-10-22T07:30:44.642005+00:00",
+    "updated_at": "2026-10-22T07:30:45.337746+00:00"
+  }
+]
