@@ -31,7 +31,7 @@ try{
  const content='Immutable bootstrap revision for isolated service authorization';
  const chapter=await api(`/novels/${novel.novelId}/chapters`,'POST',{title:'Chapter 1',content},author.accessToken);
  const revision=await api(`/chapters/${chapter.chapterId}/revisions/snapshot`,'POST',{purpose:'MANUSCRIPT_BOOTSTRAP'},author.accessToken);
- const durable=async()=>({revision:(await pool.query('select * from chapter_revisions where revision_id=$1',[revision.revisionId])).rows,chapter:(await pool.query('select * from chapters where chapter_id=$1',[chapter.chapterId])).rows,outbox:(await pool.query('select * from analysis_outbox')).rows,mongo:await mongo.collection('draft_chapters').find().toArray()});
+ const durable=async()=>({revision:(await pool.query('select * from chapter_revisions where revision_id=$1',[revision.revisionId])).rows,chapter:(await pool.query('select * from chapters where chapter_id=$1',[chapter.chapterId])).rows,outbox:(await pool.query('select * from revision_outbox_events')).rows,mongo:await mongo.collection('draft_chapters').find().toArray()});
  const before=await durable();assert.equal(before.revision[0].content,content);assert.equal(before.revision[0].content_hash,createHash('sha256').update(content).digest('hex'));assert.ok(before.mongo.length>0);
  for(const configuration of ['missing','empty','whitespace','configured']){
   if(configuration==='missing')delete process.env.PLATFORM_SERVICE_TOKEN;else process.env.PLATFORM_SERVICE_TOKEN=configuration==='empty'?'':configuration==='whitespace'?'   ':secret;
