@@ -2,7 +2,8 @@ import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { connectMongo, disconnectMongo, getMongoDatabase } from '../../core/database/mongo.js';
-import { disconnectPostgres } from '../../core/database/postgres.js';
+import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
+import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
 import { disconnectChapterWriter } from './chapter-writer.js';
 import {
   syncDraftFromRevisionConditional,
@@ -14,24 +15,31 @@ describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
   const testChapterId = randomUUID();
   const testNovelId = randomUUID();
   const testAuthorId = randomUUID();
+  const recoveryChapterId = randomUUID();
+  const ownedChapterIds = new Set([testChapterId]);
+
+  async function cleanupOwnedDrafts() {
+    const db = getMongoDatabase();
+    await db.collection('draft_chapters').deleteMany({ chapterId: { $in: [...ownedChapterIds] } });
+  }
 
   before(async () => {
+    // Authorize actual targets before indexes, fixture writes or cleanup.
+    await validateTestDatabaseIsolation(getPostgresPool(), getMongoDatabase());
     await connectMongo();
-    // Clean up any stale test doc
-    const db = getMongoDatabase();
-    await db.collection('draft_chapters').deleteMany({
-      chapterId: { $in: [testChapterId] },
-    });
   });
 
   after(async () => {
-    const db = getMongoDatabase();
-    await db.collection('draft_chapters').deleteMany({
-      chapterId: { $in: [testChapterId] },
-    });
-    await disconnectMongo();
-    await disconnectPostgres();
-    await disconnectChapterWriter();
+    try {
+      await cleanupOwnedDrafts();
+      assert.equal(await getMongoDatabase().collection('draft_chapters').countDocuments({
+        chapterId: { $in: [testChapterId, recoveryChapterId] }
+      }), 0, 'All run-created drafts must be absent after teardown');
+    } finally {
+      await disconnectMongo();
+      await disconnectPostgres();
+      await disconnectChapterWriter();
+    }
   });
 
   test('Targeted Probe 1: Older draft is cleanly updated by accepted revision', async () => {
@@ -106,7 +114,8 @@ describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
   });
 
   test('Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId', async () => {
-    const freshChapterId = randomUUID();
+    const freshChapterId = recoveryChapterId;
+    ownedChapterIds.add(freshChapterId); // Track before any operation can partially create it.
     const syncNullRes = await syncDraftFromRevisionConditional({
       novelId: testNovelId,
       chapterId: freshChapterId,
@@ -127,4 +136,24 @@ describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
     assert.ok(syncNullRes.draft.novelId.length > 0, 'novelId must not be empty');
     assert.ok(syncNullRes.draft.authorId.length > 0, 'authorId must not be empty');
   });
+  test('Targeted Probe 4: Cleanup removes the recovery fixture and preserves an unrelated draft', async () => {
+    const db = getMongoDatabase();
+    const sentinelId = randomUUID();
+    const sentinel = { chapterId: sentinelId, novelId: randomUUID(), authorId: randomUUID(), content: 'FOREIGN_DRAFT_MUST_SURVIVE' };
+    await db.collection('draft_chapters').insertOne({ ...sentinel });
+    try {
+      await cleanupOwnedDrafts();
+      // Independent expected identities catch an omitted recovery ownership registration.
+      assert.equal(await db.collection('draft_chapters').countDocuments({
+        chapterId: { $in: [testChapterId, recoveryChapterId] }
+      }), 0, 'Recovery fixture was orphaned by cleanup');
+      const stored = await db.collection('draft_chapters').findOne({ chapterId: sentinelId });
+      assert.equal(stored?.content, sentinel.content);
+      assert.equal(stored?.novelId, sentinel.novelId);
+      assert.equal(stored?.authorId, sentinel.authorId);
+    } finally {
+      await db.collection('draft_chapters').deleteOne({ chapterId: sentinelId });
+    }
+  });
+
 });
