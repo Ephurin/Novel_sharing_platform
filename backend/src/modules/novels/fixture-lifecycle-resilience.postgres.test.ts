@@ -878,4 +878,204 @@ describe('F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience',
     const mCheckAfter = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: cId });
     assert.equal(mCheckAfter, 0, 'Document must be absent after recovery retry');
   });
+
+  test('Matrix 18: F-11 Malformed PostgreSQL readback must fail closed and report affected resource', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const uId = crypto.randomUUID();
+    lifecycle.registerUser(uId);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role)
+       VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [uId, `m18_u_${Date.now()}`, `m18_${Date.now()}@ephurin.com`]
+    );
+
+    // Mock pool that executes real DELETE queries, but returns malformed results on readback SELECT count(*)
+    let callCount = 0;
+    const malformedPool = {
+      query: async (text: string, params?: any[]) => {
+        if (text.includes('SELECT count(*) FROM users WHERE user_id = $1') && params?.[0] === uId) {
+          callCount++;
+          if (callCount === 1) {
+            // Malformed case 1: empty rows array
+            return { rows: [] };
+          } else if (callCount === 2) {
+            // Malformed case 2: null count
+            return { rows: [{ count: null }] };
+          } else {
+            // Malformed case 3: invalid count string / non-number
+            return { rows: [{ count: 'not-an-int' }] };
+          }
+        }
+        return pool.query(text, params);
+      },
+    } as unknown as Pool;
+
+    // Test Case 1: Empty rows array
+    let cleanupErr: any = null;
+    try {
+      await lifecycle.cleanup(malformedPool, mongoDb);
+    } catch (err: any) {
+      cleanupErr = err;
+    }
+
+    assert.ok(cleanupErr, 'Cleanup must fail closed when readback query returns empty rows array');
+    assert.match(cleanupErr.message, /Malformed PostgreSQL readback for user/i);
+    assert.match(cleanupErr.message, new RegExp(uId));
+    assert.equal(lifecycle.stage, 'CLEANUP_FAILED');
+    assert.ok(lifecycle.pending.pgUsers.has(uId), 'Pending user ID must be preserved on readback validation failure');
+
+    // Recovery test: Calling cleanup with genuine pool recovers to CLEANED
+    const recoveryResult = await lifecycle.cleanup(pool, mongoDb);
+    assert.equal(recoveryResult.cleaned, true);
+    assert.equal(lifecycle.stage, 'CLEANED');
+
+    const finalCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId]);
+    assert.equal(Number(finalCheck.rows[0].count), 0, 'User record must be cleanly deleted');
+  });
+
+  test('Matrix 19: F-12 Outbox registration fails closed when novel and chapter are unowned', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const unownedNovelId = crypto.randomUUID();
+    const unownedChapterId = crypto.randomUUID();
+    const unownedEventId = crypto.randomUUID();
+
+    // 1. Unowned novel and chapter registration must throw fail-closed error
+    assert.throws(
+      () => lifecycle.registerOutbox(unownedNovelId, unownedChapterId),
+      /outbox-only fixtures without an owned parent novel or chapter are unsupported/i
+    );
+
+    // 2. Unowned event registration must also throw fail-closed error
+    assert.throws(
+      () => lifecycle.registerOutbox(unownedNovelId, unownedChapterId, unownedEventId),
+      /outbox-only fixtures without an owned parent novel or chapter are unsupported/i
+    );
+
+    // 3. registerOutboxEvent helper must also throw fail-closed error
+    assert.throws(
+      () => lifecycle.registerOutboxEvent(unownedNovelId, unownedChapterId, unownedEventId),
+      /outbox-only fixtures without an owned parent novel or chapter are unsupported/i
+    );
+
+    // 4. Confirm valid registration succeeds once parent novel or chapter is owned
+    lifecycle.registerNovel(unownedNovelId);
+    assert.doesNotThrow(() => {
+      lifecycle.registerOutbox(unownedNovelId, unownedChapterId, unownedEventId);
+    });
+    assert.ok(lifecycle.pending.pgOutboxEvents.has(unownedEventId));
+    assert.ok(lifecycle.pending.pgOutbox.has(`${unownedNovelId}:${unownedChapterId}`));
+  });
+
+  test('Matrix 20: F-12 Persisted outbox fixture cleaned and independently verified with fail-closed readback', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const uId = crypto.randomUUID();
+    const nId = crypto.randomUUID();
+    const cId = crypto.randomUUID();
+    const rId = crypto.randomUUID();
+    const eventId = crypto.randomUUID();
+
+    lifecycle.registerUser(uId);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role)
+       VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [uId, `m20_u_${Date.now()}`, `m20_${Date.now()}@ephurin.com`]
+    );
+
+    lifecycle.registerNovel(nId);
+    await pool.query(
+      `INSERT INTO novels (novel_id, title, slug, synopsis, author_id, status)
+       VALUES ($1, 'Matrix 20 Novel', $2, 'Synopsis', $3, 'PUBLISHED')`,
+      [nId, `m20-slug-${Date.now()}`, uId]
+    );
+
+    lifecycle.registerChapter(cId);
+    await pool.query(
+      `INSERT INTO chapters (chapter_id, novel_id, title, chapter_number, status)
+       VALUES ($1, $2, 'Matrix 20 Chapter', 1, 'DRAFT')`,
+      [cId, nId]
+    );
+
+    lifecycle.registerRevision(rId);
+    await pool.query(
+      `INSERT INTO chapter_revisions (revision_id, chapter_id, novel_id, content, content_hash, source_type)
+       VALUES ($1, $2, $3, 'Matrix 20 Revision Content', 'hash20', 'AUTHOR_MANUAL')`,
+      [rId, cId, nId]
+    );
+
+    // Register owned outbox event
+    lifecycle.registerOutbox(nId, cId, eventId);
+
+    // Insert real persisted row in revision_outbox_events
+    await pool.query(
+      `INSERT INTO revision_outbox_events (event_id, event_type, novel_id, chapter_id, revision_id, content_hash, status)
+       VALUES ($1, 'INCREMENTAL_ANALYSIS', $2, $3, $4, 'hash20', 'PENDING')`,
+      [eventId, nId, cId, rId]
+    );
+
+    // Verify row genuinely exists in database
+    const obBefore = await pool.query('SELECT count(*) FROM revision_outbox_events WHERE event_id = $1', [eventId]);
+    assert.equal(Number(obBefore.rows[0].count), 1);
+
+    // Step A: Negative fault injection — proxy pool acknowledges delete but leaves outbox row intact
+    const proxyPool = {
+      query: async (text: string, params?: any[]) => {
+        if (text.includes('DELETE FROM revision_outbox_events WHERE event_id = $1') && params?.[0] === eventId) {
+          // Acknowledge driver success without deleting
+          return { rowCount: 1, rows: [] };
+        }
+        if (text.includes('DELETE FROM revision_outbox_events WHERE novel_id = $1 AND chapter_id = $2')) {
+          return { rowCount: 1, rows: [] };
+        }
+        if (text.includes('DELETE FROM revision_outbox_events WHERE novel_id = $1')) {
+          return { rowCount: 1, rows: [] };
+        }
+        if (text.includes('DELETE FROM revision_outbox_events WHERE chapter_id = $1')) {
+          return { rowCount: 1, rows: [] };
+        }
+        if (text.includes('DELETE FROM chapter_revisions') || text.includes('DELETE FROM chapters') || text.includes('DELETE FROM novels')) {
+          // Block cascading delete of parents to keep outbox row alive for readback verification test
+          return { rowCount: 1, rows: [] };
+        }
+        return pool.query(text, params);
+      },
+    } as unknown as Pool;
+
+    let cleanupError: any = null;
+    try {
+      await lifecycle.cleanup(proxyPool, mongoDb);
+    } catch (err: any) {
+      cleanupError = err;
+    }
+
+    assert.ok(cleanupError, 'Cleanup must fail when revision_outbox_events row persists');
+    assert.match(cleanupError.message, /Authoritative readback failed: residual revision outbox/i);
+    assert.match(cleanupError.message, new RegExp(eventId));
+    assert.equal(lifecycle.stage, 'CLEANUP_FAILED');
+    assert.ok(lifecycle.pending.pgOutboxEvents.has(eventId), 'Pending outbox event ID must be preserved');
+
+    // Step B: Recovery retry with real pool restores complete clean state
+    const recoveryResult = await lifecycle.cleanup(pool, mongoDb);
+    assert.equal(recoveryResult.cleaned, true);
+    assert.equal(lifecycle.stage, 'CLEANED');
+
+    // Authoritative readback checks: zero residual records across all tables
+    const obCheck = await pool.query('SELECT count(*) FROM revision_outbox_events WHERE event_id = $1', [eventId]);
+    const rCheck = await pool.query('SELECT count(*) FROM chapter_revisions WHERE revision_id = $1', [rId]);
+    const cCheck = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [cId]);
+    const nCheck = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [nId]);
+    const uCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId]);
+
+    assert.equal(Number(obCheck.rows[0].count), 0, 'Outbox event must be deleted');
+    assert.equal(Number(rCheck.rows[0].count), 0, 'Revision must be deleted');
+    assert.equal(Number(cCheck.rows[0].count), 0, 'Chapter must be deleted');
+    assert.equal(Number(nCheck.rows[0].count), 0, 'Novel must be deleted');
+    assert.equal(Number(uCheck.rows[0].count), 0, 'User must be deleted');
+  });
 });
+

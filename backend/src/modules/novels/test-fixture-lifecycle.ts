@@ -23,6 +23,7 @@ export interface FixtureIdentityTracker {
   pgChapters: Set<string>;
   pgRevisions: Set<string>;
   pgOutbox: Set<string>; // keyed as "novelId:chapterId"
+  pgOutboxEvents: Set<string>; // exact event_id UUIDs (F-12)
   mongoDrafts: Set<string>;
 
   // Sentinels registered for teardown
@@ -46,6 +47,35 @@ export interface CleanupResult {
 }
 
 /**
+ * Strict count parser for PostgreSQL SELECT count(*) readbacks (F-11).
+ * Rejects:
+ * - query result not having rows array
+ * - rows.length !== 1 (must be exactly 1 row)
+ * - row without 'count' property
+ * - count is null or undefined
+ * - count is not a valid integer or < 0
+ * - NaN, Infinity
+ */
+function parseStrictRowCount(queryResult: any, entityName: string, entityId: string): number {
+  if (!queryResult || typeof queryResult !== 'object' || !Array.isArray(queryResult.rows)) {
+    throw new Error(`Malformed PostgreSQL readback for ${entityName} ${entityId}: query result missing rows array`);
+  }
+  if (queryResult.rows.length !== 1) {
+    throw new Error(`Malformed PostgreSQL readback for ${entityName} ${entityId}: expected exactly 1 row, received ${queryResult.rows.length}`);
+  }
+  const row = queryResult.rows[0];
+  if (!row || typeof row !== 'object' || !('count' in row) || row.count === null || row.count === undefined) {
+    throw new Error(`Malformed PostgreSQL readback for ${entityName} ${entityId}: count column missing or null in result row`);
+  }
+  const rawCount = row.count;
+  const parsed = typeof rawCount === 'number' ? rawCount : Number(rawCount);
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed < 0) {
+    throw new Error(`Malformed PostgreSQL readback for ${entityName} ${entityId}: invalid count value (${String(rawCount)})`);
+  }
+  return parsed;
+}
+
+/**
  * Lifecycle-aware test fixture and database isolation manager.
  * Guarantees:
  * 1. Zero mutations if isolation authorization fails or has not occurred (F-06).
@@ -53,6 +83,10 @@ export interface CleanupResult {
  * 3. Safe, idempotent double cleanup causing zero additional mutations once CLEANED (P2-A).
  * 4. Fault-tolerant per-ID independent deletion preserving referential ordering (P2-B).
  * 5. Structured aggregation of cleanup and readback failures via AggregateError.
+ * 6. Preserved Mongo cleanup targets across PG chapter teardown (F-09).
+ * 7. Three-registry separation with authoritative durable readback (F-10).
+ * 8. Strict fail-closed parsing of PostgreSQL count readbacks (F-11).
+ * 9. Fail-closed outbox ownership and independent outbox readback verification (F-12).
  */
 function createEmptyIdentityTracker(): FixtureIdentityTracker {
   return {
@@ -61,6 +95,7 @@ function createEmptyIdentityTracker(): FixtureIdentityTracker {
     pgChapters: new Set<string>(),
     pgRevisions: new Set<string>(),
     pgOutbox: new Set<string>(),
+    pgOutboxEvents: new Set<string>(),
     mongoDrafts: new Set<string>(),
     sentinelPgUsers: new Set<string>(),
     sentinelPgNovels: new Set<string>(),
@@ -215,13 +250,35 @@ export class TestFixtureLifecycle {
     this.stage = 'FIXTURES_PARTIAL';
   }
 
-  public registerOutbox(novelId: string, chapterId: string): void {
+  /**
+   * Registers outbox events scoped to novel and chapter, optionally with exact eventId (F-12).
+   * Enforces fail-closed ownership: outbox-only fixtures without an owned novel or chapter are unsupported.
+   */
+  public registerOutbox(novelId: string, chapterId: string, eventId?: string): void {
     this.assertAuthorized('registerOutbox');
+    // F-12: Enforce established ownership. Outbox-only fixtures without owned parent novel or chapter fail closed.
+    if (!this.owned.pgNovels.has(novelId) && !this.owned.pgChapters.has(chapterId)) {
+      throw new Error(
+        `Cannot register outbox: outbox-only fixtures without an owned parent novel or chapter are unsupported. Neither novel ${novelId} nor chapter ${chapterId} belongs to this lifecycle's owned fixtures.`
+      );
+    }
     const key = `${novelId}:${chapterId}`;
     this.owned.pgOutbox.add(key);
     this.pending.pgOutbox.add(key);
     this.verification.pgOutbox.add(key);
+    if (eventId) {
+      this.owned.pgOutboxEvents.add(eventId);
+      this.pending.pgOutboxEvents.add(eventId);
+      this.verification.pgOutboxEvents.add(eventId);
+    }
     this.stage = 'FIXTURES_PARTIAL';
+  }
+
+  /**
+   * Convenience registration for an exact outbox event ID (F-12).
+   */
+  public registerOutboxEvent(eventId: string, novelId: string, chapterId: string): void {
+    this.registerOutbox(novelId, chapterId, eventId);
   }
 
   public registerMongoDraft(chapterId: string): void {
@@ -254,6 +311,8 @@ export class TestFixtureLifecycle {
    * If authorized, tears down test-owned identities with per-ID error isolation (P2-B).
    * Preserves MongoDB draft cleanup targets even after PG chapter deletion (F-09).
    * Verifies authoritative absence of all registered identities via durable readback (F-10).
+   * Fails closed on malformed PostgreSQL count readbacks (F-11).
+   * Verifies outbox ownership and independently reads back outbox events (F-12).
    */
   public async cleanup(
     pool: Pool,
@@ -285,7 +344,29 @@ export class TestFixtureLifecycle {
     const errors: Error[] = [];
     let mutationsAttempted = 0;
 
-    // STEP 1: Delete derived revision outbox events per tracked novel and chapter (P2-B per-ID)
+    // STEP 1: Delete derived revision outbox events with established ownership (F-12, P2-B per-ID)
+    // 1a. Delete by exact test-owned event ID if registered
+    for (const eventId of Array.from(this.pending.pgOutboxEvents)) {
+      try {
+        mutationsAttempted++;
+        await pool.query('DELETE FROM revision_outbox_events WHERE event_id = $1', [eventId]);
+        this.pending.pgOutboxEvents.delete(eventId);
+      } catch (err: any) {
+        errors.push(new Error(`Failed to delete revision_outbox_events for event ${eventId}: ${err?.message || String(err)}`));
+      }
+    }
+    // 1b. Delete by registered scoped novelId:chapterId pair
+    for (const key of Array.from(this.pending.pgOutbox)) {
+      try {
+        mutationsAttempted++;
+        const [novelId, chapterId] = key.split(':');
+        await pool.query('DELETE FROM revision_outbox_events WHERE novel_id = $1 AND chapter_id = $2', [novelId, chapterId]);
+        this.pending.pgOutbox.delete(key);
+      } catch (err: any) {
+        errors.push(new Error(`Failed to delete revision_outbox_events for pair ${key}: ${err?.message || String(err)}`));
+      }
+    }
+    // 1c. Delete per owned novel and chapter
     for (const novelId of Array.from(this.pending.pgNovels)) {
       try {
         mutationsAttempted++;
@@ -386,12 +467,13 @@ export class TestFixtureLifecycle {
       }
     }
 
-    // STEP 8: Post-cleanup authoritative readback verification across all verification identities (F-10)
+    // STEP 8: Post-cleanup authoritative readback verification across all verification identities (F-10, F-11, F-12)
     // Driver DELETE acknowledgement alone is insufficient: every owned entity must read back count === 0
+    // Malformed readbacks must fail closed (F-11)
     for (const chapterId of Array.from(this.verification.pgChapters)) {
       try {
         const cRes = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [chapterId]);
-        const count = Number(cRes.rows[0]?.count ?? 0);
+        const count = parseStrictRowCount(cRes, 'chapter', chapterId);
         if (count !== 0) {
           this.pending.pgChapters.add(chapterId);
           errors.push(new Error(`Authoritative readback failed: residual chapter ${chapterId} persists in PostgreSQL (count=${count})`));
@@ -405,7 +487,7 @@ export class TestFixtureLifecycle {
     for (const novelId of Array.from(this.verification.pgNovels)) {
       try {
         const nRes = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [novelId]);
-        const count = Number(nRes.rows[0]?.count ?? 0);
+        const count = parseStrictRowCount(nRes, 'novel', novelId);
         if (count !== 0) {
           this.pending.pgNovels.add(novelId);
           errors.push(new Error(`Authoritative readback failed: residual novel ${novelId} persists in PostgreSQL (count=${count})`));
@@ -419,7 +501,7 @@ export class TestFixtureLifecycle {
     for (const userId of Array.from(this.verification.pgUsers)) {
       try {
         const uRes = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [userId]);
-        const count = Number(uRes.rows[0]?.count ?? 0);
+        const count = parseStrictRowCount(uRes, 'user', userId);
         if (count !== 0) {
           this.pending.pgUsers.add(userId);
           errors.push(new Error(`Authoritative readback failed: residual user ${userId} persists in PostgreSQL (count=${count})`));
@@ -433,7 +515,7 @@ export class TestFixtureLifecycle {
     for (const revId of Array.from(this.verification.pgRevisions)) {
       try {
         const rRes = await pool.query('SELECT count(*) FROM chapter_revisions WHERE revision_id = $1', [revId]);
-        const count = Number(rRes.rows[0]?.count ?? 0);
+        const count = parseStrictRowCount(rRes, 'chapter revision', revId);
         if (count !== 0) {
           this.pending.pgRevisions.add(revId);
           errors.push(new Error(`Authoritative readback failed: residual chapter revision ${revId} persists in PostgreSQL (count=${count})`));
@@ -441,6 +523,36 @@ export class TestFixtureLifecycle {
       } catch (err: any) {
         this.pending.pgRevisions.add(revId);
         errors.push(new Error(`Post-cleanup readback query failed for revision ${revId}: ${err?.message || String(err)}`));
+      }
+    }
+
+    // F-12: Independent authoritative readback for revision outbox events
+    for (const eventId of Array.from(this.verification.pgOutboxEvents)) {
+      try {
+        const obRes = await pool.query('SELECT count(*) FROM revision_outbox_events WHERE event_id = $1', [eventId]);
+        const count = parseStrictRowCount(obRes, 'revision outbox event', eventId);
+        if (count !== 0) {
+          this.pending.pgOutboxEvents.add(eventId);
+          errors.push(new Error(`Authoritative readback failed: residual revision outbox event ${eventId} persists in PostgreSQL (count=${count})`));
+        }
+      } catch (err: any) {
+        this.pending.pgOutboxEvents.add(eventId);
+        errors.push(new Error(`Post-cleanup readback query failed for revision outbox event ${eventId}: ${err?.message || String(err)}`));
+      }
+    }
+
+    for (const key of Array.from(this.verification.pgOutbox)) {
+      try {
+        const [novelId, chapterId] = key.split(':');
+        const obRes = await pool.query('SELECT count(*) FROM revision_outbox_events WHERE novel_id = $1 AND chapter_id = $2', [novelId, chapterId]);
+        const count = parseStrictRowCount(obRes, 'revision outbox pair', key);
+        if (count !== 0) {
+          this.pending.pgOutbox.add(key);
+          errors.push(new Error(`Authoritative readback failed: residual revision outbox events persist for pair ${key} in PostgreSQL (count=${count})`));
+        }
+      } catch (err: any) {
+        this.pending.pgOutbox.add(key);
+        errors.push(new Error(`Post-cleanup readback query failed for revision outbox pair ${key}: ${err?.message || String(err)}`));
       }
     }
 
@@ -462,7 +574,8 @@ export class TestFixtureLifecycle {
     for (const sUserId of Array.from(this.pending.confirmedSentinelPgUsers)) {
       try {
         const uRes = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [sUserId]);
-        assert.equal(Number(uRes.rows[0].count), 1, `Sentinel user ${sUserId} was unexpectedly corrupted or deleted`);
+        const count = parseStrictRowCount(uRes, 'sentinel user', sUserId);
+        assert.equal(count, 1, `Sentinel user ${sUserId} was unexpectedly corrupted or deleted`);
       } catch (err: any) {
         errors.push(new Error(`Sentinel preservation assertion failed: ${err?.message || String(err)}`));
       }
@@ -470,7 +583,8 @@ export class TestFixtureLifecycle {
     for (const sNovelId of Array.from(this.pending.confirmedSentinelPgNovels)) {
       try {
         const nRes = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [sNovelId]);
-        assert.equal(Number(nRes.rows[0].count), 1, `Sentinel novel ${sNovelId} was unexpectedly corrupted or deleted`);
+        const count = parseStrictRowCount(nRes, 'sentinel novel', sNovelId);
+        assert.equal(count, 1, `Sentinel novel ${sNovelId} was unexpectedly corrupted or deleted`);
       } catch (err: any) {
         errors.push(new Error(`Sentinel preservation assertion failed: ${err?.message || String(err)}`));
       }
@@ -478,7 +592,8 @@ export class TestFixtureLifecycle {
     for (const sChapId of Array.from(this.pending.confirmedSentinelPgChapters)) {
       try {
         const cRes = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [sChapId]);
-        assert.equal(Number(cRes.rows[0].count), 1, `Sentinel chapter ${sChapId} was unexpectedly corrupted or deleted`);
+        const count = parseStrictRowCount(cRes, 'sentinel chapter', sChapId);
+        assert.equal(count, 1, `Sentinel chapter ${sChapId} was unexpectedly corrupted or deleted`);
       } catch (err: any) {
         errors.push(new Error(`Sentinel preservation assertion failed: ${err?.message || String(err)}`));
       }
@@ -534,11 +649,11 @@ export class TestFixtureLifecycle {
       }
     }
 
-    // STEP 11: Authoritative readback verification for sentinels
+    // STEP 11: Authoritative readback verification for sentinels (F-11 strict count)
     for (const sChapId of Array.from(this.verification.sentinelPgChapters)) {
       try {
         const cRes = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [sChapId]);
-        const count = Number(cRes.rows[0]?.count ?? 0);
+        const count = parseStrictRowCount(cRes, 'sentinel chapter', sChapId);
         if (count !== 0) {
           this.pending.sentinelPgChapters.add(sChapId);
           errors.push(new Error(`Authoritative readback failed: residual sentinel chapter ${sChapId} persists in PostgreSQL (count=${count})`));
@@ -551,7 +666,7 @@ export class TestFixtureLifecycle {
     for (const sNovelId of Array.from(this.verification.sentinelPgNovels)) {
       try {
         const nRes = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [sNovelId]);
-        const count = Number(nRes.rows[0]?.count ?? 0);
+        const count = parseStrictRowCount(nRes, 'sentinel novel', sNovelId);
         if (count !== 0) {
           this.pending.sentinelPgNovels.add(sNovelId);
           errors.push(new Error(`Authoritative readback failed: residual sentinel novel ${sNovelId} persists in PostgreSQL (count=${count})`));
@@ -564,7 +679,7 @@ export class TestFixtureLifecycle {
     for (const sUserId of Array.from(this.verification.sentinelPgUsers)) {
       try {
         const uRes = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [sUserId]);
-        const count = Number(uRes.rows[0]?.count ?? 0);
+        const count = parseStrictRowCount(uRes, 'sentinel user', sUserId);
         if (count !== 0) {
           this.pending.sentinelPgUsers.add(sUserId);
           errors.push(new Error(`Authoritative readback failed: residual sentinel user ${sUserId} persists in PostgreSQL (count=${count})`));
