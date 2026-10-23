@@ -1,3 +1,4 @@
+import { becomeAuthorController } from './auth.controller.js';
 import { Router } from 'express';
 import { requireAuth } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
@@ -19,3 +20,5 @@ authRoutes.post('/refresh-token', refreshTokenController);
 authRoutes.post('/logout', requireAuth, logoutController);
 authRoutes.get('/me', requireAuth, meController);
 authRoutes.patch('/change-password', requireAuth, validateRequest(changePasswordSchema), changePasswordController);
+
+authRoutes.post('/become-author', requireAuth, becomeAuthorController);

@@ -1,3 +1,4 @@
+import { AppError } from '../../core/errors/app-error.js';
 import { ObjectId } from 'mongodb';
 import { getMongoDatabase } from '../../core/database/mongo.js';
 
@@ -41,11 +42,13 @@ export async function upsertDraftChapter(input: {
   wordCount: number;
   autosave: boolean;
   lastAcceptedRevisionId?: string | null;
+  expectedVersion?: number;
 }) {
   const now = new Date();
 
-  await collection().updateOne(
-    { chapterId: input.chapterId },
+  let saved;
+  try { saved = await collection().findOneAndUpdate(
+    { chapterId: input.chapterId, ...(input.expectedVersion !== undefined ? { version: input.expectedVersion } : {}) },
     {
       $set: {
         novelId: input.novelId,
@@ -69,10 +72,15 @@ export async function upsertDraftChapter(input: {
         version: 1
       }
     },
-    { upsert: true }
+    { upsert: input.expectedVersion === undefined || input.expectedVersion === 0, returnDocument: 'after' }
   );
 
-  return findDraftChapterByChapterId(input.chapterId);
+  } catch (error) {
+    if ((error as { code?: number }).code === 11000 && input.expectedVersion !== undefined) throw new AppError(409, 'DRAFT_CONFLICT', 'Bản nháp đã thay đổi ở phiên khác. Bản đang viết chưa bị ghi đè.');
+    throw error;
+  }
+  if (!saved) throw new AppError(409, 'DRAFT_CONFLICT', 'Bản nháp đã thay đổi ở phiên khác.');
+  return saved;
 }
 
 export async function syncDraftFromRevisionConditional(input: {

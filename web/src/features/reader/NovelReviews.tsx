@@ -35,11 +35,11 @@ export function NovelReviews({ novelId }: { novelId: string }) {
         <div className="sc-review-scale" aria-hidden="true">
           {Array.from({ length: 10 }, (_, index) => <span key={index} className={available && index < Math.round(average) ? 'is-filled' : ''} />)}
         </div>
-        <Text size="sm" c="dimmed">{reviews.data.totalItems.toLocaleString('vi-VN')} đánh giá</Text>
+        <Text size="sm" c="dimmed">{reviews.data.totalItems.toLocaleString('vi-VN')} nhận xét có điểm</Text>
       </div>
       <div className="sc-review-summary-meter">
-        <Text size="sm" mb="xs">Điểm trung bình trên thang 10</Text>
-        {available ? <progress className="sc-review-progress" max={10} value={average} aria-label="Điểm đánh giá trung bình trên thang 10" /> : <Text c="dimmed" size="sm">Chưa có điểm trung bình.</Text>}
+        <Text size="sm" mb="xs">Điểm trung bình của nhận xét có nội dung</Text>
+        {available ? <progress className="sc-review-progress" max={10} value={average} aria-label="Điểm trung bình của nhận xét có nội dung trên thang 10" /> : <Text c="dimmed" size="sm">Chưa có điểm trung bình.</Text>}
         {available && <Text size="sm" c="dimmed" mt="xs">{formatted}/10</Text>}
       </div>
     </section>}

@@ -1,3 +1,4 @@
+import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { CommentsSection } from './CommentsSection';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { NovelEngagement } from './NovelEngagement';
@@ -550,9 +551,7 @@ export function ReaderChapterPage() {
       </Paper>
 
       <Paper p="xl" withBorder mb="md" style={readerStyle}>
-        <Text className="chapter-prose" style={{ whiteSpace: 'pre-wrap', fontSize: 'inherit', lineHeight: 'inherit', fontFamily: 'inherit' }}>
-          {chapter?.content ?? 'No content.'}
-        </Text>
+        <ManuscriptContent content={chapter?.content ?? ''} />
       </Paper>
 
       <CommentsSection kind="chapter" id={chapterId} />
@@ -613,9 +612,7 @@ export function PublicReaderChapterPage() {
       />
 
       <Paper p="xl" withBorder mb="md" style={buildReaderStyle()}>
-        <Text className="chapter-prose" style={{ whiteSpace: 'pre-wrap', fontSize: 'inherit', lineHeight: 'inherit', fontFamily: 'inherit' }}>
-          {chapter?.content ?? 'No content.'}
-        </Text>
+        <ManuscriptContent content={chapter?.content ?? ''} />
       </Paper>
 
       <CommentsSection kind="chapter" id={chapterId} />

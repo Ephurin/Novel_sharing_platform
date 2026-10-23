@@ -9,3 +9,5 @@ mobile/node_modules
 docs/images
 docs/SystemTest/reports
 *.log
+
+backend/uploads

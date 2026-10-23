@@ -1,3 +1,4 @@
+import { assertActiveAccount } from '../../core/security/active-account.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import type { UpdateProfileInput, UpdateSettingsInput } from './users.schemas.js';
@@ -36,6 +37,7 @@ export async function getPrivateProfile(auth: AuthContext) {
 }
 
 export async function updateMyProfile(auth: AuthContext, input: UpdateProfileInput) {
+  await assertActiveAccount(auth);
   await updateProfileRow(auth.userId, input);
   return getPrivateProfile(auth);
 }

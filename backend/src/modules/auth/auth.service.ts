@@ -1,3 +1,4 @@
+import { promoteReaderToAuthor } from './auth.repository.js';
 import bcrypt from 'bcryptjs';
 import { createHash, randomUUID } from 'node:crypto';
 import jwt from 'jsonwebtoken';
@@ -232,4 +233,12 @@ export async function changePassword(auth: AuthContext, input: ChangePasswordInp
   return {
     passwordChanged: true
   };
+}
+
+export async function becomeAuthor(auth: AuthContext) {
+  const account = await findAuthUserById(auth.userId);
+  if (!account || account.status !== 'ACTIVE' || account.role !== auth.role || !['READER', 'AUTHOR'].includes(account.role)) throw new AppError(403, 'AUTH_008', 'Tài khoản không thể đăng ký sáng tác');
+  const user = await promoteReaderToAuthor(auth.userId);
+  if (!user || user.status !== 'ACTIVE' || user.role !== 'AUTHOR') throw new AppError(409, 'AUTH_008', 'Không thể đăng ký sáng tác');
+  return { user: toPublicUser(user), ...await issueTokenPair(user) };
 }

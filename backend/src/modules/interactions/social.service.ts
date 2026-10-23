@@ -1,3 +1,4 @@
+import { assertActiveAccount } from '../../core/security/active-account.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import {
@@ -44,6 +45,7 @@ export async function unlikePublishedNovel(auth: AuthContext, novelId: string) {
 }
 
 export async function followPublishedAuthor(auth: AuthContext, authorId: string) {
+  await assertActiveAccount(auth);
   const author = await findActiveAuthor(authorId);
 
   if (!author) {

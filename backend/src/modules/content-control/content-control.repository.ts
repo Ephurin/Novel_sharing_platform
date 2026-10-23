@@ -21,8 +21,8 @@ function mapRule(row: QueryResultRow): MatchedRule {
   };
 }
 
-export async function listActiveFilterRules() {
-  const result = await getPostgresPool().query(
+export async function listActiveFilterRules(client?: PoolClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       select *
       from content_filter_rules
@@ -40,19 +40,20 @@ export async function createModerationReview(
     targetId: string;
     source: ModerationSource;
     evidenceId?: string | null;
+    submittedContent?: { title: string; content: string; wordCount: number };
   },
   client?: PoolClient
 ) {
   const runner = client ?? getPostgresPool();
   const result = await runner.query(
     `
-      insert into moderation_reviews (target_type, target_id, source, evidence_id)
-      values ($1, $2, $3, $4)
+      insert into moderation_reviews (target_type, target_id, source, evidence_id, submitted_content)
+      values ($1, $2, $3, $4, $5)
       on conflict (target_type, target_id, source) where status = 'PENDING'
       do update set updated_at = now()
       returning *
     `,
-    [input.targetType, input.targetId, input.source, input.evidenceId ?? null]
+    [input.targetType, input.targetId, input.source, input.evidenceId ?? null, input.submittedContent ?? null]
   );
 
   return result.rows[0];
@@ -61,18 +62,19 @@ export async function createModerationReview(
 export async function findOpenReview(
   targetType: ModerationTargetType,
   targetId: string,
-  client?: PoolClient
+  client?: PoolClient,
+  source?: ModerationSource
 ) {
   const runner = client ?? getPostgresPool();
   const result = await runner.query(
     `
       select *
       from moderation_reviews
-      where target_type = $1 and target_id = $2 and status = 'PENDING'
+      where target_type = $1 and target_id = $2 and status = 'PENDING' and ($3::moderation_source is null or source=$3)
       order by created_at desc
       limit 1
     `,
-    [targetType, targetId]
+    [targetType, targetId, source ?? null]
   );
 
   return result.rows[0] ?? null;
@@ -220,6 +222,7 @@ export async function resolveReview(input: {
       update moderation_reviews
       set status = $2,
           reviewed_by = $3,
+          notification_pending = true,
           reviewed_at = now(),
           reason = $4,
           updated_at = now()

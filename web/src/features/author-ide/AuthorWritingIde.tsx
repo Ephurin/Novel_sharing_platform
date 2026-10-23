@@ -1,3 +1,8 @@
+import { ChapterSchedule } from '../author-projects/ChapterSchedule';
+import { RevisionHistory, snapshotDraft } from './RevisionHistory';
+import { useAuthStore } from '../auth/useAuthStore';
+import { useDraftPersistence } from './useDraftPersistence';
+import { Alert, Button, Group, Text } from '@mantine/core';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { AuthorDialog } from '../../shared/components/AuthorTheme';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -116,6 +121,7 @@ type AccessMode = 'free' | 'vip';
 type StoryBibleTab = 'characters' | 'relationships' | 'timeline' | 'summaries';
 
 export function AuthorWritingIde() {
+  const user = useAuthStore(state => state.user);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -145,6 +151,8 @@ export function AuthorWritingIde() {
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const [formatToolbarVisible, setFormatToolbarVisible] = useState(true);
 
@@ -189,8 +197,6 @@ export function AuthorWritingIde() {
 
   // References for tracking changes
   const editorRef = useRef<HTMLTextAreaElement>(null);
-  const lastSavedSnapshot = useRef({ title: '', content: '', isVip: false, priceCoins: 15 });
-  const autosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Toast Helper
   const showToast = (message: string) => {
@@ -226,11 +232,15 @@ export function AuthorWritingIde() {
   }, [chapterId, chaptersQuery.data]);
 
   const chapterQuery = useQuery({
-    queryKey: ['author', 'chapter', activeChapterId],
+    queryKey: ['author', 'chapter', activeChapterId, user?.userId],
     queryFn: () => getChapter(activeChapterId),
+    refetchInterval: query => ['PENDING','PENDING_MODERATION'].includes(query.state.data?.publicationSchedule?.status ?? '') ? 10000 : false,
     enabled: Boolean(activeChapterId)
   });
 
+  const persistence = useDraftPersistence(user?.userId ?? '', activeChapterId);
+  const activeDraftScope = `${user?.userId}:${activeChapterId}`;
+  const loadedChapter = useRef('');
   // Story Bible Queries
   const charactersQuery = useQuery({
     queryKey: ['author', 'story-context', 'characters', activeNovelId],
@@ -289,28 +299,22 @@ export function AuthorWritingIde() {
 
   // Load chapter data into editor when chapter changes
   useEffect(() => {
+    loadedChapter.current = '';
+    setTitle(''); setContent(''); setIsVip(false); setPriceCoins(0);
+  }, [user?.userId]);
+
+  useEffect(() => {
     if (chapterQuery.data) {
       const ch = chapterQuery.data;
-      const initialTitle = ch.draft?.title ?? ch.title ?? '';
-      const initialContent = ch.draft?.content ?? ch.content ?? '';
-      const initialVip = Boolean(ch.isVip);
-      const initialPrice = ch.priceCoins ?? 15;
-
-      setTitle(initialTitle);
-      setContent(initialContent);
-      setIsVip(initialVip);
-      setPriceCoins(initialPrice);
-
-      lastSavedSnapshot.current = {
-        title: initialTitle,
-        content: initialContent,
-        isVip: initialVip,
-        priceCoins: initialPrice
-      };
+      if (loadedChapter.current === activeDraftScope) return;
+      loadedChapter.current = activeDraftScope;
+      const value = persistence.initialize(ch);
+      if (!value) return;
+      setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins);
       setAutosaveStatus('saved');
       setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
     }
-  }, [chapterQuery.data]);
+  }, [chapterQuery.data, activeChapterId, user?.userId]);
 
   // The outer workspace scrolls; the manuscript and textarea keep their full height.
   const adjustHeight = () => {
@@ -389,6 +393,7 @@ export function AuthorWritingIde() {
 
   // Selection & prose formatting helpers
   const wrapSelection = (prefix: string, suffix: string = prefix, placeholder: string = 'văn bản') => {
+    if (isAcceptingAi) return;
     const textarea = editorRef.current;
     if (!textarea) return;
 
@@ -422,6 +427,7 @@ export function AuthorWritingIde() {
   };
 
   const insertDialogueDash = () => {
+    if (isAcceptingAi) return;
     const textarea = editorRef.current;
     if (!textarea) return;
 
@@ -440,73 +446,29 @@ export function AuthorWritingIde() {
     }, 10);
   };
 
-  // Autosave Mutation
-  const saveMutation = useMutation({
-    mutationFn: async (payload: { title?: string; content?: string; isVip?: boolean; priceCoins?: number }) => {
-      if (!activeChapterId) throw new Error('No chapter selected');
-      return updateChapter(activeChapterId, { ...payload, autosave: true });
-    },
-    onSuccess: (updated: Chapter) => {
-      setAutosaveStatus('saved');
-      setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
-      lastSavedSnapshot.current = {
-        title,
-        content,
-        isVip,
-        priceCoins
-      };
-      queryClient.setQueryData(['author', 'chapter', activeChapterId], updated);
-      queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
-    },
-    onError: () => {
-      setAutosaveStatus('error');
-    }
-  });
-
-  // Debounced Autosave Trigger
-  const triggerAutosave = (newTitle: string, newContent: string, newIsVip: boolean, newPrice: number) => {
-    if (!activeChapterId) return;
-
-    const hasChanged =
-      newTitle !== lastSavedSnapshot.current.title ||
-      newContent !== lastSavedSnapshot.current.content ||
-      newIsVip !== lastSavedSnapshot.current.isVip ||
-      newPrice !== lastSavedSnapshot.current.priceCoins;
-
-    if (!hasChanged) return;
-
-    setAutosaveStatus('saving');
-    if (autosaveTimeoutRef.current) {
-      clearTimeout(autosaveTimeoutRef.current);
-    }
-
-    autosaveTimeoutRef.current = setTimeout(() => {
-      saveMutation.mutate({
-        title: newTitle,
-        content: newContent,
-        isVip: newIsVip,
-        priceCoins: newIsVip ? Math.max(1, newPrice) : 0
-      });
-    }, 1200);
-  };
-
+  useEffect(() => { setAutosaveStatus(persistence.status); if (persistence.status === 'saved') setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })); }, [persistence.status]);
+  const triggerAutosave = (newTitle: string, newContent: string, newIsVip: boolean, newPrice: number) => persistence.queue({ title: newTitle, content: newContent, isVip: newIsVip, priceCoins: newIsVip ? Math.max(1, newPrice) : 0 });
   const handleTitleChange = (val: string) => {
+    if (isAcceptingAi || loadedChapter.current !== activeDraftScope) return;
     setTitle(val);
     triggerAutosave(val, content, isVip, priceCoins);
   };
 
   const handleContentChange = (val: string) => {
+    if (isAcceptingAi || loadedChapter.current !== activeDraftScope) return;
     setContent(val);
     triggerAutosave(title, val, isVip, priceCoins);
   };
 
   const handleAccessChange = (mode: AccessMode) => {
+    if (isAcceptingAi) return;
     const nextIsVip = mode === 'vip';
     setIsVip(nextIsVip);
     triggerAutosave(title, content, nextIsVip, priceCoins);
   };
 
   const handlePriceChange = (val: number) => {
+    if (isAcceptingAi) return;
     const safePrice = Math.max(1, Number.isNaN(val) ? 1 : val);
     setPriceCoins(safePrice);
     triggerAutosave(title, content, isVip, safePrice);
@@ -519,7 +481,7 @@ export function AuthorWritingIde() {
       const count = chaptersQuery.data?.length ?? 0;
       return createChapter(activeNovelId, {
         title: `Chương ${count + 1}: Bản thảo mới`,
-        content: 'Khởi đầu bản thảo mới...',
+        content: '',
         isVip: false,
         priceCoins: 0
       });
@@ -538,14 +500,8 @@ export function AuthorWritingIde() {
   const publishMutation = useMutation({
     mutationFn: async () => {
       if (!activeChapterId) throw new Error('No chapter selected');
-      // Save current content first if unsaved
-      await updateChapter(activeChapterId, {
-        title,
-        content,
-        isVip,
-        priceCoins: isVip ? priceCoins : 0,
-        autosave: false
-      });
+      await persistence.flush();
+      await snapshotDraft(activeChapterId, content);
       return submitChapterPublish(activeChapterId);
     },
     onSuccess: (res: { chapterId: string; status: Chapter['status']; moderationRequired: boolean }) => {
@@ -674,12 +630,15 @@ export function AuthorWritingIde() {
     if (!activeChapterId || !currentJob) return;
     setIsAcceptingAi(true);
     try {
-      const result = await acceptDraftRevision(activeChapterId, currentJob.job_id);
-      if (result?.revision?.content) {
-        setContent(result.revision.content);
-        lastSavedSnapshot.current.content = result.revision.content;
-        setAutosaveStatus('saved');
-        setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
+      await persistence.flush();
+      await acceptDraftRevision(activeChapterId, currentJob.job_id);
+      const chapter = await getChapter(activeChapterId);
+      if (loadedChapter.current === activeDraftScope) {
+        const value = persistence.initialize(chapter, true);
+        setTitle(value.title);
+        setContent(value.content);
+        setIsVip(value.isVip);
+        setPriceCoins(value.priceCoins);
       }
       setCurrentJob(null);
       setAiSuggestion(null);
@@ -716,6 +675,10 @@ export function AuthorWritingIde() {
     const q = chapterSearch.toLowerCase();
     return list.filter((ch: Chapter) => ch.title.toLowerCase().includes(q) || String(ch.chapterNumber).includes(q));
   }, [chaptersQuery.data, chapterSearch]);
+
+  const manuscriptActions = (
+    <div className="sc-studio-manuscript-actions">{['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '') && <button type="button" className="sc-button sc-button-ghost" onClick={async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } }}>Lên lịch</button>}<button type="button" className="sc-button sc-button-ghost" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</button><button type="button" className="sc-button sc-button-ghost" onClick={() => { const url = URL.createObjectURL(new Blob([title + '\n\n' + content], { type: 'text/markdown;charset=utf-8' })); const a = document.createElement('a'); a.href = url; a.download = 'ban-thao.md'; a.click(); URL.revokeObjectURL(url); }}>Xuất bản thảo</button></div>
+  );
 
   return (
     <div className="sc-writing-studio h-screen flex flex-col text-stone-800 antialiased overflow-hidden select-none bg-surface">
@@ -848,9 +811,9 @@ export function AuthorWritingIde() {
           BEGIN: Chapter Settings Subheader Bar
          ────────────────────────────────────────── */}
       {!focusMode && (
-        <section className="h-11 border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
+        <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
           {/* Left: Sidebar toggle & Publication Status */}
-          <div className="flex items-center gap-3">
+          <div className="sc-studio-settings-context flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen((prev: boolean) => !prev)}
               className="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors flex items-center"
@@ -866,14 +829,15 @@ export function AuthorWritingIde() {
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                 <span>{chapterQuery.data?.status || 'Bản nháp'}</span>
               </div>
-              <div className="text-meta text-stone-400 hidden lg:inline">
+              <div className="sc-studio-settings-novel text-meta text-stone-400 hidden lg:inline">
                 • Tác phẩm: <strong className="text-stone-600 font-medium">{novelQuery.data?.title || '...'}</strong>
               </div>
             </div>
           </div>
 
-          {/* Right: VIP / Free segmented switch with Coin price input */}
-          <div className="flex items-center gap-3">
+          {/* Manuscript actions and chapter access share one toolbar. */}
+          <div className="sc-studio-settings-controls">
+            {manuscriptActions}
             <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200">
               <button
                 onClick={() => handleAccessChange('free')}
@@ -924,6 +888,12 @@ export function AuthorWritingIde() {
       {/* ──────────────────────────────────────────
           BEGIN: MainWorkspace
          ────────────────────────────────────────── */}
+      {scheduleOpen && <ChapterSchedule chapterId={activeChapterId} novelId={activeNovelId} onClose={() => setScheduleOpen(false)} />}
+      {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); }} />}
+      {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
+      {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
+      {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
+      {focusMode && <div className="flex justify-end px-4">{manuscriptActions}</div>}
       <div className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
@@ -984,14 +954,15 @@ export function AuthorWritingIde() {
               {filteredChapters.map((ch: Chapter, idx: number) => {
                 const isActive = ch.chapterId === activeChapterId;
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={ch.chapterId}
                     onClick={() => {
                       if (!isActive) {
                         setSearchParams({ novelId: activeNovelId, chapterId: ch.chapterId });
                       }
                     }}
-                    className={`block p-2 rounded-lg border transition-all cursor-pointer relative ${
+                    className={`block w-full text-left p-2 rounded-lg border transition-all cursor-pointer relative ${
                       isActive
                         ? 'bg-primary-50/90 border-primary-200 shadow-2xs'
                         : 'border-transparent hover:bg-stone-200/50'
@@ -1036,7 +1007,7 @@ export function AuthorWritingIde() {
                       <span>{ch.wordCount ? `${ch.wordCount.toLocaleString()} từ` : 'Bản nháp'}</span>
                       {isActive && <span className="text-primary-600 font-medium text-meta">Đang mở</span>}
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </nav>
@@ -1348,6 +1319,7 @@ export function AuthorWritingIde() {
               <input
                 type="text"
                 value={title}
+                readOnly={isAcceptingAi}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Đặt tiêu đề chương tại đây..."
                 style={{ fontFamily: currentFontConfig.fontFamily }}
@@ -1366,6 +1338,7 @@ export function AuthorWritingIde() {
             <div className="w-full min-h-[500px]">
               <textarea
                 ref={editorRef}
+                readOnly={isAcceptingAi || !chapterQuery.data || loadedChapter.current !== activeDraftScope}
                 value={content}
                 onChange={(e) => handleContentChange(e.target.value)}
                 placeholder="Bắt đầu câu từ chương truyện của bạn tại đây..."

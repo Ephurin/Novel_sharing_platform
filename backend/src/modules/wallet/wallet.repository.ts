@@ -1,3 +1,4 @@
+import { enqueueNotification } from '../interactions/notification-events.js';
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -287,6 +288,7 @@ export async function unlockChapter(userId: string, chapter: QueryResultRow) {
       [userId, chapter.chapter_id, txResult.rows[0].transaction_id]
     );
 
+    await enqueueNotification(client, { eventKey: 'income:' + txResult.rows[0].transaction_id, userId: chapter.author_id, type: 'AUTHOR_INCOME', title: 'Bạn nhận được xu mở khóa chương', content: chapter.price_coins + ' Xu', payload: { href: '/wallet', transactionId: txResult.rows[0].transaction_id } });
     return {
       chapterId: chapter.chapter_id,
       unlocked: true,
@@ -338,6 +340,7 @@ export async function donateToAuthor(userId: string, authorId: string, input: Do
       [donorWallet.walletId, authorWallet.walletId, input.amountCoins, authorId, { message: input.message ?? null }]
     );
 
+    await enqueueNotification(client, { eventKey: 'income:' + txResult.rows[0].transaction_id, userId: authorId, type: 'AUTHOR_INCOME', title: 'Bạn nhận được xu ủng hộ', content: input.amountCoins + ' Xu', payload: { href: '/wallet', transactionId: txResult.rows[0].transaction_id } });
     return {
       authorId,
       donated: true,

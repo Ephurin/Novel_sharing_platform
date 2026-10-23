@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+import { enqueueNotification } from './notification-events.js';
 import type { PoolClient } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -95,7 +97,8 @@ export async function unlikeNovel(userId: string, novelId: string) {
 }
 
 export async function followAuthor(followerId: string, authorId: string) {
-  const result = await getPostgresPool().query(
+  return withPostgresTransaction(async client => {
+  const result = await client.query(
     `
       insert into follows (follower_id, author_id)
       values ($1, $2)
@@ -105,7 +108,9 @@ export async function followAuthor(followerId: string, authorId: string) {
     [followerId, authorId]
   );
 
+  if (result.rowCount === 1) await enqueueNotification(client, { eventKey: 'author-follow:' + randomUUID(), userId: authorId, type: 'AUTHOR_FOLLOW', title: 'Bạn có người theo dõi mới', content: 'Một độc giả vừa theo dõi trang tác giả của bạn.', payload: { href: '/author/profile' } });
   return result.rowCount === 1;
+  });
 }
 
 export async function unfollowAuthor(followerId: string, authorId: string) {

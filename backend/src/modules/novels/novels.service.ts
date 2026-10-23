@@ -1,3 +1,4 @@
+import { assertActiveAccount } from '../../core/security/active-account.js';
 import { randomUUID } from 'node:crypto';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
@@ -47,6 +48,7 @@ export async function createNovel(auth: AuthContext, input: CreateNovelInput) {
 }
 
 export async function listNovels(input: ListNovelsInput) {
+  if (input.status && input.status !== 'PUBLISHED') throw new AppError(403, 'CONTENT_005', 'Use the authenticated author workspace to read drafts');
   const result = await listNovelRows(input);
   const totalPages = Math.ceil(result.totalItems / input.limit);
 
@@ -150,4 +152,12 @@ export async function submitPublish(auth: AuthContext, novelId: string) {
     moderationRequired: true,
     moderationReviewId: moderation.moderationReviewId
   };
+}
+
+export async function readNovel(novelId: string, auth?: AuthContext) {
+  const novel = await getNovel(novelId);
+  const owner = auth && (auth.userId === novel.authorId || auth.role === 'ADMIN');
+  if (owner) await assertActiveAccount(auth);
+  else if (novel.status !== 'PUBLISHED') throw new AppError(404, 'CONTENT_001', 'Content not found');
+  return novel;
 }

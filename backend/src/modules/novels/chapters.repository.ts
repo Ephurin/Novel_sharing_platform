@@ -16,6 +16,7 @@ export type ChapterRecord = {
   priceCoins: number;
   status: ChapterStatus;
   updatedAt: string;
+  publicationSchedule: { scheduledAt: string; status: string; error: string | null } | null;
 };
 
 function mapChapter(row: QueryResultRow): ChapterRecord {
@@ -29,13 +30,15 @@ function mapChapter(row: QueryResultRow): ChapterRecord {
     isVip: row.is_vip,
     priceCoins: row.price_coins,
     status: row.status,
+    publicationSchedule: row.publication_schedule ?? null,
     updatedAt: row.updated_at
   };
 }
 
 export async function getNextChapterNumber(client: DbClient, novelId: string) {
+  await client.query('select novel_id from novels where novel_id = $1 for update', [novelId]);
   const result = await client.query(
-    'select coalesce(max(chapter_number), 0) + 1 as next_number from chapters where novel_id = $1 and deleted_at is null',
+    'select coalesce(max(chapter_number), 0) + 1 as next_number from chapters where novel_id = $1',
     [novelId]
   );
 
@@ -48,6 +51,8 @@ export async function createChapter(
     novelId: string;
     title: string;
     chapterNumber: number;
+    importKey?: string;
+    importHash?: string;
     wordCount: number;
     isVip: boolean;
     priceCoins: number;
@@ -55,11 +60,11 @@ export async function createChapter(
 ) {
   const result = await client.query(
     `
-      insert into chapters (novel_id, title, chapter_number, word_count, is_vip, price_coins)
-      values ($1, $2, $3, $4, $5, $6)
+      insert into chapters (novel_id, title, chapter_number, word_count, is_vip, price_coins, import_key, import_hash)
+      values ($1, $2, $3, $4, $5, $6, $7, $8)
       returning *
     `,
-    [input.novelId, input.title, input.chapterNumber, input.wordCount, input.isVip, input.priceCoins]
+    [input.novelId, input.title, input.chapterNumber, input.wordCount, input.isVip, input.priceCoins, input.importKey ?? null, input.importHash ?? null]
   );
 
   await client.query(
@@ -72,7 +77,7 @@ export async function createChapter(
 
 export async function findChapterById(chapterId: string) {
   const result = await getPostgresPool().query(
-    'select * from chapters where chapter_id = $1 and deleted_at is null limit 1',
+    'select * from chapters where chapter_id=$1 and deleted_at is null limit 1',
     [chapterId]
   );
 
@@ -81,7 +86,7 @@ export async function findChapterById(chapterId: string) {
 
 export async function listChaptersByNovelId(novelId: string) {
   const result = await getPostgresPool().query(
-    'select * from chapters where novel_id = $1 and deleted_at is null order by chapter_number asc',
+    'select * from chapters where novel_id=$1 and deleted_at is null order by chapter_number asc',
     [novelId]
   );
 
@@ -95,9 +100,10 @@ export async function updateChapterMetadata(
     wordCount?: number;
     isVip?: boolean;
     priceCoins?: number;
-  }
+  },
+  client?: DbClient
 ) {
-  const result = await getPostgresPool().query(
+  const result = await (client ?? getPostgresPool()).query(
     `
       update chapters
       set
@@ -120,9 +126,10 @@ export async function updateChapterPricing(
   input: {
     isVip: boolean;
     priceCoins: number;
-  }
+  },
+  client?: DbClient
 ) {
-  const result = await getPostgresPool().query(
+  const result = await (client ?? getPostgresPool()).query(
     `
       update chapters
       set
@@ -138,8 +145,8 @@ export async function updateChapterPricing(
   return result.rows[0] ? mapChapter(result.rows[0]) : null;
 }
 
-export async function submitChapterForPublish(chapterId: string) {
-  const result = await getPostgresPool().query(
+export async function submitChapterForPublish(chapterId: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       update chapters
       set status = 'PENDING_MODERATION', updated_at = now()
@@ -158,9 +165,10 @@ export async function publishChapter(
     title: string;
     content: string;
     wordCount: number;
-  }
+  },
+  client?: DbClient
 ) {
-  const result = await getPostgresPool().query(
+  const result = await (client ?? getPostgresPool()).query(
     `
       update chapters
       set
@@ -194,9 +202,15 @@ export async function rejectChapterPublication(chapterId: string) {
 }
 
 // Draft prose lives in MongoDB; keep PostgreSQL activity summaries current.
-export async function touchChapterUpdatedAt(chapterId: string) {
-  await getPostgresPool().query(
+export async function touchChapterUpdatedAt(chapterId: string, client?: DbClient) {
+  await (client ?? getPostgresPool()).query(
     'update chapters set updated_at = now() where chapter_id = $1 and deleted_at is null',
     [chapterId]
   );
+}
+
+export async function listPublicationSchedules(novelId: string) {
+  const result = await getPostgresPool().query(`select s.chapter_id,s.scheduled_at,s.status,s.error from chapter_publication_schedules s
+    join chapters c on c.chapter_id=s.chapter_id where c.novel_id=$1 and c.deleted_at is null`, [novelId]);
+  return new Map(result.rows.map(row => [row.chapter_id as string, { scheduledAt: row.scheduled_at, status: row.status, error: row.error }]));
 }

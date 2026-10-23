@@ -155,7 +155,7 @@ export async function updateChapterLatestRevision(
     `
       update chapters
       set latest_revision_id = $1,
-          word_count = $2,
+          word_count = case when status = 'PUBLISHED' then word_count else $2 end,
           updated_at = now()
       where chapter_id = $3
     `,

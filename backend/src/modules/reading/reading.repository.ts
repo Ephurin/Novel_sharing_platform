@@ -211,7 +211,7 @@ export async function listPublishedChaptersForNovel(novelId: string) {
 export async function findReadableChapter(chapterId: string) {
   const result = await getPostgresPool().query(
     `
-      select c.*, n.status as novel_status
+      select c.*, n.status as novel_status, n.author_id
       from chapters c
       join novels n on n.novel_id = c.novel_id
       where c.chapter_id = $1
@@ -227,7 +227,8 @@ export async function findReadableChapter(chapterId: string) {
   return result.rows[0]
     ? {
         ...mapChapterSummary(result.rows[0]),
-        content: result.rows[0].content
+        content: result.rows[0].content,
+        authorId: result.rows[0].author_id as string
       }
     : null;
 }

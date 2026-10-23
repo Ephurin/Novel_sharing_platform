@@ -855,6 +855,10 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
       source: 'KEYWORD_FILTER'
     });
     trackedReviewIds.add(reviewApprove.review_id);
+    await getMongoDatabase().collection('comments').updateOne(
+      { commentId: commentApproved.commentId },
+      { $set: { status: 'PENDING_MODERATION', moderationReviewId: reviewApprove.review_id } }
+    );
 
     const resApprove = await resolveModerationReview(adminAuth, reviewApprove.review_id, {
       decision: 'APPROVED'
@@ -871,6 +875,10 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
       source: 'KEYWORD_FILTER'
     });
     trackedReviewIds.add(reviewReject.review_id);
+    await getMongoDatabase().collection('comments').updateOne(
+      { commentId: commentRejected.commentId },
+      { $set: { status: 'PENDING_MODERATION', moderationReviewId: reviewReject.review_id } }
+    );
 
     const resReject = await resolveModerationReview(adminAuth, reviewReject.review_id, {
       decision: 'REJECTED',

@@ -8,6 +8,8 @@ export type UserProfile = {
   displayName: string | null;
   avatarUrl: string | null;
   bio: string | null;
+  bannerUrl: string | null;
+  publishingSchedule: string | null;
   role: UserRole;
   language: string;
   notificationEnabled: boolean;
@@ -24,6 +26,8 @@ export type AuthorProfile = {
   displayName: string | null;
   avatarUrl: string | null;
   bio: string | null;
+  bannerUrl: string | null;
+  publishingSchedule: string | null;
   joinedAt: string;
   totalViews: number;
   totalWords: number;
@@ -37,7 +41,7 @@ export async function getMyProfile() {
   return response.data.data;
 }
 
-export async function updateMyProfile(input: { displayName?: string; bio?: string | null; avatarUrl?: string | null }) {
+export async function updateMyProfile(input: { displayName?: string; bio?: string | null; avatarUrl?: string | null; bannerUrl?: string | null; publishingSchedule?: string | null }) {
   const response = await apiClient.patch<ApiEnvelope<UserProfile>>('/users/me/profile', input);
   return response.data.data;
 }

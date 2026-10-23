@@ -1,3 +1,5 @@
+import { ImageUpload } from '../../shared/components/ImageUpload';
+import { ChapterActions, ChapterOrder, ChapterHistoryPanel } from './ChapterActions';
 import { TagsInput } from '@mantine/core';
 import { getNovelStatistics } from '../novels/novel-statistics-api';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
@@ -32,6 +34,7 @@ export function AuthorNovelMetadataPage() {
   const chaptersQuery = useQuery({
     queryKey: ['chapters', novelId],
     queryFn: () => listChapters(novelId),
+    refetchInterval: query => query.state.data?.some(ch => ['PENDING','PENDING_MODERATION'].includes(ch.publicationSchedule?.status ?? '')) ? 10000 : false,
     enabled: Boolean(novelId)
   });
   const earningsQuery = useQuery({
@@ -49,6 +52,7 @@ export function AuthorNovelMetadataPage() {
   const genresQuery = useQuery({ queryKey: ['novel-genres'], queryFn: listGenres });
 
   // State: Modals
+  const [orderOpen, setOrderOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [titleInput, setTitleInput] = useState('');
   const [synopsisInput, setSynopsisInput] = useState('');
@@ -151,7 +155,7 @@ export function AuthorNovelMetadataPage() {
   // Filtered chapters
   const filteredChapters = useMemo(() => {
     return chapters.filter((ch) => {
-      if (activeTab === 'monetization' && !ch.isVip) return false;
+
 
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -426,10 +430,13 @@ export function AuthorNovelMetadataPage() {
                   }`}
                   type="button"
                 >
-                  <span>Lịch sử &amp; Báo cáo</span>
+                  <span>Lịch sử bản thảo</span>
                 </button>
               </div>
 
+              {orderOpen && <ChapterOrder novelId={novelId} chapters={chapters} onClose={() => setOrderOpen(false)} />}
+              {activeTab === 'history' ? <ChapterHistoryPanel chapters={chapters} /> : <>
+              <div className="flex justify-end px-4 pt-3"><button type="button" className="sc-button sc-button-ghost" onClick={() => setOrderOpen(true)} disabled={!chapters.length}>Sắp xếp chương</button></div>
               {/* Streamlined Chapter Toolbar */}
               <div className="p-3.5 bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-2.5 border-b border-stone-200/80">
                 <div className="flex items-center gap-2 flex-1 w-full sm:w-auto flex-wrap">
@@ -563,7 +570,7 @@ export function AuthorNovelMetadataPage() {
                         <td className="py-3 px-3.5">
                           <div className="flex items-center gap-2">
                             <span
-                              onClick={() => openIde(chapter.chapterId)}
+                              onClick={() => chapter.status !== 'ARCHIVED' && openIde(chapter.chapterId)}
                               className="font-medium text-stone-900 hover:text-primary-600 cursor-pointer transition-colors"
                             >
                               {/^(?:Chương|Chapter)\s+\d+/i.test(chapter.title) ? chapter.title : `Chương ${chapter.chapterNumber}: ${chapter.title}`}
@@ -575,7 +582,7 @@ export function AuthorNovelMetadataPage() {
                             )}
                           </div>
                           <div className="text-stone-400 text-meta mt-0.5">
-                            {chapter.draft?.autosave && 'Đang soạn trong Studio'}
+                            {chapter.publicationSchedule?.status === 'PENDING' ? 'Đăng lúc ' + new Date(chapter.publicationSchedule.scheduledAt).toLocaleString('vi-VN') : chapter.publicationSchedule?.status === 'PENDING_MODERATION' ? 'Lịch đăng đang chờ duyệt' : chapter.publicationSchedule?.error ?? (chapter.draft?.autosave && 'Đang soạn trong Studio')}
                           </div>
                         </td>
                         <td className="py-3 px-3.5 text-right font-mono text-stone-800">
@@ -600,11 +607,13 @@ export function AuthorNovelMetadataPage() {
                           <div className="inline-flex items-center gap-1.5">
                             <button
                               onClick={() => openIde(chapter.chapterId)}
+                              disabled={chapter.status === 'ARCHIVED'}
                               className="px-2.5 py-1 rounded bg-primary-600 text-white font-label-sm text-meta hover:bg-primary-700 transition-colors font-medium cursor-pointer shadow-2xs"
                               type="button"
                             >
                               Mở Studio
                             </button>
+                            <ChapterActions chapter={chapter} />
 
                           </div>
                         </td>
@@ -670,6 +679,7 @@ export function AuthorNovelMetadataPage() {
                   </button>
                 </div>
               </div>
+              </>}
             </div>
           </div>
         </div>
@@ -751,7 +761,8 @@ export function AuthorNovelMetadataPage() {
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-800 mb-1">URL Ảnh bìa (Cover Image)</label>
+                <label className="block font-semibold text-stone-800 mb-1">Ảnh bìa</label>
+                <ImageUpload onUpload={setCoverInput} label="Tải ảnh bìa" />
                 <div className="flex gap-2.5">
                   <input
                     type="text"

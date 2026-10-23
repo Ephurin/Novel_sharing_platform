@@ -1,3 +1,4 @@
+import { NotificationBell } from '../../features/notifications/NotificationBell';
 import { ThemeControl } from './ThemeControl';
 import { FocusTrap, Menu, useComputedColorScheme } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -85,7 +86,7 @@ export function AuthorNavbar() {
         <div className="sc-navbar-actions">
           <ThemeControl />
           {location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
-          <Link to="/notifications" className="sc-icon-button" aria-label="Thông báo"><span className="material-symbols-outlined">notifications</span></Link>
+          <NotificationBell />
           <Menu position="bottom-end" withinPortal={false}>
             <Menu.Target>
               <button type="button" className="sc-avatar" aria-label={`Tài khoản ${name}`}>

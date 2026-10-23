@@ -5,6 +5,7 @@ import { logger } from '../logger/logger.js';
 import { errorResponse } from '../response/response.js';
 
 export const errorMiddleware: ErrorRequestHandler = (error, _request, response, _next) => {
+  if (error?.type === 'entity.too.large') { response.status(413).json(errorResponse('MEDIA_TOO_LARGE', 'Dữ liệu tải lên vượt quá giới hạn')); return; }
   if (error instanceof AppError) {
     response
       .status(error.httpStatus)
