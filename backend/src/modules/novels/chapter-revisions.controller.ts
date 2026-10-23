@@ -69,7 +69,7 @@ function requireServiceToken(request: Parameters<RequestHandler>[0]) {
   const token = bearerToken || headerToken;
 
   const expectedToken = process.env.PLATFORM_SERVICE_TOKEN;
-  if (!token || (expectedToken && token !== expectedToken)) {
+  if (!expectedToken?.trim() || !token || token !== expectedToken) {
     throw new AppError(401, 'AUTH_002', 'Valid service authorization token required');
   }
 }
