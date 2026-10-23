@@ -1,0 +1,245 @@
+name: ${WAVE1D_PROJECT:?Set a unique p123-core project}
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+      POSTGRES_DB: ${POSTGRES_DB:?required}
+    volumes:
+    - pg_state:/var/lib/postgresql/data
+    networks:
+    - workers
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 3s
+      timeout: 2s
+      retries: 30
+  mongodb:
+    image: mongo:7
+    volumes:
+    - mongo_state:/data/db
+    networks:
+    - workers
+    healthcheck:
+      test:
+      - CMD
+      - mongosh
+      - --quiet
+      - --eval
+      - db.adminCommand("ping").ok
+      interval: 3s
+      timeout: 2s
+      retries: 30
+  fake-upstream:
+    image: python:3.12-slim
+    command:
+    - python
+    - -u
+    - /tools/fake_provider_upstream.py
+    environment:
+      OFFLINE_UPSTREAM_KEY: ${OFFLINE_UPSTREAM_KEY:?fake upstream credential required}
+      FAKE_REQUEST_LOG: /evidence/requests.jsonl
+      FAKE_SCENARIO: p123-p3-v1
+    volumes:
+    - ./:/tools:ro
+    - fake_state:/evidence
+    networks:
+    - upstream
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    ports:
+    - 127.0.0.1:${WAVE1D_FAKE_PORT:?required}:18091
+  budget-init:
+    profiles:
+    - initialize
+    image: python:3.12-slim
+    command:
+    - python
+    - /tools/budget_gateway.py
+    - --state
+    - /state/ledger.json
+    - --initialize
+    - --run-id
+    - ${WAVE1D_PROJECT:?required}
+    volumes:
+    - ./:/tools:ro
+    - budget_state:/state
+    networks:
+    - workers
+    cap_drop:
+    - ALL
+  budget-gateway:
+    image: python:3.12-slim
+    command:
+    - python
+    - -u
+    - /tools/budget_gateway.py
+    - --state
+    - /state/ledger.json
+    environment:
+      OFFLINE_UPSTREAM_URL: http://fake-upstream:18091
+      OFFLINE_UPSTREAM_KEY: ${OFFLINE_UPSTREAM_KEY:?required}
+      WORKER_AUTH_TOKENS: '{"${AI_WORKER_TOKEN:?required}":"ai-service","${BACKEND_WORKER_TOKEN:?required}":"backend"}'
+      GATEWAY_UPSTREAM_TIMEOUT_SECONDS: '5'
+    volumes:
+    - ./:/tools:ro
+    - budget_state:/state
+    networks:
+    - workers
+    - upstream
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    read_only: true
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen("http://localhost:18090/health")
+      interval: 3s
+      timeout: 2s
+      retries: 20
+    depends_on:
+    - fake-upstream
+    ports:
+    - 127.0.0.1:${WAVE1D_GATE_PORT:?required}:18090
+  ai-service:
+    build:
+      context: ../../ai-service
+      dockerfile: Dockerfile
+    environment:
+      APP_ENV: production
+      PORT: '8000'
+      NARRATIVE_REPOSITORY: postgres
+      LLM_ENABLED: 'true'
+      LLM_PROVIDER: openai
+      LLM_MODEL: gemini-3.5-flash-lite
+      GEMINI_API_KEY: ''
+      GOOGLE_API_KEY: ''
+      OPENAI_API_KEY: ${AI_WORKER_TOKEN:?test-only transport credential required}
+      LLM_API_KEY: ''
+      LLM_BASE_URL: http://budget-gateway:18090/v1
+      HTTP_PROXY: ''
+      HTTPS_PROXY: ''
+      ALL_PROXY: ''
+      NO_PROXY: '*'
+      LLM_FALLBACK_PROVIDER: disabled
+      LLM_LOCAL_FALLBACK: 'false'
+      LLM_STRUCTURED_MAX_TOKENS: '8192'
+      BUDGET_GUARD_MODE: proxy
+      BUDGET_GUARD_URL: http://budget-gateway:18090
+      BUDGET_GUARD_AUTH_TOKEN: ${AI_WORKER_TOKEN:?required}
+      EMBEDDING_PROVIDER: none
+      SEMANTIC_RETRIEVAL_ENABLED: 'false'
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:?required}:${POSTGRES_PASSWORD:?required}@postgres:5432/${POSTGRES_DB:?required}
+      PLATFORM_API_BASE_URL: http://backend:4000
+      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:?required}
+      ENTITY_CANDIDATE_VERIFICATION_ENABLED: 'true'
+    networks:
+    - workers
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      budget-gateway:
+        condition: service_healthy
+    ports:
+    - 127.0.0.1:${WAVE1D_AI_PORT:?required}:8000
+  backend:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+    volumes:
+    - ./:/wave-tools:ro
+    environment:
+      WAVE1D_PROJECT: ${WAVE1D_PROJECT:?required}
+      WAVE1D_AUTHOR_EMAIL: ${WAVE1D_AUTHOR_EMAIL:?required}
+      WAVE1D_AUTHOR_USERNAME: ${WAVE1D_AUTHOR_USERNAME:?required}
+      WAVE1D_AUTHOR_PASSWORD: ${WAVE1D_AUTHOR_PASSWORD:?required}
+      NODE_ENV: production
+      PORT: '4000'
+      API_PREFIX: /api/v1
+      WEB_ORIGIN: http://127.0.0.1:${WAVE1D_WEB_PORT:?required}
+      DB_CONNECT_ON_START: 'true'
+      DATABASE_URL: postgresql://${POSTGRES_USER:?required}:${POSTGRES_PASSWORD:?required}@postgres:5432/${POSTGRES_DB:?required}
+      MONGODB_URI: mongodb://mongodb:27017/${POSTGRES_DB:?required}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?required}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?required}
+      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:?required}
+      AI_SERVICE_URL: http://ai-service:8000
+      RUN_MIGRATIONS: 'true'
+      RUN_DEMO_SEED: 'false'
+      AI_LLM_BASE_URL: http://budget-gateway:18090/v1
+      AI_LLM_API_KEY: ''
+      HTTP_PROXY: ''
+      HTTPS_PROXY: ''
+      ALL_PROXY: ''
+      NO_PROXY: '*'
+      AI_LLM_MODEL: gemini-3.5-flash-lite
+      AI_LLM_MAX_TOKENS: '512'
+      BUDGET_GUARD_MODE: proxy
+      BUDGET_GUARD_URL: http://budget-gateway:18090
+      BUDGET_GUARD_AUTH_TOKEN: ${BACKEND_WORKER_TOKEN:?required}
+    networks:
+    - workers
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+  api-ingress:
+    image: python:3.12-slim
+    command:
+    - python
+    - /tools/headless_http_ingress.py
+    volumes:
+    - ./:/tools:ro
+    networks:
+    - workers
+    - upstream
+    - headless-edge
+    ports:
+    - 127.0.0.1:${WAVE1D_BACKEND_PORT:?required}:4000
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    read_only: true
+    depends_on:
+    - backend
+networks:
+  workers:
+    internal: true
+    ipam:
+      config:
+      - subnet: ${P123_WORKER_SUBNET:?required}
+  upstream:
+    internal: true
+    ipam:
+      config:
+      - subnet: ${P123_UPSTREAM_SUBNET:?required}
+  headless-edge:
+    ipam:
+      config:
+      - subnet: ${P123_EDGE_SUBNET:?required}
+volumes:
+  pg_state: {}
+  mongo_state: {}
+  budget_state: {}
+  fake_state: {}
