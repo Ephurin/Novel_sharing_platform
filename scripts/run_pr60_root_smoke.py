@@ -40,6 +40,12 @@ def main():
   for key in v.scripts:
    command(key,compose+['exec','-T','-e','GITHUB_SHA='+sha,'-e','GITHUB_HEAD_REF=codex/p1-canon-hitl-gate','ai-service','python','/tmp/p8-scripts/'+names[key],'--backend-url','http://backend:4000/api/v1','--ai-service-url','http://localhost:8000','--db-url','postgresql://postgres:postgres@postgres:5432/'+db,'--output','/tmp/'+key+'-evidence.json'])
    command(key+'-copy-evidence',compose+['cp','ai-service:/tmp/'+key+'-evidence.json',str(out/(key+'-evidence.json'))])
+   verifier={'01a':('verify_ai_pipe_01_p1_closed_loop_evidence.py','--evidence'),'02a':('verify_ai_pipe_02a_idea_bootstrap_evidence.py','--evidence-file'),'02b':('verify_ai_pipe_02b_outline_planning_evidence.py','--evidence-file'),'03a':('verify_ai_pipe_03a_autonomous_controller_evidence.py','--evidence')}[key]
+   command(key+'-verify',compose+['exec','-T','ai-service','python','/tmp/p8-scripts/'+verifier[0],verifier[1],'/tmp/'+key+'-evidence.json'])
+  # Reproduce the current workflow's isolation failure separately from the repaired contract.
+  native=['backend','npx','tsx','--test','--test-force-exit','src/modules/novels/p1-production-persistence.postgres.test.ts']
+  command('CI-native-without-optin',compose+['exec','-T',*native])
+  command('native-owned-optin',compose+['exec','-T','-e','EPHURIN_ALLOW_TEST_DB_MUTATIONS=1',*native])
  finally:
   command('service-logs',compose+['logs','--no-color','ai-service','backend']);command('stop',compose+['stop','-t','2'])
   (out/'validation.json').write_text(json.dumps(dict(tested_sha=sha,project=project,commands=rows,retained=True,live_provider_calls=0),indent=2),encoding='utf-8')
