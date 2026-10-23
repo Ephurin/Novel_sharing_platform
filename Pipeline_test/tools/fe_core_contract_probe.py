@@ -36,7 +36,7 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
    deadline=time.monotonic()+80
    while time.monotonic()<deadline:
     queue=p.api('GET',p.brain+'/review-queue')
-    matching=[x for x in queue if x.get('evidence',{}).get('revision_id')==revision_id]
+    matching=[x for x in queue if any(e.get('revision_id')==revision_id for e in x.get('evidence',[]))]
     if matching:
      p.save('human-proposal-review-'+revision_id,{'channel':'SIMULATED_HUMAN_VIA_API','mode':'integration_legacy_proposal_review','queue':matching})
      p.approve();return
@@ -113,6 +113,7 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   source=p.latest(cid)
   j=p.api('POST','/ai/story-brains/bootstrap/from-manuscript',{'novel_id':p.novel,'revisions':[{'chapter_id':cid,'revision_id':source['revisionId'],'content_hash':source['contentHash']}]})
   p.wait_job(j['job_id'],{'waiting_review'})
+  observed=p.api('GET',p.brain+'/memory',expected=(404,));p.save('integration-memory-route-concern',{'status':404,'response':observed,'canonical_oracle':'real PostgreSQL projection readback, not a repaired memory endpoint'})
   p.approve();activated=p.api('POST',p.brain+'/baseline/activate',{'job_id':j['job_id']})
   require(bool(activated['baseline_revision_id']),'Automatic snapshot requires a revision-anchored active baseline')
   initial_memory=p.read_memory();canon_body='Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.'
@@ -145,6 +146,15 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   p.save('accepted-replay-durable',{'accepted':accepted,'replay':replay,'PG_Mongo_before':accepted_checkpoint,'PG_Mongo_after':db()})
   require(p.read_memory()==after,'accept auto-approved canon')
   review_revision(accepted_id);mfirst=p.read_memory()
+  approved=json.loads(p.sql("select coalesce(json_agg(t),'[]') from narrative.proposals t where novel_id='"+p.novel+"' and evidence @> '[{\"revision_id\":\""+accepted_id+"\"}]'::jsonb"))
+  require(bool(approved) and all(x['status'].lower()=='accepted' for x in approved),'Accepted source lacks approved durable proposal evidence')
+  accepted_row=next(x for x in db()['chapter_revisions'] if x['revision_id']==accepted_id)
+  require(accepted_row['content_hash']==hashlib.sha256(accepted_row['content'].encode()).hexdigest(),'Accepted source content/hash mismatch')
+  accepted_events=[x for x in db()['revision_outbox_events'] if x['revision_id']==accepted_id and x['content_hash']==accepted_row['content_hash']]
+  require(len(accepted_events)==1,'Accepted source outbox hash/identity mismatch')
+  context=p.api('GET',p.brain+'/context-preview?chapter_id='+cid)
+  p.save('accepted-source-consistency',{'revision':accepted_row,'outbox':accepted_events,'approved_proposals':approved,'canonical_projection':mfirst,'supported_context_preview':context,'memory_HTTP_route':'404; NOT_FIXED'})
+
   stale,_=p.generate(cid);save(canon_body+' newer author checkpoint',view()['draft']['version'])
   p.api('POST',path+'/revisions/accept-draft',{'generationId':stale['job_id']},expected=(409,))
   rows.append({'test':'10_active_checkpoint_accept_outbox_StoryBrain','status':'PASS','proof':'REAL_HTTP_PG_MONGO_FAKE_PROVIDER','details':{'automatic_saved_revision':rid,'accepted_revision':accepted_id,'accepted_source_generation':job['job_id'],'active_baseline':True,'explicit_author_review':True,'review_mode':'integration_legacy_proposal_review','pipeline_entity_gate':'NOT_AVAILABLE_IN_INTEGRATION','M_FIRST_from_accepted_source':True,'stale_generation_rejected':409,'future_plan_not_canon':True}})

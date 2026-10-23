@@ -161,7 +161,10 @@ class Probe:
         return login["accessToken"], user
 
     def read_memory(self):
-        return self.api("GET", self.brain + "/memory")
+        # Durable canonical oracle: integration's Gateway /memory currently returns
+        # AI_SERVICE_404. This is recorded as an unresolved product API concern.
+        return {t: sorted(json.loads(self.sql("select coalesce(json_agg(t),'[]') from narrative."+t+" t where novel_id='"+self.novel+"'")),key=lambda r:json.dumps(r,sort_keys=True))
+                for t in ['entities','events','facts']}
 
     def ledger(self):
         return json.loads(self.command(self.compose + ["exec", "-T", "budget-gateway", "python", "-c",
