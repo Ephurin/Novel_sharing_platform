@@ -1,7 +1,7 @@
 {
   "summary": {
     "branch": "integration/p1-author",
-    "baseCommitSha": "157b71f5608558fdb2763c65b1254e3dffc77fb8",
+    "baseCommitSha": "13eb5017bb13074cf958f4ff9ed6aa12c3bebc66",
     "overallStatus": "READY_FOR_GPT6_REVIEW",
     "gates": {
       "G0_SOURCE_BUILD": "PASS",

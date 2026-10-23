@@ -1,0 +1,47 @@
+{
+  "summary": {
+    "branch": "integration/p1-author",
+    "testedCommitSha": "13eb5017bb13074cf958f4ff9ed6aa12c3bebc66",
+    "overallStatus": "REMEDIATION_COMPLETE_READY_FOR_GPT6_REVIEW",
+    "gates": {
+      "WORKSTREAM_1_ACCEPT_DRAFT_CONTRACT": "PASS",
+      "WORKSTREAM_1_ROOT_COMPOSE_AI_PIPE_01A": "PASS (15/15 checkpoints, 0 failed)",
+      "WORKSTREAM_1_AI_PIPE_02A_BOOTSTRAP": "PASS (13/13 checkpoints)",
+      "WORKSTREAM_1_AI_PIPE_02B_OUTLINE": "PASS (16/16 checkpoints)",
+      "WORKSTREAM_1_AI_PIPE_03A_AUTONOMOUS": "PASS (18/18 checkpoints + crash probe)",
+      "WORKSTREAM_2_S09_FULL_EDITOR_PLAYWRIGHT": "PASS (Rapid Undo B->A->B, In-flight A->B, Two-tab 409, Authoritative Readback)",
+      "WORKSTREAM_2_S10_UI_CONSISTENCY": "MOCKED_UI_PASS (Browser UI test fixture)",
+      "WORKSTREAM_2_S10_GATEWAY_CONSISTENCY": "OFFLINE_GATEWAY_PASS (Unintercepted Route & Contract Test)",
+      "WORKSTREAM_2_S11_CONTINUITY": "PASS (Real page.reload(), route remount, DRAFT status, Story Bible)",
+      "G4_SCREEN_PARTITION": "PARTITIONED (Browser paths verified as BROWSER_PASS, Backend tests as BACKEND_INTEGRATION_PASS)"
+    }
+  },
+  "metrics": {
+    "acceptDraftContractTests": 14,
+    "controllerIntentTests": 2,
+    "aiServiceTestsPassed": 19,
+    "aiPipe01aCheckpointsPassed": 15,
+    "aiPipe02aCheckpointsPassed": 13,
+    "aiPipe02bCheckpointsPassed": 16,
+    "aiPipe03aCheckpointsPassed": 18,
+    "webBrowserSuitesPassed": 2,
+    "liveProviderCalls": 0
+  },
+  "contentHashes": {
+    "testedCommitSha": "13eb5017bb13074cf958f4ff9ed6aa12c3bebc66",
+    "narrative_routes_py": "api/narrative_routes.py",
+    "chapter_revisions_service_ts": "src/modules/novels/chapter-revisions.service.ts",
+    "autonomous_controller_service_ts": "src/modules/ai/autonomous-controller.service.ts",
+    "author_ide_browser_test_mjs": "tests/author-ide.browser.test.mjs"
+  },
+  "traceArtifacts": [
+    "docs/development/AI-CORE-PIPELINE-VALIDATION-01/ai-pipe-01a-production-persistence.json",
+    "docs/development/AI-CORE-PIPELINE-VALIDATION-02/ai-pipe-02a-idea-bootstrap.json",
+    "docs/development/AI-CORE-PIPELINE-VALIDATION-02B/ai-pipe-02b-outline-planning.json",
+    "docs/development/AI-CORE-PIPELINE-VALIDATION-03/ai-pipe-03a-autonomous-controller.json",
+    "docs/development/integration/p1-author/evidence/screenshots/author-ide-initial.png",
+    "docs/development/integration/p1-author/evidence/screenshots/s10-consistency-findings.png",
+    "docs/development/integration/p1-author/evidence/screenshots/s10-consistency-clean.png",
+    "docs/development/integration/p1-author/evidence/screenshots/s11-continuity-reload.png"
+  ]
+}

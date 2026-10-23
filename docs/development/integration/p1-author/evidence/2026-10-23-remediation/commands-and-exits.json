@@ -1,0 +1,96 @@
+{
+  "project": "Ephurin/Novel_sharing_platform",
+  "branch": "integration/p1-author",
+  "testedCommitSha": "13eb5017bb13074cf958f4ff9ed6aa12c3bebc66",
+  "executionTimestamp": "2026-10-23T04:47:00Z",
+  "commands": [
+    {
+      "step": "WORKSTREAM_1_AI_SERVICE_CONTRACT_AND_CONSISTENCY",
+      "command": "python -m pytest tests/test_writing_validation_golden.py tests/test_author_operation_consistency.py tests/test_story_plan_routes.py",
+      "cwd": "ai-service",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "19/19 pytest tests passed including internal revision DTO fields and author-operation consistency check"
+    },
+    {
+      "step": "WORKSTREAM_1_BACKEND_ACCEPT_DRAFT_CONTRACT",
+      "command": "npx tsx --test src/modules/novels/controller-intent.test.ts src/modules/novels/accept-draft-contract.test.ts",
+      "cwd": "backend",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "16/16 contract tests passed verifying internal authenticated endpoint, fail-closed auth, tenant/actor bounds, and intent checks"
+    },
+    {
+      "step": "WORKSTREAM_1_DOCKER_POSTGRES_PRODUCTION_PERSISTENCE",
+      "command": "docker compose exec -T backend npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts",
+      "cwd": "backend",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "5/5 checkpoints passed under live PostgreSQL container"
+    },
+    {
+      "step": "WORKSTREAM_1_AI_PIPE_01A_ROOT_COMPOSE_VALIDATION",
+      "command": "python scripts/run_ai_pipe_01a_production_persistence.py",
+      "cwd": ".",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "15/15 checkpoints passed (including checkpoint 07 acceptDraft). Production persistence verified."
+    },
+    {
+      "step": "WORKSTREAM_1_AI_PIPE_01A_EVIDENCE_VERIFY",
+      "command": "python scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py",
+      "cwd": ".",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "Evidence validation succeeded (0 errors)"
+    },
+    {
+      "step": "WORKSTREAM_1_AI_PIPE_02A_IDEA_BOOTSTRAP",
+      "command": "python scripts/run_ai_pipe_02a_idea_bootstrap.py",
+      "cwd": ".",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "13/13 checkpoints passed"
+    },
+    {
+      "step": "WORKSTREAM_1_AI_PIPE_02B_OUTLINE_PLANNING",
+      "command": "python scripts/run_ai_pipe_02b_outline_planning.py",
+      "cwd": ".",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "16/16 checkpoints passed"
+    },
+    {
+      "step": "WORKSTREAM_1_AI_PIPE_03A_AUTONOMOUS_CONTROLLER",
+      "command": "python scripts/run_ai_pipe_03a_autonomous_controller.py",
+      "cwd": ".",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "18/18 checkpoints passed with crash/resume probe verified"
+    },
+    {
+      "step": "WORKSTREAM_1_AI_PIPE_03A_EVIDENCE_VERIFY",
+      "command": "python scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py",
+      "cwd": ".",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "Gate AI-PIPE-03A Verification PASS with 13/13 mutants rejected cleanly"
+    },
+    {
+      "step": "WORKSTREAM_2_REAL_AUTHOR_IDE_BROWSER_E2E",
+      "command": "$env:DATABASE_URL=\"postgres://postgres:postgres@localhost:5432/ephurin\"; $env:MONGODB_URI=\"mongodb://localhost:27017/ephurin\"; $env:RUN_DRAFT_BROWSER_TESTS=\"1\"; node web/tests/author-ide.browser.test.mjs",
+      "cwd": "web",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "Real AuthorWritingIde Playwright E2E passed in 16.9s: Rapid Undo B->A->B, S10 MOCKED_UI_PASS, real reload (page.reload()), route remount (window.remount()), in-flight A->B serialization, two-tab 409 conflict recovery, and server authoritative readback"
+    },
+    {
+      "step": "WORKSTREAM_2_DRAFT_PERSISTENCE_REGRESSION_HOOK",
+      "command": "$env:DATABASE_URL=\"postgres://postgres:postgres@localhost:5432/ephurin\"; $env:MONGODB_URI=\"mongodb://localhost:27017/ephurin\"; $env:RUN_DRAFT_BROWSER_TESTS=\"1\"; $env:PLAYWRIGHT_CHANNEL=\"msedge\"; node web/tests/draft-persistence.browser.test.mjs",
+      "cwd": "web",
+      "exitCode": 0,
+      "status": "PASS",
+      "summary": "Mounted draft hook regression suite passed in 13.7s"
+    }
+  ]
+}
