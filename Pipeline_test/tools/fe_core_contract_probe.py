@@ -30,18 +30,18 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
    state['Mongo_drafts']=json.loads(p.command(p.compose+['exec','-T','mongodb','mongosh','--quiet','--eval',script]))
    return state
   def require(ok,message):assert ok,message
+  review_modes=[]
   def review_revision(revision_id):
-   # Integration currently exposes proposal review, not the pipeline entity-review API.
-   # Exercise the real selected path; record the missing separate entity gate in handoff.
+   # Observe (do not hide or authorize) integration's existing auto-materialization.
+   # Baseline approval remains an explicit simulated-author API action below.
    deadline=time.monotonic()+80
    while time.monotonic()<deadline:
-    queue=p.api('GET',p.brain+'/review-queue')
-    matching=[x for x in queue if any(e.get('revision_id')==revision_id for e in x.get('evidence',[]))]
-    if matching:
-     p.save('human-proposal-review-'+revision_id,{'channel':'SIMULATED_HUMAN_VIA_API','mode':'integration_legacy_proposal_review','queue':matching})
-     p.approve();return
+    proposals=json.loads(p.sql("select coalesce(json_agg(t),'[]') from narrative.proposals t where novel_id='"+p.novel+"' and evidence @> '[{\"revision_id\":\""+revision_id+"\"}]'::jsonb"))
+    if proposals and all(x['status'].lower()=='accepted' for x in proposals):
+     observed={'revision_id':revision_id,'explicit_author_review':False,'mode':'integration_worker_auto_materialize','proposals':proposals}
+     review_modes.append(observed);p.save('observed-auto-materialization-'+revision_id,observed);return
     time.sleep(.4)
-   raise AssertionError('No proposal review for accepted source '+revision_id)
+   raise AssertionError('Worker source flow did not settle; no manual acceptance was substituted')
   def signature(state):
    return {'chapters':[{k:v for k,v in c.items() if k!='updated_at'} for c in state['chapters']],
     'revisions':state['chapter_revisions'],'outbox':[{k:e[k] for k in ['event_id','revision_id','content_hash']} for e in state['revision_outbox_events']]}
@@ -124,8 +124,10 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   revision=p.latest(cid);assert revision['revisionId']==rid
   persisted=db();events=[r for r in persisted['revision_outbox_events'] if r['revision_id']==rid]
   require(revision['contentHash']==hashlib.sha256(canon_body.encode()).hexdigest() and len(events)==1,'automatic revision/outbox mismatch')
-  require(p.read_memory()==initial_memory,'save auto-approved canon')
-  review_revision(rid);after=p.read_memory()
+  review_revision(rid)
+  after_save_memory=p.read_memory();p.save('save-canon-side-effects',{'before':initial_memory,'after':after_save_memory,'author_review_performed':False})
+  row('10d_save_requires_explicit_canon_review',lambda:require(after_save_memory==initial_memory,'Integration worker auto-approved canon; production worker/policy left unchanged outside this repair'))
+  after=p.read_memory()
   checkpoint=db();retry_before=view()['draft'];retried=save(canon_body,canonical['draftVersion']-1);retry_after=view()['draft']
   p.save('active-retry-readback',{'before':retry_before,'response':retried,'after':retry_after,'PG_before':checkpoint,'PG_after':db()})
   row('10b_active_replay_preserves_version',lambda:require(retry_after['version']==retry_before['version'] and signature(db())==signature(checkpoint),'Same-body active-baseline replay changes Mongo version despite stable revision/outbox'))
@@ -144,8 +146,9 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   job,evidence=p.generate(cid);accepted=p.api('POST',path+'/revisions/accept-draft',{'generationId':job['job_id']});accepted_checkpoint=db();accepted_draft=view()['draft'];replay=p.api('POST',path+'/revisions/accept-draft',{'generationId':job['job_id']})
   accepted_id=accepted['revision']['revisionId'];require(replay['revision']['revisionId']==accepted_id and signature(db())==signature(accepted_checkpoint) and view()['draft']==accepted_draft,'accepted replay duplicate or durable mutation')
   p.save('accepted-replay-durable',{'accepted':accepted,'replay':replay,'PG_Mongo_before':accepted_checkpoint,'PG_Mongo_after':db()})
-  require(p.read_memory()==after,'accept auto-approved canon')
   review_revision(accepted_id);mfirst=p.read_memory()
+  p.save('accept-canon-side-effects',{'before':after,'after':mfirst,'author_review_performed':False})
+  row('10e_accept_requires_explicit_canon_review',lambda:require(mfirst==after,'Integration worker auto-approved accepted source; preserved as a genuine contract blocker'))
   approved=json.loads(p.sql("select coalesce(json_agg(t),'[]') from narrative.proposals t where novel_id='"+p.novel+"' and evidence @> '[{\"revision_id\":\""+accepted_id+"\"}]'::jsonb"))
   require(bool(approved) and all(x['status'].lower()=='accepted' for x in approved),'Accepted source lacks approved durable proposal evidence')
   accepted_row=next(x for x in db()['chapter_revisions'] if x['revision_id']==accepted_id)
@@ -157,7 +160,7 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
 
   stale,_=p.generate(cid);save(canon_body+' newer author checkpoint',view()['draft']['version'])
   p.api('POST',path+'/revisions/accept-draft',{'generationId':stale['job_id']},expected=(409,))
-  rows.append({'test':'10_active_checkpoint_accept_outbox_StoryBrain','status':'PASS','proof':'REAL_HTTP_PG_MONGO_FAKE_PROVIDER','details':{'automatic_saved_revision':rid,'accepted_revision':accepted_id,'accepted_source_generation':job['job_id'],'active_baseline':True,'explicit_author_review':True,'review_mode':'integration_legacy_proposal_review','pipeline_entity_gate':'NOT_AVAILABLE_IN_INTEGRATION','M_FIRST_from_accepted_source':True,'stale_generation_rejected':409,'future_plan_not_canon':True}})
+  rows.append({'test':'10_active_checkpoint_accept_outbox_StoryBrain','status':'FAIL' if review_modes else 'PASS','proof':'REAL_HTTP_PG_MONGO_FAKE_PROVIDER','details':{'automatic_saved_revision':rid,'accepted_revision':accepted_id,'accepted_source_generation':job['job_id'],'active_baseline':True,'explicit_author_review':False if review_modes else True,'review_mode':'integration_worker_auto_materialize' if review_modes else 'integration_legacy_proposal_review','pipeline_entity_gate':'NOT_AVAILABLE_IN_INTEGRATION','M_FIRST_from_accepted_source':True,'stale_generation_rejected':409,'future_plan_not_canon':True}})
   p.save('D2-durable-readback',{'PG':db(),'HTTP':view(),'M_FIRST':mfirst,'current_memory':p.read_memory(),'outbound_context':evidence,'fixture':'SIMULATED_HUMAN_VIA_API; focused one-checkpoint proof, not a P123 suite rerun'})
   def snapshot_failure():
    # Fail one real outbox INSERT; transaction must roll back and HTTP must not claim success.
