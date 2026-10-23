@@ -1,0 +1,112 @@
+{
+  "session": "pr58-test-safety-closeout-2026-10-23",
+  "branch": "gemini/p1-ci-isolation",
+  "base_sha": "4c8bd3e36f7a8b01f7f98aee1e77b07779687fc5",
+  "source_sha": "55036fd5314b98ae2d3637e163b276709841893c",
+  "target_pr": "https://github.com/Ephurin/Novel_sharing_platform/pull/58",
+  "verdict": "PR58_TEST_SAFETY_READY_FOR_GPT6_REVIEW",
+  "executions": [
+    {
+      "step": "verify_guard_fail_closed_missing_opt_in",
+      "command": "$env:EPHURIN_ALLOW_TEST_DB_MUTATIONS=\"0\"; npx tsx --test src/modules/novels/accept-draft-contract.test.ts",
+      "cwd": "backend",
+      "exit_code": 1,
+      "expected_outcome": "FAIL_CLOSED_NO_OPT_IN",
+      "error_message": "Refusing database mutations: missing required external opt-in EPHURIN_ALLOW_TEST_DB_MUTATIONS=1"
+    },
+    {
+      "step": "verify_guard_fail_closed_forbidden_ephurin",
+      "command": "$env:DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/ephurin\"; $env:EPHURIN_ALLOW_TEST_DB_MUTATIONS=\"1\"; npx tsx --test src/modules/novels/accept-draft-contract.test.ts",
+      "cwd": "backend",
+      "exit_code": 1,
+      "expected_outcome": "FAIL_CLOSED_FORBIDDEN_DB",
+      "error_message": "Refusing database mutations: PostgreSQL target \"ephurin\" is not an approved isolated test database"
+    },
+    {
+      "step": "run_test_db_guard_rules_suite",
+      "command": "npx tsx --test src/core/database/test-db-guard.test.ts",
+      "cwd": "backend",
+      "exit_code": 0,
+      "tests_total": 11,
+      "tests_passed": 11,
+      "tests_failed": 0,
+      "tests_cancelled": 0,
+      "duration_ms": 273
+    },
+    {
+      "step": "run_deterministic_unit_suite_isolated",
+      "command": "find src -name '*.test.ts' ! -name '*.live.test.ts' ! -name '*.postgres.test.ts' ! -name 'accept-draft-contract.test.ts' | xargs npx tsx --test",
+      "cwd": "backend",
+      "exit_code": 0,
+      "database_url": "postgresql://postgres:postgres@localhost:54321/ephurin_ci_placeholder",
+      "tests_total": 91,
+      "tests_passed": 88,
+      "tests_skipped": 3,
+      "tests_failed": 0,
+      "tests_cancelled": 0,
+      "duration_ms": 1917
+    },
+    {
+      "step": "run_accept_draft_contract_tier_b",
+      "command": "npx tsx --test src/modules/novels/accept-draft-contract.test.ts",
+      "cwd": "backend",
+      "exit_code": 0,
+      "database_url": "postgresql://postgres:postgres@localhost:5432/ephurin_test_integration",
+      "schema_tier": "TIER_B_REAL_ALEMBIC_SCHEMA",
+      "tests_total": 14,
+      "tests_passed": 14,
+      "tests_failed": 0,
+      "tests_cancelled": 0,
+      "duration_ms": 1537
+    },
+    {
+      "step": "run_p1_production_persistence_tier_b",
+      "command": "npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts",
+      "cwd": "backend",
+      "exit_code": 0,
+      "database_url": "postgresql://postgres:postgres@localhost:5432/ephurin_test_integration",
+      "schema_tier": "TIER_B_REAL_ALEMBIC_SCHEMA",
+      "tests_total": 5,
+      "tests_passed": 5,
+      "tests_failed": 0,
+      "tests_cancelled": 0,
+      "duration_ms": 1189
+    },
+    {
+      "step": "verify_postgres_zero_residual_rows",
+      "command": "psql -U postgres -d ephurin_test_integration -c \"SELECT count(*) FROM ...\"",
+      "cwd": ".",
+      "exit_code": 0,
+      "counts": {
+        "users": 0,
+        "novels": 0,
+        "chapters": 0,
+        "chapter_revisions": 0,
+        "revision_outbox_events": 0
+      }
+    },
+    {
+      "step": "verify_mongo_zero_residual_documents",
+      "command": "mongosh --eval \"db.draft_chapters.countDocuments()\"",
+      "cwd": ".",
+      "exit_code": 0,
+      "counts": {
+        "draft_chapters": 0
+      }
+    },
+    {
+      "step": "backend_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "backend",
+      "exit_code": 0,
+      "notes": "tsc -p tsconfig.json --noEmit cleanly passed"
+    },
+    {
+      "step": "mobile_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "mobile",
+      "exit_code": 0,
+      "notes": "tsc --noEmit cleanly passed"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "contract": "PR58_FINAL_CLEANUP_CORRECTNESS_GATE",
+  "verdict": "PR58_OWNERSHIP_READBACK_READY_FOR_GPT6_REVIEW",
+  "provenance": {
+    "repository": "Ephurin/Novel_sharing_platform",
+    "writable_branch": "gemini/p1-ci-isolation",
+    "target_branch": "integration/p1-author",
+    "pull_request_number": 58,
+    "source_commit_sha": "b653b6fe4d4887aa3d2687cdead985d5f985aa47",
+    "source_commit_message": "fix(test-safety): preserve mongo cleanup targets and enforce durable readbacks (F-09, F-10)"
+  },
+  "ci_verification": {
+    "workflow": "P8 Cutover and Migration",
+    "run_id": 39921623375,
+    "run_url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39921623375",
+    "head_sha": "b653b6fe4d4887aa3d2687cdead985d5f985aa47",
+    "jobs_summary": "7/7 jobs verified passing in CI"
+  },
+  "local_verification": {
+    "database_isolation_opt_in": "EPHURIN_ALLOW_TEST_DB_MUTATIONS=1",
+    "llm_provider": "fake (zero live provider calls)",
+    "command_results": [
+      {
+        "command": "npx tsx --test src/core/database/test-db-guard-lifecycle.test.ts",
+        "exit_code": 0,
+        "passed": 6,
+        "failed": 0,
+        "duration_ms": 180
+      },
+      {
+        "command": "npx tsx --test src/core/database/test-db-guard.test.ts",
+        "exit_code": 0,
+        "passed": 11,
+        "failed": 0,
+        "duration_ms": 172
+      },
+      {
+        "command": "npx tsx --test --test-force-exit src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts",
+        "exit_code": 0,
+        "passed": 17,
+        "failed": 0,
+        "duration_ms": 1045
+      },
+      {
+        "command": "npx tsx --test src/modules/novels/accept-draft-contract.test.ts",
+        "exit_code": 0,
+        "passed": 14,
+        "failed": 0,
+        "duration_ms": 925
+      },
+      {
+        "command": "npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts",
+        "exit_code": 0,
+        "passed": 5,
+        "failed": 0,
+        "duration_ms": 775
+      },
+      {
+        "command": "npm test",
+        "exit_code": 0,
+        "passed": 173,
+        "skipped": 4,
+        "failed": 0,
+        "duration_ms": 3478
+      },
+      {
+        "command": "npm run typecheck",
+        "exit_code": 0
+      }
+    ]
+  },
+  "findings_status": {
+    "F06_mutation_guard": "ACCEPTED",
+    "F07_partial_setup_resilience": "ACCEPTED",
+    "F08_provenance": "ACCEPTED",
+    "P2_A_double_cleanup_noop": "ACCEPTED",
+    "P2_B_per_id_fault_tolerance": "ACCEPTED",
+    "F09_mongo_target_preservation": "VERIFIED_GREEN",
+    "F10_authoritative_durable_readback": "VERIFIED_GREEN"
+  }
+}

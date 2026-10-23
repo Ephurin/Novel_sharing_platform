@@ -2,7 +2,8 @@ import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
-import { disconnectMongo } from '../../core/database/mongo.js';
+import { getMongoDatabase, disconnectMongo } from '../../core/database/mongo.js';
+import { TestFixtureLifecycle } from './test-fixture-lifecycle.js';
 import { disconnectChapterWriter } from './chapter-writer.js';
 import { acceptDraft } from './chapter-revisions.service.js';
 import { env } from '../../core/config/env.js';
@@ -17,41 +18,161 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
   const baseContent = 'Base chapter prose for contract testing.';
   const baseContentHash = crypto.createHash('sha256').update(baseContent).digest('hex');
 
+  // Unrelated sentinel fixtures to prove cleanup specificity and non-destructive isolation
+  const sentinelUserId = crypto.randomUUID();
+  const sentinelNovelId = crypto.randomUUID();
+  const sentinelChapterId = crypto.randomUUID();
+  const sentinelMongoChapterId = crypto.randomUUID();
+
+  const lifecycle = new TestFixtureLifecycle();
   let fetchCalls: Array<{ url: string; headers: Record<string, string> }> = [];
 
   before(async () => {
     const pool = getPostgresPool();
+    const mongoDb = getMongoDatabase();
+
+    // STEP 1: Enforce fail-closed database isolation guard before ANY mutation
+    await lifecycle.authorize(pool, mongoDb);
+
+    // STEP 2: Schema verification tiering
+    // Detect if running under Tier B (real Alembic schema) or Tier A (narrow contract fixture)
+    const schemaProbe = await pool.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'alembic_version'
+      ) AS has_alembic,
+      EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'narrative' AND table_name = 'autonomous_runs'
+      ) AS has_real_runs
+    `);
+    const isRealAlembicSchema = Boolean(schemaProbe.rows[0]?.has_alembic && schemaProbe.rows[0]?.has_real_runs);
+
+    if (!isRealAlembicSchema) {
+      // TIER A (Narrow Contract Fixture): Alembic migrations not present.
+      // Bootstrap minimal stub schema for the REST controller-intent contract tests.
+      await pool.query(`
+        CREATE SCHEMA IF NOT EXISTS narrative;
+        CREATE TABLE IF NOT EXISTS narrative.autonomous_runs (
+          id UUID PRIMARY KEY,
+          novel_id UUID NOT NULL,
+          tenant_id UUID,
+          created_by UUID,
+          plan_id UUID,
+          plan_version INT,
+          current_objective_id UUID,
+          current_chapter_id UUID,
+          last_generation_id VARCHAR,
+          current_iteration INT,
+          current_retries INT,
+          status VARCHAR(32)
+        );
+        CREATE TABLE IF NOT EXISTS narrative.story_plans (
+          id UUID PRIMARY KEY,
+          novel_id UUID NOT NULL,
+          tenant_id UUID,
+          plan_version INT,
+          status VARCHAR(32)
+        );
+        CREATE TABLE IF NOT EXISTS narrative.story_plan_objectives (
+          id UUID PRIMARY KEY,
+          plan_id UUID NOT NULL,
+          novel_id UUID NOT NULL,
+          tenant_id UUID,
+          intent_version INT,
+          status VARCHAR(32)
+        );
+      `);
+    }
+
+    // STEP 3: Seed sentinel records in PostgreSQL and MongoDB (register then confirm)
+    lifecycle.registerSentinelUser(sentinelUserId);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role)
+       VALUES ($1, $2, $3, 'hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
+      [sentinelUserId, `sentinel_${Date.now()}`, `sentinel_${Date.now()}@example.com`]
+    );
+    lifecycle.confirmSentinelUser(sentinelUserId);
+
+    lifecycle.registerSentinelNovel(sentinelNovelId);
+    await pool.query(
+      `INSERT INTO novels (novel_id, title, slug, synopsis, author_id, status)
+       VALUES ($1, 'Sentinel Novel', $2, 'Sentinel Synopsis', $3, 'PUBLISHED') ON CONFLICT DO NOTHING`,
+      [sentinelNovelId, `sentinel-slug-${Date.now()}`, sentinelUserId]
+    );
+    lifecycle.confirmSentinelNovel(sentinelNovelId);
+
+    lifecycle.registerSentinelChapter(sentinelChapterId);
+    await pool.query(
+      `INSERT INTO chapters (chapter_id, novel_id, title, chapter_number, status)
+       VALUES ($1, $2, 'Sentinel Chapter', 999, 'DRAFT') ON CONFLICT DO NOTHING`,
+      [sentinelChapterId, sentinelNovelId]
+    );
+    lifecycle.confirmSentinelChapter(sentinelChapterId);
+
+    lifecycle.registerSentinelMongoDraft(sentinelMongoChapterId);
+    await mongoDb.collection('draft_chapters').insertOne({
+      chapterId: sentinelMongoChapterId,
+      novelId: sentinelNovelId,
+      authorId: sentinelUserId,
+      title: 'Sentinel Draft',
+      content: 'Sentinel draft content for isolation check',
+      wordCount: 7,
+      version: 1,
+      autosave: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    lifecycle.confirmSentinelMongoDraft(sentinelMongoChapterId);
+
+    // STEP 4: Seed test-owned fixture records
+    lifecycle.registerUser(authorId);
     await pool.query(
       `INSERT INTO users (user_id, username, email, password_hash, role)
        VALUES ($1, $2, $3, 'hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
       [authorId, `auth_${Date.now()}`, `auth_${Date.now()}@example.com`]
     );
+
+    lifecycle.registerNovel(novelId);
     await pool.query(
       `INSERT INTO novels (novel_id, title, slug, synopsis, author_id, status)
        VALUES ($1, 'Contract Novel', $2, 'Test Synopsis', $3, 'PUBLISHED') ON CONFLICT DO NOTHING`,
       [novelId, `slug-${Date.now()}`, authorId]
     );
+
+    lifecycle.registerChapter(chapterId);
     await pool.query(
       `INSERT INTO chapters (chapter_id, novel_id, title, chapter_number, status)
        VALUES ($1, $2, 'Chapter 1', 1, 'DRAFT') ON CONFLICT DO NOTHING`,
       [chapterId, novelId]
     );
+
+    lifecycle.registerRevision(baseRevisionId);
     await pool.query(
       `INSERT INTO chapter_revisions (revision_id, chapter_id, novel_id, content, content_hash, source_type)
        VALUES ($1, $2, $3, $4, $5, 'AUTHOR_MANUAL') ON CONFLICT DO NOTHING`,
       [baseRevisionId, chapterId, novelId, baseContent, baseContentHash]
     );
+
     await pool.query(
       `UPDATE chapters SET latest_revision_id = $1 WHERE chapter_id = $2`,
       [baseRevisionId, chapterId]
     );
+
+    lifecycle.markTestsRunning();
   });
 
   after(async () => {
     global.fetch = originalFetch;
-    await disconnectPostgres();
-    await disconnectMongo();
-    await disconnectChapterWriter();
+    try {
+      const pool = getPostgresPool();
+      const mongoDb = getMongoDatabase();
+      await lifecycle.cleanup(pool, mongoDb);
+    } finally {
+      await disconnectPostgres();
+      await disconnectMongo();
+      await disconnectChapterWriter();
+    }
   });
 
   function setupMockAi(customJob: Record<string, unknown> = {}, brainVersion: number | null = 1) {

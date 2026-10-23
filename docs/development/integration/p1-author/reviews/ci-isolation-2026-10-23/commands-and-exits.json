@@ -1,0 +1,143 @@
+{
+  "session": "p1-ci-isolation-2026-10-23",
+  "branch": "gemini/p1-ci-isolation",
+  "base_sha": "4c8bd3e36f7a8b01f7f98aee1e77b07779687fc5",
+  "failed_run_id": "39902374069",
+  "target_pr": "https://github.com/Ephurin/Novel_sharing_platform/pull/57",
+  "verdict": "P8_CI_ISOLATION_READY_FOR_GPT6_REVIEW",
+  "executions": [
+    {
+      "step": "reproduce_ci_failure",
+      "command": "$env:DATABASE_URL=\"postgresql://postgres:postgres@localhost:54321/ephurin_ci_placeholder\"; npx tsx --test src/modules/novels/accept-draft-contract.test.ts",
+      "cwd": "backend",
+      "exit_code": 1,
+      "tests_total": 14,
+      "tests_passed": 0,
+      "tests_failed": 1,
+      "tests_cancelled": 14,
+      "error": "ECONNREFUSED 127.0.0.1:54321"
+    },
+    {
+      "step": "verify_deterministic_unit_suite_isolated",
+      "command": "find src -name '*.test.ts' ! -name '*.live.test.ts' ! -name '*.postgres.test.ts' ! -name 'accept-draft-contract.test.ts' | xargs npx tsx --test",
+      "cwd": "backend",
+      "exit_code": 0,
+      "tests_total": 91,
+      "tests_passed": 88,
+      "tests_skipped": 3,
+      "tests_failed": 0,
+      "tests_cancelled": 0,
+      "database_required": false
+    },
+    {
+      "step": "backend_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "backend",
+      "exit_code": 0,
+      "notes": "tsc -p tsconfig.json --noEmit"
+    },
+    {
+      "step": "mobile_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "mobile",
+      "exit_code": 0,
+      "notes": "tsc --noEmit"
+    },
+    {
+      "step": "web_build_and_asset_scan",
+      "command": "npm run build && git grep -n -E '127\\.0\\.0\\.1:8000|localhost:8000|VITE_AI_SERVICE_BASE_URL|VITE_AI_TENANT_ID|/v1/story-brains|/v1/writing/generations|/internal/v1/' web/dist",
+      "cwd": "web",
+      "exit_code": 0,
+      "notes": "Web built cleanly, 0 leaks detected"
+    },
+    {
+      "step": "preflight_cutover_guard",
+      "command": "python scripts/check_p8_frontend_api_cutover.py",
+      "cwd": ".",
+      "exit_code": 0,
+      "notes": "90 files scanned, boundary is Node-gateway-only"
+    },
+    {
+      "step": "preflight_cleanup_readiness",
+      "command": "python scripts/check_p8_cleanup_readiness.py",
+      "cwd": ".",
+      "exit_code": 0,
+      "notes": "P8-05 cleanup correctly blocked until post-release"
+    },
+    {
+      "step": "preflight_final_cleanup_gate",
+      "command": "python scripts/check_p8_final_cleanup_gate.py --expect-blocked",
+      "cwd": ".",
+      "exit_code": 0,
+      "notes": "Gate status correctly returns BLOCKED"
+    },
+    {
+      "step": "verify_accept_draft_contract_with_db",
+      "command": "npx tsx --test src/modules/novels/accept-draft-contract.test.ts",
+      "cwd": "backend",
+      "exit_code": 0,
+      "tests_total": 14,
+      "tests_passed": 14,
+      "tests_failed": 0,
+      "tests_cancelled": 0,
+      "database_required": true
+    },
+    {
+      "step": "verify_p1_production_persistence_with_db",
+      "command": "npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts",
+      "cwd": "backend",
+      "exit_code": 0,
+      "tests_total": 5,
+      "tests_passed": 5,
+      "tests_failed": 0,
+      "tests_cancelled": 0,
+      "database_required": true
+    },
+    {
+      "step": "verify_accept_draft_contract_in_compose",
+      "command": "docker compose exec -T backend npx tsx --test --test-force-exit src/modules/novels/accept-draft-contract.test.ts",
+      "cwd": ".",
+      "exit_code": 0,
+      "tests_total": 14,
+      "tests_passed": 14,
+      "tests_failed": 0,
+      "tests_cancelled": 0,
+      "database_required": true
+    },
+    {
+      "step": "gate_ai_pipe_01a_production_persistence",
+      "command": "python scripts/run_ai_pipe_01a_production_persistence.py",
+      "cwd": ".",
+      "exit_code": 0,
+      "checkpoints_total": 15,
+      "checkpoints_passed": 15,
+      "checkpoints_failed": 0,
+      "verdict": "P1_PRODUCTION_PERSISTENCE_PASS"
+    },
+    {
+      "step": "verify_ai_pipe_01_evidence",
+      "command": "python scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py",
+      "cwd": ".",
+      "exit_code": 0,
+      "errors": 0
+    },
+    {
+      "step": "gate_ai_pipe_03a_autonomous_controller",
+      "command": "python scripts/run_ai_pipe_03a_autonomous_controller.py",
+      "cwd": ".",
+      "exit_code": 0,
+      "checkpoints_total": 18,
+      "checkpoints_passed": 18,
+      "checkpoints_failed": 0,
+      "verdict": "COMPLETE"
+    },
+    {
+      "step": "verify_ai_pipe_03a_evidence_and_mutants",
+      "command": "python scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py",
+      "cwd": ".",
+      "exit_code": 0,
+      "mutants_tested": 13,
+      "mutants_rejected": 13
+    }
+  ]
+}

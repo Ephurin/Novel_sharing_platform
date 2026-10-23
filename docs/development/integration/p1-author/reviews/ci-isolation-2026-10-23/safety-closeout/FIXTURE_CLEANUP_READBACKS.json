@@ -1,0 +1,165 @@
+{
+  "audit_timestamp": "2026-10-23T13:22:00Z",
+  "commit": "55036fd5314b98ae2d3637e163b276709841893c",
+  "database": {
+    "postgres": "ephurin_test_integration",
+    "mongo": "ephurin_test_integration"
+  },
+  "suites": [
+    {
+      "suite_file": "backend/src/modules/novels/accept-draft-contract.test.ts",
+      "test_count": 14,
+      "passed": 14,
+      "cleanup_assertions_surfaced": true,
+      "swallowed_errors_permitted": false,
+      "postgresql_readbacks": {
+        "revision_outbox_events": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "novel_id = $1 OR chapter_id = $2",
+          "verified": true
+        },
+        "chapter_revisions": {
+          "pre_cleanup_count": 2,
+          "post_cleanup_count": 0,
+          "match_filter": "novel_id = $1 OR chapter_id = $2",
+          "verified": true
+        },
+        "chapters": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "chapter_id = $1",
+          "verified": true
+        },
+        "novels": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "novel_id = $1",
+          "verified": true
+        },
+        "users": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "user_id = $1",
+          "verified": true
+        }
+      },
+      "mongodb_readbacks": {
+        "draft_chapters": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "{ chapterId: chapterId }",
+          "verified": true
+        }
+      },
+      "sentinel_preservation": {
+        "postgres_sentinel_users": {
+          "during_test_count": 1,
+          "post_test_cleanup_count": 1,
+          "teardown_final_count": 0,
+          "survival_verified": true
+        },
+        "postgres_sentinel_novels": {
+          "during_test_count": 1,
+          "post_test_cleanup_count": 1,
+          "teardown_final_count": 0,
+          "survival_verified": true
+        },
+        "postgres_sentinel_chapters": {
+          "during_test_count": 1,
+          "post_test_cleanup_count": 1,
+          "teardown_final_count": 0,
+          "survival_verified": true
+        },
+        "mongodb_sentinel_draft_chapters": {
+          "during_test_count": 1,
+          "post_test_cleanup_count": 1,
+          "teardown_final_count": 0,
+          "survival_verified": true
+        }
+      }
+    },
+    {
+      "suite_file": "backend/src/modules/novels/p1-production-persistence.postgres.test.ts",
+      "test_count": 5,
+      "passed": 5,
+      "cleanup_assertions_surfaced": true,
+      "swallowed_errors_permitted": false,
+      "postgresql_readbacks": {
+        "revision_outbox_events": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "novel_id = $1 OR chapter_id = $2",
+          "verified": true
+        },
+        "chapter_revisions": {
+          "pre_cleanup_count": 2,
+          "post_cleanup_count": 0,
+          "match_filter": "novel_id = $1 OR chapter_id = $2",
+          "verified": true
+        },
+        "chapters": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "chapter_id = $1",
+          "verified": true
+        },
+        "novels": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "novel_id = $1",
+          "verified": true
+        },
+        "users": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "user_id = $1",
+          "verified": true
+        }
+      },
+      "mongodb_readbacks": {
+        "draft_chapters": {
+          "pre_cleanup_count": 1,
+          "post_cleanup_count": 0,
+          "match_filter": "{ chapterId: chapterId }",
+          "verified": true
+        }
+      },
+      "sentinel_preservation": {
+        "postgres_sentinel_users": {
+          "during_test_count": 1,
+          "post_test_cleanup_count": 1,
+          "teardown_final_count": 0,
+          "survival_verified": true
+        },
+        "postgres_sentinel_novels": {
+          "during_test_count": 1,
+          "post_test_cleanup_count": 1,
+          "teardown_final_count": 0,
+          "survival_verified": true
+        },
+        "postgres_sentinel_chapters": {
+          "during_test_count": 1,
+          "post_test_cleanup_count": 1,
+          "teardown_final_count": 0,
+          "survival_verified": true
+        },
+        "mongodb_sentinel_draft_chapters": {
+          "during_test_count": 1,
+          "post_test_cleanup_count": 1,
+          "teardown_final_count": 0,
+          "survival_verified": true
+        }
+      }
+    }
+  ],
+  "final_post_execution_residual_verification": {
+    "users": 0,
+    "novels": 0,
+    "chapters": 0,
+    "chapter_revisions": 0,
+    "revision_outbox_events": 0,
+    "mongo_draft_chapters": 0,
+    "verdict": "CLEAN_ISOLATED_RESIDUAL_ZERO"
+  }
+}

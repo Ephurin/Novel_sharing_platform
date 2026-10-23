@@ -1,0 +1,114 @@
+{
+  "contract": "PR58_FINAL_SAFETY_CLOSEOUT",
+  "verdict": "READY_FOR_GPT6_REVIEW",
+  "provenance": {
+    "repository": "Ephurin/Novel_sharing_platform",
+    "writable_branch": "gemini/p1-ci-isolation",
+    "target_branch": "integration/p1-author",
+    "pull_request_number": 58,
+    "source_commit_sha": "faf9986d1c62aded9f51c2fc6f0ac563f2bab6e8",
+    "source_commit_message": "fix(test-safety): enforce strict count readbacks and outbox ownership verification (F-11, F-12)"
+  },
+  "ci_verification": {
+    "workflow": "P8 Cutover and Migration",
+    "run_id": 39924667165,
+    "run_url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39924667165",
+    "head_sha": "faf9986d1c62aded9f51c2fc6f0ac563f2bab6e8",
+    "jobs_summary": "7/7 jobs verified passing in CI",
+    "jobs": [
+      {
+        "name": "backend-integration",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39924667165/job/120318004163"
+      },
+      {
+        "name": "final-cleanup-gate",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39924667165/job/120318004372"
+      },
+      {
+        "name": "frontend-api-cutover",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39924667165/job/120318004395"
+      },
+      {
+        "name": "rollback-rehearsal",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39924667165/job/120318004410"
+      },
+      {
+        "name": "root-compose-cutover-smoke",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39924667165/job/120318004433"
+      },
+      {
+        "name": "unit",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39924667165/job/120318004445"
+      },
+      {
+        "name": "postgres-integration",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39924667165/job/120318004481"
+      }
+    ]
+  },
+  "local_verification": {
+    "database_isolation_opt_in": "EPHURIN_ALLOW_TEST_DB_MUTATIONS=1",
+    "llm_provider": "fake (zero live provider calls)",
+    "command_results": [
+      {
+        "command": "npx tsx --test src/core/database/test-db-guard-lifecycle.test.ts",
+        "exit_code": 0,
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "command": "npx tsx --test src/core/database/test-db-guard.test.ts",
+        "exit_code": 0,
+        "passed": 11,
+        "failed": 0
+      },
+      {
+        "command": "npx tsx --test --test-force-exit src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts",
+        "exit_code": 0,
+        "passed": 20,
+        "failed": 0
+      },
+      {
+        "command": "npx tsx --test src/modules/novels/accept-draft-contract.test.ts",
+        "exit_code": 0,
+        "passed": 14,
+        "failed": 0
+      },
+      {
+        "command": "npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts",
+        "exit_code": 0,
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "command": "npm test",
+        "exit_code": 0,
+        "passed": 176,
+        "skipped": 4,
+        "failed": 0
+      },
+      {
+        "command": "npm run typecheck",
+        "exit_code": 0
+      }
+    ]
+  },
+  "findings_status": {
+    "F06_mutation_guard": "ACCEPTED",
+    "F07_partial_setup_resilience": "ACCEPTED",
+    "F08_provenance": "ACCEPTED",
+    "P2_A_double_cleanup_noop": "ACCEPTED",
+    "P2_B_per_id_fault_tolerance": "ACCEPTED",
+    "F09_mongo_target_preservation": "ACCEPTED",
+    "F10_authoritative_durable_readback": "ACCEPTED",
+    "F11_malformed_readback_fail_closed": "VERIFIED_GREEN",
+    "F12_outbox_ownership_and_independent_verification": "VERIFIED_GREEN"
+  }
+}
