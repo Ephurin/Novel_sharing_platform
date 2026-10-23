@@ -36,7 +36,10 @@ export async function entityReviewController(req: Request, res: Response, next: 
     await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
     const base = `/v1/story-brains/${novelId}/entity-reviews`;
     if (req.method === 'GET') {
-      res.json(successResponse(await aiGatewayService.forwardRequest({ method: 'GET', path: base,
+      const runId = req.params.runId;
+      if (runId && !/^[a-f0-9-]{36}$/i.test(String(runId))) throw new AppError(400, 'INVALID_RUN_ID', 'Invalid analysis run');
+      const path = runId ? `/v1/story-brains/${novelId}/entity-candidate-audits/${runId}` : base;
+      res.json(successResponse(await aiGatewayService.forwardRequest({ method: 'GET', path,
         userId: req.auth!.userId })));
       return;
     }
@@ -75,7 +78,7 @@ export async function reanalyseSavedChapterController(req: Request, res: Respons
       idempotencyKey: `author-reanalysis:${createHash('sha256')
         .update(JSON.stringify([req.auth!.userId, novelId, revision.revisionId, requestKey])).digest('hex')}`,
       body: { novel_id: novelId, chapter_id: revision.chapterId, content_hash: revision.contentHash,
-        operation: 'author_reanalysis', options: { extract_state_transitions: true } } });
+        operation: 'author_reanalysis', options: { extract_state_transitions: true, extract_world_rules: true } } });
     res.json(successResponse(data));
   } catch (error) { next(error); }
 }

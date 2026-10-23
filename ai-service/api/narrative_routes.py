@@ -697,7 +697,8 @@ def analyze_revision(
     service: RevisionAnalysisService = Depends(get_revision_analysis_service),
 ):
     try:
-        result = service.analyze(
+        from api.entity_hitl_routes import invoke
+        result = invoke(service.analyze,
             tenant_id=tenant_id,
             novel_id=payload.novel_id,
             chapter_id=payload.chapter_id,
@@ -717,7 +718,7 @@ def analyze_revision(
         "data": {
             "job_id": result.analysis_run.run_id,
             "analysis_run_id": result.analysis_run.run_id,
-            "status": "completed",
+            "status": result.status,
             "proposal_count": len(result.proposals),
             "deduplicated": result.deduplicated,
         },

@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.deps import require_service_token
 from api.routes import router, suggest_next
 from api.interactions import router as interaction_router
+from api.entity_hitl_routes import router as entity_hitl_router
 from api.narrative_routes import router as narrative_router, internal_router as internal_narrative_router
 from application.context_budget import ContextBudgetPacker
 from application.context_routing import ContextBudgetRouter
@@ -100,6 +101,7 @@ app.state.span_expander = SpanExpander()
 app.state.entity_pipeline = EntityPipeline(
     pipeline_version=settings.pipeline_version,
     prompt_version=settings.entity_prompt_version,
+    candidate_verification_enabled=settings.entity_candidate_verification_enabled,
 )
 
 try:
@@ -222,6 +224,7 @@ def health_check() -> dict[str, str]:
 
 app.include_router(router)
 app.include_router(interaction_router)
+app.include_router(entity_hitl_router)
 app.include_router(narrative_router)
 app.include_router(internal_narrative_router)
 app.add_api_route(
