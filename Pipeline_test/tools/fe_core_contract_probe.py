@@ -67,10 +67,15 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   row('09_API_chapter_account_isolation',switches)
   p.save('D1-durable-readback',{'HTTP':view(),'PG':db(),'local_conflict_buffer':local})
   p.stage='D2_single_active_baseline_checkpoint'
-  j=p.api('POST','/ai/story-brains/bootstrap/from-idea',{'novel_id':p.novel,'idea':'Mai Linh và Duy sống tại Cồn Vân.','mode':'extract'})
-  p.wait_job(j['job_id'],{'waiting_review'});p.approve();p.api('POST',p.brain+'/baseline/activate',{'job_id':j['job_id']})
+  p.api('POST',path+'/revisions/snapshot',{'purpose':'MANUSCRIPT_BOOTSTRAP'})
+  source=p.latest(cid)
+  j=p.api('POST','/ai/story-brains/bootstrap/from-manuscript',{'novel_id':p.novel,'revisions':[{'chapter_id':cid,'revision_id':source['revisionId'],'content_hash':source['contentHash']}]})
+  p.wait_job(j['job_id'],{'waiting_entity_review'});p.review(p.wait_review(source['revisionId']))
+  p.api('POST','/ai/jobs/'+j['job_id']+'/resume',{});p.wait_job(j['job_id'],{'waiting_review'})
+  p.approve();activated=p.api('POST',p.brain+'/baseline/activate',{'job_id':j['job_id']})
+  require(bool(activated['baseline_revision_id']),'Automatic snapshot requires a revision-anchored active baseline')
   initial_memory=p.read_memory();canon_body='Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.'
-  canonical=save(canon_body,view()['draft']['version']);rid=canonical['analysisRevisionId'];assert rid
+  canonical=save(canon_body,view()['draft']['version']);rid=canonical['analysisRevisionId'];require(bool(rid),'Anchored active baseline save did not produce automatic revision')
   revision=p.latest(cid);assert revision['revisionId']==rid
   persisted=db();events=[r for r in persisted['revision_outbox_events'] if r['revision_id']==rid]
   require(revision['contentHash']==hashlib.sha256(canon_body.encode()).hexdigest() and len(events)==1,'automatic revision/outbox mismatch')
