@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
 import { getMongoDatabase, disconnectMongo } from '../../core/database/mongo.js';
-import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
+import { TestFixtureLifecycle } from './test-fixture-lifecycle.js';
 import { disconnectChapterWriter } from './chapter-writer.js';
 import { acceptDraft } from './chapter-revisions.service.js';
 import { env } from '../../core/config/env.js';
@@ -29,6 +29,8 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
   const sentinelChapterId = crypto.randomUUID();
   const sentinelMongoChapterId = crypto.randomUUID();
 
+  const lifecycle = new TestFixtureLifecycle();
+
   // Mock global.fetch to intercept AI service calls during acceptDraft
   const originalFetch = global.fetch;
 
@@ -36,24 +38,34 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
     const mongoDb = getMongoDatabase();
 
     // STEP 1: Enforce fail-closed database isolation guard before ANY mutation
-    await validateTestDatabaseIsolation(pool, mongoDb);
+    await lifecycle.authorize(pool, mongoDb);
 
-    // STEP 2: Seed sentinel records to verify cleanup specificity
+    // STEP 2: Seed sentinel records to verify cleanup specificity (register then confirm)
+    lifecycle.registerSentinelUser(sentinelUserId);
     await pool.query(
       `INSERT INTO users (user_id, username, email, password_hash, role)
        VALUES ($1, $2, $3, 'dummy-hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
       [sentinelUserId, `sentinel_p1_${Date.now()}`, `sentinel_p1_${Date.now()}@ephurin.com`]
     );
+    lifecycle.confirmSentinelUser(sentinelUserId);
+
+    lifecycle.registerSentinelNovel(sentinelNovelId);
     await pool.query(
       `INSERT INTO novels (novel_id, author_id, title, slug, synopsis)
        VALUES ($1, $2, 'Sentinel Persistence Novel', $3, 'Sentinel Synopsis') ON CONFLICT DO NOTHING`,
       [sentinelNovelId, sentinelUserId, `sentinel-p1-slug-${Date.now()}`]
     );
+    lifecycle.confirmSentinelNovel(sentinelNovelId);
+
+    lifecycle.registerSentinelChapter(sentinelChapterId);
     await pool.query(
       `INSERT INTO chapters (chapter_id, novel_id, chapter_number, title, content, word_count)
        VALUES ($1, $2, 999, 'Sentinel Persistence Chapter', 'Sentinel Content', 2) ON CONFLICT DO NOTHING`,
       [sentinelChapterId, sentinelNovelId]
     );
+    lifecycle.confirmSentinelChapter(sentinelChapterId);
+
+    lifecycle.registerSentinelMongoDraft(sentinelMongoChapterId);
     await mongoDb.collection('draft_chapters').insertOne({
       chapterId: sentinelMongoChapterId,
       novelId: sentinelNovelId,
@@ -66,6 +78,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
       createdAt: new Date(),
       updatedAt: new Date()
     });
+    lifecycle.confirmSentinelMongoDraft(sentinelMongoChapterId);
 
     // STEP 3: Setup author and novel fixture in PostgreSQL
     const userRes = await pool.query(
@@ -75,6 +88,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
       [`author-pipe01a-${Date.now()}@ephurin.com`, `auth_${Date.now()}`]
     );
     userId = userRes.rows[0].user_id;
+    lifecycle.registerUser(userId);
 
     const novelRes = await pool.query(
       `insert into novels (author_id, title, slug, synopsis)
@@ -83,6 +97,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
       [userId, `novel-pipe01a-${Date.now()}`]
     );
     novelId = novelRes.rows[0].novel_id;
+    lifecycle.registerNovel(novelId);
 
     const chapRes = await pool.query(
       `insert into chapters (novel_id, chapter_number, title, content, word_count)
@@ -91,6 +106,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
       [novelId, baseContent]
     );
     chapterId = chapRes.rows[0].chapter_id;
+    lifecycle.registerChapter(chapterId);
 
     const revRes = await pool.query(
       `insert into chapter_revisions (novel_id, chapter_id, content_hash, content, word_count, source_type, created_by)
@@ -99,6 +115,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
       [novelId, chapterId, baseContentHash, baseContent, userId]
     );
     baseRevisionId = revRes.rows[0].revision_id;
+    lifecycle.registerRevision(baseRevisionId);
 
     await pool.query(
       'update chapters set latest_revision_id = $1 where chapter_id = $2',
@@ -160,108 +177,15 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
 
       return originalFetch(url, init);
     }) as any;
+
+    lifecycle.markTestsRunning();
   });
 
   after(async () => {
     global.fetch = originalFetch;
     try {
       const mongoDb = getMongoDatabase();
-
-      // 1. Delete derived revision outbox events
-      if (novelId || chapterId) {
-        await pool.query(
-          'DELETE FROM revision_outbox_events WHERE novel_id = $1 OR chapter_id = $2',
-          [novelId, chapterId]
-        );
-      }
-
-      // 2. Clear latest_revision_id FK pointer on chapter
-      if (chapterId) {
-        await pool.query(
-          'UPDATE chapters SET latest_revision_id = NULL WHERE chapter_id = $1',
-          [chapterId]
-        );
-      }
-
-      // 3. Delete all chapter revisions
-      if (novelId || chapterId) {
-        await pool.query(
-          'DELETE FROM chapter_revisions WHERE novel_id = $1 OR chapter_id = $2',
-          [novelId, chapterId]
-        );
-      }
-
-      // 4. Delete chapter
-      if (chapterId) {
-        await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [chapterId]);
-      }
-
-      // 5. Delete novel
-      if (novelId) {
-        await pool.query('DELETE FROM novels WHERE novel_id = $1', [novelId]);
-      }
-
-      // 6. Delete author user
-      if (userId) {
-        await pool.query('DELETE FROM users WHERE user_id = $1', [userId]);
-      }
-
-      // 7. Delete Mongo draft_chapters for chapterId
-      if (chapterId) {
-        await mongoDb.collection('draft_chapters').deleteMany({ chapterId });
-      }
-
-      // 8. Post-cleanup readbacks: verify 0 test-owned records remain
-      if (novelId || chapterId) {
-        const outboxCheck = await pool.query(
-          'SELECT count(*) FROM revision_outbox_events WHERE novel_id = $1 OR chapter_id = $2',
-          [novelId, chapterId]
-        );
-        assert.equal(Number(outboxCheck.rows[0].count), 0, 'Cleanup readback: revision_outbox_events row leftover');
-
-        const revCheck = await pool.query(
-          'SELECT count(*) FROM chapter_revisions WHERE novel_id = $1 OR chapter_id = $2',
-          [novelId, chapterId]
-        );
-        assert.equal(Number(revCheck.rows[0].count), 0, 'Cleanup readback: chapter_revisions row leftover');
-      }
-
-      if (chapterId) {
-        const chapCheck = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [chapterId]);
-        assert.equal(Number(chapCheck.rows[0].count), 0, 'Cleanup readback: chapters row leftover');
-
-        const mongoCheck = await mongoDb.collection('draft_chapters').countDocuments({ chapterId });
-        assert.equal(mongoCheck, 0, 'Cleanup readback: MongoDB draft_chapters document leftover');
-      }
-
-      if (novelId) {
-        const novelCheck = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [novelId]);
-        assert.equal(Number(novelCheck.rows[0].count), 0, 'Cleanup readback: novels row leftover');
-      }
-
-      if (userId) {
-        const userCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [userId]);
-        assert.equal(Number(userCheck.rows[0].count), 0, 'Cleanup readback: users row leftover');
-      }
-
-      // 9. Sentinel record survival check: verify non-destructive cleanup
-      const sentinelUserCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [sentinelUserId]);
-      assert.equal(Number(sentinelUserCheck.rows[0].count), 1, 'Sentinel user was unexpectedly deleted');
-
-      const sentinelNovelCheck = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [sentinelNovelId]);
-      assert.equal(Number(sentinelNovelCheck.rows[0].count), 1, 'Sentinel novel was unexpectedly deleted');
-
-      const sentinelChapCheck = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [sentinelChapterId]);
-      assert.equal(Number(sentinelChapCheck.rows[0].count), 1, 'Sentinel chapter was unexpectedly deleted');
-
-      const sentinelMongoCheck = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: sentinelMongoChapterId });
-      assert.equal(sentinelMongoCheck, 1, 'Sentinel MongoDB draft was unexpectedly deleted');
-
-      // 10. Clean up sentinel records
-      await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [sentinelChapterId]);
-      await pool.query('DELETE FROM novels WHERE novel_id = $1', [sentinelNovelId]);
-      await pool.query('DELETE FROM users WHERE user_id = $1', [sentinelUserId]);
-      await mongoDb.collection('draft_chapters').deleteMany({ chapterId: sentinelMongoChapterId });
+      await lifecycle.cleanup(pool, mongoDb);
     } finally {
       await disconnectPostgres();
       await disconnectMongo();

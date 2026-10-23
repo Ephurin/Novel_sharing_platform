@@ -207,6 +207,8 @@ jobs:
         run: npx tsx --test src/modules/novels/accept-draft-contract.test.ts
       - name: Run PostgreSQL production persistence integration suite
         run: npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
+      - name: Run Fixture lifecycle and teardown resilience integration suite
+        run: npx tsx --test --test-force-exit src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts
 
   root-compose-cutover-smoke:
     runs-on: ubuntu-latest

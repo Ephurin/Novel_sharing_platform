@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
 import { getMongoDatabase, disconnectMongo } from '../../core/database/mongo.js';
-import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
+import { TestFixtureLifecycle } from './test-fixture-lifecycle.js';
 import { disconnectChapterWriter } from './chapter-writer.js';
 import { acceptDraft } from './chapter-revisions.service.js';
 import { env } from '../../core/config/env.js';
@@ -24,6 +24,7 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
   const sentinelChapterId = crypto.randomUUID();
   const sentinelMongoChapterId = crypto.randomUUID();
 
+  const lifecycle = new TestFixtureLifecycle();
   let fetchCalls: Array<{ url: string; headers: Record<string, string> }> = [];
 
   before(async () => {
@@ -31,7 +32,7 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
     const mongoDb = getMongoDatabase();
 
     // STEP 1: Enforce fail-closed database isolation guard before ANY mutation
-    await validateTestDatabaseIsolation(pool, mongoDb);
+    await lifecycle.authorize(pool, mongoDb);
 
     // STEP 2: Schema verification tiering
     // Detect if running under Tier B (real Alembic schema) or Tier A (narrow contract fixture)
@@ -84,22 +85,32 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
       `);
     }
 
-    // STEP 3: Seed sentinel records in PostgreSQL and MongoDB
+    // STEP 3: Seed sentinel records in PostgreSQL and MongoDB (register then confirm)
+    lifecycle.registerSentinelUser(sentinelUserId);
     await pool.query(
       `INSERT INTO users (user_id, username, email, password_hash, role)
        VALUES ($1, $2, $3, 'hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
       [sentinelUserId, `sentinel_${Date.now()}`, `sentinel_${Date.now()}@example.com`]
     );
+    lifecycle.confirmSentinelUser(sentinelUserId);
+
+    lifecycle.registerSentinelNovel(sentinelNovelId);
     await pool.query(
       `INSERT INTO novels (novel_id, title, slug, synopsis, author_id, status)
        VALUES ($1, 'Sentinel Novel', $2, 'Sentinel Synopsis', $3, 'PUBLISHED') ON CONFLICT DO NOTHING`,
       [sentinelNovelId, `sentinel-slug-${Date.now()}`, sentinelUserId]
     );
+    lifecycle.confirmSentinelNovel(sentinelNovelId);
+
+    lifecycle.registerSentinelChapter(sentinelChapterId);
     await pool.query(
       `INSERT INTO chapters (chapter_id, novel_id, title, chapter_number, status)
        VALUES ($1, $2, 'Sentinel Chapter', 999, 'DRAFT') ON CONFLICT DO NOTHING`,
       [sentinelChapterId, sentinelNovelId]
     );
+    lifecycle.confirmSentinelChapter(sentinelChapterId);
+
+    lifecycle.registerSentinelMongoDraft(sentinelMongoChapterId);
     await mongoDb.collection('draft_chapters').insertOne({
       chapterId: sentinelMongoChapterId,
       novelId: sentinelNovelId,
@@ -112,32 +123,43 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
       createdAt: new Date(),
       updatedAt: new Date()
     });
+    lifecycle.confirmSentinelMongoDraft(sentinelMongoChapterId);
 
     // STEP 4: Seed test-owned fixture records
+    lifecycle.registerUser(authorId);
     await pool.query(
       `INSERT INTO users (user_id, username, email, password_hash, role)
        VALUES ($1, $2, $3, 'hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
       [authorId, `auth_${Date.now()}`, `auth_${Date.now()}@example.com`]
     );
+
+    lifecycle.registerNovel(novelId);
     await pool.query(
       `INSERT INTO novels (novel_id, title, slug, synopsis, author_id, status)
        VALUES ($1, 'Contract Novel', $2, 'Test Synopsis', $3, 'PUBLISHED') ON CONFLICT DO NOTHING`,
       [novelId, `slug-${Date.now()}`, authorId]
     );
+
+    lifecycle.registerChapter(chapterId);
     await pool.query(
       `INSERT INTO chapters (chapter_id, novel_id, title, chapter_number, status)
        VALUES ($1, $2, 'Chapter 1', 1, 'DRAFT') ON CONFLICT DO NOTHING`,
       [chapterId, novelId]
     );
+
+    lifecycle.registerRevision(baseRevisionId);
     await pool.query(
       `INSERT INTO chapter_revisions (revision_id, chapter_id, novel_id, content, content_hash, source_type)
        VALUES ($1, $2, $3, $4, $5, 'AUTHOR_MANUAL') ON CONFLICT DO NOTHING`,
       [baseRevisionId, chapterId, novelId, baseContent, baseContentHash]
     );
+
     await pool.query(
       `UPDATE chapters SET latest_revision_id = $1 WHERE chapter_id = $2`,
       [baseRevisionId, chapterId]
     );
+
+    lifecycle.markTestsRunning();
   });
 
   after(async () => {
@@ -145,102 +167,7 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
     try {
       const pool = getPostgresPool();
       const mongoDb = getMongoDatabase();
-
-      // 1. Delete derived revision outbox events
-      await pool.query(
-        'DELETE FROM revision_outbox_events WHERE novel_id = $1 OR chapter_id = $2',
-        [novelId, chapterId]
-      );
-
-      // 2. Clear latest_revision_id FK pointer on chapter
-      await pool.query(
-        'UPDATE chapters SET latest_revision_id = NULL WHERE chapter_id = $1',
-        [chapterId]
-      );
-
-      // 3. Delete all chapter revisions
-      await pool.query(
-        'DELETE FROM chapter_revisions WHERE novel_id = $1 OR chapter_id = $2',
-        [novelId, chapterId]
-      );
-
-      // 4. Delete chapter
-      await pool.query(
-        'DELETE FROM chapters WHERE chapter_id = $1',
-        [chapterId]
-      );
-
-      // 5. Delete novel
-      await pool.query(
-        'DELETE FROM novels WHERE novel_id = $1',
-        [novelId]
-      );
-
-      // 6. Delete author user
-      await pool.query(
-        'DELETE FROM users WHERE user_id = $1',
-        [authorId]
-      );
-
-      // 7. Delete Mongo draft_chapters for this chapter
-      await mongoDb.collection('draft_chapters').deleteMany({
-        chapterId: chapterId
-      });
-
-      // 8. Post-cleanup readbacks: verify 0 test-owned records remain
-      const outboxCheck = await pool.query(
-        'SELECT count(*) FROM revision_outbox_events WHERE novel_id = $1 OR chapter_id = $2',
-        [novelId, chapterId]
-      );
-      assert.equal(Number(outboxCheck.rows[0].count), 0, 'Cleanup readback: revision_outbox_events row leftover');
-
-      const revCheck = await pool.query(
-        'SELECT count(*) FROM chapter_revisions WHERE novel_id = $1 OR chapter_id = $2',
-        [novelId, chapterId]
-      );
-      assert.equal(Number(revCheck.rows[0].count), 0, 'Cleanup readback: chapter_revisions row leftover');
-
-      const chapCheck = await pool.query(
-        'SELECT count(*) FROM chapters WHERE chapter_id = $1',
-        [chapterId]
-      );
-      assert.equal(Number(chapCheck.rows[0].count), 0, 'Cleanup readback: chapters row leftover');
-
-      const novelCheck = await pool.query(
-        'SELECT count(*) FROM novels WHERE novel_id = $1',
-        [novelId]
-      );
-      assert.equal(Number(novelCheck.rows[0].count), 0, 'Cleanup readback: novels row leftover');
-
-      const userCheck = await pool.query(
-        'SELECT count(*) FROM users WHERE user_id = $1',
-        [authorId]
-      );
-      assert.equal(Number(userCheck.rows[0].count), 0, 'Cleanup readback: users row leftover');
-
-      const mongoCheck = await mongoDb.collection('draft_chapters').countDocuments({
-        chapterId: chapterId
-      });
-      assert.equal(mongoCheck, 0, 'Cleanup readback: MongoDB draft_chapters document leftover');
-
-      // 9. Sentinel record survival check: verify non-destructive cleanup
-      const sentinelUserCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [sentinelUserId]);
-      assert.equal(Number(sentinelUserCheck.rows[0].count), 1, 'Sentinel user was unexpectedly deleted');
-
-      const sentinelNovelCheck = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [sentinelNovelId]);
-      assert.equal(Number(sentinelNovelCheck.rows[0].count), 1, 'Sentinel novel was unexpectedly deleted');
-
-      const sentinelChapCheck = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [sentinelChapterId]);
-      assert.equal(Number(sentinelChapCheck.rows[0].count), 1, 'Sentinel chapter was unexpectedly deleted');
-
-      const sentinelMongoCheck = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: sentinelMongoChapterId });
-      assert.equal(sentinelMongoCheck, 1, 'Sentinel MongoDB draft was unexpectedly deleted');
-
-      // 10. Clean up sentinel records
-      await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [sentinelChapterId]);
-      await pool.query('DELETE FROM novels WHERE novel_id = $1', [sentinelNovelId]);
-      await pool.query('DELETE FROM users WHERE user_id = $1', [sentinelUserId]);
-      await mongoDb.collection('draft_chapters').deleteMany({ chapterId: sentinelMongoChapterId });
+      await lifecycle.cleanup(pool, mongoDb);
     } finally {
       await disconnectPostgres();
       await disconnectMongo();
