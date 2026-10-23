@@ -53,6 +53,11 @@ export async function getBootstrapJob(jobId: string) {
   return response.data.data;
 }
 
+export async function resumeBootstrapJob(jobId: string) {
+  const response = await apiClient.post<ApiEnvelope<BootstrapJob>>(`/ai/jobs/${jobId}/resume`);
+  return response.data.data;
+}
+
 export async function getReviewQueue(novelId: string) {
   const response = await apiClient.get<ApiEnvelope<ReviewProposal[]>>(`/ai/story-brains/${novelId}/review-queue`);
   return response.data.data;

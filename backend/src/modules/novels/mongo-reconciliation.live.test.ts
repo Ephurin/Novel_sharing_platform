@@ -1,6 +1,9 @@
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { connectMongo, disconnectMongo, getMongoDatabase } from '../../core/database/mongo.js';
+import { disconnectPostgres } from '../../core/database/postgres.js';
+import { disconnectChapterWriter } from './chapter-writer.js';
 import {
   syncDraftFromRevisionConditional,
   findDraftChapterByChapterId,
@@ -8,25 +11,27 @@ import {
 } from './draft-chapters.repository.js';
 
 describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
-  const testChapterId = `live-test-chap-${Date.now()}`;
-  const testNovelId = `live-test-novel-${Date.now()}`;
-  const testAuthorId = `live-test-author-${Date.now()}`;
+  const testChapterId = randomUUID();
+  const testNovelId = randomUUID();
+  const testAuthorId = randomUUID();
 
   before(async () => {
     await connectMongo();
     // Clean up any stale test doc
     const db = getMongoDatabase();
     await db.collection('draft_chapters').deleteMany({
-      chapterId: { $regex: '^live-test-chap-' },
+      chapterId: { $in: [testChapterId] },
     });
   });
 
   after(async () => {
     const db = getMongoDatabase();
     await db.collection('draft_chapters').deleteMany({
-      chapterId: { $regex: '^live-test-chap-' },
+      chapterId: { $in: [testChapterId] },
     });
     await disconnectMongo();
+    await disconnectPostgres();
+    await disconnectChapterWriter();
   });
 
   test('Targeted Probe 1: Older draft is cleanly updated by accepted revision', async () => {
@@ -101,7 +106,7 @@ describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
   });
 
   test('Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId', async () => {
-    const freshChapterId = `live-test-chap-nodraft-${Date.now()}`;
+    const freshChapterId = randomUUID();
     const syncNullRes = await syncDraftFromRevisionConditional({
       novelId: testNovelId,
       chapterId: freshChapterId,

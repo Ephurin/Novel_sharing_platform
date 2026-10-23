@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
 import { disconnectMongo } from '../../core/database/mongo.js';
+import { disconnectChapterWriter } from './chapter-writer.js';
 import { acceptDraft } from './chapter-revisions.service.js';
 import { env } from '../../core/config/env.js';
 
@@ -67,7 +68,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
     global.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
       const urlStr = String(url);
 
-      if (urlStr.includes(`/internal/v1/writing/generations/${testGenId}`)) {
+      if (urlStr.includes(`/internal/v1/writing/generations/${testGenId}`) || urlStr.includes(`/v1/writing-generations/${testGenId}`)) {
         return {
           ok: true,
           status: 200,
@@ -92,7 +93,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
         } as any;
       }
 
-      if (urlStr.includes(`/v1/story-brains/by-novel/${novelId}`)) {
+      if (urlStr.includes(`/v1/story-brains/by-novel/${novelId}`) || urlStr.includes(`/v1/story-brains/${novelId}`)) {
         return {
           ok: true,
           status: 200,
@@ -131,6 +132,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
 
     await disconnectPostgres();
     await disconnectMongo();
+    await disconnectChapterWriter();
     global.fetch = originalFetch;
   });
 

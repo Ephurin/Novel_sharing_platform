@@ -1,3 +1,4 @@
+import { requireActiveAccount } from '../../core/security/active-account.js';
 import { Router } from 'express';
 import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
 import {
@@ -9,6 +10,7 @@ import {
   getActiveStoryPlanController,
   getContextPreviewController,
   getJobStatusController,
+  resumeJobController,
   getReviewQueueController,
   getStoryBrainSummaryController,
   getStoryPlanController,
@@ -17,6 +19,15 @@ import {
   startManuscriptBootstrapController,
   startWritingGenerationController,
   updateStoryPlanObjectiveController,
+  getApprovedMemoryController,
+  authorOperationController,
+  eventCorrectionController,
+  extractionStatusController,
+  authorMemoryProposalController,
+  reanalyseSavedChapterController,
+  entityGuidanceController,
+  entityReviewController,
+  authorEntityController,
 } from './ai-gateway.controller.js';
 import {
   createAutonomousRunController,
@@ -29,8 +40,20 @@ import {
 
 export const aiGatewayRoutes = Router();
 
-// All AI operations require AUTHOR or ADMIN role
-aiGatewayRoutes.use(requireAuth, requireRoles(['AUTHOR', 'ADMIN']));
+// All AI operations require AUTHOR or ADMIN role with active account
+aiGatewayRoutes.use(requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN']));
+aiGatewayRoutes.get('/story-brains/:novelId/memory', getApprovedMemoryController);
+aiGatewayRoutes.get('/story-brains/:novelId/entity-guidance', entityGuidanceController);
+aiGatewayRoutes.post('/story-brains/:novelId/entity-guidance', entityGuidanceController);
+aiGatewayRoutes.post('/story-brains/:novelId/author-entities', authorEntityController);
+aiGatewayRoutes.get('/story-brains/:novelId/entity-reviews', entityReviewController);
+aiGatewayRoutes.post('/story-brains/:novelId/entity-reviews/:runId/review', entityReviewController);
+aiGatewayRoutes.post('/story-brains/:novelId/entity-reviews/:runId/continue', entityReviewController);
+aiGatewayRoutes.post('/story-brains/:novelId/author-proposals', authorMemoryProposalController);
+aiGatewayRoutes.post('/story-brains/:novelId/reanalyse', reanalyseSavedChapterController);
+aiGatewayRoutes.get('/story-brains/:novelId/extraction-status', extractionStatusController);
+aiGatewayRoutes.post('/story-brains/:novelId/author-operation', authorOperationController);
+aiGatewayRoutes.post('/story-brains/:novelId/events/:eventId/corrections', eventCorrectionController);
 
 // Story Brain / Context endpoints
 aiGatewayRoutes.get(
@@ -116,6 +139,11 @@ aiGatewayRoutes.patch(
 aiGatewayRoutes.get(
   '/jobs/:jobId',
   getJobStatusController
+);
+
+aiGatewayRoutes.post(
+  '/jobs/:jobId/resume',
+  resumeJobController
 );
 
 // Autonomous Loop Controller

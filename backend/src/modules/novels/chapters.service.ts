@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { assertActiveAccount } from '../../core/security/active-account.js';
 import { readNovel } from './novels.service.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
+import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { checkContent } from '../content-control/content-control.service.js';
@@ -21,6 +22,8 @@ import {
 } from './chapters.repository.js';
 import { findDraftChapterByChapterId, upsertDraftChapter } from './draft-chapters.repository.js';
 import { getNovel } from './novels.service.js';
+import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';
+import { snapshotSavedChapter } from './chapter-revisions.service.js';
 
 function countWords(content: string) {
   return content.trim().split(/\s+/).filter(Boolean).length;
@@ -33,6 +36,19 @@ function assertOwner(resource: { authorId: string }, auth: AuthContext) {
 
   if (resource.authorId !== auth.userId) {
     throw new AppError(403, 'CONTENT_005', 'Content ownership required');
+  }
+}
+
+async function assertDraftReader(auth?: AuthContext) {
+  if (!auth?.userId) throw new AppError(401, 'AUTH_002', 'Missing access token');
+  if (!['AUTHOR', 'ADMIN'].includes(auth.role)) {
+    throw new AppError(403, 'AUTH_008', 'Unauthorized action');
+  }
+  const result = await getPostgresPool().query('select role, status from users where user_id=$1 and deleted_at is null', [auth.userId]);
+  const user = result.rows[0];
+  if (!user) throw new AppError(401, 'AUTH_002', 'Missing or invalid account');
+  if (user.status !== 'ACTIVE' || user.role !== auth.role) {
+    throw new AppError(403, 'AUTH_008', 'Tài khoản hoặc quyền truy cập đã thay đổi. Vui lòng đăng nhập lại.');
   }
 }
 
@@ -49,6 +65,7 @@ function assertPremiumPricing(input: { isVip: boolean; priceCoins: number }) {
 export async function createChapter(auth: AuthContext, novelId: string, input: CreateChapterInput) {
   const novel = await getNovel(novelId);
   assertOwner(novel, auth);
+  await assertActiveAccount(auth);
   assertPremiumPricing({ isVip: input.isVip, priceCoins: input.priceCoins });
 
   const importHash = createHash('sha256').update(JSON.stringify([input.title, input.content, input.isVip, input.priceCoins])).digest('hex');
@@ -95,12 +112,15 @@ export async function createChapter(auth: AuthContext, novelId: string, input: C
 export async function listChapters(novelId: string, auth?: AuthContext) {
   const novel = await readNovel(novelId, auth);
   const rows = await listChaptersByNovelId(novelId);
-  if (auth && (auth.userId === novel.authorId || auth.role === 'ADMIN')) { const schedules = await listPublicationSchedules(novelId); return rows.map(chapter => ({ ...chapter, publicationSchedule: schedules.get(chapter.chapterId) ?? null })); }
+  if (auth && (auth.userId === novel.authorId || auth.role === 'ADMIN')) {
+    const schedules = await listPublicationSchedules(novelId);
+    return rows.map(chapter => ({ ...chapter, publicationSchedule: schedules.get(chapter.chapterId) ?? null }));
+  }
   return rows.filter(chapter => chapter.status === 'PUBLISHED').map(({ publicationSchedule: _schedule, ...chapter }) => ({ ...chapter, content: null }));
 }
 
 export async function getChapter(chapterId: string, auth: AuthContext) {
-  await assertActiveAccount(auth);
+  await assertDraftReader(auth);
   const chapter = await findChapterById(chapterId);
 
   if (!chapter) {
@@ -128,16 +148,28 @@ export async function getChapter(chapterId: string, auth: AuthContext) {
 }
 
 export async function updateChapter(auth: AuthContext, chapterId: string, input: UpdateChapterInput) {
-  return withPostgresTransaction(async client => {
-  await client.query('select chapter_id from chapters where chapter_id = $1 for update', [chapterId]);
   const chapter = await findChapterById(chapterId);
-
   if (!chapter) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
 
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
+  await assertActiveAccount(auth);
+
+  return withChapterWriter(chapterId, lease => updateChapterUnderLease(auth, chapterId, input, lease));
+}
+
+async function updateChapterUnderLease(auth: AuthContext, chapterId: string, input: UpdateChapterInput, lease: ChapterWriterLease) {
+  // Enforce version requirement on title/content updates (C04)
+  if ((input.title !== undefined || input.content !== undefined) && input.expectedVersion === undefined) {
+    throw new AppError(428, 'DRAFT_VERSION_REQUIRED', 'Đọc phiên bản bản nháp trước khi lưu');
+  }
+
+  const chapter = await findChapterById(chapterId);
+  if (!chapter) {
+    throw new AppError(404, 'CONTENT_001', 'Content not found');
+  }
 
   const isPublishedPricingOnlyUpdate =
     chapter.status === 'PUBLISHED' &&
@@ -150,6 +182,14 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
   }
 
   const existingDraft = await findDraftChapterByChapterId(chapterId);
+
+  // Stale retry with changed metadata check (C05)
+  if (existingDraft && input.expectedVersion !== undefined && input.expectedVersion < existingDraft.version &&
+      ((input.isVip !== undefined && input.isVip !== chapter.isVip) ||
+       (input.priceCoins !== undefined && input.priceCoins !== chapter.priceCoins))) {
+    throw new AppError(409, 'DRAFT_CONFLICT', 'Stale retry changes draft metadata; reload before retrying');
+  }
+
   const nextTitle = input.title ?? existingDraft?.title ?? chapter.title;
   const nextContent = input.content ?? existingDraft?.content ?? chapter.content ?? '';
   const wordCount = countWords(nextContent);
@@ -161,8 +201,8 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
     chapter.status === 'PUBLISHED' && (input.title !== undefined || input.content !== undefined) && !isPublishedPricingOnlyUpdate;
 
   let draft = existingDraft;
-  if ((input.title !== undefined || input.content !== undefined) && input.expectedVersion === undefined) throw new AppError(428, 'DRAFT_VERSION_REQUIRED', 'Đọc phiên bản bản nháp trước khi lưu');
 
+  // Compare-and-swap happens before PostgreSQL metadata/revision/outbox writes.
   if (input.title !== undefined || input.content !== undefined) {
     draft = await upsertDraftChapter({
       chapterId,
@@ -174,45 +214,65 @@ export async function updateChapter(auth: AuthContext, chapterId: string, input:
       autosave: input.autosave,
       expectedVersion: input.expectedVersion
     });
-    await client.query("update chapter_publication_schedules set status='CANCELLED', error='Bản thảo đã thay đổi; hãy đặt lịch lại.', updated_at=now() where chapter_id=$1 and status='PENDING'", [chapterId]);
-    if (isPublishedDraftUpdate) await touchChapterUpdatedAt(chapterId, client);
   }
 
-  let updatedChapter;
+  const updatedChapter = await withPostgresTransaction(async client => {
+    await client.query('select chapter_id from chapters where chapter_id = $1 for update', [chapterId]);
 
-  if (isPublishedDraftUpdate) {
-    updatedChapter =
-      input.isVip !== undefined || input.priceCoins !== undefined
-        ? await updateChapterPricing(chapterId, {
-            isVip: nextIsVip,
-            priceCoins: nextPriceCoins
-          }, client)
-        : chapter;
-  } else if (isPublishedPricingOnlyUpdate) {
-    updatedChapter = await updateChapterPricing(chapterId, {
-      isVip: nextIsVip,
-      priceCoins: nextPriceCoins
-    }, client);
-  } else {
-    updatedChapter = await updateChapterMetadata(chapterId, {
-      title: input.title,
-      wordCount,
-      isVip: nextIsVip,
-      priceCoins: nextPriceCoins
-    }, client);
-  }
+    if (input.title !== undefined || input.content !== undefined) {
+      await client.query("update chapter_publication_schedules set status='CANCELLED', error='Bản thảo đã thay đổi; hãy đặt lịch lại.', updated_at=now() where chapter_id=$1 and status='PENDING'", [chapterId]);
+      if (isPublishedDraftUpdate) await touchChapterUpdatedAt(chapterId, client);
+    }
 
-  if (!updatedChapter) {
-    throw new AppError(409, 'CONTENT_004', 'Invalid content state');
-  }
+    let updated;
+    if (isPublishedDraftUpdate) {
+      updated =
+        input.isVip !== undefined || input.priceCoins !== undefined
+          ? await updateChapterPricing(chapterId, {
+              isVip: nextIsVip,
+              priceCoins: nextPriceCoins
+            }, client)
+          : chapter;
+    } else if (isPublishedPricingOnlyUpdate) {
+      updated = await updateChapterPricing(chapterId, {
+        isVip: nextIsVip,
+        priceCoins: nextPriceCoins
+      }, client);
+    } else {
+      updated = await updateChapterMetadata(chapterId, {
+        title: input.title,
+        wordCount,
+        isVip: nextIsVip,
+        priceCoins: nextPriceCoins
+      }, client);
+    }
 
+    if (!updated) {
+      throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+    }
+    return updated;
+  });
+
+  const revision = input.content !== undefined
+    ? await snapshotSavedChapter(auth, chapterId, input.content, lease)
+    : null;
+
+  // Re-read authoritative draft under lease to return reconciled draft version (C08 fix)
+  const authoritativeDraft = await findDraftChapterByChapterId(chapterId);
 
   return {
     ...updatedChapter,
-    draft: draft ? { title: draft.title, content: draft.content, wordCount: draft.wordCount, version: draft.version, autosave: draft.autosave, updatedAt: draft.updatedAt } : null,
-    draftVersion: draft?.version ?? null
+    draft: authoritativeDraft ? {
+      title: authoritativeDraft.title,
+      content: authoritativeDraft.content,
+      wordCount: authoritativeDraft.wordCount,
+      version: authoritativeDraft.version,
+      autosave: authoritativeDraft.autosave,
+      updatedAt: authoritativeDraft.updatedAt
+    } : null,
+    analysisRevisionId: revision?.revisionId ?? null,
+    draftVersion: authoritativeDraft?.version ?? draft?.version ?? null
   };
-  });
 }
 
 export async function submitChapterPublish(auth: AuthContext, chapterId: string, client?: PoolClient): Promise<{ chapterId: string; status: string; moderationRequired: boolean; moderationReviewId: string | null }> {
