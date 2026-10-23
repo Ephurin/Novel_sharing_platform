@@ -5,7 +5,7 @@ import type { Pool } from 'pg';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
 import { getMongoDatabase, disconnectMongo } from '../../core/database/mongo.js';
 import { disconnectChapterWriter } from './chapter-writer.js';
-import { TestFixtureLifecycle } from './test-fixture-lifecycle.js';
+import { TestFixtureLifecycle, parseStrictRowCount } from './test-fixture-lifecycle.js';
 
 describe('F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience', () => {
   const pool = getPostgresPool();
@@ -942,32 +942,47 @@ describe('F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience',
     const unownedNovelId = crypto.randomUUID();
     const unownedChapterId = crypto.randomUUID();
     const unownedEventId = crypto.randomUUID();
+    const ownershipError = /ownership of BOTH parent novel and chapter is required/i;
 
-    // 1. Unowned novel and chapter registration must throw fail-closed error
-    assert.throws(
-      () => lifecycle.registerOutbox(unownedNovelId, unownedChapterId),
-      /outbox-only fixtures without an owned parent novel or chapter are unsupported/i
-    );
+    // 1. Neither parent owned -> fail closed
+    assert.throws(() => lifecycle.registerOutbox(unownedNovelId, unownedChapterId), ownershipError);
+    assert.throws(() => lifecycle.registerOutbox(unownedNovelId, unownedChapterId, unownedEventId), ownershipError);
+    // registerOutboxEvent signature is (eventId, novelId, chapterId) (G-01 argument-order correction)
+    assert.throws(() => lifecycle.registerOutboxEvent(unownedEventId, unownedNovelId, unownedChapterId), ownershipError);
 
-    // 2. Unowned event registration must also throw fail-closed error
-    assert.throws(
-      () => lifecycle.registerOutbox(unownedNovelId, unownedChapterId, unownedEventId),
-      /outbox-only fixtures without an owned parent novel or chapter are unsupported/i
-    );
-
-    // 3. registerOutboxEvent helper must also throw fail-closed error
-    assert.throws(
-      () => lifecycle.registerOutboxEvent(unownedNovelId, unownedChapterId, unownedEventId),
-      /outbox-only fixtures without an owned parent novel or chapter are unsupported/i
-    );
-
-    // 4. Confirm valid registration succeeds once parent novel or chapter is owned
+    // 2. G-01: Owning ONLY the novel is insufficient
     lifecycle.registerNovel(unownedNovelId);
-    assert.doesNotThrow(() => {
-      lifecycle.registerOutbox(unownedNovelId, unownedChapterId, unownedEventId);
-    });
+    assert.throws(() => lifecycle.registerOutbox(unownedNovelId, unownedChapterId, unownedEventId), ownershipError);
+    assert.throws(() => lifecycle.registerOutboxEvent(unownedEventId, unownedNovelId, unownedChapterId), ownershipError);
+
+    // 3. G-01: Owning ONLY the chapter is insufficient
+    const lifecycle2 = new TestFixtureLifecycle();
+    await lifecycle2.authorize(pool, mongoDb);
+    lifecycle2.registerChapter(unownedChapterId);
+    assert.throws(() => lifecycle2.registerOutbox(unownedNovelId, unownedChapterId, unownedEventId), ownershipError);
+
+    // Nothing may have been recorded by rejected registrations
+    assert.equal(lifecycle.pending.pgOutboxEvents.size, 0);
+    assert.equal(lifecycle.pending.pgOutbox.size, 0);
+    assert.equal(lifecycle2.pending.pgOutboxEvents.size, 0);
+
+    // 4. Valid registration succeeds once BOTH parents are owned
+    lifecycle.registerChapter(unownedChapterId);
+    assert.doesNotThrow(() => lifecycle.registerOutboxEvent(unownedEventId, unownedNovelId, unownedChapterId));
     assert.ok(lifecycle.pending.pgOutboxEvents.has(unownedEventId));
     assert.ok(lifecycle.pending.pgOutbox.has(`${unownedNovelId}:${unownedChapterId}`));
+
+    // 5. Re-registering the same eventId under a different pair fails closed
+    const otherChapterId = crypto.randomUUID();
+    lifecycle.registerChapter(otherChapterId);
+    assert.throws(
+      () => lifecycle.registerOutboxEvent(unownedEventId, unownedNovelId, otherChapterId),
+      /already registered under a different novel\/chapter pair/i
+    );
+
+    // No rows were inserted; cleanup of nonexistent owned IDs reads back clean
+    await lifecycle.cleanup(pool, mongoDb);
+    await lifecycle2.cleanup(pool, mongoDb);
   });
 
   test('Matrix 20: F-12 Persisted outbox fixture cleaned and independently verified with fail-closed readback', async () => {
@@ -1076,6 +1091,391 @@ describe('F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience',
     assert.equal(Number(cCheck.rows[0].count), 0, 'Chapter must be deleted');
     assert.equal(Number(nCheck.rows[0].count), 0, 'Novel must be deleted');
     assert.equal(Number(uCheck.rows[0].count), 0, 'User must be deleted');
+  });
+
+  // ---------------------------------------------------------------------------
+  // G-01 / G-02 helpers: a complete user -> novel -> chapter -> revision -> outbox chain
+  // ---------------------------------------------------------------------------
+  type Chain = { uId: string; nId: string; cId: string; rId: string; eId: string; hash: string };
+
+  function makeChain(tag: string): Chain {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    return {
+      uId: crypto.randomUUID(),
+      nId: crypto.randomUUID(),
+      cId: crypto.randomUUID(),
+      rId: crypto.randomUUID(),
+      eId: crypto.randomUUID(),
+      hash: `hash-${tag}-${suffix}`,
+    };
+  }
+
+  function registerChain(lc: TestFixtureLifecycle, c: Chain, withEvent = true): void {
+    lc.registerUser(c.uId);
+    lc.registerNovel(c.nId);
+    lc.registerChapter(c.cId);
+    lc.registerRevision(c.rId);
+    if (withEvent) lc.registerOutboxEvent(c.eId, c.nId, c.cId);
+  }
+
+  async function seedChain(c: Chain, tag: string): Promise<void> {
+    const suffix = `${tag}_${c.uId.slice(0, 8)}`;
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [c.uId, `g01_${suffix}`, `g01_${suffix}@ephurin.com`]
+    );
+    await pool.query(
+      `INSERT INTO novels (novel_id, title, slug, synopsis, author_id, status) VALUES ($1, $2, $3, 'Synopsis', $4, 'PUBLISHED')`,
+      [c.nId, `G01 Novel ${tag}`, `g01-${suffix}`.toLowerCase().replace(/_/g, '-'), c.uId]
+    );
+    await pool.query(
+      `INSERT INTO chapters (chapter_id, novel_id, title, chapter_number, status) VALUES ($1, $2, $3, 1, 'DRAFT')`,
+      [c.cId, c.nId, `G01 Chapter ${tag}`]
+    );
+    await pool.query(
+      `INSERT INTO chapter_revisions (revision_id, chapter_id, novel_id, content, content_hash, source_type)
+       VALUES ($1, $2, $3, 'G01 content', $4, 'AUTHOR_MANUAL')`,
+      [c.rId, c.cId, c.nId, c.hash]
+    );
+    await pool.query(
+      `INSERT INTO revision_outbox_events (event_id, event_type, novel_id, chapter_id, revision_id, content_hash, status)
+       VALUES ($1, 'INCREMENTAL_ANALYSIS', $2, $3, $4, $5, 'PENDING')`,
+      [c.eId, c.nId, c.cId, c.rId, c.hash]
+    );
+  }
+
+  async function countRows(table: string, column: string, id: string): Promise<number> {
+    const res = await pool.query(`SELECT count(*) FROM ${table} WHERE ${column} = $1`, [id]);
+    return Number(res.rows[0].count);
+  }
+
+  async function assertChainAbsent(c: Chain, label: string): Promise<void> {
+    assert.equal(await countRows('revision_outbox_events', 'event_id', c.eId), 0, `${label} outbox event must be absent`);
+    assert.equal(await countRows('chapter_revisions', 'revision_id', c.rId), 0, `${label} revision must be absent`);
+    assert.equal(await countRows('chapters', 'chapter_id', c.cId), 0, `${label} chapter must be absent`);
+    assert.equal(await countRows('novels', 'novel_id', c.nId), 0, `${label} novel must be absent`);
+    assert.equal(await countRows('users', 'user_id', c.uId), 0, `${label} user must be absent`);
+  }
+
+  test('Matrix 21: G-01 Foreign outbox event registered under owned pair survives; cleanup reports ownership mismatch', async () => {
+    // Fixture A: owned test fixture
+    const lifecycleA = new TestFixtureLifecycle();
+    await lifecycleA.authorize(pool, mongoDb);
+    const A = makeChain('A');
+    registerChain(lifecycleA, A);
+    await seedChain(A, 'A');
+
+    // Fixture B: unrelated persisted outbox event, owned by an independent lifecycle
+    const lifecycleB = new TestFixtureLifecycle();
+    await lifecycleB.authorize(pool, mongoDb);
+    const B = makeChain('B');
+    registerChain(lifecycleB, B);
+    await seedChain(B, 'B');
+
+    // Misconfiguration / attack: associate B's event ID with A's owned novel/chapter pair
+    lifecycleA.registerOutboxEvent(B.eId, A.nId, A.cId);
+
+    let errA: any = null;
+    try {
+      await lifecycleA.cleanup(pool, mongoDb);
+    } catch (err: any) {
+      errA = err;
+    }
+
+    // B's event must survive unchanged (authoritative readback)
+    const bRow = await pool.query(
+      'SELECT novel_id, chapter_id, revision_id, content_hash FROM revision_outbox_events WHERE event_id = $1',
+      [B.eId]
+    );
+    assert.equal(bRow.rows.length, 1, 'Foreign outbox event B must survive A cleanup');
+    assert.equal(bRow.rows[0].novel_id, B.nId);
+    assert.equal(bRow.rows[0].chapter_id, B.cId);
+    assert.equal(bRow.rows[0].revision_id, B.rId);
+    assert.equal(bRow.rows[0].content_hash, B.hash, 'Foreign outbox event hash must be unchanged');
+
+    // Incorrect cleanup is rejected and reported, never claimed CLEANED
+    assert.ok(errA, 'A cleanup must report the ownership mismatch');
+    assert.match(errA.message, /outbox ownership mismatch/i);
+    assert.match(errA.message, new RegExp(B.eId));
+    assert.equal(lifecycleA.stage, 'CLEANUP_FAILED');
+
+    // Legitimate A cleanup still works: every A record is absent
+    await assertChainAbsent(A, 'A');
+
+    // Retry of A stays fail-closed and still does not destroy B
+    let errA2: any = null;
+    try {
+      await lifecycleA.cleanup(pool, mongoDb);
+    } catch (err: any) {
+      errA2 = err;
+    }
+    assert.ok(errA2, 'Retry must keep reporting the ownership violation');
+    assert.match(errA2.message, /outbox ownership mismatch/i);
+    assert.equal(lifecycleA.stage, 'CLEANUP_FAILED');
+    assert.equal(await countRows('revision_outbox_events', 'event_id', B.eId), 1, 'B must survive A retry');
+
+    // Independent cleanup of B remains possible
+    const resB = await lifecycleB.cleanup(pool, mongoDb);
+    assert.equal(resB.cleaned, true);
+    assert.equal(lifecycleB.stage, 'CLEANED');
+    await assertChainAbsent(B, 'B');
+  });
+
+  test('Matrix 22: G-01 Owned novel/chapter pair that is not a real parent relationship fails closed', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+    const A = makeChain('P1');
+    const X = makeChain('P2');
+    registerChain(lifecycle, A, false);
+    registerChain(lifecycle, X, false);
+    await seedChain(A, 'P1');
+    await seedChain(X, 'P2');
+
+    // Both parents owned, but chapter A.cId belongs to novel A.nId, not X.nId
+    lifecycle.registerOutbox(X.nId, A.cId);
+
+    let err: any = null;
+    try {
+      await lifecycle.cleanup(pool, mongoDb);
+    } catch (e: any) {
+      err = e;
+    }
+    assert.ok(err, 'Cleanup must report the invalid pair relationship');
+    assert.match(err.message, /relationship mismatch/i);
+    assert.match(err.message, new RegExp(A.cId));
+    assert.equal(lifecycle.stage, 'CLEANUP_FAILED');
+
+    // Owned records are still fully cleaned via owned-parent paths
+    await assertChainAbsent(A, 'P1');
+    await assertChainAbsent(X, 'P2');
+  });
+
+  test('Matrix 23: G-01 Exact event DELETE is scoped by event_id + novel_id + chapter_id; failure retries to CLEANED', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+    const A = makeChain('S');
+    registerChain(lifecycle, A);
+    await seedChain(A, 'S');
+
+    const issued: Array<{ text: string; params?: any[] }> = [];
+    let failExact = true;
+    const spyPool = {
+      query: async (text: string, params?: any[]) => {
+        issued.push({ text, params });
+        if (/DELETE FROM revision_outbox_events WHERE event_id = \$1/.test(text) && failExact) {
+          failExact = false;
+          throw new Error('Injected transient failure on exact outbox delete');
+        }
+        // Keep parents (and therefore the cascade target) alive for this first pass
+        if (/DELETE FROM revision_outbox_events WHERE (novel_id|chapter_id)/.test(text) ||
+            /DELETE FROM (chapter_revisions|chapters|novels|users)/.test(text)) {
+          return { rowCount: 0, rows: [] };
+        }
+        return pool.query(text, params);
+      },
+    } as unknown as Pool;
+
+    let err: any = null;
+    try {
+      await lifecycle.cleanup(spyPool, mongoDb);
+    } catch (e: any) {
+      err = e;
+    }
+    assert.ok(err, 'First pass must fail');
+    assert.equal(lifecycle.stage, 'CLEANUP_FAILED');
+    assert.ok(lifecycle.pending.pgOutboxEvents.has(A.eId), 'Exact event must remain pending');
+    assert.equal(await countRows('revision_outbox_events', 'event_id', A.eId), 1, 'Event row still present after failed pass');
+
+    // Every exact-ID DELETE must be scoped by all three identities
+    const exactDeletes = issued.filter((q) => /DELETE FROM revision_outbox_events WHERE event_id/.test(q.text));
+    assert.ok(exactDeletes.length >= 1, 'Exact-ID DELETE must have been attempted');
+    for (const q of exactDeletes) {
+      assert.match(q.text, /event_id = \$1 AND novel_id = \$2 AND chapter_id = \$3/, 'Exact DELETE must be triple-scoped');
+      assert.deepEqual(q.params, [A.eId, A.nId, A.cId]);
+    }
+
+    // Retry with the real pool: full recovery and authoritative zero readback
+    const res = await lifecycle.cleanup(pool, mongoDb);
+    assert.equal(res.cleaned, true);
+    assert.equal(lifecycle.stage, 'CLEANED');
+    await assertChainAbsent(A, 'S');
+  });
+
+  test('Matrix 24: G-02 Non-decimal / coercible count mutants fail closed on fixture and sentinel readbacks, then recover', async () => {
+    const mutants: Array<{ label: string; result: any }> = [
+      { label: 'empty string', result: { rows: [{ count: '' }] } },
+      { label: 'whitespace string', result: { rows: [{ count: '   ' }] } },
+      { label: 'padded decimal', result: { rows: [{ count: ' 0 ' }] } },
+      { label: 'exponent', result: { rows: [{ count: '0e0' }] } },
+      { label: 'hex', result: { rows: [{ count: '0x0' }] } },
+      { label: 'binary', result: { rows: [{ count: '0b0' }] } },
+      { label: 'signed plus', result: { rows: [{ count: '+0' }] } },
+      { label: 'negative zero string', result: { rows: [{ count: '-0' }] } },
+      { label: 'fractional string', result: { rows: [{ count: '0.0' }] } },
+      { label: 'boolean false', result: { rows: [{ count: false }] } },
+      { label: 'array', result: { rows: [{ count: [] }] } },
+      { label: 'fractional number', result: { rows: [{ count: 0.5 }] } },
+      { label: 'negative number', result: { rows: [{ count: -1 }] } },
+      { label: 'NaN', result: { rows: [{ count: NaN }] } },
+      { label: 'Infinity', result: { rows: [{ count: Infinity }] } },
+      { label: 'unsafe number', result: { rows: [{ count: 9007199254740992 }] } },
+      { label: 'unsafe decimal string', result: { rows: [{ count: '9007199254740993' }] } },
+      { label: 'missing count', result: { rows: [{}] } },
+      { label: 'null count', result: { rows: [{ count: null }] } },
+      { label: 'empty rows', result: { rows: [] } },
+      { label: 'multiple rows', result: { rows: [{ count: '0' }, { count: '0' }] } },
+    ];
+
+    const accepted: string[] = [];
+
+    // Fixture readback path (Step 8, users)
+    for (const m of mutants) {
+      const lifecycle = new TestFixtureLifecycle();
+      await lifecycle.authorize(pool, mongoDb);
+      const uId = crypto.randomUUID();
+      lifecycle.registerUser(uId);
+      await pool.query(
+        `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+        [uId, `g02_${uId.slice(0, 8)}`, `g02_${uId.slice(0, 8)}@ephurin.com`]
+      );
+      const mutantPool = {
+        query: async (text: string, params?: any[]) => {
+          if (text.includes('SELECT count(*) FROM users WHERE user_id = $1') && params?.[0] === uId) {
+            return m.result;
+          }
+          return pool.query(text, params);
+        },
+      } as unknown as Pool;
+
+      let err: any = null;
+      try {
+        await lifecycle.cleanup(mutantPool, mongoDb);
+      } catch (e: any) {
+        err = e;
+      }
+      if (!err || lifecycle.stage !== 'CLEANUP_FAILED' || !/Malformed PostgreSQL readback for user/.test(err.message) || !lifecycle.pending.pgUsers.has(uId)) {
+        accepted.push(`fixture:${m.label}`);
+      }
+      // Recovery with the genuine pool
+      if (lifecycle.stage !== 'CLEANED') {
+        const rec = await lifecycle.cleanup(pool, mongoDb);
+        assert.equal(rec.cleaned, true, `fixture recovery after ${m.label}`);
+      }
+      assert.equal(await countRows('users', 'user_id', uId), 0, `fixture user absent after ${m.label}`);
+    }
+
+    // Sentinel paths: Step 9 preservation readback and Step 11 post-teardown readback
+    for (const phase of ['preservation', 'teardown'] as const) {
+      for (const m of mutants) {
+        const lifecycle = new TestFixtureLifecycle();
+        await lifecycle.authorize(pool, mongoDb);
+        const sId = crypto.randomUUID();
+        lifecycle.registerSentinelUser(sId);
+        await pool.query(
+          `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+          [sId, `g02s_${sId.slice(0, 8)}`, `g02s_${sId.slice(0, 8)}@ephurin.com`]
+        );
+        lifecycle.confirmSentinelUser(sId);
+        // For preservation, mutate the expected-1 value into coercible forms of 1
+        const result = phase === 'preservation'
+          ? JSON.parse(JSON.stringify(m.result).replace(/"0/g, '"1').replace(/"count":false/, '"count":true'))
+          : m.result;
+        let sentinelCalls = 0;
+        const mutantPool = {
+          query: async (text: string, params?: any[]) => {
+            if (text.includes('SELECT count(*) FROM users WHERE user_id = $1') && params?.[0] === sId) {
+              sentinelCalls++;
+              const target = phase === 'preservation' ? 1 : 2;
+              if (sentinelCalls === target) return result;
+            }
+            return pool.query(text, params);
+          },
+        } as unknown as Pool;
+
+        let err: any = null;
+        try {
+          await lifecycle.cleanup(mutantPool, mongoDb);
+        } catch (e: any) {
+          err = e;
+        }
+        if (!err || lifecycle.stage !== 'CLEANUP_FAILED' || !/Malformed PostgreSQL readback for sentinel user/.test(err.message)) {
+          accepted.push(`sentinel-${phase}:${m.label}`);
+        }
+        if (lifecycle.stage !== 'CLEANED') {
+          const rec = await lifecycle.cleanup(pool, mongoDb);
+          assert.equal(rec.cleaned, true, `sentinel ${phase} recovery after ${m.label}`);
+        }
+        assert.equal(await countRows('users', 'user_id', sId), 0, `sentinel absent after ${phase} ${m.label}`);
+      }
+    }
+
+    assert.deepEqual(accepted, [], `Malformed count mutants were silently accepted: ${accepted.join(', ')}`);
+  });
+
+  test('Matrix 25: G-02 parseStrictRowCount accepts only safe non-negative integers / canonical decimal strings', () => {
+    // Valid PostgreSQL count(*) results (pg returns bigint count as a decimal string)
+    const valid: Array<[any, number]> = [
+      [{ rows: [{ count: '0' }] }, 0],
+      [{ rows: [{ count: '1' }] }, 1],
+      [{ rows: [{ count: '42' }] }, 42],
+      [{ rows: [{ count: '9007199254740991' }] }, Number.MAX_SAFE_INTEGER],
+      [{ rows: [{ count: 0 }] }, 0],
+      [{ rows: [{ count: 7 }] }, 7],
+    ];
+    for (const [input, expected] of valid) {
+      assert.equal(parseStrictRowCount(input, 'entity', 'id'), expected, `valid ${JSON.stringify(input)}`);
+    }
+
+    const invalid: Array<[string, any]> = [
+      ['undefined result', undefined],
+      ['null result', null],
+      ['missing rows', {}],
+      ['rows not array', { rows: 'x' }],
+      ['empty rows', { rows: [] }],
+      ['multiple rows', { rows: [{ count: '0' }, { count: '0' }] }],
+      ['null row', { rows: [null] }],
+      ['array row', { rows: [['0']] }],
+      ['missing count', { rows: [{ total: '0' }] }],
+      ['inherited count', { rows: [Object.create({ count: '0' })] }],
+      ['null count', { rows: [{ count: null }] }],
+      ['undefined count', { rows: [{ count: undefined }] }],
+      ['empty string', { rows: [{ count: '' }] }],
+      ['whitespace', { rows: [{ count: '   ' }] }],
+      ['tab/newline', { rows: [{ count: '\t\n' }] }],
+      ['leading space', { rows: [{ count: ' 1' }] }],
+      ['trailing space', { rows: [{ count: '1 ' }] }],
+      ['leading zero', { rows: [{ count: '01' }] }],
+      ['exponent', { rows: [{ count: '1e3' }] }],
+      ['hex', { rows: [{ count: '0x10' }] }],
+      ['binary', { rows: [{ count: '0b1' }] }],
+      ['octal', { rows: [{ count: '0o7' }] }],
+      ['plus sign', { rows: [{ count: '+1' }] }],
+      ['minus sign', { rows: [{ count: '-1' }] }],
+      ['negative zero string', { rows: [{ count: '-0' }] }],
+      ['fractional string', { rows: [{ count: '1.0' }] }],
+      ['Infinity string', { rows: [{ count: 'Infinity' }] }],
+      ['NaN string', { rows: [{ count: 'NaN' }] }],
+      ['unsafe string 2^53', { rows: [{ count: '9007199254740992' }] }],
+      ['unsafe string 2^53+1', { rows: [{ count: '9007199254740993' }] }],
+      ['boolean true', { rows: [{ count: true }] }],
+      ['boolean false', { rows: [{ count: false }] }],
+      ['object', { rows: [{ count: {} }] }],
+      ['array', { rows: [{ count: [] }] }],
+      ['NaN', { rows: [{ count: NaN }] }],
+      ['Infinity', { rows: [{ count: Infinity }] }],
+      ['-Infinity', { rows: [{ count: -Infinity }] }],
+      ['fractional', { rows: [{ count: 1.5 }] }],
+      ['negative', { rows: [{ count: -1 }] }],
+      ['negative zero', { rows: [{ count: -0 }] }],
+      ['unsafe number', { rows: [{ count: 2 ** 53 }] }],
+    ];
+    for (const [label, input] of invalid) {
+      assert.throws(
+        () => parseStrictRowCount(input, 'entity', 'id-123'),
+        /Malformed PostgreSQL readback for entity id-123/,
+        `invalid input must be rejected: ${label}`
+      );
+    }
   });
 });
 

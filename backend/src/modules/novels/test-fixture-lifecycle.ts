@@ -47,32 +47,61 @@ export interface CleanupResult {
 }
 
 /**
- * Strict count parser for PostgreSQL SELECT count(*) readbacks (F-11).
- * Rejects:
- * - query result not having rows array
- * - rows.length !== 1 (must be exactly 1 row)
- * - row without 'count' property
- * - count is null or undefined
- * - count is not a valid integer or < 0
- * - NaN, Infinity
+ * Strict count parser for PostgreSQL SELECT count(*) readbacks (F-11, G-02).
+ * Accepts ONLY:
+ * - a non-negative safe integer number, or
+ * - a canonical non-negative decimal string (the `pg` driver returns bigint count(*) as a decimal string)
+ *   whose value is within Number.MAX_SAFE_INTEGER.
+ * Rejects (fail closed, never coerces):
+ * - query result without a rows array, or rows.length !== 1
+ * - row without an own 'count' property, null or undefined count
+ * - empty / whitespace / padded strings, exponent, hex, binary, octal, signed or fractional strings
+ * - booleans, arrays, objects and any other non-number/non-string type
+ * - NaN, Infinity, negative, negative zero, fractional and unsafe integers
  */
-function parseStrictRowCount(queryResult: any, entityName: string, entityId: string): number {
-  if (!queryResult || typeof queryResult !== 'object' || !Array.isArray(queryResult.rows)) {
-    throw new Error(`Malformed PostgreSQL readback for ${entityName} ${entityId}: query result missing rows array`);
+const CANONICAL_DECIMAL_COUNT = /^(?:0|[1-9][0-9]*)$/;
+
+export function parseStrictRowCount(queryResult: unknown, entityName: string, entityId: string): number {
+  const fail = (reason: string) =>
+    new Error(`Malformed PostgreSQL readback for ${entityName} ${entityId}: ${reason}`);
+
+  if (!queryResult || typeof queryResult !== 'object' || !Array.isArray((queryResult as any).rows)) {
+    throw fail('query result missing rows array');
   }
-  if (queryResult.rows.length !== 1) {
-    throw new Error(`Malformed PostgreSQL readback for ${entityName} ${entityId}: expected exactly 1 row, received ${queryResult.rows.length}`);
+  const rows: unknown[] = (queryResult as any).rows;
+  if (rows.length !== 1) {
+    throw fail(`expected exactly 1 row, received ${rows.length}`);
   }
-  const row = queryResult.rows[0];
-  if (!row || typeof row !== 'object' || !('count' in row) || row.count === null || row.count === undefined) {
-    throw new Error(`Malformed PostgreSQL readback for ${entityName} ${entityId}: count column missing or null in result row`);
+  const row = rows[0] as any;
+  if (
+    !row ||
+    typeof row !== 'object' ||
+    Array.isArray(row) ||
+    !Object.prototype.hasOwnProperty.call(row, 'count') ||
+    row.count === null ||
+    row.count === undefined
+  ) {
+    throw fail('count column missing or null in result row');
   }
-  const rawCount = row.count;
-  const parsed = typeof rawCount === 'number' ? rawCount : Number(rawCount);
-  if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed < 0) {
-    throw new Error(`Malformed PostgreSQL readback for ${entityName} ${entityId}: invalid count value (${String(rawCount)})`);
+
+  const rawCount: unknown = row.count;
+  if (typeof rawCount === 'number') {
+    if (!Number.isSafeInteger(rawCount) || rawCount < 0 || Object.is(rawCount, -0)) {
+      throw fail(`invalid numeric count (${String(rawCount)})`);
+    }
+    return rawCount;
   }
-  return parsed;
+  if (typeof rawCount === 'string') {
+    if (!CANONICAL_DECIMAL_COUNT.test(rawCount)) {
+      throw fail(`count is not a canonical non-negative decimal string (${JSON.stringify(rawCount)})`);
+    }
+    const parsed = Number(rawCount);
+    if (!Number.isSafeInteger(parsed)) {
+      throw fail(`count exceeds safe integer range (${rawCount})`);
+    }
+    return parsed;
+  }
+  throw fail(`unsupported count type ${Array.isArray(rawCount) ? 'array' : typeof rawCount}`);
 }
 
 /**
@@ -85,8 +114,10 @@ function parseStrictRowCount(queryResult: any, entityName: string, entityId: str
  * 5. Structured aggregation of cleanup and readback failures via AggregateError.
  * 6. Preserved Mongo cleanup targets across PG chapter teardown (F-09).
  * 7. Three-registry separation with authoritative durable readback (F-10).
- * 8. Strict fail-closed parsing of PostgreSQL count readbacks (F-11).
+ * 8. Strict fail-closed parsing of PostgreSQL count readbacks (F-11, G-02).
  * 9. Fail-closed outbox ownership and independent outbox readback verification (F-12).
+ * 10. Outbox ownership isolation: both parents owned, event bound to its pair, correlated before
+ *     a triple-scoped DELETE, and sticky ownership violations that never report CLEANED (G-01).
  */
 function createEmptyIdentityTracker(): FixtureIdentityTracker {
   return {
@@ -140,6 +171,19 @@ export class TestFixtureLifecycle {
   public get tracked(): FixtureIdentityTracker {
     return this.pending;
   }
+
+  /**
+   * G-01: Immutable binding of each registered exact outbox event ID to the novel/chapter pair it was
+   * registered under. The exact-ID DELETE and readback are always scoped by this pair.
+   */
+  private readonly outboxEventScopes = new Map<string, { novelId: string; chapterId: string }>();
+
+  /**
+   * G-01: Sticky ownership violations detected during cleanup (foreign event IDs, invalid pairs).
+   * Once recorded, the offending identity is never mutated and every subsequent cleanup reports the
+   * violation, so the lifecycle can never claim CLEANED.
+   */
+  public readonly ownershipViolations = new Map<string, string>();
 
   /**
    * Enforces the fail-closed mutation guard.
@@ -251,22 +295,38 @@ export class TestFixtureLifecycle {
   }
 
   /**
-   * Registers outbox events scoped to novel and chapter, optionally with exact eventId (F-12).
-   * Enforces fail-closed ownership: outbox-only fixtures without an owned novel or chapter are unsupported.
+   * Registers outbox events scoped to a novel/chapter pair, optionally with an exact eventId (F-12, G-01).
+   * Fail-closed ownership contract:
+   * - BOTH the parent novel and the parent chapter must already be owned by this lifecycle.
+   * - An exact eventId is bound to exactly one pair; re-binding it to a different pair is rejected.
+   * - The pair relationship and the event's real parents are verified against PostgreSQL at cleanup.
    */
   public registerOutbox(novelId: string, chapterId: string, eventId?: string): void {
     this.assertAuthorized('registerOutbox');
-    // F-12: Enforce established ownership. Outbox-only fixtures without owned parent novel or chapter fail closed.
-    if (!this.owned.pgNovels.has(novelId) && !this.owned.pgChapters.has(chapterId)) {
+    const ownsNovel = this.owned.pgNovels.has(novelId);
+    const ownsChapter = this.owned.pgChapters.has(chapterId);
+    if (!ownsNovel || !ownsChapter) {
       throw new Error(
-        `Cannot register outbox: outbox-only fixtures without an owned parent novel or chapter are unsupported. Neither novel ${novelId} nor chapter ${chapterId} belongs to this lifecycle's owned fixtures.`
+        `Cannot register outbox: ownership of BOTH parent novel and chapter is required ` +
+          `(novel ${novelId} owned=${ownsNovel}, chapter ${chapterId} owned=${ownsChapter}). ` +
+          `Outbox-only or partially owned outbox fixtures are unsupported.`
       );
+    }
+    if (eventId) {
+      const existing = this.outboxEventScopes.get(eventId);
+      if (existing && (existing.novelId !== novelId || existing.chapterId !== chapterId)) {
+        throw new Error(
+          `Cannot register outbox event ${eventId}: already registered under a different novel/chapter pair ` +
+            `(${existing.novelId}:${existing.chapterId}), refusing re-binding to ${novelId}:${chapterId}.`
+        );
+      }
     }
     const key = `${novelId}:${chapterId}`;
     this.owned.pgOutbox.add(key);
     this.pending.pgOutbox.add(key);
     this.verification.pgOutbox.add(key);
     if (eventId) {
+      this.outboxEventScopes.set(eventId, { novelId, chapterId });
       this.owned.pgOutboxEvents.add(eventId);
       this.pending.pgOutboxEvents.add(eventId);
       this.verification.pgOutboxEvents.add(eventId);
@@ -275,7 +335,8 @@ export class TestFixtureLifecycle {
   }
 
   /**
-   * Convenience registration for an exact outbox event ID (F-12).
+   * Convenience registration for an exact outbox event ID (F-12, G-01).
+   * Argument order: (eventId, novelId, chapterId).
    */
   public registerOutboxEvent(eventId: string, novelId: string, chapterId: string): void {
     this.registerOutbox(novelId, chapterId, eventId);
@@ -344,29 +405,96 @@ export class TestFixtureLifecycle {
     const errors: Error[] = [];
     let mutationsAttempted = 0;
 
-    // STEP 1: Delete derived revision outbox events with established ownership (F-12, P2-B per-ID)
-    // 1a. Delete by exact test-owned event ID if registered
+    // G-01: Previously recorded ownership violations are sticky and re-reported on every cleanup.
+    for (const message of this.ownershipViolations.values()) {
+      errors.push(new Error(message));
+    }
+
+    // STEP 1: Delete derived revision outbox events with established ownership (F-12, G-01, P2-B per-ID)
+    // 1a. Exact test-owned event IDs: correlate the persisted row with the registered pair, then DELETE
+    //     scoped by event_id + novel_id + chapter_id. A foreign/mismatched event is never mutated.
     for (const eventId of Array.from(this.pending.pgOutboxEvents)) {
+      const violationKey = `event:${eventId}`;
+      if (this.ownershipViolations.has(violationKey)) {
+        this.pending.pgOutboxEvents.delete(eventId);
+        continue;
+      }
+      const scope = this.outboxEventScopes.get(eventId);
       try {
+        if (!scope) {
+          throw new Error(`no registered novel/chapter scope for outbox event ${eventId}`);
+        }
+        const found = await pool.query(
+          'SELECT novel_id, chapter_id FROM revision_outbox_events WHERE event_id = $1',
+          [eventId]
+        );
+        if (!found || !Array.isArray(found.rows)) {
+          throw new Error(`malformed ownership correlation result for outbox event ${eventId}`);
+        }
+        if (found.rows.length === 0) {
+          // Already absent (e.g. FK cascade or prior run); Step 8 still verifies authoritatively.
+          this.pending.pgOutboxEvents.delete(eventId);
+          continue;
+        }
+        const actual = found.rows[0];
+        if (found.rows.length !== 1 || actual.novel_id !== scope.novelId || actual.chapter_id !== scope.chapterId) {
+          const message =
+            `Outbox ownership mismatch: event ${eventId} belongs to novel ${actual?.novel_id} / chapter ${actual?.chapter_id}, ` +
+            `not registered pair ${scope.novelId}:${scope.chapterId}; refusing to delete a foreign outbox event`;
+          this.ownershipViolations.set(violationKey, message);
+          this.pending.pgOutboxEvents.delete(eventId);
+          errors.push(new Error(message));
+          continue;
+        }
         mutationsAttempted++;
-        await pool.query('DELETE FROM revision_outbox_events WHERE event_id = $1', [eventId]);
+        await pool.query(
+          'DELETE FROM revision_outbox_events WHERE event_id = $1 AND novel_id = $2 AND chapter_id = $3',
+          [eventId, scope.novelId, scope.chapterId]
+        );
         this.pending.pgOutboxEvents.delete(eventId);
       } catch (err: any) {
         errors.push(new Error(`Failed to delete revision_outbox_events for event ${eventId}: ${err?.message || String(err)}`));
       }
     }
-    // 1b. Delete by registered scoped novelId:chapterId pair
+    // 1b. Registered novel/chapter pairs: both IDs are owned (registration contract); additionally verify
+    //     the chapter really belongs to the registered novel before the pair-scoped DELETE.
     for (const key of Array.from(this.pending.pgOutbox)) {
+      const violationKey = `pair:${key}`;
+      if (this.ownershipViolations.has(violationKey)) {
+        this.pending.pgOutbox.delete(key);
+        continue;
+      }
       try {
-        mutationsAttempted++;
         const [novelId, chapterId] = key.split(':');
+        const rel = await pool.query('SELECT novel_id FROM chapters WHERE chapter_id = $1', [chapterId]);
+        if (!rel || !Array.isArray(rel.rows)) {
+          throw new Error(`malformed relationship result for chapter ${chapterId}`);
+        }
+        if (rel.rows.length === 0) {
+          // Chapter absent: FK guarantees no outbox rows can reference it. Step 8 still verifies.
+          this.pending.pgOutbox.delete(key);
+          continue;
+        }
+        if (rel.rows[0].novel_id !== novelId) {
+          const message =
+            `Outbox pair relationship mismatch: chapter ${chapterId} belongs to novel ${rel.rows[0].novel_id}, ` +
+            `not registered novel ${novelId}; refusing pair-scoped outbox delete`;
+          this.ownershipViolations.set(violationKey, message);
+          this.pending.pgOutbox.delete(key);
+          errors.push(new Error(message));
+          continue;
+        }
+        mutationsAttempted++;
         await pool.query('DELETE FROM revision_outbox_events WHERE novel_id = $1 AND chapter_id = $2', [novelId, chapterId]);
         this.pending.pgOutbox.delete(key);
       } catch (err: any) {
         errors.push(new Error(`Failed to delete revision_outbox_events for pair ${key}: ${err?.message || String(err)}`));
       }
     }
-    // 1c. Delete per owned novel and chapter
+    // 1c. Per owned parent. Blast-radius note (G-01 review): revision_outbox_events.novel_id and
+    //     .chapter_id are ON DELETE CASCADE, so these deletes remove exactly the rows that deleting the
+    //     owned novel/chapter in Steps 4-5 would cascade-delete anyway. They never reach rows whose
+    //     parents are not owned by this lifecycle; they only make FK ordering explicit.
     for (const novelId of Array.from(this.pending.pgNovels)) {
       try {
         mutationsAttempted++;
@@ -526,17 +654,26 @@ export class TestFixtureLifecycle {
       }
     }
 
-    // F-12: Independent authoritative readback for revision outbox events
+    // F-12 / G-01: Independent authoritative readback for exact outbox events, scoped to the registered pair
     for (const eventId of Array.from(this.verification.pgOutboxEvents)) {
       try {
-        const obRes = await pool.query('SELECT count(*) FROM revision_outbox_events WHERE event_id = $1', [eventId]);
+        const scope = this.outboxEventScopes.get(eventId);
+        if (!scope) {
+          throw new Error(`no registered novel/chapter scope for outbox event ${eventId}`);
+        }
+        const obRes = await pool.query(
+          'SELECT count(*) FROM revision_outbox_events WHERE event_id = $1 AND novel_id = $2 AND chapter_id = $3',
+          [eventId, scope.novelId, scope.chapterId]
+        );
         const count = parseStrictRowCount(obRes, 'revision outbox event', eventId);
         if (count !== 0) {
           this.pending.pgOutboxEvents.add(eventId);
           errors.push(new Error(`Authoritative readback failed: residual revision outbox event ${eventId} persists in PostgreSQL (count=${count})`));
         }
       } catch (err: any) {
-        this.pending.pgOutboxEvents.add(eventId);
+        if (!this.ownershipViolations.has(`event:${eventId}`)) {
+          this.pending.pgOutboxEvents.add(eventId);
+        }
         errors.push(new Error(`Post-cleanup readback query failed for revision outbox event ${eventId}: ${err?.message || String(err)}`));
       }
     }
