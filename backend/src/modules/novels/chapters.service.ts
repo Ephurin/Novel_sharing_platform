@@ -183,18 +183,21 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
 
   const existingDraft = await findDraftChapterByChapterId(chapterId);
 
-  // Stale retry with changed metadata check (C05)
-  if (existingDraft && input.expectedVersion !== undefined && input.expectedVersion < existingDraft.version &&
-      ((input.isVip !== undefined && input.isVip !== chapter.isVip) ||
-       (input.priceCoins !== undefined && input.priceCoins !== chapter.priceCoins))) {
-    throw new AppError(409, 'DRAFT_CONFLICT', 'Stale retry changes draft metadata; reload before retrying');
-  }
-
   const nextTitle = input.title ?? existingDraft?.title ?? chapter.title;
   const nextContent = input.content ?? existingDraft?.content ?? chapter.content ?? '';
   const wordCount = countWords(nextContent);
   const nextIsVip = input.isVip ?? chapter.isVip;
   const nextPriceCoins = input.priceCoins ?? (nextIsVip ? chapter.priceCoins : 0);
+  const sameDraft = existingDraft?.title === nextTitle && existingDraft.content === nextContent &&
+    existingDraft.wordCount === wordCount;
+  const samePricing = nextIsVip === chapter.isVip && nextPriceCoins === chapter.priceCoins;
+  const currentVersion = existingDraft?.version ?? 0;
+  // C04 stays mandatory for title/content. Pricing-only is exempt from 428,
+  // but a supplied version still fences all semantic mutations (C05).
+  if (input.expectedVersion !== undefined && input.expectedVersion !== currentVersion &&
+      !(input.expectedVersion < currentVersion && sameDraft && samePricing)) {
+    throw new AppError(409, 'DRAFT_CONFLICT', 'Stale retry changes draft or metadata; reload before retrying');
+  }
   assertPremiumPricing({ isVip: nextIsVip, priceCoins: nextPriceCoins });
 
   const isPublishedDraftUpdate =
@@ -203,7 +206,9 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
   let draft = existingDraft;
 
   // Compare-and-swap happens before PostgreSQL metadata/revision/outbox writes.
-  if (input.title !== undefined || input.content !== undefined) {
+  if ((input.title !== undefined || input.content !== undefined ||
+       (input.expectedVersion !== undefined && existingDraft && !samePricing)) &&
+      !(sameDraft && samePricing)) {
     draft = await upsertDraftChapter({
       chapterId,
       novelId: chapter.novelId,
@@ -216,7 +221,9 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
     });
   }
 
-  const updatedChapter = await withPostgresTransaction(async client => {
+  const sameMetadata = samePricing && (isPublishedDraftUpdate ||
+    ((input.title === undefined || input.title === chapter.title) && wordCount === chapter.wordCount));
+  const updatedChapter = sameDraft && sameMetadata ? chapter : await withPostgresTransaction(async client => {
     await client.query('select chapter_id from chapters where chapter_id = $1 for update', [chapterId]);
 
     if (input.title !== undefined || input.content !== undefined) {
