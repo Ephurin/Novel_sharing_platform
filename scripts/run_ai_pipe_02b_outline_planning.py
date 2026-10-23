@@ -38,6 +38,8 @@ from typing import Any
 import httpx
 import psycopg
 
+from canon_review_smoke import capture_canon, review_revision
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 if hasattr(sys.stderr, "reconfigure"):
@@ -188,7 +190,7 @@ def run_pipeline(
         base_rev_hash = sha256(chap1_content)
 
         # A manual canonical snapshot emits INCREMENTAL_ANALYSIS. Under the
-        # fail-closed outbox contract it may auto-materialize proposals and
+        # extraction-only outbox contract it leaves pending proposals and
         # advance Story Brain before later writing requests. Stabilize that
         # background work and capture the actual current version.
         base_snapshot_outbox_status = None
@@ -597,6 +599,7 @@ def run_pipeline(
         # Checkpoint 11: Accepted Generation Persists via acceptDraft()
         # ─────────────────────────────────────────────────────────────────
         accept_url = f"{backend_url}/chapters/{first_chapter_id}/revisions/accept-draft"
+        canon_before_accept = capture_canon(cur, novel_id)
         acc_res = httpx.post(
             accept_url,
             json={
@@ -658,9 +661,7 @@ def run_pipeline(
         # ─────────────────────────────────────────────────────────────────
         # Checkpoint 12: Story Brain Advances from Accepted Content
         # ─────────────────────────────────────────────────────────────────
-        # Observe the real transactional outbox worker. Under the fail-closed
-        # contract it performs incremental analysis and revision-scoped proposal
-        # materialization before marking the event COMPLETED.
+        # Outbox completion delivers extraction, never an author canon decision.
         outbox_terminal_status = outbox_row[2]
         for _ in range(30):
             cur.execute(
@@ -676,12 +677,9 @@ def run_pipeline(
             f"Accepted-draft outbox did not complete: {outbox_terminal_status}"
         )
 
-        cur.execute("SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s", (novel_id,))
-        brain_v_after = int(cur.fetchone()[0])
-        assert brain_v_after > writing_brain_version, (
-            "Accepted content did not advance Story Brain: "
-            f"{writing_brain_version} -> {brain_v_after}"
-        )
+        author_review = review_revision(cur, backend_url, headers, novel_id,
+                                        accepted_rev_id, canon_before_accept)
+        brain_v_after = author_review['canon_after']['brain_version']
 
         record_cp(
             12,
@@ -695,6 +693,7 @@ def run_pipeline(
                 "outbox_status": outbox_terminal_status,
                 "brain_version_before": writing_brain_version,
                 "brain_version_after": brain_v_after,
+                "author_review": author_review,
             },
         )
 

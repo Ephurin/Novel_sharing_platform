@@ -131,6 +131,12 @@ def validate(evidence: dict[str, Any]) -> list[str]:
         "cp11_brain_not_advanced",
     )
 
+    review = cp11.get("details", {}).get("author_review", {})
+    require(review.get("decision_origin") == "AUTHORIZED_AUTHOR_HTTP_GATEWAY", "cp11_missing_author_review")
+    require(bool(review.get("pending_proposal_ids")), "cp11_missing_pending_proposals")
+    require(review.get("canon_before") is not None and review.get("canon_before") == review.get("canon_before_review"), "cp11_canon_changed_before_review")
+    require(review.get("approved_once") is True and bool(review.get("author_decisions")) and all(d.get("replay_status") == 409 and d.get("stale_status") == 409 and d.get("brain_version_after") == d.get("brain_version_before", 0)+1 for d in review.get("author_decisions", [])), "cp11_review_not_exactly_once")
+
     # Checkpoint 12: Second Context Preview
     cp12 = cp_map.get(12, {})
     require(cp12.get("details", {}).get("brain_version", 0) >= 3, "cp12_preview_brain_version_not_advanced")
@@ -249,6 +255,12 @@ def run_self_tests() -> None:
         ],
     }
 
+    valid_fixture["checkpoints"][10]["details"]["author_review"] = {
+        "decision_origin": "AUTHORIZED_AUTHOR_HTTP_GATEWAY", "pending_proposal_ids": ["p1"],
+        "canon_before": {"brain_version": 2}, "canon_before_review": {"brain_version": 2},
+        "approved_once": True, "author_decisions": [{"replay_status": 409, "stale_status": 409, "brain_version_before": 2, "brain_version_after": 3}],
+    }
+
     # Baseline valid fixture passes
     base_errs = validate(valid_fixture)
     assert not base_errs, f"Base fixture should pass, got: {base_errs}"
@@ -293,7 +305,17 @@ def run_self_tests() -> None:
     m8["checkpoints"][12]["details"]["brain_version_after"] = 4
     assert "cp13_brain_version_mutated" in validate(m8)
 
-    print("[SELF-TEST] All 8 mutants successfully rejected (Fail-closed verified).")
+    for field,code,value in [
+        ("decision_origin","cp11_missing_author_review","outbox_auto_materialized"),
+        ("pending_proposal_ids","cp11_missing_pending_proposals",[]),
+        ("canon_before_review","cp11_canon_changed_before_review",{"brain_version":3}),
+        ("approved_once","cp11_review_not_exactly_once",False),
+    ]:
+        mutant=copy.deepcopy(valid_fixture)
+        mutant["checkpoints"][10]["details"]["author_review"][field]=value
+        assert code in validate(mutant)
+
+    print("[SELF-TEST] All 12 mutants successfully rejected (Fail-closed verified).")
 
 
 def main() -> None:
