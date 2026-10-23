@@ -123,15 +123,15 @@ def freeze_inventory(audit, entities, aliases, text):
     """Opaque new identity UUIDs are allocated once at the human freeze, never by position/name."""
     candidates = {c['candidate_id']: c for c in audit['candidates']}
     previous = audit.get('preserved_entities', audit.get('entities', []))
-    preserved = {d['candidate_id'] for d in audit.get('preserved_decisions', [])}
     for entity in entities:
         identity = entity['canonical_entity_id']
         if not identity:
-            matching = [e for e in previous if e.get('entity_id') and not e.get('canonical_entity_id')
-                and e.get('provisional_identity_key') == entity.get('provisional_identity_key')
-                and e['phrase'] == entity['phrase'] and e['entity'] == entity['entity']
-                and set(e['candidate_ids']) & set(entity['candidate_ids']) & preserved]
-            identity = matching[0]['entity_id'] if len(matching) == 1 else str(uuid.uuid4())
+            key = entity.get('provisional_identity_key')
+            matching = [e for e in previous if key and e.get('entity_id')
+                and not e.get('canonical_entity_id') and e.get('provisional_identity_key') == key]
+            if len(matching) > 1 or (matching and matching[0]['entity'] != entity['entity']):
+                raise ValueError('A reserved provisional group cannot change identity type; choose a new group')
+            identity = matching[0]['entity_id'] if matching else entity.get('entity_id') or str(uuid.uuid4())
         entity['entity_id'] = identity
         entity['occurrences'] = [dict(candidate_id=c['candidate_id'], start=c['start'], end=c['end'],
             quote=text[c['start']:c['end']], revision_id=audit['revision_id'], text_hash=audit['source_hash'])

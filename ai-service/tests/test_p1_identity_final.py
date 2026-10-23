@@ -385,3 +385,26 @@ def test_h05_unique_legacy_names_resolve_both_ids_without_losing_lock(flow):
     f.repo.rebuild_projection(f.revision.novel_id, 2)
     assert next(r for r in f.repo.get_story_brain(f.revision.novel_id).relations if r.locked) == r
     snapshot(f, 'H05-unique-legacy-ID-pair-and-lock-preserved')
+
+
+@pytest.mark.parametrize('change', ['display_label', 'type'])
+def test_reserved_provisional_key_is_identity_not_a_display_label(flow, change):
+    from tests.test_p1_entity_semantics import refresh
+    f = prepare(flow, 'Minh gọi m. Minh chào m.')
+    run, audit = discover(f)
+    old = submit(f, run, audit, choices(audit, separate=False))
+    f.repo.save_entity_guidance(f.revision.novel_id, {'entries':[{'name':'m','kind':'hint'}]}, 0)
+    fresh = refresh(f, run, old['review_version'])
+    decisions = [dict(d) for d in fresh['decisions']]
+    for d in decisions:
+        d.update(canonical_name='m' if change=='display_label' else 'Minh', entity_type='LOC' if change=='type' else 'PER',
+            provisional_identity_key=old['entities'][0]['provisional_identity_key'], identity_quote=f.revision.content)
+    before = snapshot(f, 'H04-reserved-group-before-' + change)
+    frozen = submit(f, run, fresh, decisions, expected=422 if change=='type' else 200)
+    if change=='type':
+        assert snapshot(f, 'H04-reserved-group-after-type-conflict') == before
+    else:
+        assert len(frozen['entities']) == 1
+        assert frozen['entities'][0]['phrase'] == 'm'
+        assert frozen['entities'][0]['entity_id'] == old['entities'][0]['entity_id']
+        snapshot(f, 'H04-reserved-ID-survives-human-label-change')
